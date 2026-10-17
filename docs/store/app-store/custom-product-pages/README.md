@@ -1,6 +1,6 @@
 # Custom product pages
 
-App Store only. One file per page, with the same layout as [`../listing/`](../listing/): one code
+App Store only. One file per page, with the same fields as [`../metadata/`](../metadata/): one code
 block per App Store Connect field, so `git diff` shows exactly what changed. Phase 1b of
 [#69](https://github.com/jonaskeller14/bike_setup_tracker/issues/69). The header and search-results
 assets are in [`../creative/`](../creative/README.md).
@@ -15,7 +15,7 @@ assets are in [`../creative/`](../creative/README.md).
 ## Rules
 
 - A keyword belongs to **one page only**.
-- Assigned keywords can only come from the app's keyword field in [`../listing/`](../listing/);
+- Assigned keywords can only come from the app's keyword field in [`../metadata/`](../metadata/);
   App Store Connect offers nothing else (not the "Strava Sync" in-app purchase name). Re-check all
   pages when the keyword field changes.
 - A page without keywords (`strava.md`) only appears through its URL, e.g. in channel posts.

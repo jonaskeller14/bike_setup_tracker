@@ -1,0 +1,5 @@
+• See what changed at a glance: setups now show old → new values with step markers
+• Redesigned component cards with clearer stats
+• Faster, more reliable Strava sync
+• Weather and elevation lookups no longer get stuck
+• Safer app updates, imports and task edits, plus a clear warning when a component swap would create a loop

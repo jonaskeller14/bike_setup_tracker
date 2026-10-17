@@ -1,0 +1,6 @@
+• Hinweise sind jetzt ein wischbares Kartendeck – du entscheidest, wann sie verschwinden
+• Deine Filter werden gemerkt, die App öffnet sich so, wie du sie verlassen hast
+• Die Karte „What's new" zeigt Neuerungen, Subcomponents und Attachments schaltest du direkt ein
+• Add Setup fällt jetzt besser auf, hilfreiche Tipps erscheinen genau dann, wenn du sie brauchst
+• Import, Export und Teilen zeigen den Fortschritt an
+• Teile tauschen klappt auch ohne Installation Timeline

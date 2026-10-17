@@ -7,12 +7,12 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 
 | Path | Content |
 |---|---|
-| `<store>/listing/<locale>.md` | Listing text and per-device media order (previews, screenshots) per language, one code block per console field |
-| `<store>/listing/<locale>_B.md` | Variant B of a running A/B test: a full copy of the listing with the tested field changed |
-| `app-store/review-notes.md` | App Review notes (locale-independent) |
-| `app-store/custom-product-pages/` | One file per custom product page (same layout as `listing/`), rules and page tests |
+| `app-store/metadata/<locale>/*.txt` | App Store listing text, one plain-text file per field (fastlane layout, read by `asc migrate import`); `copyright.txt` is shared, `review_information/notes.txt` holds the App Review notes |
+| `play-store/metadata/<locale>/*.txt` | Play listing text, one file per field (fastlane `supply` layout) |
+| `play-store/experiments/<locale>_B/*.txt` | Variant B of a running Play listing experiment; never uploaded |
+| `app-store/custom-product-pages/` | One file per custom product page (same fields as `app-store/metadata/`), rules and page tests |
 | `app-store/creative/` | Header and search-results assets: HTML sources, shared `creative.css`, rendered PNGs and `README.md` |
-| `release-notes/vX.Y.Z+B.md` | Store "What's New" text per release, EN + DE, written by `/releaseversion` |
+| `play-store/metadata/<locale>/changelogs/<versionCode>.txt` | "What's New" text per release for both stores (max. 500 characters), written by `/releaseversion` |
 | `release-steps.md` | Manual console steps per release (new version, build, texts, submit) |
 | `captions/<locale>.md` | Screenshot captions, shared by both stores |
 | `screenshots.af` | Affinity composition; links the raws and holds the caption layer |
@@ -20,24 +20,26 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `play-store/feature_graphic.html`, `play-store/feature_graphic_{en-US,de-DE}.png` | Play feature graphic (1024×500): HTML source and renders. Same look as the App Store search asset; render with `python tool/marketing/render_images.py play-feature`. `?safe` marks the centre, where Play overlays its play button once a promo video is set |
 | `play-store/logo_512_white.png` | Play icon |
 
+Previews and screenshots upload in filename order (`preview_1`, `01`, `02`, ...), so renaming a file changes the order.
+
 Locales: `en-US` (primary) and `de-DE` (listing text only). Screenshots stay English until the app UI
 is translated ([#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)); the per-locale
 screenshot layout is planned in #69.
 
 ## Field rules
 
-| Store | Field | Limit | Indexed for search |
-|---|---|---|---|
-| App Store | Title | 30 | yes |
-| App Store | Subtitle | 30 | yes |
-| App Store | Keywords | 100 | yes |
-| App Store | Promotional Text | 170 | no; editable without review |
-| App Store | Description | 4000 | no |
-| App Store | Marketing URL | n/a | no; link to the landing page, not indexed |
-| App Store | Copyright | n/a | no; "year owner" without ©, same as `LICENSE`. Update the year range in January |
-| Play | Title | 30 | yes |
-| Play | Short Description | 80 | yes |
-| Play | Long Description | 4000 | yes |
+| Store | Field | File | Limit | Indexed for search |
+|---|---|---|---|---|
+| App Store | Title | `name.txt` | 30 | yes |
+| App Store | Subtitle | `subtitle.txt` | 30 | yes |
+| App Store | Keywords | `keywords.txt` | 100 | yes |
+| App Store | Promotional Text | `promotional_text.txt` | 170 | no; editable without review |
+| App Store | Description | `description.txt` | 4000 | no |
+| App Store | Marketing URL | `marketing_url.txt` | n/a | no; link to the landing page, not indexed |
+| App Store | Copyright | `copyright.txt (not per locale)` | n/a | no; "year owner" without ©, same as `LICENSE`. Update the year range in January |
+| Play | Title | `title.txt` | 30 | yes |
+| Play | Short Description | `short_description.txt` | 80 | yes |
+| Play | Long Description | `full_description.txt` | 4000 | yes |
 
 - **App Store keywords:** title, subtitle and keywords are indexed together, so no word appears
   twice across them. Comma-separated without spaces. No brand names: Strava is already indexed
@@ -77,12 +79,12 @@ LFS; commit a preview only once it is live in the store, not every rendered draf
 
 ## A/B tests
 
-Unsuffixed files are always the live listing (variant A). While a test runs, variant B sits next to
-it with a `_B` suffix: `listing/en-US_B.md` is a full copy of the listing (so `diff` shows the tested
-variable), and `0N_B.png` exists only when a screenshot itself differs. No `_B` file means no test
-is running.
+`metadata/` is always the live listing (variant A). While a Play listing experiment runs, variant B
+sits in `play-store/experiments/<locale>_B/` with the same file names, and `0N_B.png` exists only
+when a screenshot itself differs. The Play `metadata` and `screenshots` lanes refuse to run while
+that folder holds files. No files there means no test is running.
 
 - Each test changes one variable.
-- When it ends, the winner becomes the unsuffixed file and the `_B` files are deleted.
+- When it ends, the winner becomes the live file and the variant B files are deleted.
 - The hypothesis and outcome ("improved / unchanged / worse") go in #69. Numbers stay in the
   gitignored `docs/marketing/metrics/`.

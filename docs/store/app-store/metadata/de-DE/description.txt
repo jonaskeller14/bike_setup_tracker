@@ -1,25 +1,3 @@
-# App Store listing — German
-
-The app UI is English until [#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)
-ships; the description says so up front.
-
-## Title
-```
-Bike Setup Tracker
-```
-
-## Subtitle
-```
-Fahrwerk & Reifendruck Logbuch
-```
-
-## Promotional Text
-```
-Schluss mit dem Rätselraten! Notiere Fahrwerks-Klicks, Reifendruck und Geometrie an einem Ort. Perfektioniere dein Bike und sichere deinen Sweet Spot für immer.
-```
-
-## Description
-```
 Schluss mit dem Rätselraten. Fang an zu tracken.
 
 Hast du deine Fahrwerks-Klicks, Reifendrücke und Geometrie-Einstellungen in einer chaotischen Notizen-App verstreut? Weißt du nicht mehr genau, welches Setup sich an diesem verregneten Tag im Bikepark letzte Saison perfekt angefühlt hat?
@@ -74,37 +52,3 @@ Weg mit dem Notizbuch. Lade Bike Setup Tracker herunter und stimme dein Bike pr�
 
 ---
 Nutzungsbedingungen (EULA): https://jonaskeller14.com/bike_setup_tracker/eula.html
-```
-
-## Keywords
-```
-federgabel,dämpfer,einstellen,luftdruck,zugstufe,wartung,fahrrad,mtb,enduro,downhill,emtb,psi,sag
-```
-
-## Support-URL
-```
-https://jonaskeller14.de/bike_setup_tracker/support.html
-```
-
-## Marketing URL
-```
-https://jonaskeller14.com/bike_setup_tracker/home.html
-```
-
-## Copyright
-Not localized: set once on the version page, below the Marketing URL.
-```
-2025-2026 Jonas Keller
-```
-
-## Media order
-
-### iPhone (`app-store/iPhone-17-Pro-Max/`)
-```
-preview_1, preview_2, preview_3, 01, 02, 03, 04, 05, 06, 07, 08
-```
-
-### iPad (`app-store/iPad-Pro-13-inch_M5/`)
-```
-01, 02, 03, 04, 05, 06, 07, 08
-```

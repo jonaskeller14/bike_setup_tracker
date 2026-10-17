@@ -1,19 +1,3 @@
-# Play Store listing — English (United States)
-
-Default language. Field rules are in [`../../README.md`](../../README.md#field-rules).
-
-## Title
-```
-Bike Setup Tracker
-```
-
-## Short Description
-```
-Suspension & tire pressure tracker for mountain bikers & road cyclists.
-```
-
-## Long Description
-```
 Stop guessing your settings. Start tracking.
 
 Do you keep your suspension clicks, tire pressures, and geometry settings scattered across a messy notes app? Do you struggle to remember exactly which setup felt perfect on that rainy day in the bike park last season?
@@ -54,16 +38,3 @@ Who is this for?
 - Racers & Mechanics: Maintain a professional-grade log of race-day tunes and baseline settings.
 
 Ditch the notebook. Download Bike Setup Tracker today and tune your ride with precision.
-```
-
-## Media order
-
-### Phone (`play-store/phone/`)
-```
-01, 02, 03, 04, 05, 06, 07, 08
-```
-
-### Tablet (`play-store/tablet_10-inch/`)
-```
-01, 02, 03, 04, 05, 06, 07, 08
-```

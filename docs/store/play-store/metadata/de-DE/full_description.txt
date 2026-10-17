@@ -1,20 +1,3 @@
-# Play Store listing — German
-
-The app UI is English until [#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)
-ships; the long description says so up front.
-
-## Title
-```
-Bike Setup Tracker
-```
-
-## Short Description
-```
-Fahrwerk & Reifendruck Logbuch für Mountainbiker und Rennradfahrer.
-```
-
-## Long Description
-```
 Schluss mit dem Rätselraten. Fang an zu tracken.
 
 Hast du deine Fahrwerks-Klicks, Reifendrücke und Geometrie-Einstellungen in einer chaotischen Notizen-App verstreut? Weißt du nicht mehr genau, welches Setup sich an diesem verregneten Tag im Bikepark letzte Saison perfekt angefühlt hat?
@@ -57,16 +40,3 @@ Für wen ist die App?
 - Racer & Mechaniker: Ein professionelles Logbuch für Renn-Setups und Basiseinstellungen.
 
 Weg mit dem Notizbuch. Lade Bike Setup Tracker herunter und stimme dein Bike präzise ab.
-```
-
-## Media order
-
-### Phone (`play-store/phone/`)
-```
-01, 02, 03, 04, 05, 06, 07, 08
-```
-
-### Tablet (`play-store/tablet_10-inch/`)
-```
-01, 02, 03, 04, 05, 06, 07, 08
-```

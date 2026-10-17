@@ -296,6 +296,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8.0),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Expanded(
                                       child: TextFormField(
@@ -306,6 +307,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                           labelText: 'Option ${index + 1}',
                                           hintText: 'Enter option value',
                                           border: const OutlineInputBorder(),
+                                          isDense: true,
                                           errorText: _validateOptions(),
                                           fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                           filled: widget.mode == AdjustmentPageMode.edit && !widget.adjustment!.options.contains(controller.text.trim()),
@@ -320,12 +322,17 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    if (_optionControllers.length > 1)
-                                      IconButton(
-                                        icon: Icon(Icons.remove_circle, color: Theme.of(context).colorScheme.error),
+                                    // Centers on the input box, not on the box plus its error text.
+                                    SizedBox(
+                                      height: 48,
+                                      child: IconButton(
+                                        icon: const Icon(Icons.delete_outline, size: 20),
                                         tooltip: 'Remove option',
-                                        onPressed: () => _removeOptionField(index),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: _optionControllers.length > 1 ? () => _removeOptionField(index) : null,
                                       ),
+                                    ),
                                   ],
                                 ),
                               );

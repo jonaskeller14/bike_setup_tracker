@@ -4,6 +4,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
 import 'adjustment_icon_name_notes.dart';
+import 'outdated_value_note.dart';
 import 'toggleable_unit_value.dart';
 
 /// Sag display: the stored percentage, tappable to the derived mm reading when
@@ -42,6 +43,7 @@ class DisplaySagAdjustmentWidget extends StatelessWidget {
       isInitial = true;
       highlightColor = Theme.of(context).colorScheme.error;
     }
+    final bool isOutdated = !isError && value != null && !adjustment.isValidValue(value!);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -60,8 +62,9 @@ class DisplaySagAdjustmentWidget extends StatelessWidget {
               initialValue: initialValue,
               unit: adjustment.unit,
               cycle: sagUnitCycle(adjustment),
-              highlightColor: highlightColor,
+              highlightColor: isOutdated ? Theme.of(context).colorScheme.error : highlightColor,
               showPreviousValue: !isInitial && isChanged,
+              trailing: [if (isOutdated) OutdatedValueNote(adjustment: adjustment)],
             ),
           ),
           if (onRemove != null)

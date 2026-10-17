@@ -25,6 +25,10 @@ sealed class AdjustmentCell {
   /// to changes only).
   bool get isChange => this is InitialCell || this is ChangedCell;
 
+  /// Whether the value no longer fits the adjustment's current definition.
+  /// Values of dangling owners already render as errors, so they are not flagged.
+  bool get isOutdated => this is! ErrorCell && value != null && !adjustment.isValidValue(value!);
+
   CellDisplayText get displayText {
     final cell = this;
     if (cell is! ChangedCell) return CellDisplayText(value: _normalize(value?.display ?? '-'));

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import 'adjustment_icon_name_notes.dart';
+import 'outdated_value_note.dart';
 import 'toggleable_unit_value.dart';
 
 class DisplayNumericalAdjustmentWidget extends StatelessWidget {
@@ -41,7 +42,8 @@ class DisplayNumericalAdjustmentWidget extends StatelessWidget {
       isInitial = true;
       highlightColor = Theme.of(context).colorScheme.error;
     }
-    
+    final bool isOutdated = !isError && value != null && !adjustment.isValidValue(value!);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: showFill
@@ -63,8 +65,9 @@ class DisplayNumericalAdjustmentWidget extends StatelessWidget {
               value: value,
               initialValue: initialValue,
               unit: adjustment.unit,
-              highlightColor: highlightColor,
+              highlightColor: isOutdated ? Theme.of(context).colorScheme.error : highlightColor,
               showPreviousValue: !isInitial && isChanged,
+              trailing: [if (isOutdated) OutdatedValueNote(adjustment: adjustment)],
             ),
           ),
           if (onRemove != null)

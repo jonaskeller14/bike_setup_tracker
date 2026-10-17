@@ -157,6 +157,25 @@ void main() {
       expect((merged.adjustment as CategoricalAdjustment).options, {'none', '1 x 10cc', '2 x 10cc'});
     });
 
+    test('a recorded explicit clear does not block gaining catalog options', () {
+      final own = CategoricalAdjustment(name: 'Spacers', notes: null, unit: null, options: const {'none'});
+      final catalog = CategoricalAdjustment(
+        name: 'Spacers',
+        notes: null,
+        unit: null,
+        presetKey: 'fork:volume_spacers',
+        options: const {'1 x 10cc'},
+      );
+
+      final merged = mergeAdjustment(own, catalog, [
+        CategoricalValue(const ['none']),
+        CategoricalValue(const []),
+      ]);
+
+      expect(merged.keptOwnRange, isFalse);
+      expect((merged.adjustment as CategoricalAdjustment).options, {'none', '1 x 10cc'});
+    });
+
     test('SAG only gets the preset key', () {
       final own = SagAdjustment(name: 'Sag', notes: null, referenceTravelMm: 160);
       final catalog = SagAdjustment(name: 'SAG', notes: null, presetKey: 'fork:sag');

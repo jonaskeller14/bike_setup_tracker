@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../models/adjustment/adjustment.dart';
 import '../../../theme.dart';
+import '../../display_adjustment/outdated_value_note.dart';
 import '../../tooltips/info_tooltip.dart';
 import '../../tooltips/tooltip_style.dart';
 import 'adjustment_cell.dart';
@@ -28,6 +29,7 @@ class AdjustmentCellView extends StatelessWidget {
   }) {
     return switch (cell) {
       ErrorCell() => colorScheme.error,
+      _ when cell.isOutdated => colorScheme.error,
       ConstantCell() => null,
       InitialCell() => highlight ? highlights.initial : null,
       ChangedCell() => highlight ? highlights.changed : null,
@@ -39,11 +41,12 @@ class AdjustmentCellView extends StatelessWidget {
   String get _semanticsLabel {
     final adjustment = cell.adjustment;
     final value = (cell.value?.display ?? '-') + adjustment.unitSuffix();
-    return switch (cell) {
+    final label = switch (cell) {
       ChangedCell(:final previousValue) =>
         '${adjustment.name}, changed from ${previousValue.display} to $value',
       _ => '${adjustment.name}, $value',
     };
+    return cell.isOutdated ? '$label, ${OutdatedValueNote.messageFor(adjustment)}' : label;
   }
 
   Widget _tooltipMessage(BuildContext context) {
@@ -53,7 +56,7 @@ class AdjustmentCellView extends StatelessWidget {
     // The tooltip renders on colorScheme.inverseSurface, which is the opposite
     // brightness of the current theme, so it needs the highlight variant made
     // for that opposite brightness rather than the current theme's.
-    final Color valueColor = cell is ErrorCell
+    final Color valueColor = cell is ErrorCell || cell.isOutdated
         ? onInverse
         : _valueColor(
                 cell: cell,
@@ -130,6 +133,18 @@ class AdjustmentCellView extends StatelessWidget {
             ],
           ),
         ),
+        if (cell.isOutdated)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 4,
+            children: [
+              Icon(Icons.error_outline, size: 14, color: onInverse),
+              Text(
+                OutdatedValueNote.messageFor(adjustment),
+                style: theme.textTheme.bodySmall?.copyWith(color: onInverse),
+              ),
+            ],
+          ),
       ],
     );
   }
@@ -175,7 +190,7 @@ class AdjustmentCellView extends StatelessWidget {
       if (cell.adjustment.unit != null)
         Text(
           cell.adjustment.unit!.label,
-          style: CellTextStyles.unit.copyWith(color: isError ? colorScheme.error : null),
+          style: CellTextStyles.unit.copyWith(color: isError || cell.isOutdated ? colorScheme.error : null),
         ),
     ];
 

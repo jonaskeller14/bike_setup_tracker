@@ -3,7 +3,7 @@
 Usage: python tool/screenshots/check_output.py [folder ...]
 
 Folders are keys of EXPECTED_SIZES (e.g. play-store/phone); default is all.
-Folders in FRAMED_SIZES also have their exported frames (0N.png) checked.
+Folders in FRAMED_EXPORTS also have their exported frames checked.
 Exits 1 if any raw or checked frame is missing or has an unexpected size.
 """
 
@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-STORE_DIR = REPO_ROOT / "assets" / "store"
+STORE_DIR = REPO_ROOT / "docs" / "store"
 SCREEN_COUNT = 8
 
 # docs/store/screenshots.af links these raws; its device frames assume
@@ -27,8 +27,9 @@ EXPECTED_SIZES = {
 
 # App Store Connect's 6.1"/6.3" iPhone slot (default page and custom product
 # pages) only accepts 1179x2556 and 1206x2622.
-FRAMED_SIZES = {
-    "app-store/iPhone-17-Pro-Max": (1206, 2622),
+# Raw folder -> (export folder, export file name, size).
+FRAMED_EXPORTS = {
+    "app-store/iPhone-17-Pro-Max": ("app-store/screenshots/en-US", "iphone_{:02d}.png", (1206, 2622)),
 }
 
 
@@ -63,23 +64,24 @@ def main(argv):
 
     problems = []
     for folder in folders:
-        checks = [("_raw.png", EXPECTED_SIZES[folder])]
-        if folder in FRAMED_SIZES:
-            checks.append((".png", FRAMED_SIZES[folder]))
-        for suffix, expected in checks:
+        checks = [(folder, "{:02d}_raw.png", EXPECTED_SIZES[folder])]
+        if folder in FRAMED_EXPORTS:
+            checks.append(FRAMED_EXPORTS[folder])
+        for check_folder, name_format, expected in checks:
             for index in range(1, SCREEN_COUNT + 1):
-                path = STORE_DIR / folder / f"{index:02d}{suffix}"
+                name = name_format.format(index)
+                path = STORE_DIR / check_folder / name
                 if not path.exists():
-                    problems.append(f"{folder}/{path.name}: missing")
+                    problems.append(f"{check_folder}/{name}: missing")
                     continue
                 try:
                     size = png_size(path)
                 except ValueError as error:
-                    problems.append(f"{folder}/{path.name}: {error}")
+                    problems.append(f"{check_folder}/{name}: {error}")
                     continue
                 if size != expected:
                     problems.append(
-                        f"{folder}/{path.name}: {size[0]}x{size[1]}, "
+                        f"{check_folder}/{name}: {size[0]}x{size[1]}, "
                         f"expected {expected[0]}x{expected[1]}"
                     )
 

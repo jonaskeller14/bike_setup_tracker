@@ -43,12 +43,12 @@ Verknüpfe jedes Setup mit der Strava-Fahrt, die du damit gefahren bist. Setups 
 ## Media order
 Same for both localizations.
 
-### iPhone (`app-store/iPhone-17-Pro-Max/`)
+### iPhone (`app-store/screenshots/en-US/iphone_NN.png`, `app-store/app_previews/`)
 ```
 07, 08, 04, 01, 02, 03, 05, 06
 ```
 
-### iPad (`app-store/iPad-Pro-13-inch_M5/`)
+### iPad (`app-store/screenshots/en-US/ipad_NN.png`)
 ```
 07, 08, 04, 01, 02, 03, 05, 06
 ```

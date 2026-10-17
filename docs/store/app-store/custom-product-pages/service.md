@@ -45,12 +45,12 @@ Nie wieder einen Gabelservice oder Kettenwechsel verpassen. Lege Wartungsaufgabe
 ## Media order
 Same for both localizations.
 
-### iPhone (`app-store/iPhone-17-Pro-Max/`)
+### iPhone (`app-store/screenshots/en-US/iphone_NN.png`, `app-store/app_previews/`)
 ```
 preview_3, 06, 08, 04, 01, 02, 03, 05, 07
 ```
 
-### iPad (`app-store/iPad-Pro-13-inch_M5/`)
+### iPad (`app-store/screenshots/en-US/ipad_NN.png`)
 ```
 06, 08, 04, 01, 02, 03, 05, 07
 ```

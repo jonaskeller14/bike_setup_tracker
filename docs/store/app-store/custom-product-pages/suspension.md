@@ -45,12 +45,12 @@ Zugstufe 9 oder 10? Notiere Druck, Zugstufe, Druckstufe und SAG von Federgabel u
 ## Media order
 Same for both localizations.
 
-### iPhone (`app-store/iPhone-17-Pro-Max/`)
+### iPhone (`app-store/screenshots/en-US/iphone_NN.png`, `app-store/app_previews/`)
 ```
 preview_2, preview_1, 03, 04, 02, 01, 05, 06, 07, 08
 ```
 
-### iPad (`app-store/iPad-Pro-13-inch_M5/`)
+### iPad (`app-store/screenshots/en-US/ipad_NN.png`)
 ```
 03, 04, 02, 01, 05, 06, 07, 08
 ```

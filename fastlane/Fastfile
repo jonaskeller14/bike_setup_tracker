@@ -11,6 +11,25 @@ def ensure_no_running_experiment!
                  "remove its files once the experiment ended")
 end
 
+PUBSPEC = File.expand_path("../pubspec.yaml", __dir__)
+AAB_PATH = File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
+
+# Returns [versionName, versionCode] from "version: X.Y.Z+B" in pubspec.yaml.
+def pubspec_version
+  match = File.read(PUBSPEC, encoding: "UTF-8").match(/^version:\s*(\d+\.\d+\.\d+)\+(\d+)/)
+  UI.user_error!("No version: X.Y.Z+B in pubspec.yaml") unless match
+  [match[1], match[2]]
+end
+
+# The AAB manifest is binary protobuf, but the version name is stored as a plain string in it.
+def ensure_aab_matches!(version_name)
+  UI.user_error!("AAB not found: #{AAB_PATH} (run 'flutter build appbundle --release')") unless File.exist?(AAB_PATH)
+  manifest = IO.popen(["unzip", "-p", AAB_PATH, "base/manifest/AndroidManifest.xml"], &:read)
+  return if manifest.force_encoding("BINARY").include?(version_name)
+
+  UI.user_error!("AAB does not contain version #{version_name} from pubspec.yaml (stale build folder?)")
+end
+
 platform :android do
   desc "Upload the Play listing text and graphics (dry_run:true only validates)"
   lane :metadata do |options|
@@ -20,6 +39,42 @@ platform :android do
       skip_upload_aab: true,
       skip_upload_apk: true,
       skip_upload_changelogs: true,
+      skip_upload_screenshots: true,
+      validate_only: options[:dry_run] == true
+    )
+  end
+
+  desc "Upload the Play phone and tablet screenshots (dry_run:true only validates)"
+  lane :screenshots do |options|
+    ensure_no_running_experiment!
+    upload_to_play_store(
+      metadata_path: METADATA_PATH,
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_changelogs: true,
+      validate_only: options[:dry_run] == true
+    )
+  end
+
+  desc "Upload the AAB and release notes as a production draft (dry_run:true only validates)"
+  lane :release do |options|
+    version_name, version_code = pubspec_version
+    ensure_aab_matches!(version_name)
+    Dir.glob(File.join(METADATA_PATH, "*", "changelogs")).each do |dir|
+      next if File.exist?(File.join(dir, "#{version_code}.txt"))
+
+      UI.user_error!("Missing release notes: #{File.join(dir, "#{version_code}.txt")}")
+    end
+    upload_to_play_store(
+      metadata_path: METADATA_PATH,
+      aab: AAB_PATH,
+      track: "production",
+      release_status: "draft",
+      version_name: version_name,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
       skip_upload_screenshots: true,
       validate_only: options[:dry_run] == true
     )

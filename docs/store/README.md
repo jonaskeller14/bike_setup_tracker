@@ -13,14 +13,16 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `app-store/custom-product-pages/` | One file per custom product page (same fields as `app-store/metadata/`), rules and page tests |
 | `app-store/creative/` | Header and search-results assets: HTML sources, shared `creative.css`, rendered PNGs and `README.md` |
 | `play-store/metadata/<locale>/changelogs/<versionCode>.txt` | "What's New" text per release for both stores (max. 500 characters), written by `/releaseversion` |
-| `release-steps.md` | Manual console steps per release (new version, build, texts, submit) |
+| `release-steps.md` | Upload commands per release and the remaining manual clicks (submit) |
 | `captions/<locale>.md` | Screenshot captions, shared by both stores |
 | `screenshots.af` | Affinity composition; links the raws and holds the caption layer |
-| `app-store/<device>/`, `play-store/<device>/` | Raws (`0N_raw.png`, from `tool/screenshots/`), exported frames (`0N.png`) and app previews (`preview_N.mp4`) |
-| `play-store/feature_graphic.html`, `play-store/feature_graphic_{en-US,de-DE}.png` | Play feature graphic (1024×500): HTML source and renders. Same look as the App Store search asset; render with `python tool/marketing/render_images.py play-feature`. `?safe` marks the centre, where Play overlays its play button once a promo video is set |
-| `play-store/logo_512_white.png` | Play icon |
+| `app-store/<device>/`, `play-store/<device>/` | Raws (`0N_raw.png`, from `tool/screenshots/`) and the device `frame.png` |
+| `app-store/screenshots/en-US/` | Exported App Store screenshots (`iphone_NN.png` 1206×2622, `ipad_NN.png` 2064×2752), uploaded by `ios.sh screenshots` |
+| `app-store/app_previews/en-US/iphone_65/` | App previews (`preview_N.mp4`), uploaded by `ios.sh screenshots` |
+| `play-store/metadata/<locale>/images/` | Play graphics: `icon.png`, `featureGraphic.png`; export target for `phoneScreenshots/` and `tenInchScreenshots/` |
+| `play-store/feature_graphic.html` | Play feature graphic (1024×500): HTML source, rendered to `metadata/<locale>/images/featureGraphic.png`. Same look as the App Store search asset; render with `python tool/marketing/render_images.py play-feature`. `?safe` marks the centre, where Play overlays its play button once a promo video is set |
 
-Previews and screenshots upload in filename order (`preview_1`, `01`, `02`, ...), so renaming a file changes the order.
+Previews and screenshots upload in filename order (`preview_1`, `iphone_01`, `iphone_02`, ...), so renaming a file changes the order.
 
 Locales: `en-US` (primary) and `de-DE` (listing text only). Screenshots stay English until the app UI
 is translated ([#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)); the per-locale
@@ -55,14 +57,14 @@ screenshot layout is planned in #69.
 
 ## Screenshot sizes
 
-| Folder | Raw `0N_raw.png` | Exported `0N.png` |
+| Folder | Raw `0N_raw.png` | Export |
 |---|---|---|
-| `app-store/iPhone-17-Pro-Max` | 1320×2868 | 1206×2622 |
-| `app-store/iPad-Pro-13-inch_M5` | 2064×2752 | n/a, not checked |
+| `app-store/iPhone-17-Pro-Max` | 1320×2868 | `screenshots/en-US/iphone_NN.png`, 1206×2622 |
+| `app-store/iPad-Pro-13-inch_M5` | 2064×2752 | `screenshots/en-US/ipad_NN.png`, not checked |
 | `play-store/phone` | 1080×2400 | n/a, not checked |
 | `play-store/tablet_10-inch` | 1200×1920 | n/a, not checked |
 
-The iPhone exports are 1206×2622, the only size (besides 1179×2556) App Store Connect accepts in the
+The iPhone exports (`iphone_NN.png`) are 1206×2622, the only size (besides 1179×2556) App Store Connect accepts in the
 6.1″/6.3″ slot. One set serves the default page and all custom product pages.
 `tool/screenshots/check_output.py` checks both columns where a size is listed.
 

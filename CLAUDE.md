@@ -28,6 +28,10 @@ CI runs `flutter pub get` → `flutter analyze` → `flutter test` on push to `m
 
 `docs/store/**` (`*.png`, `*.af`) is tracked with Git LFS; older commits hold them as plain blobs, so never rewrite that history. Each machine needs git-lfs, a one-time `git lfs install`, and `git config diff.lfs.textconv cat` (otherwise VS Code image diffs show the pointer). If images show up as pointer files, run `git lfs pull` (in a worktree: `git lfs checkout`).
 
+## Store uploads
+
+Listing text, release notes and screenshots live in `docs/store/` (layout in `docs/store/README.md`) and are the single source of truth. Uploads run locally on macOS: `tool/store/ios.sh` (App Store, via `asc`) and `bundle exec fastlane android <lane>` (Play, via `supply`); see `docs/store/release-steps.md`. Nothing is submitted for review automatically. Release notes are one file per build number, `docs/store/play-store/metadata/<locale>/changelogs/<versionCode>.txt`, for both stores. Credentials stay outside the repo (`asc` keychain, `fastlane/.env`).
+
 ## Planning and feature status
 
 GitHub Issues are the canonical planning and status tracker:

@@ -169,7 +169,7 @@ foreach ($name in $selected) {
         $outDir = Join-Path ([System.IO.Path]::GetTempPath()) "screenshots_$name"
         Remove-Item $outDir -Recurse -Force -ErrorAction SilentlyContinue
         New-Item -ItemType Directory -Path $outDir | Out-Null
-        $targetDir = Join-Path $repoRoot "assets\store\$($config.Folder)"
+        $targetDir = Join-Path $repoRoot "docs\store\$($config.Folder)"
         if ($Demo) {
             $targetDir = Join-Path $repoRoot 'build\marketing\raw'
             New-Item -ItemType Directory -Path $targetDir -Force | Out-Null

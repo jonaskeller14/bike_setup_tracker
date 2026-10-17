@@ -19,11 +19,11 @@ assets are in [`../creative/`](../creative/README.md).
   App Store Connect offers nothing else (not the "Strava Sync" in-app purchase name). Re-check all
   pages when the keyword field changes.
 - A page without keywords (`strava.md`) only appears through its URL, e.g. in channel posts.
-- Media order uses the files of the default page (`preview_N`, `01`–`08`, see
+- Media order uses the files of the default page (`preview_N`, `iphone_01`–`iphone_08`, see
   [`../../captions/en-US.md`](../../captions/en-US.md)). Only the first positions differ per page;
   the rest follow the default order.
 - iPhone screenshots must be 1206×2622 (or 1179×2556) for the 6.1″/6.3″ slot; the exported
-  `iPhone-17-Pro-Max/0N.png` are 1206×2622, so the default page and the custom pages share one set.
+  `screenshots/en-US/iphone_0N.png` are 1206×2622, so the default page and the custom pages share one set.
   App previews are 886×1920.
 - Promotional Text ≤170 characters.
 - Each file holds what is live in App Store Connect. Fill in the URL once Apple approves the page.

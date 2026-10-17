@@ -11,7 +11,7 @@ This tooling regenerates the store raws (`docs/store/**/0N_raw.png`) from seeded
 
 The Affinity device frames assume these sizes. If `check_output.py` reports a mismatch, fix the device or adjust the frames before recomposing.
 
-The exported iPhone frames (`app-store/iPhone-17-Pro-Max/0N.png`) are 1206×2622, the 6.3″ slot size App Store Connect accepts for the default page and every custom product page. The raws have the same aspect ratio, so the composition is exported at that canvas size rather than from a new simulator. `check_output.py` checks the frames as well as the raws.
+The exported iPhone frames (`app-store/screenshots/en-US/iphone_0N.png`) are 1206×2622, the 6.3″ slot size App Store Connect accepts for the default page and every custom product page. The raws have the same aspect ratio, so the composition is exported at that canvas size rather than from a new simulator. `check_output.py` checks the frames as well as the raws.
 
 The phone AVD uses the generic `medium_phone` profile on purpose. Device profiles such as `pixel_8` add a camera cutout, which makes the status bar about twice as tall as in the old raws.
 

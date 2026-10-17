@@ -33,7 +33,10 @@ ASSETS = {
     "play-feature": (
         "docs/store/play-store/feature_graphic.html",
         (1024, 500),
-        {"feature_graphic_en-US.png": "?lang=en", "feature_graphic_de-DE.png": "?lang=de"},
+        {
+            "metadata/en-US/images/featureGraphic.png": "?lang=en",
+            "metadata/de-DE/images/featureGraphic.png": "?lang=de",
+        },
     ),
 }
 

@@ -79,3 +79,4 @@ tool/marketing/assets/music/
 *.p8
 fastlane/.env
 fastlane/report.xml
+fastlane/README.md

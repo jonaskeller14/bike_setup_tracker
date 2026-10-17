@@ -126,7 +126,7 @@ class PersonActions {
     );
     if (result == null) return;
 
-    await appRepository.editPerson(result.value, conversions: result.conversions);
+    await appRepository.editPerson(result.value, migrations: result.migrations);
   }
 
   static Future<void> duplicatePerson(BuildContext context, {required Person person}) async {

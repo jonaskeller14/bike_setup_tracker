@@ -8,7 +8,7 @@ import 'adjustment_value.dart';
 
 export 'adjustment_unit.dart';
 export 'adjustment_value.dart';
-export 'value_unit_conversion.dart';
+export 'value_migration.dart';
 
 part 'boolean_adjustment.dart';
 part 'categorical_adjustment.dart';

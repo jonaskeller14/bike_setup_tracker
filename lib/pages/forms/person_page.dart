@@ -61,7 +61,7 @@ class _PersonPageState extends State<PersonPage> {
 
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  final Map<String, ValueUnitConversion> _pendingConversions = {};
+  final Map<String, ValueMigration> _pendingMigrations = {};
 
   @override
   void initState() {
@@ -158,8 +158,8 @@ class _PersonPageState extends State<PersonPage> {
     final Adjustment editedAdjustment;
     if (result is EditResult<Adjustment>) {
       editedAdjustment = result.value;
-      for (final conversion in result.conversions) {
-        _stageConversion(conversion);
+      for (final migration in result.migrations) {
+        _stageMigration(migration);
       }
     } else {
       editedAdjustment = result as Adjustment;
@@ -174,13 +174,13 @@ class _PersonPageState extends State<PersonPage> {
     onChanged?.call();
   }
 
-  void _stageConversion(ValueUnitConversion conversion) {
-    final existing = _pendingConversions[conversion.adjustmentId];
-    final composed = existing == null ? conversion : existing.composeWith(conversion);
+  void _stageMigration(ValueMigration migration) {
+    final existing = _pendingMigrations[migration.adjustmentId];
+    final composed = existing == null ? migration : existing.then(migration);
     if (composed.isNoOp) {
-      _pendingConversions.remove(conversion.adjustmentId);
+      _pendingMigrations.remove(migration.adjustmentId);
     } else {
-      _pendingConversions[conversion.adjustmentId] = composed;
+      _pendingMigrations[migration.adjustmentId] = composed;
     }
   }
 
@@ -205,7 +205,7 @@ class _PersonPageState extends State<PersonPage> {
 
   Future<void> removeAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
     setState(() => _adjustments.remove(adjustment));
-    _pendingConversions.remove(adjustment.id);
+    _pendingMigrations.remove(adjustment.id);
     _changeListener();
     onChanged?.call();
   }
@@ -230,7 +230,7 @@ class _PersonPageState extends State<PersonPage> {
     Navigator.pop(
       context,
       widget.mode == PersonPageMode.edit
-          ? EditResult<Person>(person, conversions: _pendingConversions.values.toList())
+          ? EditResult<Person>(person, migrations: _pendingMigrations.values.toList())
           : person,
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -39,7 +40,6 @@ import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
 import '../services/trash_cleanup_service.dart';
 import '../utils/adjustment_value_type_check.dart';
-import '../utils/unit_conversion.dart';
 import 'filter_controller.dart';
 import 'filtered_view.dart';
 import 'strava_paging_controller.dart';
@@ -1328,7 +1328,7 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> editPerson(Person person, {List<ValueUnitConversion> conversions = const []}) async {
+  Future<void> editPerson(Person person, {List<ValueMigration> migrations = const []}) async {
     final updated = person.copyWith(lastModified: DateTime.now().toUtc());
     await database.transaction(() async {
       await database.personsDao.updatePersonWithData(
@@ -1337,11 +1337,10 @@ class AppRepository extends ChangeNotifier {
           entry.value.toCompanion(personId: updated.id, orderIndex: entry.key)
         ).toList(),
       );
-      for (final c in conversions) {
-        await database.setupsDao.convertAdjustmentValues(
-          c.adjustmentId,
-          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
-        );
+      for (final migration in migrations) {
+        final adjustment = updated.adjustments.firstWhereOrNull((a) => a.id == migration.adjustmentId);
+        if (adjustment == null) continue;
+        await database.setupsDao.migrateAdjustmentValues(adjustment.id, adjustment.type, migration);
       }
     });
   }
@@ -1364,7 +1363,7 @@ class AppRepository extends ChangeNotifier {
     if (statsInputsChanged) await refreshTaskEntrySnapshots();
   }
 
-  Future<void> editComponents(Iterable<Component> components, {List<ValueUnitConversion> conversions = const []}) async {
+  Future<void> editComponents(Iterable<Component> components, {List<ValueMigration> migrations = const []}) async {
     final componentList = components.toList();
     if (componentList.isEmpty) return;
     final changedComponentIds = componentList
@@ -1391,11 +1390,12 @@ class AppRepository extends ChangeNotifier {
       for (final updated in updates) {
         await _writeComponentWithData(updated);
       }
-      for (final c in conversions) {
-        await database.setupsDao.convertAdjustmentValues(
-          c.adjustmentId,
-          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
-        );
+      for (final migration in migrations) {
+        final adjustment = updates
+            .expand((component) => component.adjustments)
+            .firstWhereOrNull((a) => a.id == migration.adjustmentId);
+        if (adjustment == null) continue;
+        await database.setupsDao.migrateAdjustmentValues(adjustment.id, adjustment.type, migration);
       }
     });
 
@@ -1447,7 +1447,7 @@ class AppRepository extends ChangeNotifier {
     await editComponents([component.copyWith(installations: updated)]);
   }
 
-  Future<void> editRating(Rating rating, {List<ValueUnitConversion> conversions = const []}) async {
+  Future<void> editRating(Rating rating, {List<ValueMigration> migrations = const []}) async {
     final updated = rating.copyWith(lastModified: DateTime.now().toUtc());
     await database.transaction(() async {
       await database.ratingsDao.updateRatingWithData(
@@ -1456,11 +1456,10 @@ class AppRepository extends ChangeNotifier {
           entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
         ).toList(),
       );
-      for (final c in conversions) {
-        await database.ratingEntriesDao.convertMetricValues(
-          c.adjustmentId,
-          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
-        );
+      for (final migration in migrations) {
+        final metric = updated.metrics.firstWhereOrNull((m) => m.id == migration.adjustmentId);
+        if (metric == null) continue;
+        await database.ratingEntriesDao.migrateMetricValues(metric.id, metric.adjustment.type, migration);
       }
     });
   }

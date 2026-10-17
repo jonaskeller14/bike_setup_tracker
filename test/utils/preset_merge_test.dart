@@ -228,16 +228,16 @@ void main() {
     });
   });
 
-  group('convertRecordedValues', () {
-    test('applies a staged unit conversion before a range is checked', () {
-      const conversion = ValueUnitConversion(adjustmentId: 'p', from: _bar, to: _psi);
+  group('migrateRecordedValues', () {
+    test('applies a staged migration before a range is checked', () {
+      final migration = ValueMigration('p', const [ConvertUnitStep(_bar, _psi)]);
 
-      final converted = convertRecordedValues(
+      final converted = migrateRecordedValues(
         {
           'p': const [NumericalValue(5)],
           'other': const [NumericalValue(5)],
         },
-        {'p': conversion},
+        {'p': migration},
       );
 
       expect((converted['p']!.single as NumericalValue).value, closeTo(72.5, 0.1));
@@ -247,11 +247,11 @@ void main() {
     test('a range in the new unit is adopted once the values are converted', () {
       final own = _numerical('Pressure', unit: _psi);
       final catalog = _numerical('Pressure', presetKey: 'fork:pressure', unit: _psi, min: 40, max: 120);
-      final converted = convertRecordedValues(
+      final converted = migrateRecordedValues(
         {
           own.id: const [NumericalValue(5)],
         },
-        {own.id: ValueUnitConversion(adjustmentId: own.id, from: _bar, to: _psi)},
+        {own.id: ValueMigration(own.id, const [ConvertUnitStep(_bar, _psi)])},
       );
 
       expect(mergeAdjustment(own, catalog, converted[own.id]!).keptOwnRange, isFalse);

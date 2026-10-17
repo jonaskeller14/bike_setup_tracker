@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../utils/unit_conversion.dart';
-import 'adjustment.dart' hide EditResult;
+import 'adjustment.dart';
 
 @immutable
 sealed class ValueMigrationStep {
@@ -126,8 +126,6 @@ final class MapCombinationsStep extends ValueMigrationStep {
   String toString() => 'MapCombinationsStep($mapping)';
 }
 
-/// Moves values into the range of [target]. A step value also snaps to the
-/// nearest value on the step grid, which starts at the minimum.
 final class ClampToRangeStep extends ValueMigrationStep {
   final Adjustment target;
 

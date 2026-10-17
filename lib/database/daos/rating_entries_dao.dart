@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../adjustment_value_codec.dart';
 import '../app_database.dart';
 import '../tables/rating_entries.dart';
 import '../tables/rating_entry_values.dart';
@@ -82,28 +81,35 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
     });
   }
 
-  /// Rewrites every stored value of [metricId] via [transform] (values are
-  /// numerical doubles) and bumps `lastModified` on each affected rating entry so
-  /// backup merges propagate the change. Unparseable/null values are left as-is.
-  Future<void> convertMetricValues(
+  /// Rewrites every stored value of [metricId] (a metric of [type]) with
+  /// [migration], soft-deleted rating entries included, and bumps `lastModified`
+  /// on each entry whose value changed so backup merges propagate the change.
+  /// A value the migration clears loses its row; undecodable rows are left as-is.
+  Future<void> migrateMetricValues(
     String metricId,
-    NumericalValue Function(NumericalValue) transform,
+    AdjustmentType type,
+    ValueMigration migration,
   ) async {
     final rows = await (select(ratingEntryValues)
           ..where((t) => t.ratingMetricId.equals(metricId)))
         .get();
-    if (rows.isEmpty) return;
 
     final now = DateTime.now().toUtc();
     final touchedEntryIds = <String>{};
     for (final row in rows) {
-      final decoded = decodeNumericalValueOrNull(row.value);
-      if (decoded == null) continue; // unparseable/null — leave untouched
-      final newValue = transform(NumericalValue(decoded)).encode();
-      if (newValue == row.value) continue; // no material change
-      await (update(ratingEntryValues)
-            ..where((t) => t.ratingEntryId.equals(row.ratingEntryId) & t.ratingMetricId.equals(metricId)))
-          .write(RatingEntryValuesCompanion(value: Value(newValue)));
+      final decoded = AdjustmentValue.decode(row.value, type);
+      if (decoded == null || decoded is UnresolvedValue) continue;
+      final migrated = migration.apply(decoded);
+      if (migrated == decoded) continue;
+      if (migrated == null) {
+        await (delete(ratingEntryValues)
+              ..where((t) => t.ratingEntryId.equals(row.ratingEntryId) & t.ratingMetricId.equals(metricId)))
+            .go();
+      } else {
+        await (update(ratingEntryValues)
+              ..where((t) => t.ratingEntryId.equals(row.ratingEntryId) & t.ratingMetricId.equals(metricId)))
+            .write(RatingEntryValuesCompanion(value: Value(migrated.encode())));
+      }
       touchedEntryIds.add(row.ratingEntryId);
     }
     for (final entryId in touchedEntryIds) {

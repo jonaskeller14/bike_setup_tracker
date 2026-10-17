@@ -141,7 +141,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     // On an edit between two compatible units (same quantity), ask whether to
     // convert existing stored rating-entry values. Min/max are left exactly as
     // typed — only the historical values are rewritten, and only if opted in.
-    ValueUnitConversion? conversion;
+    ValueMigration? migration;
     final oldUnit = _initialAdj?.unit;
     final newUnit = _unit;
     if (widget.mode == MetricPageMode.edit &&
@@ -152,7 +152,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
       final choice = await showUnitConversionDialog(context, from: oldUnit, to: newUnit);
       if (choice == null) return; // dismissed — stay on the page
       if (choice == UnitEditChoice.convert) {
-        conversion = ValueUnitConversion(adjustmentId: _initialAdj!.id, from: oldUnit, to: newUnit);
+        migration = ValueMigration(_initialAdj!.id, [ConvertUnitStep(oldUnit, newUnit)]);
       }
     }
 
@@ -173,7 +173,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     Navigator.pop(
       context,
       widget.mode == MetricPageMode.edit
-          ? EditResult<RatingMetric>(metric, conversions: conversion == null ? const [] : [conversion])
+          ? EditResult<RatingMetric>(metric, migrations: migration == null ? const [] : [migration])
           : metric,
     );
   }

@@ -59,7 +59,7 @@ class _RatingPageState extends State<RatingPage> {
 
   late List<RatingMetric> _metrics;
   late List<RatingMetric> _initialMetrics;
-  final Map<String, ValueUnitConversion> _pendingConversions = {};
+  final Map<String, ValueMigration> _pendingMigrations = {};
   late RatingAssociation _ratingAssociation;
   late RatingAssociation _initialRatingAssociation;
 
@@ -158,8 +158,8 @@ class _RatingPageState extends State<RatingPage> {
     final RatingMetric editedMetric;
     if (result is EditResult<RatingMetric>) {
       editedMetric = result.value;
-      for (final conversion in result.conversions) {
-        _stageConversion(conversion);
+      for (final migration in result.migrations) {
+        _stageMigration(migration);
       }
     } else {
       editedMetric = result as RatingMetric;
@@ -174,13 +174,13 @@ class _RatingPageState extends State<RatingPage> {
     onChanged?.call();
   }
 
-  void _stageConversion(ValueUnitConversion conversion) {
-    final existing = _pendingConversions[conversion.adjustmentId];
-    final composed = existing == null ? conversion : existing.composeWith(conversion);
+  void _stageMigration(ValueMigration migration) {
+    final existing = _pendingMigrations[migration.adjustmentId];
+    final composed = existing == null ? migration : existing.then(migration);
     if (composed.isNoOp) {
-      _pendingConversions.remove(conversion.adjustmentId);
+      _pendingMigrations.remove(migration.adjustmentId);
     } else {
-      _pendingConversions[conversion.adjustmentId] = composed;
+      _pendingMigrations[migration.adjustmentId] = composed;
     }
   }
 
@@ -205,7 +205,7 @@ class _RatingPageState extends State<RatingPage> {
 
   Future<void> removeMetric(RatingMetric metric, {VoidCallback? onChanged}) async {
     setState(() => _metrics.remove(metric));
-    _pendingConversions.remove(metric.id);
+    _pendingMigrations.remove(metric.id);
     _changeListener();
     onChanged?.call();
   }
@@ -231,7 +231,7 @@ class _RatingPageState extends State<RatingPage> {
     Navigator.pop(
       context,
       widget.mode == RatingPageMode.edit
-          ? EditResult<Rating>(rating, conversions: _pendingConversions.values.toList())
+          ? EditResult<Rating>(rating, migrations: _pendingMigrations.values.toList())
           : rating,
     );
   }

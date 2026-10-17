@@ -33,7 +33,7 @@ class RatingActions {
     );
     if (result == null) return;
 
-    await appRepository.editRating(result.value, conversions: result.conversions);
+    await appRepository.editRating(result.value, migrations: result.migrations);
   }
 
   static Future<void> duplicateRating(BuildContext context, {required Rating rating}) async {

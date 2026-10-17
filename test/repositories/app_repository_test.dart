@@ -534,7 +534,7 @@ void main() {
       final convertedComponent = component.copyWith(adjustments: [adj.copyWith(unit: bar)]);
       await repository.editComponents(
         [convertedComponent],
-        conversions: [ValueUnitConversion(adjustmentId: adj.id, from: psi, to: bar)],
+        migrations: [ValueMigration(adj.id, const [ConvertUnitStep(psi, bar)])],
       );
       await pumpEventQueue();
 
@@ -543,7 +543,7 @@ void main() {
       expect(repository.setups[setup.id]!.lastModified.isAfter(before), isTrue);
     });
 
-    test("editComponents without conversions leaves setup values and lastModified untouched", () async {
+    test("editComponents without migrations leaves setup values and lastModified untouched", () async {
       final bike = Bike(name: "B", person: null);
       final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi);
       final component = Component(
@@ -561,7 +561,7 @@ void main() {
 
       final before = repository.setups[setup.id]!.lastModified;
 
-      // "Keep numbers": unit changes but no conversion staged.
+      // "Keep numbers": unit changes but no migration staged.
       await repository.editComponents([component.copyWith(adjustments: [adj.copyWith(unit: bar)])]);
       await pumpEventQueue();
 
@@ -582,7 +582,7 @@ void main() {
 
       await repository.editPerson(
         person.copyWith(adjustments: [padj.copyWith(unit: lb)]),
-        conversions: [ValueUnitConversion(adjustmentId: padj.id, from: kg, to: lb)],
+        migrations: [ValueMigration(padj.id, const [ConvertUnitStep(kg, lb)])],
       );
       await pumpEventQueue();
 
@@ -621,40 +621,13 @@ void main() {
       ]);
       await repository.editRating(
         convertedRating,
-        conversions: [ValueUnitConversion(adjustmentId: metricAdj.id, from: psi, to: bar)],
+        migrations: [ValueMigration(metricAdj.id, const [ConvertUnitStep(psi, bar)])],
       );
       await pumpEventQueue();
 
       final value = repository.ratingEntries[entry.id]!.metricValues[metricAdj.id]! as NumericalValue;
       expect(value.value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
       expect(repository.ratingEntries[entry.id]!.lastModified.isAfter(before), isTrue);
-    });
-
-    test("convertAdjustmentValues converts numeric rows and leaves unparseable rows untouched", () async {
-      const adjId = 'adj-x';
-      await database.into(database.setupAdjustmentValues).insert(
-        SetupAdjustmentValuesCompanion.insert(setupId: 's1', adjustmentId: adjId, value: const NumericalValue(10.0).encode()));
-      await database.into(database.setupAdjustmentValues).insert(
-        SetupAdjustmentValuesCompanion.insert(setupId: 's2', adjustmentId: adjId, value: '"n/a"'));
-
-      await database.setupsDao.convertAdjustmentValues(adjId, (v) => NumericalValue(v.value * 2));
-
-      final rows = await database.select(database.setupAdjustmentValues).get();
-      final byId = {for (final r in rows) r.setupId: r.value};
-      expect(byId['s1'], const NumericalValue(20.0).encode());
-      expect(byId['s2'], '"n/a"'); // unparseable — left untouched
-    });
-
-    test("ValueUnitConversion composes to a single from->to and detects no-ops", () {
-      const kpa = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'kiloPascal');
-      const first = ValueUnitConversion(adjustmentId: 'a', from: psi, to: bar);
-      final composed = first.composeWith(const ValueUnitConversion(adjustmentId: 'a', from: bar, to: kpa));
-      expect(composed.from, psi);
-      expect(composed.to, kpa);
-      expect(composed.isNoOp, isFalse);
-
-      final roundTrip = first.composeWith(const ValueUnitConversion(adjustmentId: 'a', from: bar, to: psi));
-      expect(roundTrip.isNoOp, isTrue);
     });
   });
 

@@ -227,7 +227,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     // On an edit between two compatible units (same quantity), ask whether to
     // convert existing stored setup values. Min/max are left exactly as typed —
     // only the historical values are rewritten, and only if the user opts in.
-    ValueUnitConversion? conversion;
+    ValueMigration? migration;
     final oldUnit = widget.adjustment?.unit;
     final newUnit = _unit;
     if (widget.mode == AdjustmentPageMode.edit &&
@@ -238,7 +238,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
       final choice = await showUnitConversionDialog(context, from: oldUnit, to: newUnit);
       if (choice == null) return; // dismissed — stay on the page
       if (choice == UnitEditChoice.convert) {
-        conversion = ValueUnitConversion(adjustmentId: widget.adjustment!.id, from: oldUnit, to: newUnit);
+        migration = ValueMigration(widget.adjustment!.id, [ConvertUnitStep(oldUnit, newUnit)]);
       }
     }
 
@@ -256,7 +256,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     Navigator.pop(
       context,
       widget.mode == AdjustmentPageMode.edit
-          ? EditResult<Adjustment>(adjustment, conversions: conversion == null ? const [] : [conversion])
+          ? EditResult<Adjustment>(adjustment, migrations: migration == null ? const [] : [migration])
           : adjustment,
     );
   }

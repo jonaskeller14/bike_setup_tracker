@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../adjustment_value_codec.dart';
 import '../app_database.dart';
 import '../tables/adjustments.dart';
 import '../tables/setup_adjustment_values.dart';
@@ -112,28 +111,35 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
     });
   }
 
-  /// Rewrites every stored value of [adjustmentId] via [transform] (values are
-  /// numerical doubles) and bumps `lastModified` on each affected setup so
-  /// backup merges propagate the change. Unparseable/null values are left as-is.
-  Future<void> convertAdjustmentValues(
+  /// Rewrites every stored value of [adjustmentId] (an adjustment of [type])
+  /// with [migration], soft-deleted setups included, and bumps `lastModified`
+  /// on each setup whose value changed so backup merges propagate the change.
+  /// A value the migration clears loses its row; undecodable rows are left as-is.
+  Future<void> migrateAdjustmentValues(
     String adjustmentId,
-    NumericalValue Function(NumericalValue) transform,
+    AdjustmentType type,
+    ValueMigration migration,
   ) async {
     final rows = await (select(setupAdjustmentValues)
           ..where((t) => t.adjustmentId.equals(adjustmentId)))
         .get();
-    if (rows.isEmpty) return;
 
     final now = DateTime.now().toUtc();
     final touchedSetupIds = <String>{};
     for (final row in rows) {
-      final decoded = decodeNumericalValueOrNull(row.value);
-      if (decoded == null) continue; // unparseable/null — leave untouched
-      final newValue = transform(NumericalValue(decoded)).encode();
-      if (newValue == row.value) continue; // no material change
-      await (update(setupAdjustmentValues)
-            ..where((t) => t.setupId.equals(row.setupId) & t.adjustmentId.equals(adjustmentId)))
-          .write(SetupAdjustmentValuesCompanion(value: Value(newValue)));
+      final decoded = AdjustmentValue.decode(row.value, type);
+      if (decoded == null || decoded is UnresolvedValue) continue;
+      final migrated = migration.apply(decoded);
+      if (migrated == decoded) continue;
+      if (migrated == null) {
+        await (delete(setupAdjustmentValues)
+              ..where((t) => t.setupId.equals(row.setupId) & t.adjustmentId.equals(adjustmentId)))
+            .go();
+      } else {
+        await (update(setupAdjustmentValues)
+              ..where((t) => t.setupId.equals(row.setupId) & t.adjustmentId.equals(adjustmentId)))
+            .write(SetupAdjustmentValuesCompanion(value: Value(migrated.encode())));
+      }
       touchedSetupIds.add(row.setupId);
     }
     for (final setupId in touchedSetupIds) {

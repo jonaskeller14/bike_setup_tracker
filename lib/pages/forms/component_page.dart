@@ -91,7 +91,7 @@ class _ComponentPageState extends State<ComponentPage> {
   late TextEditingController _notesController;
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  final Map<String, ValueUnitConversion> _pendingConversions = {};
+  final Map<String, ValueMigration> _pendingMigrations = {};
   late List<Installation> _installations;
   late ComponentType? _componentType;
   late ComponentType? _initialComponentType;
@@ -326,8 +326,8 @@ class _ComponentPageState extends State<ComponentPage> {
     final Adjustment editedAdjustment;
     if (result is EditResult<Adjustment>) {
       editedAdjustment = result.value;
-      for (final conversion in result.conversions) {
-        _stageConversion(conversion);
+      for (final migration in result.migrations) {
+        _stageMigration(migration);
       }
     } else {
       editedAdjustment = result as Adjustment;
@@ -342,13 +342,13 @@ class _ComponentPageState extends State<ComponentPage> {
     onChanged?.call();
   }
 
-  void _stageConversion(ValueUnitConversion conversion) {
-    final existing = _pendingConversions[conversion.adjustmentId];
-    final composed = existing == null ? conversion : existing.composeWith(conversion);
+  void _stageMigration(ValueMigration migration) {
+    final existing = _pendingMigrations[migration.adjustmentId];
+    final composed = existing == null ? migration : existing.then(migration);
     if (composed.isNoOp) {
-      _pendingConversions.remove(conversion.adjustmentId);
+      _pendingMigrations.remove(migration.adjustmentId);
     } else {
-      _pendingConversions[conversion.adjustmentId] = composed;
+      _pendingMigrations[migration.adjustmentId] = composed;
     }
   }
 
@@ -373,7 +373,7 @@ class _ComponentPageState extends State<ComponentPage> {
 
   Future<void> removeAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
     setState(() => _adjustments.remove(adjustment));
-    _pendingConversions.remove(adjustment.id);
+    _pendingMigrations.remove(adjustment.id);
     _changeListener();
     onChanged?.call();
   }
@@ -448,9 +448,9 @@ class _ComponentPageState extends State<ComponentPage> {
     final kept = _adjustments.where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
     var merge = applyPresetMerge(kept, [for (final a in app.adjustments) PresetMergeRow.newAdjustment(a)], const {});
     if (kept.isNotEmpty) {
-      final recordedValues = convertRecordedValues(
+      final recordedValues = migrateRecordedValues(
         context.read<AppRepository>().recordedAdjustmentValues({for (final a in kept) a.id}),
-        _pendingConversions,
+        _pendingMigrations,
       );
       final confirmed = await showPresetMergeSheet(
         context,
@@ -588,7 +588,7 @@ class _ComponentPageState extends State<ComponentPage> {
     Navigator.pop(
       context,
       widget.mode == ComponentPageMode.edit
-          ? EditResult<Component>(component, conversions: _pendingConversions.values.toList())
+          ? EditResult<Component>(component, migrations: _pendingMigrations.values.toList())
           : component,
     );
   }

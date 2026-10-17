@@ -46,7 +46,7 @@ void main() {
 
     expect(result, isNotNull);
     expect(result!.value, equals(initial));
-    expect(result!.conversions, isEmpty);
+    expect(result!.migrations, isEmpty);
   });
 
   testWidgets('Can create numerical adjustment without bounds', (WidgetTester tester) async {

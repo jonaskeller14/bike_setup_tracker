@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 
 import '../models/adjustment/adjustment.dart';
 import 'adjustment_role.dart';
-import 'unit_conversion.dart';
 
 enum PresetMergeAction { merged, newAdjustment, notAdded }
 
@@ -146,21 +145,16 @@ PresetMergeResult applyPresetMerge(
 PresetMergeResult replaceWithPreset(List<Adjustment> existing, List<Adjustment> catalog) =>
     PresetMergeResult(List.of(catalog), List.of(catalog), removed: List.of(existing));
 
-/// [recordedValues] as they will be stored once the [conversions] staged for an
-/// unsaved unit change are applied, so a range is checked in the unit it has.
-Map<String, List<AdjustmentValue>> convertRecordedValues(
+/// [recordedValues] as they will be stored once the [migrations] staged for
+/// unsaved adjustment edits are applied, so a range is checked in the unit it
+/// has. A value a migration clears is left out.
+Map<String, List<AdjustmentValue>> migrateRecordedValues(
   Map<String, List<AdjustmentValue>> recordedValues,
-  Map<String, ValueUnitConversion> conversions,
+  Map<String, ValueMigration> migrations,
 ) => {
   for (final MapEntry(:key, :value) in recordedValues.entries)
-    key: switch (conversions[key]) {
-      final conversion? => [
-        for (final recorded in value)
-          if (recorded is NumericalValue)
-            NumericalValue(convertUnit(recorded.value, conversion.from, conversion.to))
-          else
-            recorded,
-      ],
+    key: switch (migrations[key]) {
+      final migration? => [for (final recorded in value) ?migration.apply(recorded)],
       null => value,
     },
 };

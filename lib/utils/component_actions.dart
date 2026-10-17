@@ -100,7 +100,7 @@ class ComponentActions {
       subcomponentEdits = edits;
     }
     try {
-      await appRepository.editComponents([result.value, ...subcomponentEdits], conversions: result.conversions);
+      await appRepository.editComponents([result.value, ...subcomponentEdits], migrations: result.migrations);
     } on ComponentHierarchyValidationException {
       await AttachmentActions.deleteUnsaved(result.value.attachments, saved: component.attachments);
       if (!context.mounted) return;

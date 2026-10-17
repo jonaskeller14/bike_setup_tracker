@@ -26,6 +26,9 @@ class FilterController {
   LayerFilter _layers = const LayerFilter();
   ActivityFilter _activity = const ActivityFilter();
 
+  int _batchDepth = 0;
+  bool _changedInBatch = false;
+
   String? get bikeId => _bikeId;
 
   /// `null` shows the entries of every day.
@@ -40,37 +43,59 @@ class FilterController {
     final next = bikeId == _bikeId ? null : bikeId;
     if (next == _bikeId) return;
     _bikeId = next;
-    onChanged();
+    _changed();
   }
 
   set dateRange(LocalDateRange? value) {
     if (value == _dateRange) return;
     _dateRange = value;
-    onChanged();
+    _changed();
   }
 
   set setup(SetupFilter value) {
     if (value == _setup) return;
     _setup = value;
-    onChanged();
+    _changed();
   }
 
   set taskRule(TaskRuleFilter value) {
     if (value == _taskRule) return;
     _taskRule = value;
-    onChanged();
+    _changed();
   }
 
   set layers(LayerFilter value) {
     if (value == _layers) return;
     _layers = value;
-    onChanged();
+    _changed();
   }
 
   set activity(ActivityFilter value) {
     if (value == _activity) return;
     _activity = value;
-    onChanged();
+    _changed();
+  }
+
+  /// Runs [update] and fires [onChanged] once afterwards if any criterion
+  /// changed, so several setters cost one refilter instead of one each.
+  void batch(void Function() update) {
+    _batchDepth++;
+    try {
+      update();
+    } finally {
+      if (--_batchDepth == 0 && _changedInBatch) {
+        _changedInBatch = false;
+        onChanged();
+      }
+    }
+  }
+
+  void _changed() {
+    if (_batchDepth > 0) {
+      _changedInBatch = true;
+    } else {
+      onChanged();
+    }
   }
 
   Map<String, Object?> toJson() => {

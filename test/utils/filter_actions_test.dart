@@ -499,7 +499,7 @@ void main() {
       expect(filters.dateRange, null);
     });
 
-    testWidgets('notifies once per changed filter object', (tester) async {
+    testWidgets('notifies once, and not at all when nothing changed', (tester) async {
       var changes = 0;
       filters = FilterController(onChanged: () => changes++);
       when(() => repository.filters).thenReturn(filters);
@@ -507,10 +507,10 @@ void main() {
       changes = 0;
 
       await clear(tester, FilterSection.values.toSet());
-      expect(changes, 6);
+      expect(changes, 1);
 
       await clear(tester, FilterSection.values.toSet());
-      expect(changes, 6);
+      expect(changes, 1);
     });
   });
 }

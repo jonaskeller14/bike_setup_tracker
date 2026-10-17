@@ -148,15 +148,17 @@ class FilterActions {
   static void clear(BuildContext context, Set<FilterSection> sections) {
     final filters = context.read<AppRepository>().filters;
 
-    if (sections.contains(FilterSection.bike)) filters.toggleBike(null);
-    if (sections.contains(FilterSection.dateRange)) filters.dateRange = null;
-    if (sections.contains(FilterSection.setups)) filters.setup = const SetupFilter();
-    filters.taskRule = filters.taskRule.copyWith(
-      priorities: sections.contains(FilterSection.taskPriority) ? TaskPriority.values.toSet() : null,
-      tags: sections.contains(FilterSection.taskTags) ? const {} : null,
-    );
-    if (sections.contains(FilterSection.activity)) filters.activity = const ActivityFilter();
-    filters.layers = filters.layers.copyWith(hidden: filters.layers.hidden.difference(_layersOf(sections)));
+    filters.batch(() {
+      if (sections.contains(FilterSection.bike)) filters.toggleBike(null);
+      if (sections.contains(FilterSection.dateRange)) filters.dateRange = null;
+      if (sections.contains(FilterSection.setups)) filters.setup = const SetupFilter();
+      filters.taskRule = filters.taskRule.copyWith(
+        priorities: sections.contains(FilterSection.taskPriority) ? TaskPriority.values.toSet() : null,
+        tags: sections.contains(FilterSection.taskTags) ? const {} : null,
+      );
+      if (sections.contains(FilterSection.activity)) filters.activity = const ActivityFilter();
+      filters.layers = filters.layers.copyWith(hidden: filters.layers.hidden.difference(_layersOf(sections)));
+    });
   }
 
   static const _mapLayers = {TimelineLayer.setups, TimelineLayer.activities, TimelineLayer.ratingEntries};

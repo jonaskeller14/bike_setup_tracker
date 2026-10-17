@@ -130,6 +130,52 @@ void main() {
     });
   });
 
+  group("batch", () {
+    test("fires once after several changes", () {
+      filters.batch(() {
+        filters.toggleBike("b1");
+        filters.setup = const SetupFilter(tags: {"race"});
+        expect(changes, 0);
+        filters.activity = const ActivityFilter(distance: NumericRange(min: 10000));
+      });
+      expect(filters.bikeId, "b1");
+      expect(filters.setup, const SetupFilter(tags: {"race"}));
+      expect(filters.activity.distance, const NumericRange(min: 10000));
+      expect(changes, 1);
+    });
+
+    test("does not fire without a change", () {
+      filters.batch(() {
+        filters.toggleBike(null);
+        filters.setup = const SetupFilter();
+      });
+      expect(changes, 0);
+    });
+
+    test("a nested batch fires once, when the outer one ends", () {
+      filters.batch(() {
+        filters.batch(() => filters.toggleBike("b1"));
+        expect(changes, 0);
+        filters.setup = const SetupFilter(tags: {"race"});
+      });
+      expect(changes, 1);
+    });
+
+    test("still fires for the changes made before an error", () {
+      expect(
+        () => filters.batch(() {
+          filters.toggleBike("b1");
+          throw StateError("boom");
+        }),
+        throwsStateError,
+      );
+      expect(changes, 1);
+
+      filters.setup = const SetupFilter(tags: {"race"});
+      expect(changes, 2);
+    });
+  });
+
   group("stravaQuery", () {
     test("no selected bike queries every gear", () {
       expect(filters.stravaQuery(null), const StravaActivityQuery());

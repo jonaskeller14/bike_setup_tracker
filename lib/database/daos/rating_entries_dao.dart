@@ -5,6 +5,7 @@ import '../app_database.dart';
 import '../tables/rating_entries.dart';
 import '../tables/rating_entry_values.dart';
 import '../tables/rating_metrics.dart';
+import 'deleted_record_value.dart';
 import 'soft_delete_dao_mixin.dart';
 
 part 'rating_entries_dao.g.dart';
@@ -116,6 +117,23 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
       await (update(ratingEntries)..where((t) => t.id.equals(entryId)))
           .write(RatingEntriesCompanion(lastModified: Value(now)));
     }
+  }
+
+  /// The stored values of [metricId] in soft-deleted rating entries; the
+  /// in-memory entries hold live records only.
+  Future<List<DeletedRecordValue>> getDeletedValuesFor(String metricId) async {
+    final query = select(ratingEntries).join([
+      innerJoin(ratingEntryValues, ratingEntryValues.ratingEntryId.equalsExp(ratingEntries.id)),
+    ])..where(isDeletedColumn.equals(true) & ratingEntryValues.ratingMetricId.equals(metricId));
+    return [
+      for (final row in await query.get())
+        DeletedRecordValue(
+          recordId: row.readTable(ratingEntries).id,
+          name: row.readTable(ratingEntries).name,
+          dateTimeLocal: row.readTable(ratingEntries).dateTimeLocal,
+          rawValue: row.readTable(ratingEntryValues).value,
+        ),
+    ];
   }
 
   Future<void> _upsertValues(String entryId, Map<String, AdjustmentValue> values) async {

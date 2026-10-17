@@ -299,4 +299,65 @@ void main() {
       expect(await storedValues('m'), {'e': '"n/a"'});
     });
   });
+
+  group('getDeletedValuesFor', () {
+    test('returns only soft-deleted setups holding a value for the adjustment', () async {
+      Future<void> addSetup(String id, String? name, Map<String, AdjustmentValue> values) =>
+          database.setupsDao.insertSetupWithValues(
+            setup: Setup(
+              id: id,
+              name: name,
+              datetime: DateTime.utc(2026, 9, 27),
+              datetimeLocal: DateTime(2026, 9, 27, 8),
+              tags: const {},
+              bike: 'bike1',
+              person: null,
+              bikeAdjustmentValues: const {},
+              personAdjustmentValues: const {},
+            ).toCompanion(),
+            bikeValues: values,
+            personValues: const {},
+          );
+      await addSetup('live', 'Live', {'a': const NumericalValue(1)});
+      await addSetup('deleted', 'Gone', {'a': const NumericalValue(2), 'b': const NumericalValue(3)});
+      await addSetup('deleted-other', null, {'b': const NumericalValue(4)});
+      await database.setupsDao.softDelete('deleted');
+      await database.setupsDao.softDelete('deleted-other');
+
+      final rows = await database.setupsDao.getDeletedValuesFor('a');
+
+      expect(rows, hasLength(1));
+      expect(rows.single.recordId, 'deleted');
+      expect(rows.single.name, 'Gone');
+      expect(rows.single.dateTimeLocal, DateTime(2026, 9, 27, 8));
+      expect(rows.single.rawValue, const NumericalValue(2).encode());
+    });
+
+    test('returns only soft-deleted rating entries holding a value for the metric', () async {
+      Future<void> addEntry(String id, Map<String, AdjustmentValue> values) =>
+          database.ratingEntriesDao.insertRatingEntryWithValues(
+            entry: RatingEntry(
+              id: id,
+              bike: 'bike1',
+              setupId: 's1',
+              dateTimeUTC: DateTime.utc(2026, 9, 27),
+              dateTimeLocal: DateTime(2026, 9, 27, 8),
+              metricValues: const {},
+            ).toCompanion(),
+            values: values,
+          );
+      await addEntry('live', {'m': const StepValue(1)});
+      await addEntry('deleted', {'m': const StepValue(2)});
+      await addEntry('deleted-other', {'n': const StepValue(3)});
+      await database.ratingEntriesDao.softDelete('deleted');
+      await database.ratingEntriesDao.softDelete('deleted-other');
+
+      final rows = await database.ratingEntriesDao.getDeletedValuesFor('m');
+
+      expect(rows, hasLength(1));
+      expect(rows.single.recordId, 'deleted');
+      expect(rows.single.name, isNull);
+      expect(rows.single.rawValue, const StepValue(2).encode());
+    });
+  });
 }

@@ -5,6 +5,7 @@ import '../app_database.dart';
 import '../tables/adjustments.dart';
 import '../tables/setup_adjustment_values.dart';
 import '../tables/setups.dart';
+import 'deleted_record_value.dart';
 import 'soft_delete_dao_mixin.dart';
 
 part 'setups_dao.g.dart';
@@ -146,6 +147,23 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
       await (update(setups)..where((t) => t.id.equals(setupId)))
           .write(SetupsCompanion(lastModified: Value(now)));
     }
+  }
+
+  /// The stored values of [adjustmentId] in soft-deleted setups; the in-memory
+  /// setups hold live records only.
+  Future<List<DeletedRecordValue>> getDeletedValuesFor(String adjustmentId) async {
+    final query = select(setups).join([
+      innerJoin(setupAdjustmentValues, setupAdjustmentValues.setupId.equalsExp(setups.id)),
+    ])..where(isDeletedColumn.equals(true) & setupAdjustmentValues.adjustmentId.equals(adjustmentId));
+    return [
+      for (final row in await query.get())
+        DeletedRecordValue(
+          recordId: row.readTable(setups).id,
+          name: row.readTable(setups).name,
+          dateTimeLocal: row.readTable(setups).datetimeLocal,
+          rawValue: row.readTable(setupAdjustmentValues).value,
+        ),
+    ];
   }
 
   Future<void> _upsertValuesMap(String setupId, Map<String, AdjustmentValue> valuesMap) async {

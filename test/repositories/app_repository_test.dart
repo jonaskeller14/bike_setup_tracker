@@ -12,6 +12,7 @@ import 'package:bike_setup_tracker/models/rating/rating.dart';
 import 'package:bike_setup_tracker/models/rating/rating_association.dart';
 import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
+import 'package:bike_setup_tracker/models/recorded_value.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
@@ -477,6 +478,132 @@ void main() {
       await expectLater(repository.editRatingEntry(entry), throwsA(isA<AssertionError>()));
     });
   });
+  group("AppRepository - recordedValues", () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    Setup buildSetup(
+      String bikeId, {
+      String? name = "Setup",
+      DateTime? day,
+      Map<String, AdjustmentValue>? bikeValues,
+      Map<String, AdjustmentValue>? personValues,
+    }) => Setup(
+      name: name,
+      tags: const {},
+      datetime: (day ?? DateTime(2020)).toUtc(),
+      datetimeLocal: day ?? DateTime(2020),
+      bike: bikeId,
+      person: null,
+      bikeAdjustmentValues: bikeValues ?? {},
+      personAdjustmentValues: personValues ?? {},
+    );
+
+    Component buildFork(Bike bike, Adjustment adjustment) => Component(
+      name: "Fork",
+      componentType: ComponentType.fork,
+      adjustments: [adjustment],
+      installations: [Installation.sinceBeginning(parent: bike.id)],
+    );
+
+    test("returns component adjustment values of live and deleted setups, newest first", () async {
+      final bike = Bike(name: "B", person: null);
+      final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: null);
+      final old = buildSetup(bike.id, name: "Old", day: DateTime(2020, 1, 1), bikeValues: {adj.id: const NumericalValue(1)});
+      final recent = buildSetup(bike.id, name: "Recent", day: DateTime(2022, 1, 1), bikeValues: {adj.id: const NumericalValue(3)});
+      final gone = buildSetup(bike.id, name: "Gone", day: DateTime(2021, 1, 1), bikeValues: {adj.id: const NumericalValue(2)});
+      await repository.addBikes([bike]);
+      await repository.addComponents([buildFork(bike, adj)]);
+      await repository.addSetups([old, recent, gone]);
+      await pumpEventQueue();
+      await repository.removeSetups([gone]);
+      await pumpEventQueue();
+
+      final recorded = await repository.recordedValues(adj.id);
+
+      expect(recorded.map((r) => r.label), ["Recent", "Gone", "Old"]);
+      expect(recorded.map((r) => r.isDeleted), [false, true, false]);
+      expect(recorded.map((r) => r.value), const [NumericalValue(3), NumericalValue(2), NumericalValue(1)]);
+      expect(recorded.map((r) => r.source).toSet(), {RecordedValueSource.setup});
+      expect(recorded.map((r) => r.recordId), [recent.id, gone.id, old.id]);
+    });
+
+    test("returns person attribute values", () async {
+      final bike = Bike(name: "B", person: null);
+      final attribute = NumericalAdjustment(name: "Weight", notes: null, unit: null);
+      final person = Person(name: "P", adjustments: [attribute]);
+      final setup = buildSetup(bike.id, personValues: {attribute.id: const NumericalValue(70)});
+      await repository.addBikes([bike]);
+      await repository.addPersons([person]);
+      await repository.addSetups([setup]);
+      await pumpEventQueue();
+
+      final recorded = await repository.recordedValues(attribute.id);
+
+      expect(recorded.map((r) => r.recordId), [setup.id]);
+      expect(recorded.single.value, const NumericalValue(70));
+    });
+
+    test("returns rating metric values of live and deleted entries", () async {
+      final metric = RatingMetric(adjustment: StepAdjustment(name: "Grip", notes: null, unit: null, min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider));
+      final rating = Rating(name: "R", association: const GlobalRatingAssociation(), metrics: [metric]);
+      RatingEntry buildEntry(String? name, DateTime day, int value) => RatingEntry(
+        name: name,
+        bike: 'bike',
+        setupId: 'setup',
+        dateTimeUTC: day.toUtc(),
+        dateTimeLocal: day,
+        metricValues: {metric.id: StepValue(value)},
+      );
+      final live = buildEntry("Live", DateTime(2024, 2, 1), 7);
+      final gone = buildEntry(null, DateTime(2024, 1, 1), 4);
+      await repository.addRatings([rating]);
+      await repository.addRatingEntries([live, gone]);
+      await pumpEventQueue();
+      await repository.removeRatingEntries([gone]);
+      await pumpEventQueue();
+
+      final recorded = await repository.recordedValues(metric.id);
+
+      expect(recorded.map((r) => r.source).toSet(), {RecordedValueSource.ratingEntry});
+      expect(recorded.map((r) => r.recordId), [live.id, gone.id]);
+      expect(recorded.map((r) => r.isDeleted), [false, true]);
+      expect(recorded.map((r) => r.label), ["Live", RatingEntry.namePlaceholder]);
+      expect(recorded.map((r) => r.value), const [StepValue(7), StepValue(4)]);
+    });
+
+    test("falls back to the placeholder name for unnamed records", () async {
+      final bike = Bike(name: "B", person: null);
+      final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: null);
+      final live = buildSetup(bike.id, name: null, day: DateTime(2021), bikeValues: {adj.id: const NumericalValue(1)});
+      final gone = buildSetup(bike.id, name: null, day: DateTime(2020), bikeValues: {adj.id: const NumericalValue(2)});
+      await repository.addBikes([bike]);
+      await repository.addComponents([buildFork(bike, adj)]);
+      await repository.addSetups([live, gone]);
+      await pumpEventQueue();
+      await repository.removeSetups([gone]);
+      await pumpEventQueue();
+
+      final recorded = await repository.recordedValues(adj.id);
+
+      expect(recorded.map((r) => r.label), [Setup.namePlaceholder, Setup.namePlaceholder]);
+    });
+
+    test("an unknown id returns an empty list", () async {
+      expect(await repository.recordedValues("unknown"), isEmpty);
+    });
+  });
+
   group("AppRepository - Unit Conversions", () {
     late AppDatabase database;
     late AppRepository repository;

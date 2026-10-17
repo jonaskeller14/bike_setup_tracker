@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../database/app_database.dart';
+import '../database/daos/deleted_record_value.dart';
 import '../database/mappers.dart';
 import '../models/activity_rate_window.dart';
 import '../models/adjustment/adjustment.dart';
@@ -20,6 +21,7 @@ import '../models/rating/rating.dart';
 import '../models/rating/rating_association.dart';
 import '../models/rating/rating_entry.dart';
 import '../models/rating/rating_metric.dart';
+import '../models/recorded_value.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/setup_history.dart';
@@ -222,12 +224,81 @@ class AppRepository extends ChangeNotifier {
 
   Map<String, List<AdjustmentValue>> recordedAdjustmentValues(Set<String> adjustmentIds) {
     final values = <String, List<AdjustmentValue>>{};
-    for (final setup in _setups.values) {  // Soft-Deleted included
+    for (final setup in _setups.values) {  // live setups only; see recordedValues for deleted ones
       for (final MapEntry(:key, :value) in setup.bikeAdjustmentValues.entries) {
         if (adjustmentIds.contains(key)) (values[key] ??= []).add(value);
       }
     }
     return values;
+  }
+
+  /// Every decodable value stored for [adjustmentId] (a component adjustment,
+  /// person attribute or rating metric), newest first. Soft-deleted setups and
+  /// rating entries are read from the database as they are held without values.
+  Future<List<RecordedValue>> recordedValues(String adjustmentId) async {
+    final type = _findAdjustment(adjustmentId)?.type;
+    if (type == null) return const [];
+
+    final recorded = <RecordedValue>[];
+    for (final setup in _setups.values) {
+      final value = setup.bikeAdjustmentValues[adjustmentId] ?? setup.personAdjustmentValues[adjustmentId];
+      if (value == null || value is UnresolvedValue) continue;
+      recorded.add(RecordedValue(
+        recordId: setup.id,
+        source: RecordedValueSource.setup,
+        label: setup.displayName,
+        dateTimeLocal: setup.datetimeLocal,
+        value: value,
+        isDeleted: false,
+      ));
+    }
+    for (final entry in _ratingEntries.values) {
+      final value = entry.metricValues[adjustmentId];
+      if (value == null || value is UnresolvedValue) continue;
+      recorded.add(RecordedValue(
+        recordId: entry.id,
+        source: RecordedValueSource.ratingEntry,
+        label: entry.displayName,
+        dateTimeLocal: entry.dateTimeLocal,
+        value: value,
+        isDeleted: false,
+      ));
+    }
+
+    void addDeleted(RecordedValueSource source, String placeholder, List<DeletedRecordValue> rows) {
+      for (final row in rows) {
+        final value = AdjustmentValue.decode(row.rawValue, type);
+        if (value == null || value is UnresolvedValue) continue;
+        recorded.add(RecordedValue(
+          recordId: row.recordId,
+          source: source,
+          label: row.name ?? placeholder,
+          dateTimeLocal: row.dateTimeLocal,
+          value: value,
+          isDeleted: true,
+        ));
+      }
+    }
+    addDeleted(RecordedValueSource.setup, Setup.namePlaceholder, await database.setupsDao.getDeletedValuesFor(adjustmentId));
+    addDeleted(RecordedValueSource.ratingEntry, RatingEntry.namePlaceholder, await database.ratingEntriesDao.getDeletedValuesFor(adjustmentId));
+
+    return recorded..sort((a, b) => b.dateTimeLocal.compareTo(a.dateTimeLocal));
+  }
+
+  Adjustment? _findAdjustment(String id) {
+    for (final component in _components.values) {
+      final adjustment = component.adjustments.firstWhereOrNull((a) => a.id == id);
+      if (adjustment != null) return adjustment;
+    }
+    for (final person in _persons.values) {
+      final adjustment = person.adjustments.firstWhereOrNull((a) => a.id == id);
+      if (adjustment != null) return adjustment;
+    }
+    for (final rating in _ratings.values) {
+      final metric = rating.metrics.firstWhereOrNull((m) => m.id == id);
+      if (metric != null) return metric.adjustment;
+    }
+    return null;
   }
 
   @visibleForTesting

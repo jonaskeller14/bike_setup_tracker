@@ -1,0 +1,27 @@
+STORE_DIR = File.expand_path("../docs/store/play-store", __dir__)
+METADATA_PATH = File.join(STORE_DIR, "metadata")
+
+# A running Play listing experiment compares the live listing against variant B;
+# changing the main listing would invalidate it.
+def ensure_no_running_experiment!
+  experiments = Dir.glob(File.join(STORE_DIR, "experiments", "**", "*")).select { |f| File.file?(f) }
+  return if experiments.empty?
+
+  UI.user_error!("Play listing experiment running (#{File.join(STORE_DIR, 'experiments')}); " \
+                 "remove its files once the experiment ended")
+end
+
+platform :android do
+  desc "Upload the Play listing text and graphics (dry_run:true only validates)"
+  lane :metadata do |options|
+    ensure_no_running_experiment!
+    upload_to_play_store(
+      metadata_path: METADATA_PATH,
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_changelogs: true,
+      skip_upload_screenshots: true,
+      validate_only: options[:dry_run] == true
+    )
+  end
+end

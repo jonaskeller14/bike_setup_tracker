@@ -10,7 +10,8 @@ class ValueTransitionRow {
 }
 
 /// A card that shows [rows] of example values before and after a migration. A
-/// cleared value shows in the error color.
+/// cleared value shows in the error color, and interim values are smaller and
+/// muted so the first and the final value stand out.
 class ValueTransitionPreview extends StatelessWidget {
   final List<ValueTransitionRow> rows;
 
@@ -48,6 +49,17 @@ class _Row extends StatelessWidget {
 
   const _Row({required this.row});
 
+  TextStyle? _stageStyle(ThemeData theme, int index, String? stage) {
+    final interim = index > 0 && index < row.stages.length - 1;
+    return (interim ? theme.textTheme.bodyMedium : theme.textTheme.titleMedium)?.copyWith(
+      color: stage == null
+          ? theme.colorScheme.error
+          : interim
+              ? theme.colorScheme.onSurfaceVariant
+              : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -77,9 +89,7 @@ class _Row extends StatelessWidget {
                     stage ?? ValueTransitionPreview.clearedLabel,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: stage == null ? theme.colorScheme.error : null,
-                    ),
+                    style: _stageStyle(theme, i, stage),
                   ),
                 ),
               ],

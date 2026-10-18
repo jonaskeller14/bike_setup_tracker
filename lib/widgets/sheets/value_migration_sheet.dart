@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/recorded_value.dart';
@@ -51,6 +53,8 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final records = _AffectedRecords.of(_proposal);
+    final decisions = _proposal.issues.where((issue) => !issue.isAutomatic).toList();
+    final clearsValues = _proposal.issues.any((issue) => issue.choice.kind == MigrationChoiceKind.clear);
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,14 +75,15 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                     style: theme.textTheme.bodyMedium,
                   ),
                   ValueTransitionPreview(rows: _rows(_proposal)),
-                  for (final issue in _proposal.issues)
-                    if (!issue.isAutomatic)
-                      _ChoiceSection(
-                        key: ValueKey(issue.key),
-                        issue: issue,
-                        proposal: _proposal,
-                        onChoose: (choice) => _choose(issue, choice),
-                      ),
+                  for (final (index, issue) in decisions.indexed)
+                    _ChoiceSection(
+                      key: ValueKey(issue.key),
+                      issue: issue,
+                      proposal: _proposal,
+                      // A single decision needs no step number.
+                      step: decisions.length > 1 ? index + 1 : null,
+                      onChoose: (choice) => _choose(issue, choice),
+                    ),
                 ],
               ),
             ),
@@ -92,7 +97,17 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                   child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                 ),
                 Expanded(
-                  child: FilledButton(onPressed: _confirm, child: const Text('Update values')),
+                  child: FilledButton(
+                    onPressed: _confirm,
+                    // Clearing deletes recorded values for good once the parent form is saved.
+                    style: clearsValues
+                        ? FilledButton.styleFrom(
+                            backgroundColor: theme.colorScheme.error,
+                            foregroundColor: theme.colorScheme.onError,
+                          )
+                        : null,
+                    child: const Text('Update values'),
+                  ),
                 ),
               ],
             ),
@@ -111,9 +126,12 @@ class _AffectedRecords {
 
   const _AffectedRecords(this.live, this.deleted, this.source);
 
-  factory _AffectedRecords.of(MigrationProposal proposal) {
+  factory _AffectedRecords.of(MigrationProposal proposal) =>
+      _AffectedRecords.ofRecords(proposal.issues.expand((issue) => issue.records));
+
+  factory _AffectedRecords.ofRecords(Iterable<RecordedValue> records) {
     final byId = <String, RecordedValue>{};
-    for (final record in proposal.issues.expand((issue) => issue.records)) {
+    for (final record in records) {
       byId.putIfAbsent(record.recordId, () => record);
     }
     return _AffectedRecords(
@@ -122,6 +140,9 @@ class _AffectedRecords {
       byId.values.firstOrNull?.source,
     );
   }
+
+  /// Whether [_countLabel] names a single record, for verb agreement.
+  bool get isSingular => (live == 0 ? deleted : live) == 1;
 }
 
 /// Values of a person attribute are recorded in setups too, so only rating
@@ -166,8 +187,19 @@ List<String?> _stages(MigrationPreview preview, MigrationProposal proposal) {
   return stages;
 }
 
-String _valueText(AdjustmentValue value, String? unit) =>
-    unit != null && (value is NumericalValue || value is StepValue) ? '${value.display} $unit' : value.display;
+String _valueText(AdjustmentValue value, String? unit) {
+  final text = value is NumericalValue ? _rounded(value.value) : value.display;
+  return unit != null && (value is NumericalValue || value is StepValue) ? '$text $unit' : text;
+}
+
+/// A converted number like 5.72265 shows as "≈ 5.72": two decimals, or three
+/// significant digits below 1. The stored value stays exact.
+String _rounded(double value) {
+  final magnitude = value == 0 ? 0 : (log(value.abs()) / ln10).floor();
+  final rounded = NumberFormat('0.${'#' * max(2, 2 - magnitude)}', 'en_US').format(value);
+  final exact = NumericalValue(value).display;
+  return rounded == exact ? exact : '≈ $rounded';
+}
 
 String _unitName(AdjustmentUnit? unit) => unit?.label ?? 'no unit';
 
@@ -192,23 +224,38 @@ String _choiceLabel(MigrationChoice choice, MigrationProposal proposal) => switc
   MigrationChoiceKind.automatic => '',
 };
 
-String _choiceHint(MigrationIssue issue, MigrationProposal proposal) => switch (issue.choice.kind) {
-  MigrationChoiceKind.convert => 'Recorded numbers are converted to ${_unitName(proposal.after.unit)}.',
-  MigrationChoiceKind.keep => 'The numbers stay and are read in ${_unitName(proposal.after.unit)}.',
-  MigrationChoiceKind.clamp =>
-    proposal.after is StepAdjustment
-        ? 'Values move to the nearest allowed step.'
-        : 'Values outside the range move to the nearest limit.',
-  MigrationChoiceKind.clear => 'The recorded values are removed.',
-  MigrationChoiceKind.mapTo || MigrationChoiceKind.automatic => '',
-};
+/// What the selected choice does to the records [issue] touches.
+String _choiceHint(MigrationIssue issue, MigrationProposal proposal) {
+  final records = _AffectedRecords.ofRecords(issue.records);
+  final count = _countLabel(records);
+  final one = records.isSingular;
+  final unit = proposal.after.unit;
+  final deletedOption = issue.kind == MigrationIssueKind.deletedOption ? issue.options.first : null;
+  return switch (issue.choice.kind) {
+    MigrationChoiceKind.convert => '$count ${one ? 'is' : 'are'} converted to ${_unitName(unit)}.',
+    MigrationChoiceKind.keep =>
+      '$count ${one ? 'keeps its' : 'keep their'} numbers, '
+          '${unit == null ? 'now without a unit' : 'now read in ${unit.label}'}.',
+    MigrationChoiceKind.clamp =>
+      proposal.after is StepAdjustment
+          ? '$count ${one ? 'snaps' : 'snap'} to the nearest step.'
+          : '$count ${one ? 'moves' : 'move'} to the nearest limit.',
+    MigrationChoiceKind.clear when deletedOption != null => "'$deletedOption' is removed from $count.",
+    MigrationChoiceKind.clear => '$count ${one ? 'loses its' : 'lose their'} value.',
+    MigrationChoiceKind.mapTo when deletedOption != null =>
+      "'$deletedOption' becomes '${issue.choice.option}' in $count.",
+    MigrationChoiceKind.mapTo => "$count ${one ? 'changes' : 'change'} to '${issue.choice.option}'.",
+    MigrationChoiceKind.automatic => '',
+  };
+}
 
 class _ChoiceSection extends StatelessWidget {
   final MigrationIssue issue;
   final MigrationProposal proposal;
+  final int? step;
   final ValueChanged<MigrationChoice> onChoose;
 
-  const _ChoiceSection({super.key, required this.issue, required this.proposal, required this.onChoose});
+  const _ChoiceSection({super.key, required this.issue, required this.proposal, this.step, required this.onChoose});
 
   bool get _picksOption => issue.choices.any((choice) => choice.kind == MigrationChoiceKind.mapTo);
 
@@ -216,11 +263,17 @@ class _ChoiceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hint = _choiceHint(issue, proposal);
+    final title = _issueTitle(issue, proposal);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
-        Text(_issueTitle(issue, proposal), style: theme.textTheme.titleSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+        Text(
+          step == null ? title : '$step: $title',
+          style: theme.textTheme.titleSmall,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
         if (_picksOption)
           DropdownButtonFormField<MigrationChoice>(
             key: ValueKey(issue.choice),
@@ -258,7 +311,14 @@ class _ChoiceSection extends StatelessWidget {
             ),
           ),
         if (hint.isNotEmpty)
-          Text(hint, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+          SizedBox(
+            width: double.infinity,
+            child: Text(
+              hint,
+              textAlign: TextAlign.end,
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ),
       ],
     );
   }

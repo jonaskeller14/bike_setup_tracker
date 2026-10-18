@@ -131,11 +131,95 @@ void main() {
 
     expect(find.text('Example'), findsOneWidget);
     expect(find.text('10 psi'), findsOneWidget);
-    expect(find.text('0.68948 bar'), findsOneWidget);
+    expect(find.text('≈ 0.689 bar'), findsOneWidget);
     expect(find.text('0.5 bar'), findsOneWidget);
-    expect(find.text('Unit changed from psi to bar'), findsOneWidget);
-    expect(find.text('Values outside the new range'), findsOneWidget);
+    expect(find.text('1: Unit changed from psi to bar'), findsOneWidget);
+    expect(find.text('2: Values outside the new range'), findsOneWidget);
   });
+
+  testWidgets('shows the interim value of a chain smaller and muted', (tester) async {
+    final proposal = MigrationProposal.build(
+      before: _numerical(unit: _psi, max: 100),
+      after: _numerical(unit: _bar, max: 0.5),
+      recorded: [_record(const NumericalValue(10))],
+    );
+    await openSheet(tester, proposal);
+
+    final context = tester.element(find.text('Example'));
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    TextStyle? styleOf(String text) => tester.widget<Text>(find.text(text)).style;
+    expect(styleOf('≈ 0.689 bar')?.color, muted);
+    expect(styleOf('10 psi')?.color, isNot(muted));
+    expect(styleOf('0.5 bar')?.color, isNot(muted));
+    expect(styleOf('≈ 0.689 bar')!.fontSize!, lessThan(styleOf('0.5 bar')!.fontSize!));
+  });
+
+  testWidgets('rounds a converted example value but keeps exact ones', (tester) async {
+    final proposal = MigrationProposal.build(
+      before: _numerical(unit: _psi),
+      after: _numerical(unit: _bar),
+      recorded: [_record(const NumericalValue(83))],
+    );
+    await openSheet(tester, proposal);
+
+    expect(find.text('83 psi'), findsOneWidget);
+    expect(find.text('≈ 5.72 bar'), findsOneWidget);
+  });
+
+  testWidgets('the hint counts the records the selected choice changes', (tester) async {
+    await openSheet(tester, _rangeProposal());
+
+    expect(find.text('2 setups (+1 deleted) move to the nearest limit.'), findsOneWidget);
+
+    await tester.tap(find.text('Clear'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('2 setups (+1 deleted) lose their value.'), findsOneWidget);
+  });
+
+  testWidgets('the hint uses the singular for one record', (tester) async {
+    await openSheet(tester, _rangeProposal(recorded: [_record(const NumericalValue(80))]));
+
+    expect(find.text('1 setup moves to the nearest limit.'), findsOneWidget);
+  });
+
+  testWidgets('a deleted option hint names the option and its target', (tester) async {
+    final proposal = MigrationProposal.build(
+      before: _categorical({'A', 'B', 'C'}),
+      after: _categorical({'A', 'B'}),
+      optionOrigins: const {'A': 'A', 'B': 'B'},
+      recorded: [_record(CategoricalValue(const ['C'])), _record(CategoricalValue(const ['C']))],
+    );
+    await openSheet(tester, proposal);
+
+    expect(find.text("'C' becomes 'A' in 2 setups."), findsOneWidget);
+  });
+
+  testWidgets('choosing Clear turns the confirm button into the error color', (tester) async {
+    await openSheet(tester, _rangeProposal());
+
+    final context = tester.element(find.text('Update values'));
+    final error = Theme.of(context).colorScheme.error;
+    Color? background() => tester
+        .widget<FilledButton>(find.widgetWithText(FilledButton, 'Update values'))
+        .style
+        ?.backgroundColor
+        ?.resolve({});
+    expect(background(), isNot(error));
+
+    await tester.tap(find.text('Clear'));
+    await tester.pumpAndSettle();
+
+    expect(background(), error);
+  });
+
+  testWidgets('a single decision has no step number', (tester) async {
+    await openSheet(tester, _rangeProposal());
+
+    expect(find.text('Values outside the new range'), findsOneWidget);
+    expect(find.textContaining('1: '), findsNothing);
+  });
+
 
   testWidgets('picking Clear updates the example and the returned migration', (tester) async {
     final proposal = _rangeProposal();
@@ -184,12 +268,13 @@ void main() {
 
     expect(find.text('Unit changed from psi to bar'), findsOneWidget);
     expect(find.text('Values outside the new range'), findsNothing);
-    expect(find.text('0.68948 bar'), findsOneWidget);
+    expect(find.text('≈ 0.689 bar'), findsOneWidget);
 
     await tester.tap(find.text('Keep numbers'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Values outside the new range'), findsOneWidget);
+    expect(find.text('1: Unit changed from psi to bar'), findsOneWidget);
+    expect(find.text('2: Values outside the new range'), findsOneWidget);
     expect(find.text('2 bar'), findsOneWidget);
   });
 

@@ -225,8 +225,18 @@ class MigrationProposal {
   /// The distinct records the issues touch.
   AffectedRecords get affected => AffectedRecords.of(issues.expand((issue) => issue.records));
 
-  /// Whether a choice removes recorded values.
+  /// Whether a choice removes recorded values or options from them.
   bool get clearsValues => issues.any((issue) => issue.choice.kind == MigrationChoiceKind.clear);
+
+  /// The distinct records the migration leaves without a value. A deleted
+  /// option removed from a selection that keeps other options is not counted.
+  AffectedRecords get cleared {
+    final migration = toMigration();
+    return AffectedRecords.of([
+      for (final record in recorded)
+        if (migration.apply(record.value) == null) record,
+    ]);
+  }
 
   /// The name to show for a saved [option].
   String optionLabel(String option) => optionLabels[option] ?? option;

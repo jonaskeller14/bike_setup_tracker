@@ -451,6 +451,7 @@ class _PersonPageState extends State<PersonPage> {
                                     initialAdjustments: widget.mode == PersonPageMode.edit
                                         ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a)))
                                         : null,
+                                    pendingMigrations: _pendingMigrations,
                                     editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
                                     duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
                                     removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),

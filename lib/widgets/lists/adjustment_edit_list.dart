@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../models/adjustment/adjustment.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../items/adjustment_list_card.dart';
 
 class AdjustmentEditList extends StatelessWidget {
   final List<Adjustment> adjustments;
   final Map<String, Adjustment>? initialAdjustments;
   final Map<String, double>? metricWeights;
+  final Map<String, MigrationProposal>? pendingMigrations;
   final void Function(Adjustment adjustment) editAdjustment;
   final void Function(Adjustment adjustment) duplicateAdjustment;
   final void Function(Adjustment adjustment) removeAdjustment;
@@ -21,6 +23,7 @@ class AdjustmentEditList extends StatelessWidget {
     required this.adjustments,
     required this.initialAdjustments,
     this.metricWeights,
+    this.pendingMigrations,
     required this.editAdjustment,
     required this.duplicateAdjustment,
     required this.removeAdjustment,
@@ -42,7 +45,9 @@ class AdjustmentEditList extends StatelessWidget {
               adjustment: adjustments[index],
               index: index,
               elevation: elevation,
+              initialAdjustments: initialAdjustments,
               metricWeight: metricWeights?[adjustments[index].id],
+              pendingMigration: pendingMigrations?[adjustments[index].id],
               editAdjustment: editAdjustment,
               duplicateAdjustment: duplicateAdjustment,
               removeAdjustment: removeAdjustment,
@@ -65,7 +70,9 @@ class AdjustmentEditList extends StatelessWidget {
           key: ValueKey(adjustment.id),
           adjustment: adjustment,
           index: index,
+          initialAdjustments: initialAdjustments,
           metricWeight: metricWeights?[adjustment.id],
+          pendingMigration: pendingMigrations?[adjustment.id],
           editAdjustment: editAdjustment,
           duplicateAdjustment: duplicateAdjustment,
           removeAdjustment: removeAdjustment

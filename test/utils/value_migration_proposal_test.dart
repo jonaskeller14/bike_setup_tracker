@@ -653,6 +653,44 @@ void main() {
       expect(proposal.affected.deleted, 1);
       expect(proposal.clearsValues, isFalse);
     });
+
+    test('cleared counts only the records left without a value', () {
+      final numerical = MigrationProposal.build(
+        before: _numerical(max: 100),
+        after: _numerical(max: 50),
+        recorded: [_record(const NumericalValue(80)), _record(const NumericalValue(90), deleted: true)],
+      ).withChoice('range', MigrationChoice.clear);
+      expect((numerical.cleared.live, numerical.cleared.deleted), (1, 1));
+
+      final clamped = numerical.withChoice('range', MigrationChoice.clamp);
+      expect(clamped.cleared.live + clamped.cleared.deleted, 0);
+
+      // A renamed record changes; only the one holding the cleared option is left empty.
+      final renamedAndDeleted = MigrationProposal.build(
+        before: _categorical({'open', 'pedal', 'lock'}),
+        after: _categorical({'open', 'pedal2'}),
+        optionOrigins: const {'open': 'open', 'pedal2': 'pedal'},
+        recorded: [_record(_cat(['pedal'])), _record(_cat(['lock']))],
+      ).withChoice('delete:lock', MigrationChoice.clear);
+      expect(renamedAndDeleted.affected.live, 2);
+      expect(renamedAndDeleted.cleared.live, 1);
+
+      // Removing an option from a selection that keeps others leaves a value.
+      final multi = MigrationProposal.build(
+        before: _categorical({'open', 'lock'}, multiSelect: true),
+        after: _categorical({'open'}, multiSelect: true),
+        recorded: [_record(_cat(['open', 'lock']))],
+      ).withChoice('delete:lock', MigrationChoice.clear);
+      expect(multi.clearsValues, isTrue);
+      expect(multi.cleared.live, 0);
+
+      final incompatible = MigrationProposal.build(
+        before: _numerical(unit: _psi),
+        after: _numerical(unit: const CustomUnit('clicks')),
+        recorded: [_record(const NumericalValue(10))],
+      ).withChoice('unit', MigrationChoice.clear);
+      expect(incompatible.cleared.live, 1);
+    });
   });
 
   group('invariant', () {

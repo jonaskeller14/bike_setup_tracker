@@ -670,6 +670,7 @@ class _RatingPageState extends State<RatingPage> {
                                     initialAdjustments: widget.mode == RatingPageMode.edit
                                         ? {for (final m in widget.rating!.metrics) m.id: m.adjustment}
                                         : null,
+                                    pendingMigrations: _pendingMigrations,
                                     editAdjustment: (a) => _editMetric(_metrics.firstWhere((m) => m.id == a.id), onChanged: notify),
                                     duplicateAdjustment: (a) => _duplicateMetric(_metrics.firstWhere((m) => m.id == a.id), onChanged: notify),
                                     removeAdjustment: (a) => removeMetric(_metrics.firstWhere((m) => m.id == a.id), onChanged: notify),

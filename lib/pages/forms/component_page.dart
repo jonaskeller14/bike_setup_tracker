@@ -1158,6 +1158,7 @@ class _ComponentPageState extends State<ComponentPage> {
                                     initialAdjustments: widget.mode == ComponentPageMode.edit
                                         ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a)))
                                         : null,
+                                    pendingMigrations: _pendingMigrations,
                                     editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
                                     duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
                                     removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),

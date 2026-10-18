@@ -271,13 +271,17 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   Future<void> _zoomBy(double delta) =>
       _camera.move(_mapController.camera.center, (_mapController.camera.zoom + delta).clamp(3.0, 18.0));
 
-  Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin}) {
+  Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin, String? identifier}) {
     return Marker(
       point: point,
       width: 40,
       height: 40,
       alignment: mapPinAlignment,
-      child: GestureDetector(onTap: () => _openPinSheet(point, onTap), child: pin),
+      child: Semantics(
+        container: true,
+        identifier: identifier,
+        child: GestureDetector(onTap: () => _openPinSheet(point, onTap), child: pin),
+      ),
     );
   }
 
@@ -304,6 +308,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
               isCurrent: appRepository.setupHistory.isCurrent(setup.id),
               isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
             ),
+            identifier: AutomationIds.mapSetup(setup.id),
           ),
         );
   }
@@ -388,6 +393,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             isCurrent: appRepository.setupHistory.isCurrent(setup.id),
             isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
           ),
+          identifier: AutomationIds.mapSetup(setup.id),
         ),
     if (widget.focusRatingEntry case final ratingEntry?)
       if (_pointOf(ratingEntry.position) case final point?)

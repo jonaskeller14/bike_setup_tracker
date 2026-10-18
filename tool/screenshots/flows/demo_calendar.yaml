@@ -1,4 +1,6 @@
-# Demo: setups, rides and tasks in the calendar's month view.
+# scenario: full
+# Demo: the calendar's month view, then the showcase day (a setup, a ride, an
+# installation and a task on one day) in the day view, opening each entry.
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
@@ -17,7 +19,7 @@ appId: ${APP_ID}
     file: _pause.yaml
     env:
       MS: 1500
-- runScript: scripts/calendar_months_back.js
+- runScript: scripts/calendar_showcase_day.js
 # Swiping right pages the month view back by one month.
 - repeat:
     times: ${output.monthsBack}
@@ -30,6 +32,45 @@ appId: ${APP_ID}
           file: _pause.yaml
           env:
             MS: 1500
+# Tapping a day in the month view opens it in the day view. The cell's label
+# is a date the calendar package formats, not an app string.
+- tapOn: ${output.dayLabel}
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+
+# Fox 40 off for service
+- tapOn:
+    id: calendar.entry.inst:6c0adba8-10fe-4de6-9f0a-a742516be73f
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- runFlow: _close_sheet.yaml
+# Mia - Hometrails: the setup, then the ride it was used on
+- tapOn:
+    id: calendar.entry.setup:5296ee57-47ed-40a1-91e6-f2c215a9b501
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- runFlow: _close_sheet.yaml
+- tapOn:
+    id: calendar.entry.strava:18000000009
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- runFlow: _close_sheet.yaml
+# Bled rear brake
+- tapOn:
+    id: calendar.entry.task:d93458b0-141e-4654-a6e4-fca9c7ff78ee
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- runFlow: _close_sheet.yaml
 - runFlow:
     file: _stop_recording.yaml
     env:

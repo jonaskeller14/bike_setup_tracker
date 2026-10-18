@@ -1,0 +1,19 @@
+# Shared subflow: go back one page. iOS has no Back key; Flutter's iOS page
+# transition pops on a swipe from the left edge instead.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - pressKey: Back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          start: 1%, 50%
+          end: 80%, 50%
+          duration: 500
+- waitForAnimationToEnd:
+    timeout: 3000

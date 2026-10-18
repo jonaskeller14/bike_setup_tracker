@@ -1,0 +1,55 @@
+# scenario: full
+# Demo: rides counted automatically. The Hightower's chain shows the distance
+# and rides the Strava sync added up, and its distance-based task; then the
+# bike's "every 150 km" bolt check, which those rides made due. Reached from
+# the component and the task, not from the Strava dashboard. The screenshot
+# build's Strava service is an offline fake that appears connected.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_strava_distance
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+# SRAM XX1 Chain: double-tap opens its details page
+- doubleTapOn:
+    id: garage.component.93a8d294-a489-4275-9868-28643eabe3bd
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+# The stats pager's second page counts the rides.
+- swipe:
+    start: 80%, 17%
+    end: 20%, 17%
+    duration: 500
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- tapOn:
+    id: openTasks
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+
+- runFlow: _back.yaml
+- tapOn:
+    id: nav.tasks
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# Bolt torque check (every 150 km, due on the Hightower)
+- tapOn:
+    id: taskRule.title.6b0f4d7e-2c1a-4e59-8f3d-9a7c5e1b2d40
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 3000

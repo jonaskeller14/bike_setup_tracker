@@ -1,6 +1,9 @@
-# Demo: record a setup. Location and weather fill in on their own (the run
-# scripts pin the GPS to Finale Ligure; the screenshot build's weather is
-# fixed), then the flow changes one adjustment, names it and saves it.
+# scenario: no_setups
+# Demo: record the first setup. Location and weather fill in on their own (the
+# run scripts pin the GPS to Finale Ligure; the screenshot build's weather is
+# fixed), then the flow sets the fork's rebound and pressure, names the setup
+# and saves it. demo_setup_list is the second take: the history a season of
+# setups builds.
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
@@ -23,9 +26,11 @@ appId: ${APP_ID}
 - runFlow:
     file: _pause.yaml
     env:
-      MS: 1500
+      MS: 2500
 
-# Lyrik Rebound (step slider): tapping the centre moves it to mid-range (9)
+# Lyrik Rebound first, while no keyboard covers the form. "Set value" starts
+# the slider at its minimum; tapping the slider's centre then moves it to
+# mid-range.
 - scrollUntilVisible:
     element:
       id: setAdjustment.aefea436-580a-479b-bcd4-943a93c8e2fb
@@ -35,17 +40,40 @@ appId: ${APP_ID}
 - runFlow:
     file: _pause.yaml
     env:
+      MS: 600
+- tapOn:
+    id: setAdjustment.aefea436-580a-479b-bcd4-943a93c8e2fb
+- runFlow:
+    file: _pause.yaml
+    env:
       MS: 1000
+
+# Lyrik Pressure
+- scrollUntilVisible:
+    element:
+      id: setAdjustment.22866141-fe35-4cdc-99df-6e1ba91c1033
+    direction: UP
+- tapOn:
+    id: setAdjustment.22866141-fe35-4cdc-99df-6e1ba91c1033
+# Typing while the keyboard slides in can double the first letter.
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: '84'
+- runFlow: _hide_keyboard_android.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+
 - scrollUntilVisible:
     element:
       id: setupForm.name
     direction: UP
 - tapOn:
     id: setupForm.name
-# Typing while the keyboard slides in can double the first letter.
 - waitForAnimationToEnd:
     timeout: 3000
-- inputText: Finale Ligure - NATO Trail
+- inputText: Finale Ligure - baseline
 - runFlow: _hide_keyboard_android.yaml
 - runFlow:
     file: _pause.yaml

@@ -1,0 +1,20 @@
+# scenario: full
+# Demo: the second take of demo_add_setup. The setup history after a season,
+# scrolled slowly; the marketing renderer joins the two takes.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- startRecording: demo_setup_list
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# Slow drags read as scrolling instead of a jump.
+- swipe:
+    start: 50%, 75%
+    end: 50%, 25%
+    duration: 3000
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 1500

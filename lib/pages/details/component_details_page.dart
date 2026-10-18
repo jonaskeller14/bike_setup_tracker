@@ -541,13 +541,17 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               ),
 
               const Divider(height: 1),
-              const SectionTitle(
-                title: "Radial Chart",
-                infoText:
-                    "• Shows the setups selected in the table above.\n"
-                    "• Axes are normalized across all data for stable comparison.\n"
-                    "• Tap a legend entry to highlight a specific graph.\n"
-                    "• Long-press a legend entry to remove it from the selection.",
+              Semantics(
+                container: true,
+                identifier: AutomationIds.componentDetailsRadialChart,
+                child: const SectionTitle(
+                  title: "Radial Chart",
+                  infoText:
+                      "• Shows the setups selected in the table above.\n"
+                      "• Axes are normalized across all data for stable comparison.\n"
+                      "• Tap a legend entry to highlight a specific graph.\n"
+                      "• Long-press a legend entry to remove it from the selection.",
+                ),
               ),
               SetupRadialChart(
                 activeColumns: activeColumns,
@@ -571,14 +575,18 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
 
               if (appSettings.enableStrava) ...[
                 const Divider(height: 1),
-                const SectionTitle(
-                  title: "Activity Histogram",
-                  infoText:
-                      "• Shows how many Strava activities were ridden with each adjustment value.\n"
-                      "• Counts all setups in the table above, not just the selected ones.\n"
-                      "• Numerical values are grouped into ranges when there are many distinct values.\n"
-                      "• Tap a legend entry to show a different adjustment.\n"
-                      "• Long-press a legend entry to remove its column.",
+                Semantics(
+                  container: true,
+                  identifier: AutomationIds.componentDetailsHistogram,
+                  child: const SectionTitle(
+                    title: "Activity Histogram",
+                    infoText:
+                        "• Shows how many Strava activities were ridden with each adjustment value.\n"
+                        "• Counts all setups in the table above, not just the selected ones.\n"
+                        "• Numerical values are grouped into ranges when there are many distinct values.\n"
+                        "• Tap a legend entry to show a different adjustment.\n"
+                        "• Long-press a legend entry to remove its column.",
+                  ),
                 ),
                 if (!subscriptionService.hasStravaEntitlement)
                   EmptyStatePlaceholder(

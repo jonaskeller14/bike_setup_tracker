@@ -168,6 +168,8 @@ Check these against App Store Connect's current *App preview specifications* bef
 
 ## Demo clips (marketing)
 
+**Production policy.** Everything published is recorded with Maestro: reviews always lead to re-takes, so a take has to be repeatable. Claude driving the simulator directly is for exploring the app, drafting new flows and one-off stills. System UI that is hard to automate, such as the file picker for attachments, is avoided by seeding the state in a scenario instead.
+
 ```powershell
 tool/screenshots/run_android.ps1 -Demo                 # records flows/demo_*.yaml
 ```
@@ -181,20 +183,25 @@ tool/screenshots/run_ios.sh iphone --demo              # the clips the marketing
 
 The marketing kits use the iPhone clips: the iPhone frame's screen hole is exactly 1320×2868, so the recording fits without cropping, and an iPhone looks familiar on social media. A kit that sets `"recordings": "build/marketing/raw"` and `"device": "android"` uses the Android clips in the Android frame (`tool/marketing/assets/frames/android.png`, screen hole 1080×2400).
 
-| Flow | Shows |
-|---|---|
-| `demo_add_bike` | A new bike in the garage |
-| `demo_add_component` | A fork with Pressure and Rebound from the type's suggestions |
-| `demo_add_setup` | Location and weather filling in, one adjustment, save |
-| `demo_setup_history` | The Hightower's history, then its newest setup compared with the one before |
-| `demo_analysis` | The Lyrik's line and radial charts over all setups |
-| `demo_tasks` | Ticking off a due task |
-| `demo_map` | The Finale Ligure ride on the map with its setups |
-| `demo_calendar` | The month view |
-| `demo_strava` | The Strava dashboard, then a ride with the setup ridden on it |
+Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` line.
+
+| Flow | Scenario | Shows |
+|---|---|---|
+| `demo_add_bike` | `empty` | From an empty garage to the first bike |
+| `demo_add_component` | `one_bike_no_components` | The Hightower's fork, with Pressure and Rebound from the type's suggestions |
+| `demo_add_setup` | `no_setups` | Location and weather filling in, the fork's rebound and pressure, save |
+| `demo_setup_list` | `full` | The setup history after a season: the second take of `demo_add_setup`, for a transition |
+| `demo_setup_history` | `full` | The Hightower's history, its newest setup compared with the one before, then with another setup picked (2 changed values) |
+| `demo_analysis` | `analysis` | The Lyrik's line chart with LSC highlighted from the legend, then the radial chart and the activity histogram, without interaction |
+| `demo_map` | `full` | The Finale Ligure ride's pin with its 2 setups, then one of the setup pins |
+| `demo_calendar` | `full` | The month view, then the showcase day in the day view, opening its installation, setup, ride and task |
+| `demo_tasks` | `tasks_one_due` | Ticking off the only due task: the "all caught up" placeholder, then the task in the completed section |
+| `demo_strava_distance` | `full` | Rides counted automatically: the chain's distance and rides, its distance-based task, then the bike's due "every 150 km" bolt check |
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as the component preset catalog.
 - **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.
 - **Ending.** Flows end with `_stop_recording.yaml` instead of `stopRecording`. Both the Android encoder and the iOS Simulator keep the last frames before a still screen until the screen changes again, and `stopRecording` drops them, so a clip would end before its final transition. The subflow holds the screen, then presses *Volume Up* (Android) or *Home* (iOS). The volume panel or home animation that follows stays in the file; `tool/marketing/build_kit.py` cuts it off automatically. A tap can't do this: the status bar opens the notification shade, and an in-app tap depends on the page.
 - **Map tiles.** `demo_map` waits `TILE_WAIT_MS` before it starts recording, so the clip doesn't show tiles loading.
+- **Sheets.** `flows/_close_sheet.yaml` swipes the drag handle down, on both platforms. A tall sheet leaves no barrier to tap on iOS, and XCTest doesn't see the close button in a sheet's app bar. `flows/_back.yaml` presses Back on Android and swipes from the left edge on iOS.
+- **Calendar day.** `flows/scripts/calendar_showcase_day.js` pages the month view to the showcase day (see the content rules above) and taps its cell by the date label the calendar package writes, e.g. `Mon, 14 September 2026`.
 - Running a demo flow by hand needs `-e APP_ID=<bundle id>`, plus `-e TILE_WAIT_MS=<ms>` for `demo_map`; `maestro test --test-output-dir <dir>` keeps the mp4.

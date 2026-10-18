@@ -10,6 +10,7 @@ import 'package:bike_setup_tracker/pages/home_page.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/utils/automation_ids.dart';
 import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
+import 'package:bike_setup_tracker/widgets/sheets/compare_setups.dart';
 import 'package:bike_setup_tracker/widgets/sheets/rider_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -270,10 +271,35 @@ void main() {
       );
       await settleGolden(tester);
       expect(find.bySemanticsIdentifier(AutomationIds.taskRuleComplete(rule.id)), findsOneWidget);
+      expect(mergedNode(AutomationIds.taskRuleTitle(rule.id)), findsOne);
 
       await tester.pumpWidget(harness.wrap(brightness: Brightness.light, child: TaskEntryPage.add(taskRule: rule)));
       await settleGolden(tester);
       expect(find.bySemanticsIdentifier(AutomationIds.taskEntryFormSave), findsOneWidget);
+      semantics.dispose();
+    });
+
+    testWidgets('CompareSetups exposes the setup pickers and their options', (tester) async {
+      useGoldenViewport(tester);
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        harness.wrap(
+          brightness: Brightness.light,
+          child: const Scaffold(
+            body: CompareSetups(setupAId: GoldenTestHarness.olderSetupId, setupBId: GoldenTestHarness.newerSetupId),
+          ),
+        ),
+      );
+      await settleGolden(tester);
+
+      expect(find.bySemanticsIdentifier(AutomationIds.compareSetupsSide('A')), findsOneWidget);
+      expect(find.bySemanticsIdentifier(AutomationIds.compareSetupsSide('B')), findsOneWidget);
+
+      await tester.tap(find.bySemanticsIdentifier(AutomationIds.compareSetupsSide('A')));
+      await tester.pumpAndSettle();
+      final option = mergedNode(AutomationIds.compareSetupsOption(GoldenTestHarness.oldestSetupId));
+      expect(option, findsOne);
+      expect(option.evaluate().single.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
       semantics.dispose();
     });
 

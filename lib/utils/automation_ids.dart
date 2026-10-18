@@ -18,6 +18,10 @@ abstract final class AutomationIds {
   static String setupActions(String setupId) => 'setup.actions.$setupId';
   static const setupActionsCompare = 'setup.compare';
 
+  /// The comparison sheet's setup pickers, by side ('A' or 'B').
+  static String compareSetupsSide(String side) => 'compareSetups.side.$side';
+  static String compareSetupsOption(String setupId) => 'compareSetups.option.$setupId';
+
   static const addBikeFab = 'garage.addBike';
   static String garageBike(String bikeId) => 'garage.bike.$bikeId';
   static String garageComponent(String componentId) => 'garage.component.$componentId';
@@ -31,11 +35,17 @@ abstract final class AutomationIds {
   static const componentDetailsAdjustmentHistory = 'componentDetails.adjustmentHistory';
   static const componentDetailsColumns = 'componentDetails.columns';
   static const componentDetailsLineChart = 'componentDetails.lineChart';
+  static const componentDetailsRadialChart = 'componentDetails.radialChart';
+  static const componentDetailsHistogram = 'componentDetails.histogram';
+
+  /// The "Open Tasks" section header on the bike and component details pages.
+  static const openTasks = 'openTasks';
 
   static const setupTableSelectAll = 'setupTable.selectAll';
 
   /// Legend entries in chart order, so a flow can pick "the first setup".
   static String radialChartLegend(int index) => 'radialChart.legend.$index';
+  static String lineChartLegend(int index) => 'lineChart.legend.$index';
 
   static const componentFormSave = 'componentForm.save';
   static const componentFormAdditionalFields = 'componentForm.additionalFields';
@@ -59,9 +69,14 @@ abstract final class AutomationIds {
   static const stravaActivitySetups = 'stravaActivity.setups';
 
   static String taskRuleComplete(String taskRuleId) => 'taskRule.complete.$taskRuleId';
+  static String taskRuleTitle(String taskRuleId) => 'taskRule.title.$taskRuleId';
   static const taskEntryFormSave = 'taskEntryForm.save';
 
   static const mapFocusActivity = 'map.focusActivity';
+  static String mapSetup(String setupId) => 'map.setup.$setupId';
 
   static const calendarToday = 'calendar.today';
+
+  /// A calendar appointment by its timeline entry id, e.g. `setup:<id>`.
+  static String calendarEntry(String entryId) => 'calendar.entry.$entryId';
 }

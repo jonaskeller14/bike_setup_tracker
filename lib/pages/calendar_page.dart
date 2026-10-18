@@ -903,13 +903,15 @@ class _CalendarPageState extends State<CalendarPage> {
     if (row is! EntryRow) return const SizedBox.shrink();
     final showSetupBookmark = context.read<AppSettings>().enableSetupBookmark;
     final currentSetupIds = context.read<AppRepository>().setupHistory.currentSetupIds;
-    return CalendarEntryAppointment(
+    final appointment = CalendarEntryAppointment(
       details: details,
       icon: calendarIconForRow(row, currentSetupIds: currentSetupIds, showSetupBookmark: showSetupBookmark),
       subject: calendarSubjectForRow(row),
       color: calendarColorForRow(row, cs),
       contentColor: calendarOnColorForRow(row, cs),
     );
+    if (row is! SingleEntryRow) return appointment;
+    return Semantics(container: true, identifier: AutomationIds.calendarEntry(row.entry.id), child: appointment);
   }
 }
 

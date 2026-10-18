@@ -1,6 +1,8 @@
-# Demo: the Finale Ligure ride on the map, with the setups ridden on it.
-# Recording starts once the map is open, after TILE_WAIT_MS (set by the run
-# scripts) for the live CyclOSM tiles.
+# scenario: full
+# Demo: the Finale Ligure ride on the map. Its pin opens the ride with the two
+# setups ridden on it; closing it, a setup pin opens that setup. Recording
+# starts once the map is open, after TILE_WAIT_MS (set by the run scripts) for
+# the live CyclOSM tiles.
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
@@ -48,6 +50,18 @@ appId: ${APP_ID}
     end: 50%, 45%
     duration: 1500
 - runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- runFlow: _close_sheet.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+# Finale NATO - lower rock section
+- tapOn:
+    id: map.setup.c2443216-d4ab-487a-b93e-d0e7ab4b351f
+- runFlow:
     file: _stop_recording.yaml
     env:
-      MS: 2500
+      MS: 3000

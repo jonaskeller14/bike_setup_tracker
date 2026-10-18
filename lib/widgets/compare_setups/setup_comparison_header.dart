@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/setup.dart';
+import '../../utils/automation_ids.dart';
 import '../current_setup_badge.dart';
 import '../current_setup_highlight.dart';
 import '../sheets/sheet.dart';
@@ -294,7 +295,7 @@ class _SetupIdentity extends StatelessWidget {
         builder: (context, constraints) {
           final identityWidth = constraints.maxWidth;
           final bandWidth = 2 * identityWidth + _bandGap + 2 * _bandInset;
-          return PopupMenuButton<Setup>(
+          final picker = PopupMenuButton<Setup>(
             tooltip: 'Choose setup $side',
             enableFeedback: true,
             constraints: BoxConstraints.tightFor(width: bandWidth - _menuNearGutter - _menuFarGutter),
@@ -323,6 +324,7 @@ class _SetupIdentity extends StatelessWidget {
             onSelected: onSetupChanged!,
             child: animatedContent,
           );
+          return Semantics(container: true, identifier: AutomationIds.compareSetupsSide(side), child: picker);
         },
       ),
     );
@@ -414,7 +416,7 @@ class _SetupIdentity extends StatelessWidget {
     return PopupMenuItem<Setup>(
       value: candidate,
       padding: EdgeInsets.zero,
-      child: child,
+      child: Semantics(identifier: AutomationIds.compareSetupsOption(candidate.id), child: child),
     );
   }
 

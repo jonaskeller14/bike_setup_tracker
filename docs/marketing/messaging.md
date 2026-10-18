@@ -120,6 +120,9 @@ context; not a standalone headline.
 | Search asset, store test | R7 | The live v1 headline; Phase 6 tests it against R4 |
 | Screenshot 1 (garage) | **R1** | The garage screen shows the values: pressure, LSC, rebound per part |
 | OG image (website) | R4 | Outside the store funnel; the same promise as the search asset |
+| Website hero | R4 | Matches the OG image a shared link shows |
+| Website sections 01–04 | R8, C4, S1, D2 | One per pillar, in pillar order; none repeats a store-funnel headline |
+| Website end card (download section) | Signature | Next to the mark, like the social end card |
 | End card (Shorts, walkthrough) | Signature | Next to the icon; the name is the hero (brand.md) |
 | Short hooks | R3, C5, S4 | Questions; one per Short, from the pillar the Short shows |
 

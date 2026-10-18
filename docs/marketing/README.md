@@ -8,6 +8,9 @@ canonical plan and status tracker; this folder holds the reusable material.
 
 | Path | Content | Tracked |
 |---|---|---|
+| `docs/marketing/messaging.md` | Positioning, pillars, audiences, headline bank (EN + DE) and which surface uses which headline (#77) | yes |
+| `docs/marketing/brand.md` | Brand guide: look, logo, color, type, safe areas, end card, callouts, do's and don'ts (#77) | yes |
+| `docs/marketing/brand/reference/` | Reference frames of the picked design direction; new templates match them (#77) | yes |
 | `docs/marketing/links.md` | Campaign-tagged store links per channel | yes |
 | `docs/marketing/accounts/<channel>.md` | Live profile text per account (bio, description, links) | yes |
 | `docs/marketing/posts/` | One file per post with its text, media and status | yes, once posted |

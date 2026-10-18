@@ -139,7 +139,7 @@ What each surface looks like (see `reference.html`):
 |---|---|
 | Search asset | Brand row; headline R4 with "MTB suspension." in teal; number block Rebound 9→10, LSC 7→8, Pressure 84→85 psi; Setup History in the phone on the right |
 | App Store header | No phone (Apple: the header is about the brand). Brand row and label in the safe area; headline R2 in two lines, "Fork and shock" in teal; a values row (Rebound, LSC, Pressure); full-width rules |
-| Short frame | Brand row; hook R3 with "clicks" in teal; the phone below, bleeding off the bottom |
+| Short frame | Brand row; hook R3 with "clicks" in teal, three lines at most; the whole phone below, so the bottom of the screen (FAB, sliders, nav bar) stays visible |
 | End card | See below |
 | Post (4:5) | "Setup history" label and date; setup name; Fork · Rebound 9→10 big; LSC and pressure below; brand row and "See what changed" in the footer |
 | OG image | Brand row; headline R4; small label row; the phone cropped at the right edge |

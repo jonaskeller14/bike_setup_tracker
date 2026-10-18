@@ -54,7 +54,7 @@ build.
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
   never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
-- **Questions are hooks, statements are headlines.** Question lines (R3, C5, S4) open Shorts and
+- **Questions are hooks, statements are headlines.** Question lines (R3, R9, R10, C5–C7, S4–S6) open Shorts and
   posts; store assets use statements.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
@@ -76,6 +76,8 @@ German riders, not translated word for word.
 | R6 | Every fork setup, with the weather it was ridden in. | Jedes Gabel-Setup, mit dem Wetter der Ausfahrt. |
 | R7 | Never lose your suspension sweet spot. | Nie wieder den Sweet Spot deines Fahrwerks verlieren. |
 | R8 | Back to the fork setup that worked. | Zurück zum Gabel-Setup, das funktioniert hat. |
+| R9 | Where do you keep your fork settings? | Wo notierst du deine Gabel-Einstellungen? |
+| R10 | Which fork setup did you ride on that trip? | Mit welchem Gabel-Setup bist du den Trip gefahren? |
 
 ### C — See what changed
 
@@ -86,6 +88,8 @@ German riders, not translated word for word.
 | C3 | Find the fork setting that works for you. | Finde die Gabel-Einstellung, die zu dir passt. |
 | C4 | Every change to your MTB, at a glance. | Jede Änderung an deinem MTB auf einen Blick. |
 | C5 | Was it the rebound or the tire pressure? | War es die Zugstufe oder der Reifendruck? |
+| C6 | How did your fork setup change this season? | Wie hat sich dein Gabel-Setup diese Saison verändert? |
+| C7 | What did you change on your bike before that ride? | Was hast du vor der Ausfahrt an deinem Bike geändert? |
 
 ### S — Service on time
 
@@ -95,6 +99,8 @@ German riders, not translated word for word.
 | S2 | Fork, shock, chain: serviced on time. | Gabel, Dämpfer, Kette: Wartung pünktlich. |
 | S3 | Your bike's service log, always current. | Das Wartungsbuch für dein Bike, immer aktuell. |
 | S4 | When did you last service your fork? | Wann war dein letzter Gabel-Service? |
+| S5 | What's due on your bike this week? | Was ist an deinem Bike diese Woche fällig? |
+| S6 | How many km has your chain done? | Wie viele Kilometer hat deine Kette schon? |
 
 ### D — Your data stays yours
 
@@ -117,13 +123,12 @@ context; not a standalone headline.
 | App Store search results asset | **R4** | Names the category in the first glance; next to real UI |
 | App Store header | **R2** | Type-only header (brand.md): the headline above a row of fork values |
 | Play feature graphic | **C3** | The outcome, short enough for 1024×500 |
-| Search asset, store test | R7 | The live v1 headline; Phase 6 tests it against R4 |
 | Screenshot 1 (garage) | **R1** | The garage screen shows the values: pressure, LSC, rebound per part |
 | OG image (website) | R4 | Outside the store funnel; the same promise as the search asset |
 | Website hero | R4 | Matches the OG image a shared link shows |
 | Website sections 01–04 | R8, C4, S1, D2 | One per pillar, in pillar order; none repeats a store-funnel headline |
 | Website end card (download section) | Signature | Next to the mark, like the social end card |
 | End card (Shorts, walkthrough) | Signature | Next to the icon; the name is the hero (brand.md) |
-| Short hooks | R3, C5, S4 | Questions; one per Short, from the pillar the Short shows |
+| Short hooks | R3, R9, R10, C5–C7, S4–S6 | Questions; one per Short, from the pillar the Short shows (`showcase` kit) |
 
 Screenshots 2–8 keep one pillar each; their captions are reworked in Phase 5.

@@ -18,9 +18,10 @@
 <style>
   html, body { width: 1080px; height: 1920px; }
   .brand { left: 60px; top: 120px; --mark: 72px; }
-  .caption { position: absolute; left: 60px; top: 262px; width: 960px; height: 460px; font-size: 132px; }
-  /* Bleeds off the bottom; the rule above ends at the frame's margin, not at the phone. */
-  .phone { left: 172px; top: 760px; --pw: 735; }
+  /* Three lines at most, so the whole phone fits below: the FAB, sliders and nav bar at the bottom
+     of the screen stay visible. */
+  .caption { position: absolute; left: 60px; top: 262px; width: 960px; height: 350px; font-size: 124px; }
+  .phone { left: 230px; top: 640px; --pw: 620; }
 </style>
 </head>
 <body>

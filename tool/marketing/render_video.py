@@ -28,15 +28,18 @@ LIFT_SCALE = 1.6
 INK = "0x0A0A0A"
 END_CARD_SECONDS = 2.0
 END_CARD_FADE = 0.4
+JOIN_FADE = 0.4  # Crossfade between two takes of one video.
 MUSIC_CROSSFADE = 4.0
 GIF_LIMIT = 8 * 1024 * 1024
 # (fps, width) tried in order until a GIF fits GIF_LIMIT.
 GIF_STEPS = [(15, 360), (12, 320), (10, 270)]
-# Website loops: lossy animated WebP, about a quarter of the GIF's size.
+# Website loops: lossy animated WebP. Sharp YUV keeps the orange and red UI edges from fringing
+# (4:2:0 chroma). The landing page shows the screen 224–287 CSS px wide, so 540 px stays sharp on
+# a 2× display; v1 (400 px, q55) smeared text and value chips.
 WEB_FPS = 12
-WEB_WIDTH = 400
-WEB_QUALITY = 55
-WEB_STILL_QUALITY = 75
+WEB_WIDTH = 540
+WEB_QUALITY = 85
+WEB_STILL_QUALITY = 85
 
 # Near-lossless intermediates; only the final files are encoded for delivery.
 INTERMEDIATE = ["-c:v", "libx264", "-preset", "fast", "-crf", "12", "-pix_fmt", "yuv420p"]
@@ -327,18 +330,28 @@ def render_still(chrome, template, size, params, out):
         raise RuntimeError("; ".join(problems))
 
 
-def assemble(segments, out, end_card=None, music=None, audio=True):
+def assemble(segments, out, end_card=None, music=None, audio=True, fade=0.0):
     """Joins video-only segments, crossfades into the end card still and adds audio.
 
-    audio: the music bed (looped, faded, loudness-normalized) if music is given, else a silent
-    stereo track. Returns the length.
+    fade: crossfade between segments in seconds (0 cuts). audio: the music bed (looped, faded,
+    loudness-normalized) if music is given, else a silent stereo track. Returns the length.
     """
     inputs = []
     for segment in segments:
         inputs += ["-i", segment]
     n = len(segments)
-    total = sum(duration(s) for s in segments)
-    graph = ["".join(f"[{i}:v]" for i in range(n)) + f"concat=n={n}:v=1:a=0,settb=AVTB,fps={FPS}[main]"]
+    lengths = [duration(s) for s in segments]
+    total = sum(lengths) - fade * (n - 1)
+    if fade and n > 1:
+        graph = [f"[{i}:v]settb=AVTB,fps={FPS}[c{i}]" for i in range(n)]
+        current, offset = "c0", 0.0
+        for i in range(1, n):
+            offset += lengths[i - 1] - fade
+            graph.append(f"[{current}][c{i}]xfade=transition=fade:duration={fade}:offset={offset:.3f}[j{i}]")
+            current = f"j{i}"
+        graph.append(f"[{current}]null[main]")
+    else:
+        graph = ["".join(f"[{i}:v]" for i in range(n)) + f"concat=n={n}:v=1:a=0,settb=AVTB,fps={FPS}[main]"]
     if end_card:
         inputs += ["-loop", "1", "-framerate", FPS, "-t", END_CARD_SECONDS + END_CARD_FADE, "-i", end_card]
         graph.append(f"[{n}:v]format=yuv420p,settb=AVTB,fps={FPS}[card]")
@@ -401,7 +414,7 @@ def animate(chrome, template, size, steps, out, out_size=None):
     return duration(out)
 
 
-def join(clips, out, fade=0.4):
+def join(clips, out, fade=JOIN_FADE):
     """Crossfades prepared clips of the same size into one video-only intermediate; returns its length."""
     out.parent.mkdir(parents=True, exist_ok=True)
     if len(clips) == 1:
@@ -456,7 +469,8 @@ def web_loop(clip, work, out, still):
     ffmpeg("-i", clip, "-vf", f"fps={WEB_FPS},scale={WEB_WIDTH}:-2:flags=lanczos", work / "%04d.png")
     frames = sorted(p.name for p in work.glob("*.png"))
     # An argument file keeps the command line short enough for Windows.
-    args = ["-loop", "0", "-lossy", "-q", WEB_QUALITY, "-d", round(1000 / WEB_FPS), *frames, "-o", out.resolve()]
+    args = ["-loop", "0", "-lossy", "-sharp_yuv", "-q", WEB_QUALITY, "-d", round(1000 / WEB_FPS), *frames,
+            "-o", out.resolve()]
     (work / "args.txt").write_text(" ".join(map(str, args)), encoding="utf-8")
     libwebp("img2webp", "args.txt", cwd=work)
-    libwebp("cwebp", "-quiet", "-q", WEB_STILL_QUALITY, work / frames[-1], "-o", still)
+    libwebp("cwebp", "-quiet", "-sharp_yuv", "-q", WEB_STILL_QUALITY, work / frames[-1], "-o", still)

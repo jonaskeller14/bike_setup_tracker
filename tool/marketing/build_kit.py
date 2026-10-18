@@ -61,7 +61,8 @@ LOCALES = {"en-US": "en", "de-DE": "de"}
 SHORT_MAX = 60
 CHAPTER_MIN = 10  # YouTube ignores chapters shorter than 10 s.
 CAROUSEL_MAX = 10  # Instagram's limit; YouTube community posts allow 5.
-WEB_LIMIT_MB = 2  # Per website loop; the landing page shows nine.
+WEB_LIMIT_MB = 3.5  # Per website loop.
+WEB_BUDGET_MB = 15  # All loops of a kit together; the landing page lazy-loads all but the hero.
 PREVIEW_SIZE = (886, 1920)
 PREVIEW_LENGTH = (15, 30)
 CREATIVE_LENGTH = (5, 30)
@@ -179,7 +180,7 @@ class Kit:
                            lifts=edit.callout_spans("lift"))
                 segments.append(segment)
             out = self.out / "shorts" / f"{name}_9x16.mp4"
-            rv.assemble(segments, out, end_card=card, music=self.music())
+            rv.assemble(segments, out, end_card=card, music=self.music(), fade=rv.JOIN_FADE)
             self.shorts.append((out, short["title"], self.check(out, size, (0, SHORT_MAX), audio=True)))
 
     def build_walkthrough(self):
@@ -223,17 +224,21 @@ class Kit:
         if missing:
             self.problems.append(f"web: {', '.join(missing)} not found on PATH (libwebp)")
             return
+        total_mb = 0.0
         for name in self.spec["web"]:
             clip, _, _ = self.clip(name)
             out = self.out / "web" / f"{name}.webp"
             still = self.out / "web" / f"{name}_still.webp"
             rv.web_loop(clip, self.work / "web" / name, out, still)
             size_mb = out.stat().st_size / 1024 / 1024
+            total_mb += size_mb
             if size_mb > WEB_LIMIT_MB:
                 self.problems.append(f"{rel(out)}: {size_mb:.1f} MB, limit {WEB_LIMIT_MB} MB")
             self.files.append((out, f"{rv.WEB_WIDTH} px wide, {rv.WEB_FPS} fps, {size_mb:.1f} MB"))
             self.files.append((still, f"{rv.WEB_WIDTH} px wide, last frame"))
             print(f"OK   {rel(out)} ({rv.WEB_WIDTH} px, {rv.WEB_FPS} fps, {size_mb:.1f} MB)")
+        if total_mb > WEB_BUDGET_MB:
+            self.problems.append(f"web: {total_mb:.1f} MB for all loops, budget {WEB_BUDGET_MB} MB")
 
     def build_images(self):
         images = self.spec["images"]

@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 
-/// Recorded value -> migrated value card. A cleared value ([afterValue] `null`)
-/// shows in the error color.
-class ValueTransitionPreview extends StatelessWidget {
-  final IconData icon;
-  final String beforeValue;
-  final String beforeCaption;
-  final String? afterValue;
-  final String afterCaption;
+/// One example value and the stages it goes through: "5.8 bar → 84 psi → 10 psi".
+/// A `null` stage is a cleared value.
+class ValueTransitionRow {
+  final String? caption;
+  final List<String?> stages;
 
-  const ValueTransitionPreview({
-    super.key,
-    required this.icon,
-    required this.beforeValue,
-    required this.beforeCaption,
-    required this.afterValue,
-    required this.afterCaption,
-  });
+  const ValueTransitionRow({this.caption, required this.stages});
+}
+
+/// A card that shows [rows] of example values before and after a migration. A
+/// cleared value shows in the error color.
+class ValueTransitionPreview extends StatelessWidget {
+  final List<ValueTransitionRow> rows;
+
+  const ValueTransitionPreview({super.key, required this.rows});
 
   static const String clearedLabel = 'No value';
 
@@ -30,61 +28,63 @@ class ValueTransitionPreview extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
         children: [
-          Expanded(
-            child: _Side(icon: icon, value: beforeValue, caption: beforeCaption),
+          Text(
+            rows.length == 1 ? 'Example' : 'Examples',
+            style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Icon(Icons.arrow_forward, color: theme.colorScheme.primary),
-          ),
-          Expanded(
-            child: _Side(
-              icon: icon,
-              value: afterValue ?? clearedLabel,
-              caption: afterCaption,
-              isError: afterValue == null,
-            ),
-          ),
+          for (final row in rows) _Row(row: row),
         ],
       ),
     );
   }
 }
 
-class _Side extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String caption;
-  final bool isError;
+class _Row extends StatelessWidget {
+  final ValueTransitionRow row;
 
-  const _Side({required this.icon, required this.value, required this.caption, this.isError = false});
+  const _Row({required this.row});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = isError ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant;
+    final caption = row.caption;
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 4,
       children: [
-        Icon(icon, color: color),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, color: color),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          caption,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        if (caption != null)
+          Text(
+            caption,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
+        LayoutBuilder(
+          builder: (context, constraints) => Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              for (final (i, stage) in row.stages.indexed) ...[
+                if (i > 0) Icon(Icons.arrow_forward, size: 18, color: theme.colorScheme.primary),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                  child: Text(
+                    stage ?? ValueTransitionPreview.clearedLabel,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: stage == null ? theme.colorScheme.error : null,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ],
     );

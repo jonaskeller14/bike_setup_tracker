@@ -11,7 +11,9 @@ enum MigrationIssueKind {
   deletedOption,
   duplicateOptions,
   combination,
-  outOfRange,
+  outOfRange;
+
+  bool get isUnitChange => this == unitConversion || this == incompatibleUnit;
 }
 
 enum MigrationChoiceKind { automatic, convert, keep, clamp, clear, mapTo }
@@ -62,7 +64,8 @@ class MigrationIssue {
   final List<MigrationChoice> choices;
   final MigrationChoice choice;
 
-  /// The newest live affected record, or the newest deleted one without any.
+  /// A representative affected record: the most common value this issue
+  /// changes, live records before deleted ones, then the newest.
   final RecordedValue example;
 
   /// The example's value as this issue sees it, after the earlier issues' choices.
@@ -88,6 +91,18 @@ class MigrationIssue {
   List<RecordedValue> get records => [...liveRecords, ...deletedRecords];
 }
 
+/// One example value followed through the migration: [values] is where it
+/// starts, then what it is after each of the [issueKeys] in turn. A `null`
+/// value is cleared.
+@immutable
+class MigrationPreview {
+  final List<String> issueKeys;
+  final RecordedValue record;
+  final List<AdjustmentValue?> values;
+
+  const MigrationPreview({required this.issueKeys, required this.record, required this.values});
+}
+
 /// What saving an edited adjustment or metric would do to its recorded values,
 /// and the choices that decide it. Empty when no recorded value is affected.
 @immutable
@@ -107,6 +122,10 @@ class MigrationProposal {
   final ValueMigration? staged;
   final Map<String, MigrationChoice> choices;
   final List<MigrationIssue> issues;
+
+  /// The examples to show: one chain for a value that runs through every
+  /// issue, or one before / after pair per issue for a categorical.
+  final List<MigrationPreview> previews;
   final List<ValueMigrationStep> steps;
 
   const MigrationProposal._({
@@ -117,6 +136,7 @@ class MigrationProposal {
     required this.staged,
     required this.choices,
     required this.issues,
+    required this.previews,
     required this.steps,
   });
 
@@ -147,9 +167,30 @@ class MigrationProposal {
       staged: staged,
       choices: choices,
       issues: List.unmodifiable(builder.issues),
+      previews: List.unmodifiable(builder.previews),
       steps: List.unmodifiable(builder.steps),
     );
   }
+
+  /// Whether the edit could affect recorded values at all. A page checks this
+  /// before it looks the recorded values up.
+  static bool mayAffectValues({
+    required Adjustment before,
+    required Adjustment after,
+    Map<String, String?> optionOrigins = const {},
+  }) => switch ((before, after)) {
+    (final NumericalAdjustment before, final NumericalAdjustment after) =>
+      before.unit != after.unit || before.min != after.min || before.max != after.max,
+    (final StepAdjustment before, final StepAdjustment after) =>
+      before.min != after.min || before.max != after.max || before.step != after.step,
+    (final DurationAdjustment before, final DurationAdjustment after) =>
+      before.min != after.min || before.max != after.max,
+    (final CategoricalAdjustment before, final CategoricalAdjustment after) =>
+      (before.counted && !after.counted) ||
+          (before.multiSelect && !after.multiSelect) ||
+          _hasOptionChanges(before, after, optionOrigins),
+    _ => false,
+  };
 
   bool get isEmpty => issues.isEmpty;
 
@@ -168,11 +209,47 @@ class MigrationProposal {
   ValueMigration toMigration() => ValueMigration(after.id, steps);
 }
 
+/// The options an edit renamed (old text to new text) and deleted. Values
+/// follow their option row, so [optionOrigins] says which original text each
+/// new option started from; an option without an entry counts as unchanged.
+({Map<String, String> renames, List<String> deleted}) _optionChanges(
+  CategoricalAdjustment before,
+  CategoricalAdjustment after,
+  Map<String, String?> optionOrigins,
+) {
+  String? originOf(String option) =>
+      optionOrigins.containsKey(option) ? optionOrigins[option] : (before.options.contains(option) ? option : null);
+
+  final origins = {for (final option in after.options) ?originOf(option)};
+  final renames = <String, String>{
+    for (final option in after.options)
+      if (originOf(option) case final origin? when origin != option && before.options.contains(origin)) origin: option,
+  };
+  // A row removed and re-added with the same text keeps its values.
+  final deleted = before.options.where((o) => !origins.contains(o) && !after.options.contains(o)).toList();
+  return (renames: renames, deleted: deleted);
+}
+
+bool _hasOptionChanges(
+  CategoricalAdjustment before,
+  CategoricalAdjustment after,
+  Map<String, String?> optionOrigins,
+) {
+  final (:renames, :deleted) = _optionChanges(before, after, optionOrigins);
+  return renames.isNotEmpty || deleted.isNotEmpty;
+}
+
 class _Entry {
   final RecordedValue record;
-  final AdjustmentValue value;
+  final AdjustmentValue start;
 
-  const _Entry(this.record, this.value);
+  /// The value after each issue so far; `null` once cleared.
+  final List<AdjustmentValue?> trail = [];
+  AdjustmentValue? current;
+
+  _Entry(this.record, this.start) : current = start;
+
+  AdjustmentValue get value => current!;
 }
 
 class _ProposalBuilder {
@@ -185,6 +262,10 @@ class _ProposalBuilder {
 
   final issues = <MigrationIssue>[];
   final steps = <ValueMigrationStep>[];
+  final previews = <MigrationPreview>[];
+  late List<_Entry> _all;
+
+  /// The entries that still hold a value.
   late List<_Entry> _entries;
 
   _ProposalBuilder({
@@ -197,10 +278,11 @@ class _ProposalBuilder {
   });
 
   void run() {
-    _entries = [
+    _all = [
       for (final record in recorded)
         if (_afterStaged(record.value) case final value?) _Entry(record, value),
     ];
+    _entries = _all;
     switch ((before, after)) {
       case (final NumericalAdjustment before, final NumericalAdjustment after):
         final converted = _unit(before, after);
@@ -214,6 +296,57 @@ class _ProposalBuilder {
       default:
         break;
     }
+    _buildPreviews();
+  }
+
+  void _buildPreviews() {
+    if (issues.isEmpty) return;
+    if (after is CategoricalAdjustment) {
+      for (final issue in issues) {
+        previews.add(
+          MigrationPreview(
+            issueKeys: [issue.key],
+            record: issue.example,
+            values: [issue.exampleBefore, issue.exampleAfter],
+          ),
+        );
+      }
+      return;
+    }
+
+    // One value runs through every issue: show the one that the most issues
+    // change, so a value that stays as it is (a 0 whose unit changes) is not
+    // picked to illustrate the change.
+    int changes(_Entry entry) {
+      var count = 0;
+      AdjustmentValue? previous = entry.start;
+      for (final (i, next) in entry.trail.indexed) {
+        final relabelled = issues[i].kind.isUnitChange && issues[i].choice == MigrationChoice.keep;
+        if (next != previous || relabelled) count++;
+        previous = next;
+      }
+      return count;
+    }
+
+    final frequency = <String, int>{};
+    for (final entry in _all) {
+      frequency.update(entry.start.encode(), (n) => n + 1, ifAbsent: () => 1);
+    }
+    final best = _all.sorted((a, b) {
+      final byChanges = changes(b).compareTo(changes(a));
+      if (byChanges != 0) return byChanges;
+      final byFrequency = frequency[b.start.encode()]!.compareTo(frequency[a.start.encode()]!);
+      if (byFrequency != 0) return byFrequency;
+      if (a.record.isDeleted != b.record.isDeleted) return a.record.isDeleted ? 1 : -1;
+      return b.record.dateTimeLocal.compareTo(a.record.dateTimeLocal);
+    }).first;
+    previews.add(
+      MigrationPreview(
+        issueKeys: [for (final issue in issues) issue.key],
+        record: best.record,
+        values: [best.start, ...best.trail],
+      ),
+    );
   }
 
   AdjustmentValue? _afterStaged(AdjustmentValue value) => staged == null ? value : staged!.apply(value);
@@ -257,16 +390,7 @@ class _ProposalBuilder {
   }
 
   void _categorical(CategoricalAdjustment before, CategoricalAdjustment after) {
-    String? originOf(String option) =>
-        optionOrigins.containsKey(option) ? optionOrigins[option] : (before.options.contains(option) ? option : null);
-
-    final origins = {for (final option in after.options) ?originOf(option)};
-    final renames = <String, String>{
-      for (final option in after.options)
-        if (originOf(option) case final origin? when origin != option && before.options.contains(origin)) origin: option,
-    };
-    // A row removed and re-added with the same text keeps its values.
-    final deleted = before.options.where((o) => !origins.contains(o) && !after.options.contains(o)).toList();
+    final (:renames, :deleted) = _optionChanges(before, after, optionOrigins);
 
     // Renames and deletions map at once, so swapping two options works; each
     // issue below previews its own part on the values the earlier ones leave.
@@ -361,7 +485,7 @@ class _ProposalBuilder {
     if (affected.isEmpty) return choice;
 
     final step = stepFor(choice);
-    final example = _example(affected);
+    final example = _example(affected, step);
     issues.add(
       MigrationIssue(
         key: key,
@@ -380,18 +504,32 @@ class _ProposalBuilder {
     if (step != null) {
       // The categorical maps are collected into one step by the caller.
       if (step is! MapOptionsStep && step is! MapCombinationsStep) steps.add(step);
-      _entries = [
-        for (final entry in _entries)
-          if (step.apply(entry.value) case final value?) _Entry(entry.record, value),
-      ];
     }
+    for (final entry in _all) {
+      final value = entry.current;
+      final next = value == null || step == null ? value : step.apply(value);
+      entry.current = next;
+      entry.trail.add(next);
+    }
+    _entries = _all.where((e) => e.current != null).toList();
     return choice;
   }
 
-  static _Entry _example(List<_Entry> affected) {
-    int newestFirst(_Entry a, _Entry b) => b.record.dateTimeLocal.compareTo(a.record.dateTimeLocal);
-    final live = affected.where((e) => !e.record.isDeleted).toList()..sort(newestFirst);
-    if (live.isNotEmpty) return live.first;
-    return (affected.toList()..sort(newestFirst)).first;
+  /// The most common value [step] changes (any value when it changes none),
+  /// live records before deleted ones, then the newest, so the example stands
+  /// for as many records as possible.
+  static _Entry _example(List<_Entry> affected, ValueMigrationStep? step) {
+    final changed = step == null ? affected : affected.where((e) => step.apply(e.value) != e.value).toList();
+    final candidates = changed.isEmpty ? affected : changed;
+    final frequency = <String, int>{};
+    for (final entry in candidates) {
+      frequency.update(entry.value.encode(), (n) => n + 1, ifAbsent: () => 1);
+    }
+    return candidates.sorted((a, b) {
+      final byFrequency = frequency[b.value.encode()]!.compareTo(frequency[a.value.encode()]!);
+      if (byFrequency != 0) return byFrequency;
+      if (a.record.isDeleted != b.record.isDeleted) return a.record.isDeleted ? 1 : -1;
+      return b.record.dateTimeLocal.compareTo(a.record.dateTimeLocal);
+    }).first;
   }
 }

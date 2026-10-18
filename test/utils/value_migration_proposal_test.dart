@@ -537,4 +537,144 @@ void main() {
       expect(_issue(proposal, MigrationIssueKind.outOfRange).example, newer);
     });
   });
+
+  group('mayAffectValues', () {
+    bool may(Adjustment before, Adjustment after, {Map<String, String?> optionOrigins = const {}}) =>
+        MigrationProposal.mayAffectValues(before: before, after: after, optionOrigins: optionOrigins);
+
+    test('is false for an edit that leaves the definition alone', () {
+      expect(may(_numerical(unit: _psi, max: 10), _numerical(unit: _psi, max: 10)), isFalse);
+      expect(may(_step(), _step()), isFalse);
+      expect(may(_categorical({'A'}), _categorical({'A'}), optionOrigins: const {'A': 'A'}), isFalse);
+    });
+
+    test('is true for a changed unit or range', () {
+      expect(may(_numerical(unit: _psi), _numerical(unit: _bar)), isTrue);
+      expect(may(_numerical(max: 10), _numerical(max: 5)), isTrue);
+      expect(may(_step(), _step(step: 2)), isTrue);
+      expect(may(_step(), _step(max: 5)), isTrue);
+    });
+
+    test('is true for a renamed, deleted or swapped option', () {
+      expect(may(_categorical({'A'}), _categorical({'B'}), optionOrigins: const {'B': 'A'}), isTrue);
+      expect(may(_categorical({'A', 'B'}), _categorical({'A'}), optionOrigins: const {'A': 'A'}), isTrue);
+      expect(may(_categorical({'A', 'B'}), _categorical({'B', 'A'}), optionOrigins: const {'B': 'A', 'A': 'B'}), isTrue);
+    });
+
+    test('is false for an added option', () {
+      expect(
+        may(_categorical({'A'}), _categorical({'A', 'B'}), optionOrigins: const {'A': 'A', 'B': null}),
+        isFalse,
+      );
+    });
+
+    test('is true only for counted or multi-select turned off', () {
+      expect(may(_categorical({'A'}, counted: true), _categorical({'A'})), isTrue);
+      expect(may(_categorical({'A'}, multiSelect: true), _categorical({'A'})), isTrue);
+      expect(may(_categorical({'A'}), _categorical({'A'}, multiSelect: true, counted: true)), isFalse);
+    });
+
+    test('is false for types without a range', () {
+      final boolean = BooleanAdjustment(id: 'a', name: 'A', notes: null, unit: null);
+      expect(may(boolean, boolean.copyWith(name: 'B')), isFalse);
+    });
+  });
+
+  group('previews', () {
+    test('a numerical edit gives one chain through every issue', () {
+      final proposal = MigrationProposal.build(
+        before: _numerical(unit: _bar, max: 100),
+        after: _numerical(unit: _psi, max: 10),
+        recorded: [_record(const NumericalValue(5.8))],
+      );
+
+      expect(proposal.issues.map((i) => i.kind), [MigrationIssueKind.unitConversion, MigrationIssueKind.outOfRange]);
+      final preview = proposal.previews.single;
+      expect(preview.issueKeys, ['unit', 'range']);
+      expect(preview.values.first, const NumericalValue(5.8));
+      expect((preview.values[1]! as NumericalValue).value, closeTo(84.1, 0.1));
+      expect(preview.values.last, const NumericalValue(10));
+    });
+
+    test('a value the migration leaves alone does not illustrate it', () {
+      final zero = _record(const NumericalValue(0));
+      final ten = _record(const NumericalValue(10));
+      final proposal = MigrationProposal.build(
+        before: _numerical(unit: _psi),
+        after: _numerical(unit: _bar),
+        recorded: [zero, zero, zero, ten],
+      );
+
+      expect(proposal.previews.single.values.first, const NumericalValue(10));
+      expect(_issue(proposal, MigrationIssueKind.unitConversion).exampleBefore, const NumericalValue(10));
+    });
+
+    test('with several changed values the most common one is the example', () {
+      final proposal = MigrationProposal.build(
+        before: _numerical(max: 100),
+        after: _numerical(max: 50),
+        recorded: [
+          _record(const NumericalValue(80), day: DateTime(2025)),
+          _record(const NumericalValue(90), day: DateTime(2023)),
+          _record(const NumericalValue(90), day: DateTime(2022)),
+        ],
+      );
+
+      expect(_issue(proposal, MigrationIssueKind.outOfRange).exampleBefore, const NumericalValue(90));
+      expect(proposal.previews.single.values.first, const NumericalValue(90));
+    });
+
+    test('a chain prefers the value that more issues change', () {
+      final proposal = MigrationProposal.build(
+        before: _numerical(unit: _psi, max: 100),
+        after: _numerical(unit: _bar, max: 1),
+        // 10 psi is 0.69 bar and fits; 30 psi is 2.07 bar and is clamped as well.
+        recorded: [_record(const NumericalValue(10)), _record(const NumericalValue(10)), _record(const NumericalValue(30))],
+      );
+
+      expect(proposal.previews.single.values.first, const NumericalValue(30));
+      expect(proposal.previews.single.values.last, const NumericalValue(1));
+    });
+
+    test('keeping the numbers still shows the relabelling', () {
+      final proposal = MigrationProposal.build(
+        before: _numerical(unit: _psi),
+        after: _numerical(unit: _bar),
+        recorded: [_record(const NumericalValue(10))],
+        choices: const {'unit': MigrationChoice.keep},
+      );
+      expect(proposal.previews.single.values, const [NumericalValue(10), NumericalValue(10)]);
+    });
+
+    test('a cleared value ends the chain with null', () {
+      final proposal = MigrationProposal.build(
+        before: _numerical(unit: _psi, max: 100),
+        after: _numerical(unit: _bar, max: 1),
+        recorded: [_record(const NumericalValue(30))],
+        choices: const {'range': MigrationChoice.clear},
+      );
+      expect(proposal.previews.single.values.last, isNull);
+    });
+
+    test('a categorical edit gives one before / after pair per issue', () {
+      final proposal = MigrationProposal.build(
+        before: _categorical({'A', 'B', 'C'}),
+        after: _categorical({'A2', 'B'}),
+        optionOrigins: const {'A2': 'A', 'B': 'B'},
+        recorded: [_record(_cat(['A'])), _record(_cat(['C']))],
+      );
+
+      expect(proposal.previews.map((p) => p.issueKeys), [
+        ['rename'],
+        ['delete:C'],
+      ]);
+      expect(proposal.previews[0].values, [_cat(['A']), _cat(['A2'])]);
+      expect(proposal.previews[1].values, [_cat(['C']), _cat(['A2'])]);
+    });
+
+    test('an empty proposal has no previews', () {
+      final proposal = MigrationProposal.build(before: _numerical(), after: _numerical(max: 5), recorded: const []);
+      expect(proposal.previews, isEmpty);
+    });
+  });
 }

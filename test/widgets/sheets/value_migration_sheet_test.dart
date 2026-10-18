@@ -1,14 +1,10 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/recorded_value.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/value_migration_proposal.dart';
-import 'package:bike_setup_tracker/widgets/sheets/radio_option_card.dart';
 import 'package:bike_setup_tracker/widgets/sheets/value_migration_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 const _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
 const _bar = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'bar');
@@ -52,8 +48,6 @@ MigrationProposal _rangeProposal({List<RecordedValue>? recorded}) => MigrationPr
 );
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
-
   late ValueMigration? result;
   late bool resultReported;
 
@@ -71,24 +65,17 @@ void main() {
     resultReported = false;
 
     await tester.pumpWidget(
-      ChangeNotifierProvider(
-        create: (_) => AppSettings(),
-        child: MaterialApp(
-          theme: theme,
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: Center(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    result = await showValueMigrationSheet(
-                      context,
-                      adjustmentName: adjustmentName,
-                      proposal: proposal,
-                    );
-                    resultReported = true;
-                  },
-                  child: const Text('open'),
-                ),
+      MaterialApp(
+        theme: theme,
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () async {
+                  result = await showValueMigrationSheet(context, adjustmentName: adjustmentName, proposal: proposal);
+                  resultReported = true;
+                },
+                child: const Text('open'),
               ),
             ),
           ),
@@ -103,8 +90,18 @@ void main() {
     await openSheet(tester, _rangeProposal());
 
     expect(find.text('Update recorded values'), findsOneWidget);
-    expect(find.textContaining("Your change to 'Pressure' affects 2 setups (+1 deleted)."), findsOneWidget);
+    expect(
+      find.textContaining("Your change to 'Pressure' affects values recorded in 2 setups (+1 deleted)."),
+      findsOneWidget,
+    );
     expect(find.text('Values outside the new range'), findsOneWidget);
+  });
+
+  testWidgets('has no record list to open', (tester) async {
+    await openSheet(tester, _rangeProposal());
+
+    expect(find.textContaining('Show affected'), findsNothing);
+    expect(find.text('Alpine'), findsNothing);
   });
 
   testWidgets('counts rating entries', (tester) async {
@@ -113,30 +110,44 @@ void main() {
     );
     await openSheet(tester, proposal);
 
-    expect(find.textContaining('affects 1 rating entry.'), findsOneWidget);
-    expect(find.text('Show affected rating entries'), findsOneWidget);
+    expect(find.textContaining('recorded in 1 rating entry.'), findsOneWidget);
   });
 
-  testWidgets('the preview shows the newest affected record and its migrated value', (tester) async {
+  testWidgets('shows a single example card with the value before and after', (tester) async {
     await openSheet(tester, _rangeProposal());
 
-    expect(find.textContaining('Recorded · Alpine'), findsOneWidget);
+    expect(find.text('Example'), findsOneWidget);
     expect(find.text('80 bar'), findsOneWidget);
     expect(find.text('50 bar'), findsOneWidget);
-    expect(find.text('Clamped'), findsOneWidget);
   });
 
-  testWidgets('picking Clear updates the preview and the returned migration', (tester) async {
+  testWidgets('one chain shows the example through a unit change and a range change', (tester) async {
+    final proposal = MigrationProposal.build(
+      before: _numerical(unit: _psi, max: 100),
+      after: _numerical(unit: _bar, max: 0.5),
+      recorded: [_record(const NumericalValue(10))],
+    );
+    await openSheet(tester, proposal);
+
+    expect(find.text('Example'), findsOneWidget);
+    expect(find.text('10 psi'), findsOneWidget);
+    expect(find.text('0.68948 bar'), findsOneWidget);
+    expect(find.text('0.5 bar'), findsOneWidget);
+    expect(find.text('Unit changed from psi to bar'), findsOneWidget);
+    expect(find.text('Values outside the new range'), findsOneWidget);
+  });
+
+  testWidgets('picking Clear updates the example and the returned migration', (tester) async {
     final proposal = _rangeProposal();
     await openSheet(tester, proposal);
 
-    await tester.tap(find.text('Clear values'));
+    await tester.tap(find.text('Clear'));
     await tester.pumpAndSettle();
 
     expect(find.text('No value'), findsOneWidget);
-    expect(find.text('Cleared'), findsOneWidget);
+    expect(find.text('50 bar'), findsNothing);
 
-    await tester.tap(find.text('Confirm'));
+    await tester.tap(find.text('Update values'));
     await tester.pumpAndSettle();
 
     expect(result, proposal.withChoice('range', MigrationChoice.clear).toMigration());
@@ -147,7 +158,7 @@ void main() {
     final proposal = _rangeProposal();
     await openSheet(tester, proposal);
 
-    await tester.tap(find.text('Confirm'));
+    await tester.tap(find.text('Update values'));
     await tester.pumpAndSettle();
 
     expect(result, proposal.toMigration());
@@ -179,9 +190,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Values outside the new range'), findsOneWidget);
+    expect(find.text('2 bar'), findsOneWidget);
   });
 
-  testWidgets('an automatic issue shows no choices', (tester) async {
+  testWidgets('an automatic issue shows its example but no choice', (tester) async {
     final proposal = MigrationProposal.build(
       before: _categorical({'A', 'B'}),
       after: _categorical({'A2', 'B'}),
@@ -190,13 +202,14 @@ void main() {
     );
     await openSheet(tester, proposal);
 
-    expect(find.text('Options renamed'), findsOneWidget);
-    expect(find.text('Applied automatically'), findsOneWidget);
+    expect(find.text('Renamed options'), findsOneWidget);
+    expect(find.text('A'), findsOneWidget);
     expect(find.text('A2'), findsOneWidget);
-    expect(find.byType(RadioOptionCard), findsNothing);
+    expect(find.byType(SegmentedButton<MigrationChoice>), findsNothing);
+    expect(find.byType(DropdownButtonFormField<MigrationChoice>), findsNothing);
   });
 
-  testWidgets('a deleted option offers the remaining options', (tester) async {
+  testWidgets('a deleted option is replaced through a dropdown', (tester) async {
     final proposal = MigrationProposal.build(
       before: _categorical({'A', 'B', 'C'}),
       after: _categorical({'A', 'B'}),
@@ -205,45 +218,17 @@ void main() {
     );
     await openSheet(tester, proposal);
 
-    expect(find.text("Option 'C' deleted"), findsOneWidget);
+    expect(find.text("Deleted option 'C'"), findsNWidgets(2)); // example caption and choice title
 
-    await tester.tap(find.text('B'));
+    await tester.tap(find.byType(DropdownButtonFormField<MigrationChoice>));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Confirm'));
+    await tester.tap(find.text('B').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Update values'));
     await tester.pumpAndSettle();
 
     expect(result!.apply(CategoricalValue(const ['C'])), CategoricalValue(const ['B']));
-  });
-
-  testWidgets('slide 2 lists the live records and the deleted count, and back returns to slide 1', (tester) async {
-    await openSheet(tester, _rangeProposal());
-
-    await tester.tap(find.text('Show affected setups'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Affected setups'), findsOneWidget);
-    expect(find.text('Alpine'), findsOneWidget);
-    expect(find.text('Bike park'), findsOneWidget);
-    expect(find.text('+1 deleted setup'), findsOneWidget);
-    expect(find.text('Update recorded values'), findsNothing);
-
-    await tester.tap(find.byType(BackButtonIcon));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Update recorded values'), findsOneWidget);
-    expect(find.text('Affected setups'), findsNothing);
-  });
-
-  testWidgets('the system back from slide 2 returns to slide 1 and keeps the sheet open', (tester) async {
-    await openSheet(tester, _rangeProposal());
-    await tester.tap(find.text('Show affected setups'));
-    await tester.pumpAndSettle();
-
-    await tester.binding.handlePopRoute();
-    await tester.pumpAndSettle();
-
-    expect(find.text('Update recorded values'), findsOneWidget);
-    expect(resultReported, isFalse);
   });
 
   testWidgets('long names render without overflow at 320 px', (tester) async {
@@ -260,12 +245,6 @@ void main() {
     await openSheet(tester, proposal, adjustmentName: longName, size: const Size(320, 640));
 
     expect(tester.takeException(), isNull);
-
-    await tester.ensureVisible(find.text('Show affected setups'));
-    await tester.tap(find.text('Show affected setups'));
-    await tester.pumpAndSettle();
-
-    expect(tester.takeException(), isNull);
   });
 
   for (final (name, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
@@ -273,9 +252,9 @@ void main() {
       await openSheet(tester, _rangeProposal(), theme: theme);
 
       expect(tester.takeException(), isNull);
-      expect(find.text('Confirm'), findsOneWidget);
+      expect(find.text('Update values'), findsOneWidget);
 
-      await tester.tap(find.text('Clear values'));
+      await tester.tap(find.text('Clear'));
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);

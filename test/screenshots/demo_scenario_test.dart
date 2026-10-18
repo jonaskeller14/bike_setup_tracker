@@ -193,10 +193,9 @@ void main() {
       expect(json['components'], full['components']);
     });
 
-    test('analysis has 3-5 Hightower setups and no suspension pressure', () {
+    test('analysis keeps every setup and drops suspension pressure', () {
       final json = seedJson(DemoScenario.analysis);
-      final hightowerSetups = (json['setups'] as List).where((s) => (s as Map)['bike'] == _hightowerId);
-      expect(hightowerSetups.length, inInclusiveRange(3, 5));
+      expect((json['setups'] as List).length, (seedJson(DemoScenario.full)['setups'] as List).length);
 
       for (final component in (json['components'] as List).cast<Map<String, dynamic>>()) {
         if (!const {'ComponentType.fork', 'ComponentType.shock'}.contains(component['componentType'])) continue;

@@ -33,8 +33,8 @@ enum DemoScenario {
   /// Bikes and components, but no setups yet.
   noSetups('no_setups'),
 
-  /// The Hightower's 4 newest setups, without the suspension pressures that
-  /// would squash the click-based series in the charts.
+  /// The full master without the suspension pressures that would squash the
+  /// click-based series in the charts.
   analysis('analysis'),
 
   /// "Investigate BB creaking noise" as the only due task.
@@ -71,15 +71,11 @@ enum DemoScenario {
       (_) => true,
     ),
     noSetups => _dropSetups(json, (_) => true),
-    analysis => _keepNewestSetups(
-      _dropAdjustments(
-        json,
-        (component, adjustment) =>
-            const {'ComponentType.fork', 'ComponentType.shock'}.contains(component['componentType']) &&
-            adjustment['name'] == 'Pressure',
-      ),
-      bikeId: _hightowerId,
-      count: 4,
+    analysis => _dropAdjustments(
+      json,
+      (component, adjustment) =>
+          const {'ComponentType.fork', 'ComponentType.shock'}.contains(component['componentType']) &&
+          adjustment['name'] == 'Pressure',
     ),
     tasksOneDue => _dropTaskRules(json, _otherDueTaskRuleIds),
   };
@@ -183,16 +179,6 @@ _Json _dropSetups(_Json json, bool Function(_Json setup) test) {
   };
   final result = _where(json, 'setups', (s) => !setupIds.contains(s['id']));
   return _where(result, 'ratingEntries', (e) => !setupIds.contains(e['setupId']));
-}
-
-_Json _keepNewestSetups(_Json json, {required String bikeId, required int count}) {
-  final newest =
-      (_list(json, 'setups').where((s) => s['bike'] == bikeId).toList()
-            ..sort((a, b) => (b['datetime'] as String).compareTo(a['datetime'] as String)))
-          .take(count)
-          .map((s) => s['id'])
-          .toSet();
-  return _dropSetups(json, (s) => s['bike'] == bikeId && !newest.contains(s['id']));
 }
 
 /// Drops the task rules [ruleIds] and their entries.

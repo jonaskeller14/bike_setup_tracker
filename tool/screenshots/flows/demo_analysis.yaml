@@ -1,7 +1,7 @@
 # scenario: analysis
-# Demo: the Lyrik's details page. The line chart first, with one adjustment
-# highlighted from the legend, then a short look at the radial chart and the
-# activity histogram, without interaction.
+# Demo: the Lyrik's details page with every setup selected. The line chart
+# first, with one adjustment highlighted from the legend, then a short look at
+# the radial chart and the activity histogram, without interaction.
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
@@ -21,6 +21,14 @@ appId: ${APP_ID}
     file: _pause.yaml
     env:
       MS: 1500
+# The table starts with the 3 newest setups; all of them fill the line chart
+# and the histogram with the whole season.
+- tapOn:
+    id: setupTable.selectAll
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
 
 - scrollUntilVisible:
     element:

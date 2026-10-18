@@ -179,7 +179,7 @@ tool/screenshots/run_android.sh --demo
 tool/screenshots/run_ios.sh iphone --demo              # the clips the marketing kits use
 ```
 
-`-Demo` / `--demo` records the `demo_*.yaml` flows with touch dots and the same build, seeded data, status bar and GPS as the screenshots. Each recording lands in `build/marketing/raw/<flow name>.mp4` on the phone AVD (1080×2400) and in `build/marketing/raw/ios/<flow name>.mp4` on the iPhone (1320×2868); both H.264, no audio, variable frame rate. `-Screens` / `--screens` don't apply.
+`-Demo` / `--demo` records the `demo_*.yaml` flows with touch dots and the same build, seeded data, status bar and GPS as the screenshots. Each recording lands in `build/marketing/raw/<flow name>.mp4` on the phone AVD (1080×2400) and in `build/marketing/raw/ios/<flow name>.mp4` on the iPhone (1320×2868); both H.264, no audio, variable frame rate. `-Screens` / `--screens` don't apply. `run_ios.sh --flows demo_analysis,demo_tasks` re-records only those flows, so the other clips keep the timings the kits cut them at.
 
 The marketing kits use the iPhone clips: the iPhone frame's screen hole is exactly 1320×2868, so the recording fits without cropping, and an iPhone looks familiar on social media. A kit that sets `"recordings": "build/marketing/raw"` and `"device": "android"` uses the Android clips in the Android frame (`tool/marketing/assets/frames/android.png`, screen hole 1080×2400).
 

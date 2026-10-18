@@ -15,6 +15,8 @@
 #                         to build/store_previews/<device>/*.mp4.
 #   --demo                Record the demo_*.yaml flows instead, on the iPhone with
 #                         touch dots, to build/marketing/raw/ios/*.mp4.
+#   --flows a,b           With --preview or --demo: only these flows (names without
+#                         .yaml), so the other recordings keep the timings kits use.
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -28,6 +30,7 @@ gps='44.1690,8.3439'
 
 device='all'
 screens=''
+only_flows=''
 skip_build=0
 keep_running=0
 tile_wait_ms=20000
@@ -37,6 +40,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     iphone | ipad | all) device="$1" ;;
     --screens) screens="$2"; shift ;;
+    --flows) only_flows="$2"; shift ;;
     --skip-build) skip_build=1 ;;
     --keep-running) keep_running=1 ;;
     --tile-wait-ms) tile_wait_ms="$2"; shift ;;
@@ -72,7 +76,10 @@ flows=()
 if [ "$record" -eq 1 ]; then
   if [ "$demo" -eq 1 ]; then pattern='demo_*.yaml'; else pattern='preview_*.yaml'; fi
   for flow in "$flows_dir"/$pattern; do
-    flows+=("$(basename "$flow")")
+    name="$(basename "$flow" .yaml)"
+    if [ -z "$only_flows" ] || [[ ",$only_flows," == *",$name,"* ]]; then
+      flows+=("$name.yaml")
+    fi
   done
 else
   for flow in "$flows_dir"/[0-9][0-9]_*.yaml; do

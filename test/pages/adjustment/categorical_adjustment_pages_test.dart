@@ -3,11 +3,13 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/recorded_value.dart';
 import 'package:bike_setup_tracker/pages/adjustment/categorical_adjustment_page.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:bike_setup_tracker/utils/value_migration_proposal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../value_migration_test_utils.dart';
 import 'preset_key_test_utils.dart';
@@ -32,7 +34,7 @@ void main() {
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () async {
-                final edited = await Navigator.push<EditResult<Adjustment>>(
+                final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                   context,
                   MaterialPageRoute(
                     builder: (context) => CategoricalAdjustmentPage.edit(adjustment: initial),
@@ -201,12 +203,15 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    EditResult<Adjustment> edited(Object? result) => result! as EditResult<Adjustment>;
+    CategoricalAdjustmentPage editPage(CategoricalAdjustment adjustment) =>
+        CategoricalAdjustmentPage.edit(adjustment: adjustment, migrationContext: ValueMigrationContext(adjustment));
+
+    AdjustmentEditResult<Adjustment> edited(Object? result) => result! as AdjustmentEditResult<Adjustment>;
 
     testWidgets('a rename with values maps them to the new name without a choice', (tester) async {
       final result = await pushAndSave(
         tester,
-        CategoricalAdjustmentPage.edit(adjustment: damping({'Soft', 'Firm'})),
+        editPage(damping({'Soft', 'Firm'})),
         repository: repositoryWithRecorded([selection(['Soft'])]),
         interact: () => setOption(tester, 1, 'Plush'),
         afterSave: () async {
@@ -224,7 +229,7 @@ void main() {
     testWidgets('a rename without values shows no sheet', (tester) async {
       final result = await pushAndSave(
         tester,
-        CategoricalAdjustmentPage.edit(adjustment: damping({'Soft', 'Firm'})),
+        editPage(damping({'Soft', 'Firm'})),
         repository: repositoryWithRecorded(),
         interact: () => setOption(tester, 1, 'Plush'),
       );
@@ -237,7 +242,7 @@ void main() {
     testWidgets('swapping two option names swaps the values', (tester) async {
       final result = await pushAndSave(
         tester,
-        CategoricalAdjustmentPage.edit(adjustment: damping({'Soft', 'Firm'})),
+        editPage(damping({'Soft', 'Firm'})),
         repository: repositoryWithRecorded([selection(['Soft'])]),
         interact: () async {
           await setOption(tester, 1, 'Firm');
@@ -254,7 +259,7 @@ void main() {
     testWidgets('a deleted option is mapped to another option by default', (tester) async {
       final result = await pushAndSave(
         tester,
-        CategoricalAdjustmentPage.edit(adjustment: damping({'Soft', 'Mid', 'Firm'})),
+        editPage(damping({'Soft', 'Mid', 'Firm'})),
         repository: repositoryWithRecorded([selection(['Mid'])]),
         interact: () => removeOption(tester, 2),
         afterSave: () async {
@@ -269,7 +274,7 @@ void main() {
     testWidgets('a deleted option can be cleared', (tester) async {
       final result = await pushAndSave(
         tester,
-        CategoricalAdjustmentPage.edit(adjustment: damping({'Soft', 'Mid', 'Firm'})),
+        editPage(damping({'Soft', 'Mid', 'Firm'})),
         repository: repositoryWithRecorded([selection(['Mid'])]),
         interact: () => removeOption(tester, 2),
         afterSave: () async {
@@ -287,7 +292,7 @@ void main() {
     testWidgets('turning counted off removes repeated options', (tester) async {
       final result = await pushAndSave(
         tester,
-        CategoricalAdjustmentPage.edit(adjustment: damping({'Gel', 'Bar'}, multiSelect: true, counted: true)),
+        editPage(damping({'Gel', 'Bar'}, multiSelect: true, counted: true)),
         repository: repositoryWithRecorded([selection(['Gel', 'Gel', 'Bar'])]),
         interact: () async {
           await tester.tap(find.text('Count Occurrences'));
@@ -308,7 +313,7 @@ void main() {
     testWidgets('turning multi-select off maps each combination to one option', (tester) async {
       final result = await pushAndSave(
         tester,
-        CategoricalAdjustmentPage.edit(adjustment: damping({'Soft', 'Firm'}, multiSelect: true)),
+        editPage(damping({'Soft', 'Firm'}, multiSelect: true)),
         repository: repositoryWithRecorded([selection(['Soft', 'Firm'])]),
         interact: () async {
           await tester.tap(find.text('Multi Select'));
@@ -329,7 +334,7 @@ void main() {
     testWidgets('a row removed and re-added with the same text keeps its values', (tester) async {
       final result = await pushAndSave(
         tester,
-        CategoricalAdjustmentPage.edit(adjustment: damping({'Soft', 'Firm'})),
+        editPage(damping({'Soft', 'Firm'})),
         repository: repositoryWithRecorded([selection(['Soft'])]),
         interact: () async {
           await removeOption(tester, 1);
@@ -343,11 +348,87 @@ void main() {
       expect(edited(result).migrations, isEmpty);
     });
 
+    testWidgets('deleting an option and renaming another to its text shows the merge', (tester) async {
+      final result = await pushAndSave(
+        tester,
+        editPage(damping({'Soft', 'Firm'})),
+        repository: repositoryWithRecorded([selection(['Soft']), selection(['Firm'])]),
+        interact: () async {
+          await removeOption(tester, 1);
+          await setOption(tester, 1, 'Soft');
+        },
+        afterSave: () async {
+          expect(find.text("Deleted option 'Soft'"), findsWidgets);
+          expect(find.text("1 setup keeps 'Soft', now the option renamed from 'Firm'."), findsOneWidget);
+          await confirmSheet(tester);
+        },
+      );
+
+      final migration = edited(result).migrations.single;
+      expect(migration.apply(CategoricalValue(const ['Soft'])), CategoricalValue(const ['Soft']));
+      expect(migration.apply(CategoricalValue(const ['Firm'])), CategoricalValue(const ['Soft']));
+    });
+
+    group('a re-edit', () {
+      testWidgets('shows a renamed option deleted later by its newer name', (tester) async {
+        final saved = damping({'Soft', 'Firm'});
+        final renamed = damping({'Plush', 'Firm'});
+        final earlier = MigrationProposal.build(
+          before: saved,
+          after: renamed,
+          optionOrigins: const {'Plush': 'Soft', 'Firm': 'Firm'},
+          recorded: [selection(['Soft'])],
+        );
+        final result = await pushAndSave(
+          tester,
+          CategoricalAdjustmentPage.edit(
+            adjustment: renamed,
+            migrationContext: ValueMigrationContext(saved, pending: earlier),
+          ),
+          repository: repositoryWithRecorded([selection(['Soft'])]),
+          interact: () => removeOption(tester, 1),
+          afterSave: () async {
+            expect(find.text("Deleted option 'Plush'"), findsWidgets);
+            expect(find.textContaining('This replaces the change you confirmed earlier.'), findsOneWidget);
+            await confirmSheet(tester);
+          },
+        );
+
+        expect(edited(result).migrations.single.apply(CategoricalValue(const ['Soft'])), CategoricalValue(const ['Firm']));
+      });
+
+      testWidgets('that turns multi-select on again stages nothing', (tester) async {
+        SharedPreferences.setMockInitialValues({});
+        final settings = AppSettings()..enableMultiSelect = true;
+        addTearDown(settings.dispose);
+        final saved = damping({'Soft', 'Firm'}, multiSelect: true);
+        final single = damping({'Soft', 'Firm'});
+        final recorded = [selection(['Soft', 'Firm'])];
+        final earlier = MigrationProposal.build(before: saved, after: single, recorded: recorded);
+        final result = await pushAndSave(
+          tester,
+          CategoricalAdjustmentPage.edit(
+            adjustment: single,
+            migrationContext: ValueMigrationContext(saved, pending: earlier),
+          ),
+          repository: repositoryWithRecorded(recorded),
+          settings: settings,
+          interact: () async {
+            await tester.tap(find.text('Multi Select'));
+            await tester.pumpAndSettle();
+          },
+        );
+
+        expect(find.text(sheetTitle), findsNothing);
+        expect(edited(result).pending, isNull);
+      });
+    });
+
     testWidgets('a rename does not look values up when only the name changes', (tester) async {
       final repository = repositoryWithRecorded();
       await pushAndSave(
         tester,
-        CategoricalAdjustmentPage.edit(adjustment: damping({'Soft', 'Firm'})),
+        editPage(damping({'Soft', 'Firm'})),
         repository: repository,
         interact: () => enterName(tester, 'Renamed'),
       );

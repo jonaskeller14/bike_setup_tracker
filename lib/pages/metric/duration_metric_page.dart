@@ -4,6 +4,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/rating/rating_metric.dart';
 import '../../theme.dart';
 import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_duration_adjustment.dart';
@@ -16,20 +17,20 @@ const double _defaultWeight = -1.0;
 class DurationMetricPage extends StatefulWidget {
   final RatingMetric? metric;
   final MetricPageMode mode;
-  final ValueMigration? stagedMigration;
+  final ValueMigrationContext? migrationContext;
 
   const DurationMetricPage._({
     super.key,
     this.metric,
     required this.mode,
-    this.stagedMigration,
+    this.migrationContext,
   });
 
   factory DurationMetricPage.add({Key? key}) =>
       DurationMetricPage._(key: key, mode: MetricPageMode.add);
 
-  factory DurationMetricPage.edit({Key? key, required RatingMetric metric, ValueMigration? stagedMigration}) =>
-      DurationMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, stagedMigration: stagedMigration);
+  factory DurationMetricPage.edit({Key? key, required RatingMetric metric, ValueMigrationContext? migrationContext}) =>
+      DurationMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, migrationContext: migrationContext);
 
   factory DurationMetricPage.duplicate({Key? key, required RatingMetric metric}) =>
       DurationMetricPage._(key: key, metric: metric, mode: MetricPageMode.duplicate);
@@ -138,16 +139,16 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
       weight: weight,
     );
 
-    List<ValueMigration> migrations = const [];
+    MigrationProposal? pending;
     if (widget.mode == MetricPageMode.edit) {
       final confirmed = await confirmValueMigrations(
         context,
+        migrationContext: widget.migrationContext,
         before: _initialAdj!,
         after: metric.adjustment,
-        staged: widget.stagedMigration,
       );
       if (confirmed == null) return; // cancelled — stay on the page
-      migrations = confirmed;
+      pending = confirmed.pending;
     }
 
     _formHasChanges = false;
@@ -155,7 +156,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
     Navigator.pop(
       context,
       widget.mode == MetricPageMode.edit
-          ? EditResult<RatingMetric>(metric, migrations: migrations)
+          ? AdjustmentEditResult<RatingMetric>(metric, pending: pending)
           : metric,
     );
   }

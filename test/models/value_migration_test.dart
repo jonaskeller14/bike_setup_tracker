@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
 const _bar = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'bar');
-const _kpa = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'kiloPascal');
 
 CategoricalValue _options(List<String> options) => CategoricalValue(options);
 
@@ -66,19 +65,6 @@ void main() {
 
     test('passes other value types through', () {
       expect(_apply(MapOptionsStep(const {'A': 'B'}), TextValue.orNull('A')!), TextValue.orNull('A'));
-    });
-
-    test('rename A to B then B to C via then gives C', () {
-      final chained =
-          _migration([
-            MapOptionsStep(const {'A': 'B'}),
-          ]).then(
-            _migration([
-              MapOptionsStep(const {'B': 'C'}),
-            ]),
-          );
-      expect(chained.apply(_options(['A'])), _options(['C']));
-      expect(chained.steps, hasLength(2));
     });
   });
 
@@ -277,48 +263,6 @@ void main() {
     test('isNoOp is true only without steps', () {
       expect(_migration([]).isNoOp, isTrue);
       expect(_migration([const DedupeOptionsStep()]).isNoOp, isFalse);
-    });
-
-    group('unit conversions', () {
-      test('psi -> bar -> psi via then is a no-op', () {
-        final roundTrip = _migration([
-          const ConvertUnitStep(_psi, _bar),
-        ]).then(_migration([const ConvertUnitStep(_bar, _psi)]));
-        expect(roundTrip.isNoOp, isTrue);
-        expect(roundTrip.apply(const NumericalValue(10)), const NumericalValue(10));
-      });
-
-      test('psi -> bar then bar -> kPa equals psi -> kPa', () {
-        final chained = _migration([
-          const ConvertUnitStep(_psi, _bar),
-        ]).then(_migration([const ConvertUnitStep(_bar, _kpa)]));
-        expect(chained, _migration([const ConvertUnitStep(_psi, _kpa)]));
-      });
-
-      test('a conversion separated by another step is not merged', () {
-        final chained = _migration([
-          const ConvertUnitStep(_psi, _bar),
-          ClampToRangeStep(_numerical(min: 0, max: 1)),
-        ]).then(_migration([const ConvertUnitStep(_bar, _psi)]));
-        expect(chained.steps, hasLength(3));
-      });
-
-      test('a round trip around other steps cancels once they are gone', () {
-        final chained = _migration([
-          const ConvertUnitStep(_psi, _bar),
-          const ConvertUnitStep(_bar, _kpa),
-        ]).then(_migration([const ConvertUnitStep(_kpa, _psi)]));
-        expect(chained.isNoOp, isTrue);
-      });
-
-      test('a conversion that does not continue the previous one is kept', () {
-        final migration = _migration([const ConvertUnitStep(_psi, _bar), const ConvertUnitStep(_kpa, _psi)]);
-        expect(migration.steps, hasLength(2));
-      });
-
-      test('a conversion to the same unit is dropped', () {
-        expect(_migration([const ConvertUnitStep(_psi, _psi)]).isNoOp, isTrue);
-      });
     });
 
     group('equality', () {

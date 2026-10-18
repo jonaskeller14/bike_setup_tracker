@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/models/recorded_value.dart';
 import 'package:bike_setup_tracker/pages/metric/categorical_metric_page.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:bike_setup_tracker/utils/value_migration_proposal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,12 +31,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  EditResult<RatingMetric> edited(Object? result) => result! as EditResult<RatingMetric>;
+  AdjustmentEditResult<RatingMetric> edited(Object? result) => result! as AdjustmentEditResult<RatingMetric>;
 
   testWidgets('a rename with values maps them to the new name', (tester) async {
     final result = await pushAndSave(
       tester,
-      CategoricalMetricPage.edit(metric: metric),
+      CategoricalMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
       repository: repositoryWithRecorded([
         entryValue(['Low']),
       ]),
@@ -58,7 +59,7 @@ void main() {
   testWidgets('a rename without values shows no sheet', (tester) async {
     final result = await pushAndSave(
       tester,
-      CategoricalMetricPage.edit(metric: metric),
+      CategoricalMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
       repository: repositoryWithRecorded(),
       interact: () => setOption(tester, 1, 'Poor'),
     );
@@ -70,7 +71,7 @@ void main() {
   testWidgets('a deleted option offers a target option', (tester) async {
     final result = await pushAndSave(
       tester,
-      CategoricalMetricPage.edit(metric: metric),
+      CategoricalMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
       repository: repositoryWithRecorded([
         entryValue(['Mid']),
       ]),
@@ -89,5 +90,34 @@ void main() {
     );
 
     expect(edited(result).migrations.single.apply(CategoricalValue(const ['Mid'])), CategoricalValue(const ['High']));
+  });
+
+  testWidgets('a re-edit shows a renamed option deleted later by its newer name', (tester) async {
+    final saved = metric.adjustment as CategoricalAdjustment;
+    final renamed = RatingMetric(adjustment: saved.copyWith(options: {'Poor', 'Mid', 'High'}));
+    final recorded = [entryValue(['Low'])];
+    final earlier = MigrationProposal.build(
+      before: saved,
+      after: renamed.adjustment,
+      optionOrigins: const {'Poor': 'Low', 'Mid': 'Mid', 'High': 'High'},
+      recorded: recorded,
+    );
+    final result = await pushAndSave(
+      tester,
+      CategoricalMetricPage.edit(metric: renamed, migrationContext: ValueMigrationContext(saved, pending: earlier)),
+      repository: repositoryWithRecorded(recorded),
+      interact: () async {
+        await tester.tap(find.byTooltip('Remove option').at(0));
+        await tester.pumpAndSettle();
+      },
+      afterSave: () async {
+        expect(find.text("Deleted option 'Poor'"), findsWidgets);
+        expect(find.textContaining('This replaces the change you confirmed earlier.'), findsOneWidget);
+        await tester.tap(find.text('Update values'));
+        await tester.pumpAndSettle();
+      },
+    );
+
+    expect(edited(result).migrations.single.apply(CategoricalValue(const ['Low'])), CategoricalValue(const ['Mid']));
   });
 }

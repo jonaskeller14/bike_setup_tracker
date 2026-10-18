@@ -26,6 +26,8 @@ import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../utils/preset_merge.dart';
+import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/dialogs/apply_preset_adjustments.dart';
@@ -91,7 +93,10 @@ class _ComponentPageState extends State<ComponentPage> {
   late TextEditingController _notesController;
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  final Map<String, ValueMigration> _pendingMigrations = {};
+  final Map<String, MigrationProposal> _pendingMigrations = {};
+  late final Map<String, Adjustment> _savedAdjustments = widget.mode == ComponentPageMode.edit
+      ? {for (final a in widget.component!.adjustments) a.id: a}
+      : const <String, Adjustment>{};
   late List<Installation> _installations;
   late ComponentType? _componentType;
   late ComponentType? _initialComponentType;
@@ -314,21 +319,19 @@ class _ComponentPageState extends State<ComponentPage> {
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
         final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, stagedMigration: _pendingMigrations[a.id]),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, stagedMigration: _pendingMigrations[a.id]),
-        final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, componentType: _componentType, stagedMigration: _pendingMigrations[a.id]),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, componentType: _componentType, enableSagConversion: true, stagedMigration: _pendingMigrations[a.id]),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, migrationContext: _migrationContext(a.id)),
+        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, migrationContext: _migrationContext(a.id)),
+        final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, componentType: _componentType, migrationContext: _migrationContext(a.id)),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, componentType: _componentType, enableSagConversion: true, migrationContext: _migrationContext(a.id)),
         final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, stagedMigration: _pendingMigrations[a.id]),
+        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, migrationContext: _migrationContext(a.id)),
       }),
     );
     if (result == null) return;
     final Adjustment editedAdjustment;
-    if (result is EditResult<Adjustment>) {
+    if (result is AdjustmentEditResult<Adjustment>) {
       editedAdjustment = result.value;
-      for (final migration in result.migrations) {
-        _stageMigration(migration);
-      }
+      _stagePending(editedAdjustment.id, result.pending);
     } else {
       editedAdjustment = result as Adjustment;
     }
@@ -342,13 +345,16 @@ class _ComponentPageState extends State<ComponentPage> {
     onChanged?.call();
   }
 
-  void _stageMigration(ValueMigration migration) {
-    final existing = _pendingMigrations[migration.adjustmentId];
-    final composed = existing == null ? migration : existing.then(migration);
-    if (composed.isNoOp) {
-      _pendingMigrations.remove(migration.adjustmentId);
+  ValueMigrationContext? _migrationContext(String id) =>
+      ValueMigrationContext.of(id, _savedAdjustments, _pendingMigrations);
+
+  /// A further edit's proposal replaces the earlier one: it already covers the
+  /// whole change from the saved definition.
+  void _stagePending(String id, MigrationProposal? pending) {
+    if (pending == null) {
+      _pendingMigrations.remove(id);
     } else {
-      _pendingMigrations[migration.adjustmentId] = composed;
+      _pendingMigrations[id] = pending;
     }
   }
 
@@ -450,7 +456,7 @@ class _ComponentPageState extends State<ComponentPage> {
     if (kept.isNotEmpty) {
       final recordedValues = migrateRecordedValues(
         context.read<AppRepository>().recordedAdjustmentValues({for (final a in kept) a.id}),
-        _pendingMigrations,
+        {for (final MapEntry(:key, :value) in _pendingMigrations.entries) key: value.toMigration()},
       );
       final confirmed = await showPresetMergeSheet(
         context,
@@ -479,6 +485,14 @@ class _ComponentPageState extends State<ComponentPage> {
       _resolvedPreset = resolved;
       _presetAdjustmentIds = {for (final a in added) a.id};
       _adjustments = merge.adjustments;
+      // A pending proposal follows its adjustment into the merged definition.
+      final pending = {
+        for (final adjustment in merge.adjustments)
+          if (_pendingMigrations[adjustment.id] case final proposal?) adjustment.id: proposal.rebuild(after: adjustment),
+      };
+      _pendingMigrations
+        ..clear()
+        ..addAll(pending);
     });
     _adjustmentsFieldNotify?.call();
     _changeListener();
@@ -519,6 +533,7 @@ class _ComponentPageState extends State<ComponentPage> {
         notes: _notesController.text,
         componentType: _componentType,
         adjustments: List.of(_adjustments),
+        pendingMigrations: Map.of(_pendingMigrations),
         lastPresetAdjustments: _lastPresetAdjustments,
         presetAdjustmentIds: _presetAdjustmentIds,
         appendedPresetNotes: _appendedPresetNotes,
@@ -533,6 +548,9 @@ class _ComponentPageState extends State<ComponentPage> {
       _notesController.text = snapshot.notes;
       _componentType = snapshot.componentType;
       _adjustments = List.of(snapshot.adjustments);
+      _pendingMigrations
+        ..clear()
+        ..addAll(snapshot.pendingMigrations);
       _lastPresetAdjustments = snapshot.lastPresetAdjustments;
       _presetAdjustmentIds = snapshot.presetAdjustmentIds;
       _appendedPresetNotes = snapshot.appendedPresetNotes;
@@ -588,7 +606,7 @@ class _ComponentPageState extends State<ComponentPage> {
     Navigator.pop(
       context,
       widget.mode == ComponentPageMode.edit
-          ? EditResult<Component>(component, migrations: _pendingMigrations.values.toList())
+          ? EditResult<Component>(component, migrations: pendingValueMigrations(_pendingMigrations))
           : component,
     );
   }
@@ -1196,6 +1214,7 @@ class _PresetSnapshot {
   final String notes;
   final ComponentType? componentType;
   final List<Adjustment> adjustments;
+  final Map<String, MigrationProposal> pendingMigrations;
   final List<Adjustment>? lastPresetAdjustments;
   final Set<String> presetAdjustmentIds;
   final String? appendedPresetNotes;
@@ -1208,6 +1227,7 @@ class _PresetSnapshot {
     required this.notes,
     required this.componentType,
     required this.adjustments,
+    required this.pendingMigrations,
     required this.lastPresetAdjustments,
     required this.presetAdjustmentIds,
     required this.appendedPresetNotes,

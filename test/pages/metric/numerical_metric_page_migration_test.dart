@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/models/recorded_value.dart';
 import 'package:bike_setup_tracker/pages/metric/numerical_metric_page.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -33,12 +34,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  EditResult<RatingMetric> edited(Object? result) => result! as EditResult<RatingMetric>;
+  AdjustmentEditResult<RatingMetric> edited(Object? result) => result! as AdjustmentEditResult<RatingMetric>;
 
   testWidgets('narrowing the range without recorded values saves without a sheet', (tester) async {
     final result = await pushAndSave(
       tester,
-      NumericalMetricPage.edit(metric: metric),
+      NumericalMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
       repository: repositoryWithRecorded(),
       interact: () => setMax(tester, '50'),
     );
@@ -50,7 +51,7 @@ void main() {
   testWidgets('narrowing the range with values outside it shows the sheet and clamps', (tester) async {
     final result = await pushAndSave(
       tester,
-      NumericalMetricPage.edit(metric: metric),
+      NumericalMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
       repository: repositoryWithRecorded([entryValue(80)]),
       interact: () => setMax(tester, '50'),
       afterSave: () async {
@@ -70,7 +71,7 @@ void main() {
   testWidgets('a unit change with values offers Convert and returns the conversion', (tester) async {
     final result = await pushAndSave(
       tester,
-      NumericalMetricPage.edit(metric: metric),
+      NumericalMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
       repository: repositoryWithRecorded([entryValue(10)]),
       interact: () => pickUnit(tester, 'bar'),
       afterSave: () async {
@@ -87,7 +88,7 @@ void main() {
   testWidgets('a unit change without values shows no sheet', (tester) async {
     final result = await pushAndSave(
       tester,
-      NumericalMetricPage.edit(metric: metric),
+      NumericalMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
       repository: repositoryWithRecorded(),
       interact: () => pickUnit(tester, 'bar'),
     );
@@ -99,7 +100,7 @@ void main() {
   testWidgets('cancelling the sheet keeps the page open', (tester) async {
     final result = await pushAndSave(
       tester,
-      NumericalMetricPage.edit(metric: metric),
+      NumericalMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
       repository: repositoryWithRecorded([entryValue(80)]),
       interact: () => setMax(tester, '50'),
       afterSave: () async {
@@ -116,7 +117,7 @@ void main() {
     final repository = repositoryWithRecorded([entryValue(80)]);
     final result = await pushAndSave(
       tester,
-      NumericalMetricPage.edit(metric: metric),
+      NumericalMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
       repository: repository,
       interact: () => enterName(tester, 'Renamed'),
     );

@@ -12,26 +12,33 @@ import '../value_transition_preview.dart';
 import 'sheet_header.dart';
 
 /// Tells the rider which recorded values an edit of [adjustmentName] affects
-/// and lets them decide what happens to them. Returns the confirmed migration,
-/// or `null` when dismissed.
-Future<ValueMigration?> showValueMigrationSheet(
+/// and lets them decide what happens to them. Returns the confirmed proposal,
+/// or `null` when dismissed. [replacesEarlier] says that the proposal replaces
+/// one the rider confirmed in an earlier edit.
+Future<MigrationProposal?> showValueMigrationSheet(
   BuildContext context, {
   required String adjustmentName,
   required MigrationProposal proposal,
+  bool replacesEarlier = false,
 }) {
-  return showModalBottomSheet<ValueMigration>(
+  return showModalBottomSheet<MigrationProposal>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    builder: (_) => _ValueMigrationSheet(adjustmentName: adjustmentName, proposal: proposal),
+    builder: (_) => _ValueMigrationSheet(
+      adjustmentName: adjustmentName,
+      proposal: proposal,
+      replacesEarlier: replacesEarlier,
+    ),
   );
 }
 
 class _ValueMigrationSheet extends StatefulWidget {
   final String adjustmentName;
   final MigrationProposal proposal;
+  final bool replacesEarlier;
 
-  const _ValueMigrationSheet({required this.adjustmentName, required this.proposal});
+  const _ValueMigrationSheet({required this.adjustmentName, required this.proposal, required this.replacesEarlier});
 
   @override
   State<_ValueMigrationSheet> createState() => _ValueMigrationSheetState();
@@ -46,15 +53,14 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
 
   void _confirm() {
     unawaited(HapticFeedback.mediumImpact());
-    Navigator.pop(context, _proposal.toMigration());
+    Navigator.pop(context, _proposal);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final records = _AffectedRecords.of(_proposal);
     final decisions = _proposal.issues.where((issue) => !issue.isAutomatic).toList();
-    final clearsValues = _proposal.issues.any((issue) => issue.choice.kind == MigrationChoiceKind.clear);
+    final clearsValues = _proposal.clearsValues;
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +77,8 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                 children: [
                   Text(
                     "Your change to '${widget.adjustmentName}' affects values recorded in "
-                    '${_countLabel(records)}.',
+                    '${affectedRecordsLabel(_proposal.affected)}.'
+                    '${widget.replacesEarlier ? ' This replaces the change you confirmed earlier.' : ''}',
                     style: theme.textTheme.bodyMedium,
                   ),
                   ValueTransitionPreview(rows: _rows(_proposal)),
@@ -118,33 +125,6 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
   }
 }
 
-/// The distinct records the issues touch.
-class _AffectedRecords {
-  final int live;
-  final int deleted;
-  final RecordedValueSource? source;
-
-  const _AffectedRecords(this.live, this.deleted, this.source);
-
-  factory _AffectedRecords.of(MigrationProposal proposal) =>
-      _AffectedRecords.ofRecords(proposal.issues.expand((issue) => issue.records));
-
-  factory _AffectedRecords.ofRecords(Iterable<RecordedValue> records) {
-    final byId = <String, RecordedValue>{};
-    for (final record in records) {
-      byId.putIfAbsent(record.recordId, () => record);
-    }
-    return _AffectedRecords(
-      byId.values.where((r) => !r.isDeleted).length,
-      byId.values.where((r) => r.isDeleted).length,
-      byId.values.firstOrNull?.source,
-    );
-  }
-
-  /// Whether [_countLabel] names a single record, for verb agreement.
-  bool get isSingular => (live == 0 ? deleted : live) == 1;
-}
-
 /// Values of a person attribute are recorded in setups too, so only rating
 /// metrics speak of rating entries.
 String _nounFor(RecordedValueSource? source, int count) => switch (source) {
@@ -153,7 +133,7 @@ String _nounFor(RecordedValueSource? source, int count) => switch (source) {
 };
 
 /// "4 setups (+3 deleted)", or "3 deleted setups" without live ones.
-String _countLabel(_AffectedRecords records) {
+String affectedRecordsLabel(AffectedRecords records) {
   if (records.live == 0) return '${records.deleted} deleted ${_nounFor(records.source, records.deleted)}';
   final base = '${records.live} ${_nounFor(records.source, records.live)}';
   return records.deleted == 0 ? base : '$base (+${records.deleted} deleted)';
@@ -208,7 +188,7 @@ String _issueTitle(MigrationIssue issue, MigrationProposal proposal) => switch (
   MigrationIssueKind.incompatibleUnit =>
     'Unit changed from ${_unitName(proposal.before.unit)} to ${_unitName(proposal.after.unit)}',
   MigrationIssueKind.renamedOptions => 'Renamed options',
-  MigrationIssueKind.deletedOption => "Deleted option '${issue.options.first}'",
+  MigrationIssueKind.deletedOption => "Deleted option '${proposal.optionLabel(issue.options.first)}'",
   MigrationIssueKind.duplicateOptions => 'Repeated options',
   MigrationIssueKind.combination => '${issue.options.join(' + ')} together',
   MigrationIssueKind.outOfRange =>
@@ -226,11 +206,15 @@ String _choiceLabel(MigrationChoice choice, MigrationProposal proposal) => switc
 
 /// What the selected choice does to the records [issue] touches.
 String _choiceHint(MigrationIssue issue, MigrationProposal proposal) {
-  final records = _AffectedRecords.ofRecords(issue.records);
-  final count = _countLabel(records);
+  final records = issue.affected;
+  final count = affectedRecordsLabel(records);
   final one = records.isSingular;
   final unit = proposal.after.unit;
-  final deletedOption = issue.kind == MigrationIssueKind.deletedOption ? issue.options.first : null;
+  final deletedOption = issue.kind == MigrationIssueKind.deletedOption ? proposal.optionLabel(issue.options.first) : null;
+  // Another row was renamed to the deleted option's text.
+  final renamedFrom = issue.kind == MigrationIssueKind.deletedOption && issue.choice.option == issue.options.first
+      ? proposal.optionOrigins[issue.options.first]
+      : null;
   return switch (issue.choice.kind) {
     MigrationChoiceKind.convert => '$count ${one ? 'is' : 'are'} converted to ${_unitName(unit)}.',
     MigrationChoiceKind.keep =>
@@ -240,6 +224,8 @@ String _choiceHint(MigrationIssue issue, MigrationProposal proposal) {
       proposal.after is StepAdjustment
           ? '$count ${one ? 'snaps' : 'snap'} to the nearest step.'
           : '$count ${one ? 'moves' : 'move'} to the nearest limit.',
+    MigrationChoiceKind.mapTo when renamedFrom != null =>
+      "$count ${one ? 'keeps' : 'keep'} '$deletedOption', now the option renamed from '$renamedFrom'.",
     MigrationChoiceKind.clear when deletedOption != null => "'$deletedOption' is removed from $count.",
     MigrationChoiceKind.clear => '$count ${one ? 'loses its' : 'lose their'} value.',
     MigrationChoiceKind.mapTo when deletedOption != null =>

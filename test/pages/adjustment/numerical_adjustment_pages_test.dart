@@ -1,6 +1,8 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/pages/adjustment/numerical_adjustment_page.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
+import 'package:bike_setup_tracker/utils/value_migration_proposal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -19,7 +21,7 @@ void main() {
       max: 100,
     );
 
-    EditResult<Adjustment>? result;
+    AdjustmentEditResult<Adjustment>? result;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -27,7 +29,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<EditResult<Adjustment>>(
+              result = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => NumericalAdjustmentPage.edit(adjustment: initial),
@@ -138,7 +140,7 @@ void main() {
       max: 100.0,
     );
 
-    EditResult<Adjustment>? result;
+    AdjustmentEditResult<Adjustment>? result;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -146,7 +148,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<EditResult<Adjustment>>(
+              result = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => NumericalAdjustmentPage.edit(adjustment: initial),
@@ -308,12 +310,12 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    EditResult<Adjustment> edited(Object? result) => result! as EditResult<Adjustment>;
+    AdjustmentEditResult<Adjustment> edited(Object? result) => result! as AdjustmentEditResult<Adjustment>;
 
     testWidgets('narrowing the range without recorded values saves without a sheet', (tester) async {
       final result = await pushAndSave(
         tester,
-        NumericalAdjustmentPage.edit(adjustment: pressure),
+        NumericalAdjustmentPage.edit(adjustment: pressure, migrationContext: ValueMigrationContext(pressure)),
         repository: repositoryWithRecorded(),
         interact: () => setMax(tester, '50'),
       );
@@ -326,7 +328,7 @@ void main() {
     testWidgets('narrowing the range with values outside it shows the sheet and clamps', (tester) async {
       final result = await pushAndSave(
         tester,
-        NumericalAdjustmentPage.edit(adjustment: pressure),
+        NumericalAdjustmentPage.edit(adjustment: pressure, migrationContext: ValueMigrationContext(pressure)),
         repository: repositoryWithRecorded([recordedValue(const NumericalValue(80))]),
         interact: () => setMax(tester, '50'),
         afterSave: () async {
@@ -345,7 +347,7 @@ void main() {
     testWidgets('narrowing the range keeps values that still fit without a sheet', (tester) async {
       final result = await pushAndSave(
         tester,
-        NumericalAdjustmentPage.edit(adjustment: pressure),
+        NumericalAdjustmentPage.edit(adjustment: pressure, migrationContext: ValueMigrationContext(pressure)),
         repository: repositoryWithRecorded([recordedValue(const NumericalValue(20))]),
         interact: () => setMax(tester, '50'),
       );
@@ -357,7 +359,7 @@ void main() {
     testWidgets('a unit change with values offers Convert and returns the conversion', (tester) async {
       final result = await pushAndSave(
         tester,
-        NumericalAdjustmentPage.edit(adjustment: pressure),
+        NumericalAdjustmentPage.edit(adjustment: pressure, migrationContext: ValueMigrationContext(pressure)),
         repository: repositoryWithRecorded([recordedValue(const NumericalValue(10))]),
         interact: () => pickUnit(tester, 'bar'),
         afterSave: () async {
@@ -376,7 +378,7 @@ void main() {
     testWidgets('Keep numbers returns no migration', (tester) async {
       final result = await pushAndSave(
         tester,
-        NumericalAdjustmentPage.edit(adjustment: pressure.copyWith(max: double.infinity)),
+        NumericalAdjustmentPage.edit(adjustment: pressure.copyWith(max: double.infinity), migrationContext: ValueMigrationContext(pressure.copyWith(max: double.infinity))),
         repository: repositoryWithRecorded([recordedValue(const NumericalValue(10))]),
         interact: () => pickUnit(tester, 'bar'),
         afterSave: () async {
@@ -394,7 +396,7 @@ void main() {
     testWidgets('a unit change without values shows no sheet', (tester) async {
       final result = await pushAndSave(
         tester,
-        NumericalAdjustmentPage.edit(adjustment: pressure),
+        NumericalAdjustmentPage.edit(adjustment: pressure, migrationContext: ValueMigrationContext(pressure)),
         repository: repositoryWithRecorded(),
         interact: () => pickUnit(tester, 'bar'),
       );
@@ -406,7 +408,7 @@ void main() {
     testWidgets('cancelling the sheet keeps the page open', (tester) async {
       final result = await pushAndSave(
         tester,
-        NumericalAdjustmentPage.edit(adjustment: pressure),
+        NumericalAdjustmentPage.edit(adjustment: pressure, migrationContext: ValueMigrationContext(pressure)),
         repository: repositoryWithRecorded([recordedValue(const NumericalValue(80))]),
         interact: () => setMax(tester, '50'),
         afterSave: () async {
@@ -423,7 +425,7 @@ void main() {
       final repository = repositoryWithRecorded([recordedValue(const NumericalValue(80))]);
       final result = await pushAndSave(
         tester,
-        NumericalAdjustmentPage.edit(adjustment: pressure),
+        NumericalAdjustmentPage.edit(adjustment: pressure, migrationContext: ValueMigrationContext(pressure)),
         repository: repository,
         interact: () => enterName(tester, 'Renamed'),
       );
@@ -432,21 +434,73 @@ void main() {
       expect(edited(result).migrations, isEmpty);
     });
 
-    testWidgets('the staged migration is applied to the recorded values first', (tester) async {
-      // 10 psi was converted to bar by an earlier edit, so it fits a 1 bar maximum.
-      final inBar = pressure.copyWith(unit: bar, max: 100.0);
-      final result = await pushAndSave(
-        tester,
-        NumericalAdjustmentPage.edit(
-          adjustment: inBar,
-          stagedMigration: ValueMigration('pressure', const [ConvertUnitStep(psi, bar)]),
-        ),
-        repository: repositoryWithRecorded([recordedValue(const NumericalValue(10))]),
-        interact: () => setMax(tester, '1'),
+    group('a re-edit', () {
+      final recorded = [recordedValue(const NumericalValue(80))];
+      // An earlier edit of the same form narrowed the maximum to 50 and clamped.
+      final narrowed = pressure.copyWith(max: 50.0);
+      final earlier = MigrationProposal.build(before: pressure, after: narrowed, recorded: recorded);
+
+      NumericalAdjustmentPage reEdit() => NumericalAdjustmentPage.edit(
+        adjustment: narrowed,
+        migrationContext: ValueMigrationContext(pressure, pending: earlier),
       );
 
-      expect(find.text(sheetTitle), findsNothing);
-      expect(edited(result).migrations, isEmpty);
+      testWidgets('shows the net change from the saved definition', (tester) async {
+        final result = await pushAndSave(
+          tester,
+          reEdit(),
+          repository: repositoryWithRecorded(recorded),
+          interact: () => setMax(tester, '70'),
+          afterSave: () async {
+            expect(find.textContaining('This replaces the change you confirmed earlier.'), findsOneWidget);
+            await tester.tap(find.text('Update values'));
+            await tester.pumpAndSettle();
+          },
+        );
+
+        expect(edited(result).migrations.single.apply(const NumericalValue(80)), const NumericalValue(70));
+      });
+
+      testWidgets('back to the saved definition stages nothing', (tester) async {
+        final result = await pushAndSave(
+          tester,
+          reEdit(),
+          repository: repositoryWithRecorded(recorded),
+          interact: () => setMax(tester, '100'),
+        );
+
+        expect(find.text(sheetTitle), findsNothing);
+        expect(edited(result).pending, isNull);
+      });
+
+      testWidgets('that only renames shows the pending change again', (tester) async {
+        final result = await pushAndSave(
+          tester,
+          reEdit(),
+          repository: repositoryWithRecorded(recorded),
+          interact: () => enterName(tester, 'Renamed'),
+          afterSave: () async {
+            expect(find.text(sheetTitle), findsOneWidget);
+            await tester.tap(find.text('Update values'));
+            await tester.pumpAndSettle();
+          },
+        );
+
+        expect(edited(result).migrations.single.apply(const NumericalValue(80)), const NumericalValue(50));
+      });
+    });
+
+    testWidgets('an adjustment that was never saved does not look values up', (tester) async {
+      final repository = repositoryWithRecorded([recordedValue(const NumericalValue(80))]);
+      final result = await pushAndSave(
+        tester,
+        NumericalAdjustmentPage.edit(adjustment: pressure),
+        repository: repository,
+        interact: () => setMax(tester, '50'),
+      );
+
+      verifyNever(() => repository.recordedValues(any()));
+      expect(edited(result).pending, isNull);
     });
   });
 }

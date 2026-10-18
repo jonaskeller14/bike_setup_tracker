@@ -558,20 +558,22 @@ nodes:
   group('ComponentPage recorded values', () {
     const psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
     const kPa = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'kiloPascal');
+    final bike = Bike(name: 'Bike', person: null);
 
-    testWidgets('two unit edits of one adjustment stage a single combined migration', (WidgetTester tester) async {
-      final bike = Bike(name: 'Bike', person: null);
-      final pressure = NumericalAdjustment(id: 'pressure', name: 'Pressure', notes: null, unit: psi);
-      final fork = Component(
-        id: 'fork',
-        name: 'Fork',
-        componentType: ComponentType.fork,
-        adjustments: [pressure],
-        installations: [Installation.sinceBeginning(parent: bike.id)],
-      );
+    Component fork(Adjustment adjustment) => Component(
+      id: 'fork',
+      name: 'Fork',
+      componentType: ComponentType.fork,
+      adjustments: [adjustment],
+      installations: [Installation.sinceBeginning(parent: bike.id)],
+    );
+
+    /// Saves [component] with a setup holding [value] for its adjustment,
+    /// opens it in edit mode and returns a getter for what the form pops.
+    Future<Object? Function()> openForm(WidgetTester tester, Component component, AdjustmentValue value) async {
       await tester.runAsync(() async {
         await appRepository.addBikes([bike]);
-        await appRepository.addComponents([fork]);
+        await appRepository.addComponents([component]);
         await appRepository.addSetups([
           Setup(
             name: 'Setup',
@@ -580,7 +582,7 @@ nodes:
             datetimeLocal: DateTime(2024),
             bike: bike.id,
             person: null,
-            bikeAdjustmentValues: {pressure.id: const NumericalValue(10)},
+            bikeAdjustmentValues: {component.adjustments.single.id: value},
             personAdjustmentValues: const {},
           ),
         ]);
@@ -603,7 +605,7 @@ nodes:
               builder: (context) => TextButton(
                 onPressed: () async => result = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => ComponentPage.edit(component: fork)),
+                  MaterialPageRoute(builder: (_) => ComponentPage.edit(component: component)),
                 ),
                 child: const Text('open'),
               ),
@@ -613,35 +615,164 @@ nodes:
       );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
+      return () => result;
+    }
 
-      Future<void> changeUnitTo(String label) async {
-        await tester.tap(find.byIcon(Icons.more_vert));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Edit'));
-        await tester.pumpAndSettle();
+    /// Edits the only adjustment through [interact] and saves it. With
+    /// [confirm], expects the value migration sheet and confirms it.
+    Future<void> editAdjustment(
+      WidgetTester tester,
+      Future<void> Function() interact, {
+      bool confirm = true,
+      Future<void> Function()? inSheet,
+    }) async {
+      await tester.ensureVisible(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Edit'));
+      await tester.pumpAndSettle();
+      await interact();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+      await tester.pumpAndSettle();
+      if (!confirm) {
+        expect(find.text('Update recorded values'), findsNothing);
+        return;
+      }
+      expect(find.text('Update recorded values'), findsOneWidget);
+      await inSheet?.call();
+      await tester.tap(find.text('Update values'));
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> setMax(WidgetTester tester, String label, String max) async {
+      await tester.enterText(find.widgetWithText(TextFormField, label), max);
+      await tester.pumpAndSettle();
+    }
+
+    Future<EditResult<Component>> saveForm(WidgetTester tester, Object? Function() result) async {
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+      return result()! as EditResult<Component>;
+    }
+
+    testWidgets('two unit edits of one adjustment stage a single combined migration', (WidgetTester tester) async {
+      final pressure = NumericalAdjustment(id: 'pressure', name: 'Pressure', notes: null, unit: psi);
+      final result = await openForm(tester, fork(pressure), const NumericalValue(10));
+
+      Future<void> changeUnitTo(String label) => editAdjustment(tester, () async {
         await tester.tap(find.byKey(const Key('unit_picker_field')));
         await tester.pumpAndSettle();
         await tester.tap(find.text(label));
         await tester.pumpAndSettle();
-        await tester.tap(find.byIcon(Icons.check));
-        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
-        await tester.pumpAndSettle();
-        expect(find.text('Update recorded values'), findsOneWidget);
-        await tester.tap(find.text('Update values'));
-        await tester.pumpAndSettle();
-      }
+      });
 
       await changeUnitTo('bar');
       await changeUnitTo('kPa');
 
-      await tester.tap(find.byIcon(Icons.check));
-      await tester.pumpAndSettle();
-
-      final saved = result! as EditResult<Component>;
+      final saved = await saveForm(tester, result);
       expect(saved.value.adjustments.single.unit, kPa);
       expect(saved.migrations, [
         ValueMigration('pressure', const [ConvertUnitStep(psi, kPa)]),
       ]);
+    });
+
+    group('a narrowed maximum edited again', () {
+      final pressure = NumericalAdjustment(id: 'pressure', name: 'Pressure', notes: null, unit: psi, min: 0, max: 20);
+      const maxField = 'Max Value (optional)';
+
+      testWidgets('clamps to the newest maximum and shows the net change', (WidgetTester tester) async {
+        final result = await openForm(tester, fork(pressure), const NumericalValue(20));
+
+        await editAdjustment(tester, () => setMax(tester, maxField, '10'));
+        await editAdjustment(
+          tester,
+          () => setMax(tester, maxField, '15'),
+          inSheet: () async {
+            expect(find.textContaining('This replaces the change you confirmed earlier.'), findsOneWidget);
+            expect(find.text('Clamp'), findsOneWidget);
+            expect(find.text('15 psi'), findsOneWidget);
+          },
+        );
+
+        final migration = (await saveForm(tester, result)).migrations.single;
+        expect(migration.apply(const NumericalValue(20)), const NumericalValue(15));
+      });
+
+      testWidgets('back to the saved maximum writes nothing', (WidgetTester tester) async {
+        final result = await openForm(tester, fork(pressure), const NumericalValue(20));
+
+        await editAdjustment(tester, () => setMax(tester, maxField, '10'));
+        await editAdjustment(tester, () => setMax(tester, maxField, '20'), confirm: false);
+
+        expect((await saveForm(tester, result)).migrations, isEmpty);
+      });
+
+      testWidgets('a rename-only re-edit shows the pending change again', (WidgetTester tester) async {
+        final result = await openForm(tester, fork(pressure), const NumericalValue(20));
+
+        await editAdjustment(tester, () => setMax(tester, maxField, '10'));
+        await editAdjustment(tester, () async {
+          await tester.enterText(find.widgetWithText(TextFormField, 'Adjustment Name'), 'Air');
+          await tester.pumpAndSettle();
+        });
+
+        final migration = (await saveForm(tester, result)).migrations.single;
+        expect(migration.apply(const NumericalValue(20)), const NumericalValue(10));
+      });
+    });
+
+    group('a preset merge after an edit', () {
+      final rebound = StepAdjustment(
+        id: 'rebound',
+        name: 'rebound',
+        notes: '',
+        unit: null,
+        step: 1,
+        min: 0,
+        max: 20,
+        visualization: StepAdjustmentVisualization.slider,
+      );
+
+      Future<Object? Function()> narrowThenMerge(WidgetTester tester) async {
+        appSettings.enableComponentPresets = true;
+        await tester.runAsync(() => presetRepository.all());
+        final result = await openForm(tester, fork(rebound), const StepValue(20));
+        await editAdjustment(tester, () => setMax(tester, 'Max Value', '10'));
+
+        await tester.ensureVisible(find.text('Choose from catalog'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Choose from catalog'));
+        await tester.pumpAndSettle();
+        for (final step in ['FOX', '38', 'Factory']) {
+          final row = find.widgetWithText(ListTile, step);
+          if (row.evaluate().isEmpty) continue; // The picker skips single-choice levels.
+          await tester.tap(row.last);
+          await tester.pumpAndSettle();
+        }
+        await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
+        await tester.pumpAndSettle();
+        return result;
+      }
+
+      testWidgets('rebuilds the pending change for the merged range', (WidgetTester tester) async {
+        final result = await narrowThenMerge(tester);
+
+        // The catalog's 0..20 is adopted, which is the saved range again.
+        final saved = await saveForm(tester, result);
+        expect((saved.value.adjustments.firstWhere((a) => a.id == 'rebound') as StepAdjustment).max, 20);
+        expect(saved.migrations, isEmpty);
+      });
+
+      testWidgets('UNDO restores the pending change', (WidgetTester tester) async {
+        final result = await narrowThenMerge(tester);
+        await tester.tap(find.text('UNDO'));
+        await tester.pumpAndSettle();
+
+        final migration = (await saveForm(tester, result)).migrations.single;
+        expect(migration.apply(const StepValue(20)), const StepValue(10));
+      });
     });
   });
 

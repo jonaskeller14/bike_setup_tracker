@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/pages/adjustment/duration_adjustment_page.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -26,7 +27,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              final edited = await Navigator.push<EditResult<Adjustment>>(
+              final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => DurationAdjustmentPage.edit(adjustment: initial),
@@ -105,7 +106,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              final edited = await Navigator.push<EditResult<Adjustment>>(
+              final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => DurationAdjustmentPage.edit(adjustment: initial),
@@ -232,7 +233,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              final edited = await Navigator.push<EditResult<Adjustment>>(
+              final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => DurationAdjustmentPage.edit(adjustment: initial),
@@ -277,12 +278,12 @@ void main() {
       max: const Duration(hours: 5),
     );
 
-    EditResult<Adjustment> edited(Object? result) => result! as EditResult<Adjustment>;
+    AdjustmentEditResult<Adjustment> edited(Object? result) => result! as AdjustmentEditResult<Adjustment>;
 
     testWidgets('lowering the max below a recorded value offers Clamp', (tester) async {
       final result = await pushAndSave(
         tester,
-        DurationAdjustmentPage.edit(adjustment: ride),
+        DurationAdjustmentPage.edit(adjustment: ride, migrationContext: ValueMigrationContext(ride)),
         repository: repositoryWithRecorded([recordedValue(const DurationValue(Duration(hours: 4)))]),
         interact: () => setDurationHours(tester, 'Max Duration (optional)', from: 5, to: 3),
         afterSave: () async {
@@ -301,7 +302,7 @@ void main() {
     testWidgets('lowering the max above every recorded value shows no sheet', (tester) async {
       final result = await pushAndSave(
         tester,
-        DurationAdjustmentPage.edit(adjustment: ride),
+        DurationAdjustmentPage.edit(adjustment: ride, migrationContext: ValueMigrationContext(ride)),
         repository: repositoryWithRecorded([recordedValue(const DurationValue(Duration(hours: 2)))]),
         interact: () => setDurationHours(tester, 'Max Duration (optional)', from: 5, to: 3),
       );

@@ -1,11 +1,17 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/recorded_value.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppRepository extends Mock implements AppRepository {}
+
+extension PendingMigrations<T> on AdjustmentEditResult<T> {
+  /// What the parent form would write for this edit.
+  List<ValueMigration> get migrations => pendingValueMigrations({'': ?pending});
+}
 
 /// A repository whose `recordedValues` returns [recorded] for any adjustment.
 MockAppRepository repositoryWithRecorded([List<RecordedValue> recorded = const []]) {

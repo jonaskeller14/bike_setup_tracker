@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
 const _bar = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'bar');
+const _kpa = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'kiloPascal');
 
 int _counter = 0;
 
@@ -218,26 +219,6 @@ void main() {
       expect(_issue(proposal, MigrationIssueKind.unitConversion).choice, MigrationChoice.convert);
     });
 
-    test('a staged conversion is applied to the recorded values first', () {
-      final proposal = MigrationProposal.build(
-        before: _numerical(unit: _bar, max: 100),
-        after: _numerical(unit: _bar, max: 1),
-        recorded: [_record(const NumericalValue(10))],
-        staged: ValueMigration('a', const [ConvertUnitStep(_psi, _bar)]),
-      );
-      // 10 psi is 0.69 bar, which still fits.
-      expect(proposal.isEmpty, isTrue);
-    });
-
-    test('a value the staged migration cleared is no longer affected', () {
-      final proposal = MigrationProposal.build(
-        before: _numerical(unit: _psi),
-        after: _numerical(unit: _bar),
-        recorded: [_record(const NumericalValue(10))],
-        staged: ValueMigration('a', const [ClearAllStep()]),
-      );
-      expect(proposal.isEmpty, isTrue);
-    });
   });
 
   group('step and duration', () {
@@ -316,24 +297,6 @@ void main() {
         recorded: [_record(_cat(['B']))],
       );
       expect(proposal.isEmpty, isTrue);
-    });
-
-    test('a staged A to B followed by a B to C rename maps the recorded values to C', () {
-      final proposal = MigrationProposal.build(
-        before: _categorical({'B'}),
-        after: _categorical({'C'}),
-        optionOrigins: const {'C': 'B'},
-        recorded: [_record(_cat(['A']))],
-        staged: ValueMigration('a', [
-          MapOptionsStep(const {'A': 'B'}),
-        ]),
-      );
-
-      expect(_issue(proposal, MigrationIssueKind.renamedOptions).exampleBefore, _cat(['B']));
-      final chained = ValueMigration('a', [
-        MapOptionsStep(const {'A': 'B'}),
-      ]).then(proposal.toMigration());
-      expect(chained.apply(_cat(['A'])), _cat(['C']));
     });
 
     test('swapping two options maps both ways at once', () {
@@ -495,6 +458,252 @@ void main() {
 
       expect(proposal.issues.map((i) => i.kind), [MigrationIssueKind.deletedOption]);
     });
+  });
+
+  group('deleted text reused by a renamed row', () {
+    test('the saved option counts as deleted and merges into that row by default', () {
+      final proposal = MigrationProposal.build(
+        before: _categorical({'A', 'B'}),
+        after: _categorical({'A'}),
+        optionOrigins: const {'A': 'B'},
+        recorded: [_record(_cat(['A'])), _record(_cat(['B']))],
+      );
+
+      final deleted = _issue(proposal, MigrationIssueKind.deletedOption);
+      expect(deleted.options, ['A']);
+      expect(deleted.choice, const MigrationChoice.mapTo('A'));
+      expect(proposal.toMigration().apply(_cat(['A'])), _cat(['A']));
+      expect(proposal.toMigration().apply(_cat(['B'])), _cat(['A']));
+    });
+
+    test('the merge can be cleared instead', () {
+      final proposal = MigrationProposal.build(
+        before: _categorical({'A', 'B'}),
+        after: _categorical({'A'}),
+        optionOrigins: const {'A': 'B'},
+        recorded: [_record(_cat(['A'])), _record(_cat(['B']))],
+      ).withChoice('delete:A', MigrationChoice.clear);
+
+      expect(proposal.toMigration().apply(_cat(['A'])), isNull);
+      expect(proposal.toMigration().apply(_cat(['B'])), _cat(['A']));
+      expect(proposal.clearsValues, isTrue);
+    });
+  });
+
+  group('rebuild', () {
+    test('a narrowed range widened again clamps to the newest maximum', () {
+      final first = MigrationProposal.build(
+        before: _numerical(max: 20),
+        after: _numerical(max: 10),
+        recorded: [_record(const NumericalValue(20))],
+      );
+      final second = first.rebuild(after: _numerical(max: 15));
+
+      expect(second.toMigration().steps, [const ClampToRangeStep(NumericalRange(double.negativeInfinity, 15))]);
+      expect(second.toMigration().apply(const NumericalValue(20)), const NumericalValue(15));
+      expect(second.previews.single.values, [const NumericalValue(20), const NumericalValue(15)]);
+    });
+
+    test('a rebuild back to the saved definition is empty', () {
+      final first = MigrationProposal.build(
+        before: _numerical(max: 20),
+        after: _numerical(max: 10),
+        recorded: [_record(const NumericalValue(20))],
+      );
+      expect(first.rebuild(after: _numerical(max: 20)).isEmpty, isTrue);
+    });
+
+    test('multi-select or counted turned off and on again is empty', () {
+      final multi = MigrationProposal.build(
+        before: _categorical({'A', 'B'}, multiSelect: true),
+        after: _categorical({'A', 'B'}),
+        recorded: [_record(_cat(['A', 'B']))],
+      );
+      expect(multi.isEmpty, isFalse);
+      expect(multi.rebuild(after: _categorical({'A', 'B'}, multiSelect: true)).isEmpty, isTrue);
+
+      final counted = MigrationProposal.build(
+        before: _categorical({'A'}, counted: true),
+        after: _categorical({'A'}),
+        recorded: [_record(_cat(['A', 'A']))],
+      );
+      expect(counted.isEmpty, isFalse);
+      expect(counted.rebuild(after: _categorical({'A'}, counted: true)).isEmpty, isTrue);
+    });
+
+    test('a deleted option re-added as a new row is empty', () {
+      final first = MigrationProposal.build(
+        before: _categorical({'A', 'C'}),
+        after: _categorical({'A'}),
+        recorded: [_record(_cat(['C']))],
+      );
+      final second = first.rebuild(after: _categorical({'A', 'C'}), pageOrigins: const {'A': 'A', 'C': null});
+      expect(second.isEmpty, isTrue);
+    });
+
+    test('rename A to B, then B to C, renames A to C', () {
+      final first = MigrationProposal.build(
+        before: _categorical({'A'}),
+        after: _categorical({'B'}),
+        optionOrigins: const {'B': 'A'},
+        recorded: [_record(_cat(['A']))],
+      );
+      final second = first.rebuild(after: _categorical({'C'}), pageOrigins: const {'C': 'B'});
+
+      expect(second.optionOrigins, {'C': 'A'});
+      expect(second.toMigration().apply(_cat(['A'])), _cat(['C']));
+      expect(_issue(second, MigrationIssueKind.renamedOptions).exampleBefore, _cat(['A']));
+    });
+
+    test('a renamed option deleted later is shown by its newer name', () {
+      final first = MigrationProposal.build(
+        before: _categorical({'A', 'X'}),
+        after: _categorical({'B', 'X'}),
+        optionOrigins: const {'B': 'A', 'X': 'X'},
+        recorded: [_record(_cat(['A']))],
+      );
+      final second = first.rebuild(after: _categorical({'X'}), pageOrigins: const {'X': 'X'});
+
+      final deleted = _issue(second, MigrationIssueKind.deletedOption);
+      expect(deleted.options, ['A']);
+      expect(second.optionLabel('A'), 'B');
+      expect(second.toMigration().apply(_cat(['A'])), _cat(['X']));
+    });
+
+    test('a label goes away when the option gets its saved name back', () {
+      final first = MigrationProposal.build(
+        before: _categorical({'A', 'X'}),
+        after: _categorical({'B', 'X'}),
+        optionOrigins: const {'B': 'A'},
+        recorded: [_record(_cat(['A']))],
+      );
+      final renamedBack = first.rebuild(after: _categorical({'A', 'X'}), pageOrigins: const {'A': 'B'});
+      expect(renamedBack.isEmpty, isTrue);
+      final deleted = renamedBack.rebuild(after: _categorical({'X'}));
+      expect(deleted.optionLabel('A'), 'A');
+    });
+
+    test('psi to bar to kPa is one conversion, and back to psi is empty', () {
+      final first = MigrationProposal.build(
+        before: _numerical(unit: _psi),
+        after: _numerical(unit: _bar),
+        recorded: [_record(const NumericalValue(10))],
+      );
+      expect(first.rebuild(after: _numerical(unit: _kpa)).toMigration().steps, [const ConvertUnitStep(_psi, _kpa)]);
+      expect(first.rebuild(after: _numerical(unit: _psi)).isEmpty, isTrue);
+    });
+
+    test('a conversion rebuilt with a lower maximum checks the converted values', () {
+      final first = MigrationProposal.build(
+        before: _numerical(unit: _psi, max: 100),
+        after: _numerical(unit: _bar, max: 100),
+        recorded: [_record(const NumericalValue(10))],
+      );
+      // 10 psi is 0.69 bar, which still fits.
+      expect(first.rebuild(after: _numerical(unit: _bar, max: 1)).issues.map((i) => i.kind), [
+        MigrationIssueKind.unitConversion,
+      ]);
+    });
+
+    test('an earlier choice is kept', () {
+      final first = MigrationProposal.build(
+        before: _numerical(max: 20),
+        after: _numerical(max: 10),
+        recorded: [_record(const NumericalValue(20))],
+      ).withChoice('range', MigrationChoice.clear);
+      final second = first.rebuild(after: _numerical(max: 15));
+
+      expect(second.issues.single.choice, MigrationChoice.clear);
+      expect(second.toMigration().apply(const NumericalValue(20)), isNull);
+    });
+
+    test('an earlier target that was deleted since falls back to the default', () {
+      final first = MigrationProposal.build(
+        before: _categorical({'A', 'B', 'C'}),
+        after: _categorical({'A', 'B'}),
+        recorded: [_record(_cat(['C']))],
+      ).withChoice('delete:C', const MigrationChoice.mapTo('B'));
+      final second = first.rebuild(after: _categorical({'A'}));
+
+      expect(second.issues.firstWhere((i) => i.key == 'delete:C').choice, const MigrationChoice.mapTo('A'));
+    });
+
+    test('defaults to the stored records and accepts fresh ones', () {
+      final first = MigrationProposal.build(
+        before: _numerical(max: 20),
+        after: _numerical(max: 10),
+        recorded: [_record(const NumericalValue(20))],
+      );
+      expect(first.rebuild(after: _numerical(max: 5)).recorded, first.recorded);
+      expect(first.rebuild(after: _numerical(max: 5), recorded: const []).isEmpty, isTrue);
+    });
+  });
+
+  group('summary', () {
+    test('counts distinct records across issues, live and deleted apart', () {
+      final shared = _record(_cat(['A', 'C']));
+      final proposal = MigrationProposal.build(
+        before: _categorical({'A', 'B', 'C'}, multiSelect: true),
+        after: _categorical({'X', 'B'}),
+        optionOrigins: const {'X': 'A', 'B': 'B'},
+        recorded: [shared, _record(_cat(['B', 'C']), deleted: true), _record(_cat(['B']))],
+      );
+
+      expect(proposal.affected.live, 1);
+      expect(proposal.affected.deleted, 1);
+      expect(proposal.clearsValues, isFalse);
+    });
+  });
+
+  group('invariant', () {
+    // Each edit with values it might affect; after the migration every value
+    // the edit touched is cleared or valid for the new definition.
+    final cases = <String, (Adjustment, Adjustment, Map<String, String?>, List<AdjustmentValue>)>{
+      'narrowed range': (
+        _numerical(min: -10, max: 100),
+        _numerical(min: 0, max: 50),
+        const {},
+        const [NumericalValue(-10), NumericalValue(75), NumericalValue(20)],
+      ),
+      'unit and range': (
+        _numerical(unit: _psi, max: 1000),
+        _numerical(unit: _bar, max: 5),
+        const {},
+        const [NumericalValue(10), NumericalValue(300)],
+      ),
+      'step grid': (_step(max: 20), _step(min: 2, max: 12, step: 5), const {}, const [StepValue(0), StepValue(9), StepValue(20)]),
+      'options': (
+        _categorical({'A', 'B', 'C'}, multiSelect: true, counted: true),
+        _categorical({'X', 'B'}),
+        const {'X': 'A', 'B': 'B'},
+        [_cat(['A', 'A']), _cat(['A', 'C']), _cat(['B', 'C']), _cat(['C'])],
+      ),
+    };
+
+    for (final MapEntry(key: name, value: (before, after, origins, values)) in cases.entries) {
+      for (final clear in [false, true]) {
+        test('$name${clear ? ' with every choice cleared' : ''}', () {
+          var proposal = MigrationProposal.build(
+            before: before,
+            after: after,
+            optionOrigins: origins,
+            recorded: [for (final value in values) _record(value)],
+          );
+          if (clear) {
+            for (final issue in proposal.issues) {
+              if (issue.choices.contains(MigrationChoice.clear)) {
+                proposal = proposal.withChoice(issue.key, MigrationChoice.clear);
+              }
+            }
+          }
+          final migration = proposal.toMigration();
+          for (final value in values) {
+            final migrated = migration.apply(value);
+            expect(migrated == null || after.isValidValue(migrated), isTrue, reason: '$value -> $migrated');
+          }
+        });
+      }
+    }
   });
 
   group('records', () {

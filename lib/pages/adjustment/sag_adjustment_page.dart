@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../theme.dart';
+import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_sag_adjustment.dart';
 import 'adjustment_page.dart';
@@ -16,7 +18,7 @@ class SagAdjustmentPage extends StatefulWidget {
   final AdjustmentPageMode mode;
   final AdjustmentTerm term;
   final ComponentType? componentType;
-  final ValueMigration? stagedMigration;
+  final ValueMigrationContext? migrationContext;
 
   const SagAdjustmentPage._({
     super.key,
@@ -24,14 +26,14 @@ class SagAdjustmentPage extends StatefulWidget {
     required this.mode,
     this.term = AdjustmentTerm.adjustment,
     this.componentType,
-    this.stagedMigration,
+    this.migrationContext,
   });
 
   factory SagAdjustmentPage.add({Key? key, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       SagAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, componentType: componentType, term: term);
 
-  factory SagAdjustmentPage.edit({Key? key, required SagAdjustment adjustment, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment, ValueMigration? stagedMigration}) =>
-      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, componentType: componentType, term: term, stagedMigration: stagedMigration);
+  factory SagAdjustmentPage.edit({Key? key, required SagAdjustment adjustment, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment, ValueMigrationContext? migrationContext}) =>
+      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, componentType: componentType, term: term, migrationContext: migrationContext);
 
   factory SagAdjustmentPage.duplicate({Key? key, required SagAdjustment adjustment, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, componentType: componentType, term: term);
@@ -125,7 +127,6 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
 
-    _formHasChanges = false;
     final adjustment = SagAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name,
@@ -133,7 +134,26 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
       presetKey: widget.adjustment?.presetKey,
       referenceTravelMm: _travel(),
     );
-    Navigator.pop(context, adjustment);
+
+    // A plain numerical converted to SAG narrows its range to 0..100 %.
+    MigrationProposal? pending;
+    if (widget.mode == AdjustmentPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        migrationContext: widget.migrationContext,
+        before: widget.adjustment!,
+        after: adjustment,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      pending = confirmed.pending;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
+    Navigator.pop(
+      context,
+      widget.mode == AdjustmentPageMode.edit ? AdjustmentEditResult<Adjustment>(adjustment, pending: pending) : adjustment,
+    );
   }
 
   Future<void> _convertToNumerical() async {
@@ -155,7 +175,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
         builder: (context) => NumericalAdjustmentPage.edit(
           adjustment: numerical,
           term: widget.term,
-          stagedMigration: widget.stagedMigration,
+          migrationContext: widget.migrationContext,
         ),
       ),
     );

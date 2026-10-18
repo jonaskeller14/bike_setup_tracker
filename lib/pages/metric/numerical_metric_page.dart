@@ -5,6 +5,7 @@ import '../../models/rating/rating_metric.dart';
 import '../../theme.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
@@ -16,20 +17,20 @@ const double _defaultWeight = 1.0;
 class NumericalMetricPage extends StatefulWidget {
   final RatingMetric? metric;
   final MetricPageMode mode;
-  final ValueMigration? stagedMigration;
+  final ValueMigrationContext? migrationContext;
 
   const NumericalMetricPage._({
     super.key,
     this.metric,
     required this.mode,
-    this.stagedMigration,
+    this.migrationContext,
   });
 
   factory NumericalMetricPage.add({Key? key}) =>
       NumericalMetricPage._(key: key, mode: MetricPageMode.add);
 
-  factory NumericalMetricPage.edit({Key? key, required RatingMetric metric, ValueMigration? stagedMigration}) =>
-      NumericalMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, stagedMigration: stagedMigration);
+  factory NumericalMetricPage.edit({Key? key, required RatingMetric metric, ValueMigrationContext? migrationContext}) =>
+      NumericalMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, migrationContext: migrationContext);
 
   factory NumericalMetricPage.duplicate({Key? key, required RatingMetric metric}) =>
       NumericalMetricPage._(key: key, metric: metric, mode: MetricPageMode.duplicate);
@@ -153,16 +154,16 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
       weight: weight,
     );
 
-    List<ValueMigration> migrations = const [];
+    MigrationProposal? pending;
     if (widget.mode == MetricPageMode.edit) {
       final confirmed = await confirmValueMigrations(
         context,
+        migrationContext: widget.migrationContext,
         before: _initialAdj!,
         after: metric.adjustment,
-        staged: widget.stagedMigration,
       );
       if (confirmed == null) return; // cancelled — stay on the page
-      migrations = confirmed;
+      pending = confirmed.pending;
     }
 
     _formHasChanges = false;
@@ -170,7 +171,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     Navigator.pop(
       context,
       widget.mode == MetricPageMode.edit
-          ? EditResult<RatingMetric>(metric, migrations: migrations)
+          ? AdjustmentEditResult<RatingMetric>(metric, pending: pending)
           : metric,
     );
   }

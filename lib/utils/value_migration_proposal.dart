@@ -89,6 +89,32 @@ class MigrationIssue {
 
   bool get isAutomatic => choice == MigrationChoice.automatic;
   List<RecordedValue> get records => [...liveRecords, ...deletedRecords];
+  AffectedRecords get affected => AffectedRecords.of(records);
+}
+
+/// How many distinct records something touches.
+@immutable
+class AffectedRecords {
+  final int live;
+  final int deleted;
+  final RecordedValueSource? source;
+
+  const AffectedRecords(this.live, this.deleted, this.source);
+
+  factory AffectedRecords.of(Iterable<RecordedValue> records) {
+    final byId = <String, RecordedValue>{};
+    for (final record in records) {
+      byId.putIfAbsent(record.recordId, () => record);
+    }
+    return AffectedRecords(
+      byId.values.where((r) => !r.isDeleted).length,
+      byId.values.where((r) => r.isDeleted).length,
+      byId.values.firstOrNull?.source,
+    );
+  }
+
+  /// Whether the count names a single record, for verb agreement.
+  bool get isSingular => (live == 0 ? deleted : live) == 1;
 }
 
 /// One example value followed through the migration: [values] is where it
@@ -105,21 +131,25 @@ class MigrationPreview {
 
 /// What saving an edited adjustment or metric would do to its recorded values,
 /// and the choices that decide it. Empty when no recorded value is affected.
+///
+/// It always describes the net change from the saved definition, so a further
+/// edit of the same adjustment [rebuild]s it instead of adding to it.
 @immutable
 class MigrationProposal {
-  /// The definition the edit page opened with.
+  /// The saved definition.
   final Adjustment before;
   final Adjustment after;
 
-  /// Each new option text mapped to the text its row started with; `null` for
-  /// an added row. An option without an entry counts as unchanged.
+  /// Each new option text mapped to the saved text its row descends from;
+  /// `null` for an added row. An option without an entry counts as unchanged.
   final Map<String, String?> optionOrigins;
+
+  /// Saved options an earlier edit renamed, mapped to the name the rider last
+  /// saw, so a renamed option that is deleted later is shown by that name.
+  final Map<String, String> optionLabels;
 
   /// Every recorded value of the adjustment, as stored.
   final List<RecordedValue> recorded;
-
-  /// The migration an earlier edit of the parent form still has pending.
-  final ValueMigration? staged;
   final Map<String, MigrationChoice> choices;
   final List<MigrationIssue> issues;
 
@@ -132,23 +162,22 @@ class MigrationProposal {
     required this.before,
     required this.after,
     required this.optionOrigins,
+    required this.optionLabels,
     required this.recorded,
-    required this.staged,
     required this.choices,
     required this.issues,
     required this.previews,
     required this.steps,
   });
 
-  /// [recorded] is run through [staged] first, as the values will be once the
-  /// parent form is saved. A [choices] entry that does not fit its issue falls
-  /// back to the issue's default.
+  /// A [choices] entry that does not fit its issue falls back to the issue's
+  /// default.
   factory MigrationProposal.build({
     required Adjustment before,
     required Adjustment after,
     Map<String, String?> optionOrigins = const {},
+    Map<String, String> optionLabels = const {},
     required List<RecordedValue> recorded,
-    ValueMigration? staged,
     Map<String, MigrationChoice> choices = const {},
   }) {
     final builder = _ProposalBuilder(
@@ -156,15 +185,14 @@ class MigrationProposal {
       after: after,
       optionOrigins: optionOrigins,
       recorded: recorded,
-      staged: staged,
       choices: choices,
     )..run();
     return MigrationProposal._(
       before: before,
       after: after,
       optionOrigins: optionOrigins,
+      optionLabels: optionLabels,
       recorded: recorded,
-      staged: staged,
       choices: choices,
       issues: List.unmodifiable(builder.issues),
       previews: List.unmodifiable(builder.previews),
@@ -194,19 +222,76 @@ class MigrationProposal {
 
   bool get isEmpty => issues.isEmpty;
 
+  /// The distinct records the issues touch.
+  AffectedRecords get affected => AffectedRecords.of(issues.expand((issue) => issue.records));
+
+  /// Whether a choice removes recorded values.
+  bool get clearsValues => issues.any((issue) => issue.choice.kind == MigrationChoiceKind.clear);
+
+  /// The name to show for a saved [option].
+  String optionLabel(String option) => optionLabels[option] ?? option;
+
   /// This proposal with [choice] picked for the issue [key], and every later
   /// issue worked out from the values that choice leaves.
   MigrationProposal withChoice(String key, MigrationChoice choice) => MigrationProposal.build(
     before: before,
     after: after,
     optionOrigins: optionOrigins,
+    optionLabels: optionLabels,
     recorded: recorded,
-    staged: staged,
     choices: {...choices, key: choice},
   );
 
-  /// The migration for the current choices, without the [staged] one.
+  /// The proposal for a further edit of the same adjustment, still from the
+  /// saved [before] and with the choices made so far. [after] is the newest
+  /// definition; [pageOrigins] maps its options to the text their rows had in
+  /// this proposal's [after], where that edit started.
+  MigrationProposal rebuild({
+    required Adjustment after,
+    Map<String, String?> pageOrigins = const {},
+    List<RecordedValue>? recorded,
+  }) {
+    final previous = this.after;
+    final labels = {...optionLabels};
+    if (previous is CategoricalAdjustment) {
+      for (final option in previous.options) {
+        if (_originOf(before, optionOrigins, option) case final saved?) labels[saved] = option;
+      }
+      labels.removeWhere((saved, label) => saved == label);
+    }
+    return MigrationProposal.build(
+      before: before,
+      after: after,
+      optionOrigins: savedOriginsFor(after, pageOrigins),
+      optionLabels: labels,
+      recorded: recorded ?? this.recorded,
+      choices: choices,
+    );
+  }
+
+  /// The [pageOrigins] of a further edit (option of [after] to its text in this
+  /// proposal's [after]) traced back to the saved options.
+  Map<String, String?> savedOriginsFor(Adjustment after, Map<String, String?> pageOrigins) {
+    final previous = this.after;
+    if (after is! CategoricalAdjustment || previous is! CategoricalAdjustment) return const {};
+    return {
+      for (final option in after.options)
+        option: switch (_originOf(previous, pageOrigins, option)) {
+          final origin? => _originOf(before, optionOrigins, origin),
+          null => null,
+        },
+    };
+  }
+
+  /// The migration for the current choices.
   ValueMigration toMigration() => ValueMigration(after.id, steps);
+}
+
+/// The text in [before] that [option] descends from, per [origins]; an option
+/// without an entry descends from itself when [before] has it.
+String? _originOf(Adjustment before, Map<String, String?> origins, String option) {
+  if (origins.containsKey(option)) return origins[option];
+  return before is CategoricalAdjustment && before.options.contains(option) ? option : null;
 }
 
 /// The options an edit renamed (old text to new text) and deleted. Values
@@ -217,16 +302,18 @@ class MigrationProposal {
   CategoricalAdjustment after,
   Map<String, String?> optionOrigins,
 ) {
-  String? originOf(String option) =>
-      optionOrigins.containsKey(option) ? optionOrigins[option] : (before.options.contains(option) ? option : null);
+  String? originOf(String option) => _originOf(before, optionOrigins, option);
 
   final origins = {for (final option in after.options) ?originOf(option)};
   final renames = <String, String>{
     for (final option in after.options)
       if (originOf(option) case final origin? when origin != option && before.options.contains(origin)) origin: option,
   };
-  // A row removed and re-added with the same text keeps its values.
-  final deleted = before.options.where((o) => !origins.contains(o) && !after.options.contains(o)).toList();
+  // A row removed and re-added with the same text keeps its values; a text
+  // that another row was renamed to does not.
+  final deleted = before.options
+      .where((o) => !origins.contains(o) && !(after.options.contains(o) && originOf(o) == null))
+      .toList();
   return (renames: renames, deleted: deleted);
 }
 
@@ -257,7 +344,6 @@ class _ProposalBuilder {
   final Adjustment after;
   final Map<String, String?> optionOrigins;
   final List<RecordedValue> recorded;
-  final ValueMigration? staged;
   final Map<String, MigrationChoice> choices;
 
   final issues = <MigrationIssue>[];
@@ -273,15 +359,11 @@ class _ProposalBuilder {
     required this.after,
     required this.optionOrigins,
     required this.recorded,
-    required this.staged,
     required this.choices,
   });
 
   void run() {
-    _all = [
-      for (final record in recorded)
-        if (_afterStaged(record.value) case final value?) _Entry(record, value),
-    ];
+    _all = [for (final record in recorded) _Entry(record, record.value)];
     _entries = _all;
     switch ((before, after)) {
       case (final NumericalAdjustment before, final NumericalAdjustment after):
@@ -349,8 +431,6 @@ class _ProposalBuilder {
     );
   }
 
-  AdjustmentValue? _afterStaged(AdjustmentValue value) => staged == null ? value : staged!.apply(value);
-
   /// Whether a conversion changed the values.
   bool _unit(NumericalAdjustment before, NumericalAdjustment after) {
     if (before.unit == after.unit || _entries.isEmpty) return false;
@@ -399,8 +479,9 @@ class _ProposalBuilder {
   void _categorical(CategoricalAdjustment before, CategoricalAdjustment after) {
     final (:renames, :deleted) = _optionChanges(before, after, optionOrigins);
 
-    // Renames and deletions map at once, so swapping two options works; each
-    // issue below previews its own part on the values the earlier ones leave.
+    // Renames and deletions map at once, so swapping two options works, and
+    // each of their issues counts and previews the values as stored: a deleted
+    // option's text may be the one another option was renamed to.
     final mapping = <String, String?>{...renames};
     if (renames.isNotEmpty) {
       _add(
@@ -410,6 +491,7 @@ class _ProposalBuilder {
         allowed: const [MigrationChoice.automatic],
         fallback: MigrationChoice.automatic,
         stepFor: (_) => MapOptionsStep(renames),
+        appliesStep: false,
       );
     }
     for (final option in deleted) {
@@ -420,12 +502,22 @@ class _ProposalBuilder {
         options: [option],
         affected: _withOptions([option]),
         allowed: [for (final target in remaining) MigrationChoice.mapTo(target), MigrationChoice.clear],
-        fallback: remaining.isEmpty ? MigrationChoice.clear : MigrationChoice.mapTo(remaining.first),
+        // A text that another row was renamed to merges into that row by default.
+        fallback: remaining.contains(option)
+            ? MigrationChoice.mapTo(option)
+            : remaining.isEmpty
+            ? MigrationChoice.clear
+            : MigrationChoice.mapTo(remaining.first),
         stepFor: (choice) => MapOptionsStep({option: choice.option}),
+        appliesStep: false,
       );
       mapping[option] = choice.option;
     }
-    if (mapping.isNotEmpty) steps.add(MapOptionsStep(mapping));
+    if (mapping.isNotEmpty) {
+      final step = MapOptionsStep(mapping);
+      steps.add(step);
+      _apply(step);
+    }
     if (!after.counted && (before.counted || mapping.isNotEmpty)) {
       _add(
         key: 'dedupe',
@@ -477,7 +569,8 @@ class _ProposalBuilder {
   static bool _hasDuplicates(CategoricalValue value) => value.options.toSet().length != value.options.length;
 
   /// Adds an issue for [affected] when there are any, applies its chosen step
-  /// to the working values, and returns the choice.
+  /// to the working values unless the caller applies it with others
+  /// ([appliesStep] false), and returns the choice.
   MigrationChoice _add({
     required String key,
     required MigrationIssueKind kind,
@@ -486,6 +579,7 @@ class _ProposalBuilder {
     required List<MigrationChoice> allowed,
     required MigrationChoice fallback,
     required ValueMigrationStep? Function(MigrationChoice choice) stepFor,
+    bool appliesStep = true,
   }) {
     final requested = choices[key];
     final choice = requested != null && allowed.contains(requested) ? requested : fallback;
@@ -513,13 +607,21 @@ class _ProposalBuilder {
       if (step is! MapOptionsStep && step is! MapCombinationsStep) steps.add(step);
     }
     for (final entry in _all) {
+      entry.trail.add(entry.current);
+    }
+    if (appliesStep && step != null) _apply(step);
+    return choice;
+  }
+
+  /// Runs [step] over the working values, also as the last stage of the trail.
+  void _apply(ValueMigrationStep step) {
+    for (final entry in _all) {
       final value = entry.current;
-      final next = value == null || step == null ? value : step.apply(value);
-      entry.current = next;
-      entry.trail.add(next);
+      if (value == null) continue;
+      entry.current = step.apply(value);
+      if (entry.trail.isNotEmpty) entry.trail.last = entry.current;
     }
     _entries = _all.where((e) => e.current != null).toList();
-    return choice;
   }
 
   /// The most common value [step] changes (any value when it changes none),

@@ -7,6 +7,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
 import '../../widgets/set_adjustment/set_step_adjustment_dial.dart';
@@ -23,21 +24,21 @@ class StepAdjustmentPage extends StatefulWidget {
   final StepAdjustment? adjustment;
   final AdjustmentPageMode mode;
   final AdjustmentTerm term;
-  final ValueMigration? stagedMigration;
+  final ValueMigrationContext? migrationContext;
 
   const StepAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
     this.term = AdjustmentTerm.adjustment,
-    this.stagedMigration,
+    this.migrationContext,
   });
 
   factory StepAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment, ValueMigration? stagedMigration}) =>
-      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term, stagedMigration: stagedMigration);
+  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment, ValueMigrationContext? migrationContext}) =>
+      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term, migrationContext: migrationContext);
 
   factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
@@ -152,16 +153,16 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       dialSize: dialSize,
     );
 
-    List<ValueMigration> migrations = const [];
+    MigrationProposal? pending;
     if (widget.mode == AdjustmentPageMode.edit) {
       final confirmed = await confirmValueMigrations(
         context,
+        migrationContext: widget.migrationContext,
         before: widget.adjustment!,
         after: adjustment,
-        staged: widget.stagedMigration,
       );
       if (confirmed == null) return; // cancelled — stay on the page
-      migrations = confirmed;
+      pending = confirmed.pending;
     }
 
     _formHasChanges = false;
@@ -169,7 +170,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     Navigator.pop(
       context,
       widget.mode == AdjustmentPageMode.edit
-          ? EditResult<Adjustment>(adjustment, migrations: migrations)
+          ? AdjustmentEditResult<Adjustment>(adjustment, pending: pending)
           : adjustment,
     );
   }

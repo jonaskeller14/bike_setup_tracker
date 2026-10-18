@@ -7,6 +7,7 @@ import '../../models/app_settings.dart';
 import '../../models/rating/rating_metric.dart';
 import '../../theme.dart';
 import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_categorical_adjustment.dart';
@@ -15,19 +16,19 @@ import 'metric_page.dart';
 class CategoricalMetricPage extends StatefulWidget {
   final RatingMetric? metric;
   final MetricPageMode mode;
-  final ValueMigration? stagedMigration;
+  final ValueMigrationContext? migrationContext;
 
   const CategoricalMetricPage._({
     super.key,
     this.metric,
     required this.mode,
-    this.stagedMigration,
+    this.migrationContext,
   });
 
   factory CategoricalMetricPage.add({Key? key}) => CategoricalMetricPage._(key: key, mode: MetricPageMode.add);
 
-  factory CategoricalMetricPage.edit({Key? key, required RatingMetric metric, ValueMigration? stagedMigration}) =>
-      CategoricalMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, stagedMigration: stagedMigration);
+  factory CategoricalMetricPage.edit({Key? key, required RatingMetric metric, ValueMigrationContext? migrationContext}) =>
+      CategoricalMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, migrationContext: migrationContext);
 
   factory CategoricalMetricPage.duplicate({Key? key, required RatingMetric metric}) =>
       CategoricalMetricPage._(key: key, metric: metric, mode: MetricPageMode.duplicate);
@@ -217,17 +218,17 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
       weight: _weight,
     );
 
-    List<ValueMigration> migrations = const [];
+    MigrationProposal? pending;
     if (widget.mode == MetricPageMode.edit) {
       final confirmed = await confirmValueMigrations(
         context,
+        migrationContext: widget.migrationContext,
         before: _initialAdj!,
         after: metric.adjustment,
         optionOrigins: _optionOriginsByOption(),
-        staged: widget.stagedMigration,
       );
       if (confirmed == null) return; // cancelled — stay on the page
-      migrations = confirmed;
+      pending = confirmed.pending;
     }
 
     _formHasChanges = false;
@@ -235,7 +236,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
     Navigator.pop(
       context,
       widget.mode == MetricPageMode.edit
-          ? EditResult<RatingMetric>(metric, migrations: migrations)
+          ? AdjustmentEditResult<RatingMetric>(metric, pending: pending)
           : metric,
     );
   }

@@ -12,6 +12,8 @@ import '../../models/rating/rating_association.dart';
 import '../../models/rating/rating_metric.dart';
 import '../../repositories/app_repository.dart';
 import '../../theme.dart';
+import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/lists/adjustment_edit_list.dart';
@@ -59,7 +61,10 @@ class _RatingPageState extends State<RatingPage> {
 
   late List<RatingMetric> _metrics;
   late List<RatingMetric> _initialMetrics;
-  final Map<String, ValueMigration> _pendingMigrations = {};
+  final Map<String, MigrationProposal> _pendingMigrations = {};
+  late final Map<String, Adjustment> _savedAdjustments = widget.mode == RatingPageMode.edit
+      ? {for (final m in widget.rating!.metrics) m.id: m.adjustment}
+      : const <String, Adjustment>{};
   late RatingAssociation _ratingAssociation;
   late RatingAssociation _initialRatingAssociation;
 
@@ -147,20 +152,18 @@ class _RatingPageState extends State<RatingPage> {
       context,
       MaterialPageRoute(builder: (context) => switch (metric.adjustment) {
         BooleanAdjustment()     => BooleanMetricPage.edit(metric: metric),
-        CategoricalAdjustment() => CategoricalMetricPage.edit(metric: metric, stagedMigration: _pendingMigrations[metric.id]),
-        StepAdjustment()        => StepMetricPage.edit(metric: metric, stagedMigration: _pendingMigrations[metric.id]),
-        NumericalAdjustment()   => NumericalMetricPage.edit(metric: metric, stagedMigration: _pendingMigrations[metric.id]),
+        CategoricalAdjustment() => CategoricalMetricPage.edit(metric: metric, migrationContext: _migrationContext(metric.id)),
+        StepAdjustment()        => StepMetricPage.edit(metric: metric, migrationContext: _migrationContext(metric.id)),
+        NumericalAdjustment()   => NumericalMetricPage.edit(metric: metric, migrationContext: _migrationContext(metric.id)),
         TextAdjustment()        => TextMetricPage.edit(metric: metric),
-        DurationAdjustment()    => DurationMetricPage.edit(metric: metric, stagedMigration: _pendingMigrations[metric.id]),
+        DurationAdjustment()    => DurationMetricPage.edit(metric: metric, migrationContext: _migrationContext(metric.id)),
       }),
     );
     if (result == null) return;
     final RatingMetric editedMetric;
-    if (result is EditResult<RatingMetric>) {
+    if (result is AdjustmentEditResult<RatingMetric>) {
       editedMetric = result.value;
-      for (final migration in result.migrations) {
-        _stageMigration(migration);
-      }
+      _stagePending(editedMetric.id, result.pending);
     } else {
       editedMetric = result as RatingMetric;
     }
@@ -174,13 +177,16 @@ class _RatingPageState extends State<RatingPage> {
     onChanged?.call();
   }
 
-  void _stageMigration(ValueMigration migration) {
-    final existing = _pendingMigrations[migration.adjustmentId];
-    final composed = existing == null ? migration : existing.then(migration);
-    if (composed.isNoOp) {
-      _pendingMigrations.remove(migration.adjustmentId);
+  ValueMigrationContext? _migrationContext(String id) =>
+      ValueMigrationContext.of(id, _savedAdjustments, _pendingMigrations);
+
+  /// A further edit's proposal replaces the earlier one: it already covers the
+  /// whole change from the saved definition.
+  void _stagePending(String id, MigrationProposal? pending) {
+    if (pending == null) {
+      _pendingMigrations.remove(id);
     } else {
-      _pendingMigrations[migration.adjustmentId] = composed;
+      _pendingMigrations[id] = pending;
     }
   }
 
@@ -231,7 +237,7 @@ class _RatingPageState extends State<RatingPage> {
     Navigator.pop(
       context,
       widget.mode == RatingPageMode.edit
-          ? EditResult<Rating>(rating, migrations: _pendingMigrations.values.toList())
+          ? EditResult<Rating>(rating, migrations: pendingValueMigrations(_pendingMigrations))
           : rating,
     );
   }

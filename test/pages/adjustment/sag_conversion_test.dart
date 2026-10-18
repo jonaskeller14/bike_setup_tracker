@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/pages/adjustment/numerical_adjustment_page.da
 import 'package:bike_setup_tracker/pages/adjustment/sag_adjustment_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -129,8 +130,9 @@ void main() {
     await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
 
-    expect(result, isA<SagAdjustment>());
-    final sag = result! as SagAdjustment;
+    final sag = (result! as AdjustmentEditResult<Adjustment>).value;
+    expect(sag, isA<SagAdjustment>());
+    sag as SagAdjustment;
     expect(sag.id, 'adj-1'); // same row → values/history stay attached
     expect(sag.name, 'SAG');
     expect(sag.notes, 'measured static');
@@ -179,7 +181,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
 
-    final EditResult<Adjustment> edit = result! as EditResult<Adjustment>;
+    final AdjustmentEditResult<Adjustment> edit = result! as AdjustmentEditResult<Adjustment>;
     final numerical = edit.value;
     expect(numerical, isNot(isA<SagAdjustment>()));
     expect(numerical, isA<NumericalAdjustment>());
@@ -191,48 +193,75 @@ void main() {
     expect(numerical.presetKey, testPresetKey);
   });
 
-  testWidgets('downgrading keeps the staged migration for the numerical page', (tester) async {
-    Object? result;
-    final sag = SagAdjustment(id: 'adj-1', name: 'SAG', notes: null);
-    await tester.pumpWidget(
-      ChangeNotifierProvider<AppRepository>.value(
-        value: repositoryWithRecorded([recordedValue(const NumericalValue(10))]),
-        child: MaterialApp(
-          theme: materialAppTheme,
-          home: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () async {
-                result = await Navigator.push<Object>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SagAdjustmentPage.edit(
-                      adjustment: sag,
-                      // An earlier edit of the same form already clears the recorded value.
-                      stagedMigration: ValueMigration('adj-1', const [ClearAllStep()]),
-                    ),
-                  ),
-                );
-              },
-              child: const Text('Open Page'),
+  group('recorded values across the swap', () {
+    /// Opens [page] and returns a getter for the result it pops.
+    Future<Object? Function()> open(WidgetTester tester, Widget page, List<NumericalValue> values) async {
+      Object? result;
+      await tester.pumpWidget(
+        ChangeNotifierProvider<AppRepository>.value(
+          value: repositoryWithRecorded([for (final value in values) recordedValue(value)]),
+          child: MaterialApp(
+            theme: materialAppTheme,
+            home: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () async {
+                  result = await Navigator.push<Object>(context, MaterialPageRoute(builder: (context) => page));
+                },
+                child: const Text('Open Page'),
+              ),
             ),
           ),
         ),
-      ),
-    );
-    await tester.tap(find.text('Open Page'));
-    await tester.pumpAndSettle();
+      );
+      await tester.tap(find.text('Open Page'));
+      await tester.pumpAndSettle();
+      return () => result;
+    }
 
-    await tester.tap(find.byType(PopupMenuButton<void>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Convert to plain numerical'));
-    await tester.pumpAndSettle();
+    testWidgets('downgrading checks the numerical edit against the saved SAG', (tester) async {
+      final sag = SagAdjustment(id: 'adj-1', name: 'SAG', notes: null);
+      final page = SagAdjustmentPage.edit(adjustment: sag, migrationContext: ValueMigrationContext(sag));
+      final result = await open(tester, page, const [NumericalValue(10)]);
 
-    await tester.enterText(find.widgetWithText(TextFormField, 'Max Value (optional)'), '5');
-    await tester.tap(find.byIcon(Icons.check));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byType(PopupMenuButton<void>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Convert to plain numerical'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Update recorded values'), findsNothing);
-    expect((result! as EditResult<Adjustment>).migrations, isEmpty);
+      await tester.enterText(find.widgetWithText(TextFormField, 'Max Value (optional)'), '5');
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+      expect(find.text('Update recorded values'), findsOneWidget);
+      await tester.tap(find.text('Update values'));
+      await tester.pumpAndSettle();
+
+      final migration = (result()! as AdjustmentEditResult<Adjustment>).migrations.single;
+      expect(migration.apply(const NumericalValue(10)), const NumericalValue(5));
+    });
+
+    testWidgets('converting to SAG offers Clamp for values outside 0..100 %', (tester) async {
+      final unbounded = NumericalAdjustment(id: 'adj-1', name: 'SAG', notes: null, unit: const CustomUnit('%'));
+      final page = NumericalAdjustmentPage.edit(
+        adjustment: unbounded,
+        enableSagConversion: true,
+        migrationContext: ValueMigrationContext(unbounded),
+      );
+      final result = await open(tester, page, const [NumericalValue(120), NumericalValue(30)]);
+
+      await tester.tap(find.text(bannerLabel));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+      expect(find.text('Clamp'), findsOneWidget);
+      expect(find.text('Clear'), findsOneWidget);
+      await tester.tap(find.text('Update values'));
+      await tester.pumpAndSettle();
+
+      final edit = result()! as AdjustmentEditResult<Adjustment>;
+      expect(edit.value, isA<SagAdjustment>());
+      expect(edit.migrations.single.apply(const NumericalValue(120)), const NumericalValue(100));
+      expect(edit.migrations.single.apply(const NumericalValue(30)), const NumericalValue(30));
+    });
   });
 
   final sagPreset = SagAdjustment(name: 'Preset', notes: null, presetKey: testPresetKey);

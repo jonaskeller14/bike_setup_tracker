@@ -57,6 +57,7 @@ void main() {
     ThemeData? theme,
     String adjustmentName = 'Pressure',
     Size size = const Size(400, 900),
+    bool replacesEarlier = false,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -72,7 +73,13 @@ void main() {
             body: Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  result = await showValueMigrationSheet(context, adjustmentName: adjustmentName, proposal: proposal);
+                  final confirmed = await showValueMigrationSheet(
+                    context,
+                    adjustmentName: adjustmentName,
+                    proposal: proposal,
+                    replacesEarlier: replacesEarlier,
+                  );
+                  result = confirmed?.toMigration();
                   resultReported = true;
                 },
                 child: const Text('open'),
@@ -314,6 +321,41 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(result!.apply(CategoricalValue(const ['C'])), CategoricalValue(const ['B']));
+  });
+
+  testWidgets('says when it replaces an earlier confirmed change', (tester) async {
+    await openSheet(tester, _rangeProposal(), replacesEarlier: true);
+    expect(find.textContaining('This replaces the change you confirmed earlier.'), findsOneWidget);
+  });
+
+  testWidgets('a first change does not mention an earlier one', (tester) async {
+    await openSheet(tester, _rangeProposal());
+    expect(find.textContaining('replaces'), findsNothing);
+  });
+
+  testWidgets('a renamed option deleted later is shown by its newer name', (tester) async {
+    final renamed = MigrationProposal.build(
+      before: _categorical({'A', 'X'}),
+      after: _categorical({'B', 'X'}),
+      optionOrigins: const {'B': 'A', 'X': 'X'},
+      recorded: [_record(CategoricalValue(const ['A']))],
+    );
+    await openSheet(tester, renamed.rebuild(after: _categorical({'X'}), pageOrigins: const {'X': 'X'}));
+
+    expect(find.text("Deleted option 'B'"), findsNWidgets(2));
+    expect(find.text("'B' becomes 'X' in 1 setup."), findsOneWidget);
+  });
+
+  testWidgets('a deleted text another row was renamed to says the values merge', (tester) async {
+    final proposal = MigrationProposal.build(
+      before: _categorical({'A', 'B'}),
+      after: _categorical({'A'}),
+      optionOrigins: const {'A': 'B'},
+      recorded: [_record(CategoricalValue(const ['A'])), _record(CategoricalValue(const ['B']))],
+    );
+    await openSheet(tester, proposal);
+
+    expect(find.text("1 setup keeps 'A', now the option renamed from 'B'."), findsOneWidget);
   });
 
   testWidgets('long names render without overflow at 320 px', (tester) async {

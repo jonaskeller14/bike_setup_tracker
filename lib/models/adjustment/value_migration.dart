@@ -188,27 +188,7 @@ class ValueMigration {
   final String adjustmentId;
   final List<ValueMigrationStep> steps;
 
-  ValueMigration(this.adjustmentId, List<ValueMigrationStep> steps)
-    : steps = List.unmodifiable(_mergeUnitConversions(steps));
-
-  /// Adjacent conversions merge into one, and one that returns to its starting
-  /// unit disappears, so a round trip leaves the values untouched.
-  static List<ValueMigrationStep> _mergeUnitConversions(List<ValueMigrationStep> steps) {
-    final merged = <ValueMigrationStep>[];
-    for (final step in steps) {
-      if (step is ConvertUnitStep) {
-        if (step.from == step.to) continue;
-        if (merged.lastOrNull case final ConvertUnitStep previous when previous.to == step.from) {
-          merged.removeLast();
-          if (previous.from == step.to) continue;
-          merged.add(ConvertUnitStep(previous.from, step.to));
-          continue;
-        }
-      }
-      merged.add(step);
-    }
-    return merged;
-  }
+  ValueMigration(this.adjustmentId, List<ValueMigrationStep> steps) : steps = List.unmodifiable(steps);
 
   bool get isNoOp => steps.isEmpty;
 
@@ -220,12 +200,6 @@ class ValueMigration {
       current = step.apply(current);
     }
     return current;
-  }
-
-  /// This migration followed by [next], which must belong to the same adjustment.
-  ValueMigration then(ValueMigration next) {
-    assert(next.adjustmentId == adjustmentId, 'Cannot chain migrations of different adjustments');
-    return ValueMigration(adjustmentId, [...steps, ...next.steps]);
   }
 
   @override

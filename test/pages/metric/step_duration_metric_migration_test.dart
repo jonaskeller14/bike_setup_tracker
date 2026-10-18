@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/models/recorded_value.dart';
 import 'package:bike_setup_tracker/pages/metric/duration_metric_page.dart';
 import 'package:bike_setup_tracker/pages/metric/step_metric_page.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,7 +15,7 @@ void main() {
 
   RecordedValue entryValue(AdjustmentValue value) => recordedValue(value, source: RecordedValueSource.ratingEntry);
 
-  EditResult<RatingMetric> edited(Object? result) => result! as EditResult<RatingMetric>;
+  AdjustmentEditResult<RatingMetric> edited(Object? result) => result! as AdjustmentEditResult<RatingMetric>;
 
   group('StepMetricPage', () {
     final metric = RatingMetric(
@@ -38,7 +39,7 @@ void main() {
     testWidgets('a step change that puts values off the grid offers Snap', (tester) async {
       final result = await pushAndSave(
         tester,
-        StepMetricPage.edit(metric: metric),
+        StepMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
         repository: repositoryWithRecorded([entryValue(const StepValue(4))]),
         interact: () => setStep(tester, '3'),
         afterSave: () async {
@@ -59,7 +60,7 @@ void main() {
     testWidgets('a step change that keeps values on the grid shows no sheet', (tester) async {
       final result = await pushAndSave(
         tester,
-        StepMetricPage.edit(metric: metric),
+        StepMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
         repository: repositoryWithRecorded([entryValue(const StepValue(4))]),
         interact: () => setStep(tester, '2'),
       );
@@ -85,7 +86,7 @@ void main() {
     testWidgets('lowering the max below a recorded value offers Clamp', (tester) async {
       final result = await pushAndSave(
         tester,
-        DurationMetricPage.edit(metric: metric),
+        DurationMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
         repository: repositoryWithRecorded([entryValue(const DurationValue(Duration(hours: 4)))]),
         interact: () => setDurationHours(tester, 'Max Duration', from: 5, to: 3),
         afterSave: () async {
@@ -104,7 +105,7 @@ void main() {
     testWidgets('lowering the max without recorded values shows no sheet', (tester) async {
       final result = await pushAndSave(
         tester,
-        DurationMetricPage.edit(metric: metric),
+        DurationMetricPage.edit(metric: metric, migrationContext: ValueMigrationContext(metric.adjustment)),
         repository: repositoryWithRecorded(),
         interact: () => setDurationHours(tester, 'Max Duration', from: 5, to: 3),
       );

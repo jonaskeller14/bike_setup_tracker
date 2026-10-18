@@ -6,6 +6,7 @@ import '../../theme.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
 import '../../widgets/sheets/unit_picker_sheet.dart';
@@ -19,7 +20,7 @@ class NumericalAdjustmentPage extends StatefulWidget {
 
   final ComponentType? componentType;
   final bool enableSagConversion;
-  final ValueMigration? stagedMigration;
+  final ValueMigrationContext? migrationContext;
 
   const NumericalAdjustmentPage._({
     super.key,
@@ -28,7 +29,7 @@ class NumericalAdjustmentPage extends StatefulWidget {
     this.term = AdjustmentTerm.adjustment,
     this.componentType,
     this.enableSagConversion = false,
-    this.stagedMigration,
+    this.migrationContext,
   });
 
   factory NumericalAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
@@ -40,7 +41,7 @@ class NumericalAdjustmentPage extends StatefulWidget {
     ComponentType? componentType,
     bool enableSagConversion = false,
     AdjustmentTerm term = AdjustmentTerm.adjustment,
-    ValueMigration? stagedMigration,
+    ValueMigrationContext? migrationContext,
   }) =>
       NumericalAdjustmentPage._(
         key: key,
@@ -49,7 +50,7 @@ class NumericalAdjustmentPage extends StatefulWidget {
         componentType: componentType,
         enableSagConversion: enableSagConversion,
         term: term,
-        stagedMigration: stagedMigration,
+        migrationContext: migrationContext,
       );
 
   factory NumericalAdjustmentPage.duplicate({Key? key, required NumericalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
@@ -151,7 +152,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
           adjustment: sag,
           componentType: widget.componentType,
           term: widget.term,
-          stagedMigration: widget.stagedMigration,
+          migrationContext: widget.migrationContext,
         ),
       ),
     );
@@ -239,16 +240,16 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
       presetKey: widget.adjustment?.presetKey,
     );
 
-    List<ValueMigration> migrations = const [];
+    MigrationProposal? pending;
     if (widget.mode == AdjustmentPageMode.edit) {
       final confirmed = await confirmValueMigrations(
         context,
+        migrationContext: widget.migrationContext,
         before: widget.adjustment!,
         after: adjustment,
-        staged: widget.stagedMigration,
       );
       if (confirmed == null) return; // cancelled — stay on the page
-      migrations = confirmed;
+      pending = confirmed.pending;
     }
 
     _formHasChanges = false;
@@ -256,7 +257,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     Navigator.pop(
       context,
       widget.mode == AdjustmentPageMode.edit
-          ? EditResult<Adjustment>(adjustment, migrations: migrations)
+          ? AdjustmentEditResult<Adjustment>(adjustment, pending: pending)
           : adjustment,
     );
   }

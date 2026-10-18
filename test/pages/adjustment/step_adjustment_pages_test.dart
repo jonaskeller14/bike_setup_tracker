@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/pages/adjustment/step_adjustment_page.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -35,7 +36,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              final edited = await Navigator.push<EditResult<Adjustment>>(
+              final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => StepAdjustmentPage.edit(adjustment: initial),
@@ -163,7 +164,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              final edited = await Navigator.push<EditResult<Adjustment>>(
+              final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => StepAdjustmentPage.edit(adjustment: initial),
@@ -258,7 +259,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              final edited = await Navigator.push<EditResult<Adjustment>>(
+              final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => StepAdjustmentPage.edit(adjustment: initial),
@@ -354,12 +355,12 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    EditResult<Adjustment> edited(Object? result) => result! as EditResult<Adjustment>;
+    AdjustmentEditResult<Adjustment> edited(Object? result) => result! as AdjustmentEditResult<Adjustment>;
 
     testWidgets('a step change that puts values off the grid offers Snap', (tester) async {
       final result = await pushAndSave(
         tester,
-        StepAdjustmentPage.edit(adjustment: clicks),
+        StepAdjustmentPage.edit(adjustment: clicks, migrationContext: ValueMigrationContext(clicks)),
         repository: repositoryWithRecorded([recordedValue(const StepValue(4))]),
         interact: () => setStep(tester, '3'),
         afterSave: () async {
@@ -379,7 +380,7 @@ void main() {
     testWidgets('a step change that keeps values on the grid shows no sheet', (tester) async {
       final result = await pushAndSave(
         tester,
-        StepAdjustmentPage.edit(adjustment: clicks),
+        StepAdjustmentPage.edit(adjustment: clicks, migrationContext: ValueMigrationContext(clicks)),
         repository: repositoryWithRecorded([recordedValue(const StepValue(4))]),
         interact: () => setStep(tester, '2'),
       );
@@ -392,7 +393,7 @@ void main() {
     testWidgets('cancelling the sheet keeps the page open', (tester) async {
       final result = await pushAndSave(
         tester,
-        StepAdjustmentPage.edit(adjustment: clicks),
+        StepAdjustmentPage.edit(adjustment: clicks, migrationContext: ValueMigrationContext(clicks)),
         repository: repositoryWithRecorded([recordedValue(const StepValue(4))]),
         interact: () => setStep(tester, '3'),
         afterSave: () async {
@@ -409,7 +410,7 @@ void main() {
       final repository = repositoryWithRecorded();
       await pushAndSave(
         tester,
-        StepAdjustmentPage.edit(adjustment: clicks),
+        StepAdjustmentPage.edit(adjustment: clicks, migrationContext: ValueMigrationContext(clicks)),
         repository: repository,
         interact: () => enterName(tester, 'Renamed'),
       );

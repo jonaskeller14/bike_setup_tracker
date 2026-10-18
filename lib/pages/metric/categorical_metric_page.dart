@@ -6,6 +6,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/rating/rating_metric.dart';
 import '../../theme.dart';
+import '../../utils/value_migration_actions.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_categorical_adjustment.dart';
@@ -14,17 +15,19 @@ import 'metric_page.dart';
 class CategoricalMetricPage extends StatefulWidget {
   final RatingMetric? metric;
   final MetricPageMode mode;
+  final ValueMigration? stagedMigration;
 
   const CategoricalMetricPage._({
     super.key,
     this.metric,
     required this.mode,
+    this.stagedMigration,
   });
 
   factory CategoricalMetricPage.add({Key? key}) => CategoricalMetricPage._(key: key, mode: MetricPageMode.add);
 
-  factory CategoricalMetricPage.edit({Key? key, required RatingMetric metric}) =>
-      CategoricalMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit);
+  factory CategoricalMetricPage.edit({Key? key, required RatingMetric metric, ValueMigration? stagedMigration}) =>
+      CategoricalMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, stagedMigration: stagedMigration);
 
   factory CategoricalMetricPage.duplicate({Key? key, required RatingMetric metric}) =>
       CategoricalMetricPage._(key: key, metric: metric, mode: MetricPageMode.duplicate);
@@ -44,6 +47,8 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
   late TextEditingController _notesController;
   late List<TextEditingController> _optionControllers;
   late List<FocusNode> _optionFocusNodes;
+  /// The original option text of each row in [_optionControllers]; `null` for an added row.
+  late List<String?> _optionOrigins;
   late Set<String> _initialOptions;
 
   late CategoricalAdjustment? _initialAdj;
@@ -75,6 +80,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
       optionController.addListener(_changeListener);
     }
     _optionFocusNodes = List.generate(_optionControllers.length, (_) => FocusNode());
+    _optionOrigins = List<String?>.of(_initialAdj?.options ?? const [null]);
     _initialOptions = _initialAdj?.options.toSet() ?? {};
 
     _previewAdjustment = _initialAdj ?? _composePreview();
@@ -101,6 +107,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
         _notesController.text.trim() != (_initialAdj?.notes ?? '') ||
         _multiSelect != (_initialAdj?.multiSelect ?? false) ||
         _counted != (_initialAdj?.counted ?? false) ||
+        _optionControllers.indexed.any((row) => _optionOrigins[row.$1] != null && _optionOrigins[row.$1] != row.$2.text.trim()) ||
         !setEquals(_initialOptions, options);
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -132,6 +139,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
       newController.addListener(_changeListener);
       _optionControllers.add(newController);
       _optionFocusNodes.add(newFocusNode);
+      _optionOrigins.add(null);
       _previewValues = null;
       _previewAdjustment = _composePreview();
     });
@@ -151,6 +159,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
       _optionControllers.removeAt(index);
       _optionFocusNodes[index].dispose();
       _optionFocusNodes.removeAt(index);
+      _optionOrigins.removeAt(index);
       _previewValues = null;
       _previewAdjustment = _composePreview();
     });
@@ -185,7 +194,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
     return null;
   }
 
-  void _saveMetric() {
+  Future<void> _saveMetric() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
       return;
@@ -194,9 +203,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet();
-    _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(context, RatingMetric(
+    final metric = RatingMetric(
       adjustment: CategoricalAdjustment(
         id: widget.mode == MetricPageMode.edit ? _initialAdj!.id : null,
         name: name,
@@ -208,8 +215,37 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
         counted: _counted,
       ),
       weight: _weight,
-    ));
+    );
+
+    List<ValueMigration> migrations = const [];
+    if (widget.mode == MetricPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        before: _initialAdj!,
+        after: metric.adjustment,
+        optionOrigins: _optionOriginsByOption(),
+        staged: widget.stagedMigration,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      migrations = confirmed;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
+    Navigator.pop(
+      context,
+      widget.mode == MetricPageMode.edit
+          ? EditResult<RatingMetric>(metric, migrations: migrations)
+          : metric,
+    );
   }
+
+  /// Each saved option mapped to the text its row started with, so recorded
+  /// values follow their row through a rename.
+  Map<String, String?> _optionOriginsByOption() => {
+    for (final (index, controller) in _optionControllers.indexed)
+      if (controller.text.trim().isNotEmpty) controller.text.trim(): _optionOrigins[index],
+  };
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
     if (didPop) return;
@@ -292,18 +328,6 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
                                   ),
                                 ],
                               ),
-                              if (widget.mode == MetricPageMode.edit && !_initialOptions.every((option) => _optionControllers.map((c) => c.text.trim()).contains(option))) ...[
-                                ListTile(
-                                  leading: Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
-                                  title: Text(
-                                    'WARNING: Renaming an option will not update existing values!',
-                                    style: TextStyle(color: Theme.of(context).colorScheme.error),
-                                  ),
-                                  dense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                                const SizedBox(height: 8),
-                              ],
                               const SizedBox(height: 8),
                               Column(
                                 children: List.generate(_optionControllers.length, (index) {

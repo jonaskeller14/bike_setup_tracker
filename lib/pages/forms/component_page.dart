@@ -314,7 +314,7 @@ class _ComponentPageState extends State<ComponentPage> {
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
         final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, stagedMigration: _pendingMigrations[a.id]),
         final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, stagedMigration: _pendingMigrations[a.id]),
         final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, componentType: _componentType, stagedMigration: _pendingMigrations[a.id]),
         final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, componentType: _componentType, enableSagConversion: true, stagedMigration: _pendingMigrations[a.id]),

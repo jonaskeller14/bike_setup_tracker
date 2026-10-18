@@ -147,7 +147,7 @@ class _RatingPageState extends State<RatingPage> {
       context,
       MaterialPageRoute(builder: (context) => switch (metric.adjustment) {
         BooleanAdjustment()     => BooleanMetricPage.edit(metric: metric),
-        CategoricalAdjustment() => CategoricalMetricPage.edit(metric: metric),
+        CategoricalAdjustment() => CategoricalMetricPage.edit(metric: metric, stagedMigration: _pendingMigrations[metric.id]),
         StepAdjustment()        => StepMetricPage.edit(metric: metric, stagedMigration: _pendingMigrations[metric.id]),
         NumericalAdjustment()   => NumericalMetricPage.edit(metric: metric, stagedMigration: _pendingMigrations[metric.id]),
         TextAdjustment()        => TextMetricPage.edit(metric: metric),

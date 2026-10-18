@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../theme.dart';
+import '../../utils/value_migration_actions.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_categorical_adjustment.dart';
 import 'adjustment_page.dart';
@@ -13,19 +14,21 @@ class CategoricalAdjustmentPage extends StatefulWidget {
   final CategoricalAdjustment? adjustment;
   final AdjustmentPageMode mode;
   final AdjustmentTerm term;
+  final ValueMigration? stagedMigration;
 
   const CategoricalAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
     this.term = AdjustmentTerm.adjustment,
+    this.stagedMigration,
   });
 
   factory CategoricalAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       CategoricalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory CategoricalAdjustmentPage.edit({Key? key, required CategoricalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
-      CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term);
+  factory CategoricalAdjustmentPage.edit({Key? key, required CategoricalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment, ValueMigration? stagedMigration}) =>
+      CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term, stagedMigration: stagedMigration);
 
   factory CategoricalAdjustmentPage.duplicate({Key? key, required CategoricalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
@@ -45,6 +48,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   late TextEditingController _notesController;
   late List<TextEditingController> _optionControllers;
   late List<FocusNode> _optionFocusNodes;
+  /// The original option text of each row in [_optionControllers]; `null` for an added row.
+  late List<String?> _optionOrigins;
   late Set<String> _initialOptions;
 
   bool _multiSelect = false;
@@ -70,6 +75,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       optionController.addListener(_changeListener);
     }
     _optionFocusNodes = List.generate(_optionControllers.length, (_) => FocusNode());
+    _optionOrigins = List<String?>.of(widget.adjustment?.options ?? const [null]);
     _initialOptions = widget.adjustment?.options.toSet() ?? {};
 
     _previewAdjustment = widget.adjustment ?? _composePreview();
@@ -97,6 +103,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
         _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
         _multiSelect != (widget.adjustment?.multiSelect ?? false) ||
         _counted != (widget.adjustment?.counted ?? false) ||
+        _optionControllers.indexed.any((row) => _optionOrigins[row.$1] != null && _optionOrigins[row.$1] != row.$2.text.trim()) ||
         !setEquals(_initialOptions, options);
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -128,6 +135,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       newController.addListener(_changeListener);
       _optionControllers.add(newController);
       _optionFocusNodes.add(newFocusNode);
+      _optionOrigins.add(null);
       _previewValues = null;
       _previewAdjustment = _composePreview();
     });
@@ -147,6 +155,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       _optionControllers.removeAt(index);
       _optionFocusNodes[index].dispose();
       _optionFocusNodes.removeAt(index);
+      _optionOrigins.removeAt(index);
       _previewValues = null;
       _previewAdjustment = _composePreview();
     });
@@ -181,7 +190,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     return null;
   }
 
-  void _saveCategoricalAdjustment() {
+  Future<void> _saveCategoricalAdjustment() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
       return;
@@ -190,9 +199,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet();
-    _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(context, CategoricalAdjustment(
+    final adjustment = CategoricalAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
@@ -201,8 +208,37 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       options: options,
       multiSelect: _multiSelect,
       counted: _counted,
-    ));
+    );
+
+    List<ValueMigration> migrations = const [];
+    if (widget.mode == AdjustmentPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        before: widget.adjustment!,
+        after: adjustment,
+        optionOrigins: _optionOriginsByOption(),
+        staged: widget.stagedMigration,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      migrations = confirmed;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
+    Navigator.pop(
+      context,
+      widget.mode == AdjustmentPageMode.edit
+          ? EditResult<Adjustment>(adjustment, migrations: migrations)
+          : adjustment,
+    );
   }
+
+  /// Each saved option mapped to the text its row started with, so recorded
+  /// values follow their row through a rename.
+  Map<String, String?> _optionOriginsByOption() => {
+    for (final (index, controller) in _optionControllers.indexed)
+      if (controller.text.trim().isNotEmpty) controller.text.trim(): _optionOrigins[index],
+  };
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
     if (didPop) return;
@@ -277,18 +313,6 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                               ),
                             ],
                           ),
-                          if (widget.mode == AdjustmentPageMode.edit && !_initialOptions.every((option) => _optionControllers.map((c) => c.text.trim()).contains(option))) ...[
-                            ListTile(
-                              leading: Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
-                              title: Text(
-                                'WARNING: Renaming an option will not update existing setup values!',
-                                style: TextStyle(color: Theme.of(context).colorScheme.error),
-                              ),
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            const SizedBox(height: 8),
-                          ],
                           const SizedBox(height: 8),
                           Column(
                             children: List.generate(_optionControllers.length, (index) {

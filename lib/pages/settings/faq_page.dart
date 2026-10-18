@@ -24,10 +24,10 @@ class FAQPage extends StatelessWidget {
         'You will not find SAG in the list of adjustment types. Add it from the "SAG" template that the "Add Adjustment" sheet suggests for a fork or a shock, then enter the travel or stroke.\n\n'
         'If you already track sag as a plain numerical adjustment in %, you do not have to start over: edit it, and as long as its name contains "sag" and its unit is %, a "Convert to SAG adjustment" banner appears. All recorded values and the full history stay attached, and it is reversible — on a SAG adjustment, use the three-dot menu → "Convert to plain numerical".',
     'What happens to my recorded values if I change an adjustment’s unit?':
-        'If the old and the new unit measure the same thing (e.g. bar → psi), the app asks you when saving:\n\n'
+        'If no setup has a value recorded for the adjustment, nothing happens. Otherwise a sheet shows how many setups are affected, including deleted ones, with an example. If the old and the new unit measure the same thing (e.g. bar → psi), you choose:\n\n'
         '"Convert values" recalculates every previously recorded value into the new unit (10 bar becomes 145 psi). Use this when your old values were correct and you just want to read them differently.\n\n'
         '"Keep numbers" leaves the numbers untouched and only relabels them (10 bar becomes 10 psi). Use this when the values had been recorded in the wrong unit all along.\n\n'
-        'If the units are not compatible (e.g. psi → mm), no conversion is possible — the numbers stay and are reinterpreted in the new unit. Min and max are always kept exactly as you typed them.',
+        'If the units are not compatible (e.g. psi → mm), no conversion is possible: you can keep the numbers, which are then read in the new unit, or clear the recorded values. Min and max are always kept exactly as you typed them.',
   };
 
   static const Map<String, Map<String, String>> _faqSections = {

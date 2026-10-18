@@ -149,7 +149,7 @@ class _RatingPageState extends State<RatingPage> {
         BooleanAdjustment()     => BooleanMetricPage.edit(metric: metric),
         CategoricalAdjustment() => CategoricalMetricPage.edit(metric: metric),
         StepAdjustment()        => StepMetricPage.edit(metric: metric),
-        NumericalAdjustment()   => NumericalMetricPage.edit(metric: metric),
+        NumericalAdjustment()   => NumericalMetricPage.edit(metric: metric, stagedMigration: _pendingMigrations[metric.id]),
         TextAdjustment()        => TextMetricPage.edit(metric: metric),
         DurationAdjustment()    => DurationMetricPage.edit(metric: metric),
       }),

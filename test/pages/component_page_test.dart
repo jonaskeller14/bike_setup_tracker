@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/forms/component_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
@@ -551,6 +552,96 @@ nodes:
       );
       expect(saved.adjustments.map((a) => a.name), ['SAG', 'LSC']);
       expect(saved.adjustments.whereType<SagAdjustment>().single.referenceTravelMm, 160);
+    });
+  });
+
+  group('ComponentPage recorded values', () {
+    const psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
+    const kPa = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'kiloPascal');
+
+    testWidgets('two unit edits of one adjustment stage a single combined migration', (WidgetTester tester) async {
+      final bike = Bike(name: 'Bike', person: null);
+      final pressure = NumericalAdjustment(id: 'pressure', name: 'Pressure', notes: null, unit: psi);
+      final fork = Component(
+        id: 'fork',
+        name: 'Fork',
+        componentType: ComponentType.fork,
+        adjustments: [pressure],
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      await tester.runAsync(() async {
+        await appRepository.addBikes([bike]);
+        await appRepository.addComponents([fork]);
+        await appRepository.addSetups([
+          Setup(
+            name: 'Setup',
+            tags: const {},
+            datetime: DateTime(2024).toUtc(),
+            datetimeLocal: DateTime(2024),
+            bike: bike.id,
+            person: null,
+            bikeAdjustmentValues: {pressure.id: const NumericalValue(10)},
+            personAdjustmentValues: const {},
+          ),
+        ]);
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+
+      Object? result;
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: appSettings),
+            ChangeNotifierProvider.value(value: appRepository),
+            ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
+            ChangeNotifierProvider<SubscriptionService>.value(value: _StravaSubscriptionService()),
+            Provider<ComponentCatalogRepository>.value(value: presetRepository),
+          ],
+          child: MaterialApp(
+            theme: materialAppTheme,
+            home: Builder(
+              builder: (context) => TextButton(
+                onPressed: () async => result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ComponentPage.edit(component: fork)),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      Future<void> changeUnitTo(String label) async {
+        await tester.tap(find.byIcon(Icons.more_vert));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Edit'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('unit_picker_field')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(label));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(Icons.check));
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+        await tester.pumpAndSettle();
+        expect(find.text('Update recorded values'), findsOneWidget);
+        await tester.tap(find.text('Update values'));
+        await tester.pumpAndSettle();
+      }
+
+      await changeUnitTo('bar');
+      await changeUnitTo('kPa');
+
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      final saved = result! as EditResult<Component>;
+      expect(saved.value.adjustments.single.unit, kPa);
+      expect(saved.migrations, [
+        ValueMigration('pressure', const [ConvertUnitStep(psi, kPa)]),
+      ]);
     });
   });
 

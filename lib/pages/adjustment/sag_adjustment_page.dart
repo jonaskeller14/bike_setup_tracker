@@ -16,6 +16,7 @@ class SagAdjustmentPage extends StatefulWidget {
   final AdjustmentPageMode mode;
   final AdjustmentTerm term;
   final ComponentType? componentType;
+  final ValueMigration? stagedMigration;
 
   const SagAdjustmentPage._({
     super.key,
@@ -23,13 +24,14 @@ class SagAdjustmentPage extends StatefulWidget {
     required this.mode,
     this.term = AdjustmentTerm.adjustment,
     this.componentType,
+    this.stagedMigration,
   });
 
   factory SagAdjustmentPage.add({Key? key, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       SagAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, componentType: componentType, term: term);
 
-  factory SagAdjustmentPage.edit({Key? key, required SagAdjustment adjustment, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
-      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, componentType: componentType, term: term);
+  factory SagAdjustmentPage.edit({Key? key, required SagAdjustment adjustment, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment, ValueMigration? stagedMigration}) =>
+      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, componentType: componentType, term: term, stagedMigration: stagedMigration);
 
   factory SagAdjustmentPage.duplicate({Key? key, required SagAdjustment adjustment, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, componentType: componentType, term: term);
@@ -150,7 +152,11 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
     final result = await Navigator.push<Object>(
       context,
       MaterialPageRoute(
-        builder: (context) => NumericalAdjustmentPage.edit(adjustment: numerical, term: widget.term),
+        builder: (context) => NumericalAdjustmentPage.edit(
+          adjustment: numerical,
+          term: widget.term,
+          stagedMigration: widget.stagedMigration,
+        ),
       ),
     );
     if (result == null || !mounted) return;

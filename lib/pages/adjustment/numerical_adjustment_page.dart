@@ -5,8 +5,8 @@ import '../../models/component/component.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/number_input_formatters.dart';
+import '../../utils/value_migration_actions.dart';
 import '../../widgets/dialogs/discard_changes.dart';
-import '../../widgets/dialogs/unit_conversion_dialog.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
 import '../../widgets/sheets/unit_picker_sheet.dart';
 import 'adjustment_page.dart';
@@ -19,6 +19,7 @@ class NumericalAdjustmentPage extends StatefulWidget {
 
   final ComponentType? componentType;
   final bool enableSagConversion;
+  final ValueMigration? stagedMigration;
 
   const NumericalAdjustmentPage._({
     super.key,
@@ -27,6 +28,7 @@ class NumericalAdjustmentPage extends StatefulWidget {
     this.term = AdjustmentTerm.adjustment,
     this.componentType,
     this.enableSagConversion = false,
+    this.stagedMigration,
   });
 
   factory NumericalAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
@@ -38,6 +40,7 @@ class NumericalAdjustmentPage extends StatefulWidget {
     ComponentType? componentType,
     bool enableSagConversion = false,
     AdjustmentTerm term = AdjustmentTerm.adjustment,
+    ValueMigration? stagedMigration,
   }) =>
       NumericalAdjustmentPage._(
         key: key,
@@ -46,6 +49,7 @@ class NumericalAdjustmentPage extends StatefulWidget {
         componentType: componentType,
         enableSagConversion: enableSagConversion,
         term: term,
+        stagedMigration: stagedMigration,
       );
 
   factory NumericalAdjustmentPage.duplicate({Key? key, required NumericalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
@@ -147,6 +151,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
           adjustment: sag,
           componentType: widget.componentType,
           term: widget.term,
+          stagedMigration: widget.stagedMigration,
         ),
       ),
     );
@@ -224,26 +229,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final min = double.tryParse(minText) ?? double.negativeInfinity;
     final max = double.tryParse(maxText) ?? double.infinity;
 
-    // On an edit between two compatible units (same quantity), ask whether to
-    // convert existing stored setup values. Min/max are left exactly as typed —
-    // only the historical values are rewritten, and only if the user opts in.
-    ValueMigration? migration;
-    final oldUnit = widget.adjustment?.unit;
-    final newUnit = _unit;
-    if (widget.mode == AdjustmentPageMode.edit &&
-        oldUnit is KnownUnit &&
-        newUnit is KnownUnit &&
-        oldUnit != newUnit &&
-        oldUnit.quantity == newUnit.quantity) {
-      final choice = await showUnitConversionDialog(context, from: oldUnit, to: newUnit);
-      if (choice == null) return; // dismissed — stay on the page
-      if (choice == UnitEditChoice.convert) {
-        migration = ValueMigration(widget.adjustment!.id, [ConvertUnitStep(oldUnit, newUnit)]);
-      }
-    }
-
-    _formHasChanges = false;
-    if (!mounted) return;
     final adjustment = NumericalAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name,
@@ -253,10 +238,25 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
       unit: _unit,
       presetKey: widget.adjustment?.presetKey,
     );
+
+    List<ValueMigration> migrations = const [];
+    if (widget.mode == AdjustmentPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        before: widget.adjustment!,
+        after: adjustment,
+        staged: widget.stagedMigration,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      migrations = confirmed;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
     Navigator.pop(
       context,
       widget.mode == AdjustmentPageMode.edit
-          ? EditResult<Adjustment>(adjustment, migrations: migration == null ? const [] : [migration])
+          ? EditResult<Adjustment>(adjustment, migrations: migrations)
           : adjustment,
     );
   }
@@ -293,21 +293,17 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final newUnit = _unit;
     if (newUnit == oldUnit) return const [];
 
+    if (oldUnit is! KnownUnit || newUnit is! KnownUnit || oldUnit.quantity != newUnit.quantity) {
+      return const [];
+    }
+
     final scheme = Theme.of(context).colorScheme;
-    final convertible = oldUnit is KnownUnit &&
-        newUnit is KnownUnit &&
-        oldUnit.quantity == newUnit.quantity;
     return [
       ListTile(
-        leading: Icon(
-          convertible ? Icons.swap_horiz : Icons.warning,
-          color: convertible ? scheme.primary : scheme.error,
-        ),
+        leading: Icon(Icons.swap_horiz, color: scheme.primary),
         title: Text(
-          convertible
-              ? "You'll be asked whether to convert existing values when saving."
-              : 'WARNING: existing values keep their numbers and are reinterpreted in the new unit.',
-          style: TextStyle(color: convertible ? scheme.primary : scheme.error),
+          '${oldUnit.label} can be converted to ${newUnit.label}.',
+          style: TextStyle(color: scheme.primary),
         ),
         dense: true,
         contentPadding: EdgeInsets.zero,

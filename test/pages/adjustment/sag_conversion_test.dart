@@ -2,10 +2,13 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/pages/adjustment/numerical_adjustment_page.dart';
 import 'package:bike_setup_tracker/pages/adjustment/sag_adjustment_page.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
+import '../value_migration_test_utils.dart';
 import 'preset_key_test_utils.dart';
 
 /// Phase 2: existing users upgrade a plain "SAG" percentage numerical to the
@@ -186,6 +189,50 @@ void main() {
     expect((numerical as NumericalAdjustment).min, 0);
     expect(numerical.max, 100);
     expect(numerical.presetKey, testPresetKey);
+  });
+
+  testWidgets('downgrading keeps the staged migration for the numerical page', (tester) async {
+    Object? result;
+    final sag = SagAdjustment(id: 'adj-1', name: 'SAG', notes: null);
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AppRepository>.value(
+        value: repositoryWithRecorded([recordedValue(const NumericalValue(10))]),
+        child: MaterialApp(
+          theme: materialAppTheme,
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () async {
+                result = await Navigator.push<Object>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SagAdjustmentPage.edit(
+                      adjustment: sag,
+                      // An earlier edit of the same form already clears the recorded value.
+                      stagedMigration: ValueMigration('adj-1', const [ClearAllStep()]),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Open Page'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open Page'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(PopupMenuButton<void>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Convert to plain numerical'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Max Value (optional)'), '5');
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Update recorded values'), findsNothing);
+    expect((result! as EditResult<Adjustment>).migrations, isEmpty);
   });
 
   final sagPreset = SagAdjustment(name: 'Preset', notes: null, presetKey: testPresetKey);

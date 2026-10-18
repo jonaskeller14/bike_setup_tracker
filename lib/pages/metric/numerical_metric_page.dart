@@ -4,8 +4,8 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/rating/rating_metric.dart';
 import '../../theme.dart';
 import '../../utils/number_input_formatters.dart';
+import '../../utils/value_migration_actions.dart';
 import '../../widgets/dialogs/discard_changes.dart';
-import '../../widgets/dialogs/unit_conversion_dialog.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
 import '../../widgets/sheets/unit_picker_sheet.dart';
@@ -16,18 +16,20 @@ const double _defaultWeight = 1.0;
 class NumericalMetricPage extends StatefulWidget {
   final RatingMetric? metric;
   final MetricPageMode mode;
+  final ValueMigration? stagedMigration;
 
   const NumericalMetricPage._({
     super.key,
     this.metric,
     required this.mode,
+    this.stagedMigration,
   });
 
   factory NumericalMetricPage.add({Key? key}) =>
       NumericalMetricPage._(key: key, mode: MetricPageMode.add);
 
-  factory NumericalMetricPage.edit({Key? key, required RatingMetric metric}) =>
-      NumericalMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit);
+  factory NumericalMetricPage.edit({Key? key, required RatingMetric metric, ValueMigration? stagedMigration}) =>
+      NumericalMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, stagedMigration: stagedMigration);
 
   factory NumericalMetricPage.duplicate({Key? key, required RatingMetric metric}) =>
       NumericalMetricPage._(key: key, metric: metric, mode: MetricPageMode.duplicate);
@@ -138,26 +140,6 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     final max = double.parse(_maxController.text.trim());
     final weight = double.parse(_weightController.text.trim());
 
-    // On an edit between two compatible units (same quantity), ask whether to
-    // convert existing stored rating-entry values. Min/max are left exactly as
-    // typed — only the historical values are rewritten, and only if opted in.
-    ValueMigration? migration;
-    final oldUnit = _initialAdj?.unit;
-    final newUnit = _unit;
-    if (widget.mode == MetricPageMode.edit &&
-        oldUnit is KnownUnit &&
-        newUnit is KnownUnit &&
-        oldUnit != newUnit &&
-        oldUnit.quantity == newUnit.quantity) {
-      final choice = await showUnitConversionDialog(context, from: oldUnit, to: newUnit);
-      if (choice == null) return; // dismissed — stay on the page
-      if (choice == UnitEditChoice.convert) {
-        migration = ValueMigration(_initialAdj!.id, [ConvertUnitStep(oldUnit, newUnit)]);
-      }
-    }
-
-    _formHasChanges = false;
-    if (!mounted) return;
     final metric = RatingMetric(
       adjustment: NumericalAdjustment(
         id: widget.mode == MetricPageMode.edit ? _initialAdj!.id : null,
@@ -170,10 +152,25 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
       ),
       weight: weight,
     );
+
+    List<ValueMigration> migrations = const [];
+    if (widget.mode == MetricPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        before: _initialAdj!,
+        after: metric.adjustment,
+        staged: widget.stagedMigration,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      migrations = confirmed;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
     Navigator.pop(
       context,
       widget.mode == MetricPageMode.edit
-          ? EditResult<RatingMetric>(metric, migrations: migration == null ? const [] : [migration])
+          ? EditResult<RatingMetric>(metric, migrations: migrations)
           : metric,
     );
   }
@@ -204,30 +201,22 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     return null;
   }
 
-  /// A note shown when the unit is edited: an info hint for compatible units
-  /// (values can be converted on save) or a warning for incompatible ones
-  /// (numbers are reinterpreted, not converted).
+  /// An info hint shown when the unit is edited to a compatible one.
   List<Widget> _unitChangeNotice() {
     if (widget.mode != MetricPageMode.edit) return const [];
     final oldUnit = _initialAdj?.unit;
     final newUnit = _unit;
-    if (newUnit == oldUnit) return const [];
+    if (oldUnit is! KnownUnit || newUnit is! KnownUnit || oldUnit.quantity != newUnit.quantity) {
+      return const [];
+    }
 
     final scheme = Theme.of(context).colorScheme;
-    final convertible = oldUnit is KnownUnit &&
-        newUnit is KnownUnit &&
-        oldUnit.quantity == newUnit.quantity;
     return [
       ListTile(
-        leading: Icon(
-          convertible ? Icons.swap_horiz : Icons.warning,
-          color: convertible ? scheme.primary : scheme.error,
-        ),
+        leading: Icon(Icons.swap_horiz, color: scheme.primary),
         title: Text(
-          convertible
-              ? "You'll be asked whether to convert existing values when saving."
-              : 'WARNING: existing values keep their numbers and are reinterpreted in the new unit.',
-          style: TextStyle(color: convertible ? scheme.primary : scheme.error),
+          '${oldUnit.label} can be converted to ${newUnit.label}.',
+          style: TextStyle(color: scheme.primary),
         ),
         dense: true,
         contentPadding: EdgeInsets.zero,

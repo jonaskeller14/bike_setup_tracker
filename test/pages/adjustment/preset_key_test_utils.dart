@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,18 +9,23 @@ import 'package:provider/provider.dart';
 
 const testPresetKey = 'test:preset';
 
-/// Pushes [page], runs [interact] on it, taps save, runs [afterSave] (e.g. to
+/// Pushes [page] (with [repository] provided, for edits that look up recorded
+/// values), runs [interact] on it, taps save, runs [afterSave] (e.g. to
 /// answer a dialog) and returns what the page popped.
 Future<Object?> pushAndSave(
   WidgetTester tester,
   Widget page, {
   Future<void> Function()? interact,
   Future<void> Function()? afterSave,
+  AppRepository? repository,
 }) async {
   Object? result;
   await tester.pumpWidget(
-    ChangeNotifierProvider<AppSettings>(
-      create: (_) => AppSettings(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppSettings>(create: (_) => AppSettings()),
+        if (repository != null) ChangeNotifierProvider<AppRepository>.value(value: repository),
+      ],
       child: MaterialApp(
         theme: materialAppTheme,
         home: Builder(

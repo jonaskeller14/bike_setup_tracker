@@ -333,7 +333,7 @@ void main() {
         interact: () => setMax(tester, '50'),
         afterSave: () async {
           expect(find.text(sheetTitle), findsOneWidget);
-          await tester.tap(find.text('Update values'));
+          await tester.tap(find.byKey(const Key('value-migration-confirm')));
           await tester.pumpAndSettle();
         },
       );
@@ -365,7 +365,7 @@ void main() {
         afterSave: () async {
           expect(find.text(sheetTitle), findsOneWidget);
           expect(find.text('Convert'), findsOneWidget);
-          await tester.tap(find.text('Update values'));
+          await tester.tap(find.byKey(const Key('value-migration-confirm')));
           await tester.pumpAndSettle();
         },
       );
@@ -384,7 +384,7 @@ void main() {
         afterSave: () async {
           await tester.tap(find.text('Keep numbers'));
           await tester.pumpAndSettle();
-          await tester.tap(find.text('Update values'));
+          await tester.tap(find.byKey(const Key('value-migration-confirm')));
           await tester.pumpAndSettle();
         },
       );
@@ -453,7 +453,7 @@ void main() {
           interact: () => setMax(tester, '70'),
           afterSave: () async {
             expect(find.textContaining('This replaces the change you confirmed earlier.'), findsOneWidget);
-            await tester.tap(find.text('Update values'));
+            await tester.tap(find.byKey(const Key('value-migration-confirm')));
             await tester.pumpAndSettle();
           },
         );
@@ -481,7 +481,7 @@ void main() {
           interact: () => enterName(tester, 'Renamed'),
           afterSave: () async {
             expect(find.text(sheetTitle), findsOneWidget);
-            await tester.tap(find.text('Update values'));
+            await tester.tap(find.byKey(const Key('value-migration-confirm')));
             await tester.pumpAndSettle();
           },
         );

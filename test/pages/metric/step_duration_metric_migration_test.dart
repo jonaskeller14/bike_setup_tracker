@@ -46,7 +46,7 @@ void main() {
           expect(find.text(sheetTitle), findsOneWidget);
           expect(find.textContaining('rating entry'), findsWidgets);
           expect(find.text('Snap'), findsOneWidget);
-          await tester.tap(find.text('Update values'));
+          await tester.tap(find.byKey(const Key('value-migration-confirm')));
           await tester.pumpAndSettle();
         },
       );
@@ -92,7 +92,7 @@ void main() {
         afterSave: () async {
           expect(find.text(sheetTitle), findsOneWidget);
           expect(find.text('Clamp'), findsOneWidget);
-          await tester.tap(find.text('Update values'));
+          await tester.tap(find.byKey(const Key('value-migration-confirm')));
           await tester.pumpAndSettle();
         },
       );

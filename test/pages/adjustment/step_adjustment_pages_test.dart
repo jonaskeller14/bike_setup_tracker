@@ -366,7 +366,7 @@ void main() {
         afterSave: () async {
           expect(find.text(sheetTitle), findsOneWidget);
           expect(find.text('Snap'), findsOneWidget);
-          await tester.tap(find.text('Update values'));
+          await tester.tap(find.byKey(const Key('value-migration-confirm')));
           await tester.pumpAndSettle();
         },
       );

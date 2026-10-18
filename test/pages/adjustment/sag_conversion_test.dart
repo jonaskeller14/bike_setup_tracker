@@ -232,7 +232,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
       expect(find.text('Update recorded values'), findsOneWidget);
-      await tester.tap(find.text('Update values'));
+      await tester.tap(find.byKey(const Key('value-migration-confirm')));
       await tester.pumpAndSettle();
 
       final migration = (result()! as AdjustmentEditResult<Adjustment>).migrations.single;
@@ -254,7 +254,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Clamp'), findsOneWidget);
       expect(find.text('Clear'), findsOneWidget);
-      await tester.tap(find.text('Update values'));
+      await tester.tap(find.byKey(const Key('value-migration-confirm')));
       await tester.pumpAndSettle();
 
       final edit = result()! as AdjustmentEditResult<Adjustment>;

@@ -57,7 +57,7 @@ void main() {
       afterSave: () async {
         expect(find.text(sheetTitle), findsOneWidget);
         expect(find.textContaining('rating entry'), findsWidgets);
-        await tester.tap(find.text('Update values'));
+        await tester.tap(find.byKey(const Key('value-migration-confirm')));
         await tester.pumpAndSettle();
       },
     );
@@ -75,7 +75,7 @@ void main() {
       repository: repositoryWithRecorded([entryValue(10)]),
       interact: () => pickUnit(tester, 'bar'),
       afterSave: () async {
-        await tester.tap(find.text('Update values'));
+        await tester.tap(find.byKey(const Key('value-migration-confirm')));
         await tester.pumpAndSettle();
       },
     );

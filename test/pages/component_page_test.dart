@@ -642,7 +642,7 @@ nodes:
       }
       expect(find.text('Update recorded values'), findsOneWidget);
       await inSheet?.call();
-      await tester.tap(find.text('Update values'));
+      await tester.tap(find.byKey(const Key('value-migration-confirm')));
       await tester.pumpAndSettle();
     }
 

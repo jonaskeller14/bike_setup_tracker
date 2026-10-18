@@ -32,8 +32,8 @@ RecordedValue _record(
 NumericalAdjustment _numerical({AdjustmentUnit? unit, double? max}) =>
     NumericalAdjustment(id: 'a', name: 'A', notes: null, unit: unit, max: max);
 
-CategoricalAdjustment _categorical(Set<String> options) =>
-    CategoricalAdjustment(id: 'a', name: 'A', notes: null, unit: null, options: options);
+CategoricalAdjustment _categorical(Set<String> options, {bool multiSelect = false}) =>
+    CategoricalAdjustment(id: 'a', name: 'A', notes: null, unit: null, options: options, multiSelect: multiSelect);
 
 MigrationProposal _rangeProposal({List<RecordedValue>? recorded}) => MigrationProposal.build(
   before: _numerical(unit: _bar, max: 100),
@@ -98,10 +98,59 @@ void main() {
 
     expect(find.text('Update recorded values'), findsOneWidget);
     expect(
-      find.textContaining("Your change to 'Pressure' affects values recorded in 2 setups (+1 deleted)."),
+      find.text("Your change to 'Pressure' affects 2 setups (+1 deleted). Choose what happens to their values."),
       findsOneWidget,
     );
     expect(find.text('Values outside the new range'), findsOneWidget);
+  });
+
+  group('the confirm button names how many records it updates', () {
+    testWidgets('live records, without the deleted ones', (tester) async {
+      await openSheet(tester, _rangeProposal());
+      expect(find.widgetWithText(FilledButton, 'Update 2 setups'), findsOneWidget);
+    });
+
+    testWidgets('deleted records when there are no live ones', (tester) async {
+      await openSheet(tester, _rangeProposal(recorded: [_record(const NumericalValue(80), deleted: true)]));
+      expect(find.widgetWithText(FilledButton, 'Update 1 deleted setup'), findsOneWidget);
+    });
+
+    testWidgets('rating entries', (tester) async {
+      await openSheet(
+        tester,
+        _rangeProposal(recorded: [_record(const NumericalValue(80), source: RecordedValueSource.ratingEntry)]),
+      );
+      expect(find.widgetWithText(FilledButton, 'Update 1 rating entry'), findsOneWidget);
+    });
+  });
+
+  testWidgets('without a decision the summary does not ask for one', (tester) async {
+    final proposal = MigrationProposal.build(
+      before: _categorical({'A', 'B'}),
+      after: _categorical({'A2', 'B'}),
+      optionOrigins: const {'A2': 'A', 'B': 'B'},
+      recorded: [_record(CategoricalValue(const ['A']))],
+    );
+    await openSheet(tester, proposal);
+
+    expect(find.text("Your change to 'Pressure' affects 1 setup."), findsOneWidget);
+    expect(find.textContaining('Need different values'), findsNothing);
+  });
+
+  testWidgets('a decision points to editing the records one by one', (tester) async {
+    await openSheet(tester, _rangeProposal());
+    expect(
+      find.text('Need different values in different setups? Cancel, change those setups first, then make this edit.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('rating metrics point to editing rating entries', (tester) async {
+    await openSheet(
+      tester,
+      _rangeProposal(recorded: [_record(const NumericalValue(80), source: RecordedValueSource.ratingEntry)]),
+    );
+    expect(find.textContaining('Cancel, change those rating entries first'), findsOneWidget);
   });
 
   testWidgets('has no record list to open', (tester) async {
@@ -117,7 +166,7 @@ void main() {
     );
     await openSheet(tester, proposal);
 
-    expect(find.textContaining('recorded in 1 rating entry.'), findsOneWidget);
+    expect(find.textContaining('affects 1 rating entry.'), findsOneWidget);
   });
 
   testWidgets('shows a single example card with the value before and after', (tester) async {
@@ -205,10 +254,10 @@ void main() {
   testWidgets('choosing Clear turns the confirm button into the error color', (tester) async {
     await openSheet(tester, _rangeProposal());
 
-    final context = tester.element(find.text('Update values'));
+    final context = tester.element(find.byKey(const Key('value-migration-confirm')));
     final error = Theme.of(context).colorScheme.error;
     Color? background() => tester
-        .widget<FilledButton>(find.widgetWithText(FilledButton, 'Update values'))
+        .widget<FilledButton>(find.byKey(const Key('value-migration-confirm')))
         .style
         ?.backgroundColor
         ?.resolve({});
@@ -238,7 +287,7 @@ void main() {
     expect(find.text('No value'), findsOneWidget);
     expect(find.text('50 bar'), findsNothing);
 
-    await tester.tap(find.text('Update values'));
+    await tester.tap(find.byKey(const Key('value-migration-confirm')));
     await tester.pumpAndSettle();
 
     expect(result, proposal.withChoice('range', MigrationChoice.clear).toMigration());
@@ -249,7 +298,7 @@ void main() {
     final proposal = _rangeProposal();
     await openSheet(tester, proposal);
 
-    await tester.tap(find.text('Update values'));
+    await tester.tap(find.byKey(const Key('value-migration-confirm')));
     await tester.pumpAndSettle();
 
     expect(result, proposal.toMigration());
@@ -310,17 +359,72 @@ void main() {
     );
     await openSheet(tester, proposal);
 
-    expect(find.text("Deleted option 'C'"), findsNWidgets(2)); // example caption and choice title
+    expect(find.text("'C' was deleted"), findsNWidgets(2)); // example caption and choice title
 
     await tester.tap(find.byType(DropdownButtonFormField<MigrationChoice>));
     await tester.pumpAndSettle();
     await tester.tap(find.text('B').last);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Update values'));
+    await tester.tap(find.byKey(const Key('value-migration-confirm')));
     await tester.pumpAndSettle();
 
     expect(result!.apply(CategoricalValue(const ['C'])), CategoricalValue(const ['B']));
+  });
+
+  group('option dropdown wording', () {
+    Future<void> openDropdown(WidgetTester tester) async {
+      await tester.tap(find.byType(DropdownButtonFormField<MigrationChoice>));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('a deleted single-select option is replaced or left without a value', (tester) async {
+      final proposal = MigrationProposal.build(
+        before: _categorical({'A', 'C'}),
+        after: _categorical({'A'}),
+        recorded: [_record(CategoricalValue(const ['C']))],
+      );
+      await openSheet(tester, proposal);
+
+      expect(find.text("Replace 'C' with"), findsOneWidget);
+      await openDropdown(tester);
+      await tester.tap(find.text('No value').last);
+      await tester.pumpAndSettle();
+      expect(find.text('1 setup loses its value.'), findsOneWidget);
+    });
+
+    testWidgets('a deleted multi-select option is removed from the selection', (tester) async {
+      final proposal = MigrationProposal.build(
+        before: _categorical({'A', 'C'}, multiSelect: true),
+        after: _categorical({'A'}, multiSelect: true),
+        recorded: [_record(CategoricalValue(const ['A', 'C']))],
+      );
+      await openSheet(tester, proposal);
+
+      await openDropdown(tester);
+      expect(find.text('No value'), findsNothing);
+      await tester.tap(find.text("Remove 'C' from the selection").last);
+      await tester.pumpAndSettle();
+      expect(find.text("'C' is removed from 1 setup."), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('value-migration-confirm')));
+      await tester.pumpAndSettle();
+      expect(result!.apply(CategoricalValue(const ['A', 'C'])), CategoricalValue(const ['A']));
+    });
+
+    testWidgets('a combination names both options and can be left without a value', (tester) async {
+      final proposal = MigrationProposal.build(
+        before: _categorical({'Soft', 'Firm'}, multiSelect: true),
+        after: _categorical({'Soft', 'Firm'}),
+        recorded: [_record(CategoricalValue(const ['Soft', 'Firm']))],
+      );
+      await openSheet(tester, proposal);
+
+      expect(find.text("Only one option can be picked now: 'Soft' + 'Firm'"), findsWidgets);
+      expect(find.text("Replace 'Soft' + 'Firm' with"), findsOneWidget);
+      await openDropdown(tester);
+      expect(find.text('No value'), findsWidgets);
+    });
   });
 
   testWidgets('says when it replaces an earlier confirmed change', (tester) async {
@@ -342,7 +446,7 @@ void main() {
     );
     await openSheet(tester, renamed.rebuild(after: _categorical({'X'}), pageOrigins: const {'X': 'X'}));
 
-    expect(find.text("Deleted option 'B'"), findsNWidgets(2));
+    expect(find.text("'B' was deleted"), findsNWidgets(2));
     expect(find.text("'B' becomes 'X' in 1 setup."), findsOneWidget);
   });
 
@@ -379,7 +483,7 @@ void main() {
       await openSheet(tester, _rangeProposal(), theme: theme);
 
       expect(tester.takeException(), isNull);
-      expect(find.text('Update values'), findsOneWidget);
+      expect(find.byKey(const Key('value-migration-confirm')), findsOneWidget);
 
       await tester.tap(find.text('Clear'));
       await tester.pumpAndSettle();

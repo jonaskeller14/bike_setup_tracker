@@ -45,7 +45,7 @@ void main() {
         expect(find.text(sheetTitle), findsOneWidget);
         expect(find.textContaining('rating entry'), findsWidgets);
         expect(find.text('Renamed options'), findsOneWidget);
-        await tester.tap(find.text('Update values'));
+        await tester.tap(find.byKey(const Key('value-migration-confirm')));
         await tester.pumpAndSettle();
       },
     );
@@ -84,7 +84,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.text('High').last);
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Update values'));
+        await tester.tap(find.byKey(const Key('value-migration-confirm')));
         await tester.pumpAndSettle();
       },
     );
@@ -111,9 +111,9 @@ void main() {
         await tester.pumpAndSettle();
       },
       afterSave: () async {
-        expect(find.text("Deleted option 'Poor'"), findsWidgets);
+        expect(find.text("'Poor' was deleted"), findsWidgets);
         expect(find.textContaining('This replaces the change you confirmed earlier.'), findsOneWidget);
-        await tester.tap(find.text('Update values'));
+        await tester.tap(find.byKey(const Key('value-migration-confirm')));
         await tester.pumpAndSettle();
       },
     );

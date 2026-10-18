@@ -199,7 +199,7 @@ void main() {
 
     Future<void> confirmSheet(WidgetTester tester) async {
       expect(find.text(sheetTitle), findsOneWidget);
-      await tester.tap(find.text('Update values'));
+      await tester.tap(find.byKey(const Key('value-migration-confirm')));
       await tester.pumpAndSettle();
     }
 
@@ -280,7 +280,7 @@ void main() {
         afterSave: () async {
           await tester.tap(find.byType(DropdownButtonFormField<MigrationChoice>));
           await tester.pumpAndSettle();
-          await tester.tap(find.text('Clear selection').last);
+          await tester.tap(find.text('No value').last);
           await tester.pumpAndSettle();
           await confirmSheet(tester);
         },
@@ -299,7 +299,7 @@ void main() {
           await tester.pumpAndSettle();
         },
         afterSave: () async {
-          expect(find.text('Repeated options'), findsOneWidget);
+          expect(find.text('Each option can be picked only once now'), findsOneWidget);
           await confirmSheet(tester);
         },
       );
@@ -358,7 +358,7 @@ void main() {
           await setOption(tester, 1, 'Soft');
         },
         afterSave: () async {
-          expect(find.text("Deleted option 'Soft'"), findsWidgets);
+          expect(find.text("'Soft' was deleted"), findsWidgets);
           expect(find.text("1 setup keeps 'Soft', now the option renamed from 'Firm'."), findsOneWidget);
           await confirmSheet(tester);
         },
@@ -388,7 +388,7 @@ void main() {
           repository: repositoryWithRecorded([selection(['Soft'])]),
           interact: () => removeOption(tester, 1),
           afterSave: () async {
-            expect(find.text("Deleted option 'Plush'"), findsWidgets);
+            expect(find.text("'Plush' was deleted"), findsWidgets);
             expect(find.textContaining('This replaces the change you confirmed earlier.'), findsOneWidget);
             await confirmSheet(tester);
           },

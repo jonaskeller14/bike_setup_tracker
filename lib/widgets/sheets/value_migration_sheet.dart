@@ -76,8 +76,8 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                 spacing: 16,
                 children: [
                   Text(
-                    "Your change to '${widget.adjustmentName}' affects values recorded in "
-                    '${affectedRecordsLabel(_proposal.affected)}.'
+                    "Your change to '${widget.adjustmentName}' affects ${affectedRecordsLabel(_proposal.affected)}."
+                    '${decisions.isEmpty ? '' : ' Choose what happens to their values.'}'
                     '${widget.replacesEarlier ? ' This replaces the change you confirmed earlier.' : ''}',
                     style: theme.textTheme.bodyMedium,
                   ),
@@ -87,9 +87,14 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                       key: ValueKey(issue.key),
                       issue: issue,
                       proposal: _proposal,
-                      // A single decision needs no step number.
                       step: decisions.length > 1 ? index + 1 : null,
                       onChoose: (choice) => _choose(issue, choice),
+                    ),
+                  if (decisions.isNotEmpty)
+                    Text(
+                      'Need different values in different ${_nounFor(_proposal.affected.source, 2)}? '
+                      'Cancel, change those ${_nounFor(_proposal.affected.source, 2)} first, then make this edit.',
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                 ],
               ),
@@ -105,6 +110,7 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                 ),
                 Expanded(
                   child: FilledButton(
+                    key: const Key('value-migration-confirm'),
                     onPressed: _confirm,
                     // Clearing deletes recorded values for good once the parent form is saved.
                     style: clearsValues
@@ -113,7 +119,10 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                             foregroundColor: theme.colorScheme.onError,
                           )
                         : null,
-                    child: const Text('Update values'),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(_confirmLabel(_proposal.affected)),
+                    ),
                   ),
                 ),
               ],
@@ -125,12 +134,15 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
   }
 }
 
-/// Values of a person attribute are recorded in setups too, so only rating
-/// metrics speak of rating entries.
 String _nounFor(RecordedValueSource? source, int count) => switch (source) {
   RecordedValueSource.ratingEntry => count == 1 ? 'rating entry' : 'rating entries',
   _ => count == 1 ? 'setup' : 'setups',
 };
+
+/// "Update 4 setups"; deleted records count only when there are no live ones.
+String _confirmLabel(AffectedRecords records) => records.live == 0
+    ? 'Update ${records.deleted} deleted ${_nounFor(records.source, records.deleted)}'
+    : 'Update ${records.live} ${_nounFor(records.source, records.live)}';
 
 /// "4 setups (+3 deleted)", or "3 deleted setups" without live ones.
 String affectedRecordsLabel(AffectedRecords records) {
@@ -188,12 +200,35 @@ String _issueTitle(MigrationIssue issue, MigrationProposal proposal) => switch (
   MigrationIssueKind.incompatibleUnit =>
     'Unit changed from ${_unitName(proposal.before.unit)} to ${_unitName(proposal.after.unit)}',
   MigrationIssueKind.renamedOptions => 'Renamed options',
-  MigrationIssueKind.deletedOption => "Deleted option '${proposal.optionLabel(issue.options.first)}'",
-  MigrationIssueKind.duplicateOptions => 'Repeated options',
-  MigrationIssueKind.combination => '${issue.options.join(' + ')} together',
+  MigrationIssueKind.deletedOption => "'${proposal.optionLabel(issue.options.first)}' was deleted",
+  MigrationIssueKind.duplicateOptions => 'Each option can be picked only once now',
+  MigrationIssueKind.combination => "Only one option can be picked now: ${_combination(issue)}",
   MigrationIssueKind.outOfRange =>
     proposal.after is StepAdjustment ? 'Values off the new steps or range' : 'Values outside the new range',
 };
+
+/// "'Soft' + 'Firm'".
+String _combination(MigrationIssue issue) => issue.options.map((option) => "'$option'").join(' + ');
+
+/// Whether a deleted option is removed from a selection that can hold other
+/// options, rather than leaving the record without a value.
+bool _removesFromSelection(MigrationIssue issue, MigrationProposal proposal) =>
+    issue.kind == MigrationIssueKind.deletedOption &&
+    switch (proposal.before) {
+      CategoricalAdjustment(:final multiSelect) => multiSelect,
+      _ => false,
+    };
+
+/// The dropdown label: what the picked option replaces.
+String _replaceLabel(MigrationIssue issue, MigrationProposal proposal) => switch (issue.kind) {
+  MigrationIssueKind.deletedOption => "Replace '${proposal.optionLabel(issue.options.first)}' with",
+  _ => 'Replace ${_combination(issue)} with',
+};
+
+/// The dropdown entry for clearing, worded like the "No value" of the example.
+String _clearEntry(MigrationIssue issue, MigrationProposal proposal) => _removesFromSelection(issue, proposal)
+    ? "Remove '${proposal.optionLabel(issue.options.first)}' from the selection"
+    : 'No value';
 
 String _choiceLabel(MigrationChoice choice, MigrationProposal proposal) => switch (choice.kind) {
   MigrationChoiceKind.convert => 'Convert',
@@ -226,7 +261,8 @@ String _choiceHint(MigrationIssue issue, MigrationProposal proposal) {
           : '$count ${one ? 'moves' : 'move'} to the nearest limit.',
     MigrationChoiceKind.mapTo when renamedFrom != null =>
       "$count ${one ? 'keeps' : 'keep'} '$deletedOption', now the option renamed from '$renamedFrom'.",
-    MigrationChoiceKind.clear when deletedOption != null => "'$deletedOption' is removed from $count.",
+    MigrationChoiceKind.clear when deletedOption != null && _removesFromSelection(issue, proposal) =>
+      "'$deletedOption' is removed from $count.",
     MigrationChoiceKind.clear => '$count ${one ? 'loses its' : 'lose their'} value.',
     MigrationChoiceKind.mapTo when deletedOption != null =>
       "'$deletedOption' becomes '${issue.choice.option}' in $count.",
@@ -265,13 +301,17 @@ class _ChoiceSection extends StatelessWidget {
             key: ValueKey(issue.choice),
             initialValue: issue.choice,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Change to', border: OutlineInputBorder(), isDense: true),
+            decoration: InputDecoration(
+              labelText: _replaceLabel(issue, proposal),
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
             items: [
               for (final choice in issue.choices)
                 DropdownMenuItem(
                   value: choice,
                   child: Text(
-                    choice.kind == MigrationChoiceKind.clear ? 'Clear selection' : choice.option!,
+                    choice.kind == MigrationChoiceKind.clear ? _clearEntry(issue, proposal) : choice.option!,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

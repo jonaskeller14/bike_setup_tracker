@@ -50,6 +50,7 @@ abstract final class AutomationIds {
   static const setupFormName = 'setupForm.name';
   static const setupFormNotes = 'setupForm.notes';
   static const setupFormAddTags = 'setupForm.addTags';
+  static const setupFormCondition = 'setupForm.condition';
   static String setAdjustment(String adjustmentId) => 'setAdjustment.$adjustmentId';
 
   static String stravaActivity(int activityId) => 'stravaActivity.$activityId';

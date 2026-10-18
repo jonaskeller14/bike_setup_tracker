@@ -141,6 +141,22 @@ function Set-TouchDots([string]$serial, [bool]$enabled) {
     }
 }
 
+# The app seeds the demo scenario named in this marker (from the flow's
+# `# scenario:` line); without it, the full sample.
+$scenarioMarker = 'app_flutter/demo_scenario'
+function Set-Scenario([string]$serial, [string]$scenario) {
+    Invoke-Adb $serial @('shell', 'run-as', $appId, 'rm', '-f', $scenarioMarker)
+    if ($scenario) {
+        Invoke-Adb $serial @('shell', 'run-as', $appId, 'sh', '-c', "'mkdir -p app_flutter && printf %s $scenario > $scenarioMarker'")
+    }
+}
+
+# Returns the flow's `# scenario: <name>` (see lib/screenshots/demo_scenario.dart), if any.
+function Get-FlowScenario([System.IO.FileInfo]$flow) {
+    $match = Select-String -Path $flow.FullName -Pattern '^# scenario: *([a-z_]+)' | Select-Object -First 1
+    if ($match) { $match.Matches[0].Groups[1].Value } else { '' }
+}
+
 # Maestro connects to every entry in `adb devices` and reports no device at all
 # when a single one is not ready (offline, authorizing, unauthorized), even an
 # unrelated emulator.
@@ -186,6 +202,7 @@ foreach ($name in $selected) {
                 Write-Host "[$name] $($flow.Name)$(if ($attempt -gt 1) { ' (retry)' })"
                 & $adb -s $serial wait-for-device
                 Set-DemoStatusBar $serial
+                Set-Scenario $serial (Get-FlowScenario $flow)
                 Push-Location $flowsDir
                 try {
                     & $maestro --device $serial test $flow.Name `
@@ -209,7 +226,7 @@ foreach ($name in $selected) {
         $checkedFolders += $config.Folder
     } finally {
         # Best effort: a dropped adb transport here must not abort the next device.
-        & $adb -s $serial shell run-as $appId rm -f $touchMarker 2>&1 | Out-Null
+        & $adb -s $serial shell run-as $appId rm -f $touchMarker $scenarioMarker 2>&1 | Out-Null
         & $adb -s $serial shell am broadcast -a com.android.systemui.demo -e command exit 2>&1 | Out-Null
         if (-not $KeepRunning) { & $adb -s $serial emu kill 2>&1 | Out-Null }
     }

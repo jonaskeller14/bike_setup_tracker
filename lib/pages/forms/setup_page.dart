@@ -1045,7 +1045,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       _changeListener();
                     },
             ),
-            ActionChip(
+            Semantics(
+              container: true,
+              identifier: AutomationIds.setupFormCondition,
+              child: ActionChip(
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
@@ -1069,6 +1072,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         });
                         _changeListener();
                       },
+              ),
               ),
             ),
             if (appSettings.enableSetupBookmark)

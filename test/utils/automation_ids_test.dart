@@ -128,6 +128,7 @@ void main() {
         AutomationIds.setupFormSave,
         AutomationIds.setupFormName,
         AutomationIds.setupFormNotes,
+        AutomationIds.setupFormCondition,
         AutomationIds.setAdjustment(GoldenTestHarness.pressureId),
         AutomationIds.setAdjustment(GoldenTestHarness.reboundId),
       ]) {

@@ -16,6 +16,7 @@ import 'database/app_database.dart';
 import 'main.dart';
 import 'models/app_settings.dart';
 import 'repositories/app_repository.dart';
+import 'screenshots/demo_scenario.dart';
 import 'screenshots/screenshot_seed.dart';
 import 'screenshots/screenshot_services.dart';
 import 'screenshots/touch_indicator.dart';
@@ -36,8 +37,17 @@ void main() async {
     appSettings: appSettings,
   );
 
-  await ScreenshotSeed.resetPreferences(appHintService);
-  await ScreenshotSeed.seedDatabase(appRepository, today: DateTime.now());
+  // The run scripts write the flow's `# scenario:` name here, and
+  // `run_ios.sh --preview` drops the touch marker for recordings; screenshots
+  // stay dot-free. Files, because Dart can't read environment variables on iOS.
+  final documents = await getApplicationDocumentsDirectory();
+  final scenarioMarker = File('${documents.path}/${DemoScenario.markerFile}');
+  final scenario = scenarioMarker.existsSync()
+      ? DemoScenario.fromId(scenarioMarker.readAsStringSync().trim())
+      : DemoScenario.full;
+
+  await ScreenshotSeed.resetPreferences(appHintService, scenario: scenario);
+  await ScreenshotSeed.seedDatabase(appRepository, today: DateTime.now(), scenario: scenario);
 
   final app = LoadingGate(
     appSettings: appSettings,
@@ -47,9 +57,6 @@ void main() async {
     createStravaService: ScreenshotStravaService.new,
     enablePushNotifications: false,
   );
-  // `run_ios.sh --preview` drops this marker for recordings; screenshots stay
-  // dot-free. A file, because Dart can't read environment variables on iOS.
-  final documents = await getApplicationDocumentsDirectory();
   final showTouches = File('${documents.path}/${TouchIndicator.markerFile}').existsSync();
   runApp(showTouches ? TouchIndicator(child: app) : app);
 }

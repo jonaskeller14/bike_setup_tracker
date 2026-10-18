@@ -146,6 +146,22 @@ set_touch_dots() {
   fi
 }
 
+# The app seeds the demo scenario named in this marker (from the flow's
+# `# scenario:` line); without it, the full sample.
+scenario_marker='app_flutter/demo_scenario'
+set_scenario() {
+  local serial="$1" scenario="$2"
+  "$adb" -s "$serial" shell run-as "$app_id" rm -f "$scenario_marker"
+  if [ -n "$scenario" ]; then
+    "$adb" -s "$serial" shell run-as "$app_id" sh -c "'mkdir -p app_flutter && printf %s $scenario > $scenario_marker'"
+  fi
+}
+
+# Prints the flow's `# scenario: <name>` (see lib/screenshots/demo_scenario.dart), if any.
+flow_scenario() {
+  sed -n 's/^# scenario: *\([a-z_]*\).*/\1/p' "$flows_dir/$1" | head -n 1
+}
+
 # Maestro connects to every entry in `adb devices` and reports no device at all
 # when a single one is not ready (offline, authorizing, unauthorized), even an
 # unrelated emulator.
@@ -187,6 +203,7 @@ for name in $selected; do
       if [ "$attempt" -eq 1 ]; then echo "[$name] $flow"; else echo "[$name] $flow (retry)"; fi
       "$adb" -s "$serial" wait-for-device
       set_demo_status_bar "$serial"
+      set_scenario "$serial" "$(flow_scenario "$flow")"
       if (cd "$flows_dir" && "$maestro" --device "$serial" test "$flow" \
         --test-output-dir "$out_dir" \
         -e "APP_ID=$app_id" \
@@ -212,6 +229,7 @@ for name in $selected; do
 
   # Best effort: a dropped adb transport here must not abort the next device.
   set_touch_dots "$serial" 0 || true
+  set_scenario "$serial" '' || true
   "$adb" -s "$serial" shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null 2>&1 || true
   if [ "$keep_running" -eq 0 ]; then "$adb" -s "$serial" emu kill > /dev/null 2>&1 || true; fi
 done

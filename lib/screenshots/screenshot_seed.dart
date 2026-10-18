@@ -11,6 +11,7 @@ import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
 import '../services/app_hint_service.dart';
 import '../utils/file_import.dart';
+import 'demo_scenario.dart';
 import 'sample_date_shift.dart';
 
 /// Deterministic app state for store screenshots: the curated sample data,
@@ -19,38 +20,44 @@ class ScreenshotSeed {
   static const sampleDataAsset = 'assets/data/20260925_sample_simple.json';
   static const stravaDataAsset = 'assets/data/20260925_sample_simple_strava.json';
 
-  /// Written under AppSettings' `app_settings.` key prefix.
+  /// Written under AppSettings' `app_settings.` key prefix. Tags are off:
+  /// they add noise, so only [DemoScenario.tags] shows them.
   static const Map<String, Object> settings = {
     'showOnboarding': false,
     'themeMode': 'ThemeMode.light',
-    'enableSetupTags': true,
+    'enableSetupTags': false,
     'enableTask': true,
-    'enableTaskTags': true,
+    'enableTaskTags': false,
     'enableCalendar': true,
   };
 
   /// Merges the sample export and its Strava companion (their keys are
   /// disjoint) and shifts both by the same number of days, so activities stay
-  /// aligned with the setups recorded on the same rides.
+  /// aligned with the setups recorded on the same rides. The shift is taken
+  /// from the whole master, so every [scenario] shares one calendar.
   static Map<String, dynamic> buildSeedJson({
     required String sampleJson,
     required String stravaJson,
     required DateTime today,
+    DemoScenario scenario = DemoScenario.full,
   }) {
     final merged = <String, dynamic>{
       ...jsonDecode(sampleJson) as Map<String, dynamic>,
       ...jsonDecode(stravaJson) as Map<String, dynamic>,
     };
     final days = sampleShiftDays(merged, today: today);
-    return shiftSampleDates(merged, days) as Map<String, dynamic>;
+    return scenario.apply(shiftSampleDates(merged, days) as Map<String, dynamic>);
   }
 
   /// Replaces all preferences with a fresh install that has finished
   /// onboarding and dismissed every hint.
-  static Future<void> resetPreferences(AppHintService appHintService) async {
+  static Future<void> resetPreferences(
+    AppHintService appHintService, {
+    DemoScenario scenario = DemoScenario.full,
+  }) async {
     final preferences = await SharedPreferences.getInstance();
     await preferences.clear();
-    for (final MapEntry(:key, :value) in settings.entries) {
+    for (final MapEntry(:key, :value) in {...settings, ...scenario.settings}.entries) {
       final prefKey = 'app_settings.$key';
       switch (value) {
         case bool():
@@ -65,11 +72,16 @@ class ScreenshotSeed {
   }
 
   /// Wipes all user and Strava data and imports the shifted sample.
-  static Future<void> seedDatabase(AppRepository appRepository, {required DateTime today}) async {
+  static Future<void> seedDatabase(
+    AppRepository appRepository, {
+    required DateTime today,
+    DemoScenario scenario = DemoScenario.full,
+  }) async {
     final json = buildSeedJson(
       sampleJson: await rootBundle.loadString(sampleDataAsset),
       stravaJson: await rootBundle.loadString(stravaDataAsset),
       today: today,
+      scenario: scenario,
     );
 
     await FileImport.replace(remoteData: SelectedData.fromJson(json), database: appRepository.database);

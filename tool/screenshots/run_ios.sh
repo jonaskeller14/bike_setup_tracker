@@ -103,6 +103,11 @@ simulator_booted() {
   xcrun simctl list devices | grep -q "($1) (Booted)"
 }
 
+# Prints the flow's `# scenario: <name>` (see lib/screenshots/demo_scenario.dart), if any.
+flow_scenario() {
+  sed -n 's/^# scenario: *\([a-z_]*\).*/\1/p' "$flows_dir/$1" | head -n 1
+}
+
 if [ "$skip_build" -eq 0 ]; then
   (cd "$repo_root" && flutter build ios --simulator --debug -t lib/main_screenshots.dart)
 fi
@@ -136,6 +141,8 @@ for name in $selected; do
   # removed first, in case an aborted preview run left it behind.
   touch_marker="$(xcrun simctl get_app_container "$udid" "$app_id" data)/Documents/screenshot_show_touches"
   rm -f "$touch_marker"
+  # The app seeds this demo scenario; without the marker it seeds the full sample.
+  scenario_marker="$(dirname "$touch_marker")/demo_scenario"
   if [ "$record" -eq 1 ]; then
     if [ "$demo" -eq 1 ]; then
       target_dir="$repo_root/build/marketing/raw/ios"
@@ -147,6 +154,12 @@ for name in $selected; do
   fi
 
   for flow in "${flows[@]}"; do
+    rm -f "$scenario_marker"
+    scenario="$(flow_scenario "$flow")"
+    if [ -n "$scenario" ]; then
+      mkdir -p "$(dirname "$scenario_marker")"
+      printf '%s' "$scenario" > "$scenario_marker"
+    fi
     ok=0
     # Retry a failed flow once, like the Android runner: the first Maestro run
     # after a boot sometimes fails while its XCTest driver is still starting.
@@ -175,7 +188,7 @@ for name in $selected; do
   done
   checked_folders+=("$folder")
 
-  rm -f "$touch_marker"
+  rm -f "$touch_marker" "$scenario_marker"
   xcrun simctl status_bar "$udid" clear || true
   if [ "$booted_here" -eq 1 ] && [ "$keep_running" -eq 0 ]; then
     xcrun simctl shutdown "$udid" || true

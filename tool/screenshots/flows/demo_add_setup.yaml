@@ -1,6 +1,6 @@
 # Demo: record a setup. Location and weather fill in on their own (the run
 # scripts pin the GPS to Finale Ligure; the screenshot build's weather is
-# fixed), then the flow tags it, changes one adjustment, names it and saves it.
+# fixed), then the flow changes one adjustment, names it and saves it.
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
@@ -25,20 +25,13 @@ appId: ${APP_ID}
     env:
       MS: 1500
 
-# The name comes last: closing the tags sheet refocuses the name field, which
-# would bring the keyboard back up over the adjustments.
-- tapOn:
-    id: setupForm.addTags
-- tapOn: Finale
-- tapOn: Trip
-- runFlow: _dismiss_sheet.yaml
-# Lyrik LSC (step slider): tapping the centre moves it to mid-range
+# Lyrik Rebound (step slider): tapping the centre moves it to mid-range (9)
 - scrollUntilVisible:
     element:
-      id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+      id: setAdjustment.aefea436-580a-479b-bcd4-943a93c8e2fb
     direction: DOWN
 - tapOn:
-    id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+    id: setAdjustment.aefea436-580a-479b-bcd4-943a93c8e2fb
 - runFlow:
     file: _pause.yaml
     env:

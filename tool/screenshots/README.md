@@ -74,8 +74,10 @@ The iPhone flows run with `DEVICE=phone` and the iPad flows with `DEVICE=tablet`
 ## How the flows stay deterministic
 
 - **Fresh data on every launch.** `lib/main_screenshots.dart` wipes the database and preferences on each launch, seeds `assets/data/20260925_sample_simple.json` plus the Strava sample, and shifts all dates so that the newest one is yesterday. Every flow cold-starts the app through `flows/_launch.yaml`, so no flow depends on another.
+- **Tags are off.** Setup and task tags add noise, so the seed turns both off. Only the `tags` scenario shows them.
+- **Demo scenarios.** A flow can start from a named subset of the sample instead of all of it (see [Demo scenarios](#demo-scenarios)).
 - **One set of flows for both platforms.** The bundle ID differs (`com.jonaskeller14.bike_setup_tracker` on Android, `com.jonaskeller14.bike-setup-tracker` on iOS), so the flows use `appId: ${APP_ID}`, which the run scripts pass in. Platform differences live in `when: platform:` blocks: `flows/_dismiss_sheet.yaml` presses Back on Android and taps the barrier above the sheet on iOS, which has no Back key, and the Location Accuracy subflow runs on Android only.
-- **Keyboard on iOS (screen 03).** Maestro's `hideKeyboard` fails on Flutter text fields on iOS, so it only runs on Android (`flows/_hide_keyboard_android.yaml`). On iOS the keyboard stays up while the flow fills the form. At the end, the flow opens and closes the tags sheet, which closes the keyboard for good.
+- **Keyboard on iOS (screen 03).** Maestro's `hideKeyboard` fails on Flutter text fields on iOS, so it only runs on Android (`flows/_hide_keyboard_android.yaml`). On iOS the keyboard stays up while the flow fills the form. At the end, the flow opens and closes the trail-condition sheet, which closes the keyboard for good.
 - **Selectors are identifiers.** Flows select elements by `Semantics.identifier` values from `lib/utils/automation_ids.dart`, never by UI labels, so localization won't break them. Record names such as tags are data rather than UI labels, so the flows can select them by text.
 - **Record IDs are fixed.** Records are addressed by the sample's fixed IDs, for example `garage.component.<Lyrik id>`.
 - **Screen 03 (Add Setup):**
@@ -87,6 +89,37 @@ The iPhone flows run with `DEVICE=phone` and the iPad flows with `DEVICE=tablet`
   - It then drags from a section title over 10 s. That's slow enough that Flutter doesn't fling, and the title's centre lands at 10 % of the screen height. The phone anchors on *Line Chart* (both charts). On the iPhone the status bar plus app bar are taller than 10 % of the screen, so a second slow drag pulls the title back down by 5 %; the tablet anchors on *Adjustment History* (table and both charts). The run scripts pass the device as `DEVICE` (`phone` or `tablet`).
 - **Screen 07 (map):** tiles load live from CyclOSM. `-TileWaitMs` / `--tile-wait-ms` (default 20 s) is a fixed wait, because nothing signals that the tiles have finished loading.
 - **Screen 08 (calendar):** `flows/scripts/calendar_months_back.js` pages back to the sample's busiest month, which is mid-May before the date shift.
+
+## Demo scenarios
+
+`lib/screenshots/demo_scenario.dart` derives named starting states from the sample, so only the sample needs curating. A flow picks one with a comment line:
+
+```yaml
+# scenario: one_bike_no_components
+appId: ${APP_ID}
+```
+
+Before each flow, the run scripts delete the marker file `demo_scenario` in the app's documents folder and, if the flow has a `# scenario:` line, write the name into it (iOS: the data container's `Documents`; Android: `app_flutter` via `adb shell run-as`). `lib/main_screenshots.dart` reads it at launch. Without the marker, the app seeds `full`; an unknown name stops the launch, so a typo can't record the wrong state.
+
+| Scenario | Data |
+|---|---|
+| `full` | The whole sample (default; store screenshots) |
+| `empty` | No bikes, and nothing recorded on them |
+| `one_bike_no_components` | The Santa Cruz Hightower and its rides, no components or setups |
+| `no_setups` | Bikes and components, no setups |
+| `analysis` | The Hightower's 4 newest setups; fork and shock *Pressure* removed, so the click-based series fill the charts |
+| `tasks_one_due` | *Investigate BB creaking noise* as the only due task. It doesn't repeat, so ticking it off moves it to the completed section |
+| `tags` | The whole sample with setup and task tags on |
+
+Dropping a bike drops everything recorded on it: its components, setups, rating entries, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
+
+**Content rules.** `test/screenshots/demo_scenario_test.dart` checks the sample against the rules from the marketing review (#77):
+
+- Every setup changes at most 3 values against the bike's previous setup.
+- Every Strava ride links at most 2 setups (the one active at the start, plus those recorded during the ride, as on the activity page).
+- One calendar day has a setup, a ride, an installation and a task: 18 May before the shift (Mia's ride, the Fox 40 off for service, a brake bleed).
+
+When you edit the sample, keep these passing, and keep installations, UTC/local time pairs and the weather time of each setup consistent.
 
 ## Adding a screen
 
@@ -152,7 +185,7 @@ The marketing kits use the iPhone clips: the iPhone frame's screen hole is exact
 |---|---|
 | `demo_add_bike` | A new bike in the garage |
 | `demo_add_component` | A fork with Pressure and Rebound from the type's suggestions |
-| `demo_add_setup` | Location and weather filling in, tags, one adjustment, save |
+| `demo_add_setup` | Location and weather filling in, one adjustment, save |
 | `demo_setup_history` | The Hightower's history, then its newest setup compared with the one before |
 | `demo_analysis` | The Lyrik's line and radial charts over all setups |
 | `demo_tasks` | Ticking off a due task |

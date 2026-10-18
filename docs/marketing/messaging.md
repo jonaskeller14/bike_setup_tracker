@@ -52,7 +52,7 @@ build.
   the funnel and may repeat a funnel headline.
 - **No price on store assets.** "Free" only appears on social end cards, smallest (brand.md).
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
-  never invented. Default pair: Lyrik pressure 83 → 84 psi, LSC 6 → 7, rebound 9 → 10
+  never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
 - **Questions are hooks, statements are headlines.** Question lines (R3, C5, S4) open Shorts and
   posts; store assets use statements.

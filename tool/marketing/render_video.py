@@ -373,6 +373,54 @@ def assemble(segments, out, end_card=None, music=None, audio=True):
     return duration(out)
 
 
+def animate(chrome, template, size, steps, out, out_size=None):
+    """A video of template renders that crossfade into each other, for pages without a recording.
+
+    steps: (URL parameters, seconds shown) in order; the video then fades back into the first
+    step, so it loops without a jump. Writes a video-only intermediate and returns its length.
+    """
+    work = out.with_suffix("")
+    work.mkdir(parents=True, exist_ok=True)
+    pngs = {work / f"step{i}.png": "?" + urlencode(params) for i, (params, _) in enumerate(steps)}
+    problems = render_images.render(chrome, template, size, pngs)
+    if problems:
+        raise RuntimeError("; ".join(problems))
+    inputs = []
+    for path, (_, seconds) in zip([*pngs, next(iter(pngs))], [*steps, (None, 0)]):
+        inputs += ["-loop", "1", "-framerate", FPS, "-t", f"{seconds + CAPTION_FADE:.3f}", "-i", path]
+    graph = [f"[{i}:v]format=yuv420p,settb=AVTB,fps={FPS}[s{i}]" for i in range(len(steps) + 1)]
+    current, offset = "s0", 0.0
+    for i, (_, seconds) in enumerate(steps, 1):
+        offset += seconds
+        graph.append(f"[{current}][s{i}]xfade=transition=fade:duration={CAPTION_FADE}:offset={offset:.3f}[x{i}]")
+        current = f"x{i}"
+    scale = f",scale={out_size[0]}:{out_size[1]}:flags=lanczos" if out_size else ""
+    graph.append(f"[{current}]null{scale}[out]")
+    length = offset + CAPTION_FADE
+    ffmpeg(*inputs, "-filter_complex", ";".join(graph), "-map", "[out]", "-t", f"{length:.3f}", *INTERMEDIATE, out)
+    return duration(out)
+
+
+def join(clips, out, fade=0.4):
+    """Crossfades prepared clips of the same size into one video-only intermediate; returns its length."""
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if len(clips) == 1:
+        shutil.copyfile(clips[0], out)
+        return duration(out)
+    inputs = []
+    for clip in clips:
+        inputs += ["-i", clip]
+    graph = [f"[{i}:v]settb=AVTB,fps={FPS}[c{i}]" for i in range(len(clips))]
+    current, offset = "c0", 0.0
+    for i, clip in enumerate(clips[1:], 1):
+        offset += duration(clips[i - 1]) - fade
+        graph.append(f"[{current}][c{i}]xfade=transition=fade:duration={fade}:offset={offset:.3f}[j{i}]")
+        current = f"j{i}"
+    graph.append(f"[{current}]null[out]")
+    ffmpeg(*inputs, "-filter_complex", ";".join(graph), "-map", "[out]", *INTERMEDIATE, out)
+    return duration(out)
+
+
 def appstore_preview(clip, out, size=(886, 1920)):
     """App Store app preview: full-screen recording, H.264 High 4.0, silent stereo AAC track."""
     width, height = size

@@ -1,12 +1,32 @@
 {
+  "recordings": "build/marketing/raw/ios",
   "clips": {
-    "preview_setup": {
-      "source": "build/store_previews/iphone/preview_setup.mp4",
-      "segments": [[0, 8, 1], [8, 11, 2.5], [11, 24.7, 1]]
+    "demo_add_setup": {
+      "segments": [[0.3, 4.0, 1], [5.5, 8.0, 1], [11.3, 12.6, 1], [15.6, 19.6, 1], [19.6, 23.8, 3],
+                   [23.8, 27.8, 1.5], [27.8, 29.7, 3], [29.7, 33.5, 1]]
+    },
+    "demo_setup_list": {
+      "segments": [[0.6, 7.9, 1]]
+    },
+    "demo_setup_history": {
+      "segments": [[0.3, 1.8, 1], [1.8, 10.0, 2], [10.0, 13.0, 1], [13.0, 15.9, 2], [15.9, 17.3, 1],
+                   [17.3, 19.4, 2], [19.4, 21.0, 1], [21.0, 23.1, 2], [23.1, 29.4, 1]]
+    },
+    "demo_analysis": {
+      "segments": [[0.8, 2.9, 1], [5.2, 8.2, 1], [8.2, 11.1, 2.5], [11.1, 13.4, 1], [15.5, 18.4, 1],
+                   [18.4, 21.3, 3], [21.3, 23.0, 1]]
+    },
+    "demo_tasks": {
+      "segments": [[2.3, 5.3, 1.5], [5.3, 9.7, 1], [9.7, 13.2, 2.5], [13.2, 18.8, 1], [18.8, 19.2, 0.25]]
     }
   },
   "appstore": {
-    "preview": "preview_setup",
-    "creative": "preview_setup"
+    "previews": [
+      ["demo_add_setup", "demo_setup_list"],
+      ["demo_setup_history"],
+      ["demo_analysis", "demo_tasks"]
+    ],
+    "header": [[0, 1.5], [1, 0.8], [2, 0.8], [3, 5]],
+    "creative": "demo_setup_history"
   }
 }

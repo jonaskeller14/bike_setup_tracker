@@ -70,14 +70,17 @@ The iPhone exports (`iphone_NN.png`) are 1206×2622, the only size (besides 1179
 
 ## App previews
 
-App Store, iPhone only: 886×1920 HEVC, 30 s, 30 fps, recorded with v1.3.7. They are tracked in Git
-LFS; commit a preview only once it is live in the store, not every rendered draft.
+App Store, iPhone only: 886×1920 H.264, 30 fps, 15–30 s, silent stereo track (previews autoplay
+muted). `python tool/marketing/build_kit.py appstore` builds them from the demo recordings
+([#77](https://github.com/jonaskeller14/bike_setup_tracker/issues/77) Phase 5; clips and cuts in
+`docs/marketing/kits/appstore.json`) and copies each one that passes its checks here. They are
+tracked in Git LFS; commit a preview only once it is live in the store, not every rendered draft.
 
-| File | Shows |
-|---|---|
-| `preview_1.mp4` | Add a bike and a component with adjustments |
-| `preview_2.mp4` | Record a setup |
-| `preview_3.mp4` | Analyze setups (component details), then add and complete a task |
+| File | Shows | Clips |
+|---|---|---|
+| `preview_1.mp4` | Record a setup: location and weather fill in, rebound and pressure set, saved; then the history after a season | `demo_add_setup` → `demo_setup_list` |
+| `preview_2.mp4` | See what changed: the history, the comparison with the setup before, then "end of May reference" picked | `demo_setup_history` |
+| `preview_3.mp4` | Charts and service: line chart with LSC highlighted, radial chart and histogram; then the due task ticked off and in Completed | `demo_analysis` → `demo_tasks` |
 
 ## A/B tests
 

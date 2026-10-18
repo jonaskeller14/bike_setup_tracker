@@ -17,8 +17,8 @@ product page header got cropped in the App Store Connect preview.
 | Layout | Brand row, headline, a block of changed values left; the phone right | Type only: brand row, headline, a row of values in the safe area; rules full width |
 
 - Since [#77](https://github.com/jonaskeller14/bike_setup_tracker/issues/77) Phase 2 the sources
-  follow the brand guide (`docs/marketing/brand.md`) and its reference frames. The committed PNGs
-  are still the live v1 renders until Phase 5 uploads the new ones.
+  follow the brand guide (`docs/marketing/brand.md`) and its reference frames; Phase 5 rendered
+  the v2 PNGs.
 - Safe areas come from Apple's Photoshop templates on
   [asset best practices](https://developer.apple.com/app-store/asset-best-practices/).
   `render_images.py` checks that all text sits inside them; `--safe` also writes each render with
@@ -44,21 +44,22 @@ The screens stay English in both locales, like the screenshots, until #18.
 **Before upload**, check the App Store Connect preview in light and dark mode, EN and DE, for
 cropped text.
 
-## Video variant
+## Video variants
 
-`python tool/marketing/build_kit.py appstore` renders the search template with `?video` and plays
-the iOS recording `build/store_previews/iphone/preview_setup.mp4` in its phone (`data-video`), cut
-as in [`docs/marketing/kits/appstore.json`](../../../../docs/marketing/kits/appstore.json).
-Record it first with `tool/screenshots/run_ios.sh iphone --preview`. The header has no phone, so
-it has no video variant.
+`python tool/marketing/build_kit.py appstore` renders both videos, EN + DE, as set in
+[`docs/marketing/kits/appstore.json`](../../../../docs/marketing/kits/appstore.json):
 
-| | Search results |
-|---|---|
-| Output | `build/marketing/appstore/search_{en-US,de-DE}.mp4` |
-| Size | 2880×1920 |
+| | Search results | Header |
+|---|---|---|
+| Output | `build/marketing/appstore/search_{en-US,de-DE}.mp4` | `build/marketing/appstore/header_{en-US,de-DE}.mp4` |
+| Size | 2880×1920 | 3840×1646 |
+| Shows | The `demo_setup_history` recording plays in the phone (`data-video`): history, then the comparison with the setup before and "end of May reference" | Type only, like the still: the values row starts at the old values, `→10`, `→8` and `→85 psi` fade in one by one, then it holds the still's final state and fades back, so it loops |
 
-- H.264, 30 fps, 5–30 s, no audio track (search results always play muted).
+- Record the demo clips first: `tool/screenshots/run_ios.sh iphone --demo`.
+- H.264, 30 fps, 5–30 s, no audio track (search results always play muted, the header by default).
 - The search video is 2880×1920 rather than 3840×2560: 3840×2560 is over H.264's largest frame
   size (level 5.2), and 2880×1920 is inside Apple's 3:2 range.
-- The same kit renders the App Store app preview, `preview_iphone.mp4` (886×1920, silent stereo
-  track). Videos aren't committed; they stay in `build/`.
+- No bike illustration in the header animation: #77 Phase 1 dropped the drawn bike, so the
+  animation shows the brand's own data voice, the changed values.
+- The same kit renders the App Store app previews (`docs/store/README.md`, App previews). Videos
+  aren't committed; they stay in `build/`.

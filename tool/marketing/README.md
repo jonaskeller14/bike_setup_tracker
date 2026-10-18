@@ -22,7 +22,7 @@ Builds a content kit from `docs/marketing/kits/<kit>.json` into `build/marketing
 python tool/marketing/build_kit.py launch                   # everything the kit defines
 python tool/marketing/build_kit.py launch shorts gifs       # some parts only
 python tool/marketing/build_kit.py launch web               # website loops (copy them to the website repo)
-python tool/marketing/build_kit.py appstore                 # App Store preview + creative videos
+python tool/marketing/build_kit.py appstore                 # App Store previews + header and search videos
 python tool/marketing/build_kit.py launch post              # only rewrite POST.md after editing posts
 python tool/marketing/build_kit.py launch sheet             # only rewrite the contact sheet
 ```
@@ -44,7 +44,7 @@ format's safe areas (`render_images.SAFE_AREAS`); a click opens the full file.
 | `gifs` | `gif/<clip>.gif` | ≤8 MB (steps down from 360 px / 15 fps) |
 | `web` | `web/<clip>.webp`, `web/<clip>_still.webp` | lossy animated WebP, 400 px, 12 fps, ≤2 MB each; the still is the last frame |
 | `images` | `carousel/NN.png` (4:5), `square/NN.png` (1:1), `thumb.png`, `og.png`, `og_de-DE.png`, `forum_header.png` | size, RGB, ≤10 slides, text inside the safe area |
-| `appstore` | `preview_iphone.mp4`, `search_{en-US,de-DE}.mp4` | 886×1920 15–30 s with audio; 2880×1920, 5–30 s |
+| `appstore` | `preview_N.mp4` (also copied to `docs/store/app-store/app_previews/en-US/iphone_65/` when it passes), `header_{en-US,de-DE}.mp4`, `search_{en-US,de-DE}.mp4` | 886×1920 15–30 s with audio; 3840×1646 and 2880×1920, 5–30 s |
 
 Every still the kit renders, video backgrounds and caption layers included, goes through
 `render_images.render`, so a caption that doesn't fit its box or leaves the safe area fails the
@@ -57,8 +57,9 @@ build.
   is exactly the Simulator's 1320×2868, so nothing is cropped. `run_android.sh --demo` records the
   same flows to `build/marketing/raw/` (1080×2400); a kit plays them in the Android frame with
   `"recordings": "build/marketing/raw"` and `"device": "android"`.
-- App Store preview: `tool/screenshots/run_ios.sh iphone --preview` →
-  `build/store_previews/iphone/*.mp4`; the `appstore` kit points `source` at it.
+- App Store previews and the search video: the `appstore` kit cuts the same demo clips
+  (`"recordings": "build/marketing/raw/ios"`). `run_ios.sh iphone --preview` still records the
+  `preview_*.yaml` flows to `build/store_previews/iphone/`, for a kit that sets `source`.
 - Maestro needs Java 17+ on `PATH` (see `tool/screenshots/README.md`).
 
 The simulators only write a frame when the screen changes, and the last frames before a still
@@ -98,7 +99,11 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
     // banner.html at 1280×720, 1200×630, 1920×640.
     "thumbnail": { "title": "…", "shots": "04", "lift": "x,y,w,h", "dark": "" }, "og": { … }, "og_de": { … }, "forum_header": { … }
   },
-  "appstore": { "preview": "clip", "creative": "clip" }
+  "appstore": {
+    "previews": [["clip", "clip"], ["clip"]],  // preview_1, preview_2, …: clips crossfaded into one, 15–30 s
+    "header": [[0, 1.5], [1, 0.8], [3, 5]],    // header video: [step, seconds] frames of header_21x9.html?step=N, crossfaded, looping
+    "creative": "clip"                         // plays in the search asset's phone
+  }
 }
 ```
 
@@ -159,6 +164,11 @@ Templates are plain HTML (`docs/marketing/templates/`, `docs/store/app-store/cre
 once as a background and once per caption, and asks the template (`?video`) where its
 `data-video` phone sits, including scale and rotation. A template needs no other changes to get a
 video variant.
+
+A template without a phone (the App Store header) is animated instead: `animate` renders it once
+per `?step=N` and crossfades the frames, then fades back to the first so the video loops.
+`[data-step]` elements above N are hidden but keep their space, so nothing reflows between frames.
+`join` crossfades several cut clips (0.4 s) into one take, e.g. an App Store preview.
 
 Callouts (`brand.md`, Callouts) ease in and out over 0.4 s:
 - `zoom` runs on the cut clip, before compositing, so GIFs and web loops zoom too. It scales every

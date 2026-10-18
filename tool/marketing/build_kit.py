@@ -49,10 +49,13 @@ BANNERS = {
 }
 # App Store creative videos: template, template size, video size. 3840×2560 is over H.264's
 # largest frame size (level 5.2), so the search video uses 2880×1920 within Apple's 3:2 range.
-# The header has no phone since #77 (brand.md), so no recording to play in it.
+# The header has no phone since #77 (brand.md): its video animates the template itself (HEADER).
 CREATIVE_VIDEOS = {
     "search": (f"{CREATIVE}/search_3x2.html", (3840, 2560), (2880, 1920)),
 }
+HEADER = (f"{CREATIVE}/header_21x9.html", (3840, 1646))
+# Where approved App Store previews live; ios.sh uploads them in file name order.
+PREVIEWS_OUT = REPO_ROOT / "docs/store/app-store/app_previews/en-US/iphone_65"
 LOCALES = {"en-US": "en", "de-DE": "de"}
 
 SHORT_MAX = 60
@@ -258,11 +261,26 @@ class Kit:
 
     def build_appstore(self):
         spec = self.spec["appstore"]
-        if "preview" in spec:
-            clip, _, _ = self.clip(spec["preview"])
-            out = self.out / "preview_iphone.mp4"
-            rv.appstore_preview(clip, out, PREVIEW_SIZE)
+        for i, names in enumerate(spec.get("previews", []), 1):
+            joined = self.work / "appstore" / f"preview_{i}.mp4"
+            rv.join([self.clip(name)[0] for name in names], joined)
+            out = self.out / f"preview_{i}.mp4"
+            rv.appstore_preview(joined, out, PREVIEW_SIZE)
+            problems = len(self.problems)
             self.check(out, PREVIEW_SIZE, PREVIEW_LENGTH, audio=True)
+            if len(self.problems) == problems:
+                PREVIEWS_OUT.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(out, PREVIEWS_OUT / out.name)
+                print(f"OK   {rel(PREVIEWS_OUT / out.name)}")
+        if "header" in spec:
+            template, size = HEADER
+            for locale, lang in LOCALES.items():
+                segment = self.work / "appstore" / f"header_{locale}.mp4"
+                rv.animate(self.chrome, template, size, [({"lang": lang, "step": step}, seconds)
+                                                         for step, seconds in spec["header"]], segment)
+                out = self.out / f"header_{locale}.mp4"
+                rv.assemble([segment], out, audio=False)
+                self.check(out, size, CREATIVE_LENGTH)
         if "creative" in spec:
             clip, edit, _ = self.clip(spec["creative"])
             for kind, (template, size, video_size) in CREATIVE_VIDEOS.items():

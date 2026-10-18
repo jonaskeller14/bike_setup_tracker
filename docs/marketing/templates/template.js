@@ -21,6 +21,8 @@
 //   safe=x,y,w,h      draws the safe area; avoid=…;… (areas a platform covers) and guides=…;…
 //                     (reference boxes) as well. With check, text outside safe or inside avoid
 //                     is reported
+//   step=N            hides every [data-step] above N but keeps its space, so an animation's
+//                     frames (tool/marketing/render_video.py animate) don't reflow
 //   check             writes problems to <body data-problems> (render_images.py reads it)
 //   video             hides the .phone[data-video] and writes its position to <body data-layout>
 //                     for tool/marketing/render_video.py
@@ -74,6 +76,12 @@ const LIFT_SCALE = 1.6;
   document.querySelectorAll('[data-if]').forEach((el) => {
     if (!el.dataset.if.split(' ').some((name) => params.get(name))) el.hidden = true;
   });
+  if (params.has('step')) {
+    const step = Number(params.get('step'));
+    document.querySelectorAll('[data-step]').forEach((el) => {
+      if (Number(el.dataset.step) > step) el.style.visibility = 'hidden';
+    });
+  }
   if (params.has('dark')) document.body.classList.add('dark');
   if (params.has('video')) document.body.classList.add('mode-video');
   if (params.get('bg')) {

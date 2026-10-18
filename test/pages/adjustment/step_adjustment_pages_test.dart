@@ -4,8 +4,10 @@ import 'package:bike_setup_tracker/pages/adjustment/step_adjustment_page.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
+import '../value_migration_test_utils.dart';
 import 'preset_key_test_utils.dart';
 
 void main() {
@@ -33,12 +35,13 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<StepAdjustment>(
+              final edited = await Navigator.push<EditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => StepAdjustmentPage.edit(adjustment: initial),
                 ),
               );
+              result = edited?.value as StepAdjustment?;
             },
             child: const Text('Open Page'),
           ),
@@ -160,12 +163,13 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<StepAdjustment>(
+              final edited = await Navigator.push<EditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => StepAdjustmentPage.edit(adjustment: initial),
                 ),
               );
+              result = edited?.value as StepAdjustment?;
             },
             child: const Text('Open Page'),
           ),
@@ -254,12 +258,13 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<StepAdjustment>(
+              final edited = await Navigator.push<EditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => StepAdjustmentPage.edit(adjustment: initial),
                 ),
               );
+              result = edited?.value as StepAdjustment?;
             },
             child: const Text('Open Page'),
           ),
@@ -329,4 +334,87 @@ void main() {
       await tester.enterText(fields.at(3), '10');
     },
   );
+
+  group('recorded values on edit', () {
+    const sheetTitle = 'Update recorded values';
+
+    final clicks = StepAdjustment(
+      id: 'clicks',
+      name: 'Rebound',
+      notes: null,
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 12,
+      visualization: StepAdjustmentVisualization.slider,
+    );
+
+    Future<void> setStep(WidgetTester tester, String step) async {
+      await tester.enterText(find.widgetWithText(TextFormField, 'Step'), step);
+      await tester.pumpAndSettle();
+    }
+
+    EditResult<Adjustment> edited(Object? result) => result! as EditResult<Adjustment>;
+
+    testWidgets('a step change that puts values off the grid offers Snap', (tester) async {
+      final result = await pushAndSave(
+        tester,
+        StepAdjustmentPage.edit(adjustment: clicks),
+        repository: repositoryWithRecorded([recordedValue(const StepValue(4))]),
+        interact: () => setStep(tester, '3'),
+        afterSave: () async {
+          expect(find.text(sheetTitle), findsOneWidget);
+          expect(find.text('Snap'), findsOneWidget);
+          await tester.tap(find.text('Update values'));
+          await tester.pumpAndSettle();
+        },
+      );
+
+      final migrations = edited(result).migrations;
+      expect(migrations, hasLength(1));
+      expect(migrations.single.adjustmentId, 'clicks');
+      expect(migrations.single.apply(const StepValue(4)), const StepValue(3));
+    });
+
+    testWidgets('a step change that keeps values on the grid shows no sheet', (tester) async {
+      final result = await pushAndSave(
+        tester,
+        StepAdjustmentPage.edit(adjustment: clicks),
+        repository: repositoryWithRecorded([recordedValue(const StepValue(4))]),
+        interact: () => setStep(tester, '2'),
+      );
+
+      expect(find.text(sheetTitle), findsNothing);
+      expect(edited(result).migrations, isEmpty);
+      expect((edited(result).value as StepAdjustment).step, 2);
+    });
+
+    testWidgets('cancelling the sheet keeps the page open', (tester) async {
+      final result = await pushAndSave(
+        tester,
+        StepAdjustmentPage.edit(adjustment: clicks),
+        repository: repositoryWithRecorded([recordedValue(const StepValue(4))]),
+        interact: () => setStep(tester, '3'),
+        afterSave: () async {
+          await tester.tap(find.text('Cancel'));
+          await tester.pumpAndSettle();
+        },
+      );
+
+      expect(result, isNull);
+      expect(find.text('Edit Step Adjustment'), findsOneWidget);
+    });
+
+    testWidgets('a rename does not look values up', (tester) async {
+      final repository = repositoryWithRecorded();
+      await pushAndSave(
+        tester,
+        StepAdjustmentPage.edit(adjustment: clicks),
+        repository: repository,
+        interact: () => enterName(tester, 'Renamed'),
+      );
+
+      verifyNever(() => repository.recordedValues(any()));
+    });
+  });
 }

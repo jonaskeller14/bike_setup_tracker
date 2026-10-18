@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/value_migration_actions.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_duration_adjustment.dart';
 import '../../widgets/sheets/set_duration.dart';
@@ -11,19 +12,21 @@ class DurationAdjustmentPage extends StatefulWidget {
   final DurationAdjustment? adjustment;
   final AdjustmentPageMode mode;
   final AdjustmentTerm term;
+  final ValueMigration? stagedMigration;
 
   const DurationAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
     this.term = AdjustmentTerm.adjustment,
+    this.stagedMigration,
   });
 
   factory DurationAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       DurationAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory DurationAdjustmentPage.edit({Key? key, required DurationAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
-      DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term);
+  factory DurationAdjustmentPage.edit({Key? key, required DurationAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment, ValueMigration? stagedMigration}) =>
+      DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term, stagedMigration: stagedMigration);
 
   factory DurationAdjustmentPage.duplicate({Key? key, required DurationAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
@@ -98,7 +101,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     super.dispose();
   }
 
-  void _saveDurationAdjustment() {
+  Future<void> _saveDurationAdjustment() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
       return;
@@ -106,9 +109,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
-    _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(context, DurationAdjustment(
+    final adjustment = DurationAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
@@ -116,7 +117,28 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
       max: _previewAdjustment.max,
       unit: widget.adjustment?.unit,
       presetKey: widget.adjustment?.presetKey,
-    ));
+    );
+
+    List<ValueMigration> migrations = const [];
+    if (widget.mode == AdjustmentPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        before: widget.adjustment!,
+        after: adjustment,
+        staged: widget.stagedMigration,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      migrations = confirmed;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
+    Navigator.pop(
+      context,
+      widget.mode == AdjustmentPageMode.edit
+          ? EditResult<Adjustment>(adjustment, migrations: migrations)
+          : adjustment,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

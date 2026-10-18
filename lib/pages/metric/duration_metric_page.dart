@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/rating/rating_metric.dart';
 import '../../theme.dart';
+import '../../utils/value_migration_actions.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_duration_adjustment.dart';
@@ -15,18 +16,20 @@ const double _defaultWeight = -1.0;
 class DurationMetricPage extends StatefulWidget {
   final RatingMetric? metric;
   final MetricPageMode mode;
+  final ValueMigration? stagedMigration;
 
   const DurationMetricPage._({
     super.key,
     this.metric,
     required this.mode,
+    this.stagedMigration,
   });
 
   factory DurationMetricPage.add({Key? key}) =>
       DurationMetricPage._(key: key, mode: MetricPageMode.add);
 
-  factory DurationMetricPage.edit({Key? key, required RatingMetric metric}) =>
-      DurationMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit);
+  factory DurationMetricPage.edit({Key? key, required RatingMetric metric, ValueMigration? stagedMigration}) =>
+      DurationMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, stagedMigration: stagedMigration);
 
   factory DurationMetricPage.duplicate({Key? key, required RatingMetric metric}) =>
       DurationMetricPage._(key: key, metric: metric, mode: MetricPageMode.duplicate);
@@ -113,7 +116,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
     super.dispose();
   }
 
-  void _saveMetric() {
+  Future<void> _saveMetric() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
       return;
@@ -122,9 +125,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     final weight = double.parse(_weightController.text.trim());
-    _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(context, RatingMetric(
+    final metric = RatingMetric(
       adjustment: DurationAdjustment(
         id: widget.mode == MetricPageMode.edit ? _initialAdj!.id : null,
         name: name,
@@ -135,7 +136,28 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
         presetKey: _initialAdj?.presetKey,
       ),
       weight: weight,
-    ));
+    );
+
+    List<ValueMigration> migrations = const [];
+    if (widget.mode == MetricPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        before: _initialAdj!,
+        after: metric.adjustment,
+        staged: widget.stagedMigration,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      migrations = confirmed;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
+    Navigator.pop(
+      context,
+      widget.mode == MetricPageMode.edit
+          ? EditResult<RatingMetric>(metric, migrations: migrations)
+          : metric,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

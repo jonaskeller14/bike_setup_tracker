@@ -1,6 +1,8 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/recorded_value.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppRepository extends Mock implements AppRepository {}
@@ -30,4 +32,19 @@ RecordedValue recordedValue(
     value: value,
     isDeleted: deleted,
   );
+}
+
+/// Sets the hours of the duration field labelled [label] from [from] to [to]
+/// through its picker sheet, then closes the sheet.
+Future<void> setDurationHours(WidgetTester tester, String label, {required int from, required int to}) async {
+  await tester.tap(find.widgetWithText(TextFormField, label));
+  await tester.pumpAndSettle();
+  // Tapping the selected hour switches the picker to typed input.
+  await tester.tap(find.text(from.toString().padLeft(2, '0')).first);
+  await tester.pumpAndSettle();
+  final sheetFields = find.descendant(of: find.byType(BottomSheet), matching: find.byType(TextField));
+  await tester.enterText(sheetFields.first, to.toString().padLeft(2, '0'));
+  await tester.pumpAndSettle();
+  await tester.tapAt(const Offset(20, 20));
+  await tester.pumpAndSettle();
 }

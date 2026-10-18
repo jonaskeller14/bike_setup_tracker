@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/rating/rating_metric.dart';
 import '../../theme.dart';
+import '../../utils/value_migration_actions.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
@@ -41,18 +42,20 @@ StepAdjustmentVisualization _normalizeVisualization(StepAdjustmentVisualization?
 class StepMetricPage extends StatefulWidget {
   final RatingMetric? metric;
   final MetricPageMode mode;
+  final ValueMigration? stagedMigration;
 
   const StepMetricPage._({
     super.key,
     this.metric,
     required this.mode,
+    this.stagedMigration,
   });
 
   factory StepMetricPage.add({Key? key}) =>
       StepMetricPage._(key: key, mode: MetricPageMode.add);
 
-  factory StepMetricPage.edit({Key? key, required RatingMetric metric}) =>
-      StepMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit);
+  factory StepMetricPage.edit({Key? key, required RatingMetric metric, ValueMigration? stagedMigration}) =>
+      StepMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit, stagedMigration: stagedMigration);
 
   factory StepMetricPage.duplicate({Key? key, required RatingMetric metric}) =>
       StepMetricPage._(key: key, metric: metric, mode: MetricPageMode.duplicate);
@@ -150,7 +153,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
     super.dispose();
   }
 
-  void _saveMetric() {
+  Future<void> _saveMetric() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
       return;
@@ -162,9 +165,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
     final min = int.parse(_minController.text.trim());
     final max = int.parse(_maxController.text.trim());
     final weight = double.parse(_weightController.text.trim());
-    _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(context, RatingMetric(
+    final metric = RatingMetric(
       adjustment: StepAdjustment(
         id: widget.mode == MetricPageMode.edit ? _initialAdj!.id : null,
         name: name,
@@ -177,7 +178,28 @@ class _StepMetricPageState extends State<StepMetricPage> {
         visualization: visualization,
       ),
       weight: weight,
-    ));
+    );
+
+    List<ValueMigration> migrations = const [];
+    if (widget.mode == MetricPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        before: _initialAdj!,
+        after: metric.adjustment,
+        staged: widget.stagedMigration,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      migrations = confirmed;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
+    Navigator.pop(
+      context,
+      widget.mode == MetricPageMode.edit
+          ? EditResult<RatingMetric>(metric, migrations: migrations)
+          : metric,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

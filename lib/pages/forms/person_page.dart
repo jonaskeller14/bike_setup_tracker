@@ -147,11 +147,11 @@ class _PersonPageState extends State<PersonPage> {
       MaterialPageRoute(builder: (context) => switch (adjustment) {
         final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
         final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute, stagedMigration: _pendingMigrations[a.id]),
         final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute, stagedMigration: _pendingMigrations[a.id]),
         final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute, stagedMigration: _pendingMigrations[a.id]),
         final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute, stagedMigration: _pendingMigrations[a.id]),
       }),
     );
     if (result == null) return;

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/value_migration_actions.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
 import '../../widgets/set_adjustment/set_step_adjustment_dial.dart';
@@ -22,19 +23,21 @@ class StepAdjustmentPage extends StatefulWidget {
   final StepAdjustment? adjustment;
   final AdjustmentPageMode mode;
   final AdjustmentTerm term;
+  final ValueMigration? stagedMigration;
 
   const StepAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
     this.term = AdjustmentTerm.adjustment,
+    this.stagedMigration,
   });
 
   factory StepAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
-      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term);
+  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment, ValueMigration? stagedMigration}) =>
+      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term, stagedMigration: stagedMigration);
 
   factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
@@ -124,7 +127,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     super.dispose();
   }
 
-  void _saveStepAdjustment() {
+  Future<void> _saveStepAdjustment() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
       return;
@@ -135,9 +138,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     final step = int.parse(_stepController.text.trim());
     final min = int.parse(_minController.text.trim());
     final max = int.parse(_maxController.text.trim());
-    _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(context, StepAdjustment(
+    final adjustment = StepAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
@@ -149,7 +150,28 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       visualization: visualization,
       dialColor: dialColor,
       dialSize: dialSize,
-    ));
+    );
+
+    List<ValueMigration> migrations = const [];
+    if (widget.mode == AdjustmentPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        before: widget.adjustment!,
+        after: adjustment,
+        staged: widget.stagedMigration,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      migrations = confirmed;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
+    Navigator.pop(
+      context,
+      widget.mode == AdjustmentPageMode.edit
+          ? EditResult<Adjustment>(adjustment, migrations: migrations)
+          : adjustment,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

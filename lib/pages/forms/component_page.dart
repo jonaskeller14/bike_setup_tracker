@@ -315,11 +315,11 @@ class _ComponentPageState extends State<ComponentPage> {
       MaterialPageRoute(builder: (context) => switch (adjustment) {
         final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
         final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a),
+        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, stagedMigration: _pendingMigrations[a.id]),
         final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, componentType: _componentType, stagedMigration: _pendingMigrations[a.id]),
         final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, componentType: _componentType, enableSagConversion: true, stagedMigration: _pendingMigrations[a.id]),
         final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
+        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, stagedMigration: _pendingMigrations[a.id]),
       }),
     );
     if (result == null) return;

@@ -17,7 +17,7 @@ canonical plan and status tracker; this folder holds the reusable material.
 | `docs/marketing/release-issue.md` | Template for the `vX.Y.Z: Marketing` issue `/releaseversion` opens | yes |
 | `docs/marketing/channels.md` | Posting rules per channel (Phase 4) | yes |
 | `docs/marketing/backlog.md` | Evergreen Short topics (Phase 8) | yes |
-| `docs/marketing/templates/` | HTML/CSS templates for video backgrounds, carousel and banners (Phase 3) | yes |
+| `docs/marketing/templates/` | HTML/CSS templates: video backgrounds, end card, posts (4:5, 1:1), banners, channel art; brand tokens in `marketing.css` (#77) | yes |
 | `docs/marketing/kits/` | One JSON per content kit: clip edits, captions, Shorts, images (Phase 3); `<kit>.posts.md`: post drafts per channel (Phase 4) | yes |
 | `docs/marketing/metrics/` | Store exports and baseline/monthly numbers | **no — gitignored** |
 | `tool/marketing/` | Record and render scripts (Phase 3) | yes |

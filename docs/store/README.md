@@ -11,7 +11,7 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `play-store/metadata/<locale>/*.txt` | Play listing text, one file per field (fastlane `supply` layout) |
 | `play-store/experiments/<locale>_B/*.txt` | Variant B of a running Play listing experiment; never uploaded |
 | `app-store/custom-product-pages/` | One file per custom product page (same fields as `app-store/metadata/`), rules and page tests |
-| `app-store/creative/` | Header and search-results assets: HTML sources, shared `creative.css`, rendered PNGs and `README.md` |
+| `app-store/creative/` | Header and search-results assets: HTML sources (styled by `docs/marketing/templates/marketing.css`), rendered PNGs and `README.md` |
 | `play-store/metadata/<locale>/changelogs/<versionCode>.txt` | "What's New" text per release for both stores (max. 500 characters), written by `/releaseversion` |
 | `release-steps.md` | Upload commands per release and the remaining manual clicks (submit) |
 | `captions/<locale>.md` | Screenshot captions, shared by both stores |
@@ -20,7 +20,7 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `app-store/screenshots/en-US/` | Exported App Store screenshots (`iphone_NN.png` 1206×2622, `ipad_NN.png` 2064×2752), uploaded by `ios.sh screenshots` |
 | `app-store/app_previews/en-US/iphone_65/` | App previews (`preview_N.mp4`), uploaded by `ios.sh screenshots` |
 | `play-store/metadata/<locale>/images/` | Play graphics: `icon.png`, `featureGraphic.png`; export target for `phoneScreenshots/` and `tenInchScreenshots/` |
-| `play-store/feature_graphic.html` | Play feature graphic (1024×500): HTML source, rendered to `metadata/<locale>/images/featureGraphic.png`. Same look as the App Store search asset; render with `python tool/marketing/render_images.py play-feature`. `?safe` marks the centre, where Play overlays its play button once a promo video is set |
+| `play-store/feature_graphic.html` | Play feature graphic (1024×500): HTML source, rendered to `metadata/<locale>/images/featureGraphic.png`. Same look as the App Store search asset (brand guide), with the Android frame; headline C3. Render with `python tool/marketing/render_images.py play-feature` (`--safe` writes the safe-area overlay). Text stays in the central 784×400 |
 
 Previews and screenshots upload in filename order (`preview_1`, `iphone_01`, `iphone_02`, ...), so renaming a file changes the order.
 

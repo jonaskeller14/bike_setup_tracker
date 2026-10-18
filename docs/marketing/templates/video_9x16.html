@@ -1,14 +1,11 @@
 <!doctype html>
 <!--
-  Background of the 9:16 Shorts / Reels / TikTok videos, 1080×1920. Phase 3 of #69.
-  tool/marketing/build_kit.py renders it once per caption and puts the recording in the phone.
+  Background of the 9:16 Shorts / Reels / TikTok videos, 1080×1920 (reference: "short" in
+  docs/marketing/brand/reference/reference.html). tool/marketing/build_kit.py renders it once per
+  caption and puts the recording in the phone. The end card is endcard.html.
 
-  URL parameters:
-    caption=…   text above the phone; *word* is highlighted
-    shots=03    store raw shown in the phone (preview only; the video replaces it)
-    video       hide the phone and report its position (render_video.py)
-    endcard     the end card: title, tagline, store badges, link
-    title=…, tagline=…, link=…   end card texts
+  URL parameters (and the shared ones in template.js: device, shots, bg, zoom, lift, safe, video):
+    caption=…   the headline above the phone; *key phrase* in teal, {9} a changed value
 -->
 <html lang="en">
 <head>
@@ -16,49 +13,25 @@
 <title>Short 9:16</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@500&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
 <link rel="stylesheet" href="marketing.css">
 <style>
   html, body { width: 1080px; height: 1920px; }
-  .caption {
-    position: absolute;
-    left: 60px; right: 60px; top: 110px;
-    height: 270px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-  .caption .headline { font-size: 100px; }
-  /* 720×1470 after scaling. */
-  .phone { left: 180px; top: 410px; transform: scale(.49); }
-
-  .endcard { --badge-h: 120px; gap: 56px; padding: 0 80px; }
-  .endcard .brand { flex-direction: column; gap: 36px; }
-  .endcard .brand img { width: 300px; height: 300px; }
-  .endcard .brand span { font-size: 64px; }
-  .endcard .headline { font-size: 120px; }
-  .endcard .link { font-size: 46px; color: var(--ink-muted); }
+  .brand { left: 60px; top: 120px; --mark: 72px; }
+  .caption { position: absolute; left: 60px; top: 262px; width: 960px; height: 460px; font-size: 132px; }
+  /* Bleeds off the bottom; the rule above ends at the frame's margin, not at the phone. */
+  .phone { left: 172px; top: 760px; --pw: 735; }
 </style>
 </head>
 <body>
-  <div class="caption"><span class="headline" data-param="caption"></span></div>
-  <div class="phone" data-video>
-    <img class="screen" data-shot="0" alt="">
-    <img class="frame" src="../../../docs/store/app-store/iPhone-17-Pro-Max/frame.png" alt="">
+  <!-- The platforms' top bar may cover the brand row. -->
+  <div class="brand" data-decor>
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
   </div>
-  <div class="endcard">
-    <div class="brand">
-      <img src="../../../assets/icons/logo_1024.png" alt="">
-      <span data-param="title"></span>
-    </div>
-    <div class="headline" data-param="tagline"></div>
-    <div class="badges">
-      <img class="app-store" src="../../../tool/marketing/assets/badges/app-store_en-US.svg" alt="Download on the App Store">
-      <div class="google-play"><img src="../../../tool/marketing/assets/badges/google-play_en-US.png" alt="Get it on Google Play"></div>
-    </div>
-    <div class="link" data-param="link"></div>
-  </div>
+  <div class="rule" style="left:60px; right:60px; top:218px"></div>
+  <h1 class="hl caption" data-param="caption" data-fit="96"></h1>
+  <div class="phone" data-video data-callout></div>
 <script src="template.js"></script>
 </body>
 </html>

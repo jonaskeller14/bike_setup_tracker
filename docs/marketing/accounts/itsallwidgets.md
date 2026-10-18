@@ -39,7 +39,7 @@ Leave unchecked (the app is not a template or UI kit).
 
 ## Page Style
 
-Colors from `docs/store/app-store/creative/creative.css`, same as the store creatives. Background
+Colors of the v1 store creatives (before the #77 brand guide). Background
 Rotation 0 (vertical gradient, lighter on top).
 
 | Use | Hex | RGB |

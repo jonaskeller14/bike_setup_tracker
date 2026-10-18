@@ -1,13 +1,15 @@
 <!doctype html>
 <!--
-  Play Store feature graphic, 1024×500 PNG. Phase 1b of #69.
-  Notes and texts: README.md in this folder's parent (docs/store/README.md).
+  Play Store feature graphic, 1024×500 PNG. Headline C3 (docs/marketing/messaging.md).
+  Notes and texts: docs/store/README.md.
 
-  URL parameters (append in Chrome; the page reloads):
+  Text stays inside the central 784×400 (120 px side margins): Play crops the sides on some
+  layouts. The phone is the Android frame with the Play raws.
+
+  URL parameters (and the shared ones in docs/marketing/templates/template.js):
     ?lang=de   German texts (default: English)
-    ?safe      draw the centre where Play overlays its play button once a promo video is set
 
-  Render (Windows and macOS, repo root):
+  Render (Windows and macOS, repo root; --safe also writes the safe-area overlay):
     python tool/marketing/render_images.py play-feature
 -->
 <html lang="en">
@@ -16,51 +18,37 @@
 <title>Play Store Feature Graphic</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@500&display=block" rel="stylesheet">
-<link rel="stylesheet" href="../app-store/creative/creative.css">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="../../marketing/templates/marketing.css">
 <style>
   html, body { width: 1024px; height: 500px; }
-  .safe-area { left: 462px; top: 190px; width: 100px; height: 120px; }
-  .copy { position: absolute; left: 44px; top: 0; bottom: 0; width: 440px; display: flex; flex-direction: column; justify-content: center; }
-  .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 30px; }
-  .brand img { width: 56px; height: 56px; border-radius: 13px; box-shadow: 0 5px 12px rgba(0, 0, 0, .18); }
-  .brand span { font-size: 28px; font-weight: 500; color: var(--ink-muted); }
-  h1 { font-size: 66px; letter-spacing: -.5px; }
-  :lang(de) h1 { font-size: 54px; }
-  /* A phone is 1470×3000 before scaling; the bottoms run off the canvas on purpose. */
-  .phone.back { left: 580px; top: 112px; transform: scale(.165); }
-  .phone.front { left: 748px; top: 56px; transform: scale(.19); }
+  .brand { left: 120px; top: 54px; --mark: 40px; }
+  h1 { position: absolute; left: 120px; top: 140px; width: 520px; height: 230px; font-size: 60px; }
+  .values { position: absolute; left: 120px; top: 410px; font-size: 18px; display: flex; gap: 28px; }
+  .phone { left: 690px; top: 72px; --pw: 214; --shadow: drop-shadow(0 16px 24px rgba(0, 0, 0, .18)); }
 </style>
 </head>
-<body>
-  <div class="copy">
-    <div class="brand">
-      <img src="../../icons/logo_1024.png" alt="">
-      <span>Bike Setup Tracker</span>
-    </div>
-    <h1 data-i18n="headline"></h1>
+<body data-device="android">
+  <div class="brand">
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
   </div>
-  <div class="phone back">
-    <img class="screen" src="../app-store/iPhone-17-Pro-Max/03_raw.png" alt="">
-    <img class="frame" src="../app-store/iPhone-17-Pro-Max/frame.png" alt="">
+  <!-- Ends behind the phone. -->
+  <div class="rule" style="left:120px; width:620px; top:114px; --rule:3px"></div>
+  <h1 class="hl" data-i18n="headline" data-fit="44"></h1>
+  <div class="rule" style="left:120px; width:520px; top:390px; --rule:2px"></div>
+  <div class="meta values">
+    <span><span class="muted" data-i18n="rebound"></span> 9→<span class="new">10</span></span>
+    <span><span class="muted">LSC</span> 6→<span class="new">7</span></span>
+    <span><span class="muted" data-i18n="pressure"></span> 83→<span class="new">84</span> psi</span>
   </div>
-  <div class="phone front">
-    <img class="screen" src="../app-store/iPhone-17-Pro-Max/04_raw.png" alt="">
-    <img class="frame" src="../app-store/iPhone-17-Pro-Max/frame.png" alt="">
-  </div>
-  <div class="safe-area"></div>
+  <div class="phone" data-default="04"></div>
 <script>
-  const strings = {
-    en: { headline: 'Never Lose Your <em>Suspension Sweet Spot</em>' },
-    de: { headline: 'Nie wieder den <em>Sweet&nbsp;Spot</em> deines Fahrwerks verlieren' },
+  const STRINGS = {
+    en: { headline: 'Find the <em>fork setting</em> that works for you.', rebound: 'Rebound', pressure: 'Pressure' },
+    de: { headline: 'Finde die <em>Gabel-Einstellung</em>, die zu dir passt.', rebound: 'Zugstufe', pressure: 'Druck' },
   };
-  const params = new URLSearchParams(location.search);
-  const lang = params.get('lang') === 'de' ? 'de' : 'en';
-  document.documentElement.lang = lang;
-  document.querySelectorAll('[data-i18n]').forEach((el) => {
-    el.innerHTML = strings[lang][el.dataset.i18n];
-  });
-  if (params.has('safe')) document.body.classList.add('show-safe');
 </script>
+<script src="../../marketing/templates/template.js"></script>
 </body>
 </html>

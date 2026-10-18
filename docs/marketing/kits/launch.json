@@ -1,9 +1,4 @@
 {
-  "endcard": {
-    "title": "Bike Setup Tracker",
-    "tagline": "Free on iOS & Android",
-    "link": "jonaskeller14.com/bike_setup_tracker/get"
-  },
   "music": "the_mountain-app-184141.mp3",
   "recordings": "build/marketing/raw/ios",
   "clips": {
@@ -141,23 +136,35 @@
       {"title": "Never Miss a Service", "shots": "06"},
       {"title": "Match Setups to Your Rides", "shots": "07"},
       {"title": "Rides, Setups & Service in One View", "shots": "08"},
-      {"kind": "cta", "title": "Free on iOS & Android", "sub": "Link in bio"}
+      {"kind": "endcard"}
+    ],
+    "square": [
+      {
+        "kind": "cover",
+        "title": "Never Lose Your *Suspension Sweet Spot*",
+        "sub": "Log suspension, tire pressure and trail conditions for every ride.",
+        "shots": "04"
+      },
+      {"title": "Record a Setup in Seconds", "shots": "03"},
+      {"title": "See Every Change at a Glance", "shots": "04"},
+      {"title": "Never Miss a Service", "shots": "06"},
+      {"kind": "endcard"}
     ],
     "thumbnail": {"title": "Never Lose Your *Sweet Spot*", "shots": "04,03"},
     "og": {
       "title": "Never Lose Your *Suspension Sweet Spot*",
-      "sub": "Log suspension, tire pressure and trail conditions for every ride.",
-      "shots": "04,03"
+      "sub": "Fork · Shock · Tire pressure · Service",
+      "shots": "04"
     },
     "og_de": {
       "title": "Nie wieder den *Sweet Spot* deines Fahrwerks verlieren",
-      "sub": "Fahrwerk, Reifendruck und Trail-Bedingungen für jede Fahrt festhalten.",
-      "shots": "04,03"
+      "sub": "Gabel · Dämpfer · Reifendruck · Wartung",
+      "shots": "04"
     },
     "forum_header": {
       "title": "Never Lose Your *Suspension Sweet Spot*",
-      "sub": "Log suspension, tire pressure and trail conditions for every ride.",
-      "shots": "04,03"
+      "sub": "Fork · Shock · Tire pressure · Service",
+      "shots": "04"
     }
   }
 }

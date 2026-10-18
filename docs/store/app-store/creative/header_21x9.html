@@ -1,17 +1,17 @@
 <!doctype html>
 <!--
-  App Store product page header ("Kopfzeile"), 21:9, 3840×1646 PNG. Phase 1b of #69.
-  Notes and texts: README.md.
+  App Store product page header ("Kopfzeile"), 21:9, 3840×1646 PNG (reference: "header" in
+  docs/marketing/brand/reference/reference.html). Headline R2 (docs/marketing/messaging.md).
+  Notes: README.md.
 
-  On iPhone only the center is visible (Apple's art safe area, 1097, 493, 1646×661), so the
-  headline sits there. The phones are decoration for the wider iPad and Mac crops and may be cut.
+  No phone: Apple's guidance makes the header about the brand. Everything that matters sits in
+  the art safe area (1097, 493, 1646×661), the only part an iPhone shows; the rules run full width
+  for the iPad and Mac crops.
 
-  URL parameters (append in Chrome; the page reloads):
+  URL parameters (and the shared ones in docs/marketing/templates/template.js):
     ?lang=de   German texts (default: English)
-    ?video     hide the front phone for the video variant (tool/marketing/build_kit.py)
-    ?safe      draw the art safe area
 
-  Render (Windows and macOS, repo root):
+  Render (Windows and macOS, repo root; --safe also writes the safe-area overlay):
     python tool/marketing/render_images.py appstore-header
 -->
 <html lang="en">
@@ -20,50 +20,36 @@
 <title>App Store Header Asset</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=block" rel="stylesheet">
-<link rel="stylesheet" href="creative.css">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="../../../marketing/templates/marketing.css">
 <style>
   html, body { width: 3840px; height: 1646px; }
-  .safe-area { left: 1097px; top: 493px; width: 1646px; height: 661px; }
-  h1 {
-    position: absolute;
-    left: 1097px; top: 493px;
-    width: 1646px; height: 661px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 175px;
-  }
-  html[lang="de"] h1 { font-size: 150px; }
-  .phone.back { left: 180px; top: 330px; transform: scale(.5) rotate(-6deg); }
-  .phone.front { left: 2990px; top: 300px; transform: scale(.5) rotate(6deg); }
+  .brand { left: 1097px; top: 493px; --mark: 96px; }
+  .label { position: absolute; right: 1097px; top: 526px; font-size: 36px; }
+  h1 { position: absolute; left: 1097px; top: 666px; width: 1646px; height: 280px; font-size: 140px; text-wrap: nowrap; }
+  .values { position: absolute; left: 1097px; top: 1004px; font-size: 40px; display: flex; gap: 64px; }
 </style>
 </head>
 <body>
-  <div class="phone back">
-    <img class="screen" src="../iPhone-17-Pro-Max/03_raw.png" alt="">
-    <img class="frame" src="../iPhone-17-Pro-Max/frame.png" alt="">
+  <div class="brand">
+    <img src="../../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
   </div>
-  <div class="phone front" data-video>
-    <img class="screen" src="../iPhone-17-Pro-Max/04_raw.png" alt="">
-    <img class="frame" src="../iPhone-17-Pro-Max/frame.png" alt="">
+  <div class="meta muted label" data-i18n="label"></div>
+  <div class="rule" style="left:0; right:0; top:620px"></div>
+  <h1 class="hl" data-i18n="headline" data-fit="120"></h1>
+  <div class="rule" style="left:0; right:0; top:972px; --rule:2px"></div>
+  <div class="meta values">
+    <span><span class="muted" data-i18n="rebound"></span> 9→<span class="new">10</span></span>
+    <span><span class="muted">LSC</span> 6→<span class="new">7</span></span>
+    <span><span class="muted" data-i18n="pressure"></span> 83→<span class="new">84</span> psi</span>
   </div>
-  <h1 data-i18n="headline"></h1>
-  <div class="safe-area"></div>
 <script>
-  const strings = {
-    en: { headline: '<span>Never Lose Your <em>Suspension Sweet Spot</em></span>' },
-    de: { headline: '<span>Nie wieder den <em>Sweet Spot</em> deines Fahrwerks verlieren</span>' },
+  const STRINGS = {
+    en: { label: 'Fork · Shock · Tires', headline: '<em>Fork and shock</em><br>settings, remembered.', rebound: 'Rebound', pressure: 'Pressure' },
+    de: { label: 'Gabel · Dämpfer · Reifen', headline: '<em>Gabel und Dämpfer:</em><br>kein Klick geht verloren.', rebound: 'Zugstufe', pressure: 'Druck' },
   };
-  const params = new URLSearchParams(location.search);
-  const lang = params.get('lang') === 'de' ? 'de' : 'en';
-  document.documentElement.lang = lang;
-  document.querySelectorAll('[data-i18n]').forEach((el) => {
-    el.innerHTML = strings[lang][el.dataset.i18n];
-  });
-  if (params.has('safe')) document.body.classList.add('show-safe');
 </script>
-<script src="../../../../docs/marketing/templates/template.js"></script>
+<script src="../../../marketing/templates/template.js"></script>
 </body>
 </html>

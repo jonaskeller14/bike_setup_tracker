@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1184" height="2504" viewBox="0 0 1184 2504">
+  <!--
+    Android phone frame in the current Pixel style (#77 Phase 2): flat sides, thin even bezels,
+    centered punch-hole camera. The transparent screen hole is 1080×2400 at (52, 52), the
+    size of the phone AVD's recordings and raws. The display corners (radius 88) follow the
+    Android SDK's pixel_8 emulator skin, which has the same 1080×2400 display; its artwork isn't
+    copied. The screenshot AVD (medium_phone) has a shorter status bar than a Pixel 8, so the
+    camera sits on the status bar's middle (y 32 on the display) instead of the skin's y 65. Render: python tool/marketing/render_images.py android-frame.
+  -->
+  <defs>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4a4b4e"/>
+      <stop offset=".04" stop-color="#2c2d30"/>
+      <stop offset=".96" stop-color="#2c2d30"/>
+      <stop offset="1" stop-color="#4a4b4e"/>
+    </linearGradient>
+    <mask id="hole">
+      <rect width="1184" height="2504" fill="#fff"/>
+      <rect x="52" y="52" width="1080" height="2400" rx="88" fill="#000"/>
+    </mask>
+  </defs>
+  <!-- Buttons on the right: power above the volume rocker. -->
+  <rect x="1160" y="600" width="14" height="190" rx="5" fill="#3a3b3e"/>
+  <rect x="1160" y="900" width="14" height="330" rx="5" fill="#3a3b3e"/>
+  <!-- Metal band and black bezel, with the screen hole masked out. -->
+  <g mask="url(#hole)">
+    <rect x="10" y="10" width="1164" height="2484" rx="130" fill="url(#band)"/>
+    <rect x="11.5" y="11.5" width="1161" height="2481" rx="128.5" fill="none" stroke="#5c5d61" stroke-width="3"/>
+    <rect x="22" y="22" width="1140" height="2460" rx="118" fill="#050505"/>
+  </g>
+  <!-- Punch-hole camera in the status bar's free middle. -->
+  <circle cx="592" cy="84" r="24" fill="#050505"/>
+  <circle cx="592" cy="84" r="10" fill="#15171c"/>
+  <circle cx="588" cy="80" r="3" fill="#2d3340"/>
+</svg>

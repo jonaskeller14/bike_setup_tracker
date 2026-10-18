@@ -1,0 +1,128 @@
+<!doctype html>
+<!--
+  Post, 4:5, 1080×1350: Instagram carousel slides and feed posts (reference: "post" in
+  docs/marketing/brand/reference/reference.html). post_1x1.html is the same set of kinds laid out
+  for 1:1. The last carousel slide is endcard.html at this size.
+
+  URL parameters (and the shared ones in template.js: device, shots, bg, zoom, lift, safe):
+    kind=cover|screen|changed|tip|release   (default screen)
+      cover     brand row, title, sub; the whole phone on the right
+      screen    label, note, title above a phone that runs off the bottom
+      changed   "what changed": label, note (date), title (setup name), field, from → to, and up
+                to two smaller pairs field2/from2/to2, field3/from3/to3; footer
+      tip       label (default "Tip"), note, title, body; footer
+      release   label (default "What's new"), note (date), version, item1…item4; footer
+    title=…, sub=…, body=…   texts; *key phrase* in teal, {9} a changed value
+    footer=…                 right of the brand row in the footer, e.g. "See what changed"
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Post 4:5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="marketing.css">
+<style>
+  html, body { width: 1080px; height: 1350px; }
+  .abs { position: absolute; }
+
+  /* Header and footer of the text kinds. */
+  .label { left: 72px; top: 72px; font-size: 28px; }
+  .note { right: 72px; top: 72px; font-size: 28px; }
+  .footer .brand { left: 72px; top: 1186px; --mark: 84px; --name: 36px; }
+  .footer .meta { right: 72px; top: 1214px; font-size: 28px; }
+
+  /* cover */
+  .cover-brand { left: 72px; top: 72px; --mark: 84px; }
+  /* Sized in em, so data-fit shrinks title and sub together. */
+  .cover-copy { left: 72px; top: 248px; width: 500px; height: 1000px; display: flex; flex-direction: column; gap: .4em; font-size: 104px; }
+  .cover-copy .sub { font-size: .35em; }
+  .phone.cover { left: 608px; top: 248px; --pw: 400; }
+
+  /* screen */
+  .screen-title { left: 72px; top: 168px; width: 936px; height: 200px; font-size: 104px; }
+  .phone.screen { left: 220px; top: 410px; --pw: 640; }
+
+  /* changed */
+  .setup { left: 72px; top: 160px; width: 936px; font-size: 44px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field { left: 72px; top: 262px; font-size: 30px; }
+  .big { left: 64px; top: 310px; font-size: 330px; }
+  .pairs { left: 72px; right: 72px; top: 756px; display: flex; justify-content: space-between; }
+  .pairs .meta { font-size: 30px; margin-bottom: 14px; }
+  .pairs .num { font-size: 150px; }
+
+  /* tip */
+  .tip-title { left: 72px; top: 168px; width: 936px; height: 540px; font-size: 120px; }
+  .tip-body { left: 72px; top: 780px; width: 936px; height: 330px; font-size: 40px; }
+
+  /* release */
+  .version { left: 64px; top: 170px; font-size: 300px; }
+  .items { left: 72px; right: 72px; top: 520px; }
+  .items div { border-top: 2px solid var(--ink); padding: 26px 0; font-size: 44px; font-weight: 700; letter-spacing: -.01em; line-height: 1.15; }
+</style>
+</head>
+<body data-size="1080x1350" data-kind="screen">
+  <!-- cover -->
+  <div class="brand cover-brand" data-kind="cover">
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
+  </div>
+  <div class="rule" data-kind="cover" style="left:72px; right:72px; top:200px"></div>
+  <div class="abs cover-copy" data-kind="cover" data-fit="72">
+    <h1 class="hl" data-param="title"></h1>
+    <p class="body muted sub" data-param="sub"></p>
+  </div>
+  <div class="phone cover" data-kind="cover" data-shot="0"></div>
+
+  <!-- header of every kind but cover -->
+  <div class="abs meta label" data-kind="screen changed tip release" data-param="label" data-default-changed="Setup history" data-default-tip="Tip" data-default-release="What&#39;s new"></div>
+  <div class="abs meta muted note" data-kind="screen changed tip release" data-param="note"></div>
+  <div class="rule" data-kind="screen changed tip release" style="left:72px; right:72px; top:128px"></div>
+
+  <!-- screen -->
+  <h1 class="abs hl screen-title" data-kind="screen" data-param="title" data-fit="72"></h1>
+  <div class="phone screen" data-kind="screen" data-shot="0" data-callout></div>
+
+  <!-- changed -->
+  <div class="abs setup" data-kind="changed" data-param="title"></div>
+  <div class="abs meta muted field" data-kind="changed" data-param="field"></div>
+  <div class="abs num big" data-kind="changed"><span data-param="from"></span>→<span class="new" data-param="to"></span></div>
+  <div class="rule" data-kind="changed" data-if="field2 field3" style="left:72px; right:72px; top:720px; --rule:2px"></div>
+  <div class="abs pairs" data-kind="changed">
+    <div data-if="field2">
+      <div class="meta muted" data-param="field2"></div>
+      <div class="num"><span data-param="from2"></span>→<span class="new" data-param="to2"></span></div>
+    </div>
+    <div data-if="field3">
+      <div class="meta muted" data-param="field3"></div>
+      <div class="num"><span data-param="from3"></span>→<span class="new" data-param="to3"></span></div>
+    </div>
+  </div>
+
+  <!-- tip -->
+  <h1 class="abs hl tip-title" data-kind="tip" data-param="title" data-fit="96"></h1>
+  <div class="rule" data-kind="tip" style="left:72px; right:72px; top:740px; --rule:2px"></div>
+  <p class="abs body tip-body" data-kind="tip" data-param="body" data-fit="36"></p>
+
+  <!-- release -->
+  <div class="abs num version" data-kind="release" data-param="version"></div>
+  <div class="abs items" data-kind="release">
+    <div data-param="item1"></div>
+    <div data-param="item2"></div>
+    <div data-param="item3"></div>
+    <div data-param="item4"></div>
+  </div>
+
+  <!-- footer of the text kinds -->
+  <div class="footer" data-kind="changed tip release">
+    <div class="rule" style="left:72px; right:72px; top:1150px"></div>
+    <div class="brand">
+      <img src="../../../assets/icons/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="abs meta muted" data-param="footer"></div>
+  </div>
+<script src="template.js"></script>
+</body>
+</html>

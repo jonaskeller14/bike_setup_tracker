@@ -1,17 +1,12 @@
 <!doctype html>
 <!--
-  Background of the 16:9 YouTube walkthrough, 1920×1080. Phase 3 of #69.
-  tool/marketing/build_kit.py renders it once per chapter caption and puts the recording in the
-  phone.
+  Background of the 16:9 YouTube walkthrough, 1920×1080. tool/marketing/build_kit.py renders it
+  once per chapter caption and puts the recording in the phone. The end card is endcard.html.
 
-  URL parameters:
+  URL parameters (and the shared ones in template.js: device, shots, bg, zoom, lift, safe, video):
     chapter=…   small label above the title, e.g. "3 / 9"
-    title=…     chapter title; *word* is highlighted
-    caption=…   line under the title
-    shots=03    store raw shown in the phone (preview only; the video replaces it)
-    video       hide the phone and report its position (render_video.py)
-    endcard     the end card: title, tagline, store badges, link
-    tagline=…, link=…   end card texts (the end card uses title as the app name)
+    title=…     chapter title; *key phrase* in teal
+    caption=…   line under the title; {9} marks a changed value
 -->
 <html lang="en">
 <head>
@@ -19,61 +14,30 @@
 <title>Walkthrough 16:9</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@500&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
 <link rel="stylesheet" href="marketing.css">
 <style>
   html, body { width: 1920px; height: 1080px; }
-  .top { position: absolute; left: 120px; top: 80px; gap: 24px; }
-  .top img { width: 80px; height: 80px; }
-  .top span { font-size: 40px; }
-  /* Top-aligned, so a caption fading in doesn't move the title. */
-  .copy {
-    position: absolute;
-    left: 120px; top: 330px;
-    width: 1000px;
-    display: flex;
-    flex-direction: column;
-  }
-  .chapter { font-size: 40px; color: var(--primary); margin-bottom: 24px; }
-  .copy h1 { font-size: 132px; }
-  .copy .caption { margin-top: 48px; font-size: 60px; line-height: 1.25; color: var(--ink-muted); text-wrap: balance; }
-  /* 507×1035 after scaling. */
-  .phone { left: 1240px; top: 22px; transform: scale(.345); }
-
-  .endcard { --badge-h: 110px; gap: 48px; }
-  .endcard .brand { gap: 40px; }
-  .endcard .brand img { width: 200px; height: 200px; }
-  .endcard .brand span { font-size: 72px; }
-  .endcard .headline { font-size: 120px; }
-  .endcard .link { font-size: 44px; color: var(--ink-muted); }
+  .brand { left: 120px; top: 80px; --mark: 72px; }
+  .chapter { position: absolute; left: 120px; top: 250px; font-size: 32px; }
+  /* Fixed boxes, so a caption fading in doesn't move the title. */
+  .title { position: absolute; left: 116px; top: 310px; width: 1040px; height: 380px; font-size: 132px; }
+  .caption { position: absolute; left: 120px; top: 770px; width: 1000px; height: 230px; font-size: 52px; }
+  .phone { left: 1290px; top: 40px; --pw: 490; }
 </style>
 </head>
 <body>
-  <div class="brand top">
+  <div class="brand">
     <img src="../../../assets/icons/logo_1024.png" alt="">
     <span>Bike Setup Tracker</span>
   </div>
-  <div class="copy">
-    <div class="chapter" data-param="chapter"></div>
-    <h1 data-param="title"></h1>
-    <p class="caption" data-param="caption"></p>
-  </div>
-  <div class="phone" data-video>
-    <img class="screen" data-shot="0" alt="">
-    <img class="frame" src="../../../docs/store/app-store/iPhone-17-Pro-Max/frame.png" alt="">
-  </div>
-  <div class="endcard">
-    <div class="brand">
-      <img src="../../../assets/icons/logo_1024.png" alt="">
-      <span data-param="title"></span>
-    </div>
-    <div class="headline" data-param="tagline"></div>
-    <div class="badges">
-      <img class="app-store" src="../../../tool/marketing/assets/badges/app-store_en-US.svg" alt="Download on the App Store">
-      <div class="google-play"><img src="../../../tool/marketing/assets/badges/google-play_en-US.png" alt="Get it on Google Play"></div>
-    </div>
-    <div class="link" data-param="link"></div>
-  </div>
+  <!-- Ends behind the phone. -->
+  <div class="rule" style="left:120px; width:1300px; top:200px"></div>
+  <div class="meta muted chapter" data-param="chapter"></div>
+  <h1 class="hl title" data-param="title" data-fit="96"></h1>
+  <div class="rule" style="left:120px; width:1000px; top:730px; --rule:2px"></div>
+  <p class="body caption" data-param="caption" data-fit="40"></p>
+  <div class="phone" data-video data-callout></div>
 <script src="template.js"></script>
 </body>
 </html>

@@ -111,7 +111,9 @@ Uppercase is only for labels. Arrows are the `→` glyph, tight to the numbers o
 - **Number block:** label above, number below; the big one first (`Rebound 9→10`), up to two
   smaller ones next to it. At most 3 changed values per frame.
 - **Phone:** the real iPhone frame (`docs/store/app-store/iPhone-17-Pro-Max/frame.png`) with a
-  real screenshot or recording, one soft shadow. Android frame for Play assets (Phase 2).
+  real screenshot or recording, one soft shadow. The Android frame
+  (`tool/marketing/assets/frames/android.png`, current Pixel style, display corners of the SDK's
+  `pixel_8` skin) for Play assets and Android posts, with the Play raws or Android recordings.
 
 ## Grid and safe areas
 
@@ -120,12 +122,14 @@ Uppercase is only for labels. Arrows are the `→` glyph, tight to the numbers o
 | Search results asset | 3840×2560 | 200 px | Apple art safe area 836, 765, 2168×1030; the headline may reach past it (#69: the preview shows the full image) |
 | App Store header | 3840×1646 | — | 1097, 493, 1646×661: everything that matters; rules run full width |
 | Play feature graphic | 1024×500 | 120 px left and right | Text inside the central 784×400 |
-| Short frame / end card | 1080×1920 | 60 px | 60, 220, 860×1180 (clear of the platforms' top bar, caption block and action buttons) |
+| Short frame / end card | 1080×1920 | 60 px | 60, 220, 960×1180, minus the action buttons at 920, 760, 160×640 (clear of the platforms' top bar, caption block and buttons). The brand row above it is decoration a top bar may cover |
 | Post | 1080×1350 (4:5), 1080×1080 (1:1) | 72 px | Whole frame |
 | OG image | 1200×630 | 60 px | Whole frame |
 | Thumbnail | 1280×720 | 64 px | Bottom-right 220×80 is covered by the duration badge |
 
-No format is a crop of another (#77 Phase 2).
+No format is a crop of another (#77 Phase 2). `tool/marketing/render_images.py` holds these
+areas (`SAFE_AREAS`, also the 1:1 post, 1920×1080, forum header and channel art) and fails a render
+whose text leaves them.
 
 ## Reference frames
 
@@ -143,7 +147,8 @@ What each surface looks like (see `reference.html`):
 ## End card
 
 Order of emphasis (#77 decision J):
-1. **Mark and name**: the mark 340 px, the name in two lines, 150 px, centered.
+1. **Mark and name**: the mark 340 px, the name in two lines, 140 px, centered (at 150 px "Bike
+   Setup" reaches the Shorts action buttons).
 2. A rule, then the **signature** "78 psi. 4 clicks. Saved." (messaging.md), 46 px.
 3. **Store badges**, official artwork, 104 px high.
 4. **"Free on iOS and Android"**: label style, muted, 28 px.
@@ -155,8 +160,10 @@ for at least 2 s.
 
 For a single control that is the point (#77 decision H):
 - **`zoom`:** ease into the rect over 0.4 s, hold, ease out; no motion blur.
-- **`lift`:** the UI element cropped from the real recording, scaled about 1.6×, square corners,
-  a 2 px `ink` border and one soft shadow, floating beside the phone. Never redrawn.
+- **`lift`:** the UI element cropped from the real recording, scaled about 1.6× (less if it
+  wouldn't fit the safe area), square corners, a 2 px `ink` border and one soft shadow, floating
+  above the phone where the element sits. Never redrawn. Pick an element narrower than the screen,
+  so the lift doesn't cover the headline.
 - **Label** next to it: a caps label (`Fork · Rebound`) above the value (`9→10`), the new value
   in `changed`.
 

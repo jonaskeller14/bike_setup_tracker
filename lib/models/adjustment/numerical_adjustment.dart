@@ -51,9 +51,9 @@ class NumericalAdjustment extends Adjustment {
   }
 
   @override
-  bool isValidValue(AdjustmentValue value) {
-    return value is NumericalValue && value.value >= min && value.value <= max;
-  }
+  bool isValidValue(AdjustmentValue value) => range.contains(value);
+
+  NumericalRange get range => NumericalRange(min, max);
 
   @override
   Map<String, dynamic> toJson() => {

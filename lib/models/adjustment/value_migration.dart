@@ -126,70 +126,43 @@ final class MapCombinationsStep extends ValueMigrationStep {
   String toString() => 'MapCombinationsStep($mapping)';
 }
 
+/// Moves values outside [range] to its nearest value (step values also snap
+/// to the grid).
 final class ClampToRangeStep extends ValueMigrationStep {
-  final Adjustment target;
+  final ValueRange range;
 
-  const ClampToRangeStep(this.target);
-
-  @override
-  AdjustmentValue? apply(AdjustmentValue value) {
-    final target = this.target;
-    return switch ((target, value)) {
-      (final NumericalAdjustment target, final NumericalValue value) => NumericalValue(
-        value.value < target.min
-            ? target.min
-            : value.value > target.max
-            ? target.max
-            : value.value,
-      ),
-      (final DurationAdjustment target, final DurationValue value) => DurationValue(
-        target.min != null && value.value < target.min!
-            ? target.min!
-            : target.max != null && value.value > target.max!
-            ? target.max!
-            : value.value,
-      ),
-      (final StepAdjustment target, final StepValue value) => StepValue(_snapToGrid(target, value.value)),
-      _ => value,
-    };
-  }
-
-  static int _snapToGrid(StepAdjustment target, int value) {
-    if (value <= target.min) return target.min;
-    if (target.step <= 0) return value < target.max ? value : target.max;
-    final snapped = target.min + ((value - target.min) / target.step).round() * target.step;
-    if (snapped <= target.max) return snapped;
-    return target.min + (target.max - target.min) ~/ target.step * target.step;
-  }
+  const ClampToRangeStep(this.range);
 
   @override
-  bool operator ==(Object other) => other is ClampToRangeStep && other.target == target;
+  AdjustmentValue? apply(AdjustmentValue value) => range.clamp(value);
 
   @override
-  int get hashCode => Object.hash(ClampToRangeStep, target);
+  bool operator ==(Object other) => other is ClampToRangeStep && other.range == range;
 
   @override
-  String toString() => 'ClampToRangeStep(${target.name})';
+  int get hashCode => Object.hash(ClampToRangeStep, range);
+
+  @override
+  String toString() => 'ClampToRangeStep($range)';
 }
 
-/// Clears values that [target] does not accept.
-final class ClearInvalidStep extends ValueMigrationStep {
-  final Adjustment target;
+/// Clears values outside [range].
+final class ClearOutOfRangeStep extends ValueMigrationStep {
+  final ValueRange range;
 
-  const ClearInvalidStep(this.target);
-
-  @override
-  AdjustmentValue? apply(AdjustmentValue value) =>
-      value.matches(target.type) && !target.isValidValue(value) ? null : value;
+  const ClearOutOfRangeStep(this.range);
 
   @override
-  bool operator ==(Object other) => other is ClearInvalidStep && other.target == target;
+  AdjustmentValue? apply(AdjustmentValue value) => range.appliesTo(value) && !range.contains(value) ? null : value;
 
   @override
-  int get hashCode => Object.hash(ClearInvalidStep, target);
+  bool operator ==(Object other) => other is ClearOutOfRangeStep && other.range == range;
 
   @override
-  String toString() => 'ClearInvalidStep(${target.name})';
+  int get hashCode => Object.hash(ClearOutOfRangeStep, range);
+
+  @override
+  String toString() => 'ClearOutOfRangeStep($range)';
 }
 
 /// Clears every value.

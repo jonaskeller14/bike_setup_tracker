@@ -107,9 +107,9 @@ class StepAdjustment extends Adjustment {
   }
 
   @override
-  bool isValidValue(AdjustmentValue value) {
-    return value is StepValue && value.value >= min && value.value <= max && ((value.value - min) % step == 0);
-  }
+  bool isValidValue(AdjustmentValue value) => range.contains(value);
+
+  StepGrid get range => StepGrid(min, max, step);
 
   @override
   Map<String, dynamic> toJson() => {

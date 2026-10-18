@@ -379,13 +379,20 @@ class _ProposalBuilder {
   }
 
   void _range() {
+    final range = switch (after) {
+      final NumericalAdjustment a => a.range,
+      final StepAdjustment a => a.range,
+      final DurationAdjustment a => a.range,
+      _ => null,
+    };
+    if (range == null) return;
     _add(
       key: 'range',
       kind: MigrationIssueKind.outOfRange,
-      affected: _entries.where((e) => e.value.matches(after.type) && !after.isValidValue(e.value)).toList(),
+      affected: _entries.where((e) => range.appliesTo(e.value) && !range.contains(e.value)).toList(),
       allowed: const [MigrationChoice.clamp, MigrationChoice.clear],
       fallback: MigrationChoice.clamp,
-      stepFor: (choice) => choice == MigrationChoice.clear ? ClearInvalidStep(after) : ClampToRangeStep(after),
+      stepFor: (choice) => choice == MigrationChoice.clear ? ClearOutOfRangeStep(range) : ClampToRangeStep(range),
     );
   }
 

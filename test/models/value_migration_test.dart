@@ -12,10 +12,10 @@ ValueMigration _migration(List<ValueMigrationStep> steps) => ValueMigration('a',
 
 AdjustmentValue? _apply(ValueMigrationStep step, AdjustmentValue value) => _migration([step]).apply(value);
 
-NumericalAdjustment _numerical({double? min, double? max}) =>
-    NumericalAdjustment(name: 'Pressure', notes: null, unit: null, min: min, max: max);
+NumericalRange _numerical({double? min, double? max}) =>
+    NumericalAdjustment(name: 'Pressure', notes: null, unit: null, min: min, max: max).range;
 
-StepAdjustment _step({required int min, required int max, required int step}) => StepAdjustment(
+StepGrid _step({required int min, required int max, required int step}) => StepAdjustment(
   name: 'Clicks',
   notes: null,
   unit: null,
@@ -23,20 +23,10 @@ StepAdjustment _step({required int min, required int max, required int step}) =>
   min: min,
   max: max,
   visualization: StepAdjustmentVisualization.slider,
-);
+).range;
 
-DurationAdjustment _duration({Duration? min, Duration? max}) =>
-    DurationAdjustment(name: 'Time', notes: null, unit: null, min: min, max: max);
-
-CategoricalAdjustment _categorical(Set<String> options, {bool multiSelect = false, bool counted = false}) =>
-    CategoricalAdjustment(
-      name: 'Mode',
-      notes: null,
-      unit: null,
-      options: options,
-      multiSelect: multiSelect,
-      counted: counted,
-    );
+DurationRange _duration({Duration? min, Duration? max}) =>
+    DurationAdjustment(name: 'Time', notes: null, unit: null, min: min, max: max).range;
 
 void main() {
   group('ConvertUnitStep', () {
@@ -214,7 +204,7 @@ void main() {
         final target = _step(min: 1, max: 20, step: 4);
         for (var value = -5; value <= 30; value++) {
           final snapped = _apply(ClampToRangeStep(target), StepValue(value))!;
-          expect(target.isValidValue(snapped), isTrue, reason: 'for $value -> $snapped');
+          expect(target.contains(snapped), isTrue, reason: 'for $value -> $snapped');
         }
       });
     });
@@ -235,22 +225,22 @@ void main() {
     });
   });
 
-  group('ClearInvalidStep', () {
+  group('ClearOutOfRangeStep', () {
     test('clears a numerical value outside the range and keeps one inside', () {
-      final step = ClearInvalidStep(_numerical(min: 0, max: 10));
+      final step = ClearOutOfRangeStep(_numerical(min: 0, max: 10));
       expect(_apply(step, const NumericalValue(11)), isNull);
       expect(_apply(step, const NumericalValue(10)), const NumericalValue(10));
     });
 
-    test('removes the row of an invalid categorical value', () {
-      final step = ClearInvalidStep(_categorical({'A', 'B'}));
-      expect(_apply(step, _options(['C'])), isNull);
-      expect(_apply(step, _options(['A', 'B'])), isNull);
-      expect(_apply(step, _options(['A'])), _options(['A']));
+    test('clears a step value off the grid', () {
+      final step = ClearOutOfRangeStep(_step(min: 0, max: 10, step: 2));
+      expect(_apply(step, const StepValue(3)), isNull);
+      expect(_apply(step, const StepValue(4)), const StepValue(4));
     });
 
     test('passes values of another type through', () {
-      expect(_apply(ClearInvalidStep(_numerical(min: 0, max: 10)), const StepValue(99)), const StepValue(99));
+      expect(_apply(ClearOutOfRangeStep(_numerical(min: 0, max: 10)), const StepValue(99)), const StepValue(99));
+      expect(_apply(ClearOutOfRangeStep(_numerical(min: 0, max: 10)), _options(['A'])), _options(['A']));
     });
   });
 
@@ -343,6 +333,13 @@ void main() {
         expect(MapOptionsStep(const {'A': 'B'}), MapOptionsStep(const {'A': 'B'}));
         expect(MapOptionsStep(const {'A': 'B'}), isNot(MapOptionsStep(const {'A': 'C'})));
         expect(ClampToRangeStep(_numerical(max: 1)), isNot(ClampToRangeStep(_numerical(max: 2))));
+        expect(ClampToRangeStep(_numerical(max: 1)), isNot(ClearOutOfRangeStep(_numerical(max: 1))));
+      });
+
+      test('range steps ignore the adjustment they came from', () {
+        final renamed = NumericalAdjustment(name: 'Renamed', notes: 'Notes', unit: _bar, max: 1);
+        expect(ClampToRangeStep(renamed.range), ClampToRangeStep(_numerical(max: 1)));
+        expect(ClampToRangeStep(renamed.range).hashCode, ClampToRangeStep(_numerical(max: 1)).hashCode);
       });
     });
 

@@ -205,7 +205,7 @@ void main() {
 
       final rebuilt = proposal.withChoice('unit', MigrationChoice.keep);
       expect(rebuilt.issues, hasLength(2));
-      expect(rebuilt.toMigration().steps, [ClampToRangeStep(_numerical(unit: _bar, max: 2))]);
+      expect(rebuilt.toMigration().steps, [ClampToRangeStep(_numerical(unit: _bar, max: 2).range)]);
     });
 
     test('a choice that is not offered falls back to the default', () {

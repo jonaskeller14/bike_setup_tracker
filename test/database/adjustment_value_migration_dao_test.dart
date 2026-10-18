@@ -106,9 +106,7 @@ void main() {
       await database.setupsDao.migrateAdjustmentValues(
         'a',
         AdjustmentType.numerical,
-        ValueMigration('a', [
-          ClampToRangeStep(NumericalAdjustment(id: 'a', name: 'A', notes: null, unit: null, max: 10)),
-        ]),
+        ValueMigration('a', const [ClampToRangeStep(NumericalRange(double.negativeInfinity, 10))]),
       );
 
       expect(await lastModified('changed'), isNot(_aged));
@@ -174,20 +172,7 @@ void main() {
       await database.setupsDao.migrateAdjustmentValues(
         'a',
         AdjustmentType.step,
-        ValueMigration('a', [
-          ClampToRangeStep(
-            StepAdjustment(
-              id: 'a',
-              name: 'Clicks',
-              notes: null,
-              unit: null,
-              step: 5,
-              min: 0,
-              max: 20,
-              visualization: StepAdjustmentVisualization.slider,
-            ),
-          ),
-        ]),
+        ValueMigration('a', const [ClampToRangeStep(StepGrid(0, 20, 5))]),
       );
 
       expect((await storedValues('a'))['s'], const StepValue(5).encode());

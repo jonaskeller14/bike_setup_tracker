@@ -16,7 +16,7 @@ Run from the repo root. Every `tool/store/ios.sh` command takes `--dry-run`; the
 | 1 | `tool/store/ios.sh release` | Uploads the IPA, creates or finds the App Store version, attaches the build, sets text, review notes, copyright and What's New |
 | 2 | `tool/store/ios.sh screenshots` | Only if screenshots or previews changed: replaces them on the editable version |
 | 3 | `bundle exec fastlane android release` | Uploads the AAB and release notes as a production **draft** |
-| 4 | `bundle exec fastlane android metadata` / `android screenshots` | Only if the Play listing changed and no experiment runs: title, descriptions, icon, feature graphic / screenshots (sent for review on commit) |
+| 4 | `bundle exec fastlane android metadata` / `android screenshots` | Only if the Play listing changed and no experiment runs: title, descriptions, icon, feature graphic / screenshots. Both lanes only save the change in the Play Console; send it for review there (Publishing overview → send changes for review), or pass `send_for_review:true` to send it right away. Screenshots need no new release |
 
 Between releases: `tool/store/ios.sh promo` (promotional text, no version needed) and the Play
 `metadata` / `screenshots` lanes.

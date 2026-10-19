@@ -24,6 +24,7 @@ Do you keep your suspension clicks, tire pressures, and geometry settings scatte
 Bike Setup Tracker is the ultimate digital logbook for cyclists, mechanics, and racers who want to get the most out of their equipment. Whether you are a Downhill racer, an Enduro enthusiast, or a Road cyclist, this app brings professional structure to your bike adjustments.
 
 - [Roadmap](#roadmap)
+- [Architecture](#architecture)
 - [Key Features](#key-features)
 - [Screenshots](#screenshots)
   - [Phone](#phone)
@@ -41,12 +42,27 @@ Here are the current development goals and their status:
 - [x] Migration to **drift SQL database**
 - [x] **Task Manager** to plan & track service, rides, testing and more ➡️ **Opt-in, now with recurring tasks**
 - [x] **Attachments** to add images & files to setups, bikes, components and tasks ➡️ **Opt-in, stored on-device**
-- [ ] **Rating procedure** to distinguish good setups from bad ➡️ **In development**
-- [ ] **Marketing** push to grow the user base ➡️ **Next up**
-- [ ] Add a **rider profile** (track body weight, ...) ➡️ **Planned**
+- [x] Add a **rider profile** (track body weight, ...) ➡️ **Opt-in**
+- [x] **Sub-components**: infinitely deep component hierarchy, Strava stats inherited from the parent ➡️ **Live, opt-in**
 - [x] Add **URL support for bike/components** ➡️ **URLs are recognized in notes**
+- [ ] **Rating procedure** to distinguish good setups from bad ➡️ **In development**
+- [ ] **Marketing** push to grow the user base ➡️ **In progress**
+- [ ] **Component & task presets** for the most common forks and shocks ➡️ **In testing**
+- [ ] **Multiple languages** ➡️ **Planned**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
+
+
+## Architecture
+
+| Area | Stack |
+|---|---|
+| **App** | Flutter / Dart for iOS and Android from one codebase. Provider for state management, Drift (SQLite) as an offline-first local database with versioned migrations, feature flags for staged rollouts |
+| **Backend** | Firebase: Cloud Functions (Node.js), Firestore, Auth, App Check, Cloud Messaging, Crashlytics and Analytics. Powers the Strava sync and the server-validated in-app subscriptions |
+| **Testing** | Unit, widget and golden tests (Alchemist), CI on GitHub Actions with Codecov coverage reports |
+| **Screenshot automation** | Store screenshots captured from a seeded demo app with Maestro flows and rendered into store frames from an HTML template |
+| **Deployment** | Store listings, release notes and screenshots versioned in the repo and uploaded via `asc` (App Store) and fastlane (Google Play) |
+| **Marketing** | Campaign planning plus a scripted content factory that renders social media images and videos |
 
 
 ## Key Features

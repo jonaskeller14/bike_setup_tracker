@@ -1,5 +1,4 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/adjustment/value_migration.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');

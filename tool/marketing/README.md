@@ -216,6 +216,24 @@ python tool/marketing/render_images.py --safe play-feature  # plus overlay rende
 | `play-feature` | `docs/store/play-store/feature_graphic.html` | `metadata/{en-US,de-DE}/images/featureGraphic.png`, 1024×500 |
 | `android-frame` | `tool/marketing/assets/frames/android.svg` | `android.png` next to it, 1184×2504 with transparency |
 
+### Store screenshots
+
+```
+python tool/marketing/render_images.py store-screenshots                    # every screen, device and locale
+python tool/marketing/render_images.py store-screenshots iphone 4,8         # some devices and screens
+python tool/marketing/render_images.py store-screenshots --out build/x --captions-dir build/captions  # dry run
+```
+
+`store_screenshots.py` renders `docs/store/screenshots.html` once per screen, device (`iphone`,
+`ipad`, `phone`, `tablet`) and locale into the export paths the uploads read (see the
+Screenshot sizes table in `docs/store/README.md`). The locales are the `docs/store/captions/<locale>.md` files present;
+a locale's raws come from `<raw folder>/<locale>/0N_raw.png` when that exists, else from
+`<raw folder>/0N_raw.png`. A caption that had to shrink prints `WARN` (rewrite it); one that needs
+more than two lines at the brand minimum fails. Rendering is in software (`--disable-gpu`), so the
+same raws give the same files. It also writes the review page `build/marketing/store-screenshots/sheet.html`
+(old export next to new, dark-surround toggle). The tablet frame `android_tablet.png` is the Play
+tablet frame turned upright.
+
 The store assets render into tracked files; commit them only once they're live (see
 `docs/store/app-store/creative/README.md`). New template: add an entry to `ASSETS` (template, size,
 output file → URL query). Kit images are rendered by `build_kit.py` instead.

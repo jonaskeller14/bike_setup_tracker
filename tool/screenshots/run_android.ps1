@@ -6,7 +6,8 @@
   Builds the screenshot entry point (lib/main_screenshots.dart), boots each
   dedicated AVD (see create_avds.ps1), pins the status bar via SystemUI demo
   mode, runs the Maestro flows in tool/screenshots/flows and overwrites the raws
-  in place, then runs check_output.py.
+  in place, runs check_output.py, then renders the store screenshots (raw screen
+  in the device frame with its caption) from the new raws.
 
 .PARAMETER Device
   phone, tablet or all (default).
@@ -19,6 +20,9 @@
 
 .PARAMETER KeepRunning
   Leave the emulators running (faster reruns while fixing a flow).
+
+.PARAMETER RawOnly
+  Don't render the store screenshots from the new raws.
 
 .PARAMETER TileWaitMs
   Fixed wait for live map tiles on screen 07.
@@ -33,6 +37,7 @@ param(
     [int[]]$Screens,
     [switch]$SkipBuild,
     [switch]$KeepRunning,
+    [switch]$RawOnly,
     [int]$TileWaitMs = 20000,
     [switch]$Demo
 )
@@ -238,6 +243,12 @@ if ($Demo) {
 } else {
     python (Join-Path $PSScriptRoot 'check_output.py') @checkedFolders
     $checkExit = $LASTEXITCODE
+    if (-not $RawOnly) {
+        $renderArgs = @($selected)
+        if ($Screens) { $renderArgs += ($Screens -join ',') }
+        python (Join-Path $repoRoot 'tool\marketing\render_images.py') store-screenshots @renderArgs
+        if ($LASTEXITCODE -ne 0) { $checkExit = $LASTEXITCODE }
+    }
 }
 
 if ($failed) {

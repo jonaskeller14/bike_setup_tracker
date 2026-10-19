@@ -15,9 +15,9 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `play-store/metadata/<locale>/changelogs/<versionCode>.txt` | "What's New" text per release for both stores (max. 500 characters), written by `/releaseversion` |
 | `release-steps.md` | Upload commands per release and the remaining manual clicks (submit) |
 | `captions/<locale>.md` | Screenshot captions, shared by both stores |
-| `screenshots.af` | Affinity composition; links the raws and holds the caption layer |
+| `screenshots.html` | Template of the store screenshots: raw screen in its device frame with the caption; `python tool/marketing/render_images.py store-screenshots [iphone\|ipad\|phone\|tablet] [screens]` renders the exports (also run by the screenshot scripts after a capture). The old Affinity composition (`screenshots.af`) is gone; the LFS history keeps it |
 | `app-store/<device>/`, `play-store/<device>/` | Raws (`0N_raw.png`, from `tool/screenshots/`) and the device `frame.png` |
-| `app-store/screenshots/en-US/` | Exported App Store screenshots (`iphone_NN.png` 1206×2622, `ipad_NN.png` 2064×2752), uploaded by `ios.sh screenshots` |
+| `app-store/screenshots/en-US/` | Rendered App Store screenshots (`iphone_NN.png` 1206×2622, `ipad_NN.png` 2064×2752), uploaded by `ios.sh screenshots` |
 | `app-store/app_previews/en-US/iphone_65/` | App previews (`preview_N.mp4`), uploaded by `ios.sh screenshots` |
 | `play-store/metadata/<locale>/images/` | Play graphics: `icon.png`, `featureGraphic.png`; export target for `phoneScreenshots/` and `tenInchScreenshots/` |
 | `play-store/feature_graphic.html` | Play feature graphic (1024×500): HTML source, rendered to `metadata/<locale>/images/featureGraphic.png`. Same look as the App Store search asset (brand guide), with the Android frame; headline C3. Render with `python tool/marketing/render_images.py play-feature` (`--safe` writes the safe-area overlay). Text stays in the central 784×400 |
@@ -60,13 +60,13 @@ screenshot layout is planned in #69.
 | Folder | Raw `0N_raw.png` | Export |
 |---|---|---|
 | `app-store/iPhone-17-Pro-Max` | 1320×2868 | `screenshots/en-US/iphone_NN.png`, 1206×2622 |
-| `app-store/iPad-Pro-13-inch_M5` | 2064×2752 | `screenshots/en-US/ipad_NN.png`, not checked |
-| `play-store/phone` | 1080×2400 | n/a, not checked |
-| `play-store/tablet_10-inch` | 1200×1920 | n/a, not checked |
+| `app-store/iPad-Pro-13-inch_M5` | 2064×2752 | `screenshots/en-US/ipad_NN.png`, 2064×2752 |
+| `play-store/phone` | 1080×2400 | `metadata/en-US/images/phoneScreenshots/NN.png`, 1080×1920 |
+| `play-store/tablet_10-inch` | 1200×1920 | `metadata/en-US/images/tenInchScreenshots/NN.png`, 1800×2650 |
 
 The iPhone exports (`iphone_NN.png`) are 1206×2622, the only size (besides 1179×2556) App Store Connect accepts in the
 6.1″/6.3″ slot. One set serves the default page and all custom product pages.
-`tool/screenshots/check_output.py` checks both columns where a size is listed.
+`tool/screenshots/check_output.py` checks both columns.
 
 ## App previews
 

@@ -126,6 +126,7 @@ Uppercase is only for labels. Arrows are the `→` glyph, tight to the numbers o
 | Post | 1080×1350 (4:5), 1080×1080 (1:1) | 72 px | Whole frame |
 | OG image | 1200×630 | 60 px | Whole frame |
 | Thumbnail | 1280×720 | 64 px | Bottom-right 220×80 is covered by the duration badge |
+| Store screenshots | 1206×2622 (iPhone), 2064×2752 (iPad), 1080×1920 (Play phone), 1800×2650 (Play tablet) | 72 px at 1080 px wide, scaled with the width | Whole frame inside the margin |
 
 No format is a crop of another (#77 Phase 2). `tool/marketing/render_images.py` holds these
 areas (`SAFE_AREAS`, also the 1:1 post, 1920×1080, forum header and channel art) and fails a render
@@ -143,6 +144,23 @@ What each surface looks like (see `reference.html`):
 | End card | See below |
 | Post (4:5) | "Setup history" label and date; setup name; Fork · Rebound 9→10 big; LSC and pressure below; brand row and "See what changed" in the footer |
 | OG image | Brand row; headline R4; small label row; the phone cropped at the right edge |
+| Store screenshot | Brand row and the screen name as a label; rule; headline (one teal key phrase, two lines); the whole device below it. Shown on iPhone 1206×2622; the other device sets scale it (see Store screenshots) |
+
+## Store screenshots
+
+One template, `docs/store/screenshots.html`, for all four device sets (#77 Phase 12). It starts from
+the Short frame, with the whole device visible (`?surface=screenshot` in `reference.html`).
+- White paper, no band and no gradient. The brand row top left and the screen name as a label top
+  right, then a rule, then the headline.
+- The headline is Archivo 900, sentence case, one teal `*key phrase*` (the markup of the captions
+  file), at most two lines. One fixed size per set: 100 px at 1080 px wide, scaled with the export
+  width. A longer caption shrinks to the brand minimum (96 px at 1080) and the render warns; a
+  caption that still needs three lines fails. Rewrite the caption instead, so a set keeps one size.
+- The real device frame (iPhone, iPad, the Android phone and the upright Android tablet) below the
+  headline, scaled to the space down to the bottom margin, centered, with the one soft shadow. The
+  raw screen stays untouched, and the device never covers the headline.
+- Check every set on a dark surround too (the App Store shows them in dark mode); the review page
+  has a toggle.
 
 ## End card
 

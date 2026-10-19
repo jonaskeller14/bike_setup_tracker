@@ -11,8 +11,8 @@
 //   kind=…            removes every [data-kind] element that doesn't list this kind (default: the
 //                     body's data-kind); a [data-param] may carry data-default-<kind>
 //   lang=de           <html lang>, and [data-i18n] from the page's STRINGS[lang] (default en)
-//   device=android    Android frame and Play raws instead of the iPhone (default: the body's
-//                     data-device, else iphone)
+//   device=android    Android frame and Play raws instead of the iPhone; also ipad and
+//                     android-tablet (default: the body's data-device, else iphone)
 //   shots=04,03       raws for the .phone[data-shot="N"] elements; an entry with a "/" is a repo path
 //   bg=<repo path>    background image slot behind everything
 //   dark              the .dark variant (thumbnails only)
@@ -26,7 +26,8 @@
 //   check             writes problems to <body data-problems> (render_images.py reads it)
 //   video             hides the .phone[data-video] and writes its position to <body data-layout>
 //                     for tool/marketing/render_video.py
-// [data-fit="<min px>"] shrinks an element's font size until its text fits its box.
+// [data-fit="<min px>"] shrinks an element's font size until its text fits its box. With check, a
+// shrunk element is a warning (<body data-warnings>), one that still doesn't fit a problem.
 // [data-decor] marks text that may sit outside the safe area (a brand row a platform may cover).
 // When everything is laid out, <body data-ready> is set.
 const LIFT_SCALE = 1.6;
@@ -42,6 +43,7 @@ const LIFT_SCALE = 1.6;
     .replace(/\n/g, '<br>');
   const rect = (value) => value.split(',').map(Number);
   const problems = [];
+  const warnings = [];
 
   const size = params.get('size') || document.body.dataset.size;
   const [width, height] = size ? size.split('x').map(Number) : [0, 0];
@@ -91,12 +93,15 @@ const LIFT_SCALE = 1.6;
     document.body.prepend(bg);
   }
 
-  const device = (params.get('device') || document.body.dataset.device) === 'android' ? 'android' : 'iphone';
-  document.body.dataset.device = device;
-  const { shotDir, frame } = {
+  const device = params.get('device') || document.body.dataset.device;
+  const devices = {
     iphone: { shotDir: 'docs/store/app-store/iPhone-17-Pro-Max/', frame: 'docs/store/app-store/iPhone-17-Pro-Max/frame.png' },
     android: { shotDir: 'docs/store/play-store/phone/', frame: 'tool/marketing/assets/frames/android.png' },
-  }[device];
+    ipad: { shotDir: 'docs/store/app-store/iPad-Pro-13-inch_M5/', frame: 'docs/store/app-store/iPad-Pro-13-inch_M5/frame.png' },
+    'android-tablet': { shotDir: 'docs/store/play-store/tablet_10-inch/', frame: 'tool/marketing/assets/frames/android_tablet.png' },
+  };
+  document.body.dataset.device = devices[device] ? device : 'iphone';
+  const { shotDir, frame } = devices[document.body.dataset.device];
   const shots = (params.get('shots') || '').split(',').filter(Boolean);
   document.querySelectorAll('.phone').forEach((phone) => {
     const shot = shots[Number(phone.dataset.shot || 0)] || shots[0] || phone.dataset.default || '04';
@@ -110,12 +115,14 @@ const LIFT_SCALE = 1.6;
   document.querySelectorAll('[data-fit]').forEach((el) => {
     const min = Number(el.dataset.fit);
     let size = parseFloat(getComputedStyle(el).fontSize);
+    const start = size;
     const overflows = () => el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
     while (overflows() && size > min) {
       size = Math.max(min, size * .96);
       el.style.fontSize = `${size}px`;
     }
     if (overflows() && !el.hidden) problems.push(`"${el.textContent.trim().slice(0, 40)}" doesn't fit at ${min} px`);
+    else if (size < start) warnings.push(`"${el.textContent.trim().slice(0, 40)}" shrunk from ${Math.round(start)} to ${Math.round(size)} px`);
   });
 
   const target = document.querySelector('.phone[data-callout]') || document.querySelector('.phone');
@@ -188,7 +195,10 @@ const LIFT_SCALE = 1.6;
       }
     }
   }
-  if (params.has('check')) document.body.dataset.problems = JSON.stringify(problems);
+  if (params.has('check')) {
+    document.body.dataset.problems = JSON.stringify(problems);
+    document.body.dataset.warnings = JSON.stringify(warnings);
+  }
 
   if (params.has('video')) {
     const phone = document.querySelector('.phone[data-video]');

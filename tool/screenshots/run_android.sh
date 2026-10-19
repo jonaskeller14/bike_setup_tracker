@@ -3,13 +3,15 @@
 # macOS/Linux counterpart of run_android.ps1: builds lib/main_screenshots.dart,
 # boots each dedicated AVD (see create_avds.sh), pins the status bar via
 # SystemUI demo mode, runs the Maestro flows and overwrites the raws in place,
-# then runs check_output.py.
+# runs check_output.py, then renders the store screenshots (raw screen in the
+# device frame with its caption) from the new raws.
 #
 # Usage: run_android.sh [phone|tablet|all] [--screens 3,7] [--skip-build]
-#                       [--keep-running] [--tile-wait-ms N] [--demo]
+#                       [--keep-running] [--raw-only] [--tile-wait-ms N] [--demo]
 #   --screens N,N         Screen numbers to capture. Default: all flows.
 #   --skip-build          Reuse the last built APK.
 #   --keep-running        Leave the emulators running (faster reruns).
+#   --raw-only            Don't render the store screenshots from the new raws.
 #   --tile-wait-ms N      Fixed wait for live map tiles on screen 07 (default 20000).
 #   --demo                Record the demo_*.yaml flows instead, on the phone with
 #                         touch dots, to build/marketing/raw/*.mp4.
@@ -29,6 +31,7 @@ device='all'
 screens=''
 skip_build=0
 keep_running=0
+raw_only=0
 tile_wait_ms=20000
 demo=0
 while [ $# -gt 0 ]; do
@@ -37,6 +40,7 @@ while [ $# -gt 0 ]; do
     --screens) screens="$2"; shift ;;
     --skip-build) skip_build=1 ;;
     --keep-running) keep_running=1 ;;
+    --raw-only) raw_only=1 ;;
     --tile-wait-ms) tile_wait_ms="$2"; shift ;;
     --demo) demo=1 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
@@ -239,6 +243,10 @@ if [ "$demo" -eq 1 ]; then
   echo "Recordings: $repo_root/build/marketing/raw"
 else
   python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+  if [ "$raw_only" -eq 0 ]; then
+    # shellcheck disable=SC2086 # $selected is a list of device names
+    python3 "$repo_root/tool/marketing/render_images.py" store-screenshots $selected ${screens:+"$screens"} || check_exit=$?
+  fi
 fi
 
 if [ ${#failed[@]} -gt 0 ]; then

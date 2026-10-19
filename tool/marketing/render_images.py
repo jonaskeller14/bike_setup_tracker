@@ -1,6 +1,7 @@
 """Renders the HTML image templates to PNG with headless Chrome (Windows and macOS).
 
 Usage: python tool/marketing/render_images.py [--safe] [asset ...]
+       python tool/marketing/render_images.py store-screenshots [options] (see store_screenshots.py)
 
 Assets are keys of ASSETS (e.g. appstore-search); default is all. --safe also writes each output
 with its safe-area overlay to build/marketing/safe/. Set CHROME to the browser binary if it isn't
@@ -114,9 +115,9 @@ def png_info(path):
     return width, height, header[25]
 
 
-def safe_query(size):
-    """The ?safe= parameters of a format, or "" if it has no safe area."""
-    area = SAFE_AREAS.get(tuple(size))
+def safe_query(size, area=None):
+    """The ?safe= parameters of a format (or of the given area), or "" if it has no safe area."""
+    area = area or SAFE_AREAS.get(tuple(size))
     if not area:
         return ""
     parts = {"safe": [area["safe"]], "avoid": area.get("avoid", []), "guides": area.get("guides", [])}
@@ -143,9 +144,9 @@ def chrome_args(chrome, size):
             "--virtual-time-budget=5000"]
 
 
-def screenshot(chrome, size, url, out, alpha=False):
+def screenshot(chrome, size, url, out, alpha=False, flags=()):
     out.unlink(missing_ok=True)
-    extra = ["--default-background-color=00000000"] if alpha else []
+    extra = [*flags, *(["--default-background-color=00000000"] if alpha else [])]
     # Chrome occasionally hangs (e.g. on a stalled font request); one retry is enough.
     for _ in range(2):
         try:
@@ -157,7 +158,8 @@ def screenshot(chrome, size, url, out, alpha=False):
 
 
 def page_problems(chrome, size, url):
-    """Problems template.js reports with &check: text outside the safe area, text that doesn't fit."""
+    """What template.js reports with &check: (problems, warnings). Problems are text outside the
+    safe area or that doesn't fit; warnings are text that fit only after shrinking."""
     dom = ""
     for _ in range(2):
         try:
@@ -168,15 +170,18 @@ def page_problems(chrome, size, url):
             pass
     match = re.search(r'data-problems="([^"]*)"', dom)
     if not match:
-        return ["the page set no data-problems; does it load template.js?"]
-    return json.loads(html.unescape(match.group(1)))
+        return ["the page set no data-problems; does it load template.js?"], []
+    warnings = re.search(r'data-warnings="([^"]*)"', dom)
+    return json.loads(html.unescape(match.group(1))), json.loads(html.unescape(warnings.group(1))) if warnings else []
 
 
-def render(chrome, template, size, outputs, alpha=False, safe=False):
+def render(chrome, template, size, outputs, alpha=False, safe=False, safe_area=None, safe_prefix="", warn=False, exact=False):
     """Renders each output (file name relative to the template, or an absolute path: URL query).
 
-    Templates that load template.js are checked against their format's safe area. safe also writes
-    each output with the overlay to build/marketing/safe/.
+    Templates that load template.js are checked against their format's safe area (SAFE_AREAS, or
+    safe_area for a size several formats share). safe also writes each output with the overlay to
+    build/marketing/safe/<safe_prefix><file name>. warn prints what template.js had to shrink.
+    exact rasterizes in software: with the GPU, soft shadows differ by a level from run to run.
     """
     page = (REPO_ROOT / template).resolve()
     uses_template_js = "template.js" in page.read_text(encoding="utf-8")
@@ -184,12 +189,13 @@ def render(chrome, template, size, outputs, alpha=False, safe=False):
     def url(query):
         return page_url(template, size, query)
 
-    overlay = safe_query(size)
+    overlay = safe_query(size, safe_area)
+    flags = ["--disable-gpu"] if exact else []
     problems = []
     for file_name, query in outputs.items():
         out = page.parent / file_name
         rel = out.relative_to(REPO_ROOT).as_posix()
-        screenshot(chrome, size, url(query), out, alpha)
+        screenshot(chrome, size, url(query), out, alpha, flags)
         if not out.is_file():
             problems.append(f"{rel}: Chrome wrote no file")
             continue
@@ -202,18 +208,25 @@ def render(chrome, template, size, outputs, alpha=False, safe=False):
             continue
         if uses_template_js:
             check = with_query(query, f"{overlay}&check" if overlay else "check")
-            found = page_problems(chrome, size, url(check))
+            found, warnings = page_problems(chrome, size, url(check))
             problems += [f"{rel}: {problem}" for problem in found]
+            if warn:
+                for warning in warnings:
+                    print(f"WARN {rel}: {warning}")
             if found:
                 continue
         if safe and overlay:
             SAFE_OUT.mkdir(parents=True, exist_ok=True)
-            screenshot(chrome, size, url(with_query(query, overlay)), SAFE_OUT / out.name)
+            screenshot(chrome, size, url(with_query(query, overlay)),
+                       SAFE_OUT / f"{safe_prefix}{out.name}", flags=flags)
         print(f"OK   {rel} ({width}x{height})")
     return problems
 
 
 def main(argv):
+    if argv and argv[0] == "store-screenshots":
+        import store_screenshots
+        return store_screenshots.main(argv[1:])
     safe = "--safe" in argv
     argv = [arg for arg in argv if arg != "--safe"]
     names = argv or list(ASSETS)

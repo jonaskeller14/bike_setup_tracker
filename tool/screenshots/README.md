@@ -1,6 +1,6 @@
 # Store screenshots
 
-This tooling regenerates the store raws (`docs/store/**/0N_raw.png`) from seeded data. `docs/store/screenshots.af` links the raws, so after a run, recomposing in Affinity takes one click.
+This tooling regenerates the store raws (`docs/store/**/0N_raw.png`) from seeded data, then renders the store screenshots from them: the raw screen in its device frame with the caption from `docs/store/captions/`, via `docs/store/screenshots.html` (`tool/marketing/render_images.py store-screenshots`). One run gives the raw and the edited version. Pass `--raw-only` (`-RawOnly` on Windows) to skip the rendering.
 
 | Folder | Device | Size (px) |
 |---|---|---|
@@ -9,7 +9,7 @@ This tooling regenerates the store raws (`docs/store/**/0N_raw.png`) from seeded
 | `app-store/iPhone-17-Pro-Max` | iPhone 17 Pro Max simulator | 1320×2868 |
 | `app-store/iPad-Pro-13-inch_M5` | iPad Pro 13-inch (M5) simulator | 2064×2752 |
 
-The Affinity device frames assume these sizes. If `check_output.py` reports a mismatch, fix the device or adjust the frames before recomposing.
+The device frames in the template assume these sizes. If `check_output.py` reports a mismatch, fix the device or adjust the frames before rendering.
 
 The exported iPhone frames (`app-store/screenshots/en-US/iphone_0N.png`) are 1206×2622, the 6.3″ slot size App Store Connect accepts for the default page and every custom product page. The raws have the same aspect ratio, so the composition is exported at that canvas size rather than from a new simulator. `check_output.py` checks the frames as well as the raws.
 

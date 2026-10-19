@@ -1,0 +1,70 @@
+<!doctype html>
+<!--
+  Store screenshot (#77 Phase 12), one template for all four device sets: iPhone 1206×2622,
+  iPad 2064×2752, Play phone 1080×1920, Play tablet 1800×2650. Layout, type sizes and margins scale
+  with the export width (1080 px is the brand.md reference). The whole device stays visible below
+  the headline. tool/marketing/store_screenshots.py renders it, one file per screen, device and locale.
+
+  URL parameters (and the shared ones in template.js: size, device, shots, lang, safe, check):
+    caption=…   headline, up to two lines; *key phrase* in teal
+    label=…     small label top right, usually the screen name
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Store screenshot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="../marketing/templates/marketing.css">
+<style>
+  /* --s: the scale against 1080 px, --w and --h: the export size, set from ?size= below. */
+  body { --m: calc(var(--s) * 72px); }
+  /* Visible bounds of each frame image (x, y, width, height in its own pixels), so the device
+     itself, not the image's transparent margin, sits at the same distance from the headline. */
+  body[data-device="iphone"] { --fw: 1470; --vx: 21; --vy: 20; --vw: 1428; --vh: 2959; }
+  body[data-device="android"] { --fw: 1184; --vx: 10; --vy: 10; --vw: 1164; --vh: 2484; }
+  body[data-device="ipad"] { --fw: 2300; --vx: 25; --vy: 29; --vw: 2250; --vh: 2937; }
+  body[data-device="android-tablet"] { --fw: 2248; --vx: 139; --vy: 141; --vw: 1972; --vh: 3078; }
+
+  .top { position: absolute; left: var(--m); right: var(--m); top: calc(var(--s) * 64px); height: calc(var(--s) * 60px);
+         display: flex; align-items: center; justify-content: space-between; }
+  .top .brand { position: static; --mark: calc(var(--s) * 60px); }
+  .top .label { font-size: calc(var(--s) * 28px); text-align: right; }
+  .rule { left: var(--m); right: var(--m); top: calc(var(--s) * 140px); --rule: calc(var(--s) * 4px); }
+  /* Two lines at most: the box is sized so a German caption of the same meaning fits as well. */
+  .caption { position: absolute; left: var(--m); top: calc(var(--s) * 168px); width: calc(var(--w) * 1px - var(--m) * 2);
+             height: calc(var(--s) * 192px); font-size: calc(var(--s) * 100px); }
+  html[lang="de"] .caption { hyphens: auto; }
+  /* Below the headline down to a small bottom margin, as large as fits, centered. */
+  .phone { --k: min(calc((var(--h) - var(--s) * 424) / var(--vh)), calc((var(--w) - var(--s) * 144) / var(--vw)));
+           --pw: calc(var(--k) * var(--fw));
+           left: calc(((var(--w) - var(--k) * var(--vw)) / 2 - var(--k) * var(--vx)) * 1px);
+           top: calc(var(--s) * 388px - var(--k) * var(--vy) * 1px); }
+</style>
+<script>
+  const [w, h] = (new URLSearchParams(location.search).get('size') || '1206x2622').split('x').map(Number);
+  const style = document.documentElement.style;
+  style.setProperty('--s', w / 1080);
+  style.setProperty('--w', w);
+  style.setProperty('--h', h);
+</script>
+</head>
+<body data-size="1206x2622">
+  <div class="top">
+    <div class="brand">
+      <img src="../../assets/icons/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="meta muted label" data-param="label"></div>
+  </div>
+  <div class="rule"></div>
+  <h1 class="hl caption" data-param="caption" data-default="Every *click*. Every psi. Every ride." data-fit></h1>
+  <div class="phone" data-default="04"></div>
+<script>
+  // The headline's minimum size is 96 px at 1080 px wide (brand.md, Type).
+  document.querySelector('.caption').dataset.fit = 96 * parseFloat(style.getPropertyValue('--s'));
+</script>
+<script src="../marketing/templates/template.js"></script>
+</body>
+</html>

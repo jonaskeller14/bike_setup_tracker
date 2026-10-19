@@ -3,7 +3,7 @@
   Brand reference frames (#77 Phase 1): the design direction picked on 2026-10-18 ("E, teal
   headline + orange values"). Templates built in Phase 2 should match these frames closely;
   brand.md describes the rules behind them.
-  ?surface=search|header|short|endcard|post|og   ?safe draws the surface's safe area
+  ?surface=search|header|short|endcard|post|og|screenshot   ?safe draws the surface's safe area
   Open in Chrome; each surface is a fixed-size page (sizes below).
 -->
 <html lang="en">
@@ -182,6 +182,21 @@
   </div>
 </section>
 
+<!-- Store screenshot, iPhone 1206×2622 (Phase 12): the same layout, scaled with the width, on iPad, Play phone and Play tablet -->
+<section data-for="screenshot">
+  <div class="brand" style="left:80px; top:72px; gap:18px">
+    <img src="../../../../assets/icons/logo_1024.png" style="width:67px" alt="">
+    <span style="font-size:34px">Bike Setup Tracker</span>
+  </div>
+  <div class="meta muted" style="position:absolute; right:80px; top:90px; font-size:31px; line-height:37px">Setup history</div>
+  <div class="rule" style="left:80px; right:80px; top:156px; --rule:4px"></div>
+  <h1 class="hl" style="position:absolute; left:80px; top:188px; width:1046px; font-size:112px">See what changed on your <em>MTB</em></h1>
+  <div class="phone" style="left:69px; top:419px; --s:.726">
+    <img class="screen" src="../../../store/app-store/iPhone-17-Pro-Max/04_raw.png" alt="">
+    <img class="frame" src="../../../store/app-store/iPhone-17-Pro-Max/frame.png" alt="">
+  </div>
+</section>
+
 <script>
 // ?surface picks the frame; [data-for] elements of other surfaces are removed.
 (() => {
@@ -192,6 +207,7 @@
     endcard: [1080, 1920],
     post: [1080, 1350],
     og: [1200, 630],
+    screenshot: [1206, 2622],
   };
   // Apple's art safe areas for the search asset and the header; for Shorts, the area YouTube,
   // TikTok and Reels keep free of their own UI.
@@ -200,6 +216,7 @@
     header: [1097, 493, 1646, 661],
     short: [60, 220, 860, 1180],
     endcard: [60, 220, 860, 1180],
+    screenshot: [80, 80, 1046, 2462],
   };
   const params = new URLSearchParams(location.search);
   const surface = SIZES[params.get('surface')] ? params.get('surface') : 'search';

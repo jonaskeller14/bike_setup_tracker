@@ -4,12 +4,14 @@
 # Builds the screenshot entry point (lib/main_screenshots.dart) for the
 # simulator, boots each simulator, pins the status bar via `simctl status_bar`,
 # runs the Maestro flows in tool/screenshots/flows and overwrites the raws in
-# place, then runs check_output.py.
+# place, runs check_output.py, then renders the store screenshots (raw screen
+# in the device frame with its caption) from the new raws.
 #
 # Usage: tool/screenshots/run_ios.sh [iphone|ipad|all] [options]
 #   --screens 3,7         Screen numbers to capture. Default: all flows.
 #   --skip-build          Reuse the last built Runner.app.
 #   --keep-running        Leave simulators booted by this script running.
+#   --raw-only            Don't render the store screenshots from the new raws.
 #   --tile-wait-ms N      Fixed wait for live map tiles on screen 07 (default 20000).
 #   --preview             Record the preview_*.yaml flows instead, with touch dots,
 #                         to build/store_previews/<device>/*.mp4.
@@ -33,6 +35,7 @@ screens=''
 only_flows=''
 skip_build=0
 keep_running=0
+raw_only=0
 tile_wait_ms=20000
 preview=0
 demo=0
@@ -43,6 +46,7 @@ while [ $# -gt 0 ]; do
     --flows) only_flows="$2"; shift ;;
     --skip-build) skip_build=1 ;;
     --keep-running) keep_running=1 ;;
+    --raw-only) raw_only=1 ;;
     --tile-wait-ms) tile_wait_ms="$2"; shift ;;
     --preview) preview=1 ;;
     --demo) demo=1 ;;
@@ -209,6 +213,10 @@ elif [ "$preview" -eq 1 ]; then
   echo "Recordings: $repo_root/build/store_previews"
 else
   python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+  if [ "$raw_only" -eq 0 ]; then
+    # shellcheck disable=SC2086 # $selected is a list of device names
+    python3 "$repo_root/tool/marketing/render_images.py" store-screenshots $selected ${screens:+"$screens"} || check_exit=$?
+  fi
 fi
 
 if [ ${#failed[@]} -gt 0 ]; then

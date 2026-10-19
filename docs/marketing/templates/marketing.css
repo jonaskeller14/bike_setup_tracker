@@ -78,6 +78,15 @@ em { font-style: normal; color: var(--headline); }
 /* Android (tool/marketing/assets/frames/android.svg): a 1080×2400 hole at (52, 52). */
 [data-device="android"] .phone { width: 1184px; height: 2504px; --frame-w: 1184; }
 [data-device="android"] .phone .screen { left: 52px; top: 52px; width: 1080px; height: 2400px; border-radius: 86px; }
+/* iPad Pro 13" (docs/store/app-store/iPad-Pro-13-inch_M5/frame.png): a 2064×2752 hole at (118, 124), corners of about 60 px;
+   the screen's radius is a little smaller, so no gap shows between it and the bezel. */
+[data-device="ipad"] .phone { width: 2300px; height: 3000px; --frame-w: 2300; }
+[data-device="ipad"] .phone .screen { left: 118px; top: 124px; width: 2064px; height: 2752px; border-radius: 55px; }
+/* Android tablet (tool/marketing/assets/frames/android_tablet.png, the Play tablet frame turned
+   upright): a 1848×2960 hole at (198, 200), the same aspect ratio as the 1200×1920 raw. The camera
+   notch narrows it to 1820 px at mid-height only. */
+[data-device="android-tablet"] .phone { width: 2248px; height: 3360px; --frame-w: 2248; }
+[data-device="android-tablet"] .phone .screen { left: 198px; top: 200px; width: 1848px; height: 2960px; border-radius: 45px; }
 
 /* Lift callout (brand.md, Callouts): a crop of the real screen, enlarged, floating above it. */
 .lift {

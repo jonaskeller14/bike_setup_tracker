@@ -1,25 +1,25 @@
 # yt-shorts · Analysis
 
 - Status: scheduled
-- URL: —
+- URL: https://youtube.com/shorts/wemmOn922BU?feature=share
 - Posted: 2026-10-31
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: launch (`shorts/analysis_9x16.mp4`)
-- Retire when: The component analysis or setup comparison changes
+- Kit: showcase (`shorts/analysis_9x16.mp4`)
+- Retire when: The analysis charts change
 
 ## Title
 ```text
-See which suspension settings actually work #mtb #mtbsetup
+How did your fork setup change this season? #mtb #suspension
 ```
 
 ## Description
 ```text
-Tap a component and see every value you've ridden, how your settings evolved, and how two setups compare.
+Every value you logged, on one chart per fork or shock. Tap a setting like LSC to follow it through the season, or see all your setups at once on the radial chart.
 
 Bike Setup Tracker is free on iOS and Android. Search "Bike Setup Tracker" in the App Store or on Google Play.
 
-#mountainbike #suspension
+#mountainbike #mtbsetup
 ```
 
 ## Pinned comment

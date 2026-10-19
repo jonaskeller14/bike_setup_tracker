@@ -1,6 +1,6 @@
 # yt-shorts · Rides
 
-- Status: scheduled
+- Status: deleted
 - URL: —
 - Posted: 2026-11-04
 - App version: 1.6.3

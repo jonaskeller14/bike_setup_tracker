@@ -1,25 +1,25 @@
 # yt-shorts · Strava
 
 - Status: scheduled
-- URL: —
+- URL: https://youtube.com/shorts/Ks-qStjq7Co?feature=share
 - Posted: 2026-11-07
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: launch (`shorts/strava_9x16.mp4`)
-- Retire when: Strava Sync stops being a paid add-on, or its screens change
+- Kit: showcase (`shorts/strava_9x16.mp4`)
+- Retire when: Chain tasks or distance intervals change, or Strava Sync stops being a paid add-on
 
 ## Title
 ```text
-Strava rides, matched to your bike setup #mtb #strava
+How many km has your chain done? #mtb #bikemaintenance
 ```
 
 ## Description
 ```text
-Sync your rides from Strava and see which setup you rode on every one. Strava Sync is the optional paid add-on; everything else in the app is free.
+Strava rides count toward each component, so the chain knows its 156 km. Set "every 2,000 km" and the service comes due by distance, not by guess.
 
-Search "Bike Setup Tracker" in the App Store or on Google Play.
+Bike Setup Tracker is free on iOS and Android; Strava Sync is an optional paid add-on, and tasks are on under Settings → Features. Search "Bike Setup Tracker" in the App Store or on Google Play.
 
-#mountainbike #mtbsetup
+#mountainbike #strava
 ```
 
 ## Pinned comment

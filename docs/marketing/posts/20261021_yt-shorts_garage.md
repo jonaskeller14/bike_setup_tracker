@@ -1,25 +1,25 @@
 # yt-shorts · Garage
 
 - Status: scheduled
-- URL: —
+- URL: https://youtube.com/shorts/HrgOJ5l2Qk8?feature=share
 - Posted: 2026-10-21
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: launch (`shorts/garage_9x16.mp4`)
+- Kit: showcase (`shorts/garage_9x16.mp4`)
 - Retire when: The garage or component screens change
 
 ## Title
 ```text
-Build your digital bike garage #mtb #mtbsetup
+Where do you keep your fork settings? #mtb #bikecheck
 ```
 
 ## Description
 ```text
-Every bike you ride, every component on it: fork, shock, tires and more, each with the settings you actually tune.
+Not on tape on the top tube. Add your bike, then the fork: the app suggests the settings forks have, like pressure and rebound, and you keep the ones you tune.
 
 Bike Setup Tracker is free on iOS and Android. Search "Bike Setup Tracker" in the App Store or on Google Play.
 
-#mountainbike #bikegarage
+#mountainbike #mtbsetup
 ```
 
 ## Pinned comment

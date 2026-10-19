@@ -1,21 +1,21 @@
 # yt-shorts · Tasks
 
 - Status: scheduled
-- URL: —
+- URL: https://youtube.com/shorts/1dnzqKQDTq8?feature=share
 - Posted: 2026-10-26
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: launch (`shorts/tasks_9x16.mp4`)
-- Retire when: The tasks screen changes, or tasks stop being a Settings → Features toggle
+- Kit: showcase (`shorts/tasks_9x16.mp4`)
+- Retire when: The tasks screens change, or tasks stop being an opt-in feature
 
 ## Title
 ```text
-Never miss a bike service #mtb #bikemaintenance
+What's due on your bike this week? #mtb #bikemaintenance
 ```
 
 ## Description
 ```text
-Set a service interval for your fork, shock or chain, tick it off when it's done, and see when it's due next.
+Tick off a service when it's done: the due list clears, and the job stays under Completed. Switch tasks on under Settings → Features.
 
 Bike Setup Tracker is free on iOS and Android. Search "Bike Setup Tracker" in the App Store or on Google Play.
 

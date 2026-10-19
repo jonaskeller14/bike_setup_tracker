@@ -1,7 +1,7 @@
 # yt-shorts · Overview
 
-- Status: scheduled
-- URL: —
+- Status: live
+- URL: https://youtube.com/shorts/mUbBXCxs_wA?feature=share
 - Posted: 2026-10-18
 - App version: 1.3.9
 - Playlist: v1.3.9

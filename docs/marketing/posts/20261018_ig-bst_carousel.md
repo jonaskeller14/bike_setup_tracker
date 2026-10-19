@@ -1,8 +1,8 @@
 # ig-bst · Carousel
 
 - Status: live
-- URL: https://www.instagram.com/p/DemGSiUjoPr/?img_index=1
-- Posted: 2026-10-17
+- URL: https://www.instagram.com/p/DeqA7ZxCICX/?utm_source=ig_web_copy_link&rpxt=MzRlODBiNWFlZA==&srtk=MzRlODBiNWFlZA==
+- Posted: 2026-10-19
 - App version: 1.6.3
 - Kit: launch
 - Media: `build/marketing/launch/carousel/01.png` – `10.png`

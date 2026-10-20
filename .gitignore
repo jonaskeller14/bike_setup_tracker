@@ -80,3 +80,8 @@ tool/marketing/assets/music/
 fastlane/.env
 fastlane/report.xml
 fastlane/README.md
+
+# Knob research: reference photos and source notes stay local; the README and inventory are tracked
+data/knob_research/**
+!data/knob_research/README.md
+!data/knob_research/inventory.yaml

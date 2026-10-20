@@ -1,0 +1,24 @@
+# Knob inventory for custom dials (issue #79). See README.md in this folder.
+#
+# One entry per physical knob. A knob shared by several dampers or generations
+# is one entry; list every catalog adjuster that uses it under `catalog`.
+#
+# knobs:
+#   - id: fox/grip_x2_hsc              # <brand>/<slug>, also the knob: value in the catalog
+#     type: step                       # step | categorical | boolean
+#     catalog:                         # <component_type>/<brand>#<damper>.<adjuster>
+#       - fork/fox#grip_x2.hsc
+#     shared_by: "36, 38, 40; 2023-2026 trims"
+#     shape: "round ring with a scalloped grip; LSC cross nested inside"
+#     colors: "black ring, red LSC marker"
+#     sweep_degrees: null              # real rotation if the research finds one
+#     positions: null                  # discrete positions for categorical and boolean knobs
+#     images:
+#       full: [fox/grip_x2_hsc/full/fox-tuning-guide-2025-1.jpg]
+#       knob: []
+#     rendering_notes: ""
+#     status: researching              # researching | archived | no_image | drawn
+#
+# Adjusters with no usable image get status no_image and keep the generic dial.
+
+knobs: []

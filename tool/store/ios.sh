@@ -6,6 +6,7 @@
 #   tool/store/ios.sh metadata    [--dry-run]   text, review notes and copyright of the editable version
 #   tool/store/ios.sh promo       [--dry-run]   promotional text of the editable version, else the live one
 #   tool/store/ios.sh screenshots [--dry-run]   screenshots and app previews of the editable version
+#   tool/store/ios.sh creatives   [--dry-run]   header and search-results images of the editable version
 set -euo pipefail
 
 APP_ID=6759974325
@@ -15,6 +16,7 @@ LOCALES=(en-US de-DE)
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 STORE_DIR="$ROOT/docs/store/app-store"
 METADATA_DIR="$STORE_DIR/metadata"
+CREATIVE_DIR="$STORE_DIR/creative"
 CHANGELOG_DIR="$ROOT/docs/store/play-store/metadata"
 
 # App Store Connect versions whose text can still be edited.
@@ -23,7 +25,7 @@ EDITABLE_STATES='["PREPARE_FOR_SUBMISSION","DEVELOPER_REJECTED","REJECTED","META
 die() { echo "error: $*" >&2; exit 1; }
 
 usage() {
-  sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
   exit "${1:-1}"
 }
 
@@ -175,6 +177,42 @@ cmd_screenshots() {
   done
 }
 
+# Replaces the header and search-results placements of the editable version with the PNGs in
+# creative/. The new image is uploaded first, so a failed upload leaves the old placement alone.
+cmd_creatives() {
+  require_editable
+
+  local locale localization_id slot placement_type file image_id placement_ids
+  for locale in "${LOCALES[@]}"; do
+    localization_id="$(asc localizations list --version "$EDITABLE_ID" --locale "$locale" | jq -r '.data[0].id')"
+    for slot in header:PRODUCT_PAGE_HEADER_ASSET search:APP_STORE_SEARCH_RESULTS_ASSET; do
+      placement_type="${slot#*:}"
+      file="$CREATIVE_DIR/${slot%%:*}_$locale.png"
+      [[ -f "$file" ]] || die "missing creative: ${file#"$ROOT"/}"
+      echo "Creative ${file#"$CREATIVE_DIR"/}"
+      if [[ "$DRY_RUN" == true ]]; then
+        echo "[dry-run] upload ${file#"$ROOT"/} and replace $placement_type ($locale)"
+        continue
+      fi
+
+      asc asset-library images upload --library-id "$APP_ID" --file "$file" >/dev/null
+      # The upload receipt carries no stable id field, so take the newest library image of that name.
+      image_id="$(asc asset-library images list --library-id "$APP_ID" --paginate |
+        jq -r --arg f "$(basename "$file")" \
+          '[.data[] | select(.attributes.fileName == $f)] | max_by(.attributes.createdDate) | .id // empty')"
+      [[ -n "$image_id" ]] || die "uploaded image not found in the library: ${file#"$ROOT"/}"
+
+      placement_ids="$(asc localizations placements list --localization-id "$localization_id" \
+        --placement-type "$placement_type" --paginate | jq -r '[.data[].id] | join(",")')"
+      if [[ -n "$placement_ids" ]]; then
+        asc localizations placements delete --placement-ids "$placement_ids" --confirm >/dev/null
+      fi
+      asc localizations placements create --localization-id "$localization_id" \
+        --image-id "$image_id" --placement-type "$placement_type" --placement-group DEFAULT_PROFILE >/dev/null
+    done
+  done
+}
+
 cmd_promo() {
   find_versions
   local version="$EDITABLE_VERSION"
@@ -209,6 +247,7 @@ case "$COMMAND" in
   release) cmd_release ;;
   metadata) cmd_metadata ;;
   screenshots) cmd_screenshots ;;
+  creatives) cmd_creatives ;;
   promo) cmd_promo ;;
   -h | --help) usage 0 ;;
   *) usage ;;

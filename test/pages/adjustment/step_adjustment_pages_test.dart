@@ -239,7 +239,7 @@ void main() {
     expect(result!.max, 200);
   });
 
-  testWidgets('Dial visualization renders the dial field and taps cycle its style', (WidgetTester tester) async {
+  testWidgets('Dial visualization renders the dial field and the style sheet changes color and size', (WidgetTester tester) async {
     final initial = StepAdjustment(
       id: 'test-id',
       name: 'Rebound',
@@ -283,12 +283,21 @@ void main() {
     await tester.tap(dial);
     await tester.pumpAndSettle();
 
+    expect(find.text('Dial style'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('red'));
+    await tester.tap(find.bySemanticsLabel('small'));
+    await tester.pumpAndSettle();
+
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(find.text('Dial style'), findsNothing);
+
     await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
 
     expect(result, isNotNull);
     expect(result!.dialColor, StepAdjustmentDialColor.red);
-    expect(result!.dialSize, StepAdjustmentDialSize.normal);
+    expect(result!.dialSize, StepAdjustmentDialSize.small);
   });
 
   testWidgets('Dial field is hidden for visualizations without a dial', (WidgetTester tester) async {

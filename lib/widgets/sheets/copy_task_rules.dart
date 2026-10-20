@@ -218,6 +218,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
               title: 'Recommended for $recommendedFor',
               icon: Icons.auto_awesome,
               color: colors.onPrimaryContainer,
+              maxLines: 2,
               selected: selectedVisible,
               total: visible.length,
               onChanged: (selectAll) => setState(() {
@@ -270,7 +271,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SheetHeader(title: _title, leadingIcon: const Icon(Icons.checklist)),
+          SheetHeader(title: _title, titleMaxLines: 2, leadingIcon: const Icon(Icons.checklist)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -354,6 +355,7 @@ class _SectionHeader extends StatelessWidget {
   final String title;
   final IconData? icon;
   final Color? color;
+  final int maxLines;
   final int selected;
   final int total;
   final ValueChanged<bool> onChanged;
@@ -362,6 +364,7 @@ class _SectionHeader extends StatelessWidget {
     required this.title,
     this.icon,
     this.color,
+    this.maxLines = 1,
     required this.selected,
     required this.total,
     required this.onChanged,
@@ -381,7 +384,7 @@ class _SectionHeader extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                Flexible(child: Text(title, style: style, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Flexible(child: Text(title, style: style, maxLines: maxLines, overflow: TextOverflow.ellipsis)),
                 Text(' ($selected / $total)', style: style),
               ],
             ),

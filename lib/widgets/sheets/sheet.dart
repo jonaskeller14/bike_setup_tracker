@@ -5,10 +5,11 @@ import '../text/section_title.dart';
 import '../tooltips/info_tooltip.dart';
 import '../tooltips/tooltip_style.dart';
 
-Text sheetTitle(BuildContext context, String title) {
+Text sheetTitle(BuildContext context, String title, {int? maxLines}) {
   return Text(
-    title, 
+    title,
     style: Theme.of(context).textTheme.titleLarge,
+    maxLines: maxLines,
     overflow: TextOverflow.ellipsis,
   );
 }

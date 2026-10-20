@@ -11,6 +11,7 @@ import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
 import '../../widgets/set_adjustment/set_step_adjustment_dial.dart';
+import '../../widgets/sheets/dial_style_sheet.dart';
 import 'adjustment_page.dart';
 
 const int _defaultStep = 1;
@@ -250,31 +251,52 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     });
   }
 
-  /// Cycles the dial through every palette color; wrapping back to the first
-  /// color flips the size, so repeated taps walk all color/size combinations.
-  void _cycleDialStyle() {
-    unawaited(HapticFeedback.selectionClick());
-    final nextIndex = (dialColor.index + 1) % StepAdjustmentDialColor.values.length;
-    dialColor = StepAdjustmentDialColor.values[nextIndex];
-    if (nextIndex == 0) {
-      dialSize = dialSize == StepAdjustmentDialSize.normal
-          ? StepAdjustmentDialSize.small
-          : StepAdjustmentDialSize.normal;
-    }
-    _updatePreview();
-    _changeListener();
+  void _openDialStyleSheet() {
+    unawaited(dialStyleSheet(
+      context: context,
+      color: dialColor,
+      size: dialSize,
+      knobBuilder: _buildKnob,
+      onColorChanged: (value) {
+        dialColor = value;
+        _updatePreview();
+        _changeListener();
+      },
+      onSizeChanged: (value) {
+        dialSize = value;
+        _updatePreview();
+        _changeListener();
+      },
+    ));
   }
 
-  Widget _buildDialStyleButton(BuildContext context) {
+  Widget _buildKnob(BuildContext context, StepAdjustmentDialColor color, StepAdjustmentDialSize size, {Key? key}) {
     final divisions = ((_previewAdjustment.max - _previewAdjustment.min) / _previewAdjustment.step).floor();
     final knobMax = (_previewAdjustment.min + divisions * _previewAdjustment.step).toDouble();
     final showStepTicks = divisions <= SetStepAdjustmentWidget.maxRenderedTicks;
-    final color = resolveDialColor(context, dialColor);
+    final resolvedColor = resolveDialColor(context, color);
 
+    return RotaryKnob(
+      key: key,
+      value: _previewValue.value.toDouble().clamp(_previewAdjustment.min.toDouble(), knobMax),
+      initialValue: null,
+      min: _previewAdjustment.min.toDouble(),
+      max: knobMax,
+      numberOfTicks: showStepTicks ? divisions + 1 : SetStepAdjustmentWidget.maxRenderedTicks + 1,
+      showAllTicks: showStepTicks,
+      clockwise: visualization.isClockwiseDial,
+      primaryColor: resolvedColor,
+      onPrimaryColor: resolveDialOnColor(context, resolvedColor),
+      tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+      small: size == StepAdjustmentDialSize.small,
+    );
+  }
+
+  Widget _buildDialStyleButton(BuildContext context) {
     return Tooltip(
-      message: 'Tap to change dial color and size',
+      message: 'Change dial color and size',
       child: InkWell(
-        onTap: _cycleDialStyle,
+        onTap: _openDialStyleSheet,
         borderRadius: BorderRadius.circular(4),
         // The decorator lays out against its incoming width, which is unbounded
         // inside the Row, so the knob's own width has to be handed to it.
@@ -286,20 +308,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
               border: OutlineInputBorder(),
               contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             ),
-            child: RotaryKnob(
-              key: const ValueKey('DialStyle'),
-              value: _previewValue.value.toDouble().clamp(_previewAdjustment.min.toDouble(), knobMax),
-              initialValue: null,
-              min: _previewAdjustment.min.toDouble(),
-              max: knobMax,
-              numberOfTicks: showStepTicks ? divisions + 1 : SetStepAdjustmentWidget.maxRenderedTicks + 1,
-              showAllTicks: showStepTicks,
-              clockwise: visualization.isClockwiseDial,
-              primaryColor: color,
-              onPrimaryColor: resolveDialOnColor(context, color),
-              tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-              small: dialSize == StepAdjustmentDialSize.small,
-            ),
+            child: _buildKnob(context, dialColor, dialSize, key: const ValueKey('DialStyle')),
           ),
         ),
       ),

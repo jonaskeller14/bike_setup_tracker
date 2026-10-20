@@ -12,6 +12,7 @@ import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
+import 'error_reporter.dart';
 import 'subscription_service.dart';
   
 sealed class StravaState {
@@ -523,7 +524,7 @@ class StravaService extends ChangeNotifier {
           ? StravaAvailability.available
           : StravaAvailability.full;
       _availabilityCheckedAt = DateTime.now();
-    } on FirebaseFunctionsException catch (e) {
+    } on FirebaseFunctionsException catch (e, s) {
       _handleError("checkAvailability", e);
       // Network-class failures: don't cache so the next sheet open re-probes
       // immediately. Rejected App Check / auth tokens are transient on the
@@ -535,14 +536,17 @@ class StravaService extends ChangeNotifier {
           e.code == 'unknown' ||
           e.code == 'unauthenticated' ||
           e.code == 'failed-precondition') {
+        logBreadcrumb('Strava availability: network error [${e.code}]');
         _availability = StravaAvailability.networkError;
         _availabilityCheckedAt = null;
       } else {
+        recordNonFatal(e, s, reason: 'strava.checkAvailability [${e.code}]');
         _availability = StravaAvailability.full;
         _availabilityCheckedAt = DateTime.now();
       }
-    } catch (e) {
+    } catch (e, s) {
       _handleError("checkAvailability", e);
+      recordNonFatal(e, s, reason: 'strava.checkAvailability');
       _availability = StravaAvailability.networkError;
       _availabilityCheckedAt = null;
     } finally {

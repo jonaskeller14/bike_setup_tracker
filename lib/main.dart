@@ -25,6 +25,7 @@ import 'services/app_hint_service.dart';
 import 'services/backup_service.dart';
 import 'services/database_migration_service.dart';
 import 'services/deep_link_service.dart';
+import 'services/error_reporter.dart';
 import 'services/google_drive_service.dart';
 import 'services/navigation_service.dart';
 import 'services/notification_service.dart';
@@ -104,19 +105,7 @@ void configureSystemChrome() {
   );
 }
 
-typedef BootErrorReporter = void Function(Object error, StackTrace stack, {required String reason});
-
-void _reportBootErrorToCrashlytics(Object error, StackTrace stack, {required String reason}) {
-  unawaited(
-    FirebaseCrashlytics.instance.recordError(error, stack, reason: reason, fatal: false),
-  );
-}
-
-/// Startup failures never reach the global handlers: [LoadingGate] catches them
-/// to show [LoadingErrorPage] or to degrade silently, so they must be reported
-/// explicitly. Overridable for tests and the screenshot entry point, which
-/// run without Firebase.
-BootErrorReporter recordBootError = _reportBootErrorToCrashlytics;
+BootErrorReporter recordBootError = recordNonFatal;
 
 class LoadingGate extends StatefulWidget {
   final AppSettings appSettings;

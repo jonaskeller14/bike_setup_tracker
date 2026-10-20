@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -87,7 +86,7 @@ class _ResetPageState extends State<ResetPage> {
                   );
                 },
               ),
-              if (kDebugMode)
+              if (context.select<AppSettings, bool>((settings) => settings.developerMode))
                 ListTile(
                   leading: const Icon(Icons.bug_report_outlined),
                   title: const Text('Show Loading Error Page'),

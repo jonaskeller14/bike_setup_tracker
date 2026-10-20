@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
@@ -19,6 +21,7 @@ import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
 import '../utils/timeline_actions.dart';
 import '../widgets/animated_app_bar_switcher.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../widgets/lists/garage_list.dart';
 import '../widgets/lists/list_scroll_controller.dart';
@@ -62,6 +65,16 @@ class _HomePageState extends State<HomePage> {
 
   void _selectionChanged() {
     if (mounted) setState(() {});
+  }
+
+  void _toggleDeveloperMode() {
+    final appSettings = context.read<AppSettings>();
+    final enabled = !appSettings.developerMode;
+    appSettings.developerMode = enabled;
+    unawaited(HapticFeedback.mediumImpact());
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(AppSnackBar.info(context, enabled ? 'Developer mode on' : 'Developer mode off'));
   }
 
   Future<void> _deleteSelectedBikes() {
@@ -261,15 +274,18 @@ class _HomePageState extends State<HomePage> {
               )
             : AppBar(
                 key: const ValueKey('default-app-bar'),
-                leading: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/icons/logo_256.png',
-                        fit: BoxFit.contain,
+                leading: GestureDetector(
+                  onDoubleTap: kDebugMode ? _toggleDeveloperMode : null,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/icons/logo_256.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),

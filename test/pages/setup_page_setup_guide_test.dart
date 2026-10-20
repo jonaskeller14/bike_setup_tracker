@@ -53,7 +53,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    SetupPage.showSetupGuideForAllComponents = false;
     SharedPreferences.setMockInitialValues({});
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
       const MethodChannel('plugins.flutter.io/path_provider'),
@@ -68,10 +67,12 @@ void main() {
     bool weightRecorded = true,
     bool weightAttribute = true,
     bool enablePerson = true,
+    bool developerMode = false,
   }) async {
     final harness = (await tester.runAsync(
       () => _Harness.create(
         enabled: enabled,
+        developerMode: developerMode,
         forkHasValues: forkHasValues,
         weightRecorded: weightRecorded,
         weightAttribute: weightAttribute,
@@ -106,9 +107,8 @@ void main() {
     expect(find.byType(SetupGuideCard), findsNothing);
   });
 
-  testWidgets('shows for components with recorded values while debugging', (tester) async {
-    SetupPage.showSetupGuideForAllComponents = true;
-    await open(tester, forkHasValues: true);
+  testWidgets('shows for components with recorded values in developer mode', (tester) async {
+    await open(tester, forkHasValues: true, developerMode: true);
 
     expect(find.byType(SetupGuideCard), findsOneWidget);
   });
@@ -243,6 +243,7 @@ class _Harness {
     required bool weightRecorded,
     required bool weightAttribute,
     required bool enablePerson,
+    required bool developerMode,
   }) async {
     final brand = parseCatalogFile(_catalog);
     final application = buildCatalogApplication(catalogProducts(brand).single);
@@ -296,6 +297,7 @@ class _Harness {
     final settings = AppSettings()
       ..showOnboarding = false
       ..enablePerson = enablePerson
+      ..developerMode = developerMode
       ..enableComponentPresets = enabled
       ..enableSetupGuides = enabled;
     return _Harness(

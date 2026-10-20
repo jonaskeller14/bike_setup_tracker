@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -164,7 +163,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                     flex: 2,
                     child: _StravaSyncButton(stravaService: stravaService),
                   ),
-                  if (kDebugMode)
+                  if (appSettings.developerMode)
                     Expanded(
                       flex: 2,
                       child: SizedBox(

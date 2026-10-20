@@ -402,7 +402,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       typeItem(_ThresholdType.movingTime),
       typeItem(_ThresholdType.elapsedTime),
       typeItem(_ThresholdType.activityCount),
-      if ((enableKilojoules || kDebugMode) || widget.taskRule?.interval is KilojoulesThreshold)
+      if ((enableKilojoules || context.read<AppSettings>().developerMode) || widget.taskRule?.interval is KilojoulesThreshold)
         typeItem(_ThresholdType.kilojoules),
     ];
   }

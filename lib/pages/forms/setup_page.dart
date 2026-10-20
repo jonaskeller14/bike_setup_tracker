@@ -58,9 +58,6 @@ enum SetupPageMode {
 }
 
 class SetupPage extends StatefulWidget {
-  @visibleForTesting
-  static bool showSetupGuideForAllComponents = kDebugMode;
-
   final Setup? setup;
   final SetupPageMode mode;
   final DateTime? initialDateTimeUtc;
@@ -1239,9 +1236,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Widget? _setupGuide(List<Component> bikeComponents) {
-    if (!context.read<AppSettings>().enableSetupGuides) return null;
+    final appSettings = context.read<AppSettings>();
+    if (!appSettings.enableSetupGuides) return null;
     final catalog = context.read<ComponentCatalogRepository>();
-    final guided = SetupPage.showSetupGuideForAllComponents
+    final guided = appSettings.developerMode
         ? guidedComponents(bikeComponents, resolve: (component) => catalog.loadedPreset(component.preset!))
         : guidedComponentsWithoutValues(
             bikeComponents,

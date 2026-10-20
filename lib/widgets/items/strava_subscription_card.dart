@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -75,7 +74,7 @@ class StravaSubscriptionCard extends StatelessWidget {
     final renewLabel = isTrial
         ? entitlement.autoRenewing ? 'First charge' : 'Trial ends'
         : entitlement.autoRenewing ? 'Renews' : 'Expires';
-    final renewDate = DateFormat(kDebugMode ? '$dateFormat HH:mm:ss' : dateFormat).format(entitlement.expiresAt);
+    final renewDate = DateFormat(context.read<AppSettings>().developerMode ? '$dateFormat HH:mm:ss' : dateFormat).format(entitlement.expiresAt);
 
     return Column(
       children: [

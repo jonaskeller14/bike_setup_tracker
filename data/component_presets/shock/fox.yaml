@@ -581,118 +581,130 @@ nodes:
   - label: "FLOAT SL"
     level: model
     category: XC
-    years: "2024-2027"
-    url: https://ridefox.com/pages/fox-float-sl
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3173/shock--2027-float-sl-and-float-x
-    guide: fox_float_sl_float_x_2027
     specs: { spring: Air }
     tasks: &fox_service
       shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: FOX owner's manual }
     children:
-      - label: Factory
-        level: trim
-        specs: { stanchion: Kashima }
-        adjustments: &air_spring_sl
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve }
-        options:
-          damper: [float_sl]
-          size:
-            - { size: "190x40/42.5/45", mount: Standard }
-            - { size: "210x55", mount: Standard }
-            - { size: "165x40/42.5/45", mount: Trunnion }
-      - label: Performance
-        level: trim
-        specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring_sl
-        options:
-          damper: [float_sl]
-          size:
-            - { size: "190x45", mount: Standard }
-            - { size: "165x40", mount: Trunnion }
+      - label: "2024–2027"
+        level: generation
+        id: "2024"
+        years: "2024-2027"
+        url: https://ridefox.com/pages/fox-float-sl
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3173/shock--2027-float-sl-and-float-x
+        guide: fox_float_sl_float_x_2027
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima }
+            adjustments: &air_spring_sl
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve }
+            options:
+              damper: [float_sl]
+              size:
+                - { size: "190x40/42.5/45", mount: Standard }
+                - { size: "210x55", mount: Standard }
+                - { size: "165x40/42.5/45", mount: Trunnion }
+          - label: Performance
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *air_spring_sl
+            options:
+              damper: [float_sl]
+              size:
+                - { size: "190x45", mount: Standard }
+                - { size: "165x40", mount: Trunnion }
 
   - label: "FLOAT"
     level: model
     category: XC / Trail
-    years: "2024-2027"
-    url: https://ridefox.com/pages/fox-float
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3172/shock--2027-float
-    guide: fox_float_2027
     specs: { spring: Air }
     tasks: *fox_service
     children:
-      - label: Factory
-        level: trim
-        specs: { stanchion: Kashima }
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
-        options:
-          damper: [float]
-          size:
-            - { size: "190x45", mount: Standard }
-            - { size: "210x50/55", mount: Standard }
-            - { size: "185x50/52.5/55", mount: Trunnion }
-      - label: Performance Elite
-        level: trim
-        specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring
-        options:
-          damper: [float]
-      - label: Performance
-        level: trim
-        specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring
-        options:
-          damper: [float]
-          size:
-            - { size: "190x45", mount: Standard }
-            - { size: "210x55", mount: Standard }
-            - { size: "185x55", mount: Trunnion }
-      - label: Rhythm
-        level: trim
-        specs: { stanchion: "6000-series alloy, black anodized" }
-        adjustments: *air_spring
-        options:
-          damper: [float]
-        note: OEM complete bikes only
+      - label: "2024–2027"
+        level: generation
+        id: "2024"
+        years: "2024-2027"
+        url: https://ridefox.com/pages/fox-float
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3172/shock--2027-float
+        guide: fox_float_2027
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima }
+            adjustments: &air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
+            options:
+              damper: [float]
+              size:
+                - { size: "190x45", mount: Standard }
+                - { size: "210x50/55", mount: Standard }
+                - { size: "185x50/52.5/55", mount: Trunnion }
+          - label: Performance Elite
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *air_spring
+            options:
+              damper: [float]
+          - label: Performance
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *air_spring
+            options:
+              damper: [float]
+              size:
+                - { size: "190x45", mount: Standard }
+                - { size: "210x55", mount: Standard }
+                - { size: "185x55", mount: Trunnion }
+          - label: Rhythm
+            level: trim
+            specs: { stanchion: "6000-series alloy, black anodized" }
+            adjustments: *air_spring
+            options:
+              damper: [float]
+            note: OEM complete bikes only
 
   - label: "FLOAT X"
     level: model
     category: All-Mountain
-    years: "2022-2027"
-    url: https://ridefox.com/pages/fox-float-x
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3173/shock--2027-float-sl-and-float-x
-    guide: fox_float_sl_float_x_2027
     specs: { spring: Air }
     tasks: *fox_service
     children:
-      - label: Factory
-        level: trim
-        specs: { stanchion: Kashima }
-        adjustments: *air_spring
-        options:
-          damper: [float_x]
-          size:
-            - { size: "190x45", mount: Standard }
-            - { size: "210x50/52.5/55", mount: Standard }
-            - { size: "230x60/65", mount: Standard }
-            - { size: "185x55", mount: Trunnion }
-            - { size: "205x60/62.5/65", mount: Trunnion }
-      - label: Performance Elite
-        level: trim
-        specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring
-        options:
-          damper: [float_x]
-          size:
-            - { size: "190x45", mount: Standard }
-            - { size: "210x50/55", mount: Standard }
-            - { size: "205x65", mount: Trunnion }
-      - label: Performance
-        level: trim
-        specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring
-        options:
-          damper: [float_x]
+      - label: "2022–2027"
+        level: generation
+        id: "2022"
+        years: "2022-2027"
+        url: https://ridefox.com/pages/fox-float-x
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3173/shock--2027-float-sl-and-float-x
+        guide: fox_float_sl_float_x_2027
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima }
+            adjustments: *air_spring
+            options:
+              damper: [float_x]
+              size:
+                - { size: "190x45", mount: Standard }
+                - { size: "210x50/52.5/55", mount: Standard }
+                - { size: "230x60/65", mount: Standard }
+                - { size: "185x55", mount: Trunnion }
+                - { size: "205x60/62.5/65", mount: Trunnion }
+          - label: Performance Elite
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *air_spring
+            options:
+              damper: [float_x]
+              size:
+                - { size: "190x45", mount: Standard }
+                - { size: "210x50/55", mount: Standard }
+                - { size: "205x65", mount: Trunnion }
+          - label: Performance
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *air_spring
+            options:
+              damper: [float_x]
 
   - label: "FLOAT X2"
     level: model
@@ -738,6 +750,42 @@ nodes:
             options:
               damper: [vvc2]
             note: OEM complete bikes only
+      - label: "2021–2025"
+        level: generation
+        id: "2021"
+        years: "2021-2025"
+        url: https://tech.ridefox.com/bike/owners-manuals/2984/shock--2025-float-x2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/2984/shock--2025-float-x2
+        guide: fox_float_x2_2025
+        specs: { spring: Air }
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum depends on the size: metric 210x50/55 3, 230x57.5/60/65 4, 250x70/75 5; trunnion 185x50/55 1, 205x60/62.5/65 2, 225x70/75 3; imperial 7.5x2 and 7.875x2 1, 8.5x2.5 2, 9.5x3 3, 10.5x3.5 4" }
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima }
+            options:
+              damper: [x2_vvc_2021]
+              size: &x2_sizes_2021
+                - { size: "210x50/55", mount: Standard }
+                - { size: "230x57.5/60/65", mount: Standard }
+                - { size: "250x70/75", mount: Standard }
+                - { size: "185x50/55", mount: Trunnion }
+                - { size: "205x60/62.5/65", mount: Trunnion }
+                - { size: "225x70/75", mount: Trunnion }
+                - { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: 7.5x2in }
+                - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
+                - { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: 8.5x2.5in }
+                - { eye_to_eye_mm: 241.3, stroke_mm: 76.2, label: 9.5x3in }
+                - { eye_to_eye_mm: 266.7, stroke_mm: 88.9, label: 10.5x3.5in }
+          - label: Performance Elite
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            options:
+              damper: [x2_vvc_2021_ls]
+              size: *x2_sizes_2021
+
       - label: "2019–2020"
         level: generation
         id: "2019"
@@ -781,62 +829,30 @@ nodes:
               damper: [x2_2019_ls]
               size: *x2_sizes_2019
             note: Low-speed compression and rebound only — no high-speed adjusters.
-      - label: "2021–2025"
+  - label: "DHX"
+    level: model
+    category: Trail / Enduro
+    specs: { spring: Coil }
+    tasks: *fox_service
+    children:
+      - label: "2022–2027"
         level: generation
-        id: "2021"
-        years: "2021-2025"
-        url: https://tech.ridefox.com/bike/owners-manuals/2984/shock--2025-float-x2
-        setup_guide: https://tech.ridefox.com/bike/owners-manuals/2984/shock--2025-float-x2
-        guide: fox_float_x2_2025
-        specs: { spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
-          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum depends on the size: metric 210x50/55 3, 230x57.5/60/65 4, 250x70/75 5; trunnion 185x50/55 1, 205x60/62.5/65 2, 225x70/75 3; imperial 7.5x2 and 7.875x2 1, 8.5x2.5 2, 9.5x3 3, 10.5x3.5 4" }
+        id: "2022"
+        years: "2022-2027"
+        url: https://ridefox.com/products/fox-dhx-factory
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3170/shock--2027-dhx-
+        guide: fox_dhx_2027
         children:
           - label: Factory
             level: trim
             specs: { stanchion: Kashima }
+            mounts: [Metric, Metric Trunnion]
+            adjustments: &coil_spring
+              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
             options:
-              damper: [x2_vvc_2021]
-              size: &x2_sizes_2021
-                - { size: "210x50/55", mount: Standard }
-                - { size: "230x57.5/60/65", mount: Standard }
-                - { size: "250x70/75", mount: Standard }
-                - { size: "185x50/55", mount: Trunnion }
-                - { size: "205x60/62.5/65", mount: Trunnion }
-                - { size: "225x70/75", mount: Trunnion }
-                - { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: 7.5x2in }
-                - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
-                - { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: 8.5x2.5in }
-                - { eye_to_eye_mm: 241.3, stroke_mm: 76.2, label: 9.5x3in }
-                - { eye_to_eye_mm: 266.7, stroke_mm: 88.9, label: 10.5x3.5in }
-          - label: Performance Elite
-            level: trim
-            specs: { stanchion: "7000-series alloy, black anodized" }
-            options:
-              damper: [x2_vvc_2021_ls]
-              size: *x2_sizes_2021
-
-  - label: "DHX"
-    level: model
-    category: Trail / Enduro
-    years: "2022-2027"
-    url: https://ridefox.com/products/fox-dhx-factory
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3170/shock--2027-dhx-
-    guide: fox_dhx_2027
-    specs: { spring: Coil }
-    tasks: *fox_service
-    children:
-      - label: Factory
-        level: trim
-        specs: { stanchion: Kashima }
-        mounts: [Metric, Metric Trunnion]
-        adjustments: &coil_spring
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-        options:
-          damper: [dhx_coil]
-          size: [55, 60, 62.5, 65]
-        note: "Coil spring sold separately. Common sizes: 210x55, 230x60, 230x65, 185x55, 205x60, 205x62.5"
+              damper: [dhx_coil]
+              size: [55, 60, 62.5, 65]
+            note: "Coil spring sold separately. Common sizes: 210x55, 230x60, 230x65, 185x55, 205x60, 205x62.5"
 
   - label: "DHX2"
     level: model
@@ -878,28 +894,6 @@ nodes:
             options:
               damper: [vvc2]
             note: OEM complete bikes only
-      - label: "2019–2020"
-        level: generation
-        id: "2019"
-        years: "2019-2020"
-        url: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
-        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
-        guide: fox_coil_2020
-        specs: { spring: Coil }
-        children:
-          - label: Factory
-            level: trim
-            specs: { stanchion: Kashima }
-            adjustments: *coil_spring
-            options:
-              damper: [x2_2019]
-            note: Coil spring sold separately. Shares the four-way X2 damper with the air FLOAT X2.
-          - label: Performance Elite
-            level: trim
-            specs: { stanchion: "7000-series alloy, black anodized" }
-            adjustments: *coil_spring
-            options:
-              damper: [x2_2019]
       - label: "2021–2025"
         level: generation
         id: "2021"
@@ -927,6 +921,28 @@ nodes:
             adjustments: *coil_spring
             options:
               damper: [x2_vvc_2021]
+      - label: "2019–2020"
+        level: generation
+        id: "2019"
+        years: "2019-2020"
+        url: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
+        guide: fox_coil_2020
+        specs: { spring: Coil }
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima }
+            adjustments: *coil_spring
+            options:
+              damper: [x2_2019]
+            note: Coil spring sold separately. Shares the four-way X2 damper with the air FLOAT X2.
+          - label: Performance Elite
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *coil_spring
+            options:
+              damper: [x2_2019]
 
   # ------------------------------------------------------------------------
   # Legacy models. The legacy generations of the FLOAT X2 and DHX2 sit as
@@ -937,77 +953,85 @@ nodes:
   - label: "FLOAT DPS"
     level: model
     category: XC / Trail
-    years: "2018-2023"
-    url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
-    guide: fox_float_dps_dpx2_2021
     specs: { spring: Air }
     tasks: *fox_service
     children:
-      - label: Factory
-        level: trim
-        specs: { stanchion: Kashima }
-        adjustments: &air_spring_dps
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve }
-        options:
-          damper: [dps_2018]
-          size:
-            - { eye_to_eye_mm: 165.1, stroke_mm: 38.1, label: 6.5x1.5in }
-            - { eye_to_eye_mm: 184.15, stroke_mm: 44.45, label: 7.25x1.75in }
-            - { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: 7.5x2in }
-            - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
-            - { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: 7.875x2.25in }
-        note: EVOL air sleeve, 350 psi maximum. Sold with a 9mm damper shaft.
-      - label: Performance Elite
-        level: trim
-        specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring_dps
-        options:
-          damper: [dps_2018]
-      - label: Performance
-        level: trim
-        specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring_dps
-        options:
-          damper: [dps_2018]
-          size:
-            - { eye_to_eye_mm: 165.1, stroke_mm: 38.1, label: 6.5x1.5in }
-            - { eye_to_eye_mm: 184.15, stroke_mm: 44.45, label: 7.25x1.75in }
-            - { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: 7.5x2in }
-            - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
-            - { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: 7.875x2.25in }
-            - { size: "165x40", mount: Trunnion }
-            - { size: "185x55", mount: Trunnion }
+      - label: "2018–2023"
+        level: generation
+        id: "2018"
+        years: "2018-2023"
+        url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+        guide: fox_float_dps_dpx2_2021
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima }
+            adjustments: &air_spring_dps
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve }
+            options:
+              damper: [dps_2018]
+              size:
+                - { eye_to_eye_mm: 165.1, stroke_mm: 38.1, label: 6.5x1.5in }
+                - { eye_to_eye_mm: 184.15, stroke_mm: 44.45, label: 7.25x1.75in }
+                - { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: 7.5x2in }
+                - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
+                - { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: 7.875x2.25in }
+            note: EVOL air sleeve, 350 psi maximum. Sold with a 9mm damper shaft.
+          - label: Performance Elite
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *air_spring_dps
+            options:
+              damper: [dps_2018]
+          - label: Performance
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *air_spring_dps
+            options:
+              damper: [dps_2018]
+              size:
+                - { eye_to_eye_mm: 165.1, stroke_mm: 38.1, label: 6.5x1.5in }
+                - { eye_to_eye_mm: 184.15, stroke_mm: 44.45, label: 7.25x1.75in }
+                - { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: 7.5x2in }
+                - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
+                - { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: 7.875x2.25in }
+                - { size: "165x40", mount: Trunnion }
+                - { size: "185x55", mount: Trunnion }
 
   - label: "FLOAT DPX2"
     level: model
     category: Trail / Enduro
-    years: "2018-2021"
-    url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
-    guide: fox_float_dps_dpx2_2021
     specs: { spring: Air }
     tasks: *fox_service
     children:
-      - label: Factory
-        level: trim
-        specs: { stanchion: Kashima }
-        adjustments: *air_spring
-        options:
-          damper: [dpx2_2018]
-        note: EVOL air sleeve, 350 psi maximum. Larger 1/2in damper shaft than the DPS.
-      - label: Performance Elite
-        level: trim
-        specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring
-        options:
-          damper: [dpx2_2018]
-      - label: Performance
-        level: trim
-        specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring
-        options:
-          damper: [dpx2_2018]
+      - label: "2018–2021"
+        level: generation
+        id: "2018"
+        years: "2018-2021"
+        url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+        guide: fox_float_dps_dpx2_2021
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima }
+            adjustments: *air_spring
+            options:
+              damper: [dpx2_2018]
+            note: EVOL air sleeve, 350 psi maximum. Larger 1/2in damper shaft than the DPS.
+          - label: Performance Elite
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *air_spring
+            options:
+              damper: [dpx2_2018]
+          - label: Performance
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized" }
+            adjustments: *air_spring
+            options:
+              damper: [dpx2_2018]
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

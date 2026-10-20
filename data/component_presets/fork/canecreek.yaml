@@ -174,114 +174,130 @@ nodes:
   - label: "Helm MKII"
     level: model
     category: Downcountry / Trail / Enduro
-    years: "2020-2026"
-    url: https://www.canecreek.com/products/helm-mkii
-    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
-    guide: canecreek_helm_mkii_2025
     tasks: &helm_service
       fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Cane Creek Helm manual }
       fork:full_service: { interval: { moving_time_h: 100 }, source: Cane Creek Helm manual }
     children:
-      - label: Air
-        level: trim
-        specs: { stanchion: 35mm, spring: Air }
-        adjustments: &helm_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 30, max: 150, notes: "30 psi minimum, 150 psi maximum; Cane Creek recommends 15-25% sag" }
-          - { name: Volume Adjustment, type: step, max: 8, visualization: stepper, notes: Indexed rod/piston (not stackable spacers) — higher notch count = more progressive. Factory default is 2 of 8 notches down. }
-        options:
-          damper: [helm_mkii_damper]
-          travel_mm: [100, 110, 120, 130, 140, 150, 160, 170]
-          wheel_size: [29, 27.5]
-        note: 29in offered in 120-160mm; 27.5in offered in 130-170mm (10mm internal increments, no extra parts required). Up to seven 10mm travel reducers allow settings down to 100mm.
-      - label: Coil
-        level: trim
-        url: https://www.canecreek.com/products/helm-mkii-coil
-        specs: { stanchion: 35mm, spring: Coil }
-        adjustments: &helm_coil_spring
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: "Published rates: 35 extra-soft (red), 45 soft (black), 55 medium (green), 65 firm (blue)" }
-        options:
-          damper: [helm_mkii_damper]
-          travel_mm: [120, 130, 140, 150, 160, 170]
-          wheel_size: [29, 27.5]
-        note: 29in offered in 120-160mm; 27.5in offered in 130-170mm.
+      - label: "2020–2026"
+        level: generation
+        id: "2020"
+        years: "2020-2026"
+        url: https://www.canecreek.com/products/helm-mkii
+        setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
+        guide: canecreek_helm_mkii_2025
+        children:
+          - label: Air
+            level: trim
+            specs: { stanchion: 35mm, spring: Air }
+            adjustments: &helm_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 30, max: 150, notes: "30 psi minimum, 150 psi maximum; Cane Creek recommends 15-25% sag" }
+              - { name: Volume Adjustment, type: step, max: 8, visualization: stepper, notes: Indexed rod/piston (not stackable spacers) — higher notch count = more progressive. Factory default is 2 of 8 notches down. }
+            options:
+              damper: [helm_mkii_damper]
+              travel_mm: [100, 110, 120, 130, 140, 150, 160, 170]
+              wheel_size: [29, 27.5]
+            note: 29in offered in 120-160mm; 27.5in offered in 130-170mm (10mm internal increments, no extra parts required). Up to seven 10mm travel reducers allow settings down to 100mm.
+          - label: Coil
+            level: trim
+            url: https://www.canecreek.com/products/helm-mkii-coil
+            specs: { stanchion: 35mm, spring: Coil }
+            adjustments: &helm_coil_spring
+              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: "Published rates: 35 extra-soft (red), 45 soft (black), 55 medium (green), 65 firm (blue)" }
+            options:
+              damper: [helm_mkii_damper]
+              travel_mm: [120, 130, 140, 150, 160, 170]
+              wheel_size: [29, 27.5]
+            note: 29in offered in 120-160mm; 27.5in offered in 130-170mm.
 
   - label: "Helm Works Series"
     level: model
     category: Downcountry
-    years: "2023-2026"
-    url: https://www.canecreek.com/products/helm-works-series
-    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
-    guide: canecreek_helm_mkii_2025
     tasks: *helm_service
     children:
-      - label: Air
-        level: trim
-        specs: { stanchion: 35mm, spring: Air }
-        adjustments: *helm_air_spring
-        options:
-          damper: [helm_mkii_damper]
-          travel_mm: [100, 110, 120, 130]
-          wheel_size: [29]
-        note: |-
-          - Limited-run special edition of the Helm MKII, 29in only
-          - Hollow-anodized shorter-offset crown and bolt-on D-Loc axle
-          - Around 100g lighter than a standard Helm MKII
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
+        url: https://www.canecreek.com/products/helm-works-series
+        setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
+        guide: canecreek_helm_mkii_2025
+        children:
+          - label: Air
+            level: trim
+            specs: { stanchion: 35mm, spring: Air }
+            adjustments: *helm_air_spring
+            options:
+              damper: [helm_mkii_damper]
+              travel_mm: [100, 110, 120, 130]
+              wheel_size: [29]
+            note: |-
+              - Limited-run special edition of the Helm MKII, 29in only
+              - Hollow-anodized shorter-offset crown and bolt-on D-Loc axle
+              - Around 100g lighter than a standard Helm MKII
 
   - label: "Helm DJ"
     level: model
     category: Dirt Jump / Dual Slalom / Street
-    years: "2025-2026"
-    url: https://www.canecreek.com/products/helm-dj
-    guide: canecreek_helm_dj_2025
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { stanchion: 35mm, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Cane Creek recommends 95-125 psi based on rider weight and sag/ride-height preference }
-        options:
-          damper: [helm_dj_damper]
-          travel_mm: [90]
-          wheel_size: [26]
-        note: |-
-          - 27.5in-crown chassis built around a 26in wheel for dirt jump, dual slalom and street
-          - Travel fixed at 90mm by an internal spacer stack (5 large + 3 standard), not rider-adjustable
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.canecreek.com/products/helm-dj
+        guide: canecreek_helm_dj_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { stanchion: 35mm, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Cane Creek recommends 95-125 psi based on rider weight and sag/ride-height preference }
+            options:
+              damper: [helm_dj_damper]
+              travel_mm: [90]
+              wheel_size: [26]
+            note: |-
+              - 27.5in-crown chassis built around a 26in wheel for dirt jump, dual slalom and street
+              - Travel fixed at 90mm by an internal spacer stack (5 large + 3 standard), not rider-adjustable
 
-  # Legacy — first-generation Helm. Its own manual, its own damper id: the
-  # MK1 runs 17 clicks of LSC where the MKII runs 10.
+      # Legacy — first-generation Helm. Its own manual, its own damper id: the
+      # MK1 runs 17 clicks of LSC where the MKII runs 10.
   - label: "Helm MK1"
     level: model
     category: Trail / Enduro
-    years: "2017-2019"
-    url: https://www.canecreek.com/pages/legacy-products-product-support
-    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
-    guide: canecreek_helm_mk1_2018
-    # Manual: cdn.shopify.com/.../Helm_UserManual_1_12_18_FINAL_...pdf
-    # 2017 launch year per Pinkbike's Helm fork review; superseded by the
-    # Helm MKII in 2020.
     tasks: *helm_service
     children:
-      - label: Air
-        level: trim
-        specs: { stanchion: 35mm, spring: Air }
-        adjustments: *helm_air_spring
-        options:
-          damper: [helm_mk1_damper]
-          travel_mm: [100, 110, 120, 130, 140, 150, 160, 170]
-          wheel_size: [29, 27.5]
-        note: |-
-          - 27.5in runs 100-170mm, 29in/27.5+ runs 100-160mm, set with 10mm internal travel reducers
-          - Air volume is set by a static piston on an indexed rod, 8 positions
-      - label: Coil
-        level: trim
-        specs: { stanchion: 35mm, spring: Coil }
-        adjustments: *helm_coil_spring
-        options:
-          damper: [helm_mk1_damper]
-          travel_mm: [130, 140, 150, 160]
-          wheel_size: [29, 27.5]
-        note: Travel adjusts between 130mm and 160mm in 10mm increments on the compression rod, no extra parts needed.
+      - label: "2017–2019"
+        level: generation
+        id: "2017"
+        years: "2017-2019"
+        url: https://www.canecreek.com/pages/legacy-products-product-support
+        setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
+        guide: canecreek_helm_mk1_2018
+        # Manual: cdn.shopify.com/.../Helm_UserManual_1_12_18_FINAL_...pdf
+        # 2017 launch year per Pinkbike's Helm fork review; superseded by the
+        # Helm MKII in 2020.
+        children:
+          - label: Air
+            level: trim
+            specs: { stanchion: 35mm, spring: Air }
+            adjustments: *helm_air_spring
+            options:
+              damper: [helm_mk1_damper]
+              travel_mm: [100, 110, 120, 130, 140, 150, 160, 170]
+              wheel_size: [29, 27.5]
+            note: |-
+              - 27.5in runs 100-170mm, 29in/27.5+ runs 100-160mm, set with 10mm internal travel reducers
+              - Air volume is set by a static piston on an indexed rod, 8 positions
+          - label: Coil
+            level: trim
+            specs: { stanchion: 35mm, spring: Coil }
+            adjustments: *helm_coil_spring
+            options:
+              damper: [helm_mk1_damper]
+              travel_mm: [130, 140, 150, 160]
+              wheel_size: [29, 27.5]
+            note: Travel adjusts between 130mm and 160mm in 10mm increments on the compression rod, no extra parts needed.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

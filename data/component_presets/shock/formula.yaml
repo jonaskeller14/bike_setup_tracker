@@ -125,50 +125,58 @@ nodes:
   - label: "Nebbia"
     level: model
     category: Trail / Enduro / All-Mountain
-    years: "2024-2026"
-    url: https://www.rideformula.com/products/mtb-shocks/nebbia/
-    setup_guide: https://www.rideformula.com/wp-content/uploads/2024/07/Manuale-Utente-Nebbia-ENG.pdf
-    guide: formula_nebbia_2024
     specs: { spring: Air }
     tasks:
       shock:air_can_service: { interval: { moving_time_h: 60 }, fallback: { days: 180 }, source: Formula owner's manual }
       shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Formula owner's manual }
     children:
-      - label: Air
-        level: trim
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        options:
-          damper: [nebbia_2024]
-          size: [{ size: "190x37.5/40/42.5/45", mount: Standard }, { size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "250x67.5/70/72.5/75", mount: Standard }, { size: "165x37.5/40/42.5/45", mount: Trunnion }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65/67.5", mount: Trunnion }, { size: "225x70/72.5/75", mount: Trunnion }]
-        note: |-
-          - Coil and air hybrid negative spring with a bladder oil reservoir
-          - Volume spacers tune the mid- and end-stroke
-          - Clip-in spacers cut the stroke by 2.5, 5 or 7.5mm without tools
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://www.rideformula.com/products/mtb-shocks/nebbia/
+        setup_guide: https://www.rideformula.com/wp-content/uploads/2024/07/Manuale-Utente-Nebbia-ENG.pdf
+        guide: formula_nebbia_2024
+        children:
+          - label: Air
+            level: trim
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            options:
+              damper: [nebbia_2024]
+              size: [{ size: "190x37.5/40/42.5/45", mount: Standard }, { size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "250x67.5/70/72.5/75", mount: Standard }, { size: "165x37.5/40/42.5/45", mount: Trunnion }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65/67.5", mount: Trunnion }, { size: "225x70/72.5/75", mount: Trunnion }]
+            note: |-
+              - Coil and air hybrid negative spring with a bladder oil reservoir
+              - Volume spacers tune the mid- and end-stroke
+              - Clip-in spacers cut the stroke by 2.5, 5 or 7.5mm without tools
 
   - label: "MOD"
     level: model
     category: Enduro / All-Mountain
-    years: "2020-2026"
-    url: https://www.rideformula.com/products/mtb-shocks/mod/
-    setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Owner-Manual.pdf
-    guide: formula_mod_2020
     specs: { spring: Coil }
     tasks: &formula_mod_service
       shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Formula owner's manual }
     children:
-      - label: Coil
-        level: trim
-        adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
-        options:
-          damper: [mod_2020]
-          size: [{ size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65", mount: Trunnion }]
-        note: |-
-          - Steel coil springs from 300 to 700 lbs/in
-          - Yoke-mount compatible version available
-          - Major service interval of 200 hours
+      - label: "2020–2026"
+        level: generation
+        id: "2020"
+        years: "2020-2026"
+        url: https://www.rideformula.com/products/mtb-shocks/mod/
+        setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Owner-Manual.pdf
+        guide: formula_mod_2020
+        children:
+          - label: Coil
+            level: trim
+            adjustments:
+              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
+            options:
+              damper: [mod_2020]
+              size: [{ size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65", mount: Trunnion }]
+            note: |-
+              - Steel coil springs from 300 to 700 lbs/in
+              - Yoke-mount compatible version available
+              - Major service interval of 200 hours
 
   - label: "MOD DH"
     level: model

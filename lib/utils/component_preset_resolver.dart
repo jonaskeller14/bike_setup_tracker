@@ -101,7 +101,8 @@ Iterable<ResolvedPreset> catalogProducts(BrandCatalog catalog) {
 /// Walks the tree one level per step and stops at the deepest node that still
 /// matches, so a map that is short, or whose deeper entries were retired from
 /// the data, resolves as far as it can. Entries that match nothing are ignored.
-/// Null when not even the first level matches.
+/// A path covered by the catalog's `moved:` redirects is first rewritten to its
+/// new place. Null when not even the first level matches.
 ResolvedPreset? resolvePreset(Iterable<BrandCatalog> catalogs, ComponentPreset preset) {
   final catalog = catalogs.firstWhereOrNull(
     (catalog) => preset.brand == catalog.id && preset.componentType == catalog.componentType,
@@ -110,11 +111,18 @@ ResolvedPreset? resolvePreset(Iterable<BrandCatalog> catalogs, ComponentPreset p
 
   final path = <CatalogNode>[];
   List<CatalogNode>? siblings = catalog.nodes;
+  // A restructured path is walked by node id: its level names are those of the
+  // old tree.
+  final moved = catalog.redirect(preset.nodeIds);
+  var depth = 0;
   while (siblings != null) {
-    final node = siblings.firstWhereOrNull((node) => preset[node.level] == node.id);
+    final node = siblings.firstWhereOrNull(
+      (node) => moved == null ? preset[node.level] == node.id : depth < moved.length && moved[depth] == node.id,
+    );
     if (node == null) break;
     path.add(node);
     siblings = node is CatalogGroup ? node.children : null;
+    depth++;
   }
   if (path.isEmpty) return null;
 

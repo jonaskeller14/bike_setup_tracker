@@ -613,272 +613,304 @@ nodes:
   - label: "38"
     level: model
     category: Enduro / DH
-    years: "2024-2026"
-    url: https://dvosuspension.com/product/onyx-d1-38/
-    setup_guide: https://dvosuspension.com/wp-content/uploads/2024/08/38-Setup-Guide-v1.1.pdf
-    guide: dvo_onyx38_2024
-    # Air-pressure max (100 PSI), volume-spacer max (4) and travel options all
-    # from the Onyx 38 Set-Up Guide v1.0: p.8 "DO NOT exceed maximum air
-    # pressure of 100PSI"; p.18 "A maximum of 4 volume spacers can be used";
-    # p.20 table "Travel 160-180mm / Factory Installed 0 / Max Volume Spacers 4".
     source: https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
-    note: >-
-      Also sold as co-branded "D1 x RENEN" and "SL x WP" editions, which share this
-      chassis and its adjusters.
     tasks: &dvo_service
       fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DVO fork owner's manual }
       fork:full_service: { interval: { moving_time_h: 100 }, source: DVO fork owner's manual }
     children:
-      - label: D1
-        level: trim
-        specs: { stanchion: 38mm Tapered Alloy, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
-          - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
-          - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
-        options:
-          damper: [onyx38_d1e1]
-          travel_mm: [160, 170, 180]
-          wheel_size: [29]
-        note: |-
-          - OTT (Off The Top) preloads the negative coil spring inside the air cartridge
-          - More OTT softens roughly the first 30mm of travel without softening mid-stroke
-          - 5mm allen key under the left leg, turned in full rotations; let the air out first
-          - The only Onyx 38 trim with the external OTT adjuster
-      - label: D1 SL
-        level: trim
-        specs: { stanchion: 38mm Tapered Alloy, spring: Air }
-        adjustments: &onyx38_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
-          - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
-        options:
-          damper: [onyx38_d1e1]
-          travel_mm: [160, 170, 180]
-          wheel_size: [29]
-        note: Super-Light dual air system; no OTT adjuster on this trim.
-      - label: D2
-        level: trim
-        specs: { stanchion: 38mm Tapered Alloy, spring: Air }
-        adjustments: *onyx38_air_spring
-        options:
-          damper: [onyx38_d2e2]
-          travel_mm: [160, 170, 180]
-          wheel_size: [29]
-        note: OEM only. No OTT adjuster on this trim.
-      - label: D3
-        level: trim
-        specs: { stanchion: 38mm Tapered Alloy, spring: Air }
-        adjustments: *onyx38_air_spring
-        options:
-          damper: [onyx38_d3e3]
-          travel_mm: [160, 170, 180]
-          wheel_size: [29]
-        note: OEM only. No OTT adjuster on this trim.
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://dvosuspension.com/product/onyx-d1-38/
+        setup_guide: https://dvosuspension.com/wp-content/uploads/2024/08/38-Setup-Guide-v1.1.pdf
+        guide: dvo_onyx38_2024
+        # Air-pressure max (100 PSI), volume-spacer max (4) and travel options all
+        # from the Onyx 38 Set-Up Guide v1.0: p.8 "DO NOT exceed maximum air
+        # pressure of 100PSI"; p.18 "A maximum of 4 volume spacers can be used";
+        # p.20 table "Travel 160-180mm / Factory Installed 0 / Max Volume Spacers 4".
+        note: >-
+          Also sold as co-branded "D1 x RENEN" and "SL x WP" editions, which share this
+          chassis and its adjusters.
+        children:
+          - label: D1
+            level: trim
+            specs: { stanchion: 38mm Tapered Alloy, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
+              - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
+              - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
+            options:
+              damper: [onyx38_d1e1]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29]
+            note: |-
+              - OTT (Off The Top) preloads the negative coil spring inside the air cartridge
+              - More OTT softens roughly the first 30mm of travel without softening mid-stroke
+              - 5mm allen key under the left leg, turned in full rotations; let the air out first
+              - The only Onyx 38 trim with the external OTT adjuster
+          - label: D1 SL
+            level: trim
+            specs: { stanchion: 38mm Tapered Alloy, spring: Air }
+            adjustments: &onyx38_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
+              - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
+            options:
+              damper: [onyx38_d1e1]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29]
+            note: Super-Light dual air system; no OTT adjuster on this trim.
+          - label: D2
+            level: trim
+            specs: { stanchion: 38mm Tapered Alloy, spring: Air }
+            adjustments: *onyx38_air_spring
+            options:
+              damper: [onyx38_d2e2]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29]
+            note: OEM only. No OTT adjuster on this trim.
+          - label: D3
+            level: trim
+            specs: { stanchion: 38mm Tapered Alloy, spring: Air }
+            adjustments: *onyx38_air_spring
+            options:
+              damper: [onyx38_d3e3]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29]
+            note: OEM only. No OTT adjuster on this trim.
 
   - label: Diamond 36
     level: model
     category: Trail / Enduro
-    years: "2024-2026"
-    url: https://dvosuspension.com/product/diamond-36-core/
     tasks: *dvo_service
     children:
-      - label: CORE
-        level: trim
-        setup_guide: https://dvosuspension.com/wp-content/uploads/2026/05/V3Diamond-CORE-Set-up-Guide.pdf
-        guide: dvo_diamond36core_2026
-        specs: { stanchion: 36mm Tapered Alloy, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
-          - { name: Volume Spacers, type: step, max: 6, visualization: stepper }
-        options:
-          damper: [diamond_core]
-          travel_mm: [140, 150, 160, 170]
-          wheel_size: [29]
-        # Spacer maximum 6, 140-170mm travel and the 100 PSI air limit: Diamond CORE
-        # Set-Up Guide (V3), "Volume Spacer Configurations" and "DO NOT exceed maximum
-        # air pressure of 100PSI".
-        note: All-new CORE damper. Ships with a 6x 5cc air volume reducer kit.
-      - label: D1 SL
-        level: trim
-        url: https://dvosuspension.com/product/diamond-d1-2024/
-        setup_guide: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Diamond-36-Setup-Guide-May16.pdf
-        guide: dvo_diamond36_2024
-        specs: { stanchion: 36mm Tapered Alloy, spring: Air }
-        # 100 PSI air limit and the 6-spacer maximum (140-160mm): Diamond 36 Set-Up
-        # Guide v1.1, "DO NOT exceed maximum air pressure of 100PSI" and "Volume Spacer
-        # Configurations" table. The guide's text line says "A maximum of 4 volume
-        # spacers", which contradicts its own table; the table is used.
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
-          - { name: Volume Spacers, type: step, max: 6, visualization: stepper }
-        options:
-          damper: [diamond36_d1e1]
-          travel_mm: [140, 150, 160]
-          wheel_size: [29]
-        note: |-
-          - Super-Light dual air system with the Remastered D1 damper
-          - Ships with a 6x 5cc air volume reducer kit
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://dvosuspension.com/product/diamond-36-core/
+        children:
+          - label: CORE
+            level: trim
+            setup_guide: https://dvosuspension.com/wp-content/uploads/2026/05/V3Diamond-CORE-Set-up-Guide.pdf
+            guide: dvo_diamond36core_2026
+            specs: { stanchion: 36mm Tapered Alloy, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
+              - { name: Volume Spacers, type: step, max: 6, visualization: stepper }
+            options:
+              damper: [diamond_core]
+              travel_mm: [140, 150, 160, 170]
+              wheel_size: [29]
+            # Spacer maximum 6, 140-170mm travel and the 100 PSI air limit: Diamond CORE
+            # Set-Up Guide (V3), "Volume Spacer Configurations" and "DO NOT exceed maximum
+            # air pressure of 100PSI".
+            note: All-new CORE damper. Ships with a 6x 5cc air volume reducer kit.
+          - label: D1 SL
+            level: trim
+            url: https://dvosuspension.com/product/diamond-d1-2024/
+            setup_guide: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Diamond-36-Setup-Guide-May16.pdf
+            guide: dvo_diamond36_2024
+            specs: { stanchion: 36mm Tapered Alloy, spring: Air }
+            # 100 PSI air limit and the 6-spacer maximum (140-160mm): Diamond 36 Set-Up
+            # Guide v1.1, "DO NOT exceed maximum air pressure of 100PSI" and "Volume Spacer
+            # Configurations" table. The guide's text line says "A maximum of 4 volume
+            # spacers", which contradicts its own table; the table is used.
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
+              - { name: Volume Spacers, type: step, max: 6, visualization: stepper }
+            options:
+              damper: [diamond36_d1e1]
+              travel_mm: [140, 150, 160]
+              wheel_size: [29]
+            note: |-
+              - Super-Light dual air system with the Remastered D1 damper
+              - Ships with a 6x 5cc air volume reducer kit
 
   - label: Diamond
     level: model
     category: Trail / Enduro
-    years: "2024-2026"
-    url: https://dvosuspension.com/product/diamond-d3/
-    setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
-    guide: dvo_fork_2020
-    # Max air pressure 150 PSI for D3/E3 from the DVO Fork Set-Up Guide 2020 v4,
-    # p.6: "Do Not Exceed Maximum Air Pressure! ... Diamond D3-E3: 150 PSI".
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     tasks: *dvo_service
     children:
-      - label: D3
-        level: trim
-        specs: { stanchion: 35mm Tapered Alloy, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
-        options:
-          damper: [diamond_d3e3]
-          wheel_size: [27.5, 29]
-        note: OEM only. Closed-cartridge damper, no OTT adjuster.
-      - label: E3
-        level: trim
-        specs: { stanchion: 35mm Tapered Alloy, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
-        options:
-          damper: [diamond_d3e3]
-          wheel_size: [27.5, 29]
-        note: OEM only. E-bike-tuned valving of the D3, no OTT adjuster.
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://dvosuspension.com/product/diamond-d3/
+        setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+        guide: dvo_fork_2020
+        # Max air pressure 150 PSI for D3/E3 from the DVO Fork Set-Up Guide 2020 v4,
+        # p.6: "Do Not Exceed Maximum Air Pressure! ... Diamond D3-E3: 150 PSI".
+        children:
+          - label: D3
+            level: trim
+            specs: { stanchion: 35mm Tapered Alloy, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+            options:
+              damper: [diamond_d3e3]
+              wheel_size: [27.5, 29]
+            note: OEM only. Closed-cartridge damper, no OTT adjuster.
+          - label: E3
+            level: trim
+            specs: { stanchion: 35mm Tapered Alloy, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+            options:
+              damper: [diamond_d3e3]
+              wheel_size: [27.5, 29]
+            note: OEM only. E-bike-tuned valving of the D3, no OTT adjuster.
 
   - label: Sapphire 34
     level: model
     category: Trail
-    years: "2019-2026"
-    url: https://tech.dvosuspension.com/setup/sapphire-series/
-    setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
-    guide: dvo_fork_2020
-    # Max air pressure 150 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
-    # "Sapphire 34 D1: 150 PSI". Travel / wheel size / offset are not stated in
-    # that guide and DVO's Sapphire product pages serve an empty cart page.
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     tasks: *dvo_service
     children:
-      - label: D1
-        level: trim
-        specs: { stanchion: 34mm Tapered Alloy, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
-          - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
-        options:
-          damper: [quick_range_d1e1]
-        note: |-
-          - 34mm-stanchion trail fork with the D1 damper and external OTT
-          - OTT preloads the negative coil spring to soften the top of the travel
-          - Its "Quick Range" LSC doubles as a pedalling platform: click 6 is firmest
+      - label: "2019–2026"
+        level: generation
+        id: "2019"
+        years: "2019-2026"
+        url: https://tech.dvosuspension.com/setup/sapphire-series/
+        setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+        guide: dvo_fork_2020
+        # Max air pressure 150 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
+        # "Sapphire 34 D1: 150 PSI". Travel / wheel size / offset are not stated in
+        # that guide and DVO's Sapphire product pages serve an empty cart page.
+        children:
+          - label: D1
+            level: trim
+            specs: { stanchion: 34mm Tapered Alloy, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+              - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
+            options:
+              damper: [quick_range_d1e1]
+            note: |-
+              - 34mm-stanchion trail fork with the D1 damper and external OTT
+              - OTT preloads the negative coil spring to soften the top of the travel
+              - Its "Quick Range" LSC doubles as a pedalling platform: click 6 is firmest
 
   - label: Sapphire 32
     level: model
     category: XC
-    years: "2019-2026"
-    url: https://tech.dvosuspension.com/setup/sapphire-series/
-    setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2018/08/DVO-SET-UP-GUIDE_fork.pdf
-    guide: dvo_fork_2018
-    # Max air pressure 170 PSI from the DVO Fork Set-Up Guide (2018), p.6
-    # maximum-pressure banner for the Sapphire 32mm.
     source: https://tech.dvosuspension.com/wp-content/uploads/2018/08/DVO-SET-UP-GUIDE_fork.pdf
     tasks: *dvo_service
     children:
-      - label: D1
-        level: trim
-        specs: { stanchion: 32mm Tapered Alloy, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 170 }
-        options:
-          damper: [quick_range_d1e1]
-        note: 32mm-stanchion XC fork with the D1 damper and its 6-click Quick Range LSC.
+      - label: "2019–2026"
+        level: generation
+        id: "2019"
+        years: "2019-2026"
+        url: https://tech.dvosuspension.com/setup/sapphire-series/
+        setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2018/08/DVO-SET-UP-GUIDE_fork.pdf
+        guide: dvo_fork_2018
+        # Max air pressure 170 PSI from the DVO Fork Set-Up Guide (2018), p.6
+        # maximum-pressure banner for the Sapphire 32mm.
+        children:
+          - label: D1
+            level: trim
+            specs: { stanchion: 32mm Tapered Alloy, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 170 }
+            options:
+              damper: [quick_range_d1e1]
+            note: 32mm-stanchion XC fork with the D1 damper and its 6-click Quick Range LSC.
 
   - label: Onyx SC
     level: model
     category: Enduro
-    years: "2020-2026"
-    url: https://dvosuspension.com/product/onyx-sc-d2/
-    setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
-    guide: dvo_fork_2020
-    # Max air pressure 130 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
-    # "Onyx SC D1-D2-E1-E2: 130 PSI".
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     tasks: *dvo_service
     children:
-      - label: D2
-        level: trim
-        specs: { stanchion: 36mm Tapered Alloy, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
-        options:
-          damper: [quick_range_d2e2]
-          travel_mm: [160, 170, 180]
-          wheel_size: [29]
-        note: OEM only. OTT is set internally for your body weight, not from outside.
+      - label: "2020–2026"
+        level: generation
+        id: "2020"
+        years: "2020-2026"
+        url: https://dvosuspension.com/product/onyx-sc-d2/
+        setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+        guide: dvo_fork_2020
+        # Max air pressure 130 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
+        # "Onyx SC D1-D2-E1-E2: 130 PSI".
+        children:
+          - label: D2
+            level: trim
+            specs: { stanchion: 36mm Tapered Alloy, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+            options:
+              damper: [quick_range_d2e2]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29]
+            note: OEM only. OTT is set internally for your body weight, not from outside.
 
   - label: Onyx DC
     level: model
     category: Downhill
-    years: "2020-2026"
-    url: https://dvosuspension.com/product/onyx-dc-d1/
-    setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
-    guide: dvo_fork_2020
-    # Max air pressure 140 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
-    # "Onyx DC: 140 PSI".
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     tasks: *dvo_service
     children:
-      - label: D1
-        level: trim
-        specs: { stanchion: 36mm (dual-crown), spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-          - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
-        options:
-          damper: [quick_range_d1e1]
-          travel_mm: [203]
-          wheel_size: [27.5, 29]
-        note: |-
-          - OEM only. Dual-crown air fork with a coil negative spring
-          - That negative coil is what OTT preloads, softening the top of the travel
-          - Set OTT with a 5mm allen key in full rotations; let the air out first
+      - label: "2020–2026"
+        level: generation
+        id: "2020"
+        years: "2020-2026"
+        url: https://dvosuspension.com/product/onyx-dc-d1/
+        setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+        guide: dvo_fork_2020
+        # Max air pressure 140 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
+        # "Onyx DC: 140 PSI".
+        children:
+          - label: D1
+            level: trim
+            specs: { stanchion: 36mm (dual-crown), spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
+            options:
+              damper: [quick_range_d1e1]
+              travel_mm: [203]
+              wheel_size: [27.5, 29]
+            note: |-
+              - OEM only. Dual-crown air fork with a coil negative spring
+              - That negative coil is what OTT preloads, softening the top of the travel
+              - Set OTT with a 5mm allen key in full rotations; let the air out first
 
-  # ---------------- Legacy ----------------
+      # ---------------- Legacy ----------------
   - label: Emerald (Inverted)
     level: model
     category: Downhill
-    years: "2014-2019"
-    url: https://tech.dvosuspension.com/setup/emerald/
-    setup_guide: https://tech.dvosuspension.com/setup/emerald/
-    guide: dvo_emerald_tech
-    # Click totals and the 60-100psi air range: tech.dvosuspension.com/setup/emerald.
-    # Travel 203mm, 36mm inverted stanchions, 42mm uppers, carbon torsion arch,
-    # 44mm offset (26in) / 49.92mm offset (650b): BikeRadar's and Pinkbike's
-    # Emerald reviews — DVO's own Emerald page serves an empty cart page.
     source:
       - https://tech.dvosuspension.com/setup/emerald/
       - https://www.bikeradar.com/reviews/components/forks/suspension-forks/dvo-emerald-inverted-downhill-fork-review
       - https://www.pinkbike.com/news/dvo-emerald-review-2014.html
     tasks: *dvo_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: 36mm Inverted, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 60, max: 100 }
-          - { name: OTT, type: step, max: 15, unit: turns, notes: "Off The Top negative-spring preload; 15 full rotations total, 6 clicks per rotation; more OTT = plusher off the top. Let the air out of the fork before adjusting", dialColor: green }
-        options:
-          damper: [emerald_damper]
-          travel_mm: [203]
-          wheel_size: [26, 27.5]
-        note: |-
-          - Inverted (upside-down) dual-crown chassis joined by a carbon torsion arch
-          - The air spring runs 60-100psi, far lower than an upright fork
-          - Wide-open is the reference point: every dial is counted in from there
+      - label: "2014–2019"
+        level: generation
+        id: "2014"
+        years: "2014-2019"
+        url: https://tech.dvosuspension.com/setup/emerald/
+        setup_guide: https://tech.dvosuspension.com/setup/emerald/
+        guide: dvo_emerald_tech
+        # Click totals and the 60-100psi air range: tech.dvosuspension.com/setup/emerald.
+        # Travel 203mm, 36mm inverted stanchions, 42mm uppers, carbon torsion arch,
+        # 44mm offset (26in) / 49.92mm offset (650b): BikeRadar's and Pinkbike's
+        # Emerald reviews — DVO's own Emerald page serves an empty cart page.
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 36mm Inverted, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 60, max: 100 }
+              - { name: OTT, type: step, max: 15, unit: turns, notes: "Off The Top negative-spring preload; 15 full rotations total, 6 clicks per rotation; more OTT = plusher off the top. Let the air out of the fork before adjusting", dialColor: green }
+            options:
+              damper: [emerald_damper]
+              travel_mm: [203]
+              wheel_size: [26, 27.5]
+            note: |-
+              - Inverted (upside-down) dual-crown chassis joined by a carbon torsion arch
+              - The air spring runs 60-100psi, far lower than an upright fork
+              - Wide-open is the reference point: every dial is counted in from there
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

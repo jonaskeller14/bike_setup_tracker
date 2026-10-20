@@ -1639,34 +1639,38 @@ nodes:
   - label: "Reba"
     level: model
     category: XC / Trail
-    years: "2018-2024"
-    url: https://www.sram.com/en/rockshox/series/reba
-    guide: rockshox_reba_2024
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
     children:
-      - label: RL
-        level: trim
-        specs: { stanchion: 32mm, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 195 }
-          - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel" }
-        options:
-          damper: [motion_control_rl]
-          travel_mm: [100, 110, 120]
-          wheel_size: [29, 27.5]
-      - label: Gold RL
-        level: trim
-        specs: { stanchion: 32mm, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 195 }
-          - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel" }
-        options:
-          damper: [motion_control_rl]
-          travel_mm: [100, 110, 120]
-          wheel_size: [29, 27.5]
-        note: OEM only
+      - label: "2018–2024"
+        level: generation
+        id: "2018"
+        years: "2018-2024"
+        url: https://www.sram.com/en/rockshox/series/reba
+        guide: rockshox_reba_2024
+        children:
+          - label: RL
+            level: trim
+            specs: { stanchion: 32mm, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 195 }
+              - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel" }
+            options:
+              damper: [motion_control_rl]
+              travel_mm: [100, 110, 120]
+              wheel_size: [29, 27.5]
+          - label: Gold RL
+            level: trim
+            specs: { stanchion: 32mm, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 195 }
+              - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel" }
+            options:
+              damper: [motion_control_rl]
+              travel_mm: [100, 110, 120]
+              wheel_size: [29, 27.5]
+            note: OEM only
 
   - label: "Pike"
     level: model
@@ -1991,52 +1995,95 @@ nodes:
   - label: "Psylo"
     level: model
     category: Trail
-    years: "2025-2026"
-    url: https://www.sram.com/en/rockshox/series/psylo
-    guide: rockshox_psylo_2027
     tasks:
       fork:full_service: *rockshox_full_service
     children:
-      - label: Gold RC
-        level: trim
-        specs: { stanchion: 35mm, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 194 }
-          - { name: Volume Spacers, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
-        options:
-          damper: [isolator]
-          travel_mm: [130, 140, 150, 160]
-          wheel_size: [29, 27.5]
-        note: DebonAir air spring
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.sram.com/en/rockshox/series/psylo
+        guide: rockshox_psylo_2027
+        children:
+          - label: Gold RC
+            level: trim
+            specs: { stanchion: 35mm, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 194 }
+              - { name: Volume Spacers, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+            options:
+              damper: [isolator]
+              travel_mm: [130, 140, 150, 160]
+              wheel_size: [29, 27.5]
+            note: DebonAir air spring
 
   - label: "Domain"
     level: model
     category: Enduro
-    years: "2025-2026"
-    url: https://www.sram.com/en/rockshox/series/domain
-    guide: rockshox_domain_2027
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
     children:
-      - label: Gold RC
-        level: trim
-        specs: { stanchion: 38mm, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 148 }
-          - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
-        options:
-          damper: [isolator]
-          travel_mm: [150, 160, 170, 180]
-          wheel_size: [29, 27.5]
-        note: DebonAir air spring in a 38mm chassis
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.sram.com/en/rockshox/series/domain
+        guide: rockshox_domain_2027
+        children:
+          - label: Gold RC
+            level: trim
+            specs: { stanchion: 38mm, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 148 }
+              - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+            options:
+              damper: [isolator]
+              travel_mm: [150, 160, 170, 180]
+              wheel_size: [29, 27.5]
+            note: DebonAir air spring in a 38mm chassis
 
   - label: "BoXXer"
     level: model
     category: Downhill
     tasks:
       fork:full_service: *rockshox_full_service
+      fork:air_spring_service:
+        name: Air spring service
+        interval: { moving_time_h: 100 }
+        preselected: true
+        source: RockShox service intervals
     children:
+      - label: "2027"
+        level: generation
+        years: "2027"
+        url: https://www.sram.com/en/rockshox/series/boxxer
+        setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
+        guide: rockshox_boxxer_2027
+        children:
+          - label: Ultimate
+            level: trim
+            specs: { stanchion: 38mm (dual-crown), spring: Air }
+            offset_mm: [44, 48, 52]
+            adjustments: &boxxer_linear_xl_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 260 }
+              - &boxxer_volume_spacers { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+            options:
+              damper: [charger_3_2]
+              travel_mm: [180, 190, 200]
+              wheel_size: [29, 27.5]
+            note: Linear XL air spring paired with the higher-damping Charger 3.2
+          - label: Select
+            level: trim
+            draft: true
+            specs: { stanchion: 38mm (dual-crown), spring: Air }
+            offset_mm: [44, 48, 52]
+            adjustments: *boxxer_linear_xl_air_spring
+            options:
+              damper: [charger_3_2]
+              travel_mm: [180, 190, 200]
+              wheel_size: [29, 27.5]
+            note: OEM only
       - label: "2024–2026"
         level: generation
         id: "2024"
@@ -2044,12 +2091,6 @@ nodes:
         url: https://www.sram.com/en/rockshox/series/boxxer
         setup_guide: https://www.sram.com/en/rockshox/learn/charger-3-setup
         guide: rockshox_boxxer_2024
-        tasks:
-          fork:air_spring_service: &boxxer_air_spring_service
-            name: Air spring service
-            interval: { moving_time_h: 100 }
-            preselected: true
-            source: RockShox service intervals
         children:
           - label: Ultimate
             level: trim
@@ -2057,7 +2098,7 @@ nodes:
             offset_mm: [44, 48, 52]
             adjustments: &boxxer_d1_air_spring
               - { name: Pressure, type: numerical, unit: psi, min: 0 }
-              - &boxxer_volume_spacers { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+              - *boxxer_volume_spacers
             options:
               damper: [charger_3_1, charger_3]
               travel_mm: [180, 190, 200]
@@ -2073,38 +2114,6 @@ nodes:
             adjustments: *boxxer_d1_air_spring
             options:
               damper: [charger_3_1, charger_3]
-              travel_mm: [180, 190, 200]
-              wheel_size: [29, 27.5]
-            note: OEM only
-      - label: "2027"
-        level: generation
-        years: "2027"
-        url: https://www.sram.com/en/rockshox/series/boxxer
-        setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
-        guide: rockshox_boxxer_2027
-        tasks:
-          fork:air_spring_service: *boxxer_air_spring_service
-        children:
-          - label: Ultimate
-            level: trim
-            specs: { stanchion: 38mm (dual-crown), spring: Air }
-            offset_mm: [44, 48, 52]
-            adjustments: &boxxer_linear_xl_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 260 }
-              - *boxxer_volume_spacers
-            options:
-              damper: [charger_3_2]
-              travel_mm: [180, 190, 200]
-              wheel_size: [29, 27.5]
-            note: Linear XL air spring paired with the higher-damping Charger 3.2
-          - label: Select
-            level: trim
-            draft: true
-            specs: { stanchion: 38mm (dual-crown), spring: Air }
-            offset_mm: [44, 48, 52]
-            adjustments: *boxxer_linear_xl_air_spring
-            options:
-              damper: [charger_3_2]
               travel_mm: [180, 190, 200]
               wheel_size: [29, 27.5]
             note: OEM only
@@ -2146,116 +2155,136 @@ nodes:
   - label: "Rudy XPLR"
     level: model
     category: Gravel / Bikepacking
-    years: "2022-2026"
-    url: https://www.sram.com/en/rockshox/series/rudy-xplr
-    guide: rockshox_rudy_xplr_2027
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
     children:
-      - label: Ultimate
-        level: trim
-        draft: true
-        specs: { stanchion: 30mm, spring: Air }
-        offset_mm: [45, 51]
-        adjustments: &rudy_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 200 }
-        options:
-          damper: [charger_race_day_2, charger_race_day]
-          travel_mm: [30, 40]
-          wheel_size: ["700c"]
-        note: Solo Air spring; no Bottomless Tokens are offered for this chassis
+      - label: "2022–2026"
+        level: generation
+        id: "2022"
+        years: "2022-2026"
+        url: https://www.sram.com/en/rockshox/series/rudy-xplr
+        guide: rockshox_rudy_xplr_2027
+        children:
+          - label: Ultimate
+            level: trim
+            draft: true
+            specs: { stanchion: 30mm, spring: Air }
+            offset_mm: [45, 51]
+            adjustments: &rudy_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 200 }
+            options:
+              damper: [charger_race_day_2, charger_race_day]
+              travel_mm: [30, 40]
+              wheel_size: ["700c"]
+            note: Solo Air spring; no Bottomless Tokens are offered for this chassis
 
   - label: "Rudy XL"
     level: model
     category: Gravel / Bikepacking
-    years: "2025-2026"
-    url: https://www.sram.com/en/rockshox/series/rudy-xl
-    note: Fits 29x2.2" tires max
-    guide: rockshox_rudy_xl_2027
     tasks:
       fork:full_service: *rockshox_full_service
     children:
-      - label: Ultimate
-        level: trim
-        draft: true
-        specs: { stanchion: 30mm, spring: Air }
-        adjustments: *rudy_air_spring
-        options:
-          damper: [charger_race_day_2]
-          travel_mm: [50, 60]
-          wheel_size: ["700c"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.sram.com/en/rockshox/series/rudy-xl
+        guide: rockshox_rudy_xl_2027
+        note: Fits 29x2.2" tires max
+        children:
+          - label: Ultimate
+            level: trim
+            draft: true
+            specs: { stanchion: 30mm, spring: Air }
+            adjustments: *rudy_air_spring
+            options:
+              damper: [charger_race_day_2]
+              travel_mm: [50, 60]
+              wheel_size: ["700c"]
 
   - label: "Yari"
     level: model
     category: Enduro
-    years: "2016-2023"
-    url: https://www.sram.com/en/rockshox/series/yari
-    guide: rockshox_yari_2024
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
     children:
-      - label: RC
-        level: trim
-        draft: true
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [37, 42, 44, 46, 51]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-          - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150-160mm travel, 4 at 170-180mm" }
-        options:
-          damper: [motion_control_rc]
-          travel_mm: [150, 160, 170, 180]
-          wheel_size: [29, 27.5]
-        note: Burly Lyrik chassis with a simpler damper; DebonAir or Dual Position Air spring
+      - label: "2016–2023"
+        level: generation
+        id: "2016"
+        years: "2016-2023"
+        url: https://www.sram.com/en/rockshox/series/yari
+        guide: rockshox_yari_2024
+        children:
+          - label: RC
+            level: trim
+            draft: true
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [37, 42, 44, 46, 51]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150-160mm travel, 4 at 170-180mm" }
+            options:
+              damper: [motion_control_rc]
+              travel_mm: [150, 160, 170, 180]
+              wheel_size: [29, 27.5]
+            note: Burly Lyrik chassis with a simpler damper; DebonAir or Dual Position Air spring
 
   - label: "Revelation"
     level: model
     category: Trail
-    years: "2018-2023"
-    url: https://www.sram.com/en/rockshox/series/revelation
-    guide: rockshox_revelation_2024
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
     children:
-      - label: RC
-        level: trim
-        draft: true
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [37, 42, 46, 51]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-          - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm, 4 at 150-160mm" }
-        options:
-          damper: [motion_control_rc]
-          travel_mm: [120, 130, 140, 150, 160]
-          wheel_size: [29, 27.5]
-        note: DebonAir air spring in a 35mm trail chassis
+      - label: "2018–2023"
+        level: generation
+        id: "2018"
+        years: "2018-2023"
+        url: https://www.sram.com/en/rockshox/series/revelation
+        guide: rockshox_revelation_2024
+        children:
+          - label: RC
+            level: trim
+            draft: true
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [37, 42, 46, 51]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm, 4 at 150-160mm" }
+            options:
+              damper: [motion_control_rc]
+              travel_mm: [120, 130, 140, 150, 160]
+              wheel_size: [29, 27.5]
+            note: DebonAir air spring in a 35mm trail chassis
 
   - label: "Recon Gold"
     level: model
     category: XC / Trail
-    years: "2018-2024"
-    url: https://www.sram.com/en/rockshox/series/recon
-    guide: rockshox_recon_gold_2027
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
     children:
-      - label: Gold RL
-        level: trim
-        specs: { stanchion: 32mm, spring: Air }
-        offset_mm: [37, 42, 46, 51]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-          - { name: Volume Spacers, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
-        options:
-          damper: [motion_control_rl]
-          travel_mm: [80, 100, 120, 130, 140, 150]
-          wheel_size: [29, 27.5]
-        note: DebonAir air spring; remote lockout compatible
+      - label: "2018–2024"
+        level: generation
+        id: "2018"
+        years: "2018-2024"
+        url: https://www.sram.com/en/rockshox/series/recon
+        guide: rockshox_recon_gold_2027
+        children:
+          - label: Gold RL
+            level: trim
+            specs: { stanchion: 32mm, spring: Air }
+            offset_mm: [37, 42, 46, 51]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+            options:
+              damper: [motion_control_rl]
+              travel_mm: [80, 100, 120, 130, 140, 150]
+              wheel_size: [29, 27.5]
+            note: DebonAir air spring; remote lockout compatible
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

@@ -708,7 +708,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   dense: true,
                   title: Text(presetDisplayName(suggestion)),
                   subtitle: subtitle == null ? null : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  trailing: yearRange == null || yearRange.isEmpty ? null : _PresetYearBadge(yearRange),
+                  trailing: yearRange == null ? null : _PresetYearBadge('$yearRange'),
                   onTap: () => onSelected(suggestion),
                 );
               },

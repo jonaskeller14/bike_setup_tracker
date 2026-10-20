@@ -200,123 +200,143 @@ nodes:
   - label: "Z1"
     level: model
     category: Trail / All-Mountain
-    years: "2025-2026"
-    url: https://bike.marzocchi.com/products/bomber-z1
-    setup_guide: https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
-    guide: marzocchi_z1_2024
     tasks: &marzocchi_service
       fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide }
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: "36mm, Black Anodized", spring: Air }
-        offset_mm: 44
-        axle: 15QRx110
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5" }
-        options:
-          damper: [rail]
-          travel_mm: [100, 150, 160]
-          wheel_size: [29, 27.5]
-        note: 180mm post mount, max air pressure 120psi.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://bike.marzocchi.com/products/bomber-z1
+        setup_guide: https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
+        guide: marzocchi_z1_2024
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: "36mm, Black Anodized", spring: Air }
+            offset_mm: 44
+            axle: 15QRx110
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5" }
+            options:
+              damper: [rail]
+              travel_mm: [100, 150, 160]
+              wheel_size: [29, 27.5]
+            note: 180mm post mount, max air pressure 120psi.
 
   - label: "Z1 Coil"
     level: model
     category: Trail / All-Mountain
-    years: "2025-2026"
-    url: https://bike.marzocchi.com/products/bomber-z1-coil
-    setup_guide: https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
-    guide: marzocchi_z1_2024
     tasks: *marzocchi_service
     children:
-      - label: Coil
-        level: trim
-        specs: { stanchion: "36mm, Black Anodized", spring: Coil }
-        offset_mm: 44
-        axle: 15QRx110
-        adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-        options:
-          damper: [rail]
-          travel_mm: [160]
-          wheel_size: [29]
-        note: >
-          Travel adjustable down in 10mm increments via included internal
-          spacers. Coil springs sold separately, color-coded to rider weight
-          (Purple/Blue/Green/Yellow ~ Soft/Medium/Firm/X-Firm); Marzocchi
-          does not publish the actual lbs/in rate per color.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://bike.marzocchi.com/products/bomber-z1-coil
+        setup_guide: https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
+        guide: marzocchi_z1_2024
+        children:
+          - label: Coil
+            level: trim
+            specs: { stanchion: "36mm, Black Anodized", spring: Coil }
+            offset_mm: 44
+            axle: 15QRx110
+            adjustments:
+              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+            options:
+              damper: [rail]
+              travel_mm: [160]
+              wheel_size: [29]
+            note: >
+              Travel adjustable down in 10mm increments via included internal
+              spacers. Coil springs sold separately, color-coded to rider weight
+              (Purple/Blue/Green/Yellow ~ Soft/Medium/Firm/X-Firm); Marzocchi
+              does not publish the actual lbs/in rate per color.
 
   - label: "Z2"
     level: model
     category: Trail
-    years: "2025-2026"
-    url: https://bike.marzocchi.com/products/bomber-z2
-    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
-    guide: marzocchi_z2_2019
     tasks: *marzocchi_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: "34mm, Black Anodized", spring: Air }
-        offset_mm: 44
-        axle: 15QRx110
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140, notes: "Maximum 120 psi; 140 psi on the E-Bike+ tune" }
-          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 100/110mm 6, 120/130mm 5, 140/150mm 4" }
-        options:
-          damper: [rail]
-          travel_mm: [120, 130, 140, 150]
-          wheel_size: [29, 27.5]
-        note: >
-          160mm post mount, max air pressure 120psi. An "E-Bike+" tune is
-          also offered (max air pressure 140psi) for e-MTB use.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://bike.marzocchi.com/products/bomber-z2
+        setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
+        guide: marzocchi_z2_2019
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: "34mm, Black Anodized", spring: Air }
+            offset_mm: 44
+            axle: 15QRx110
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140, notes: "Maximum 120 psi; 140 psi on the E-Bike+ tune" }
+              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 100/110mm 6, 120/130mm 5, 140/150mm 4" }
+            options:
+              damper: [rail]
+              travel_mm: [120, 130, 140, 150]
+              wheel_size: [29, 27.5]
+            note: >
+              160mm post mount, max air pressure 120psi. An "E-Bike+" tune is
+              also offered (max air pressure 140psi) for e-MTB use.
 
   - label: "DJ"
     level: model
     category: Dirt Jump / Slopestyle
-    years: "2025-2026"
-    url: https://bike.marzocchi.com/products/bomber-dj
-    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
-    guide: marzocchi_z1_dj_2020
     tasks: *marzocchi_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: 36mm, spring: Air }
-        offset_mm: 37
-        axle: 20x110 non-boost (15x100 conversion kit available)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-          - { name: Volume Spacers, type: step, visualization: stepper, max: 10, notes: Factory installed 8 }
-        options:
-          damper: [grip]
-          travel_mm: [100]
-          wheel_size: [26]
-        note: Max air pressure 120psi.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://bike.marzocchi.com/products/bomber-dj
+        setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+        guide: marzocchi_z1_dj_2020
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 36mm, spring: Air }
+            offset_mm: 37
+            axle: 20x110 non-boost (15x100 conversion kit available)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, type: step, visualization: stepper, max: 10, notes: Factory installed 8 }
+            options:
+              damper: [grip]
+              travel_mm: [100]
+              wheel_size: [26]
+            note: Max air pressure 120psi.
 
   - label: "58"
     level: model
     category: Downhill
-    years: "2025-2026"
-    url: https://bike.marzocchi.com/products/bomber-58
-    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
-    guide: marzocchi_58_2017
     tasks: *marzocchi_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: "40mm, Black Anodized", spring: Air }
-        offset_mm: 51
-        axle: 20x110 DH (non-Boost)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-          - { name: Volume Spacers, type: step, visualization: stepper, max: 7, notes: Factory installed 4 }
-        options:
-          damper: [grip_58]
-          travel_mm: [203]
-          wheel_size: [27.5]
-        note: Dual-crown chassis, 203mm post mount, 1.125in straight steerer.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://bike.marzocchi.com/products/bomber-58
+        setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
+        guide: marzocchi_58_2017
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: "40mm, Black Anodized", spring: Air }
+            offset_mm: 51
+            axle: 20x110 DH (non-Boost)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, type: step, visualization: stepper, max: 7, notes: Factory installed 4 }
+            options:
+              damper: [grip_58]
+              travel_mm: [203]
+              wheel_size: [27.5]
+            note: Dual-crown chassis, 203mm post mount, 1.125in straight steerer.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

@@ -54,6 +54,36 @@ nodes:
         children:
           - label: Rhythm
             level: trim
+      - label: "2019–2020"
+        level: generation
+        id: "2019"
+        years: "2019-2020"
+        children:
+          - label: Float
+            level: trim
+  - label: "38"
+    level: model
+    children:
+      - label: Factory
+        level: trim
+''';
+
+/// A single model with a single generation: nothing to choose before the trims.
+const _soloYaml = '''
+brand: Solo
+component_type: fork
+nodes:
+  - label: Only
+    level: model
+    children:
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        children:
+          - label: Base
+            level: trim
+          - label: Plus
+            level: trim
 ''';
 
 /// One level deep: the model itself is the product, without any options.
@@ -232,6 +262,32 @@ void main() {
     });
   });
 
+  group('single-child levels', () {
+    testWidgets('are skipped on the way in and on the way back', (tester) async {
+      await _open(tester, repository: _repository([_foxYaml, _soloYaml]));
+
+      await _tap(tester, 'Solo');
+      expect(find.text('Select trim'), findsOneWidget);
+      expect(find.text('Base'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
+      expect(find.text('Choose from catalog'), findsOneWidget);
+    });
+
+    testWidgets('are skipped when opening on the current selection', (tester) async {
+      final solo = catalogProducts(parseCatalogFile(_soloYaml)).first;
+      await _open(tester, repository: _repository([_foxYaml, _soloYaml]), current: solo);
+
+      expect(find.text('Select trim'), findsOneWidget);
+      expect(_isSelected(tester, 'Base'), isTrue);
+
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
+      expect(find.text('Choose from catalog'), findsOneWidget);
+    });
+  });
+
   group('option axes', () {
     testWidgets('asks for the required axis, then applies the chosen optional value', (tester) async {
       final outcome = await _open(tester);
@@ -294,8 +350,7 @@ void main() {
     testWidgets('groups shock sizes by eye-to-eye length', (tester) async {
       final outcome = await _open(tester, type: ComponentType.shock);
       await _tap(tester, 'Öhlins');
-      await _tap(tester, 'TTX22');
-      expect(find.text('Select version'), findsOneWidget);
+      expect(find.text('Select version'), findsOneWidget, reason: 'the brand has a single model');
 
       await _tap(tester, 'm.2');
       expect(find.text('Eye-to-eye 210 mm'), findsOneWidget);

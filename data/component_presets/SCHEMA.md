@@ -13,10 +13,14 @@ exactly one of them:
 
 - **Nodes say what the product is.** A tree per brand, as deep as that brand
   needs: `model › generation › trim` for FOX, `model › version › trim` for
-  Öhlins, `model › mount` for Cane Creek shocks, `model › trim` where a model
-  has a single generation. A node without `children` is a selectable
-  **product**, at whatever level it sits: a model sold in one version only is
-  itself the product.
+  Öhlins, `model › generation › mount` for Cane Creek shocks. Every model that
+  has model years has a generation (or version) level, even when only one
+  generation exists. A node without `children` is a selectable **product**, at
+  whatever level it sits: a model without years that is sold in one version
+  only is itself the product.
+- **Chassis variants are options, never nodes.** An e-bike chassis, a travel
+  variant or a size is an option axis of the product, because moving a node
+  changes the path every saved component stores.
 - **Options say how it is configured.** On the product, each option axis
   (`damper`, `travel_mm`, `wheel_size`, `size`) lists the values that product
   can be had with.
@@ -49,6 +53,7 @@ every product that uses it gets it.
 | `updated` | ISO date of last verification |
 | `option_values` | Map of axis id → value id → definition, for axes whose values are defined once and referenced (today: `damper`) |
 | `guides` | Map of guide id → structured setup guide, referenced from nodes by `guide:`, see [Setup guides](#setup-guides-guides) |
+| `moved` | Map of old node path → new node path after a restructure, see [Moved paths](#moved-paths-moved) |
 | `nodes` | The product tree |
 
 ```yaml
@@ -167,7 +172,7 @@ grip2_2019:
 | `children` | no | — | Child nodes. A node without it is a product |
 | `draft` | no | nearest | `true` hides the node and its whole subtree from selection |
 | `category` | no | nearest | Discipline (`Enduro`, `XC`, …), informational |
-| `years` | no | nearest | Model years the specs apply to, `"2025-2026"` or `"2026"` |
+| `years` | no | nearest | Model years the specs apply to: `"2026"` or `"2021-2025"` (ASCII hyphen, ascending, quoted). The parser rejects every other format. Written on a generation or version node, never on a model |
 | `url` | no | nearest | Product page, for data editors; not shown to the rider |
 | `setup_guide` | no | nearest | Official rider setup or tuning guide (page or PDF), linked at the end of the generated component's notes |
 | `guide` | no | nearest | Id of an entry under `guides`: the guide's numbers as data, see [Setup guides](#setup-guides-guides) |
@@ -198,8 +203,10 @@ for the same step across one file:
 
 Level names share one namespace with the option axis ids of their product and
 with the two entries every persisted map has (`brand`, `component_type`). So do
-not call a level `damper`, `travel_mm`, `wheel_size` or `size`, and do not
-repeat a level name on one path; the parser rejects both.
+not call a level `damper`, `travel_mm`, `wheel_size`, `size`, `year` or
+`revision` (the last two are reserved for the model year and the catalog
+revision a component stores), and do not repeat a level name on one path; the
+parser rejects both.
 
 ### Inheritance
 
@@ -242,6 +249,9 @@ exact product. Once the feature is rolled out to users, these are frozen:
 - node `id`s (explicit or derived from the label)
 - option axis ids (`damper`, `travel_mm`, …)
 - option value ids (`grip_x2`, `160`, …)
+- adjuster ids (the `id:` of an adjustment, or the slug of its `name`), because
+  every adjustment built from the catalog stores `<type>:<id>` as its
+  `presetKey`; adding an adjuster is fine, renaming or dropping one is not
 - brand-only task keys (`fork:air_spring_service`), which every task rule
   created from them stores, see [Task intervals](#task-intervals-tasks)
 
@@ -250,15 +260,38 @@ whose id is derived from it therefore needs an explicit `id:` that keeps the old
 slug. Extending `years: "2025-2026"` to `"2025-2027"` must leave a generation's
 `id: "2025"` untouched.
 
-Moving a node to another place in the tree changes its path. A component saved
-against the old path then resolves only as far as the path still matches (the
-resolver returns the deepest matching node), so restructure before rollout, not
-after.
+Moving a node to another place in the tree changes its path. Without a
+`moved:` entry, a component saved against the old path resolves only as far as
+the path still matches (the resolver returns the deepest matching node), so
+restructure before rollout where you can, and record the move after it.
+
+### Moved paths (`moved`)
+
+`moved:` is the escape hatch for a restructure after rollout. It maps an old
+node path to the new one, as `/`-joined node ids from the top-level node down:
+
+```yaml
+moved:
+  36/factory: 36/2025/factory   # a generation level was inserted
+  rxf36: ohlins-rxf36           # a whole model subtree was renamed
+```
+
+- Matching is by node id, in the order the component stored them, whatever the
+  old level names were. The longest matching prefix wins and the rest of the
+  path is kept.
+- The old path must no longer exist, the new one must, and entries never chain.
+  The parser rejects anything else.
+- A redirect only rewrites how a stored component is read; the next save writes
+  the new path.
+- Never reuse a retired id for something else while a redirect names it.
 
 `ids.lock` lists every node path, every option value
-(`fork/fox/36/2025/factory#damper=grip_x2`) and every brand-only task key
+(`fork/fox/36/2025/factory#damper=grip_x2`), every adjuster id (per product:
+`fork/fox/36/2025/factory#adjuster=pressure`; per option value, once per brand:
+`fork/fox#damper=grip_x2#adjuster=hsc`) and every brand-only task key
 (`fork/fox#task=fork:air_spring_service`). `test/component_catalog_ids_test.dart`
-fails when a locked id disappears; new ids are fine. After adding data,
+fails when a locked id disappears, unless a [`moved:`](#moved-paths-moved)
+entry covers its node path; new ids are fine. After adding data,
 regenerate the lockfile:
 
 ```
@@ -274,18 +307,27 @@ append-only, and a failing test means an id must be restored.
 Older generations are wanted — riders keep forks for a decade — but a
 generation is only worth adding when its numbers can actually be sourced.
 
-- **A model with more than one generation nests them as `generation` nodes.**
-  The label is the year span with an en dash (`"2025–2026"`), the `id` is the
-  generation's *first* year (`"2025"`), and `years` repeats the span in ASCII
-  (`"2025-2026"`). A single-year generation needs no explicit id (`"2026"`).
-- **A model with a single generation has no generation node.** Its `years` sit
-  on the model node and the trims are its direct children. Adding a second
-  generation later inserts the level, which changes the path of the existing
-  trims — do it before rollout where an earlier generation is foreseeable.
+- **Every model with model years nests them as `generation` nodes**, even a
+  model with a single generation: inserting the level later would change the
+  path of every existing trim. The label is the year span with an en dash
+  (`"2025–2026"`), the `id` is the generation's *first* year (`"2025"`), and
+  `years` repeats the span in ASCII (`"2025-2026"`). A single-year generation
+  needs no explicit id (`"2026"`). The picker skips a level with a single
+  child, so a model with one generation costs the rider no extra tap.
+- **A step the brand's riders know by name is a `version` instead** (Öhlins
+  `m.2` / `m.3`), with the same year rules.
+- **A model without known years has no generation node** and stays a plain
+  `model › trim` tree until its years are researched; it is listed as a
+  follow-up, not exempt. Generation fields (`years`, `url`, `setup_guide`,
+  `guide`, `note`) belong on the generation node, never on the model.
 - **A generation is left out of the component's name**: `FOX 36 Factory`, not
   `FOX 36 2025–2026 Factory`. Its years reach the user as a badge and a `Year:`
   line in the notes. A step that users know by name is a `version` instead.
-- **Author newest generation first.** Children are shown in file order.
+- **Author newest generation first.** Children are shown in file order, and CI
+  fails when sibling generations or versions are not ordered newest first.
+  YAML anchors must be defined before they are aliased, so when reordering
+  move the shared anchor to the model's own fields (for `tasks`) or into the
+  new first block.
 - **`category` sits on the model node**, the generation-level fields (`years`,
   `url`, `draft`, `note`) on the generation node.
 - **Trims that are not generations of each other are siblings.** Where a model
@@ -1046,7 +1088,9 @@ all publish specs the same way:
 ## CI
 
 `test/component_catalog_test.dart` parses every file in this directory with the
-parser the app uses and fails when a file does not parse, `component_type` does
+parser the app uses and fails when a file does not parse, a model carries
+`years` instead of a generation or version, sibling generations are not newest
+first, `component_type` does
 not match its directory, an adjustment spec does not build, a shock size is not
 in mm, a `url` is not http(s), two files claim the same product path, or a
 non-draft product offers a damper with `adjustments: []`, an adjustment counts

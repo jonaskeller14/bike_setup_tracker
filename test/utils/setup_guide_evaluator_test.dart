@@ -923,7 +923,7 @@ nodes:
     // psi = 1.0 or 1.3 × rider weight in kg, calculated at 5 kg steps.
     test('Hero at 82 kg', () {
       final results = _evaluate(
-        _real('fork/intend.yaml', 'hero/standard', {'damper': 'closed_cartridge', 'travel_mm': 160}),
+        _real('fork/intend.yaml', 'hero/2025/standard', {'damper': 'closed_cartridge', 'travel_mm': 160}),
         inputs: const GuideInputs(riderWeight: 82),
       );
       expect(_of(results, 'pressure').value, const NumericalValue(82)); // 1.0 × 82
@@ -932,7 +932,7 @@ nodes:
 
     test('Bandit at 82 kg takes the 1.3 factor', () {
       final results = _evaluate(
-        _real('fork/intend.yaml', 'bandit/standard', {'damper': 'closed_cartridge', 'travel_mm': 170}),
+        _real('fork/intend.yaml', 'bandit/2025/standard', {'damper': 'closed_cartridge', 'travel_mm': 170}),
         inputs: const GuideInputs(riderWeight: 82),
       );
       expect(_of(results, 'pressure').value, const NumericalValue(107)); // 1.3 × 82 = 106.6
@@ -940,7 +940,7 @@ nodes:
 
     test('a 130 kg rider is outside the calculated range', () {
       final results = _evaluate(
-        _real('fork/intend.yaml', 'edge/standard', {'damper': 'closed_cartridge', 'travel_mm': 160}),
+        _real('fork/intend.yaml', 'edge/2025/standard', {'damper': 'closed_cartridge', 'travel_mm': 160}),
         inputs: const GuideInputs(riderWeight: 130),
       );
       expect(_of(results, 'pressure').issue, GuideIssue.outsideRange);
@@ -955,7 +955,7 @@ nodes:
 
     test('Bomber Z1 (2024 owner\'s guide) at 82 kg', () {
       final results = _evaluate(
-        _real('fork/marzocchi.yaml', 'z1/standard', {'damper': 'rail', 'travel_mm': 160, 'wheel_size': '29'}),
+        _real('fork/marzocchi.yaml', 'z1/2025/standard', {'damper': 'rail', 'travel_mm': 160, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(results, 'pressure').value, const NumericalValue(78)); // 76 → 80 psi
@@ -965,7 +965,7 @@ nodes:
 
     test('Bomber Z1 Coil gets SAG but not the air table\'s rebound', () {
       final results = _evaluate(
-        _real('fork/marzocchi.yaml', 'z1-coil/coil', {'damper': 'rail', 'travel_mm': 160, 'wheel_size': '29'}),
+        _real('fork/marzocchi.yaml', 'z1-coil/2025/coil', {'damper': 'rail', 'travel_mm': 160, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(results.where((result) => result.rule.target == 'rebound'), isEmpty);
@@ -974,7 +974,7 @@ nodes:
 
     test('Bomber Air reads its rebound off the recommended pressure', () {
       final results = _evaluate(
-        _real('shock/marzocchi.yaml', 'bomber-air/metric', {'damper': 'bomber_air', 'size': '230x65'}),
+        _real('shock/marzocchi.yaml', 'bomber-air/2025/metric', {'damper': 'bomber_air', 'size': '230x65'}),
         inputs: const GuideInputs(riderWeight: 95),
       );
       expect(_of(results, 'pressure').value, const NumericalValue(209)); // psi = lb
@@ -990,7 +990,7 @@ nodes:
 
     test('Helm MKII Air takes 30-40 % of the rider weight', () {
       final results = _evaluate(
-        _real('fork/canecreek.yaml', 'helm-mkii/air', {'damper': 'helm_mkii_damper', 'travel_mm': 150, 'wheel_size': '29'}),
+        _real('fork/canecreek.yaml', 'helm-mkii/2020/air', {'damper': 'helm_mkii_damper', 'travel_mm': 150, 'wheel_size': '29'}),
         inputs: weight,
       );
       final pressure = _of(results, 'pressure');
@@ -1002,7 +1002,7 @@ nodes:
 
     test('Helm MKII Coil picks the spring for the rider weight', () {
       final results = _evaluate(
-        _real('fork/canecreek.yaml', 'helm-mkii/coil', {'damper': 'helm_mkii_damper', 'travel_mm': 150, 'wheel_size': '29'}),
+        _real('fork/canecreek.yaml', 'helm-mkii/2020/coil', {'damper': 'helm_mkii_damper', 'travel_mm': 150, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(results, 'spring_rate').value, const NumericalValue(55)); // 180.78 lb, 160-200 lb bracket
@@ -1017,7 +1017,7 @@ nodes:
       expect(_of(airCs, 'lsc').value, const StepValue(12)); // 13 from open on 25 clicks
       expect(_of(airCs, 'lsr').value, const StepValue(10)); // 15 from open on 25 clicks
       expect(_of(airCs, 'hsc').value, const NumericalValue(2)); // 2 turns from open on 4
-      final inline = _evaluate(_real('shock/canecreek.yaml', 'db-inline/standard', {'damper': 'db_inline'}));
+      final inline = _evaluate(_real('shock/canecreek.yaml', 'db-inline/2014/standard', {'damper': 'db_inline'}));
       expect(_of(inline, 'lsc').value, const StepValue(11)); // 7 from open on 18 clicks
       expect(_of(inline, 'lsr').value, const StepValue(8)); // 10 from open on 18 clicks
       expect(_of(inline, 'hsr').value, const NumericalValue(2.5)); // 2 turns from open on 4.5
@@ -1027,7 +1027,7 @@ nodes:
   group('EXT catalog data', () {
     // Expected values are hand-computed from docs/research/setup_guides/ext.md:
     // 74 kg sits 40 % of the way from the 70 kg point to the 80 kg point.
-    final era = _real('fork/ext.yaml', 'era-v2-1/standard', {
+    final era = _real('fork/ext.yaml', 'era-v2-1/2025/standard', {
       'damper': 'era_cartridge',
       'travel_mm': 160,
       'wheel_size': '29',
@@ -1051,13 +1051,13 @@ nodes:
 
     test('Vecta reads its dials off the fitted spring rate', () {
       final results = _evaluate(
-        _real('shock/ext.yaml', 'vecta/metric-standard', {'damper': 'vecta', 'size': '230x65'}),
+        _real('shock/ext.yaml', 'vecta/2025/metric-standard', {'damper': 'vecta', 'size': '230x65'}),
         current: {'Spring Rate': const NumericalValue(450)},
       );
       expect(_of(results, 'hsc').value, const StepValue(7)); // 425-450 lb/in
       expect(_of(results, 'lsc').value, const StepValue(7));
       expect(_of(results, 'rebound').value, const StepValue(10));
-      final arma = _evaluate(_real('shock/ext.yaml', 'arma-v4/metric-standard', {'damper': 'arma_v4', 'size': '230x65'}));
+      final arma = _evaluate(_real('shock/ext.yaml', 'arma-v4/2025/metric-standard', {'damper': 'arma_v4', 'size': '230x65'}));
       expect(_of(arma, 'hbc').value, const StepValue(5)); // V4 quick manual constant
     });
   });
@@ -1068,7 +1068,7 @@ nodes:
     // to the 180-200 lb midpoint (190). Rebound, HSC and OTT read the
     // recommended pressure.
     const weight = GuideInputs(riderWeight: 82);
-    final onyx38 = _real('fork/dvo.yaml', '38/d1', {'damper': 'onyx38_d1e1', 'travel_mm': 170, 'wheel_size': '29'});
+    final onyx38 = _real('fork/dvo.yaml', '38/2024/d1', {'damper': 'onyx38_d1e1', 'travel_mm': 170, 'wheel_size': '29'});
 
     test('Onyx 38 D1 at 82 kg', () {
       final results = _evaluate(onyx38, inputs: weight);
@@ -1097,7 +1097,7 @@ nodes:
 
     test('Sapphire 34 D1 (2020 guide) at 82 kg', () {
       final results = _evaluate(
-        _real('fork/dvo.yaml', 'sapphire-34/d1', {'damper': 'quick_range_d1e1'}),
+        _real('fork/dvo.yaml', 'sapphire-34/2019/d1', {'damper': 'quick_range_d1e1'}),
         inputs: weight,
       );
       expect(_of(results, 'pressure').value, const NumericalValue(95)); // [85, 95] → [95, 105] psi, center 95.39
@@ -1109,7 +1109,7 @@ nodes:
 
     test('Diamond E3 reads its own column and a pressure-keyed open-ended row', () {
       final results = _evaluate(
-        _real('fork/dvo.yaml', 'diamond/e3', {'damper': 'diamond_d3e3', 'wheel_size': '29'}),
+        _real('fork/dvo.yaml', 'diamond/2024/e3', {'damper': 'diamond_d3e3', 'wheel_size': '29'}),
         inputs: const GuideInputs(riderWeight: 82, ridingStyle: GuideRidingStyle.race),
       );
       expect(_of(results, 'pressure').value, const NumericalValue(98)); // E3 Firm 95 → 100 psi
@@ -1119,7 +1119,7 @@ nodes:
 
     test('Jade base tune applies per shock size', () {
       final results = _evaluate(
-        _real('shock/dvo.yaml', 'jade/standard', {'damper': 'jade_coil', 'size': '215.9x63.5'}),
+        _real('shock/dvo.yaml', 'jade/2019/standard', {'damper': 'jade_coil', 'size': '215.9x63.5'}),
         inputs: weight,
       );
       expect(
@@ -1131,7 +1131,7 @@ nodes:
       expect(_of(results, 'hsc').value, const StepValue(6)); // [4, 6] → [6, 9], center 6.35
       expect(_of(results, 'lsc').value, const StepValue(5)); // [3, 5] → [5, 8], center 5.35
       final metric = _evaluate(
-        _real('shock/dvo.yaml', 'jade/standard', {'damper': 'jade_coil', 'size': '250x70'}),
+        _real('shock/dvo.yaml', 'jade/2019/standard', {'damper': 'jade_coil', 'size': '250x70'}),
         inputs: weight,
       );
       expect(_of(metric, 'bladder_pressure').value, const NumericalValue(183)); // bladder chart 180 → 185
@@ -1139,10 +1139,10 @@ nodes:
     });
 
     test('Topaz Pro and the WP CV shocks at 82 kg', () {
-      final topaz = _evaluate(_real('shock/dvo.yaml', 'topaz/pro', {'damper': 'topaz_pro'}), inputs: weight);
+      final topaz = _evaluate(_real('shock/dvo.yaml', 'topaz/2023/pro', {'damper': 'topaz_pro'}), inputs: weight);
       expect(_of(topaz, 'pressure').value, const NumericalValue(181)); // [165, 175] → [180, 200], center 180.78
       expect(_of(topaz, 'sag').value, const NumericalValue(25)); // 20-30 %
-      final jadeWp = _evaluate(_real('shock/dvo.yaml', 'jade-x/wp-cv', {'damper': 'jade_x_wp_cv'}), inputs: weight);
+      final jadeWp = _evaluate(_real('shock/dvo.yaml', 'jade-x/2023/wp-cv', {'damper': 'jade_x_wp_cv'}), inputs: weight);
       expect(_of(jadeWp, 'spring_rate').value, const NumericalValue(450)); // 80-100 kg
       expect(_of(jadeWp, 'hsc').value, const StepValue(4));
       expect(_of(jadeWp, 'lsc').value, const StepValue(6));
@@ -1171,7 +1171,7 @@ nodes:
 
     test('Mattoc Comp reads IVA by travel and rebound as a clock position', () {
       final results = _evaluate(
-        _real('fork/manitou.yaml', 'mattoc/comp', {'damper': 'abs_plus_2023', 'travel_mm': 130, 'wheel_size': '29'}),
+        _real('fork/manitou.yaml', 'mattoc/2023/comp', {'damper': 'abs_plus_2023', 'travel_mm': 130, 'wheel_size': '29'}),
         inputs: const GuideInputs(riderWeight: 82, ridingStyle: GuideRidingStyle.balanced),
       );
       expect(_of(results, 'pressure').value, const NumericalValue(75)); // 75 → 85 psi
@@ -1188,7 +1188,7 @@ nodes:
       expect(_of(mezzer, 'pressure').issue, GuideIssue.outsideRange); // 220.5 lb, the left-out ">220" row
       expect(_of(mezzer, 'irt_pressure').issue, GuideIssue.outsideRange);
       final coil = _evaluate(
-        _real('fork/manitou.yaml', 'dorado/comp-coil', {'damper': 'abs_plus_dorado_2022', 'wheel_size': '29'}),
+        _real('fork/manitou.yaml', 'dorado/2022/comp-coil', {'damper': 'abs_plus_dorado_2022', 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(coil, 'spring_rate').value, const NumericalValue(40)); // 175-200 lb, Firm
@@ -1202,7 +1202,7 @@ nodes:
 
     test('Kyll 39 Grabber at 180 mm', () {
       final results = _evaluate(
-        _real('fork/bos.yaml', 'kyll-39/grabber', {'damper': 'grabber_2025', 'travel_mm': 180, 'wheel_size': '29'}),
+        _real('fork/bos.yaml', 'kyll-39/2025/grabber', {'damper': 'grabber_2025', 'travel_mm': 180, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(results, 'pressure').value, const NumericalValue(201)); // 197 → 208 psi
@@ -1214,14 +1214,14 @@ nodes:
 
     test('Obsys 42 at 82 kg; the Deville 35 has no guide', () {
       final obsys = _evaluate(
-        _real('fork/bos.yaml', 'obsys-42/air', {'damper': 'obsys_2025', 'travel_mm': 200, 'wheel_size': '29'}),
+        _real('fork/bos.yaml', 'obsys-42/2025/air', {'damper': 'obsys_2025', 'travel_mm': 200, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(obsys, 'pressure').value, const NumericalValue(198)); // 195 → 202 psi
       expect(_of(obsys, 'compression').value, const StepValue(20));
       expect(_of(obsys, 'rebound').value, const StepValue(13));
       final deville = _evaluate(
-        _real('fork/bos.yaml', 'deville-35/grabber', {'damper': 'grabber_2025', 'travel_mm': 150, 'wheel_size': '29'}),
+        _real('fork/bos.yaml', 'deville-35/2025/grabber', {'damper': 'grabber_2025', 'travel_mm': 150, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(deville, isEmpty);
@@ -1235,7 +1235,7 @@ nodes:
 
     test('F 535 ONE at 140 mm reads its rebound off the recommended pressure', () {
       final results = _evaluate(
-        _real('fork/dtswiss.yaml', 'f-535-one/standard', {
+        _real('fork/dtswiss.yaml', 'f-535-one/2023/standard', {
           'damper': 'incontrol_odl_plushport_2023',
           'travel_mm': 140,
           'wheel_size': '29',
@@ -1252,14 +1252,14 @@ nodes:
 
     test('F 535 and F 232 ONE take their own tables', () {
       final f535 = _evaluate(
-        _real('fork/dtswiss.yaml', 'f-535/standard', {'damper': 'incontrol_ol_2023', 'travel_mm': 130, 'wheel_size': '29'}),
+        _real('fork/dtswiss.yaml', 'f-535/2023/standard', {'damper': 'incontrol_ol_2023', 'travel_mm': 130, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(f535, 'pressure').value, const NumericalValue(75)); // 73 → 78 psi
       // 75 psi between the 61-71 (17) and 71-83 (18) psi midpoints: 17.82.
       expect(_of(f535, 'rebound').value, const StepValue(18));
       final f232 = _evaluate(
-        _real('fork/dtswiss.yaml', 'f-232-one/standard', {
+        _real('fork/dtswiss.yaml', 'f-232-one/2020/standard', {
           'damper': 'incontrol_odl_232_2020',
           'travel_mm': 110,
           'wheel_size': '29',
@@ -1271,7 +1271,7 @@ nodes:
       expect(_of(f232, 'volume_spacers').value, const StepValue(2));
       expect(f232.where((result) => result.rule.target == 'compression'), isEmpty);
       final heavy = _evaluate(
-        _real('fork/dtswiss.yaml', 'f-232-one/standard', {
+        _real('fork/dtswiss.yaml', 'f-232-one/2020/standard', {
           'damper': 'incontrol_odl_232_2020',
           'travel_mm': 110,
           'wheel_size': '29',
@@ -1283,7 +1283,7 @@ nodes:
 
     test('R 535 ONE at 82 kg', () {
       final results = _evaluate(
-        _real('shock/dtswiss.yaml', 'r-535-one/standard-mount', {'damper': 'r535_one_standard'}),
+        _real('shock/dtswiss.yaml', 'r-535-one/2021/standard-mount', {'damper': 'r535_one_standard'}),
         inputs: weight,
       );
       expect(_of(results, 'pressure').value, const NumericalValue(258)); // 252 → 266 psi: 257.6
@@ -1304,7 +1304,7 @@ nodes:
       expect(_of(selvaR, 'negative_chamber_pressure').value, const NumericalValue(102)); // Silver + 20
       expect(_of(selvaR, 'neopos').value, const StepValue(1));
       final neroR = _evaluate(
-        _real('fork/formula.yaml', 'nero/r', {'damper': 'nero_2017', 'travel_mm': 200, 'wheel_size': '29'}),
+        _real('fork/formula.yaml', 'nero/2017/r', {'damper': 'nero_2017', 'travel_mm': 200, 'wheel_size': '29'}),
         inputs: const GuideInputs(riderWeight: 75),
       );
       expect(_of(neroR, 'progressivity_chamber_pressure').value, const NumericalValue(125)); // 120 → 130 psi
@@ -1322,7 +1322,7 @@ nodes:
 
     test('Nebbia and MOD base tunes', () {
       final nebbia = _evaluate(
-        _real('shock/formula.yaml', 'nebbia/air', {'damper': 'nebbia_2024'}),
+        _real('shock/formula.yaml', 'nebbia/2024/air', {'damper': 'nebbia_2024'}),
         inputs: const GuideInputs(riderWeight: 85),
       );
       final pressure = _of(nebbia, 'pressure');
@@ -1345,7 +1345,7 @@ nodes:
 
     test('Lefty Ocho Carbon at 82 kg', () {
       final results = _evaluate(
-        _real('fork/cannondale.yaml', 'lefty-ocho/carbon', {
+        _real('fork/cannondale.yaml', 'lefty-ocho/2018/carbon', {
           'damper': 'chamber_ocho_2018',
           'travel_mm': 100,
           'wheel_size': '29',
@@ -1441,7 +1441,7 @@ nodes:
 
     test('AION 36 at 80 kg and 160mm', () {
       final results = _evaluate(
-        _real('fork/suntour.yaml', 'aion-36/boost', {'damper': 'cr3_pcs', 'travel_mm': 160, 'wheel_size': '29'}),
+        _real('fork/suntour.yaml', 'aion-36/2025/boost', {'damper': 'cr3_pcs', 'travel_mm': 160, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(results, 'pressure').value, const NumericalValue(95)); // [90, 100] psi
@@ -1450,7 +1450,7 @@ nodes:
     });
 
     test('AION 38X takes the spacer row of its wheel size, the 38mm columns start at 55 kg', () {
-      ResolvedPreset aion(String wheel, int travel) => _real('fork/suntour.yaml', 'aion-38x/boost', {
+      ResolvedPreset aion(String wheel, int travel) => _real('fork/suntour.yaml', 'aion-38x/2025/boost', {
         'damper': 'cr2_pcs',
         'travel_mm': travel,
         'wheel_size': wheel,
@@ -1468,7 +1468,7 @@ nodes:
 
     test('AXON 34 Elite gets the Werx spacer row', () {
       final results = _evaluate(
-        _real('fork/suntour.yaml', 'axon-34-werx/elite', {'damper': 'rlrc_pcs', 'travel_mm': 120, 'wheel_size': '29'}),
+        _real('fork/suntour.yaml', 'axon-34-werx/2025/elite', {'damper': 'rlrc_pcs', 'travel_mm': 120, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(results, 'pressure').value, const NumericalValue(80)); // [75, 85] psi
@@ -1477,11 +1477,11 @@ nodes:
 
     test('EDGE Evo SAG follows the stroke', () {
       ResolvedPreset edge(String size) =>
-          _real('shock/suntour.yaml', 'edge-evo/2cr', {'damper': 'edge_2cr', 'size': size});
+          _real('shock/suntour.yaml', 'edge-evo/2025/2cr', {'damper': 'edge_2cr', 'size': size});
       expect(_of(_evaluate(edge('230x60')), 'sag').value, const NumericalValue(30)); // 25-35 %
       // 52.5mm lies halfway between 50mm (20-25 %) and 55mm (25-30 %): 22.5-27.5 %.
       expect(_of(_evaluate(edge('210x52.5')), 'sag').value, const NumericalValue(25));
-      final short = _real('shock/suntour.yaml', 'edge-x/r', {'damper': 'edge_r', 'size': '170x27.5'});
+      final short = _real('shock/suntour.yaml', 'edge-x/2024/r', {'damper': 'edge_r', 'size': '170x27.5'});
       expect(_of(_evaluate(short), 'sag').issue, GuideIssue.outsideRange);
     });
   });

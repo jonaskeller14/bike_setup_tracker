@@ -160,87 +160,99 @@ nodes:
   - label: "R 535 ONE"
     level: model
     category: Trail / All-Mountain
-    years: "2021-2026"
-    url: https://www.dtswiss.com/en/suspension/shocks/r-535-one
-    setup_guide: https://setupguide.dtswiss.com/en/
-    guide: dtswiss_r535_2023
     specs: { spring: Air }
     tasks: &dtswiss_service
       shock:air_can_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual }
       shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual }
     children:
-      - label: Standard Mount
-        level: trim
-        specs: { spring: LINEAIR, mount: Standard }
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 333 }
-        options:
-          damper: [r535_one_standard]
-          size: ["190x40/45", "210x50/55", "230x60/65"]
-        note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
-      - label: Trunnion Mount
-        level: trim
-        specs: { spring: LINEAIR, mount: Trunnion }
-        adjustments: *air_spring
-        options:
-          damper: [r535_one_trunnion]
-          size: ["165x40/45", "185x50/55", "205x60/65"]
-        note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
+      - label: "2021–2026"
+        level: generation
+        id: "2021"
+        years: "2021-2026"
+        url: https://www.dtswiss.com/en/suspension/shocks/r-535-one
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_r535_2023
+        children:
+          - label: Standard Mount
+            level: trim
+            specs: { spring: LINEAIR, mount: Standard }
+            adjustments: &air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 333 }
+            options:
+              damper: [r535_one_standard]
+              size: ["190x40/45", "210x50/55", "230x60/65"]
+            note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
+          - label: Trunnion Mount
+            level: trim
+            specs: { spring: LINEAIR, mount: Trunnion }
+            adjustments: *air_spring
+            options:
+              damper: [r535_one_trunnion]
+              size: ["165x40/45", "185x50/55", "205x60/65"]
+            note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
 
   - label: "R 535"
     level: model
     category: Trail / All-Mountain
-    years: "2023-2026"
-    url: https://www.dtswiss.com/en/suspension/shocks/r-535
-    setup_guide: https://setupguide.dtswiss.com/en/
-    guide: dtswiss_r535_2023
     specs: { spring: Air }
     tasks: *dtswiss_service
     children:
-      - label: Standard Mount
-        level: trim
-        specs: { spring: LINEAIR, mount: Standard }
-        adjustments: *air_spring
-        options:
-          damper: [r535_standard]
-          size: ["190x40/45", "210x50/55", "230x60/65"]
-        note: Two-position lever (Open / Lock); DU bushings.
-      - label: Trunnion Mount
-        level: trim
-        specs: { spring: LINEAIR, mount: Trunnion }
-        adjustments: *air_spring
-        options:
-          damper: [r535_trunnion]
-          size: ["165x40/45", "185x50/55", "205x60/65"]
-        note: Two-position lever (Open / Lock); DU bushings.
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
+        url: https://www.dtswiss.com/en/suspension/shocks/r-535
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_r535_2023
+        children:
+          - label: Standard Mount
+            level: trim
+            specs: { spring: LINEAIR, mount: Standard }
+            adjustments: *air_spring
+            options:
+              damper: [r535_standard]
+              size: ["190x40/45", "210x50/55", "230x60/65"]
+            note: Two-position lever (Open / Lock); DU bushings.
+          - label: Trunnion Mount
+            level: trim
+            specs: { spring: LINEAIR, mount: Trunnion }
+            adjustments: *air_spring
+            options:
+              damper: [r535_trunnion]
+              size: ["165x40/45", "185x50/55", "205x60/65"]
+            note: Two-position lever (Open / Lock); DU bushings.
 
   - label: "R 232 ONE"
     level: model
     category: XC
-    years: "2020-2026"
-    url: https://www.dtswiss.com/en/suspension/shocks/r-232-one
-    setup_guide: https://setupguide.dtswiss.com/en/
-    guide: dtswiss_r232one_2021
     specs: { spring: Air }
     tasks: *dtswiss_service
     children:
-      - label: Standard Mount
-        level: trim
-        specs: { spring: LINEAIR, mount: Standard }
-        adjustments: &air_spring_232
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 260 }
-        options:
-          damper: [r232_one_standard]
-          size: ["190x40/45", "210x50/55"]
-        note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
-      - label: Trunnion Mount
-        level: trim
-        specs: { spring: LINEAIR, mount: Trunnion }
-        adjustments: *air_spring_232
-        options:
-          damper: [r232_one_trunnion]
-          size: ["165x40/45", "185x50/55"]
-        note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
+      - label: "2020–2026"
+        level: generation
+        id: "2020"
+        years: "2020-2026"
+        url: https://www.dtswiss.com/en/suspension/shocks/r-232-one
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_r232one_2021
+        children:
+          - label: Standard Mount
+            level: trim
+            specs: { spring: LINEAIR, mount: Standard }
+            adjustments: &air_spring_232
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 260 }
+            options:
+              damper: [r232_one_standard]
+              size: ["190x40/45", "210x50/55"]
+            note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
+          - label: Trunnion Mount
+            level: trim
+            specs: { spring: LINEAIR, mount: Trunnion }
+            adjustments: *air_spring_232
+            options:
+              damper: [r232_one_trunnion]
+              size: ["165x40/45", "185x50/55"]
+            note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

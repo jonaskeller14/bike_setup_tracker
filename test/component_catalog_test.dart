@@ -140,6 +140,32 @@ void main() {
         }
       });
 
+      test('years sit on a generation or version, never on a model', () {
+        // A model that carries its years would move every product path the day
+        // a second generation is added, so the level is there from the start.
+        for (final MapEntry(key: path, value: node) in nodes.entries) {
+          if (node.level != 'model') continue;
+          expect(node.years, isNull, reason: '$path: put "years" on a generation or version node');
+        }
+      });
+
+      test('generations and versions are authored newest first', () {
+        for (final MapEntry(key: path, value: node) in nodes.entries) {
+          if (node is! CatalogGroup) continue;
+          final spans = [
+            for (final child in node.children)
+              if ((child.level == 'generation' || child.level == 'version') && child.years != null) child.years!,
+          ];
+          for (var i = 1; i < spans.length; i++) {
+            expect(
+              spans[i].first <= spans[i - 1].first,
+              isTrue,
+              reason: '$path: ${spans[i]} is listed after ${spans[i - 1]}, newest generation goes first',
+            );
+          }
+        }
+      });
+
       test('product paths are globally unique', () {
         // The path is what a component persists, so two brand files must not
         // both claim it.

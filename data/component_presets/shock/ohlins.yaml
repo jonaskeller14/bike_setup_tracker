@@ -371,45 +371,53 @@ nodes:
   - label: "TXC1Air"
     level: model
     category: XC
-    years: "2025-2026"
-    url: https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
-    setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
-    guide: ohlins_txc_air_2023
     specs: { spring: Air }
     tasks: *ohlins_service
     children:
-      - label: Universal
-        level: trim
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum }
-          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "1 ml spacers: up to 4 on the spacer holder plus 2 smaller 0.7 ml spacers on the end eye" }
-        options:
-          damper: [txc1air]
-          size: [{ size: "165x37.5/40", mount: Trunnion Remote }, { size: "185x47.5/50", mount: Trunnion Remote }, { size: "190x37.5/40", mount: Remote }, { size: "210x47.5/50", mount: Remote }]
-        note: |-
-          - Cross-country tune, from 245g, and the rear half of the RXC34 package
-          - Volume spacers tune air-spring progression; travel is adjustable
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
+        guide: ohlins_txc_air_2023
+        children:
+          - label: Universal
+            level: trim
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum }
+              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "1 ml spacers: up to 4 on the spacer holder plus 2 smaller 0.7 ml spacers on the end eye" }
+            options:
+              damper: [txc1air]
+              size: [{ size: "165x37.5/40", mount: Trunnion Remote }, { size: "185x47.5/50", mount: Trunnion Remote }, { size: "190x37.5/40", mount: Remote }, { size: "210x47.5/50", mount: Remote }]
+            note: |-
+              - Cross-country tune, from 245g, and the rear half of the RXC34 package
+              - Volume spacers tune air-spring progression; travel is adjustable
 
   - label: "TXC2Air"
     level: model
     category: XC
-    years: "2025-2026"
-    url: https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
-    setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
-    guide: ohlins_txc_air_2023
     specs: { spring: Air }
     tasks: *ohlins_service
     children:
-      - label: Universal
-        level: trim
-        mounts: [Standard eyelet, "Remote (5.5mm cable pull adapter)"]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum }
-          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Up to 3 on the spacer holder plus smaller 0.7 ml spacers on the end eye. Maximum depends on the stroke: 55/45 mm 3, 52.5/42.5 mm 4, 50/40 mm 5, 47.5/37.5 mm 6" }
-        options:
-          damper: [txc2air]
-          size: ["165x37.5/40/42.5/45", "185x47.5/50/52.5/55", "190x37.5/40/42.5/45", "210x47.5/50/52.5/55"]
-        note: Cross-country tune from 255g, with low-speed compression clicks on top of the three-mode lever.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
+        guide: ohlins_txc_air_2023
+        children:
+          - label: Universal
+            level: trim
+            mounts: [Standard eyelet, "Remote (5.5mm cable pull adapter)"]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum }
+              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Up to 3 on the spacer holder plus smaller 0.7 ml spacers on the end eye. Maximum depends on the stroke: 55/45 mm 3, 52.5/42.5 mm 4, 50/40 mm 5, 47.5/37.5 mm 6" }
+            options:
+              damper: [txc2air]
+              size: ["165x37.5/40/42.5/45", "185x47.5/50/52.5/55", "190x37.5/40/42.5/45", "210x47.5/50/52.5/55"]
+            note: Cross-country tune from 255g, with low-speed compression clicks on top of the three-mode lever.
 
   - label: TTX22
     level: model

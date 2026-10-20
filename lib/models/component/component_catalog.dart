@@ -4,6 +4,7 @@ import 'component.dart';
 import 'component_preset.dart';
 import 'preset_spec_keys.dart';
 import 'setup_guide.dart';
+import 'year_span.dart';
 
 /// In-memory model of the generic component catalog (`data/component_presets/`):
 /// a node tree names the product, option axes configure it.
@@ -37,12 +38,37 @@ class BrandCatalog {
   final ComponentType componentType;
   final List<CatalogNode> nodes;
 
+  /// Node paths that were restructured, see [MovedPath].
+  final List<MovedPath> moved;
+
   const BrandCatalog({
     required this.brand,
     required this.id,
     required this.componentType,
     required this.nodes,
+    this.moved = const [],
   });
+
+  /// [ids] with the longest matching `moved:` prefix rewritten; null when no
+  /// redirect applies.
+  List<String>? redirect(List<String> ids) {
+    MovedPath? best;
+    for (final entry in moved) {
+      if (entry.from.length > ids.length || (best != null && entry.from.length <= best.from.length)) continue;
+      if (Iterable<int>.generate(entry.from.length).every((i) => entry.from[i] == ids[i])) best = entry;
+    }
+    return best == null ? null : [...best.to, ...ids.skip(best.from.length)];
+  }
+}
+
+/// A `moved:` entry: the node path [from] no longer exists, [to] is where it
+/// lives now. Both are node ids from the top-level node down; [from] may stop
+/// at a group, which moves its whole subtree.
+class MovedPath {
+  final List<String> from;
+  final List<String> to;
+
+  const MovedPath({required this.from, required this.to});
 }
 
 /// One step of a brand's hierarchy (model, generation, trim, version, mount …).
@@ -59,7 +85,7 @@ sealed class CatalogNode {
   final bool draft;
   final Specs specs;
   final String? category;
-  final String? years;
+  final YearSpan? years;
   final String? url;
 
   /// Official setup or tuning guide, the link the generated notes carry.

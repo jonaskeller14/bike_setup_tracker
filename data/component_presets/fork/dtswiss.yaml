@@ -332,81 +332,93 @@ nodes:
   - label: "F 535 ONE"
     level: model
     category: Trail / All-Mountain
-    years: "2023-2026"
-    url: https://www.dtswiss.com/en/suspension/forks/f-535-one
-    setup_guide: https://setupguide.dtswiss.com/en/
-    guide: dtswiss_f535_2023
     tasks: &dtswiss_service
       fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual }
       fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual }
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [44]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 197, notes: "Maximum depends on travel: 120mm 197 psi, 130mm 186, 140mm 175, 150mm 164, 160mm 154" }
-          - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
-        options:
-          damper: [incontrol_odl_plushport_2023]
-          travel_mm: [120, 130, 140, 150, 160]
-          wheel_size: [29]
-        note: |-
-          - COILPAIR spring: a small coil works with the air spring over the first 30mm of travel
-          - PLUSHPORT travel-dependent damping
-          - One APT volume spacer fitted as delivered, two more in the box
-          - 15mm Boost thru-axle, magnesium lowers
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
+        url: https://www.dtswiss.com/en/suspension/forks/f-535-one
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_f535_2023
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [44]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 197, notes: "Maximum depends on travel: 120mm 197 psi, 130mm 186, 140mm 175, 150mm 164, 160mm 154" }
+              - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+            options:
+              damper: [incontrol_odl_plushport_2023]
+              travel_mm: [120, 130, 140, 150, 160]
+              wheel_size: [29]
+            note: |-
+              - COILPAIR spring: a small coil works with the air spring over the first 30mm of travel
+              - PLUSHPORT travel-dependent damping
+              - One APT volume spacer fitted as delivered, two more in the box
+              - 15mm Boost thru-axle, magnesium lowers
 
   - label: "F 535"
     level: model
     category: Trail / All-Mountain
-    years: "2023-2026"
-    url: https://www.dtswiss.com/en/suspension/forks/f-535
-    setup_guide: https://setupguide.dtswiss.com/en/
-    guide: dtswiss_f535_2023
     tasks: *dtswiss_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [44]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 191, notes: "Maximum depends on travel: 120mm 191 psi, 130mm 180, 140mm 170, 150mm 158, 160mm 148" }
-          - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
-        options:
-          damper: [incontrol_ol_2023]
-          travel_mm: [120, 130, 140, 150, 160]
-          wheel_size: [29]
-        note: |-
-          - Lower-priced sibling of the F 535 ONE without COILPAIR or PLUSHPORT
-          - Two-mode lever (Open / Lock)
-          - One APT volume spacer fitted as delivered, two more in the box
-          - 15mm Boost thru-axle, magnesium lowers
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
+        url: https://www.dtswiss.com/en/suspension/forks/f-535
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_f535_2023
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [44]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 191, notes: "Maximum depends on travel: 120mm 191 psi, 130mm 180, 140mm 170, 150mm 158, 160mm 148" }
+              - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+            options:
+              damper: [incontrol_ol_2023]
+              travel_mm: [120, 130, 140, 150, 160]
+              wheel_size: [29]
+            note: |-
+              - Lower-priced sibling of the F 535 ONE without COILPAIR or PLUSHPORT
+              - Two-mode lever (Open / Lock)
+              - One APT volume spacer fitted as delivered, two more in the box
+              - 15mm Boost thru-axle, magnesium lowers
 
   - label: "F 232 ONE"
     level: model
     category: XC
-    years: "2020-2026"
-    url: https://www.dtswiss.com/en/suspension/forks/f-232-one
-    setup_guide: https://setupguide.dtswiss.com/en/
-    guide: dtswiss_f232one_2021
     tasks: *dtswiss_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: 32mm, spring: Air }
-        offset_mm: [44, 51]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 152, notes: "Maximum depends on travel: 100mm 152 psi, 110mm 149, 120mm 145" }
-          - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
-        options:
-          damper: [incontrol_odl_232_2020]
-          travel_mm: [100, 110, 120]
-          wheel_size: [29]
-        note: |-
-          - Topology-optimised lowers, from 1,480g
-          - XC-tuned LINEAIR dual-chamber air spring
-          - Two APT volume spacers fitted as delivered, one more in the box
+      - label: "2020–2026"
+        level: generation
+        id: "2020"
+        years: "2020-2026"
+        url: https://www.dtswiss.com/en/suspension/forks/f-232-one
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_f232one_2021
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 32mm, spring: Air }
+            offset_mm: [44, 51]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 152, notes: "Maximum depends on travel: 100mm 152 psi, 110mm 149, 120mm 145" }
+              - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+            options:
+              damper: [incontrol_odl_232_2020]
+              travel_mm: [100, 110, 120]
+              wheel_size: [29]
+            note: |-
+              - Topology-optimised lowers, from 1,480g
+              - XC-tuned LINEAIR dual-chamber air spring
+              - Two APT volume spacers fitted as delivered, one more in the box
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

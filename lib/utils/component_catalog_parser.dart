@@ -4,8 +4,10 @@ import 'package:yaml/yaml.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
+import '../models/component/component_preset.dart';
 import '../models/component/preset_spec_keys.dart';
 import '../models/component/setup_guide.dart';
+import '../models/component/year_span.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_template.dart';
 import '../models/task/task_threshold/task_threshold.dart';
@@ -48,8 +50,16 @@ BrandCatalog parseCatalogFile(String yamlSource) {
     id: _slug(brand),
     componentType: componentType,
     nodes: nodes,
+    moved: parser.parseMoved(doc['moved'], nodes),
   );
 }
+
+const List<String> _reservedLevels = [
+  ComponentPreset.brandKey,
+  ComponentPreset.componentTypeKey,
+  ComponentPreset.yearKey,
+  ComponentPreset.revisionKey,
+];
 
 /// What a node hands down to its subtree. `adjustments` and `options` stay raw
 /// until a product is reached, because only the nearest declaration is parsed.
@@ -61,7 +71,7 @@ class _Inherited {
   final bool draft;
   final Specs specs;
   final String? category;
-  final String? years;
+  final YearSpan? years;
   final String? url;
   final String? setupGuide;
   final SetupGuide? guide;
@@ -72,7 +82,7 @@ class _Inherited {
   final Object? options;
 
   const _Inherited({
-    this.levels = const ['brand', 'component_type'],
+    this.levels = _reservedLevels,
     this.path = '',
     this.draft = false,
     this.specs = Specs.empty,
@@ -186,6 +196,48 @@ class _CatalogParser {
     return List.unmodifiable(raw.cast<String>());
   }
 
+  /// `moved:` maps an old node path to its new one, as `/`-joined node ids.
+  /// The old path must be gone and the new one must exist, so a redirect is
+  /// never ambiguous and never chains.
+  List<MovedPath> parseMoved(Object? raw, List<CatalogNode> nodes) {
+    if (raw == null) return const [];
+    if (raw is! YamlMap) throw _error('"moved" is not a map');
+
+    CatalogNode? find(List<String> ids) {
+      var siblings = nodes;
+      CatalogNode? node;
+      for (final id in ids) {
+        node = siblings.firstWhereOrNull((sibling) => sibling.id == id);
+        if (node == null) return null;
+        siblings = node is CatalogGroup ? node.children : const [];
+      }
+      return node;
+    }
+
+    List<String> ids(Object? path, String where) {
+      // A one-segment path such as `38` is a YAML number.
+      final parts = path is String || path is int ? path.toString().split('/') : const <String>[];
+      if (parts.isEmpty || parts.any((part) => part.isEmpty)) {
+        throw _error('$where is not a "/"-joined path of node ids');
+      }
+      return parts;
+    }
+
+    final moved = [
+      for (final entry in raw.entries)
+        MovedPath(
+          from: ids(entry.key, 'A key of "moved"'),
+          to: ids(entry.value, '"moved" target of "${entry.key}"'),
+        ),
+    ];
+    for (final entry in moved) {
+      final where = '"moved" entry "${entry.from.join('/')}"';
+      if (find(entry.from) != null) throw _error('$where still exists, so it cannot be redirected');
+      if (find(entry.to) == null) throw _error('$where points at "${entry.to.join('/')}", which does not exist');
+    }
+    return List.unmodifiable(moved);
+  }
+
   List<CatalogNode> parseNodes(YamlList raw, _Inherited parent) {
     final nodes = <CatalogNode>[];
     final ids = <String>{};
@@ -245,7 +297,7 @@ class _CatalogParser {
       draft: draft,
       specs: parent.specs.mergedWith(_parseSpecs(raw['specs'], where)),
       category: _inheritText(raw, 'category', parent.category),
-      years: _inheritText(raw, 'years', parent.years),
+      years: raw.containsKey('years') ? _parseYears(raw['years'], where) : parent.years,
       url: _inheritText(raw, 'url', parent.url),
       setupGuide: _inheritText(raw, 'setup_guide', parent.setupGuide),
       guide: raw.containsKey('guide') ? _guideReference(raw['guide'], where) : parent.guide,
@@ -300,6 +352,13 @@ class _CatalogParser {
       tasks: scope.tasks,
       children: parseNodes(rawChildren, scope),
     );
+  }
+
+  YearSpan? _parseYears(Object? raw, String where) {
+    if (raw == null) return null;
+    final span = raw is String ? YearSpan.tryParse(raw) : null;
+    if (span == null) throw _error('"years" of $where is not "YYYY" or "YYYY-YYYY" in ascending order');
+    return span;
   }
 
   Map<String, OptionAxis> _parseOptions(Object? raw, _Inherited scope) {

@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
+import 'package:bike_setup_tracker/models/component/year_span.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_template.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -158,7 +159,7 @@ void main() {
 
     test('url, category, years and note come from the nearest declaration', () {
       expect(factory.category, 'All-Mountain');
-      expect(factory.years, '2025-2026');
+      expect(factory.years, const YearSpan(2025, 2026));
       expect(factory.url, 'https://ridefox.com/pages/fox-36');
       expect(factory.note, 'Model note');
       expect(model.years, isNull);
@@ -359,6 +360,26 @@ $node
 
     test('a root that is not a map', () {
       expect(() => parseCatalogFile('- a\n- b'), throwsFormatException);
+    });
+
+    test('a level named like a reserved entry of the persisted map', () {
+      for (final level in ['year', 'revision', 'brand', 'component_type']) {
+        expect(
+          () => parseCatalogFile(fork('  - { label: "36", level: $level }')),
+          _throwsFormat('already taken'),
+          reason: level,
+        );
+      }
+    });
+
+    test('years that are not YYYY or YYYY-YYYY in ascending order', () {
+      for (final years in ['"2025–2026"', '"2026-2025"', '"2025-26"', 'soon', '2026']) {
+        expect(
+          () => parseCatalogFile(fork('  - { label: "36", level: model, years: $years }')),
+          _throwsFormat('"years"'),
+          reason: years,
+        );
+      }
     });
 
     test('a missing brand or component type', () {
@@ -1355,6 +1376,56 @@ $pressureRule''');
         rejects('      - { target: hsc, value: [1, Open] }', 'not an ascending');
         rejects('      - { target: hsc, value: "" }', '"value" of rule 1');
       });
+    });
+  });
+
+  group('moved', () {
+    String fork(String moved) =>
+        '''
+brand: FOX
+component_type: fork
+$moved
+nodes:
+  - label: "36"
+    level: model
+    children:
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        children:
+          - { label: Factory, level: trim }
+''';
+
+    test('reads old node paths and where they live now', () {
+      final catalog = parseCatalogFile(fork('moved:\n  36/factory: 36/2025/factory\n  38: 36'));
+
+      expect(catalog.moved.map((entry) => '${entry.from.join('/')} -> ${entry.to.join('/')}'), [
+        '36/factory -> 36/2025/factory',
+        '38 -> 36',
+      ]);
+    });
+
+    test('redirect rewrites the longest matching prefix and keeps the rest', () {
+      final catalog = parseCatalogFile(fork('moved:\n  38: 36\n  38/old: 36/2025/factory'));
+
+      expect(catalog.redirect(['38', 'factory']), ['36', 'factory']);
+      expect(catalog.redirect(['38', 'old']), ['36', '2025', 'factory']);
+      expect(catalog.redirect(['36', '2025']), isNull);
+      expect(catalog.redirect(const []), isNull);
+    });
+
+    test('rejects an old path that still exists', () {
+      expect(() => parseCatalogFile(fork('moved:\n  36/2025: 36')), _throwsFormat('still exists'));
+    });
+
+    test('rejects a target that does not exist', () {
+      expect(() => parseCatalogFile(fork('moved:\n  36/factory: 36/2019/factory')), _throwsFormat('does not exist'));
+    });
+
+    test('rejects a malformed path or map', () {
+      expect(() => parseCatalogFile(fork('moved:\n  36//factory: 36')), _throwsFormat('"/"-joined'));
+      expect(() => parseCatalogFile(fork('moved:\n  38: [36]')), _throwsFormat('"/"-joined'));
+      expect(() => parseCatalogFile(fork('moved: [a]')), _throwsFormat('"moved" is not a map'));
     });
   });
 }

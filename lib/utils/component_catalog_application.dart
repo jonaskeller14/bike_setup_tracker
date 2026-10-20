@@ -70,7 +70,7 @@ String _buildNotes(ResolvedPreset resolved) {
         if (axis.id != PresetOptionAxes.damper.id) ?_chosenText(axis, resolved.selections[axis.id]),
     ]),
     _joined(_specTexts(resolved, chosen)),
-    if (_isNotBlank(node.years)) 'Model years: ${node.years}',
+    if (node.years case final years?) 'Model years: $years',
     ..._noteLines(node.note),
     if (missing.isNotEmpty) 'Not in the catalog yet, add by hand: ${missing.join(', ')}',
   ].where(_isNotBlank).map((line) => line!.startsWith('- ') ? line : '- $line');

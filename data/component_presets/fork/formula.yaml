@@ -313,71 +313,79 @@ nodes:
   - label: "Belva"
     level: model
     category: Enduro / All-Mountain
-    years: "2024-2026"
-    url: https://www.rideformula.com/products/mtb-forks/belva/
-    setup_guide: https://www.rideformula.com/wp-content/uploads/2024/03/Manuale-Utente-Belva-ENG.pdf
-    guide: formula_belva_2024
     tasks: *formula_service
     children:
-      - label: Air
-        level: trim
-        specs: { stanchion: 35mm 7075 aluminum, spring: Air }
-        offset_mm: [43]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 85 }
-        options:
-          damper: [belva_2024]
-          travel_mm: [170, 180]
-          wheel_size: [29, 27.5]
-        note: |-
-          - Dual-crown enduro fork built on the Selva lowers, 43mm offset, tapered 1.5" steerer
-          - Steel negative spring (triple coil technology); Neopos are optional
-          - 15x110mm Boost with the Integrated Locking System axle, from 2370g
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://www.rideformula.com/products/mtb-forks/belva/
+        setup_guide: https://www.rideformula.com/wp-content/uploads/2024/03/Manuale-Utente-Belva-ENG.pdf
+        guide: formula_belva_2024
+        children:
+          - label: Air
+            level: trim
+            specs: { stanchion: 35mm 7075 aluminum, spring: Air }
+            offset_mm: [43]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 85 }
+            options:
+              damper: [belva_2024]
+              travel_mm: [170, 180]
+              wheel_size: [29, 27.5]
+            note: |-
+              - Dual-crown enduro fork built on the Selva lowers, 43mm offset, tapered 1.5" steerer
+              - Steel negative spring (triple coil technology); Neopos are optional
+              - 15x110mm Boost with the Integrated Locking System axle, from 2370g
 
   - label: "Nero"
     level: model
     category: Downhill
-    years: "2017-2026"
-    url: https://www.rideformula.com/products/mountain-bike/nero-r/
-    setup_guide: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-R-owner-manual.pdf
     tasks: *formula_service
     children:
-      - label: R
-        level: trim
-        guide: formula_nero_r_2017
-        specs: { stanchion: 35mm 7075 aluminum, spring: Air }
-        offset_mm: [50, 56]
-        adjustments:
-          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Silver chamber }
-          - { name: Sensitivity Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Bronze chamber (negative) }
-          - { name: Progressivity Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Gold chamber (end-stroke) }
-          - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber; one included }
-        options:
-          damper: [nero_2017]
-          travel_mm: [180, 190, 200]
-          wheel_size: [29, 27.5]
-        # Neopos count: Nero R manual, section 3.4 ("up to three Neopos");
-        # travel: 200mm standard, 180/190mm optional on 29" (Nero R page)
-        note: |-
-          - 3Air spring: three chambers set in the order Gold, Silver, Bronze
-          - Keep Gold at or above the Silver pressure and Bronze at least 20 psi above Silver
-          - 20mm Boost axle with the FIRM locking system, from 2620g
-      - label: C
-        level: trim
-        url: https://www.rideformula.com/products/mountain-bike/nero-c/
-        setup_guide: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-C-Owner-manual.pdf
-        specs: { stanchion: 35mm 7075 aluminum, spring: Coil }
-        offset_mm: [50, 56]
-        adjustments:
-          - { name: Spring Rate, type: categorical, options: [Soft, Medium, Firm], notes: Medium is the default coil }
-          - { name: Preload, type: numerical, notes: "Tool-free external preload ring nut; fully loose is minimum preload" }
-        options:
-          damper: [nero_2017]
-          travel_mm: [200]
-          wheel_size: [29, 27.5]
-        note: |-
-          - Steel coil spring with a tool-free external preload ring nut
-          - Same damper as the Nero R, from 2850g
+      - label: "2017–2026"
+        level: generation
+        id: "2017"
+        years: "2017-2026"
+        url: https://www.rideformula.com/products/mountain-bike/nero-r/
+        setup_guide: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-R-owner-manual.pdf
+        children:
+          - label: R
+            level: trim
+            guide: formula_nero_r_2017
+            specs: { stanchion: 35mm 7075 aluminum, spring: Air }
+            offset_mm: [50, 56]
+            adjustments:
+              - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Silver chamber }
+              - { name: Sensitivity Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Bronze chamber (negative) }
+              - { name: Progressivity Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Gold chamber (end-stroke) }
+              - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber; one included }
+            options:
+              damper: [nero_2017]
+              travel_mm: [180, 190, 200]
+              wheel_size: [29, 27.5]
+            # Neopos count: Nero R manual, section 3.4 ("up to three Neopos");
+            # travel: 200mm standard, 180/190mm optional on 29" (Nero R page)
+            note: |-
+              - 3Air spring: three chambers set in the order Gold, Silver, Bronze
+              - Keep Gold at or above the Silver pressure and Bronze at least 20 psi above Silver
+              - 20mm Boost axle with the FIRM locking system, from 2620g
+          - label: C
+            level: trim
+            url: https://www.rideformula.com/products/mountain-bike/nero-c/
+            setup_guide: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-C-Owner-manual.pdf
+            specs: { stanchion: 35mm 7075 aluminum, spring: Coil }
+            offset_mm: [50, 56]
+            adjustments:
+              - { name: Spring Rate, type: categorical, options: [Soft, Medium, Firm], notes: Medium is the default coil }
+              - { name: Preload, type: numerical, notes: "Tool-free external preload ring nut; fully loose is minimum preload" }
+            options:
+              damper: [nero_2017]
+              travel_mm: [200]
+              wheel_size: [29, 27.5]
+            note: |-
+              - Steel coil spring with a tool-free external preload ring nut
+              - Same damper as the Nero R, from 2850g
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

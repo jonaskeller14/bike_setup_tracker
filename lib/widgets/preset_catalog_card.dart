@@ -87,7 +87,7 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
     final years = applied.node.years;
     return [
       for (final axis in applied.optionalAxes) ?applied.selections[axis.id]?.label,
-      if (years != null && years.isNotEmpty) years,
+      if (years != null) years.toString(),
       'Tap to change',
     ].join(' · ');
   }

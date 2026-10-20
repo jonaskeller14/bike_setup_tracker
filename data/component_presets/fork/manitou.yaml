@@ -980,219 +980,238 @@ nodes:
   - label: "Mezzer LT"
     level: model
     category: Enduro
-    years: "2026"
-    url: https://hayesbicycle.com/collections/mezzer-forks
     tasks: *manitou_service
     children:
-      - label: Pro
-        level: trim
-        url: https://hayesbicycle.com/products/mezzer-lt-pro-g2
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
-        guide: manitou_mezzer_g2_pro_2025
-        specs: { stanchion: 37mm, spring: Air }
-        offset_mm: [44]
-        adjustments: *mezzer_irt_spring
-        options:
-          damper: [mc2_pro_x_2026]
-          travel_mm: [150, 160, 170, 180, 190]
-          wheel_size: [29]
-        note: |-
-          - Reinforced LT crown and thick-wall legs for up to 190mm travel
-          - Dorado Air spring with Active Spring Piston (ASP) and IRT
-      - label: Comp
-        level: trim
-        url: https://hayesbicycle.com/products/mezzer-lt-comp-g2
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
-        guide: manitou_mezzer_g2_ltcomp_2025
-        specs: { stanchion: 37mm, spring: Air }
-        offset_mm: [44]
-        adjustments: &iva3_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-          - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
-        options:
-          damper: [abs_plus_mezzer_lt_2026]
-          travel_mm: [140, 150, 160, 170, 180, 190]
-          wheel_size: [29]
-        note: |-
-          - Straight-wall LT legs for higher-GVWR e-bike use, up to 190mm travel
-          - Expert Air spring with Incremental Volume Adjust (IVA)
+      - label: "2026"
+        level: generation
+        years: "2026"
+        url: https://hayesbicycle.com/collections/mezzer-forks
+        children:
+          - label: Pro
+            level: trim
+            url: https://hayesbicycle.com/products/mezzer-lt-pro-g2
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
+            guide: manitou_mezzer_g2_pro_2025
+            specs: { stanchion: 37mm, spring: Air }
+            offset_mm: [44]
+            adjustments: *mezzer_irt_spring
+            options:
+              damper: [mc2_pro_x_2026]
+              travel_mm: [150, 160, 170, 180, 190]
+              wheel_size: [29]
+            note: |-
+              - Reinforced LT crown and thick-wall legs for up to 190mm travel
+              - Dorado Air spring with Active Spring Piston (ASP) and IRT
+          - label: Comp
+            level: trim
+            url: https://hayesbicycle.com/products/mezzer-lt-comp-g2
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
+            guide: manitou_mezzer_g2_ltcomp_2025
+            specs: { stanchion: 37mm, spring: Air }
+            offset_mm: [44]
+            adjustments: &iva3_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+              - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
+            options:
+              damper: [abs_plus_mezzer_lt_2026]
+              travel_mm: [140, 150, 160, 170, 180, 190]
+              wheel_size: [29]
+            note: |-
+              - Straight-wall LT legs for higher-GVWR e-bike use, up to 190mm travel
+              - Expert Air spring with Incremental Volume Adjust (IVA)
 
   - label: "Mattoc"
     level: model
     category: Trail
-    years: "2023-2026"
-    url: https://hayesbicycle.com/products/mattoc-pro
     tasks: *manitou_service
     children:
-      - label: Pro
-        level: trim
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
         url: https://hayesbicycle.com/products/mattoc-pro
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
-        guide: manitou_mattoc_pro_2023
-        specs: { stanchion: 34mm, spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-          - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
-        options:
-          damper: [mc2_mattoc_2023]
-          travel_mm: [110, 120, 130, 140, 150]
-          wheel_size: [29, 27.5]
-        note: |-
-          - Reverse Arch 34mm chassis, 44mm offset (37mm also offered on 27.5")
-          - Dorado Air spring with Infinite Rate Tune (IRT)
-          - Travel adjusted internally in 10mm steps
-      - label: Expert
-        level: trim
-        url: https://hayesbicycle.com/products/mattoc-expert
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
-        guide: manitou_mattoc_expert_2023
-        specs: { stanchion: 34mm, spring: Air }
-        adjustments: *iva3_air_spring
-        options:
-          damper: [vtt6_2023]
-          travel_mm: [110, 120, 130, 140, 150]
-          wheel_size: [29, 27.5]
-        note: |-
-          - Expert Air spring with Incremental Volume Adjust (IVA)
-          - IRT is available as an aftermarket upgrade
-      - label: Comp
-        level: trim
-        url: https://hayesbicycle.com/products/mattoc-comp
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
-        guide: manitou_mattoc_comp_2023
-        specs: { stanchion: 34mm, spring: Air }
-        adjustments: *iva3_air_spring
-        options:
-          damper: [abs_plus_2023]
-          travel_mm: [110, 120, 130, 140, 150]
-          wheel_size: [29, 27.5]
-        note: |-
-          - Straight-wall 6000-series legs
-          - Expert Air spring with Incremental Volume Adjust (IVA)
-          - IRT is available as an aftermarket upgrade
+        children:
+          - label: Pro
+            level: trim
+            url: https://hayesbicycle.com/products/mattoc-pro
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
+            guide: manitou_mattoc_pro_2023
+            specs: { stanchion: 34mm, spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
+            options:
+              damper: [mc2_mattoc_2023]
+              travel_mm: [110, 120, 130, 140, 150]
+              wheel_size: [29, 27.5]
+            note: |-
+              - Reverse Arch 34mm chassis, 44mm offset (37mm also offered on 27.5")
+              - Dorado Air spring with Infinite Rate Tune (IRT)
+              - Travel adjusted internally in 10mm steps
+          - label: Expert
+            level: trim
+            url: https://hayesbicycle.com/products/mattoc-expert
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
+            guide: manitou_mattoc_expert_2023
+            specs: { stanchion: 34mm, spring: Air }
+            adjustments: *iva3_air_spring
+            options:
+              damper: [vtt6_2023]
+              travel_mm: [110, 120, 130, 140, 150]
+              wheel_size: [29, 27.5]
+            note: |-
+              - Expert Air spring with Incremental Volume Adjust (IVA)
+              - IRT is available as an aftermarket upgrade
+          - label: Comp
+            level: trim
+            url: https://hayesbicycle.com/products/mattoc-comp
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
+            guide: manitou_mattoc_comp_2023
+            specs: { stanchion: 34mm, spring: Air }
+            adjustments: *iva3_air_spring
+            options:
+              damper: [abs_plus_2023]
+              travel_mm: [110, 120, 130, 140, 150]
+              wheel_size: [29, 27.5]
+            note: |-
+              - Straight-wall 6000-series legs
+              - Expert Air spring with Incremental Volume Adjust (IVA)
+              - IRT is available as an aftermarket upgrade
 
   - label: "R8"
     level: model
     category: XC
-    years: "2024-2026"
-    url: https://hayesbicycle.com/products/r8-pro
-    setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
-    guide: manitou_r8_pro_2024
     tasks: *manitou_service
     children:
-      - label: Pro
-        level: trim
-        specs: { stanchion: 34mm, spring: Air }
-        offset_mm: [44]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi }
-          - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = most linear, 3 = most progressive" }
-        options:
-          damper: [vtt_pro_x_r8]
-          travel_mm: [80, 90, 100, 110, 120]
-          wheel_size: [29]
-        note: |-
-          - Hyperlite 34mm chassis, 1450g
-          - Dorado Air spring with Incremental Volume Adjust (IVA XC)
-          - Manual knob or Deuce remote lockout
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://hayesbicycle.com/products/r8-pro
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
+        guide: manitou_r8_pro_2024
+        children:
+          - label: Pro
+            level: trim
+            specs: { stanchion: 34mm, spring: Air }
+            offset_mm: [44]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi }
+              - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = most linear, 3 = most progressive" }
+            options:
+              damper: [vtt_pro_x_r8]
+              travel_mm: [80, 90, 100, 110, 120]
+              wheel_size: [29]
+            note: |-
+              - Hyperlite 34mm chassis, 1450g
+              - Dorado Air spring with Incremental Volume Adjust (IVA XC)
+              - Manual knob or Deuce remote lockout
 
   - label: "Dorado"
     level: model
     category: Downhill
-    years: "2022-2026"
-    url: https://hayesbicycle.com/products/my22-dorado-pro
     tasks: *manitou_service
     children:
-      - label: Pro
-        level: trim
+      - label: "2022–2026"
+        level: generation
+        id: "2022"
+        years: "2022-2026"
         url: https://hayesbicycle.com/products/my22-dorado-pro
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
-        guide: manitou_dorado_pro_2021
-        specs: { stanchion: 37mm, spring: Air }
-        offset_mm: [47, 57]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-          - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 200, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
-        options:
-          damper: [tpc_plus_dorado_2022]
-          travel_mm: [180, 190, 203]
-          wheel_size: [29, 27.5]
-        note: |-
-          - 37mm downhill chassis with carbon outer legs, 20mm x 110mm Boost axle
-          - Dorado Air spring with Infinite Rate Tune (IRT)
-          - Trail Side Relief (TSR) button equalizes casting pressure
-      - label: Expert
-        level: trim
-        url: https://hayesbicycle.com/products/new-my22-dorado-expert
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
-        guide: manitou_dorado_expert_2020
-        specs: { stanchion: 37mm, spring: Air }
-        offset_mm: [47, 57]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-          - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = largest volume (most linear), 3 = smallest volume (most progressive)" }
-        options:
-          damper: [tpc_plus_dorado_2022]
-          travel_mm: [180, 190, 203]
-          wheel_size: [29, 27.5]
-        note: |-
-          - 37mm downhill chassis, 20mm x 110mm Boost axle
-          - Dorado Air spring with Incremental Volume Adjust (IVA)
-      - label: Comp Coil
-        level: trim
-        url: https://hayesbicycle.com/products/new-dorado-coil
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
-        guide: manitou_dorado_comp_2021
-        specs: { stanchion: 37mm, spring: Coil }
-        offset_mm: [47, 57]
-        adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: "Six rates offered, 25-52 lb/in; ships with the Medium (35 lb/in) spring" }
-        options:
-          damper: [abs_plus_dorado_2022]
-          wheel_size: [29, 27.5]
-        note: |-
-          - Fixed-travel coil fork on the 37mm downhill chassis
-          - Preload adjuster on the bottom of the spring leg
+        children:
+          - label: Pro
+            level: trim
+            url: https://hayesbicycle.com/products/my22-dorado-pro
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
+            guide: manitou_dorado_pro_2021
+            specs: { stanchion: 37mm, spring: Air }
+            offset_mm: [47, 57]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 200, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
+            options:
+              damper: [tpc_plus_dorado_2022]
+              travel_mm: [180, 190, 203]
+              wheel_size: [29, 27.5]
+            note: |-
+              - 37mm downhill chassis with carbon outer legs, 20mm x 110mm Boost axle
+              - Dorado Air spring with Infinite Rate Tune (IRT)
+              - Trail Side Relief (TSR) button equalizes casting pressure
+          - label: Expert
+            level: trim
+            url: https://hayesbicycle.com/products/new-my22-dorado-expert
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
+            guide: manitou_dorado_expert_2020
+            specs: { stanchion: 37mm, spring: Air }
+            offset_mm: [47, 57]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+              - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = largest volume (most linear), 3 = smallest volume (most progressive)" }
+            options:
+              damper: [tpc_plus_dorado_2022]
+              travel_mm: [180, 190, 203]
+              wheel_size: [29, 27.5]
+            note: |-
+              - 37mm downhill chassis, 20mm x 110mm Boost axle
+              - Dorado Air spring with Incremental Volume Adjust (IVA)
+          - label: Comp Coil
+            level: trim
+            url: https://hayesbicycle.com/products/new-dorado-coil
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
+            guide: manitou_dorado_comp_2021
+            specs: { stanchion: 37mm, spring: Coil }
+            offset_mm: [47, 57]
+            adjustments:
+              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: "Six rates offered, 25-52 lb/in; ships with the Medium (35 lb/in) spring" }
+            options:
+              damper: [abs_plus_dorado_2022]
+              wheel_size: [29, 27.5]
+            note: |-
+              - Fixed-travel coil fork on the 37mm downhill chassis
+              - Preload adjuster on the bottom of the spring leg
 
   - label: "Mastodon"
     level: model
     category: Fat Bike
-    years: "2023-2026"
-    url: https://hayesbicycle.com/products/mastodon-pro
     tasks: *manitou_service
     children:
-      - label: Pro
-        level: trim
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
         url: https://hayesbicycle.com/products/mastodon-pro
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
-        guide: manitou_mastodon_pro_2023
-        specs: { stanchion: 34mm, spring: Air }
-        offset_mm: [44]
-        adjustments: &mastodon_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi }
-          - { name: IVA Position, type: step, min: 1, max: 5, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
-        options:
-          damper: [vtt6_2023]
-          travel_mm: [80, 90, 100, 110, 120, 130, 140, 150, 160]
-          wheel_size: [27.5, 26]
-        note: |-
-          - Gen 3 fat-bike fork with 15mm x 150mm Hexlock SL axle
-          - Dorado Air spring with Incremental Volume Adjust (IVA)
-      - label: Comp
-        level: trim
-        url: https://hayesbicycle.com/products/mastodon-comp
-        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
-        guide: manitou_mastodon_comp_2023
-        specs: { stanchion: 34mm, spring: Air }
-        offset_mm: [44]
-        adjustments: *mastodon_air_spring
-        options:
-          damper: [abs_plus_2023]
-          travel_mm: [80, 90, 100, 110, 120, 130, 140]
-          wheel_size: [27.5, 26]
-        note: |-
-          - Gen 3 fat-bike fork with straight-wall legs and 15mm x 150mm Hexlock SL axle
-          - Expert Air spring with Incremental Volume Adjust (IVA)
+        children:
+          - label: Pro
+            level: trim
+            url: https://hayesbicycle.com/products/mastodon-pro
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
+            guide: manitou_mastodon_pro_2023
+            specs: { stanchion: 34mm, spring: Air }
+            offset_mm: [44]
+            adjustments: &mastodon_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi }
+              - { name: IVA Position, type: step, min: 1, max: 5, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
+            options:
+              damper: [vtt6_2023]
+              travel_mm: [80, 90, 100, 110, 120, 130, 140, 150, 160]
+              wheel_size: [27.5, 26]
+            note: |-
+              - Gen 3 fat-bike fork with 15mm x 150mm Hexlock SL axle
+              - Dorado Air spring with Incremental Volume Adjust (IVA)
+          - label: Comp
+            level: trim
+            url: https://hayesbicycle.com/products/mastodon-comp
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
+            guide: manitou_mastodon_comp_2023
+            specs: { stanchion: 34mm, spring: Air }
+            offset_mm: [44]
+            adjustments: *mastodon_air_spring
+            options:
+              damper: [abs_plus_2023]
+              travel_mm: [80, 90, 100, 110, 120, 130, 140]
+              wheel_size: [27.5, 26]
+            note: |-
+              - Gen 3 fat-bike fork with straight-wall legs and 15mm x 150mm Hexlock SL axle
+              - Expert Air spring with Incremental Volume Adjust (IVA)
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

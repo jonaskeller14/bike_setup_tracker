@@ -194,6 +194,61 @@ void main() {
     });
   });
 
+  group('moved paths', () {
+    // `trim` used to sit directly below the model, before generations existed.
+    final catalogs = [
+      parseCatalogFile('''
+brand: FOX
+component_type: fork
+moved:
+  36/factory: 36/2025/factory
+nodes:
+  - label: "36"
+    level: model
+    children:
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        children:
+          - label: Factory
+            level: trim
+            options:
+              travel_mm: [150, 160]
+'''),
+    ];
+    final old = ComponentPreset(const {
+      'brand': 'fox',
+      'component_type': 'fork',
+      'model': '36',
+      'trim': 'factory',
+      'travel_mm': 160,
+    });
+
+    test('an old path resolves through its redirect, whatever its level names', () {
+      final resolved = resolvePreset(catalogs, old)!;
+
+      expect(_labels(resolved), ['36', '2025–2026', 'Factory']);
+      expect(resolved.selections['travel_mm']!.id, 160);
+    });
+
+    test('saving the resolved selection writes the new path', () {
+      expect(toComponentPreset(resolvePreset(catalogs, old)!).toJson(), {
+        'brand': 'fox',
+        'component_type': 'fork',
+        'model': '36',
+        'generation': '2025',
+        'trim': 'factory',
+        'travel_mm': 160,
+      });
+    });
+
+    test('a path the redirect does not cover resolves as before', () {
+      final resolved = resolvePreset(catalogs, ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36'}))!;
+
+      expect(_labels(resolved), ['36']);
+    });
+  });
+
   group('toComponentPreset', () {
     test('round-trips a resolved preset', () {
       expect(toComponentPreset(resolvePreset(_catalogs, ComponentPreset(_factory))!), ComponentPreset(_factory));

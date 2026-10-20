@@ -9,6 +9,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_catalog.dart';
 import '../../models/component/preset_spec_keys.dart';
+import '../../models/component/year_span.dart';
 import '../../repositories/component_catalog_repository.dart';
 import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
@@ -175,7 +176,8 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
       parents.add(match.node);
     }
     for (var depth = 0; depth <= parents.length; depth++) {
-      _enter(_Nodes(brand, parents.sublist(0, depth)));
+      final shown = _collapse(catalog, brand, parents.sublist(0, depth));
+      if (shown.length == depth || depth == parents.length) _enter(_Nodes(brand, shown));
     }
     if (product != null) _enterOptionsOf(product);
   }
@@ -254,11 +256,22 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
     });
   }
 
+  /// [parents] extended through every group whose only child is another group:
+  /// listing that child would ask for a tap that decides nothing.
+  List<CatalogNode> _collapse(_Catalog catalog, BrandCatalog brand, List<CatalogNode> parents) {
+    var result = parents;
+    while (true) {
+      final children = catalog.childrenOf(brand, result);
+      if (children.length != 1 || children.single.node is! CatalogGroup) return result;
+      result = [...result, children.single.node];
+    }
+  }
+
   void _selectNode(_NodeEntry entry) {
     switch (entry.node) {
       case CatalogGroup():
         final stage = _stage as _Nodes;
-        _goTo(_Nodes(stage.catalog, [...stage.parents, entry.node]));
+        _goTo(_Nodes(stage.catalog, _collapse(_catalog!, stage.catalog, [...stage.parents, entry.node])));
       case CatalogProduct():
         _advance(entry.products.single);
     }
@@ -360,7 +373,7 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
       _Brands() => _BrandList(
         brands: catalog.brands,
         isCurrent: (brand) => _onCurrentPath(brand.catalog, const []),
-        onSelect: (brand) => _goTo(_Nodes(brand.catalog, const [])),
+        onSelect: (brand) => _goTo(_Nodes(brand.catalog, _collapse(catalog, brand.catalog, const []))),
       ),
       _Nodes(catalog: final brand, :final parents) => _WithContext(
         label: [brand.brand, for (final node in parents) node.label].join(' '),
@@ -647,26 +660,15 @@ String _groupSubtitle(_NodeEntry entry) {
   final children = entry.children;
   final levels = {for (final child in children) child.level};
   return [
-    ?_yearSpan(entry.products.map((product) => product.node.years)),
+    ?_yearSpan(entry.products.map((product) => product.node.years))?.toString(),
     _count(children.length, levels.length == 1 ? _levelLabel(levels.single) : 'option'),
   ].join(' · ');
 }
 
 /// The years a group row covers. Its products can belong to different
 /// generations, so when they disagree the row shows the whole span
-/// (`2018–2026`) and the per-generation years stay on the deeper rows.
-String? _yearSpan(Iterable<String?> years) {
-  final ranges = {...years.nonNulls}..remove('');
-  if (ranges.isEmpty) return null;
-  if (ranges.length == 1) return ranges.first;
-  final found = [
-    for (final range in ranges)
-      for (final match in _yearPattern.allMatches(range)) match[0]!,
-  ]..sort();
-  return found.isEmpty ? null : '${found.first}–${found.last}';
-}
-
-final RegExp _yearPattern = RegExp(r'\d{4}');
+/// (`2018-2026`) and the per-generation years stay on the deeper rows.
+YearSpan? _yearSpan(Iterable<YearSpan?> years) => YearSpan.cover(years.nonNulls);
 
 String _count(int count, String noun) => '$count $noun${count == 1 ? '' : 's'}';
 
@@ -725,17 +727,17 @@ class _ProductTile extends StatelessWidget {
 class _ProductTrailing extends StatelessWidget {
   const _ProductTrailing(this.years, {required this.completes});
 
-  final String? years;
+  final YearSpan? years;
   final bool completes;
 
   @override
   Widget build(BuildContext context) {
     final years = this.years;
     final icon = completes ? _check : _chevron;
-    if (years == null || years.isEmpty) return icon;
+    if (years == null) return icon;
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [_YearBadge(years), const SizedBox(width: 6), icon],
+      children: [_YearBadge('$years'), const SizedBox(width: 6), icon],
     );
   }
 }

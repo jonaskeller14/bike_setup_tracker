@@ -8,7 +8,7 @@ String presetSearchHaystack(ResolvedPreset product) {
   final parts = <String>[
     product.catalog.brand,
     for (final node in product.path) node.label,
-    ?product.node.years,
+    ?product.node.years?.toString(),
     for (final axis in product.axes)
       if (axis.required)
         for (final value in axis.values) value.label,

@@ -2,7 +2,7 @@
 
 - Status: scheduled
 - URL: —
-- Posted: 2026-11-10
+- Posted: 2026-10-28 20:00
 - App version: 1.6.3
 - Kit: showcase
 - Media: `shorts/calendar_9x16.mp4`

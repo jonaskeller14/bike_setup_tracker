@@ -2,7 +2,7 @@
 
 - Status: scheduled
 - URL: —
-- Posted: 2026-11-04
+- Posted: 2026-10-26 16:00
 - App version: 1.6.3
 - Kit: showcase
 - Media: `shorts/map_9x16.mp4`

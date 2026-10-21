@@ -2,7 +2,7 @@
 
 - Status: scheduled
 - URL: —
-- Posted: 2026-10-31
+- Posted: 2026-10-25 14:00
 - App version: 1.6.3
 - Kit: showcase
 - Media: `shorts/analysis_9x16.mp4`

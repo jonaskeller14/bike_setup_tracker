@@ -2,7 +2,7 @@
 
 - Status: scheduled
 - URL: —
-- Posted: 2026-10-23
+- Posted: 2026-10-22 08:00
 - App version: 1.6.3
 - Kit: showcase
 - Media: `shorts/core_9x16.mp4`

@@ -2,7 +2,7 @@
 
 - Status: scheduled
 - URL: —
-- Posted: 2026-10-28
+- Posted: 2026-10-24 12:00
 - App version: 1.6.3
 - Kit: showcase
 - Media: `shorts/compare_9x16.mp4`

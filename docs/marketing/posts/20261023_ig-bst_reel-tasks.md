@@ -2,7 +2,7 @@
 
 - Status: scheduled
 - URL: —
-- Posted: 2026-10-26
+- Posted: 2026-10-23 10:00
 - App version: 1.6.3
 - Kit: showcase
 - Media: `shorts/tasks_9x16.mp4`

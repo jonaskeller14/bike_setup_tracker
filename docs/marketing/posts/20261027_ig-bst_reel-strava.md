@@ -2,7 +2,7 @@
 
 - Status: scheduled
 - URL: —
-- Posted: 2026-11-07
+- Posted: 2026-10-27 18:00
 - App version: 1.6.3
 - Kit: showcase
 - Media: `shorts/strava_9x16.mp4`

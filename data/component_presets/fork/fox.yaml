@@ -1633,9 +1633,8 @@ nodes:
 #     share the AWL/AWL HD spacer tables but their damper spec was not found,
 #     so only the Standard and HD trims are listed.
 #   - Pre-2025 generations of the 32, 34 and 40 (FIT4, GRIP2 on the 40, RC2,
-#     CTD) are not covered. Adding a generation level to those models would
-#     change the paths of their existing trims, so it waits for the rollout
-#     decision. The 2018-2024 40mm manuals publish spacer tables
+#     CTD) are not covered. They can be added as older siblings of the
+#     existing generations. The 2018-2024 40mm manuals publish spacer tables
 #     and GRIP2/FIT4 starting-point tables, the 2014-2017 archive only spec
 #     drawings.
 #   - Rebound maxima of grip, grip_tc, rail and rail_hd are the highest values

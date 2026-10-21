@@ -16,35 +16,38 @@ import 'package:path/path.dart' as p;
 /// persist as `presetKey`, and every brand-only task key
 /// (`fork/fox#task=fork:air_spring_service`), which rules persist as `presetKey`.
 /// New ids are fine; one that disappears fails here unless the brand file's
-/// `moved:` map redirects its node path. Regenerate the lockfile with
-/// `UPDATE_CATALOG_IDS=1 flutter test test/component_catalog_ids_test.dart`.
+/// `moved:` map redirects its node path.
+///
+/// The lockfile is append-only, as saved components hold these ids:
+/// `UPDATE_CATALOG_IDS=1 flutter test test/component_catalog_ids_test.dart`
+/// adds the new ids, keeps every locked one, and refuses while one is missing.
 void main() {
   final catalogDir = Directory(p.join(Directory.current.path, 'data', 'component_presets'));
   final lockFile = File(p.join(catalogDir.path, 'ids.lock'));
 
   final catalogs = <String, BrandCatalog>{};
-  final current = _collectIds(catalogDir, catalogs);
+  final current = _collectIds(catalogDir, catalogs).toSet();
+  final locked = lockFile.existsSync() ? lockFile.readAsLinesSync().where((line) => line.isNotEmpty).toSet() : null;
+  const missingReason =
+      'Ids were removed or renamed. Restore the old id (explicit `id:`), or redirect a moved node path with `moved:`.';
 
   if (Platform.environment['UPDATE_CATALOG_IDS'] == '1') {
-    test('writes ids.lock', () {
-      lockFile.writeAsStringSync('${current.join('\n')}\n');
+    test('adds the new ids to ids.lock', () {
+      expect(_missing(locked ?? const {}, current, catalogs), isEmpty, reason: missingReason);
+      lockFile.writeAsStringSync('${({...?locked, ...current}.toList()..sort()).join('\n')}\n');
     });
     return;
   }
 
   test('every id in ids.lock still exists in the catalog', () {
-    expect(lockFile.existsSync(), isTrue, reason: 'missing ids.lock — run with UPDATE_CATALOG_IDS=1');
-    final locked = lockFile.readAsLinesSync().where((line) => line.isNotEmpty);
-    final present = current.toSet();
-    final missing = locked.toSet().difference(present).where((id) => !present.contains(_redirected(id, catalogs)));
-    expect(
-      missing,
-      isEmpty,
-      reason: 'Ids were removed or renamed. Keep the old id (explicit `id:`), or while the feature is '
-          'unreleased regenerate with UPDATE_CATALOG_IDS=1.',
-    );
+    expect(locked, isNotNull, reason: 'missing ids.lock — run with UPDATE_CATALOG_IDS=1');
+    expect(_missing(locked!, current, catalogs), isEmpty, reason: missingReason);
   });
 }
+
+/// The [locked] ids that neither exist in [current] nor redirect to one that does.
+Iterable<String> _missing(Set<String> locked, Set<String> current, Map<String, BrandCatalog> catalogs) =>
+    locked.difference(current).where((id) => !current.contains(_redirected(id, catalogs)));
 
 /// [lockedId] with its node path rewritten by the brand's `moved:` map; the
 /// id itself when no redirect applies.

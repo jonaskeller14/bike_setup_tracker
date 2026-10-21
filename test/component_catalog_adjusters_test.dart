@@ -19,23 +19,20 @@ import 'package:path/path.dart' as p;
 /// product, so components built before the change are told about it.
 ///
 /// `UPDATE_CATALOG_ADJUSTERS=1 flutter test test/component_catalog_adjusters_test.dart`
-/// regenerates the lockfile, and refuses to while a change has no revision.
-/// `UPDATE_CATALOG_ADJUSTERS=reset` regenerates it unconditionally, which is
-/// only allowed until the catalog is rolled out.
+/// updates the lockfile, and refuses to while a change has no revision. The
+/// lockfile is append-only: a line is added or its hash updated, never
+/// dropped, so a product that comes back is checked against its old adjusters.
 void main() {
   final catalogDir = Directory(p.join(Directory.current.path, 'data', 'component_presets'));
   final lockFile = File(p.join(catalogDir.path, 'adjusters.lock'));
 
   final current = _collect(catalogDir);
   final locked = lockFile.existsSync() ? _Lock.parse(lockFile.readAsLinesSync()) : null;
-  final mode = Platform.environment['UPDATE_CATALOG_ADJUSTERS'];
 
-  if (mode == '1' || mode == 'reset') {
-    test('writes adjusters.lock', () {
-      if (mode == '1' && locked != null) {
-        expect(_unrevisioned(current, locked), isEmpty, reason: _unrevisionedReason);
-      }
-      lockFile.writeAsStringSync('${current.lines.join('\n')}\n');
+  if (Platform.environment['UPDATE_CATALOG_ADJUSTERS'] == '1') {
+    test('updates adjusters.lock', () {
+      if (locked != null) expect(_unrevisioned(current, locked), isEmpty, reason: _unrevisionedReason);
+      lockFile.writeAsStringSync('${_lines(current, locked).join('\n')}\n');
     });
     return;
   }
@@ -68,12 +65,17 @@ class _Current {
   final Map<String, _Signature> signatures;
 
   const _Current(this.revisions, this.signatures);
-
-  List<String> get lines => [
-    for (final MapEntry(:key, :value) in revisions.entries) '$key#revision=$value',
-    for (final MapEntry(:key, :value) in signatures.entries) '$key ${value.hash}',
-  ]..sort();
 }
+
+/// The lockfile for [current], keeping the [locked] lines it no longer has.
+List<String> _lines(_Current current, _Lock? locked) => [
+  for (final MapEntry(:key, :value) in {...?locked?.revisions, ...current.revisions}.entries) '$key#revision=$value',
+  for (final MapEntry(:key, :value) in {
+    ...?locked?.hashes,
+    for (final MapEntry(:key, :value) in current.signatures.entries) key: value.hash,
+  }.entries)
+    '$key $value',
+]..sort();
 
 class _Lock {
   final Map<String, int> revisions;
@@ -117,8 +119,6 @@ List<String> _stale(_Current current, _Lock locked) => [
     if (locked.revisions[key] != value) '$key: revision $value, locked ${locked.revisions[key]}',
   for (final MapEntry(:key, :value) in current.signatures.entries)
     if (locked.hashes[key] != value.hash) locked.hashes.containsKey(key) ? '$key: changed' : '$key: not locked',
-  for (final key in locked.hashes.keys)
-    if (!current.signatures.containsKey(key)) '$key: gone',
 ];
 
 String _brandPath(String key) => key.split('/').take(2).join('/');

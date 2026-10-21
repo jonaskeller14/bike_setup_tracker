@@ -244,7 +244,7 @@ Every node has an `id`, which is what a saved component stores as
   (`Performance Elite` → `performance-elite`, `Select+` → `select-plus`).
   Accented characters are spelled out (`Öhlins` → `ohlins`).
 - Write an explicit `id:` only when the default does not fit: a label that was
-  renamed after rollout, a label that would slug to something unwieldy
+  renamed, a label that would slug to something unwieldy
   (`"2025–2026"` → `id: "2025"`, `m.3` → `id: m3`), or a character the slug
   cannot transliterate (the parser then asks for an explicit id).
 - Sibling ids must be unique; the parser rejects duplicates.
@@ -255,7 +255,7 @@ Every node has an `id`, which is what a saved component stores as
 
 Ids are **persisted on every component a user creates from the catalog**, which
 is what lets the app later offer setup guides and service intervals for that
-exact product. Once the feature is rolled out to users, these are frozen:
+exact product. These are frozen:
 
 - `level` names
 - node `id`s (explicit or derived from the label)
@@ -275,11 +275,11 @@ slug. Extending `years: "2025-2026"` to `"2025-2027"` must leave a generation's
 Moving a node to another place in the tree changes its path. Without a
 `moved:` entry, a component saved against the old path resolves only as far as
 the path still matches (the resolver returns the deepest matching node), so
-restructure before rollout where you can, and record the move after it.
+every move needs one.
 
 ### Moved paths (`moved`)
 
-`moved:` is the escape hatch for a restructure after rollout. It maps an old
+`moved:` is the escape hatch for a restructure. It maps an old
 node path to the new one, as `/`-joined node ids from the top-level node down:
 
 ```yaml
@@ -303,16 +303,16 @@ moved:
 `fork/fox#damper=grip_x2#adjuster=hsc`) and every brand-only task key
 (`fork/fox#task=fork:air_spring_service`). `test/component_catalog_ids_test.dart`
 fails when a locked id disappears, unless a [`moved:`](#moved-paths-moved)
-entry covers its node path; new ids are fine. After adding data,
-regenerate the lockfile:
+entry covers its node path; new ids are fine. After adding data, add the new
+ids to the lockfile:
 
 ```
 UPDATE_CATALOG_IDS=1 flutter test test/component_catalog_ids_test.dart
 ```
 
-Until the feature flag is rolled out, ids may still change freely: regenerate
-the lockfile after a deliberate rename. After rollout the lockfile is
-append-only, and a failing test means an id must be restored.
+The lockfile is append-only: updating it keeps every locked id and refuses
+while one is missing. A failing test means an id must be restored, or its node
+path redirected with `moved:`. Never delete lines by hand.
 
 ### Generations
 
@@ -410,14 +410,15 @@ a rider gets per product and choice of its required axes
 `test/component_catalog_adjusters_test.dart` fails when a signature changed and
 no change newer than the locked revision covers that product, and when the
 lockfile is out of date. Any change to what an adjuster builds, a renamed
-`notes` included, needs a `changes:` entry. Regenerate the lockfile with
+`notes` included, needs a `changes:` entry. Update the lockfile with
 
 ```
 UPDATE_CATALOG_ADJUSTERS=1 flutter test test/component_catalog_adjusters_test.dart
 ```
 
-which refuses to while a change has no revision. Until the feature is rolled
-out, `UPDATE_CATALOG_ADJUSTERS=reset` regenerates it unconditionally.
+which refuses to while a change has no revision. The lockfile is append-only:
+updating adds lines and changes hashes, but keeps the lines of products that
+are gone. Never delete lines by hand.
 
 ## Specs
 
@@ -655,7 +656,8 @@ setup guides can find "the HSC" of a component no matter what the rider calls it
 - Ids are unique within what a rider ends up with: the product's adjusters plus
   one value of each required axis. `sag` is reserved for the SAG adjuster the
   app adds to every fork and shock.
-- Ids stay free to change until the lockfile rollout, like guide ids.
+- Ids are frozen, see [Frozen ids](#frozen-ids). Guide ids are not persisted
+  and stay free to change.
 
 ### `visualization` values (step only)
 
@@ -807,8 +809,8 @@ nodes:
 - **A generic key overrides its template**: only `interval`, `fallback` and
   `source` change. Name, notes, priority and preselection stay generic, so a
   generic key rejects `name`, `priority` and `preselected`.
-- **Any other key is brand-only** and needs a `name`. It is frozen once rolled
-  out, like a node id.
+- **Any other key is brand-only** and needs a `name`. It is frozen, like a node
+  id.
 - **Inheritance is per key.** The nearest declaration wins, and a chosen
   damper's `tasks` override the product's. `<key>: ~` removes an inherited
   entry, so the generic template applies again (or the brand-only task is no

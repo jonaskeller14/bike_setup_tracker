@@ -641,7 +641,11 @@ class _ComponentPageState extends State<ComponentPage> {
       optionsBuilder: (TextEditingValue value) {
         final index = _presetIndex;
         if (index == null) return const Iterable<ResolvedPreset>.empty();
-        return suggestPresets(index, value.text);
+        final type = _componentType;
+        return suggestPresets(
+          type == null ? index : index.where((product) => product.catalog.componentType == type).toList(),
+          value.text,
+        );
       },
       displayStringForOption: presetDisplayName,
       onSelected: (suggestion) {

@@ -70,6 +70,15 @@ nodes:
           damper: [grip_x2, grip_x]
           travel_mm: [150, 160]
 '''),
+      parseCatalogFile('''
+brand: FOX
+component_type: shock
+nodes:
+  - label: FLOAT X
+    level: model
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0 }
+'''),
     ]);
   });
 
@@ -391,6 +400,26 @@ nodes:
       expect(find.widgetWithText(TextFormField, 'fox 38'), findsOneWidget, reason: 'Undo restores the typed query');
       expect(find.text('2 adjustments prefilled from $presetName'), findsNothing);
       expect(find.text('Please select type'), findsOneWidget);
+    });
+
+    testWidgets('the name suggestions follow the chosen type', (WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      await tester.pumpWidget(createWidgetUnderTest(mode: ComponentPageMode.add));
+      await tester.pumpAndSettle();
+      final nameField = find.widgetWithText(TextFormField, 'Component Name');
+
+      await tester.enterText(nameField, 'fox float');
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(ListTile, 'FOX FLOAT X'), findsOneWidget, reason: 'Without a type, every type is offered');
+
+      await tester.enterText(nameField, 'fox 38');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ListTile, presetName));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.widgetWithText(TextFormField, presetName), 'fox float');
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(ListTile, 'FOX FLOAT X'), findsNothing, reason: 'A fork is not offered shocks');
     });
 
     testWidgets('unlinking keeps the prefilled values', (WidgetTester tester) async {

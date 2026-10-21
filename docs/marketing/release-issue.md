@@ -11,8 +11,7 @@ Part of #69. Release notes: [`B`](https://github.com/jonaskeller14/bike_setup_tr
 Text, media and steps per item: `docs/marketing/posts/` and `docs/marketing/accounts/`.
 
 ## Content
-- [ ] Draft the release posts in `docs/marketing/kits/<kit>.posts.md` (only features that are on by default)
-- [ ] Render the kit: `python tool/marketing/build_kit.py <kit>`, then write one `posts/` file per post
+- [ ] Run `/marketingkit vX.Y.Z+B`: it drafts the release posts in `docs/marketing/kits/<kit>.posts.md` (only features that are on by default), renders the kit and its contact sheet, and writes one `posts/` file per post
 - [ ] Create the YouTube playlist `vX.Y.Z`
 
 ## Accounts

@@ -187,9 +187,16 @@ create a GitHub release until the applicable confirmation gate has been approved
 - Keep the template lines under **Publish** and **Once live**; they get one line per post file once
   the posts are drafted. Write `- Nothing for this release.` under any other section with nothing to do.
 - `gh issue create --title "vX.Y.Z: Marketing" --body-file <tmp-file>` and print the issue URL.
-- Finish by pointing the user to `docs/store/release-steps.md`: the upload commands
+- Point the user to `docs/store/release-steps.md`: the upload commands
   (`tool/store/ios.sh release`, `bundle exec fastlane android release`) and the remaining manual
   submit clicks.
+
+## 12. Offer the marketing kit
+- Last step, after everything above: use `AskUserQuestion` to offer `/marketingkit vX.Y.Z+B`
+  (options: run it now / later). It reuses the approved "What's New" text from step 5 and the flag
+  check from step 4 to build the release kit and its post files.
+- If the user accepts, invoke `/marketingkit vX.Y.Z+B`; otherwise print the command and stop. The
+  release itself is already complete either way.
 
 ## Constraints
 - **Default is a PR into `main`, never a direct push** — a direct push only happens if `--push`

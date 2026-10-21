@@ -21,6 +21,7 @@ import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/catalog_revisions.dart';
 import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
@@ -450,15 +451,13 @@ class _ComponentPageState extends State<ComponentPage> {
   /// decides in the merge sheet whether saved adjustments merge with the catalog
   /// adjusters or are replaced; the name stays the user's and the preset notes
   /// are appended (a re-pick swaps the block the previous pick appended).
-  Future<void> _extendFromPreset(ResolvedPreset resolved, CatalogApplication app) async {
+  /// [adjustments] stands in for the current list, e.g. with catalog fixes applied.
+  Future<void> _extendFromPreset(ResolvedPreset resolved, CatalogApplication app, {List<Adjustment>? adjustments}) async {
     // Only what an earlier pick in this session added is dropped — it was never saved.
-    final kept = _adjustments.where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
+    final kept = (adjustments ?? _adjustments).where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
     var merge = applyPresetMerge(kept, [for (final a in app.adjustments) PresetMergeRow.newAdjustment(a)], const {});
     if (kept.isNotEmpty) {
-      final recordedValues = migrateRecordedValues(
-        context.read<AppRepository>().recordedAdjustmentValues({for (final a in kept) a.id}),
-        {for (final MapEntry(:key, :value) in _pendingMigrations.entries) key: value.toMigration()},
-      );
+      final recordedValues = _recordedValues(kept);
       final confirmed = await showPresetMergeSheet(
         context,
         productName: app.name,
@@ -506,6 +505,55 @@ class _ComponentPageState extends State<ComponentPage> {
       ),
       snapshot,
     );
+  }
+
+  /// Reviews a saved component has not accepted or dismissed yet.
+  List<CatalogReview> get _pendingReviews {
+    final preset = _preset;
+    final resolved = _resolvedPreset;
+    if (widget.mode != ComponentPageMode.edit || preset == null || resolved == null) return const [];
+    return pendingCatalogReviews(resolved, preset.revision);
+  }
+
+  /// Fixes the startup migration has not applied yet are applied first, as
+  /// accepting moves the component past them.
+  List<Adjustment> _withCatalogFixes(ResolvedPreset resolved, ComponentPreset preset) => applyCatalogFixes(
+    _adjustments,
+    resolved,
+    catalogChangesSince(resolved, preset.revision),
+    _recordedValues(_adjustments),
+  );
+
+  /// The values recorded for [adjustments] as they will be stored once the
+  /// staged edits are saved.
+  Map<String, List<AdjustmentValue>> _recordedValues(Iterable<Adjustment> adjustments) => migrateRecordedValues(
+    context.read<AppRepository>().recordedAdjustmentValues({for (final a in adjustments) a.id}),
+    {for (final MapEntry(:key, :value) in _pendingMigrations.entries) key: value.toMigration()},
+  );
+
+  Future<void> _reviewCatalogUpdate() async {
+    final preset = _preset;
+    final resolved = _resolvedPreset;
+    if (preset == null || resolved == null) return;
+    await _extendFromPreset(
+      resolved,
+      buildCatalogApplication(resolved),
+      adjustments: _withCatalogFixes(resolved, preset),
+    );
+  }
+
+  void _dismissCatalogUpdate() {
+    final preset = _preset;
+    final resolved = _resolvedPreset;
+    if (preset == null || resolved == null) return;
+    final snapshot = _snapshot();
+    setState(() {
+      _adjustments = _withCatalogFixes(resolved, preset);
+      _preset = preset.withRevision(resolved.catalog.revision);
+    });
+    _adjustmentsFieldNotify?.call();
+    _changeListener();
+    _showPresetUndoSnackBar('Catalog update dismissed', snapshot);
   }
 
   void _unlinkPreset() {
@@ -1019,6 +1067,9 @@ class _ComponentPageState extends State<ComponentPage> {
                             applied: _resolvedPreset,
                             onUnlink: _unlinkPreset,
                             showGuideHint: appSettings.enableSetupGuides,
+                            updates: _pendingReviews,
+                            onReviewUpdate: _reviewCatalogUpdate,
+                            onDismissUpdate: _dismissCatalogUpdate,
                           ),
                           const SizedBox(height: 12),
                         ],

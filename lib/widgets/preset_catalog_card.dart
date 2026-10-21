@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/component/component.dart';
+import '../models/component/component_catalog.dart';
 import '../repositories/component_catalog_repository.dart';
 import '../utils/component_catalog_application.dart';
 import '../utils/component_preset_resolver.dart';
@@ -20,6 +21,11 @@ class PresetCatalogCard extends StatefulWidget {
   /// gets it recommended values.
   final bool showGuideHint;
 
+  /// Catalog changes the rider has not reviewed yet; shown as an update.
+  final List<CatalogReview> updates;
+  final VoidCallback? onReviewUpdate;
+  final VoidCallback? onDismissUpdate;
+
   const PresetCatalogCard({
     super.key,
     required this.componentType,
@@ -27,6 +33,9 @@ class PresetCatalogCard extends StatefulWidget {
     this.applied,
     required this.onUnlink,
     this.showGuideHint = false,
+    this.updates = const [],
+    this.onReviewUpdate,
+    this.onDismissUpdate,
   });
 
   @override
@@ -95,34 +104,100 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
     return Card(
       margin: EdgeInsets.zero,
       color: isApplied ? colors.surfaceContainerHighest : colors.primaryContainer,
-      child: ListTile(
-        leading: Icon(Icons.auto_awesome, color: isApplied ? null : colors.onPrimaryContainer),
-        title: Text(
-          isApplied ? presetDisplayName(applied) : 'Choose from catalog',
-          maxLines: isApplied ? 1 : null,
-          overflow: isApplied ? TextOverflow.ellipsis : null,
-          style: TextStyle(fontWeight: FontWeight.w600, color: foreground),
-        ),
-        subtitle: Text(
-          isApplied
-              ? _appliedSubtitle(applied)
-              : [
-                  _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
-                  if (widget.showGuideHint && _hasGuides) 'Link to a catalog product to get recommended values',
-                ].join('\n'),
-          maxLines: isApplied ? 1 : null,
-          overflow: isApplied ? TextOverflow.ellipsis : null,
-          style: TextStyle(color: subtitleColor),
-        ),
-        trailing: isApplied
-            ? IconButton(
-                icon: const Icon(Icons.link_off),
-                color: subtitleColor,
-                tooltip: 'Unlink preset (keeps values)',
-                onPressed: widget.onUnlink,
-              )
-            : Icon(Icons.arrow_forward_ios, size: 16, color: foreground),
-        onTap: widget.onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(Icons.auto_awesome, color: isApplied ? null : colors.onPrimaryContainer),
+            title: Text(
+              isApplied ? presetDisplayName(applied) : 'Choose from catalog',
+              maxLines: isApplied ? 1 : null,
+              overflow: isApplied ? TextOverflow.ellipsis : null,
+              style: TextStyle(fontWeight: FontWeight.w600, color: foreground),
+            ),
+            subtitle: Text(
+              isApplied
+                  ? _appliedSubtitle(applied)
+                  : [
+                      _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
+                      if (widget.showGuideHint && _hasGuides) 'Link to a catalog product to get recommended values',
+                    ].join('\n'),
+              maxLines: isApplied ? 1 : null,
+              overflow: isApplied ? TextOverflow.ellipsis : null,
+              style: TextStyle(color: subtitleColor),
+            ),
+            trailing: isApplied
+                ? IconButton(
+                    icon: const Icon(Icons.link_off),
+                    color: subtitleColor,
+                    tooltip: 'Unlink preset (keeps values)',
+                    onPressed: widget.onUnlink,
+                  )
+                : Icon(Icons.arrow_forward_ios, size: 16, color: foreground),
+            onTap: widget.onTap,
+          ),
+          if (isApplied && widget.updates.isNotEmpty)
+            _CatalogUpdate(
+              updates: widget.updates,
+              onReview: widget.onReviewUpdate,
+              onDismiss: widget.onDismissUpdate,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogUpdate extends StatelessWidget {
+  final List<CatalogReview> updates;
+  final VoidCallback? onReview;
+  final VoidCallback? onDismiss;
+
+  const _CatalogUpdate({required this.updates, required this.onReview, required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(Icons.update, size: 20, color: colors.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Update available',
+                  style: theme.textTheme.titleSmall?.copyWith(color: colors.primary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          for (final update in updates)
+            Padding(
+              padding: const EdgeInsets.only(right: 8, bottom: 4),
+              child: Text(
+                update.summary,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
+              ),
+            ),
+          OverflowBar(
+            alignment: MainAxisAlignment.end,
+            spacing: 8,
+            children: [
+              TextButton(onPressed: onDismiss, child: const Text('Dismiss')),
+              TextButton(onPressed: onReview, child: const Text('Review')),
+            ],
+          ),
+        ],
       ),
     );
   }

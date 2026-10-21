@@ -1428,4 +1428,168 @@ nodes:
       expect(() => parseCatalogFile(fork('moved: [a]')), _throwsFormat('"moved" is not a map'));
     });
   });
+
+  group('changes', () {
+    String fork(String changes, {String hscNotes = 'High-Speed Compression circuit'}) =>
+        '''
+brand: FOX
+component_type: fork
+$changes
+option_values:
+  damper:
+    grip_x2:
+      name: GRIP X2
+      adjustments:
+        - { name: HSC, type: step, max: 8, notes: $hscNotes }
+    grip:
+      name: GRIP
+      adjustments:
+        - { name: Rebound, type: step, max: 17 }
+nodes:
+  - label: "36"
+    level: model
+    children:
+      - label: Factory
+        level: trim
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        options:
+          damper: [grip_x2, grip]
+  - label: "34"
+    level: model
+    children:
+      - label: Rhythm
+        level: trim
+        options:
+          damper: [grip]
+''';
+
+    const fix = 'fix: { adjuster: hsc, field: notes, from: High-Speed Compression, to: High-Speed Compression circuit }';
+
+    test('a file without a revision is revision 1 without changes', () {
+      final catalog = parseCatalogFile(fork(''));
+
+      expect(catalog.revision, 1);
+      expect(catalog.changes, isEmpty);
+    });
+
+    test('reads fixes and reviews in authored order', () {
+      final catalog = parseCatalogFile(fork('''
+revision: 3\nchanges:
+  - revision: 2
+    when: { damper: grip_x2 }
+    $fix
+  - revision: 3
+    when: { model: "36" }
+    review: Adds the bottom-out adjuster.
+'''));
+
+      expect(catalog.revision, 3);
+      final [first as CatalogFieldFix, second as CatalogReview] = catalog.changes;
+      expect(first.revision, 2);
+      expect(first.when, {'damper': ['grip_x2']});
+      expect(first.adjuster, 'hsc');
+      expect(first.field, CatalogFixField.notes);
+      expect(first.from, 'High-Speed Compression');
+      expect(first.to, 'High-Speed Compression circuit');
+      expect(second.revision, 3);
+      expect(second.summary, 'Adds the bottom-out adjuster.');
+    });
+
+    test('accepts a fix superseded by a later one of the same field', () {
+      final catalog = parseCatalogFile(fork(hscNotes: 'HSC', '''
+revision: 3\nchanges:\n  - { revision: 2, $fix }
+  - revision: 3
+    fix: { adjuster: hsc, field: notes, from: High-Speed Compression circuit, to: HSC }
+'''));
+
+      expect(catalog.changes, hasLength(2));
+    });
+
+    test('resolves a step fix against the registered steps', () {
+      Adjustment? step(CatalogStepContext context) => null;
+      final catalog = parseCatalogFile(
+        fork('revision: 2\nchanges:\n  - { revision: 2, fix: { adjuster: hsc, step: recount_hsc } }'),
+        steps: {'recount_hsc': step},
+      );
+
+      final fix = catalog.changes.single as CatalogStepFix;
+      expect(fix.adjuster, 'hsc');
+      expect(fix.stepId, 'recount_hsc');
+      expect(fix.step, same(step));
+    });
+
+    test('reads a range fix', () {
+      final catalog = parseCatalogFile(
+        fork('revision: 2\nchanges:\n  - { revision: 2, fix: { adjuster: rebound, field: max, from: 20, to: 17 } }'),
+      );
+
+      expect((catalog.changes.single as CatalogFieldFix).field, CatalogFixField.max);
+    });
+
+    group('rejects', () {
+      void rejects(String changes, String fragment) =>
+          expect(() => parseCatalogFile(fork(changes)), _throwsFormat(fragment));
+
+      test('a revision without changes, or one the newest change does not reach', () {
+        rejects('revision: 2', 'there are no "changes"');
+        rejects('revision: 3\nchanges:\n  - { revision: 2, $fix }', 'the newest change is revision 2');
+        rejects('revision: 0', 'at least 1');
+      });
+
+      test('a change outside 2 and the file revision, or out of order', () {
+        rejects('revision: 2\nchanges:\n  - { revision: 1, $fix }', 'not between 2');
+        rejects('revision: 3\nchanges:\n  - { revision: 3, review: A }\n  - { revision: 2, $fix }', 'older than');
+      });
+
+      test('an unknown or unmatched "when"', () {
+        rejects('revision: 2\nchanges:\n  - { revision: 2, when: { trim: x }, review: A }', 'names unknown "x"');
+        rejects('revision: 2\nchanges:\n  - { revision: 2, when: { mount: x }, review: A }', 'Unknown "when" key');
+        rejects(
+          'revision: 2\nchanges:\n  - { revision: 2, when: { model: "34", damper: grip_x2 }, review: A }',
+          'matches no product',
+        );
+      });
+
+      test('not exactly one of fix or review', () {
+        rejects('revision: 2\nchanges:\n  - { revision: 2 }', 'exactly one of');
+        rejects('revision: 2\nchanges:\n  - { revision: 2, review: A, $fix }', 'exactly one of');
+        rejects('revision: 2\nchanges:\n  - { revision: 2, review: "" }', 'is not a text');
+      });
+
+      test('a fix of an unknown field, a missing adjuster or the same value', () {
+        rejects(
+          'revision: 2\nchanges:\n  - { revision: 2, fix: { adjuster: hsc, field: unit, from: a, to: b } }',
+          '"field"',
+        );
+        rejects('revision: 2\nchanges:\n  - { revision: 2, when: { model: "34" }, $fix }', 'which no product');
+        rejects(
+          'revision: 2\nchanges:\n  - { revision: 2, fix: { adjuster: hsc, field: notes, from: a, to: a } }',
+          'are the same',
+        );
+      });
+
+      test('an unregistered step, or a step with field keys', () {
+        rejects('revision: 2\nchanges:\n  - { revision: 2, fix: { adjuster: hsc, step: nope } }', 'not in catalogMigrationSteps');
+        rejects(
+          'revision: 2\nchanges:\n  - { revision: 2, fix: { adjuster: hsc, step: nope, field: notes } }',
+          'Unknown key(s) field',
+        );
+      });
+
+      test('a fix the adjuster type cannot take', () {
+        rejects(
+          'revision: 2\nchanges:\n  - { revision: 2, fix: { adjuster: pressure, field: dialColor, from: red, to: blue } }',
+          'cannot set "dialColor"',
+        );
+      });
+
+      test('a fix that does not end where the data is', () {
+        rejects(
+          'revision: 2\nchanges:\n  - { revision: 2, fix: { adjuster: hsc, field: notes, from: a, to: b } }',
+          'builds "High-Speed Compression circuit"',
+        );
+      });
+    });
+  });
 }

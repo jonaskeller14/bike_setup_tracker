@@ -23,6 +23,7 @@ import 'repositories/component_catalog_repository.dart';
 import 'repositories/filter_persistence.dart';
 import 'services/app_hint_service.dart';
 import 'services/backup_service.dart';
+import 'services/catalog_migration_service.dart';
 import 'services/database_migration_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/error_reporter.dart';
@@ -131,6 +132,7 @@ class LoadingGate extends StatefulWidget {
 
 class _LoadingGateState extends State<LoadingGate> {
   late final Future<void> _initialization;
+  final _catalogRepository = ComponentCatalogRepository();
 
   @override
   void initState() {
@@ -153,6 +155,9 @@ class _LoadingGateState extends State<LoadingGate> {
         ),
       ]);
       await _restoreFilters();
+      if (widget.appSettings.enableComponentPresets) {
+        unawaited(CatalogMigrationService.run(widget.appRepository, _catalogRepository));
+      }
     } catch (e, s) {
       if (!kDebugMode) unawaited(FirebaseAnalytics.instance.logEvent(name: 'app_init_failed'));
       recordBootError(e, s, reason: 'App initialization failed');
@@ -227,7 +232,7 @@ class _LoadingGateState extends State<LoadingGate> {
               ChangeNotifierProvider<SetupActivityAnalysisService>(
                 create: (_) => SetupActivityAnalysisService(widget.appRepository.database),
               ),
-              Provider<ComponentCatalogRepository>(create: (_) => ComponentCatalogRepository()),
+              Provider<ComponentCatalogRepository>.value(value: _catalogRepository),
               ChangeNotifierProvider.value(value: widget.appSettings),
               ChangeNotifierProvider.value(value: widget.appRepository),
               ListenableProxyProvider2<AppRepository, AppSettings, AppHintService>(

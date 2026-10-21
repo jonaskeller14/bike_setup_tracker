@@ -170,11 +170,12 @@ CatalogNode _siblingForYear(List<CatalogNode> siblings, CatalogNode node, int? y
 }
 
 /// What a component persists for [resolved]: one entry per tree level and one
-/// per chosen option. An option the user skipped is absent.
+/// per chosen option, plus the brand file's revision. An option the user
+/// skipped is absent.
 ComponentPreset toComponentPreset(ResolvedPreset resolved) => ComponentPreset({
   ComponentPreset.brandKey: resolved.catalog.id,
   ComponentPreset.componentTypeKey: resolved.catalog.componentType.name,
   for (final node in resolved.path) node.level: node.id,
   ComponentPreset.yearKey: ?resolved.year,
   for (final MapEntry(key: axisId, :value) in resolved.selections.entries) axisId: value.id,
-});
+}).withRevision(resolved.catalog.revision);

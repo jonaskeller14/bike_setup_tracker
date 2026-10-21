@@ -16,7 +16,9 @@ import 'package:bike_setup_tracker/repositories/component_catalog_repository.dar
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
+import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/widgets/attachment_strip.dart';
 import 'package:bike_setup_tracker/widgets/installation_parent_field.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
@@ -581,6 +583,115 @@ nodes:
       );
       expect(saved.adjustments.map((a) => a.name), ['SAG', 'LSC']);
       expect(saved.adjustments.whereType<SagAdjustment>().single.referenceTravelMm, 160);
+    });
+  });
+
+  group('ComponentPage catalog update', () {
+    const revision1 = '''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "38"
+    level: model
+    adjustments:
+      - { name: HSC, type: step, max: 8 }
+''';
+    const revision2 = '''
+brand: FOX
+component_type: fork
+revision: 2
+changes:
+  - { revision: 2, review: Adds the low-speed compression adjuster. }
+nodes:
+  - label: "38"
+    level: model
+    adjustments:
+      - { name: HSC, type: step, max: 8 }
+      - { name: LSC, type: step, max: 16 }
+''';
+
+    /// Opens the edit page on a fork built from revision 1 while the catalog is
+    /// at revision 2; the returned getter reads what it saved.
+    Future<Component Function()> openOutdated(WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      presetRepository = ComponentCatalogRepository.withCatalogs([parseCatalogFile(revision2)]);
+      await tester.runAsync(() => presetRepository.all());
+      final app = buildCatalogApplication(catalogProducts(parseCatalogFile(revision1)).single);
+      final component = Component(
+        id: 'c1',
+        name: app.name,
+        componentType: ComponentType.fork,
+        installations: [Installation.sinceBeginning(parent: null)],
+        adjustments: app.adjustments,
+        preset: app.preset,
+      );
+
+      Object? result;
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: appSettings),
+            ChangeNotifierProvider.value(value: appRepository),
+            ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
+            ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
+            Provider<ComponentCatalogRepository>.value(value: presetRepository),
+          ],
+          child: MaterialApp(
+            theme: materialAppTheme,
+            home: Builder(
+              builder: (context) => TextButton(
+                onPressed: () async => result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ComponentPage.edit(component: component)),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      return () => (result! as EditResult<Component>).value;
+    }
+
+    Future<void> save(WidgetTester tester) async {
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('shows the pending review on the card', (WidgetTester tester) async {
+      await openOutdated(tester);
+
+      expect(find.text('Update available'), findsOneWidget);
+      expect(find.text('Adds the low-speed compression adjuster.'), findsOneWidget);
+    });
+
+    testWidgets('dismissing keeps the adjustments and stores the revision', (WidgetTester tester) async {
+      final saved = await openOutdated(tester);
+
+      await tester.tap(find.widgetWithText(TextButton, 'Dismiss'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Catalog update dismissed'), findsOneWidget);
+      expect(find.text('Update available'), findsNothing);
+      await save(tester);
+      expect(saved().preset!.revision, 2);
+      expect(saved().adjustments.map((adjustment) => adjustment.name), ['HSC', 'SAG']);
+    });
+
+    testWidgets('reviewing merges the new adjuster and stores the revision', (WidgetTester tester) async {
+      final saved = await openOutdated(tester);
+
+      await tester.tap(find.widgetWithText(TextButton, 'Review'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Update available'), findsNothing);
+      await save(tester);
+      expect(saved().preset!.revision, 2);
+      expect(saved().adjustments.map((adjustment) => adjustment.name), ['HSC', 'SAG', 'LSC']);
     });
   });
 

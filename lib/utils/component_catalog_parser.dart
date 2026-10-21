@@ -11,6 +11,7 @@ import '../models/component/year_span.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_template.dart';
 import '../models/task/task_threshold/task_threshold.dart';
+import 'catalog_migration_steps.dart';
 import 'task_presets.dart';
 import 'unit_conversion.dart';
 
@@ -20,8 +21,12 @@ import 'unit_conversion.dart';
 /// Pure function over a `String` so the app (asset bundle) and the CI test
 /// (filesystem) share it verbatim. YAML anchors/aliases are resolved by the
 /// `yaml` package before this parser sees them. Throws a descriptive
-/// [FormatException] on malformed data.
-BrandCatalog parseCatalogFile(String yamlSource) {
+/// [FormatException] on malformed data. A `fix: { step: … }` resolves against
+/// [steps].
+BrandCatalog parseCatalogFile(
+  String yamlSource, {
+  Map<String, CatalogMigrationStep> steps = catalogMigrationSteps,
+}) {
   final doc = loadYaml(yamlSource);
   if (doc is! YamlMap) {
     throw const FormatException('Catalog file root is not a YAML map');
@@ -34,7 +39,7 @@ BrandCatalog parseCatalogFile(String yamlSource) {
     orElse: () => throw FormatException('Unknown component_type "$typeString"'),
   );
 
-  final parser = _CatalogParser(brand, componentType)
+  final parser = _CatalogParser(brand, componentType, steps)
     ..parseOptionValues(doc['option_values'])
     ..parseGuides(doc['guides']);
 
@@ -45,12 +50,15 @@ BrandCatalog parseCatalogFile(String yamlSource) {
 
   final nodes = parser.parseNodes(rawNodes, const _Inherited());
   parser.checkGuides(nodes);
+  final revision = parser.parseRevision(doc['revision']);
   return BrandCatalog(
     brand: brand,
     id: _slug(brand),
     componentType: componentType,
     nodes: nodes,
     moved: parser.parseMoved(doc['moved'], nodes),
+    revision: revision,
+    changes: parser.parseChanges(doc['changes'], revision, nodes),
   );
 }
 
@@ -118,7 +126,10 @@ class _CatalogParser {
   /// `guides`: guide id → guide, referenced from nodes by `guide:`.
   final Map<String, SetupGuide> _guides = {};
 
-  _CatalogParser(this.brand, this.componentType);
+  /// The registered Dart corrections a `fix: { step: … }` may name.
+  final Map<String, CatalogMigrationStep> _steps;
+
+  _CatalogParser(this.brand, this.componentType, this._steps);
 
   static final _levelPattern = RegExp(r'^[a-z][a-z0-9_]*$');
   static final _sizeShorthand = RegExp(
@@ -237,6 +248,161 @@ class _CatalogParser {
     }
     return List.unmodifiable(moved);
   }
+
+  int parseRevision(Object? raw) {
+    if (raw == null) return 1;
+    if (raw is! int || raw < 1) throw _error('"revision" is not a whole number of at least 1');
+    return raw;
+  }
+
+  /// `changes:` is append-only: oldest first, and the newest one is the file's
+  /// [revision].
+  List<CatalogChange> parseChanges(Object? raw, int revision, List<CatalogNode> nodes) {
+    if (raw == null) {
+      if (revision > 1) throw _error('"revision" is $revision, but there are no "changes"');
+      return const [];
+    }
+    if (raw is! YamlList || raw.isEmpty) throw _error('"changes" is not a non-empty list');
+
+    final products = <_Attachment>[];
+    void visit(CatalogNode node, Map<String, String> parentLevels) {
+      final levels = {...parentLevels, node.level: node.id};
+      switch (node) {
+        case CatalogGroup(:final children):
+          for (final child in children) {
+            visit(child, levels);
+          }
+        case final CatalogProduct product:
+          products.add((levels: levels, product: product));
+      }
+    }
+
+    for (final node in nodes) {
+      visit(node, const {});
+    }
+
+    final changes = <CatalogChange>[];
+    for (final (index, entry) in raw.indexed) {
+      final where = 'change ${index + 1}';
+      final change = _parseChange(entry, products, where);
+      if (change.revision < 2 || change.revision > revision) {
+        throw _error('"revision" of $where is not between 2 and the file\'s revision $revision');
+      }
+      if (changes.isNotEmpty && change.revision < changes.last.revision) {
+        throw _error('${_capitalize(where)} is older than the change before it; append new changes at the end');
+      }
+      changes.add(change);
+    }
+    if (changes.last.revision != revision) {
+      throw _error('"revision" is $revision, but the newest change is revision ${changes.last.revision}');
+    }
+    _checkFixTargets(changes.whereType<CatalogFieldFix>().toList(), products);
+    return List.unmodifiable(changes);
+  }
+
+  CatalogChange _parseChange(Object? raw, List<_Attachment> products, String where) {
+    if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
+    _rejectUnknownKeys(raw, const {'revision', 'when', 'fix', 'review'}, where);
+    final revision = raw['revision'];
+    if (revision is! int) throw _error('${_capitalize(where)} needs a whole-number "revision"');
+
+    final when = _parseWhen(raw['when'], where);
+    for (final MapEntry(:key, :value) in when.entries) {
+      final known = <Object>{
+        for (final attachment in products) ...[
+          ?attachment.levels[key],
+          ...?attachment.product.options[key]?.values.map((value) => value.id),
+        ],
+      };
+      if (known.isEmpty) throw _error('Unknown "when" key "$key" in $where');
+      for (final item in value) {
+        if (!known.contains(item)) throw _error('"when.$key" of $where names unknown "$item"');
+      }
+    }
+    final matching = products.where((attachment) => _changeMatches(when, attachment)).toList();
+    if (matching.isEmpty) throw _error('${_capitalize(where)} matches no product');
+
+    final kinds = const ['fix', 'review'].where(raw.containsKey).toList();
+    if (kinds.length != 1) throw _error('${_capitalize(where)} needs exactly one of "fix" or "review"');
+    if (kinds.single == 'fix') return _parseFix(raw['fix'], revision, when, matching, '"fix" of $where');
+    final summary = raw['review'];
+    if (summary is! String || summary.trim().isEmpty) throw _error('"review" of $where is not a text');
+    return CatalogReview(revision: revision, when: when, summary: summary.trim());
+  }
+
+  CatalogFix _parseFix(
+    Object? raw,
+    int revision,
+    Map<String, List<Object>> when,
+    List<_Attachment> matching,
+    String where,
+  ) {
+    if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
+    final isStep = raw.containsKey('step');
+    _rejectUnknownKeys(raw, isStep ? const {'adjuster', 'step'} : const {'adjuster', 'field', 'from', 'to'}, where);
+    final adjuster = raw['adjuster'];
+    if (adjuster is! String || !_levelPattern.hasMatch(adjuster)) {
+      throw _error('${_capitalize(where)} needs a lower_snake_case "adjuster" id');
+    }
+    final specs = [for (final attachment in matching) ..._specs(attachment.product, adjuster, when)];
+    if (specs.isEmpty) throw _error('${_capitalize(where)} names adjuster "$adjuster", which no product it applies to has');
+
+    if (isStep) {
+      final stepId = raw['step'].toString();
+      final step = _steps[stepId];
+      if (step == null) throw _error('"step" of $where names "$stepId", which is not in catalogMigrationSteps');
+      return CatalogStepFix(revision: revision, when: when, adjuster: adjuster, stepId: stepId, step: step);
+    }
+
+    final field = CatalogFixField.values.firstWhereOrNull((field) => field.key == raw['field']);
+    if (field == null) {
+      throw _error('"field" of $where is not one of ${CatalogFixField.values.map((field) => field.key).join(', ')}');
+    }
+    if (!raw.containsKey('from') || !raw.containsKey('to')) throw _error('${_capitalize(where)} needs "from" and "to"');
+    final from = _normalize(raw['from']);
+    final to = _normalize(raw['to']);
+    if (from == to) throw _error('"from" and "to" of $where are the same');
+
+    for (final spec in specs) {
+      for (final value in [from, to]) {
+        try {
+          spec.buildWith(field, value);
+        } on Object catch (e) {
+          if (e is! ArgumentError && e is! TypeError) rethrow;
+          throw _error('${_capitalize(where)} cannot set "${field.key}" of "$adjuster" to "$value": $e');
+        }
+      }
+    }
+    return CatalogFieldFix(revision: revision, when: when, adjuster: adjuster, field: field, from: from, to: to);
+  }
+
+  /// A component built after a fix gets what the catalog builds now, so the
+  /// last fix of an adjuster field has to end where the data is.
+  void _checkFixTargets(List<CatalogFieldFix> fixes, List<_Attachment> products) {
+    for (final (index, fix) in fixes.indexed) {
+      final superseded = fixes.skip(index + 1).any((later) => later.adjuster == fix.adjuster && later.field == fix.field);
+      if (superseded) continue;
+      for (final attachment in products.where((attachment) => _changeMatches(fix.when, attachment))) {
+        for (final spec in _specs(attachment.product, fix.adjuster, fix.when)) {
+          final now = fix.field.read(spec.build());
+          if (fix.field.read(spec.buildWith(fix.field, fix.to)) != now) {
+            throw _error(
+              'The revision ${fix.revision} fix of "${fix.adjuster}" sets "${fix.field.key}" to "${fix.to}", but '
+              '"${attachment.levels.values.join('/')}" builds "$now"',
+            );
+          }
+        }
+      }
+    }
+  }
+
+  /// Whether a change's `when:` covers some configuration of the product.
+  static bool _changeMatches(Map<String, List<Object>> when, _Attachment attachment) => when.entries.every(
+    (entry) => switch (attachment.levels[entry.key]) {
+      final id? => entry.value.contains(id),
+      null => attachment.product.options[entry.key]?.values.any((value) => entry.value.contains(value.id)) ?? false,
+    },
+  );
 
   List<CatalogNode> parseNodes(YamlList raw, _Inherited parent) {
     final nodes = <CatalogNode>[];
@@ -1217,16 +1383,19 @@ class _CatalogParser {
       return [(adjustment: SagAdjustment(name: 'SAG', notes: null), unknownMax: false)];
     }
     return [
-      for (final spec in [
-        ...product.adjustments,
-        for (final MapEntry(key: axis, value: axisValues) in product.options.entries)
-          for (final value in axisValues.values)
-            if (when[axis]?.contains(value.id) ?? true) ...value.adjustments,
-      ])
-        if (spec.id == id)
-          (adjustment: spec.build(), unknownMax: spec.raw.containsKey('max') && spec.raw['max'] == null),
+      for (final spec in _specs(product, id, when))
+        (adjustment: spec.build(), unknownMax: spec.raw.containsKey('max') && spec.raw['max'] == null),
     ];
   }
+
+  /// The specs of every adjuster [id] of [product], option values included as
+  /// far as [when] allows them.
+  static Iterable<PresetAdjustmentSpec> _specs(CatalogProduct product, String id, Map<String, List<Object>> when) => [
+    ...product.adjustments,
+    for (final MapEntry(key: axis, value: axisValues) in product.options.entries)
+      for (final value in axisValues.values)
+        if (when[axis]?.contains(value.id) ?? true) ...value.adjustments,
+  ].where((spec) => spec.id == id);
 
   /// A guide value converts into the adjuster's unit, so both must measure the
   /// same quantity. SAG may also be authored as a length.

@@ -41,6 +41,10 @@ later catalog update splits a generation, a component that stores a `year`
 resolves to the generation whose `years` contain it; one without a `year` stays
 on the generation it names.
 
+The map also carries the brand file's `revision` the component is up to date
+with, as `revision: 2`; it is left out at revision 1. See
+[Catalog revisions](#catalog-revisions-revision-and-changes).
+
 ## Why dampers are separate from the nodes
 
 Click ranges (rebound/compression) are a property of the **damper cartridge**,
@@ -60,6 +64,8 @@ every product that uses it gets it.
 | `option_values` | Map of axis id → value id → definition, for axes whose values are defined once and referenced (today: `damper`) |
 | `guides` | Map of guide id → structured setup guide, referenced from nodes by `guide:`, see [Setup guides](#setup-guides-guides) |
 | `moved` | Map of old node path → new node path after a restructure, see [Moved paths](#moved-paths-moved) |
+| `revision` | Whole number, the file's data revision; `1` when absent, see [Catalog revisions](#catalog-revisions-revision-and-changes) |
+| `changes` | Append-only list of what each revision changed for existing components |
 | `nodes` | The product tree |
 
 ```yaml
@@ -359,6 +365,59 @@ generation is only worth adding when its numbers can actually be sourced.
   revise internals and click counts under an unchanged badge.
 - **Don't inherit numbers across generations.** If the older damper's counts
   aren't published, see [Draft entries](#draft-entries).
+
+## Catalog revisions (`revision` and `changes`)
+
+A component keeps the adjustments it was built with; later data does not
+change them by itself. A brand file therefore records, per revision, what a
+correction means for components built before it:
+
+```yaml
+revision: 3
+changes:
+  - revision: 2
+    when: { damper: grip_x2_2021 }
+    fix: { adjuster: lsc, field: notes, from: Low-Speed Compression, to: "Low-Speed Compression; 18 clicks" }
+  - revision: 3
+    when: { model: "36", generation: "2025" }
+    review: Adds the bottom-out adjuster.
+```
+
+- **`fix`** changes one cosmetic field of one adjuster: `name`, `notes`,
+  `visualization`, `dialColor` or `dialSize`. The app applies it on startup,
+  without asking, to every matching adjustment whose field still holds what
+  the catalog built from `from`; a field the rider edited is left alone.
+  `from: ~` / `to: ~` stand for no notes. The last fix of an adjuster field
+  must end at what the data builds now; the parser checks it.
+- **`review`** is everything else: a new or removed adjuster, a range, a type,
+  an option of a categorical. Its text is rider-facing (see
+  [User-facing text](#user-facing-text-description-and-note)); the component page
+  shows it as "Update available", and the rider merges the new adjusters in the
+  merge sheet or dismisses the update.
+- **`when:`** scopes the entry like a guide rule's `when:`: level names and
+  option axes of this file, a value or a list of values. Without it the entry
+  applies to every component of the file. It must match at least one product.
+- **Append only.** Each entry's `revision` lies between 2 and the file's
+  `revision`, entries never go back in revision, and the newest entry is the
+  file's `revision`. Several entries may share one revision.
+- A component stores the revision it is up to date with. Accepting or
+  dismissing an update raises it to the file's revision; the startup fixes raise
+  it as far as no pending review holds it back.
+
+`adjusters.lock` holds every file's revision and a signature of the adjusters
+a rider gets per product and choice of its required axes
+(`fork/fox/36/2025/factory#damper=grip_x2 3f2a9c0d1e2b`).
+`test/component_catalog_adjusters_test.dart` fails when a signature changed and
+no change newer than the locked revision covers that product, and when the
+lockfile is out of date. Any change to what an adjuster builds, a renamed
+`notes` included, needs a `changes:` entry. Regenerate the lockfile with
+
+```
+UPDATE_CATALOG_ADJUSTERS=1 flutter test test/component_catalog_adjusters_test.dart
+```
+
+which refuses to while a change has no revision. Until the feature is rolled
+out, `UPDATE_CATALOG_ADJUSTERS=reset` regenerates it unconditionally.
 
 ## Specs
 
@@ -1120,3 +1179,13 @@ range reference outside the adjuster's range, a `comfort_at` other than `min` or
 two rules that can both match with equal specificity, an adjuster input that
 an applicable product lacks, or a cycle between adjuster inputs. Guide sources
 must be http(s), and rule notes follow the rider-facing text rules.
+
+A `changes:` entry is rejected for an unknown key, a `revision` outside 2 and
+the file's revision or older than the entry before it, a file `revision` the
+newest entry does not reach, a `when:` that names an unknown id or matches no
+product, not exactly one of `fix` and `review`, a `fix` of another field or of
+an adjuster no matching product has, `from` equal to `to`, a value the adjuster
+cannot take, a last fix that does not end at what the data builds, or a `step`
+that is not registered.
+`test/component_catalog_adjusters_test.dart` guards `adjusters.lock`, see
+[Catalog revisions](#catalog-revisions-revision-and-changes).

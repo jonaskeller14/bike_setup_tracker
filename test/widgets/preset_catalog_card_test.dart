@@ -1,6 +1,8 @@
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/widgets/preset_catalog_card.dart';
@@ -122,17 +124,25 @@ nodes:
       WidgetTester tester, {
       required Map<String, Object> preset,
       VoidCallback? onUnlink,
+      List<CatalogReview> updates = const [],
+      VoidCallback? onReviewUpdate,
+      VoidCallback? onDismissUpdate,
+      ThemeData? theme,
     }) async {
       await tester.pumpWidget(
         Provider<ComponentCatalogRepository>.value(
           value: ComponentCatalogRepository.withCatalogs([catalog]),
           child: MaterialApp(
+            theme: theme,
             home: Scaffold(
               body: PresetCatalogCard(
                 componentType: ComponentType.fork,
                 onTap: () {},
                 applied: resolvePreset([catalog], ComponentPreset(preset)),
                 onUnlink: onUnlink ?? () {},
+                updates: updates,
+                onReviewUpdate: onReviewUpdate,
+                onDismissUpdate: onDismissUpdate,
               ),
             ),
           ),
@@ -187,5 +197,35 @@ nodes:
       await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
       expect(unlinked, 1);
     });
+
+    testWidgets('shows no update without pending reviews', (tester) async {
+      await pumpApplied(tester, preset: fullPreset);
+
+      expect(find.text('Update available'), findsNothing);
+    });
+
+    for (final (name, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
+      testWidgets('an update with a long summary fits a narrow screen ($name)', (tester) async {
+        tester.view.physicalSize = const Size(320, 800);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        var reviewed = 0;
+        var dismissed = 0;
+        await pumpApplied(
+          tester,
+          preset: fullPreset,
+          theme: theme,
+          updates: [CatalogReview(revision: 2, summary: 'Adds the bottom-out adjuster. ' * 10)],
+          onReviewUpdate: () => reviewed++,
+          onDismissUpdate: () => dismissed++,
+        );
+
+        expect(tester.takeException(), isNull);
+        expect(find.text('Update available'), findsOneWidget);
+        await tester.tap(find.widgetWithText(TextButton, 'Review'));
+        await tester.tap(find.widgetWithText(TextButton, 'Dismiss'));
+        expect((reviewed, dismissed), (1, 1));
+      });
+    }
   });
 }

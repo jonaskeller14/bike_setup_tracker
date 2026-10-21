@@ -69,7 +69,6 @@ class _TaskCaughtUpPlaceholderState extends State<TaskCaughtUpPlaceholder> with 
       _controller.value = 1;
       return;
     }
-    unawaited(HapticFeedback.mediumImpact());
     unawaited(_controller.forward());
   }
 

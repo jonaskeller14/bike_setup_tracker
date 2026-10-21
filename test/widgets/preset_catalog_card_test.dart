@@ -160,6 +160,12 @@ nodes:
       expect(find.text('Choose from catalog'), findsNothing);
     });
 
+    testWidgets('shows the chosen model year instead of the years', (tester) async {
+      await pumpApplied(tester, preset: {...fullPreset, 'year': 2023});
+
+      expect(_subtitle(tester), '180 mm · 2023 · Tap to change');
+    });
+
     testWidgets('leaves a skipped optional choice out', (tester) async {
       await pumpApplied(tester, preset: {...fullPreset}..remove('travel_mm'));
 

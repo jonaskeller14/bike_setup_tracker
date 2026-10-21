@@ -160,6 +160,14 @@ void main() {
       ]);
     });
 
+    test('a chosen model year replaces the years in the notes', () {
+      final app = buildCatalogApplication(resolved.withYear(2026));
+
+      expect(app.notes, contains('- Model year: 2026'));
+      expect(app.notes, isNot(contains('Model years')));
+      expect(app.preset['year'], 2026);
+    });
+
     test('fresh UUIDs on every adjustment', () {
       final first = buildCatalogApplication(resolved).adjustments;
       final second = buildCatalogApplication(resolved).adjustments;

@@ -35,6 +35,12 @@ level plus one per chosen option:
 {brand: fox, component_type: fork, model: "36", generation: "2025", trim: factory, damper: grip_x2, travel_mm: 160}
 ```
 
+A rider may also name the exact model year, persisted as `year: 2025`. The
+picker offers it when the product's `years` cover more than one year. When a
+later catalog update splits a generation, a component that stores a `year`
+resolves to the generation whose `years` contain it; one without a `year` stays
+on the generation it names.
+
 ## Why dampers are separate from the nodes
 
 Click ranges (rebound/compression) are a property of the **damper cartridge**,

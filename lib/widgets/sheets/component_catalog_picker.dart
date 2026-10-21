@@ -49,7 +49,7 @@ const Widget _chevron = Icon(Icons.arrow_forward_ios, size: 16);
 const Widget _check = Icon(Icons.check, size: 20);
 
 /// Nothing is left to ask after [preset], so choosing it closes the sheet.
-bool _completes(ResolvedPreset preset) => preset.openRequiredAxes.isEmpty && preset.optionalAxes.isEmpty;
+bool _completes(ResolvedPreset preset) => preset.openRequiredAxes.isEmpty && !preset.hasOptionalDetails;
 
 // --- where we are ------------------------------------------------------------
 
@@ -221,11 +221,12 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   bool _isCurrent(ResolvedPreset preset) => _currentFor(preset) != null;
 
   /// [preset] with the optional values of the current selection chosen, when
-  /// it is the same product; a value the catalog dropped stays unset.
+  /// it is the same product; a value the catalog dropped stays unset. The model
+  /// year falls back to one typed in the search.
   ResolvedPreset _withCurrentOptions(ResolvedPreset preset) {
     final current = _currentFor(preset);
-    if (current == null) return preset;
-    var result = preset;
+    var result = preset.withYear(current?.year ?? queryYear(_query));
+    if (current == null) return result;
     for (final axis in preset.optionalAxes) {
       final id = current.selections[axis.id]?.id;
       final value = axis.values.firstWhereOrNull((value) => value.id == id);
@@ -282,7 +283,7 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   /// never get a stage.
   void _advance(ResolvedPreset preset) {
     if (preset.openRequiredAxes.isNotEmpty) return _goTo(_RequiredAxis(preset));
-    if (preset.optionalAxes.isNotEmpty) return _goTo(_OptionalAxes(_withCurrentOptions(preset)));
+    if (preset.hasOptionalDetails) return _goTo(_OptionalAxes(_withCurrentOptions(preset)));
     _finish(preset);
   }
 
@@ -846,12 +847,18 @@ class _OptionalAxesStep extends StatefulWidget {
 class _OptionalAxesStepState extends State<_OptionalAxesStep> {
   late ResolvedPreset _preset = widget.preset;
 
-  bool get _hasChoice => _preset.optionalAxes.any((axis) => _preset.selections.containsKey(axis.id));
+  bool get _hasChoice =>
+      _preset.year != null || _preset.optionalAxes.any((axis) => _preset.selections.containsKey(axis.id));
 
   void _toggle(OptionAxis axis, OptionValue value) {
     unawaited(HapticFeedback.selectionClick());
     final selected = _preset.selections[axis.id] == value;
     setState(() => _preset = _preset.select(axis, selected ? null : value));
+  }
+
+  void _toggleYear(int year) {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() => _preset = _preset.withYear(_preset.year == year ? null : year));
   }
 
   @override
@@ -874,6 +881,8 @@ class _OptionalAxesStepState extends State<_OptionalAxesStep> {
                       selected: _preset.selections[axis.id],
                       onTap: (value) => _toggle(axis, value),
                     ),
+                  if (_preset.selectableYears.isNotEmpty)
+                    _YearChips(years: _preset.selectableYears, selected: _preset.year, onTap: _toggleYear),
                 ],
               ),
             ),
@@ -932,6 +941,36 @@ class _AxisChips extends StatelessWidget {
             ],
           ),
         ],
+      ],
+    );
+  }
+}
+
+class _YearChips extends StatelessWidget {
+  const _YearChips({required this.years, required this.selected, required this.onTap});
+
+  final List<int> years;
+  final int? selected;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SheetGroupTitle(title: 'Model year'),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            for (final year in years)
+              ChoiceChip(
+                label: Text('$year'),
+                selected: year == selected,
+                onSelected: (_) => onTap(year),
+              ),
+          ],
+        ),
       ],
     );
   }

@@ -460,6 +460,61 @@ void main() {
     });
   });
 
+  group('model year', () {
+    testWidgets('offers the years of the generation, newest first, and persists the choice', (tester) async {
+      final outcome = await _open(tester);
+      await _openFoxTrims(tester);
+      await _tap(tester, 'Performance');
+
+      expect(find.text('Model year'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.widgetWithText(ChoiceChip, '2026')).dx,
+        lessThan(tester.getTopLeft(find.widgetWithText(ChoiceChip, '2025')).dx),
+      );
+
+      await _tapChip(tester, '2025');
+      await _tap(tester, 'Apply');
+
+      expect(toComponentPreset(outcome.result!).toJson()['year'], 2025);
+    });
+
+    testWidgets('skipping leaves the year unset', (tester) async {
+      final outcome = await _open(tester);
+      await _openFoxTrims(tester);
+      await _tap(tester, 'Performance');
+      await _tap(tester, 'Skip');
+
+      expect(toComponentPreset(outcome.result!).toJson().containsKey('year'), isFalse);
+    });
+
+    testWidgets('a product with one year or none has no year chips', (tester) async {
+      await _open(tester, repository: _repository([_soloYaml]));
+      await _tap(tester, 'Solo');
+      await _tap(tester, 'Base');
+
+      expect(find.text('Model year'), findsNothing);
+    });
+
+    testWidgets('opens with the year of the current selection chosen', (tester) async {
+      await _open(tester, current: _currentFoxFactory().withYear(2026));
+
+      expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, '2026')).selected, isTrue);
+      expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, '2025')).selected, isFalse);
+    });
+
+    testWidgets('prefills a year typed in the search', (tester) async {
+      final outcome = await _open(tester);
+
+      await tester.enterText(find.byType(TextField), 'fox 36 performance 2026');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'FOX 36 Performance');
+
+      expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, '2026')).selected, isTrue);
+      await _tap(tester, 'Apply');
+      expect(outcome.result!.year, 2026);
+    });
+  });
+
   testWidgets('search jumps straight to a product', (tester) async {
     await _open(tester);
 
@@ -525,7 +580,8 @@ nodes:
     await _tap(tester, 'Cane Creek With An Unusually Long Brand Name For Testing');
     await _tap(tester, 'DBcoil IL Inline Coil Shock With A Very Long Model Name That Wraps');
 
-    expect(find.byType(ChoiceChip), findsNWidgets(27));
+    // 27 sizes, plus one chip per model year 2019–2026.
+    expect(find.byType(ChoiceChip), findsNWidgets(35));
     expect(tester.takeException(), isNull);
   });
 }

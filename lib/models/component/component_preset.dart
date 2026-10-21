@@ -42,6 +42,12 @@ class ComponentPreset {
   ComponentType? get componentType =>
       ComponentType.values.firstWhereOrNull((type) => type.name == _entries[componentTypeKey]);
 
+  /// The exact model year the rider named; null when none was chosen.
+  int? get year => switch (_entries[yearKey]) {
+    final int year => year,
+    _ => null,
+  };
+
   /// The node ids in the order the levels were stored, whatever the levels are
   /// called. A `moved:` redirect is matched against this path.
   List<String> get nodeIds => [

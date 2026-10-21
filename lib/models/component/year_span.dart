@@ -30,6 +30,9 @@ class YearSpan {
 
   bool contains(int year) => first <= year && year <= last;
 
+  /// Every year of the span, newest first.
+  List<int> get newestFirst => [for (var year = last; year >= first; year--) year];
+
   @override
   bool operator ==(Object other) => other is YearSpan && other.first == first && other.last == last;
 

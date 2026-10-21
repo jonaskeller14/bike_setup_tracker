@@ -18,6 +18,12 @@ String presetSearchHaystack(ResolvedPreset product) {
   return parts.join(' ').toLowerCase();
 }
 
+/// The first four-digit year in [query], e.g. `2022` in `fox 36 2022`.
+int? queryYear(String query) {
+  final match = RegExp(r'(?<!\d)(?:19|20)\d{2}(?!\d)').firstMatch(query);
+  return match == null ? null : int.parse(match[0]!);
+}
+
 /// Case-insensitive AND-of-tokens match: every whitespace-separated token in
 /// [query] must appear somewhere in [haystack] (already lower-cased).
 bool presetHaystackMatches(String haystack, String query) {

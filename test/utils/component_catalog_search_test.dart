@@ -161,4 +161,18 @@ void main() {
       expect(filterPresets(all, 'ULTIMATE lyrik'), hasLength(1));
     });
   });
+
+  group('queryYear', () {
+    test('finds a four-digit year among the tokens', () {
+      expect(queryYear('fox 36 2022'), 2022);
+      expect(queryYear('2019 float'), 2019);
+    });
+
+    test('ignores numbers that are not a year', () {
+      expect(queryYear('fox 36'), isNull);
+      expect(queryYear('fox 38 170'), isNull);
+      expect(queryYear('210x52.5'), isNull);
+      expect(queryYear('12022'), isNull);
+    });
+  });
 }

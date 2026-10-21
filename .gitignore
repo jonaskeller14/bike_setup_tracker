@@ -71,6 +71,7 @@ ios/Runner/client_*.plist
 # Marketing: store metrics stay private; music licenses forbid redistribution
 docs/marketing/metrics/
 tool/marketing/assets/music/
+tool/marketing/assets/voice/**/*.mp3
 
 # Affinity lock files while a document is open
 *.af~lock~

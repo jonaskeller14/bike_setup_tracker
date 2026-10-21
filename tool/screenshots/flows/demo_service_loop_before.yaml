@@ -1,0 +1,29 @@
+# scenario: service_loop_before
+# Demo, first half of the service loop: "Fork lowers service" every 50 h of
+# riding, nothing due yet. The task opens with the hours left, counted from the
+# Strava rides. demo_service_loop_after picks up once enough rides came in; the
+# kit joins the two with a crossfade. Timed to the voiceover (03_features,
+# clip 15).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.tasks
+- waitForAnimationToEnd:
+    timeout: 3000
+- scrollUntilVisible:
+    element:
+      id: taskRule.title.340ef012-fb70-40d6-889e-02ac62dd6699
+    direction: DOWN
+    centerElement: true
+- startRecording: demo_service_loop_before
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 5000
+- tapOn:
+    id: taskRule.title.340ef012-fb70-40d6-889e-02ac62dd6699
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 5000

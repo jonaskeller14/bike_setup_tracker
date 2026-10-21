@@ -1,0 +1,118 @@
+# scenario: bike_fit
+# Demo: save a bike fit as a setup. The Grizl is the only bike, so the new
+# setup is for it; the flow types the fit's saddle height (745 mm, spoken in
+# the voiceover), setback, stem length and spacers over the pre-fit values,
+# names the setup and saves it, then opens it: every value, with the change
+# from before the fit. Timed to the voiceover (03_features, clip 10).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- startRecording: demo_bike_fit
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 4500
+- tapOn:
+    id: setups.add
+- extendedWaitUntil:
+    visible:
+      id: setupForm.name
+    timeout: 15000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# The fields hold the last setup's values. A double-tap on the number selects
+# it, so typing replaces it without the empty-field error in between. The
+# keyboard's next key on a numeric field closes the keyboard, so the form only
+# scrolls while it's down. At the end of the form the seatpost and cockpit
+# fields are all on screen, so the form scrolls only once.
+- scrollUntilVisible:
+    element: Add Component
+    direction: DOWN
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+# Saddle Height
+- doubleTapOn:
+    id: setAdjustment.22162aac-e637-4b56-b1c5-9a1b6c0be1ba
+    point: 12%,50%
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: '745'
+# Saddle Setback
+- doubleTapOn:
+    id: setAdjustment.7c1d2e3f-4a5b-4c6d-8e7f-90a1b2c3d4e5
+    point: 12%,50%
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: '32'
+- pressKey: Enter
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+# Spacers first: the keyboard then lifts it, and Stem Length with it.
+# Spacers
+- doubleTapOn:
+    id: setAdjustment.af4a5b6c-7d8e-4f90-b1a2-c3d4e5f60718
+    point: 12%,50%
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: '15'
+# Stem Length: while another field has the keyboard, a double-tap only moves
+# the cursor; focus it first.
+- tapOn:
+    id: setAdjustment.9e3f4a5b-6c7d-4e8f-a091-b2c3d4e5f607
+- waitForAnimationToEnd:
+    timeout: 3000
+- doubleTapOn:
+    id: setAdjustment.9e3f4a5b-6c7d-4e8f-a091-b2c3d4e5f607
+    point: 12%,50%
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: '80'
+- pressKey: Enter
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+- scrollUntilVisible:
+    element:
+      id: setupForm.name
+    direction: UP
+- tapOn:
+    id: setupForm.name
+# Typing while the keyboard slides in can double the first letter.
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Bike fit
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+
+# Saving returns to the history with the new setup on top.
+- tapOn:
+    id: setupForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn: "(?s).*Bike fit.*"
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# The page starts with the tires; bring the seatpost and cockpit into view.
+- scrollUntilVisible:
+    element: '745'
+    direction: DOWN
+    centerElement: true
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 5000

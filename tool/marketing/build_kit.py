@@ -24,6 +24,7 @@ from urllib.parse import urlencode
 import posts
 import render_images
 import render_video as rv
+import voice
 
 REPO_ROOT = render_images.REPO_ROOT
 KITS = REPO_ROOT / "docs/marketing/kits"
@@ -59,6 +60,9 @@ PREVIEWS_OUT = REPO_ROOT / "docs/store/app-store/app_previews/en-US/iphone_65"
 LOCALES = {"en-US": "en", "de-DE": "de"}
 
 SHORT_MAX = 60
+VOICE_START = 0.3  # Where a Short's first voice line starts, unless "at" sets it.
+VOICE_GAP = 0.4  # Pause between voice lines, unless "at" sets their starts.
+VOICE_TAIL = 0.3  # Silence the voice leaves before the end card.
 CHAPTER_MIN = 10  # YouTube ignores chapters shorter than 10 s.
 CAROUSEL_MAX = 10  # Instagram's limit; YouTube community posts allow 5.
 WEB_LIMIT_MB = 3.5  # Per website loop.
@@ -95,6 +99,7 @@ class Kit:
         self.chapters = []
         self._clips = {}
         self._music = None
+        self._voice = None
         self.music_note = None
 
     def clip(self, name):
@@ -107,8 +112,12 @@ class Kit:
                 source = REPO_ROOT / self.spec.get("recordings", RAW) / f"{name}.mp4"
             if not source.is_file():
                 raise SystemExit(f"Missing recording {rel(source)}. See tool/marketing/README.md.")
-            # Demo clips end with the key press of _stop_recording.yaml.
-            end = rv.duration(source) if "source" in spec else rv.recording_end(source)
+            # Demo clips end with the key press of _stop_recording.yaml; "end" sets it where the
+            # screen never holds still before it (e.g. a spinner behind the share sheet).
+            if "end" in spec:
+                end = float(spec["end"])
+            else:
+                end = rv.duration(source) if "source" in spec else rv.recording_end(source)
             segments = [(a, end if b is None else min(b, end), speed)
                         for a, b, speed in spec.get("segments", [[0, None, 1]]) if a < end]
             edit = rv.Edit(segments, spec.get("captions", []), spec.get("callouts", []))
@@ -167,20 +176,66 @@ class Kit:
                 spans.insert(0, (0.0, spans[0][0] if spans else length, hook))
         return [(start, end, {"caption": text}) for start, end, text in spans]
 
+    def voiceover(self, name, short, length):
+        """(lines for rv.assemble, caption spans) of a Short's voiceover; ([], None) without one.
+
+        length: the Short's length before the end card. Lines start one after the other unless
+        "at" sets each start; a caption starts with its line, and the first one is the hook.
+        """
+        spec = short.get("voice")
+        if not spec:
+            return [], None
+        if self._voice is None:
+            self._voice = voice.Voice(self.spec["voice"])
+        lines = self._voice.lines(spec["lines"])
+        at = spec.get("at")
+        if at is None:
+            at, t = [], spec.get("start", VOICE_START)
+            for _, start, end, _ in lines:
+                at.append(t)
+                t += end - start + spec.get("gap", VOICE_GAP)
+        if len(at) != len(lines):
+            raise SystemExit(f"short '{name}': {len(at)} start times for {len(lines)} voice lines")
+        ends = [t + end - start for t, (_, start, end, _) in zip(at, lines)]
+        for i in range(1, len(lines)):
+            if at[i] < ends[i - 1]:
+                self.problems.append(f"short '{name}': voice line {i + 1} starts at {at[i]:.1f} s, "
+                                     f"before line {i} ends ({ends[i - 1]:.1f} s)")
+        if ends[-1] > length - VOICE_TAIL:
+            self.problems.append(f"short '{name}': the voice ends at {ends[-1]:.1f} s, the video at {length:.1f} s; "
+                                 f"leave {VOICE_TAIL} s before the end card")
+        print(f"Voice {name}:")
+        for i, (t, end, (_, _, _, text)) in enumerate(zip(at, ends, lines), 1):
+            print(f"  {i}. {t:5.1f}–{end:5.1f}  {text}")
+
+        captions = spec.get("captions") or [None]
+        starts = [(0.0 if i == 0 else at[i], short.get("hook") if i == 0 and short.get("hook") else text)
+                  for i, text in enumerate(captions) if text or (i == 0 and short.get("hook"))]
+        spans = [(start, starts[i + 1][0] if i + 1 < len(starts) else length, text)
+                 for i, (start, text) in enumerate(starts)]
+        return [(mp3, start, end, t) for t, (mp3, start, end, _) in zip(at, lines)], spans
+
     def build_shorts(self):
         template, size = SHORT
         card = self.end_card(size, "end_9x16.png")
         for name, short in self.spec["shorts"].items():
+            clips = [self.clip(clip_name) for clip_name in short["clips"]]
+            offsets = [sum(length - rv.JOIN_FADE for _, _, length in clips[:i]) for i in range(len(clips))]
+            lines, spans = self.voiceover(name, short, offsets[-1] + clips[-1][2])
             segments = []
-            for i, clip_name in enumerate(short["clips"]):
-                clip, edit, length = self.clip(clip_name)
-                layers = self.caption_layers(edit, length, short.get("hook") if i == 0 else None)
+            for i, (clip_name, (clip, edit, length), offset) in enumerate(zip(short["clips"], clips, offsets)):
+                if spans is None:
+                    layers = self.caption_layers(edit, length, short.get("hook") if i == 0 else None)
+                else:
+                    # Voice captions run in Short seconds; each clip gets the part that falls in it.
+                    layers = [(max(start, offset) - offset, min(end, offset + length) - offset, {"caption": text})
+                              for start, end, text in spans if start < offset + length and end > offset]
                 segment = self.work / "shorts" / name / f"{i}_{clip_name}.mp4"
                 rv.compose(self.chrome, template, size, clip, self.params(), layers, segment,
                            lifts=edit.callout_spans("lift"))
                 segments.append(segment)
             out = self.out / "shorts" / f"{name}_9x16.mp4"
-            rv.assemble(segments, out, end_card=card, music=self.music(), fade=rv.JOIN_FADE)
+            rv.assemble(segments, out, end_card=card, music=self.music(), fade=rv.JOIN_FADE, voice=lines)
             self.shorts.append((out, short["title"], self.check(out, size, (0, SHORT_MAX), audio=True)))
 
     def build_walkthrough(self):

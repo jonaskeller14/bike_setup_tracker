@@ -88,12 +88,14 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
   "device": "android",           // optional: Android frame and Play raws in every template; default iPhone
   "endcard": { "signature": "…", "note": "…" },  // optional; defaults "78 psi. 4 clicks. Saved." / "Free on iOS and Android"
   "music": "track.mp3",          // in tool/marketing/assets/music/ (gitignored); missing → silent track
+  "voice": "03_features",        // optional: folder in tool/marketing/assets/voice/ with the speechma batches (see Voiceover)
   "recordings": "build/marketing/raw/ios",  // where clips without "source" are read; default build/marketing/raw
   "clips": {
     "demo_add_setup": {
       "source": "build/…/x.mp4",  // optional; default <recordings>/<name>.mp4
       "title": "Record a Setup",  // walkthrough chapter
       "segments": [[0, 4, 1.5], [4, 11, 2.5]],  // [start, end, speed] in recording seconds; the rest is cut
+      "end": 25.9,                // optional: where the recording ends, if the screen never holds still before the key press
       "captions": [[0, "Log Your *Setup*"], [4, "…"]],  // [recording second, text]; *key phrase* teal, {10} a changed value
       "callouts": [  // optional, brand.md Callouts; recording seconds and recording pixels
         {"t0": 3, "t1": 6, "rect": [560, 1100, 500, 160], "mode": "zoom"},   // eases into the rect and out
@@ -101,7 +103,12 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
       ]
     }
   },
-  "shorts": { "core": { "title": "…", "clips": ["…"], "hook": "question from messaging.md; replaces a first caption at 0 s, or shows until the first caption" } },
+  "shorts": { "core": { "title": "…", "clips": ["…"], "hook": "question from messaging.md; replaces a first caption at 0 s, or shows until the first caption",
+    "voice": {  // optional, see Voiceover; its captions replace the clips' captions
+      "lines": ["batch-2#10", "batch-1#1.4"],  // a whole take, or one paragraph of it
+      "at": [0.3, 3.0, …],                     // optional: Short second where each line starts; default one after the other
+      "captions": [null, "Your *bike fit*", …]  // optional: one per line, shown from its start; null keeps the one before; the first is the hook
+    } } },
   "walkthrough": ["clip", "…"],
   "gifs": ["clip", "…"],
   "web": ["clip", "…"],         // website loops, see the website repo's CLAUDE.md
@@ -165,6 +172,33 @@ you post to.
 The track is registered with Content ID. If YouTube or another platform flags an upload, dispute
 the claim with the Pixabay license certificate, `beats-app-184141-license.txt` next to the track
 (gitignored like the track; download it again from the track page if it's missing).
+
+### Voiceover
+
+Text-to-speech from [speechma](https://speechma.com) (voice *Rowan HD*), generated in batches of
+at most 2,000 characters. Each batch is two files in `tool/marketing/assets/voice/<folder>/`:
+`batch-N.md`, the source and voice plus the text exactly as pasted in a ```` ```text ```` block
+(tracked; copy the block into speechma), and `batch-N.mp3`, what speechma generated (gitignored).
+Never edit a generated batch's text; new takes go into a new batch.
+
+The text is paragraphs separated by blank lines. A paragraph `Clip N.` is a spoken slate that starts
+take N; clip numbers are unique within the folder. speechma pauses about 1.2 s at a blank line and
+less inside a paragraph, so `voice.py` splits a batch with P paragraphs at its P − 1 longest pauses
+and drops the slates. Check a new batch before using it:
+
+```
+python tool/marketing/voice.py 03_features/batch-2    # every take and paragraph with its times
+```
+
+A Short's `voice` lists its `lines`: `batch-2#10` is take 10, `batch-2#10.3` its third paragraph,
+so a Short can mix takes. Lines start at 0.3 s, 0.4 s apart, unless `at` sets each start. The build
+prints the cue sheet (when each line plays) to time the clip segments against, and fails if a line
+starts before the previous one ends or the voice runs into the end card.
+
+Mix: the voice is loudness-normalized as one track (−15 LUFS); the music bed plays at 30 % under it
+and ducks further while a line plays (sidechain compressor), then a limiter. A Short with voice
+measures about −16 LUFS over its voiced part, like the music-only Shorts. Captions start with
+their line, so muted viewers read what is said.
 
 ## `render_video.py`
 

@@ -186,10 +186,11 @@ for name in $selected; do
       fi
     done
 
+    # Each attempt writes to its own timestamped folder: take the last one.
     if [ "$record" -eq 1 ]; then
-      shot="$(find "$out_dir" -name "${flow%.yaml}.mp4" | head -n 1)"
+      shot="$(find "$out_dir" -name "${flow%.yaml}.mp4" | sort | tail -n 1)"
     else
-      shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | head -n 1)"
+      shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | sort | tail -n 1)"
     fi
     if [ "$ok" -eq 1 ] && [ -n "$shot" ]; then
       cp "$shot" "$target_dir/"

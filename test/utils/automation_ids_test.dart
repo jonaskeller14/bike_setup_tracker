@@ -197,6 +197,7 @@ void main() {
 
       expect(find.bySemanticsIdentifier(AutomationIds.setupListMap), findsOneWidget);
       expect(find.bySemanticsIdentifier(AutomationIds.appBarStrava), findsOneWidget);
+      expect(find.bySemanticsIdentifier(AutomationIds.appBarOptions), findsOneWidget);
 
       final actions = find.bySemanticsIdentifier(AutomationIds.setupActions(GoldenTestHarness.newerSetupId));
       expect(actions, findsOneWidget);

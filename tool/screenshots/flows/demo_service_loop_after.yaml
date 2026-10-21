@@ -1,0 +1,51 @@
+# scenario: service_loop_after
+# Demo, second half of the service loop (see demo_service_loop_before): two
+# rides later the fork service is due. Ticking it off logs the service, and
+# the task goes back to Upcoming with the full 50 h ahead.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.tasks
+- waitForAnimationToEnd:
+    timeout: 3000
+- startRecording: demo_service_loop_after
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2500
+- tapOn:
+    id: taskRule.complete.340ef012-fb70-40d6-889e-02ac62dd6699
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- runFlow: _hide_keyboard_android.yaml
+- tapOn:
+    id: taskEntryForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+# At 0 h the fork service sorts below the three upcoming tasks shown.
+- scrollUntilVisible:
+    element: "(?s)Show all.*"
+    direction: DOWN
+    centerElement: true
+- tapOn: "(?s)Show all.*"
+- scrollUntilVisible:
+    element:
+      id: taskRule.title.340ef012-fb70-40d6-889e-02ac62dd6699
+    direction: DOWN
+    speed: 20
+    centerElement: true
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: taskRule.title.340ef012-fb70-40d6-889e-02ac62dd6699
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 4000

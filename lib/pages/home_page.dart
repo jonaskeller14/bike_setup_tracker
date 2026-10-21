@@ -314,34 +314,38 @@ class _HomePageState extends State<HomePage> {
                     ),
                   if (appSettings.enableStrava) const StravaSyncButton(),
                   if (appSettings.enableGoogleDrive) const GoogleDriveSyncButton(),
-                  PopupMenuButton<_AppOptions>(
-                    onSelected: (_AppOptions result) async {
-                      switch (result) {
-                        case _AppOptions.import:
-                          await importData(context);
-                        case _AppOptions.export:
-                          await exportData(context);
-                        case _AppOptions.share:
-                          await shareData(context);
-                        case _AppOptions.trash:
-                          await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
-                        case _AppOptions.settings:
-                          await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => _AppOptions.values.map((appOption) {
-                      return PopupMenuItem<_AppOptions>(
-                        value: appOption,
-                        child: Row(
-                          children: [
-                            Icon(appOption.iconData),
-                            const SizedBox(width: 8),
-                            Text(appOption.label),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    icon: const Icon(Icons.more_vert),
+                  Semantics(
+                    container: true,
+                    identifier: AutomationIds.appBarOptions,
+                    child: PopupMenuButton<_AppOptions>(
+                      onSelected: (_AppOptions result) async {
+                        switch (result) {
+                          case _AppOptions.import:
+                            await importData(context);
+                          case _AppOptions.export:
+                            await exportData(context);
+                          case _AppOptions.share:
+                            await shareData(context);
+                          case _AppOptions.trash:
+                            await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
+                          case _AppOptions.settings:
+                            await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => _AppOptions.values.map((appOption) {
+                        return PopupMenuItem<_AppOptions>(
+                          value: appOption,
+                          child: Row(
+                            children: [
+                              Icon(appOption.iconData),
+                              const SizedBox(width: 8),
+                              Text(appOption.label),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      icon: const Icon(Icons.more_vert),
+                    ),
                   ),
                 ],
               ),

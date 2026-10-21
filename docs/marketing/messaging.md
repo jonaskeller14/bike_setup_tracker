@@ -54,7 +54,7 @@ build.
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
   never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
-- **Questions are hooks, statements are headlines.** Question lines (R3, R9, R10, C5–C7, S4–S6) open Shorts and
+- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R12, C5–C8, S4–S6, D4, D5) open Shorts and
   posts; store assets use statements.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
@@ -78,6 +78,8 @@ German riders, not translated word for word.
 | R8 | Back to the fork setup that worked. | Zurück zum Gabel-Setup, das funktioniert hat. |
 | R9 | Where do you keep your fork settings? | Wo notierst du deine Gabel-Einstellungen? |
 | R10 | Which fork setup did you ride on that trip? | Mit welchem Gabel-Setup bist du den Trip gefahren? |
+| R11 | What saddle height did your bike fit give you? | Welche Sattelhöhe kam beim Bikefitting raus? |
+| R12 | Which bike are your pedals on right now? | An welchem Bike sind deine Pedale gerade? |
 
 ### C — See what changed
 
@@ -90,6 +92,7 @@ German riders, not translated word for word.
 | C5 | Was it the rebound or the tire pressure? | War es die Zugstufe oder der Reifendruck? |
 | C6 | How did your fork setup change this season? | Wie hat sich dein Gabel-Setup diese Saison verändert? |
 | C7 | What did you change on your bike before that ride? | Was hast du vor der Ausfahrt an deinem Bike geändert? |
+| C8 | Which tire pressure have you ridden the most? | Mit welchem Reifendruck bist du am meisten gefahren? |
 
 ### S — Service on time
 
@@ -109,6 +112,8 @@ German riders, not translated word for word.
 | D1 | Your suspension log. No account. | Dein Fahrwerks-Logbuch. Ohne Account. |
 | D2 | Your bike data stays with you. | Deine Bike-Daten bleiben bei dir. |
 | D3 | Export every bike setup: Excel, CSV, JSON. | Jedes Bike-Setup exportieren: Excel, CSV, JSON. |
+| D4 | Your riding buddy wants your fork settings? | Dein Kumpel fragt nach deinen Gabel-Einstellungen? |
+| D5 | Want all your bike setups in a spreadsheet? | Alle deine Bike-Setups in einer Tabelle? |
 
 ### Signature
 

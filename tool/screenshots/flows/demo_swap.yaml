@@ -1,0 +1,50 @@
+# scenario: swap
+# Demo: move the pedals to the other bike. The Stamp 7 pedals are dragged from
+# the Hightower onto the Trek Session; the installation timeline asks for the
+# date of the move and saves it, and the pedals' details page shows the bikes
+# they were on. Timed to the voiceover (03_features, clip 11).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_swap
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 5000
+# Maestro has no long-press-then-drag. A swipe this slow moves less than the
+# touch slop within the long-press delay, so the part lifts and follows it:
+# from the Stamp 7 Pedals on the Hightower to the Session card's parts.
+- swipe:
+    start: 37%, 36%
+    end: 50%, 50%
+    duration: 8000
+# The swipe returns before the drop; the timeline sheet opens on it.
+- extendedWaitUntil:
+    visible: Save
+    timeout: 10000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+- tapOn: Save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# Crankbrothers Stamp 7 Pedals, now on the Session: double-tap opens its
+# details page; its History section holds the installation timeline.
+- doubleTapOn:
+    id: garage.component.44e3c1ce-72db-4bc2-b58c-47a0de8ab188
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn: History
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 5000

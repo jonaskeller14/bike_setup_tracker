@@ -1,0 +1,38 @@
+# scenario: full
+# Demo: export everything to Excel. The home menu's Share Data, the Excel
+# format and the entire dataset, then the system share sheet with the file.
+# Save to Files doesn't open its picker under XCTest, so the flow ends on the
+# sheet. Timed to the voiceover (03_features, clip 13).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.setups
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_export
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 5500
+- tapOn:
+    id: appBar.options
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn: Share Data
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn: "(?s)Excel Spreadsheet.*"
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn: "(?s)Entire dataset.*"
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 9000

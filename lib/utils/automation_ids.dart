@@ -11,12 +11,14 @@ abstract final class AutomationIds {
 
   static const appBarRider = 'appBar.rider';
   static const appBarStrava = 'appBar.strava';
+  static const appBarOptions = 'appBar.options';
 
   static const addSetupFab = 'setups.add';
   static const setupListCalendar = 'setups.calendar';
   static const setupListMap = 'setups.map';
   static String setupActions(String setupId) => 'setup.actions.$setupId';
   static const setupActionsCompare = 'setup.compare';
+  static const setupDetailsActions = 'setupDetails.actions';
 
   /// The comparison sheet's setup pickers, by side ('A' or 'B').
   static String compareSetupsSide(String side) => 'compareSetups.side.$side';

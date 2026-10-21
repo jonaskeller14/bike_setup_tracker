@@ -1,0 +1,98 @@
+{
+  "music": "the_mountain-app-184141.mp3",
+  "voice": "03_features",
+  "recordings": "build/marketing/raw/ios",
+  "clips": {
+    "demo_share": {
+      "title": "Share a setup",
+      "segments": [[0, 8.0, 1], [8.0, 11.22, 1.3], [11.22, 15.48, 2], [15.48, 24.58, 1]]
+    },
+    "demo_export": {
+      "title": "Export to Excel",
+      "segments": [[0, 9.3, 1], [9.3, 12.6, 2], [12.6, 17.0, 1], [17.0, 25.9, 1.5]],
+      "end": 25.9
+    },
+    "demo_bike_fit": {
+      "title": "Save a bike fit",
+      "segments": [[0, 5.24, 1], [5.24, 13.5, 2], [13.5, 33.0, 3], [33.0, 46.6, 3.5], [46.6, 56.0, 1.5], [56.0, 61.0, 1]]
+    },
+    "demo_histogram": {
+      "title": "Rides per tire pressure",
+      "segments": [[0, 5.7, 1], [5.7, 14.6, 1.5], [14.6, 18.0, 2], [18.0, 18.8, 1], [21.6, 22.6, 1], [25.0, 27.2, 1]]
+    },
+    "demo_service_loop_before": {
+      "title": "Service hours counted",
+      "segments": [[0, 5.9, 1], [5.9, 12.6, 1]]
+    },
+    "demo_service_loop_after": {
+      "title": "Tick off a due service",
+      "segments": [[0, 7.3, 1], [7.3, 19.3, 3], [19.3, 23.2, 2], [23.2, 27.6, 1]]
+    },
+    "demo_swap": {
+      "title": "Move a part to another bike",
+      "segments": [[0, 5.55, 1], [5.55, 14.04, 1.5], [14.04, 18.9, 1], [18.9, 25.0, 2], [25.0, 30.0, 1]]
+    }
+  },
+  "shorts": {
+    "bike-fit": {
+      "title": "Save your bike fit as a setup",
+      "clips": ["demo_bike_fit"],
+      "hook": "What *saddle height* did your bike fit give you?",
+      "voice": {
+        "lines": ["batch-2#10"],
+        "at": [0.3, 3.5, 9.4, 17.0, 26.0],
+        "captions": [null, null, "Your *bike fit*, as a setup", "Pack the bike, *set it back*", "745 mm. *Saved.*"]
+      }
+    },
+    "swap": {
+      "title": "Which bike are your pedals on?",
+      "clips": ["demo_swap"],
+      "hook": "Which bike are your *pedals* on right now?",
+      "voice": {
+        "lines": ["batch-2#11"],
+        "at": [0.3, 3.0, 6.3, 11.6, 20.3],
+        "captions": [null, null, "Hold and *drag* to the other bike", "Saved *with the date*", "One garage. *Every part.*"]
+      }
+    },
+    "share": {
+      "title": "Send your fork settings to a friend",
+      "clips": ["demo_share"],
+      "hook": "Your riding buddy wants your *fork settings*?",
+      "voice": {
+        "lines": ["batch-2#12"],
+        "at": [0.3, 2.5, 7.6, 12.4, 19.5],
+        "captions": [null, "You won't remember *every click*", "Menu → *Share*", "Every value, *in one text*", "Same settings. *Ready to ride.*"]
+      }
+    },
+    "export": {
+      "title": "All your bike setups in one spreadsheet",
+      "clips": ["demo_export"],
+      "hook": "Want all your *bike setups* in a spreadsheet?",
+      "voice": {
+        "lines": ["batch-2#13"],
+        "at": [0.3, 2.4, 5.9, 11.0, 17.6],
+        "captions": [null, "Season over? *Look back.*", "Share Data → *Excel*", "Every bike, *every setup*", "No account. *Your data stays yours.*"]
+      }
+    },
+    "histogram": {
+      "title": "The tire pressure you ride the most",
+      "clips": ["demo_histogram"],
+      "hook": "Which *tire pressure* have you ridden the most?",
+      "voice": {
+        "lines": ["batch-2#14.1", "batch-2#14.2", "batch-2#14.3", "batch-2#14.4"],
+        "at": [0.3, 3.1, 6.6, 11.4],
+        "captions": [null, null, "Your setups + *your Strava rides*", "Taller bar, *more rides*"]
+      }
+    },
+    "service-loop": {
+      "title": "Never miss a fork service",
+      "clips": ["demo_service_loop_before", "demo_service_loop_after"],
+      "hook": "When did you last service your *fork*?",
+      "voice": {
+        "lines": ["batch-3#15"],
+        "at": [0.3, 2.8, 7.9, 12.8, 24.8],
+        "captions": [null, "Every *50 hours* of riding", null, "Enough rides: *it's due*", "Tick it off: *back to zero*"]
+      }
+    }
+  }
+}

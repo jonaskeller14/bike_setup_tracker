@@ -30,6 +30,11 @@ END_CARD_SECONDS = 2.0
 END_CARD_FADE = 0.4
 JOIN_FADE = 0.4  # Crossfade between two takes of one video.
 MUSIC_CROSSFADE = 4.0
+# Voiceover: the voice at VOICE_LOUDNESS LUFS, the music bed at VOICE_BED of its level under it,
+# and VOICE_PAD s of air kept around each line.
+VOICE_LOUDNESS = -15
+VOICE_BED = 0.3
+VOICE_PAD = 0.08
 GIF_LIMIT = 8 * 1024 * 1024
 # (fps, width) tried in order until a GIF fits GIF_LIMIT.
 GIF_STEPS = [(15, 360), (12, 320), (10, 270)]
@@ -330,11 +335,13 @@ def render_still(chrome, template, size, params, out):
         raise RuntimeError("; ".join(problems))
 
 
-def assemble(segments, out, end_card=None, music=None, audio=True, fade=0.0):
+def assemble(segments, out, end_card=None, music=None, audio=True, fade=0.0, voice=()):
     """Joins video-only segments, crossfades into the end card still and adds audio.
 
     fade: crossfade between segments in seconds (0 cuts). audio: the music bed (looped, faded,
-    loudness-normalized) if music is given, else a silent stereo track. Returns the length.
+    loudness-normalized) if music is given, else a silent stereo track. voice: (mp3, start, end, at)
+    lines, each cut from start to end of its mp3 and placed at second `at` of the video; the music
+    ducks under them. Returns the length.
     """
     inputs = []
     for segment in segments:
@@ -377,13 +384,45 @@ def assemble(segments, out, end_card=None, music=None, audio=True, fade=0.0):
                 looped = f"loop{i}"
             graph.append(f"[{looped}]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,loudnorm=I=-16:TP=-1.5,"
                          f"afade=t=in:d=0.5,afade=t=out:st={total - 2:.3f}:d=2,"
-                         "aformat=sample_rates=48000:channel_layouts=stereo[a]")
+                         "aformat=sample_rates=48000:channel_layouts=stereo[bed]")
+            n += 1
         else:
-            graph.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{total:.3f}[a]")
+            graph.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{total:.3f}[bed]")
+        if voice:
+            graph += voice_track(inputs, n, voice, total)
+            # The bed sits under the voice and dips further while a line plays.
+            graph += [
+                "[vo]asplit[vo_key][vo_mix]",
+                f"[bed]volume={VOICE_BED}[bed_low]",
+                "[bed_low][vo_key]sidechaincompress=threshold=0.02:ratio=6:attack=40:release=500[ducked]",
+                "[ducked][vo_mix]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.89:level=0[a]",
+            ]
+        else:
+            graph.append("[bed]anull[a]")
         maps += ["-map", "[a]", "-c:a", "aac", "-b:a", "192k"]
     out.parent.mkdir(parents=True, exist_ok=True)
     ffmpeg(*inputs, "-filter_complex", ";".join(graph), *maps, "-t", f"{total:.3f}", *DELIVERY, out)
     return duration(out)
+
+
+def voice_track(inputs, first, lines, total):
+    """Appends one input per voice line to inputs; returns the filter graph of the voice track [vo].
+
+    first: the index of the first line's input. The track is loudness-normalized as a whole, so
+    lines from different batches match, and padded with silence to the video's length.
+    """
+    graph = []
+    for i, (mp3, start, end, at) in enumerate(lines):
+        # A little air at both ends: silencedetect marks speech from -40 dB, which clips soft onsets.
+        inputs += ["-i", mp3]
+        graph.append(f"[{first + i}:a]atrim={max(0.0, start - VOICE_PAD):.3f}:{end + VOICE_PAD:.3f},"
+                     f"asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,"
+                     f"afade=t=in:d=0.03,areverse,afade=t=in:d=0.08,areverse,"
+                     f"adelay={max(0, round((at - VOICE_PAD) * 1000))}:all=1[line{i}]")
+    graph.append("".join(f"[line{i}]" for i in range(len(lines)))
+                 + f"amix=inputs={len(lines)}:duration=longest:normalize=0,apad,atrim=0:{total:.3f},"
+                 f"loudnorm=I={VOICE_LOUDNESS}:TP=-1.5:LRA=7,aformat=sample_rates=48000:channel_layouts=stereo[vo]")
+    return graph
 
 
 def animate(chrome, template, size, steps, out, out_size=None):

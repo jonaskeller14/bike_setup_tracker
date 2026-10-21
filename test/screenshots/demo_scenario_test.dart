@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/screenshots/demo_scenario.dart';
 import 'package:bike_setup_tracker/screenshots/screenshot_seed.dart';
@@ -216,6 +217,60 @@ void main() {
 
       await repository.disposeAndAwaitCancellation();
       await database.close();
+    });
+  });
+
+  group('scenario content (03_features demos)', () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+    });
+
+    tearDown(() async {
+      await repository.disposeAndAwaitCancellation();
+      await database.close();
+    });
+
+    Future<void> seed(DemoScenario scenario) async {
+      await ScreenshotSeed.seedDatabase(repository, today: today, scenario: scenario);
+      await repository.initialDataLoaded;
+    }
+
+    TaskRuleWithStatus forkLowers(Iterable<TaskRuleWithStatus> rules) =>
+        rules.singleWhere((r) => r.rule.name == 'Fork lowers service');
+
+    test('service_loop_before has the fork service upcoming at 46 of 50 h, and nothing due', () async {
+      await seed(DemoScenario.serviceLoopBefore);
+      expect(repository.actionableTaskRules, isEmpty);
+      final fork = forkLowers(repository.upcomingTaskRules);
+      expect(fork.status.progress, closeTo(46 / 50, 0.005));
+    });
+
+    test('service_loop_after has the fork service as the only task due, not yet overdue', () async {
+      await seed(DemoScenario.serviceLoopAfter);
+      final fork = forkLowers(repository.actionableTaskRules);
+      expect(repository.actionableTaskRules, hasLength(1));
+      expect(fork.status.type, TaskStatusType.due);
+      expect(fork.status.progress, closeTo(51.5 / 50, 0.005));
+    });
+
+    test('histogram gives the Hightower a ride about every other day', () {
+      final rides = (seedJson(DemoScenario.histogram)['stravaActivities'] as List)
+          .where((a) => (a as Map)['gearId'] == 'b18168107');
+      expect(rides.length, greaterThanOrEqualTo(30));
+    });
+
+    test('bike_fit keeps the Grizl with its fit adjustments and pre-fit values', () async {
+      await seed(DemoScenario.bikeFit);
+      expect(repository.bikes.values.map((b) => b.name), ['Canyon Grizl']);
+      final names = repository.components.values.expand((c) => c.adjustments).map((a) => a.name);
+      expect(names, containsAll(['Saddle Height', 'Saddle Setback', 'Stem Length', 'Spacers']));
+      for (final setup in (seedJson(DemoScenario.bikeFit)['setups'] as List).cast<Map<String, dynamic>>()) {
+        expect((setup['bikeAdjustmentValues'] as Map).values, containsAll([738.0, 25.0, 90.0, 20.0]));
+      }
     });
   });
 

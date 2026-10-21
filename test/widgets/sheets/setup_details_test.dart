@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/pages/details/setup_details_page.dart';
+import 'package:bike_setup_tracker/utils/automation_ids.dart';
 import 'package:bike_setup_tracker/widgets/sheets/compare_setups.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,9 @@ void main() {
 
     expect(find.byIcon(Icons.edit), findsNothing);
     expect(find.byIcon(Icons.close), findsOneWidget);
+    final semantics = tester.ensureSemantics();
+    expect(find.bySemanticsIdentifier(AutomationIds.setupDetailsActions), findsOneWidget);
+    semantics.dispose();
     await tester.tap(find.byTooltip('Setup actions'));
     await settle(tester);
     expect(find.text('Edit'), findsOneWidget);

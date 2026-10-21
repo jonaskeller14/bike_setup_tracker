@@ -11,6 +11,7 @@ import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/setup_actions.dart';
 import '../../utils/url.dart';
@@ -221,48 +222,52 @@ class SetupDetailsPageContent extends StatelessWidget {
       if (appSettings.enableRating) _SetupDetailsAction.addRating,
       if (showViewOnMap) ...[_SetupDetailsAction.viewOnMap, _SetupDetailsAction.openInMapsApp],
     ];
-    return PopupMenuButton<_SetupDetailsAction>(
-      tooltip: 'Setup actions',
-      onSelected: (action) => _onAction(context, action, setup: setup),
-      itemBuilder: (context) => [
-        for (final action in actions)
-          PopupMenuItem(
-            value: action,
-            enabled: hasPosition || !action.needsPosition,
-            child: Row(
-              spacing: 10,
-              children: [
-                Icon(action.icon),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(action.label),
-                      if (!hasPosition && action.needsPosition)
-                        Text(
-                          'Location not available',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return Semantics(
+      container: true,
+      identifier: AutomationIds.setupDetailsActions,
+      child: PopupMenuButton<_SetupDetailsAction>(
+        tooltip: 'Setup actions',
+        onSelected: (action) => _onAction(context, action, setup: setup),
+        itemBuilder: (context) => [
+          for (final action in actions)
+            PopupMenuItem(
+              value: action,
+              enabled: hasPosition || !action.needsPosition,
+              child: Row(
+                spacing: 10,
+                children: [
+                  Icon(action.icon),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(action.label),
+                        if (!hasPosition && action.needsPosition)
+                          Text(
+                            'Location not available',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+        ],
+        child: AbsorbPointer(
+          child: IconButton.filled(
+            iconSize: 20,
+            style: IconButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {},
+            icon: const Icon(Icons.more_vert),
           ),
-      ],
-      child: AbsorbPointer(
-        child: IconButton.filled(
-          iconSize: 20,
-          style: IconButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          onPressed: () {},
-          icon: const Icon(Icons.more_vert),
         ),
       ),
     );

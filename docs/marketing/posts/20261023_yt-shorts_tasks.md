@@ -1,25 +1,25 @@
-# yt-shorts · Core
+# yt-shorts · Tasks
 
 - Status: scheduled
-- URL: —
-- Posted: 2026-10-23
+- URL: https://youtube.com/shorts/1dnzqKQDTq8?feature=share
+- Posted: 2026-10-23 10:00
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: showcase (`shorts/core_9x16.mp4`)
-- Retire when: The add-setup flow or the setup history changes
+- Kit: showcase (`shorts/tasks_9x16.mp4`)
+- Retire when: The tasks screens change, or tasks stop being an opt-in feature
 
 ## Title
 ```text
-Which clicks did you ride last weekend? #mtb #mtbsetup
+What's due on your bike this week? #mtb #bikemaintenance
 ```
 
 ## Description
 ```text
-Log your fork and shock settings before the ride. Location and weather fill in themselves, and after a season your history shows every click and psi you changed.
+Tick off a service when it's done: the due list clears, and the job stays under Completed. Switch tasks on under Settings → Features.
 
 Bike Setup Tracker is free on iOS and Android. Search "Bike Setup Tracker" in the App Store or on Google Play.
 
-#mountainbike #suspension
+#mountainbike #bikeservice
 ```
 
 ## Pinned comment

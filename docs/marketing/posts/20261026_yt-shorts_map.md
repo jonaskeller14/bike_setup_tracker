@@ -2,7 +2,7 @@
 
 - Status: scheduled
 - URL: https://youtube.com/shorts/G8InQEhwWFk?feature=share
-- Posted: 2026-11-04
+- Posted: 2026-10-26 16:00
 - App version: 1.6.3
 - Playlist: v1.6.3
 - Kit: showcase (`shorts/map_9x16.mp4`)

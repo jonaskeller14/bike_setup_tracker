@@ -1,6 +1,6 @@
 # yt-shorts · Garage
 
-- Status: scheduled
+- Status: live
 - URL: https://youtube.com/shorts/HrgOJ5l2Qk8?feature=share
 - Posted: 2026-10-21
 - App version: 1.6.3

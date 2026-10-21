@@ -2,7 +2,7 @@
 
 - Status: scheduled
 - URL: https://youtube.com/shorts/wemmOn922BU?feature=share
-- Posted: 2026-10-31
+- Posted: 2026-10-25 14:00
 - App version: 1.6.3
 - Playlist: v1.6.3
 - Kit: showcase (`shorts/analysis_9x16.mp4`)

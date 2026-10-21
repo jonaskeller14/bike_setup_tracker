@@ -14,7 +14,7 @@ id from [`links.md`](../links.md); `<label>` is kebab-case.
 
 - Status: planned | scheduled | live | unlisted | deleted
 - URL: <post URL, or — before it's up>
-- Posted: YYYY-MM-DD (the planned or scheduled date before it's up)
+- Posted: YYYY-MM-DD (the planned or scheduled date before it's up; add HH:MM once a time is set)
 - App version: X.Y.Z
 - Playlist: vX.Y.Z (YouTube videos only)
 - Kit: <kit>

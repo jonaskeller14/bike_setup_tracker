@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/repositories/component_catalog_repository.dar
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/widgets/sheets/component_catalog_picker.dart';
+import 'package:bike_setup_tracker/widgets/year_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -117,6 +118,26 @@ nodes:
         id: m2
         options:
           size: ["210x50/52.5/55", "185x50/55"]
+''';
+
+/// The model's products are its generations, so their labels add nothing.
+const _ohlinsGenerationYaml = '''
+brand: Öhlins
+component_type: shock
+nodes:
+  - label: TTX22
+    level: model
+    children:
+      - label: "2020–2024"
+        level: generation
+        id: "2020"
+        years: "2020-2024"
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+  - label: Coil
+    level: model
 ''';
 
 ComponentCatalogRepository _repository([List<String> files = const [_foxYaml, _acmeYaml, _draftYaml, _ohlinsYaml]]) =>
@@ -259,6 +280,49 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Select generation'), findsOneWidget);
+    });
+  });
+
+  group('row subtitles', () {
+    testWidgets('a brand lists its models in authored order', (tester) async {
+      await _open(tester);
+
+      expect(find.text('36 · 38'), findsOneWidget);
+      expect(find.text('Bolt'), findsOneWidget);
+    });
+
+    testWidgets('a model lists the products below it and spans their years', (tester) async {
+      await _open(tester);
+      await _tap(tester, 'FOX');
+
+      final row = find.widgetWithText(ListTile, '36');
+      expect(find.descendant(of: row, matching: find.text('Factory · Performance · Float')), findsOneWidget);
+      expect(find.descendant(of: row, matching: find.byType(YearBadge)), findsOneWidget);
+      expect(find.text('2019-2026'), findsOneWidget);
+      expect(
+        find.descendant(of: find.widgetWithText(ListTile, '38'), matching: find.byType(YearBadge)),
+        findsNothing,
+        reason: 'no years known',
+      );
+    });
+
+    testWidgets('a generation lists its trims without a year badge', (tester) async {
+      await _open(tester);
+      await _tap(tester, 'FOX');
+      await _tap(tester, '36');
+
+      final row = find.widgetWithText(ListTile, '2025–2026');
+      expect(find.descendant(of: row, matching: find.text('Factory · Performance')), findsOneWidget);
+      expect(find.descendant(of: row, matching: find.byType(YearBadge)), findsNothing);
+    });
+
+    testWidgets('a model whose products are generations lists no subtitle', (tester) async {
+      await _open(tester, repository: _repository([_ohlinsGenerationYaml]), type: ComponentType.shock);
+      await _tap(tester, 'Öhlins');
+
+      final row = find.widgetWithText(ListTile, 'TTX22');
+      expect(tester.widget<ListTile>(row).subtitle, isNull);
+      expect(find.descendant(of: row, matching: find.text('2020-2026')), findsOneWidget);
     });
   });
 

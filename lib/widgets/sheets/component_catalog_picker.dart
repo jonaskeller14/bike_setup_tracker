@@ -14,6 +14,7 @@ import '../../repositories/component_catalog_repository.dart';
 import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
+import '../year_badge.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
@@ -513,7 +514,7 @@ class _Catalog {
   /// Stage 1, in first-seen order.
   List<_BrandEntry> get brands => [
     for (final MapEntry(key: catalog, value: products) in _productsByBrand.entries)
-      _BrandEntry(catalog: catalog, productCount: products.length),
+      _BrandEntry(catalog: catalog, models: _distinctLabels(products.map((product) => product.path.first))),
   ];
 
   /// The nodes one level below [parents], each with the products beneath it.
@@ -529,7 +530,7 @@ class _Catalog {
     }
     return [
       for (final MapEntry(key: node, value: products) in children.entries)
-        _NodeEntry(node: node, products: products, depth: depth),
+        _NodeEntry(node: node, products: products),
     ];
   }
 
@@ -550,11 +551,18 @@ class _Catalog {
 }
 
 class _BrandEntry {
-  const _BrandEntry({required this.catalog, required this.productCount});
+  const _BrandEntry({required this.catalog, required this.models});
 
   final BrandCatalog catalog;
-  final int productCount;
+
+  /// The labels of the brand's top level, in authored order.
+  final List<String> models;
 }
+
+/// The distinct labels of [nodes], in first-seen order.
+List<String> _distinctLabels(Iterable<CatalogNode> nodes) => [...{for (final node in nodes) node.label}];
+
+String? _labelsSubtitle(List<String> labels) => labels.isEmpty ? null : labels.join(' · ');
 
 /// One row of a node stage: a category header or a node.
 sealed class _NodeRow {
@@ -568,25 +576,13 @@ class _CategoryRow extends _NodeRow {
 }
 
 class _NodeEntry extends _NodeRow {
-  const _NodeEntry({required this.node, required this.products, required this.depth});
+  const _NodeEntry({required this.node, required this.products});
 
   final CatalogNode node;
 
   /// The selectable products at or below [node]; the single product itself
   /// when [node] is a [CatalogProduct].
   final List<ResolvedPreset> products;
-
-  /// Index of [node] in each of [products]' paths.
-  final int depth;
-
-  /// The distinct nodes directly below a group, so the row can say what a tap
-  /// leads to.
-  List<CatalogNode> get children => [
-    ...{
-      for (final product in products)
-        if (product.path.length > depth + 1) product.path[depth + 1],
-    },
-  ];
 }
 
 // --- stage 1: brands ---------------------------------------------------------
@@ -608,9 +604,10 @@ class _BrandList extends StatelessWidget {
       itemCount: brands.length,
       itemBuilder: (context, index) {
         final entry = brands[index];
+        final subtitle = _labelsSubtitle(entry.models);
         return ListTile(
           title: Text(entry.catalog.brand),
-          subtitle: Text(_count(entry.productCount, 'variant')),
+          subtitle: subtitle == null ? null : _SubtitleText(subtitle),
           trailing: _chevron,
           selected: isCurrent(entry),
           onTap: () => onSelect(entry),
@@ -637,10 +634,11 @@ class _NodeList extends StatelessWidget {
       itemBuilder: (context, index) => switch (rows[index]) {
         _CategoryRow(:final category) => _CategoryHeader(category),
         final _NodeEntry entry => switch (entry.node) {
-          CatalogGroup() => ListTile(
+          CatalogGroup(:final level) => ListTile(
             title: Text(entry.node.label),
-            subtitle: _SubtitleText(_groupSubtitle(entry)),
-            trailing: _chevron,
+            subtitle: _groupSubtitle(entry),
+            // A generation is named by its years already.
+            trailing: _Trailing(level == _generationLevel ? null : _yearSpan(entry), icon: _chevron),
             selected: isCurrent(entry),
             onTap: () => onSelect(entry),
           ),
@@ -656,22 +654,21 @@ class _NodeList extends StatelessWidget {
   }
 }
 
-/// `2018–2026 · 3 trims`: the years below the group, and what a tap opens.
-String _groupSubtitle(_NodeEntry entry) {
-  final children = entry.children;
-  final levels = {for (final child in children) child.level};
-  return [
-    ?_yearSpan(entry.products.map((product) => product.node.years))?.toString(),
-    _count(children.length, levels.length == 1 ? _levelLabel(levels.single) : 'option'),
-  ].join(' · ');
+const String _generationLevel = 'generation';
+
+/// `Factory · Performance`: the products below the group, so a row says what a
+/// tap leads to. Generations are left out, as the rows below are named by them.
+Widget? _groupSubtitle(_NodeEntry entry) {
+  final labels = _labelsSubtitle(
+    _distinctLabels(entry.products.map((product) => product.node).where((node) => node.level != _generationLevel)),
+  );
+  return labels == null ? null : _SubtitleText(labels);
 }
 
 /// The years a group row covers. Its products can belong to different
 /// generations, so when they disagree the row shows the whole span
 /// (`2018-2026`) and the per-generation years stay on the deeper rows.
-YearSpan? _yearSpan(Iterable<YearSpan?> years) => YearSpan.cover(years.nonNulls);
-
-String _count(int count, String noun) => '$count $noun${count == 1 ? '' : 's'}';
+YearSpan? _yearSpan(_NodeEntry entry) => YearSpan.cover(entry.products.map((product) => product.node.years).nonNulls);
 
 // --- products, and the flat search results -----------------------------------
 
@@ -716,29 +713,27 @@ class _ProductTile extends StatelessWidget {
     return ListTile(
       title: Text(title),
       subtitle: subtitle == null ? null : _SubtitleText(subtitle),
-      trailing: _ProductTrailing(product.node.years, completes: _completes(product)),
+      trailing: _Trailing(product.node.years, icon: _completes(product) ? _check : _chevron),
       selected: selected,
       onTap: onTap,
     );
   }
 }
 
-/// Chevron, or a check when the tap completes the selection, preceded by the
-/// year badge when the catalog knows the years.
-class _ProductTrailing extends StatelessWidget {
-  const _ProductTrailing(this.years, {required this.completes});
+/// [icon], preceded by the year badge when there are [years] to show.
+class _Trailing extends StatelessWidget {
+  const _Trailing(this.years, {required this.icon});
 
   final YearSpan? years;
-  final bool completes;
+  final Widget icon;
 
   @override
   Widget build(BuildContext context) {
     final years = this.years;
-    final icon = completes ? _check : _chevron;
     if (years == null) return icon;
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [_YearBadge('$years'), const SizedBox(width: 6), icon],
+      children: [YearBadge(years), const SizedBox(width: 6), icon],
     );
   }
 }
@@ -1053,32 +1048,6 @@ class _CategoryHeader extends StatelessWidget {
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
           color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-    );
-  }
-}
-
-class _YearBadge extends StatelessWidget {
-  final String text;
-
-  const _YearBadge(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: colors.onSurfaceVariant,
         ),
       ),
     );

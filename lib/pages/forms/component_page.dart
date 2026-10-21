@@ -43,6 +43,7 @@ import '../../widgets/sheets/component_type_picker.dart';
 import '../../widgets/sheets/preset_merge_sheet.dart';
 import '../../widgets/sheets/set_initial_stats.dart';
 import '../../widgets/text/section_title.dart';
+import '../../widgets/year_badge.dart';
 import '../adjustment/boolean_adjustment_page.dart';
 import '../adjustment/categorical_adjustment_page.dart';
 import '../adjustment/duration_adjustment_page.dart';
@@ -708,7 +709,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   dense: true,
                   title: Text(presetDisplayName(suggestion)),
                   subtitle: subtitle == null ? null : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  trailing: yearRange == null ? null : _PresetYearBadge('$yearRange'),
+                  trailing: yearRange == null ? null : YearBadge(yearRange),
                   onTap: () => onSelected(suggestion),
                 );
               },
@@ -1236,32 +1237,4 @@ class _PresetSnapshot {
     required this.resolvedPreset,
     required this.expanded,
   });
-}
-
-/// Small year-range chip for autocomplete suggestion rows (mirrors the picker's
-/// year badge).
-class _PresetYearBadge extends StatelessWidget {
-  final String text;
-
-  const _PresetYearBadge(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: colors.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
 }

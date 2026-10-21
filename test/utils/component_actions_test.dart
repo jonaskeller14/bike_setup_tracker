@@ -16,6 +16,7 @@ import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/component_actions.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
+import 'package:bike_setup_tracker/widgets/sheets/copy_task_rules.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -308,6 +309,7 @@ void main() {
       required Component target,
       List<TaskRule> rules = const [],
       Future<void>? targetSaved,
+      TaskRulesTrigger trigger = TaskRulesTrigger.added,
     }) async {
       await tester.runAsync(() async {
         await appRepository.addBikes([bike]);
@@ -321,7 +323,13 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest(
         label: 'offer',
         action: (context) =>
-            ComponentActions.offerTaskRulesFor(context, source: source, target: target, targetSaved: targetSaved),
+            ComponentActions.offerTaskRulesFor(
+              context,
+              source: source,
+              target: target,
+              trigger: trigger,
+              targetSaved: targetSaved,
+            ),
       ));
       await tester.runAsync(() => appRepository.initialDataLoaded);
       await tester.pumpAndSettle();
@@ -334,7 +342,8 @@ void main() {
       enableTaskPresets();
       await pumpOffer(tester, target: chain);
 
-      expect(find.text("Recommended tasks for 'Chain'"), findsOneWidget);
+      expect(find.text("'Chain' added"), findsOneWidget);
+      expect(find.text('Add tasks for this chain?'), findsOneWidget);
       // Without Strava, the ride-only chain templates are hidden.
       expect(find.text('Replace chain'), findsNothing);
 
@@ -352,7 +361,8 @@ void main() {
       final saved = Completer<void>();
       await pumpOffer(tester, target: chain, targetSaved: saved.future);
 
-      expect(find.text("Recommended tasks for 'Chain'"), findsOneWidget);
+      expect(find.text("'Chain' added"), findsOneWidget);
+      expect(find.text('Add tasks for this chain?'), findsOneWidget);
 
       await tester.tap(find.text('Add 1 task'));
       await tester.pumpAndSettle();
@@ -394,9 +404,11 @@ void main() {
         source: chain,
         target: newChain,
         rules: [chainRule('Measure stretch', presetKey: 'chain:wear_check')],
+        trigger: TaskRulesTrigger.duplicated,
       );
 
-      expect(find.text("Tasks for 'New Chain'"), findsOneWidget);
+      expect(find.text("'New Chain' added"), findsOneWidget);
+      expect(find.text('Set up tasks for this chain?'), findsOneWidget);
       expect(find.text("Copy from 'Chain'"), findsOneWidget);
       expect(find.text('Recommended for Chain'), findsOneWidget);
       expect(find.text('Check chain wear'), findsNothing);

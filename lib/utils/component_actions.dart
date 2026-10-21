@@ -70,7 +70,12 @@ class ComponentActions {
     final saved = appRepository.addComponents([component]);
     await Future.wait([
       saved,
-      if (navigatorContext.mounted) offerTaskRulesFor(navigatorContext, target: component, targetSaved: saved),
+      if (navigatorContext.mounted) offerTaskRulesFor(
+          navigatorContext,
+          target: component,
+          trigger: TaskRulesTrigger.added,
+          targetSaved: saved,
+        ),
     ]);
   }
 
@@ -205,7 +210,14 @@ class ComponentActions {
     await Future.wait([
       saved,
       AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments),
-      if (context.mounted) offerTaskRulesFor(context, source: component, target: newComponent, targetSaved: saved),
+      if (context.mounted)
+        offerTaskRulesFor(
+          context,
+          source: component,
+          target: newComponent,
+          trigger: TaskRulesTrigger.duplicated,
+          targetSaved: saved,
+        ),
     ]);
   }
 
@@ -225,6 +237,7 @@ class ComponentActions {
     BuildContext context, {
     Component? source,
     required Component target,
+    required TaskRulesTrigger trigger,
     Future<void>? targetSaved,
   }) async {
     final appSettings = context.read<AppSettings>();
@@ -258,6 +271,7 @@ class ComponentActions {
       componentName: target.name,
       componentType: target.componentType,
       presetName: resolvedPreset == null ? null : presetDisplayName(resolvedPreset),
+      trigger: trigger,
     );
     if (result == null) return;
     unawaited(HapticFeedback.lightImpact());
@@ -400,7 +414,13 @@ class ComponentActions {
           saved,
           AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments),
           if (navigatorContext.mounted)
-            offerTaskRulesFor(navigatorContext, source: component, target: newComponent, targetSaved: saved),
+            offerTaskRulesFor(
+              navigatorContext,
+              source: component,
+              target: newComponent,
+              trigger: TaskRulesTrigger.replaced,
+              targetSaved: saved,
+            ),
         ]);
     }
   }

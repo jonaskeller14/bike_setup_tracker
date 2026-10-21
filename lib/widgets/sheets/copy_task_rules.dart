@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
@@ -6,9 +9,13 @@ import '../../models/component/component.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_template.dart';
 import '../../repositories/app_repository.dart';
+import '../../theme.dart';
 import '../../utils/task_preset_resolver.dart';
+import '../app_snackbar.dart';
 import '../items/task_rule_sheet_tile.dart';
 import 'sheet_header.dart';
+
+enum TaskRulesTrigger { added, duplicated, replaced }
 
 @immutable
 class TaskRulesSheetResult {
@@ -39,14 +46,21 @@ Future<TaskRulesSheetResult?> showTaskRulesSheet(BuildContext context, {
   required String componentName,
   ComponentType? componentType,
   String? presetName,
+  TaskRulesTrigger? trigger,
 }) async {
   assert(copyRules.isNotEmpty || suggestions.isNotEmpty);
   assert(copyRules.isEmpty || copyFrom != null);
   assert(suggestions.isEmpty || componentType != null);
 
+  final theme = Theme.of(context);
+  final success = theme.extension<SnackBarColors>()!.success;
+
   return showModalBottomSheet<TaskRulesSheetResult>(
     useSafeArea: true,
     isScrollControlled: true,
+    // The success tint replaces the default handle, which cannot be recolored per sheet.
+    showDragHandle: trigger == null ? null : false,
+    backgroundColor: trigger == null ? null : Color.alphaBlend(success.withValues(alpha: 0.18), theme.colorScheme.surface),
     context: context,
     builder: (BuildContext context) {
       return _TaskRulesSheet(
@@ -56,6 +70,7 @@ Future<TaskRulesSheetResult?> showTaskRulesSheet(BuildContext context, {
         componentName: componentName,
         componentType: componentType,
         presetName: presetName,
+        trigger: trigger,
       );
     },
   );
@@ -70,6 +85,7 @@ class _TaskRulesSheet extends StatefulWidget {
   final String componentName;
   final ComponentType? componentType;
   final String? presetName;
+  final TaskRulesTrigger? trigger;
 
   const _TaskRulesSheet({
     required this.copyFrom,
@@ -78,6 +94,7 @@ class _TaskRulesSheet extends StatefulWidget {
     required this.componentName,
     required this.componentType,
     required this.presetName,
+    required this.trigger,
   });
 
   @override
@@ -90,7 +107,11 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
   late final Set<TaskRule> _selectedCopies;
   late final Set<TaskSuggestion> _selectedSuggestions;
 
-  _Mode get _mode => switch ((widget.copyRules.isNotEmpty, widget.suggestions.isNotEmpty)) {
+  /// Empty while task recommendations are off, so the sheet follows the setting live.
+  List<TaskSuggestion> get _suggestions =>
+      context.select<AppSettings, bool>((settings) => settings.showTaskPresets) ? widget.suggestions : const [];
+
+  _Mode get _mode => switch ((widget.copyRules.isNotEmpty, _suggestions.isNotEmpty)) {
     (true, true) => _Mode.merged,
     (true, false) => _Mode.copy,
     _ => _Mode.recommend,
@@ -98,7 +119,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
 
   /// A copy carries its source's key, so the matching template would be a duplicate.
   List<TaskSuggestion> get _visibleSuggestions =>
-      widget.suggestions.where((suggestion) => !isTaskPresetConsumed(suggestion.key, _selectedCopies)).toList();
+      _suggestions.where((suggestion) => !isTaskPresetConsumed(suggestion.key, _selectedCopies)).toList();
 
   static int _byPriorityThenName(TaskRule a, TaskRule b) {
     final byPriority = b.priority.index.compareTo(a.priority.index);
@@ -142,6 +163,35 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
     _Mode.merged =>
       "Copies start fresh — the completion history stays with '${widget.copyFrom}'. Recommended tasks become normal tasks you can edit later.",
   };
+
+  String _successTitle(TaskRulesTrigger trigger) => switch (trigger) {
+    TaskRulesTrigger.added || TaskRulesTrigger.duplicated => "'${widget.componentName}' added",
+    TaskRulesTrigger.replaced => "'${widget.copyFrom ?? widget.componentName}' replaced",
+  };
+
+  String get _prompt {
+    final type = widget.componentType?.label.toLowerCase() ?? 'component';
+    return switch (_mode) {
+      _Mode.copy => "Copy tasks from '${widget.copyFrom}'?",
+      _Mode.recommend => 'Add tasks for this $type?',
+      _Mode.merged => 'Set up tasks for this $type?',
+    };
+  }
+
+  void _turnOffRecommendations() {
+    final appSettings = context.read<AppSettings>();
+    final messenger = ScaffoldMessenger.of(context);
+    unawaited(HapticFeedback.lightImpact());
+    // Built before the sheet can pop, while its context is still active.
+    final snackBar = AppSnackBar.info(
+      context,
+      'Task recommendations turned off. Turn them back on in Settings › Features.',
+      action: AppSnackBarAction(label: 'UNDO', onPressed: () => appSettings.enableTaskPresets = true),
+    );
+    appSettings.enableTaskPresets = false;
+    messenger.showSnackBar(snackBar);
+    if (widget.copyRules.isEmpty) Navigator.pop(context);
+  }
 
   Widget _copySection() {
     final allRules = [..._openRules, ..._doneRules];
@@ -229,7 +279,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
                 }
               }),
             ),
-            ...widget.suggestions.map((suggestion) => _AnimatedReveal(
+            ..._suggestions.map((suggestion) => _AnimatedReveal(
               child: !visible.contains(suggestion) ? const SizedBox.shrink() : TaskRuleSheetTile(
                 name: suggestion.name,
                 priority: suggestion.priority,
@@ -249,6 +299,15 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
                 }),
               ),
             )),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                style: TextButton.styleFrom(foregroundColor: colors.onPrimaryContainer),
+                onPressed: _turnOffRecommendations,
+                icon: const Icon(Icons.visibility_off_outlined, size: 18),
+                label: const Text('Turn off recommendations'),
+              ),
+            ),
           ],
         ),
       ),
@@ -265,13 +324,17 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
     final count = result.copied.length + result.suggested.length;
     final taskLabel = "$count task${count == 1 ? '' : 's'}";
     final isCopyMode = _mode == _Mode.copy;
+    final trigger = widget.trigger;
 
-    return SafeArea(
+    final theme = Theme.of(context);
+    final success = theme.extension<SnackBarColors>()!;
+
+    final body = SafeArea(
+      top: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SheetHeader(title: _title, titleMaxLines: 2, leadingIcon: const Icon(Icons.checklist)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -279,11 +342,13 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (trigger != null) ...[
+                    Text(_prompt, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                  ],
                   Text(
-                    _description,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                    trigger == null ? _description : 'Optional — ${_description[0].toLowerCase()}${_description.substring(1)}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 16),
                   if (widget.copyRules.isNotEmpty) _copySection(),
@@ -311,13 +376,66 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(isCopyMode ? 'Continue without copying tasks' : 'Skip'),
+                  child: Text(isCopyMode ? 'Continue without copying tasks' : 'Not now'),
                 ),
               ],
             ),
           ),
         ],
       ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SafeArea(
+          bottom: false,
+          child: trigger == null
+              ? SheetHeader(title: _title, titleMaxLines: 2, leadingIcon: const Icon(Icons.checklist))
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 32,
+                        height: 4,
+                        margin: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: success.success.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    SheetHeader(
+                      title: _successTitle(trigger),
+                      titleMaxLines: 2,
+                      leadingIcon: Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: Icon(Icons.check_circle, color: success.success),
+                      ),
+                      showClose: false,
+                      actions: [
+                        IconButton.filled(
+                          iconSize: 20,
+                          style: IconButton.styleFrom(
+                            backgroundColor: success.success.withValues(alpha: 0.2),
+                            foregroundColor: theme.colorScheme.onSurface,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+        ),
+        Flexible(
+          child: trigger == null ? body : ColoredBox(color: theme.colorScheme.surface, child: body),
+        ),
+      ],
     );
   }
 }

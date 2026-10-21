@@ -8,6 +8,20 @@ import '../models/task/task_template.dart';
 import '../utils/component_catalog_parser.dart';
 import '../utils/component_preset_resolver.dart';
 
+const List<String> _popularBrandIds = ['fox', 'rockshox'];
+
+/// The one brand order: popular brands first, then alphabetical. The picker,
+/// the card teaser and search ties all follow the order [ComponentCatalogRepository]
+/// returns its products in.
+int _compareBrands(BrandCatalog a, BrandCatalog b) {
+  final popularA = _popularBrandIds.indexOf(a.id);
+  final popularB = _popularBrandIds.indexOf(b.id);
+  if (popularA != popularB) return (popularA == -1 ? 999 : popularA).compareTo(popularB == -1 ? 999 : popularB);
+  return a.brand.toLowerCase().compareTo(b.brand.toLowerCase());
+}
+
+List<BrandCatalog> _inBrandOrder(Iterable<BrandCatalog> catalogs) => catalogs.toList()..sort(_compareBrands);
+
 /// Files are discovered at runtime through the [AssetManifest] (there is no
 /// hardcoded brand list), loaded and parsed on first request, then cached for
 /// the session.
@@ -25,7 +39,7 @@ class ComponentCatalogRepository {
   @visibleForTesting
   ComponentCatalogRepository.withCatalogs(List<BrandCatalog> catalogs) {
     for (final type in ComponentType.values) {
-      _catalogs[type] = catalogs.where((catalog) => catalog.componentType == type).toList();
+      _catalogs[type] = _inBrandOrder(catalogs.where((catalog) => catalog.componentType == type));
     }
   }
 
@@ -95,7 +109,6 @@ class ComponentCatalogRepository {
         debugPrintStack(stackTrace: stack);
       }
     }
-    _catalogs[type] = catalogs;
-    return catalogs;
+    return _catalogs[type] = _inBrandOrder(catalogs);
   }
 }

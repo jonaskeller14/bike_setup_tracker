@@ -398,7 +398,7 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   }
 
   Widget _buildSearchResults(_Catalog catalog) {
-    final results = filterPresets(catalog.products, _query);
+    final results = rankPresets(catalog.products, _query);
     if (results.isEmpty) return _EmptyHint(text: 'No matches for "$_query".');
     return _ProductList(products: results, isCurrent: _isCurrent, onSelect: _advance);
   }

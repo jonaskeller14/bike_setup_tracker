@@ -15,6 +15,10 @@ class PresetCatalogCard extends StatefulWidget {
 
   /// What the component links to, as deep as its preset still resolves.
   final ResolvedPreset? applied;
+
+  /// The component links to an entry the catalog no longer has; ignored
+  /// while [applied] is set.
+  final bool unresolved;
   final VoidCallback onUnlink;
 
   /// Tells an unlinked component that linking a product with a setup guide
@@ -31,6 +35,7 @@ class PresetCatalogCard extends StatefulWidget {
     required this.componentType,
     required this.onTap,
     this.applied,
+    this.unresolved = false,
     required this.onUnlink,
     this.showGuideHint = false,
     this.updates = const [],
@@ -98,26 +103,36 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
     final colors = Theme.of(context).colorScheme;
     final applied = widget.applied;
     final isApplied = applied != null;
-    // Neutral surface once applied: picking a preset is no longer the page's primary action.
-    final foreground = isApplied ? colors.onSurface : colors.onPrimaryContainer;
-    final subtitleColor = isApplied ? colors.onSurfaceVariant : colors.onPrimaryContainer.withValues(alpha: 0.8);
+    final isLinked = isApplied || widget.unresolved;
+    // Neutral surface once linked: picking a preset is no longer the page's primary action.
+    final foreground = isLinked ? colors.onSurface : colors.onPrimaryContainer;
+    final subtitleColor = isLinked ? colors.onSurfaceVariant : colors.onPrimaryContainer.withValues(alpha: 0.8);
     return Card(
       margin: EdgeInsets.zero,
-      color: isApplied ? colors.surfaceContainerHighest : colors.primaryContainer,
+      color: isLinked ? colors.surfaceContainerHighest : colors.primaryContainer,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: Icon(Icons.auto_awesome, color: isApplied ? null : colors.onPrimaryContainer),
+            leading: Icon(
+              isApplied || !isLinked ? Icons.auto_awesome : Icons.help_outline,
+              color: isLinked ? null : colors.onPrimaryContainer,
+            ),
             title: Text(
-              isApplied ? presetDisplayName(applied) : 'Choose from catalog',
-              maxLines: isApplied ? 1 : null,
-              overflow: isApplied ? TextOverflow.ellipsis : null,
+              isApplied
+                  ? presetDisplayName(applied)
+                  : isLinked
+                  ? 'Catalog entry not found'
+                  : 'Choose from catalog',
+              maxLines: isLinked ? 1 : null,
+              overflow: isLinked ? TextOverflow.ellipsis : null,
               style: TextStyle(fontWeight: FontWeight.w600, color: foreground),
             ),
             subtitle: Text(
               isApplied
                   ? _appliedSubtitle(applied)
+                  : isLinked
+                  ? 'No longer in the catalog · Tap to choose another'
                   : [
                       _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
                       if (widget.showGuideHint && _hasGuides) 'Link to a catalog product to get recommended values',
@@ -126,7 +141,7 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
               overflow: isApplied ? TextOverflow.ellipsis : null,
               style: TextStyle(color: subtitleColor),
             ),
-            trailing: isApplied
+            trailing: isLinked
                 ? IconButton(
                     icon: const Icon(Icons.link_off),
                     color: subtitleColor,

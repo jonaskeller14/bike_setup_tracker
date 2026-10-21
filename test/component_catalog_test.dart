@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
+import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 
@@ -123,6 +126,26 @@ void main() {
             if (eyeToEye != null) {
               expect(eyeToEye, greaterThan(stroke!), reason: '$path: size "${size.id}" eye-to-eye > stroke');
             }
+          }
+        }
+      });
+
+      test('every product, option value and model year survives the persisted round trip', () {
+        // What a component stores is resolved again on every load; a value id
+        // that changes type in JSON (27.5 vs "27.5") would silently drop the choice.
+        for (final product in catalogProducts(catalog)) {
+          final choices = [
+            product,
+            for (final axis in product.axes)
+              for (final value in axis.values) product.select(axis, value),
+            for (final year in product.selectableYears) product.withYear(year),
+          ];
+          for (final chosen in choices) {
+            final stored = toComponentPreset(chosen);
+            final reloaded = ComponentPreset.tryFromJson(jsonDecode(jsonEncode(stored.toJson())));
+            final back = reloaded == null ? null : resolvePreset([catalog], reloaded);
+            expect(back == null ? null : toComponentPreset(back), stored, reason: '$stored');
+            expect(back?.node, same(chosen.node), reason: '$stored');
           }
         }
       });

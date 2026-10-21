@@ -613,6 +613,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _setDanglingAdjustmentValues();
     });
     _changeListener();
+    unawaited(_loadSetupGuides());
     unawaited(askAndUpdateWeather());
 
     await _resetValuesIfPreviousSetupChanged(
@@ -648,6 +649,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _setDanglingAdjustmentValues();
     });
     _changeListener();
+    unawaited(_loadSetupGuides());
     unawaited(askAndUpdateWeather());
 
     await _resetValuesIfPreviousSetupChanged(

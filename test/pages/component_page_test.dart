@@ -7,6 +7,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
@@ -462,6 +463,76 @@ nodes:
       expect(find.text(presetName), findsNothing);
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse,
           reason: 'Unlinking changes the persisted preset');
+    });
+
+    testWidgets('a link the catalog no longer resolves says so and can be unlinked', (WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      await tester.runAsync(() => presetRepository.all());
+
+      final component = Component(
+        id: 'c1',
+        name: 'My Fork',
+        componentType: ComponentType.fork,
+        installations: const [],
+        adjustments: const [],
+        preset: ComponentPreset(const {'brand': 'sram', 'component_type': 'fork', 'model': 'zeb'}),
+      );
+      await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Catalog entry not found'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Choose from catalog'), findsOneWidget);
+      expect(find.text('Unlinked from catalog — values kept'), findsOneWidget);
+      expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse);
+
+      await tester.tap(find.text('UNDO'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Catalog entry not found'), findsOneWidget);
+    });
+
+    testWidgets('a type change clears a link that has not resolved yet', (WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      final forks = Completer<List<BrandCatalog>>();
+      presetRepository = ComponentCatalogRepository.withLoader(
+        (type) => type == ComponentType.fork ? forks.future : Future.value(const <BrandCatalog>[]),
+      );
+
+      final component = Component(
+        id: 'c1',
+        name: 'My Fork',
+        componentType: ComponentType.fork,
+        installations: const [],
+        adjustments: const [],
+        preset: ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '38', 'trim': 'factory'}),
+      );
+      await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Fork').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Shock').last);
+      await tester.pumpAndSettle();
+      forks.complete([
+        parseCatalogFile('''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "38"
+    level: model
+    children:
+      - label: Factory
+        level: trim
+'''),
+      ]);
+      await tester.pumpAndSettle();
+
+      expect(find.text(presetName), findsNothing, reason: 'The fork link resolving late must not come back on a shock');
+      expect(find.text('Choose from catalog'), findsOneWidget);
     });
 
     testWidgets('picking in edit mode only adds missing adjustments', (WidgetTester tester) async {

@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
@@ -68,6 +69,9 @@ void main() {
     bool weightAttribute = true,
     bool enablePerson = true,
     bool developerMode = false,
+    DateTime? forkInstalledAt,
+    bool preloadCatalog = true,
+    DateTime? openedAt,
   }) async {
     final harness = (await tester.runAsync(
       () => _Harness.create(
@@ -77,10 +81,12 @@ void main() {
         weightRecorded: weightRecorded,
         weightAttribute: weightAttribute,
         enablePerson: enablePerson,
+        forkInstalledAt: forkInstalledAt,
+        preloadCatalog: preloadCatalog,
       ),
     ))!;
     addTearDown(harness.dispose);
-    await tester.pumpWidget(harness.wrap(SetupPage.add()));
+    await tester.pumpWidget(harness.wrap(SetupPage.add(initialDateTimeLocal: openedAt)));
     // The catalog resolves asynchronously.
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
     await _settle(tester);
@@ -93,6 +99,32 @@ void main() {
     expect(find.byType(SetupGuideCard), findsOneWidget);
     expect(find.text('Recommended values for 82 kg'), findsOneWidget);
     expect(find.text('77 psi'), findsOneWidget);
+  });
+
+  testWidgets('loads the guide of a component a new date puts on the bike', (tester) async {
+    final now = DateTime.now();
+    final target = now.subtract(const Duration(days: 2));
+    await open(
+      tester,
+      forkInstalledAt: now.subtract(const Duration(days: 3)),
+      preloadCatalog: false,
+      openedAt: now.subtract(const Duration(days: 10)),
+    );
+    expect(find.byType(SetupGuideCard), findsNothing, reason: 'The fork is not on the bike yet');
+
+    await tester.tap(find.byIcon(Icons.calendar_month));
+    await _settle(tester);
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await _settle(tester);
+    await tester.enterText(
+      find.descendant(of: find.byType(Dialog), matching: find.byType(TextField)),
+      '${target.month.toString().padLeft(2, '0')}/${target.day.toString().padLeft(2, '0')}/${target.year}',
+    );
+    await tester.tap(find.text('OK'));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await _settle(tester);
+
+    expect(find.byType(SetupGuideCard), findsOneWidget);
   });
 
   testWidgets('is hidden while the flag is off', (tester) async {
@@ -244,16 +276,22 @@ class _Harness {
     required bool weightAttribute,
     required bool enablePerson,
     required bool developerMode,
+    required DateTime? forkInstalledAt,
+    required bool preloadCatalog,
   }) async {
     final brand = parseCatalogFile(_catalog);
     final application = buildCatalogApplication(catalogProducts(brand).single);
     final fork = Component(
       name: application.name,
       componentType: application.componentType,
-      installations: const [],
       adjustments: application.adjustments,
       preset: application.preset,
-    ).copyWithNewInstallation(bikeId);
+      installations: [
+        forkInstalledAt == null
+            ? Installation.sinceBeginning(parent: bikeId)
+            : Installation(parent: bikeId, dateTimeUTC: forkInstalledAt.toUtc(), dateTimeLocal: forkInstalledAt),
+      ],
+    );
 
     final database = AppDatabase.memory();
     final seedRepository = AppRepository(database);
@@ -304,7 +342,9 @@ class _Harness {
       database: database,
       repository: repository,
       settings: settings,
-      catalog: ComponentCatalogRepository.withCatalogs([brand]),
+      catalog: preloadCatalog
+          ? ComponentCatalogRepository.withCatalogs([brand])
+          : ComponentCatalogRepository.withLoader((type) async => [if (type == brand.componentType) brand]),
     );
   }
 

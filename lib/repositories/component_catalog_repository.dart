@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -33,15 +35,25 @@ class ComponentCatalogRepository {
   final Map<ComponentType, List<BrandCatalog>> _catalogs = {};
   final Map<ComponentType, List<ResolvedPreset>> _selectable = {};
 
-  ComponentCatalogRepository();
+  /// Loads still parsing, so concurrent callers share one parse.
+  final Map<ComponentType, Future<List<BrandCatalog>>> _loading = {};
+
+  final Future<List<BrandCatalog>> Function(ComponentType type) _read;
+
+  ComponentCatalogRepository() : _read = _readAssets;
 
   /// Test seam — the real load path reads YAML through [rootBundle].
   @visibleForTesting
-  ComponentCatalogRepository.withCatalogs(List<BrandCatalog> catalogs) {
+  ComponentCatalogRepository.withCatalogs(List<BrandCatalog> catalogs) : _read = _readAssets {
     for (final type in ComponentType.values) {
       _catalogs[type] = _inBrandOrder(catalogs.where((catalog) => catalog.componentType == type));
     }
   }
+
+  /// Test seam for the load itself: [read] stands in for the asset bundle, so
+  /// a test can count loads or hold one open.
+  @visibleForTesting
+  ComponentCatalogRepository.withLoader(Future<List<BrandCatalog>> Function(ComponentType type) read) : _read = read;
 
   /// Selectable products of a single [type]. Loads and parses that type's
   /// brand files on first call, caches thereafter.
@@ -95,7 +107,17 @@ class ComponentCatalogRepository {
   Future<List<BrandCatalog>> _load(ComponentType type) async {
     final cached = _catalogs[type];
     if (cached != null) return cached;
+    return _loading[type] ??= () async {
+      try {
+        return _catalogs[type] = _inBrandOrder(await _read(type));
+      } finally {
+        // The removed future is this very load; awaiting it would never return.
+        unawaited(_loading.remove(type));
+      }
+    }();
+  }
 
+  static Future<List<BrandCatalog>> _readAssets(ComponentType type) async {
     final prefix = '$_baseDir/${type.name}/';
     final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
     final paths = manifest.listAssets().where((p) => p.endsWith('.yaml') && p.startsWith(prefix)).toList()..sort();
@@ -109,6 +131,6 @@ class ComponentCatalogRepository {
         debugPrintStack(stackTrace: stack);
       }
     }
-    return _catalogs[type] = _inBrandOrder(catalogs);
+    return catalogs;
   }
 }

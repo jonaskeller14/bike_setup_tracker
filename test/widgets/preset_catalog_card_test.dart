@@ -124,6 +124,7 @@ nodes:
       WidgetTester tester, {
       required Map<String, Object> preset,
       VoidCallback? onUnlink,
+      bool unresolved = false,
       List<CatalogReview> updates = const [],
       VoidCallback? onReviewUpdate,
       VoidCallback? onDismissUpdate,
@@ -139,6 +140,7 @@ nodes:
                 componentType: ComponentType.fork,
                 onTap: () {},
                 applied: resolvePreset([catalog], ComponentPreset(preset)),
+                unresolved: unresolved,
                 onUnlink: onUnlink ?? () {},
                 updates: updates,
                 onReviewUpdate: onReviewUpdate,
@@ -196,6 +198,33 @@ nodes:
 
       await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
       expect(unlinked, 1);
+    });
+
+    group('linked to an entry the catalog no longer has', () {
+      const gonePreset = <String, Object>{'brand': 'sram', 'component_type': 'fork', 'model': 'zeb'};
+
+      for (final (name, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
+        testWidgets('says so and offers to unlink on a narrow screen ($name)', (tester) async {
+          tester.view.physicalSize = const Size(320, 800);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          var unlinked = 0;
+          await pumpApplied(tester, preset: gonePreset, unresolved: true, theme: theme, onUnlink: () => unlinked++);
+
+          expect(tester.takeException(), isNull);
+          expect(find.text('Catalog entry not found'), findsOneWidget);
+          expect(_subtitle(tester), 'No longer in the catalog · Tap to choose another');
+          await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
+          expect(unlinked, 1);
+        });
+      }
+
+      testWidgets('a resolved entry wins', (tester) async {
+        await pumpApplied(tester, preset: fullPreset, unresolved: true);
+
+        expect(find.text('FOX 38 Factory GRIP X2'), findsOneWidget);
+        expect(find.text('Catalog entry not found'), findsNothing);
+      });
     });
 
     testWidgets('shows no update without pending reviews', (tester) async {

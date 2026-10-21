@@ -16,13 +16,14 @@ class GuidedComponent {
 
   const GuidedComponent(this.component, this.preset);
 
-  SetupGuide get guide => preset.node.guide!;
+  SetupGuide get guide => preset.product!.guide!;
 
   List<GuideRecommendation> evaluate(GuideInputs inputs, Map<String, AdjustmentValue> currentValues) =>
       evaluateSetupGuide(preset, component.adjustments, inputs, currentValues);
 }
 
-/// The components of [components] linked to a catalog product with a guide.
+/// The components of [components] linked to a catalog product with a guide;
+/// a link that stops at a group doesn't count, see [evaluateSetupGuide].
 /// [resolve] reads a preset from the loaded catalog; null while it isn't loaded.
 List<GuidedComponent> guidedComponents(
   Iterable<Component> components, {
@@ -30,7 +31,7 @@ List<GuidedComponent> guidedComponents(
 }) => [
   for (final component in components)
     if (component.preset != null)
-      if (resolve(component) case final preset? when preset.node.guide != null) GuidedComponent(component, preset),
+      if (resolve(component) case final preset? when preset.product?.guide != null) GuidedComponent(component, preset),
 ];
 
 /// The [guidedComponents] that get the setup guide card: those without any

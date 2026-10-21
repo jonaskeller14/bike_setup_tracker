@@ -20,7 +20,8 @@ const double _epsilon = 1e-6;
 
 /// The recommendations of [preset]'s setup guide for [adjustments], in their
 /// order. Per target the most specific matching rule wins; a target without a
-/// matching adjustment is left out.
+/// matching adjustment is left out. A preset that stops at a group gets none:
+/// guide clicks are authored on a product's dials.
 ///
 /// [currentValues] are keyed by adjustment id: what the rider has entered,
 /// read by rules keyed by another adjuster and compared in
@@ -31,7 +32,7 @@ List<GuideRecommendation> evaluateSetupGuide(
   GuideInputs inputs,
   Map<String, AdjustmentValue> currentValues,
 ) {
-  final guide = preset.node.guide;
+  final guide = preset.product?.guide;
   if (guide == null) return const [];
 
   final winners = <String, GuideRule>{};

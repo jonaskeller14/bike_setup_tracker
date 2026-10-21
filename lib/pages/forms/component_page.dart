@@ -107,6 +107,7 @@ class _ComponentPageState extends State<ComponentPage> {
   bool _expanded = false;
   ComponentPreset? _preset;
   ResolvedPreset? _resolvedPreset;
+  ComponentPreset? _unresolvedPreset;
   Set<String> _presetAdjustmentIds = {};
   String? _appendedPresetNotes;
 
@@ -228,10 +229,16 @@ class _ComponentPageState extends State<ComponentPage> {
   Future<void> _loadAppliedPreset(ComponentPreset preset) async {
     try {
       final resolved = await context.read<ComponentCatalogRepository>().resolve(preset);
-      if (!mounted || resolved == null || _preset != preset) return;
-      setState(() => _resolvedPreset = resolved);
+      if (!mounted || _preset != preset) return;
+      setState(() {
+        if (resolved == null) {
+          _unresolvedPreset = preset;
+        } else {
+          _resolvedPreset = resolved;
+        }
+      });
     } catch (_) {
-      // Provenance display is optional; an unresolvable preset just shows nothing.
+      if (mounted && _preset == preset) setState(() => _unresolvedPreset = preset);
     }
   }
 
@@ -557,13 +564,13 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   void _unlinkPreset() {
+    if (_preset == null) return;
     final resolved = _resolvedPreset;
-    if (resolved == null) return;
     final snapshot = _snapshot();
     setState(_clearPresetLink);
     _changeListener();
     _showPresetUndoSnackBar(
-      'Unlinked from ${presetDisplayName(resolved)} — values kept',
+      'Unlinked from ${resolved == null ? 'catalog' : presetDisplayName(resolved)} — values kept',
       snapshot,
     );
   }
@@ -856,7 +863,8 @@ class _ComponentPageState extends State<ComponentPage> {
     setState(() {
       _componentType = picked;
       // A fork preset link is meaningless on a shock; the prefilled values stay.
-      if (_resolvedPreset != null && _resolvedPreset!.catalog.componentType != picked) _clearPresetLink();
+      // Read from the stored link, which is there before (or without) resolving.
+      if (_preset != null && _preset!.componentType != picked) _clearPresetLink();
     });
     field.didChange(picked);
     _changeListener();
@@ -1065,6 +1073,7 @@ class _ComponentPageState extends State<ComponentPage> {
                             componentType: _componentType!,
                             onTap: _openPresetPicker,
                             applied: _resolvedPreset,
+                            unresolved: _preset != null && _preset == _unresolvedPreset,
                             onUnlink: _unlinkPreset,
                             showGuideHint: appSettings.enableSetupGuides,
                             updates: _pendingReviews,

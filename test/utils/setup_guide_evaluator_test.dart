@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
@@ -721,6 +722,23 @@ nodes:
       - { name: Pressure, type: numerical, unit: psi, min: 0 }
 ''';
     expect(_evaluate(_preset(plain, '34')), isEmpty);
+  });
+
+  test('a preset that stops at a group yields nothing, though the group has the guide', () {
+    // Guide clicks are authored on a product's dials; without one they would
+    // apply unconverted.
+    final group = resolvePreset([parseCatalogFile(_fork)], ComponentPreset(const {
+      'brand': 'fox',
+      'component_type': 'fork',
+      'model': '36',
+    }))!;
+    expect(group.product, isNull);
+    expect(group.node.guide, isNotNull);
+
+    expect(
+      _evaluate(group, adjustments: buildCatalogApplication(factoryX2).adjustments, inputs: const GuideInputs(riderWeight: 82)),
+      isEmpty,
+    );
   });
 
   group('FOX catalog data', () {

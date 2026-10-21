@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
@@ -13,6 +14,8 @@ class ShareService {
     String? errorMessage,
   }) async {
     fileName ??= p.basename(filePath);
+    // Apple share sheets turn the text into a second item, saved as an extra .txt file.
+    if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS) text = null;
     final box = context.findRenderObject() as RenderBox?;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 

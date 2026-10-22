@@ -1,6 +1,6 @@
 # ig-bst · Reel: Service loop
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-03
 - App version: 1.6.3

@@ -1,6 +1,6 @@
 # ig-bst · Reel: Export
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-01
 - App version: 1.6.3

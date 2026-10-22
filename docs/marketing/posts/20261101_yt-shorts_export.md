@@ -1,7 +1,7 @@
 # yt-shorts · Export
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/YVg7XNbaXLI?feature=share
 - Posted: 2026-11-01
 - App version: 1.6.3
 - Playlist: v1.6.3

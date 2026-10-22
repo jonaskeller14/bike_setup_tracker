@@ -1,7 +1,7 @@
 # yt-shorts · Service loop
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/sYrA1IV2uxg?feature=share
 - Posted: 2026-11-03
 - App version: 1.6.3
 - Playlist: v1.6.3

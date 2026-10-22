@@ -1,6 +1,6 @@
 # ig-bst · Reel: Histogram
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-02
 - App version: 1.6.3

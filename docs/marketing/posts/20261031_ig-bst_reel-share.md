@@ -1,6 +1,6 @@
 # ig-bst · Reel: Share
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-10-31
 - App version: 1.6.3

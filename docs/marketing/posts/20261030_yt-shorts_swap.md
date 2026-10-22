@@ -1,7 +1,7 @@
 # yt-shorts · Swap
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/V3RGC_N_39Y?feature=share
 - Posted: 2026-10-30
 - App version: 1.6.3
 - Playlist: v1.6.3

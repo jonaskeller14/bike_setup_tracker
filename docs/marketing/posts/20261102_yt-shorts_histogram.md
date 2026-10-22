@@ -1,7 +1,7 @@
 # yt-shorts · Histogram
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/SLVZMn3YKAM?feature=share
 - Posted: 2026-11-02
 - App version: 1.6.3
 - Playlist: v1.6.3

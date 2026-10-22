@@ -1,7 +1,7 @@
 # yt-shorts · Bike fit
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/ksUyTY5KRuI
 - Posted: 2026-10-29
 - App version: 1.6.3
 - Playlist: v1.6.3

@@ -1,5 +1,3 @@
-Resubmission for Guideline 2.3.4: all app previews are replaced with full-screen screen captures of the app without device frames or framing, in every display size and on all custom product pages.
-
 How to find the in-app purchases:
 
 1. Strava Sync (auto-renewable subscription):

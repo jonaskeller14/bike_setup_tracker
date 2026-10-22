@@ -1,6 +1,6 @@
 # ig-bst · Reel: Swap
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-10-30
 - App version: 1.6.3

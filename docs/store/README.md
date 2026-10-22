@@ -10,7 +10,7 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `app-store/metadata/<locale>/*.txt` | App Store listing text, one plain-text file per field (fastlane layout, read by `asc migrate import`); `copyright.txt` is shared, `review_information/notes.txt` holds the App Review notes |
 | `play-store/metadata/<locale>/*.txt` | Play listing text, one file per field (fastlane `supply` layout) |
 | `play-store/experiments/<locale>_B/*.txt` | Variant B of a running Play listing experiment; never uploaded |
-| `app-store/custom-product-pages/` | One file per custom product page (same fields as `app-store/metadata/`), rules and page tests |
+| `app-store/custom-product-pages/<page>/` | One folder per custom product page: `page.txt`, `media_order.txt`, `<locale>/{keywords,promotional_text}.txt` and the generated, gitignored `en-US/screenshots/` and `en-US/app_previews/` (`python tool/store/custom_page_media.py`, uploaded by `ios.sh page-screenshots`; the text by `ios.sh page-metadata`); rules and page tests in its `README.md` |
 | `app-store/creative/` | Header and search-results assets: HTML sources (styled by `docs/marketing/templates/marketing.css`), rendered PNGs and `README.md` |
 | `play-store/metadata/<locale>/changelogs/<versionCode>.txt` | "What's New" text per release for both stores (max. 500 characters), written by `/releaseversion` |
 | `release-steps.md` | Upload commands per release and the remaining manual clicks (submit) |

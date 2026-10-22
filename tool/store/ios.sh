@@ -7,6 +7,8 @@
 #   tool/store/ios.sh promo       [--dry-run]   promotional text of the editable version, else the live one
 #   tool/store/ios.sh screenshots [--dry-run]   screenshots and app previews of the editable version
 #   tool/store/ios.sh creatives   [--dry-run]   header and search-results images of the editable version
+#   tool/store/ios.sh page-metadata    [--dry-run]   name, promotional text and keywords of every custom product page
+#   tool/store/ios.sh page-screenshots [--dry-run]   screenshots and app previews of every custom product page
 set -euo pipefail
 
 APP_ID=6759974325
@@ -17,15 +19,18 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 STORE_DIR="$ROOT/docs/store/app-store"
 METADATA_DIR="$STORE_DIR/metadata"
 CREATIVE_DIR="$STORE_DIR/creative"
+PAGES_DIR="$STORE_DIR/custom-product-pages"
 CHANGELOG_DIR="$ROOT/docs/store/play-store/metadata"
 
 # App Store Connect versions whose text can still be edited.
 EDITABLE_STATES='["PREPARE_FOR_SUBMISSION","DEVELOPER_REJECTED","REJECTED","METADATA_REJECTED","INVALID_BINARY"]'
+PAGE_EDITABLE_STATES='["PREPARE_FOR_SUBMISSION","READY_FOR_REVIEW","REJECTED"]'
+API=https://api.appstoreconnect.apple.com/v1
 
 die() { echo "error: $*" >&2; exit 1; }
 
 usage() {
-  sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
   exit "${1:-1}"
 }
 
@@ -213,6 +218,141 @@ cmd_creatives() {
   done
 }
 
+# Prints the media ids in one set of a custom product page localization. asc has no command for
+# a set's contents, but its list commands follow any API link passed as --next.
+page_set_media() {
+  local kind="$1" localization_id="$2" set_id="$3"
+  case "$kind" in
+    screenshot) asc product-pages custom-pages localizations screenshot-sets list \
+      --localization-id "$localization_id" --next "$API/appScreenshotSets/$set_id/appScreenshots" ;;
+    preview) asc product-pages custom-pages localizations preview-sets list \
+      --localization-id "$localization_id" --next "$API/appPreviewSets/$set_id/appPreviews" ;;
+  esac | jq -r '.data[].id'
+}
+
+# Sets PAGE_NAME / PAGE_ID / PAGE_VERSION_ID and PAGE_LOCALIZATIONS (the asc JSON of the version's
+# localizations) for the custom product page in folder $1.
+find_page_version() {
+  PAGE_NAME="$(basename "$1")"
+  PAGE_ID="$(sed -n 's/^url: .*ppid=\([0-9a-f-]*\).*$/\1/p' "$1/page.txt")"
+  [[ -n "$PAGE_ID" ]] || die "no ppid in the url of ${1#"$ROOT"/}page.txt"
+  PAGE_VERSION_ID="$(asc product-pages custom-pages versions list --custom-page-id "$PAGE_ID" --paginate |
+    jq -r --argjson s "$PAGE_EDITABLE_STATES" '[.data[] | select(.attributes.state | IN($s[]))][0].id // empty')"
+  [[ -n "$PAGE_VERSION_ID" ]] ||
+    die "$PAGE_NAME: no editable page version (a submitted one is locked); create one in App Store Connect"
+  PAGE_LOCALIZATIONS="$(asc product-pages custom-pages localizations list --custom-page-version-id "$PAGE_VERSION_ID")"
+  echo "Page $PAGE_NAME ($PAGE_VERSION_ID)"
+}
+
+page_localization_id() {
+  jq -r --arg l "$1" '.data[] | select(.attributes.locale == $l) | .id' <<<"$PAGE_LOCALIZATIONS"
+}
+
+# Name, promotional text and keywords of each page's editable version, from page.txt and
+# <page>/<locale>/*.txt. Only what differs is sent.
+cmd_page_metadata() {
+  local page_dir name locale localization_id text live wanted added removed
+  for page_dir in "$PAGES_DIR"/*/; do
+    [[ -f "$page_dir/page.txt" ]] || continue
+    find_page_version "$page_dir"
+    name="$(sed -n 's/^reference_name: //p' "$page_dir/page.txt")"
+    if [[ "$(asc product-pages custom-pages view --custom-page-id "$PAGE_ID" | jq -r '.data.attributes.name')" != "$name" ]]; then
+      echo "  name $name"
+      run asc product-pages custom-pages update --custom-page-id "$PAGE_ID" --name "$name" >/dev/null
+    fi
+
+    for locale in "${LOCALES[@]}"; do
+      localization_id="$(page_localization_id "$locale")"
+      [[ -n "$localization_id" ]] || die "$PAGE_NAME: no $locale localization"
+
+      text="$(field "$page_dir/$locale/promotional_text.txt")"
+      if ! jq -e --arg l "$locale" --arg t "$text" \
+        'any(.data[]; .attributes.locale == $l and .attributes.promotionalText == $t)' <<<"$PAGE_LOCALIZATIONS" >/dev/null; then
+        echo "  $locale: promotional text"
+        run asc product-pages custom-pages localizations update --localization-id "$localization_id" \
+          --promotional-text "$text" >/dev/null
+      fi
+
+      live="$(asc product-pages custom-pages localizations search-keywords list --localization-id "$localization_id" |
+        jq -r '.data[].id' | sort)"
+      wanted="$(tr ',' '\n' <"$page_dir/$locale/keywords.txt" | sed '/^$/d' | sort)"
+      added="$(comm -13 <(echo "$live") <(echo "$wanted") | sed '/^$/d' | paste -sd, -)"
+      removed="$(comm -23 <(echo "$live") <(echo "$wanted") | sed '/^$/d' | paste -sd, -)"
+      if [[ -n "$removed" ]]; then
+        echo "  $locale: remove keywords $removed"
+        run asc product-pages custom-pages localizations search-keywords delete --localization-id "$localization_id" \
+          --keywords "$removed" --confirm >/dev/null
+      fi
+      if [[ -n "$added" ]]; then
+        echo "  $locale: add keywords $added"
+        run asc product-pages custom-pages localizations search-keywords add --localization-id "$localization_id" \
+          --keywords "$added" >/dev/null
+      fi
+    done
+  done
+}
+
+# Replaces the en-US screenshots and app previews of each page's editable version with the copies
+# custom_page_media.py builds, and empties every other set (the 6.5″ slots, or previews the page
+# order dropped). The other localizations show the en-US media until the screens are translated.
+cmd_page_screenshots() {
+  python3 "$ROOT/tool/store/custom_page_media.py" --check >/dev/null ||
+    die "page media out of date, run 'python3 tool/store/custom_page_media.py'"
+
+  local page_dir name localization_id media_dir staging kind slot device keep
+  local set_type set_id media_id sets
+  staging="$(mktemp -d)"
+  trap "rm -rf '$staging'" EXIT
+  for page_dir in "$PAGES_DIR"/*/; do
+    [[ -f "$page_dir/page.txt" ]] || continue
+    find_page_version "$page_dir"
+    name="$PAGE_NAME"
+    localization_id="$(page_localization_id en-US)"
+    [[ -n "$localization_id" ]] || die "$name: no en-US localization"
+    media_dir="$page_dir/en-US"
+
+    # Set types the repo fills; every other set is emptied below.
+    keep=()
+    for slot in IPHONE_61:iphone IPAD_PRO_3GEN_129:ipad; do
+      device="${slot#*:}"
+      # The sync takes one folder per device, but the page keeps iPhone and iPad side by side.
+      mkdir -p "$staging/$name/$device"
+      cp "$media_dir/screenshots/${device}"_*.png "$staging/$name/$device/"
+      keep+=("APP_${slot%%:*}")
+      echo "  screenshots ${slot%%:*}"
+      run asc product-pages custom-pages localizations screenshot-sets sync --localization-id "$localization_id" \
+        --path "$staging/$name/$device" --device-type "${slot%%:*}" --confirm >/dev/null
+    done
+    if [[ -d "$media_dir/app_previews/iphone_61" ]]; then
+      keep+=(IPHONE_61)
+      echo "  app previews IPHONE_61"
+      run asc product-pages custom-pages localizations preview-sets sync --localization-id "$localization_id" \
+        --path "$media_dir/app_previews/iphone_61" --device-type IPHONE_61 --confirm >/dev/null
+    fi
+
+    for kind in screenshot preview; do
+      if [[ "$kind" == screenshot ]]; then
+        sets="$(asc product-pages custom-pages localizations screenshot-sets list --localization-id "$localization_id" |
+          jq -r '.data[] | "\(.attributes.screenshotDisplayType) \(.id)"')"
+      else
+        sets="$(asc product-pages custom-pages localizations preview-sets list --localization-id "$localization_id" |
+          jq -r '.data[] | "\(.attributes.previewType) \(.id)"')"
+      fi
+      while read -r set_type set_id; do
+        [[ -n "$set_id" && " ${keep[*]} " != *" $set_type "* ]] || continue
+        for media_id in $(page_set_media "$kind" "$localization_id" "$set_id"); do
+          echo "  delete $kind $media_id from $set_type"
+          if [[ "$kind" == screenshot ]]; then
+            run asc screenshots delete --id "$media_id" --confirm >/dev/null
+          else
+            run asc video-previews delete --id "$media_id" --confirm >/dev/null
+          fi
+        done
+      done <<<"$sets"
+    done
+  done
+}
+
 cmd_promo() {
   find_versions
   local version="$EDITABLE_VERSION"
@@ -248,6 +388,8 @@ case "$COMMAND" in
   metadata) cmd_metadata ;;
   screenshots) cmd_screenshots ;;
   creatives) cmd_creatives ;;
+  page-metadata) cmd_page_metadata ;;
+  page-screenshots) cmd_page_screenshots ;;
   promo) cmd_promo ;;
   -h | --help) usage 0 ;;
   *) usage ;;

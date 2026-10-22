@@ -73,6 +73,10 @@ docs/marketing/metrics/
 tool/marketing/assets/music/
 tool/marketing/assets/voice/**/*.mp3
 
+# Custom product page media: copies of the default set, generated from media_order.txt
+docs/store/app-store/custom-product-pages/*/*/screenshots/
+docs/store/app-store/custom-product-pages/*/*/app_previews/
+
 # Affinity lock files while a document is open
 *.af~lock~
 

@@ -40,8 +40,9 @@ Between releases: `tool/store/ios.sh promo` (promotional text, no version needed
 ## Not needed per release
 
 - **Custom product pages** (`app-store/custom-product-pages/`), experiments and the **Kopfzeile** /
-  **Suchergebnisse** assets (`app-store/creative/`) aren't tied to a version and stay live; they
-  are uploaded with `tool/store/ios.sh creatives` (replaces the placements with the PNGs). Update them only when screenshots, the screens in the creative
+  **Suchergebnisse** assets (`app-store/creative/`) aren't tied to a version and stay live; the
+  assets are uploaded with `tool/store/ios.sh creatives` (replaces the placements with the PNGs),
+  the page text and media with `tool/store/ios.sh page-metadata` and `page-screenshots`. Update them only when screenshots, the screens in the creative
   assets, or the keyword field change (see
   [`app-store/custom-product-pages/README.md`](app-store/custom-product-pages/README.md#when-a-page-needs-an-update)).
 - Keywords, subtitle and description: edit the `.txt` files, then `ios.sh release` or

@@ -1,0 +1,1 @@
+federgabel,dämpfer,zugstufe,sag,einstellen

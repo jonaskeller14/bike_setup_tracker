@@ -18,7 +18,7 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `screenshots.html` | Template of the store screenshots: raw screen in its device frame with the caption; `python tool/marketing/render_images.py store-screenshots [iphone\|ipad\|phone\|tablet] [screens]` renders the exports (also run by the screenshot scripts after a capture). The old Affinity composition (`screenshots.af`) is gone; the LFS history keeps it |
 | `app-store/<device>/`, `play-store/<device>/` | Raws (`0N_raw.png`, from `tool/screenshots/`) and the device `frame.png` |
 | `app-store/screenshots/en-US/` | Rendered App Store screenshots (`iphone_NN.png` 1206×2622, `ipad_NN.png` 2064×2752), uploaded by `ios.sh screenshots` |
-| `app-store/app_previews/en-US/iphone_65/` | App previews (`preview_N.mp4`), uploaded by `ios.sh screenshots` |
+| `app-store/app_previews/en-US/iphone_61/` | App previews (`preview_N.mp4`), uploaded by `ios.sh screenshots` |
 | `play-store/metadata/<locale>/images/` | Play graphics: `icon.png`, `featureGraphic.png`; export target for `phoneScreenshots/` and `tenInchScreenshots/` |
 | `play-store/feature_graphic.html` | Play feature graphic (1024×500): HTML source, rendered to `metadata/<locale>/images/featureGraphic.png`. Same look as the App Store search asset (brand guide), with the Android frame; headline C3. Render with `python tool/marketing/render_images.py play-feature` (`--safe` writes the safe-area overlay). Text stays in the central 784×400 |
 
@@ -65,13 +65,16 @@ screenshot layout is planned in #69.
 | `play-store/tablet_10-inch` | 1200×1920 | `metadata/en-US/images/tenInchScreenshots/NN.png`, 1800×2650 |
 
 The iPhone exports (`iphone_NN.png`) are 1206×2622, the only size (besides 1179×2556) App Store Connect accepts in the
-6.1″/6.3″ slot. One set serves the default page and all custom product pages.
+6.1″/6.3″ slot. One set serves the default page and all custom product pages. The optional 6.5″
+slot stays empty, so App Store Connect shows the 6.1″ set on every iPhone.
 `tool/screenshots/check_output.py` checks both columns.
 
 ## App previews
 
-App Store, iPhone only: 886×1920 H.264, 30 fps, 15–30 s, silent stereo track (previews autoplay
-muted). `python tool/marketing/build_kit.py appstore` builds them from the demo recordings
+App Store, iPhone only (6.1″ slot): 886×1920 H.264, 30 fps, 15–30 s, silent stereo track (previews
+autoplay muted). Full-screen captures only: no device frame and no background around the screen
+(App Review guideline 2.3.4 rejected 1.6.3 for framed previews); text overlays are fine.
+`python tool/marketing/build_kit.py appstore` builds them from the demo recordings
 ([#77](https://github.com/jonaskeller14/bike_setup_tracker/issues/77) Phase 5; clips and cuts in
 `docs/marketing/kits/appstore.json`) and copies each one that passes its checks here. They are
 tracked in Git LFS; commit a preview only once it is live in the store, not every rendered draft.

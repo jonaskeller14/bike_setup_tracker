@@ -1,3 +1,5 @@
+Resubmission for Guideline 2.3.4: all app previews are replaced with full-screen screen captures of the app without device frames or framing, in every display size and on all custom product pages.
+
 How to find the in-app purchases:
 
 1. Strava Sync (auto-renewable subscription):
@@ -8,4 +10,4 @@ Reachable from Settings → Help & Support → "Buy me a coffee" (under Contact 
 
 About the app:
 
-This is the initial release of Bike Setup Tracker, a Flutter-based tool for mountain bikers to track suspension settings and tire pressure. The app automatically fetches local weather and altitude data via GPS to provide context for each setup, ensuring riders can optimize their bike for specific trail conditions.
+Bike Setup Tracker is a Flutter-based tool for mountain bikers to track suspension settings and tire pressure. The app automatically fetches local weather and altitude data via GPS to provide context for each setup, ensuring riders can optimize their bike for specific trail conditions.

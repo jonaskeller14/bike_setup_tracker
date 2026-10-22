@@ -57,7 +57,7 @@ python tool/marketing/review_kit.py showcase --compare launch --open   # build/m
 | `gifs` | `gif/<clip>.gif` | ≤8 MB (steps down from 360 px / 15 fps) |
 | `web` | `web/<clip>.webp`, `web/<clip>_still.webp` | lossy animated WebP, 540 px, 12 fps, q85 with sharp YUV, ≤3.5 MB each and ≤15 MB together; the still is the last frame |
 | `images` | `carousel/NN.png` (4:5), `square/NN.png` (1:1), `thumb.png`, `og.png`, `og_de-DE.png`, `forum_header.png` | size, RGB, ≤10 slides, text inside the safe area |
-| `appstore` | `preview_N.mp4` (also copied to `docs/store/app-store/app_previews/en-US/iphone_65/` when it passes), `header_{en-US,de-DE}.mp4`, `search_{en-US,de-DE}.mp4` | 886×1920 15–30 s with audio; 3840×1646 and 2880×1920, 5–30 s |
+| `appstore` | `preview_N.mp4` (also copied to `docs/store/app-store/app_previews/en-US/iphone_61/` when it passes), `header_{en-US,de-DE}.mp4`, `search_{en-US,de-DE}.mp4` | 886×1920 15–30 s with audio; 3840×1646 and 2880×1920, 5–30 s |
 
 Every still the kit renders, video backgrounds and caption layers included, goes through
 `render_images.render`, so a caption that doesn't fit its box or leaves the safe area fails the

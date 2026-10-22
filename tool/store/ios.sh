@@ -166,7 +166,7 @@ cmd_screenshots() {
     for device_dir in "$STORE_DIR/app_previews/$locale"/*/; do
       [[ -d "$device_dir" ]] || continue
       case "$(basename "$device_dir")" in
-        iphone_65) preview_type=IPHONE_65 ;;
+        iphone_61) preview_type=IPHONE_61 ;;
         *) die "unknown app preview folder: ${device_dir#"$ROOT"/}" ;;
       esac
       localization_id="$(asc localizations list --version "$EDITABLE_ID" --locale "$locale" | jq -r '.data[0].id')"

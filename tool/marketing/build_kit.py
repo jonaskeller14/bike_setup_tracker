@@ -56,7 +56,7 @@ CREATIVE_VIDEOS = {
 }
 HEADER = (f"{CREATIVE}/header_21x9.html", (3840, 1646))
 # Where approved App Store previews live; ios.sh uploads them in file name order.
-PREVIEWS_OUT = REPO_ROOT / "docs/store/app-store/app_previews/en-US/iphone_65"
+PREVIEWS_OUT = REPO_ROOT / "docs/store/app-store/app_previews/en-US/iphone_61"
 LOCALES = {"en-US": "en", "de-DE": "de"}
 
 SHORT_MAX = 60

@@ -6,9 +6,6 @@ import '../models/filters/local_date_range.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/filters/task_rule_filter.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
-import '../models/rating/rating_association.dart';
-import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
@@ -25,9 +22,7 @@ class FilteredView {
   final Map<String, Bike> _bikes;
   final Map<String, Component> _components;
   final Map<String, Setup> _setups;
-  final Map<String, RatingEntry> _ratingEntries;
   final Map<String, Person> _persons;
-  final Map<String, Rating> _ratings;
   final Map<String, TaskRule> _taskRules;
   final Map<String, TaskEntry> _taskEntries;
   final ComponentHierarchyResolver _hierarchy;
@@ -40,9 +35,7 @@ class FilteredView {
     required this._bikes,
     required this._components,
     required this._setups,
-    required this._ratingEntries,
     required this._persons,
-    required this._ratings,
     required this._taskRules,
     required this._taskEntries,
     required this._hierarchy,
@@ -76,30 +69,9 @@ class FilteredView {
     ),
   );
 
-  late final Map<String, RatingEntry> ratingEntries = Map.fromEntries(
-    _ratingEntries.entries.where(
-      (entry) => (_bikeId == null || entry.value.bike == _bikeId) && _inDateRange(entry.value.dateTimeLocal),
-    ),
-  );
-
   late final Map<String, Person> persons = _bikeId == null
       ? _persons
       : Map.fromEntries(_persons.entries.where((entry) => entry.value.id == _bikes[_bikeId]?.person));
-
-  late final Map<String, Rating> ratings = Map.fromEntries(
-    _ratings.entries.where((entry) {
-      if (_bikeId == null) return true;
-      return switch (entry.value.association) {
-        GlobalRatingAssociation() => true,
-        PersonRatingAssociation() => true,
-        BikeRatingAssociation(:final bikeId) => bikeId == _bikeId,
-        ComponentRatingAssociation(:final componentId) => components.containsKey(componentId),
-        ComponentTypeRatingAssociation(:final componentTypeStr) => components.values.any(
-          (c) => c.componentType.toString() == componentTypeStr,
-        ),
-      };
-    }),
-  );
 
   /// The task rules of the bike scope, before priority and tag narrowing.
   late final Map<String, TaskRule> taskRulesInScope = Map.fromEntries(

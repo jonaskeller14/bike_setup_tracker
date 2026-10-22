@@ -3,7 +3,6 @@ import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -164,23 +163,6 @@ void main() {
 
       expect(await database.setupsDao.watchValuesForSetup('s1').first, hasLength(1));
       expect((await readSetup()).bikeAdjustmentValues, {keep.id: const BooleanValue(true)});
-    });
-
-    test('a rating value of a removed metric is read as unresolved', () async {
-      await database.ratingEntriesDao.insertRatingEntryWithValues(
-        entry: RatingEntry(
-          id: 'r1',
-          bike: 'bike1',
-          setupId: 's1',
-          dateTimeUTC: DateTime.utc(2026, 9, 27),
-          dateTimeLocal: DateTime(2026, 9, 27),
-          metricValues: const {},
-        ).toCompanion(),
-        values: {'removedMetric': const StepValue(4)},
-      );
-
-      final entry = (await database.ratingEntriesDao.watchAllRatingEntriesWithValues().first).single;
-      expect(entry.entry.toModel(values: entry.values).metricValues, {'removedMetric': const UnresolvedValue('4')});
     });
   });
 }

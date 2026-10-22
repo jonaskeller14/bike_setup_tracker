@@ -3,9 +3,6 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating/rating.dart';
-import 'package:bike_setup_tracker/models/rating/rating_association.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,10 +17,8 @@ void main() {
     late AppRepository appRepository;
     final bike1 = Bike(name: "Bike #1", person: null);
     final person1 = Person(name: "Person #1", adjustments: const []);
-    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: const []);
     late Component component1;
     late Setup setup1;
-    late RatingEntry ratingEntry1;
 
     setUp(() {
       database = AppDatabase.memory();
@@ -44,13 +39,6 @@ void main() {
         person: null,
         bikeAdjustmentValues: const {},
         personAdjustmentValues: const {},
-      );
-      ratingEntry1 = RatingEntry(
-        name: "Rating Entry #1",
-        bike: bike1.id,
-        setupId: setup1.id,
-        dateTimeUTC: DateTime(2000).toUtc(),
-        dateTimeLocal: DateTime(2000).toLocal(),
       );
     });
 
@@ -99,18 +87,6 @@ void main() {
       expect(appRepository.deletedComponents.any((c) => c.id == component1.id), true);
     });
 
-    test("deleted rating appears in deletedRatings, not in ratings", () async {
-      await data.addRatings([rating1]);
-      await pumpEventQueue();
-      expect(appRepository.ratings.containsKey(rating1.id), true);
-      expect(appRepository.deletedRatings.any((r) => r.id == rating1.id), false);
-
-      await data.removeRatings([rating1]);
-      await pumpEventQueue();
-      expect(appRepository.ratings.containsKey(rating1.id), false);
-      expect(appRepository.deletedRatings.any((r) => r.id == rating1.id), true);
-    });
-
     test("deleted setup appears in deletedSetups, not in setups", () async {
       await data.addBikes([bike1]);
       await data.addSetups([setup1]);
@@ -122,19 +98,6 @@ void main() {
       await pumpEventQueue();
       expect(appRepository.setups.containsKey(setup1.id), false);
       expect(appRepository.deletedSetups.any((s) => s.id == setup1.id), true);
-    });
-
-    test("deleted rating entry appears in deletedRatingEntries, not in ratingEntries", () async {
-      await data.addBikes([bike1]);
-      await data.addRatingEntries([ratingEntry1]);
-      await pumpEventQueue();
-      expect(appRepository.ratingEntries.containsKey(ratingEntry1.id), true);
-      expect(appRepository.deletedRatingEntries.any((e) => e.id == ratingEntry1.id), false);
-
-      await data.removeRatingEntries([ratingEntry1]);
-      await pumpEventQueue();
-      expect(appRepository.ratingEntries.containsKey(ratingEntry1.id), false);
-      expect(appRepository.deletedRatingEntries.any((e) => e.id == ratingEntry1.id), true);
     });
 
     test("restored item moves back from deleted to active", () async {

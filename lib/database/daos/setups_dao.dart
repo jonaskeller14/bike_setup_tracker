@@ -60,7 +60,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
   }
 
   // Operation to fetch a setup along with its values and the adjustments they belong to
-  // This helps in mapping back to the bikeAdjustmentValues/personAdjustmentValues/ratingAdjustmentValues
+  // This helps in mapping back to the bikeAdjustmentValues/personAdjustmentValues
   Stream<List<TypedSetupValue>> watchTypedValuesForSetup(String setupId) {
     final query = select(setupAdjustmentValues).join([
       innerJoin(adjustments, adjustments.id.equalsExp(setupAdjustmentValues.adjustmentId)),

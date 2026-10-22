@@ -13,7 +13,6 @@ RecordedValue _record(AdjustmentValue value, {bool deleted = false, DateTime? da
   final id = 'r${_counter++}';
   return RecordedValue(
     recordId: id,
-    source: RecordedValueSource.setup,
     label: label ?? id,
     dateTimeLocal: day ?? DateTime(2024),
     value: value,

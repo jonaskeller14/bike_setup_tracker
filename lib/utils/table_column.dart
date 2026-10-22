@@ -7,9 +7,7 @@ enum TableColumnSection {
   generalContext("General Context"),
   weatherContext("Weather Context"),
   componentAdjustments("Component Adjustments"),
-  personAttributes("Rider Attributes"),
-  ratingMetrics("Rating Metrics"),
-  ratingScore("Rating");
+  personAttributes("Rider Attributes");
 
   final String label;
   const TableColumnSection(this.label);
@@ -112,32 +110,4 @@ class PersonAttributeColumn extends TableColumn {
 
   @override
   int get hashCode => Object.hash(section, adjustmentId);
-}
-
-class RatingMetricColumn extends TableColumn {
-  final String metricId;
-
-  RatingMetricColumn(this.metricId, {required super.active});
-
-  @override
-  TableColumnSection get section => TableColumnSection.ratingMetrics;
-
-  @override
-  bool operator ==(Object other) => identical(this, other) || other is RatingMetricColumn && other.metricId == metricId;
-
-  @override
-  int get hashCode => Object.hash(section, metricId);
-}
-
-class RatingScoreColumn extends TableColumn {
-  RatingScoreColumn({required super.active});
-
-  @override
-  TableColumnSection get section => TableColumnSection.ratingScore;
-
-  @override
-  bool operator ==(Object other) => other is RatingScoreColumn;
-
-  @override
-  int get hashCode => section.hashCode;
 }

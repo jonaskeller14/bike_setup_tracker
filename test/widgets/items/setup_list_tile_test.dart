@@ -83,17 +83,13 @@ void main() {
     expect(find.byType(CurrentSetupHighlight), findsOneWidget);
   });
 
-  testWidgets('the Current badge shows only while there is no score', (tester) async {
-    harness.settings.enableRating = true;
+  testWidgets('the Current badge shows when requested', (tester) async {
     final setup = harness.buildSetup(name: 'Solo', local: DateTime(2026, 7, 2, 10));
     await harness.addSetups(tester, [setup]);
     await harness.reload(tester);
     await pumpTile(tester, setup, showCurrentBadge: true);
 
-    // No rating entries yet, so the row has no score to show instead.
-    expect(harness.repository.scoreForSetup(setup.id), isNull);
     expect(find.byType(CurrentSetupBadge), findsOneWidget);
-    expect(find.textContaining('/ 10'), findsNothing);
   });
 
   testWidgets('a non-current setup renders neither badge nor highlight', (tester) async {
@@ -104,13 +100,6 @@ void main() {
     expect(find.byType(CurrentSetupHighlight), findsNothing);
   });
 
-  testWidgets('no score badge when rating is disabled', (tester) async {
-    harness.settings.enableRating = false;
-    final (_, newer) = await seedPair(tester);
-    await pumpTile(tester, newer);
-
-    expect(find.textContaining('/ 10'), findsNothing);
-  });
 
   testWidgets('the expand icon toggles between changed-only and all values', (tester) async {
     final (_, newer) = await seedPair(tester);

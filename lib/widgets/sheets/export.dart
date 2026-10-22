@@ -92,8 +92,6 @@ class _ExportSheetFlowState extends State<ExportSheetFlow> {
     bikes: widget.allData.bikes,
     components: widget.allData.components,
     setups: widget.allData.setups,
-    ratings: widget.allData.ratings,
-    ratingEntries: widget.allData.ratingEntries,
     taskRules: widget.allData.taskRules,
     taskEntries: widget.allData.taskEntries,
   );

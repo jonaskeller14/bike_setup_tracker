@@ -8,7 +8,6 @@ void main() {
     expect(selection.length, 2);
     expect(selection.idsOf(TimelineSelectionKind.setup), {'a'});
     expect(selection.idsOf(TimelineSelectionKind.taskEntry), {'a'});
-    expect(selection.idsOf(TimelineSelectionKind.ratingEntry), isEmpty);
   });
 
   test('re-adding the same row does not grow the selection', () {
@@ -20,7 +19,7 @@ void main() {
   test('isSetupsOnly gates the setup-only bulk actions', () {
     expect(<TimelineSelectionId>{}.isSetupsOnly, isFalse);
     expect({setupSelectionId('a'), setupSelectionId('b')}.isSetupsOnly, isTrue);
-    expect({setupSelectionId('a'), ratingEntrySelectionId('b')}.isSetupsOnly, isFalse);
+    expect({setupSelectionId('a'), taskEntrySelectionId('b')}.isSetupsOnly, isFalse);
     expect({taskEntrySelectionId('a')}.isSetupsOnly, isFalse);
   });
 }

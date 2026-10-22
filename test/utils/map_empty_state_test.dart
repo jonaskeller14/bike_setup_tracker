@@ -3,31 +3,22 @@ import 'package:flutter_test/flutter_test.dart';
 
 bool anyData({
   bool hasSetups = false,
-  bool hasRatingEntries = false,
   bool hasStravaActivities = false,
-  bool ratingEnabled = false,
   bool stravaActive = false,
 }) => hasAnyPositionedMapData(
   hasSetups: hasSetups,
-  hasRatingEntries: hasRatingEntries,
   hasStravaActivities: hasStravaActivities,
-  ratingEnabled: ratingEnabled,
   stravaActive: stravaActive,
 );
 
 void main() {
   group('hasAnyPositionedMapData', () {
     test('is false when no source holds a positioned item', () {
-      expect(anyData(ratingEnabled: true, stravaActive: true), false);
+      expect(anyData(stravaActive: true), false);
     });
 
     test('setups always count', () {
       expect(anyData(hasSetups: true), true);
-    });
-
-    test('rating entries only count while ratings are enabled', () {
-      expect(anyData(hasRatingEntries: true), false);
-      expect(anyData(hasRatingEntries: true, ratingEnabled: true), true);
     });
 
     test('strava activities only count while strava is active', () {
@@ -36,7 +27,7 @@ void main() {
     });
 
     test('disabled sources alone leave the map without data', () {
-      expect(anyData(hasRatingEntries: true, hasStravaActivities: true), false);
+      expect(anyData(hasStravaActivities: true), false);
     });
   });
 

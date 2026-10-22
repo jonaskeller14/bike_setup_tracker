@@ -310,8 +310,6 @@ _Json _dropBikes(_Json json, Set<String> bikeIds) {
   };
   var result = _where(json, 'bikes', (b) => !bikeIds.contains(b['id']));
   result = _where(result, 'stravaActivities', (a) => !gearIds.contains(a['gearId']));
-  result = _where(result, 'ratings', (r) => !(r['filterType'] == 'FilterType.bike' && bikeIds.contains(r['filter'])));
-  result = _where(result, 'ratingEntries', (e) => !bikeIds.contains(e['bike']));
   result = _dropTaskRules(result, {
     for (final rule in _list(result, 'taskRules'))
       if (bikeIds.contains(rule['bikeId'])) rule['id'] as String,
@@ -337,11 +335,6 @@ _Json _dropComponents(_Json json, Set<String> componentIds) {
   }
   var result = _dropAdjustments(json, (component, _) => dropped.contains(component['id']));
   result = _where(result, 'components', (c) => !dropped.contains(c['id']));
-  result = _where(
-    result,
-    'ratings',
-    (r) => !(r['filterType'] == 'FilterType.component' && dropped.contains(r['filter'])),
-  );
   result = _dropTaskRules(result, {
     for (final rule in _list(result, 'taskRules'))
       if (dropped.contains(rule['componentId'])) rule['id'] as String,
@@ -378,14 +371,13 @@ _Json _dropAdjustments(_Json json, bool Function(_Json component, _Json adjustme
   };
 }
 
-/// Drops the setups that [test] matches and the rating entries made on them.
+/// Drops the setups that [test] matches.
 _Json _dropSetups(_Json json, bool Function(_Json setup) test) {
   final setupIds = {
     for (final setup in _list(json, 'setups'))
       if (test(setup)) setup['id'] as String,
   };
-  final result = _where(json, 'setups', (s) => !setupIds.contains(s['id']));
-  return _where(result, 'ratingEntries', (e) => !setupIds.contains(e['setupId']));
+  return _where(json, 'setups', (s) => !setupIds.contains(s['id']));
 }
 
 /// Drops the task rules [ruleIds] and their entries.

@@ -9,8 +9,6 @@ import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
-import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
@@ -18,8 +16,6 @@ import '../repositories/app_repository.dart';
 import '../utils/bike_actions.dart';
 import '../utils/component_actions.dart';
 import '../utils/person_actions.dart';
-import '../utils/rating_actions.dart';
-import '../utils/rating_entry_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
 import '../widgets/animated_app_bar_switcher.dart';
@@ -47,8 +43,6 @@ class _TrashPageState extends State<TrashPage> {
       ...appRepository.deletedBikes.map((b) => _BikeTrashItem(b)),
       ...appRepository.deletedComponents.map((c) => _ComponentTrashItem(c)),
       ...appRepository.deletedSetups.map((s) => _SetupTrashItem(s)),
-      ...appRepository.deletedRatings.map((r) => _RatingTrashItem(r)),
-      ...appRepository.deletedRatingEntries.map((re) => _RatingEntryTrashItem(re)),
       ...appRepository.deletedTaskRules.map((tr) => _TaskRuleTrashItem(tr)),
       ...appRepository.deletedTaskEntries.map((te) => _TaskEntryTrashItem(te)),
     ];
@@ -298,8 +292,6 @@ class _TrashSelection {
   final List<Bike> bikes = [];
   final List<Component> components = [];
   final List<Setup> setups = [];
-  final List<Rating> ratings = [];
-  final List<RatingEntry> ratingEntries = [];
   final List<TaskRule> taskRules = [];
   final List<TaskEntry> taskEntries = [];
 
@@ -314,10 +306,6 @@ class _TrashSelection {
           components.add(component);
         case _SetupTrashItem(:final setup):
           setups.add(setup);
-        case _RatingTrashItem(:final rating):
-          ratings.add(rating);
-        case _RatingEntryTrashItem(:final ratingEntry):
-          ratingEntries.add(ratingEntry);
         case _TaskRuleTrashItem(:final taskRule):
           taskRules.add(taskRule);
         case _TaskEntryTrashItem(:final taskEntry):
@@ -331,8 +319,6 @@ class _TrashSelection {
     await appRepository.restoreBikes(bikes);
     await appRepository.restoreComponents(components);
     await appRepository.restoreSetups(setups);
-    await appRepository.restoreRatings(ratings);
-    await appRepository.restoreRatingEntries(ratingEntries);
     await appRepository.restoreTaskRules(taskRules);
     await appRepository.restoreTaskEntries(taskEntries);
   }
@@ -342,8 +328,6 @@ class _TrashSelection {
     await appRepository.removeBikes(bikes);
     await appRepository.removeComponents(components);
     await appRepository.removeSetups(setups);
-    await appRepository.removeRatings(ratings);
-    await appRepository.removeRatingEntries(ratingEntries);
     await appRepository.removeTaskRules(taskRules);
     await appRepository.removeTaskEntries(taskEntries);
   }
@@ -399,32 +383,6 @@ class _SetupTrashItem extends _TrashItem {
     await SetupActions.restoreSetup(context, setup: setup);
   }
   const _SetupTrashItem(this.setup);
-}
-
-class _RatingTrashItem extends _TrashItem {
-  final Rating rating;
-  @override String get id => 'rating-${rating.id}';
-  @override DateTime get lastModified => rating.lastModified;
-  @override IconData get iconData => Rating.iconData;
-  @override String get name => rating.name;
-  @override
-  void restore(BuildContext context) async {
-    await RatingActions.restoreRating(context, rating: rating);
-  }
-  const _RatingTrashItem(this.rating);
-}
-
-class _RatingEntryTrashItem extends _TrashItem {
-  final RatingEntry ratingEntry;
-  @override String get id => 'rating-entry-${ratingEntry.id}';
-  @override DateTime get lastModified => ratingEntry.lastModified;
-  @override IconData get iconData => RatingEntry.iconData;
-  @override String get name => ratingEntry.displayName;
-  @override
-  void restore(BuildContext context) async {
-    await RatingEntryActions.restoreRatingEntry(context, ratingEntry: ratingEntry);
-  }
-  const _RatingEntryTrashItem(this.ratingEntry);
 }
 
 class _TaskRuleTrashItem extends _TrashItem {

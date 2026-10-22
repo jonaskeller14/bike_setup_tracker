@@ -8,11 +8,6 @@ import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating/rating.dart';
-import 'package:bike_setup_tracker/models/rating/rating_association.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
-import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
-import 'package:bike_setup_tracker/models/recorded_value.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
@@ -410,74 +405,6 @@ void main() {
     });
   });
 
-  group("AppRepository - Ratings", () {
-    late AppDatabase database;
-    late AppRepository repository;
-    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: const []);
-
-    setUp(() async {
-      database = AppDatabase.memory();
-      repository = AppRepository(database);
-      await pumpEventQueue();
-    });
-
-    tearDown(() async {
-      await database.close();
-    });
-
-    test("addRating", () async {
-      await repository.addRatings([rating1]);
-      await pumpEventQueue();
-      
-      expect(repository.ratings.containsKey(rating1.id), true);
-    });
-
-    test("restoreRating preserves adjustments", () async {
-      final adjustment = NumericalAdjustment(
-        name: "Difficulty",
-        notes: "",
-        unit: null,
-      );
-      final ratingWithAdj = rating1.copyWith(id: rating1.id, metrics: [RatingMetric(adjustment: adjustment)]);
-
-      await repository.addRatings([ratingWithAdj]);
-      await pumpEventQueue();
-
-      expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
-
-      // Remove
-      await repository.removeRatings([ratingWithAdj]);
-      await pumpEventQueue();
-
-      expect(repository.ratings.containsKey(ratingWithAdj.id), false);
-      final deletedRating = repository.deletedRatings.firstWhere((r) => r.id == ratingWithAdj.id);
-      expect(deletedRating.metrics.isEmpty, true);
-
-      // Restore
-      await repository.restoreRatings([deletedRating]);
-      await pumpEventQueue();
-
-      expect(repository.ratings.containsKey(ratingWithAdj.id), true);
-      expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
-    });
-
-    test("a metric value that does not match its type asserts on add and edit", () async {
-      final metric = RatingMetric(adjustment: BooleanAdjustment(name: "Fun", notes: null, unit: null));
-      await repository.addRatings([rating1.copyWith(id: rating1.id, metrics: [metric])]);
-      await pumpEventQueue();
-
-      final entry = RatingEntry(
-        bike: 'bike',
-        setupId: 'setup',
-        dateTimeUTC: DateTime.utc(2024),
-        dateTimeLocal: DateTime(2024),
-        metricValues: {metric.id: TextValue.orNull('yes')!},
-      );
-
-      await expectLater(repository.addRatingEntries([entry]), throwsA(isA<AssertionError>()));
-      await expectLater(repository.editRatingEntry(entry), throwsA(isA<AssertionError>()));
-    });
-  });
   group("AppRepository - recordedValues", () {
     late AppDatabase database;
     late AppRepository repository;
@@ -534,7 +461,6 @@ void main() {
       expect(recorded.map((r) => r.label), ["Recent", "Gone", "Old"]);
       expect(recorded.map((r) => r.isDeleted), [false, true, false]);
       expect(recorded.map((r) => r.value), const [NumericalValue(3), NumericalValue(2), NumericalValue(1)]);
-      expect(recorded.map((r) => r.source).toSet(), {RecordedValueSource.setup});
       expect(recorded.map((r) => r.recordId), [recent.id, gone.id, old.id]);
     });
 
@@ -552,34 +478,6 @@ void main() {
 
       expect(recorded.map((r) => r.recordId), [setup.id]);
       expect(recorded.single.value, const NumericalValue(70));
-    });
-
-    test("returns rating metric values of live and deleted entries", () async {
-      final metric = RatingMetric(adjustment: StepAdjustment(name: "Grip", notes: null, unit: null, min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider));
-      final rating = Rating(name: "R", association: const GlobalRatingAssociation(), metrics: [metric]);
-      RatingEntry buildEntry(String? name, DateTime day, int value) => RatingEntry(
-        name: name,
-        bike: 'bike',
-        setupId: 'setup',
-        dateTimeUTC: day.toUtc(),
-        dateTimeLocal: day,
-        metricValues: {metric.id: StepValue(value)},
-      );
-      final live = buildEntry("Live", DateTime(2024, 2, 1), 7);
-      final gone = buildEntry(null, DateTime(2024, 1, 1), 4);
-      await repository.addRatings([rating]);
-      await repository.addRatingEntries([live, gone]);
-      await pumpEventQueue();
-      await repository.removeRatingEntries([gone]);
-      await pumpEventQueue();
-
-      final recorded = await repository.recordedValues(metric.id);
-
-      expect(recorded.map((r) => r.source).toSet(), {RecordedValueSource.ratingEntry});
-      expect(recorded.map((r) => r.recordId), [live.id, gone.id]);
-      expect(recorded.map((r) => r.isDeleted), [false, true]);
-      expect(recorded.map((r) => r.label), ["Live", RatingEntry.namePlaceholder]);
-      expect(recorded.map((r) => r.value), const [StepValue(7), StepValue(4)]);
     });
 
     test("falls back to the placeholder name for unnamed records", () async {
@@ -715,46 +613,6 @@ void main() {
 
       final value = repository.setups[setup.id]!.personAdjustmentValues[padj.id]! as NumericalValue;
       expect(value.value, closeTo(convertUnit(70.0, kg, lb), 1e-9));
-    });
-
-    test("editRating with Convert rewrites rating-entry values and bumps lastModified", () async {
-      final metricAdj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi, min: 0, max: 300);
-      final rating = Rating(
-        name: "R",
-        association: const GlobalRatingAssociation(),
-        metrics: [RatingMetric(adjustment: metricAdj)],
-      );
-      final entry = RatingEntry(
-        bike: "b",
-        setupId: "s",
-        dateTimeUTC: DateTime(2020).toUtc(),
-        dateTimeLocal: DateTime(2020),
-        metricValues: {metricAdj.id: const NumericalValue(65.0)},
-      );
-
-      await repository.addRatings([rating]);
-      await repository.addRatingEntries([entry]);
-      await pumpEventQueue();
-
-      // Age the entry so the lastModified bump is unambiguous despite
-      // second-resolution timestamps (add + edit fall in the same second).
-      await (database.update(database.ratingEntries)..where((t) => t.id.equals(entry.id)))
-          .write(RatingEntriesCompanion(lastModified: Value(DateTime(2000).toUtc())));
-      await pumpEventQueue();
-      final before = repository.ratingEntries[entry.id]!.lastModified;
-
-      final convertedRating = rating.copyWith(metrics: [
-        RatingMetric(adjustment: metricAdj.copyWith(unit: bar)),
-      ]);
-      await repository.editRating(
-        convertedRating,
-        migrations: [ValueMigration(metricAdj.id, const [ConvertUnitStep(psi, bar)])],
-      );
-      await pumpEventQueue();
-
-      final value = repository.ratingEntries[entry.id]!.metricValues[metricAdj.id]! as NumericalValue;
-      expect(value.value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
-      expect(repository.ratingEntries[entry.id]!.lastModified.isAfter(before), isTrue);
     });
   });
 
@@ -1414,14 +1272,6 @@ void main() {
       position: position,
     );
 
-    RatingEntry buildRatingEntry(String bikeId, String setupId, {ContextPosition? position}) => RatingEntry(
-      bike: bikeId,
-      setupId: setupId,
-      dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
-      dateTimeLocal: DateTime(2025, 6, 1).toLocal(),
-      position: position,
-    );
-
     StravaActivity buildActivity(int id, {double? lat, double? lon}) => StravaActivity(
       id: id,
       name: "Ride $id",
@@ -1479,31 +1329,6 @@ void main() {
       await pumpEventQueue();
 
       expect(repository.hasSetupsWithPosition, false);
-    });
-
-    test("hasRatingEntriesWithPosition reflects positioned entries", () async {
-      final setup = buildSetup(bike1.id);
-      await repository.addBikes([bike1]);
-      await repository.addSetups([setup]);
-      await repository.addRatingEntries([buildRatingEntry(bike1.id, setup.id)]);
-      await pumpEventQueue();
-
-      expect(repository.hasRatingEntriesWithPosition, false);
-
-      final positioned = buildRatingEntry(
-        bike1.id,
-        setup.id,
-        position: const ContextPosition(latitude: 44.16, longitude: 8.34),
-      );
-      await repository.addRatingEntries([positioned]);
-      await pumpEventQueue();
-
-      expect(repository.hasRatingEntriesWithPosition, true);
-
-      await repository.removeRatingEntries([positioned]);
-      await pumpEventQueue();
-
-      expect(repository.hasRatingEntriesWithPosition, false);
     });
 
     test("hasStravaActivitiesWithPosition ignores the selected bike", () async {

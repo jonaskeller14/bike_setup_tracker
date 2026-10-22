@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
 import '../models/setup.dart';
 import '../models/task/task_rule.dart';
 import '../models/timeline_selection.dart';
@@ -16,7 +15,6 @@ import '../repositories/app_repository.dart';
 import '../utils/automation_ids.dart';
 import '../utils/bike_actions.dart';
 import '../utils/person_actions.dart';
-import '../utils/rating_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
 import '../utils/timeline_actions.dart';
@@ -27,7 +25,6 @@ import '../widgets/lists/garage_list.dart';
 import '../widgets/lists/list_scroll_controller.dart';
 import '../widgets/lists/list_selection_controller.dart';
 import '../widgets/lists/person_list.dart';
-import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/setup_list.dart';
 import '../widgets/lists/task_list.dart';
 import '../widgets/sheets/export.dart';
@@ -139,7 +136,6 @@ class _HomePageState extends State<HomePage> {
       (entry) => switch (entry.kind) {
         TimelineSelectionKind.setup => appRepository.view.setups.containsKey(entry.id),
         TimelineSelectionKind.taskEntry => appRepository.view.taskEntries.containsKey(entry.id),
-        TimelineSelectionKind.ratingEntry => appRepository.view.ratingEntries.containsKey(entry.id),
       },
     );
   }
@@ -170,9 +166,9 @@ class _HomePageState extends State<HomePage> {
     final defaultIndex = appRepository.bikes.isEmpty || appRepository.components.isEmpty ? 0 : 1;
     final pageIndex = (_currentPageIndex ?? defaultIndex).clamp(
       0,
-      1 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableRating ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
+      1 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
     );
-    final taskPageIndex = 2 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableRating ? 1 : 0);
+    final taskPageIndex = 2 + (appSettings.showAdvancedPersonUi ? 1 : 0);
     final showTaskSelectionAppBar =
         appSettings.enableTask && pageIndex == taskPageIndex && _taskRuleSelection.isSelectionMode;
     final showBikeSelectionAppBar = pageIndex == 0 && _bikeSelection.isSelectionMode;
@@ -294,7 +290,6 @@ class _HomePageState extends State<HomePage> {
                   const Text("Bikes"),
                   const Text("Setup History"),
                   if (appSettings.showAdvancedPersonUi) const Text("Riders"),
-                  if (appSettings.enableRating) const Text("Ratings"),
                   if (appSettings.enableTask) const Text("Tasks"),
                 ][pageIndex],
                 actions: [
@@ -394,7 +389,6 @@ class _HomePageState extends State<HomePage> {
             child: const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
           ),
           if (appSettings.showAdvancedPersonUi) const NavigationDestination(icon: Icon(Person.iconData), label: "Riders"),
-          if (appSettings.enableRating) const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
           if (appSettings.enableTask)
             Semantics(
               container: true,
@@ -427,7 +421,6 @@ class _HomePageState extends State<HomePage> {
               onSelectionChanged: _timelineSelection.isBusy ? null : _timelineSelection.toggle,
             ),
             if (appSettings.showAdvancedPersonUi) const PersonList(),
-            if (appSettings.enableRating) const RatingList(),
             if (appSettings.enableTask)
               TaskList(
                 controller: _taskListController,
@@ -518,15 +511,6 @@ class _HomePageState extends State<HomePage> {
               await PersonActions.addPerson(context);
             },
             tooltip: 'Add Rider',
-            child: const Icon(Icons.add),
-          ),
-        if (appSettings.enableRating)
-          FloatingActionButton(
-            heroTag: "addRating",
-            onPressed: () async {
-              await RatingActions.addRating(context);
-            },
-            tooltip: 'Add Rating',
             child: const Icon(Icons.add),
           ),
         if (appSettings.enableTask)

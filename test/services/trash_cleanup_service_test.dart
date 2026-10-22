@@ -7,7 +7,6 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
@@ -106,28 +105,11 @@ void main() {
     );
   }
 
-  RatingEntry ratingEntry(String id, {DateTime? lastModified, bool isDeleted = false}) {
-    final now = DateTime.now();
-    return RatingEntry(
-      id: id,
-      lastModified: lastModified,
-      isDeleted: isDeleted,
-      bike: 'bike',
-      setupId: 'setup',
-      dateTimeUTC: now.toUtc(),
-      dateTimeLocal: now,
-    );
-  }
-
   Future<void> insert(SelectedData data) => DatabaseMigrationService(database).migrateFromSelectedData(data);
 
   Future<void> insertSetupValue(String setupId) => database
       .into(database.setupAdjustmentValues)
       .insert(SetupAdjustmentValuesCompanion.insert(setupId: setupId, adjustmentId: 'adjustment', value: 'true'));
-
-  Future<void> insertRatingEntryValue(String ratingEntryId) => database
-      .into(database.ratingEntryValues)
-      .insert(RatingEntryValuesCompanion.insert(ratingEntryId: ratingEntryId, ratingMetricId: 'metric', value: '1'));
 
   group('AppDatabase.purgeTrash', () {
     test('removes trashed rows older than the cutoff and keeps the rest', () async {
@@ -187,16 +169,10 @@ void main() {
             'old': setup('old', lastModified: expired, isDeleted: true),
             'live': setup('live'),
           },
-          ratingEntries: {
-            'old': ratingEntry('old', lastModified: expired, isDeleted: true),
-            'live': ratingEntry('live'),
-          },
         ),
       );
       await insertSetupValue('old');
       await insertSetupValue('live');
-      await insertRatingEntryValue('old');
-      await insertRatingEntryValue('live');
 
       await database.purgeTrash(cutoff);
 
@@ -204,7 +180,6 @@ void main() {
       expect((await database.select(database.adjustments).get()).map((a) => a.componentId), ['live']);
       expect((await database.select(database.installations).get()).map((i) => i.componentId), ['live']);
       expect((await database.select(database.setupAdjustmentValues).get()).map((v) => v.setupId), ['live']);
-      expect((await database.select(database.ratingEntryValues).get()).map((v) => v.ratingEntryId), ['live']);
     });
 
     test('does nothing on an empty database', () async {

@@ -1,6 +1,5 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
-import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
@@ -56,11 +55,9 @@ Future<Object?> pushAndSave(
   return result;
 }
 
-/// The adjustment an adjustment or metric page saved, whatever it was wrapped in.
+/// The adjustment an adjustment page saved, whatever it was wrapped in.
 Adjustment savedAdjustment(Object? result) => switch (result) {
   AdjustmentEditResult<Adjustment>(:final value) => value,
-  AdjustmentEditResult<RatingMetric>(:final value) => value.adjustment,
-  RatingMetric(:final adjustment) => adjustment,
   Adjustment() => result,
   _ => throw TestFailure('Page saved nothing: $result'),
 };

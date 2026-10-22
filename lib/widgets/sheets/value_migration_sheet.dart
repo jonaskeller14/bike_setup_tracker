@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../../models/recorded_value.dart';
 import '../../utils/value_migration_proposal.dart';
 import '../value_transition_preview.dart';
 import 'sheet_header.dart';
@@ -92,8 +91,8 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                     ),
                   if (decisions.isNotEmpty)
                     Text(
-                      'Need different values in different ${_nounFor(_proposal.affected.source, 2)}? '
-                      'Cancel, change those ${_nounFor(_proposal.affected.source, 2)} first, then make this edit.',
+                      'Need different values in different ${_nounFor(2)}? '
+                      'Cancel, change those ${_nounFor(2)} first, then make this edit.',
                       style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                 ],
@@ -134,20 +133,17 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
   }
 }
 
-String _nounFor(RecordedValueSource? source, int count) => switch (source) {
-  RecordedValueSource.ratingEntry => count == 1 ? 'rating entry' : 'rating entries',
-  _ => count == 1 ? 'setup' : 'setups',
-};
+String _nounFor(int count) => count == 1 ? 'setup' : 'setups';
 
 /// "Update 4 setups"; deleted records count only when there are no live ones.
 String _confirmLabel(AffectedRecords records) => records.live == 0
-    ? 'Update ${records.deleted} deleted ${_nounFor(records.source, records.deleted)}'
-    : 'Update ${records.live} ${_nounFor(records.source, records.live)}';
+    ? 'Update ${records.deleted} deleted ${_nounFor(records.deleted)}'
+    : 'Update ${records.live} ${_nounFor(records.live)}';
 
 /// "4 setups (+3 deleted)", or "3 deleted setups" without live ones.
 String affectedRecordsLabel(AffectedRecords records) {
-  if (records.live == 0) return '${records.deleted} deleted ${_nounFor(records.source, records.deleted)}';
-  final base = '${records.live} ${_nounFor(records.source, records.live)}';
+  if (records.live == 0) return '${records.deleted} deleted ${_nounFor(records.deleted)}';
+  final base = '${records.live} ${_nounFor(records.live)}';
   return records.deleted == 0 ? base : '$base (+${records.deleted} deleted)';
 }
 

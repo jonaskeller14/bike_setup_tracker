@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/context/context_weather.dart';
-import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
@@ -71,32 +70,10 @@ class _SetupTileState extends State<SetupTile> {
     );
   }
 
-  Widget _scoreBadge(BuildContext context, double score) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9A825),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 2,
-        children: [
-          const Icon(RatingEntry.iconData, size: 13, color: Colors.white),
-          Text(
-            score.toStringAsFixed(1),
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _setupListTile(BuildContext context, Setup setup, AdjustmentCompactSummary summary) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
-    final double? score = appSettings.enableRating ? appRepository.scoreForSetup(setup.id) : null;
     final bool showInlineExpandIcon = summary.collapsedHidesSomething;
 
     final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
@@ -131,9 +108,7 @@ class _SetupTileState extends State<SetupTile> {
           muted: true,
         ),
     ];
-    final Widget? badge = score != null
-        ? _scoreBadge(context, score)
-        : widget.showCurrentBadge
+    final Widget? badge = widget.showCurrentBadge
         ? appRepository.setupHistory.isCurrent(setup.id)
               ? const CurrentSetupBadge()
               : null

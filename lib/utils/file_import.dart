@@ -177,36 +177,6 @@ class FileImport {
       // continue;
     }
 
-    for (final remoteRating in remoteData.ratings.values) {
-      final localRating = localData.ratings[remoteRating.id];
-
-      if (localRating == null) {
-        if (!remoteRating.isDeleted) localData.ratings[remoteRating.id] = remoteRating;
-        continue;
-      }
-
-      final bool remoteIsNewer = remoteRating.lastModified.isAfter(localRating.lastModified);
-      if (remoteIsNewer) {
-        localData.ratings[remoteRating.id] = remoteRating;
-        continue;
-      }
-    }
-
-    for (final remoteRatingEntry in remoteData.ratingEntries.values) {
-      final localRatingEntry = localData.ratingEntries[remoteRatingEntry.id];
-
-      if (localRatingEntry == null) {
-        if (!remoteRatingEntry.isDeleted) localData.ratingEntries[remoteRatingEntry.id] = remoteRatingEntry;
-        continue;
-      }
-
-      final bool remoteIsNewer = remoteRatingEntry.lastModified.isAfter(localRatingEntry.lastModified);
-      if (remoteIsNewer) {
-        localData.ratingEntries[remoteRatingEntry.id] = remoteRatingEntry;
-        continue;
-      }
-    }
-
     for (final remoteBike in remoteData.bikes.values) {
       final localBike = localData.bikes[remoteBike.id];
       
@@ -287,8 +257,6 @@ class FileImport {
     localData.bikes.addAll(remoteData.bikes);
     localData.components.addAll(remoteData.components);
     localData.setups.addAll(remoteData.setups);
-    localData.ratings.addAll(remoteData.ratings);
-    localData.ratingEntries.addAll(remoteData.ratingEntries);
     localData.taskRules.addAll(remoteData.taskRules);
     localData.taskEntries.addAll(remoteData.taskEntries);
   }
@@ -297,8 +265,6 @@ class FileImport {
     final deleteDateTime = DateTime.now().toUtc().subtract(TrashCleanupService.retention);
 
     data.persons.removeWhere((_, p) => p.isDeleted && p.lastModified.isBefore(deleteDateTime));
-    data.ratings.removeWhere((_, r) => r.isDeleted && r.lastModified.isBefore(deleteDateTime));
-    data.ratingEntries.removeWhere((_, re) => re.isDeleted && re.lastModified.isBefore(deleteDateTime));
 
     final purgedAttachments = <String>[];
     data.bikes.removeWhere((_, b) {

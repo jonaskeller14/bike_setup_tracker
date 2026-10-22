@@ -6,8 +6,8 @@ import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// General guard against import/export serialization asymmetries, across every
-/// model in a backup (persons, bikes, components, setups, ratings, rating
-/// entries, task rules, task entries).
+/// model in a backup (persons, bikes, components, setups, task rules, task
+/// entries). Rating v2 keys of older backups are carried in the sample to prove they are dropped.
 ///
 /// Adjustment values cross a codec boundary twice: they are written to the DB
 /// on import ([DatabaseMigrationService.migrateFromSelectedData]) and read back
@@ -18,8 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// path stored `["open"]` via `List.toString()` (`[open]`) instead of the JSON
 /// codec, so a re-export produced `["[open]"]` — a phantom bracket that grows
 /// on each cycle. The same encoded-value path is shared by setup
-/// `bikeAdjustmentValues`/`personAdjustmentValues` and rating-entry
-/// `metricValues`, so both are exercised here.
+/// `bikeAdjustmentValues`/`personAdjustmentValues`, which are exercised here.
 void main() {
   // Each round-trip opens a fresh in-memory DB; several may briefly coexist.
   setUpAll(() => driftRuntimeOptions.dontWarnAboutMultipleDatabases = true);
@@ -46,7 +45,7 @@ void main() {
 
   // A full backup covering every model. Adjustment values include the shapes
   // that broke: a single-element, a multi-element, and an empty categorical
-  // list — both on a setup and on a rating entry.
+  // list on a setup.
   Map<String, dynamic> sampleData() => {
         'persons': [
           {
@@ -229,23 +228,13 @@ void main() {
         'time': '2026-05-01T12:00:00.000Z',
         'isMock': null,
       });
+    });
 
-      // Rating-entry metric values go through the same codec path.
-      final entry = findById(export, 'ratingEntries', 're1');
-      final metricValues = (entry['metricValues'] as Map).cast<String, dynamic>();
-      expect(metricValues['m_grip'], 8.0);
-      expect(metricValues['m_feel'], ['Balanced']);
-      expect(entry['position'], {
-        'latitude': 47.1,
-        'longitude': 8.3,
-        'altitude': 456.7,
-        'accuracy': 4.2,
-        'heading': 180.0,
-        'speed': 8.5,
-        'speedAccuracy': 0.6,
-        'time': '2026-05-01T13:00:00.123Z',
-        'isMock': false,
-      });
+    test('drops the rating v2 keys of an older backup', () async {
+      final export = await importThenExport(sampleData());
+
+      expect(export.keys, isNot(contains('ratings')));
+      expect(export.keys, isNot(contains('ratingEntries')));
     });
 
     test('is idempotent across all models: a second import→export equals the first', () async {
@@ -258,7 +247,7 @@ void main() {
       // Every top-level collection must be present and stable.
       for (final key in const [
         'persons', 'bikes', 'components', 'setups',
-        'ratings', 'ratingEntries', 'taskRules', 'taskEntries',
+        'taskRules', 'taskEntries',
       ]) {
         expect(exportA[key], isNotEmpty, reason: '$key should be populated');
       }

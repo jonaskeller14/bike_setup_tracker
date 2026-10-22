@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
 import '../models/timeline_selection.dart';
@@ -27,18 +26,12 @@ class TimelineActions {
         .map((id) => appRepository.taskEntries[id])
         .whereType<TaskEntry>()
         .toList();
-    final ratingEntries = selection
-        .idsOf(TimelineSelectionKind.ratingEntry)
-        .map((id) => appRepository.ratingEntries[id])
-        .whereType<RatingEntry>()
-        .toList();
 
-    final total = setups.length + taskEntries.length + ratingEntries.length;
+    final total = setups.length + taskEntries.length;
     if (total == 0) return;
 
     await appRepository.removeSetups(setups);
     await appRepository.removeTaskEntries(taskEntries);
-    await appRepository.removeRatingEntries(ratingEntries);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
@@ -55,7 +48,6 @@ class TimelineActions {
           onPressed: () async {
             await appRepository.restoreSetups(setups);
             await appRepository.restoreTaskEntries(taskEntries);
-            await appRepository.restoreRatingEntries(ratingEntries);
           },
         ),
       ),

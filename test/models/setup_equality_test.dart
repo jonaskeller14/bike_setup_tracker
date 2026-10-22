@@ -1,5 +1,4 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -49,38 +48,6 @@ void main() {
     test('categorical order matters', () {
       final a = decode(setupJson(categorical: ['A', 'B']));
       final b = decode(setupJson(categorical: ['B', 'A']));
-
-      expect(a, isNot(b));
-    });
-  });
-
-  group('RatingEntry equality', () {
-    Map<String, dynamic> entryJson({List<String> categorical = const ['Front']}) => {
-      'version': 1,
-      'id': 'r1',
-      'isDeleted': false,
-      'lastModified': '2026-09-27T10:00:00.000Z',
-      'bike': 'b1',
-      'setupId': 's1',
-      'dateTimeUTC': '2026-09-27T09:00:00.000Z',
-      'dateTimeLocal': '2026-09-27T11:00:00.000',
-      'metricValues': {'cat': categorical, 'score': 4},
-    };
-    const metricTypes = {'cat': AdjustmentType.categorical, 'score': AdjustmentType.numerical};
-    RatingEntry decode(Map<String, dynamic> json) => RatingEntry.fromJson(json: json, metricTypes: metricTypes);
-
-    test('independently decoded entries with equal categorical values are equal', () {
-      final a = decode(entryJson());
-      final b = decode(entryJson());
-
-      expect(a.metricValues['cat'], isA<CategoricalValue>());
-      expect(a, b);
-      expect(a.hashCode, b.hashCode);
-    });
-
-    test('entries with different categorical values are not equal', () {
-      final a = decode(entryJson());
-      final b = decode(entryJson(categorical: ['Rear']));
 
       expect(a, isNot(b));
     });

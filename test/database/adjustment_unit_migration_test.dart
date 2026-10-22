@@ -1,11 +1,11 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Smoke test for the v12 migration that normalizes `Adjustments.unit` and
-/// `RatingMetrics.unit` from free-spelled strings ("psi", "PSI", "kph", ...)
-/// to the canonical `AdjustmentUnit` encoding ("pressure:psi").
+/// Smoke test for the v12 migration that normalizes `Adjustments.unit` from
+/// free-spelled strings ("psi", "PSI", "kph", ...) to the canonical
+/// `AdjustmentUnit` encoding ("pressure:psi").
 void main() {
-  group('adjustment/rating-metric unit v12 migration', () {
+  group('adjustment unit v12 migration', () {
     late AppDatabase db;
 
     setUp(() {
@@ -31,13 +31,6 @@ void main() {
         "('a6', 'c1', 5, 'Null', NULL, 'numerical')",
       );
 
-      // rating_metrics: same coverage, on the sibling table.
-      await db.customStatement(
-        "INSERT INTO rating_metrics (id, rating_id, order_index, name, unit, type) VALUES "
-        "('m1', 'r1', 0, 'Pressure', 'bar', 'numerical'), "
-        "('m2', 'r1', 1, 'Custom', 'turns', 'step')",
-      );
-
       await AppDatabase.migrateAdjustmentUnits(db);
 
       final adjustmentRows = {
@@ -50,13 +43,6 @@ void main() {
       expect(adjustmentRows['a4'], 'Klicks', reason: 'unrecognized spelling stays a custom label');
       expect(adjustmentRows['a5'], isNull, reason: 'empty string normalizes to no unit');
       expect(adjustmentRows['a6'], isNull);
-
-      final ratingMetricRows = {
-        for (final row in await db.customSelect('SELECT id, unit FROM rating_metrics').get())
-          row.read<String>('id'): row.read<String?>('unit'),
-      };
-      expect(ratingMetricRows['m1'], 'pressure:bar');
-      expect(ratingMetricRows['m2'], 'turns');
     });
 
     test('re-running the migration is a no-op (already-canonical strings survive)', () async {

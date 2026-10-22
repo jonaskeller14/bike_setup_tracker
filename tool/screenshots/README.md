@@ -111,7 +111,7 @@ Before each flow, the run scripts delete the marker file `demo_scenario` in the 
 | `tasks_one_due` | *Investigate BB creaking noise* as the only due task. It doesn't repeat, so ticking it off moves it to the completed section |
 | `tags` | The whole sample with setup and task tags on |
 
-Dropping a bike drops everything recorded on it: its components, setups, rating entries, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
+Dropping a bike drops everything recorded on it: its components, setups, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
 
 **Content rules.** `test/screenshots/demo_scenario_test.dart` checks the sample against the rules from the marketing review (#77):
 

@@ -4,7 +4,6 @@ import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
 import '../models/setup.dart';
 import '../models/setup_history.dart';
 import 'component_hierarchy_resolver.dart';
@@ -18,7 +17,6 @@ class SetupResolutionService {
     required Map<String, Bike> bikes,
     required Map<String, Person> persons,
     required Map<String, Component> components,
-    required Map<String, Rating> ratings,
   }) {
     // 1. Sort setups chronologically
     final sortedSetupEntries = setups.entries.toList();

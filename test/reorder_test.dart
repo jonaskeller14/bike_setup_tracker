@@ -2,8 +2,6 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating/rating.dart';
-import 'package:bike_setup_tracker/models/rating/rating_association.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -81,24 +79,6 @@ void main() {
       expect(reorderedPersons[0].id, "p2");
       expect(reorderedPersons[1].id, "p1");
       expect(reorderedPersons[2].id, "p3");
-    });
-
-    test("Reorder Ratings", () async {
-      final r1 = Rating(id: "r1", name: "R1", association: const GlobalRatingAssociation());
-      final r2 = Rating(id: "r2", name: "R2", association: const GlobalRatingAssociation());
-      final r3 = Rating(id: "r3", name: "R3", association: const GlobalRatingAssociation());
-
-      await repository.addRatings([r1, r2, r3]);
-      await pumpEventQueue();
-
-      final ratings = repository.ratings.values.toList();
-      await repository.reorderRating(oldIndex: 1, newIndex: 2, filteredRatingsList: ratings); // Move 2 to bottom
-      await pumpEventQueue();
-
-      final reorderedRatings = repository.ratings.values.toList();
-      expect(reorderedRatings[0].id, "r1");
-      expect(reorderedRatings[1].id, "r3");
-      expect(reorderedRatings[2].id, "r2");
     });
   });
 

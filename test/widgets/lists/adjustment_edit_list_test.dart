@@ -12,12 +12,10 @@ void main() {
   RecordedValue record(
     AdjustmentValue value, {
     bool deleted = false,
-    RecordedValueSource source = RecordedValueSource.setup,
   }) {
     final id = 'r${counter++}';
     return RecordedValue(
       recordId: id,
-      source: source,
       label: id,
       dateTimeLocal: DateTime(2024),
       value: value,
@@ -89,21 +87,6 @@ void main() {
       );
 
       expect(find.byIcon(Icons.sync_alt), findsNothing);
-    });
-
-    testWidgets('rating metrics count rating entries', (tester) async {
-      await pumpList(
-        tester,
-        adjustments: [pressure(max: 10)],
-        pendingMigrations: {
-          'pressure': narrowed([
-            record(const NumericalValue(20), source: RecordedValueSource.ratingEntry),
-            record(const NumericalValue(30), source: RecordedValueSource.ratingEntry),
-          ]),
-        },
-      );
-
-      expect(find.text('Updates 2 rating entries on save'), findsOneWidget);
     });
 
     testWidgets('a cleared value is called out in the error color', (tester) async {

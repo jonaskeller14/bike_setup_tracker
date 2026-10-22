@@ -98,12 +98,6 @@ class FAQPage extends StatelessWidget {
       'How do I update my riding weight?':
           'Rider values are recorded with each setup: add a setup and enter the current values in its rider tab. To add, rename or remove attributes, tap the rider icon in the top bar and then tap your rider.',
     },
-    "Rating": {
-      'What is a Rating?':
-          'A Rating defines a fixed procedure to evaluate setups. By knowing whether a setup was good or bad, you can find the optimal configuration easier.',
-      'How to add a Rating?':
-          'Go to the "Rating" tab and tap the "+" button to add a new rating. You can define the rating name and the rating procedure items.',
-    },
     "Strava Sync": {
       'What is Strava Sync?':
           'Strava Sync is a paid subscription that automatically imports your Strava activities into the app. New, updated, and deleted activities are synced in real time so you can see which setup you ran on every ride. You can also trigger a manual sync at any time — up to once per hour.',
@@ -148,8 +142,6 @@ class FAQPage extends StatelessWidget {
         switch (entry.key) {
           case "Rider":
             return appSettings.enablePerson;
-          case "Rating":
-            return appSettings.enableRating;
           case "Tasks":
             return appSettings.enableTask;
           case "Strava Sync":

@@ -6,10 +6,6 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating/rating.dart';
-import 'package:bike_setup_tracker/models/rating/rating_association.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
-import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
@@ -142,43 +138,6 @@ void main() async {
   ];
   await data.addSetups(setups);
 
-  // Create 100 ratings with metrics (only first has long text)
-  final ratings = [
-    for (final idx in List.generate(100, (idx) => idx))
-      Rating(
-        name: idx == 0 ? "Rating #0: $loremIpsum" : "Rating #$idx",
-        association: const GlobalRatingAssociation(),
-        metrics: idx == 0
-            ? [
-                RatingMetric(
-                  adjustment: StepAdjustment(
-                    name: "Speed: $loremIpsum",
-                    notes: "Rate how fast this setup is",
-                    unit: null,
-                    step: 1,
-                    min: 0,
-                    max: 100,
-                    visualization: StepAdjustmentVisualization.slider,
-                  ),
-                ),
-                RatingMetric(
-                  adjustment: StepAdjustment(
-                    name: "Comfort Performance Evaluation Analysis",
-                    notes: loremIpsum,
-                    unit: null,
-                    step: 1,
-                    min: 0,
-                    max: 10,
-                    visualization: StepAdjustmentVisualization.slider,
-                  ),
-                ),
-              ]
-            : [],
-      ),
-  ];
-  await data.addRatings(ratings);
-  await Future<void>.delayed(Duration.zero);
-
   // Add task rules (one per component, only first has long text)
   final componentsList = data.components.values.toList();
   for (final idx in List.generate(componentsList.length, (idx) => idx)) {
@@ -208,26 +167,6 @@ void main() async {
       )]);
       entryIdx++;
     }
-  }
-
-  // Add rating entries to first rating
-  if (data.ratings.isNotEmpty && data.setups.isNotEmpty) {
-    final setupsList = data.setups.values.toList();
-    final firstRating = data.ratings.values.first;
-    final ratingEntries = [
-      for (final idx in List.generate(50, (idx) => idx))
-        RatingEntry(
-          bike: setupsList[idx % setupsList.length].bike,
-          setupId: setupsList[idx % setupsList.length].id,
-          dateTimeUTC: DateTime(2025).add(Duration(days: idx)).toUtc(),
-          dateTimeLocal: DateTime(2025).add(Duration(days: idx)),
-          metricValues: {
-            if (firstRating.metrics.isNotEmpty)
-              firstRating.metrics.first.id: StepValue(idx * 2),
-          },
-        ),
-    ];
-    await data.addRatingEntries(ratingEntries);
   }
 
   final exportData =

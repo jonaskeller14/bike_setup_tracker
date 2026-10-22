@@ -12,7 +12,6 @@ import '../models/app_settings.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/filters/layer_filter.dart';
-import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';
@@ -28,7 +27,6 @@ import '../widgets/calendar_add_setup_appointment.dart';
 import '../widgets/calendar_entry_appointment.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
 import '../widgets/sheets/installation_sheet.dart';
-import '../widgets/sheets/rating_entry_details.dart';
 import '../widgets/sheets/replacement_sheet.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
@@ -37,7 +35,6 @@ import '../widgets/sheets/task_rule_sheet.dart';
 const Duration kCalendarZeroDuration = Duration(minutes: 30);
 const double kCalendarTimeSlotHeight = 30;
 const Color kCalendarStravaColor = Color(0xFFFC4C02); // Strava brand orange
-const Color kCalendarRatingColor = Color(0xFFF9A825);
 const Duration kCalendarScrollLeadIn = Duration(minutes: 30);
 const int kCalendarFallbackHour = 6;
 const Duration kCalendarFutureWindow = Duration(days: 365);
@@ -120,7 +117,6 @@ IconData calendarIconFor(
           : SimpleIcons.strava,
       TaskTimeLineEntry() => Icons.check_box_outlined,
       InstallationEntry() => entry.componentInstallation.component.componentType.getIconData(),
-      RatingEntryTimelineEntry() => RatingEntry.iconData,
     };
 
 Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
@@ -128,7 +124,6 @@ Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
       StravaEntry() => kCalendarStravaColor,
       TaskTimeLineEntry() => cs.tertiary,
       InstallationEntry() => cs.secondary,
-      RatingEntryTimelineEntry() => kCalendarRatingColor,
     };
 
 Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
@@ -136,7 +131,6 @@ Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) 
       StravaEntry() => Colors.white,
       TaskTimeLineEntry() => cs.onTertiary,
       InstallationEntry() => cs.onSecondary,
-      RatingEntryTimelineEntry() => Colors.white,
     };
 
 String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
@@ -144,7 +138,6 @@ String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
       StravaEntry() => entry.activity.name,
       TaskTimeLineEntry() => entry.taskEntry.name,
       InstallationEntry() => entry.componentInstallation.shortLabel,
-      RatingEntryTimelineEntry() => entry.ratingEntry.displayName,
     };
 
 IconData calendarIconForRow(
@@ -278,8 +271,6 @@ class _CalendarPageState extends State<CalendarPage> {
         ...appRepository.view.taskEntries.values.map((t) => TaskTimeLineEntry(t)),
       if (layers.shows(TimelineLayer.installations))
         ...appRepository.view.installations.map((ci) => InstallationEntry(ci)),
-      if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries))
-        ...appRepository.view.ratingEntries.values.map((re) => RatingEntryTimelineEntry(re)),
     ];
   }
 
@@ -487,8 +478,6 @@ class _CalendarPageState extends State<CalendarPage> {
           component: entry.componentInstallation.component,
           editEntry: entry.componentInstallation,
         );
-      case RatingEntryTimelineEntry():
-        await showRatingEntryDetailsSheet(context: context, ratingEntry: entry.ratingEntry);
     }
   }
 
@@ -625,15 +614,6 @@ class _CalendarPageState extends State<CalendarPage> {
           oldLocal,
           newLocal,
           () => appRepository.editComponents([originalComponent]),
-        );
-      case RatingEntryTimelineEntry():
-        final original = entry.ratingEntry;
-        await appRepository.editRatingEntry(original.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal));
-        _showMoveUndoSnackBar(
-          calendarSubjectFor(entry),
-          oldLocal,
-          newLocal,
-          () => appRepository.editRatingEntry(original),
         );
       case StravaEntry():
         // Strava activities are synced and read-only.

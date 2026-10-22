@@ -26,12 +26,6 @@ class DatabaseMigrationService {
         data.bikes.values.map((b) => b.toCompanion()),
       );
 
-      // Ratings
-      batch.insertAllOnConflictUpdate(
-        db.ratings,
-        data.ratings.values.map((r) => r.toCompanion()),
-      );
-
       // Task Rules
       batch.insertAllOnConflictUpdate(
         db.taskRules,
@@ -70,7 +64,7 @@ class DatabaseMigrationService {
       }
       batch.insertAllOnConflictUpdate(db.installations, installationsToInsert);
 
-      // Adjustments (nested in components, persons, ratings)
+      // Adjustments (nested in components, persons)
       final List<AdjustmentsCompanion> adjustmentsToInsert = [];
 
       void addAdjustments(
@@ -98,21 +92,6 @@ class DatabaseMigrationService {
       }
 
       batch.insertAllOnConflictUpdate(db.adjustments, adjustmentsToInsert);
-
-      // Rating metrics (nested in ratings) live in their own table.
-      final List<RatingMetricsCompanion> ratingMetricsToInsert = [];
-      for (final r in data.ratings.values) {
-        for (int i = 0; i < r.metrics.length; i++) {
-          ratingMetricsToInsert.add(r.metrics[i].toCompanion(ratingId: r.id, orderIndex: i));
-        }
-      }
-      batch.insertAllOnConflictUpdate(db.ratingMetrics, ratingMetricsToInsert);
-
-      // Rating Entries
-      batch.insertAllOnConflictUpdate(
-        db.ratingEntries,
-        data.ratingEntries.values.map((re) => re.toCompanion()),
-      );
 
       // -----------------------------------------------------------------------
       // Level 3: Events
@@ -157,22 +136,6 @@ class DatabaseMigrationService {
       }
 
       batch.insertAllOnConflictUpdate(db.setupAdjustmentValues, valuesToInsert);
-
-      // Rating Entry Values
-      final metricTypes = metricTypesOf(data.ratings.values);
-      final List<RatingEntryValuesCompanion> ratingEntryValuesToInsert = [];
-      for (final ratingEntry in data.ratingEntries.values) {
-        for (final entry in Setup.resolveAdjustmentValues(ratingEntry.metricValues, metricTypes).entries) {
-          ratingEntryValuesToInsert.add(
-            RatingEntryValuesCompanion.insert(
-              ratingEntryId: ratingEntry.id,
-              ratingMetricId: entry.key,
-              value: entry.value.encode(),
-            ),
-          );
-        }
-      }
-      batch.insertAllOnConflictUpdate(db.ratingEntryValues, ratingEntryValuesToInsert);
     });
   }
 }

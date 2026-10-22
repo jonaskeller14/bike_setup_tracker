@@ -90,7 +90,7 @@ void main() {
   group('placeholders', () {
     testWidgets('no chartable adjustment columns', (tester) async {
       await tester.pumpWidget(
-        harness(columns: [ComponentAdjustmentColumn('note', active: true), RatingScoreColumn(active: true)]),
+        harness(columns: [ComponentAdjustmentColumn('note', active: true)]),
       );
       expect(find.text('No adjustments selected'), findsOneWidget);
     });

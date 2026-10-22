@@ -6,7 +6,6 @@ import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/setup_history.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
@@ -43,9 +42,7 @@ void main() {
         bikes: const {},
         components: const {},
         setups: setups,
-        ratingEntries: const {},
         persons: const {},
-        ratings: const {},
         taskRules: const {},
         taskEntries: const {},
         hierarchy: ComponentHierarchyResolver(const {}),
@@ -68,7 +65,6 @@ void main() {
     when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => []);
     when(() => repository.hasStravaActivitiesWithPosition()).thenAnswer((_) async => false);
     when(() => repository.hasSetupsWithPosition).thenReturn(false);
-    when(() => repository.hasRatingEntriesWithPosition).thenReturn(false);
     repositoryListeners = [];
     when(() => repository.addListener(any())).thenAnswer(
       (invocation) => repositoryListeners.add(invocation.positionalArguments.first as VoidCallback),
@@ -96,7 +92,6 @@ void main() {
     Stream<LocationMarkerHeading?>? headingStream = const Stream.empty(),
     StravaActivity? focusActivity,
     List<Setup> focusSetups = const [],
-    RatingEntry? focusRatingEntry,
   }) {
     return MultiProvider(
       providers: [
@@ -110,7 +105,6 @@ void main() {
           headingStream: headingStream,
           focusActivity: focusActivity,
           focusSetups: focusSetups,
-          focusRatingEntry: focusRatingEntry,
         ),
       ),
     );
@@ -605,7 +599,7 @@ void main() {
     });
   });
 
-  group('Focused setups and rating entry', () {
+  group('Focused setups', () {
     Setup setupAt(double latitude, double longitude) => Setup(
       datetime: DateTime(2025, 6, 1).toUtc(),
       datetimeLocal: DateTime(2025, 6, 1),
@@ -661,21 +655,6 @@ void main() {
       await tester.pump();
 
       expect(find.byKey(Key('map-focus-setup-${setup.id}')), findsNothing);
-    });
-
-    testWidgets('opens centred on a rating entry', (tester) async {
-      final ratingEntry = RatingEntry(
-        bike: 'bike-1',
-        setupId: 'setup-1',
-        dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
-        dateTimeLocal: DateTime(2025, 6, 1),
-        position: const ContextPosition(latitude: 46.5, longitude: 9.8),
-      );
-      await tester.pumpWidget(buildPage(unpermittedService(), focusRatingEntry: ratingEntry));
-      await tester.pump();
-
-      expect(cameraOf(tester).center.latitude, closeTo(46.5, 0.001));
-      expect(find.byKey(const Key('map-focus-rating-entry')), findsOneWidget);
     });
   });
 

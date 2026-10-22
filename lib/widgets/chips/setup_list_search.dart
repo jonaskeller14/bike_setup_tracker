@@ -12,7 +12,6 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/text_search.dart';
 import '../items/installation_list_tile.dart';
-import '../items/rating_entry_list_tile.dart';
 import '../items/setup_tile.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
@@ -122,21 +121,6 @@ class SetupListSearch extends StatelessWidget {
           );
         }
 
-        if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries)) {
-          final ratingEntries = appRepository.view.ratingEntries.values;
-          matchingEntries.addAll(
-            ratingEntries
-                .where(
-                  (re) => searchFieldsMatch([
-                    re.displayName,
-                    re.notes,
-                    ...ContextPlace.searchableFields(re.place),
-                  ], searchTokens),
-                )
-                .map((re) => RatingEntryTimelineEntry(re)),
-          );
-        }
-
         matchingEntries.sort((a, b) {
           return sortAscending ? a.dateUTC.compareTo(b.dateUTC) : b.dateUTC.compareTo(a.dateUTC);
         });
@@ -179,8 +163,6 @@ class SetupListSearch extends StatelessWidget {
                   );
                 },
               );
-            case RatingEntryTimelineEntry():
-              return RatingEntryListTile(ratingEntry: entry.ratingEntry, showDate: false);
           }
         }
 

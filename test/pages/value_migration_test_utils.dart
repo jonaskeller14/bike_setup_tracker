@@ -27,12 +27,10 @@ RecordedValue recordedValue(
   String? label,
   bool deleted = false,
   DateTime? day,
-  RecordedValueSource source = RecordedValueSource.setup,
 }) {
   final id = 'record-${_recordCounter++}';
   return RecordedValue(
     recordId: id,
-    source: source,
     label: label ?? 'Record $id',
     dateTimeLocal: day ?? DateTime(2024, 3, 1),
     value: value,

@@ -1,5 +1,4 @@
 import 'component/resolved_installation.dart';
-import 'rating/rating_entry.dart';
 import 'setup.dart';
 import 'strava/strava_activity.dart';
 import 'task/task_entry.dart';
@@ -52,15 +51,4 @@ class InstallationEntry extends TimelineEntry {
   DateTime get dateUTC => componentInstallation.installation.dateTimeUTC;
   @override
   DateTime get dateLocal => componentInstallation.installation.dateTimeLocal;
-}
-
-class RatingEntryTimelineEntry extends TimelineEntry {
-  final RatingEntry ratingEntry;
-  RatingEntryTimelineEntry(this.ratingEntry);
-  @override
-  String get id => 'rating:${ratingEntry.id}';
-  @override
-  DateTime get dateUTC => ratingEntry.dateTimeUTC;
-  @override
-  DateTime get dateLocal => ratingEntry.dateTimeLocal;
 }

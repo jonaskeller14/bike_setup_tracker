@@ -24,7 +24,6 @@ List<String> _danglingReferences(Map<String, dynamic> json) {
   final bikes = ids('bikes');
   final components = ids('components');
   final persons = ids('persons');
-  final setups = ids('setups');
   final taskRules = ids('taskRules');
   final gears = ids('stravaGears');
   final componentAdjustments = adjustmentIds('components');
@@ -69,19 +68,6 @@ List<String> _danglingReferences(Map<String, dynamic> json) {
     check(taskRules.contains(entry['taskRule']), 'task entry ${entry['name']}: rule');
     check(bikes.contains(entry['bikeId']), 'task entry ${entry['name']}: bike');
     check(components.contains(entry['componentId']), 'task entry ${entry['name']}: component');
-  }
-  for (final rating in list('ratings')) {
-    final targets = switch (rating['filterType']) {
-      'FilterType.bike' => bikes,
-      'FilterType.component' => components,
-      'FilterType.person' => persons,
-      _ => null,
-    };
-    check(targets == null || targets.contains(rating['filter']), 'rating ${rating['name']}: filter');
-  }
-  for (final entry in list('ratingEntries')) {
-    check(bikes.contains(entry['bike']), 'rating entry ${entry['name']}: bike');
-    check(setups.contains(entry['setupId']), 'rating entry ${entry['name']}: setup');
   }
   for (final activity in list('stravaActivities')) {
     check(gears.contains(activity['gearId']), 'activity ${activity['name']}: gear');
@@ -189,7 +175,6 @@ void main() {
       final full = seedJson(DemoScenario.full);
       final json = seedJson(DemoScenario.noSetups);
       expect(json['setups'], isEmpty);
-      expect(json['ratingEntries'], isEmpty);
       expect(json['bikes'], full['bikes']);
       expect(json['components'], full['components']);
     });

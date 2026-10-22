@@ -5,9 +5,6 @@ import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating/rating.dart';
-import 'package:bike_setup_tracker/models/rating/rating_association.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
@@ -46,8 +43,6 @@ void main() {
     String? bikeId,
     Map<String, Component>? rawComponents,
     Map<String, Setup> setups = const {},
-    Map<String, RatingEntry> ratingEntries = const {},
-    Map<String, Rating> ratings = const {},
     Map<String, TaskRule> taskRules = const {},
     Map<String, TaskEntry> taskEntries = const {},
     SetupFilter setupFilter = const SetupFilter(),
@@ -59,9 +54,7 @@ void main() {
       bikes: bikes,
       components: allComponents,
       setups: setups,
-      ratingEntries: ratingEntries,
       persons: persons,
-      ratings: ratings,
       taskRules: taskRules,
       taskEntries: taskEntries,
       hierarchy: ComponentHierarchyResolver(allComponents, deletedComponentIds: const {"trashed"}),
@@ -131,44 +124,6 @@ void main() {
         setupFilter: const SetupFilter(tags: {"race"}, bookmarkedOnly: true),
       );
       expect(view.setups.keys, ["s1"]);
-    });
-  });
-
-  test("rating entries follow the bike scope", () {
-    RatingEntry entry(String id, String bike) =>
-        RatingEntry(id: id, bike: bike, setupId: "s1", dateTimeUTC: DateTime.utc(2024), dateTimeLocal: DateTime(2024));
-    final ratingEntries = byId([entry("e1", "b1"), entry("e2", "b2")], (entry) => entry.id);
-
-    expect(build(ratingEntries: ratingEntries).ratingEntries.keys, ["e1", "e2"]);
-    expect(build(ratingEntries: ratingEntries, bikeId: "b1").ratingEntries.keys, ["e1"]);
-  });
-
-  group("ratings", () {
-    Rating rating(String id, RatingAssociation association) => Rating(id: id, name: id, association: association);
-    final ratings = byId([
-      rating("global", const GlobalRatingAssociation()),
-      rating("otherPerson", const PersonRatingAssociation("p2")),
-      rating("bike1", const BikeRatingAssociation("b1")),
-      rating("bike2", const BikeRatingAssociation("b2")),
-      rating("fork", const ComponentRatingAssociation("fork")),
-      rating("shock", const ComponentRatingAssociation("shock")),
-      rating("wheel", const ComponentRatingAssociation("wheel")),
-      rating("forkType", ComponentTypeRatingAssociation(ComponentType.fork.toString())),
-      rating("shockType", ComponentTypeRatingAssociation(ComponentType.shock.toString())),
-    ], (rating) => rating.id);
-
-    test("without a bike every rating is kept", () {
-      expect(build(ratings: ratings).ratings.keys, ratings.keys);
-    });
-
-    test("a selected bike narrows bike, component and component type ratings", () {
-      expect(build(ratings: ratings, bikeId: "b1").ratings.keys, [
-        "global",
-        "otherPerson",
-        "bike1",
-        "fork",
-        "forkType",
-      ]);
     });
   });
 
@@ -305,10 +260,6 @@ void main() {
     );
 
     final setups = {for (final MapEntry(:key, :value) in moments.entries) key: setup(key, value)};
-    final ratingEntries = {
-      for (final MapEntry(:key, :value) in moments.entries)
-        key: RatingEntry(id: key, bike: "b1", setupId: "first", dateTimeUTC: value.toUtc(), dateTimeLocal: value),
-    };
     final taskRules = byId([
       TaskRule(id: "done", name: "done", tags: const {}),
       TaskRule(id: "open", name: "open", tags: const {}),
@@ -329,7 +280,6 @@ void main() {
     FilteredView view({LocalDateRange? dateRange, String? bikeId}) => build(
       rawComponents: moving,
       setups: setups,
-      ratingEntries: ratingEntries,
       taskRules: taskRules,
       taskEntries: taskEntries,
       dateRange: dateRange,
@@ -343,7 +293,6 @@ void main() {
       final unfiltered = view();
 
       expect(unfiltered.setups.keys, moments.keys);
-      expect(unfiltered.ratingEntries.keys, moments.keys);
       expect(unfiltered.taskEntries.keys, moments.keys);
       expect(installationIds(unfiltered), moments.keys);
     });
@@ -352,7 +301,6 @@ void main() {
       final filtered = view(dateRange: range);
 
       expect(filtered.setups.keys, ["first", "last"]);
-      expect(filtered.ratingEntries.keys, ["first", "last"]);
       expect(filtered.taskEntries.keys, ["first", "last"]);
       expect(installationIds(filtered), ["first", "last"]);
     });

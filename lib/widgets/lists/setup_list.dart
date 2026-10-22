@@ -37,7 +37,6 @@ class SetupList extends StatelessWidget {
   bool _hasAnyContent(AppRepository appRepository) {
     return appRepository.setups.isNotEmpty ||
         appRepository.taskEntries.isNotEmpty ||
-        appRepository.ratingEntries.isNotEmpty ||
         appRepository.components.values.any((c) => c.installations.isNotEmpty);
   }
 
@@ -152,15 +151,6 @@ class SetupList extends StatelessWidget {
                   : !ci.installation.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
             })
             .map((ci) => InstallationEntry(ci)),
-      if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries))
-        ...appRepository.view.ratingEntries.values
-            .where((re) {
-              if (horizonDate == null || !appRepository.hasMoreStrava) return true;
-              return sortAscending
-                  ? !re.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
-                  : !re.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
-            })
-            .map((re) => RatingEntryTimelineEntry(re)),
     ];
     entries.sort(
       (a, b) => sortAscending ? a.dateUTC.compareTo(b.dateUTC) : b.dateUTC.compareTo(a.dateUTC),

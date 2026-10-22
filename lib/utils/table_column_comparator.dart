@@ -17,7 +17,7 @@ Adjustment? adjustmentForColumn(
   ComponentAdjustmentColumn(:final adjustmentId) => componentAdjustments.firstWhereOrNull((a) => a.id == adjustmentId),
   PersonAttributeColumn(:final adjustmentId) => personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId),
   BikeAdjustmentColumn() => bikeAdjustmentFor?.call(column),
-  SetupTableColumn() || RatingMetricColumn() || RatingScoreColumn() => null,
+  SetupTableColumn() => null,
 };
 
 Comparator<Setup>? tableColumnComparator(
@@ -32,8 +32,6 @@ Comparator<Setup>? tableColumnComparator(
   switch (column) {
     case SetupTableColumn(column: final setupColumn):
       return setupColumnComparator(setupColumn, bikes: bikes, setupActivityCounts: setupActivityCounts);
-    case RatingScoreColumn() || RatingMetricColumn():
-      return _by((s) => valueFor(s, column)?.asNum ?? double.negativeInfinity);
     case ComponentAdjustmentColumn() || PersonAttributeColumn() || BikeAdjustmentColumn():
       final adjustment = adjustmentForColumn(
         column,

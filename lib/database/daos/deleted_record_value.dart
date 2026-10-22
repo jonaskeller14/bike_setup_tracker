@@ -1,4 +1,4 @@
-/// A value stored in a soft-deleted setup or rating entry, as the raw column text.
+/// A value stored in a soft-deleted setup, as the raw column text.
 class DeletedRecordValue {
   final String recordId;
   final String? name;

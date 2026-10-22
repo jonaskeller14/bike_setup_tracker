@@ -8,7 +8,6 @@ import '../models/component/component.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/task/task_association.dart';
@@ -52,7 +51,7 @@ String toText({
     buffer.writeln("SETUPS:");
     for (int i = 0; i < setups.length; i++) {
       final setup = setups[i];
-      _appendSetupText(buffer, setup, selectedData.bikes, selectedData.persons, selectedData.components, selectedData.ratings, appSettings);
+      _appendSetupText(buffer, setup, selectedData.bikes, selectedData.persons, selectedData.components, appSettings);
       if (i < setups.length - 1) {
         buffer.writeln("\n-----------\n");
       }
@@ -90,7 +89,6 @@ String setupToText({
     appRepository.bikes, 
     appRepository.persons, 
     appRepository.components, 
-    appRepository.ratings, 
     appSettings
   );
 
@@ -103,7 +101,6 @@ void _appendSetupText(
   Map<String, Bike> bikes,
   Map<String, Person> persons,
   Map<String, Component> components,
-  Map<String, Rating> ratings,
   AppSettings settings
 ) {
   final dateString = DateFormat(settings.dateFormat).format(setup.datetimeLocal);

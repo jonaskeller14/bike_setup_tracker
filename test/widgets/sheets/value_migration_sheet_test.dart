@@ -16,12 +16,10 @@ RecordedValue _record(
   String? label,
   bool deleted = false,
   DateTime? day,
-  RecordedValueSource source = RecordedValueSource.setup,
 }) {
   final id = 'r${_counter++}';
   return RecordedValue(
     recordId: id,
-    source: source,
     label: label ?? 'Record $id',
     dateTimeLocal: day ?? DateTime(2024, 3, 1),
     value: value,
@@ -114,14 +112,6 @@ void main() {
       await openSheet(tester, _rangeProposal(recorded: [_record(const NumericalValue(80), deleted: true)]));
       expect(find.widgetWithText(FilledButton, 'Update 1 deleted setup'), findsOneWidget);
     });
-
-    testWidgets('rating entries', (tester) async {
-      await openSheet(
-        tester,
-        _rangeProposal(recorded: [_record(const NumericalValue(80), source: RecordedValueSource.ratingEntry)]),
-      );
-      expect(find.widgetWithText(FilledButton, 'Update 1 rating entry'), findsOneWidget);
-    });
   });
 
   testWidgets('without a decision the summary does not ask for one', (tester) async {
@@ -145,28 +135,11 @@ void main() {
     );
   });
 
-  testWidgets('rating metrics point to editing rating entries', (tester) async {
-    await openSheet(
-      tester,
-      _rangeProposal(recorded: [_record(const NumericalValue(80), source: RecordedValueSource.ratingEntry)]),
-    );
-    expect(find.textContaining('Cancel, change those rating entries first'), findsOneWidget);
-  });
-
   testWidgets('has no record list to open', (tester) async {
     await openSheet(tester, _rangeProposal());
 
     expect(find.textContaining('Show affected'), findsNothing);
     expect(find.text('Alpine'), findsNothing);
-  });
-
-  testWidgets('counts rating entries', (tester) async {
-    final proposal = _rangeProposal(
-      recorded: [_record(const NumericalValue(80), source: RecordedValueSource.ratingEntry)],
-    );
-    await openSheet(tester, proposal);
-
-    expect(find.textContaining('affects 1 rating entry.'), findsOneWidget);
   });
 
   testWidgets('shows a single example card with the value before and after', (tester) async {

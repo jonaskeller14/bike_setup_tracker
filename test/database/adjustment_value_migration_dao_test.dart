@@ -1,7 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
@@ -179,112 +178,6 @@ void main() {
     });
   });
 
-  group('RatingEntriesDao.migrateMetricValues', () {
-    Future<void> addEntry(String id, Map<String, AdjustmentValue> values) async {
-      await database.ratingEntriesDao.insertRatingEntryWithValues(
-        entry: RatingEntry(
-          id: id,
-          bike: 'bike1',
-          setupId: 's1',
-          dateTimeUTC: DateTime.utc(2026, 9, 27),
-          dateTimeLocal: DateTime(2026, 9, 27),
-          metricValues: const {},
-        ).toCompanion(),
-        values: values,
-      );
-      await (database.update(
-        database.ratingEntries,
-      )..where((t) => t.id.equals(id))).write(RatingEntriesCompanion(lastModified: Value(_aged)));
-    }
-
-    Future<Map<String, String>> storedValues(String metricId) async {
-      final rows = await (database.select(
-        database.ratingEntryValues,
-      )..where((t) => t.ratingMetricId.equals(metricId))).get();
-      return {for (final row in rows) row.ratingEntryId: row.value};
-    }
-
-    Future<DateTime> lastModified(String entryId) async {
-      final entry = await (database.select(database.ratingEntries)..where((t) => t.id.equals(entryId))).getSingle();
-      return entry.lastModified;
-    }
-
-    test('rewrites the values of live and soft-deleted entries', () async {
-      await addEntry('live', {'m': const NumericalValue(10)});
-      await addEntry('deleted', {'m': const NumericalValue(20)});
-      await database.ratingEntriesDao.softDelete('deleted');
-
-      await database.ratingEntriesDao.migrateMetricValues(
-        'm',
-        AdjustmentType.numerical,
-        ValueMigration('m', const [ConvertUnitStep(_psi, _bar)]),
-      );
-
-      final stored = await storedValues('m');
-      expect(
-        (AdjustmentValue.decode(stored['live']!, AdjustmentType.numerical)! as NumericalValue).value,
-        closeTo(0.689476, 1e-5),
-      );
-      expect(
-        (AdjustmentValue.decode(stored['deleted']!, AdjustmentType.numerical)! as NumericalValue).value,
-        closeTo(1.378951, 1e-5),
-      );
-    });
-
-    test('a null result deletes the row', () async {
-      await addEntry('e', {'m': const StepValue(4), 'other': const StepValue(2)});
-
-      await database.ratingEntriesDao.migrateMetricValues(
-        'm',
-        AdjustmentType.step,
-        ValueMigration('m', const [ClearAllStep()]),
-      );
-
-      expect(await storedValues('m'), isEmpty);
-      expect(await storedValues('other'), hasLength(1));
-      expect(await lastModified('e'), isNot(_aged));
-    });
-
-    test('lastModified is bumped only on entries whose value changed', () async {
-      await addEntry('changed', {
-        'm': CategoricalValue(const ['A']),
-      });
-      await addEntry('unchanged', {
-        'm': CategoricalValue(const ['B']),
-      });
-
-      await database.ratingEntriesDao.migrateMetricValues(
-        'm',
-        AdjustmentType.categorical,
-        ValueMigration('m', [
-          MapOptionsStep(const {'A': 'C'}),
-        ]),
-      );
-
-      final stored = await storedValues('m');
-      expect(stored['changed'], CategoricalValue(const ['C']).encode());
-      expect(stored['unchanged'], CategoricalValue(const ['B']).encode());
-      expect(await lastModified('changed'), isNot(_aged));
-      expect(await lastModified('unchanged'), _aged);
-    });
-
-    test('rows that do not decode with the type are left as stored', () async {
-      await database
-          .into(database.ratingEntryValues)
-          .insert(
-            RatingEntryValuesCompanion.insert(ratingEntryId: 'e', ratingMetricId: 'm', value: '"n/a"'),
-          );
-
-      await database.ratingEntriesDao.migrateMetricValues(
-        'm',
-        AdjustmentType.numerical,
-        ValueMigration('m', const [ClearAllStep()]),
-      );
-
-      expect(await storedValues('m'), {'e': '"n/a"'});
-    });
-  });
-
   group('getDeletedValuesFor', () {
     test('returns only soft-deleted setups holding a value for the adjustment', () async {
       Future<void> addSetup(String id, String? name, Map<String, AdjustmentValue> values) =>
@@ -316,33 +209,6 @@ void main() {
       expect(rows.single.name, 'Gone');
       expect(rows.single.dateTimeLocal, DateTime(2026, 9, 27, 8));
       expect(rows.single.rawValue, const NumericalValue(2).encode());
-    });
-
-    test('returns only soft-deleted rating entries holding a value for the metric', () async {
-      Future<void> addEntry(String id, Map<String, AdjustmentValue> values) =>
-          database.ratingEntriesDao.insertRatingEntryWithValues(
-            entry: RatingEntry(
-              id: id,
-              bike: 'bike1',
-              setupId: 's1',
-              dateTimeUTC: DateTime.utc(2026, 9, 27),
-              dateTimeLocal: DateTime(2026, 9, 27, 8),
-              metricValues: const {},
-            ).toCompanion(),
-            values: values,
-          );
-      await addEntry('live', {'m': const StepValue(1)});
-      await addEntry('deleted', {'m': const StepValue(2)});
-      await addEntry('deleted-other', {'n': const StepValue(3)});
-      await database.ratingEntriesDao.softDelete('deleted');
-      await database.ratingEntriesDao.softDelete('deleted-other');
-
-      final rows = await database.ratingEntriesDao.getDeletedValuesFor('m');
-
-      expect(rows, hasLength(1));
-      expect(rows.single.recordId, 'deleted');
-      expect(rows.single.name, isNull);
-      expect(rows.single.rawValue, const StepValue(2).encode());
     });
   });
 }

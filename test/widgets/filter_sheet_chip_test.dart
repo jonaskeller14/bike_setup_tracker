@@ -47,6 +47,9 @@ void main() {
 
   void hideLayers(Set<TimelineLayer> layers) => filters.layers = LayerFilter(hidden: layers);
 
+  void setStravaActive(bool active) =>
+      when(() => mockSubscription.hasStravaEntitlement).thenReturn(active);
+
   Widget createWidgetUnderTest(FilterSheetChip chip) {
     return MultiProvider(
       providers: [
@@ -84,7 +87,7 @@ void main() {
 
   group('FilterSheetChip label — sheet with extra sections (map case)', () {
     const mapChip = FilterSheetChip.map;
-    setUp(() => appSettings.enableRating = true);
+    setUp(() => setStravaActive(true));
 
     testWidgets('shows "Filter" instead of "All Bikes" when no bike selected', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
@@ -246,7 +249,7 @@ void main() {
     const mapChip = FilterSheetChip.map;
 
     setUp(() {
-      appSettings.enableRating = true;
+      setStravaActive(true);
       appSettings.enableSetupTags = true;
       appSettings.enableSetupBookmark = true;
     });
@@ -259,7 +262,7 @@ void main() {
     });
 
     testWidgets('ignores hidden layers while no layer section is offered', (tester) async {
-      appSettings.enableRating = false;
+      setStravaActive(false);
       hideLayers({TimelineLayer.setups});
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
 
@@ -279,7 +282,7 @@ void main() {
       selectBike();
       selectTags({'t1'});
       filters.setup = filters.setup.copyWith(bookmarkedOnly: true);
-      hideLayers({TimelineLayer.setups, TimelineLayer.ratingEntries, TimelineLayer.tasks});
+      hideLayers({TimelineLayer.setups, TimelineLayer.activities, TimelineLayer.tasks});
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
 
       tester.widget<FilterChip>(find.byType(FilterChip)).onDeleted!();
@@ -304,7 +307,7 @@ void main() {
     });
 
     testWidgets('ignores a hidden layer whose feature is off', (tester) async {
-      hideLayers({TimelineLayer.installations, TimelineLayer.ratingEntries, TimelineLayer.activities});
+      hideLayers({TimelineLayer.installations, TimelineLayer.activities});
       await tester.pumpWidget(createWidgetUnderTest(timelineChip));
 
       expect(find.text('Filter'), findsOneWidget);

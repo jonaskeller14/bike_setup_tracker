@@ -14,10 +14,6 @@ import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
-import '../models/rating/rating_association.dart';
-import '../models/rating/rating_entry.dart';
-import '../models/rating/rating_metric.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
@@ -27,7 +23,6 @@ import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
 import 'app_database.dart';
-import 'daos/rating_entries_dao.dart';
 import 'daos/setups_dao.dart';
 
 extension BikeDbMapper on BikeDb {
@@ -128,38 +123,6 @@ extension PersonDbMapper on PersonDb {
       stravaAthlete: stravaAthlete,
       adjustments: adjustments,
       orderIndex: orderIndex,
-    );
-  }
-}
-
-extension RatingDbMapper on RatingDb {
-  Rating toModel({List<RatingMetric> metrics = const []}) {
-    return Rating(
-      id: id,
-      isDeleted: isDeleted,
-      lastModified: _toUtcSafe(lastModified, 'Rating.lastModified'),
-      name: name,
-      notes: notes,
-      association: RatingAssociation.fromFilter(filterType, filter),
-      metrics: metrics,
-      orderIndex: orderIndex,
-    );
-  }
-}
-
-extension RatingMetricDbMapper on RatingMetricDb {
-  RatingMetric toModel() {
-    final Map<String, dynamic> payload = jsonDecode(jsonPayload ?? '{}') as Map<String, dynamic>;
-    payload['id'] = id;
-    payload['name'] = name;
-    payload['notes'] = notes;
-    payload['unit'] = unit;
-    payload['type'] = type.name;
-    payload['version'] = payload['version'] ?? 1;
-
-    return RatingMetric(
-      adjustment: Adjustment.fromJson(payload),
-      weight: weight,
     );
   }
 }
@@ -302,41 +265,6 @@ extension PersonMapper on Person {
   }
 }
 
-extension RatingMetricMapper on RatingMetric {
-  RatingMetricsCompanion toCompanion({
-    required String ratingId,
-    required int orderIndex,
-  }) {
-    final json = adjustment.toJson();
-    return RatingMetricsCompanion(
-      id: Value<String>(adjustment.id),
-      ratingId: Value<String>(ratingId),
-      orderIndex: Value<int>(orderIndex),
-      weight: Value<double>(weight),
-      name: Value<String>(adjustment.name),
-      notes: Value<String?>(adjustment.notes),
-      unit: Value<String?>(adjustment.unit?.encode()),
-      type: Value<AdjustmentType>(adjustment.type),
-      jsonPayload: Value<String?>(jsonEncode(json)),
-    );
-  }
-}
-
-extension RatingMapper on Rating {
-  RatingsCompanion toCompanion() {
-    return RatingsCompanion(
-      id: Value<String>(id),
-      isDeleted: Value<bool>(isDeleted),
-      lastModified: Value<DateTime>(lastModified),
-      name: Value<String>(name),
-      notes: Value<String?>(notes),
-      filter: Value<String?>(association.filter),
-      filterType: Value<FilterType>(association.filterType),
-      orderIndex: Value<int>(orderIndex),
-    );
-  }
-}
-
 extension TaskRuleMapper on TaskRule {
   TaskRulesCompanion toCompanion() {
     return TaskRulesCompanion(
@@ -457,55 +385,6 @@ extension SetupDbMapper on SetupDb {
       position: position,
       place: place,
       weather: weather,
-    );
-  }
-}
-
-extension RatingEntryDbMapper on RatingEntryDb {
-  RatingEntry toModel({List<TypedRatingEntryValue> values = const []}) {
-    final metricValues = <String, AdjustmentValue>{};
-    for (final typedValue in values) {
-      final raw = typedValue.value.value;
-      final parsedValue = switch (typedValue.metric) {
-        final metric? => AdjustmentValue.decode(raw, metric.type),
-        null => UnresolvedValue.orNull(raw),
-      };
-      if (parsedValue != null) metricValues[typedValue.value.ratingMetricId] = parsedValue;
-    }
-
-    return RatingEntry(
-      id: id,
-      isDeleted: isDeleted,
-      lastModified: _toUtcSafe(lastModified, 'RatingEntry.lastModified'),
-      name: name,
-      bike: bikeId,
-      setupId: setupId,
-      dateTimeUTC: _toUtcSafe(dateTimeUTC, 'RatingEntry.dateTimeUTC'),
-      dateTimeLocal: dateTimeLocal,
-      notes: notes,
-      metricValues: metricValues,
-      position: position,
-      place: place,
-      weather: weather,
-    );
-  }
-}
-
-extension RatingEntryMapper on RatingEntry {
-  RatingEntriesCompanion toCompanion() {
-    return RatingEntriesCompanion(
-      id: Value<String>(id),
-      bikeId: Value<String>(bike),
-      setupId: Value<String>(setupId),
-      isDeleted: Value<bool>(isDeleted),
-      lastModified: Value<DateTime>(lastModified),
-      name: Value<String?>(name),
-      dateTimeUTC: Value<DateTime>(dateTimeUTC),
-      dateTimeLocal: Value<DateTime>(dateTimeLocal),
-      notes: Value<String?>(notes),
-      position: Value<ContextPosition?>(position),
-      place: Value<geo.Placemark?>(place),
-      weather: Value<ContextWeather?>(weather),
     );
   }
 }

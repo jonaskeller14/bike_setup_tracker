@@ -60,7 +60,6 @@ class _SetupLineChartState extends State<SetupLineChart> {
     final appSettings = context.read<AppSettings>();
 
     final activeChartColumns = widget.activeColumns.where((column) {
-      if (column is RatingScoreColumn || column is RatingMetricColumn) return true;
       final adjustment = widget.adjustmentFor(column);
       return adjustment is StepAdjustment || adjustment is NumericalAdjustment;
     }).toList();

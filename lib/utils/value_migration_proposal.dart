@@ -97,9 +97,8 @@ class MigrationIssue {
 class AffectedRecords {
   final int live;
   final int deleted;
-  final RecordedValueSource? source;
 
-  const AffectedRecords(this.live, this.deleted, this.source);
+  const AffectedRecords(this.live, this.deleted);
 
   factory AffectedRecords.of(Iterable<RecordedValue> records) {
     final byId = <String, RecordedValue>{};
@@ -109,7 +108,6 @@ class AffectedRecords {
     return AffectedRecords(
       byId.values.where((r) => !r.isDeleted).length,
       byId.values.where((r) => r.isDeleted).length,
-      byId.values.firstOrNull?.source,
     );
   }
 

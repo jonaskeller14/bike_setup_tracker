@@ -258,7 +258,6 @@ void main() {
         bikes: {myBike.id: myBike},
         persons: {me.id: me},
         components: {fork.id: fork},
-        ratings: {},
       );
       Widget compactAt(String id) =>
           compactFor(result.setups[id]!, previous: result.history.previousValuesOf(id), displayOnlyChanges: false);

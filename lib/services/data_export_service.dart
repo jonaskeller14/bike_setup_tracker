@@ -14,8 +14,6 @@ class DataExportService {
     final components = await database.componentsDao.getAllComponentsWithDataBypass();
     final setups = await database.setupsDao.getAllSetupsWithValuesBypass();
     final persons = await database.personsDao.getAllPersonsWithDataBypass();
-    final ratings = await database.ratingsDao.getAllRatingsWithDataBypass();
-    final ratingEntries = await database.ratingEntriesDao.getAllRatingEntriesWithValuesBypass();
 
     final taskRules = await database.taskDao.getAllRulesBypass();
     final taskEntries = await database.taskDao.getAllEntriesBypass();
@@ -46,18 +44,6 @@ class DataExportService {
           .map((c) => c.component.toModel(
                 adjustments: c.adjustments.map((a) => a.toModel()).toList(),
                 installations: c.installations.map((i) => i.toModel()).toList(),
-              ).toJson())
-          .toList(),
-      'ratings': ratings
-          .where((r) => subset == null || subset.ratings.containsKey(r.rating.id))
-          .map((r) => r.rating.toModel(
-                metrics: r.metrics.map((m) => m.toModel()).toList(),
-              ).toJson())
-          .toList(),
-      'ratingEntries': ratingEntries
-          .where((re) => subset == null || subset.ratingEntries.containsKey(re.entry.id))
-          .map((re) => re.entry.toModel(
-                values: re.values,
               ).toJson())
           .toList(),
       'taskRules': taskRules

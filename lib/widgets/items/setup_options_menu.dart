@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/setup_actions.dart';
@@ -52,7 +51,6 @@ class SetupOptionsMenu extends StatelessWidget {
     return switch (option) {
       _SetupOption.edit || _SetupOption.share || _SetupOption.restore || _SetupOption.compare || _SetupOption.remove => true,
       _SetupOption.bookmark => appSettings.enableSetupBookmark,
-      _SetupOption.addRating => appSettings.enableRating,
     };
   }
 
@@ -71,8 +69,6 @@ class SetupOptionsMenu extends StatelessWidget {
         await SetupActions.duplicateSetup(context, setup: setup);
       case _SetupOption.compare:
         await showCompareSetupsSheet(context, setupA: null, setupB: setup);
-      case _SetupOption.addRating:
-        await SetupActions.addRatingEntryForSetup(context, setup: setup);
       case _SetupOption.remove:
         await SetupActions.removeSetup(context, setup: setup);
     }
@@ -85,7 +81,6 @@ enum _SetupOption {
   share('Share', Icons.share),
   restore('Restore', Icons.restore),
   compare('Compare', Icons.compare),
-  addRating('Add Rating', RatingEntry.iconData),
   remove('Remove', Icons.delete);
 
   final String label;

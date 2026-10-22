@@ -57,18 +57,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   TableColumn? _selectedHistogramColumn;
   Set<String>? _selectedSetupIds;
 
-  Map<String, double?> _ratingScores = {};
-  Map<String, Map<String, double>> _metricScores = {};
-  // ratingMetricId → display name, for the per-metric rating columns.
-  Map<String, String> _ratingMetricNames = {};
-
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
-  // Rating scores ride along as numerical values so tables and charts treat them like any number.
   AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
-    RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
-    RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
     SetupTableColumn() || BikeAdjustmentColumn() => null,
   };
 
@@ -79,8 +71,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   ) {
     return switch (column) {
       SetupTableColumn(column: final setupColumn) => setupColumn.label,
-      RatingScoreColumn() => "Rating Score",
-      RatingMetricColumn(:final metricId) => _ratingMetricNames[metricId] ?? metricId,
       ComponentAdjustmentColumn(:final adjustmentId) =>
         componentAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       PersonAttributeColumn(:final adjustmentId) =>
@@ -176,19 +166,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         .reversed
         .toList();
 
-    // Rating scores derived from RatingEntries that resolve to each setup:
-    // overall (0–10) and per-metric sub-scores (0–10).
-    _ratingScores = {for (final s in setupsUnsorted) s.id: appRepository.scoreForSetup(s.id)};
-    _metricScores = {for (final s in setupsUnsorted) s.id: appRepository.metricScoresForSetup(s.id)};
-
-    // Rating-metric columns: one per metric that actually has data here, named
-    // after the metric (values are the 0–10 sub-scores above).
-    final allRatingMetrics = appRepository.allRatingMetricsById;
-    final ratingMetricIds = <String>{for (final m in _metricScores.values) ...m.keys};
-    _ratingMetricNames = {
-      for (final id in ratingMetricIds) id: allRatingMetrics[id]?.adjustment.name ?? id,
-    };
-
     // Built-in columns available under the current feature flags.
     final availableSetupColumns = SetupColumn.values.where(
       (column) => switch (column) {
@@ -209,10 +186,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       for (final adjustment in componentAdjustments) retained(ComponentAdjustmentColumn(adjustment.id, active: true)),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
-      if (appSettings.enableRating) ...[
-        for (final id in ratingMetricIds) retained(RatingMetricColumn(id, active: false)),
-        retained(RatingScoreColumn(active: false)),
-      ],
     };
 
     final orderedColumns = _columns.toList();

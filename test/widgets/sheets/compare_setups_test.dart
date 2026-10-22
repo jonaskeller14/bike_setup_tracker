@@ -921,30 +921,4 @@ void main() {
     expect(find.byKey(const Key('compare-identity-band')), findsNothing);
     expect(find.text('A setup is no longer available'), findsOneWidget);
   });
-
-  testWidgets('Ratings is shown in Differences and All when enabled', (tester) async {
-    harness.settings.enableRating = true;
-    final (setupAId, setupBId) = await seedPair(tester);
-    await pumpComparison(tester, setupAId, setupBId);
-
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
-    await settle(tester);
-    expect(find.text('RATINGS'), findsOneWidget);
-    expect(find.text('No ratings yet'), findsNWidgets(2));
-
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, 2000));
-    await settle(tester);
-    await tester.tap(find.text('All'));
-    await settle(tester);
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
-    await settle(tester);
-    expect(find.text('RATINGS'), findsOneWidget);
-    expect(find.byType(PinnedHeaderSliver), findsNWidgets(4));
-    expect(find.text('No ratings yet'), findsNWidgets(2));
-
-    harness.settings.enableRating = false;
-    await tester.pump();
-    await settle(tester);
-    expect(find.text('Ratings'), findsNothing);
-  });
 }

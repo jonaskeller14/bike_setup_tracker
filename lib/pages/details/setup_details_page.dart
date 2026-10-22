@@ -7,7 +7,6 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/person.dart';
-import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
@@ -27,7 +26,6 @@ import '../../widgets/items/card_header_tile.dart';
 import '../../widgets/items/context_bike_person_card.dart';
 import '../../widgets/items/context_location_weather_card.dart';
 import '../../widgets/items/context_meta_card.dart';
-import '../../widgets/items/rating_summary_card.dart';
 import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
@@ -202,8 +200,6 @@ class SetupDetailsPageContent extends StatelessWidget {
       case _SetupDetailsAction.restore:
         final restored = await SetupActions.duplicateSetup(context, setup: setup);
         if (restored != null && context.mounted) Navigator.pop(context);
-      case _SetupDetailsAction.addRating:
-        await SetupActions.addRatingEntryForSetup(context, setup: setup);
       case _SetupDetailsAction.viewOnMap:
         await MapActions.openSetupsOnMap(context, [setup]);
       case _SetupDetailsAction.openInMapsApp:
@@ -212,14 +208,12 @@ class SetupDetailsPageContent extends StatelessWidget {
   }
 
   Widget _actionsMenu(BuildContext context, {required Setup setup}) {
-    final appSettings = context.read<AppSettings>();
     final hasPosition = setup.position?.latitude != null && setup.position?.longitude != null;
     final actions = <_SetupDetailsAction>[
       if (showEditAction) _SetupDetailsAction.edit,
       _SetupDetailsAction.share,
       _SetupDetailsAction.compare,
       if (!context.watch<AppRepository>().setupHistory.isCurrent(setup.id)) _SetupDetailsAction.restore,
-      if (appSettings.enableRating) _SetupDetailsAction.addRating,
       if (showViewOnMap) ...[_SetupDetailsAction.viewOnMap, _SetupDetailsAction.openInMapsApp],
     ];
     return Semantics(
@@ -652,25 +646,8 @@ class SetupDetailsPageContent extends StatelessWidget {
     );
   }
 
-  SliverToBoxAdapter _ratingEntriesSection(BuildContext context, {required Setup setup}) {
-    final appRepository = context.watch<AppRepository>();
-
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        child: RatingSummaryCard(
-          entryCount: appRepository.ratingEntriesForSetup(setup.id).length,
-          score: appRepository.scoreForSetup(setup.id),
-          metricScores: appRepository.metricScoresForSetup(setup.id),
-          metrics: appRepository.allRatingMetricsById,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -732,14 +709,6 @@ class SetupDetailsPageContent extends StatelessWidget {
                     _legend(context),
                   ]
                 ),
-                if (appSettings.enableRating)
-                  SliverMainAxisGroup(
-                    slivers: [
-                      const SliverToBoxAdapter(child: Divider(height: 8)),
-                      _sectionTitle(context, setup: setup, title: "Ratings"),
-                      _ratingEntriesSection(context, setup: setup),
-                    ],
-                  ),
               ],
             ),
           ),
@@ -780,7 +749,6 @@ enum _SetupDetailsAction {
   share('Share', Icons.share),
   compare('Compare', Icons.compare),
   restore('Restore', Icons.restore),
-  addRating('Add Rating', RatingEntry.iconData),
   viewOnMap('View on map', Icons.map, needsPosition: true),
   openInMapsApp('Open in maps app', Icons.directions, needsPosition: true);
 

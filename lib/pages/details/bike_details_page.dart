@@ -64,22 +64,14 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   Set<String>? _selectedSetupIds;
   Set<TableColumn> _columns = {};
 
-  Map<String, double?> _ratingScores = {};
-  Map<String, Map<String, double>> _metricScores = {};
-  // ratingMetricId -> display name, for the per-metric rating columns.
-  Map<String, String> _ratingMetricNames = {};
-
   BikeAdjustmentProjection? _projection;
   // Columns whose value changes at least once; these are active by default.
   Set<BikeAdjustmentColumnKey> _changingColumns = {};
   Object? _projectionSource;
 
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
-  // Rating scores ride along as numerical values so tables and charts treat them like any number.
   AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
-    RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
-    RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
     BikeAdjustmentColumn(:final key) => _projection?.valueFor(setup, key),
     ComponentAdjustmentColumn() || SetupTableColumn() => null,
   };
@@ -130,8 +122,6 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   String _columnLabel(TableColumn column, Iterable<Adjustment> personAdjustments) {
     return switch (column) {
       SetupTableColumn(column: final setupColumn) => setupColumn.label,
-      RatingScoreColumn() => "Rating Score",
-      RatingMetricColumn(:final metricId) => _ratingMetricNames[metricId] ?? metricId,
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       ComponentAdjustmentColumn(:final adjustmentId) => adjustmentId,
@@ -206,18 +196,6 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
         .reversed
         .toList();
 
-    // Rating scores derived from RatingEntries that resolve to each setup:
-    // overall (0-10) and per-metric sub-scores (0-10).
-    // Scored over all bike setups so filtering does not drop rating-metric columns.
-    _ratingScores = {for (final s in bikeSetups) s.id: appRepository.scoreForSetup(s.id)};
-    _metricScores = {for (final s in bikeSetups) s.id: appRepository.metricScoresForSetup(s.id)};
-
-    final allRatingMetrics = appRepository.allRatingMetricsById;
-    final ratingMetricIds = <String>{for (final m in _metricScores.values) ...m.keys};
-    _ratingMetricNames = {
-      for (final id in ratingMetricIds) id: allRatingMetrics[id]?.adjustment.name ?? id,
-    };
-
     // Built-in columns available under the current feature flags; the bike is fixed here.
     final availableSetupColumns = SetupColumn.values.where(
       (column) => switch (column) {
@@ -239,10 +217,6 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       for (final key in projection.columns) retained(BikeAdjustmentColumn(key, active: _changingColumns.contains(key))),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
-      if (appSettings.enableRating) ...[
-        for (final id in ratingMetricIds) retained(RatingMetricColumn(id, active: false)),
-        retained(RatingScoreColumn(active: false)),
-      ],
     };
 
     final orderedColumns = _columns.toList();

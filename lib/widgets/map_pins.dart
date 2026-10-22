@@ -123,25 +123,3 @@ class StravaActivityMapPin extends StatelessWidget {
     );
   }
 }
-
-class RatingEntryMapPin extends StatelessWidget {
-  const RatingEntryMapPin({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-          child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
-        ),
-        const Icon(
-          Icons.location_pin,
-          size: 40,
-          color: Color(0xFFF9A825), // amber — rating entries (matches calendar)
-        ),
-      ],
-    );
-  }
-}

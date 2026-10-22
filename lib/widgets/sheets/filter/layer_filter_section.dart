@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../../icons/simple_icons.dart';
 import '../../../models/app_settings.dart';
 import '../../../models/filters/layer_filter.dart';
-import '../../../models/rating/rating.dart';
 import '../../../models/setup.dart';
 import '../../../repositories/app_repository.dart';
 import '../../../services/subscription_service.dart';
@@ -24,7 +23,6 @@ class LayerFilterSection extends StatelessWidget {
     TimelineLayer.activities => SimpleIcons.strava,
     TimelineLayer.tasks => Icons.check_box_outlined,
     TimelineLayer.installations => Icons.swap_horiz,
-    TimelineLayer.ratingEntries => Rating.iconData,
   };
 
   String _label(TimelineLayer layer) => switch (layer) {
@@ -32,7 +30,6 @@ class LayerFilterSection extends StatelessWidget {
     TimelineLayer.activities => section == FilterSection.mapLayers ? "Strava Activities" : "Activities",
     TimelineLayer.tasks => "Tasks",
     TimelineLayer.installations => "Installations",
-    TimelineLayer.ratingEntries => "Ratings",
   };
 
   @override

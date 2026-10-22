@@ -278,11 +278,6 @@ class _SetupTableState extends State<SetupTable> {
         return _adjustmentCell(context, setup, column, widget.previousValueFor?.call(setup, column));
       case PersonAttributeColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, widget.setupHistory.previousPersonValuesOf(setup.id)[adjustmentId]);
-      case RatingScoreColumn() || RatingMetricColumn():
-        final score = widget.valueFor(setup, column)?.asNum;
-        return DataCell(
-          Center(child: Text(score == null ? '-' : "${score.toStringAsFixed(1)} / 10")),
-        );
     }
   }
 

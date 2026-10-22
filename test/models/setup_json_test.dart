@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -177,23 +176,6 @@ void main() {
       expect(setup.bikeAdjustmentValues['note'], TextValue.orNull('0:10:00'));
       expect(setup.bikeAdjustmentValues['cat'], CategoricalValue(const ['Front']));
       expect(setup.personAdjustmentValues['weight'], isA<NumericalValue>());
-    });
-
-    test('RatingEntry.fromJson decodes metric values by type', () {
-      final entry = RatingEntry.fromJson(
-        json: const {
-          'version': 1,
-          'id': 'r1',
-          'bike': 'b1',
-          'setupId': 's1',
-          'dateTimeUTC': '2026-09-27T09:00:00.000Z',
-          'metricValues': {'comment': '0:10:00', 'score': 4},
-        },
-        metricTypes: const {'comment': AdjustmentType.text, 'score': AdjustmentType.numerical},
-      );
-
-      expect(entry.metricValues['comment'], TextValue.orNull('0:10:00'));
-      expect(entry.metricValues['score'], const NumericalValue(4.0));
     });
   });
 

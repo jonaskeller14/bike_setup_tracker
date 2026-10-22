@@ -15,7 +15,6 @@ class Adjustments extends Table {
       text().nullable().references(Persons, #id, onDelete: KeyAction.cascade)();
 
   // For sorting adjustments within its parent (Component or Person).
-  // Rating metrics live in their own RatingMetrics table.
   IntColumn get orderIndex => integer()();
 
   @override

@@ -140,6 +140,17 @@ Iterable<ResolvedPreset> _requiredCombinations(ResolvedPreset preset) sync* {
   }
 }
 
+/// Whether [suggestion] names [current]: the same product with the same
+/// required values. Optional values and the year are not compared, as a
+/// suggestion leaves them unset.
+bool suggestionMatches(ResolvedPreset suggestion, ResolvedPreset current) {
+  if (suggestion.catalog.id != current.catalog.id || suggestion.path.length != current.path.length) return false;
+  for (var depth = 0; depth < suggestion.path.length; depth++) {
+    if (suggestion.path[depth].id != current.path[depth].id) return false;
+  }
+  return suggestion.selections.entries.every((entry) => current.selections[entry.key]?.id == entry.value.id);
+}
+
 int _matchTier(ResolvedPreset product, String query, String firstToken) {
   final brand = product.catalog.brand.toLowerCase();
   final brandId = product.catalog.id;

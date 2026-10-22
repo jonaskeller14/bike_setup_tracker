@@ -174,6 +174,37 @@ void main() {
     });
   });
 
+  group('suggestionMatches', () {
+    final fox36 = fox.first;
+    final suggestions = suggestPresets(fox, 'fox 36');
+
+    ResolvedPreset pick(String damperId) {
+      final damper = fox36.product!.options['damper']!;
+      return fox36.select(damper, damper.values.firstWhere((value) => value.id == damperId));
+    }
+
+    test('matches only the suggestion with the same damper', () {
+      expect(suggestions.map((s) => suggestionMatches(s, pick('grip'))), [false, true]);
+    });
+
+    test('ignores the optional values and the year of the current selection', () {
+      final travel = fox36.product!.options['travel_mm']!;
+      final current = pick('grip_x2').select(travel, travel.values.last).withYear(2025);
+
+      expect(suggestionMatches(suggestions.first, current), isTrue);
+    });
+
+    test('a current selection without the damper matches no damper suggestion', () {
+      expect(suggestions.any((s) => suggestionMatches(s, fox36)), isFalse);
+    });
+
+    test('another product does not match', () {
+      final fox38 = suggestPresets(fox, 'fox 38').single;
+
+      expect(suggestionMatches(fox38, pick('grip_x2')), isFalse);
+    });
+  });
+
   group('rankPresets', () {
     test('one row per matching product', () {
       final results = rankPresets(all, 'factory');

@@ -406,9 +406,15 @@ class _ComponentPageState extends State<ComponentPage> {
       context: context,
       componentType: type,
       current: _resolvedPreset,
+      onEnterManually: _enterNameManually,
     );
     if (result == null || !mounted) return;
     await _applyPreset(result);
+  }
+
+  void _enterNameManually(String query) {
+    if (_nameController.text.trim().isEmpty) setState(() => _nameController.text = query);
+    _nameFocusNode.requestFocus();
   }
 
   /// [typedName] overrides the name UNDO restores: the autocomplete has already
@@ -714,6 +720,12 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
+  String? _nameTip() => switch (_componentType) {
+    null || ComponentType.fork => "Tip: type a product name — e.g. 'Fox 38'",
+    ComponentType.shock => "Tip: type a product name — e.g. 'Fox Float X'",
+    _ => null,
+  };
+
   Widget _nameTextField({required bool presetsEnabled, VoidCallback? onFieldSubmitted}) {
     return TextFormField(
       controller: _nameController,
@@ -722,13 +734,14 @@ class _ComponentPageState extends State<ComponentPage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (value) => setState(() => _typedName = value), // see filled/fillColor
       onFieldSubmitted: (_) => onFieldSubmitted?.call(),
+      // Touch outside keeps focus by default on mobile, which would leave the
+      // suggestions open; tapping a suggestion is inside the field's region.
+      onTapOutside: (_) => _nameFocusNode.unfocus(),
       decoration: InputDecoration(
         labelText: 'Component Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter component name',
-        helperText: presetsEnabled && _nameController.text.trim().isEmpty
-            ? "Tip: type a product name — e.g. 'Fox 38'"
-            : null,
+        helperText: presetsEnabled && _nameController.text.trim().isEmpty ? _nameTip() : null,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
       ),
@@ -764,11 +777,19 @@ class _ComponentPageState extends State<ComponentPage> {
                 final suggestion = options[i];
                 final subtitle = presetSuggestionSubtitle(suggestion);
                 final yearRange = suggestion.node.years;
+                final current = _resolvedPreset;
+                final selected = current != null && suggestionMatches(suggestion, current);
                 return ListTile(
                   dense: true,
-                  title: Text(presetDisplayName(suggestion)),
+                  title: Text(
+                    presetDisplayName(suggestion),
+                    style: selected ? const TextStyle(fontWeight: FontWeight.w600) : null,
+                  ),
                   subtitle: subtitle == null ? null : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
                   trailing: yearRange == null ? null : YearBadge(yearRange),
+                  selected: selected,
+                  selectedColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  selectedTileColor: Theme.of(context).colorScheme.secondaryContainer,
                   onTap: () => onSelected(suggestion),
                 );
               },

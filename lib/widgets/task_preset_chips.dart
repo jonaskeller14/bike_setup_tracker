@@ -49,6 +49,7 @@ class TaskPresetChips extends StatelessWidget {
           ),
           deleteIcon: const Icon(Icons.link_off),
           deleteButtonTooltipMessage: 'Unlink preset (keeps values)',
+          onPressed: onUnlink,
           onDeleted: onUnlink,
         );
 

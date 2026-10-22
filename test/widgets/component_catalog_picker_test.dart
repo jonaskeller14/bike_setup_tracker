@@ -166,6 +166,8 @@ Future<_Outcome> _open(
   ComponentCatalogRepository? repository,
   ComponentType type = ComponentType.fork,
   ResolvedPreset? current,
+  ValueChanged<String>? onEnterManually,
+  void Function(ComponentType type, String query)? onRequestProduct,
   bool settle = true,
 }) async {
   final outcome = _Outcome();
@@ -181,6 +183,8 @@ Future<_Outcome> _open(
                   context: context,
                   componentType: type,
                   current: current,
+                  onEnterManually: onEnterManually,
+                  onRequestProduct: onRequestProduct ?? (_, _) {},
                 );
                 outcome.closed = true;
               },
@@ -220,6 +224,20 @@ Future<void> _openFoxTrims(WidgetTester tester) async {
 bool _isSelected(WidgetTester tester, String label) =>
     tester.widget<ListTile>(find.widgetWithText(ListTile, label)).selected;
 
+/// The breadcrumb is the sheet's only horizontal scroll view.
+final Finder _breadcrumb = find.byWidgetPredicate(
+  (widget) => widget is SingleChildScrollView && widget.scrollDirection == Axis.horizontal,
+);
+
+List<String> _crumbTexts(WidgetTester tester) => [
+  for (final text in tester.widgetList<Text>(find.descendant(of: _breadcrumb, matching: find.byType(Text)))) text.data!,
+];
+
+Future<void> _tapCrumb(WidgetTester tester, String label) async {
+  await tester.tap(find.descendant(of: _breadcrumb, matching: find.text(label)));
+  await tester.pumpAndSettle();
+}
+
 /// FOX 36 Factory with GRIP X2 and 160 mm by default, from its own parse of
 /// the file, as a saved component resolves it.
 ResolvedPreset _currentFoxFactory([Map<String, Object> values = const {'damper': 'grip_x2', 'travel_mm': 160}]) {
@@ -256,7 +274,7 @@ void main() {
 
       await _tap(tester, '2025–2026');
       expect(find.text('Select trim'), findsOneWidget);
-      expect(find.text('FOX 36 2025–2026'), findsOneWidget, reason: 'the context line names the path');
+      expect(_crumbTexts(tester), ['FOX', '36', '2025–2026'], reason: 'the breadcrumb names the path');
       expect(find.text('Factory'), findsOneWidget);
       expect(find.text('Performance'), findsOneWidget);
     });
@@ -593,6 +611,112 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
     expect(find.text('FOX 36 Factory'), findsOneWidget, reason: 'back returns to the results');
+  });
+
+  group('breadcrumb', () {
+    testWidgets('names each choice on the way in, a chosen value included', (tester) async {
+      await _open(tester);
+      await _openFoxTrims(tester);
+      await _tap(tester, 'Factory');
+      await _tap(tester, 'GRIP X2');
+
+      expect(_crumbTexts(tester), ['FOX', '36', '2025–2026', 'Factory', 'GRIP X2']);
+    });
+
+    testWidgets('joins a collapsed group to its brand', (tester) async {
+      await _open(tester, type: ComponentType.shock);
+      await _tap(tester, 'Öhlins');
+      expect(_crumbTexts(tester), ['Öhlins TTX22']);
+
+      await _tap(tester, 'm.2');
+      expect(_crumbTexts(tester), ['Öhlins TTX22', 'm.2']);
+    });
+
+    testWidgets('a search result is one crumb', (tester) async {
+      await _open(tester);
+      await tester.enterText(find.byType(TextField), 'grip x2');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'FOX 36 Factory');
+
+      expect(_crumbTexts(tester), ['FOX 36 Factory']);
+    });
+
+    testWidgets('a tap returns to where that choice was made', (tester) async {
+      await _open(tester, current: _currentFoxFactory());
+      expect(_crumbTexts(tester), ['FOX', '36', '2025–2026', 'Factory', 'GRIP X2']);
+
+      await _tapCrumb(tester, '36');
+      expect(find.text('Select model'), findsOneWidget);
+      expect(_isSelected(tester, '36'), isTrue);
+      expect(_crumbTexts(tester), ['FOX']);
+
+      await _tapCrumb(tester, 'FOX');
+      expect(find.text('Choose from catalog'), findsOneWidget);
+      expect(_breadcrumb, findsNothing, reason: 'the brand list has the search field instead');
+    });
+  });
+
+  testWidgets('system back steps back a stage, then closes the sheet', (tester) async {
+    final outcome = await _open(tester);
+    await _tap(tester, 'FOX');
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Choose from catalog'), findsOneWidget);
+    expect(outcome.closed, isFalse);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(outcome.closed, isTrue);
+    expect(outcome.result, isNull);
+  });
+
+  testWidgets('only the current row has a bold title', (tester) async {
+    await _open(tester, current: _currentFoxFactory());
+    await _tapCrumb(tester, 'Factory');
+
+    expect(tester.widget<Text>(find.text('Factory')).style?.fontWeight, FontWeight.w600);
+    expect(tester.widget<Text>(find.text('Performance')).style?.fontWeight, isNull);
+  });
+
+  group('no matches', () {
+    Future<void> search(WidgetTester tester, String query) async {
+      await tester.enterText(find.byType(TextField), query);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('entering manually closes the sheet with the query', (tester) async {
+      String? entered;
+      final outcome = await _open(tester, onEnterManually: (query) => entered = query);
+      await search(tester, 'Zzz Fork');
+      expect(find.text('No matches for "Zzz Fork".'), findsOneWidget);
+
+      await _tap(tester, 'Enter manually');
+
+      expect(entered, 'Zzz Fork');
+      expect(outcome.closed, isTrue);
+      expect(outcome.result, isNull);
+    });
+
+    testWidgets('manual entry is offered only when the caller takes it', (tester) async {
+      await _open(tester);
+      await search(tester, 'zzz');
+
+      expect(find.text('Enter manually'), findsNothing);
+      expect(find.text('Request this product'), findsOneWidget);
+    });
+
+    testWidgets('a query is requested once', (tester) async {
+      final requests = <(ComponentType, String)>[];
+      await _open(tester, onRequestProduct: (type, query) => requests.add((type, query)));
+      await search(tester, 'Zzz Fork');
+
+      await _tap(tester, 'Request this product');
+      expect(find.text('Requested, thanks'), findsOneWidget);
+      await _tap(tester, 'Requested, thanks');
+
+      expect(requests, [(ComponentType.fork, 'Zzz Fork')]);
+    });
   });
 
   group('states', () {

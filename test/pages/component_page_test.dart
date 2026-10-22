@@ -405,6 +405,25 @@ nodes:
       expect(find.text('Please select type'), findsOneWidget);
     });
 
+    testWidgets('reopened suggestions mark the applied preset and close on a tap outside', (WidgetTester tester) async {
+      await applyPresetViaAutocomplete(tester);
+
+      final tiles = find.widgetWithText(ListTile, presetName);
+      expect(tiles, findsOneWidget, reason: 'only the preset card');
+
+      await tester.tap(find.widgetWithText(TextFormField, presetName));
+      await tester.pumpAndSettle();
+      expect(tiles, findsNWidgets(2), reason: 'the card and the suggestion');
+      expect(
+        find.ancestor(of: find.text(presetName), matching: find.byWidgetPredicate((w) => w is ListTile && w.selected)),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Add Component'));
+      await tester.pumpAndSettle();
+      expect(tiles, findsOneWidget, reason: 'the suggestion closed');
+    });
+
     testWidgets('the name suggestions follow the chosen type', (WidgetTester tester) async {
       appSettings.enableComponentPresets = true;
       await tester.pumpWidget(createWidgetUnderTest(mode: ComponentPageMode.add));

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -24,10 +26,15 @@ import 'sheet_header.dart';
 ///
 /// With a [current] selection the sheet opens on its options, preselected, with
 /// the path to it marked on the way back, so changing it is a short step.
+///
+/// A search without results offers [onEnterManually], called with the query
+/// once the sheet has closed, and [onRequestProduct] to ask for the product.
 Future<ResolvedPreset?> showComponentCatalogPicker({
   required BuildContext context,
   required ComponentType componentType,
   ResolvedPreset? current,
+  ValueChanged<String>? onEnterManually,
+  void Function(ComponentType type, String query) onRequestProduct = _logCatalogRequest,
 }) {
   return showModalBottomSheet<ResolvedPreset>(
     useSafeArea: true,
@@ -36,8 +43,24 @@ Future<ResolvedPreset?> showComponentCatalogPicker({
     builder: (_) => _ComponentCatalogPickerSheet(
       componentType: componentType,
       current: current?.catalog.componentType == componentType ? current : null,
+      onEnterManually: onEnterManually,
+      onRequestProduct: onRequestProduct,
     ),
   );
+}
+
+/// An Analytics event rather than a Crashlytics report: requests are counted
+/// per query, not grouped under one stack trace. Values are capped at 100
+/// characters by Analytics.
+void _logCatalogRequest(ComponentType type, String query) {
+  if (kDebugMode) return;
+  unawaited(FirebaseAnalytics.instance.logEvent(
+    name: 'catalog_request',
+    parameters: {
+      'component_type': type.name,
+      'query': query.length > 100 ? query.substring(0, 100) : query,
+    },
+  ));
 }
 
 const Duration _stageDuration = Duration(milliseconds: 260);
@@ -107,8 +130,15 @@ enum _Direction {
 class _ComponentCatalogPickerSheet extends StatefulWidget {
   final ComponentType componentType;
   final ResolvedPreset? current;
+  final ValueChanged<String>? onEnterManually;
+  final void Function(ComponentType type, String query) onRequestProduct;
 
-  const _ComponentCatalogPickerSheet({required this.componentType, this.current});
+  const _ComponentCatalogPickerSheet({
+    required this.componentType,
+    this.current,
+    this.onEnterManually,
+    required this.onRequestProduct,
+  });
 
   @override
   State<_ComponentCatalogPickerSheet> createState() => _ComponentCatalogPickerSheetState();
@@ -127,6 +157,9 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   final List<_Stage> _history = [];
   _Direction _direction = _Direction.none;
   String _query = '';
+
+  /// Queries already requested, so one search asks only once.
+  final Set<String> _requested = {};
 
   @override
   void initState() {
@@ -258,6 +291,17 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
     });
   }
 
+  /// Returns to the stage at [depth] of the way taken, where the choice its
+  /// breadcrumb names was made.
+  void _goBackTo(int depth) {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() {
+      _stage = _history[depth];
+      _history.removeRange(depth, _history.length);
+      _direction = _Direction.backward;
+    });
+  }
+
   /// [parents] extended through every group whose only child is another group:
   /// listing that child would ask for a tap that decides nothing.
   List<CatalogNode> _collapse(_Catalog catalog, BrandCatalog brand, List<CatalogNode> parents) {
@@ -311,6 +355,18 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
     _onQueryChanged('');
   }
 
+  void _enterManually() {
+    final query = _query;
+    Navigator.pop(context);
+    widget.onEnterManually!(query);
+  }
+
+  void _requestProduct() {
+    unawaited(HapticFeedback.lightImpact());
+    widget.onRequestProduct(widget.componentType, _query);
+    setState(() => _requested.add(_query.toLowerCase()));
+  }
+
   // --- build ----------------------------------------------------------------
 
   String get _title => switch (_stage) {
@@ -327,37 +383,47 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: SafeArea(
-        // A modal sheet sizes itself to its content but does not animate that
-        // size changing, so stages of differing height would snap without this.
-        child: AnimatedSize(
-          duration: _stageDuration,
-          curve: Curves.easeOutCubic,
-          // Pin the header while the sheet grows downward, so drilling in
-          // reveals content instead of shifting everything vertically.
-          alignment: Alignment.topCenter,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SheetHeader(
-                title: _title,
-                onBack: _history.isEmpty ? null : _goBack,
-              ),
-              const SizedBox(height: 12),
-              if (_stage is _Brands) _buildSearchField(),
-              Flexible(
-                child: ListTileTheme.merge(
-                  selectedColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                  selectedTileColor: Theme.of(context).colorScheme.secondaryContainer,
-                  child: _StageSwitcher(
-                    direction: _direction,
-                    child: KeyedSubtree(key: _bodyKey, child: _buildBody()),
+    // System back steps back a stage; the close button pops directly.
+    return PopScope(
+      canPop: _history.isEmpty,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _goBack();
+      },
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: SafeArea(
+          // A modal sheet sizes itself to its content but does not animate that
+          // size changing, so stages of differing height would snap without this.
+          child: AnimatedSize(
+            duration: _stageDuration,
+            curve: Curves.easeOutCubic,
+            // Pin the header while the sheet grows downward, so drilling in
+            // reveals content instead of shifting everything vertically.
+            alignment: Alignment.topCenter,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SheetHeader(
+                  title: _title,
+                  onBack: _history.isEmpty ? null : _goBack,
+                ),
+                const SizedBox(height: 12),
+                if (_stage is _Brands)
+                  _buildSearchField()
+                else
+                  _Breadcrumb(crumbs: _crumbs([..._history, _stage]), onTap: _goBackTo),
+                Flexible(
+                  child: ListTileTheme.merge(
+                    selectedColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                    selectedTileColor: Theme.of(context).colorScheme.secondaryContainer,
+                    child: _StageSwitcher(
+                      direction: _direction,
+                      child: KeyedSubtree(key: _bodyKey, child: _buildBody()),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -377,22 +443,16 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
         isCurrent: (brand) => _onCurrentPath(brand.catalog, const []),
         onSelect: (brand) => _goTo(_Nodes(brand.catalog, _collapse(catalog, brand.catalog, const []))),
       ),
-      _Nodes(catalog: final brand, :final parents) => _WithContext(
-        label: [brand.brand, for (final node in parents) node.label].join(' '),
-        child: _NodeList(
-          rows: catalog.rowsFor(brand, parents),
-          isCurrent: (entry) => _onCurrentPath(brand, [...parents, entry.node]),
-          onSelect: _selectNode,
-        ),
+      _Nodes(catalog: final brand, :final parents) => _NodeList(
+        rows: catalog.rowsFor(brand, parents),
+        isCurrent: (entry) => _onCurrentPath(brand, [...parents, entry.node]),
+        onSelect: _selectNode,
       ),
-      final _RequiredAxis stage => _WithContext(
-        label: presetDisplayName(stage.preset),
-        child: _RequiredValueList(
-          values: stage.axis.values,
-          currentId: _currentFor(stage.preset)?.selections[stage.axis.id]?.id,
-          completes: (value) => _completes(stage.preset.select(stage.axis, value)),
-          onSelect: (value) => _advance(stage.preset.select(stage.axis, value)),
-        ),
+      final _RequiredAxis stage => _RequiredValueList(
+        values: stage.axis.values,
+        currentId: _currentFor(stage.preset)?.selections[stage.axis.id]?.id,
+        completes: (value) => _completes(stage.preset.select(stage.axis, value)),
+        onSelect: (value) => _advance(stage.preset.select(stage.axis, value)),
       ),
       _OptionalAxes(:final preset) => _OptionalAxesStep(preset: preset, onDone: _finish),
     };
@@ -400,7 +460,13 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
 
   Widget _buildSearchResults(_Catalog catalog) {
     final results = rankPresets(catalog.products, _query);
-    if (results.isEmpty) return _EmptyHint(text: 'No matches for "$_query".');
+    if (results.isEmpty) {
+      return _NoMatches(
+        query: _query,
+        onEnterManually: widget.onEnterManually == null ? null : _enterManually,
+        onRequest: _requested.contains(_query.toLowerCase()) ? null : _requestProduct,
+      );
+    }
     return _ProductList(products: results, isCurrent: _isCurrent, onSelect: _advance);
   }
 
@@ -430,6 +496,82 @@ String _nodesTitle(List<_NodeEntry> children) {
 }
 
 String _levelLabel(String level) => level.replaceAll('_', ' ');
+
+// --- breadcrumb --------------------------------------------------------------
+
+/// The choices that led to the last of [stages], one per stage they were made
+/// on, each named after what it opened: `FOX › 36 › 2025–2026 › Factory`.
+List<String> _crumbs(List<_Stage> stages) => [
+  for (var i = 0; i < stages.length - 1; i++) _crumbLabel(stages[i], stages[i + 1]),
+];
+
+String _crumbLabel(_Stage from, _Stage to) => switch ((from, to)) {
+  // Groups collapsed into one stage are one choice, so they share a crumb.
+  (_Nodes(parents: final above), _Nodes(:final parents)) =>
+    parents.skip(above.length).map((node) => node.label).join(' '),
+  (_, _Nodes(:final catalog, :final parents)) => [catalog.brand, for (final node in parents) node.label].join(' '),
+  (_RequiredAxis(:final axis), _RequiredAxis(:final preset) || _OptionalAxes(:final preset)) =>
+    preset.selections[axis.id]!.label,
+  (_Nodes(), _RequiredAxis(:final preset) || _OptionalAxes(:final preset)) => preset.node.label,
+  // A search result skips the tree, so its crumb is the whole name.
+  (_, _RequiredAxis(:final preset) || _OptionalAxes(:final preset)) => presetDisplayName(preset),
+  (_, _Brands()) => throw StateError('No choice leads to the brand list'),
+};
+
+class _Breadcrumb extends StatelessWidget {
+  const _Breadcrumb({required this.crumbs, required this.onTap});
+
+  final List<String> crumbs;
+
+  /// Called with the index of the tapped crumb.
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurfaceVariant;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Center(
+        // Clips the crumbs' ripples to the visible strip.
+        child: Material(
+          type: MaterialType.transparency,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            // Keeps the latest choice in view when the path is wider than the sheet.
+            reverse: true,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final (index, label) in crumbs.indexed) ...[
+                  if (index > 0) Icon(Icons.chevron_right, size: 16, color: muted),
+                  Semantics(
+                    button: true,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () => onTap(index),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: index == crumbs.length - 1 ? theme.colorScheme.onSurface : muted,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 // --- stage transition --------------------------------------------------------
 
@@ -599,17 +741,17 @@ class _BrandList extends StatelessWidget {
     if (brands.isEmpty) {
       return const _EmptyHint(text: 'No catalog entries available.');
     }
-    return ListView.builder(
-      shrinkWrap: true,
+    return _TileList(
       itemCount: brands.length,
       itemBuilder: (context, index) {
         final entry = brands[index];
         final subtitle = _labelsSubtitle(entry.models);
+        final selected = isCurrent(entry);
         return ListTile(
-          title: Text(entry.catalog.brand),
+          title: _TileTitle(entry.catalog.brand, selected: selected),
           subtitle: subtitle == null ? null : _SubtitleText(subtitle),
           trailing: _chevron,
-          selected: isCurrent(entry),
+          selected: selected,
           onTap: () => onSelect(entry),
         );
       },
@@ -628,14 +770,13 @@ class _NodeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
+    return _TileList(
       itemCount: rows.length,
       itemBuilder: (context, index) => switch (rows[index]) {
         _CategoryRow(:final category) => _CategoryHeader(category),
         final _NodeEntry entry => switch (entry.node) {
           CatalogGroup(:final level) => ListTile(
-            title: Text(entry.node.label),
+            title: _TileTitle(entry.node.label, selected: isCurrent(entry)),
             subtitle: _groupSubtitle(entry),
             // A generation is named by its years already.
             trailing: _Trailing(level == _generationLevel ? null : _yearSpan(entry), icon: _chevron),
@@ -681,8 +822,7 @@ class _ProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
+    return _TileList(
       itemCount: products.length,
       itemBuilder: (context, index) {
         final product = products[index];
@@ -711,7 +851,7 @@ class _ProductTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final subtitle = _productSubtitle(product);
     return ListTile(
-      title: Text(title),
+      title: _TileTitle(title, selected: selected),
       subtitle: subtitle == null ? null : _SubtitleText(subtitle),
       trailing: _Trailing(product.node.years, icon: _completes(product) ? _check : _chevron),
       selected: selected,
@@ -768,18 +908,23 @@ class _RequiredValueList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
+    return _TileList(
       itemCount: values.length,
       itemBuilder: (context, index) {
         final value = values[index];
-        final description = value.description;
+        final lines = _valueSubtitleLines(value);
+        final selected = value.id == currentId;
         return ListTile(
-          title: Text(value.label),
-          subtitle: _valueSubtitle(value),
+          title: _TileTitle(value.label, selected: selected),
+          subtitle: lines.isEmpty
+              ? null
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [for (final line in lines) _SubtitleText(line)],
+                ),
           trailing: completes(value) ? _check : _chevron,
-          selected: value.id == currentId,
-          isThreeLine: description != null && description.isNotEmpty,
+          selected: selected,
+          isThreeLine: lines.length > 1,
           onTap: () => onSelect(value),
         );
       },
@@ -787,16 +932,16 @@ class _RequiredValueList extends StatelessWidget {
   }
 }
 
-/// Description above a summary of the value's click ranges; `null` when the
-/// catalog has neither.
-Widget? _valueSubtitle(OptionValue value) {
+/// Description above a summary of the value's click ranges, one line each, so
+/// each is cut short on its own rather than wrapping into the next.
+List<String> _valueSubtitleLines(OptionValue value) {
   final lines = <String>[];
   final description = value.description?.trim();
   if (description != null && description.isNotEmpty) lines.add(description);
   final adjustments = _adjustmentSummary(value);
   if (adjustments.isNotEmpty) lines.add(adjustments);
   if (value.missingAdjustments.isNotEmpty) lines.add('Add by hand: ${value.missingAdjustments.join(', ')}');
-  return lines.isEmpty ? null : Text(lines.join('\n'));
+  return lines;
 }
 
 /// `LSC ±7 · HSC 5` — initials and range of each stepped adjustment, so values
@@ -858,42 +1003,39 @@ class _OptionalAxesStepState extends State<_OptionalAxesStep> {
 
   @override
   Widget build(BuildContext context) {
-    return _WithContext(
-      label: presetDisplayName(_preset),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Flexible(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final axis in _preset.optionalAxes)
-                    _AxisChips(
-                      axis: axis,
-                      selected: _preset.selections[axis.id],
-                      onTap: (value) => _toggle(axis, value),
-                    ),
-                  if (_preset.selectableYears.isNotEmpty)
-                    _YearChips(years: _preset.selectableYears, selected: _preset.year, onTap: _toggleYear),
-                ],
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Flexible(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final axis in _preset.optionalAxes)
+                  _AxisChips(
+                    axis: axis,
+                    selected: _preset.selections[axis.id],
+                    onTap: (value) => _toggle(axis, value),
+                  ),
+                if (_preset.selectableYears.isNotEmpty)
+                  _YearChips(years: _preset.selectableYears, selected: _preset.year, onTap: _toggleYear),
+              ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            width: double.infinity,
-            child: FilledButton.icon(
-              icon: Icon(_hasChoice ? Icons.check : Icons.arrow_forward),
-              // Unset axes stay unset: nothing is guessed for what is skipped.
-              onPressed: () => widget.onDone(_preset),
-              label: Text(_hasChoice ? 'Apply' : 'Skip'),
-            ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(16),
+          width: double.infinity,
+          child: FilledButton.icon(
+            icon: Icon(_hasChoice ? Icons.check : Icons.arrow_forward),
+            // Unset axes stay unset: nothing is guessed for what is skipped.
+            onPressed: () => widget.onDone(_preset),
+            label: Text(_hasChoice ? 'Apply' : 'Skip'),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -989,34 +1131,40 @@ Map<String?, List<OptionValue>> _chipGroups(OptionAxis axis) {
 
 // --- shared bits -------------------------------------------------------------
 
-/// Names what the stage refines, since the header only names the level.
-class _WithContext extends StatelessWidget {
-  const _WithContext({required this.label, required this.child});
+class _TileList extends StatelessWidget {
+  const _TileList({required this.itemCount, required this.itemBuilder});
 
-  final String label;
-  final Widget child;
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        Flexible(child: child),
-      ],
+    // ListTile paints its tile color on the nearest Material; the sheet's own
+    // sits outside the scroll view, so the color would scroll over the header.
+    return Material(
+      type: MaterialType.transparency,
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: itemCount,
+        itemBuilder: itemBuilder,
+      ),
     );
   }
+}
+
+/// Bold on the current row only, so the rest keep their weight below the
+/// category headers.
+class _TileTitle extends StatelessWidget {
+  const _TileTitle(this.text, {required this.selected});
+
+  final String text;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: selected ? const TextStyle(fontWeight: FontWeight.w600) : null,
+  );
 }
 
 class _SubtitleText extends StatelessWidget {
@@ -1027,7 +1175,7 @@ class _SubtitleText extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    maxLines: 2,
+    maxLines: 1,
     overflow: TextOverflow.ellipsis,
   );
 }
@@ -1064,6 +1212,54 @@ class _EmptyHint extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: SheetFilterEmptyHint(icon: Icons.search_off, title: text),
+    );
+  }
+}
+
+/// A search without results, with the ways on from it.
+class _NoMatches extends StatelessWidget {
+  const _NoMatches({required this.query, required this.onEnterManually, required this.onRequest});
+
+  final String query;
+  final VoidCallback? onEnterManually;
+
+  /// Null once [query] has been requested.
+  final VoidCallback? onRequest;
+
+  @override
+  Widget build(BuildContext context) {
+    final requested = onRequest == null;
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SheetFilterEmptyHint(
+            icon: Icons.search_off,
+            title: 'No matches for "$query".',
+            hint: 'Check the spelling, or search for the model name only.',
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            children: [
+              if (onEnterManually != null)
+                TextButton.icon(
+                  onPressed: onEnterManually,
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Enter manually'),
+                ),
+              TextButton.icon(
+                onPressed: onRequest,
+                icon: Icon(requested ? Icons.check : Icons.playlist_add),
+                label: Text(requested ? 'Requested, thanks' : 'Request this product'),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

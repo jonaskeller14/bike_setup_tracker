@@ -74,9 +74,9 @@ slot stays empty, so App Store Connect shows the 6.1″ set on every iPhone.
 App Store, iPhone only (6.1″ slot): 886×1920 H.264, 30 fps, 15–30 s, silent stereo track (previews
 autoplay muted). Full-screen captures only: no device frame and no background around the screen
 (App Review guideline 2.3.4 rejected 1.6.3 for framed previews); text overlays are fine.
-`python tool/marketing/build_kit.py appstore` builds them from the demo recordings
+`python tool/marketing/build_kit.py 00_appstore` builds them from the demo recordings
 ([#77](https://github.com/jonaskeller14/bike_setup_tracker/issues/77) Phase 5; clips and cuts in
-`docs/marketing/kits/appstore.json`) and copies each one that passes its checks here. They are
+`docs/marketing/kits/00_appstore.json`) and copies each one that passes its checks here. They are
 tracked in Git LFS; commit a preview only once it is live in the store, not every rendered draft.
 
 | File | Shows | Clips |

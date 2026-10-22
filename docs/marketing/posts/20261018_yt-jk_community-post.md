@@ -4,7 +4,7 @@
 - URL: —
 - Posted: 2026-10-18
 - App version: 1.6.3
-- Kit: launch
+- Kit: 01_launch
 - Retire when: Never; a dated launch post
 
 Image post with `carousel_square/01.png` – `carousel_square/10.png` (square crops of the 4:5 carousel). Scheduled for 09:00.

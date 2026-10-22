@@ -30,7 +30,7 @@ work; `ok` is approved; `not reviewed` stays open (list them in the summary).
    | `hook:<id>` | the headline bank in `docs/marketing/messaging.md`, then every kit that uses the line |
    | `posts:<group>` | `docs/marketing/kits/<kit>.posts.md` |
    | `gif:<clip>`, `web:<clip>` | the clip in the kit; quality settings in `tool/marketing/render_video.py` (`GIF_*`, `WEB_*`) and limits in `build_kit.py` |
-   | `appstore:<file>` | `docs/marketing/kits/appstore.json` |
+   | `appstore:<file>` | `docs/marketing/kits/00_appstore.json` |
    | `image:<file>` | the kit's `images` |
    | `decision:<slug>` | whatever the item asked about |
 
@@ -39,7 +39,7 @@ work; `ok` is approved; `not reviewed` stays open (list them in the summary).
    scenario (`lib/screenshots/demo_scenario.dart` + `test/screenshots/demo_scenario_test.dart`) or
    the master sample data (`assets/data/20260925_sample_simple.json`). Then:
    - find every kit that uses that clip (`grep -l <clip> docs/marketing/kits/*.json`), including
-     `appstore`, and apply the change there too;
+     `00_appstore`, and apply the change there too;
    - re-record only the changed flows: `tool/screenshots/run_ios.sh iphone --demo --flows a,b`
      (Java 17 on `PATH`, see `tool/screenshots/README.md`); without `--skip-build` when the data or
      app code changed;

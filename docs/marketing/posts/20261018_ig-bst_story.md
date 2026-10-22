@@ -4,7 +4,7 @@
 - URL: —
 - Posted: 2026-10-17
 - App version: 1.6.3
-- Kit: launch
+- Kit: 01_launch
 - Media: Share the carousel post (no new media)
 - Retire when: Expires by itself after 24 h
 

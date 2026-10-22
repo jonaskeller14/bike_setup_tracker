@@ -4,8 +4,8 @@
 - URL: https://www.instagram.com/p/DeqA7ZxCICX/?utm_source=ig_web_copy_link&rpxt=MzRlODBiNWFlZA==&srtk=MzRlODBiNWFlZA==
 - Posted: 2026-10-19
 - App version: 1.6.3
-- Kit: launch
-- Media: `build/marketing/launch/carousel/01.png` – `10.png`
+- Kit: 01_launch
+- Media: `build/marketing/01_launch/carousel/01.png` – `10.png`
 - Retire when: The store screenshots change
 
 Post `carousel/01.png` – `carousel/10.png` as one carousel. Pin it to the profile.

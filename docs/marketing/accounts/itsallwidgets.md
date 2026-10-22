@@ -22,7 +22,7 @@ Android frames from `docs/store/play-store/phone/` (1080 × 1920, the size the f
 | Mobile PNG (optional) | `04.png` |
 | Mobile PNG (optional) | `05.png` |
 
-No GIF: the exports in `build/marketing/launch/gif/` are only 360 × 782.
+No GIF: the exports in `build/marketing/01_launch/gif/` are only 360 × 782.
 
 ## Short Description (87 characters)
 ```text

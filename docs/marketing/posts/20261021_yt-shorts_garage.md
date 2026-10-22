@@ -5,7 +5,7 @@
 - Posted: 2026-10-21
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: showcase (`shorts/garage_9x16.mp4`)
+- Kit: 02_showcase (`shorts/garage_9x16.mp4`)
 - Retire when: The garage or component screens change
 
 ## Title

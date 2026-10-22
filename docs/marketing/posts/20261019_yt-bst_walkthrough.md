@@ -5,7 +5,7 @@
 - Posted: 2026-10-19
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: showcase (`walkthrough_16x9.mp4`); thumbnail `build/marketing/launch/thumb.png`
+- Kit: 02_showcase (`walkthrough_16x9.mp4`); thumbnail `build/marketing/01_launch/thumb.png`
 - Retire when: A release changes a screen it shows, or Strava Sync stops being a paid add-on
 
 ## Title

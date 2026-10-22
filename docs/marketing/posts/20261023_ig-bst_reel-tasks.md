@@ -4,7 +4,7 @@
 - URL: —
 - Posted: 2026-10-23 10:00
 - App version: 1.6.3
-- Kit: showcase
+- Kit: 02_showcase
 - Media: `shorts/tasks_9x16.mp4`
 - Retire when: The tasks screens change, or tasks stop being an opt-in feature
 

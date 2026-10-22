@@ -4,7 +4,7 @@
 - URL: —
 - Posted: 2026-10-25 14:00
 - App version: 1.6.3
-- Kit: showcase
+- Kit: 02_showcase
 - Media: `shorts/analysis_9x16.mp4`
 - Retire when: The analysis charts change
 

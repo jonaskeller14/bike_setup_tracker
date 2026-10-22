@@ -5,7 +5,7 @@
 - Posted: 2026-10-26 16:00
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: showcase (`shorts/map_9x16.mp4`)
+- Kit: 02_showcase (`shorts/map_9x16.mp4`)
 - Retire when: The ride map changes, or Strava Sync stops being a paid add-on
 
 ## Title

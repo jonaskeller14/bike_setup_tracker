@@ -1,7 +1,7 @@
 # Showcase kit posts
 
-Drafts for `build_kit.py showcase` (#77 Phase 7), rendered into the "Posts" part of
-`build/marketing/showcase/POST.md` with campaign links, the app version and character counts.
+Drafts for `build_kit.py 02_showcase` (#77 Phase 7), rendered into the "Posts" part of
+`build/marketing/02_showcase/POST.md` with campaign links, the app version and character counts.
 Format and placeholders: [`tool/marketing/posts.py`](../../../tool/marketing/posts.py). Posting rules:
 [`../channels.md`](../channels.md). Hooks and headlines come from
 [`../messaging.md`](../messaging.md).

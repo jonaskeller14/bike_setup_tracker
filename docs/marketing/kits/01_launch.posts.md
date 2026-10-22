@@ -1,6 +1,6 @@
 # Launch kit posts
 
-Drafts for `build_kit.py launch`, rendered into the "Posts" part of `build/marketing/launch/POST.md`
+Drafts for `build_kit.py 01_launch`, rendered into the "Posts" part of `build/marketing/01_launch/POST.md`
 with campaign links, the app version and character counts. Format and placeholders:
 [`tool/marketing/posts.py`](../../../tool/marketing/posts.py). Posting rules and order:
 [`../channels.md`](../channels.md).

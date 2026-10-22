@@ -5,7 +5,7 @@
 - Posted: 2026-10-23 10:00
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: showcase (`shorts/tasks_9x16.mp4`)
+- Kit: 02_showcase (`shorts/tasks_9x16.mp4`)
 - Retire when: The tasks screens change, or tasks stop being an opt-in feature
 
 ## Title

@@ -134,6 +134,6 @@ context; not a standalone headline.
 | Website sections 01–04 | R8, C4, S1, D2 | One per pillar, in pillar order; none repeats a store-funnel headline |
 | Website end card (download section) | Signature | Next to the mark, like the social end card |
 | End card (Shorts, walkthrough) | Signature | Next to the icon; the name is the hero (brand.md) |
-| Short hooks | R3, R9, R10, C5–C7, S4–S6 | Questions; one per Short, from the pillar the Short shows (`showcase` kit) |
+| Short hooks | R3, R9, R10, C5–C7, S4–S6 | Questions; one per Short, from the pillar the Short shows (`02_showcase` kit) |
 
 Screenshots 2–8 keep one pillar each; their captions are reworked in Phase 5.

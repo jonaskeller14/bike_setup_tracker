@@ -23,7 +23,7 @@ Read first: `docs/marketing/messaging.md` (headline bank, Is / is not), `docs/ma
 
 Number kits by listing `docs/marketing/kits/` (`ls`) and taking the next number after the highest
 `NN_`. If `docs/marketing/kits/<kit>.json` already exists, stop and ask: a full `build_kit.py` run
-clears `build/marketing/<kit>/`, and the old `launch` kit's timings fit the v1 recordings.
+clears `build/marketing/<kit>/`, and the old `01_launch` kit's timings fit the v1 recordings.
 
 ## 1. Scope
 
@@ -80,7 +80,7 @@ the app code nor the sample changed). Re-record only the affected flows.
 ## 4. Write the kit
 
 `docs/marketing/kits/<kit>.json`, in the shape documented in `tool/marketing/README.md` (Kit file);
-copy `showcase.json` or `03_features.json` as the starting point.
+copy `02_showcase.json` or `03_features.json` as the starting point.
 - Time each clip's `segments`, `captions` and `callouts` from a contact sheet of the recording:
   `ffmpeg -i <clip>.mp4 -vf "fps=1,scale=200:-2,tile=6x5" -frames:v 2 sheet_%d.png` into the
   scratchpad, never next to the recordings.
@@ -106,7 +106,7 @@ maintainer the path, plus the **Copy feedback** instruction: pasted feedback goe
 ## 6. Post files
 
 - `docs/marketing/kits/<kit>.posts.md`: the drafts per channel, in the format of
-  `showcase.posts.md`. Channels, languages and limits come from `channels.md`: English everywhere
+  `02_showcase.posts.md`. Channels, languages and limits come from `channels.md`: English everywhere
   except the German channel (`mtbnews`), which gets German copy. Release posts reuse the changelog
   text, carry the app version (`{version}`) and only campaign links from `links.md`
   (`{ios:<channel>}`, `{android:<channel>}`).

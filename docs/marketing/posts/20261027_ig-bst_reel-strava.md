@@ -4,7 +4,7 @@
 - URL: —
 - Posted: 2026-10-27 18:00
 - App version: 1.6.3
-- Kit: showcase
+- Kit: 02_showcase
 - Media: `shorts/strava_9x16.mp4`
 - Retire when: Chain tasks or distance intervals change, or Strava Sync stops being a paid add-on
 

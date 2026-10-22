@@ -46,12 +46,12 @@ cropped text.
 
 ## Video variants
 
-`python tool/marketing/build_kit.py appstore` renders both videos, EN + DE, as set in
-[`docs/marketing/kits/appstore.json`](../../../../docs/marketing/kits/appstore.json):
+`python tool/marketing/build_kit.py 00_appstore` renders both videos, EN + DE, as set in
+[`docs/marketing/kits/00_appstore.json`](../../../../docs/marketing/kits/00_appstore.json):
 
 | | Search results | Header |
 |---|---|---|
-| Output | `build/marketing/appstore/search_{en-US,de-DE}.mp4` | `build/marketing/appstore/header_{en-US,de-DE}.mp4` |
+| Output | `build/marketing/00_appstore/search_{en-US,de-DE}.mp4` | `build/marketing/00_appstore/header_{en-US,de-DE}.mp4` |
 | Size | 2880×1920 | 3840×1646 |
 | Shows | The `demo_setup_history` recording plays in the phone (`data-video`): history, then the comparison with the setup before and "end of May reference" | Type only, like the still: the values row starts at the old values, `→10`, `→8` and `→85 psi` fade in one by one, then it holds the still's final state and fades back, so it loops |
 

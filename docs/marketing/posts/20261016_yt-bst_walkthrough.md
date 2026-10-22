@@ -5,7 +5,7 @@
 - Posted: 2026-10-16
 - App version: 1.6.3
 - Playlist: v1.6.3
-- Kit: launch (`walkthrough_16x9.mp4`)
+- Kit: 01_launch (`walkthrough_16x9.mp4`)
 - Retire when: A release changes a screen it shows, or Strava Sync stops being a paid add-on
 
 ## Title

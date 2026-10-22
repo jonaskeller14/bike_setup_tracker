@@ -164,7 +164,7 @@ Check these against App Store Connect's current *App preview specifications* bef
 
 ### Trim, resize and encode
 
-`python tool/marketing/build_kit.py appstore` cuts the demo clips as set in `docs/marketing/kits/appstore.json`, crossfades the clips of each preview, scales it to 886×1920 at a constant 30 fps (H.264 High, level 4.0) and adds a silent stereo AAC track: `build/marketing/appstore/preview_N.mp4`, copied to `docs/store/app-store/app_previews/en-US/iphone_65/` when it passes. See `tool/marketing/README.md`. The kit has no iPad preview yet; `render_video.appstore_preview` takes the size (`(1200, 1600)`) for one.
+`python tool/marketing/build_kit.py 00_appstore` cuts the demo clips as set in `docs/marketing/kits/00_appstore.json`, crossfades the clips of each preview, scales it to 886×1920 at a constant 30 fps (H.264 High, level 4.0) and adds a silent stereo AAC track: `build/marketing/00_appstore/preview_N.mp4`, copied to `docs/store/app-store/app_previews/en-US/iphone_65/` when it passes. See `tool/marketing/README.md`. The kit has no iPad preview yet; `render_video.appstore_preview` takes the size (`(1200, 1600)`) for one.
 
 ## Demo clips (marketing)
 

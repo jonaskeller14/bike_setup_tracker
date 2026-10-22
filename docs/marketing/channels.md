@@ -57,7 +57,7 @@ The forums, Strava and the directories have no limits that matter for these post
 | Hashtags | 2–4 per video; YouTube shows up to 3 of them next to the title | — |
 | Scheduling | YouTube Studio, natively | — |
 
-- **Walkthrough description template:** the `yt-bst` section of `kits/launch.posts.md`. It pulls in
+- **Walkthrough description template:** the `yt-bst` section of `kits/01_launch.posts.md`. It pulls in
   the app version and the chapter timestamps on every build. For a new release kit, copy that
   section and update the "What you can do" list.
 - Chapters need a first chapter at 0:00, at least 3 chapters, and ≥10 s per chapter.

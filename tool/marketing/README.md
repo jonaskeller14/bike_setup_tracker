@@ -19,12 +19,12 @@ live in [`docs/marketing/`](../../docs/marketing/README.md); the look is in
 Builds a content kit from `docs/marketing/kits/<kit>.json` into `build/marketing/<kit>/`.
 
 ```
-python tool/marketing/build_kit.py showcase                 # everything the kit defines
-python tool/marketing/build_kit.py showcase shorts gifs     # some parts only
-python tool/marketing/build_kit.py showcase web             # website loops (copy them to the website repo)
-python tool/marketing/build_kit.py appstore                 # App Store previews + header and search videos
-python tool/marketing/build_kit.py showcase post            # only rewrite POST.md after editing posts
-python tool/marketing/build_kit.py showcase sheet           # only rewrite the contact sheet
+python tool/marketing/build_kit.py 02_showcase                 # everything the kit defines
+python tool/marketing/build_kit.py 02_showcase shorts gifs     # some parts only
+python tool/marketing/build_kit.py 02_showcase web             # website loops (copy them to the website repo)
+python tool/marketing/build_kit.py 00_appstore                 # App Store previews + header and search videos
+python tool/marketing/build_kit.py 02_showcase post            # only rewrite POST.md after editing posts
+python tool/marketing/build_kit.py 02_showcase sheet           # only rewrite the contact sheet
 ```
 
 Parts: `shorts`, `walkthrough`, `gifs`, `web`, `images`, `appstore`. A full run clears the kit folder and
@@ -33,7 +33,7 @@ writes `POST.md` (file list, Shorts titles, YouTube chapter timestamps, warnings
 from `manifest.json`: `post` rewrites `POST.md` and `posts/`, so edited posts don't need a rebuild; `sheet` rewrites `sheet.html`. The script exits 1 and prints `FAIL` lines when an output misses its
 spec. A kit with eight Shorts takes about 5 minutes for the Shorts on an M-series Mac.
 
-Kits: `showcase` (#77 Phase 7) is the evergreen kit, cut from the v2 demo flows. `launch` (#69) is
+Kits: `02_showcase` (#77 Phase 7) is the evergreen kit, cut from the v2 demo flows. `01_launch` (#69) is
 kept for its posts; its timings fit the v1 recordings, so don't rebuild it from the current ones.
 
 **Contact sheet** (`sheet.html`, the maintainer's review page): every image of the kit, and three
@@ -47,7 +47,7 @@ other kit's website loops next to the new ones; `--items <file.json>` adds open 
 feedback** puts the list on the clipboard, keyed for Claude Code.
 
 ```
-python tool/marketing/review_kit.py showcase --compare launch --open   # build/marketing/showcase/review.html
+python tool/marketing/review_kit.py 02_showcase --compare 01_launch --open   # build/marketing/02_showcase/review.html
 ```
 
 | Part | Output | Spec checked |
@@ -66,11 +66,11 @@ build.
 ### Recordings
 
 - Demo clips: `tool/screenshots/run_ios.sh iphone --demo` → `build/marketing/raw/ios/demo_*.mp4`
-  (the `showcase` kit's `recordings` folder). The templates use the iPhone frame, whose screen hole
+  (the `02_showcase` kit's `recordings` folder). The templates use the iPhone frame, whose screen hole
   is exactly the Simulator's 1320×2868, so nothing is cropped. `run_android.sh --demo` records the
   same flows to `build/marketing/raw/` (1080×2400); a kit plays them in the Android frame with
   `"recordings": "build/marketing/raw"` and `"device": "android"`.
-- App Store previews and the search video: the `appstore` kit cuts the same demo clips
+- App Store previews and the search video: the `00_appstore` kit cuts the same demo clips
   (`"recordings": "build/marketing/raw/ios"`). `run_ios.sh iphone --preview` still records the
   `preview_*.yaml` flows to `build/store_previews/iphone/`, for a kit that sets `source`.
 - Maestro needs Java 17+ on `PATH` (see `tool/screenshots/README.md`).
@@ -167,7 +167,7 @@ you post to.
 
 | File | Used in | Source | License |
 |---|---|---|---|
-| `the_mountain-app-184141.mp3` | `launch`, `showcase` | ["App" by The_Mountain](https://pixabay.com/music/beats-app-184141/), Pixabay, 2:00 | Pixabay Content License: commercial use, no attribution required |
+| `the_mountain-app-184141.mp3` | `01_launch`, `02_showcase` | ["App" by The_Mountain](https://pixabay.com/music/beats-app-184141/), Pixabay, 2:00 | Pixabay Content License: commercial use, no attribution required |
 
 The track is registered with Content ID. If YouTube or another platform flags an upload, dispute
 the claim with the Pixabay license certificate, `beats-app-184141-license.txt` next to the track

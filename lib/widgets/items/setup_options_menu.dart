@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/feedback/ride_feedback.dart';
 import '../../models/setup.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/feedback_actions.dart';
 import '../../utils/setup_actions.dart';
 import '../sheets/compare_setups.dart';
 
 class SetupOptionsMenu extends StatelessWidget {
   final Setup setup;
 
+  /// Hero tag of the tile header, so "Add Feedback" flies it into the form.
+  final String? heroTag;
+
   const SetupOptionsMenu({
     super.key,
     required this.setup,
+    this.heroTag,
   });
 
   @override
@@ -51,6 +57,7 @@ class SetupOptionsMenu extends StatelessWidget {
     return switch (option) {
       _SetupOption.edit || _SetupOption.share || _SetupOption.restore || _SetupOption.compare || _SetupOption.remove => true,
       _SetupOption.bookmark => appSettings.enableSetupBookmark,
+      _SetupOption.addFeedback => appSettings.enableRating,
     };
   }
 
@@ -69,6 +76,8 @@ class SetupOptionsMenu extends StatelessWidget {
         await SetupActions.duplicateSetup(context, setup: setup);
       case _SetupOption.compare:
         await showCompareSetupsSheet(context, setupA: null, setupB: setup);
+      case _SetupOption.addFeedback:
+        await FeedbackActions.addFeedbackForSetup(context, setup: setup, heroTag: heroTag);
       case _SetupOption.remove:
         await SetupActions.removeSetup(context, setup: setup);
     }
@@ -81,6 +90,7 @@ enum _SetupOption {
   share('Share', Icons.share),
   restore('Restore', Icons.restore),
   compare('Compare', Icons.compare),
+  addFeedback('Add Feedback', RideFeedback.iconData),
   remove('Remove', Icons.delete);
 
   final String label;

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
@@ -58,6 +57,9 @@ class _SetupTileState extends State<SetupTile> {
 
   bool _displayOnlyChanges = true;
 
+  // Per tile, not per setup: one setup can sit in several lists on the same route.
+  late final String _heroTag = 'setup-tile-${widget.setupId}-${identityHashCode(this)}';
+
   Widget _bookmarkRibbon({required bool visible}) {
     return ClipRect(
       child: AnimatedAlign(
@@ -79,35 +81,7 @@ class _SetupTileState extends State<SetupTile> {
     final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
     final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
 
-    final metadataRows = <Widget>[
-      if (setup.place != null && !widget.hidePlace)
-        TileMetaRow(
-          icon: Icons.location_pin,
-          text: "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
-          muted: true,
-        ),
-      if (setup.weather?.currentTemperature != null)
-        TileMetaRow(
-          icon: ContextWeather.currentTemperatureIconData,
-          text:
-              "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
-          muted: true,
-        ),
-      if (setup.weather?.condition != null)
-        TileMetaRow(
-          icon: setup.weather?.condition?.iconData ?? Icons.question_mark,
-          text: setup.weather?.condition?.value ?? "-",
-          iconColor: setup.weather?.condition?.color,
-          muted: true,
-        ),
-      if (appSettings.enableSetupTags) ...setup.tags.map((tag) => TileMetaRow(icon: Icons.tag, text: tag, muted: true)),
-      if (appSettings.enableAttachments && setup.attachments.isNotEmpty)
-        TileMetaRow(
-          icon: Icons.attach_file,
-          text: '${setup.attachments.length}',
-          muted: true,
-        ),
-    ];
+    final metadataRows = SetupTileHeader.metadataOf(setup, appSettings, hidePlace: widget.hidePlace);
     final Widget? badge = widget.showCurrentBadge
         ? appRepository.setupHistory.isCurrent(setup.id)
               ? const CurrentSetupBadge()
@@ -135,19 +109,22 @@ class _SetupTileState extends State<SetupTile> {
                 bottom: 8,
                 right: kMinInteractiveDimension + 8,
               ),
-              child: SetupTileHeader(
-                setup: setup,
-                dateTimeText: widget.showDate
-                    ? "$dateText • $timeText"
-                    : timeText,
-                metadata: metadataRows,
-                badge: badge,
-                showSetupIcon: true,
-                selected: widget.selected,
-                secondaryMetadata: TileMetaRow(
-                  icon: Bike.iconData,
-                  text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
-                  isError: !bikes.containsKey(setup.bike),
+              child: Hero(
+                tag: _heroTag,
+                child: SetupTileHeader(
+                  setup: setup,
+                  dateTimeText: widget.showDate
+                      ? "$dateText • $timeText"
+                      : timeText,
+                  metadata: metadataRows,
+                  badge: badge,
+                  showSetupIcon: true,
+                  selected: widget.selected,
+                  secondaryMetadata: TileMetaRow(
+                    icon: Bike.iconData,
+                    text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                    isError: !bikes.containsKey(setup.bike),
+                  ),
                 ),
               ),
             ),
@@ -159,7 +136,7 @@ class _SetupTileState extends State<SetupTile> {
               child: Semantics(
                 container: true,
                 identifier: AutomationIds.setupActions(setup.id),
-                child: SetupOptionsMenu(setup: setup),
+                child: SetupOptionsMenu(setup: setup, heroTag: _heroTag),
               ),
             ),
           if (showInlineExpandIcon)

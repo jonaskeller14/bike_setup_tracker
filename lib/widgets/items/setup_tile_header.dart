@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../models/app_settings.dart';
+import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../notes_text.dart';
+import 'tile_meta_row.dart';
 
 class SetupTileHeader extends StatelessWidget {
   final Setup setup;
@@ -22,6 +25,37 @@ class SetupTileHeader extends StatelessWidget {
     this.secondaryMetadata,
     this.selected = false,
   });
+
+  /// The [metadata] rows of a setup tile: place, weather, tags, attachments.
+  static List<Widget> metadataOf(Setup setup, AppSettings appSettings, {bool hidePlace = false}) => [
+    if (setup.place != null && !hidePlace)
+      TileMetaRow(
+        icon: Icons.location_pin,
+        text: "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
+        muted: true,
+      ),
+    if (setup.weather?.currentTemperature != null)
+      TileMetaRow(
+        icon: ContextWeather.currentTemperatureIconData,
+        text:
+            "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
+        muted: true,
+      ),
+    if (setup.weather?.condition != null)
+      TileMetaRow(
+        icon: setup.weather?.condition?.iconData ?? Icons.question_mark,
+        text: setup.weather?.condition?.value ?? "-",
+        iconColor: setup.weather?.condition?.color,
+        muted: true,
+      ),
+    if (appSettings.enableSetupTags) ...setup.tags.map((tag) => TileMetaRow(icon: Icons.tag, text: tag, muted: true)),
+    if (appSettings.enableAttachments && setup.attachments.isNotEmpty)
+      TileMetaRow(
+        icon: Icons.attach_file,
+        text: '${setup.attachments.length}',
+        muted: true,
+      ),
+  ];
 
   @override
   Widget build(BuildContext context) {

@@ -6,11 +6,13 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
+import '../../models/feedback/ride_feedback.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/feedback_actions.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/setup_actions.dart';
 import '../../utils/url.dart';
@@ -26,6 +28,7 @@ import '../../widgets/items/card_header_tile.dart';
 import '../../widgets/items/context_bike_person_card.dart';
 import '../../widgets/items/context_location_weather_card.dart';
 import '../../widgets/items/context_meta_card.dart';
+import '../../widgets/items/feedback_list_tile.dart';
 import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
@@ -197,6 +200,8 @@ class SetupDetailsPageContent extends StatelessWidget {
         await SetupActions.shareSetup(context, setup: setup);
       case _SetupDetailsAction.compare:
         await showCompareSetupsSheet(context, setupA: null, setupB: setup, showViewOnMap: showViewOnMap);
+      case _SetupDetailsAction.addFeedback:
+        await FeedbackActions.addFeedbackForSetup(context, setup: setup);
       case _SetupDetailsAction.restore:
         final restored = await SetupActions.duplicateSetup(context, setup: setup);
         if (restored != null && context.mounted) Navigator.pop(context);
@@ -213,6 +218,7 @@ class SetupDetailsPageContent extends StatelessWidget {
       if (showEditAction) _SetupDetailsAction.edit,
       _SetupDetailsAction.share,
       _SetupDetailsAction.compare,
+      if (context.watch<AppSettings>().enableRating) _SetupDetailsAction.addFeedback,
       if (!context.watch<AppRepository>().setupHistory.isCurrent(setup.id)) _SetupDetailsAction.restore,
       if (showViewOnMap) ...[_SetupDetailsAction.viewOnMap, _SetupDetailsAction.openInMapsApp],
     ];
@@ -375,6 +381,43 @@ class SetupDetailsPageContent extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _feedbackSection(BuildContext context, {required Setup setup}) {
+    final feedbacks = context.watch<AppRepository>().feedbacksForSetup(setup.id);
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        child: feedbacks.isEmpty
+            ? EmptyStatePlaceholder2(
+                iconData: RideFeedback.iconData,
+                title: "No feedback yet",
+                subtitle: "Tap to note how this setup rode",
+                onTap: () => FeedbackActions.addFeedbackForSetup(context, setup: setup),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Card(
+                    margin: EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      children: [
+                        for (final feedback in feedbacks) FeedbackListTile(feedback: feedback),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => FeedbackActions.addFeedbackForSetup(context, setup: setup),
+                    icon: const Icon(Icons.add),
+                    label: const Text("Add Feedback"),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -709,6 +752,14 @@ class SetupDetailsPageContent extends StatelessWidget {
                     _legend(context),
                   ]
                 ),
+                if (context.watch<AppSettings>().enableRating)
+                  SliverMainAxisGroup(
+                    slivers: [
+                      const SliverToBoxAdapter(child: Divider(height: 8)),
+                      _sectionTitle(context, setup: setup, title: "Feedback"),
+                      _feedbackSection(context, setup: setup),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -748,6 +799,7 @@ enum _SetupDetailsAction {
   edit('Edit', Icons.edit),
   share('Share', Icons.share),
   compare('Compare', Icons.compare),
+  addFeedback('Add Feedback', RideFeedback.iconData),
   restore('Restore', Icons.restore),
   viewOnMap('View on map', Icons.map, needsPosition: true),
   openInMapsApp('Open in maps app', Icons.directions, needsPosition: true);

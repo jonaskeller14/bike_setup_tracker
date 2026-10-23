@@ -65,4 +65,31 @@ void main() {
     await settle(tester);
     expect(find.byType(SetupDetailsPageContent), findsOneWidget);
   });
+
+  testWidgets('feedback section and action follow the Feedback flag', (tester) async {
+    final setup = harness.setup(id: 'only', name: 'Only', local: DateTime(2026, 8, 1, 10));
+    await harness.addSetups(tester, [setup]);
+    await harness.reload(tester);
+    await pumpDetails(tester, setup.id);
+
+    expect(find.text('FEEDBACK'), findsNothing);
+    await tester.tap(find.byTooltip('Setup actions'));
+    await settle(tester);
+    expect(find.text('Add Feedback'), findsNothing);
+    await tester.tapAt(Offset.zero);
+    await settle(tester);
+
+    harness.settings.enableRating = true;
+    await settle(tester);
+
+    await tester.scrollUntilVisible(
+      find.text('No feedback yet'),
+      200,
+      scrollable: find.descendant(of: find.byType(CustomScrollView), matching: find.byType(Scrollable)).first,
+    );
+    expect(find.text('FEEDBACK'), findsOneWidget);
+    await tester.tap(find.byTooltip('Setup actions'));
+    await settle(tester);
+    expect(find.text('Add Feedback'), findsOneWidget);
+  });
 }

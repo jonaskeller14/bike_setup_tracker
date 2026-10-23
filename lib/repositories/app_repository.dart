@@ -34,6 +34,8 @@ import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
 import '../services/backup_service.dart';
 import '../services/component_hierarchy_resolver.dart';
+import '../services/feedback_open_issues_service.dart';
+import '../services/feedback_ranking_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
@@ -482,6 +484,8 @@ class AppRepository extends ChangeNotifier {
     // Drop the lazily built setup and feedback lookup caches
     _setupsByBikeSorted = null;
     _feedbacksBySetup = null;
+    _setupRanks = null;
+    _openIssuesBySetup.clear();
 
     final result = SetupResolutionService.resolveSetups(
       setups: _setups,
@@ -889,6 +893,19 @@ class AppRepository extends ChangeNotifier {
   }
 
   List<RideFeedback> feedbacksForSetup(String setupId) => _feedbacksBySetupIndex[setupId] ?? const []; // newest first
+
+  /// Lazily built caches behind [rankFor] and [openIssuesFor], dropped on every
+  /// data change. They ignore the filters: a rank needs every setup of the bike.
+  Map<String, SetupRank>? _setupRanks;
+  final Map<String, OpenIssues?> _openIssuesBySetup = {};
+
+  SetupRank? rankFor(String setupId) =>
+      (_setupRanks ??= FeedbackRankingService.rank(setups: _setups, feedbacksBySetup: _feedbacksBySetupIndex))[setupId];
+
+  OpenIssues? openIssuesFor(String setupId) => _openIssuesBySetup.putIfAbsent(
+        setupId,
+        () => FeedbackOpenIssuesService.openIssues(feedbacksForSetup(setupId)),
+      );
 
   List<Setup> setupsInSession(String sessionId) =>
       _setups.values.where((setup) => setup.testSessionId == sessionId).toList();

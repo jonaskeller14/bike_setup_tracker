@@ -1571,6 +1571,34 @@ void main() {
       expect(repository.feedbacksForSetup("unknown"), isEmpty);
     });
 
+    test("rankFor and openIssuesFor follow re-resolution after a setup insert", () async {
+      final reference = buildSetup(DateTime(2026, 5, 1));
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([reference, setup]);
+      final feedback = buildFeedback(
+        DateTime(2026, 6, 15),
+        setupId: setup.id,
+        observations: {const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.comfort))},
+        comparisons: {FeedbackComparison(referenceSetupId: reference.id, aspect: const OverallAspect(), outcome: 2)},
+      );
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.rankFor(setup.id)?.rank, 1);
+      expect(repository.rankFor(reference.id)?.rank, 2);
+      expect(repository.openIssuesFor(setup.id)?.issues, [feedback.issues.single]);
+      expect(repository.openIssuesFor(reference.id), isNull);
+
+      final between = buildSetup(DateTime(2026, 6, 10));
+      await repository.addSetups([between]);
+      await pumpEventQueue();
+
+      expect(repository.rankFor(setup.id), isNull);
+      expect(repository.rankFor(between.id)?.rank, 1);
+      expect(repository.openIssuesFor(setup.id), isNull);
+      expect(repository.openIssuesFor(between.id)?.feedbackId, feedback.id);
+    });
+
     test("setupsInSession lists the runs in chronological order", () async {
       final session = buildSession();
       await repository.addTestSessions([session]);

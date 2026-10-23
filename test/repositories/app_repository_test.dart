@@ -5,6 +5,12 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_comparison.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
@@ -1361,6 +1367,303 @@ void main() {
       await pumpEventQueue();
 
       expect(await repository.hasStravaActivitiesWithPosition(), false);
+    });
+  });
+
+  group("AppRepository - Feedback", () {
+    late AppDatabase database;
+    late AppRepository repository;
+    final bike1 = Bike(name: "Bike #1", person: null);
+    final bike2 = Bike(name: "Bike #2", person: null);
+    const grade = EndAspect(FeedbackEnd.front, FeedbackAttribute.comfort);
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+      await repository.addBikes([bike1, bike2]);
+    });
+
+    tearDown(() async {
+      await repository.disposeAndAwaitCancellation();
+      await database.close();
+    });
+
+    Setup buildSetup(DateTime datetime, {Bike? bike, String? testSessionId}) => Setup(
+      name: "Setup",
+      tags: const {},
+      datetime: datetime.toUtc(),
+      datetimeLocal: datetime,
+      bike: (bike ?? bike1).id,
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      testSessionId: testSessionId,
+    );
+
+    RideFeedback buildFeedback(
+      DateTime at, {
+      required String setupId,
+      Bike? bike,
+      Set<FeedbackObservation>? observations,
+      Set<FeedbackComparison>? comparisons,
+    }) => RideFeedback(
+      bike: (bike ?? bike1).id,
+      setupId: setupId,
+      dateTimeUTC: at.toUtc(),
+      dateTimeLocal: at,
+      observations: observations,
+      comparisons: comparisons,
+    );
+
+    TestSession buildSession({
+      Bike? bike,
+      DateTime? startedAt,
+      DateTime? endedAt,
+      Map<String, AdjustmentValue>? locks,
+    }) {
+      final started = startedAt ?? DateTime(2026, 6, 1);
+      return TestSession(
+        bike: (bike ?? bike1).id,
+        adjustmentIds: const ["dial"],
+        locks: locks,
+        startedAtUTC: started.toUtc(),
+        startedAtLocal: started,
+        endedAtUTC: endedAt?.toUtc(),
+        endedAtLocal: endedAt,
+      );
+    }
+
+    test("addFeedbacks stores the observations and comparisons", () async {
+      final reference = buildSetup(DateTime(2026, 5, 1));
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([reference, setup]);
+      final feedback = buildFeedback(
+        DateTime(2026, 6, 2),
+        setupId: setup.id,
+        observations: {const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.comfort))},
+        comparisons: {
+          FeedbackComparison(referenceSetupId: reference.id, aspect: const OverallAspect(), outcome: 2),
+          FeedbackComparison(referenceSetupId: reference.id, aspect: grade, outcome: -1),
+        },
+      );
+
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.feedbacks[feedback.id]?.observations, feedback.observations);
+      expect(repository.feedbacks[feedback.id]?.comparisons, feedback.comparisons);
+    });
+
+    test("addFeedbacks rolls back the batch when one insert fails", () async {
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([setup]);
+      final feedback = buildFeedback(DateTime(2026, 6, 2), setupId: setup.id);
+
+      await expectLater(repository.addFeedbacks([feedback, feedback]), throwsA(anything));
+      await pumpEventQueue();
+
+      expect(repository.feedbacks, isEmpty);
+    });
+
+    test("editFeedback replaces the children as a whole", () async {
+      final reference = buildSetup(DateTime(2026, 5, 1));
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([reference, setup]);
+      final feedback = buildFeedback(
+        DateTime(2026, 6, 2),
+        setupId: setup.id,
+        observations: {const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.grip))},
+        comparisons: {FeedbackComparison(referenceSetupId: reference.id, aspect: const OverallAspect(), outcome: 1)},
+      );
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      await repository.editFeedback(
+        feedback.copyWith(
+          notes: "Better",
+          observations: {const FeedbackObservation.flag(NoIssueKey())},
+          comparisons: <FeedbackComparison>{},
+        ),
+      );
+      await pumpEventQueue();
+
+      final stored = repository.feedbacks[feedback.id]!;
+      expect(stored.notes, "Better");
+      expect(stored.observations, {const FeedbackObservation.flag(NoIssueKey())});
+      expect(stored.comparisons, isEmpty);
+    });
+
+    test("removeFeedbacks and restoreFeedbacks keep the children", () async {
+      final reference = buildSetup(DateTime(2026, 5, 1));
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([reference, setup]);
+      final feedback = buildFeedback(
+        DateTime(2026, 6, 2),
+        setupId: setup.id,
+        observations: {const FeedbackObservation.flag(NoIssueKey())},
+        comparisons: {FeedbackComparison(referenceSetupId: reference.id, aspect: const OverallAspect(), outcome: 1)},
+      );
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      await repository.removeFeedbacks([feedback]);
+      await pumpEventQueue();
+      expect(repository.feedbacks, isEmpty);
+      expect(repository.deletedFeedbacks.map((f) => f.id), [feedback.id]);
+      expect(repository.deletedFeedbacks.single.comparisons, feedback.comparisons);
+
+      await repository.restoreFeedbacks(repository.deletedFeedbacks);
+      await pumpEventQueue();
+      expect(repository.deletedFeedbacks, isEmpty);
+      expect(repository.feedbacks[feedback.id]?.observations, feedback.observations);
+      expect(repository.feedbacks[feedback.id]?.comparisons, feedback.comparisons);
+    });
+
+    test("a setup inserted between a setup and its feedback re-resolves the feedback (drift)", () async {
+      final early = buildSetup(DateTime(2026, 5, 1));
+      final late_ = buildSetup(DateTime(2026, 7, 1));
+      await repository.addSetups([early, late_]);
+      final feedback = buildFeedback(DateTime(2026, 6, 15), setupId: early.id);
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.resolvedSetupIdFor(feedback), early.id);
+      expect(repository.resolvedSetupFor(feedback)?.id, early.id);
+      expect(repository.hasSetupDrift(feedback), false);
+      expect(repository.feedbacksForSetup(early.id).map((f) => f.id), [feedback.id]);
+
+      final between = buildSetup(DateTime(2026, 6, 10));
+      await repository.addSetups([between]);
+      await pumpEventQueue();
+
+      expect(repository.resolvedSetupIdFor(feedback), between.id);
+      expect(repository.hasSetupDrift(feedback), true);
+      expect(repository.feedbacksForSetup(early.id), isEmpty);
+      expect(repository.feedbacksForSetup(between.id).map((f) => f.id), [feedback.id]);
+      expect(repository.feedbacks[feedback.id]?.setupId, early.id, reason: "the stored setupId is write-once");
+    });
+
+    test("a feedback before every setup resolves to nothing and has no drift", () async {
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([setup]);
+      final feedback = buildFeedback(DateTime(2026, 5, 1), setupId: setup.id);
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.resolvedSetupIdFor(feedback), isNull);
+      expect(repository.resolvedSetupFor(feedback), isNull);
+      expect(repository.hasSetupDrift(feedback), false);
+    });
+
+    test("feedbacksForSetup lists the newest feedback first and ignores other bikes", () async {
+      final setup = buildSetup(DateTime(2026, 5, 1));
+      final otherBikeSetup = buildSetup(DateTime(2026, 5, 1), bike: bike2);
+      await repository.addSetups([setup, otherBikeSetup]);
+      final older = buildFeedback(DateTime(2026, 6, 1), setupId: setup.id);
+      final newer = buildFeedback(DateTime(2026, 6, 5), setupId: setup.id);
+      final otherBike = buildFeedback(DateTime(2026, 6, 3), setupId: otherBikeSetup.id, bike: bike2);
+      await repository.addFeedbacks([older, newer, otherBike]);
+      await pumpEventQueue();
+
+      expect(repository.feedbacksForSetup(setup.id).map((f) => f.id), [newer.id, older.id]);
+      expect(repository.feedbacksForSetup(otherBikeSetup.id).map((f) => f.id), [otherBike.id]);
+      expect(repository.feedbacksForSetup("unknown"), isEmpty);
+    });
+
+    test("setupsInSession lists the runs in chronological order", () async {
+      final session = buildSession();
+      await repository.addTestSessions([session]);
+      final run2 = buildSetup(DateTime(2026, 6, 1, 11), testSessionId: session.id);
+      final run1 = buildSetup(DateTime(2026, 6, 1, 10), testSessionId: session.id);
+      final unrelated = buildSetup(DateTime(2026, 6, 1, 9));
+      await repository.addSetups([run2, unrelated, run1]);
+      await pumpEventQueue();
+
+      expect(repository.setupsInSession(session.id).map((s) => s.id), [run1.id, run2.id]);
+      expect(repository.setupsInSession("unknown"), isEmpty);
+    });
+
+    test("runningSessionFor returns the latest started session that has not ended", () async {
+      final ended = buildSession(startedAt: DateTime(2026, 6, 3), endedAt: DateTime(2026, 6, 3, 12));
+      final earlier = buildSession(startedAt: DateTime(2026, 6, 1));
+      final later = buildSession(startedAt: DateTime(2026, 6, 2));
+      final otherBike = buildSession(bike: bike2, startedAt: DateTime(2026, 6, 4));
+      await repository.addTestSessions([ended, earlier, later, otherBike]);
+      await pumpEventQueue();
+
+      expect(repository.runningSessionFor(bike1.id)?.id, later.id);
+      expect(repository.runningSessionFor(bike2.id)?.id, otherBike.id);
+
+      await repository.endTestSession(later);
+      await repository.endTestSession(earlier);
+      await pumpEventQueue();
+      expect(repository.runningSessionFor(bike1.id), isNull);
+    });
+
+    test("endTestSession ends the session", () async {
+      final session = buildSession();
+      await repository.addTestSessions([session]);
+      await pumpEventQueue();
+
+      final endedAt = DateTime(2026, 6, 1, 15);
+      await repository.endTestSession(session, at: endedAt);
+      await pumpEventQueue();
+
+      final ended = repository.testSessions[session.id]!;
+      expect(ended.isRunning, false);
+      expect(ended.endedAtUTC, endedAt.toUtc());
+      expect(ended.endedAtLocal, endedAt);
+    });
+
+    test("removeTestSessions and restoreTestSessions", () async {
+      final session = buildSession();
+      await repository.addTestSessions([session]);
+      await pumpEventQueue();
+
+      await repository.removeTestSessions([session]);
+      await pumpEventQueue();
+      expect(repository.testSessions, isEmpty);
+      expect(repository.deletedTestSessions.map((s) => s.id), [session.id]);
+
+      await repository.restoreTestSessions(repository.deletedTestSessions);
+      await pumpEventQueue();
+      expect(repository.deletedTestSessions, isEmpty);
+      expect(repository.testSessions.keys, [session.id]);
+    });
+
+    test("locks stay unresolved until the knob's component is known", () async {
+      final session = buildSession(locks: const {"dial": UnresolvedValue("true")});
+      await repository.addTestSessions([session]);
+      await pumpEventQueue();
+      expect(repository.testSessions[session.id]?.locks["dial"], isA<UnresolvedValue>());
+
+      await repository.addComponents([
+        Component(
+          name: "Fork",
+          installations: [Installation.sinceBeginning(parent: bike1.id)],
+          componentType: ComponentType.fork,
+          adjustments: [BooleanAdjustment(id: "dial", name: "Lockout", notes: null, unit: null)],
+        ),
+      ]);
+      await pumpEventQueue();
+
+      expect(repository.testSessions[session.id]?.locks["dial"], const BooleanValue(true));
+    });
+
+    test("lastModified and firstEntryDay cover feedbacks and sessions", () async {
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([setup]);
+      await pumpEventQueue();
+      final feedback = buildFeedback(DateTime(2026, 5, 20), setupId: setup.id);
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.firstEntryDay, DateTime(2026, 5, 20));
+
+      await repository.addTestSessions([buildSession()]);
+      await pumpEventQueue();
+      expect(repository.lastModified, repository.testSessions.values.single.lastModified);
     });
   });
 

@@ -2,6 +2,8 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -98,6 +100,37 @@ void main() {
       await pumpEventQueue();
       expect(appRepository.setups.containsKey(setup1.id), false);
       expect(appRepository.deletedSetups.any((s) => s.id == setup1.id), true);
+    });
+
+    test("deleted feedback and test session appear in their deleted lists only", () async {
+      final feedback = RideFeedback(
+        bike: bike1.id,
+        setupId: setup1.id,
+        dateTimeUTC: DateTime(2000, 1, 2).toUtc(),
+        dateTimeLocal: DateTime(2000, 1, 2),
+      );
+      final session = TestSession(
+        bike: bike1.id,
+        adjustmentIds: const [],
+        startedAtUTC: DateTime(2000, 1, 2).toUtc(),
+        startedAtLocal: DateTime(2000, 1, 2),
+      );
+      await data.addBikes([bike1]);
+      await data.addSetups([setup1]);
+      await data.addFeedbacks([feedback]);
+      await data.addTestSessions([session]);
+      await pumpEventQueue();
+      expect(appRepository.feedbacks.keys, [feedback.id]);
+      expect(appRepository.testSessions.keys, [session.id]);
+
+      await data.removeFeedbacks([feedback]);
+      await data.removeTestSessions([session]);
+      await pumpEventQueue();
+
+      expect(appRepository.feedbacks, isEmpty);
+      expect(appRepository.testSessions, isEmpty);
+      expect(appRepository.deletedFeedbacks.map((f) => f.id), [feedback.id]);
+      expect(appRepository.deletedTestSessions.map((s) => s.id), [session.id]);
     });
 
     test("restored item moves back from deleted to active", () async {

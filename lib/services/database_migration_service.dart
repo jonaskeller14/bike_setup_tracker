@@ -52,6 +52,26 @@ class DatabaseMigrationService {
         data.taskEntries.values.map((te) => te.toCompanion()),
       );
 
+      // Test sessions
+      batch.insertAllOnConflictUpdate(
+        db.testSessions,
+        data.testSessions.values.map((ts) => ts.toCompanion()),
+      );
+
+      // Feedbacks with their observations and comparisons
+      batch.insertAllOnConflictUpdate(
+        db.feedbacks,
+        data.feedbacks.values.map((f) => f.toCompanion()),
+      );
+      batch.insertAllOnConflictUpdate(
+        db.feedbackObservations,
+        data.feedbacks.values.expand((f) => f.observationCompanions()),
+      );
+      batch.insertAllOnConflictUpdate(
+        db.feedbackComparisons,
+        data.feedbacks.values.expand((f) => f.comparisonCompanions()),
+      );
+
       // Installations (nested in components)
       final List<InstallationsCompanion> installationsToInsert = [];
       for (final component in data.components.values) {

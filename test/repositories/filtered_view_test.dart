@@ -1,6 +1,8 @@
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
@@ -45,6 +47,8 @@ void main() {
     Map<String, Setup> setups = const {},
     Map<String, TaskRule> taskRules = const {},
     Map<String, TaskEntry> taskEntries = const {},
+    Map<String, RideFeedback> feedbacks = const {},
+    Map<String, TestSession> testSessions = const {},
     SetupFilter setupFilter = const SetupFilter(),
     TaskRuleFilter? taskRuleFilter,
     LocalDateRange? dateRange,
@@ -57,6 +61,8 @@ void main() {
       persons: persons,
       taskRules: taskRules,
       taskEntries: taskEntries,
+      feedbacks: feedbacks,
+      testSessions: testSessions,
       hierarchy: ComponentHierarchyResolver(allComponents, deletedComponentIds: const {"trashed"}),
       bikeId: bikeId,
       dateRange: dateRange,
@@ -124,6 +130,61 @@ void main() {
         setupFilter: const SetupFilter(tags: {"race"}, bookmarkedOnly: true),
       );
       expect(view.setups.keys, ["s1"]);
+    });
+  });
+
+  group("feedbacks and test sessions", () {
+    RideFeedback feedback(String id, String bike, DateTime local) =>
+        RideFeedback(id: id, bike: bike, setupId: "s", dateTimeUTC: local.toUtc(), dateTimeLocal: local);
+    TestSession session(String id, String bike, DateTime local) => TestSession(
+      id: id,
+      bike: bike,
+      adjustmentIds: const [],
+      startedAtUTC: local.toUtc(),
+      startedAtLocal: local,
+    );
+
+    final feedbacks = {
+      "f1": feedback("f1", "b1", DateTime(2024, 5, 10)),
+      "f2": feedback("f2", "b1", DateTime(2024, 5, 20)),
+      "f3": feedback("f3", "b2", DateTime(2024, 5, 10)),
+    };
+    final testSessions = {
+      "t1": session("t1", "b1", DateTime(2024, 5, 10)),
+      "t2": session("t2", "b2", DateTime(2024, 5, 20)),
+    };
+
+    test("without criteria everything is kept", () {
+      final view = build(feedbacks: feedbacks, testSessions: testSessions);
+
+      expect(view.feedbacks.keys, ["f1", "f2", "f3"]);
+      expect(view.testSessions.keys, ["t1", "t2"]);
+    });
+
+    test("bike scope", () {
+      final view = build(feedbacks: feedbacks, testSessions: testSessions, bikeId: "b1");
+
+      expect(view.feedbacks.keys, ["f1", "f2"]);
+      expect(view.testSessions.keys, ["t1"]);
+    });
+
+    test("the date range narrows feedbacks by local day but leaves sessions alone", () {
+      final view = build(
+        feedbacks: feedbacks,
+        testSessions: testSessions,
+        dateRange: LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12)),
+        bikeId: "b1",
+      );
+
+      expect(view.feedbacks.keys, ["f1"]);
+      expect(view.testSessions.keys, ["t1"]);
+      expect(
+        build(
+          testSessions: testSessions,
+          dateRange: LocalDateRange(start: DateTime(2020), end: DateTime(2020, 12, 31)),
+        ).testSessions.keys,
+        ["t1", "t2"],
+      );
     });
   });
 

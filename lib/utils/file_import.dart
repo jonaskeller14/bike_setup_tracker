@@ -245,6 +245,30 @@ class FileImport {
         continue;
       }
     }
+
+    for (final remoteFeedback in remoteData.feedbacks.values) {
+      final localFeedback = localData.feedbacks[remoteFeedback.id];
+      if (localFeedback == null) {
+        if (!remoteFeedback.isDeleted) localData.feedbacks[remoteFeedback.id] = remoteFeedback;
+        continue;
+      }
+      if (remoteFeedback.lastModified.isAfter(localFeedback.lastModified)) {
+        localData.feedbacks[remoteFeedback.id] = remoteFeedback;
+        continue;
+      }
+    }
+
+    for (final remoteSession in remoteData.testSessions.values) {
+      final localSession = localData.testSessions[remoteSession.id];
+      if (localSession == null) {
+        if (!remoteSession.isDeleted) localData.testSessions[remoteSession.id] = remoteSession;
+        continue;
+      }
+      if (remoteSession.lastModified.isAfter(localSession.lastModified)) {
+        localData.testSessions[remoteSession.id] = remoteSession;
+        continue;
+      }
+    }
   }
 
   static void _overwriteInternal({
@@ -259,6 +283,8 @@ class FileImport {
     localData.setups.addAll(remoteData.setups);
     localData.taskRules.addAll(remoteData.taskRules);
     localData.taskEntries.addAll(remoteData.taskEntries);
+    localData.feedbacks.addAll(remoteData.feedbacks);
+    localData.testSessions.addAll(remoteData.testSessions);
   }
 
   static List<String> cleanupIsDeleted({required SelectedData data}) {
@@ -295,6 +321,9 @@ class FileImport {
       if (purge) purgedAttachments.addAll(te.attachments.map((a) => a.filename));
       return purge;
     });
+
+    data.feedbacks.removeWhere((_, f) => f.isDeleted && f.lastModified.isBefore(deleteDateTime));
+    data.testSessions.removeWhere((_, ts) => ts.isDeleted && ts.lastModified.isBefore(deleteDateTime));
 
     // Never delete a file a surviving setup, bike, component or task still references.
     final stillReferenced = {

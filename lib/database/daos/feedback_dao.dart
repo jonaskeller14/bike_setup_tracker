@@ -120,6 +120,8 @@ class FeedbackDao extends DatabaseAccessor<AppDatabase>
 
   Future<List<TestSessionDb>> getAllTestSessionsBypass() => select(testSessions).get();
 
+  Future<int> insertTestSession(TestSessionsCompanion entry) => into(testSessions).insert(entry);
+
   Future<int> upsertTestSession(TestSessionsCompanion entry) => into(testSessions).insertOnConflictUpdate(entry);
 
   Future<int> deleteTestSession(String id) {

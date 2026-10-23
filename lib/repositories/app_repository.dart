@@ -16,6 +16,8 @@ import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
+import '../models/feedback/ride_feedback.dart';
+import '../models/feedback/test_session.dart';
 import '../models/person.dart';
 import '../models/recorded_value.dart';
 import '../models/selected_data.dart';
@@ -164,6 +166,9 @@ class AppRepository extends ChangeNotifier {
   ComponentHierarchyResolver? _componentHierarchyCache;
   Map<String, TaskRule> _taskRules = {};
   Map<String, TaskEntry> _taskEntries = {};
+  Map<String, RideFeedback> _feedbacks = {};
+  List<TestSessionDb> _testSessionRows = [];
+  Map<String, TestSession> _testSessions = {};
   Map<int, StravaAthlete> _stravaAthletes = {};
   Map<String, StravaGear> _stravaGears = {};
   Map<String, ComponentStats> _componentStats = {};
@@ -179,6 +184,8 @@ class AppRepository extends ChangeNotifier {
   Map<String, Component> get components => _components;
   Map<String, TaskRule> get taskRules => _taskRules;
   Map<String, TaskEntry> get taskEntries => _taskEntries;
+  Map<String, RideFeedback> get feedbacks => _feedbacks;
+  Map<String, TestSession> get testSessions => _testSessions;
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
   // Strava is paginated per active filter, so the loaded window is the filtered set.
   Map<int, StravaActivity> get stravaActivities => _strava.activities;
@@ -193,14 +200,15 @@ class AppRepository extends ChangeNotifier {
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
   ActivityBounds get activityBounds => _activityBounds;
 
-  /// The earliest local day the date range can narrow: of setups, task entries
-  /// and activities. Installations are left out, as a "since the beginning"
+  /// The earliest local day the date range can narrow: of setups, task entries,
+  /// feedbacks and activities. Installations are left out, as a "since the beginning"
   /// install is dated at the epoch. `null` without any.
   DateTime? get firstEntryDay {
     var first = _activityBounds.firstStartLocal;
     final dates = _setups.values
         .map((s) => s.datetimeLocal)
-        .followedBy(_taskEntries.values.map((e) => e.dateTimeLocal));
+        .followedBy(_taskEntries.values.map((e) => e.dateTimeLocal))
+        .followedBy(_feedbacks.values.map((f) => f.dateTimeLocal));
     for (final date in dates) {
       if (first == null || date.isBefore(first)) first = date;
     }
@@ -303,6 +311,8 @@ class AppRepository extends ChangeNotifier {
       ..._components.values.map((c) => c.lastModified),
       ..._taskRules.values.map((tr) => tr.lastModified),
       ..._taskEntries.values.map((te) => te.lastModified),
+      ..._feedbacks.values.map((f) => f.lastModified),
+      ..._testSessions.values.map((ts) => ts.lastModified),
     ].whereType<DateTime>();
 
     if (allDates.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
@@ -391,6 +401,18 @@ class AppRepository extends ChangeNotifier {
       _dataChanged();
     });
 
+    _subscriptions.add(database.feedbackDao.watchAllFeedbacksWithChildren().listen((list) {
+      _feedbacks = {for (var f in list) f.feedback.id: f.toModel()};
+      _dataChanged();
+    }));
+
+    // Held raw: the locks and proposals decode by adjustment type, and the
+    // components that define the types may arrive after the sessions.
+    _subscriptions.add(database.feedbackDao.watchAllTestSessions().listen((list) {
+      _testSessionRows = list;
+      _dataChanged();
+    }));
+
     // Deleted item streams
     _subscriptions.add(database.bikesDao.watchDeletedBikes().listen((list) {
       _deletedBikes = list.map((b) => b.toModel()).toList();
@@ -415,6 +437,14 @@ class AppRepository extends ChangeNotifier {
     }));
     _subscriptions.add(database.taskDao.watchDeletedEntries().listen((list) {
       _deletedTaskEntries = list.map((te) => te.toModel()).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.feedbackDao.watchDeletedFeedbacksWithChildren().listen((list) {
+      _deletedFeedbacks = list.map((f) => f.toModel()).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.feedbackDao.watchDeletedTestSessions().listen((list) {
+      _deletedTestSessions = list.map((ts) => ts.toModel()).toList();
       _notifyIfActive();
     }));
   }
@@ -449,8 +479,9 @@ class AppRepository extends ChangeNotifier {
 
   void _resolveData() {
     _componentHierarchyCache = null;
-    // Drop the lazily built setup lookup cache
+    // Drop the lazily built setup and feedback lookup caches
     _setupsByBikeSorted = null;
+    _feedbacksBySetup = null;
 
     final result = SetupResolutionService.resolveSetups(
       setups: _setups,
@@ -461,6 +492,9 @@ class AppRepository extends ChangeNotifier {
     _setups = result.setups;
     _currentAdjustmentValues = result.globalState;
     _setupHistory = result.history;
+
+    final adjustmentTypes = adjustmentTypesOf(components: _components.values, persons: _persons.values);
+    _testSessions = {for (final row in _testSessionRows) row.id: row.toModel(adjustmentTypes: adjustmentTypes)};
 
     _setupTags = SetupResolutionService.extractAllTags(_setups.values);
     _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();
@@ -501,6 +535,8 @@ class AppRepository extends ChangeNotifier {
         persons: _persons,
         taskRules: _taskRules,
         taskEntries: _taskEntries,
+        feedbacks: _feedbacks,
+        testSessions: _testSessions,
         hierarchy: componentHierarchy,
         bikeId: filters.bikeId,
         dateRange: filters.dateRange,
@@ -824,6 +860,49 @@ class AppRepository extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
+  // FEEDBACK: LOOKUPS
+  // ---------------------------------------------------------------------------
+
+  /// Lazily built index behind [feedbacksForSetup], dropped on every data change.
+  Map<String, List<RideFeedback>>? _feedbacksBySetup;
+
+  Map<String, List<RideFeedback>> get _feedbacksBySetupIndex {
+    final cached = _feedbacksBySetup;
+    if (cached != null) return cached;
+    final map = <String, List<RideFeedback>>{};
+    for (final feedback in _feedbacks.values) {
+      final setupId = resolvedSetupIdFor(feedback);
+      if (setupId != null) (map[setupId] ??= []).add(feedback);
+    }
+    for (final list in map.values) {
+      list.sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+    }
+    return _feedbacksBySetup = map;
+  }
+
+  String? resolvedSetupIdFor(RideFeedback feedback) => resolveSetupId(bikeId: feedback.bike, atUtc: feedback.dateTimeUTC);
+  Setup? resolvedSetupFor(RideFeedback feedback) => _setups[resolvedSetupIdFor(feedback)];
+
+  bool hasSetupDrift(RideFeedback feedback) {
+    final resolved = resolvedSetupIdFor(feedback);
+    return resolved != null && resolved != feedback.setupId;
+  }
+
+  List<RideFeedback> feedbacksForSetup(String setupId) => _feedbacksBySetupIndex[setupId] ?? const []; // newest first
+
+  List<Setup> setupsInSession(String sessionId) =>
+      _setups.values.where((setup) => setup.testSessionId == sessionId).toList();
+
+  TestSession? runningSessionFor(String bikeId) {
+    TestSession? running;
+    for (final session in _testSessions.values) {
+      if (session.bike != bikeId || !session.isRunning) continue;
+      if (running == null || session.startedAtUTC.isAfter(running.startedAtUTC)) running = session;
+    }
+    return running;
+  }
+
+  // ---------------------------------------------------------------------------
   // STRAVA: PAGING, QUERIES & SYNC
   // ---------------------------------------------------------------------------
 
@@ -922,6 +1001,8 @@ class AppRepository extends ChangeNotifier {
   List<Setup> _deletedSetups = [];
   List<TaskRule> _deletedTaskRules = [];
   List<TaskEntry> _deletedTaskEntries = [];
+  List<RideFeedback> _deletedFeedbacks = [];
+  List<TestSession> _deletedTestSessions = [];
 
   List<Person> get deletedPersons => _deletedPersons;
   List<Bike> get deletedBikes => _deletedBikes;
@@ -929,6 +1010,8 @@ class AppRepository extends ChangeNotifier {
   List<Setup> get deletedSetups => _deletedSetups;
   List<TaskRule> get deletedTaskRules => _deletedTaskRules;
   List<TaskEntry> get deletedTaskEntries => _deletedTaskEntries;
+  List<RideFeedback> get deletedFeedbacks => _deletedFeedbacks;
+  List<TestSession> get deletedTestSessions => _deletedTestSessions;
 
   Future<void> removeBikes(Iterable<Bike> bikes) async {
     if (bikes.isEmpty) return;
@@ -1066,6 +1149,42 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
+  Future<void> removeFeedbacks(Iterable<RideFeedback> feedbacks) async {
+    if (feedbacks.isEmpty) return;
+    await database.transaction(() async {
+      for (final feedback in feedbacks) {
+        await database.feedbackDao.deleteFeedback(feedback.id);
+      }
+    });
+  }
+
+  Future<void> restoreFeedbacks(Iterable<RideFeedback> feedbacks) async {
+    if (feedbacks.isEmpty) return;
+    await database.transaction(() async {
+      for (final feedback in feedbacks) {
+        await database.feedbackDao.restoreFeedback(feedback.id);
+      }
+    });
+  }
+
+  Future<void> removeTestSessions(Iterable<TestSession> sessions) async {
+    if (sessions.isEmpty) return;
+    await database.transaction(() async {
+      for (final session in sessions) {
+        await database.feedbackDao.deleteTestSession(session.id);
+      }
+    });
+  }
+
+  Future<void> restoreTestSessions(Iterable<TestSession> sessions) async {
+    if (sessions.isEmpty) return;
+    await database.transaction(() async {
+      for (final session in sessions) {
+        await database.feedbackDao.restoreTestSession(session.id);
+      }
+    });
+  }
+
   // ---------------------------------------------------------------------------
   // WRITE OPERATIONS
   // ---------------------------------------------------------------------------
@@ -1152,6 +1271,53 @@ class AppRepository extends ChangeNotifier {
         );
       }
     });
+  }
+
+  Future<void> addFeedbacks(Iterable<RideFeedback> feedbacks) async {
+    if (feedbacks.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final feedback in feedbacks) {
+        final updated = feedback.copyWith(lastModified: now);
+        await database.feedbackDao.insertFeedbackWithChildren(
+          feedback: updated.toCompanion(),
+          observations: updated.observationCompanions(),
+          comparisons: updated.comparisonCompanions(),
+        );
+      }
+    });
+  }
+
+  Future<void> editFeedback(RideFeedback feedback) async {
+    final updated = feedback.copyWith(lastModified: DateTime.now().toUtc());
+    await database.feedbackDao.upsertFeedbackWithChildren(
+      feedback: updated.toCompanion(),
+      observations: updated.observationCompanions(),
+      comparisons: updated.comparisonCompanions(),
+    );
+  }
+
+  Future<void> addTestSessions(Iterable<TestSession> sessions) async {
+    if (sessions.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final session in sessions) {
+        await database.feedbackDao.insertTestSession(session.copyWith(lastModified: now).toCompanion());
+      }
+    });
+  }
+
+  Future<void> editTestSession(TestSession session) async {
+    await database.feedbackDao.upsertTestSession(
+      session.copyWith(lastModified: DateTime.now().toUtc()).toCompanion(),
+    );
+  }
+
+  Future<void> endTestSession(TestSession session, {DateTime? at}) {
+    final when = at ?? DateTime.now();
+    return editTestSession(session.copyWith(endedAtUTC: when.toUtc(), endedAtLocal: when));
   }
 
   Future<void> addComponents(Iterable<Component> components) async {

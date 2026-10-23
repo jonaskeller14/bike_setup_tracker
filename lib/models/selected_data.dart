@@ -1,6 +1,8 @@
 import 'adjustment/adjustment.dart';
 import 'bike.dart';
 import 'component/component.dart';
+import 'feedback/ride_feedback.dart';
+import 'feedback/test_session.dart';
 import 'person.dart';
 import 'setup.dart';
 import 'task/task_entry.dart';
@@ -13,6 +15,8 @@ class SelectedData {
   final Map<String, Setup> setups;
   final Map<String, TaskRule> taskRules;
   final Map<String, TaskEntry> taskEntries;
+  final Map<String, RideFeedback> feedbacks;
+  final Map<String, TestSession> testSessions;
 
   SelectedData({
     Map<String, Person>? persons,
@@ -21,12 +25,16 @@ class SelectedData {
     Map<String, Setup>? setups,
     Map<String, TaskRule>? taskRules,
     Map<String, TaskEntry>? taskEntries,
+    Map<String, RideFeedback>? feedbacks,
+    Map<String, TestSession>? testSessions,
   })  : persons = persons ?? {},
         bikes = bikes ?? {},
         components = components ?? {},
         setups = setups ?? {},
         taskRules = taskRules ?? {},
-        taskEntries = taskEntries ?? {};
+        taskEntries = taskEntries ?? {},
+        feedbacks = feedbacks ?? {},
+        testSessions = testSessions ?? {};
 
   factory SelectedData.fromJson(Map<String, dynamic> rawJson) {
     // Backup import (all legacy versions): normalize adjustment
@@ -52,6 +60,11 @@ class SelectedData {
         .map((a) => TaskRule.fromJson(a as Map<String, dynamic>));
     final loadedTaskEntries = (json['taskEntries'] as List<dynamic>? ?? [])
         .map((a) => TaskEntry.fromJson(a as Map<String, dynamic>));
+    final loadedFeedbacks = (json['feedbacks'] as List<dynamic>? ?? [])
+        .map((a) => RideFeedback.fromJson(a as Map<String, dynamic>));
+    final loadedTestSessions = (json['testSessions'] as List<dynamic>? ?? []).map(
+      (a) => TestSession.fromJson(json: a as Map<String, dynamic>, adjustmentTypes: adjustmentTypes),
+    );
 
     return SelectedData(
       persons: {for (var item in loadedPersons) item.id: item},
@@ -60,6 +73,8 @@ class SelectedData {
       setups: {for (var item in loadedSetups) item.id: item},
       taskRules: {for (var item in loadedTaskRules) item.id: item},
       taskEntries: {for (var item in loadedTaskEntries) item.id: item},
+      feedbacks: {for (var item in loadedFeedbacks) item.id: item},
+      testSessions: {for (var item in loadedTestSessions) item.id: item},
     );
   }
 }

@@ -45,6 +45,8 @@ void main() {
         persons: const {},
         taskRules: const {},
         taskEntries: const {},
+        feedbacks: const {},
+        testSessions: const {},
         hierarchy: ComponentHierarchyResolver(const {}),
         bikeId: null,
         dateRange: null,

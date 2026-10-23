@@ -2,6 +2,8 @@ import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/component/resolved_installation.dart';
+import '../models/feedback/ride_feedback.dart';
+import '../models/feedback/test_session.dart';
 import '../models/filters/local_date_range.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/filters/task_rule_filter.dart';
@@ -25,6 +27,8 @@ class FilteredView {
   final Map<String, Person> _persons;
   final Map<String, TaskRule> _taskRules;
   final Map<String, TaskEntry> _taskEntries;
+  final Map<String, RideFeedback> _feedbacks;
+  final Map<String, TestSession> _testSessions;
   final ComponentHierarchyResolver _hierarchy;
   final String? _bikeId;
   final LocalDateRange? _dateRange;
@@ -38,6 +42,8 @@ class FilteredView {
     required this._persons,
     required this._taskRules,
     required this._taskEntries,
+    required this._feedbacks,
+    required this._testSessions,
     required this._hierarchy,
     required this._bikeId,
     required this._dateRange,
@@ -67,6 +73,17 @@ class FilteredView {
           _inDateRange(entry.value.datetimeLocal) &&
           _setupFilter.matches(entry.value),
     ),
+  );
+
+  late final Map<String, RideFeedback> feedbacks = Map.fromEntries(
+    _feedbacks.entries.where(
+      (entry) => (_bikeId == null || entry.value.bike == _bikeId) && _inDateRange(entry.value.dateTimeLocal),
+    ),
+  );
+
+  /// A session spans days, so the date range leaves it alone.
+  late final Map<String, TestSession> testSessions = Map.fromEntries(
+    _testSessions.entries.where((entry) => _bikeId == null || entry.value.bike == _bikeId),
   );
 
   late final Map<String, Person> persons = _bikeId == null

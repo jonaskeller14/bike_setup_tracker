@@ -4,12 +4,19 @@ import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_comparison.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
+import 'package:bike_setup_tracker/services/data_export_service.dart';
+import 'package:bike_setup_tracker/services/database_migration_service.dart';
 import 'package:bike_setup_tracker/utils/file_import.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -315,6 +322,166 @@ void main() {
       final bikesInDb = await database.select(database.bikes).get();
       expect(bikesInDb, hasLength(1));
       expect(bikesInDb.first.id, 'recent');
+    });
+
+    group('feedback data', () {
+      final now = DateTime.now().toUtc();
+      final older = now.subtract(const Duration(hours: 1));
+      final expired = now.subtract(const Duration(days: 31));
+
+      RideFeedback feedback(String id, {String? notes, DateTime? lastModified, bool? isDeleted}) => RideFeedback(
+        id: id,
+        bike: 'b1',
+        setupId: 's1',
+        dateTimeUTC: DateTime.utc(2026, 5, 1, 13),
+        dateTimeLocal: DateTime(2026, 5, 1, 15),
+        notes: notes,
+        lastModified: lastModified,
+        isDeleted: isDeleted,
+        observations: {const FeedbackObservation.flag(NoIssueKey())},
+        comparisons: {
+          const FeedbackComparison(referenceSetupId: 's0', aspect: OverallAspect(), outcome: 1),
+        },
+      );
+
+      TestSession session(String id, {String? name, DateTime? lastModified, bool? isDeleted}) => TestSession(
+        id: id,
+        bike: 'b1',
+        name: name,
+        adjustmentIds: const [],
+        startedAtUTC: DateTime.utc(2026, 5, 1, 9),
+        startedAtLocal: DateTime(2026, 5, 1, 11),
+        lastModified: lastModified,
+        isDeleted: isDeleted,
+      );
+
+      Future<void> insertLocal(SelectedData data) =>
+          DatabaseMigrationService(database).migrateFromSelectedData(data);
+
+      Future<SelectedData> readDatabase() async =>
+          SelectedData.fromJson(await DataExportService.backupDatabaseToJson(database));
+
+      test('replace - stores the feedback with its children and sessions', () async {
+        await FileImport.replace(
+          remoteData: SelectedData(
+            feedbacks: {'f1': feedback('f1', notes: 'remote')},
+            testSessions: {'ts1': session('ts1')},
+          ),
+          database: database,
+        );
+
+        final stored = await readDatabase();
+        expect(stored.feedbacks['f1']?.notes, 'remote');
+        expect(stored.feedbacks['f1']?.observations, feedback('f1').observations);
+        expect(stored.feedbacks['f1']?.comparisons, feedback('f1').comparisons);
+        expect(stored.testSessions.keys, ['ts1']);
+      });
+
+      test('merge - keeps the newest item and adds the unknown ones', () async {
+        await insertLocal(
+          SelectedData(
+            feedbacks: {
+              'f1': feedback('f1', notes: 'local newer', lastModified: now),
+              'f2': feedback('f2', notes: 'local older', lastModified: older),
+            },
+            testSessions: {
+              't1': session('t1', name: 'local newer', lastModified: now),
+              't2': session('t2', name: 'local older', lastModified: older),
+            },
+          ),
+        );
+
+        await FileImport.merge(
+          remoteData: SelectedData(
+            feedbacks: {
+              'f1': feedback('f1', notes: 'remote older', lastModified: older),
+              'f2': feedback('f2', notes: 'remote newer', lastModified: now),
+              'f3': feedback('f3', notes: 'remote new', lastModified: now),
+              'f4': feedback('f4', notes: 'remote deleted', lastModified: now, isDeleted: true),
+            },
+            testSessions: {
+              't1': session('t1', name: 'remote older', lastModified: older),
+              't2': session('t2', name: 'remote newer', lastModified: now),
+              't3': session('t3', name: 'remote new', lastModified: now),
+            },
+          ),
+          database: database,
+        );
+
+        final stored = await readDatabase();
+        expect({for (final f in stored.feedbacks.values) f.id: f.notes}, {
+          'f1': 'local newer',
+          'f2': 'remote newer',
+          'f3': 'remote new',
+        });
+        expect({for (final s in stored.testSessions.values) s.id: s.name}, {
+          't1': 'local newer',
+          't2': 'remote newer',
+          't3': 'remote new',
+        });
+      });
+
+      test('merge - a newer remote delete moves a local item to the trash', () async {
+        await insertLocal(
+          SelectedData(
+            feedbacks: {'f1': feedback('f1', lastModified: older)},
+            testSessions: {'t1': session('t1', lastModified: older)},
+          ),
+        );
+
+        await FileImport.merge(
+          remoteData: SelectedData(
+            feedbacks: {'f1': feedback('f1', lastModified: now, isDeleted: true)},
+            testSessions: {'t1': session('t1', lastModified: now, isDeleted: true)},
+          ),
+          database: database,
+        );
+
+        final stored = await readDatabase();
+        expect(stored.feedbacks['f1']?.isDeleted, true);
+        expect(stored.testSessions['t1']?.isDeleted, true);
+      });
+
+      test('overwrite - replaces by id and keeps the unique local items', () async {
+        await insertLocal(
+          SelectedData(
+            feedbacks: {'f1': feedback('f1', notes: 'local'), 'f2': feedback('f2', notes: 'local only')},
+            testSessions: {'t1': session('t1', name: 'local')},
+          ),
+        );
+
+        await FileImport.overwrite(
+          remoteData: SelectedData(
+            feedbacks: {'f1': feedback('f1', notes: 'remote')},
+            testSessions: {'t1': session('t1', name: 'remote')},
+          ),
+          database: database,
+        );
+
+        final stored = await readDatabase();
+        expect({for (final f in stored.feedbacks.values) f.id: f.notes}, {'f1': 'remote', 'f2': 'local only'});
+        expect(stored.testSessions['t1']?.name, 'remote');
+      });
+
+      test('cleanupIsDeleted - purges items deleted more than 30 days ago', () {
+        final data = SelectedData(
+          feedbacks: {
+            'old': feedback('old', lastModified: expired, isDeleted: true),
+            'recent': feedback('recent', lastModified: older, isDeleted: true),
+            'live': feedback('live', lastModified: expired),
+          },
+          testSessions: {
+            'old': session('old', lastModified: expired, isDeleted: true),
+            'recent': session('recent', lastModified: older, isDeleted: true),
+            'live': session('live', lastModified: expired),
+          },
+        );
+
+        FileImport.cleanupIsDeleted(data: data);
+
+        expect(data.feedbacks.keys, ['recent', 'live']);
+        expect(data.testSessions.keys, ['recent', 'live']);
+      });
     });
 
     test('cleanupIsDeleted - returns attachment files of purged setups only', () {

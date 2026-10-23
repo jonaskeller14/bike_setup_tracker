@@ -18,6 +18,13 @@ class DataExportService {
     final taskRules = await database.taskDao.getAllRulesBypass();
     final taskEntries = await database.taskDao.getAllEntriesBypass();
 
+    final feedbacks = await database.feedbackDao.getAllFeedbacksWithChildrenBypass();
+    final testSessions = await database.feedbackDao.getAllTestSessionsBypass();
+    final adjustmentTypes = {
+      for (final adjustment in [...components.expand((c) => c.adjustments), ...persons.expand((p) => p.adjustments)])
+        adjustment.id: adjustment.type,
+    };
+
     final athletes = includeStrava ? await database.stravaDao.getAllAthletesBypass() : <StravaAthleteDb>[];
     final gears = includeStrava ? await database.stravaDao.getAllGearsBypass() : <StravaGearDb>[];
     final activities = includeStrava ? await database.stravaDao.getAllActivitiesBypass() : <StravaActivityDb>[];
@@ -53,6 +60,14 @@ class DataExportService {
       'taskEntries': taskEntries
           .where((te) => subset == null || subset.taskEntries.containsKey(te.id))
           .map((te) => te.toModel().toJson())
+          .toList(),
+      'feedbacks': feedbacks
+          .where((f) => subset == null || subset.feedbacks.containsKey(f.feedback.id))
+          .map((f) => f.toModel().toJson())
+          .toList(),
+      'testSessions': testSessions
+          .where((ts) => subset == null || subset.testSessions.containsKey(ts.id))
+          .map((ts) => ts.toModel(adjustmentTypes: adjustmentTypes).toJson())
           .toList(),
       if (includeStrava) ...{
         'stravaAthletes': athletes.map((a) => a.toModel().toJson()).toList(),

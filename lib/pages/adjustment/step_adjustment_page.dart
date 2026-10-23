@@ -303,10 +303,13 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
         child: SizedBox(
           width: _dialFieldWidth,
           child: InputDecorator(
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Dial',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+              filled: widget.mode == AdjustmentPageMode.edit &&
+                  (dialColor != widget.adjustment?.dialColor || dialSize != widget.adjustment?.dialSize),
             ),
             child: _buildKnob(context, dialColor, dialSize, key: const ValueKey('DialStyle')),
           ),

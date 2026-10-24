@@ -51,5 +51,15 @@ void main() {
 
       expect(a, isNot(b));
     });
+
+    test('the test session is part of equality', () {
+      final a = decode(setupJson()..['testSessionId'] = 'session1');
+      final b = decode(setupJson()..['testSessionId'] = 'session1');
+      final c = decode(setupJson());
+
+      expect(a, b);
+      expect(a.hashCode, b.hashCode);
+      expect(a, isNot(c));
+    });
   });
 }

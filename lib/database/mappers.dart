@@ -13,6 +13,12 @@ import '../models/component/installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
+import '../models/feedback/feedback_comparison.dart';
+import '../models/feedback/feedback_key.dart';
+import '../models/feedback/feedback_observation.dart';
+import '../models/feedback/ride_feedback.dart';
+import '../models/feedback/test_session.dart';
+import '../models/feedback/test_session_method.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
@@ -23,6 +29,7 @@ import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
 import 'app_database.dart';
+import 'daos/feedback_dao.dart';
 import 'daos/setups_dao.dart';
 
 extension BikeDbMapper on BikeDb {
@@ -323,6 +330,7 @@ extension SetupMapper on Setup {
       position: Value<ContextPosition?>(position),
       place: Value<geo.Placemark?>(place),
       weather: Value<ContextWeather?>(weather),
+      testSessionId: Value<String?>(testSessionId),
     );
   }
 
@@ -385,6 +393,136 @@ extension SetupDbMapper on SetupDb {
       position: position,
       place: place,
       weather: weather,
+      testSessionId: testSessionId,
+    );
+  }
+}
+
+extension FeedbackWithChildrenMapper on FeedbackWithChildren {
+  RideFeedback toModel() {
+    return RideFeedback(
+      id: feedback.id,
+      isDeleted: feedback.isDeleted,
+      lastModified: _toUtcSafe(feedback.lastModified, 'Feedback.lastModified'),
+      bike: feedback.bikeId,
+      setupId: feedback.setupId,
+      stravaActivityId: feedback.stravaActivityId,
+      dateTimeUTC: _toUtcSafe(feedback.dateTimeUTC, 'Feedback.dateTimeUTC'),
+      dateTimeLocal: feedback.dateTimeLocal,
+      notes: feedback.notes,
+      position: feedback.position,
+      place: feedback.place,
+      weather: feedback.weather,
+      observations: {
+        for (final o in observations)
+          FeedbackObservation(key: FeedbackKey.parse(o.key), value: o.value, textValue: o.textValue),
+      },
+      comparisons: {
+        for (final c in comparisons)
+          FeedbackComparison(
+            referenceSetupId: c.referenceSetupId,
+            aspect: FeedbackAspect.parse(c.aspect),
+            outcome: c.outcome,
+          ),
+      },
+    );
+  }
+}
+
+extension RideFeedbackMapper on RideFeedback {
+  FeedbacksCompanion toCompanion() {
+    return FeedbacksCompanion(
+      id: Value<String>(id),
+      bikeId: Value<String>(bike),
+      setupId: Value<String>(setupId),
+      stravaActivityId: Value<int?>(stravaActivityId),
+      isDeleted: Value<bool>(isDeleted),
+      lastModified: Value<DateTime>(lastModified),
+      dateTimeUTC: Value<DateTime>(dateTimeUTC),
+      dateTimeLocal: Value<DateTime>(dateTimeLocal),
+      notes: Value<String?>(notes),
+      position: Value<ContextPosition?>(position),
+      place: Value<geo.Placemark?>(place),
+      weather: Value<ContextWeather?>(weather),
+    );
+  }
+
+  List<FeedbackObservationsCompanion> observationCompanions() {
+    return [
+      for (final o in observations)
+        FeedbackObservationsCompanion(
+          feedbackId: Value<String>(id),
+          key: Value<String>(o.key.raw),
+          value: Value<double?>(o.value),
+          textValue: Value<String?>(o.textValue),
+        ),
+    ];
+  }
+
+  List<FeedbackComparisonsCompanion> comparisonCompanions() {
+    return [
+      for (final c in comparisons)
+        FeedbackComparisonsCompanion(
+          feedbackId: Value<String>(id),
+          referenceSetupId: Value<String>(c.referenceSetupId),
+          aspect: Value<String>(c.aspect.raw),
+          outcome: Value<int>(c.outcome),
+        ),
+    ];
+  }
+}
+
+extension TestSessionDbMapper on TestSessionDb {
+  /// [adjustmentTypes] decodes the lock and proposal values; values of other
+  /// ids stay unresolved.
+  TestSession toModel({Map<String, AdjustmentType> adjustmentTypes = const {}}) {
+    Map<String, AdjustmentValue> values(Object? json) =>
+        Setup.adjustmentValuesFromJson(json as Map<String, dynamic>, adjustmentTypes: adjustmentTypes);
+
+    return TestSession(
+      id: id,
+      isDeleted: isDeleted,
+      lastModified: _toUtcSafe(lastModified, 'TestSession.lastModified'),
+      bike: bikeId,
+      name: name,
+      method: method != null ? TestSessionMethod.fromJson(jsonDecode(method!) as Map<String, dynamic>) : null,
+      adjustmentIds: (jsonDecode(adjustmentIds) as List).cast<String>(),
+      goal: (jsonDecode(goal) as List).map((e) => FeedbackAspect.parse(e as String)).toList(),
+      locks: values(jsonDecode(locks)),
+      startedAtUTC: _toUtcSafe(startedAtUTC, 'TestSession.startedAtUTC'),
+      startedAtLocal: startedAtLocal,
+      endedAtUTC: endedAtUTC,
+      endedAtLocal: endedAtLocal,
+      place: place,
+      notes: notes,
+      proposals: (jsonDecode(proposals) as Map<String, dynamic>).map(
+        (setupId, json) => MapEntry(setupId, values(json)),
+      ),
+    );
+  }
+}
+
+extension TestSessionMapper on TestSession {
+  TestSessionsCompanion toCompanion() {
+    return TestSessionsCompanion(
+      id: Value<String>(id),
+      bikeId: Value<String>(bike),
+      isDeleted: Value<bool>(isDeleted),
+      lastModified: Value<DateTime>(lastModified),
+      name: Value<String?>(name),
+      method: Value<String?>(method != null ? jsonEncode(method!.toJson()) : null),
+      adjustmentIds: Value<String>(jsonEncode(adjustmentIds)),
+      goal: Value<String>(jsonEncode(goal.map((a) => a.raw).toList())),
+      locks: Value<String>(jsonEncode(Setup.adjustmentValuesToJson(locks))),
+      startedAtUTC: Value<DateTime>(startedAtUTC),
+      startedAtLocal: Value<DateTime>(startedAtLocal),
+      endedAtUTC: Value<DateTime?>(endedAtUTC),
+      endedAtLocal: Value<DateTime?>(endedAtLocal),
+      place: Value<geo.Placemark?>(place),
+      notes: Value<String?>(notes),
+      proposals: Value<String>(jsonEncode(
+        proposals.map((setupId, values) => MapEntry(setupId, Setup.adjustmentValuesToJson(values))),
+      )),
     );
   }
 }

@@ -793,6 +793,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         place: _currentPlace.value,
         weather: _currentWeather.value,
         attachments: _attachments,
+        testSessionId: widget.mode == SetupPageMode.edit ? widget.setup?.testSessionId : null, //FIXME: only when edit? duplicate(=restore) inside of testsession not possible, or add new mode? 
       ),
     );
   }

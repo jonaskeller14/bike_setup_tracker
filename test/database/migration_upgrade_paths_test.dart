@@ -36,6 +36,13 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 26) {
+      // v26 added the feedback tables and setups.test_session_id.
+      for (final table in _feedbackTables) {
+        await db.customStatement('DROP TABLE $table');
+      }
+      await db.customStatement('ALTER TABLE setups DROP COLUMN test_session_id');
+    }
     if (version >= 5 && version < 25) {
       // v25 dropped the rating v2 tables, which exist from v5 on.
       for (final table in _ratingV2Tables) {
@@ -217,7 +224,7 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -332,6 +339,14 @@ void main() {
         final taskEntry = await (db.select(db.taskEntries)..where((t) => t.id.equals('te1'))).getSingle();
         expect(taskRule.attachments, isEmpty);
         expect(taskEntry.attachments, isEmpty);
+
+        // Every path ends with exactly one v26 `test_session_id` column on
+        // setups, whether the v4/v20 recreation or the v26 step added it.
+        expect(await columnCount(db, 'setups', 'test_session_id'), 1);
+        expect(typed.testSessionId, isNull);
+        for (final table in _feedbackTables) {
+          expect(await columnNames(db, table), isNotEmpty, reason: '$table missing after v$startVersion upgrade');
+        }
       });
     }
   });
@@ -370,6 +385,13 @@ const _ratingV2Tables = [
   'rating_entries',
   'rating_metrics',
   'ratings',
+];
+
+const _feedbackTables = [
+  'feedbacks',
+  'feedback_observations',
+  'feedback_comparisons',
+  'test_sessions',
 ];
 
 const _bikeInitialStatsColumns = [

@@ -24,6 +24,7 @@ import 'converters/utc_datetime_converter.dart';
 import 'converters/weather_converter.dart';
 import 'daos/bikes_dao.dart';
 import 'daos/components_dao.dart';
+import 'daos/feedback_dao.dart';
 import 'daos/persons_dao.dart';
 import 'daos/setups_dao.dart';
 import 'daos/strava_dao.dart';
@@ -31,6 +32,9 @@ import 'daos/task_dao.dart';
 import 'tables/adjustments.dart';
 import 'tables/bikes.dart';
 import 'tables/components.dart';
+import 'tables/feedback_comparisons.dart';
+import 'tables/feedback_observations.dart';
+import 'tables/feedbacks.dart';
 import 'tables/installations.dart';
 import 'tables/persons.dart';
 import 'tables/setup_adjustment_values.dart';
@@ -40,6 +44,7 @@ import 'tables/strava/strava_athletes.dart';
 import 'tables/strava/strava_gears.dart';
 import 'tables/task_entries.dart';
 import 'tables/task_rules.dart';
+import 'tables/test_sessions.dart';
 
 part 'app_database.g.dart';
 
@@ -57,6 +62,10 @@ part 'app_database.g.dart';
     StravaActivities,
     StravaAthletes,
     StravaGears,
+    Feedbacks,
+    FeedbackObservations,
+    FeedbackComparisons,
+    TestSessions,
   ],
   daos: [
     BikesDao,
@@ -65,6 +74,7 @@ part 'app_database.g.dart';
     PersonsDao,
     TaskDao,
     StravaDao,
+    FeedbackDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -78,7 +88,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 25;
+  int get schemaVersion => 26;
 
   @override
   MigrationStrategy get migration {
@@ -104,12 +114,13 @@ class AppDatabase extends _$AppDatabase {
           // those setups fall back to the (localizable) UI placeholder instead.
           //
           // This recreation rebuilds setups from the *current* schema, which
-          // now includes `attachments` (v20, `images` from v8) and `isBookmarked` (v13).
+          // now includes `attachments` (v20, `images` from v8), `isBookmarked` (v13)
+          // and `testSessionId` (v26).
           // Pre-v4 rows have no such columns, so flag them as new columns —
           // Drift fills them from their defaults instead of trying to copy
           // them out of the old table.
           await m.alterTable(
-            TableMigration(setups, newColumns: [setups.attachments, setups.isBookmarked]),
+            TableMigration(setups, newColumns: [setups.attachments, setups.isBookmarked, setups.testSessionId]),
           );
           await customStatement("UPDATE setups SET name = NULL WHERE name = 'Unnamed Setup'");
         }
@@ -229,7 +240,7 @@ class AppDatabase extends _$AppDatabase {
           // dropped rather than converted. Only databases that ran the old v8
           // step still have it; every other path gained `attachments` above.
           if (await _columnExists('setups', 'images')) {
-            await m.alterTable(TableMigration(setups, newColumns: [setups.attachments]));
+            await m.alterTable(TableMigration(setups, newColumns: [setups.attachments, setups.testSessionId]));
           }
           if (!await _columnExists('bikes', 'attachments')) {
             await m.addColumn(bikes, bikes.attachments);
@@ -284,12 +295,28 @@ class AppDatabase extends _$AppDatabase {
             await customStatement('DROP TABLE IF EXISTS $table');
           }
         }
+        if (from < 26) {
+          // Feedback (rating v3): ride feedback with its answers and setup
+          // comparisons, and test sessions whose runs are setups. Upgrades that crossed the v4 boundary, or the v20
+          // recreation, already gained `test_session_id`.
+          await m.createTable(feedbacks);
+          await m.createTable(feedbackObservations);
+          await m.createTable(feedbackComparisons);
+          await m.createTable(testSessions);
+          if (!await _columnExists('setups', 'test_session_id')) {
+            await m.addColumn(setups, setups.testSessionId);
+          }
+        }
       }),
     );
   }
 
   /// Ordered children first so deletes never trip a foreign key.
   List<TableInfo<Table, dynamic>> get _userDataTables => [
+    feedbackObservations,
+    feedbackComparisons,
+    feedbacks,
+    testSessions,
     setupAdjustmentValues,
     setups,
     adjustments,
@@ -339,6 +366,19 @@ class AppDatabase extends _$AppDatabase {
             if (row.readWithConverter(lastModified)!.isBefore(cutoff)) row.read(id)!,
         ];
       }
+
+      final feedbackIds = await expiredIds(feedbacks, feedbacks.id, feedbacks.isDeleted, feedbacks.lastModified);
+      await (delete(feedbackObservations)..where((t) => t.feedbackId.isIn(feedbackIds))).go();
+      await (delete(feedbackComparisons)..where((t) => t.feedbackId.isIn(feedbackIds))).go();
+      await (delete(feedbacks)..where((t) => t.id.isIn(feedbackIds))).go();
+
+      final testSessionIds = await expiredIds(
+        testSessions,
+        testSessions.id,
+        testSessions.isDeleted,
+        testSessions.lastModified,
+      );
+      await (delete(testSessions)..where((t) => t.id.isIn(testSessionIds))).go();
 
       final setupIds = await expiredIds(setups, setups.id, setups.isDeleted, setups.lastModified);
       await (delete(setupAdjustmentValues)..where((t) => t.setupId.isIn(setupIds))).go();

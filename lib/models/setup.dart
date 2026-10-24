@@ -31,6 +31,7 @@ class Setup {
   final geo.Placemark? place;
   final ContextWeather? weather;
   final List<Attachment> attachments;
+  final String? testSessionId; // Set on the runs of a test session.
 
   static const IconData iconData = Icons.tune;
 
@@ -55,6 +56,7 @@ class Setup {
     this.position,
     this.weather,
     List<Attachment>? attachments,
+    this.testSessionId,
   }) : id = id ?? const Uuid().v4(),
        attachments = attachments ?? const [],
        isDeleted = isDeleted ?? false,
@@ -63,7 +65,7 @@ class Setup {
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 8,
+    'version': 9,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -81,6 +83,7 @@ class Setup {
     'place': place != null ? ContextPlace.toJson(place!) : null,
     'weather': weather?.toJson(),
     'attachments': attachments.map((a) => a.toJson()).toList(),
+    'testSessionId': testSessionId,
   };
 
   factory Setup.fromJson({
@@ -89,7 +92,7 @@ class Setup {
   }) {
     final int? version = json["version"] as int?;
     switch (version) {
-      case null || 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8:
+      case null || 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9:
         return Setup(
           id: json['id'] as String?,
           isDeleted: json["isDeleted"] as bool?,
@@ -108,6 +111,7 @@ class Setup {
           place: json['place'] != null ? ContextPlace.fromJson(json['place'] as Map<String, dynamic>) : null,
           weather: json['weather'] != null ? ContextWeather.fromJson(json['weather'] as Map<String, dynamic>) : null,
           attachments: (json['attachments'] as List?)?.map((e) => Attachment.fromJson(e as Map<String, dynamic>)).toList() ?? <Attachment>[],
+          testSessionId: json['testSessionId'] as String?,
         );
       default: throw Exception("Json Version $version of Setup incompatible.");
     }
@@ -228,6 +232,7 @@ class Setup {
     Object? place = const _Sentinel(),
     Object? weather = const _Sentinel(),
     Object? attachments = const _Sentinel(),
+    Object? testSessionId = const _Sentinel(),
   }) {
     return Setup(
       id: id is _Sentinel
@@ -281,6 +286,9 @@ class Setup {
       attachments: attachments is _Sentinel
           ? this.attachments
           : (attachments as List<Attachment>),
+      testSessionId: testSessionId is _Sentinel
+          ? this.testSessionId
+          : (testSessionId as String?),
     );
   }
 
@@ -305,7 +313,8 @@ class Setup {
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
         weather == other.weather &&
-        listEquals(attachments, other.attachments);
+        listEquals(attachments, other.attachments) &&
+        testSessionId == other.testSessionId;
   }
 
   @override
@@ -328,6 +337,7 @@ class Setup {
       place,
       weather,
       Object.hashAll(attachments),
+      testSessionId,
     ]);
   }
 }

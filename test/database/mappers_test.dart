@@ -7,6 +7,14 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_comparison.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session_method.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_athlete.dart';
@@ -556,6 +564,139 @@ void main() {
       expect(model.id, 123);
       expect(model.firstname, 'Jonas');
       expect(model.gears, {'gear1', 'gear2'});
+    });
+  });
+
+  group('Feedback mapping', () {
+    late AppDatabase database;
+
+    setUp(() => database = AppDatabase.memory());
+    tearDown(() => database.close());
+
+    test('a setup keeps its test session through a database round trip', () async {
+      final setup = Setup(
+        id: 's1',
+        lastModified: DateTime.utc(2026, 10, 1),
+        datetime: DateTime.utc(2026, 10, 1, 9),
+        datetimeLocal: DateTime(2026, 10, 1, 11),
+        tags: const {},
+        bike: 'b1',
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+        testSessionId: 'session1',
+      );
+      await database.into(database.setups).insert(setup.toCompanion());
+
+      final row = await database.select(database.setups).getSingle();
+      expect(row.testSessionId, 'session1');
+      expect(row.toModel(), setup);
+    });
+
+    test('a feedback with observations and comparisons survives a database round trip', () async {
+      final feedback = RideFeedback(
+        id: 'f1',
+        lastModified: DateTime.utc(2026, 10, 1),
+        bike: 'b1',
+        setupId: 's2',
+        stravaActivityId: 12345678901,
+        dateTimeUTC: DateTime.utc(2026, 10, 1, 10),
+        dateTimeLocal: DateTime(2026, 10, 1, 12),
+        notes: 'Wet roots',
+        position: const ContextPosition(latitude: 47.1, longitude: 8.2),
+        observations: {
+          const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.comfort)),
+          const FeedbackObservation.flag(IssueKey(FeedbackEnd.rear, FeedbackAttribute.calm)),
+          const FeedbackObservation(key: UnknownFeedbackKey('future:m1'), value: 102.5, textValue: '102500000'),
+          const FeedbackObservation(key: UnknownFeedbackKey('future.key'), value: 3),
+        },
+        comparisons: {
+          const FeedbackComparison(referenceSetupId: 's1', aspect: OverallAspect(), outcome: 2),
+          const FeedbackComparison(
+            referenceSetupId: 's1',
+            aspect: EndAspect(FeedbackEnd.front, FeedbackAttribute.comfort),
+            outcome: -1,
+          ),
+          const FeedbackComparison(referenceSetupId: 's0', aspect: OverallAspect(), outcome: 0),
+        },
+      );
+      await database.feedbackDao.insertFeedbackWithChildren(
+        feedback: feedback.toCompanion(),
+        observations: feedback.observationCompanions(),
+        comparisons: feedback.comparisonCompanions(),
+      );
+
+      final rows = await database.feedbackDao.watchAllFeedbacksWithChildren().first;
+      expect(rows, hasLength(1));
+      expect(rows.single.observations, hasLength(4));
+      expect(rows.single.comparisons, hasLength(3));
+      final restored = rows.single.toModel();
+      expect(restored, feedback);
+      expect(restored.dateTimeLocal.isUtc, isFalse);
+    });
+
+    group('test session', () {
+      TestSession build({TestSessionMethod? method}) => TestSession(
+        id: 'session1',
+        lastModified: DateTime.utc(2026, 10, 1),
+        bike: 'b1',
+        name: 'Fork rebound',
+        method: method,
+        adjustmentIds: const ['pressure', 'lsr'],
+        goal: const [
+          EndAspect(FeedbackEnd.front, FeedbackAttribute.calm),
+          UnknownAspect('future.aspect'),
+        ],
+        locks: const {'lsr': StepValue(8)},
+        startedAtUTC: DateTime.utc(2026, 10, 1, 9),
+        startedAtLocal: DateTime(2026, 10, 1, 11),
+        endedAtUTC: DateTime.utc(2026, 10, 1, 12),
+        endedAtLocal: DateTime(2026, 10, 1, 14),
+        notes: 'Dry',
+        proposals: const {
+          'run2': {'lsr': StepValue(10)},
+          'run3': {'lsr': StepValue(8), 'pressure': NumericalValue(72.5)},
+        },
+      );
+      const adjustmentTypes = {'lsr': AdjustmentType.step, 'pressure': AdjustmentType.numerical};
+
+      Future<TestSession> roundTrip(TestSession session, {Map<String, AdjustmentType> types = adjustmentTypes}) async {
+        await database.feedbackDao.upsertTestSession(session.toCompanion());
+        final row = (await database.feedbackDao.watchAllTestSessions().first).single;
+        return row.toModel(adjustmentTypes: types);
+      }
+
+      for (final method in <TestSessionMethod?>[
+        null,
+        const PatternSearch(),
+        const OrthogonalArray(),
+        const Tournament(candidateSetupIds: ['s1', 's2']),
+      ]) {
+        test('survives a database round trip with method ${method?.type ?? 'free'}', () async {
+          final session = build(method: method);
+          final restored = await roundTrip(session);
+          expect(restored, session);
+          expect(restored.adjustmentIds, ['pressure', 'lsr']);
+          expect(restored.startedAtLocal.isUtc, isFalse);
+        });
+      }
+
+      test('a running session keeps its end unset', () async {
+        final session = build().copyWith(endedAtUTC: null, endedAtLocal: null);
+        final restored = await roundTrip(session);
+        expect(restored.isRunning, isTrue);
+        expect(restored, session);
+      });
+
+      test('values of unknown adjustments stay unresolved and resolve once typed', () async {
+        final session = build();
+        final untyped = await roundTrip(session, types: const {});
+        expect(untyped.locks['lsr'], isA<UnresolvedValue>());
+        expect(untyped.proposals['run3']!['pressure'], isA<UnresolvedValue>());
+
+        await database.feedbackDao.upsertTestSession(untyped.toCompanion());
+        expect(await roundTrip(untyped), session);
+      });
     });
   });
 }

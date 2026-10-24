@@ -193,7 +193,7 @@ void main() {
       attachments: attachments,
     );
 
-    test('round-trip through version 8 json in order', () {
+    test('round-trip through version 9 json in order', () {
       final original = setup(
         attachments: [
           Attachment(id: 'b', extension: '.pdf', name: 'Fox 38 Service Manual'),
@@ -201,7 +201,7 @@ void main() {
         ],
       );
       final json = jsonDecode(jsonEncode(original.toJson())) as Map<String, dynamic>;
-      expect(json['version'], 8);
+      expect(json['version'], 9);
       expect(json.containsKey('images'), isFalse);
 
       final restored = Setup.fromJson(json: json, adjustmentTypes: const {});
@@ -222,6 +222,46 @@ void main() {
       final copy = setup(attachments: attachments).deepCopy();
       expect(copy.attachments, attachments);
       expect(identical(copy.attachments, attachments), isFalse);
+    });
+  });
+
+  group('Setup test session', () {
+    Setup setup({String? testSessionId}) => Setup(
+      id: 's1',
+      lastModified: DateTime.utc(2026, 10, 1, 10),
+      datetime: DateTime.utc(2026, 10, 1, 9),
+      datetimeLocal: DateTime(2026, 10, 1, 11),
+      tags: const {},
+      bike: 'b1',
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      testSessionId: testSessionId,
+    );
+
+    test('round-trips through version 9 json', () {
+      final original = setup(testSessionId: 'session1');
+      final json = jsonDecode(jsonEncode(original.toJson())) as Map<String, dynamic>;
+      expect(json['testSessionId'], 'session1');
+      expect(Setup.fromJson(json: json, adjustmentTypes: const {}), original);
+    });
+
+    test('older versions have no test session', () {
+      final json = setup().toJson()
+        ..['version'] = 8
+        ..remove('testSessionId');
+      expect(Setup.fromJson(json: json, adjustmentTypes: const {}).testSessionId, isNull);
+    });
+
+    test('copyWith sets and clears it', () {
+      final run = setup().copyWith(testSessionId: 'session1');
+      expect(run.testSessionId, 'session1');
+      expect(run.copyWith(name: 'Run 2').testSessionId, 'session1');
+      expect(run.copyWith(testSessionId: null).testSessionId, isNull);
+    });
+
+    test('deepCopy clears it', () {
+      expect(setup(testSessionId: 'session1').deepCopy().testSessionId, isNull);
     });
   });
 }

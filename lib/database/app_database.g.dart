@@ -4971,6 +4971,17 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       ).withConverter<ContextWeather?>($SetupsTable.$converterweathern);
+  static const VerificationMeta _testSessionIdMeta = const VerificationMeta(
+    'testSessionId',
+  );
+  @override
+  late final GeneratedColumn<String> testSessionId = GeneratedColumn<String>(
+    'test_session_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4988,6 +4999,7 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     position,
     place,
     weather,
+    testSessionId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5045,6 +5057,15 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
       context.handle(
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('test_session_id')) {
+      context.handle(
+        _testSessionIdMeta,
+        testSessionId.isAcceptableOrUnknown(
+          data['test_session_id']!,
+          _testSessionIdMeta,
+        ),
       );
     }
     return context;
@@ -5132,6 +5153,10 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
           data['${effectivePrefix}weather'],
         ),
       ),
+      testSessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}test_session_id'],
+      ),
     );
   }
 
@@ -5180,6 +5205,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final ContextPosition? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
+  final String? testSessionId;
   const SetupDb({
     required this.id,
     required this.bikeId,
@@ -5196,6 +5222,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     this.position,
     this.place,
     this.weather,
+    this.testSessionId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5251,6 +5278,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
         $SetupsTable.$converterweathern.toSql(weather),
       );
     }
+    if (!nullToAbsent || testSessionId != null) {
+      map['test_session_id'] = Variable<String>(testSessionId);
+    }
     return map;
   }
 
@@ -5281,6 +5311,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       weather: weather == null && nullToAbsent
           ? const Value.absent()
           : Value(weather),
+      testSessionId: testSessionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(testSessionId),
     );
   }
 
@@ -5305,6 +5338,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       position: serializer.fromJson<ContextPosition?>(json['position']),
       place: serializer.fromJson<geo.Placemark?>(json['place']),
       weather: serializer.fromJson<ContextWeather?>(json['weather']),
+      testSessionId: serializer.fromJson<String?>(json['testSessionId']),
     );
   }
   @override
@@ -5326,6 +5360,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'position': serializer.toJson<ContextPosition?>(position),
       'place': serializer.toJson<geo.Placemark?>(place),
       'weather': serializer.toJson<ContextWeather?>(weather),
+      'testSessionId': serializer.toJson<String?>(testSessionId),
     };
   }
 
@@ -5345,6 +5380,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     Value<ContextPosition?> position = const Value.absent(),
     Value<geo.Placemark?> place = const Value.absent(),
     Value<ContextWeather?> weather = const Value.absent(),
+    Value<String?> testSessionId = const Value.absent(),
   }) => SetupDb(
     id: id ?? this.id,
     bikeId: bikeId ?? this.bikeId,
@@ -5361,6 +5397,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     position: position.present ? position.value : this.position,
     place: place.present ? place.value : this.place,
     weather: weather.present ? weather.value : this.weather,
+    testSessionId: testSessionId.present
+        ? testSessionId.value
+        : this.testSessionId,
   );
   SetupDb copyWithCompanion(SetupsCompanion data) {
     return SetupDb(
@@ -5387,6 +5426,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       position: data.position.present ? data.position.value : this.position,
       place: data.place.present ? data.place.value : this.place,
       weather: data.weather.present ? data.weather.value : this.weather,
+      testSessionId: data.testSessionId.present
+          ? data.testSessionId.value
+          : this.testSessionId,
     );
   }
 
@@ -5407,7 +5449,8 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ..write('attachments: $attachments, ')
           ..write('position: $position, ')
           ..write('place: $place, ')
-          ..write('weather: $weather')
+          ..write('weather: $weather, ')
+          ..write('testSessionId: $testSessionId')
           ..write(')'))
         .toString();
   }
@@ -5429,6 +5472,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     position,
     place,
     weather,
+    testSessionId,
   );
   @override
   bool operator ==(Object other) =>
@@ -5448,7 +5492,8 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           other.attachments == this.attachments &&
           other.position == this.position &&
           other.place == this.place &&
-          other.weather == this.weather);
+          other.weather == this.weather &&
+          other.testSessionId == this.testSessionId);
 }
 
 class SetupsCompanion extends UpdateCompanion<SetupDb> {
@@ -5467,6 +5512,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<ContextPosition?> position;
   final Value<geo.Placemark?> place;
   final Value<ContextWeather?> weather;
+  final Value<String?> testSessionId;
   final Value<int> rowid;
   const SetupsCompanion({
     this.id = const Value.absent(),
@@ -5484,6 +5530,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.position = const Value.absent(),
     this.place = const Value.absent(),
     this.weather = const Value.absent(),
+    this.testSessionId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SetupsCompanion.insert({
@@ -5502,6 +5549,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.position = const Value.absent(),
     this.place = const Value.absent(),
     this.weather = const Value.absent(),
+    this.testSessionId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        bikeId = Value(bikeId),
@@ -5525,6 +5573,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Expression<String>? position,
     Expression<String>? place,
     Expression<String>? weather,
+    Expression<String>? testSessionId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5543,6 +5592,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       if (position != null) 'position': position,
       if (place != null) 'place': place,
       if (weather != null) 'weather': weather,
+      if (testSessionId != null) 'test_session_id': testSessionId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5563,6 +5613,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<ContextPosition?>? position,
     Value<geo.Placemark?>? place,
     Value<ContextWeather?>? weather,
+    Value<String?>? testSessionId,
     Value<int>? rowid,
   }) {
     return SetupsCompanion(
@@ -5581,6 +5632,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       position: position ?? this.position,
       place: place ?? this.place,
       weather: weather ?? this.weather,
+      testSessionId: testSessionId ?? this.testSessionId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5649,6 +5701,9 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
         $SetupsTable.$converterweathern.toSql(weather.value),
       );
     }
+    if (testSessionId.present) {
+      map['test_session_id'] = Variable<String>(testSessionId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5673,6 +5728,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
           ..write('position: $position, ')
           ..write('place: $place, ')
           ..write('weather: $weather, ')
+          ..write('testSessionId: $testSessionId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7549,6 +7605,2302 @@ class StravaGearsCompanion extends UpdateCompanion<StravaGearDb> {
   }
 }
 
+class $FeedbacksTable extends Feedbacks
+    with TableInfo<$FeedbacksTable, FeedbackDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FeedbacksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bikeIdMeta = const VerificationMeta('bikeId');
+  @override
+  late final GeneratedColumn<String> bikeId = GeneratedColumn<String>(
+    'bike_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES bikes (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _setupIdMeta = const VerificationMeta(
+    'setupId',
+  );
+  @override
+  late final GeneratedColumn<String> setupId = GeneratedColumn<String>(
+    'setup_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES setups (id)',
+    ),
+  );
+  static const VerificationMeta _stravaActivityIdMeta = const VerificationMeta(
+    'stravaActivityId',
+  );
+  @override
+  late final GeneratedColumn<int> stravaActivityId = GeneratedColumn<int>(
+    'strava_activity_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($FeedbacksTable.$converterlastModified);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> dateTimeUTC =
+      GeneratedColumn<DateTime>(
+        'date_time_u_t_c',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($FeedbacksTable.$converterdateTimeUTC);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime>
+  dateTimeLocal = GeneratedColumn<DateTime>(
+    'date_time_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  ).withConverter<DateTime>($FeedbacksTable.$converterdateTimeLocal);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ContextPosition?, String>
+  position = GeneratedColumn<String>(
+    'position',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<ContextPosition?>($FeedbacksTable.$converterpositionn);
+  @override
+  late final GeneratedColumnWithTypeConverter<geo.Placemark?, String> place =
+      GeneratedColumn<String>(
+        'place',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<geo.Placemark?>($FeedbacksTable.$converterplacen);
+  @override
+  late final GeneratedColumnWithTypeConverter<ContextWeather?, String> weather =
+      GeneratedColumn<String>(
+        'weather',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<ContextWeather?>($FeedbacksTable.$converterweathern);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    bikeId,
+    setupId,
+    stravaActivityId,
+    isDeleted,
+    lastModified,
+    dateTimeUTC,
+    dateTimeLocal,
+    notes,
+    position,
+    place,
+    weather,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'feedbacks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FeedbackDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('bike_id')) {
+      context.handle(
+        _bikeIdMeta,
+        bikeId.isAcceptableOrUnknown(data['bike_id']!, _bikeIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bikeIdMeta);
+    }
+    if (data.containsKey('setup_id')) {
+      context.handle(
+        _setupIdMeta,
+        setupId.isAcceptableOrUnknown(data['setup_id']!, _setupIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_setupIdMeta);
+    }
+    if (data.containsKey('strava_activity_id')) {
+      context.handle(
+        _stravaActivityIdMeta,
+        stravaActivityId.isAcceptableOrUnknown(
+          data['strava_activity_id']!,
+          _stravaActivityIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FeedbackDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FeedbackDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      bikeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bike_id'],
+      )!,
+      setupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}setup_id'],
+      )!,
+      stravaActivityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}strava_activity_id'],
+      ),
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      lastModified: $FeedbacksTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
+      dateTimeUTC: $FeedbacksTable.$converterdateTimeUTC.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_u_t_c'],
+        )!,
+      ),
+      dateTimeLocal: $FeedbacksTable.$converterdateTimeLocal.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_local'],
+        )!,
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      position: $FeedbacksTable.$converterpositionn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}position'],
+        ),
+      ),
+      place: $FeedbacksTable.$converterplacen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}place'],
+        ),
+      ),
+      weather: $FeedbacksTable.$converterweathern.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}weather'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $FeedbacksTable createAlias(String alias) {
+    return $FeedbacksTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdateTimeUTC =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdateTimeLocal =
+      const LocalFloatingDateTimeConverter();
+  static TypeConverter<ContextPosition, String> $converterposition =
+      const ContextPositionConverter();
+  static TypeConverter<ContextPosition?, String?> $converterpositionn =
+      NullAwareTypeConverter.wrap($converterposition);
+  static TypeConverter<geo.Placemark, String> $converterplace =
+      const PlacemarkConverter();
+  static TypeConverter<geo.Placemark?, String?> $converterplacen =
+      NullAwareTypeConverter.wrap($converterplace);
+  static TypeConverter<ContextWeather, String> $converterweather =
+      const WeatherConverter();
+  static TypeConverter<ContextWeather?, String?> $converterweathern =
+      NullAwareTypeConverter.wrap($converterweather);
+}
+
+class FeedbackDb extends DataClass implements Insertable<FeedbackDb> {
+  final String id;
+  final String bikeId;
+  final String setupId;
+  final int? stravaActivityId;
+  final bool isDeleted;
+  final DateTime lastModified;
+  final DateTime dateTimeUTC;
+  final DateTime dateTimeLocal;
+  final String? notes;
+  final ContextPosition? position;
+  final geo.Placemark? place;
+  final ContextWeather? weather;
+  const FeedbackDb({
+    required this.id,
+    required this.bikeId,
+    required this.setupId,
+    this.stravaActivityId,
+    required this.isDeleted,
+    required this.lastModified,
+    required this.dateTimeUTC,
+    required this.dateTimeLocal,
+    this.notes,
+    this.position,
+    this.place,
+    this.weather,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['bike_id'] = Variable<String>(bikeId);
+    map['setup_id'] = Variable<String>(setupId);
+    if (!nullToAbsent || stravaActivityId != null) {
+      map['strava_activity_id'] = Variable<int>(stravaActivityId);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $FeedbacksTable.$converterlastModified.toSql(lastModified),
+      );
+    }
+    {
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $FeedbacksTable.$converterdateTimeUTC.toSql(dateTimeUTC),
+      );
+    }
+    {
+      map['date_time_local'] = Variable<DateTime>(
+        $FeedbacksTable.$converterdateTimeLocal.toSql(dateTimeLocal),
+      );
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || position != null) {
+      map['position'] = Variable<String>(
+        $FeedbacksTable.$converterpositionn.toSql(position),
+      );
+    }
+    if (!nullToAbsent || place != null) {
+      map['place'] = Variable<String>(
+        $FeedbacksTable.$converterplacen.toSql(place),
+      );
+    }
+    if (!nullToAbsent || weather != null) {
+      map['weather'] = Variable<String>(
+        $FeedbacksTable.$converterweathern.toSql(weather),
+      );
+    }
+    return map;
+  }
+
+  FeedbacksCompanion toCompanion(bool nullToAbsent) {
+    return FeedbacksCompanion(
+      id: Value(id),
+      bikeId: Value(bikeId),
+      setupId: Value(setupId),
+      stravaActivityId: stravaActivityId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stravaActivityId),
+      isDeleted: Value(isDeleted),
+      lastModified: Value(lastModified),
+      dateTimeUTC: Value(dateTimeUTC),
+      dateTimeLocal: Value(dateTimeLocal),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      position: position == null && nullToAbsent
+          ? const Value.absent()
+          : Value(position),
+      place: place == null && nullToAbsent
+          ? const Value.absent()
+          : Value(place),
+      weather: weather == null && nullToAbsent
+          ? const Value.absent()
+          : Value(weather),
+    );
+  }
+
+  factory FeedbackDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FeedbackDb(
+      id: serializer.fromJson<String>(json['id']),
+      bikeId: serializer.fromJson<String>(json['bikeId']),
+      setupId: serializer.fromJson<String>(json['setupId']),
+      stravaActivityId: serializer.fromJson<int?>(json['stravaActivityId']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      dateTimeUTC: serializer.fromJson<DateTime>(json['dateTimeUTC']),
+      dateTimeLocal: serializer.fromJson<DateTime>(json['dateTimeLocal']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      position: serializer.fromJson<ContextPosition?>(json['position']),
+      place: serializer.fromJson<geo.Placemark?>(json['place']),
+      weather: serializer.fromJson<ContextWeather?>(json['weather']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'bikeId': serializer.toJson<String>(bikeId),
+      'setupId': serializer.toJson<String>(setupId),
+      'stravaActivityId': serializer.toJson<int?>(stravaActivityId),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'lastModified': serializer.toJson<DateTime>(lastModified),
+      'dateTimeUTC': serializer.toJson<DateTime>(dateTimeUTC),
+      'dateTimeLocal': serializer.toJson<DateTime>(dateTimeLocal),
+      'notes': serializer.toJson<String?>(notes),
+      'position': serializer.toJson<ContextPosition?>(position),
+      'place': serializer.toJson<geo.Placemark?>(place),
+      'weather': serializer.toJson<ContextWeather?>(weather),
+    };
+  }
+
+  FeedbackDb copyWith({
+    String? id,
+    String? bikeId,
+    String? setupId,
+    Value<int?> stravaActivityId = const Value.absent(),
+    bool? isDeleted,
+    DateTime? lastModified,
+    DateTime? dateTimeUTC,
+    DateTime? dateTimeLocal,
+    Value<String?> notes = const Value.absent(),
+    Value<ContextPosition?> position = const Value.absent(),
+    Value<geo.Placemark?> place = const Value.absent(),
+    Value<ContextWeather?> weather = const Value.absent(),
+  }) => FeedbackDb(
+    id: id ?? this.id,
+    bikeId: bikeId ?? this.bikeId,
+    setupId: setupId ?? this.setupId,
+    stravaActivityId: stravaActivityId.present
+        ? stravaActivityId.value
+        : this.stravaActivityId,
+    isDeleted: isDeleted ?? this.isDeleted,
+    lastModified: lastModified ?? this.lastModified,
+    dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
+    dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
+    notes: notes.present ? notes.value : this.notes,
+    position: position.present ? position.value : this.position,
+    place: place.present ? place.value : this.place,
+    weather: weather.present ? weather.value : this.weather,
+  );
+  FeedbackDb copyWithCompanion(FeedbacksCompanion data) {
+    return FeedbackDb(
+      id: data.id.present ? data.id.value : this.id,
+      bikeId: data.bikeId.present ? data.bikeId.value : this.bikeId,
+      setupId: data.setupId.present ? data.setupId.value : this.setupId,
+      stravaActivityId: data.stravaActivityId.present
+          ? data.stravaActivityId.value
+          : this.stravaActivityId,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      lastModified: data.lastModified.present
+          ? data.lastModified.value
+          : this.lastModified,
+      dateTimeUTC: data.dateTimeUTC.present
+          ? data.dateTimeUTC.value
+          : this.dateTimeUTC,
+      dateTimeLocal: data.dateTimeLocal.present
+          ? data.dateTimeLocal.value
+          : this.dateTimeLocal,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      position: data.position.present ? data.position.value : this.position,
+      place: data.place.present ? data.place.value : this.place,
+      weather: data.weather.present ? data.weather.value : this.weather,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeedbackDb(')
+          ..write('id: $id, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('setupId: $setupId, ')
+          ..write('stravaActivityId: $stravaActivityId, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('dateTimeUTC: $dateTimeUTC, ')
+          ..write('dateTimeLocal: $dateTimeLocal, ')
+          ..write('notes: $notes, ')
+          ..write('position: $position, ')
+          ..write('place: $place, ')
+          ..write('weather: $weather')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    bikeId,
+    setupId,
+    stravaActivityId,
+    isDeleted,
+    lastModified,
+    dateTimeUTC,
+    dateTimeLocal,
+    notes,
+    position,
+    place,
+    weather,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FeedbackDb &&
+          other.id == this.id &&
+          other.bikeId == this.bikeId &&
+          other.setupId == this.setupId &&
+          other.stravaActivityId == this.stravaActivityId &&
+          other.isDeleted == this.isDeleted &&
+          other.lastModified == this.lastModified &&
+          other.dateTimeUTC == this.dateTimeUTC &&
+          other.dateTimeLocal == this.dateTimeLocal &&
+          other.notes == this.notes &&
+          other.position == this.position &&
+          other.place == this.place &&
+          other.weather == this.weather);
+}
+
+class FeedbacksCompanion extends UpdateCompanion<FeedbackDb> {
+  final Value<String> id;
+  final Value<String> bikeId;
+  final Value<String> setupId;
+  final Value<int?> stravaActivityId;
+  final Value<bool> isDeleted;
+  final Value<DateTime> lastModified;
+  final Value<DateTime> dateTimeUTC;
+  final Value<DateTime> dateTimeLocal;
+  final Value<String?> notes;
+  final Value<ContextPosition?> position;
+  final Value<geo.Placemark?> place;
+  final Value<ContextWeather?> weather;
+  final Value<int> rowid;
+  const FeedbacksCompanion({
+    this.id = const Value.absent(),
+    this.bikeId = const Value.absent(),
+    this.setupId = const Value.absent(),
+    this.stravaActivityId = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModified = const Value.absent(),
+    this.dateTimeUTC = const Value.absent(),
+    this.dateTimeLocal = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.position = const Value.absent(),
+    this.place = const Value.absent(),
+    this.weather = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FeedbacksCompanion.insert({
+    required String id,
+    required String bikeId,
+    required String setupId,
+    this.stravaActivityId = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    required DateTime lastModified,
+    required DateTime dateTimeUTC,
+    required DateTime dateTimeLocal,
+    this.notes = const Value.absent(),
+    this.position = const Value.absent(),
+    this.place = const Value.absent(),
+    this.weather = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       bikeId = Value(bikeId),
+       setupId = Value(setupId),
+       lastModified = Value(lastModified),
+       dateTimeUTC = Value(dateTimeUTC),
+       dateTimeLocal = Value(dateTimeLocal);
+  static Insertable<FeedbackDb> custom({
+    Expression<String>? id,
+    Expression<String>? bikeId,
+    Expression<String>? setupId,
+    Expression<int>? stravaActivityId,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? lastModified,
+    Expression<DateTime>? dateTimeUTC,
+    Expression<DateTime>? dateTimeLocal,
+    Expression<String>? notes,
+    Expression<String>? position,
+    Expression<String>? place,
+    Expression<String>? weather,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bikeId != null) 'bike_id': bikeId,
+      if (setupId != null) 'setup_id': setupId,
+      if (stravaActivityId != null) 'strava_activity_id': stravaActivityId,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (lastModified != null) 'last_modified': lastModified,
+      if (dateTimeUTC != null) 'date_time_u_t_c': dateTimeUTC,
+      if (dateTimeLocal != null) 'date_time_local': dateTimeLocal,
+      if (notes != null) 'notes': notes,
+      if (position != null) 'position': position,
+      if (place != null) 'place': place,
+      if (weather != null) 'weather': weather,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FeedbacksCompanion copyWith({
+    Value<String>? id,
+    Value<String>? bikeId,
+    Value<String>? setupId,
+    Value<int?>? stravaActivityId,
+    Value<bool>? isDeleted,
+    Value<DateTime>? lastModified,
+    Value<DateTime>? dateTimeUTC,
+    Value<DateTime>? dateTimeLocal,
+    Value<String?>? notes,
+    Value<ContextPosition?>? position,
+    Value<geo.Placemark?>? place,
+    Value<ContextWeather?>? weather,
+    Value<int>? rowid,
+  }) {
+    return FeedbacksCompanion(
+      id: id ?? this.id,
+      bikeId: bikeId ?? this.bikeId,
+      setupId: setupId ?? this.setupId,
+      stravaActivityId: stravaActivityId ?? this.stravaActivityId,
+      isDeleted: isDeleted ?? this.isDeleted,
+      lastModified: lastModified ?? this.lastModified,
+      dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
+      dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
+      notes: notes ?? this.notes,
+      position: position ?? this.position,
+      place: place ?? this.place,
+      weather: weather ?? this.weather,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (bikeId.present) {
+      map['bike_id'] = Variable<String>(bikeId.value);
+    }
+    if (setupId.present) {
+      map['setup_id'] = Variable<String>(setupId.value);
+    }
+    if (stravaActivityId.present) {
+      map['strava_activity_id'] = Variable<int>(stravaActivityId.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(
+        $FeedbacksTable.$converterlastModified.toSql(lastModified.value),
+      );
+    }
+    if (dateTimeUTC.present) {
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $FeedbacksTable.$converterdateTimeUTC.toSql(dateTimeUTC.value),
+      );
+    }
+    if (dateTimeLocal.present) {
+      map['date_time_local'] = Variable<DateTime>(
+        $FeedbacksTable.$converterdateTimeLocal.toSql(dateTimeLocal.value),
+      );
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<String>(
+        $FeedbacksTable.$converterpositionn.toSql(position.value),
+      );
+    }
+    if (place.present) {
+      map['place'] = Variable<String>(
+        $FeedbacksTable.$converterplacen.toSql(place.value),
+      );
+    }
+    if (weather.present) {
+      map['weather'] = Variable<String>(
+        $FeedbacksTable.$converterweathern.toSql(weather.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeedbacksCompanion(')
+          ..write('id: $id, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('setupId: $setupId, ')
+          ..write('stravaActivityId: $stravaActivityId, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('dateTimeUTC: $dateTimeUTC, ')
+          ..write('dateTimeLocal: $dateTimeLocal, ')
+          ..write('notes: $notes, ')
+          ..write('position: $position, ')
+          ..write('place: $place, ')
+          ..write('weather: $weather, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FeedbackObservationsTable extends FeedbackObservations
+    with TableInfo<$FeedbackObservationsTable, FeedbackObservationDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FeedbackObservationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _feedbackIdMeta = const VerificationMeta(
+    'feedbackId',
+  );
+  @override
+  late final GeneratedColumn<String> feedbackId = GeneratedColumn<String>(
+    'feedback_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES feedbacks (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<double> value = GeneratedColumn<double>(
+    'value',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _textValueMeta = const VerificationMeta(
+    'textValue',
+  );
+  @override
+  late final GeneratedColumn<String> textValue = GeneratedColumn<String>(
+    'text_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [feedbackId, key, value, textValue];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'feedback_observations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FeedbackObservationDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('feedback_id')) {
+      context.handle(
+        _feedbackIdMeta,
+        feedbackId.isAcceptableOrUnknown(data['feedback_id']!, _feedbackIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_feedbackIdMeta);
+    }
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    }
+    if (data.containsKey('text_value')) {
+      context.handle(
+        _textValueMeta,
+        textValue.isAcceptableOrUnknown(data['text_value']!, _textValueMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {feedbackId, key};
+  @override
+  FeedbackObservationDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FeedbackObservationDb(
+      feedbackId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}feedback_id'],
+      )!,
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}value'],
+      ),
+      textValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}text_value'],
+      ),
+    );
+  }
+
+  @override
+  $FeedbackObservationsTable createAlias(String alias) {
+    return $FeedbackObservationsTable(attachedDatabase, alias);
+  }
+}
+
+class FeedbackObservationDb extends DataClass
+    implements Insertable<FeedbackObservationDb> {
+  final String feedbackId;
+  final String key;
+  final double? value;
+  final String? textValue;
+  const FeedbackObservationDb({
+    required this.feedbackId,
+    required this.key,
+    this.value,
+    this.textValue,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['feedback_id'] = Variable<String>(feedbackId);
+    map['key'] = Variable<String>(key);
+    if (!nullToAbsent || value != null) {
+      map['value'] = Variable<double>(value);
+    }
+    if (!nullToAbsent || textValue != null) {
+      map['text_value'] = Variable<String>(textValue);
+    }
+    return map;
+  }
+
+  FeedbackObservationsCompanion toCompanion(bool nullToAbsent) {
+    return FeedbackObservationsCompanion(
+      feedbackId: Value(feedbackId),
+      key: Value(key),
+      value: value == null && nullToAbsent
+          ? const Value.absent()
+          : Value(value),
+      textValue: textValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(textValue),
+    );
+  }
+
+  factory FeedbackObservationDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FeedbackObservationDb(
+      feedbackId: serializer.fromJson<String>(json['feedbackId']),
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<double?>(json['value']),
+      textValue: serializer.fromJson<String?>(json['textValue']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'feedbackId': serializer.toJson<String>(feedbackId),
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<double?>(value),
+      'textValue': serializer.toJson<String?>(textValue),
+    };
+  }
+
+  FeedbackObservationDb copyWith({
+    String? feedbackId,
+    String? key,
+    Value<double?> value = const Value.absent(),
+    Value<String?> textValue = const Value.absent(),
+  }) => FeedbackObservationDb(
+    feedbackId: feedbackId ?? this.feedbackId,
+    key: key ?? this.key,
+    value: value.present ? value.value : this.value,
+    textValue: textValue.present ? textValue.value : this.textValue,
+  );
+  FeedbackObservationDb copyWithCompanion(FeedbackObservationsCompanion data) {
+    return FeedbackObservationDb(
+      feedbackId: data.feedbackId.present
+          ? data.feedbackId.value
+          : this.feedbackId,
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+      textValue: data.textValue.present ? data.textValue.value : this.textValue,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeedbackObservationDb(')
+          ..write('feedbackId: $feedbackId, ')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('textValue: $textValue')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(feedbackId, key, value, textValue);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FeedbackObservationDb &&
+          other.feedbackId == this.feedbackId &&
+          other.key == this.key &&
+          other.value == this.value &&
+          other.textValue == this.textValue);
+}
+
+class FeedbackObservationsCompanion
+    extends UpdateCompanion<FeedbackObservationDb> {
+  final Value<String> feedbackId;
+  final Value<String> key;
+  final Value<double?> value;
+  final Value<String?> textValue;
+  final Value<int> rowid;
+  const FeedbackObservationsCompanion({
+    this.feedbackId = const Value.absent(),
+    this.key = const Value.absent(),
+    this.value = const Value.absent(),
+    this.textValue = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FeedbackObservationsCompanion.insert({
+    required String feedbackId,
+    required String key,
+    this.value = const Value.absent(),
+    this.textValue = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : feedbackId = Value(feedbackId),
+       key = Value(key);
+  static Insertable<FeedbackObservationDb> custom({
+    Expression<String>? feedbackId,
+    Expression<String>? key,
+    Expression<double>? value,
+    Expression<String>? textValue,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (feedbackId != null) 'feedback_id': feedbackId,
+      if (key != null) 'key': key,
+      if (value != null) 'value': value,
+      if (textValue != null) 'text_value': textValue,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FeedbackObservationsCompanion copyWith({
+    Value<String>? feedbackId,
+    Value<String>? key,
+    Value<double?>? value,
+    Value<String?>? textValue,
+    Value<int>? rowid,
+  }) {
+    return FeedbackObservationsCompanion(
+      feedbackId: feedbackId ?? this.feedbackId,
+      key: key ?? this.key,
+      value: value ?? this.value,
+      textValue: textValue ?? this.textValue,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (feedbackId.present) {
+      map['feedback_id'] = Variable<String>(feedbackId.value);
+    }
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<double>(value.value);
+    }
+    if (textValue.present) {
+      map['text_value'] = Variable<String>(textValue.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeedbackObservationsCompanion(')
+          ..write('feedbackId: $feedbackId, ')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('textValue: $textValue, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FeedbackComparisonsTable extends FeedbackComparisons
+    with TableInfo<$FeedbackComparisonsTable, FeedbackComparisonDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FeedbackComparisonsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _feedbackIdMeta = const VerificationMeta(
+    'feedbackId',
+  );
+  @override
+  late final GeneratedColumn<String> feedbackId = GeneratedColumn<String>(
+    'feedback_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES feedbacks (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _referenceSetupIdMeta = const VerificationMeta(
+    'referenceSetupId',
+  );
+  @override
+  late final GeneratedColumn<String> referenceSetupId = GeneratedColumn<String>(
+    'reference_setup_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES setups (id)',
+    ),
+  );
+  static const VerificationMeta _aspectMeta = const VerificationMeta('aspect');
+  @override
+  late final GeneratedColumn<String> aspect = GeneratedColumn<String>(
+    'aspect',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _outcomeMeta = const VerificationMeta(
+    'outcome',
+  );
+  @override
+  late final GeneratedColumn<int> outcome = GeneratedColumn<int>(
+    'outcome',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    feedbackId,
+    referenceSetupId,
+    aspect,
+    outcome,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'feedback_comparisons';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FeedbackComparisonDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('feedback_id')) {
+      context.handle(
+        _feedbackIdMeta,
+        feedbackId.isAcceptableOrUnknown(data['feedback_id']!, _feedbackIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_feedbackIdMeta);
+    }
+    if (data.containsKey('reference_setup_id')) {
+      context.handle(
+        _referenceSetupIdMeta,
+        referenceSetupId.isAcceptableOrUnknown(
+          data['reference_setup_id']!,
+          _referenceSetupIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_referenceSetupIdMeta);
+    }
+    if (data.containsKey('aspect')) {
+      context.handle(
+        _aspectMeta,
+        aspect.isAcceptableOrUnknown(data['aspect']!, _aspectMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_aspectMeta);
+    }
+    if (data.containsKey('outcome')) {
+      context.handle(
+        _outcomeMeta,
+        outcome.isAcceptableOrUnknown(data['outcome']!, _outcomeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_outcomeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {
+    feedbackId,
+    referenceSetupId,
+    aspect,
+  };
+  @override
+  FeedbackComparisonDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FeedbackComparisonDb(
+      feedbackId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}feedback_id'],
+      )!,
+      referenceSetupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference_setup_id'],
+      )!,
+      aspect: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}aspect'],
+      )!,
+      outcome: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}outcome'],
+      )!,
+    );
+  }
+
+  @override
+  $FeedbackComparisonsTable createAlias(String alias) {
+    return $FeedbackComparisonsTable(attachedDatabase, alias);
+  }
+}
+
+class FeedbackComparisonDb extends DataClass
+    implements Insertable<FeedbackComparisonDb> {
+  final String feedbackId;
+  final String referenceSetupId;
+  final String aspect;
+  final int outcome;
+  const FeedbackComparisonDb({
+    required this.feedbackId,
+    required this.referenceSetupId,
+    required this.aspect,
+    required this.outcome,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['feedback_id'] = Variable<String>(feedbackId);
+    map['reference_setup_id'] = Variable<String>(referenceSetupId);
+    map['aspect'] = Variable<String>(aspect);
+    map['outcome'] = Variable<int>(outcome);
+    return map;
+  }
+
+  FeedbackComparisonsCompanion toCompanion(bool nullToAbsent) {
+    return FeedbackComparisonsCompanion(
+      feedbackId: Value(feedbackId),
+      referenceSetupId: Value(referenceSetupId),
+      aspect: Value(aspect),
+      outcome: Value(outcome),
+    );
+  }
+
+  factory FeedbackComparisonDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FeedbackComparisonDb(
+      feedbackId: serializer.fromJson<String>(json['feedbackId']),
+      referenceSetupId: serializer.fromJson<String>(json['referenceSetupId']),
+      aspect: serializer.fromJson<String>(json['aspect']),
+      outcome: serializer.fromJson<int>(json['outcome']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'feedbackId': serializer.toJson<String>(feedbackId),
+      'referenceSetupId': serializer.toJson<String>(referenceSetupId),
+      'aspect': serializer.toJson<String>(aspect),
+      'outcome': serializer.toJson<int>(outcome),
+    };
+  }
+
+  FeedbackComparisonDb copyWith({
+    String? feedbackId,
+    String? referenceSetupId,
+    String? aspect,
+    int? outcome,
+  }) => FeedbackComparisonDb(
+    feedbackId: feedbackId ?? this.feedbackId,
+    referenceSetupId: referenceSetupId ?? this.referenceSetupId,
+    aspect: aspect ?? this.aspect,
+    outcome: outcome ?? this.outcome,
+  );
+  FeedbackComparisonDb copyWithCompanion(FeedbackComparisonsCompanion data) {
+    return FeedbackComparisonDb(
+      feedbackId: data.feedbackId.present
+          ? data.feedbackId.value
+          : this.feedbackId,
+      referenceSetupId: data.referenceSetupId.present
+          ? data.referenceSetupId.value
+          : this.referenceSetupId,
+      aspect: data.aspect.present ? data.aspect.value : this.aspect,
+      outcome: data.outcome.present ? data.outcome.value : this.outcome,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeedbackComparisonDb(')
+          ..write('feedbackId: $feedbackId, ')
+          ..write('referenceSetupId: $referenceSetupId, ')
+          ..write('aspect: $aspect, ')
+          ..write('outcome: $outcome')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(feedbackId, referenceSetupId, aspect, outcome);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FeedbackComparisonDb &&
+          other.feedbackId == this.feedbackId &&
+          other.referenceSetupId == this.referenceSetupId &&
+          other.aspect == this.aspect &&
+          other.outcome == this.outcome);
+}
+
+class FeedbackComparisonsCompanion
+    extends UpdateCompanion<FeedbackComparisonDb> {
+  final Value<String> feedbackId;
+  final Value<String> referenceSetupId;
+  final Value<String> aspect;
+  final Value<int> outcome;
+  final Value<int> rowid;
+  const FeedbackComparisonsCompanion({
+    this.feedbackId = const Value.absent(),
+    this.referenceSetupId = const Value.absent(),
+    this.aspect = const Value.absent(),
+    this.outcome = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FeedbackComparisonsCompanion.insert({
+    required String feedbackId,
+    required String referenceSetupId,
+    required String aspect,
+    required int outcome,
+    this.rowid = const Value.absent(),
+  }) : feedbackId = Value(feedbackId),
+       referenceSetupId = Value(referenceSetupId),
+       aspect = Value(aspect),
+       outcome = Value(outcome);
+  static Insertable<FeedbackComparisonDb> custom({
+    Expression<String>? feedbackId,
+    Expression<String>? referenceSetupId,
+    Expression<String>? aspect,
+    Expression<int>? outcome,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (feedbackId != null) 'feedback_id': feedbackId,
+      if (referenceSetupId != null) 'reference_setup_id': referenceSetupId,
+      if (aspect != null) 'aspect': aspect,
+      if (outcome != null) 'outcome': outcome,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FeedbackComparisonsCompanion copyWith({
+    Value<String>? feedbackId,
+    Value<String>? referenceSetupId,
+    Value<String>? aspect,
+    Value<int>? outcome,
+    Value<int>? rowid,
+  }) {
+    return FeedbackComparisonsCompanion(
+      feedbackId: feedbackId ?? this.feedbackId,
+      referenceSetupId: referenceSetupId ?? this.referenceSetupId,
+      aspect: aspect ?? this.aspect,
+      outcome: outcome ?? this.outcome,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (feedbackId.present) {
+      map['feedback_id'] = Variable<String>(feedbackId.value);
+    }
+    if (referenceSetupId.present) {
+      map['reference_setup_id'] = Variable<String>(referenceSetupId.value);
+    }
+    if (aspect.present) {
+      map['aspect'] = Variable<String>(aspect.value);
+    }
+    if (outcome.present) {
+      map['outcome'] = Variable<int>(outcome.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeedbackComparisonsCompanion(')
+          ..write('feedbackId: $feedbackId, ')
+          ..write('referenceSetupId: $referenceSetupId, ')
+          ..write('aspect: $aspect, ')
+          ..write('outcome: $outcome, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TestSessionsTable extends TestSessions
+    with TableInfo<$TestSessionsTable, TestSessionDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TestSessionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bikeIdMeta = const VerificationMeta('bikeId');
+  @override
+  late final GeneratedColumn<String> bikeId = GeneratedColumn<String>(
+    'bike_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES bikes (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($TestSessionsTable.$converterlastModified);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _methodMeta = const VerificationMeta('method');
+  @override
+  late final GeneratedColumn<String> method = GeneratedColumn<String>(
+    'method',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _adjustmentIdsMeta = const VerificationMeta(
+    'adjustmentIds',
+  );
+  @override
+  late final GeneratedColumn<String> adjustmentIds = GeneratedColumn<String>(
+    'adjustment_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _goalMeta = const VerificationMeta('goal');
+  @override
+  late final GeneratedColumn<String> goal = GeneratedColumn<String>(
+    'goal',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _locksMeta = const VerificationMeta('locks');
+  @override
+  late final GeneratedColumn<String> locks = GeneratedColumn<String>(
+    'locks',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _proposalsMeta = const VerificationMeta(
+    'proposals',
+  );
+  @override
+  late final GeneratedColumn<String> proposals = GeneratedColumn<String>(
+    'proposals',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> startedAtUTC =
+      GeneratedColumn<DateTime>(
+        'started_at_u_t_c',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($TestSessionsTable.$converterstartedAtUTC);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime>
+  startedAtLocal = GeneratedColumn<DateTime>(
+    'started_at_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  ).withConverter<DateTime>($TestSessionsTable.$converterstartedAtLocal);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, DateTime> endedAtUTC =
+      GeneratedColumn<DateTime>(
+        'ended_at_u_t_c',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($TestSessionsTable.$converterendedAtUTCn);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, DateTime>
+  endedAtLocal = GeneratedColumn<DateTime>(
+    'ended_at_local',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  ).withConverter<DateTime?>($TestSessionsTable.$converterendedAtLocaln);
+  @override
+  late final GeneratedColumnWithTypeConverter<geo.Placemark?, String> place =
+      GeneratedColumn<String>(
+        'place',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<geo.Placemark?>($TestSessionsTable.$converterplacen);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    bikeId,
+    isDeleted,
+    lastModified,
+    name,
+    method,
+    adjustmentIds,
+    goal,
+    locks,
+    proposals,
+    startedAtUTC,
+    startedAtLocal,
+    endedAtUTC,
+    endedAtLocal,
+    place,
+    notes,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'test_sessions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TestSessionDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('bike_id')) {
+      context.handle(
+        _bikeIdMeta,
+        bikeId.isAcceptableOrUnknown(data['bike_id']!, _bikeIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bikeIdMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    }
+    if (data.containsKey('method')) {
+      context.handle(
+        _methodMeta,
+        method.isAcceptableOrUnknown(data['method']!, _methodMeta),
+      );
+    }
+    if (data.containsKey('adjustment_ids')) {
+      context.handle(
+        _adjustmentIdsMeta,
+        adjustmentIds.isAcceptableOrUnknown(
+          data['adjustment_ids']!,
+          _adjustmentIdsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('goal')) {
+      context.handle(
+        _goalMeta,
+        goal.isAcceptableOrUnknown(data['goal']!, _goalMeta),
+      );
+    }
+    if (data.containsKey('locks')) {
+      context.handle(
+        _locksMeta,
+        locks.isAcceptableOrUnknown(data['locks']!, _locksMeta),
+      );
+    }
+    if (data.containsKey('proposals')) {
+      context.handle(
+        _proposalsMeta,
+        proposals.isAcceptableOrUnknown(data['proposals']!, _proposalsMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TestSessionDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TestSessionDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      bikeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bike_id'],
+      )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      lastModified: $TestSessionsTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      ),
+      method: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}method'],
+      ),
+      adjustmentIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}adjustment_ids'],
+      )!,
+      goal: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}goal'],
+      )!,
+      locks: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}locks'],
+      )!,
+      proposals: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}proposals'],
+      )!,
+      startedAtUTC: $TestSessionsTable.$converterstartedAtUTC.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}started_at_u_t_c'],
+        )!,
+      ),
+      startedAtLocal: $TestSessionsTable.$converterstartedAtLocal.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}started_at_local'],
+        )!,
+      ),
+      endedAtUTC: $TestSessionsTable.$converterendedAtUTCn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}ended_at_u_t_c'],
+        ),
+      ),
+      endedAtLocal: $TestSessionsTable.$converterendedAtLocaln.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}ended_at_local'],
+        ),
+      ),
+      place: $TestSessionsTable.$converterplacen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}place'],
+        ),
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+    );
+  }
+
+  @override
+  $TestSessionsTable createAlias(String alias) {
+    return $TestSessionsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterstartedAtUTC =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterstartedAtLocal =
+      const LocalFloatingDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterendedAtUTC =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime?, DateTime?> $converterendedAtUTCn =
+      NullAwareTypeConverter.wrap($converterendedAtUTC);
+  static TypeConverter<DateTime, DateTime> $converterendedAtLocal =
+      const LocalFloatingDateTimeConverter();
+  static TypeConverter<DateTime?, DateTime?> $converterendedAtLocaln =
+      NullAwareTypeConverter.wrap($converterendedAtLocal);
+  static TypeConverter<geo.Placemark, String> $converterplace =
+      const PlacemarkConverter();
+  static TypeConverter<geo.Placemark?, String?> $converterplacen =
+      NullAwareTypeConverter.wrap($converterplace);
+}
+
+class TestSessionDb extends DataClass implements Insertable<TestSessionDb> {
+  final String id;
+  final String bikeId;
+  final bool isDeleted;
+  final DateTime lastModified;
+  final String? name;
+  final String? method;
+  final String adjustmentIds;
+  final String goal;
+  final String locks;
+  final String proposals;
+  final DateTime startedAtUTC;
+  final DateTime startedAtLocal;
+  final DateTime? endedAtUTC;
+  final DateTime? endedAtLocal;
+  final geo.Placemark? place;
+  final String? notes;
+  const TestSessionDb({
+    required this.id,
+    required this.bikeId,
+    required this.isDeleted,
+    required this.lastModified,
+    this.name,
+    this.method,
+    required this.adjustmentIds,
+    required this.goal,
+    required this.locks,
+    required this.proposals,
+    required this.startedAtUTC,
+    required this.startedAtLocal,
+    this.endedAtUTC,
+    this.endedAtLocal,
+    this.place,
+    this.notes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['bike_id'] = Variable<String>(bikeId);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $TestSessionsTable.$converterlastModified.toSql(lastModified),
+      );
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || method != null) {
+      map['method'] = Variable<String>(method);
+    }
+    map['adjustment_ids'] = Variable<String>(adjustmentIds);
+    map['goal'] = Variable<String>(goal);
+    map['locks'] = Variable<String>(locks);
+    map['proposals'] = Variable<String>(proposals);
+    {
+      map['started_at_u_t_c'] = Variable<DateTime>(
+        $TestSessionsTable.$converterstartedAtUTC.toSql(startedAtUTC),
+      );
+    }
+    {
+      map['started_at_local'] = Variable<DateTime>(
+        $TestSessionsTable.$converterstartedAtLocal.toSql(startedAtLocal),
+      );
+    }
+    if (!nullToAbsent || endedAtUTC != null) {
+      map['ended_at_u_t_c'] = Variable<DateTime>(
+        $TestSessionsTable.$converterendedAtUTCn.toSql(endedAtUTC),
+      );
+    }
+    if (!nullToAbsent || endedAtLocal != null) {
+      map['ended_at_local'] = Variable<DateTime>(
+        $TestSessionsTable.$converterendedAtLocaln.toSql(endedAtLocal),
+      );
+    }
+    if (!nullToAbsent || place != null) {
+      map['place'] = Variable<String>(
+        $TestSessionsTable.$converterplacen.toSql(place),
+      );
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  TestSessionsCompanion toCompanion(bool nullToAbsent) {
+    return TestSessionsCompanion(
+      id: Value(id),
+      bikeId: Value(bikeId),
+      isDeleted: Value(isDeleted),
+      lastModified: Value(lastModified),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      method: method == null && nullToAbsent
+          ? const Value.absent()
+          : Value(method),
+      adjustmentIds: Value(adjustmentIds),
+      goal: Value(goal),
+      locks: Value(locks),
+      proposals: Value(proposals),
+      startedAtUTC: Value(startedAtUTC),
+      startedAtLocal: Value(startedAtLocal),
+      endedAtUTC: endedAtUTC == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedAtUTC),
+      endedAtLocal: endedAtLocal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedAtLocal),
+      place: place == null && nullToAbsent
+          ? const Value.absent()
+          : Value(place),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+    );
+  }
+
+  factory TestSessionDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TestSessionDb(
+      id: serializer.fromJson<String>(json['id']),
+      bikeId: serializer.fromJson<String>(json['bikeId']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      name: serializer.fromJson<String?>(json['name']),
+      method: serializer.fromJson<String?>(json['method']),
+      adjustmentIds: serializer.fromJson<String>(json['adjustmentIds']),
+      goal: serializer.fromJson<String>(json['goal']),
+      locks: serializer.fromJson<String>(json['locks']),
+      proposals: serializer.fromJson<String>(json['proposals']),
+      startedAtUTC: serializer.fromJson<DateTime>(json['startedAtUTC']),
+      startedAtLocal: serializer.fromJson<DateTime>(json['startedAtLocal']),
+      endedAtUTC: serializer.fromJson<DateTime?>(json['endedAtUTC']),
+      endedAtLocal: serializer.fromJson<DateTime?>(json['endedAtLocal']),
+      place: serializer.fromJson<geo.Placemark?>(json['place']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'bikeId': serializer.toJson<String>(bikeId),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'lastModified': serializer.toJson<DateTime>(lastModified),
+      'name': serializer.toJson<String?>(name),
+      'method': serializer.toJson<String?>(method),
+      'adjustmentIds': serializer.toJson<String>(adjustmentIds),
+      'goal': serializer.toJson<String>(goal),
+      'locks': serializer.toJson<String>(locks),
+      'proposals': serializer.toJson<String>(proposals),
+      'startedAtUTC': serializer.toJson<DateTime>(startedAtUTC),
+      'startedAtLocal': serializer.toJson<DateTime>(startedAtLocal),
+      'endedAtUTC': serializer.toJson<DateTime?>(endedAtUTC),
+      'endedAtLocal': serializer.toJson<DateTime?>(endedAtLocal),
+      'place': serializer.toJson<geo.Placemark?>(place),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  TestSessionDb copyWith({
+    String? id,
+    String? bikeId,
+    bool? isDeleted,
+    DateTime? lastModified,
+    Value<String?> name = const Value.absent(),
+    Value<String?> method = const Value.absent(),
+    String? adjustmentIds,
+    String? goal,
+    String? locks,
+    String? proposals,
+    DateTime? startedAtUTC,
+    DateTime? startedAtLocal,
+    Value<DateTime?> endedAtUTC = const Value.absent(),
+    Value<DateTime?> endedAtLocal = const Value.absent(),
+    Value<geo.Placemark?> place = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+  }) => TestSessionDb(
+    id: id ?? this.id,
+    bikeId: bikeId ?? this.bikeId,
+    isDeleted: isDeleted ?? this.isDeleted,
+    lastModified: lastModified ?? this.lastModified,
+    name: name.present ? name.value : this.name,
+    method: method.present ? method.value : this.method,
+    adjustmentIds: adjustmentIds ?? this.adjustmentIds,
+    goal: goal ?? this.goal,
+    locks: locks ?? this.locks,
+    proposals: proposals ?? this.proposals,
+    startedAtUTC: startedAtUTC ?? this.startedAtUTC,
+    startedAtLocal: startedAtLocal ?? this.startedAtLocal,
+    endedAtUTC: endedAtUTC.present ? endedAtUTC.value : this.endedAtUTC,
+    endedAtLocal: endedAtLocal.present ? endedAtLocal.value : this.endedAtLocal,
+    place: place.present ? place.value : this.place,
+    notes: notes.present ? notes.value : this.notes,
+  );
+  TestSessionDb copyWithCompanion(TestSessionsCompanion data) {
+    return TestSessionDb(
+      id: data.id.present ? data.id.value : this.id,
+      bikeId: data.bikeId.present ? data.bikeId.value : this.bikeId,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      lastModified: data.lastModified.present
+          ? data.lastModified.value
+          : this.lastModified,
+      name: data.name.present ? data.name.value : this.name,
+      method: data.method.present ? data.method.value : this.method,
+      adjustmentIds: data.adjustmentIds.present
+          ? data.adjustmentIds.value
+          : this.adjustmentIds,
+      goal: data.goal.present ? data.goal.value : this.goal,
+      locks: data.locks.present ? data.locks.value : this.locks,
+      proposals: data.proposals.present ? data.proposals.value : this.proposals,
+      startedAtUTC: data.startedAtUTC.present
+          ? data.startedAtUTC.value
+          : this.startedAtUTC,
+      startedAtLocal: data.startedAtLocal.present
+          ? data.startedAtLocal.value
+          : this.startedAtLocal,
+      endedAtUTC: data.endedAtUTC.present
+          ? data.endedAtUTC.value
+          : this.endedAtUTC,
+      endedAtLocal: data.endedAtLocal.present
+          ? data.endedAtLocal.value
+          : this.endedAtLocal,
+      place: data.place.present ? data.place.value : this.place,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TestSessionDb(')
+          ..write('id: $id, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('method: $method, ')
+          ..write('adjustmentIds: $adjustmentIds, ')
+          ..write('goal: $goal, ')
+          ..write('locks: $locks, ')
+          ..write('proposals: $proposals, ')
+          ..write('startedAtUTC: $startedAtUTC, ')
+          ..write('startedAtLocal: $startedAtLocal, ')
+          ..write('endedAtUTC: $endedAtUTC, ')
+          ..write('endedAtLocal: $endedAtLocal, ')
+          ..write('place: $place, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    bikeId,
+    isDeleted,
+    lastModified,
+    name,
+    method,
+    adjustmentIds,
+    goal,
+    locks,
+    proposals,
+    startedAtUTC,
+    startedAtLocal,
+    endedAtUTC,
+    endedAtLocal,
+    place,
+    notes,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TestSessionDb &&
+          other.id == this.id &&
+          other.bikeId == this.bikeId &&
+          other.isDeleted == this.isDeleted &&
+          other.lastModified == this.lastModified &&
+          other.name == this.name &&
+          other.method == this.method &&
+          other.adjustmentIds == this.adjustmentIds &&
+          other.goal == this.goal &&
+          other.locks == this.locks &&
+          other.proposals == this.proposals &&
+          other.startedAtUTC == this.startedAtUTC &&
+          other.startedAtLocal == this.startedAtLocal &&
+          other.endedAtUTC == this.endedAtUTC &&
+          other.endedAtLocal == this.endedAtLocal &&
+          other.place == this.place &&
+          other.notes == this.notes);
+}
+
+class TestSessionsCompanion extends UpdateCompanion<TestSessionDb> {
+  final Value<String> id;
+  final Value<String> bikeId;
+  final Value<bool> isDeleted;
+  final Value<DateTime> lastModified;
+  final Value<String?> name;
+  final Value<String?> method;
+  final Value<String> adjustmentIds;
+  final Value<String> goal;
+  final Value<String> locks;
+  final Value<String> proposals;
+  final Value<DateTime> startedAtUTC;
+  final Value<DateTime> startedAtLocal;
+  final Value<DateTime?> endedAtUTC;
+  final Value<DateTime?> endedAtLocal;
+  final Value<geo.Placemark?> place;
+  final Value<String?> notes;
+  final Value<int> rowid;
+  const TestSessionsCompanion({
+    this.id = const Value.absent(),
+    this.bikeId = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModified = const Value.absent(),
+    this.name = const Value.absent(),
+    this.method = const Value.absent(),
+    this.adjustmentIds = const Value.absent(),
+    this.goal = const Value.absent(),
+    this.locks = const Value.absent(),
+    this.proposals = const Value.absent(),
+    this.startedAtUTC = const Value.absent(),
+    this.startedAtLocal = const Value.absent(),
+    this.endedAtUTC = const Value.absent(),
+    this.endedAtLocal = const Value.absent(),
+    this.place = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TestSessionsCompanion.insert({
+    required String id,
+    required String bikeId,
+    this.isDeleted = const Value.absent(),
+    required DateTime lastModified,
+    this.name = const Value.absent(),
+    this.method = const Value.absent(),
+    this.adjustmentIds = const Value.absent(),
+    this.goal = const Value.absent(),
+    this.locks = const Value.absent(),
+    this.proposals = const Value.absent(),
+    required DateTime startedAtUTC,
+    required DateTime startedAtLocal,
+    this.endedAtUTC = const Value.absent(),
+    this.endedAtLocal = const Value.absent(),
+    this.place = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       bikeId = Value(bikeId),
+       lastModified = Value(lastModified),
+       startedAtUTC = Value(startedAtUTC),
+       startedAtLocal = Value(startedAtLocal);
+  static Insertable<TestSessionDb> custom({
+    Expression<String>? id,
+    Expression<String>? bikeId,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? lastModified,
+    Expression<String>? name,
+    Expression<String>? method,
+    Expression<String>? adjustmentIds,
+    Expression<String>? goal,
+    Expression<String>? locks,
+    Expression<String>? proposals,
+    Expression<DateTime>? startedAtUTC,
+    Expression<DateTime>? startedAtLocal,
+    Expression<DateTime>? endedAtUTC,
+    Expression<DateTime>? endedAtLocal,
+    Expression<String>? place,
+    Expression<String>? notes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bikeId != null) 'bike_id': bikeId,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (lastModified != null) 'last_modified': lastModified,
+      if (name != null) 'name': name,
+      if (method != null) 'method': method,
+      if (adjustmentIds != null) 'adjustment_ids': adjustmentIds,
+      if (goal != null) 'goal': goal,
+      if (locks != null) 'locks': locks,
+      if (proposals != null) 'proposals': proposals,
+      if (startedAtUTC != null) 'started_at_u_t_c': startedAtUTC,
+      if (startedAtLocal != null) 'started_at_local': startedAtLocal,
+      if (endedAtUTC != null) 'ended_at_u_t_c': endedAtUTC,
+      if (endedAtLocal != null) 'ended_at_local': endedAtLocal,
+      if (place != null) 'place': place,
+      if (notes != null) 'notes': notes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TestSessionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? bikeId,
+    Value<bool>? isDeleted,
+    Value<DateTime>? lastModified,
+    Value<String?>? name,
+    Value<String?>? method,
+    Value<String>? adjustmentIds,
+    Value<String>? goal,
+    Value<String>? locks,
+    Value<String>? proposals,
+    Value<DateTime>? startedAtUTC,
+    Value<DateTime>? startedAtLocal,
+    Value<DateTime?>? endedAtUTC,
+    Value<DateTime?>? endedAtLocal,
+    Value<geo.Placemark?>? place,
+    Value<String?>? notes,
+    Value<int>? rowid,
+  }) {
+    return TestSessionsCompanion(
+      id: id ?? this.id,
+      bikeId: bikeId ?? this.bikeId,
+      isDeleted: isDeleted ?? this.isDeleted,
+      lastModified: lastModified ?? this.lastModified,
+      name: name ?? this.name,
+      method: method ?? this.method,
+      adjustmentIds: adjustmentIds ?? this.adjustmentIds,
+      goal: goal ?? this.goal,
+      locks: locks ?? this.locks,
+      proposals: proposals ?? this.proposals,
+      startedAtUTC: startedAtUTC ?? this.startedAtUTC,
+      startedAtLocal: startedAtLocal ?? this.startedAtLocal,
+      endedAtUTC: endedAtUTC ?? this.endedAtUTC,
+      endedAtLocal: endedAtLocal ?? this.endedAtLocal,
+      place: place ?? this.place,
+      notes: notes ?? this.notes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (bikeId.present) {
+      map['bike_id'] = Variable<String>(bikeId.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(
+        $TestSessionsTable.$converterlastModified.toSql(lastModified.value),
+      );
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (method.present) {
+      map['method'] = Variable<String>(method.value);
+    }
+    if (adjustmentIds.present) {
+      map['adjustment_ids'] = Variable<String>(adjustmentIds.value);
+    }
+    if (goal.present) {
+      map['goal'] = Variable<String>(goal.value);
+    }
+    if (locks.present) {
+      map['locks'] = Variable<String>(locks.value);
+    }
+    if (proposals.present) {
+      map['proposals'] = Variable<String>(proposals.value);
+    }
+    if (startedAtUTC.present) {
+      map['started_at_u_t_c'] = Variable<DateTime>(
+        $TestSessionsTable.$converterstartedAtUTC.toSql(startedAtUTC.value),
+      );
+    }
+    if (startedAtLocal.present) {
+      map['started_at_local'] = Variable<DateTime>(
+        $TestSessionsTable.$converterstartedAtLocal.toSql(startedAtLocal.value),
+      );
+    }
+    if (endedAtUTC.present) {
+      map['ended_at_u_t_c'] = Variable<DateTime>(
+        $TestSessionsTable.$converterendedAtUTCn.toSql(endedAtUTC.value),
+      );
+    }
+    if (endedAtLocal.present) {
+      map['ended_at_local'] = Variable<DateTime>(
+        $TestSessionsTable.$converterendedAtLocaln.toSql(endedAtLocal.value),
+      );
+    }
+    if (place.present) {
+      map['place'] = Variable<String>(
+        $TestSessionsTable.$converterplacen.toSql(place.value),
+      );
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TestSessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('method: $method, ')
+          ..write('adjustmentIds: $adjustmentIds, ')
+          ..write('goal: $goal, ')
+          ..write('locks: $locks, ')
+          ..write('proposals: $proposals, ')
+          ..write('startedAtUTC: $startedAtUTC, ')
+          ..write('startedAtLocal: $startedAtLocal, ')
+          ..write('endedAtUTC: $endedAtUTC, ')
+          ..write('endedAtLocal: $endedAtLocal, ')
+          ..write('place: $place, ')
+          ..write('notes: $notes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -7567,6 +9919,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $StravaAthletesTable stravaAthletes = $StravaAthletesTable(this);
   late final $StravaGearsTable stravaGears = $StravaGearsTable(this);
+  late final $FeedbacksTable feedbacks = $FeedbacksTable(this);
+  late final $FeedbackObservationsTable feedbackObservations =
+      $FeedbackObservationsTable(this);
+  late final $FeedbackComparisonsTable feedbackComparisons =
+      $FeedbackComparisonsTable(this);
+  late final $TestSessionsTable testSessions = $TestSessionsTable(this);
   late final Index installationsComponentDateIdx = Index(
     'installations_component_date_idx',
     'CREATE INDEX installations_component_date_idx ON installations (component_id, date_time_u_t_c)',
@@ -7585,6 +9943,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final PersonsDao personsDao = PersonsDao(this as AppDatabase);
   late final TaskDao taskDao = TaskDao(this as AppDatabase);
   late final StravaDao stravaDao = StravaDao(this as AppDatabase);
+  late final FeedbackDao feedbackDao = FeedbackDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7602,6 +9961,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     stravaActivities,
     stravaAthletes,
     stravaGears,
+    feedbacks,
+    feedbackObservations,
+    feedbackComparisons,
+    testSessions,
     installationsComponentDateIdx,
     installationsParentLookupIdx,
     stravaActivitiesGearDateIdx,
@@ -7663,6 +10026,34 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('setup_adjustment_values', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'bikes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('feedbacks', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'feedbacks',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('feedback_observations', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'feedbacks',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('feedback_comparisons', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'bikes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('test_sessions', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -8576,6 +10967,42 @@ final class $$BikesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$FeedbacksTable, List<FeedbackDb>>
+  _feedbacksRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.feedbacks,
+    aliasName: 'bikes__id__feedbacks__bike_id',
+  );
+
+  $$FeedbacksTableProcessedTableManager get feedbacksRefs {
+    final manager = $$FeedbacksTableTableManager(
+      $_db,
+      $_db.feedbacks,
+    ).filter((f) => f.bikeId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_feedbacksRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TestSessionsTable, List<TestSessionDb>>
+  _testSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.testSessions,
+    aliasName: 'bikes__id__test_sessions__bike_id',
+  );
+
+  $$TestSessionsTableProcessedTableManager get testSessionsRefs {
+    final manager = $$TestSessionsTableTableManager(
+      $_db,
+      $_db.testSessions,
+    ).filter((f) => f.bikeId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_testSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$BikesTableFilterComposer extends Composer<_$AppDatabase, $BikesTable> {
@@ -8731,6 +11158,56 @@ class $$BikesTableFilterComposer extends Composer<_$AppDatabase, $BikesTable> {
           }) => $$SetupsTableFilterComposer(
             $db: $db,
             $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> feedbacksRefs(
+    Expression<bool> Function($$FeedbacksTableFilterComposer f) f,
+  ) {
+    final $$FeedbacksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableFilterComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> testSessionsRefs(
+    Expression<bool> Function($$TestSessionsTableFilterComposer f) f,
+  ) {
+    final $$TestSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.testSessions,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TestSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.testSessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -8978,6 +11455,56 @@ class $$BikesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> feedbacksRefs<T extends Object>(
+    Expression<T> Function($$FeedbacksTableAnnotationComposer a) f,
+  ) {
+    final $$FeedbacksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> testSessionsRefs<T extends Object>(
+    Expression<T> Function($$TestSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$TestSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.testSessions,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TestSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.testSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BikesTableTableManager
@@ -8997,6 +11524,8 @@ class $$BikesTableTableManager
             bool taskRulesRefs,
             bool taskEntriesRefs,
             bool setupsRefs,
+            bool feedbacksRefs,
+            bool testSessionsRefs,
           })
         > {
   $$BikesTableTableManager(_$AppDatabase db, $BikesTable table)
@@ -9093,6 +11622,8 @@ class $$BikesTableTableManager
                 taskRulesRefs = false,
                 taskEntriesRefs = false,
                 setupsRefs = false,
+                feedbacksRefs = false,
+                testSessionsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -9100,6 +11631,8 @@ class $$BikesTableTableManager
                     if (taskRulesRefs) db.taskRules,
                     if (taskEntriesRefs) db.taskEntries,
                     if (setupsRefs) db.setups,
+                    if (feedbacksRefs) db.feedbacks,
+                    if (testSessionsRefs) db.testSessions,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -9159,6 +11692,48 @@ class $$BikesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (feedbacksRefs)
+                        await $_getPrefetchedData<
+                          BikeDb,
+                          $BikesTable,
+                          FeedbackDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BikesTableReferences
+                              ._feedbacksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BikesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).feedbacksRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bikeId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (testSessionsRefs)
+                        await $_getPrefetchedData<
+                          BikeDb,
+                          $BikesTable,
+                          TestSessionDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BikesTableReferences
+                              ._testSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BikesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).testSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bikeId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -9183,6 +11758,8 @@ typedef $$BikesTableProcessedTableManager =
         bool taskRulesRefs,
         bool taskEntriesRefs,
         bool setupsRefs,
+        bool feedbacksRefs,
+        bool testSessionsRefs,
       })
     >;
 typedef $$TaskRulesTableCreateCompanionBuilder =
@@ -11933,6 +14510,7 @@ typedef $$SetupsTableCreateCompanionBuilder =
       Value<ContextPosition?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
+      Value<String?> testSessionId,
       Value<int> rowid,
     });
 typedef $$SetupsTableUpdateCompanionBuilder =
@@ -11952,6 +14530,7 @@ typedef $$SetupsTableUpdateCompanionBuilder =
       Value<ContextPosition?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
+      Value<String?> testSessionId,
       Value<int> rowid,
     });
 
@@ -12012,6 +14591,51 @@ final class $$SetupsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _setupAdjustmentValuesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$FeedbacksTable, List<FeedbackDb>>
+  _feedbacksRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.feedbacks,
+    aliasName: 'setups__id__feedbacks__setup_id',
+  );
+
+  $$FeedbacksTableProcessedTableManager get feedbacksRefs {
+    final manager = $$FeedbacksTableTableManager(
+      $_db,
+      $_db.feedbacks,
+    ).filter((f) => f.setupId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_feedbacksRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $FeedbackComparisonsTable,
+    List<FeedbackComparisonDb>
+  >
+  _feedbackComparisonsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.feedbackComparisons,
+        aliasName: 'setups__id__feedback_comparisons__reference_setup_id',
+      );
+
+  $$FeedbackComparisonsTableProcessedTableManager get feedbackComparisonsRefs {
+    final manager =
+        $$FeedbackComparisonsTableTableManager(
+          $_db,
+          $_db.feedbackComparisons,
+        ).filter(
+          (f) => f.referenceSetupId.id.sqlEquals($_itemColumn<String>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(
+      _feedbackComparisonsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -12101,6 +14725,11 @@ class $$SetupsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
+  ColumnFilters<String> get testSessionId => $composableBuilder(
+    column: $table.testSessionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$BikesTableFilterComposer get bikeId {
     final $$BikesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -12170,6 +14799,56 @@ class $$SetupsTableFilterComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return f(composer);
+  }
+
+  Expression<bool> feedbacksRefs(
+    Expression<bool> Function($$FeedbacksTableFilterComposer f) f,
+  ) {
+    final $$FeedbacksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.setupId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableFilterComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> feedbackComparisonsRefs(
+    Expression<bool> Function($$FeedbackComparisonsTableFilterComposer f) f,
+  ) {
+    final $$FeedbackComparisonsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.feedbackComparisons,
+      getReferencedColumn: (t) => t.referenceSetupId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbackComparisonsTableFilterComposer(
+            $db: $db,
+            $table: $db.feedbackComparisons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
@@ -12245,6 +14924,11 @@ class $$SetupsTableOrderingComposer
 
   ColumnOrderings<String> get weather => $composableBuilder(
     column: $table.weather,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get testSessionId => $composableBuilder(
+    column: $table.testSessionId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -12354,6 +15038,11 @@ class $$SetupsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<ContextWeather?, String> get weather =>
       $composableBuilder(column: $table.weather, builder: (column) => column);
 
+  GeneratedColumn<String> get testSessionId => $composableBuilder(
+    column: $table.testSessionId,
+    builder: (column) => column,
+  );
+
   $$BikesTableAnnotationComposer get bikeId {
     final $$BikesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -12425,6 +15114,57 @@ class $$SetupsTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> feedbacksRefs<T extends Object>(
+    Expression<T> Function($$FeedbacksTableAnnotationComposer a) f,
+  ) {
+    final $$FeedbacksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.setupId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> feedbackComparisonsRefs<T extends Object>(
+    Expression<T> Function($$FeedbackComparisonsTableAnnotationComposer a) f,
+  ) {
+    final $$FeedbackComparisonsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.feedbackComparisons,
+          getReferencedColumn: (t) => t.referenceSetupId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$FeedbackComparisonsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.feedbackComparisons,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$SetupsTableTableManager
@@ -12444,6 +15184,8 @@ class $$SetupsTableTableManager
             bool bikeId,
             bool personId,
             bool setupAdjustmentValuesRefs,
+            bool feedbacksRefs,
+            bool feedbackComparisonsRefs,
           })
         > {
   $$SetupsTableTableManager(_$AppDatabase db, $SetupsTable table)
@@ -12474,6 +15216,7 @@ class $$SetupsTableTableManager
                 Value<ContextPosition?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
+                Value<String?> testSessionId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SetupsCompanion(
                 id: id,
@@ -12491,6 +15234,7 @@ class $$SetupsTableTableManager
                 position: position,
                 place: place,
                 weather: weather,
+                testSessionId: testSessionId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -12510,6 +15254,7 @@ class $$SetupsTableTableManager
                 Value<ContextPosition?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
+                Value<String?> testSessionId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SetupsCompanion.insert(
                 id: id,
@@ -12527,6 +15272,7 @@ class $$SetupsTableTableManager
                 position: position,
                 place: place,
                 weather: weather,
+                testSessionId: testSessionId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -12540,11 +15286,15 @@ class $$SetupsTableTableManager
                 bikeId = false,
                 personId = false,
                 setupAdjustmentValuesRefs = false,
+                feedbacksRefs = false,
+                feedbackComparisonsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (setupAdjustmentValuesRefs) db.setupAdjustmentValues,
+                    if (feedbacksRefs) db.feedbacks,
+                    if (feedbackComparisonsRefs) db.feedbackComparisons,
                   ],
                   addJoins:
                       <
@@ -12614,6 +15364,48 @@ class $$SetupsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (feedbacksRefs)
+                        await $_getPrefetchedData<
+                          SetupDb,
+                          $SetupsTable,
+                          FeedbackDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SetupsTableReferences
+                              ._feedbacksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SetupsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).feedbacksRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.setupId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (feedbackComparisonsRefs)
+                        await $_getPrefetchedData<
+                          SetupDb,
+                          $SetupsTable,
+                          FeedbackComparisonDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SetupsTableReferences
+                              ._feedbackComparisonsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SetupsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).feedbackComparisonsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.referenceSetupId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -12638,6 +15430,8 @@ typedef $$SetupsTableProcessedTableManager =
         bool bikeId,
         bool personId,
         bool setupAdjustmentValuesRefs,
+        bool feedbacksRefs,
+        bool feedbackComparisonsRefs,
       })
     >;
 typedef $$SetupAdjustmentValuesTableCreateCompanionBuilder =
@@ -13849,6 +16643,2044 @@ typedef $$StravaGearsTableProcessedTableManager =
       StravaGearDb,
       PrefetchHooks Function()
     >;
+typedef $$FeedbacksTableCreateCompanionBuilder =
+    FeedbacksCompanion Function({
+      required String id,
+      required String bikeId,
+      required String setupId,
+      Value<int?> stravaActivityId,
+      Value<bool> isDeleted,
+      required DateTime lastModified,
+      required DateTime dateTimeUTC,
+      required DateTime dateTimeLocal,
+      Value<String?> notes,
+      Value<ContextPosition?> position,
+      Value<geo.Placemark?> place,
+      Value<ContextWeather?> weather,
+      Value<int> rowid,
+    });
+typedef $$FeedbacksTableUpdateCompanionBuilder =
+    FeedbacksCompanion Function({
+      Value<String> id,
+      Value<String> bikeId,
+      Value<String> setupId,
+      Value<int?> stravaActivityId,
+      Value<bool> isDeleted,
+      Value<DateTime> lastModified,
+      Value<DateTime> dateTimeUTC,
+      Value<DateTime> dateTimeLocal,
+      Value<String?> notes,
+      Value<ContextPosition?> position,
+      Value<geo.Placemark?> place,
+      Value<ContextWeather?> weather,
+      Value<int> rowid,
+    });
+
+final class $$FeedbacksTableReferences
+    extends BaseReferences<_$AppDatabase, $FeedbacksTable, FeedbackDb> {
+  $$FeedbacksTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $BikesTable _bikeIdTable(_$AppDatabase db) =>
+      db.bikes.createAlias('feedbacks__bike_id__bikes__id');
+
+  $$BikesTableProcessedTableManager get bikeId {
+    final $_column = $_itemColumn<String>('bike_id')!;
+
+    final manager = $$BikesTableTableManager(
+      $_db,
+      $_db.bikes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bikeIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $SetupsTable _setupIdTable(_$AppDatabase db) =>
+      db.setups.createAlias('feedbacks__setup_id__setups__id');
+
+  $$SetupsTableProcessedTableManager get setupId {
+    final $_column = $_itemColumn<String>('setup_id')!;
+
+    final manager = $$SetupsTableTableManager(
+      $_db,
+      $_db.setups,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_setupIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $FeedbackObservationsTable,
+    List<FeedbackObservationDb>
+  >
+  _feedbackObservationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.feedbackObservations,
+        aliasName: 'feedbacks__id__feedback_observations__feedback_id',
+      );
+
+  $$FeedbackObservationsTableProcessedTableManager
+  get feedbackObservationsRefs {
+    final manager = $$FeedbackObservationsTableTableManager(
+      $_db,
+      $_db.feedbackObservations,
+    ).filter((f) => f.feedbackId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _feedbackObservationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $FeedbackComparisonsTable,
+    List<FeedbackComparisonDb>
+  >
+  _feedbackComparisonsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.feedbackComparisons,
+        aliasName: 'feedbacks__id__feedback_comparisons__feedback_id',
+      );
+
+  $$FeedbackComparisonsTableProcessedTableManager get feedbackComparisonsRefs {
+    final manager = $$FeedbackComparisonsTableTableManager(
+      $_db,
+      $_db.feedbackComparisons,
+    ).filter((f) => f.feedbackId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _feedbackComparisonsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$FeedbacksTableFilterComposer
+    extends Composer<_$AppDatabase, $FeedbacksTable> {
+  $$FeedbacksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get stravaActivityId => $composableBuilder(
+    column: $table.stravaActivityId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeUTC => $composableBuilder(
+    column: $table.dateTimeUTC,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeLocal => $composableBuilder(
+    column: $table.dateTimeLocal,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ContextPosition?, ContextPosition, String>
+  get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<geo.Placemark?, geo.Placemark, String>
+  get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ContextWeather?, ContextWeather, String>
+  get weather => $composableBuilder(
+    column: $table.weather,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  $$BikesTableFilterComposer get bikeId {
+    final $$BikesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableFilterComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SetupsTableFilterComposer get setupId {
+    final $$SetupsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.setupId,
+      referencedTable: $db.setups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SetupsTableFilterComposer(
+            $db: $db,
+            $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> feedbackObservationsRefs(
+    Expression<bool> Function($$FeedbackObservationsTableFilterComposer f) f,
+  ) {
+    final $$FeedbackObservationsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.feedbackObservations,
+      getReferencedColumn: (t) => t.feedbackId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbackObservationsTableFilterComposer(
+            $db: $db,
+            $table: $db.feedbackObservations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> feedbackComparisonsRefs(
+    Expression<bool> Function($$FeedbackComparisonsTableFilterComposer f) f,
+  ) {
+    final $$FeedbackComparisonsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.feedbackComparisons,
+      getReferencedColumn: (t) => t.feedbackId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbackComparisonsTableFilterComposer(
+            $db: $db,
+            $table: $db.feedbackComparisons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$FeedbacksTableOrderingComposer
+    extends Composer<_$AppDatabase, $FeedbacksTable> {
+  $$FeedbacksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stravaActivityId => $composableBuilder(
+    column: $table.stravaActivityId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateTimeUTC => $composableBuilder(
+    column: $table.dateTimeUTC,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateTimeLocal => $composableBuilder(
+    column: $table.dateTimeLocal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get weather => $composableBuilder(
+    column: $table.weather,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BikesTableOrderingComposer get bikeId {
+    final $$BikesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableOrderingComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SetupsTableOrderingComposer get setupId {
+    final $$SetupsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.setupId,
+      referencedTable: $db.setups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SetupsTableOrderingComposer(
+            $db: $db,
+            $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedbacksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FeedbacksTable> {
+  $$FeedbacksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get stravaActivityId => $composableBuilder(
+    column: $table.stravaActivityId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeUTC =>
+      $composableBuilder(
+        column: $table.dateTimeUTC,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeLocal =>
+      $composableBuilder(
+        column: $table.dateTimeLocal,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ContextPosition?, String> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<geo.Placemark?, String> get place =>
+      $composableBuilder(column: $table.place, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ContextWeather?, String> get weather =>
+      $composableBuilder(column: $table.weather, builder: (column) => column);
+
+  $$BikesTableAnnotationComposer get bikeId {
+    final $$BikesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SetupsTableAnnotationComposer get setupId {
+    final $$SetupsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.setupId,
+      referencedTable: $db.setups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SetupsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> feedbackObservationsRefs<T extends Object>(
+    Expression<T> Function($$FeedbackObservationsTableAnnotationComposer a) f,
+  ) {
+    final $$FeedbackObservationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.feedbackObservations,
+          getReferencedColumn: (t) => t.feedbackId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$FeedbackObservationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.feedbackObservations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> feedbackComparisonsRefs<T extends Object>(
+    Expression<T> Function($$FeedbackComparisonsTableAnnotationComposer a) f,
+  ) {
+    final $$FeedbackComparisonsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.feedbackComparisons,
+          getReferencedColumn: (t) => t.feedbackId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$FeedbackComparisonsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.feedbackComparisons,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$FeedbacksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FeedbacksTable,
+          FeedbackDb,
+          $$FeedbacksTableFilterComposer,
+          $$FeedbacksTableOrderingComposer,
+          $$FeedbacksTableAnnotationComposer,
+          $$FeedbacksTableCreateCompanionBuilder,
+          $$FeedbacksTableUpdateCompanionBuilder,
+          (FeedbackDb, $$FeedbacksTableReferences),
+          FeedbackDb,
+          PrefetchHooks Function({
+            bool bikeId,
+            bool setupId,
+            bool feedbackObservationsRefs,
+            bool feedbackComparisonsRefs,
+          })
+        > {
+  $$FeedbacksTableTableManager(_$AppDatabase db, $FeedbacksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FeedbacksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FeedbacksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FeedbacksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> bikeId = const Value.absent(),
+                Value<String> setupId = const Value.absent(),
+                Value<int?> stravaActivityId = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> lastModified = const Value.absent(),
+                Value<DateTime> dateTimeUTC = const Value.absent(),
+                Value<DateTime> dateTimeLocal = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<ContextPosition?> position = const Value.absent(),
+                Value<geo.Placemark?> place = const Value.absent(),
+                Value<ContextWeather?> weather = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FeedbacksCompanion(
+                id: id,
+                bikeId: bikeId,
+                setupId: setupId,
+                stravaActivityId: stravaActivityId,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                dateTimeUTC: dateTimeUTC,
+                dateTimeLocal: dateTimeLocal,
+                notes: notes,
+                position: position,
+                place: place,
+                weather: weather,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String bikeId,
+                required String setupId,
+                Value<int?> stravaActivityId = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                required DateTime lastModified,
+                required DateTime dateTimeUTC,
+                required DateTime dateTimeLocal,
+                Value<String?> notes = const Value.absent(),
+                Value<ContextPosition?> position = const Value.absent(),
+                Value<geo.Placemark?> place = const Value.absent(),
+                Value<ContextWeather?> weather = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FeedbacksCompanion.insert(
+                id: id,
+                bikeId: bikeId,
+                setupId: setupId,
+                stravaActivityId: stravaActivityId,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                dateTimeUTC: dateTimeUTC,
+                dateTimeLocal: dateTimeLocal,
+                notes: notes,
+                position: position,
+                place: place,
+                weather: weather,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$FeedbacksTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                bikeId = false,
+                setupId = false,
+                feedbackObservationsRefs = false,
+                feedbackComparisonsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (feedbackObservationsRefs) db.feedbackObservations,
+                    if (feedbackComparisonsRefs) db.feedbackComparisons,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (bikeId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.bikeId,
+                                    referencedTable: $$FeedbacksTableReferences
+                                        ._bikeIdTable(db),
+                                    referencedColumn: $$FeedbacksTableReferences
+                                        ._bikeIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (setupId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.setupId,
+                                    referencedTable: $$FeedbacksTableReferences
+                                        ._setupIdTable(db),
+                                    referencedColumn: $$FeedbacksTableReferences
+                                        ._setupIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (feedbackObservationsRefs)
+                        await $_getPrefetchedData<
+                          FeedbackDb,
+                          $FeedbacksTable,
+                          FeedbackObservationDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$FeedbacksTableReferences
+                              ._feedbackObservationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$FeedbacksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).feedbackObservationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.feedbackId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (feedbackComparisonsRefs)
+                        await $_getPrefetchedData<
+                          FeedbackDb,
+                          $FeedbacksTable,
+                          FeedbackComparisonDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$FeedbacksTableReferences
+                              ._feedbackComparisonsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$FeedbacksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).feedbackComparisonsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.feedbackId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$FeedbacksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FeedbacksTable,
+      FeedbackDb,
+      $$FeedbacksTableFilterComposer,
+      $$FeedbacksTableOrderingComposer,
+      $$FeedbacksTableAnnotationComposer,
+      $$FeedbacksTableCreateCompanionBuilder,
+      $$FeedbacksTableUpdateCompanionBuilder,
+      (FeedbackDb, $$FeedbacksTableReferences),
+      FeedbackDb,
+      PrefetchHooks Function({
+        bool bikeId,
+        bool setupId,
+        bool feedbackObservationsRefs,
+        bool feedbackComparisonsRefs,
+      })
+    >;
+typedef $$FeedbackObservationsTableCreateCompanionBuilder =
+    FeedbackObservationsCompanion Function({
+      required String feedbackId,
+      required String key,
+      Value<double?> value,
+      Value<String?> textValue,
+      Value<int> rowid,
+    });
+typedef $$FeedbackObservationsTableUpdateCompanionBuilder =
+    FeedbackObservationsCompanion Function({
+      Value<String> feedbackId,
+      Value<String> key,
+      Value<double?> value,
+      Value<String?> textValue,
+      Value<int> rowid,
+    });
+
+final class $$FeedbackObservationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $FeedbackObservationsTable,
+          FeedbackObservationDb
+        > {
+  $$FeedbackObservationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $FeedbacksTable _feedbackIdTable(_$AppDatabase db) => db.feedbacks
+      .createAlias('feedback_observations__feedback_id__feedbacks__id');
+
+  $$FeedbacksTableProcessedTableManager get feedbackId {
+    final $_column = $_itemColumn<String>('feedback_id')!;
+
+    final manager = $$FeedbacksTableTableManager(
+      $_db,
+      $_db.feedbacks,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_feedbackIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$FeedbackObservationsTableFilterComposer
+    extends Composer<_$AppDatabase, $FeedbackObservationsTable> {
+  $$FeedbackObservationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get textValue => $composableBuilder(
+    column: $table.textValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$FeedbacksTableFilterComposer get feedbackId {
+    final $$FeedbacksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.feedbackId,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableFilterComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedbackObservationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FeedbackObservationsTable> {
+  $$FeedbackObservationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get textValue => $composableBuilder(
+    column: $table.textValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$FeedbacksTableOrderingComposer get feedbackId {
+    final $$FeedbacksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.feedbackId,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableOrderingComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedbackObservationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FeedbackObservationsTable> {
+  $$FeedbackObservationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<double> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<String> get textValue =>
+      $composableBuilder(column: $table.textValue, builder: (column) => column);
+
+  $$FeedbacksTableAnnotationComposer get feedbackId {
+    final $$FeedbacksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.feedbackId,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedbackObservationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FeedbackObservationsTable,
+          FeedbackObservationDb,
+          $$FeedbackObservationsTableFilterComposer,
+          $$FeedbackObservationsTableOrderingComposer,
+          $$FeedbackObservationsTableAnnotationComposer,
+          $$FeedbackObservationsTableCreateCompanionBuilder,
+          $$FeedbackObservationsTableUpdateCompanionBuilder,
+          (FeedbackObservationDb, $$FeedbackObservationsTableReferences),
+          FeedbackObservationDb,
+          PrefetchHooks Function({bool feedbackId})
+        > {
+  $$FeedbackObservationsTableTableManager(
+    _$AppDatabase db,
+    $FeedbackObservationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FeedbackObservationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FeedbackObservationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$FeedbackObservationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> feedbackId = const Value.absent(),
+                Value<String> key = const Value.absent(),
+                Value<double?> value = const Value.absent(),
+                Value<String?> textValue = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FeedbackObservationsCompanion(
+                feedbackId: feedbackId,
+                key: key,
+                value: value,
+                textValue: textValue,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String feedbackId,
+                required String key,
+                Value<double?> value = const Value.absent(),
+                Value<String?> textValue = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FeedbackObservationsCompanion.insert(
+                feedbackId: feedbackId,
+                key: key,
+                value: value,
+                textValue: textValue,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$FeedbackObservationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({feedbackId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (feedbackId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.feedbackId,
+                                referencedTable:
+                                    $$FeedbackObservationsTableReferences
+                                        ._feedbackIdTable(db),
+                                referencedColumn:
+                                    $$FeedbackObservationsTableReferences
+                                        ._feedbackIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FeedbackObservationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FeedbackObservationsTable,
+      FeedbackObservationDb,
+      $$FeedbackObservationsTableFilterComposer,
+      $$FeedbackObservationsTableOrderingComposer,
+      $$FeedbackObservationsTableAnnotationComposer,
+      $$FeedbackObservationsTableCreateCompanionBuilder,
+      $$FeedbackObservationsTableUpdateCompanionBuilder,
+      (FeedbackObservationDb, $$FeedbackObservationsTableReferences),
+      FeedbackObservationDb,
+      PrefetchHooks Function({bool feedbackId})
+    >;
+typedef $$FeedbackComparisonsTableCreateCompanionBuilder =
+    FeedbackComparisonsCompanion Function({
+      required String feedbackId,
+      required String referenceSetupId,
+      required String aspect,
+      required int outcome,
+      Value<int> rowid,
+    });
+typedef $$FeedbackComparisonsTableUpdateCompanionBuilder =
+    FeedbackComparisonsCompanion Function({
+      Value<String> feedbackId,
+      Value<String> referenceSetupId,
+      Value<String> aspect,
+      Value<int> outcome,
+      Value<int> rowid,
+    });
+
+final class $$FeedbackComparisonsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $FeedbackComparisonsTable,
+          FeedbackComparisonDb
+        > {
+  $$FeedbackComparisonsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $FeedbacksTable _feedbackIdTable(_$AppDatabase db) => db.feedbacks
+      .createAlias('feedback_comparisons__feedback_id__feedbacks__id');
+
+  $$FeedbacksTableProcessedTableManager get feedbackId {
+    final $_column = $_itemColumn<String>('feedback_id')!;
+
+    final manager = $$FeedbacksTableTableManager(
+      $_db,
+      $_db.feedbacks,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_feedbackIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $SetupsTable _referenceSetupIdTable(_$AppDatabase db) => db.setups
+      .createAlias('feedback_comparisons__reference_setup_id__setups__id');
+
+  $$SetupsTableProcessedTableManager get referenceSetupId {
+    final $_column = $_itemColumn<String>('reference_setup_id')!;
+
+    final manager = $$SetupsTableTableManager(
+      $_db,
+      $_db.setups,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_referenceSetupIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$FeedbackComparisonsTableFilterComposer
+    extends Composer<_$AppDatabase, $FeedbackComparisonsTable> {
+  $$FeedbackComparisonsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get aspect => $composableBuilder(
+    column: $table.aspect,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get outcome => $composableBuilder(
+    column: $table.outcome,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$FeedbacksTableFilterComposer get feedbackId {
+    final $$FeedbacksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.feedbackId,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableFilterComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SetupsTableFilterComposer get referenceSetupId {
+    final $$SetupsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.referenceSetupId,
+      referencedTable: $db.setups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SetupsTableFilterComposer(
+            $db: $db,
+            $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedbackComparisonsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FeedbackComparisonsTable> {
+  $$FeedbackComparisonsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get aspect => $composableBuilder(
+    column: $table.aspect,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get outcome => $composableBuilder(
+    column: $table.outcome,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$FeedbacksTableOrderingComposer get feedbackId {
+    final $$FeedbacksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.feedbackId,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableOrderingComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SetupsTableOrderingComposer get referenceSetupId {
+    final $$SetupsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.referenceSetupId,
+      referencedTable: $db.setups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SetupsTableOrderingComposer(
+            $db: $db,
+            $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedbackComparisonsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FeedbackComparisonsTable> {
+  $$FeedbackComparisonsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get aspect =>
+      $composableBuilder(column: $table.aspect, builder: (column) => column);
+
+  GeneratedColumn<int> get outcome =>
+      $composableBuilder(column: $table.outcome, builder: (column) => column);
+
+  $$FeedbacksTableAnnotationComposer get feedbackId {
+    final $$FeedbacksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.feedbackId,
+      referencedTable: $db.feedbacks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedbacksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.feedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SetupsTableAnnotationComposer get referenceSetupId {
+    final $$SetupsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.referenceSetupId,
+      referencedTable: $db.setups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SetupsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedbackComparisonsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FeedbackComparisonsTable,
+          FeedbackComparisonDb,
+          $$FeedbackComparisonsTableFilterComposer,
+          $$FeedbackComparisonsTableOrderingComposer,
+          $$FeedbackComparisonsTableAnnotationComposer,
+          $$FeedbackComparisonsTableCreateCompanionBuilder,
+          $$FeedbackComparisonsTableUpdateCompanionBuilder,
+          (FeedbackComparisonDb, $$FeedbackComparisonsTableReferences),
+          FeedbackComparisonDb,
+          PrefetchHooks Function({bool feedbackId, bool referenceSetupId})
+        > {
+  $$FeedbackComparisonsTableTableManager(
+    _$AppDatabase db,
+    $FeedbackComparisonsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FeedbackComparisonsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FeedbackComparisonsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$FeedbackComparisonsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> feedbackId = const Value.absent(),
+                Value<String> referenceSetupId = const Value.absent(),
+                Value<String> aspect = const Value.absent(),
+                Value<int> outcome = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FeedbackComparisonsCompanion(
+                feedbackId: feedbackId,
+                referenceSetupId: referenceSetupId,
+                aspect: aspect,
+                outcome: outcome,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String feedbackId,
+                required String referenceSetupId,
+                required String aspect,
+                required int outcome,
+                Value<int> rowid = const Value.absent(),
+              }) => FeedbackComparisonsCompanion.insert(
+                feedbackId: feedbackId,
+                referenceSetupId: referenceSetupId,
+                aspect: aspect,
+                outcome: outcome,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$FeedbackComparisonsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({feedbackId = false, referenceSetupId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (feedbackId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.feedbackId,
+                                    referencedTable:
+                                        $$FeedbackComparisonsTableReferences
+                                            ._feedbackIdTable(db),
+                                    referencedColumn:
+                                        $$FeedbackComparisonsTableReferences
+                                            ._feedbackIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (referenceSetupId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.referenceSetupId,
+                                    referencedTable:
+                                        $$FeedbackComparisonsTableReferences
+                                            ._referenceSetupIdTable(db),
+                                    referencedColumn:
+                                        $$FeedbackComparisonsTableReferences
+                                            ._referenceSetupIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$FeedbackComparisonsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FeedbackComparisonsTable,
+      FeedbackComparisonDb,
+      $$FeedbackComparisonsTableFilterComposer,
+      $$FeedbackComparisonsTableOrderingComposer,
+      $$FeedbackComparisonsTableAnnotationComposer,
+      $$FeedbackComparisonsTableCreateCompanionBuilder,
+      $$FeedbackComparisonsTableUpdateCompanionBuilder,
+      (FeedbackComparisonDb, $$FeedbackComparisonsTableReferences),
+      FeedbackComparisonDb,
+      PrefetchHooks Function({bool feedbackId, bool referenceSetupId})
+    >;
+typedef $$TestSessionsTableCreateCompanionBuilder =
+    TestSessionsCompanion Function({
+      required String id,
+      required String bikeId,
+      Value<bool> isDeleted,
+      required DateTime lastModified,
+      Value<String?> name,
+      Value<String?> method,
+      Value<String> adjustmentIds,
+      Value<String> goal,
+      Value<String> locks,
+      Value<String> proposals,
+      required DateTime startedAtUTC,
+      required DateTime startedAtLocal,
+      Value<DateTime?> endedAtUTC,
+      Value<DateTime?> endedAtLocal,
+      Value<geo.Placemark?> place,
+      Value<String?> notes,
+      Value<int> rowid,
+    });
+typedef $$TestSessionsTableUpdateCompanionBuilder =
+    TestSessionsCompanion Function({
+      Value<String> id,
+      Value<String> bikeId,
+      Value<bool> isDeleted,
+      Value<DateTime> lastModified,
+      Value<String?> name,
+      Value<String?> method,
+      Value<String> adjustmentIds,
+      Value<String> goal,
+      Value<String> locks,
+      Value<String> proposals,
+      Value<DateTime> startedAtUTC,
+      Value<DateTime> startedAtLocal,
+      Value<DateTime?> endedAtUTC,
+      Value<DateTime?> endedAtLocal,
+      Value<geo.Placemark?> place,
+      Value<String?> notes,
+      Value<int> rowid,
+    });
+
+final class $$TestSessionsTableReferences
+    extends BaseReferences<_$AppDatabase, $TestSessionsTable, TestSessionDb> {
+  $$TestSessionsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $BikesTable _bikeIdTable(_$AppDatabase db) =>
+      db.bikes.createAlias('test_sessions__bike_id__bikes__id');
+
+  $$BikesTableProcessedTableManager get bikeId {
+    final $_column = $_itemColumn<String>('bike_id')!;
+
+    final manager = $$BikesTableTableManager(
+      $_db,
+      $_db.bikes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bikeIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TestSessionsTableFilterComposer
+    extends Composer<_$AppDatabase, $TestSessionsTable> {
+  $$TestSessionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get adjustmentIds => $composableBuilder(
+    column: $table.adjustmentIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get goal => $composableBuilder(
+    column: $table.goal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get locks => $composableBuilder(
+    column: $table.locks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get proposals => $composableBuilder(
+    column: $table.proposals,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get startedAtUTC => $composableBuilder(
+    column: $table.startedAtUTC,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get startedAtLocal => $composableBuilder(
+    column: $table.startedAtLocal,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime?, DateTime, DateTime>
+  get endedAtUTC => $composableBuilder(
+    column: $table.endedAtUTC,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime?, DateTime, DateTime>
+  get endedAtLocal => $composableBuilder(
+    column: $table.endedAtLocal,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<geo.Placemark?, geo.Placemark, String>
+  get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BikesTableFilterComposer get bikeId {
+    final $$BikesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableFilterComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TestSessionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TestSessionsTable> {
+  $$TestSessionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get adjustmentIds => $composableBuilder(
+    column: $table.adjustmentIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get goal => $composableBuilder(
+    column: $table.goal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get locks => $composableBuilder(
+    column: $table.locks,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get proposals => $composableBuilder(
+    column: $table.proposals,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAtUTC => $composableBuilder(
+    column: $table.startedAtUTC,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAtLocal => $composableBuilder(
+    column: $table.startedAtLocal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endedAtUTC => $composableBuilder(
+    column: $table.endedAtUTC,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endedAtLocal => $composableBuilder(
+    column: $table.endedAtLocal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BikesTableOrderingComposer get bikeId {
+    final $$BikesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableOrderingComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TestSessionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TestSessionsTable> {
+  $$TestSessionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get method =>
+      $composableBuilder(column: $table.method, builder: (column) => column);
+
+  GeneratedColumn<String> get adjustmentIds => $composableBuilder(
+    column: $table.adjustmentIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get goal =>
+      $composableBuilder(column: $table.goal, builder: (column) => column);
+
+  GeneratedColumn<String> get locks =>
+      $composableBuilder(column: $table.locks, builder: (column) => column);
+
+  GeneratedColumn<String> get proposals =>
+      $composableBuilder(column: $table.proposals, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get startedAtUTC =>
+      $composableBuilder(
+        column: $table.startedAtUTC,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get startedAtLocal =>
+      $composableBuilder(
+        column: $table.startedAtLocal,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<DateTime?, DateTime> get endedAtUTC =>
+      $composableBuilder(
+        column: $table.endedAtUTC,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<DateTime?, DateTime> get endedAtLocal =>
+      $composableBuilder(
+        column: $table.endedAtLocal,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<geo.Placemark?, String> get place =>
+      $composableBuilder(column: $table.place, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  $$BikesTableAnnotationComposer get bikeId {
+    final $$BikesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TestSessionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TestSessionsTable,
+          TestSessionDb,
+          $$TestSessionsTableFilterComposer,
+          $$TestSessionsTableOrderingComposer,
+          $$TestSessionsTableAnnotationComposer,
+          $$TestSessionsTableCreateCompanionBuilder,
+          $$TestSessionsTableUpdateCompanionBuilder,
+          (TestSessionDb, $$TestSessionsTableReferences),
+          TestSessionDb,
+          PrefetchHooks Function({bool bikeId})
+        > {
+  $$TestSessionsTableTableManager(_$AppDatabase db, $TestSessionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TestSessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TestSessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TestSessionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> bikeId = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> lastModified = const Value.absent(),
+                Value<String?> name = const Value.absent(),
+                Value<String?> method = const Value.absent(),
+                Value<String> adjustmentIds = const Value.absent(),
+                Value<String> goal = const Value.absent(),
+                Value<String> locks = const Value.absent(),
+                Value<String> proposals = const Value.absent(),
+                Value<DateTime> startedAtUTC = const Value.absent(),
+                Value<DateTime> startedAtLocal = const Value.absent(),
+                Value<DateTime?> endedAtUTC = const Value.absent(),
+                Value<DateTime?> endedAtLocal = const Value.absent(),
+                Value<geo.Placemark?> place = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TestSessionsCompanion(
+                id: id,
+                bikeId: bikeId,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                method: method,
+                adjustmentIds: adjustmentIds,
+                goal: goal,
+                locks: locks,
+                proposals: proposals,
+                startedAtUTC: startedAtUTC,
+                startedAtLocal: startedAtLocal,
+                endedAtUTC: endedAtUTC,
+                endedAtLocal: endedAtLocal,
+                place: place,
+                notes: notes,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String bikeId,
+                Value<bool> isDeleted = const Value.absent(),
+                required DateTime lastModified,
+                Value<String?> name = const Value.absent(),
+                Value<String?> method = const Value.absent(),
+                Value<String> adjustmentIds = const Value.absent(),
+                Value<String> goal = const Value.absent(),
+                Value<String> locks = const Value.absent(),
+                Value<String> proposals = const Value.absent(),
+                required DateTime startedAtUTC,
+                required DateTime startedAtLocal,
+                Value<DateTime?> endedAtUTC = const Value.absent(),
+                Value<DateTime?> endedAtLocal = const Value.absent(),
+                Value<geo.Placemark?> place = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TestSessionsCompanion.insert(
+                id: id,
+                bikeId: bikeId,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                method: method,
+                adjustmentIds: adjustmentIds,
+                goal: goal,
+                locks: locks,
+                proposals: proposals,
+                startedAtUTC: startedAtUTC,
+                startedAtLocal: startedAtLocal,
+                endedAtUTC: endedAtUTC,
+                endedAtLocal: endedAtLocal,
+                place: place,
+                notes: notes,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$TestSessionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({bikeId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (bikeId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.bikeId,
+                                referencedTable: $$TestSessionsTableReferences
+                                    ._bikeIdTable(db),
+                                referencedColumn: $$TestSessionsTableReferences
+                                    ._bikeIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TestSessionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TestSessionsTable,
+      TestSessionDb,
+      $$TestSessionsTableFilterComposer,
+      $$TestSessionsTableOrderingComposer,
+      $$TestSessionsTableAnnotationComposer,
+      $$TestSessionsTableCreateCompanionBuilder,
+      $$TestSessionsTableUpdateCompanionBuilder,
+      (TestSessionDb, $$TestSessionsTableReferences),
+      TestSessionDb,
+      PrefetchHooks Function({bool bikeId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -13877,4 +18709,12 @@ class $AppDatabaseManager {
       $$StravaAthletesTableTableManager(_db, _db.stravaAthletes);
   $$StravaGearsTableTableManager get stravaGears =>
       $$StravaGearsTableTableManager(_db, _db.stravaGears);
+  $$FeedbacksTableTableManager get feedbacks =>
+      $$FeedbacksTableTableManager(_db, _db.feedbacks);
+  $$FeedbackObservationsTableTableManager get feedbackObservations =>
+      $$FeedbackObservationsTableTableManager(_db, _db.feedbackObservations);
+  $$FeedbackComparisonsTableTableManager get feedbackComparisons =>
+      $$FeedbackComparisonsTableTableManager(_db, _db.feedbackComparisons);
+  $$TestSessionsTableTableManager get testSessions =>
+      $$TestSessionsTableTableManager(_db, _db.testSessions);
 }

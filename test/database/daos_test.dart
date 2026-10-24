@@ -3,6 +3,12 @@ import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_comparison.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -163,6 +169,129 @@ void main() {
 
       expect(await database.setupsDao.watchValuesForSetup('s1').first, hasLength(1));
       expect((await readSetup()).bikeAdjustmentValues, {keep.id: const BooleanValue(true)});
+    });
+  });
+
+  group('FeedbackDao', () {
+    const frontHarsh = IssueKey(FeedbackEnd.front, FeedbackAttribute.comfort);
+    const better = FeedbackComparison(referenceSetupId: 's1', aspect: OverallAspect(), outcome: 1);
+
+    RideFeedback feedback({
+      String id = 'f1',
+      Set<FeedbackObservation>? observations,
+      Set<FeedbackComparison>? comparisons,
+    }) => RideFeedback(
+      id: id,
+      bike: 'bike1',
+      setupId: 's2',
+      dateTimeUTC: DateTime.utc(2026, 10, 1, 10),
+      dateTimeLocal: DateTime(2026, 10, 1, 12),
+      observations: observations ?? {const FeedbackObservation.flag(frontHarsh)},
+      comparisons: comparisons ?? {better},
+    );
+
+    Future<void> insert(RideFeedback f) => database.feedbackDao.insertFeedbackWithChildren(
+      feedback: f.toCompanion(),
+      observations: f.observationCompanions(),
+      comparisons: f.comparisonCompanions(),
+    );
+
+    Future<List<RideFeedback>> active() async =>
+        (await database.feedbackDao.watchAllFeedbacksWithChildren().first).map((f) => f.toModel()).toList();
+
+    test('a feedback without answers is still listed', () async {
+      await insert(feedback(observations: {}, comparisons: {}));
+
+      final feedbacks = await active();
+      expect(feedbacks.single.observations, isEmpty);
+      expect(feedbacks.single.comparisons, isEmpty);
+    });
+
+    test('children are grouped per feedback', () async {
+      await insert(feedback());
+      await insert(feedback(id: 'f2', observations: {const FeedbackObservation.flag(NoIssueKey())}, comparisons: {}));
+
+      final byId = {for (final f in await active()) f.id: f};
+      expect(byId['f1']!.issues, {frontHarsh});
+      expect(byId['f1']!.comparisons, {better});
+      expect(byId['f2']!.nothingStoodOut, isTrue);
+      expect(byId['f2']!.comparisons, isEmpty);
+    });
+
+    test('upsert replaces the children as a whole', () async {
+      await insert(feedback());
+
+      final edited = feedback(
+        observations: {const FeedbackObservation.flag(NoIssueKey())},
+        comparisons: {const FeedbackComparison(referenceSetupId: 's0', aspect: OverallAspect(), outcome: -2)},
+      );
+      await database.feedbackDao.upsertFeedbackWithChildren(
+        feedback: edited.toCompanion(),
+        observations: edited.observationCompanions(),
+        comparisons: edited.comparisonCompanions(),
+      );
+
+      final stored = (await active()).single;
+      expect(stored.observations, edited.observations);
+      expect(stored.comparisons, edited.comparisons);
+    });
+
+    test('soft delete moves a feedback to the deleted list and restore brings it back', () async {
+      await insert(feedback());
+
+      await database.feedbackDao.deleteFeedback('f1');
+      expect(await active(), isEmpty);
+      final deleted = await database.feedbackDao.watchDeletedFeedbacksWithChildren().first;
+      expect(deleted.single.feedback.isDeleted, isTrue);
+      expect(deleted.single.observations, hasLength(1));
+
+      await database.feedbackDao.restoreFeedback('f1');
+      expect((await active()).single.issues, {frontHarsh});
+      expect(await database.feedbackDao.getAllFeedbacksWithChildrenBypass(), hasLength(1));
+    });
+
+    test('test sessions are soft deleted and restored', () async {
+      final session = TestSession(
+        id: 'session1',
+        bike: 'bike1',
+        adjustmentIds: const ['lsr'],
+        startedAtUTC: DateTime.utc(2026, 10, 1, 9),
+        startedAtLocal: DateTime(2026, 10, 1, 11),
+      );
+      await database.feedbackDao.upsertTestSession(session.toCompanion());
+
+      await database.feedbackDao.deleteTestSession('session1');
+      expect(await database.feedbackDao.watchAllTestSessions().first, isEmpty);
+      expect((await database.feedbackDao.watchDeletedTestSessions().first).map((s) => s.id), ['session1']);
+
+      await database.feedbackDao.restoreTestSession('session1');
+      expect((await database.feedbackDao.watchAllTestSessions().first).map((s) => s.id), ['session1']);
+      expect(await database.feedbackDao.getAllTestSessionsBypass(), hasLength(1));
+    });
+
+    test('purgeTrash removes expired feedback with its answers and sessions', () async {
+      final expired = DateTime.now().toUtc().subtract(const Duration(days: 60));
+      final cutoff = DateTime.now().toUtc().subtract(const Duration(days: 30));
+      await insert(feedback().copyWith(isDeleted: true, lastModified: expired));
+      await insert(feedback(id: 'f2'));
+      await database.feedbackDao.upsertTestSession(
+        TestSession(
+          id: 'old',
+          isDeleted: true,
+          lastModified: expired,
+          bike: 'bike1',
+          adjustmentIds: const [],
+          startedAtUTC: expired,
+          startedAtLocal: expired,
+        ).toCompanion(),
+      );
+
+      await database.purgeTrash(cutoff);
+
+      expect((await database.select(database.feedbacks).get()).map((f) => f.id), ['f2']);
+      expect((await database.select(database.feedbackObservations).get()).map((o) => o.feedbackId), ['f2']);
+      expect((await database.select(database.feedbackComparisons).get()).map((c) => c.feedbackId), ['f2']);
+      expect(await database.select(database.testSessions).get(), isEmpty);
     });
   });
 }

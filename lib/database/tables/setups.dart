@@ -36,6 +36,9 @@ class Setups extends Table {
   TextColumn get place => text().map(const PlacemarkConverter()).nullable()();
   TextColumn get weather => text().map(const WeatherConverter()).nullable()();
 
+  // The test session this setup is a run of.
+  TextColumn get testSessionId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

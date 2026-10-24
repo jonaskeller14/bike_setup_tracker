@@ -13,8 +13,8 @@ import '../items/feedback_list_tile.dart';
 import '../items/setup_tile.dart';
 import '../items/tile_meta_row.dart';
 import '../running_badge.dart';
-import '../test_session_icon.dart';
 import '../test_session_next_step.dart';
+import '../test_session_suggestion.dart';
 import '../text/section_title.dart';
 import 'sheet_header.dart';
 
@@ -28,7 +28,8 @@ Future<void> showTestSessionSheet({required BuildContext context, required Strin
 }
 
 /// The session's details: method and goal, the adjustments it tunes (tap one
-/// to lock it), every run with its values and feedbacks, and the next step.
+/// to lock it), every run with its values and feedbacks, the suggested next
+/// run, and the next step.
 /// A running session opens scrolled to its next step.
 class TestSessionSheetContent extends StatefulWidget {
   final String sessionId;
@@ -69,7 +70,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
           children: [
             SheetHeader(
               title: session.displayName,
-              leadingIcon: TestSessionIcon(running: session.isRunning),
+              leadingIcon: const Icon(TestSession.iconData),
               titleMaxLines: 2,
               onEdit: () => unawaited(TestSessionActions.editSession(context, session: session)),
             ),
@@ -116,6 +117,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
             ),
             const SectionTitle(title: 'Runs'),
             ..._runs(context, appRepository, session),
+            TestSessionSuggestion(session: session),
             if (session.isRunning)
               Padding(
                 key: _nextStepKey,

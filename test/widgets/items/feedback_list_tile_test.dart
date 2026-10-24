@@ -139,6 +139,29 @@ void main() {
     expect(find.text('Felt fast'), findsOneWidget);
   });
 
+  testWidgets('the tile shows one line per comparison and counts those beyond three', (tester) async {
+    await seed(tester);
+    final setups = [for (var day = 3; day <= 5; day++) _setup('s$day', 'S$day', DateTime(2026, 4, day, 10))];
+    await tester.runAsync(() async {
+      await appRepository.addSetups(setups);
+      await waitFor(() => appRepository.setups.length == 5);
+    });
+    final feedback = appRepository.feedbacks['f1']!.copyWith(
+      comparisons: {
+        ...appRepository.feedbacks['f1']!.comparisons,
+        for (final (i, setup) in setups.indexed)
+          FeedbackComparison(referenceSetupId: setup.id, aspect: const OverallAspect(), outcome: i - 1),
+      },
+    );
+    await pump(tester, FeedbackListTile(feedback: feedback));
+
+    expect(find.text('Slightly better than S1'), findsOneWidget);
+    expect(find.text('Slightly better than S5'), findsOneWidget);
+    expect(find.text('Same as S4'), findsOneWidget);
+    expect(find.text('Slightly worse than S3'), findsNothing, reason: 'the oldest reference is beyond three');
+    expect(find.text('+1 more'), findsOneWidget);
+  });
+
   testWidgets('a tap opens the details with every answer', (tester) async {
     await seed(tester);
     await pump(tester, FeedbackListTile(feedback: appRepository.feedbacks['f1']!));

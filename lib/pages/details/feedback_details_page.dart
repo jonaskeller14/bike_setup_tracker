@@ -230,6 +230,7 @@ class FeedbackDetailsContent extends StatelessWidget {
               context,
               FeedbackVocabulary.overallOutcomeLabels[overall.outcome]!,
               overall.outcome,
+              large: true,
             ),
             null => null,
           },
@@ -272,7 +273,8 @@ class FeedbackDetailsContent extends StatelessWidget {
     return (_issueLabel(a, customIssues) ?? '').toLowerCase().compareTo((_issueLabel(b, customIssues) ?? '').toLowerCase());
   }
 
-  Widget _outcomePill(BuildContext context, String label, int outcome) {
+  /// [large] for the overall answer, so it stands out from the follow-ups.
+  Widget _outcomePill(BuildContext context, String label, int outcome, {bool large = false}) {
     final colors = Theme.of(context).extension<FeedbackOutcomeColors>()!;
     final color = switch (outcome.sign) {
       1 => colors.better,
@@ -284,10 +286,16 @@ class FeedbackDetailsContent extends StatelessWidget {
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: large
+          ? const EdgeInsets.symmetric(horizontal: 12, vertical: 5)
+          : const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: Text(
         label,
-        style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12),
+        style: TextStyle(
+          color: color,
+          fontWeight: large ? FontWeight.bold : FontWeight.w600,
+          fontSize: large ? 15 : 12,
+        ),
       ),
     );
   }

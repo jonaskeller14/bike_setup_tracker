@@ -41,6 +41,7 @@ class FeedbackAspectRow extends StatelessWidget {
             labels: FeedbackVocabulary.aspectOutcomeLabels,
             outcome: outcome,
             onChanged: onChanged,
+            dense: true,
           ),
         ),
       ],
@@ -57,11 +58,16 @@ class FeedbackOutcomeSelector extends StatelessWidget {
   final int? outcome;
   final ValueChanged<int?> onChanged;
 
+  /// Smaller faces and no answer below, for the follow-up rows under the
+  /// overall answer.
+  final bool dense;
+
   const FeedbackOutcomeSelector({
     super.key,
     required this.labels,
     required this.outcome,
     required this.onChanged,
+    this.dense = false,
   });
 
   int get _strongest => labels.keys.first.abs();
@@ -114,7 +120,7 @@ class FeedbackOutcomeSelector extends StatelessWidget {
                   curve: Curves.easeOutBack,
                   child: Icon(
                     _face(value),
-                    size: 24,
+                    size: dense ? 18 : 24,
                     color: outcome == value ? null : faceColor(value),
                     semanticLabel: label,
                   ),
@@ -132,6 +138,10 @@ class FeedbackOutcomeSelector extends StatelessWidget {
           style: ButtonStyle(
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 4)),
             minimumSize: const WidgetStatePropertyAll(Size(0, 48)),
+            // SegmentedButton ignores minimumSize and maximumSize of its style; its
+            // height follows the density: 40 px standard, 28 px here.
+            visualDensity: dense ? const VisualDensity(vertical: -3) : null,
+            tapTargetSize: dense ? MaterialTapTargetSize.shrinkWrap : null,
             backgroundColor: WidgetStateProperty.resolveWith(
               (states) => states.contains(WidgetState.selected) ? selectedFill : null,
             ),
@@ -140,23 +150,24 @@ class FeedbackOutcomeSelector extends StatelessWidget {
             ),
           ),
         ),
-        AnimatedSwitcher(
-          duration: duration,
-          child: Text(
-            outcome == null ? 'Tap a face' : labels[outcome]!,
-            key: ValueKey(outcome),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: switch (outcome) {
-                null => scheme.onSurfaceVariant,
-                0 => scheme.onSurface,
-                final value => _scaleColor(colors, value),
-              },
+        if (!dense)
+          AnimatedSwitcher(
+            duration: duration,
+            child: Text(
+              outcome == null ? 'Tap a face' : labels[outcome]!,
+              key: ValueKey(outcome),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: switch (outcome) {
+                  null => scheme.onSurfaceVariant,
+                  0 => scheme.onSurface,
+                  final value => _scaleColor(colors, value),
+                },
+              ),
             ),
           ),
-        ),
       ],
     );
   }

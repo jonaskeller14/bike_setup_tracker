@@ -13,6 +13,7 @@ import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session_method.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/forms/feedback_page.dart';
@@ -492,6 +493,33 @@ void main() {
     });
   });
 
+  testWidgets('outside a test session, only stored comparisons get extra cards', (tester) async {
+    await seed(
+      tester,
+      extraFeedbacks: [
+        feedback(
+          id: 'f3',
+          day: 3,
+          setupId: 's3',
+          comparisons: {
+            const FeedbackComparison(referenceSetupId: 's2', aspect: OverallAspect(), outcome: 1),
+            const FeedbackComparison(referenceSetupId: 's1', aspect: OverallAspect(), outcome: -2),
+          },
+        ),
+      ],
+    );
+    await openForm(tester, () => addOnMay(3));
+    expect(find.byType(FeedbackComparisonField), findsOneWidget);
+    expect(find.text('Compare with another run'), findsNothing);
+
+    await tester.pageBack();
+    await settle(tester);
+    await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['f3']!));
+    expect(find.byType(FeedbackComparisonField), findsNWidgets(2));
+    expect(find.byTooltip('Remove comparison'), findsOneWidget, reason: 'only the extra card');
+    expect(find.text('Compare with another run'), findsNothing);
+  });
+
   group('FeedbackPage edit', () {
     final storedComparisons = {
       const FeedbackComparison(referenceSetupId: 's2', aspect: OverallAspect(), outcome: 2),
@@ -778,7 +806,11 @@ void main() {
     const frontHarsh = EndAspect(FeedbackEnd.front, FeedbackAttribute.comfort);
 
     /// S1, S2 and S3 are the runs of one session whose goal is "Front · Calm".
-    Future<void> seedSession(WidgetTester tester, {List<RideFeedback> extraFeedbacks = const []}) async {
+    Future<void> seedSession(
+      WidgetTester tester, {
+      List<RideFeedback> extraFeedbacks = const [],
+      TestSessionMethod? method,
+    }) async {
       await seed(tester, extraFeedbacks: extraFeedbacks);
       await tester.runAsync(() async {
         final started = DateTime(2026, 4, 30);
@@ -786,6 +818,7 @@ void main() {
           TestSession(
             id: 'ts',
             bike: _bikeId,
+            method: method,
             adjustmentIds: const [_reboundId],
             goal: const [frontCalm],
             startedAtUTC: started.toUtc(),
@@ -816,7 +849,8 @@ void main() {
       expect(find.byType(FeedbackAspectRow), findsOneWidget);
       expect(find.text('Front: Unsettled'), findsOneWidget);
       expect(find.text('Front: Harsh'), findsNothing, reason: 'an open issue of S2, but not the goal');
-      expect(find.text('ANYTHING STAND OUT?'), findsNothing);
+      expect(find.text('ANYTHING STAND OUT?'), findsOneWidget);
+      expect(find.byType(FeedbackComparisonField), findsOneWidget);
       expect(
         tester.widget<DropdownButtonFormField<String>>(find.byType(DropdownButtonFormField<String>).last).initialValue,
         's2',
@@ -832,6 +866,28 @@ void main() {
         const FeedbackComparison(referenceSetupId: 's2', aspect: frontCalm, outcome: 1),
       });
       expect(saved.observations, isEmpty);
+    });
+
+    testWidgets('compares with the run the strategy asks for', (tester) async {
+      await seedSession(
+        tester,
+        method: const PatternSearch(),
+        extraFeedbacks: [
+          feedback(
+            id: 'f2b',
+            day: 2,
+            setupId: 's2',
+            comparisons: {const FeedbackComparison(referenceSetupId: 's1', aspect: OverallAspect(), outcome: -2)},
+          ),
+        ],
+      );
+      await openForm(tester, () => addOnMay(3));
+
+      expect(
+        tester.widget<DropdownButtonFormField<String>>(find.byType(DropdownButtonFormField<String>).last).initialValue,
+        's1',
+        reason: 'S2 lost against S1, so Fine-tune compares the next run with S1, not with the previous run',
+      );
     });
 
     testWidgets('"Something else changed" opens every other aspect', (tester) async {
@@ -850,23 +906,39 @@ void main() {
       expect(saved.comparisons, {const FeedbackComparison(referenceSetupId: 's2', aspect: frontHarsh, outcome: -1)});
     });
 
-    testWidgets('compares with another run of the session as an extra answer', (tester) async {
+    Finder inCard(int index, Finder finder) =>
+        find.descendant(of: find.byType(FeedbackComparisonField).at(index), matching: finder);
+    String? cardReference(WidgetTester tester, int index) =>
+        tester.widget<DropdownButtonFormField<String>>(inCard(index, find.byType(DropdownButtonFormField<String>))).initialValue;
+
+    testWidgets('compares with another run in a card of its own', (tester) async {
       await seedSession(tester);
       await openForm(tester, () => addOnMay(3));
 
       await tapChip(tester, find.text('Compare with another run'));
-      await tapChip(tester, find.widgetWithText(ListTile, 'S1'));
-      expect(find.text('Compared to S1'), findsOneWidget);
+      expect(find.byType(FeedbackComparisonField), findsNWidgets(2));
+      expect(cardReference(tester, 1), 's1', reason: 'the next run not compared yet');
       expect(find.text('Compare with another run'), findsNothing, reason: 'every other run is used');
+      expect(inCard(1, find.byType(AdjustmentCompactDisplayList)), findsNothing, reason: 'its changes start collapsed');
+      expect(inCard(1, find.text('Front: Unsettled')), findsOneWidget, reason: 'the goal is asked in every card');
 
-      final extra = find.descendant(
-        of: find.ancestor(of: find.text('Compared to S1'), matching: find.byType(Column)).first,
-        matching: find.byTooltip('Slightly worse'),
-      );
-      await tapChip(tester, extra.last);
+      await tapChip(tester, inCard(1, find.byTooltip('Slightly worse')).first);
+      await tapChip(tester, inCard(1, rowFace('Front: Unsettled', 'Better')));
 
       final saved = (await save(tester))!;
-      expect(saved.comparisons, {const FeedbackComparison(referenceSetupId: 's1', aspect: OverallAspect(), outcome: -1)});
+      expect(saved.comparisons, {
+        const FeedbackComparison(referenceSetupId: 's1', aspect: OverallAspect(), outcome: -1),
+        const FeedbackComparison(referenceSetupId: 's1', aspect: frontCalm, outcome: 1),
+      });
+    });
+
+    testWidgets("a card's dropdown disables the references of the other cards", (tester) async {
+      await seedSession(tester);
+      await openForm(tester, () => addOnMay(3));
+      await tapChip(tester, find.text('Compare with another run'));
+
+      final items = tester.widget<DropdownButton<String>>(inCard(0, find.byType(DropdownButton<String>))).items!;
+      expect({for (final item in items) item.value: item.enabled}, {'s2': true, 's1': false});
     });
 
     testWidgets('editing keeps the answers against other runs, and removing one drops it', (tester) async {
@@ -882,7 +954,8 @@ void main() {
       await seedSession(tester, extraFeedbacks: [stored]);
       await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['fr']!));
 
-      expect(find.text('Compared to S1'), findsOneWidget);
+      expect(find.byType(FeedbackComparisonField), findsNWidgets(2));
+      expect(cardReference(tester, 1), 's1');
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isTrue);
 
       await tapChip(tester, find.byTooltip('Remove comparison'));

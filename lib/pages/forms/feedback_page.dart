@@ -37,12 +37,10 @@ import '../../widgets/feedback/feedback_comparison_field.dart';
 import '../../widgets/feedback/feedback_issue_chips.dart';
 import '../../widgets/items/setup_tile_header.dart';
 import '../../widgets/items/tile_meta_row.dart';
-import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/custom_issues_sheet.dart';
 import '../../widgets/sheets/set_condition.dart';
 import '../../widgets/sheets/set_location_place.dart';
 import '../../widgets/sheets/set_weather.dart';
-import '../../widgets/sheets/sheet_header.dart';
 import '../../widgets/text/section_title.dart';
 
 enum FeedbackPageMode {
@@ -129,25 +127,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
   late DateTime _selectedDateTimeLocal;
   late DateTime _initialDateTimeLocal;
 
-  /// The reference the rider picked (or the stored one); null follows the
-  /// previous setup of the rated one.
-  String? _referenceId;
-  String? _initialReferenceId;
-  int? _overallOutcome;
-  final Map<FeedbackAspect, int> _aspectOutcomes = {};
-  final Set<FeedbackAspect> _storedAspects = {};
+  /// One per comparison card; the first one is always there.
+  final List<_ComparisonDraft> _drafts = [_ComparisonDraft()];
   Set<IssueKey> _issues = {};
   List<CustomIssue> _customIssues = [];
   bool _nothingStoodOut = false;
 
-  // Test session runs only: "Something else changed" is open, and the overall
-  // answers against runs other than the reference (reference id -> outcome).
-  bool _showAllAspects = false;
-  final List<String> _extraRefs = [];
-  final Map<String, int> _extraOutcomes = {};
-
-  // Answers this form doesn't show (other references, unknown keys), written
-  // back unchanged.
+  // Answers this form doesn't show (unknown aspects or keys), written back
+  // unchanged.
   Set<FeedbackComparison> _otherComparisons = {};
   Set<FeedbackObservation> _otherObservations = {};
 
@@ -196,10 +183,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         '';
     _setupId = feedback?.setupId;
 
-    if (feedback != null) {
-      _initAnswers(feedback);
-      if (_sessionOf(_ratedSetup()) != null) _initExtraComparisons();
-    }
+    if (feedback != null) _initAnswers(feedback);
 
     final activity = widget.initialStravaActivity;
     if (feedback != null) return;
@@ -212,34 +196,36 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   void _initAnswers(RideFeedback feedback) {
-    final formComparisons = feedback.comparisons.where((c) => c.isValid && c.aspect is! UnknownAspect);
-    // With several references, the form shows the answers against the most
-    // recent one, preferring an overall answer.
+    final formComparisons = feedback.comparisons.where((c) => c.isValid && c.aspect is! UnknownAspect).toSet();
+    final byReference = groupBy(formComparisons, (FeedbackComparison c) => c.referenceSetupId);
+    // One card per reference: those with an overall answer first, then the
+    // most recent reference first.
     final setups = context.read<AppRepository>().setups;
-    _initialReferenceId = formComparisons
-        .sorted((a, b) {
-          if ((a.aspect is OverallAspect) != (b.aspect is OverallAspect)) return a.aspect is OverallAspect ? -1 : 1;
-          final (timeA, timeB) = (setups[a.referenceSetupId]?.datetime, setups[b.referenceSetupId]?.datetime);
-          if (timeA != timeB) return timeB == null ? -1 : (timeA == null ? 1 : timeB.compareTo(timeA));
-          return a.referenceSetupId.compareTo(b.referenceSetupId);
-        })
-        .firstOrNull
-        ?.referenceSetupId;
-    _referenceId = _initialReferenceId;
+    bool hasOverall(String id) => byReference[id]!.any((c) => c.aspect is OverallAspect);
+    final references = byReference.keys.sorted((a, b) {
+      if (hasOverall(a) != hasOverall(b)) return hasOverall(a) ? -1 : 1;
+      final (timeA, timeB) = (setups[a]?.datetime, setups[b]?.datetime);
+      if (timeA != timeB) return timeB == null ? -1 : (timeA == null ? 1 : timeB.compareTo(timeA));
+      return a.compareTo(b);
+    });
 
-    final owned = formComparisons.where((c) => c.referenceSetupId == _initialReferenceId).toSet();
-    for (final comparison in owned) {
-      switch (comparison.aspect) {
-        case OverallAspect():
-          _overallOutcome = comparison.outcome;
-        case EndAspect() || CustomAspect():
-          _aspectOutcomes[comparison.aspect] = comparison.outcome;
-          _storedAspects.add(comparison.aspect);
-        case UnknownAspect():
-          break;
+    if (references.isNotEmpty) _drafts.clear();
+    for (final referenceId in references) {
+      final draft = _ComparisonDraft(referenceId: referenceId);
+      for (final comparison in byReference[referenceId]!) {
+        switch (comparison.aspect) {
+          case OverallAspect():
+            draft.overall = comparison.outcome;
+          case EndAspect() || CustomAspect():
+            draft.aspectOutcomes[comparison.aspect] = comparison.outcome;
+            draft.storedAspects.add(comparison.aspect);
+          case UnknownAspect():
+            break;
+        }
       }
+      _drafts.add(draft);
     }
-    _otherComparisons = feedback.comparisons.difference(owned);
+    _otherComparisons = feedback.comparisons.difference(formComparisons);
 
     _issues = feedback.issues;
     _customIssues = feedback.customIssues;
@@ -247,16 +233,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
     _otherObservations = feedback.observations
         .where((o) => o.key is! IssueKey && o.key is! CustomIssueKey && o.key is! NoIssueKey)
         .toSet();
-  }
-
-  /// Overall answers against other runs get their own rows in a run debrief.
-  void _initExtraComparisons() {
-    final extras = _otherComparisons.where((c) => c.isValid && c.aspect is OverallAspect).toList();
-    for (final comparison in extras) {
-      _extraRefs.add(comparison.referenceSetupId);
-      _extraOutcomes[comparison.referenceSetupId] = comparison.outcome;
-    }
-    _otherComparisons = _otherComparisons.difference(extras.toSet());
   }
 
   @override
@@ -313,25 +289,38 @@ class _FeedbackPageState extends State<FeedbackPage> {
         .sorted((a, b) => b.datetime.compareTo(a.datetime));
   }
 
-  String? _effectiveReferenceId(Setup? rated, List<Setup> candidates) {
+  /// The shown cards with their references; a card whose reference an
+  /// earlier card already has is left out.
+  List<(_ComparisonDraft, String)> _cards(Setup? rated, List<Setup> candidates) {
+    final used = <String>{};
+    return [
+      for (final draft in _drafts)
+        if (_referenceOf(draft, rated, candidates) case final id? when used.add(id)) (draft, id),
+    ];
+  }
+
+  String? _referenceOf(_ComparisonDraft draft, Setup? rated, List<Setup> candidates) {
     if (rated == null) return null;
-    final picked = _referenceId;
+    final picked = draft.referenceId;
     // The stored reference stays even when it's no longer offered (deleted, or
     // later than the rated setup), as long as it isn't the rated setup itself.
     if (picked != null &&
         picked != rated.id &&
-        (picked == _initialReferenceId || candidates.any((setup) => setup.id == picked))) {
+        (picked == draft.initialReferenceId || candidates.any((setup) => setup.id == picked))) {
       return picked;
     }
+    if (draft != _drafts.first) return null;
+    // A run is compared with the run its session's strategy asks for.
+    final asked = _sessionOf(rated) == null ? null : context.read<AppRepository>().strategyReferenceFor(rated);
+    if (asked != null && candidates.any((setup) => setup.id == asked)) return asked;
     return candidates.firstOrNull?.id;
   }
 
   /// Open issues of the reference, plus aspects already answered against it:
   /// built-in ones in vocabulary order, then custom ones by label.
-  List<FeedbackIssue> _followUpIssues(String? referenceId) {
-    if (referenceId == null) return const [];
+  List<FeedbackIssue> _followUpIssues(_ComparisonDraft draft, String referenceId) {
     if (_sessionOf(_ratedSetup()) case final session?) {
-      final (:goal, :other) = _sessionIssues(session);
+      final (:goal, :other) = _sessionIssues(session, draft);
       return [...goal, ...other];
     }
     final appRepository = context.read<AppRepository>();
@@ -339,8 +328,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
       for (final issue in appRepository.openIssuesFor(referenceId)?.issues ?? const <FeedbackIssue>[])
         issue.aspect: issue,
     };
-    if (referenceId == _initialReferenceId) {
-      for (final aspect in _storedAspects) {
+    if (referenceId == draft.initialReferenceId) {
+      for (final aspect in draft.storedAspects) {
         switch (aspect) {
           case final EndAspect aspect:
             issues.putIfAbsent(aspect, () => FeedbackIssue.end(aspect));
@@ -362,7 +351,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   /// A debrief asks about the session's goal first. "Something else changed"
   /// adds every other aspect, and keeps those already answered.
-  ({List<FeedbackIssue> goal, List<FeedbackIssue> other}) _sessionIssues(TestSession session) {
+  ({List<FeedbackIssue> goal, List<FeedbackIssue> other}) _sessionIssues(TestSession session, _ComparisonDraft draft) {
     final index = context.read<AppRepository>().customIssues;
     FeedbackIssue? issueOf(FeedbackAspect aspect) => switch (aspect) {
       final EndAspect aspect => FeedbackIssue.end(aspect),
@@ -370,8 +359,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
       _ => null,
     };
 
-    final others = <FeedbackAspect>{..._aspectOutcomes.keys, ..._storedAspects};
-    if (_showAllAspects) {
+    final others = <FeedbackAspect>{...draft.aspectOutcomes.keys, ...draft.storedAspects};
+    if (draft.showAllAspects) {
       others
         ..addAll(EndAspect.values)
         ..addAll(index.usages.map((usage) => usage.issue.aspect));
@@ -389,25 +378,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   Set<FeedbackComparison> _comparisons() {
     final rated = _ratedSetup();
-    final referenceId = _effectiveReferenceId(rated, _referenceCandidates(rated));
-    final extras = <FeedbackComparison>{
-      for (final reference in _extraRefs)
-        if (reference != referenceId && _extraOutcomes[reference] != null)
-          FeedbackComparison(
-            referenceSetupId: reference,
-            aspect: const OverallAspect(),
-            outcome: _extraOutcomes[reference]!,
-          ),
-    };
-    if (referenceId == null) return {..._otherComparisons, ...extras};
-
     final answered = <FeedbackComparison>{
-      if (_overallOutcome case final outcome?)
-        FeedbackComparison(referenceSetupId: referenceId, aspect: const OverallAspect(), outcome: outcome),
-      for (final issue in _followUpIssues(referenceId))
-        if (_aspectOutcomes[issue.aspect] case final outcome?)
-          FeedbackComparison(referenceSetupId: referenceId, aspect: issue.aspect, outcome: outcome),
-      ...extras,
+      for (final (draft, referenceId) in _cards(rated, _referenceCandidates(rated))) ...[
+        if (draft.overall case final outcome?)
+          FeedbackComparison(referenceSetupId: referenceId, aspect: const OverallAspect(), outcome: outcome),
+        for (final issue in _followUpIssues(draft, referenceId))
+          if (draft.aspectOutcomes[issue.aspect] case final outcome?)
+            FeedbackComparison(referenceSetupId: referenceId, aspect: issue.aspect, outcome: outcome),
+      ],
     };
     bool isAnswered(FeedbackComparison c) =>
         answered.any((a) => a.referenceSetupId == c.referenceSetupId && a.aspect == c.aspect);
@@ -444,19 +422,21 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final fromAspect = CustomAspect(from);
     FeedbackAspect renamed(FeedbackAspect aspect) => aspect == fromAspect ? to.aspect : aspect;
     setState(() {
-      // On a merge the answer the target already has wins.
-      final outcomes = <FeedbackAspect, int>{
-        for (final MapEntry(:key, :value) in _aspectOutcomes.entries)
-          if (key != fromAspect) key: value,
-      };
-      if (_aspectOutcomes[fromAspect] case final outcome?) outcomes.putIfAbsent(to.aspect, () => outcome);
-      _aspectOutcomes
-        ..clear()
-        ..addAll(outcomes);
-      final stored = _storedAspects.map(renamed).toSet();
-      _storedAspects
-        ..clear()
-        ..addAll(stored);
+      for (final draft in _drafts) {
+        // On a merge the answer the target already has wins.
+        final outcomes = <FeedbackAspect, int>{
+          for (final MapEntry(:key, :value) in draft.aspectOutcomes.entries)
+            if (key != fromAspect) key: value,
+        };
+        if (draft.aspectOutcomes[fromAspect] case final outcome?) outcomes.putIfAbsent(to.aspect, () => outcome);
+        draft.aspectOutcomes
+          ..clear()
+          ..addAll(outcomes);
+        final stored = draft.storedAspects.map(renamed).toSet();
+        draft.storedAspects
+          ..clear()
+          ..addAll(stored);
+      }
       _otherComparisons = _otherComparisons.map((c) => c.copyWith(aspect: renamed(c.aspect))).toSet();
     });
     _changeListener();
@@ -465,8 +445,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
   void _onCustomIssueRemoved(String slug) {
     final aspect = CustomAspect(slug);
     setState(() {
-      _aspectOutcomes.remove(aspect);
-      _storedAspects.remove(aspect);
+      for (final draft in _drafts) {
+        draft.aspectOutcomes.remove(aspect);
+        draft.storedAspects.remove(aspect);
+      }
       _otherComparisons = _otherComparisons.where((c) => c.aspect != aspect).toSet();
     });
     _changeListener();
@@ -1033,69 +1015,102 @@ class _FeedbackPageState extends State<FeedbackPage> {
     );
   }
 
-  List<Widget> _comparisonSection(AppRepository appRepository, Setup? rated) {
+  List<Widget> _comparisonSection(Setup? rated) {
     final candidates = _referenceCandidates(rated);
-    final referenceId = _effectiveReferenceId(rated, candidates);
-    if (rated == null || referenceId == null) return const [];
+    final cards = _cards(rated, candidates);
+    if (rated == null || cards.isEmpty) return const [];
 
-    final reference = appRepository.setups[referenceId];
-    final followUps = _followUpIssues(referenceId);
+    final session = _sessionOf(rated);
+    final used = {for (final (_, referenceId) in cards) referenceId};
+    final available = candidates.where((setup) => !used.contains(setup.id)).toList();
 
     return [
       const SizedBox(height: 8),
-      SectionTitle(
-        title: "Compared to",
-        trailing: reference == null
-            ? null
-            : TextButton.icon(
-                onPressed: () => showCompareSetupsSheet(context, setupA: reference, setupB: rated),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                  visualDensity: VisualDensity.compact,
+      const SectionTitle(title: "Compared to"),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
+              for (final (index, (draft, referenceId)) in cards.indexed)
+                FeedbackComparisonField(
+                  key: ObjectKey(draft),
+                  rated: rated,
+                  referenceId: referenceId,
+                  candidates: candidates,
+                  usedReferenceIds: used.difference({referenceId}),
+                  // The first card shows its changes; further ones only on request.
+                  initiallyShowChanges: index == 0,
+                  outcome: draft.overall,
+                  onOutcomeChanged: (outcome) {
+                    setState(() => draft.overall = outcome);
+                    _changeListener();
+                  },
+                  onReferenceChanged: (id) {
+                    setState(() => draft.referenceId = id);
+                    _changeListener();
+                  },
+                  onRemove: index == 0
+                      ? null
+                      : () {
+                          setState(() => _drafts.remove(draft));
+                          _changeListener();
+                        },
+                  children: session == null ? _followUpRows(draft, referenceId) : _sessionRows(session, draft),
                 ),
-                icon: const Icon(Icons.compare, size: 18),
-                label: const Text("View comparison"),
-              ),
+            ],
+          ),
+        ),
       ),
-      FeedbackComparisonField(
-        rated: rated,
-        referenceId: referenceId,
-        candidates: candidates,
-        outcome: _overallOutcome,
-        onOutcomeChanged: (outcome) {
-          setState(() => _overallOutcome = outcome);
-          _changeListener();
-        },
-        onReferenceChanged: (id) {
-          setState(() => _referenceId = id);
-          _changeListener();
-        },
-      ),
-      if (_sessionOf(rated) case final session?)
-        ..._sessionSection(session, candidates, referenceId)
-      else if (followUps.isNotEmpty) ...[
-        _subheading("Did its open issues change?"),
-        for (final issue in followUps) _aspectRow(issue),
-      ],
+      // Only a run debrief compares with more than one reference.
+      if (session != null && available.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () {
+                setState(() => _drafts.add(_ComparisonDraft(referenceId: available.first.id)));
+                _changeListener();
+              },
+              icon: const Icon(Icons.add),
+              label: const Text("Compare with another run"),
+            ),
+          ),
+        ),
+    ];
+  }
+
+  List<Widget> _followUpRows(_ComparisonDraft draft, String referenceId) {
+    final followUps = _followUpIssues(draft, referenceId);
+    if (followUps.isEmpty) return const [];
+    return [
+      _subheading("Did its open issues change?"),
+      for (final issue in followUps) _aspectRow(draft, issue),
     ];
   }
 
   Widget _subheading(String text) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
     child: Text(text, style: Theme.of(context).textTheme.titleSmall),
   );
 
-  Widget _aspectRow(FeedbackIssue issue) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+  Widget _aspectRow(_ComparisonDraft draft, FeedbackIssue issue) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
     child: FeedbackAspectRow(
       issue: issue,
-      outcome: _aspectOutcomes[issue.aspect],
+      outcome: draft.aspectOutcomes[issue.aspect],
       onChanged: (outcome) {
         setState(() {
           if (outcome == null) {
-            _aspectOutcomes.remove(issue.aspect);
+            draft.aspectOutcomes.remove(issue.aspect);
           } else {
-            _aspectOutcomes[issue.aspect] = outcome;
+            draft.aspectOutcomes[issue.aspect] = outcome;
           }
         });
         _changeListener();
@@ -1103,140 +1118,36 @@ class _FeedbackPageState extends State<FeedbackPage> {
     ),
   );
 
-  /// The run debrief below the overall answer: other runs, the session's goal
-  /// and "Something else changed".
-  List<Widget> _sessionSection(TestSession session, List<Setup> candidates, String referenceId) {
-    final (:goal, :other) = _sessionIssues(session);
-    final extraRefs = _extraRefs.where((id) => id != referenceId).toList();
-    final available = candidates.where((setup) => setup.id != referenceId && !extraRefs.contains(setup.id)).toList();
-    final setups = context.read<AppRepository>().setups;
+  /// The run debrief below the overall answer: the session's goal and
+  /// "Something else changed".
+  List<Widget> _sessionRows(TestSession session, _ComparisonDraft draft) {
+    final (:goal, :other) = _sessionIssues(session, draft);
 
     return [
-      if (extraRefs.isNotEmpty || available.isNotEmpty) ...[
-        _subheading("Other runs"),
-        for (final id in extraRefs)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "Compared to ${setups[id]?.displayName ?? 'a deleted run'}",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      tooltip: 'Remove comparison',
-                      visualDensity: VisualDensity.compact,
-                      onPressed: () {
-                        setState(() {
-                          _extraRefs.remove(id);
-                          _extraOutcomes.remove(id);
-                        });
-                        _changeListener();
-                      },
-                    ),
-                  ],
-                ),
-                FeedbackOutcomeSelector(
-                  labels: FeedbackVocabulary.overallOutcomeLabels,
-                  outcome: _extraOutcomes[id],
-                  onChanged: (outcome) {
-                    setState(() {
-                      if (outcome == null) {
-                        _extraOutcomes.remove(id);
-                      } else {
-                        _extraOutcomes[id] = outcome;
-                      }
-                    });
-                    _changeListener();
-                  },
-                ),
-              ],
-            ),
-          ),
-        if (available.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: ActionChip(
-                avatar: const Icon(Icons.add),
-                label: const Text("Compare with another run"),
-                onPressed: () => unawaited(_pickExtraRun(available)),
-              ),
-            ),
-          ),
-      ],
       if (goal.isNotEmpty) ...[
         _subheading("Did your goal improve?"),
-        for (final issue in goal) _aspectRow(issue),
+        for (final issue in goal) _aspectRow(draft, issue),
       ],
       Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Align(
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
-            onPressed: () => setState(() => _showAllAspects = !_showAllAspects),
-            icon: Icon(_showAllAspects ? Icons.expand_less : Icons.expand_more),
+            style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+            onPressed: () => setState(() => draft.showAllAspects = !draft.showAllAspects),
+            icon: Icon(draft.showAllAspects ? Icons.expand_less : Icons.expand_more),
             label: const Text("Something else changed"),
           ),
         ),
       ),
-      for (final issue in other) _aspectRow(issue),
+      for (final issue in other) _aspectRow(draft, issue),
     ];
-  }
-
-  Future<void> _pickExtraRun(List<Setup> runs) async {
-    final appSettings = context.read<AppSettings>();
-    final picked = await showModalBottomSheet<Setup>(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SheetHeader(title: 'Compare with another run'),
-            const SizedBox(height: 8),
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  for (final run in runs)
-                    ListTile(
-                      leading: const Icon(Setup.iconData),
-                      title: Text(run.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      subtitle: Text(
-                        '${DateFormat(appSettings.dateFormat).format(run.datetimeLocal)} • '
-                        '${DateFormat(appSettings.timeFormat).format(run.datetimeLocal)}',
-                      ),
-                      onTap: () => Navigator.pop(context, run),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (picked == null || !mounted) return;
-    setState(() => _extraRefs.add(picked.id));
-    _changeListener();
   }
 
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final rated = _ratedSetup();
-    final inRunDebrief =
-        _sessionOf(rated) != null && _effectiveReferenceId(rated, _referenceCandidates(rated)) != null;
 
     return PopScope(
       canPop: !_formHasChanges,
@@ -1269,27 +1180,24 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       ],
                     ),
                   ),
-                  ..._comparisonSection(appRepository, rated),
-                  // A run debrief asks about the session's goal instead.
-                  if (!inRunDebrief) ...[
-                    const SizedBox(height: 8),
-                    const SectionTitle(
-                      title: "Anything stand out?",
-                      infoText:
-                          "Optional. Flagged problems show on the setup as open issues until a later ride says otherwise.",
+                  ..._comparisonSection(rated),
+                  const SizedBox(height: 8),
+                  const SectionTitle(
+                    title: "Anything stand out?",
+                    infoText:
+                        "Optional. Flagged problems show on the setup as open issues until a later ride says otherwise.",
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: FeedbackIssueChips(
+                      issues: _issues,
+                      customIssues: _customIssues,
+                      knownIssues: appRepository.customIssues,
+                      nothingStoodOut: _nothingStoodOut,
+                      onChanged: _setIssues,
+                      onOpenCustomIssues: _openCustomIssues,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: FeedbackIssueChips(
-                        issues: _issues,
-                        customIssues: _customIssues,
-                        knownIssues: appRepository.customIssues,
-                        nothingStoodOut: _nothingStoodOut,
-                        onChanged: _setIssues,
-                        onOpenCustomIssues: _openCustomIssues,
-                      ),
-                    ),
-                  ],
+                  ),
                   const SizedBox(height: 8),
                   const SectionTitle(title: "Details"),
                   Padding(
@@ -1311,4 +1219,21 @@ class _FeedbackPageState extends State<FeedbackPage> {
       ),
     );
   }
+}
+
+/// The answers against one reference: one comparison card of the form.
+class _ComparisonDraft {
+  /// Null on the first card follows the default reference.
+  String? referenceId;
+  final String? initialReferenceId;
+  int? overall;
+  final Map<FeedbackAspect, int> aspectOutcomes = {};
+
+  /// Aspects stored against [initialReferenceId], kept as rows when no longer open.
+  final Set<FeedbackAspect> storedAspects = {};
+
+  /// Run debriefs only: "Something else changed" is open.
+  bool showAllAspects = false;
+
+  _ComparisonDraft({this.referenceId}) : initialReferenceId = referenceId;
 }

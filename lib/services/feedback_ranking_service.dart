@@ -75,7 +75,7 @@ class FeedbackRankingService {
     required Map<String, Setup> setups,
     required Map<String, List<RideFeedback>> feedbacksBySetup,
   }) {
-    final gamesByBike = <String, List<_Game>>{};
+    final gamesByBike = <String, List<RankingGame>>{};
     for (final MapEntry(key: ratedId, value: feedbacks) in feedbacksBySetup.entries) {
       final rated = setups[ratedId];
       if (rated == null || rated.isDeleted) continue;
@@ -88,17 +88,18 @@ class FeedbackRankingService {
             continue;
           }
           final ratedWins = (comparison.outcome + 2) / 4;
-          (gamesByBike[rated.bike] ??= []).add(_Game(ratedId, reference.id, ratedWins));
+          (gamesByBike[rated.bike] ??= []).add(RankingGame(ratedId, reference.id, ratedWins));
         }
       }
     }
 
     return {
-      for (final games in gamesByBike.values) ..._rankBike(games),
+      for (final games in gamesByBike.values) ...rankGames(games),
     };
   }
 
-  static Map<String, SetupRank> _rankBike(List<_Game> games) {
+  /// Fits Bradley-Terry strengths to [games] and ranks the players.
+  static Map<String, SetupRank> rankGames(List<RankingGame> games) {
     // A fixed summation order, sorted ids and simultaneous updates make the
     // fit independent of input order, down to the last bit.
     games.sort((x, y) {
@@ -163,10 +164,10 @@ class FeedbackRankingService {
 }
 
 /// One comparison: [a] won [aWins] of it (0 … 1), [b] the rest.
-class _Game {
+class RankingGame {
   final String a;
   final String b;
   final double aWins;
 
-  const _Game(this.a, this.b, this.aWins);
+  const RankingGame(this.a, this.b, this.aWins);
 }

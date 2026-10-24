@@ -12,6 +12,7 @@ import '../models/setup.dart';
 import '../pages/forms/setup_page.dart';
 import '../pages/forms/test_session_page.dart';
 import '../repositories/app_repository.dart';
+import '../services/test_session/suggestion_result.dart';
 import '../services/test_session_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
@@ -63,8 +64,9 @@ class TestSessionActions {
   }
 
   /// The next run of a running [session]: a copy of [source] (default: the last
-  /// run) where only the session's knobs can change. A Compare session copies
-  /// one of its candidates as it is. Returns the recorded run.
+  /// run, with the strategy's proposal set) where only the session's knobs can
+  /// change. A Compare session copies one of its candidates as it is. Returns
+  /// the recorded run.
   static Future<Setup?> addRun(BuildContext context, {required TestSession session, Setup? source}) async {
     final appRepository = context.read<AppRepository>();
     if (!session.isRunning) return null;
@@ -77,11 +79,13 @@ class TestSessionActions {
       if (!rated || !context.mounted) return null;
     }
     final number = runs.length + 1;
+    final suggestion = source == null ? appRepository.suggestionFor(session.id) : null;
+    final proposal = suggestion is Proposal ? suggestion : null;
     // Without runs (all removed) the next one starts from the bike's current setup, like run 1.
     final from =
         source ??
         (session.method is Tournament
-            ? await _pickCandidate(context, session)
+            ? await _pickCandidate(context, session, suggestedId: proposal?.baseSetupId)
             : runs.lastOrNull ??
                   appRepository.setups[appRepository.resolveSetupId(
                     bikeId: session.bike,
@@ -89,11 +93,17 @@ class TestSessionActions {
                   )]);
     if (from == null || !context.mounted) return null;
 
-    final run = TestSessionService.run(source: from, session: session, number: number);
     if (session.method is Tournament) {
-      await appRepository.addSetups([run]);
+      final run = TestSessionService.run(source: from, session: session, number: number);
+      await appRepository.addTestSessionRun(session, run, proposal: proposal?.values);
       return run;
     }
+    final run = TestSessionService.run(
+      source: from,
+      session: session,
+      number: number,
+      values: proposal?.values ?? const {},
+    );
 
     final saved = await Navigator.push<Setup>(
       context,
@@ -102,15 +112,16 @@ class TestSessionActions {
       ),
     );
     if (saved == null) return null;
-    await appRepository.addSetups([saved]);
+    await appRepository.addTestSessionRun(session, saved, proposal: proposal?.values);
     return saved;
   }
 
-  static Future<Setup?> _pickCandidate(BuildContext context, TestSession session) {
+  /// The candidates of a Compare session, the [suggestedId] one first.
+  static Future<Setup?> _pickCandidate(BuildContext context, TestSession session, {String? suggestedId}) {
     final appRepository = context.read<AppRepository>();
     final candidates = [
       for (final id in (session.method as Tournament).candidateSetupIds) ?appRepository.setups[id],
-    ];
+    ]..sort((a, b) => (b.id == suggestedId ? 1 : 0).compareTo(a.id == suggestedId ? 1 : 0));
     return showModalBottomSheet<Setup>(
       context: context,
       useSafeArea: true,
@@ -130,6 +141,7 @@ class TestSessionActions {
                     ListTile(
                       leading: const Icon(Setup.iconData),
                       title: Text(candidate.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle: candidate.id == suggestedId ? const Text('Suggested') : null,
                       onTap: () => Navigator.pop(context, candidate),
                     ),
                 ],

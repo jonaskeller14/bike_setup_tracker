@@ -87,14 +87,23 @@ class TestSessionService {
     return session.adjustmentIds.toSet().difference(session.locks.keys.toSet());
   }
 
-  /// Run 1 or a later run: a copy of [source] stamped [now], with the session's
-  /// locked values on top, so a lock holds even when [source] is an older run.
-  static Setup run({required Setup source, required TestSession session, required int number, DateTime? now}) {
+  /// Run 1 or a later run: a copy of [source] stamped [now] with [values] (a
+  /// proposal) set, and the session's locked values on top, so a lock holds
+  /// even when [source] is an older run.
+  static Setup run({
+    required Setup source,
+    required TestSession session,
+    required int number,
+    Map<String, AdjustmentValue> values = const {},
+    DateTime? now,
+  }) {
     final stamp = now ?? DateTime.now();
-    Map<String, AdjustmentValue> locked(Map<String, AdjustmentValue> values) => {
-      ...values,
+    Map<String, AdjustmentValue> locked(Map<String, AdjustmentValue> current) => {
+      ...current,
+      for (final MapEntry(:key, :value) in values.entries)
+        if (current.containsKey(key)) key: value,
       for (final MapEntry(:key, :value) in session.locks.entries)
-        if (values.containsKey(key)) key: value,
+        if (current.containsKey(key)) key: value,
     };
     return Setup(
       name: 'Run $number',

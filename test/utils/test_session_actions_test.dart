@@ -24,6 +24,7 @@ import 'package:bike_setup_tracker/widgets/items/setup_tile.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_cell_view.dart';
 import 'package:bike_setup_tracker/widgets/setup_page_tab_bike.dart';
 import 'package:bike_setup_tracker/widgets/sheets/test_session_sheet.dart';
+import 'package:bike_setup_tracker/widgets/test_session_suggestion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -350,9 +351,43 @@ void main() {
       final next = runs.last;
       expect(next.testSessionId, 'ts');
       expect(next.bike, _bikeId);
-      expect(next.bikeAdjustmentValues[_reboundId], const StepValue(7));
+      expect(next.bikeAdjustmentValues[_reboundId], const StepValue(10), reason: "Fine-tune's proposal: +3");
       expect(next.bikeAdjustmentValues[_compressionId], const StepValue(8), reason: 'not a knob: copied');
       expect(next.datetime.isAfter(runs.first.datetime), isTrue);
+    });
+
+    testWidgets('prefills the strategy proposal and stores it on the session', (tester) async {
+      await seed(tester, session: session(), runs: [run(1, rebound: 7)]);
+      await pumpButton(
+        tester,
+        (context) => TestSessionActions.addRun(context, session: appRepository.testSessions['ts']!),
+      );
+      await saveForm(tester, saved: () => appRepository.testSessions['ts']!.proposals.isNotEmpty);
+
+      final next = appRepository.setupsInSession('ts').last;
+      expect(next.bikeAdjustmentValues[_reboundId], const StepValue(10));
+      expect(appRepository.testSessions['ts']!.proposals, {
+        next.id: {_reboundId: const StepValue(10)},
+      });
+    });
+
+    testWidgets('a free session proposes nothing and copies the previous run', (tester) async {
+      final free = TestSession(
+        id: 'ts',
+        bike: _bikeId,
+        adjustmentIds: const [_reboundId],
+        startedAtUTC: DateTime(2026, 5, 2, 9).toUtc(),
+        startedAtLocal: DateTime(2026, 5, 2, 9),
+      );
+      await seed(tester, session: free, runs: [run(1, rebound: 7)]);
+      await pumpButton(
+        tester,
+        (context) => TestSessionActions.addRun(context, session: appRepository.testSessions['ts']!),
+      );
+      await saveForm(tester, saved: () => appRepository.setupsInSession('ts').length == 2);
+
+      expect(appRepository.setupsInSession('ts').last.bikeAdjustmentValues[_reboundId], const StepValue(7));
+      expect(appRepository.testSessions['ts']!.proposals, isEmpty);
     });
 
     testWidgets('with every run removed, the next run starts again from the current setup', (tester) async {
@@ -722,6 +757,23 @@ void main() {
 
       expect(appRepository.testSessions['ts']!.locks, {_reboundId: const StepValue(7)});
       expect(find.descendant(of: chip, matching: find.byIcon(Icons.lock)), findsOneWidget);
+    });
+
+    testWidgets('shows the suggested next run as a ghost item with its changes', (tester) async {
+      await seed(tester, session: session(), runs: [run(1, rebound: 7)]);
+      await pumpButton(tester, (context) => showTestSessionSheet(context: context, sessionId: 'ts'));
+
+      expect(find.text('Run 2 · Suggested'), findsOneWidget);
+      expect(find.textContaining('Try Rebound +3'), findsOneWidget);
+      final ghost = find.byType(TestSessionSuggestion);
+      expect(find.descendant(of: ghost, matching: find.byType(AdjustmentCellView)), findsOneWidget);
+    });
+
+    testWidgets('no ghost item while the latest run waits for feedback', (tester) async {
+      await seed(tester, session: session(), runs: [run(1, rebound: 7)], rated: false);
+      await pumpButton(tester, (context) => showTestSessionSheet(context: context, sessionId: 'ts'));
+
+      expect(find.textContaining('Suggested'), findsNothing);
     });
 
     testWidgets('a running session opens scrolled to its next step', (tester) async {

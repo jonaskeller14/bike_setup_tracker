@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -19,9 +16,9 @@ import '../../theme.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/empty_state_placeholder2.dart';
+import '../../widgets/sheets/pick_adjustments.dart';
+import '../../widgets/sheets/pick_setups.dart';
 import '../../widgets/sheets/sheet.dart';
-import '../../widgets/sheets/sheet_header.dart';
-import '../../widgets/sticky_section.dart';
 import '../../widgets/text/section_title.dart';
 
 /// Which proposal strategy the rider picked; [Tournament] needs its candidates,
@@ -204,202 +201,59 @@ class _TestSessionPageState extends State<TestSessionPage> {
   }
 
   /// Closing the sheet keeps the selection: the page follows every tick.
-  Future<void> _pickKnobs() async {
-    final groups = groupBy(_knobs(), (knob) => knob.ownerId).values.toList();
-    await showModalBottomSheet<void>(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SheetHeader(
-                  title: _knobIds.isEmpty ? 'Adjustments to test' : 'Adjustments to test (${_knobIds.length})',
-                  titleMaxLines: 2,
-                ),
-                if (_knobIds.length > TestSessionService.recommendedMaxAdjustments) _tooManyWarning(context),
-                const SizedBox(height: 8),
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: groups.isEmpty
-                        ? const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: SheetFilterEmptyHint(
-                              icon: Icons.tune,
-                              title: 'No adjustments yet',
-                              hint: 'This bike and its rider have no adjustments.',
-                            ),
-                          )
-                        : Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              for (final group in groups)
-                                StickySection(
-                                  header: sheetSectionHeader(context, group.first.ownerName),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      for (final knob in group)
-                                        // The tile paints on the nearest Material; the sheet's own sits outside
-                                        // the scroll view, so its color would scroll over the headers.
-                                        Material(
-                                          type: MaterialType.transparency,
-                                          child: CheckboxListTile(
-                                            value: _knobIds.contains(knob.adjustment.id),
-                                            controlAffinity: ListTileControlAffinity.leading,
-                                            title: Text(
-                                              knob.adjustment.name,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            onChanged: (selected) {
-                                              unawaited(HapticFeedback.selectionClick());
-                                              setState(() {
-                                                if (selected ?? false) {
-                                                  _knobIds.add(knob.adjustment.id);
-                                                } else {
-                                                  _knobIds.remove(knob.adjustment.id);
-                                                }
-                                              });
-                                              setSheetState(() {});
-                                              _knobsChanged();
-                                            },
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                  ),
-                ),
-              ],
-            ),
+  Future<void> _pickKnobs() {
+    // The rider's attributes can't be tuned between runs.
+    final groups = groupBy(_knobs().where((knob) => !knob.isRider), (knob) => knob.ownerId).values.toList();
+    final hierarchy = context.read<AppRepository>().componentHierarchy;
+    final now = DateTime.now().toUtc();
+    return showPickAdjustmentsSheet(
+      context,
+      title: 'Adjustments to test',
+      groups: [
+        for (final group in groups)
+          PickAdjustmentsGroup(
+            title: group.first.ownerName,
+            icon: group.first.ownerIcon,
+            ancestors: hierarchy.ancestorsBelowBikeAt(group.first.ownerId, now),
+            adjustments: [for (final knob in group) knob.adjustment],
           ),
-        ),
-      ),
+      ],
+      selectedIds: _knobIds,
+      onChanged: (ids) {
+        setState(
+          () => _knobIds
+            ..clear()
+            ..addAll(ids),
+        );
+        _knobsChanged();
+      },
+      warningFor: _tooManyAdjustmentsMessage,
+      emptyHint: 'This bike has no adjustments.',
     );
   }
 
   /// Soft: more than a few adjustments still work, they just tell less.
-  Widget _tooManyWarning(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          Icon(Icons.warning_amber_rounded, size: 18, color: scheme.error),
-          Expanded(
-            child: Text(
-              'More than ${TestSessionService.recommendedMaxAdjustments} adjustments make it hard to tell which one '
-              'helped. 1–3 work best.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  String? _tooManyAdjustmentsMessage(int count) => count > TestSessionService.recommendedMaxAdjustments
+      ? 'More than ${TestSessionService.recommendedMaxAdjustments} adjustments make it hard to tell which one '
+            'helped. 1–3 work best.'
+      : null;
 
   /// Soft, like the adjustments: more setups just take many more runs.
-  Widget _tooManySetupsWarning(BuildContext context, int count) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          Icon(Icons.warning_amber_rounded, size: 18, color: scheme.error),
-          Expanded(
-            child: Text(
-              'Every setup is compared with every other one, so $count setups take about '
-              '${count * (count - 1) ~/ 2} comparisons. ${TestSessionService.recommendedMaxCompareSetups} or fewer '
-              'work best.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  String? _tooManySetupsMessage(int count) => count > TestSessionService.recommendedMaxCompareSetups
+      ? 'Every setup is compared with every other one, so $count setups take about '
+            '${count * (count - 1) ~/ 2} comparisons. ${TestSessionService.recommendedMaxCompareSetups} or fewer '
+            'work best.'
+      : null;
 
   /// Closing the sheet keeps the selection.
   Future<void> _pickCandidates() async {
-    final appSettings = context.read<AppSettings>();
-    final options = _bikeSetups();
-    final selected = List.of(_candidateIds);
-    await showModalBottomSheet<void>(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SheetHeader(
-                    title: selected.isEmpty ? 'Setups to compare' : 'Setups to compare (${selected.length})',
-                    titleMaxLines: 2,
-                  ),
-                  if (selected.length > TestSessionService.recommendedMaxCompareSetups)
-                    _tooManySetupsWarning(context, selected.length),
-                  const SizedBox(height: 8),
-                  Flexible(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: options.isEmpty
-                          ? const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: SheetFilterEmptyHint(icon: Setup.iconData, title: 'This bike has no setups yet'),
-                            )
-                          : Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                for (final setup in options)
-                                  Material(
-                                    type: MaterialType.transparency,
-                                    child: CheckboxListTile(
-                                      value: selected.contains(setup.id),
-                                      controlAffinity: ListTileControlAffinity.leading,
-                                      secondary: const Icon(Setup.iconData),
-                                      title: Text(setup.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                      subtitle: Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal)),
-                                      onChanged: (checked) {
-                                        unawaited(HapticFeedback.selectionClick());
-                                        setSheetState(() {
-                                          if (checked ?? false) {
-                                            selected.add(setup.id);
-                                          } else {
-                                            selected.remove(setup.id);
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ),
-                              ],
-                            ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+    final selected = await showPickSetupsSheet(
+      context,
+      title: 'Setups to compare',
+      options: _bikeSetups(),
+      selectedIds: _candidateIds,
+      warningFor: _tooManySetupsMessage,
+      emptyTitle: 'This bike has no setups yet',
     );
     if (!mounted) return;
     setState(
@@ -588,7 +442,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
                   ),
               ],
             ),
-            if (_knobIds.length > TestSessionService.recommendedMaxAdjustments) _tooManyWarning(context),
+            if (_tooManyAdjustmentsMessage(_knobIds.length) case final message?) SheetWarning(message: message),
           ],
           const SizedBox(height: 8),
           _addButton(label: 'Add Adjustment', onPressed: _pickKnobs),
@@ -638,8 +492,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
                   },
                 ),
               ),
-            if (_candidateIds.length > TestSessionService.recommendedMaxCompareSetups)
-              _tooManySetupsWarning(context, _candidateIds.length),
+            if (_tooManySetupsMessage(_candidateIds.length) case final message?) SheetWarning(message: message),
             if (field.hasError)
               Text(field.errorText!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error))
             else if (_candidateIds.length >= TestSessionService.minCompareSetups)

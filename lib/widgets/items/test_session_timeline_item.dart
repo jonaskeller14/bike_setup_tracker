@@ -17,7 +17,6 @@ import '../current_setup_badge.dart';
 import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import '../running_badge.dart';
 import '../sheets/test_session_sheet.dart';
-import '../test_session_icon.dart';
 import '../test_session_next_step.dart';
 import 'feedback_list_tile.dart';
 import 'setup_group_header.dart';
@@ -146,10 +145,6 @@ class TestSessionTimelineItem extends StatelessWidget {
               setupCount: entry.runs.length,
               title: session.displayName,
               iconData: TestSession.iconData,
-              leading: TestSessionIcon(
-                running: session.isRunning,
-                color: selected ? Theme.of(context).colorScheme.primary : null,
-              ),
               dateTimeText: _timeRange(appSettings),
               bikeMetadata: TileMetaRow(
                 icon: Bike.iconData,

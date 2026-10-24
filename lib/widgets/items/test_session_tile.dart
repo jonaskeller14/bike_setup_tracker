@@ -7,7 +7,6 @@ import '../../models/feedback/test_session.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/test_session_service.dart';
 import '../running_badge.dart';
-import '../test_session_icon.dart';
 import 'test_session_options_menu.dart';
 import 'tile_meta_row.dart';
 
@@ -28,7 +27,7 @@ class TestSessionTile extends StatelessWidget {
     // Laid out like the component cards beside it, so the menus line up.
     return ListTile(
       onTap: onTap,
-      leading: TestSessionIcon(running: session.isRunning, color: session.isRunning ? scheme.primary : null),
+      leading: const Icon(TestSession.iconData),
       titleAlignment: ListTileTitleAlignment.titleHeight,
       minTileHeight: 0,
       minVerticalPadding: 0,

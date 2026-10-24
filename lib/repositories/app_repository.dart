@@ -41,6 +41,9 @@ import '../services/feedback_ranking_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
+import '../services/test_session/suggestion_result.dart';
+import '../services/test_session/test_session_strategy.dart';
+import '../services/test_session_service.dart';
 import '../services/trash_cleanup_service.dart';
 import '../utils/adjustment_value_type_check.dart';
 import 'filter_controller.dart';
@@ -493,6 +496,8 @@ class AppRepository extends ChangeNotifier {
     _openIssuesBySetup.clear();
     _customIssues = null;
     _feedbackActivityIds = null;
+    _suggestions.clear();
+    _strategyReferences.clear();
 
     final result = SetupResolutionService.resolveSetups(
       setups: _setups,
@@ -939,6 +944,45 @@ class AppRepository extends ChangeNotifier {
   List<Setup> setupsInSession(String sessionId) =>
       _setups.values.where((setup) => setup.testSessionId == sessionId).toList()
         ..sort((a, b) => a.datetime.compareTo(b.datetime));
+
+  /// Lazily built caches behind [suggestionFor] and [strategyReferenceFor],
+  /// dropped on every data change.
+  final Map<String, SuggestionResult?> _suggestions = {};
+  final Map<String, String?> _strategyReferences = {};
+
+  /// What the strategy of the session proposes next; null for a free session.
+  SuggestionResult? suggestionFor(String sessionId) => _suggestions.putIfAbsent(sessionId, () {
+    final session = _testSessions[sessionId];
+    if (session == null) return null;
+    return TestSessionStrategy.of(session.method)?.propose(_historyOf(session));
+  });
+
+  /// The run the strategy asked [run] to be compared with, replayed from the
+  /// runs before it; null outside a session with a strategy.
+  String? strategyReferenceFor(Setup run) => _strategyReferences.putIfAbsent(run.id, () {
+    final session = _testSessions[run.testSessionId];
+    if (session == null) return null;
+    final result = TestSessionStrategy.of(session.method)?.propose(_historyOf(session, before: run));
+    return result is Proposal ? result.referenceSetupId : null;
+  });
+
+  TestSessionHistory _historyOf(TestSession session, {Setup? before}) {
+    final now = DateTime.now().toUtc();
+    final knobs = TestSessionService.knobsFor(
+      bikeComponents: _components.values.where(
+        (component) => componentHierarchy.bikeAt(component.id, now) == session.bike,
+      ),
+      rider: _persons[_bikes[session.bike]?.person],
+    );
+    return TestSessionHistory.collect(
+      session: session,
+      sessions: _testSessions.values,
+      setups: _setups,
+      feedbacksForSetup: feedbacksForSetup,
+      adjustments: {for (final knob in knobs) knob.adjustment.id: knob.adjustment},
+      before: before,
+    );
+  }
 
   TestSession? runningSessionFor(String bikeId) {
     TestSession? running;
@@ -1444,6 +1488,17 @@ class AppRepository extends ChangeNotifier {
     await database.transaction(() async {
       await addTestSessions([session]);
       await addSetups([firstRun]);
+    });
+  }
+
+  /// Stores a run of [session] together with the values the strategy proposed
+  /// for it.
+  Future<void> addTestSessionRun(TestSession session, Setup run, {Map<String, AdjustmentValue>? proposal}) async {
+    await database.transaction(() async {
+      await addSetups([run]);
+      if (proposal == null) return;
+      final current = _testSessions[session.id] ?? session;
+      await editTestSession(current.copyWith(proposals: {...current.proposals, run.id: proposal}));
     });
   }
 

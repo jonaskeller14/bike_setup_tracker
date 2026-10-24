@@ -15,6 +15,20 @@ extension RideFeedbackSummary on RideFeedback {
   String? verdict(Map<String, Setup> setups) {
     final comparison = overallComparison;
     if (comparison == null) return null;
+    return _verdictOf(comparison, setups);
+  }
+
+  /// One verdict per overall comparison, the most recent reference first.
+  List<String> verdicts(Map<String, Setup> setups) => comparisons
+      .where((c) => c.aspect is OverallAspect && c.isValid)
+      .sortedBy<DateTime>(
+        (c) => setups[c.referenceSetupId]?.datetime ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      )
+      .reversed
+      .map((c) => _verdictOf(c, setups))
+      .toList();
+
+  static String _verdictOf(FeedbackComparison comparison, Map<String, Setup> setups) {
     final reference = setups[comparison.referenceSetupId]?.displayName ?? 'a deleted setup';
     final label = FeedbackVocabulary.overallOutcomeLabels[comparison.outcome]!;
     return comparison.outcome == 0 ? '$label as $reference' : '$label than $reference';

@@ -75,6 +75,27 @@ void main() {
     });
   });
 
+  group('verdicts', () {
+    test('lists every overall comparison, the most recent reference first', () {
+      final feedback = _feedback(comparisons: {_overall('s1', 2), _overall('gone', 0), _overall('s2', -1)});
+      expect(feedback.verdicts(setups), ['Slightly worse than S2', 'Better than S1', 'Same as a deleted setup']);
+    });
+
+    test('ignores aspect rows and out-of-range outcomes', () {
+      final feedback = _feedback(
+        comparisons: {
+          _overall('s1', 5),
+          const FeedbackComparison(
+            referenceSetupId: 's2',
+            aspect: EndAspect(FeedbackEnd.front, FeedbackAttribute.calm),
+            outcome: 1,
+          ),
+        },
+      );
+      expect(feedback.verdicts(setups), isEmpty);
+    });
+  });
+
   group('issuesSummary', () {
     test('orders front before rear, in vocabulary order', () {
       final feedback = _feedback(

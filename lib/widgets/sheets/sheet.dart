@@ -34,6 +34,32 @@ Widget sheetSectionHeader(BuildContext context, String title) {
   );
 }
 
+/// Soft warning row for sheets and forms: the choice still works, it just
+/// tells less.
+class SheetWarning extends StatelessWidget {
+  final String message;
+
+  const SheetWarning({super.key, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Icon(Icons.warning_amber_rounded, size: 18, color: scheme.error),
+          Expanded(
+            child: Text(message, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.error)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Sub-header inside a sheet section. [info] is shown in a tap tooltip behind
 /// an info icon on the right, styled like [SectionTitle]'s.
 class SheetGroupTitle extends StatelessWidget {

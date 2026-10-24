@@ -80,12 +80,7 @@ class FeedbackListTile extends StatelessWidget {
                   padding: EdgeInsets.only(top: 1),
                   child: Icon(RideFeedback.iconData),
                 ),
-                title: Text(
-                  feedback.verdict(appRepository.setups) ?? 'Feedback',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                title: _Verdicts(feedback.verdicts(appRepository.setups)),
                 subtitle: Wrap(
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 8,
@@ -157,6 +152,36 @@ class FeedbackListTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// One line per comparison, each ellipsized on its own; beyond [_maxLines]
+/// the rest is counted.
+class _Verdicts extends StatelessWidget {
+  static const _maxLines = 3;
+
+  final List<String> verdicts;
+
+  const _Verdicts(this.verdicts);
+
+  @override
+  Widget build(BuildContext context) {
+    const style = TextStyle(fontWeight: FontWeight.bold);
+    if (verdicts.isEmpty) return const Text('Feedback', style: style);
+    final hidden = verdicts.length - _maxLines;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final verdict in verdicts.take(_maxLines))
+          Text(verdict, style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
+        if (hidden > 0)
+          Text(
+            '+$hidden more',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+          ),
+      ],
     );
   }
 }

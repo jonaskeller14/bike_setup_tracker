@@ -935,8 +935,10 @@ class AppRepository extends ChangeNotifier {
   /// The custom issues the live feedbacks use, regardless of the filters.
   CustomIssueIndex get customIssues => _customIssues ??= CustomIssueService.index(_feedbacks.values);
 
+  /// The runs of a session, oldest first.
   List<Setup> setupsInSession(String sessionId) =>
-      _setups.values.where((setup) => setup.testSessionId == sessionId).toList();
+      _setups.values.where((setup) => setup.testSessionId == sessionId).toList()
+        ..sort((a, b) => a.datetime.compareTo(b.datetime));
 
   TestSession? runningSessionFor(String bikeId) {
     TestSession? running;
@@ -1212,21 +1214,54 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> removeTestSessions(Iterable<TestSession> sessions) async {
-    if (sessions.isEmpty) return;
+  /// Moves [sessions] to the trash together with their runs and the feedbacks
+  /// that rate those runs. Returns the runs and feedbacks it took along, so an
+  /// undo can restore exactly them.
+  Future<({List<Setup> runs, List<RideFeedback> feedbacks})> removeTestSessions(Iterable<TestSession> sessions) async {
+    final ids = {for (final session in sessions) session.id};
+    final runs = _setups.values.where((setup) => ids.contains(setup.testSessionId)).toList();
+    final runIds = {for (final run in runs) run.id};
+    final feedbacks = _feedbacks.values.where((feedback) => runIds.contains(resolvedSetupIdFor(feedback))).toList();
+    if (ids.isEmpty) return (runs: runs, feedbacks: feedbacks);
+
     await database.transaction(() async {
-      for (final session in sessions) {
-        await database.feedbackDao.deleteTestSession(session.id);
+      for (final id in ids) {
+        await database.feedbackDao.deleteTestSession(id);
       }
+      await removeSetups(runs);
+      await removeFeedbacks(feedbacks);
     });
+    return (runs: runs, feedbacks: feedbacks);
   }
 
-  Future<void> restoreTestSessions(Iterable<TestSession> sessions) async {
+  /// Restores [sessions] with their runs in the trash and the trashed
+  /// feedbacks that were recorded on those runs. An undo passes what
+  /// [removeTestSessions] took along as [runs] and [feedbacks], which also
+  /// covers a feedback that had drifted to a run.
+  Future<void> restoreTestSessions(
+    Iterable<TestSession> sessions, {
+    Iterable<Setup> runs = const [],
+    Iterable<RideFeedback> feedbacks = const [],
+  }) async {
     if (sessions.isEmpty) return;
+    final ids = {for (final session in sessions) session.id};
+    final allRuns = {
+      for (final run in [...runs, ..._deletedSetups.where((setup) => ids.contains(setup.testSessionId))]) run.id: run,
+    };
+    final allFeedbacks = {
+      for (final feedback in [
+        ...feedbacks,
+        ..._deletedFeedbacks.where((feedback) => allRuns.containsKey(feedback.setupId)),
+      ])
+        feedback.id: feedback,
+    };
+
     await database.transaction(() async {
-      for (final session in sessions) {
-        await database.feedbackDao.restoreTestSession(session.id);
+      for (final id in ids) {
+        await database.feedbackDao.restoreTestSession(id);
       }
+      await restoreSetups(allRuns.values);
+      await restoreFeedbacks(allFeedbacks.values);
     });
   }
 
@@ -1402,6 +1437,25 @@ class AppRepository extends ChangeNotifier {
     await database.feedbackDao.upsertTestSession(
       session.copyWith(lastModified: DateTime.now().toUtc()).toCompanion(),
     );
+  }
+
+  /// Stores the session together with its first run.
+  Future<void> startTestSession(TestSession session, Setup firstRun) async {
+    await database.transaction(() async {
+      await addTestSessions([session]);
+      await addSetups([firstRun]);
+    });
+  }
+
+  /// Freezes [adjustmentId] at [value], or releases it when [value] is null.
+  Future<void> setTestSessionLock(TestSession session, String adjustmentId, AdjustmentValue? value) {
+    final locks = {...session.locks};
+    if (value == null) {
+      locks.remove(adjustmentId);
+    } else {
+      locks[adjustmentId] = value;
+    }
+    return editTestSession(session.copyWith(locks: locks));
   }
 
   Future<void> endTestSession(TestSession session, {DateTime? at}) {

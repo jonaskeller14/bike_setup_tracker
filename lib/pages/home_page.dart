@@ -137,6 +137,7 @@ class _HomePageState extends State<HomePage> {
         TimelineSelectionKind.setup => appRepository.view.setups.containsKey(entry.id),
         TimelineSelectionKind.taskEntry => appRepository.view.taskEntries.containsKey(entry.id),
         TimelineSelectionKind.feedback => appRepository.view.feedbacks.containsKey(entry.id),
+        TimelineSelectionKind.testSession => appRepository.view.testSessions.containsKey(entry.id),
       },
     );
   }

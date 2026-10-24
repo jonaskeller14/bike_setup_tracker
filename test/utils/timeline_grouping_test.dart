@@ -2,6 +2,8 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/component/resolved_installation.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/timeline_entry.dart';
@@ -17,9 +19,11 @@ SetupEntry setupEntry({
   required String id,
   required DateTime utc,
   String bike = 'b1',
+  String? testSessionId,
 }) {
   return SetupEntry(Setup(
     id: id,
+    testSessionId: testSessionId,
     datetime: utc,
     datetimeLocal: local(utc),
     tags: const {},
@@ -330,6 +334,123 @@ void main() {
         settings: groupingSettings(setupGrouping: false),
       );
       expect(rows.whereType<SetupGroupRow>(), isEmpty);
+    });
+  });
+
+  group('test sessions', () {
+    TestSession session(String id, {DateTime? endedAt}) => TestSession(
+      id: id,
+      bike: 'b1',
+      adjustmentIds: const ['a1'],
+      startedAtUTC: DateTime.utc(2026, 7, 1, 8),
+      startedAtLocal: DateTime(2026, 7, 1, 8),
+      endedAtUTC: endedAt,
+      endedAtLocal: endedAt == null ? null : local(endedAt),
+    );
+    SetupEntry run(String id, DateTime utc, {String sessionId = 'ts'}) =>
+        setupEntry(id: id, utc: utc, testSessionId: sessionId);
+    FeedbackTimelineEntry feedback(String id, DateTime utc) => FeedbackTimelineEntry(
+      RideFeedback(id: id, bike: 'b1', setupId: 'unused', dateTimeUTC: utc, dateTimeLocal: local(utc)),
+    );
+
+    /// Bundles like the timeline list: a feedback rates the latest setup of
+    /// the bike at or before it.
+    List<TimelineEntry> bundle(List<TimelineEntry> entries, {Map<String, TestSession>? sessions}) {
+      final setups = entries.whereType<SetupEntry>().map((e) => e.setup).toList()
+        ..sort((a, b) => a.datetime.compareTo(b.datetime));
+      return bundleTestSessions(
+        entries,
+        sessions: sessions ?? {'ts': session('ts')},
+        ratedSetupIdOf: (feedback) =>
+            setups.lastWhere((setup) => !setup.datetime.isAfter(feedback.dateTimeUTC), orElse: () => setups.first).id,
+      );
+    }
+
+    test('fold into one item per session across days, runs oldest first', () {
+      final entries = bundle([
+        run('r2', DateTime.utc(2026, 7, 2, 9)),
+        run('r1', DateTime.utc(2026, 7, 1, 8)),
+        run('r3', DateTime.utc(2026, 7, 2, 10)),
+      ]);
+      final item = entries.single as TestSessionTimelineEntry;
+      expect(item.runs.map((run) => run.id), ['r1', 'r2', 'r3']);
+      expect(item.dateUTC, DateTime.utc(2026, 7, 1, 8), reason: 'placed at its first run');
+
+      final rows = build(entries, ascending: false);
+      expect(rows.whereType<DayHeaderRow>(), hasLength(1));
+      expect(rows.whereType<SingleEntryRow>().single.entry, item);
+    });
+
+    test('nest the feedbacks under the run they rate, not as rows of their own', () {
+      final entries = bundle([
+        run('r1', DateTime.utc(2026, 7, 1, 8)),
+        feedback('f1', DateTime.utc(2026, 7, 1, 8, 30)),
+        run('r2', DateTime.utc(2026, 7, 1, 9)),
+        feedback('f3', DateTime.utc(2026, 7, 1, 9, 40)),
+        feedback('f2', DateTime.utc(2026, 7, 1, 9, 30)),
+      ]);
+      final item = entries.single as TestSessionTimelineEntry;
+      expect(item.feedbacksByRun.map((run, feedbacks) => MapEntry(run, feedbacks.map((f) => f.id).toList())), {
+        'r1': ['f1'],
+        'r2': ['f2', 'f3'],
+      });
+      expect(build(entries, ascending: true).whereType<SingleEntryRow>(), hasLength(1));
+    });
+
+    test('leave setups and feedbacks outside the session alone', () {
+      final before = setupEntry(id: 's0', utc: DateTime.utc(2026, 7, 1, 7));
+      final onBefore = feedback('f0', DateTime.utc(2026, 7, 1, 7, 30));
+      final entries = bundle([before, onBefore, run('r1', DateTime.utc(2026, 7, 1, 8))]);
+      expect(entries, containsAll([before, onBefore]));
+      expect(entries.whereType<TestSessionTimelineEntry>().single.feedbacksByRun, isEmpty);
+    });
+
+    test('keep a single run as an item, so the next step stays reachable', () {
+      final entries = bundle([run('r1', DateTime.utc(2026, 7, 1, 8))]);
+      expect((entries.single as TestSessionTimelineEntry).runs, hasLength(1));
+    });
+
+    test('runs of an unknown session stay plain setups', () {
+      final orphan = run('r1', DateTime.utc(2026, 7, 1, 8), sessionId: 'gone');
+      expect(bundle([orphan]), [orphan]);
+    });
+
+    test('end at the end time once ended, otherwise at the latest run or feedback', () {
+      final entries = [run('r1', DateTime.utc(2026, 7, 1, 8)), feedback('f1', DateTime.utc(2026, 7, 1, 8, 30))];
+      final running = bundle(entries).single as TestSessionTimelineEntry;
+      expect(running.endLocal, local(DateTime.utc(2026, 7, 1, 8, 30)));
+
+      final ended = bundle(entries, sessions: {'ts': session('ts', endedAt: DateTime.utc(2026, 7, 1, 12))}).single
+          as TestSessionTimelineEntry;
+      expect(ended.endLocal, local(DateTime.utc(2026, 7, 1, 12)));
+    });
+
+    test('a session that starts during a ride sits in its block', () {
+      final activity = stravaEntry(id: 1, startUtc: DateTime.utc(2026, 7, 1, 10));
+      final later = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 13), bike: 'b2');
+      final entries = bundle([
+        activity,
+        later,
+        run('r1', DateTime.utc(2026, 7, 1, 10, 15)),
+        // Past the ride's end: the item still sits where the session started.
+        run('r2', DateTime.utc(2026, 7, 1, 11, 30)),
+      ]);
+      final rows = build(entries, ascending: false).whereType<SingleEntryRow>().toList();
+
+      expect(rows.map((row) => row.entry.id), ['setup:s1', 'session:ts', 'strava:1']);
+      expect(rows[0].stravaContext, isNull);
+      expect(rows[1].stravaContext?.activity.id, 1);
+      expect(rows[1].stravaContext?.isFirst, isTrue);
+      expect(rows[2].stravaContext?.isLast, isTrue);
+    });
+
+    test('a session that starts before a ride is outside its block', () {
+      final activity = stravaEntry(id: 1, startUtc: DateTime.utc(2026, 7, 1, 10));
+      final entries = bundle([activity, run('r1', DateTime.utc(2026, 7, 1, 9)), run('r2', DateTime.utc(2026, 7, 1, 10, 15))]);
+      final sessionRow = build(entries, ascending: true)
+          .whereType<SingleEntryRow>()
+          .singleWhere((row) => row.entry is TestSessionTimelineEntry);
+      expect(sessionRow.stravaContext, isNull);
     });
   });
 

@@ -7,6 +7,7 @@ import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/details/bike_details_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -19,6 +20,8 @@ import 'package:bike_setup_tracker/widgets/display_data/setup_line_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
 import 'package:bike_setup_tracker/widgets/initial_changed_value_legend.dart';
+import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
+import 'package:bike_setup_tracker/widgets/items/test_session_options_menu.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -160,6 +163,71 @@ void main() {
 
     expect(find.byType(SetupTable), findsNothing);
     expect(find.text('No setups reference this bike'), findsOneWidget);
+  });
+
+  testWidgets('offers to start a test session only while Feedback is on', (WidgetTester tester) async {
+    await pumpPageWith(tester, () async {
+      await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
+    });
+    expect(find.textContaining('Test sessions'), findsNothing);
+
+    appSettings.enableRating = true;
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Test sessions (0)'));
+    await tester.pumpAndSettle();
+    expect(find.text('No test sessions yet'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Start Test Session'), findsOneWidget);
+  });
+
+  testWidgets('a test session card has the Edit and Remove menu, on the edge of the component cards', (
+    WidgetTester tester,
+  ) async {
+    final started = DateTime(2024, 2, 1, 9);
+    await pumpPageWith(tester, () async {
+      await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
+      await appRepository.addComponents([
+        Component(
+          id: 'fork',
+          name: 'Fork',
+          componentType: ComponentType.fork,
+          installations: [Installation.sinceBeginning(parent: 'bike1')],
+        ),
+      ]);
+      // Ended, so no pulsing badge keeps the page from settling.
+      await appRepository.addTestSessions([
+        TestSession(
+          id: 'ts',
+          bike: 'bike1',
+          name: 'Rebound sweep',
+          adjustmentIds: const [],
+          startedAtUTC: started.toUtc(),
+          startedAtLocal: started,
+          endedAtUTC: started.add(const Duration(hours: 2)).toUtc(),
+          endedAtLocal: started.add(const Duration(hours: 2)),
+        ),
+      ]);
+    });
+    appSettings.enableRating = true;
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Test sessions (1)'));
+    await tester.pumpAndSettle();
+    expect(find.text('Rebound sweep'), findsOneWidget);
+
+    await tester.tap(find.text('Components (1)'));
+    await tester.pumpAndSettle();
+    final sessionMenu = find.byType(TestSessionOptionsMenu);
+    final componentMenu = find.descendant(
+      of: find.byType(ComponentListCard),
+      matching: find.byWidgetPredicate((widget) => widget is PopupMenuButton),
+    );
+    expect(tester.getRect(sessionMenu).right, tester.getRect(componentMenu).right);
+
+    await tester.tap(sessionMenu);
+    await tester.pumpAndSettle();
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Remove'), findsOneWidget);
   });
 
   testWidgets('shows the bike attachments only when attachments are enabled', (WidgetTester tester) async {

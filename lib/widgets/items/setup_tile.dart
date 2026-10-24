@@ -34,6 +34,9 @@ class SetupTile extends StatefulWidget {
   final EdgeInsets edgeInset;
   final bool showCurrentBadge;
 
+  /// When set, the collapsed values are these adjustments instead of the changes.
+  final Set<String>? collapsedAdjustmentIds;
+
   const SetupTile({
     super.key,
     required this.setupId,
@@ -46,6 +49,7 @@ class SetupTile extends StatefulWidget {
     this.currentBarLeft = 0,
     this.edgeInset = EdgeInsets.zero,
     this.showCurrentBadge = false,
+    this.collapsedAdjustmentIds,
   });
 
   @override
@@ -192,6 +196,7 @@ class _SetupTileState extends State<SetupTile> {
       adjustmentValues: adjustmentValues,
       previousAdjustmentValues: previousAdjustmentValues,
       displayPersonAdjustmentValues: appSettings.enablePerson,
+      collapsedAdjustmentIds: widget.collapsedAdjustmentIds,
     );
 
     final adjustmentList = AdjustmentCompactDisplayList(
@@ -205,6 +210,7 @@ class _SetupTileState extends State<SetupTile> {
       highlightInitialValues: true,
       displayOnlyChanges: _displayOnlyChanges,
       displayPersonAdjustmentValues: appSettings.enablePerson,
+      collapsedAdjustmentIds: widget.collapsedAdjustmentIds,
       ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, setup.datetimeLocal.toUtc()),
     );
 

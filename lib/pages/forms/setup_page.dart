@@ -17,6 +17,7 @@ import '../../models/component/setup_guide.dart';
 import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
+import '../../models/feedback/test_session.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
@@ -28,6 +29,7 @@ import '../../services/elevation_service.dart';
 import '../../services/location_service.dart';
 import '../../services/pressure_drift_service.dart';
 import '../../services/setup_resolution_service.dart';
+import '../../services/test_session_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
 import '../../utils/adjustment_role.dart';
@@ -55,6 +57,7 @@ enum SetupPageMode {
   add,
   edit,
   duplicate,
+  nextRun,  // only the adjusmtents of the session can be changed
 }
 
 class SetupPage extends StatefulWidget {
@@ -64,6 +67,7 @@ class SetupPage extends StatefulWidget {
   final DateTime? initialDateTimeLocal;
   final Bike? initialBike;
   final bool openRiderTab;
+  final TestSession? session;
 
   const SetupPage._({
     super.key,
@@ -73,6 +77,7 @@ class SetupPage extends StatefulWidget {
     this.initialDateTimeLocal,
     this.initialBike,
     this.openRiderTab = false,
+    this.session,
   });
 
   factory SetupPage.add({
@@ -113,6 +118,10 @@ class SetupPage extends StatefulWidget {
 
   factory SetupPage.duplicate({Key? key, required Setup setup}) => 
     SetupPage._(key: key, setup: setup, mode: SetupPageMode.duplicate);
+
+  /// [run] is the unsaved copy to start from, see [TestSessionService.run].
+  factory SetupPage.nextRun({Key? key, required Setup run, required TestSession session}) =>
+    SetupPage._(key: key, setup: run, mode: SetupPageMode.nextRun, session: session);
   
   @override
   State<SetupPage> createState() => _SetupPageState();
@@ -227,13 +236,69 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     _onBikeChange(_initialBike);
 
-    if (widget.setup == null || widget.mode == SetupPageMode.duplicate) unawaited(fetchLocationAddressWeather());
+    if (widget.setup == null || widget.mode == SetupPageMode.duplicate || widget.mode == SetupPageMode.nextRun) {
+      unawaited(fetchLocationAddressWeather());
+    }
+  }
+
+  /// The running session whose knobs limit what this run may change; null for a
+  /// setup that isn't part of one (or whose session has ended).
+  TestSession? get _runSession {
+    final session = switch (widget.mode) {
+      SetupPageMode.nextRun => widget.session,
+      SetupPageMode.edit => context.read<AppRepository>().testSessions[widget.setup?.testSessionId],
+      SetupPageMode.add || SetupPageMode.duplicate => null,
+    };
+    return session != null && session.isRunning ? session : null;
+  }
+
+  /// Adjustment ids the rider may change; null when everything is editable. A
+  /// lock holds for the next run, but a run that was recorded earlier may still
+  /// correct the knob.
+  Set<String>? get _editableIds {
+    final session = _runSession;
+    if (session == null) return null;
+    return widget.mode == SetupPageMode.nextRun
+        ? TestSessionService.editableIds(session)
+        : session.adjustmentIds.toSet();
+  }
+
+  Component _onlyEditable(Component component, Set<String> editable) =>
+      component.copyWith(adjustments: component.adjustments.where((a) => editable.contains(a.id)).toList());
+
+  /// A next run shows the rider tab only when the session tunes a rider attribute.
+  bool get _showPersonTab {
+    if (!context.read<AppSettings>().enablePerson) return false;
+    final editable = _editableIds;
+    if (widget.mode != SetupPageMode.nextRun || editable == null) return true;
+    final person = context.read<AppRepository>().persons[_person];
+    return person?.adjustments.any((a) => editable.contains(a.id)) ?? false;
+  }
+
+  /// What a next run must be recorded after: the session's last run, or its
+  /// start; null outside a next run.
+  DateTime? get _runAfterUtc {
+    final session = widget.session;
+    if (widget.mode != SetupPageMode.nextRun || session == null) return null;
+    final previous = context.read<AppRepository>().setupsInSession(session.id).lastOrNull?.datetime;
+    return previous != null && previous.isAfter(session.startedAtUTC) ? previous : session.startedAtUTC;
+  }
+
+  bool _isBeforeRunStart(DateTime dateTimeUtc) {
+    final after = _runAfterUtc;
+    return after != null && !dateTimeUtc.isAfter(after);
+  }
+
+  void _showRunStartError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.error(context, 'A run must be after the previous run of its test session.'),
+    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final int newLength = 1 + (context.read<AppSettings>().enablePerson ? 1 : 0);
+    final int newLength = 1 + (_showPersonTab ? 1 : 0);
     if (_tabControllerLength == null || _tabControllerLength != newLength) {
       final isFirstController = _tabControllerLength == null;
       if (!isFirstController) {
@@ -593,7 +658,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         year: pickedDate.year,
       ).isAfter(DateTime.now()),
       initialDate: _selectedDateTimeLocal,
-      firstDate: DateTime(2000),
+      firstDate: _runAfterUtc?.toLocal() ?? DateTime(2000),
       lastDate: DateTime.now(),
     );
     if (!mounted || pickedDate == null) return;
@@ -604,6 +669,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       year: pickedDate.year,
     );
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
+    if (_isBeforeRunStart(newDateTimeLocal.toUtc())) {
+      _showRunStartError();
+      return;
+    }
 
     setState(() {
       _selectedDateTimeLocal = newDateTimeLocal;
@@ -638,6 +707,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
       ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Date and Time cannot be in the future.'));
+      return;
+    }
+    if (_isBeforeRunStart(newDateTimeLocal.toUtc())) {
+      _showRunStartError();
       return;
     }
 
@@ -765,6 +838,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _revealFirstInvalidField();
       return;
     }
+    if ((widget.mode == SetupPageMode.add || widget.mode == SetupPageMode.duplicate) &&
+        context.read<AppRepository>().runningSessionFor(_bike) != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'A test session is running on this bike. End it before recording a setup.'),
+      );
+      return;
+    }
+    if (_isBeforeRunStart(_selectedDateTimeUtc)) {
+      _showRunStartError();
+      return;
+    }
     final nameText = _nameController.text.trim();
     final name = nameText.isEmpty ? null : nameText;
     final notesText = _notesController.text.trim();
@@ -793,7 +877,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         place: _currentPlace.value,
         weather: _currentWeather.value,
         attachments: _attachments,
-        testSessionId: widget.mode == SetupPageMode.edit ? widget.setup?.testSessionId : null, //FIXME: only when edit? duplicate(=restore) inside of testsession not possible, or add new mode? 
+        testSessionId: widget.mode == SetupPageMode.edit || widget.mode == SetupPageMode.nextRun
+            ? widget.setup?.testSessionId
+            : null,
       ),
     );
   }
@@ -1159,6 +1245,34 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Widget _bikeField({required Map<String, Bike> bikes}) {
+    // A run stays on the bike of its session.
+    if (widget.mode == SetupPageMode.nextRun || _runSession != null) {
+      final scheme = Theme.of(context).colorScheme;
+      // Dimmed like the locked type field of the component form.
+      final disabled = Theme.of(context).disabledColor;
+      return InputDecorator(
+        isEmpty: false,
+        decoration: const InputDecoration(
+          labelText: 'Bike',
+          enabled: false,
+          border: OutlineInputBorder(),
+          suffixIcon: Icon(Icons.lock_outline),
+        ),
+        child: Row(
+          spacing: 8,
+          children: [
+            Icon(Bike.iconData, color: disabled),
+            Expanded(
+              child: Text(
+                bikes[_bike]?.name ?? 'BIKE NOT FOUND',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: bikes.containsKey(_bike) ? disabled : scheme.error),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return DropdownButtonFormField<String>(
       initialValue: _bike,
       isExpanded: true,
@@ -1201,7 +1315,29 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           ),
         ),
       ],
-      onChanged: (String? newBike) => _onBikeChange(newBike),
+      onChanged: _onBikeChange,
+    );
+  }
+
+  Widget _sessionNotice(TestSession session) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      color: scheme.secondaryContainer,
+      child: ListTile(
+        dense: true,
+        leading: Icon(TestSession.iconData, color: scheme.onSecondaryContainer),
+        title: Text(
+          "Run of '${session.displayName}'",
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: scheme.onSecondaryContainer, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          'Only the adjustments of the session can change. Everything else is copied from the previous run.',
+          style: TextStyle(color: scheme.onSecondaryContainer),
+        ),
+      ),
     );
   }
 
@@ -1397,14 +1533,20 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {
-    final headers = [?_setupGuide(bikeComponents), ?_pressureCheck(bikeComponents)];
+    final editable = _editableIds;
+    final headers = editable != null ? const <Widget>[] : [?_setupGuide(bikeComponents), ?_pressureCheck(bikeComponents)];
     final tab = SetupBikeTab(
       bike: _bike,
       header: headers.length > 1
           ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: headers)
           : headers.firstOrNull,
       valuesRevision: _appliedGuideRevision,
-      bikeComponents: bikeComponents,
+      bikeComponents: editable == null
+          ? bikeComponents
+          : [
+              for (final component in bikeComponents)
+                if (component.adjustments.any((a) => editable.contains(a.id))) _onlyEditable(component, editable),
+            ],
       allComponents: appRepository.components,
       bikes: appRepository.bikes,
       ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, _selectedDateTimeUtc),
@@ -1415,6 +1557,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
       onRemoveFromAdjustmentValues: _removeFromBikeAdjustmentValues,
       onAddCategoricalOption: _onAddBikeCategoricalOption,
+      allowAdding: editable == null,
       onDanglingRemove: (id) {
         setState(() {
           _danglingBikeAdjustmentValues.remove(id);
@@ -1427,10 +1570,19 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Widget _personTab(AppRepository appRepository) {
+    final editable = _editableIds;
+    final person = appRepository.persons[_person];
     return SetupPersonTab(
       bike: _bike,
       personId: _person,
-      persons: appRepository.persons,
+      persons: editable == null || person == null
+          ? appRepository.persons
+          : {
+              ...appRepository.persons,
+              person.id: person.copyWith(
+                adjustments: person.adjustments.where((a) => editable.contains(a.id)).toList(),
+              ),
+            },
       personAdjustmentValues: _personAdjustmentValues,
       previousPersonAdjustmentValues: _previousPersonAdjustmentValues,
       valuesRevision: _guideWeightRevision,
@@ -1440,6 +1592,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       onRemoveFromAdjustmentValues: _removeFromPersonAdjustmentValues,
       onAddCategoricalOption: _onAddPersonCategoricalOption,
       changeListener: _changeListener,
+      allowAdding: editable == null,
       onDanglingRemove: (id) {
         setState(() {
           _danglingPersonAdjustmentValues.remove(id);
@@ -1466,6 +1619,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           title: switch (widget.mode) {
             SetupPageMode.add || SetupPageMode.duplicate => const Text('Add Setup'),
             SetupPageMode.edit => const Text('Edit Setup'),
+            SetupPageMode.nextRun => const Text('Next Run'),
           },
           actions: [
             Semantics(
@@ -1499,6 +1653,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         ),
                         const SizedBox(height: 12),
                         _wrap(),
+                        if (_runSession case final session?) ...[
+                          const SizedBox(height: 12),
+                          _sessionNotice(session),
+                        ],
                       ],
                     ),
                   ),
@@ -1533,7 +1691,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   ),
                 ),
                 SliverToBoxAdapter(
-                  child: context.read<AppSettings>().enablePerson
+                  child: _tabController.length > 1
                       // Both tabs stay in the tree so their fields keep their
                       // state; the inactive one takes no space.
                       ? StickySection(

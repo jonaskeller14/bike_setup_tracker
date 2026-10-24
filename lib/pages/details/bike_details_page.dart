@@ -11,6 +11,7 @@ import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
+import '../../models/feedback/test_session.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
@@ -22,6 +23,7 @@ import '../../utils/component_actions.dart';
 import '../../utils/filter_actions.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
+import '../../utils/test_session_actions.dart';
 import '../../widgets/attachment_row.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_stats_card.dart';
@@ -34,11 +36,13 @@ import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/installation_timeline_table.dart';
 import '../../widgets/items/component_list_card.dart';
+import '../../widgets/items/test_session_tile.dart';
 import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/sheets/set_initial_stats.dart' as initial_stats;
 import '../../widgets/sheets/strava.dart';
+import '../../widgets/sheets/test_session_sheet.dart';
 import '../../widgets/text/section_title.dart';
 
 class BikeDetailsPage extends StatefulWidget {
@@ -167,6 +171,60 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
       if (_selectedHistogramColumn == column) _selectedHistogramColumn = null;
     });
+  }
+
+  Widget _testSessions(BuildContext context, AppRepository appRepository, Bike bike) {
+    final sessions = appRepository.testSessions.values
+        .where((session) => session.bike == bike.id)
+        .sorted((a, b) => b.startedAtUTC.compareTo(a.startedAtUTC));
+
+    return ExpansionTile(
+      shape: const Border(),
+      collapsedShape: const Border(),
+      leading: const Icon(TestSession.iconData),
+      title: Text(
+        "Test sessions (${sessions.length})",
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+      ),
+      childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+      children: [
+        if (sessions.isEmpty) ...[
+          EmptyStatePlaceholder2(
+            iconData: TestSession.iconData,
+            title: 'No test sessions yet',
+            subtitle: 'Try adjustments one after the other and see which works best',
+            onTap: () => unawaited(TestSessionActions.startSession(context, initialBike: bike)),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => unawaited(TestSessionActions.startSession(context, initialBike: bike)),
+              icon: const Icon(Icons.add),
+              label: const Text('Start Test Session'),
+            ),
+          ),
+        ] else ...[
+          for (final session in sessions)
+            Card(
+              key: ValueKey(session.id),
+              margin: const EdgeInsets.symmetric(vertical: 4.0),
+              clipBehavior: Clip.antiAlias, // Borderradius for InkWell
+              child: TestSessionTile(
+                session: session,
+                onTap: () => unawaited(showTestSessionSheet(context: context, sessionId: session.id)),
+              ),
+            ),
+          Center(
+            child: TextButton.icon(
+              onPressed: () => unawaited(TestSessionActions.startSession(context, initialBike: bike)),
+              icon: const Icon(Icons.add),
+              label: const Text('Start Test Session'),
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
   Widget _setupHistory(
@@ -640,6 +698,10 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                 ],
               ),
               const Divider(height: 1),
+              if (appSettings.enableRating) ...[
+                _testSessions(context, appRepository, bike),
+                const Divider(height: 1),
+              ],
               _setupHistory(context, appSettings, appRepository, subscriptionService, person),
               if (appSettings.enableInstallationTimeline) ...[
                 const Divider(height: 1),

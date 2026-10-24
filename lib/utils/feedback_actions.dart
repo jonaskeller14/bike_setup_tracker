@@ -13,7 +13,8 @@ import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 
 class FeedbackActions {
-  static Future<void> addFeedback(
+  /// Whether a feedback was saved.
+  static Future<bool> addFeedback(
     BuildContext context, {
     Bike? initialBike,
     DateTime? initialDateTimeUtc,
@@ -31,25 +32,26 @@ class FeedbackActions {
     );
   }
 
-  static Future<void> addFeedbackFromStravaActivity(BuildContext context, {required StravaActivity stravaActivity}) {
+  static Future<bool> addFeedbackFromStravaActivity(BuildContext context, {required StravaActivity stravaActivity}) {
     return _pushAndAdd(
       context,
       (context) => FeedbackPage.addFromStravaActivity(context: context, stravaActivity: stravaActivity),
     );
   }
 
-  static Future<void> _pushAndAdd(BuildContext context, FeedbackPage Function(BuildContext) page) async {
+  static Future<bool> _pushAndAdd(BuildContext context, FeedbackPage Function(BuildContext) page) async {
     final appRepository = context.read<AppRepository>();
 
     final newFeedback = await Navigator.push<RideFeedback>(context, MaterialPageRoute(builder: page));
-    if (newFeedback == null) return;
+    if (newFeedback == null) return false;
 
     await appRepository.addFeedbacks([newFeedback]);
+    return true;
   }
 
   /// Feedback on [setup]: dated now while it is the bike's active setup,
   /// otherwise at its start, so the new feedback resolves to it.
-  static Future<void> addFeedbackForSetup(BuildContext context, {required Setup setup, String? heroTag}) {
+  static Future<bool> addFeedbackForSetup(BuildContext context, {required Setup setup, String? heroTag}) {
     final appRepository = context.read<AppRepository>();
     final (utc, local) = feedbackTimeFor(appRepository, setup);
     return addFeedback(

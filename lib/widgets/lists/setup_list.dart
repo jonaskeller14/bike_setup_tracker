@@ -123,7 +123,7 @@ class SetupList extends StatelessWidget {
         ? stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isAfter(b) ? a : b)
         : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
 
-    final List<TimelineEntry> entries = [
+    final List<TimelineEntry> flatEntries = [
       if (layers.shows(TimelineLayer.setups))
         ...setupsList
             .where((s) {
@@ -162,6 +162,13 @@ class SetupList extends StatelessWidget {
             })
             .map((f) => FeedbackTimelineEntry(f)),
     ];
+    final entries = appSettings.enableRating
+        ? bundleTestSessions(
+            flatEntries,
+            sessions: appRepository.view.testSessions,
+            ratedSetupIdOf: appRepository.resolvedSetupIdFor,
+          )
+        : flatEntries;
     entries.sort(
       (a, b) => sortAscending ? compareTimelineEntries(a, b) : compareTimelineEntries(b, a),
     );

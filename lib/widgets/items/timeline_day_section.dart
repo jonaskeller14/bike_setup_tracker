@@ -23,6 +23,7 @@ import 'replacement_list_tile.dart';
 import 'setup_group_section.dart';
 import 'setup_tile.dart';
 import 'strava_context_wrapper.dart';
+import 'test_session_timeline_item.dart';
 
 class TimelineDaySection extends StatelessWidget{
   final DayHeaderRow header;
@@ -147,6 +148,15 @@ class TimelineDaySection extends StatelessWidget{
           selected: selection.contains(selectionId),
           onSelectionChanged: _toggleSelection(selectionId),
           showDate: false,
+        );
+      case TestSessionTimelineEntry():
+        final selectionId = testSessionSelectionId(entry.session.id);
+        return TestSessionTimelineItem(
+          entry: entry,
+          onTapRun: (run) => _openSetupDetails(context, setupsList, run),
+          selectionMode: _selectionMode,
+          selected: selection.contains(selectionId),
+          onSelectionChanged: _toggleSelection(selectionId),
         );
     }
   }

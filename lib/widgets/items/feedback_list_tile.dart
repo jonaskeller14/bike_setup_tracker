@@ -21,6 +21,7 @@ class FeedbackListTile extends StatelessWidget {
   final bool selected;
   final VoidCallback? onSelectionChanged;
   final bool showDate;
+  final bool showBike;
 
   const FeedbackListTile({
     super.key,
@@ -29,6 +30,7 @@ class FeedbackListTile extends StatelessWidget {
     this.selected = false,
     this.onSelectionChanged,
     this.showDate = true,
+    this.showBike = true,
   });
 
   @override
@@ -92,7 +94,8 @@ class FeedbackListTile extends StatelessWidget {
                       showDate ? "$dateText • $timeText" : timeText,
                       style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 12),
                     ),
-                    TileMetaRow(icon: Bike.iconData, text: bike?.name ?? "BIKE NOT FOUND", isError: bike == null),
+                    if (showBike)
+                      TileMetaRow(icon: Bike.iconData, text: bike?.name ?? "BIKE NOT FOUND", isError: bike == null),
                     if (activity != null) TileMetaRow(icon: SimpleIcons.strava, text: activity.name),
                   ],
                 ),

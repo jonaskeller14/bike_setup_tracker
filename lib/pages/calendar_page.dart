@@ -12,6 +12,7 @@ import '../models/app_settings.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/feedback/ride_feedback.dart';
+import '../models/feedback/test_session.dart';
 import '../models/filters/layer_filter.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
@@ -33,6 +34,7 @@ import '../widgets/sheets/replacement_sheet.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
 import '../widgets/sheets/task_rule_sheet.dart';
+import '../widgets/sheets/test_session_sheet.dart';
 
 const Duration kCalendarZeroDuration = Duration(minutes: 30);
 const double kCalendarTimeSlotHeight = 30;
@@ -120,6 +122,7 @@ IconData calendarIconFor(
       TaskTimeLineEntry() => Icons.check_box_outlined,
       InstallationEntry() => entry.componentInstallation.component.componentType.getIconData(),
       FeedbackTimelineEntry() => RideFeedback.iconData,
+      TestSessionTimelineEntry() => TestSession.iconData,
     };
 
 Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
@@ -128,6 +131,7 @@ Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
       TaskTimeLineEntry() => cs.tertiary,
       InstallationEntry() => cs.secondary,
       FeedbackTimelineEntry() => cs.primaryContainer,
+      TestSessionTimelineEntry() => cs.primary,
     };
 
 Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
@@ -136,6 +140,7 @@ Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) 
       TaskTimeLineEntry() => cs.onTertiary,
       InstallationEntry() => cs.onSecondary,
       FeedbackTimelineEntry() => cs.onPrimaryContainer,
+      TestSessionTimelineEntry() => cs.onPrimary,
     };
 
 String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
@@ -144,6 +149,7 @@ String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
       TaskTimeLineEntry() => entry.taskEntry.name,
       InstallationEntry() => entry.componentInstallation.shortLabel,
       FeedbackTimelineEntry() => 'Feedback',
+      TestSessionTimelineEntry() => entry.session.displayName,
     };
 
 IconData calendarIconForRow(
@@ -268,7 +274,7 @@ class _CalendarPageState extends State<CalendarPage> {
     SubscriptionService subscriptionService,
   ) {
     final layers = appRepository.filters.layers;
-    return [
+    final entries = [
       if (layers.shows(TimelineLayer.setups))
         ...appRepository.view.setups.values.map((s) => SetupEntry(s)),
       if (_showingStrava(appRepository, appSettings, subscriptionService))
@@ -280,6 +286,13 @@ class _CalendarPageState extends State<CalendarPage> {
       if (appSettings.enableRating && layers.shows(TimelineLayer.feedback))
         ...appRepository.view.feedbacks.values.map((f) => FeedbackTimelineEntry(f)),
     ];
+    // A session is one appointment from its first run to its end, as in the timeline.
+    if (!appSettings.enableRating) return entries;
+    return bundleTestSessions(
+      entries,
+      sessions: appRepository.view.testSessions,
+      ratedSetupIdOf: appRepository.resolvedSetupIdFor,
+    );
   }
 
   /// Future due dates for the open, not-yet-due rules currently in scope.
@@ -488,6 +501,8 @@ class _CalendarPageState extends State<CalendarPage> {
         );
       case FeedbackTimelineEntry():
         await showFeedbackDetailsSheet(context: context, feedbackId: entry.feedback.id);
+      case TestSessionTimelineEntry():
+        await showTestSessionSheet(context: context, sessionId: entry.session.id);
     }
   }
 
@@ -642,6 +657,8 @@ class _CalendarPageState extends State<CalendarPage> {
       case StravaEntry():
         // Strava activities are synced and read-only.
         _rejectMove("Strava activities can't be edited.");
+      case TestSessionTimelineEntry():
+        _rejectMove("A test session can't be moved. Change the times of its runs instead.");
     }
   }
 
@@ -952,9 +969,17 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
       SingleEntryRow(entry: StravaEntry(:final activity)) =>
         row.anchorDateLocal.add(activity.elapsedTime),
       ReplacementRow() => _replacementEndTime(row),
+      SingleEntryRow(entry: TestSessionTimelineEntry(:final endLocal)) => _sessionEndTime(row, endLocal),
       SingleEntryRow() || SetupGroupRow() =>
         row.anchorDateLocal.add(kCalendarZeroDuration),
     };
+  }
+
+  /// A session spans its first run to its end, never shorter than
+  /// [kCalendarZeroDuration], like a replacement.
+  DateTime _sessionEndTime(EntryRow row, DateTime endLocal) {
+    final minEnd = row.anchorDateLocal.add(kCalendarZeroDuration);
+    return endLocal.isAfter(minEnd) ? endLocal : minEnd;
   }
 
   /// A replacement spans its earlier half to its later one, but never shorter

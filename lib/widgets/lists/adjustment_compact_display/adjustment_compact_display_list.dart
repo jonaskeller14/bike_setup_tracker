@@ -38,6 +38,9 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
   final bool displayPersonAdjustmentValues;
   final bool missingValuesPlaceholder;
 
+  /// When set, the collapsed state shows these adjustments instead of the changes.
+  final Set<String>? collapsedAdjustmentIds;
+
   final List<ComponentAncestor> Function(String componentId)? ancestorsOf;
 
   const AdjustmentCompactDisplayList({
@@ -54,6 +57,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     this.displayBikeAdjustmentValues = true,
     this.displayPersonAdjustmentValues = true,
     this.missingValuesPlaceholder = false,
+    this.collapsedAdjustmentIds,
     this.ancestorsOf,
   });
 
@@ -68,6 +72,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     required bool displayBikeAdjustmentValues,
     required bool displayPersonAdjustmentValues,
     required bool missingValuesPlaceholder,
+    required Set<String>? collapsedAdjustmentIds,
     List<ComponentAncestor> Function(String componentId)? ancestorsOf,
   }) {
     final owners = <AdjustmentDisplayItem>[
@@ -106,7 +111,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
           previousValue: previousValue,
           isError: owner.isError,
         );
-        if (displayOnlyChanges && !cell.isChange) continue;
+        if (displayOnlyChanges && !(collapsedAdjustmentIds?.contains(adjustment.id) ?? cell.isChange)) continue;
         cells.add(cell);
       }
       if (cells.isNotEmpty) groups.add(AdjustmentCellGroup(owner: owner, cells: cells));
@@ -125,6 +130,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     bool displayBikeAdjustmentValues = true,
     bool displayPersonAdjustmentValues = true,
     bool missingValuesPlaceholder = false,
+    Set<String>? collapsedAdjustmentIds,
   }) {
     int visibleCells(bool displayOnlyChanges) {
       final groups = _resolveGroups(
@@ -138,6 +144,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
         displayBikeAdjustmentValues: displayBikeAdjustmentValues,
         displayPersonAdjustmentValues: displayPersonAdjustmentValues,
         missingValuesPlaceholder: missingValuesPlaceholder,
+        collapsedAdjustmentIds: collapsedAdjustmentIds,
       );
       return groups.fold(0, (count, group) => count + group.cells.length);
     }
@@ -164,6 +171,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       displayBikeAdjustmentValues: displayBikeAdjustmentValues,
       displayPersonAdjustmentValues: displayPersonAdjustmentValues,
       missingValuesPlaceholder: missingValuesPlaceholder,
+      collapsedAdjustmentIds: collapsedAdjustmentIds,
       ancestorsOf: ancestorsOf,
     );
     if (groups.isEmpty) return const SizedBox.shrink();

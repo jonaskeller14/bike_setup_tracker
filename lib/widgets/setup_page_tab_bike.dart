@@ -35,6 +35,7 @@ class SetupBikeTab extends StatefulWidget {
   /// Changes when [bikeAdjustmentValues] were written from outside the fields,
   /// so they re-read them.
   final int valuesRevision;
+  final bool allowAdding; // Allow adding components and adjustments
 
   const SetupBikeTab({
     super.key,
@@ -53,6 +54,7 @@ class SetupBikeTab extends StatefulWidget {
     this.onAddCategoricalOption,
     this.header,
     this.valuesRevision = 0,
+    this.allowAdding = true,
   });
 
   @override
@@ -84,6 +86,9 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
   }
 
   Widget _buildEmptyComponentsPlaceholder(BuildContext context, String bike) {
+    if (!widget.allowAdding) {
+      return const EmptyStatePlaceholder2(iconData: Component.iconData, title: "No bike adjustments to change");
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -156,16 +161,12 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                         child: Icon(bikeComponent.componentType.getIconData()),
                       ),
                       enabled: bikeComponent.adjustments.isNotEmpty,
-                      trailing: IconButton(
-                        onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
-                        icon: const Icon(Icons.add),
-                      ),
-                      // trailing: _initiallyEmptyComponentIds.contains(bikeComponent.id)
-                      //     ? IconButton(
-                      //         onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
-                      //         icon: const Icon(Icons.add),
-                      //       )
-                      //     : null,
+                      trailing: widget.allowAdding
+                          ? IconButton(
+                              onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
+                              icon: const Icon(Icons.add),
+                            )
+                          : null,
                     ),
                   ),
                   AdjustmentSetList(
@@ -185,13 +186,14 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
               ),
             );
           }),
-          Center(
-            child: TextButton.icon(
-              onPressed: () => ComponentActions.addComponent(context, initialBike: widget.bike),
-              icon: const Icon(Icons.add),
-              label: const Text("Add Component"),
+          if (widget.allowAdding)
+            Center(
+              child: TextButton.icon(
+                onPressed: () => ComponentActions.addComponent(context, initialBike: widget.bike),
+                icon: const Icon(Icons.add),
+                label: const Text("Add Component"),
+              ),
             ),
-          ),
         ],
         if (componentSplit.groups.isNotEmpty || componentSplit.deletedValues.isNotEmpty) ...[
           const Divider(height: 50),

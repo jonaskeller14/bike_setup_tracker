@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../models/feedback/ride_feedback.dart';
+import '../models/feedback/test_session.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
 import '../models/timeline_selection.dart';
@@ -32,13 +33,20 @@ class TimelineActions {
         .map((id) => appRepository.feedbacks[id])
         .whereType<RideFeedback>()
         .toList();
+    final sessions = selection
+        .idsOf(TimelineSelectionKind.testSession)
+        .map((id) => appRepository.testSessions[id])
+        .whereType<TestSession>()
+        .toList();
 
-    final total = setups.length + taskEntries.length + feedbacks.length;
+    // A session counts as one entry, though its runs and feedbacks go with it.
+    final total = setups.length + taskEntries.length + feedbacks.length + sessions.length;
     if (total == 0) return;
 
     await appRepository.removeSetups(setups);
     await appRepository.removeTaskEntries(taskEntries);
     await appRepository.removeFeedbacks(feedbacks);
+    final sessionContents = await appRepository.removeTestSessions(sessions);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
@@ -56,6 +64,11 @@ class TimelineActions {
             await appRepository.restoreSetups(setups);
             await appRepository.restoreTaskEntries(taskEntries);
             await appRepository.restoreFeedbacks(feedbacks);
+            await appRepository.restoreTestSessions(
+              sessions,
+              runs: sessionContents.runs,
+              feedbacks: sessionContents.feedbacks,
+            );
           },
         ),
       ),

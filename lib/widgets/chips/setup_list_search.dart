@@ -11,12 +11,15 @@ import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../services/test_session_service.dart';
 import '../../utils/text_search.dart';
+import '../../utils/timeline_grouping.dart';
 import '../items/feedback_list_tile.dart';
 import '../items/installation_list_tile.dart';
 import '../items/setup_tile.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
+import '../items/test_session_timeline_item.dart';
 import '../sheets/installation_sheet.dart';
 import '../sheets/task_rule_sheet.dart';
 import '../timeline_day_header.dart';
@@ -138,6 +141,43 @@ class SetupListSearch extends StatelessWidget {
           );
         }
 
+        // A session shows as one item, with all its runs and their feedbacks,
+        // when its name, a goal, a run name or anything inside it matches.
+        if (appSettings.enableRating && layers.shows(TimelineLayer.setups)) {
+          final sessions = appRepository.view.testSessions;
+          String? sessionIdOf(TimelineEntry entry) => switch (entry) {
+            SetupEntry(:final setup) => setup.testSessionId,
+            FeedbackTimelineEntry(:final feedback) =>
+              appRepository.setups[appRepository.resolvedSetupIdFor(feedback)]?.testSessionId,
+            _ => null,
+          };
+          final matchedIds = <String>{
+            for (final session in sessions.values)
+              if (searchFieldsMatch([
+                session.name,
+                ...session.goal.map((aspect) => TestSessionService.goalLabel(aspect, appRepository.customIssues.labelOf)),
+              ], searchTokens))
+                session.id,
+            for (final entry in matchingEntries)
+              if (sessionIdOf(entry) case final id? when sessions.containsKey(id)) id,
+          };
+          final contents = <TimelineEntry>[
+            ...appRepository.view.setups.values.map((s) => SetupEntry(s)),
+            if (layers.shows(TimelineLayer.feedback))
+              ...appRepository.view.feedbacks.values.map((f) => FeedbackTimelineEntry(f)),
+          ].where((entry) => matchedIds.contains(sessionIdOf(entry)));
+          // A run or feedback can match on its own and through its session.
+          final seen = <String>{};
+          final bundled = bundleTestSessions(
+            [...matchingEntries, ...contents].where((entry) => seen.add(entry.id)).toList(),
+            sessions: {for (final id in matchedIds) id: sessions[id]!},
+            ratedSetupIdOf: appRepository.resolvedSetupIdFor,
+          );
+          matchingEntries
+            ..clear()
+            ..addAll(bundled);
+        }
+
         matchingEntries.sort((a, b) {
           return sortAscending ? compareTimelineEntries(a, b) : compareTimelineEntries(b, a);
         });
@@ -182,6 +222,16 @@ class SetupListSearch extends StatelessWidget {
               );
             case FeedbackTimelineEntry():
               return FeedbackListTile(feedback: entry.feedback, showDate: false);
+            case TestSessionTimelineEntry():
+              return TestSessionTimelineItem(
+                entry: entry,
+                onTapRun: (run) async {
+                  await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDetailsPage(
+                    setupIds: entry.runs.map((run) => run.id).toList(),
+                    initialSetup: run,
+                  )));
+                },
+              );
           }
         }
 

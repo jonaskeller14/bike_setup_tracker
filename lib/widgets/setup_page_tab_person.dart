@@ -32,6 +32,7 @@ class SetupPersonTab extends StatelessWidget {
   final VoidCallback changeListener;
   final void Function(String) onDanglingRemove;
   final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
+  final bool allowAdding; // Allow adding attributes
 
   const SetupPersonTab({
     super.key,
@@ -48,6 +49,7 @@ class SetupPersonTab extends StatelessWidget {
     required this.changeListener,
     required this.onDanglingRemove,
     this.onAddCategoricalOption,
+    this.allowAdding = true,
   });
 
   @override
@@ -87,10 +89,12 @@ class SetupPersonTab extends StatelessWidget {
                       child: const Icon(Person.iconData),
                     ),
                     enabled: person.adjustments.isNotEmpty,
-                    trailing: IconButton(
-                      onPressed: () => PersonActions.addAdjustmentForPerson(context, person: person),
-                      icon: const Icon(Icons.add),
-                    ),
+                    trailing: allowAdding
+                        ? IconButton(
+                            onPressed: () => PersonActions.addAdjustmentForPerson(context, person: person),
+                            icon: const Icon(Icons.add),
+                          )
+                        : null,
                   ),
                 ),
                 AdjustmentSetList(

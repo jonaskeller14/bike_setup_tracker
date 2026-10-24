@@ -16,6 +16,7 @@ import '../widgets/sheets/set_tags_bulk.dart';
 import 'attachment_actions.dart';
 import 'bike_actions.dart';
 import 'component_actions.dart';
+import 'test_session_actions.dart';
 import 'to_text.dart';
 
 class SetupActions {
@@ -54,6 +55,14 @@ class SetupActions {
       return;
     }
 
+    // While a session runs on the bike, a new setup is its next run.
+    final bikeId = initialBike?.id ?? appRepository.view.bikes.keys.firstOrNull ?? appRepository.bikes.keys.firstOrNull;
+    final running = bikeId == null ? null : appRepository.runningSessionFor(bikeId);
+    if (running != null) {
+      await TestSessionActions.addRun(context, session: running);
+      return;
+    }
+
     final newSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(
@@ -85,6 +94,14 @@ class SetupActions {
 
   static Future<Setup?> duplicateSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
+    // Restoring a run of a running session is another run, e.g. to ride an
+    // earlier one again.
+    final session = appRepository.testSessions[setup.testSessionId];
+    if (session != null && session.isRunning) {
+      return TestSessionActions.addRun(context, session: session, source: setup);
+    }
+    if (!await TestSessionActions.ensureNoRunningSession(context, bikeId: setup.bike) || !context.mounted) return null;
+
     final deepCopied = setup.deepCopy();
     final copiedAttachments = await AttachmentActions.copyAttachmentFiles(deepCopied.attachments);
 

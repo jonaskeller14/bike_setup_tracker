@@ -18,6 +18,7 @@ import '../../models/feedback/feedback_key.dart';
 import '../../models/feedback/feedback_observation.dart';
 import '../../models/feedback/feedback_vocabulary.dart';
 import '../../models/feedback/ride_feedback.dart';
+import '../../models/feedback/test_session.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
@@ -41,6 +42,7 @@ import '../../widgets/sheets/custom_issues_sheet.dart';
 import '../../widgets/sheets/set_condition.dart';
 import '../../widgets/sheets/set_location_place.dart';
 import '../../widgets/sheets/set_weather.dart';
+import '../../widgets/sheets/sheet_header.dart';
 import '../../widgets/text/section_title.dart';
 
 enum FeedbackPageMode {
@@ -138,6 +140,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
   List<CustomIssue> _customIssues = [];
   bool _nothingStoodOut = false;
 
+  // Test session runs only: "Something else changed" is open, and the overall
+  // answers against runs other than the reference (reference id -> outcome).
+  bool _showAllAspects = false;
+  final List<String> _extraRefs = [];
+  final Map<String, int> _extraOutcomes = {};
+
   // Answers this form doesn't show (other references, unknown keys), written
   // back unchanged.
   Set<FeedbackComparison> _otherComparisons = {};
@@ -188,7 +196,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
         '';
     _setupId = feedback?.setupId;
 
-    if (feedback != null) _initAnswers(feedback);
+    if (feedback != null) {
+      _initAnswers(feedback);
+      if (_sessionOf(_ratedSetup()) != null) _initExtraComparisons();
+    }
 
     final activity = widget.initialStravaActivity;
     if (feedback != null) return;
@@ -238,6 +249,16 @@ class _FeedbackPageState extends State<FeedbackPage> {
         .toSet();
   }
 
+  /// Overall answers against other runs get their own rows in a run debrief.
+  void _initExtraComparisons() {
+    final extras = _otherComparisons.where((c) => c.isValid && c.aspect is OverallAspect).toList();
+    for (final comparison in extras) {
+      _extraRefs.add(comparison.referenceSetupId);
+      _extraOutcomes[comparison.referenceSetupId] = comparison.outcome;
+    }
+    _otherComparisons = _otherComparisons.difference(extras.toSet());
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -268,14 +289,27 @@ class _FeedbackPageState extends State<FeedbackPage> {
     return appRepository.setups[appRepository.resolveSetupId(bikeId: _bike, atUtc: _selectedDateTimeUtc)];
   }
 
-  /// Setups of the bike before [rated], newest first.
+  /// The test session [rated] is a run of; its debrief asks about the runs.
+  TestSession? _sessionOf(Setup? rated) {
+    final id = rated?.testSessionId;
+    return id == null ? null : context.read<AppRepository>().testSessions[id];
+  }
+
+  /// Setups of the bike before [rated], newest first; in a test session its
+  /// earlier runs.
   List<Setup> _referenceCandidates(Setup? rated) {
     if (rated == null) return const [];
+    final session = _sessionOf(rated);
     return context
         .read<AppRepository>()
         .setups
         .values
-        .where((setup) => setup.bike == _bike && setup.datetime.isBefore(rated.datetime))
+        .where(
+          (setup) =>
+              setup.bike == _bike &&
+              setup.datetime.isBefore(rated.datetime) &&
+              (session == null || setup.testSessionId == session.id),
+        )
         .sorted((a, b) => b.datetime.compareTo(a.datetime));
   }
 
@@ -296,6 +330,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
   /// built-in ones in vocabulary order, then custom ones by label.
   List<FeedbackIssue> _followUpIssues(String? referenceId) {
     if (referenceId == null) return const [];
+    if (_sessionOf(_ratedSetup()) case final session?) {
+      final (:goal, :other) = _sessionIssues(session);
+      return [...goal, ...other];
+    }
     final appRepository = context.read<AppRepository>();
     final issues = {
       for (final issue in appRepository.openIssuesFor(referenceId)?.issues ?? const <FeedbackIssue>[])
@@ -322,10 +360,46 @@ class _FeedbackPageState extends State<FeedbackPage> {
     ];
   }
 
+  /// A debrief asks about the session's goal first. "Something else changed"
+  /// adds every other aspect, and keeps those already answered.
+  ({List<FeedbackIssue> goal, List<FeedbackIssue> other}) _sessionIssues(TestSession session) {
+    final index = context.read<AppRepository>().customIssues;
+    FeedbackIssue? issueOf(FeedbackAspect aspect) => switch (aspect) {
+      final EndAspect aspect => FeedbackIssue.end(aspect),
+      final CustomAspect aspect => FeedbackIssue.custom(CustomIssue(aspect.slug, index.labelOf(aspect.slug))),
+      _ => null,
+    };
+
+    final others = <FeedbackAspect>{..._aspectOutcomes.keys, ..._storedAspects};
+    if (_showAllAspects) {
+      others
+        ..addAll(EndAspect.values)
+        ..addAll(index.usages.map((usage) => usage.issue.aspect));
+    }
+    others.removeAll(session.goal);
+    final other = [
+      for (final aspect in EndAspect.values) if (others.contains(aspect)) aspect,
+      ...others.whereType<CustomAspect>().sortedBy((aspect) => index.labelOf(aspect.slug).toLowerCase()),
+    ];
+    return (
+      goal: [for (final aspect in session.goal) ?issueOf(aspect)],
+      other: [for (final aspect in other) ?issueOf(aspect)],
+    );
+  }
+
   Set<FeedbackComparison> _comparisons() {
     final rated = _ratedSetup();
     final referenceId = _effectiveReferenceId(rated, _referenceCandidates(rated));
-    if (referenceId == null) return _otherComparisons;
+    final extras = <FeedbackComparison>{
+      for (final reference in _extraRefs)
+        if (reference != referenceId && _extraOutcomes[reference] != null)
+          FeedbackComparison(
+            referenceSetupId: reference,
+            aspect: const OverallAspect(),
+            outcome: _extraOutcomes[reference]!,
+          ),
+    };
+    if (referenceId == null) return {..._otherComparisons, ...extras};
 
     final answered = <FeedbackComparison>{
       if (_overallOutcome case final outcome?)
@@ -333,6 +407,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       for (final issue in _followUpIssues(referenceId))
         if (_aspectOutcomes[issue.aspect] case final outcome?)
           FeedbackComparison(referenceSetupId: referenceId, aspect: issue.aspect, outcome: outcome),
+      ...extras,
     };
     bool isAnswered(FeedbackComparison c) =>
         answered.any((a) => a.referenceSetupId == c.referenceSetupId && a.aspect == c.aspect);
@@ -996,37 +1071,172 @@ class _FeedbackPageState extends State<FeedbackPage> {
           _changeListener();
         },
       ),
-      if (followUps.isNotEmpty) ...[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-          child: Text("Did its open issues change?", style: Theme.of(context).textTheme.titleSmall),
-        ),
-        for (final issue in followUps)
+      if (_sessionOf(rated) case final session?)
+        ..._sessionSection(session, candidates, referenceId)
+      else if (followUps.isNotEmpty) ...[
+        _subheading("Did its open issues change?"),
+        for (final issue in followUps) _aspectRow(issue),
+      ],
+    ];
+  }
+
+  Widget _subheading(String text) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+    child: Text(text, style: Theme.of(context).textTheme.titleSmall),
+  );
+
+  Widget _aspectRow(FeedbackIssue issue) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+    child: FeedbackAspectRow(
+      issue: issue,
+      outcome: _aspectOutcomes[issue.aspect],
+      onChanged: (outcome) {
+        setState(() {
+          if (outcome == null) {
+            _aspectOutcomes.remove(issue.aspect);
+          } else {
+            _aspectOutcomes[issue.aspect] = outcome;
+          }
+        });
+        _changeListener();
+      },
+    ),
+  );
+
+  /// The run debrief below the overall answer: other runs, the session's goal
+  /// and "Something else changed".
+  List<Widget> _sessionSection(TestSession session, List<Setup> candidates, String referenceId) {
+    final (:goal, :other) = _sessionIssues(session);
+    final extraRefs = _extraRefs.where((id) => id != referenceId).toList();
+    final available = candidates.where((setup) => setup.id != referenceId && !extraRefs.contains(setup.id)).toList();
+    final setups = context.read<AppRepository>().setups;
+
+    return [
+      if (extraRefs.isNotEmpty || available.isNotEmpty) ...[
+        _subheading("Other runs"),
+        for (final id in extraRefs)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: FeedbackAspectRow(
-              issue: issue,
-              outcome: _aspectOutcomes[issue.aspect],
-              onChanged: (outcome) {
-                setState(() {
-                  if (outcome == null) {
-                    _aspectOutcomes.remove(issue.aspect);
-                  } else {
-                    _aspectOutcomes[issue.aspect] = outcome;
-                  }
-                });
-                _changeListener();
-              },
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Compared to ${setups[id]?.displayName ?? 'a deleted run'}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      tooltip: 'Remove comparison',
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () {
+                        setState(() {
+                          _extraRefs.remove(id);
+                          _extraOutcomes.remove(id);
+                        });
+                        _changeListener();
+                      },
+                    ),
+                  ],
+                ),
+                FeedbackOutcomeSelector(
+                  labels: FeedbackVocabulary.overallOutcomeLabels,
+                  outcome: _extraOutcomes[id],
+                  onChanged: (outcome) {
+                    setState(() {
+                      if (outcome == null) {
+                        _extraOutcomes.remove(id);
+                      } else {
+                        _extraOutcomes[id] = outcome;
+                      }
+                    });
+                    _changeListener();
+                  },
+                ),
+              ],
+            ),
+          ),
+        if (available.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: ActionChip(
+                avatar: const Icon(Icons.add),
+                label: const Text("Compare with another run"),
+                onPressed: () => unawaited(_pickExtraRun(available)),
+              ),
             ),
           ),
       ],
+      if (goal.isNotEmpty) ...[
+        _subheading("Did your goal improve?"),
+        for (final issue in goal) _aspectRow(issue),
+      ],
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: () => setState(() => _showAllAspects = !_showAllAspects),
+            icon: Icon(_showAllAspects ? Icons.expand_less : Icons.expand_more),
+            label: const Text("Something else changed"),
+          ),
+        ),
+      ),
+      for (final issue in other) _aspectRow(issue),
     ];
+  }
+
+  Future<void> _pickExtraRun(List<Setup> runs) async {
+    final appSettings = context.read<AppSettings>();
+    final picked = await showModalBottomSheet<Setup>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SheetHeader(title: 'Compare with another run'),
+            const SizedBox(height: 8),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final run in runs)
+                    ListTile(
+                      leading: const Icon(Setup.iconData),
+                      title: Text(run.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(
+                        '${DateFormat(appSettings.dateFormat).format(run.datetimeLocal)} • '
+                        '${DateFormat(appSettings.timeFormat).format(run.datetimeLocal)}',
+                      ),
+                      onTap: () => Navigator.pop(context, run),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _extraRefs.add(picked.id));
+    _changeListener();
   }
 
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final rated = _ratedSetup();
+    final inRunDebrief =
+        _sessionOf(rated) != null && _effectiveReferenceId(rated, _referenceCandidates(rated)) != null;
 
     return PopScope(
       canPop: !_formHasChanges,
@@ -1060,23 +1270,26 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     ),
                   ),
                   ..._comparisonSection(appRepository, rated),
-                  const SizedBox(height: 8),
-                  const SectionTitle(
-                    title: "Anything stand out?",
-                    infoText:
-                        "Optional. Flagged problems show on the setup as open issues until a later ride says otherwise.",
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: FeedbackIssueChips(
-                      issues: _issues,
-                      customIssues: _customIssues,
-                      knownIssues: appRepository.customIssues,
-                      nothingStoodOut: _nothingStoodOut,
-                      onChanged: _setIssues,
-                      onOpenCustomIssues: _openCustomIssues,
+                  // A run debrief asks about the session's goal instead.
+                  if (!inRunDebrief) ...[
+                    const SizedBox(height: 8),
+                    const SectionTitle(
+                      title: "Anything stand out?",
+                      infoText:
+                          "Optional. Flagged problems show on the setup as open issues until a later ride says otherwise.",
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: FeedbackIssueChips(
+                        issues: _issues,
+                        customIssues: _customIssues,
+                        knownIssues: appRepository.customIssues,
+                        nothingStoodOut: _nothingStoodOut,
+                        onChanged: _setIssues,
+                        onOpenCustomIssues: _openCustomIssues,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   const SectionTitle(title: "Details"),
                   Padding(

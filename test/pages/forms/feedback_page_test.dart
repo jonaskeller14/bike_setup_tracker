@@ -12,6 +12,7 @@ import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/forms/feedback_page.dart';
@@ -770,6 +771,133 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     }
+  });
+
+  group('run debrief of a test session', () {
+    const frontCalm = EndAspect(FeedbackEnd.front, FeedbackAttribute.calm);
+    const frontHarsh = EndAspect(FeedbackEnd.front, FeedbackAttribute.comfort);
+
+    /// S1, S2 and S3 are the runs of one session whose goal is "Front · Calm".
+    Future<void> seedSession(WidgetTester tester, {List<RideFeedback> extraFeedbacks = const []}) async {
+      await seed(tester, extraFeedbacks: extraFeedbacks);
+      await tester.runAsync(() async {
+        final started = DateTime(2026, 4, 30);
+        await appRepository.addTestSessions([
+          TestSession(
+            id: 'ts',
+            bike: _bikeId,
+            adjustmentIds: const [_reboundId],
+            goal: const [frontCalm],
+            startedAtUTC: started.toUtc(),
+            startedAtLocal: started,
+          ),
+        ]);
+        await appRepository.editSetups([
+          for (final id in ['s1', 's2', 's3']) appRepository.setups[id]!.copyWith(testSessionId: 'ts'),
+        ]);
+        for (var attempt = 0; attempt < 100; attempt++) {
+          if (appRepository.testSessions.isNotEmpty && appRepository.setups['s3']!.testSessionId == 'ts') break;
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        }
+      });
+      await tester.pump();
+    }
+
+    Finder rowFace(String row, String label) => find.descendant(
+      of: find.ancestor(of: find.text(row), matching: find.byType(FeedbackAspectRow)),
+      matching: find.byTooltip(label),
+    );
+
+    testWidgets('asks about the goal, not the open issues of the reference', (tester) async {
+      await seedSession(tester);
+      await openForm(tester, () => addOnMay(3));
+
+      expect(find.text('Did your goal improve?'), findsOneWidget);
+      expect(find.byType(FeedbackAspectRow), findsOneWidget);
+      expect(find.text('Front: Unsettled'), findsOneWidget);
+      expect(find.text('Front: Harsh'), findsNothing, reason: 'an open issue of S2, but not the goal');
+      expect(find.text('ANYTHING STAND OUT?'), findsNothing);
+      expect(
+        tester.widget<DropdownButtonFormField<String>>(find.byType(DropdownButtonFormField<String>).last).initialValue,
+        's2',
+        reason: 'the previous run',
+      );
+
+      await tapChip(tester, overallChip('Better'));
+      await tapChip(tester, rowFace('Front: Unsettled', 'Better'));
+
+      final saved = (await save(tester))!;
+      expect(saved.comparisons, {
+        const FeedbackComparison(referenceSetupId: 's2', aspect: OverallAspect(), outcome: 2),
+        const FeedbackComparison(referenceSetupId: 's2', aspect: frontCalm, outcome: 1),
+      });
+      expect(saved.observations, isEmpty);
+    });
+
+    testWidgets('"Something else changed" opens every other aspect', (tester) async {
+      await seedSession(tester);
+      await openForm(tester, () => addOnMay(3));
+
+      await tapChip(tester, find.text('Something else changed'));
+      expect(find.byType(FeedbackAspectRow), findsNWidgets(EndAspect.values.length));
+
+      await tapChip(tester, rowFace('Front: Harsh', 'Worse'));
+      // Closing it again keeps what was answered.
+      await tapChip(tester, find.text('Something else changed'));
+      expect(find.byType(FeedbackAspectRow), findsNWidgets(2));
+
+      final saved = (await save(tester))!;
+      expect(saved.comparisons, {const FeedbackComparison(referenceSetupId: 's2', aspect: frontHarsh, outcome: -1)});
+    });
+
+    testWidgets('compares with another run of the session as an extra answer', (tester) async {
+      await seedSession(tester);
+      await openForm(tester, () => addOnMay(3));
+
+      await tapChip(tester, find.text('Compare with another run'));
+      await tapChip(tester, find.widgetWithText(ListTile, 'S1'));
+      expect(find.text('Compared to S1'), findsOneWidget);
+      expect(find.text('Compare with another run'), findsNothing, reason: 'every other run is used');
+
+      final extra = find.descendant(
+        of: find.ancestor(of: find.text('Compared to S1'), matching: find.byType(Column)).first,
+        matching: find.byTooltip('Slightly worse'),
+      );
+      await tapChip(tester, extra.last);
+
+      final saved = (await save(tester))!;
+      expect(saved.comparisons, {const FeedbackComparison(referenceSetupId: 's1', aspect: OverallAspect(), outcome: -1)});
+    });
+
+    testWidgets('editing keeps the answers against other runs, and removing one drops it', (tester) async {
+      final stored = feedback(
+        id: 'fr',
+        day: 3,
+        setupId: 's3',
+        comparisons: {
+          const FeedbackComparison(referenceSetupId: 's2', aspect: OverallAspect(), outcome: 1),
+          const FeedbackComparison(referenceSetupId: 's1', aspect: OverallAspect(), outcome: 2),
+        },
+      );
+      await seedSession(tester, extraFeedbacks: [stored]);
+      await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['fr']!));
+
+      expect(find.text('Compared to S1'), findsOneWidget);
+      expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isTrue);
+
+      await tapChip(tester, find.byTooltip('Remove comparison'));
+
+      final saved = (await save(tester))!;
+      expect(saved.comparisons, {const FeedbackComparison(referenceSetupId: 's2', aspect: OverallAspect(), outcome: 1)});
+    });
+
+    testWidgets('the first run has nothing to compare, so the usual chips stay', (tester) async {
+      await seedSession(tester);
+      await openForm(tester, () => addOnMay(1));
+
+      expect(find.byType(FeedbackComparisonField), findsNothing);
+      expect(find.text('ANYTHING STAND OUT?'), findsOneWidget);
+    });
   });
 
   for (final (label, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {

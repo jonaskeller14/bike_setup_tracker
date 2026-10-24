@@ -12,6 +12,11 @@ import 'context/context_place.dart';
 import 'context/context_position.dart';
 import 'context/context_weather.dart';
 
+enum SetupSourceKind {
+  restore,
+  testSessionRun,
+}
+
 @immutable
 class Setup {
   final String id;
@@ -32,6 +37,8 @@ class Setup {
   final ContextWeather? weather;
   final List<Attachment> attachments;
   final String? testSessionId; // Set on the runs of a test session.
+  final String? sourceSetupId; // Set once on creation; the source may since be removed.
+  final SetupSourceKind? sourceKind;
 
   static const IconData iconData = Icons.tune;
 
@@ -57,6 +64,8 @@ class Setup {
     this.weather,
     List<Attachment>? attachments,
     this.testSessionId,
+    this.sourceSetupId,
+    this.sourceKind,
   }) : id = id ?? const Uuid().v4(),
        attachments = attachments ?? const [],
        isDeleted = isDeleted ?? false,
@@ -84,6 +93,8 @@ class Setup {
     'weather': weather?.toJson(),
     'attachments': attachments.map((a) => a.toJson()).toList(),
     'testSessionId': testSessionId,
+    'sourceSetupId': sourceSetupId,
+    'sourceKind': sourceKind?.name,
   };
 
   factory Setup.fromJson({
@@ -112,6 +123,8 @@ class Setup {
           weather: json['weather'] != null ? ContextWeather.fromJson(json['weather'] as Map<String, dynamic>) : null,
           attachments: (json['attachments'] as List?)?.map((e) => Attachment.fromJson(e as Map<String, dynamic>)).toList() ?? <Attachment>[],
           testSessionId: json['testSessionId'] as String?,
+          sourceSetupId: json['sourceSetupId'] as String?,
+          sourceKind: SetupSourceKind.values.asNameMap()[json['sourceKind']],
         );
       default: throw Exception("Json Version $version of Setup incompatible.");
     }
@@ -233,6 +246,8 @@ class Setup {
     Object? weather = const _Sentinel(),
     Object? attachments = const _Sentinel(),
     Object? testSessionId = const _Sentinel(),
+    Object? sourceSetupId = const _Sentinel(),
+    Object? sourceKind = const _Sentinel(),
   }) {
     return Setup(
       id: id is _Sentinel
@@ -289,6 +304,12 @@ class Setup {
       testSessionId: testSessionId is _Sentinel
           ? this.testSessionId
           : (testSessionId as String?),
+      sourceSetupId: sourceSetupId is _Sentinel
+          ? this.sourceSetupId
+          : (sourceSetupId as String?),
+      sourceKind: sourceKind is _Sentinel
+          ? this.sourceKind
+          : (sourceKind as SetupSourceKind?),
     );
   }
 
@@ -314,7 +335,9 @@ class Setup {
         ContextPlace.equal(place, other.place) &&
         weather == other.weather &&
         listEquals(attachments, other.attachments) &&
-        testSessionId == other.testSessionId;
+        testSessionId == other.testSessionId &&
+        sourceSetupId == other.sourceSetupId &&
+        sourceKind == other.sourceKind;
   }
 
   @override
@@ -338,6 +361,8 @@ class Setup {
       weather,
       Object.hashAll(attachments),
       testSessionId,
+      sourceSetupId,
+      sourceKind,
     ]);
   }
 }

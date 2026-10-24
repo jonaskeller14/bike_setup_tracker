@@ -113,7 +113,13 @@ class SetupActions {
     final newSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(
-        builder: (context) => SetupPage.duplicate(setup: deepCopied.copyWith(attachments: copiedAttachments)),
+        builder: (context) => SetupPage.restore(
+          setup: deepCopied.copyWith(
+            attachments: copiedAttachments,
+            sourceSetupId: setup.id,
+            sourceKind: SetupSourceKind.restore,
+          ),
+        ),
       ),
     );
     if (newSetup != null) await appRepository.addSetups([newSetup]);

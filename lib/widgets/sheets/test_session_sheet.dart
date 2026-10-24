@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/feedback/test_session.dart';
+import '../../models/feedback/test_session_method.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/test_session_service.dart';
@@ -28,7 +29,7 @@ Future<void> showTestSessionSheet({required BuildContext context, required Strin
 }
 
 /// The session's details: method and goal, the adjustments it tunes (tap one
-/// to lock it), every run with its values and feedbacks, the suggested next
+/// to lock it) or, comparing setups, those they differ in, every run with its values and feedbacks, the suggested next
 /// run, and the next step.
 /// A running session opens scrolled to its next step.
 class TestSessionSheetContent extends StatefulWidget {
@@ -107,7 +108,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
             ),
             SectionTitle(
               title: 'Adjustments',
-              infoText: session.isRunning
+              infoText: session.isRunning && session.method is! Tournament
                   ? 'Tap an adjustment to lock it at its value in the latest run. The next runs keep that value.'
                   : null,
             ),
@@ -149,6 +150,19 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
       if (knob == null) return 'Adjustment not found';
       final name = knob.adjustment.name;
       return names.where((other) => other == name).length > 1 ? '${knob.ownerName} · $name' : name;
+    }
+
+    // The candidates are ridden as they are, so there is nothing to lock.
+    if (session.method is Tournament) {
+      final theme = Theme.of(context);
+      final style = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('The adjustments your setups differ in:', style: style),
+          for (final id in session.adjustmentIds) Text('•  ${labelOf(id)}', style: style),
+        ],
+      );
     }
 
     return Wrap(

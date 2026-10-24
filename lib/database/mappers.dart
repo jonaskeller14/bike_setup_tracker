@@ -331,6 +331,8 @@ extension SetupMapper on Setup {
       place: Value<geo.Placemark?>(place),
       weather: Value<ContextWeather?>(weather),
       testSessionId: Value<String?>(testSessionId),
+      sourceSetupId: Value<String?>(sourceSetupId),
+      sourceKind: Value<SetupSourceKind?>(sourceKind),
     );
   }
 
@@ -394,6 +396,8 @@ extension SetupDbMapper on SetupDb {
       place: place,
       weather: weather,
       testSessionId: testSessionId,
+      sourceSetupId: sourceSetupId,
+      sourceKind: sourceKind,
     );
   }
 }

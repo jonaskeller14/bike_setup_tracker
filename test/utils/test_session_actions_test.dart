@@ -19,9 +19,10 @@ import 'package:bike_setup_tracker/services/test_session_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/setup_actions.dart';
 import 'package:bike_setup_tracker/utils/test_session_actions.dart';
-import 'package:bike_setup_tracker/widgets/set_adjustment/set_step_adjustment.dart';
+import 'package:bike_setup_tracker/widgets/display_adjustment/display_step_adjustment.dart';
 import 'package:bike_setup_tracker/widgets/items/setup_tile.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_cell_view.dart';
+import 'package:bike_setup_tracker/widgets/set_adjustment/set_step_adjustment.dart';
 import 'package:bike_setup_tracker/widgets/setup_page_tab_bike.dart';
 import 'package:bike_setup_tracker/widgets/sheets/test_session_sheet.dart';
 import 'package:bike_setup_tracker/widgets/test_session_suggestion.dart';
@@ -224,7 +225,8 @@ void main() {
   group('startSession', () {
     testWidgets('records the session with run 1, a copy of the current setup stamped now', (tester) async {
       await seed(tester);
-      final before = DateTime.now().toUtc();
+      // The database keeps whole seconds.
+      final before = DateTime.now().toUtc().copyWith(millisecond: 0, microsecond: 0);
       await pumpButton(tester, (context) => TestSessionActions.startSession(context));
       expect(find.byType(TestSessionPage), findsOneWidget);
 
@@ -232,12 +234,19 @@ void main() {
       await tester.tap(find.text('No adjustments yet'));
       await settle(tester);
       expect(find.text('Fork'), findsOneWidget, reason: 'adjustments are grouped by component');
-      await tester.tap(find.widgetWithText(CheckboxListTile, 'Rebound'));
+      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
       await settle(tester);
       await tester.tapAt(const Offset(10, 10)); // closing the sheet keeps the selection
       await settle(tester);
       expect(find.text('No adjustments yet'), findsNothing);
       await tester.enterText(find.widgetWithText(TextField, 'Name (optional)'), 'Fork rebound');
+      await tester.tap(find.byIcon(Icons.check));
+      await settle(tester);
+
+      expect(find.byType(SetupPage), findsOneWidget, reason: 'run 1 is set up before the session starts');
+      expect(find.text('First Run'), findsOneWidget);
+      expect(find.textContaining('This is the base setup'), findsOneWidget);
+      expect(appRepository.testSessions, isEmpty);
       await saveForm(tester, saved: () => appRepository.testSessions.isNotEmpty && appRepository.setups.length == 2);
 
       final started = appRepository.testSessions.values.single;
@@ -253,7 +262,31 @@ void main() {
       expect(runs.single.testSessionId, started.id);
       expect(runs.single.datetime.isBefore(before), isFalse);
       expect(runs.single.bikeAdjustmentValues, baseSetup().bikeAdjustmentValues);
+      expect(runs.single.sourceSetupId, 's1');
+      expect(runs.single.sourceKind, SetupSourceKind.testSessionRun);
+      expect(runs.single.notes, "Copy of 'Base' (2026-05-01)");
       expect(appRepository.runningSessionFor(_bikeId)?.id, started.id);
+    });
+
+    testWidgets('backing out of the first run starts no session', (tester) async {
+      await seed(tester);
+      await pumpButton(tester, (context) => TestSessionActions.startSession(context));
+      await tester.tap(find.text('No adjustments yet'));
+      await settle(tester);
+      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
+      await settle(tester);
+      await tester.tapAt(const Offset(10, 10));
+      await settle(tester);
+      await tester.tap(find.byIcon(Icons.check));
+      await settle(tester);
+      expect(find.byType(SetupPage), findsOneWidget);
+
+      await tester.pageBack();
+      await settle(tester);
+
+      expect(find.byType(SetupPage), findsNothing);
+      expect(appRepository.testSessions, isEmpty);
+      expect(appRepository.setups, hasLength(1));
     });
 
     testWidgets('started from a setup, the first run copies it even when it is not the current one', (tester) async {
@@ -275,9 +308,11 @@ void main() {
 
       await tester.tap(find.text('No adjustments yet'));
       await settle(tester);
-      await tester.tap(find.widgetWithText(CheckboxListTile, 'Rebound'));
+      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
       await settle(tester);
       await tester.tapAt(const Offset(10, 10));
+      await settle(tester);
+      await tester.tap(find.byIcon(Icons.check));
       await settle(tester);
       await saveForm(tester, saved: () => appRepository.testSessions.isNotEmpty && appRepository.setups.length == 3);
 
@@ -292,7 +327,7 @@ void main() {
 
       await tester.tap(find.text('No adjustments yet'));
       await settle(tester);
-      await tester.tap(find.widgetWithText(CheckboxListTile, 'Rebound'));
+      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
       await settle(tester);
       await tester.tapAt(const Offset(10, 10));
       await settle(tester);
@@ -413,6 +448,7 @@ void main() {
       );
 
       expect(find.byType(SetStepAdjustmentWidget), findsNothing);
+      expect(find.byType(DisplayStepAdjustmentWidget), findsOneWidget, reason: 'shown, but read-only');
 
       await saveForm(tester, saved: () => appRepository.setupsInSession('ts').length == 2);
 
@@ -473,7 +509,7 @@ void main() {
       expect(find.byType(SetupPage), findsNothing);
     });
 
-    testWidgets('a Compare session copies the picked candidate as it is, with no form', (tester) async {
+    testWidgets('a Compare session copies the picked candidate with every adjustment locked', (tester) async {
       final other = baseSetup().copyWith(
         id: 's2',
         name: 'Other',
@@ -493,10 +529,16 @@ void main() {
 
       await tester.tap(find.text('Other'));
       await settle(tester);
-      await awaitData(tester, () => appRepository.setupsInSession('ts').isNotEmpty);
+
+      expect(find.byType(SetupPage), findsOneWidget);
+      expect(find.byType(SetStepAdjustmentWidget), findsNothing);
+      expect(find.byType(DisplayStepAdjustmentWidget), findsNWidgets(2), reason: 'every adjustment, read-only');
+      expect(find.textContaining("rides 'Other'"), findsOneWidget);
+      await saveForm(tester, saved: () => appRepository.setupsInSession('ts').isNotEmpty);
 
       final recorded = appRepository.setupsInSession('ts').single;
       expect(recorded.bikeAdjustmentValues[_reboundId], const StepValue(12));
+      expect(recorded.sourceSetupId, 's2');
       expect(find.byType(SetupPage), findsNothing);
     });
   });
@@ -516,6 +558,8 @@ void main() {
       expect(runs, hasLength(3));
       expect(runs.last.name, 'Run 3');
       expect(runs.last.bikeAdjustmentValues[_reboundId], const StepValue(7), reason: 'the earlier run is ridden again');
+      expect(runs.last.sourceSetupId, 'r1');
+      expect(runs.last.notes, "Copy of 'Run 1' (2026-05-02)", reason: 'notes of a run describe its ride');
     });
 
     testWidgets('after the session ended it is a normal setup without a session', (tester) async {
@@ -530,6 +574,8 @@ void main() {
 
       final copy = appRepository.setups.values.firstWhere((s) => s.id != 's1' && s.id != 'r1');
       expect(copy.testSessionId, isNull);
+      expect(copy.sourceSetupId, 'r1');
+      expect(copy.sourceKind, SetupSourceKind.restore);
     });
   });
 
@@ -631,6 +677,25 @@ void main() {
       await tester.tap(find.text('go'));
       await settle(tester);
       await awaitData(tester, () => appRepository.testSessions['ts']!.locks.isEmpty);
+      expect(appRepository.testSessions['ts']!.locks, isEmpty);
+    });
+
+    testWidgets('a Compare session takes no lock', (tester) async {
+      await seed(
+        tester,
+        session: session(method: const Tournament(candidateSetupIds: ['s1', 's2'])),
+        runs: [run(1, rebound: 6)],
+      );
+      await pumpButton(
+        tester,
+        (context) => TestSessionActions.toggleLock(
+          context,
+          session: appRepository.testSessions['ts']!,
+          adjustmentId: _reboundId,
+        ),
+      );
+      await awaitData(tester, () => false);
+
       expect(appRepository.testSessions['ts']!.locks, isEmpty);
     });
 
@@ -795,6 +860,15 @@ void main() {
 
       expect(tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'Rebound')).onSelected, isNull);
       expect(find.text('Ended'), findsOneWidget);
+    });
+
+    testWidgets('a Compare session lists the adjustments its setups differ in, with nothing to lock', (tester) async {
+      await seed(tester, session: session(method: const Tournament(candidateSetupIds: ['s1', 's2'])), runs: [run(1)]);
+      await pumpButton(tester, (context) => showTestSessionSheet(context: context, sessionId: 'ts'));
+
+      expect(find.text('The adjustments your setups differ in:'), findsOneWidget);
+      expect(find.text('•  Rebound'), findsOneWidget);
+      expect(find.widgetWithText(FilterChip, 'Rebound'), findsNothing);
     });
   });
 }

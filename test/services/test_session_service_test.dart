@@ -125,6 +125,8 @@ void main() {
       expect(run.personAdjustmentValues, source.personAdjustmentValues);
       expect(run.tags, isEmpty, reason: 'tags and notes belong to the source');
       expect(run.notes, isNull);
+      expect(run.sourceSetupId, 's1');
+      expect(run.sourceKind, SetupSourceKind.testSessionRun);
     });
 
     test('puts the locked values on top, also when copying an older run', () {
@@ -139,6 +141,43 @@ void main() {
 
       expect(run.bikeAdjustmentValues, {'a': const StepValue(7), 'x': const StepValue(9)});
       expect(run.personAdjustmentValues, {'p': const StepValue(6)});
+    });
+
+    test('a Compare run rides its candidate as it is, even with a lock stored', () {
+      final candidate = setup('s1', bike: {'a': const StepValue(1)});
+      final compare = TestSession(
+        id: 'ts',
+        bike: 'bike',
+        method: const Tournament(candidateSetupIds: ['s1', 's2']),
+        adjustmentIds: const ['a'],
+        locks: const {'a': StepValue(7)},
+        startedAtUTC: DateTime.utc(2026, 5, 2, 7),
+        startedAtLocal: DateTime(2026, 5, 2, 9),
+      );
+
+      final run = TestSessionService.run(source: candidate, session: compare, number: 2, now: now);
+
+      expect(run.bikeAdjustmentValues, {'a': const StepValue(1)});
+    });
+  });
+
+  group('runNotes', () {
+    test("keeps the notes of a setup from outside the session and adds where it's from", () {
+      final source = setup('s1').copyWith(name: 'Base');
+
+      expect(
+        TestSessionService.runNotes(source: source, session: session(), dateFormat: 'yyyy-MM-dd'),
+        "notes\n\nCopy of 'Base' (2026-05-01)",
+      );
+    });
+
+    test('drops the notes of an earlier run, so the copy lines do not pile up', () {
+      final earlier = setup('r1').copyWith(name: 'Run 1', notes: "Felt harsh\n\nCopy of 'Base' (2026-05-01)", testSessionId: 'ts');
+
+      expect(
+        TestSessionService.runNotes(source: earlier, session: session(), dateFormat: 'dd.MM.yyyy'),
+        "Copy of 'Run 1' (01.05.2026)",
+      );
     });
   });
 

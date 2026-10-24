@@ -36,6 +36,7 @@ class SetupBikeTab extends StatefulWidget {
   /// so they re-read them.
   final int valuesRevision;
   final bool allowAdding; // Allow adding components and adjustments
+  final Set<String> readOnlyIds;
 
   const SetupBikeTab({
     super.key,
@@ -55,6 +56,7 @@ class SetupBikeTab extends StatefulWidget {
     this.header,
     this.valuesRevision = 0,
     this.allowAdding = true,
+    this.readOnlyIds = const {},
   });
 
   @override
@@ -125,6 +127,8 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
         ] else ...[
           ...widget.bikeComponents.map((bikeComponent) {
             final ancestors = widget.ancestorsOf(bikeComponent.id);
+            final readOnly = [...bikeComponent.adjustments.where((a) => widget.readOnlyIds.contains(a.id))];
+            final editable = [...bikeComponent.adjustments.where((a) => !widget.readOnlyIds.contains(a.id))];
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
               clipBehavior: Clip.antiAlias,
@@ -169,19 +173,26 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                           : null,
                     ),
                   ),
-                  AdjustmentSetList(
-                    key: ValueKey(Object.hash(
-                      bikeComponent.id,
-                      Object.hashAll(widget.previousBikeAdjustmentValues.values),
-                      widget.valuesRevision,
-                    )),
-                    adjustments: bikeComponent.adjustments,
-                    initialAdjustmentValues: widget.previousBikeAdjustmentValues,
-                    adjustmentValues: widget.bikeAdjustmentValues,
-                    onAdjustmentValueChanged: widget.onAdjustmentValueChanged,
-                    removeFromAdjustmentValues: widget.onRemoveFromAdjustmentValues,
-                    onAddCategoricalOption: widget.onAddCategoricalOption,
-                  ),
+                  if (editable.isNotEmpty || readOnly.isEmpty)
+                    AdjustmentSetList(
+                      key: ValueKey(Object.hash(
+                        bikeComponent.id,
+                        Object.hashAll(widget.previousBikeAdjustmentValues.values),
+                        widget.valuesRevision,
+                      )),
+                      adjustments: editable,
+                      initialAdjustmentValues: widget.previousBikeAdjustmentValues,
+                      adjustmentValues: widget.bikeAdjustmentValues,
+                      onAdjustmentValueChanged: widget.onAdjustmentValueChanged,
+                      removeFromAdjustmentValues: widget.onRemoveFromAdjustmentValues,
+                      onAddCategoricalOption: widget.onAddCategoricalOption,
+                    ),
+                  if (readOnly.isNotEmpty)
+                    AdjustmentDisplayList(
+                      adjustments: readOnly,
+                      initialAdjustmentValues: widget.previousBikeAdjustmentValues,
+                      adjustmentValues: widget.bikeAdjustmentValues,
+                    ),
                 ],
               ),
             );

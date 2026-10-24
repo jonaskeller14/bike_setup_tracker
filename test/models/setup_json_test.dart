@@ -264,4 +264,40 @@ void main() {
       expect(setup(testSessionId: 'session1').deepCopy().testSessionId, isNull);
     });
   });
+
+  group('Setup source', () {
+    final copy = Setup(
+      id: 's2',
+      lastModified: DateTime.utc(2026, 10, 1, 10),
+      datetime: DateTime.utc(2026, 10, 1, 9),
+      datetimeLocal: DateTime(2026, 10, 1, 11),
+      tags: const {},
+      bike: 'b1',
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      sourceSetupId: 's1',
+      sourceKind: SetupSourceKind.restore,
+    );
+
+    test('round-trips through json', () {
+      final json = jsonDecode(jsonEncode(copy.toJson())) as Map<String, dynamic>;
+      expect(json['sourceSetupId'], 's1');
+      expect(json['sourceKind'], 'restore');
+      expect(Setup.fromJson(json: json, adjustmentTypes: const {}), copy);
+    });
+
+    test('an unknown kind from a newer app is dropped, the source kept', () {
+      final json = copy.toJson()..['sourceKind'] = 'somethingNew';
+      final decoded = Setup.fromJson(json: json, adjustmentTypes: const {});
+      expect(decoded.sourceSetupId, 's1');
+      expect(decoded.sourceKind, isNull);
+    });
+
+    test('is part of equality, and deepCopy clears it', () {
+      expect(copy, isNot(copy.copyWith(sourceKind: SetupSourceKind.testSessionRun)));
+      expect(copy.deepCopy().sourceSetupId, isNull);
+      expect(copy.deepCopy().sourceKind, isNull);
+    });
+  });
 }

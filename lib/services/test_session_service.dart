@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show IconData;
+import 'package:intl/intl.dart';
 
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
@@ -87,26 +88,39 @@ class TestSessionService {
     return session.adjustmentIds.toSet().difference(session.locks.keys.toSet());
   }
 
+  /// "Copy of 'Run 2' (1.10.2026)" below the notes of [source]. The notes of an
+  /// earlier run describe that ride, so only a source from outside the session
+  /// passes its notes on, and the copy lines don't pile up run after run.
+  static String runNotes({required Setup source, required TestSession session, required String dateFormat}) {
+    final copyLine = "Copy of '${source.displayName}' (${DateFormat(dateFormat).format(source.datetimeLocal)})";
+    final notes = source.testSessionId == session.id ? null : source.notes?.trim();
+    return notes == null || notes.isEmpty ? copyLine : '$notes\n\n$copyLine';
+  }
+
   /// Run 1 or a later run: a copy of [source] stamped [now] with [values] (a
   /// proposal) set, and the session's locked values on top, so a lock holds
-  /// even when [source] is an older run.
+  /// even when [source] is an older run. A Compare run ignores locks: a locked
+  /// value would turn the candidate into a different setup.
   static Setup run({
     required Setup source,
     required TestSession session,
     required int number,
     Map<String, AdjustmentValue> values = const {},
+    String? notes,
     DateTime? now,
   }) {
     final stamp = now ?? DateTime.now();
+    final locks = session.method is Tournament ? const <String, AdjustmentValue>{} : session.locks;
     Map<String, AdjustmentValue> locked(Map<String, AdjustmentValue> current) => {
       ...current,
       for (final MapEntry(:key, :value) in values.entries)
         if (current.containsKey(key)) key: value,
-      for (final MapEntry(:key, :value) in session.locks.entries)
+      for (final MapEntry(:key, :value) in locks.entries)
         if (current.containsKey(key)) key: value,
     };
     return Setup(
       name: 'Run $number',
+      notes: notes,
       datetime: stamp.toUtc(),
       datetimeLocal: stamp,
       tags: const {},
@@ -115,6 +129,8 @@ class TestSessionService {
       bikeAdjustmentValues: locked(source.bikeAdjustmentValues),
       personAdjustmentValues: locked(source.personAdjustmentValues),
       testSessionId: session.id,
+      sourceSetupId: source.id,
+      sourceKind: SetupSourceKind.testSessionRun,
     );
   }
 

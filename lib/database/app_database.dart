@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
+import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
 import 'converters/attachment_list_converter.dart';
@@ -88,7 +89,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 26;
+  int get schemaVersion => 27;
 
   @override
   MigrationStrategy get migration {
@@ -115,12 +116,21 @@ class AppDatabase extends _$AppDatabase {
           //
           // This recreation rebuilds setups from the *current* schema, which
           // now includes `attachments` (v20, `images` from v8), `isBookmarked` (v13)
-          // and `testSessionId` (v26).
+          // `testSessionId` (v26) and `sourceSetupId`/`sourceKind` (v27).
           // Pre-v4 rows have no such columns, so flag them as new columns —
           // Drift fills them from their defaults instead of trying to copy
           // them out of the old table.
           await m.alterTable(
-            TableMigration(setups, newColumns: [setups.attachments, setups.isBookmarked, setups.testSessionId]),
+            TableMigration(
+              setups,
+              newColumns: [
+                setups.attachments,
+                setups.isBookmarked,
+                setups.testSessionId,
+                setups.sourceSetupId,
+                setups.sourceKind,
+              ],
+            ),
           );
           await customStatement("UPDATE setups SET name = NULL WHERE name = 'Unnamed Setup'");
         }
@@ -240,7 +250,12 @@ class AppDatabase extends _$AppDatabase {
           // dropped rather than converted. Only databases that ran the old v8
           // step still have it; every other path gained `attachments` above.
           if (await _columnExists('setups', 'images')) {
-            await m.alterTable(TableMigration(setups, newColumns: [setups.attachments, setups.testSessionId]));
+            await m.alterTable(
+              TableMigration(
+                setups,
+                newColumns: [setups.attachments, setups.testSessionId, setups.sourceSetupId, setups.sourceKind],
+              ),
+            );
           }
           if (!await _columnExists('bikes', 'attachments')) {
             await m.addColumn(bikes, bikes.attachments);
@@ -305,6 +320,16 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(testSessions);
           if (!await _columnExists('setups', 'test_session_id')) {
             await m.addColumn(setups, setups.testSessionId);
+          }
+        }
+        if (from < 27) {
+          // Where a setup was copied from. The v4/v20 recreations already
+          // gained both columns.
+          if (!await _columnExists('setups', 'source_setup_id')) {
+            await m.addColumn(setups, setups.sourceSetupId);
+          }
+          if (!await _columnExists('setups', 'source_kind')) {
+            await m.addColumn(setups, setups.sourceKind);
           }
         }
       }),

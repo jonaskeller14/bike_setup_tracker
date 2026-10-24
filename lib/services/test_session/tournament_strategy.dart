@@ -38,10 +38,14 @@ class TournamentStrategy extends TestSessionStrategy {
     final field = candidates.cast<Setup>();
 
     final ids = history.session.adjustmentIds;
-    Setup? candidateOf(Setup run) => field.firstWhereOrNull(
-      (candidate) =>
-          ids.every((id) => TestSessionHistory.valueOf(run, id) == TestSessionHistory.valueOf(candidate, id)),
-    );
+    // A run copied from another run, or recorded before runs knew their source,
+    // is matched by its values.
+    Setup? candidateOf(Setup run) =>
+        field.firstWhereOrNull((candidate) => candidate.id == run.sourceSetupId) ??
+        field.firstWhereOrNull(
+          (candidate) =>
+              ids.every((id) => TestSessionHistory.valueOf(run, id) == TestSessionHistory.valueOf(candidate, id)),
+        );
     final candidateByRun = {for (final run in history.runs) run.id: ?candidateOf(run)?.id};
 
     final games = <RankingGame>[];

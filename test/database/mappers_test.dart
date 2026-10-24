@@ -585,11 +585,15 @@ void main() {
         bikeAdjustmentValues: const {},
         personAdjustmentValues: const {},
         testSessionId: 'session1',
+        sourceSetupId: 'r1',
+        sourceKind: SetupSourceKind.testSessionRun,
       );
       await database.into(database.setups).insert(setup.toCompanion());
 
       final row = await database.select(database.setups).getSingle();
       expect(row.testSessionId, 'session1');
+      expect(row.sourceSetupId, 'r1');
+      expect(row.sourceKind, SetupSourceKind.testSessionRun);
       expect(row.toModel(), setup);
     });
 

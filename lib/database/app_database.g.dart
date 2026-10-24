@@ -4982,6 +4982,26 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _sourceSetupIdMeta = const VerificationMeta(
+    'sourceSetupId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceSetupId = GeneratedColumn<String>(
+    'source_setup_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<SetupSourceKind?, String>
+  sourceKind = GeneratedColumn<String>(
+    'source_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<SetupSourceKind?>($SetupsTable.$convertersourceKindn);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5000,6 +5020,8 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     place,
     weather,
     testSessionId,
+    sourceSetupId,
+    sourceKind,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5065,6 +5087,15 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         testSessionId.isAcceptableOrUnknown(
           data['test_session_id']!,
           _testSessionIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_setup_id')) {
+      context.handle(
+        _sourceSetupIdMeta,
+        sourceSetupId.isAcceptableOrUnknown(
+          data['source_setup_id']!,
+          _sourceSetupIdMeta,
         ),
       );
     }
@@ -5157,6 +5188,16 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         DriftSqlType.string,
         data['${effectivePrefix}test_session_id'],
       ),
+      sourceSetupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_setup_id'],
+      ),
+      sourceKind: $SetupsTable.$convertersourceKindn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source_kind'],
+        ),
+      ),
     );
   }
 
@@ -5187,6 +5228,12 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
       const WeatherConverter();
   static TypeConverter<ContextWeather?, String?> $converterweathern =
       NullAwareTypeConverter.wrap($converterweather);
+  static JsonTypeConverter2<SetupSourceKind, String, String>
+  $convertersourceKind = const EnumNameConverter<SetupSourceKind>(
+    SetupSourceKind.values,
+  );
+  static JsonTypeConverter2<SetupSourceKind?, String?, String?>
+  $convertersourceKindn = JsonTypeConverter2.asNullable($convertersourceKind);
 }
 
 class SetupDb extends DataClass implements Insertable<SetupDb> {
@@ -5206,6 +5253,8 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final geo.Placemark? place;
   final ContextWeather? weather;
   final String? testSessionId;
+  final String? sourceSetupId;
+  final SetupSourceKind? sourceKind;
   const SetupDb({
     required this.id,
     required this.bikeId,
@@ -5223,6 +5272,8 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     this.place,
     this.weather,
     this.testSessionId,
+    this.sourceSetupId,
+    this.sourceKind,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5281,6 +5332,14 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     if (!nullToAbsent || testSessionId != null) {
       map['test_session_id'] = Variable<String>(testSessionId);
     }
+    if (!nullToAbsent || sourceSetupId != null) {
+      map['source_setup_id'] = Variable<String>(sourceSetupId);
+    }
+    if (!nullToAbsent || sourceKind != null) {
+      map['source_kind'] = Variable<String>(
+        $SetupsTable.$convertersourceKindn.toSql(sourceKind),
+      );
+    }
     return map;
   }
 
@@ -5314,6 +5373,12 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       testSessionId: testSessionId == null && nullToAbsent
           ? const Value.absent()
           : Value(testSessionId),
+      sourceSetupId: sourceSetupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceSetupId),
+      sourceKind: sourceKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceKind),
     );
   }
 
@@ -5339,6 +5404,10 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       place: serializer.fromJson<geo.Placemark?>(json['place']),
       weather: serializer.fromJson<ContextWeather?>(json['weather']),
       testSessionId: serializer.fromJson<String?>(json['testSessionId']),
+      sourceSetupId: serializer.fromJson<String?>(json['sourceSetupId']),
+      sourceKind: $SetupsTable.$convertersourceKindn.fromJson(
+        serializer.fromJson<String?>(json['sourceKind']),
+      ),
     );
   }
   @override
@@ -5361,6 +5430,10 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'place': serializer.toJson<geo.Placemark?>(place),
       'weather': serializer.toJson<ContextWeather?>(weather),
       'testSessionId': serializer.toJson<String?>(testSessionId),
+      'sourceSetupId': serializer.toJson<String?>(sourceSetupId),
+      'sourceKind': serializer.toJson<String?>(
+        $SetupsTable.$convertersourceKindn.toJson(sourceKind),
+      ),
     };
   }
 
@@ -5381,6 +5454,8 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     Value<geo.Placemark?> place = const Value.absent(),
     Value<ContextWeather?> weather = const Value.absent(),
     Value<String?> testSessionId = const Value.absent(),
+    Value<String?> sourceSetupId = const Value.absent(),
+    Value<SetupSourceKind?> sourceKind = const Value.absent(),
   }) => SetupDb(
     id: id ?? this.id,
     bikeId: bikeId ?? this.bikeId,
@@ -5400,6 +5475,10 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     testSessionId: testSessionId.present
         ? testSessionId.value
         : this.testSessionId,
+    sourceSetupId: sourceSetupId.present
+        ? sourceSetupId.value
+        : this.sourceSetupId,
+    sourceKind: sourceKind.present ? sourceKind.value : this.sourceKind,
   );
   SetupDb copyWithCompanion(SetupsCompanion data) {
     return SetupDb(
@@ -5429,6 +5508,12 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       testSessionId: data.testSessionId.present
           ? data.testSessionId.value
           : this.testSessionId,
+      sourceSetupId: data.sourceSetupId.present
+          ? data.sourceSetupId.value
+          : this.sourceSetupId,
+      sourceKind: data.sourceKind.present
+          ? data.sourceKind.value
+          : this.sourceKind,
     );
   }
 
@@ -5450,7 +5535,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ..write('position: $position, ')
           ..write('place: $place, ')
           ..write('weather: $weather, ')
-          ..write('testSessionId: $testSessionId')
+          ..write('testSessionId: $testSessionId, ')
+          ..write('sourceSetupId: $sourceSetupId, ')
+          ..write('sourceKind: $sourceKind')
           ..write(')'))
         .toString();
   }
@@ -5473,6 +5560,8 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     place,
     weather,
     testSessionId,
+    sourceSetupId,
+    sourceKind,
   );
   @override
   bool operator ==(Object other) =>
@@ -5493,7 +5582,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           other.position == this.position &&
           other.place == this.place &&
           other.weather == this.weather &&
-          other.testSessionId == this.testSessionId);
+          other.testSessionId == this.testSessionId &&
+          other.sourceSetupId == this.sourceSetupId &&
+          other.sourceKind == this.sourceKind);
 }
 
 class SetupsCompanion extends UpdateCompanion<SetupDb> {
@@ -5513,6 +5604,8 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<geo.Placemark?> place;
   final Value<ContextWeather?> weather;
   final Value<String?> testSessionId;
+  final Value<String?> sourceSetupId;
+  final Value<SetupSourceKind?> sourceKind;
   final Value<int> rowid;
   const SetupsCompanion({
     this.id = const Value.absent(),
@@ -5531,6 +5624,8 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.place = const Value.absent(),
     this.weather = const Value.absent(),
     this.testSessionId = const Value.absent(),
+    this.sourceSetupId = const Value.absent(),
+    this.sourceKind = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SetupsCompanion.insert({
@@ -5550,6 +5645,8 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.place = const Value.absent(),
     this.weather = const Value.absent(),
     this.testSessionId = const Value.absent(),
+    this.sourceSetupId = const Value.absent(),
+    this.sourceKind = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        bikeId = Value(bikeId),
@@ -5574,6 +5671,8 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Expression<String>? place,
     Expression<String>? weather,
     Expression<String>? testSessionId,
+    Expression<String>? sourceSetupId,
+    Expression<String>? sourceKind,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5593,6 +5692,8 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       if (place != null) 'place': place,
       if (weather != null) 'weather': weather,
       if (testSessionId != null) 'test_session_id': testSessionId,
+      if (sourceSetupId != null) 'source_setup_id': sourceSetupId,
+      if (sourceKind != null) 'source_kind': sourceKind,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5614,6 +5715,8 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<geo.Placemark?>? place,
     Value<ContextWeather?>? weather,
     Value<String?>? testSessionId,
+    Value<String?>? sourceSetupId,
+    Value<SetupSourceKind?>? sourceKind,
     Value<int>? rowid,
   }) {
     return SetupsCompanion(
@@ -5633,6 +5736,8 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       place: place ?? this.place,
       weather: weather ?? this.weather,
       testSessionId: testSessionId ?? this.testSessionId,
+      sourceSetupId: sourceSetupId ?? this.sourceSetupId,
+      sourceKind: sourceKind ?? this.sourceKind,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5704,6 +5809,14 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     if (testSessionId.present) {
       map['test_session_id'] = Variable<String>(testSessionId.value);
     }
+    if (sourceSetupId.present) {
+      map['source_setup_id'] = Variable<String>(sourceSetupId.value);
+    }
+    if (sourceKind.present) {
+      map['source_kind'] = Variable<String>(
+        $SetupsTable.$convertersourceKindn.toSql(sourceKind.value),
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5729,6 +5842,8 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
           ..write('place: $place, ')
           ..write('weather: $weather, ')
           ..write('testSessionId: $testSessionId, ')
+          ..write('sourceSetupId: $sourceSetupId, ')
+          ..write('sourceKind: $sourceKind, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14511,6 +14626,8 @@ typedef $$SetupsTableCreateCompanionBuilder =
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
       Value<String?> testSessionId,
+      Value<String?> sourceSetupId,
+      Value<SetupSourceKind?> sourceKind,
       Value<int> rowid,
     });
 typedef $$SetupsTableUpdateCompanionBuilder =
@@ -14531,6 +14648,8 @@ typedef $$SetupsTableUpdateCompanionBuilder =
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
       Value<String?> testSessionId,
+      Value<String?> sourceSetupId,
+      Value<SetupSourceKind?> sourceKind,
       Value<int> rowid,
     });
 
@@ -14728,6 +14847,17 @@ class $$SetupsTableFilterComposer
   ColumnFilters<String> get testSessionId => $composableBuilder(
     column: $table.testSessionId,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceSetupId => $composableBuilder(
+    column: $table.sourceSetupId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<SetupSourceKind?, SetupSourceKind, String>
+  get sourceKind => $composableBuilder(
+    column: $table.sourceKind,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   $$BikesTableFilterComposer get bikeId {
@@ -14932,6 +15062,16 @@ class $$SetupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get sourceSetupId => $composableBuilder(
+    column: $table.sourceSetupId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceKind => $composableBuilder(
+    column: $table.sourceKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$BikesTableOrderingComposer get bikeId {
     final $$BikesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -15042,6 +15182,17 @@ class $$SetupsTableAnnotationComposer
     column: $table.testSessionId,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get sourceSetupId => $composableBuilder(
+    column: $table.sourceSetupId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<SetupSourceKind?, String> get sourceKind =>
+      $composableBuilder(
+        column: $table.sourceKind,
+        builder: (column) => column,
+      );
 
   $$BikesTableAnnotationComposer get bikeId {
     final $$BikesTableAnnotationComposer composer = $composerBuilder(
@@ -15217,6 +15368,8 @@ class $$SetupsTableTableManager
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
                 Value<String?> testSessionId = const Value.absent(),
+                Value<String?> sourceSetupId = const Value.absent(),
+                Value<SetupSourceKind?> sourceKind = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SetupsCompanion(
                 id: id,
@@ -15235,6 +15388,8 @@ class $$SetupsTableTableManager
                 place: place,
                 weather: weather,
                 testSessionId: testSessionId,
+                sourceSetupId: sourceSetupId,
+                sourceKind: sourceKind,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -15255,6 +15410,8 @@ class $$SetupsTableTableManager
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
                 Value<String?> testSessionId = const Value.absent(),
+                Value<String?> sourceSetupId = const Value.absent(),
+                Value<SetupSourceKind?> sourceKind = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SetupsCompanion.insert(
                 id: id,
@@ -15273,6 +15430,8 @@ class $$SetupsTableTableManager
                 place: place,
                 weather: weather,
                 testSessionId: testSessionId,
+                sourceSetupId: sourceSetupId,
+                sourceKind: sourceKind,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

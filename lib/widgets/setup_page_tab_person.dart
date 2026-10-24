@@ -33,6 +33,7 @@ class SetupPersonTab extends StatelessWidget {
   final void Function(String) onDanglingRemove;
   final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
   final bool allowAdding; // Allow adding attributes
+  final Set<String> readOnlyIds;
 
   const SetupPersonTab({
     super.key,
@@ -50,11 +51,14 @@ class SetupPersonTab extends StatelessWidget {
     required this.onDanglingRemove,
     this.onAddCategoricalOption,
     this.allowAdding = true,
+    this.readOnlyIds = const {},
   });
 
   @override
   Widget build(BuildContext context) {
     final person = persons[personId];
+    final readOnly = [...?person?.adjustments.where((a) => readOnlyIds.contains(a.id))];
+    final editable = [...?person?.adjustments.where((a) => !readOnlyIds.contains(a.id))];
 
     final personSplit = DanglingAdjustmentService.splitPersons(
       danglingValues: danglingPersonAdjustmentValues,
@@ -97,16 +101,23 @@ class SetupPersonTab extends StatelessWidget {
                         : null,
                   ),
                 ),
-                AdjustmentSetList(
-                  key: ValueKey(Object.hash(personId, Object.hashAll(previousPersonAdjustmentValues.values), valuesRevision)),
-                  adjustments: person.adjustments,
-                  initialAdjustmentValues: previousPersonAdjustmentValues,
-                  adjustmentValues: personAdjustmentValues,
-                  onAdjustmentValueChanged: onAdjustmentValueChanged,
-                  removeFromAdjustmentValues: onRemoveFromAdjustmentValues,
-                  prefillFromInitial: false,
-                  onAddCategoricalOption: onAddCategoricalOption,
-                ),
+                if (editable.isNotEmpty || readOnly.isEmpty)
+                  AdjustmentSetList(
+                    key: ValueKey(Object.hash(personId, Object.hashAll(previousPersonAdjustmentValues.values), valuesRevision)),
+                    adjustments: editable,
+                    initialAdjustmentValues: previousPersonAdjustmentValues,
+                    adjustmentValues: personAdjustmentValues,
+                    onAdjustmentValueChanged: onAdjustmentValueChanged,
+                    removeFromAdjustmentValues: onRemoveFromAdjustmentValues,
+                    prefillFromInitial: false,
+                    onAddCategoricalOption: onAddCategoricalOption,
+                  ),
+                if (readOnly.isNotEmpty)
+                  AdjustmentDisplayList(
+                    adjustments: readOnly,
+                    initialAdjustmentValues: previousPersonAdjustmentValues,
+                    adjustmentValues: personAdjustmentValues,
+                  ),
               ],
             ),
           ),

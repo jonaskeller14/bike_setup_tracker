@@ -18,6 +18,7 @@ import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/feedback/test_session.dart';
+import '../../models/feedback/test_session_method.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
@@ -56,7 +57,7 @@ import '../../widgets/sticky_section.dart';
 enum SetupPageMode {
   add,
   edit,
-  duplicate,
+  restore,
   nextRun,  // only the adjusmtents of the session can be changed
 }
 
@@ -116,8 +117,8 @@ class SetupPage extends StatefulWidget {
   factory SetupPage.edit({Key? key, required Setup setup}) => 
     SetupPage._(key: key, setup: setup, mode: SetupPageMode.edit);
 
-  factory SetupPage.duplicate({Key? key, required Setup setup}) => 
-    SetupPage._(key: key, setup: setup, mode: SetupPageMode.duplicate);
+  factory SetupPage.restore({Key? key, required Setup setup}) => 
+    SetupPage._(key: key, setup: setup, mode: SetupPageMode.restore);
 
   /// [run] is the unsaved copy to start from, see [TestSessionService.run].
   factory SetupPage.nextRun({Key? key, required Setup run, required TestSession session}) =>
@@ -236,7 +237,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     _onBikeChange(_initialBike);
 
-    if (widget.setup == null || widget.mode == SetupPageMode.duplicate || widget.mode == SetupPageMode.nextRun) {
+    if (widget.setup == null || widget.mode == SetupPageMode.restore || widget.mode == SetupPageMode.nextRun) {
       unawaited(fetchLocationAddressWeather());
     }
   }
@@ -247,39 +248,52 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final session = switch (widget.mode) {
       SetupPageMode.nextRun => widget.session,
       SetupPageMode.edit => context.read<AppRepository>().testSessions[widget.setup?.testSessionId],
-      SetupPageMode.add || SetupPageMode.duplicate => null,
+      SetupPageMode.add || SetupPageMode.restore => null,
     };
     return session != null && session.isRunning ? session : null;
   }
 
-  /// Adjustment ids the rider may change; null when everything is editable. A
-  /// lock holds for the next run, but a run that was recorded earlier may still
-  /// correct the knob.
-  Set<String>? get _editableIds {
+  /// The first run of a session that is only stored together with it.
+  bool get _isFirstRun =>
+      widget.mode == SetupPageMode.nextRun &&
+      !context.read<AppRepository>().testSessions.containsKey(widget.session?.id);
+
+  /// Adjustment ids a run shows; null shows all. A Compare run shows every
+  /// adjustment, as all of them make up the candidate it copies.
+  Set<String>? get _visibleIds {
     final session = _runSession;
-    if (session == null) return null;
-    return widget.mode == SetupPageMode.nextRun
-        ? TestSessionService.editableIds(session)
-        : session.adjustmentIds.toSet();
+    if (session == null || session.method is Tournament) return null;
+    return session.adjustmentIds.toSet();
   }
 
-  Component _onlyEditable(Component component, Set<String> editable) =>
-      component.copyWith(adjustments: component.adjustments.where((a) => editable.contains(a.id)).toList());
+  /// Whether a shown adjustment can't change: every one of a Compare run, which
+  /// would no longer be its candidate, and the locked knobs of a next run. A
+  /// lock holds for the next run, but a run recorded earlier may still correct
+  /// the knob.
+  bool _isReadOnly(String adjustmentId) {
+    final session = _runSession;
+    if (session == null) return false;
+    if (session.method is Tournament) return true;
+    return widget.mode == SetupPageMode.nextRun && session.locks.containsKey(adjustmentId);
+  }
+
+  Component _onlyVisible(Component component, Set<String> visible) =>
+      component.copyWith(adjustments: component.adjustments.where((a) => visible.contains(a.id)).toList());
 
   /// A next run shows the rider tab only when the session tunes a rider attribute.
   bool get _showPersonTab {
     if (!context.read<AppSettings>().enablePerson) return false;
-    final editable = _editableIds;
-    if (widget.mode != SetupPageMode.nextRun || editable == null) return true;
+    final visible = _visibleIds;
+    if (widget.mode != SetupPageMode.nextRun || visible == null) return true;
     final person = context.read<AppRepository>().persons[_person];
-    return person?.adjustments.any((a) => editable.contains(a.id)) ?? false;
+    return person?.adjustments.any((a) => visible.contains(a.id)) ?? false;
   }
 
   /// What a next run must be recorded after: the session's last run, or its
-  /// start; null outside a next run.
+  /// start; null outside a next run and for the first run, which sets the start.
   DateTime? get _runAfterUtc {
     final session = widget.session;
-    if (widget.mode != SetupPageMode.nextRun || session == null) return null;
+    if (widget.mode != SetupPageMode.nextRun || session == null || _isFirstRun) return null;
     final previous = context.read<AppRepository>().setupsInSession(session.id).lastOrNull?.datetime;
     return previous != null && previous.isAfter(session.startedAtUTC) ? previous : session.startedAtUTC;
   }
@@ -838,7 +852,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _revealFirstInvalidField();
       return;
     }
-    if ((widget.mode == SetupPageMode.add || widget.mode == SetupPageMode.duplicate) &&
+    if ((widget.mode == SetupPageMode.add || widget.mode == SetupPageMode.restore) &&
         context.read<AppRepository>().runningSessionFor(_bike) != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(context, 'A test session is running on this bike. End it before recording a setup.'),
@@ -880,6 +894,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         testSessionId: widget.mode == SetupPageMode.edit || widget.mode == SetupPageMode.nextRun
             ? widget.setup?.testSessionId
             : null,
+        sourceSetupId: widget.setup?.sourceSetupId,
+        sourceKind: widget.setup?.sourceKind,
       ),
     );
   }
@@ -1321,6 +1337,22 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Widget _sessionNotice(TestSession session) {
     final scheme = Theme.of(context).colorScheme;
+    final source = context.read<AppRepository>().setups[widget.setup?.sourceSetupId];
+    final from = source == null ? 'the setup to compare' : "'${source.displayName}'";
+    // Starting a session lands here unexpectedly, so the first run says what to do.
+    final explanation = switch ((session.method, _isFirstRun)) {
+      (Tournament(), true) =>
+        'The first run rides $from. Its adjustments are locked so the setups stay comparable. '
+            'Set the date, weather and notes of this ride, then save to start the session.',
+      (Tournament(), false) =>
+        'This run rides $from. Its adjustments are locked so the setups stay comparable.',
+      (_, true) =>
+        'This is the base setup the session starts from. If your bike is set up like this, just save. '
+            "Otherwise change the session's adjustments to match your bike.",
+      _ =>
+        'Only the adjustments of the session can change, locked ones stay as they are. '
+            'Everything else is copied from the previous run.',
+    };
     return Card(
       margin: EdgeInsets.zero,
       color: scheme.secondaryContainer,
@@ -1328,15 +1360,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         dense: true,
         leading: Icon(TestSession.iconData, color: scheme.onSecondaryContainer),
         title: Text(
-          "Run of '${session.displayName}'",
+          _isFirstRun ? "First run of '${session.displayName}'" : "Run of '${session.displayName}'",
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(color: scheme.onSecondaryContainer, fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(
-          'Only the adjustments of the session can change. Everything else is copied from the previous run.',
-          style: TextStyle(color: scheme.onSecondaryContainer),
-        ),
+        subtitle: Text(explanation, style: TextStyle(color: scheme.onSecondaryContainer)),
       ),
     );
   }
@@ -1533,20 +1562,27 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {
-    final editable = _editableIds;
-    final headers = editable != null ? const <Widget>[] : [?_setupGuide(bikeComponents), ?_pressureCheck(bikeComponents)];
+    final inSession = _runSession != null;
+    final visible = _visibleIds;
+    final shownComponents = visible == null
+        ? bikeComponents
+        : [
+            for (final component in bikeComponents)
+              if (component.adjustments.any((a) => visible.contains(a.id))) _onlyVisible(component, visible),
+          ];
+    final headers = inSession ? const <Widget>[] : [?_setupGuide(bikeComponents), ?_pressureCheck(bikeComponents)];
     final tab = SetupBikeTab(
       bike: _bike,
       header: headers.length > 1
           ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: headers)
           : headers.firstOrNull,
       valuesRevision: _appliedGuideRevision,
-      bikeComponents: editable == null
-          ? bikeComponents
-          : [
-              for (final component in bikeComponents)
-                if (component.adjustments.any((a) => editable.contains(a.id))) _onlyEditable(component, editable),
-            ],
+      bikeComponents: shownComponents,
+      readOnlyIds: {
+        for (final component in shownComponents)
+          for (final adjustment in component.adjustments)
+            if (_isReadOnly(adjustment.id)) adjustment.id,
+      },
       allComponents: appRepository.components,
       bikes: appRepository.bikes,
       ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, _selectedDateTimeUtc),
@@ -1557,7 +1593,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
       onRemoveFromAdjustmentValues: _removeFromBikeAdjustmentValues,
       onAddCategoricalOption: _onAddBikeCategoricalOption,
-      allowAdding: editable == null,
+      allowAdding: !inSession,
       onDanglingRemove: (id) {
         setState(() {
           _danglingBikeAdjustmentValues.remove(id);
@@ -1570,19 +1606,20 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Widget _personTab(AppRepository appRepository) {
-    final editable = _editableIds;
+    final visible = _visibleIds;
     final person = appRepository.persons[_person];
     return SetupPersonTab(
       bike: _bike,
       personId: _person,
-      persons: editable == null || person == null
+      persons: visible == null || person == null
           ? appRepository.persons
           : {
               ...appRepository.persons,
               person.id: person.copyWith(
-                adjustments: person.adjustments.where((a) => editable.contains(a.id)).toList(),
+                adjustments: person.adjustments.where((a) => visible.contains(a.id)).toList(),
               ),
             },
+      readOnlyIds: {...?person?.adjustments.map((a) => a.id).where(_isReadOnly)},
       personAdjustmentValues: _personAdjustmentValues,
       previousPersonAdjustmentValues: _previousPersonAdjustmentValues,
       valuesRevision: _guideWeightRevision,
@@ -1592,7 +1629,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       onRemoveFromAdjustmentValues: _removeFromPersonAdjustmentValues,
       onAddCategoricalOption: _onAddPersonCategoricalOption,
       changeListener: _changeListener,
-      allowAdding: editable == null,
+      allowAdding: _runSession == null,
       onDanglingRemove: (id) {
         setState(() {
           _danglingPersonAdjustmentValues.remove(id);
@@ -1617,9 +1654,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            SetupPageMode.add || SetupPageMode.duplicate => const Text('Add Setup'),
+            SetupPageMode.add || SetupPageMode.restore => const Text('Add Setup'),
             SetupPageMode.edit => const Text('Edit Setup'),
-            SetupPageMode.nextRun => const Text('Next Run'),
+            SetupPageMode.nextRun => Text(_isFirstRun ? 'First Run' : 'Next Run'),
           },
           actions: [
             Semantics(

@@ -36,6 +36,11 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 27) {
+      // v27 added where a setup was copied from.
+      await db.customStatement('ALTER TABLE setups DROP COLUMN source_setup_id');
+      await db.customStatement('ALTER TABLE setups DROP COLUMN source_kind');
+    }
     if (version < 26) {
       // v26 added the feedback tables and setups.test_session_id.
       for (final table in _feedbackTables) {
@@ -224,7 +229,7 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -344,6 +349,12 @@ void main() {
         // setups, whether the v4/v20 recreation or the v26 step added it.
         expect(await columnCount(db, 'setups', 'test_session_id'), 1);
         expect(typed.testSessionId, isNull);
+
+        // Likewise for the v27 source columns.
+        expect(await columnCount(db, 'setups', 'source_setup_id'), 1);
+        expect(await columnCount(db, 'setups', 'source_kind'), 1);
+        expect(typed.sourceSetupId, isNull);
+        expect(typed.sourceKind, isNull);
         for (final table in _feedbackTables) {
           expect(await columnNames(db, table), isNotEmpty, reason: '$table missing after v$startVersion upgrade');
         }

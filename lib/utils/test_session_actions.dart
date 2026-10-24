@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
+import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/feedback/test_session.dart';
 import '../models/feedback/test_session_method.dart';
@@ -16,13 +17,13 @@ import '../services/test_session/suggestion_result.dart';
 import '../services/test_session_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
-import '../widgets/sheets/sheet_header.dart';
+import '../widgets/sheets/pick_setup.dart';
 import 'feedback_actions.dart';
 
 class TestSessionActions {
-  /// Opens the create form and, on save, records the session with its first
-  /// run: a copy of the bike's current setup (or of the first setup to compare),
-  /// stamped now.
+  /// Opens the create form, then the form of the first run: a copy of the
+  /// bike's current setup (or of the first setup to compare), stamped now. The
+  /// session is only recorded once its first run is saved.
   ///
   /// With a [baseSetup] (e.g. the current setup from its menu) the first run
   /// copies it, so a session never starts from an outdated setup by accident.
@@ -49,8 +50,37 @@ class TestSessionActions {
     if (session == null) return;
 
     final source = _firstRunSource(appRepository, session, baseSetup);
-    if (source == null) return;
-    await appRepository.startTestSession(session, TestSessionService.run(source: source, session: session, number: 1));
+    if (source == null || !context.mounted) return;
+    final firstRun = await Navigator.push<Setup>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SetupPage.nextRun(run: _run(context, source: source, session: session, number: 1), session: session),
+      ),
+    );
+    if (firstRun == null) return;
+
+    // A first run ridden before the session was created moves its start.
+    final started = firstRun.datetime.isBefore(session.startedAtUTC)
+        ? session.copyWith(startedAtUTC: firstRun.datetime, startedAtLocal: firstRun.datetimeLocal)
+        : session;
+    await appRepository.startTestSession(started, firstRun);
+  }
+
+  static Setup _run(
+    BuildContext context, {
+    required Setup source,
+    required TestSession session,
+    required int number,
+    Map<String, AdjustmentValue> values = const {},
+  }) {
+    final dateFormat = context.read<AppSettings>().dateFormat;
+    return TestSessionService.run(
+      source: source,
+      session: session,
+      number: number,
+      values: values,
+      notes: TestSessionService.runNotes(source: source, session: session, dateFormat: dateFormat),
+    );
   }
 
   static Setup? _firstRunSource(AppRepository appRepository, TestSession session, Setup? baseSetup) {
@@ -65,8 +95,8 @@ class TestSessionActions {
 
   /// The next run of a running [session]: a copy of [source] (default: the last
   /// run, with the strategy's proposal set) where only the session's knobs can
-  /// change. A Compare session copies one of its candidates as it is. Returns
-  /// the recorded run.
+  /// change. A Compare session copies one of its candidates with every
+  /// adjustment locked. Returns the recorded run.
   static Future<Setup?> addRun(BuildContext context, {required TestSession session, Setup? source}) async {
     final appRepository = context.read<AppRepository>();
     if (!session.isRunning) return null;
@@ -93,16 +123,13 @@ class TestSessionActions {
                   )]);
     if (from == null || !context.mounted) return null;
 
-    if (session.method is Tournament) {
-      final run = TestSessionService.run(source: from, session: session, number: number);
-      await appRepository.addTestSessionRun(session, run, proposal: proposal?.values);
-      return run;
-    }
-    final run = TestSessionService.run(
+    final run = _run(
+      context,
       source: from,
       session: session,
       number: number,
-      values: proposal?.values ?? const {},
+      // A candidate is ridden as it is.
+      values: session.method is Tournament ? const {} : proposal?.values ?? const {},
     );
 
     final saved = await Navigator.push<Setup>(
@@ -122,34 +149,11 @@ class TestSessionActions {
     final candidates = [
       for (final id in (session.method as Tournament).candidateSetupIds) ?appRepository.setups[id],
     ]..sort((a, b) => (b.id == suggestedId ? 1 : 0).compareTo(a.id == suggestedId ? 1 : 0));
-    return showModalBottomSheet<Setup>(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SheetHeader(title: 'Ride which setup?'),
-            const SizedBox(height: 8),
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  for (final candidate in candidates)
-                    ListTile(
-                      leading: const Icon(Setup.iconData),
-                      title: Text(candidate.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      subtitle: candidate.id == suggestedId ? const Text('Suggested') : null,
-                      onTap: () => Navigator.pop(context, candidate),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+    return showPickSetupSheet(
+      context,
+      title: 'Ride which setup?',
+      options: candidates,
+      subtitleFor: (setup) => setup.id == suggestedId ? 'Suggested' : null,
     );
   }
 
@@ -160,12 +164,14 @@ class TestSessionActions {
     return FeedbackActions.addFeedbackForSetup(context, setup: run);
   }
 
-  /// Freezes the knob at its value in the latest run, or releases it.
+  /// Freezes the knob at its value in the latest run, or releases it. A Compare
+  /// session rides its candidates as they are, so it has nothing to lock.
   static Future<void> toggleLock(
     BuildContext context, {
     required TestSession session,
     required String adjustmentId,
   }) async {
+    if (session.method is Tournament) return;
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
     unawaited(HapticFeedback.selectionClick());

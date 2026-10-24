@@ -1,14 +1,16 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/feedback/feedback_key.dart';
+import '../models/feedback/custom_issue.dart';
+import '../models/feedback/feedback_summary.dart';
 import '../models/feedback/ride_feedback.dart';
 
 /// What still felt off on a setup, from the latest feedback that answered
 /// "Anything stand out?".
 @immutable
 class OpenIssues {
-  /// Front before rear, in vocabulary order. Empty means "Dialled in".
-  final List<IssueKey> issues;
+  /// Built-in ones front before rear in vocabulary order, then custom ones by
+  /// label. Empty means "Dialled in".
+  final List<FeedbackIssue> issues;
 
   /// The feedback the issues come from.
   final String feedbackId;
@@ -38,19 +40,16 @@ class FeedbackOpenIssuesService {
   /// answered neither doesn't clear earlier issues.
   static OpenIssues? openIssues(Iterable<RideFeedback> feedbacks) {
     RideFeedback? latest;
+    List<FeedbackIssue> latestIssues = const [];
     for (final feedback in feedbacks) {
-      if (feedback.isDeleted || (feedback.issues.isEmpty && !feedback.nothingStoodOut)) continue;
-      if (latest == null || feedback.dateTimeUTC.isAfter(latest.dateTimeUTC)) latest = feedback;
+      if (feedback.isDeleted) continue;
+      if (latest != null && !feedback.dateTimeUTC.isAfter(latest.dateTimeUTC)) continue;
+      final issues = feedback.orderedIssues;
+      if (issues.isEmpty && !feedback.nothingStoodOut) continue;
+      (latest, latestIssues) = (feedback, issues);
     }
     if (latest == null) return null;
 
-    final flagged = latest.issues.map((key) => key.aspect).toSet();
-    return OpenIssues(
-      issues: [
-        for (final aspect in EndAspect.values)
-          if (flagged.contains(aspect)) aspect.issueKey,
-      ],
-      feedbackId: latest.id,
-    );
+    return OpenIssues(issues: latestIssues, feedbackId: latest.id);
   }
 }

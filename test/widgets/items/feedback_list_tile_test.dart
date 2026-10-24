@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/feedback/custom_issue.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_comparison.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
@@ -48,7 +49,7 @@ void main() {
 
   /// Rides on S2 but was saved for S1 (drift), compared with S1, flags the rear
   /// and carries a Strava link that never synced.
-  RideFeedback feedback({String notes = 'Felt fast'}) {
+  RideFeedback feedback({String notes = 'Felt fast', CustomIssue? custom}) {
     final local = DateTime(2026, 5, 2, 12);
     return RideFeedback(
       id: 'f1',
@@ -60,6 +61,7 @@ void main() {
       notes: notes,
       observations: {
         const FeedbackObservation.flag(IssueKey(FeedbackEnd.rear, FeedbackAttribute.grip)),
+        ?custom?.toObservation(),
       },
       comparisons: {
         const FeedbackComparison(referenceSetupId: 's1', aspect: OverallAspect(), outcome: 1),
@@ -68,13 +70,20 @@ void main() {
           aspect: EndAspect(FeedbackEnd.front, FeedbackAttribute.comfort),
           outcome: 1,
         ),
+        if (custom != null) FeedbackComparison(referenceSetupId: 's1', aspect: custom.aspect, outcome: -1),
       },
     );
   }
 
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  Future<void> seed(WidgetTester tester, {String s1Name = 'S1', String s2Name = 'S2', String? notes}) async {
+  Future<void> seed(
+    WidgetTester tester, {
+    String s1Name = 'S1',
+    String s2Name = 'S2',
+    String? notes,
+    CustomIssue? custom,
+  }) async {
     await tester.runAsync(() async {
       database = AppDatabase.memory();
       appRepository = AppRepository(database);
@@ -86,7 +95,9 @@ void main() {
         _setup('s1', s1Name, DateTime(2026, 5, 1, 10)),
         _setup('s2', s2Name, DateTime(2026, 5, 2, 10)),
       ]);
-      await appRepository.addFeedbacks([notes == null ? feedback() : feedback(notes: notes)]);
+      await appRepository.addFeedbacks([
+        notes == null ? feedback(custom: custom) : feedback(notes: notes, custom: custom),
+      ]);
       await waitFor(() => appRepository.setups.length == 2 && appRepository.feedbacks.length == 1);
     });
     addTearDown(() async {
@@ -147,6 +158,21 @@ void main() {
     expect(inDetails('Front: Harsh'), findsOneWidget);
     expect(inDetails('Better'), findsOneWidget);
     expect(inDetails('Rear: Low grip'), findsOneWidget);
+  });
+
+  testWidgets('custom issues show in the tile and, with their answer, in the details', (tester) async {
+    await seed(tester, custom: const CustomIssue('wet roots', 'Wet roots'));
+    await pump(tester, FeedbackListTile(feedback: appRepository.feedbacks['f1']!));
+
+    expect(find.text('Rear: Low grip'), findsOneWidget);
+    expect(find.text('Wet roots'), findsOneWidget);
+
+    await tester.tap(find.text('Slightly better than S1'));
+    await settle(tester);
+
+    final rows = find.descendant(of: find.byType(FeedbackDetailsContent), matching: find.text('Wet roots'));
+    expect(rows, findsNWidgets(2), reason: 'the follow-up answer and the flagged issue');
+    expect(find.descendant(of: find.byType(FeedbackDetailsContent), matching: find.text('Worse')), findsOneWidget);
   });
 
   testWidgets('in selection mode a tap toggles the selection and the menu is gone', (tester) async {

@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/feedback/custom_issue.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
@@ -10,7 +11,11 @@ void main() {
   const frontGrip = IssueKey(FeedbackEnd.front, FeedbackAttribute.grip);
   const rearCalm = IssueKey(FeedbackEnd.rear, FeedbackAttribute.calm);
 
-  RideFeedback feedback(int day, Set<FeedbackKey> flags, {String? notes}) {
+  const wetRoots = CustomIssue('wet roots', 'Wet roots');
+
+  List<FeedbackAspect>? aspects(OpenIssues? openIssues) => openIssues?.issues.map((i) => i.aspect).toList();
+
+  RideFeedback feedback(int day, Set<FeedbackKey> flags, {String? notes, List<CustomIssue> custom = const []}) {
     final at = DateTime.utc(2026, 6, day);
     return RideFeedback(
       bike: 'bike',
@@ -18,7 +23,10 @@ void main() {
       dateTimeUTC: at,
       dateTimeLocal: at,
       notes: notes,
-      observations: {for (final key in flags) FeedbackObservation.flag(key)},
+      observations: {
+        for (final key in flags) FeedbackObservation.flag(key),
+        for (final issue in custom) issue.toObservation(),
+      },
     );
   }
 
@@ -29,7 +37,7 @@ void main() {
 
       final result = FeedbackOpenIssuesService.openIssues([older, newer]);
 
-      expect(result?.issues, [rearCalm]);
+      expect(aspects(result), [rearCalm.aspect]);
       expect(result?.feedbackId, newer.id);
       expect(result?.isDialledIn, false);
     });
@@ -40,7 +48,7 @@ void main() {
 
       final result = FeedbackOpenIssuesService.openIssues([unanswered, flagged]);
 
-      expect(result?.issues, [frontHarsh]);
+      expect(aspects(result), [frontHarsh.aspect]);
       expect(result?.feedbackId, flagged.id);
     });
 
@@ -64,7 +72,26 @@ void main() {
         feedback(1, {rearCalm, frontHarsh, frontGrip}),
       ]);
 
-      expect(result?.issues, [frontGrip, frontHarsh, rearCalm]);
+      expect(aspects(result), [frontGrip.aspect, frontHarsh.aspect, rearCalm.aspect]);
+    });
+
+    test('custom issues follow the built-in ones, by label', () {
+      final result = FeedbackOpenIssuesService.openIssues([
+        feedback(1, {rearCalm}, custom: [const CustomIssue('b', 'Bumpy'), wetRoots, const CustomIssue('a', 'apex')]),
+      ]);
+
+      expect(aspects(result), [rearCalm.aspect, const CustomAspect('a'), const CustomAspect('b'), wetRoots.aspect]);
+      expect(result?.issues.map((i) => i.label), ['Rear: Unsettled', 'apex', 'Bumpy', 'Wet roots']);
+    });
+
+    test('a feedback with only a custom issue answers the question', () {
+      final result = FeedbackOpenIssuesService.openIssues([
+        feedback(1, {frontHarsh}),
+        feedback(5, {}, custom: [wetRoots]),
+      ]);
+
+      expect(aspects(result), [wetRoots.aspect]);
+      expect(result?.isDialledIn, false);
     });
 
     test('a deleted feedback is skipped', () {
@@ -73,7 +100,7 @@ void main() {
         feedback(5, {const NoIssueKey()}).copyWith(isDeleted: true),
       ]);
 
-      expect(result?.issues, [frontHarsh]);
+      expect(aspects(result), [frontHarsh.aspect]);
     });
   });
 }

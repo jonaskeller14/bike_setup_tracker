@@ -20,7 +20,6 @@ class FeedbackActions {
     String? heroTag,
   }) async {
     final appRepository = context.read<AppRepository>();
-    final messenger = ScaffoldMessenger.of(context);
 
     final newFeedback = await Navigator.push<RideFeedback>(
       context,
@@ -36,19 +35,6 @@ class FeedbackActions {
     if (newFeedback == null) return;
 
     await appRepository.addFeedbacks([newFeedback]);
-
-    if (!context.mounted) return;
-    messenger.showSnackBar(
-      AppSnackBar.success(
-        context,
-        'Feedback saved.',
-        duration: const Duration(seconds: 5),
-        action: AppSnackBarAction(
-          label: 'UNDO',
-          onPressed: () async => appRepository.removeFeedbacks([newFeedback]),
-        ),
-      ),
-    );
   }
 
   /// Feedback on [setup]: dated now while it is the bike's active setup,
@@ -75,7 +61,6 @@ class FeedbackActions {
 
   static Future<void> editFeedback(BuildContext context, {required RideFeedback feedback}) async {
     final appRepository = context.read<AppRepository>();
-    final messenger = ScaffoldMessenger.of(context);
 
     final edited = await Navigator.push<RideFeedback>(
       context,
@@ -84,19 +69,6 @@ class FeedbackActions {
     if (edited == null) return;
 
     await appRepository.editFeedback(edited);
-
-    if (!context.mounted) return;
-    messenger.showSnackBar(
-      AppSnackBar.success(
-        context,
-        'Feedback updated.',
-        duration: const Duration(seconds: 5),
-        action: AppSnackBarAction(
-          label: 'UNDO',
-          onPressed: () async => appRepository.editFeedback(feedback),
-        ),
-      ),
-    );
   }
 
   static Future<void> removeFeedback(BuildContext context, {required RideFeedback feedback}) async {

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/feedback/custom_issue.dart';
 import '../../models/feedback/feedback_comparison.dart';
 import '../../models/feedback/feedback_key.dart';
 import '../../models/feedback/feedback_summary.dart';
@@ -13,6 +14,7 @@ import '../../models/feedback/feedback_vocabulary.dart';
 import '../../models/feedback/ride_feedback.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/custom_issue_service.dart';
 import '../../theme.dart';
 import '../../utils/feedback_actions.dart';
 import '../../utils/map_actions.dart';
@@ -203,7 +205,9 @@ class FeedbackDetailsContent extends StatelessWidget {
   /// One card per reference, newest reference first: the overall answer in the
   /// header, the follow-ups below. Comparisons this version can't read are left out.
   List<Widget> _comparisonCards(BuildContext context, {required RideFeedback feedback}) {
-    final setups = context.watch<AppRepository>().setups;
+    final appRepository = context.watch<AppRepository>();
+    final setups = appRepository.setups;
+    final customIssues = appRepository.customIssues;
     final byReference = groupBy(
       feedback.comparisons.where((c) => c.isValid && c.aspect is! UnknownAspect),
       (FeedbackComparison c) => c.referenceSetupId,
@@ -230,11 +234,13 @@ class FeedbackDetailsContent extends StatelessWidget {
             null => null,
           },
           children: [
-            for (final comparison in byReference[referenceId]!.sortedBy<num>(_aspectOrder))
-              if (comparison.aspect case final EndAspect aspect)
+            for (final comparison in byReference[referenceId]!.sorted(
+              (a, b) => _compareAspects(a.aspect, b.aspect, customIssues),
+            ))
+              if (_issueLabel(comparison.aspect, customIssues) case final label?)
                 _row(
                   context,
-                  label: issueLabel(aspect.issueKey),
+                  label: label,
                   value: _outcomePill(
                     context,
                     FeedbackVocabulary.aspectOutcomeLabels[comparison.outcome]!,
@@ -246,11 +252,25 @@ class FeedbackDetailsContent extends StatelessWidget {
     ];
   }
 
-  static int _aspectOrder(FeedbackComparison comparison) => switch (comparison.aspect) {
-    OverallAspect() => -1,
-    final EndAspect aspect => EndAspect.values.indexOf(aspect),
-    UnknownAspect() => EndAspect.values.length,
+  /// The label of an issue aspect, null for the others.
+  static String? _issueLabel(FeedbackAspect aspect, CustomIssueIndex customIssues) => switch (aspect) {
+    final EndAspect aspect => FeedbackIssue.end(aspect).label,
+    CustomAspect(:final slug) => customIssues.labelOf(slug),
+    _ => null,
   };
+
+  /// Built-in issues in vocabulary order, then custom ones by label.
+  static int _compareAspects(FeedbackAspect a, FeedbackAspect b, CustomIssueIndex customIssues) {
+    int order(FeedbackAspect aspect) => switch (aspect) {
+      OverallAspect() => -1,
+      final EndAspect aspect => EndAspect.values.indexOf(aspect),
+      CustomAspect() => EndAspect.values.length,
+      UnknownAspect() => EndAspect.values.length + 1,
+    };
+    final byOrder = order(a).compareTo(order(b));
+    if (byOrder != 0) return byOrder;
+    return (_issueLabel(a, customIssues) ?? '').toLowerCase().compareTo((_issueLabel(b, customIssues) ?? '').toLowerCase());
+  }
 
   Widget _outcomePill(BuildContext context, String label, int outcome) {
     final colors = Theme.of(context).extension<FeedbackOutcomeColors>()!;

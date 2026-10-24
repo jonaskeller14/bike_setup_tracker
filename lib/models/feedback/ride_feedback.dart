@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -6,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../context/context_place.dart';
 import '../context/context_position.dart';
 import '../context/context_weather.dart';
+import 'custom_issue.dart';
 import 'feedback_comparison.dart';
 import 'feedback_key.dart';
 import 'feedback_observation.dart';
@@ -56,6 +58,19 @@ class RideFeedback {
     for (final o in observations)
       if (o.key case final IssueKey key) key,
   };
+
+  /// Flagged custom problems by label, one per slug. A flag without a label
+  /// falls back to its slug.
+  List<CustomIssue> get customIssues {
+    final bySlug = <String, CustomIssue>{};
+    for (final o in observations) {
+      if (o.key case final CustomIssueKey key) {
+        final label = o.textValue?.trim();
+        bySlug.putIfAbsent(key.slug, () => CustomIssue(key.slug, label == null || label.isEmpty ? key.slug : label));
+      }
+    }
+    return bySlug.values.sorted(compareCustomIssues);
+  }
 
   bool get nothingStoodOut => observations.any((o) => o.key is NoIssueKey);
 

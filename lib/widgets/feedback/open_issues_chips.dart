@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/feedback/feedback_key.dart';
-import '../../models/feedback/feedback_summary.dart';
+import '../../models/feedback/custom_issue.dart';
 import '../../models/feedback/feedback_vocabulary.dart';
 import '../../services/feedback_open_issues_service.dart';
 import '../../theme.dart';
@@ -9,7 +8,7 @@ import '../../theme.dart';
 /// Flagged problems as small pills ("Front: Harsh"), or a single "Dialled in"
 /// pill when [issues] is empty.
 class OpenIssuesChips extends StatelessWidget {
-  final List<IssueKey> issues;
+  final List<FeedbackIssue> issues;
 
   const OpenIssuesChips({super.key, required this.issues});
 
@@ -25,10 +24,10 @@ class OpenIssuesChips extends StatelessWidget {
           ? [_pill(color: colors.better, icon: Icons.check_circle, label: FeedbackVocabulary.dialledIn)]
           : [
               for (final issue in issues)
-                Tooltip(
-                  message: issue.attribute.hint,
-                  child: _pill(color: colors.worse, label: issueLabel(issue)),
-                ),
+                if (issue.hint case final hint?)
+                  Tooltip(message: hint, child: _pill(color: colors.worse, label: issue.label))
+                else
+                  _pill(color: colors.worse, label: issue.label),
             ],
     );
   }

@@ -148,7 +148,6 @@ void main() {
     expect(saved.setupId, 's1');
     expect(saved.dateTimeLocal, s1Local);
     expect(saved.nothingStoodOut, isTrue);
-    expect(find.text('Feedback saved.'), findsOneWidget);
   });
 
   testWidgets('removeFeedback moves it to trash and UNDO restores it', (tester) async {

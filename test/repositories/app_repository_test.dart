@@ -1612,7 +1612,7 @@ void main() {
 
       expect(repository.rankFor(setup.id)?.rank, 1);
       expect(repository.rankFor(reference.id)?.rank, 2);
-      expect(repository.openIssuesFor(setup.id)?.issues, [feedback.issues.single]);
+      expect(repository.openIssuesFor(setup.id)?.issues.map((i) => i.aspect), [feedback.issues.single.aspect]);
       expect(repository.openIssuesFor(reference.id), isNull);
 
       final between = buildSetup(DateTime(2026, 6, 10));

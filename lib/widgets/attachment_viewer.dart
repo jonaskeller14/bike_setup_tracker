@@ -14,7 +14,7 @@ import '../repositories/app_repository.dart';
 import '../services/file_save_service.dart';
 import '../services/share_service.dart';
 import 'app_snackbar.dart';
-import 'dialogs/rename_attachment.dart';
+import 'dialogs/rename_dialog.dart';
 import 'sheets/setup_details.dart';
 import 'sheets/task_rule_sheet.dart';
 
@@ -83,7 +83,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
 
   Future<void> _rename() async {
     final index = _currentIndex;
-    final name = await showRenameAttachmentDialog(context, name: _attachments[index].name);
+    final name = await showRenameDialog(context, title: 'Rename Attachment', name: _attachments[index].name);
     if (name == null || !mounted) return;
     widget.onRename?.call(_attachments[index], name);
     setState(() => _attachments[index] = _attachments[index].copyWith(name: name));

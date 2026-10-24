@@ -12,6 +12,7 @@ import '../../models/bike.dart';
 import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
+import '../../models/feedback/custom_issue.dart';
 import '../../models/feedback/feedback_comparison.dart';
 import '../../models/feedback/feedback_key.dart';
 import '../../models/feedback/feedback_observation.dart';
@@ -35,6 +36,7 @@ import '../../widgets/feedback/feedback_issue_chips.dart';
 import '../../widgets/items/setup_tile_header.dart';
 import '../../widgets/items/tile_meta_row.dart';
 import '../../widgets/sheets/compare_setups.dart';
+import '../../widgets/sheets/custom_issues_sheet.dart';
 import '../../widgets/sheets/set_condition.dart';
 import '../../widgets/sheets/set_location_place.dart';
 import '../../widgets/sheets/set_weather.dart';
@@ -109,9 +111,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
   String? _referenceId;
   String? _initialReferenceId;
   int? _overallOutcome;
-  final Map<EndAspect, int> _aspectOutcomes = {};
-  final Set<EndAspect> _storedAspects = {};
+  final Map<FeedbackAspect, int> _aspectOutcomes = {};
+  final Set<FeedbackAspect> _storedAspects = {};
   Set<IssueKey> _issues = {};
+  List<CustomIssue> _customIssues = [];
   bool _nothingStoodOut = false;
 
   // Answers this form doesn't show (other references, unknown keys), written
@@ -190,9 +193,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
       switch (comparison.aspect) {
         case OverallAspect():
           _overallOutcome = comparison.outcome;
-        case final EndAspect aspect:
-          _aspectOutcomes[aspect] = comparison.outcome;
-          _storedAspects.add(aspect);
+        case EndAspect() || CustomAspect():
+          _aspectOutcomes[comparison.aspect] = comparison.outcome;
+          _storedAspects.add(comparison.aspect);
         case UnknownAspect():
           break;
       }
@@ -200,8 +203,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
     _otherComparisons = feedback.comparisons.difference(owned);
 
     _issues = feedback.issues;
+    _customIssues = feedback.customIssues;
     _nothingStoodOut = feedback.nothingStoodOut;
-    _otherObservations = feedback.observations.where((o) => o.key is! IssueKey && o.key is! NoIssueKey).toSet();
+    _otherObservations = feedback.observations
+        .where((o) => o.key is! IssueKey && o.key is! CustomIssueKey && o.key is! NoIssueKey)
+        .toSet();
   }
 
   @override
@@ -258,14 +264,34 @@ class _FeedbackPageState extends State<FeedbackPage> {
     return candidates.firstOrNull?.id;
   }
 
-  /// Open issues of the reference, plus aspects already answered against it.
-  List<EndAspect> _followUpAspects(String? referenceId) {
+  /// Open issues of the reference, plus aspects already answered against it:
+  /// built-in ones in vocabulary order, then custom ones by label.
+  List<FeedbackIssue> _followUpIssues(String? referenceId) {
     if (referenceId == null) return const [];
-    final aspects = {
-      ...?context.read<AppRepository>().openIssuesFor(referenceId)?.issues.map((key) => key.aspect),
-      if (referenceId == _initialReferenceId) ..._storedAspects,
+    final appRepository = context.read<AppRepository>();
+    final issues = {
+      for (final issue in appRepository.openIssuesFor(referenceId)?.issues ?? const <FeedbackIssue>[])
+        issue.aspect: issue,
     };
-    return EndAspect.values.where(aspects.contains).toList();
+    if (referenceId == _initialReferenceId) {
+      for (final aspect in _storedAspects) {
+        switch (aspect) {
+          case final EndAspect aspect:
+            issues.putIfAbsent(aspect, () => FeedbackIssue.end(aspect));
+          case final CustomAspect aspect:
+            issues.putIfAbsent(
+              aspect,
+              () => FeedbackIssue.custom(CustomIssue(aspect.slug, appRepository.customIssues.labelOf(aspect.slug))),
+            );
+          default:
+            break;
+        }
+      }
+    }
+    return [
+      for (final aspect in EndAspect.values) ?issues[aspect],
+      ...issues.values.where((issue) => issue.aspect is CustomAspect).sortedBy((issue) => issue.label.toLowerCase()),
+    ];
   }
 
   Set<FeedbackComparison> _comparisons() {
@@ -276,18 +302,77 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final answered = <FeedbackComparison>{
       if (_overallOutcome case final outcome?)
         FeedbackComparison(referenceSetupId: referenceId, aspect: const OverallAspect(), outcome: outcome),
-      for (final aspect in _followUpAspects(referenceId))
-        if (_aspectOutcomes[aspect] case final outcome?)
-          FeedbackComparison(referenceSetupId: referenceId, aspect: aspect, outcome: outcome),
+      for (final issue in _followUpIssues(referenceId))
+        if (_aspectOutcomes[issue.aspect] case final outcome?)
+          FeedbackComparison(referenceSetupId: referenceId, aspect: issue.aspect, outcome: outcome),
     };
     bool isAnswered(FeedbackComparison c) =>
         answered.any((a) => a.referenceSetupId == c.referenceSetupId && a.aspect == c.aspect);
     return {..._otherComparisons.whereNot(isAnswered), ...answered};
   }
 
+  void _setIssues(Set<IssueKey> issues, List<CustomIssue> customIssues, bool nothingStoodOut) {
+    setState(() {
+      _issues = issues;
+      _customIssues = customIssues;
+      _nothingStoodOut = nothingStoodOut;
+    });
+    _changeListener();
+  }
+
+  void _openCustomIssues({required bool addIssue}) {
+    unawaited(
+      showCustomIssuesSheet(
+        context: context,
+        selected: _customIssues,
+        addIssue: addIssue,
+        // Flagging an issue answers the question, so "Nothing stood out" goes.
+        onChanged: (customIssues) =>
+            _setIssues(_issues, customIssues, _nothingStoodOut && customIssues.isEmpty),
+        onRenamed: _onCustomIssueRenamed,
+        onRemoved: _onCustomIssueRemoved,
+      ),
+    );
+  }
+
+  /// The sheet rewrote the saved feedbacks; this form's unsaved answers follow,
+  /// or saving would bring the old issue back.
+  void _onCustomIssueRenamed(String from, CustomIssue to) {
+    final fromAspect = CustomAspect(from);
+    FeedbackAspect renamed(FeedbackAspect aspect) => aspect == fromAspect ? to.aspect : aspect;
+    setState(() {
+      // On a merge the answer the target already has wins.
+      final outcomes = <FeedbackAspect, int>{
+        for (final MapEntry(:key, :value) in _aspectOutcomes.entries)
+          if (key != fromAspect) key: value,
+      };
+      if (_aspectOutcomes[fromAspect] case final outcome?) outcomes.putIfAbsent(to.aspect, () => outcome);
+      _aspectOutcomes
+        ..clear()
+        ..addAll(outcomes);
+      final stored = _storedAspects.map(renamed).toSet();
+      _storedAspects
+        ..clear()
+        ..addAll(stored);
+      _otherComparisons = _otherComparisons.map((c) => c.copyWith(aspect: renamed(c.aspect))).toSet();
+    });
+    _changeListener();
+  }
+
+  void _onCustomIssueRemoved(String slug) {
+    final aspect = CustomAspect(slug);
+    setState(() {
+      _aspectOutcomes.remove(aspect);
+      _storedAspects.remove(aspect);
+      _otherComparisons = _otherComparisons.where((c) => c.aspect != aspect).toSet();
+    });
+    _changeListener();
+  }
+
   Set<FeedbackObservation> _observations() => {
     ..._otherObservations,
     for (final key in _issues) FeedbackObservation.flag(key),
+    for (final issue in _customIssues) issue.toObservation(),
     if (_nothingStoodOut) const FeedbackObservation.flag(NoIssueKey()),
   };
 
@@ -839,7 +924,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     if (rated == null || referenceId == null) return const [];
 
     final reference = appRepository.setups[referenceId];
-    final followUps = _followUpAspects(referenceId);
+    final followUps = _followUpIssues(referenceId);
 
     return [
       const SizedBox(height: 8),
@@ -876,18 +961,18 @@ class _FeedbackPageState extends State<FeedbackPage> {
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
           child: Text("Did its open issues change?", style: Theme.of(context).textTheme.titleSmall),
         ),
-        for (final aspect in followUps)
+        for (final issue in followUps)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: FeedbackAspectRow(
-              aspect: aspect,
-              outcome: _aspectOutcomes[aspect],
+              issue: issue,
+              outcome: _aspectOutcomes[issue.aspect],
               onChanged: (outcome) {
                 setState(() {
                   if (outcome == null) {
-                    _aspectOutcomes.remove(aspect);
+                    _aspectOutcomes.remove(issue.aspect);
                   } else {
-                    _aspectOutcomes[aspect] = outcome;
+                    _aspectOutcomes[issue.aspect] = outcome;
                   }
                 });
                 _changeListener();
@@ -945,14 +1030,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: FeedbackIssueChips(
                       issues: _issues,
+                      customIssues: _customIssues,
+                      knownIssues: appRepository.customIssues,
                       nothingStoodOut: _nothingStoodOut,
-                      onChanged: (issues, nothingStoodOut) {
-                        setState(() {
-                          _issues = issues;
-                          _nothingStoodOut = nothingStoodOut;
-                        });
-                        _changeListener();
-                      },
+                      onChanged: _setIssues,
+                      onOpenCustomIssues: _openCustomIssues,
                     ),
                   ),
                   const SizedBox(height: 8),

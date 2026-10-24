@@ -6,7 +6,7 @@ import 'feedbacks.dart';
 class FeedbackObservations extends Table {
   TextColumn get feedbackId => text().references(Feedbacks, #id, onDelete: KeyAction.cascade)();
 
-  // `issue.<end>.<attribute>`, or `issue.none`.
+  // `issue.<end>.<attribute>`, `issue.custom:<slug>` (label in `textValue`) or `issue.none`.
   TextColumn get key => text()();
 
   RealColumn get value => real().nullable()();

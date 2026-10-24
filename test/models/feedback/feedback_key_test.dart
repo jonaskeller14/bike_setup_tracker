@@ -33,6 +33,15 @@ void main() {
       expect((key as IssueKey).aspect, const EndAspect(FeedbackEnd.rear, FeedbackAttribute.grip));
     });
 
+    test('parses a custom issue key by its slug', () {
+      for (final slug in ['wet roots', 'a.b', 'x:y', 'front.grip']) {
+        final key = FeedbackKey.parse('issue.custom:$slug');
+        expect(key, isA<CustomIssueKey>().having((k) => k.slug, 'slug', slug), reason: slug);
+        expect(key.raw, 'issue.custom:$slug');
+        expect(key, CustomIssueKey(slug));
+      }
+    });
+
     test('keeps unknown keys verbatim', () {
       for (final raw in [
         'issue.middle.calm',
@@ -40,6 +49,7 @@ void main() {
         'issue.front',
         'issue.front.calm.extra',
         'custom:m1',
+        'issue.custom:',
         'segment:123.elapsed',
         '',
       ]) {
@@ -67,8 +77,17 @@ void main() {
       expect(FeedbackAspect.parse('rear.comfort'), const EndAspect(FeedbackEnd.rear, FeedbackAttribute.comfort));
     });
 
+    test('parses a custom aspect by its slug, dots included', () {
+      for (final slug in ['wet roots', 'front.grip', 'a.b.c']) {
+        final aspect = FeedbackAspect.parse('custom:$slug');
+        expect(aspect, CustomAspect(slug), reason: slug);
+        expect(aspect.raw, 'custom:$slug');
+        expect((aspect as CustomAspect).issueKey.aspect, aspect);
+      }
+    });
+
     test('keeps unknown aspects verbatim', () {
-      for (final raw in ['front', 'front.speed', 'middle.calm', 'front.calm.x', 'Overall']) {
+      for (final raw in ['front', 'front.speed', 'middle.calm', 'front.calm.x', 'Overall', 'custom:']) {
         final aspect = FeedbackAspect.parse(raw);
         expect(aspect, isA<UnknownAspect>(), reason: raw);
         expect(aspect.raw, raw);
@@ -102,6 +121,9 @@ void main() {
 
       const aspect = EndAspect(FeedbackEnd.front, FeedbackAttribute.comfort);
       expect([-2, -1, 0, 1, 2].map(aspect.isValidOutcome), [false, true, true, true, false]);
+
+      const custom = CustomAspect('wet roots');
+      expect([-2, -1, 0, 1, 2].map(custom.isValidOutcome), [false, true, true, true, false]);
 
       const unknown = UnknownAspect('front.speed');
       expect(unknown.outcomeRange, isNull);

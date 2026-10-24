@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 
 import '../setup.dart';
+import 'custom_issue.dart';
 import 'feedback_comparison.dart';
 import 'feedback_key.dart';
 import 'feedback_vocabulary.dart';
@@ -19,21 +20,23 @@ extension RideFeedbackSummary on RideFeedback {
     return comparison.outcome == 0 ? '$label as $reference' : '$label than $reference';
   }
 
-  /// The flagged problems, front before rear, in vocabulary order.
-  List<IssueKey> get orderedIssues {
+  /// The flagged problems: built-in ones front before rear in vocabulary
+  /// order, then custom ones by label.
+  List<FeedbackIssue> get orderedIssues {
     final flagged = issues;
     return [
       for (final aspect in EndAspect.values)
-        if (flagged.contains(aspect.issueKey)) aspect.issueKey,
+        if (flagged.contains(aspect.issueKey)) FeedbackIssue.end(aspect),
+      for (final issue in customIssues) FeedbackIssue.custom(issue),
     ];
   }
 
-  /// "Front: Harsh · Rear: Low grip", or "Dialled in".
+  /// "Front: Harsh · Rear: Low grip · Wet roots", or "Dialled in".
   String? get issuesSummary {
     if (nothingStoodOut) return FeedbackVocabulary.dialledIn;
     final ordered = orderedIssues;
     if (ordered.isEmpty) return null;
-    return ordered.map(issueLabel).join(' · ');
+    return ordered.map((issue) => issue.label).join(' · ');
   }
 
   /// The setup active on the bike at the feedback's time among [setups], for
@@ -43,6 +46,3 @@ extension RideFeedbackSummary on RideFeedback {
       .sorted((a, b) => a.datetime.compareTo(b.datetime))
       .lastOrNull;
 }
-
-/// "Front: Harsh".
-String issueLabel(IssueKey key) => '${key.end.label}: ${key.attribute.problemLabel}';

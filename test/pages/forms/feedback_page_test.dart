@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/feedback/custom_issue.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_comparison.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
@@ -18,6 +19,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/feedback/feedback_aspect_row.dart';
 import 'package:bike_setup_tracker/widgets/feedback/feedback_comparison_field.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_compact_display_list.dart';
+import 'package:bike_setup_tracker/widgets/sheets/custom_issues_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -514,6 +516,215 @@ void main() {
 
       expect((await save(tester))!.setupId, 's3');
     });
+  });
+
+  group('FeedbackPage custom issues', () {
+    const wetRoots = CustomIssue('wet roots', 'Wet roots');
+
+    /// A later feedback on S2 whose only answer is a custom issue, so it is S2's open issue.
+    RideFeedback laterOnS2(List<CustomIssue> issues) {
+      final local = DateTime(2026, 5, 2, 13);
+      return feedback(
+        id: 'f2b',
+        day: 2,
+        setupId: 's2',
+        observations: {for (final issue in issues) issue.toObservation()},
+      ).copyWith(dateTimeUTC: local.toUtc(), dateTimeLocal: local);
+    }
+
+    Finder customChip(String label) => find.widgetWithText(FilterChip, label);
+    final inSheet = find.byType(CustomIssuesSheetContent);
+    final sheetField = find.descendant(of: inSheet, matching: find.byType(TextField));
+
+    Future<void> addInSheet(WidgetTester tester, String text) async {
+      await tapChip(tester, find.widgetWithText(ActionChip, 'Add issue'));
+      await tester.enterText(sheetField, text);
+      await tester.tap(find.byTooltip('Add'));
+      await settle(tester);
+    }
+
+    Future<void> closeSheet(WidgetTester tester) async {
+      await tester.tap(find.descendant(of: inSheet, matching: find.byIcon(Icons.close)));
+      await settle(tester);
+    }
+
+    testWidgets('adds a new issue in the sheet and saves it flagged with its label', (tester) async {
+      await seed(tester);
+      await openForm(tester, () => addOnMay(3));
+      await tapChip(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut));
+
+      await addInSheet(tester, '  Wet roots ');
+      expect(sheetField, findsNothing, reason: 'the field collapses once the issue is added');
+      expect(isSelected(tester, find.descendant(of: inSheet, matching: customChip('Wet roots'))), isTrue);
+      await closeSheet(tester);
+
+      expect(isSelected(tester, customChip('Wet roots')), isTrue);
+      expect(isSelected(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut)), isFalse);
+      expect((await save(tester))!.observations, {wetRoots.toObservation()});
+    });
+
+    testWidgets('typing an existing issue picks it and keeps its spelling', (tester) async {
+      await seed(tester, extraFeedbacks: [laterOnS2([wetRoots])]);
+      await openForm(tester, () => addOnMay(3));
+
+      await addInSheet(tester, 'WET   roots');
+      await closeSheet(tester);
+
+      expect((await save(tester))!.customIssues, [wetRoots]);
+    });
+
+    testWidgets('shows the most used issues as chips and the rest behind "All issues"', (tester) async {
+      final crowded = [for (var i = 0; i < 10; i++) CustomIssue('issue $i', 'Issue $i')];
+      await seed(tester, extraFeedbacks: [laterOnS2(crowded)]);
+      await openForm(tester, () => addOnMay(3));
+
+      // "Nothing stood out", ten built-in chips and eight custom ones.
+      expect(find.byType(FilterChip), findsNWidgets(1 + 10 + 8));
+      expect(find.widgetWithText(ActionChip, 'All issues'), findsOneWidget);
+
+      await tapChip(tester, find.widgetWithText(ActionChip, 'All issues'));
+      expect(find.descendant(of: inSheet, matching: find.byType(FilterChip)), findsNWidgets(10));
+      await tester.tap(find.descendant(of: inSheet, matching: customChip('Issue 9')));
+      await settle(tester);
+      await closeSheet(tester);
+
+      expect(isSelected(tester, customChip('Issue 9')), isTrue, reason: 'a pick beyond the first eight stays visible');
+      expect((await save(tester))!.customIssues.map((i) => i.slug), ['issue 9']);
+    });
+
+    testWidgets('"Nothing stood out" clears custom issues and a custom chip clears it', (tester) async {
+      await seed(tester, extraFeedbacks: [laterOnS2([wetRoots])]);
+      await openForm(tester, () => addOnMay(3));
+
+      await tapChip(tester, customChip('Wet roots'));
+      expect(isSelected(tester, customChip('Wet roots')), isTrue);
+
+      await tapChip(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut));
+      expect(isSelected(tester, customChip('Wet roots')), isFalse);
+
+      await tapChip(tester, customChip('Wet roots'));
+      expect(isSelected(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut)), isFalse);
+      expect((await save(tester))!.observations, {wetRoots.toObservation()});
+    });
+
+    testWidgets('an open custom issue of the reference gets a follow-up row', (tester) async {
+      await seed(tester, extraFeedbacks: [laterOnS2([wetRoots])]);
+      await openForm(tester, () => addOnMay(3));
+
+      expect(find.byType(FeedbackAspectRow), findsOneWidget);
+      expect(find.descendant(of: find.byType(FeedbackAspectRow), matching: find.text('Wet roots')), findsOneWidget);
+
+      await tapChip(tester, followUpChip('Better'));
+
+      expect((await save(tester))!.comparisons, {
+        FeedbackComparison(referenceSetupId: 's2', aspect: wetRoots.aspect, outcome: 1),
+      });
+    });
+
+    testWidgets('renaming in the sheet follows into the form and the saved feedbacks', (tester) async {
+      await seed(tester, extraFeedbacks: [laterOnS2([wetRoots])]);
+      await openForm(tester, () => addOnMay(3));
+      await tapChip(tester, customChip('Wet roots'));
+      await tapChip(tester, followUpChip('Better'));
+
+      await tapChip(tester, find.widgetWithText(ActionChip, 'Add issue'));
+      await tester.longPress(find.descendant(of: inSheet, matching: customChip('Wet roots')));
+      await settle(tester);
+      await tester.tap(find.text('Rename'));
+      await settle(tester);
+      await tester.enterText(
+        find.byWidgetPredicate((widget) => widget is TextField && widget.decoration?.hintText == 'Name'),
+        'Slippery',
+      );
+      await tester.tap(find.widgetWithText(TextButton, 'Rename'));
+      await tester.pump();
+      await tester.runAsync(() async {
+        for (var i = 0; i < 100 && appRepository.feedbacks['f2b']!.customIssues.single.slug == 'wet roots'; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        }
+      });
+      await settle(tester);
+      await closeSheet(tester);
+
+      const slippery = CustomIssue('slippery', 'Slippery');
+      expect(customChip('Wet roots'), findsNothing);
+      expect(isSelected(tester, customChip('Slippery')), isTrue);
+      expect(find.descendant(of: find.byType(FeedbackAspectRow), matching: find.text('Slippery')), findsOneWidget);
+
+      final saved = (await save(tester))!;
+      expect(saved.observations, {slippery.toObservation()});
+      expect(saved.comparisons, {FeedbackComparison(referenceSetupId: 's2', aspect: slippery.aspect, outcome: 1)});
+    });
+
+    testWidgets('removing in the sheet drops the issue and its answer from the form', (tester) async {
+      await seed(tester, extraFeedbacks: [laterOnS2([wetRoots])]);
+      await openForm(tester, () => addOnMay(3));
+      await tapChip(tester, customChip('Wet roots'));
+      await tapChip(tester, followUpChip('Better'));
+
+      await tapChip(tester, find.widgetWithText(ActionChip, 'Add issue'));
+      await tester.longPress(find.descendant(of: inSheet, matching: customChip('Wet roots')));
+      await settle(tester);
+      await tester.tap(find.text('Remove'));
+      await settle(tester);
+      await tester.tap(find.widgetWithText(TextButton, 'Remove'));
+      await tester.pump();
+      await tester.runAsync(() async {
+        for (var i = 0; i < 100 && appRepository.feedbacks['f2b']!.customIssues.isNotEmpty; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        }
+      });
+      await settle(tester);
+      await closeSheet(tester);
+
+      expect(customChip('Wet roots'), findsNothing);
+      final saved = (await save(tester))!;
+      expect(saved.observations, isEmpty);
+      expect(saved.comparisons, isEmpty);
+    });
+
+    testWidgets('edit keeps the stored custom answers and flags', (tester) async {
+      final stored = feedback(
+        id: 'f3',
+        day: 3,
+        setupId: 's3',
+        observations: {wetRoots.toObservation()},
+        comparisons: {FeedbackComparison(referenceSetupId: 's2', aspect: wetRoots.aspect, outcome: -1)},
+      );
+      await seed(tester, extraFeedbacks: [stored]);
+      await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['f3']!));
+
+      // S2's own open issue ("Front: Harsh") has a row too; this is the custom one.
+      Finder wetRootsFace(String label) => find.descendant(
+        of: find.ancestor(of: find.text('Wet roots'), matching: find.byType(FeedbackAspectRow)),
+        matching: find.byTooltip(label),
+      );
+
+      expect(isSelected(tester, customChip('Wet roots')), isTrue);
+      expect(isFaceSelected(tester, wetRootsFace('Worse'), 'Worse'), isTrue);
+      expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isTrue);
+
+      await tapChip(tester, wetRootsFace('Better'));
+
+      final saved = (await save(tester))!;
+      expect(saved.observations, {wetRoots.toObservation()});
+      expect(saved.comparisons, {FeedbackComparison(referenceSetupId: 's2', aspect: wetRoots.aspect, outcome: 1)});
+    });
+
+    for (final (label, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
+      testWidgets('long labels and many chips fit a narrow screen ($label)', (tester) async {
+        final crowded = [
+          CustomIssue('long', 'A very long issue label that keeps going and going ' * 3),
+          for (var i = 0; i < 12; i++) CustomIssue('issue $i', 'Issue number $i'),
+        ];
+        await seed(tester, extraFeedbacks: [laterOnS2(crowded)]);
+        await openForm(tester, () => addOnMay(3), theme: theme, width: 320);
+
+        await tapChip(tester, find.widgetWithText(ActionChip, 'All issues'));
+        expect(find.byType(CustomIssuesSheetContent), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 
   for (final (label, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {

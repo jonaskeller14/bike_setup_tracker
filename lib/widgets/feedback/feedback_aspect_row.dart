@@ -3,20 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../models/feedback/feedback_key.dart';
+import '../../models/feedback/custom_issue.dart';
 import '../../models/feedback/feedback_vocabulary.dart';
 import '../../theme.dart';
 
 /// Follow-up on an open issue of the reference setup:
 /// "Front: Harsh" next to Worse · Same · Better.
 class FeedbackAspectRow extends StatelessWidget {
-  final EndAspect aspect;
+  final FeedbackIssue issue;
   final int? outcome;
   final ValueChanged<int?> onChanged;
 
   const FeedbackAspectRow({
     super.key,
-    required this.aspect,
+    required this.issue,
     required this.outcome,
     required this.onChanged,
   });
@@ -29,7 +29,7 @@ class FeedbackAspectRow extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            '${aspect.end.label}: ${aspect.attribute.problemLabel}',
+            issue.label,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodyMedium,

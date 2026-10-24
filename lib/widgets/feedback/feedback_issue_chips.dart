@@ -3,31 +3,58 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../models/feedback/custom_issue.dart';
 import '../../models/feedback/feedback_key.dart';
 import '../../models/feedback/feedback_vocabulary.dart';
+import '../../services/custom_issue_service.dart';
 
-/// "Anything stand out?": the problem chips per end of the bike, plus
-/// "Nothing stood out", which excludes the chips and vice versa.
+/// "Anything stand out?": the problem chips per end of the bike, the rider's
+/// own issues, plus "Nothing stood out", which excludes every chip and vice
+/// versa.
 class FeedbackIssueChips extends StatelessWidget {
   final Set<IssueKey> issues;
+
+  /// The issues flagged on this feedback.
+  final List<CustomIssue> customIssues;
+
+  /// Every issue used so far; the most used ones get a chip of their own.
+  final CustomIssueIndex knownIssues;
   final bool nothingStoodOut;
-  final void Function(Set<IssueKey> issues, bool nothingStoodOut) onChanged;
+  final void Function(Set<IssueKey> issues, List<CustomIssue> customIssues, bool nothingStoodOut) onChanged;
+
+  /// Opens the issues sheet, straight into its new-issue field when `addIssue`.
+  final void Function({required bool addIssue}) onOpenCustomIssues;
 
   const FeedbackIssueChips({
     super.key,
     required this.issues,
+    required this.customIssues,
+    required this.knownIssues,
     required this.nothingStoodOut,
     required this.onChanged,
+    required this.onOpenCustomIssues,
   });
+
+  /// More issues than this are reached through "All issues".
+  static const int maxCustomChips = 8;
 
   void _toggleIssue(IssueKey key, bool selected) {
     unawaited(HapticFeedback.selectionClick());
-    onChanged(selected ? {...issues, key} : ({...issues}..remove(key)), false);
+    onChanged(selected ? {...issues, key} : ({...issues}..remove(key)), customIssues, false);
+  }
+
+  void _toggleCustomIssue(CustomIssue issue, bool selected) {
+    unawaited(HapticFeedback.selectionClick());
+    onChanged(
+      issues,
+      selected ? [...customIssues, issue] : customIssues.where((c) => c.slug != issue.slug).toList(),
+      false,
+    );
   }
 
   void _toggleNothingStoodOut(bool selected) {
     unawaited(HapticFeedback.selectionClick());
-    onChanged(selected ? const {} : issues, selected);
+    onChanged(selected ? const {} : issues, selected ? const [] : customIssues, selected);
   }
 
   /// Front and rear sit side by side from this width on.
@@ -61,6 +88,48 @@ class FeedbackIssueChips extends StatelessWidget {
                   spacing: 12,
                   children: ends,
                 ),
+        ),
+        const SizedBox(height: 12),
+        _customSection(context),
+      ],
+    );
+  }
+
+  Widget _customSection(BuildContext context) {
+    final selected = {for (final issue in customIssues) issue.slug: issue};
+    final popular = knownIssues.usages.take(maxCustomChips).map((usage) => usage.issue).toList();
+    // The chips stay put while toggled; issues new to this feedback join the end.
+    final shown = [...popular, ...customIssues.where((issue) => popular.every((p) => p.slug != issue.slug))];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Other', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            for (final issue in shown)
+              FilterChip(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                label: Text(issue.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+                selected: selected.containsKey(issue.slug),
+                onSelected: (value) => _toggleCustomIssue(selected[issue.slug] ?? issue, value),
+              ),
+            ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              avatar: const Icon(Icons.add),
+              label: const Text('Add issue'),
+              onPressed: () => onOpenCustomIssues(addIssue: true),
+            ),
+            if (knownIssues.usages.length > maxCustomChips)
+              ActionChip(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                label: const Text('All issues'),
+                onPressed: () => onOpenCustomIssues(addIssue: false),
+              ),
+          ],
         ),
       ],
     );

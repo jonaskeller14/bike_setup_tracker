@@ -16,6 +16,7 @@ import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
+import '../models/feedback/custom_issue.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/feedback/test_session.dart';
 import '../models/person.dart';
@@ -34,6 +35,7 @@ import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
 import '../services/backup_service.dart';
 import '../services/component_hierarchy_resolver.dart';
+import '../services/custom_issue_service.dart';
 import '../services/feedback_open_issues_service.dart';
 import '../services/feedback_ranking_service.dart';
 import '../services/setup_resolution_service.dart';
@@ -489,6 +491,7 @@ class AppRepository extends ChangeNotifier {
     _feedbacksBySetup = null;
     _setupRanks = null;
     _openIssuesBySetup.clear();
+    _customIssues = null;
 
     final result = SetupResolutionService.resolveSetups(
       setups: _setups,
@@ -910,6 +913,11 @@ class AppRepository extends ChangeNotifier {
         () => FeedbackOpenIssuesService.openIssues(feedbacksForSetup(setupId)),
       );
 
+  CustomIssueIndex? _customIssues;
+
+  /// The custom issues the live feedbacks use, regardless of the filters.
+  CustomIssueIndex get customIssues => _customIssues ??= CustomIssueService.index(_feedbacks.values);
+
   List<Setup> setupsInSession(String sessionId) =>
       _setups.values.where((setup) => setup.testSessionId == sessionId).toList();
 
@@ -1316,6 +1324,50 @@ class AppRepository extends ChangeNotifier {
       observations: updated.observationCompanions(),
       comparisons: updated.comparisonCompanions(),
     );
+  }
+
+  /// Renames the custom issue [slug] to [label] in every feedback, trashed ones
+  /// included, and in the goals of every session. Merges into the issue the new
+  /// label names when that exists. Returns false when [label] is blank.
+  Future<bool> renameCustomIssue(String slug, String label) async {
+    final to = CustomIssue.fromLabel(label);
+    if (to == null) return false;
+    await _rewriteCustomIssue(
+      feedback: (feedback) => CustomIssueService.rename(feedback, slug, to),
+      session: (session) => CustomIssueService.renameGoal(session, slug, to),
+    );
+    return true;
+  }
+
+  /// Strips the custom issue [slug] from every feedback, trashed ones included,
+  /// and from the goals of every session.
+  Future<void> removeCustomIssue(String slug) => _rewriteCustomIssue(
+    feedback: (feedback) => CustomIssueService.remove(feedback, slug),
+    session: (session) => CustomIssueService.removeGoal(session, slug),
+  );
+
+  Future<void> _rewriteCustomIssue({
+    required RideFeedback? Function(RideFeedback feedback) feedback,
+    required TestSession? Function(TestSession session) session,
+  }) async {
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final original in [..._feedbacks.values, ..._deletedFeedbacks]) {
+        if (feedback(original) case final changed?) {
+          final updated = changed.copyWith(lastModified: now);
+          await database.feedbackDao.upsertFeedbackWithChildren(
+            feedback: updated.toCompanion(),
+            observations: updated.observationCompanions(),
+            comparisons: updated.comparisonCompanions(),
+          );
+        }
+      }
+      for (final original in [..._testSessions.values, ..._deletedTestSessions]) {
+        if (session(original) case final changed?) {
+          await database.feedbackDao.upsertTestSession(changed.copyWith(lastModified: now).toCompanion());
+        }
+      }
+    });
   }
 
   Future<void> addTestSessions(Iterable<TestSession> sessions) async {

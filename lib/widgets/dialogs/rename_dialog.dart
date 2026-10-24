@@ -4,26 +4,27 @@ import 'dialog_action.dart';
 
 /// Returns the trimmed new name, or null when the dialog was cancelled or the
 /// name is blank or unchanged.
-Future<String?> showRenameAttachmentDialog(BuildContext context, {required String name}) async {
+Future<String?> showRenameDialog(BuildContext context, {required String title, required String name}) async {
   final result = await showDialog<String>(
     context: context,
-    builder: (context) => _RenameAttachmentDialog(name: name),
+    builder: (context) => _RenameDialog(title: title, name: name),
   );
   final trimmed = result?.trim();
   if (trimmed == null || trimmed.isEmpty || trimmed == name) return null;
   return trimmed;
 }
 
-class _RenameAttachmentDialog extends StatefulWidget {
+class _RenameDialog extends StatefulWidget {
+  final String title;
   final String name;
 
-  const _RenameAttachmentDialog({required this.name});
+  const _RenameDialog({required this.title, required this.name});
 
   @override
-  State<_RenameAttachmentDialog> createState() => _RenameAttachmentDialogState();
+  State<_RenameDialog> createState() => _RenameDialogState();
 }
 
-class _RenameAttachmentDialogState extends State<_RenameAttachmentDialog> {
+class _RenameDialogState extends State<_RenameDialog> {
   late final TextEditingController _controller = TextEditingController.fromValue(
     TextEditingValue(
       text: widget.name,
@@ -40,7 +41,7 @@ class _RenameAttachmentDialogState extends State<_RenameAttachmentDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
-      title: const Text('Rename Attachment'),
+      title: Text(widget.title),
       // The Cupertino dialog provides no Material ancestor for the TextField.
       content: Material(
         type: MaterialType.transparency,

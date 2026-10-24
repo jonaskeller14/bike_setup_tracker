@@ -17,6 +17,7 @@ sealed class FeedbackKey {
     if (raw.startsWith(_issuePrefix)) {
       final aspect = FeedbackAspect.parse(raw.substring(_issuePrefix.length));
       if (aspect is EndAspect) return IssueKey(aspect.end, aspect.attribute);
+      if (aspect is CustomAspect) return CustomIssueKey(aspect.slug);
     }
     return UnknownFeedbackKey(raw);
   }
@@ -44,6 +45,19 @@ final class IssueKey extends FeedbackKey {
   String get raw => '${FeedbackKey._issuePrefix}${aspect.raw}';
 }
 
+/// A rider-defined problem: `issue.custom:<slug>`, its label in the
+/// observation's text value.
+final class CustomIssueKey extends FeedbackKey {
+  final String slug;
+
+  const CustomIssueKey(this.slug);
+
+  CustomAspect get aspect => CustomAspect(slug);
+
+  @override
+  String get raw => '${FeedbackKey._issuePrefix}${aspect.raw}';
+}
+
 /// "Nothing stood out": tells "felt right" apart from "didn't answer".
 final class NoIssueKey extends FeedbackKey {
   static const String _raw = 'issue.none';
@@ -61,8 +75,9 @@ final class UnknownFeedbackKey extends FeedbackKey {
   const UnknownFeedbackKey(this.raw);
 }
 
-/// What a comparison or session goal refers to: [OverallAspect] or an
-/// end + attribute ([EndAspect]). Unknown aspects parse as [UnknownAspect].
+/// What a comparison or session goal refers to: [OverallAspect], an
+/// end + attribute ([EndAspect]) or a rider-defined [CustomAspect]. Unknown
+/// aspects parse as [UnknownAspect].
 @immutable
 sealed class FeedbackAspect {
   const FeedbackAspect();
@@ -79,6 +94,9 @@ sealed class FeedbackAspect {
 
   static FeedbackAspect parse(String raw) {
     if (raw == OverallAspect._raw) return const OverallAspect();
+    if (raw.startsWith(CustomAspect._prefix) && raw.length > CustomAspect._prefix.length) {
+      return CustomAspect(raw.substring(CustomAspect._prefix.length));
+    }
     final parts = raw.split('.');
     if (parts.length == 2) {
       final end = FeedbackEnd.values.asNameMap()[parts[0]];
@@ -126,6 +144,23 @@ final class EndAspect extends FeedbackAspect {
 
   @override
   String get raw => '${end.name}.${attribute.name}';
+
+  @override
+  ({int min, int max}) get outcomeRange => (min: -1, max: 1);
+}
+
+/// A rider-defined problem, `custom:<slug>`. It has no front or rear end.
+final class CustomAspect extends FeedbackAspect {
+  static const String _prefix = 'custom:';
+
+  final String slug;
+
+  const CustomAspect(this.slug);
+
+  CustomIssueKey get issueKey => CustomIssueKey(slug);
+
+  @override
+  String get raw => '$_prefix$slug';
 
   @override
   ({int min, int max}) get outcomeRange => (min: -1, max: 1);

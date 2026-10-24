@@ -130,7 +130,7 @@ class SetupListSearch extends StatelessWidget {
                 .where(
                   (f) => searchFieldsMatch([
                     f.notes,
-                    ...f.orderedIssues.map(issueLabel),
+                    ...f.orderedIssues.map((issue) => issue.label),
                     ...ContextPlace.searchableFields(f.place),
                   ], searchTokens),
                 )

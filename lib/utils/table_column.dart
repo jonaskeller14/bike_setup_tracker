@@ -7,7 +7,8 @@ enum TableColumnSection {
   generalContext("General Context"),
   weatherContext("Weather Context"),
   componentAdjustments("Component Adjustments"),
-  personAttributes("Rider Attributes");
+  personAttributes("Rider Attributes"),
+  feedback("Feedback");
 
   final String label;
   const TableColumnSection(this.label);
@@ -110,4 +111,19 @@ class PersonAttributeColumn extends TableColumn {
 
   @override
   int get hashCode => Object.hash(section, adjustmentId);
+}
+
+/// The setup's rank on its bike, from feedback comparisons. Sortable only: a
+/// rank is not a measurement, so charts leave it out.
+class SetupRankColumn extends TableColumn {
+  SetupRankColumn({required super.active});
+
+  @override
+  TableColumnSection get section => TableColumnSection.feedback;
+
+  @override
+  bool operator ==(Object other) => other is SetupRankColumn;
+
+  @override
+  int get hashCode => section.hashCode;
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum TimelineLayer { setups, activities, tasks, installations }
+enum TimelineLayer { setups, activities, tasks, installations, feedback }
 
 /// The layers the user has hidden. Whether a layer's feature is enabled at all
 /// stays with the caller.

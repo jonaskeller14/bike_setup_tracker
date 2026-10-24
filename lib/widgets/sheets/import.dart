@@ -212,6 +212,8 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
               setups: _remoteAllData!.setups,
               taskRules: _remoteAllData!.taskRules,
               taskEntries: _remoteAllData!.taskEntries,
+              feedbacks: _remoteAllData!.feedbacks,
+              testSessions: _remoteAllData!.testSessions,
             ),
             onConfirm: (SelectedData selectedData) {
               _remoteSelectedData = selectedData;

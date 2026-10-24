@@ -3,22 +3,31 @@ import 'package:flutter_test/flutter_test.dart';
 
 bool anyData({
   bool hasSetups = false,
+  bool hasFeedbacks = false,
   bool hasStravaActivities = false,
+  bool feedbackEnabled = false,
   bool stravaActive = false,
 }) => hasAnyPositionedMapData(
   hasSetups: hasSetups,
+  hasFeedbacks: hasFeedbacks,
   hasStravaActivities: hasStravaActivities,
+  feedbackEnabled: feedbackEnabled,
   stravaActive: stravaActive,
 );
 
 void main() {
   group('hasAnyPositionedMapData', () {
     test('is false when no source holds a positioned item', () {
-      expect(anyData(stravaActive: true), false);
+      expect(anyData(feedbackEnabled: true, stravaActive: true), false);
     });
 
     test('setups always count', () {
       expect(anyData(hasSetups: true), true);
+    });
+
+    test('feedbacks only count while feedback is enabled', () {
+      expect(anyData(hasFeedbacks: true), false);
+      expect(anyData(hasFeedbacks: true, feedbackEnabled: true), true);
     });
 
     test('strava activities only count while strava is active', () {
@@ -27,7 +36,7 @@ void main() {
     });
 
     test('disabled sources alone leave the map without data', () {
-      expect(anyData(hasStravaActivities: true), false);
+      expect(anyData(hasFeedbacks: true, hasStravaActivities: true), false);
     });
   });
 

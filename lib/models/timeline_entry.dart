@@ -1,4 +1,5 @@
 import 'component/resolved_installation.dart';
+import 'feedback/ride_feedback.dart';
 import 'setup.dart';
 import 'strava/strava_activity.dart';
 import 'task/task_entry.dart';
@@ -52,3 +53,26 @@ class InstallationEntry extends TimelineEntry {
   @override
   DateTime get dateLocal => componentInstallation.installation.dateTimeLocal;
 }
+
+class FeedbackTimelineEntry extends TimelineEntry {
+  final RideFeedback feedback;
+  FeedbackTimelineEntry(this.feedback);
+  @override
+  String get id => 'feedback:${feedback.id}';
+  @override
+  DateTime get dateUTC => feedback.dateTimeUTC;
+  @override
+  DateTime get dateLocal => feedback.dateTimeLocal;
+}
+
+int compareTimelineEntries(TimelineEntry a, TimelineEntry b) {
+  final byDate = a.dateUTC.compareTo(b.dateUTC);
+  if (byDate != 0) return byDate;
+  return _tieOrder(a) - _tieOrder(b);
+}
+
+int _tieOrder(TimelineEntry entry) => switch (entry) {
+  StravaEntry() => 0,
+  SetupEntry() || TaskTimeLineEntry() || InstallationEntry() => 1,
+  FeedbackTimelineEntry() => 2,
+};

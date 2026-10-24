@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
+import '../models/feedback/ride_feedback.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../pages/map_page.dart';
@@ -22,6 +23,11 @@ class MapActions {
   static Future<void> openSetupsOnMap(BuildContext context, List<Setup> setups) async {
     unawaited(HapticFeedback.selectionClick());
     await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage(focusSetups: setups)));
+  }
+
+  static Future<void> openFeedbackOnMap(BuildContext context, RideFeedback feedback) async {
+    unawaited(HapticFeedback.selectionClick());
+    await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage(focusFeedback: feedback)));
   }
 
 

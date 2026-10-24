@@ -10,6 +10,7 @@ import '../../models/timeline_row.dart';
 import '../../models/timeline_selection.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../items/feedback_list_tile.dart';
 import '../items/installation_list_tile.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
@@ -137,6 +138,15 @@ class TimelineDaySection extends StatelessWidget{
               editEntry: entry.componentInstallation,
             );
           },
+        );
+      case FeedbackTimelineEntry():
+        final selectionId = feedbackSelectionId(entry.feedback.id);
+        return FeedbackListTile(
+          feedback: entry.feedback,
+          selectionMode: _selectionMode,
+          selected: selection.contains(selectionId),
+          onSelectionChanged: _toggleSelection(selectionId),
+          showDate: false,
         );
     }
   }

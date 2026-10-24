@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
+import '../../repositories/app_repository.dart';
+import '../feedback/open_issues_chips.dart';
+import '../feedback/setup_rank_badge.dart';
 import '../notes_text.dart';
 import 'tile_meta_row.dart';
 
@@ -12,6 +15,9 @@ class SetupTileHeader extends StatelessWidget {
   final List<Widget> metadata;
   final Widget? badge;
   final Widget? secondaryMetadata;
+
+  /// Shown below the notes.
+  final Widget? footer;
   final bool showSetupIcon;
   final bool selected;
 
@@ -23,6 +29,7 @@ class SetupTileHeader extends StatelessWidget {
     required this.showSetupIcon,
     this.badge,
     this.secondaryMetadata,
+    this.footer,
     this.selected = false,
   });
 
@@ -56,6 +63,26 @@ class SetupTileHeader extends StatelessWidget {
         muted: true,
       ),
   ];
+
+  /// The setup's rank for the [metadata] rows, once confident. Null while Feedback is off.
+  static Widget? rankOf(Setup setup, AppSettings appSettings, AppRepository appRepository) => switch (
+    appSettings.enableRating ? appRepository.rankFor(setup.id) : null
+  ) {
+    final rank? when rank.isConfident => SetupRankBadge(rank: rank),
+    _ => null,
+  };
+
+  /// Whether setup tiles list the open issues from feedback. Off until it is
+  /// clear they earn the space; setup details always show them.
+  static const bool showOpenIssuesInTiles = false;
+
+  /// The setup's open issues or "Dialled in", for the [footer]. Null while Feedback is off.
+  static Widget? openIssuesOf(Setup setup, AppSettings appSettings, AppRepository appRepository) => switch (
+    appSettings.enableRating ? appRepository.openIssuesFor(setup.id) : null
+  ) {
+    final openIssues? => OpenIssuesChips.of(openIssues),
+    null => null,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +147,7 @@ class SetupTileHeader extends StatelessWidget {
             ),
           ],
         ),
-        if (metadata.isNotEmpty || hasNotes)
+        if (metadata.isNotEmpty || hasNotes || footer != null)
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Column(
@@ -150,6 +177,11 @@ class SetupTileHeader extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+                if (footer case final footer?)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: footer,
                   ),
               ],
             ),

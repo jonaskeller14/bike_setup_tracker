@@ -30,9 +30,9 @@ class FilterActions {
       FilterSection.taskTags => appSettings.enableTaskTags,
       FilterSection.activity => appSettings.enableAdvancedFilters && stravaActive,
       // Layer toggles are only offered when a layer other than setups can be shown at all.
-      FilterSection.mapLayers => stravaActive,
+      FilterSection.mapLayers => appSettings.enableRating || stravaActive,
       FilterSection.timelineLayers =>
-        stravaActive || appSettings.enableInstallationTimeline || appSettings.enableTask,
+        appSettings.enableRating || stravaActive || appSettings.enableInstallationTimeline || appSettings.enableTask,
     };
 
     return sections.where(enabled).toSet();
@@ -50,6 +50,7 @@ class FilterActions {
       TimelineLayer.activities => stravaActive,
       TimelineLayer.tasks => appSettings.enableTask,
       TimelineLayer.installations => appSettings.enableInstallationTimeline,
+      TimelineLayer.feedback => appSettings.enableRating,
     };
 
     final enabled = enabledSections(sections, appSettings: appSettings, stravaActive: stravaActive);
@@ -160,7 +161,7 @@ class FilterActions {
     });
   }
 
-  static const _mapLayers = {TimelineLayer.setups, TimelineLayer.activities};
+  static const _mapLayers = {TimelineLayer.setups, TimelineLayer.activities, TimelineLayer.feedback};
 
   /// Every layer the layer sections of [sections] cover, whatever the feature flags say.
   static Set<TimelineLayer> _layersOf(Set<FilterSection> sections) => {

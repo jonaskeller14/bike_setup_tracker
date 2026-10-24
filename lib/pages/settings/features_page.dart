@@ -213,7 +213,10 @@ class FeaturesPage extends StatelessWidget {
                   icon: Icons.star,
                   title: "Feedback",
                   value: appSettings.enableRating,
-                  onChanged: (v) => appSettings.enableRating = v,
+                  onChanged: (v) {
+                    appSettings.enableRating = v;
+                    if (!v) _showLayer(context, TimelineLayer.feedback);
+                  },
                 ),
               _FeatureToggleTile(
                 icon: Icons.person,

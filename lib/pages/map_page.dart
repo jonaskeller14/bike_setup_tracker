@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../env/env.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
+import '../models/feedback/ride_feedback.dart';
 import '../models/filters/layer_filter.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
@@ -29,6 +30,7 @@ import '../widgets/map/map_control_button.dart';
 import '../widgets/map/map_tile_layer.dart';
 import '../widgets/map_empty_state_card.dart';
 import '../widgets/map_pins.dart';
+import '../widgets/sheets/feedback_details.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
 
@@ -38,6 +40,7 @@ class MapPage extends StatefulWidget {
 
   final StravaActivity? focusActivity;
   final List<Setup> focusSetups;
+  final RideFeedback? focusFeedback;
 
   const MapPage({
     super.key,
@@ -45,6 +48,7 @@ class MapPage extends StatefulWidget {
     this.headingStream,
     this.focusActivity,
     this.focusSetups = const [],
+    this.focusFeedback,
   });
 
   @override
@@ -173,6 +177,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   MapPinState _pinStateFor({
     required int visiblePinCount,
     required AppRepository appRepository,
+    required AppSettings appSettings,
     required bool stravaActive,
   }) {
     if (stravaActive && !_stravaResolved) return MapPinState.loading;
@@ -182,7 +187,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       visiblePinCount,
       hasAnyPositionedMapData(
         hasSetups: appRepository.hasSetupsWithPosition,
+        hasFeedbacks: appRepository.hasFeedbacksWithPosition,
         hasStravaActivities: _stravaHasAnyPosition,
+        feedbackEnabled: appSettings.enableRating,
         stravaActive: stravaActive,
       ),
     );
@@ -318,6 +325,20 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         );
   }
 
+  Iterable<Marker> _feedbackMarkers(AppRepository appRepository) {
+    return appRepository.view.feedbacks.values
+        .where((f) => f.id != widget.focusFeedback?.id)
+        .map((feedback) => (feedback: feedback, point: _pointOf(feedback.position)))
+        .where((entry) => entry.point != null)
+        .map(
+          (entry) => _pinMarker(
+            point: entry.point!,
+            onTap: () => showFeedbackDetailsSheet(context: context, feedbackId: entry.feedback.id, showViewOnMap: false),
+            pin: const FeedbackMapPin(),
+          ),
+        );
+  }
+
   static LatLng? _pointOf(ContextPosition? position) =>
       (position?.latitude?.isFinite ?? false) && (position?.longitude?.isFinite ?? false)
       ? LatLng(position!.latitude!, position.longitude!)
@@ -375,6 +396,14 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
           ),
           identifier: AutomationIds.mapSetup(setup.id),
         ),
+    if (widget.focusFeedback case final feedback?)
+      if (_pointOf(feedback.position) case final point?)
+        _focusMarker(
+          key: const Key('map-focus-feedback'),
+          point: point,
+          onTap: () => showFeedbackDetailsSheet(context: context, feedbackId: feedback.id, showViewOnMap: false),
+          pin: const FeedbackMapPin(),
+        ),
   ];
 
   @override
@@ -391,6 +420,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final List<Marker> clusterMarkers = [
       if (layers.shows(TimelineLayer.setups)) ..._setupMarkers(appRepository, appSettings),
       if (stravaActive && layers.shows(TimelineLayer.activities)) ..._activityMarkers(),
+      if (appSettings.enableRating && layers.shows(TimelineLayer.feedback)) ..._feedbackMarkers(appRepository),
     ];
 
     final focusMarkers = _focusMarkers(appRepository, appSettings);
@@ -401,6 +431,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final pinState = _pinStateFor(
       visiblePinCount: _pinPoints.length,
       appRepository: appRepository,
+      appSettings: appSettings,
       stravaActive: stravaActive,
     );
     _pinState = pinState;

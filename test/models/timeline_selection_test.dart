@@ -3,11 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('ids of the same value in different namespaces stay distinct', () {
-    final selection = {setupSelectionId('a'), taskEntrySelectionId('a')};
+    final selection = {setupSelectionId('a'), taskEntrySelectionId('a'), feedbackSelectionId('a')};
 
-    expect(selection.length, 2);
+    expect(selection.length, 3);
     expect(selection.idsOf(TimelineSelectionKind.setup), {'a'});
     expect(selection.idsOf(TimelineSelectionKind.taskEntry), {'a'});
+    expect(selection.idsOf(TimelineSelectionKind.feedback), {'a'});
   });
 
   test('re-adding the same row does not grow the selection', () {
@@ -21,5 +22,6 @@ void main() {
     expect({setupSelectionId('a'), setupSelectionId('b')}.isSetupsOnly, isTrue);
     expect({setupSelectionId('a'), taskEntrySelectionId('b')}.isSetupsOnly, isFalse);
     expect({taskEntrySelectionId('a')}.isSetupsOnly, isFalse);
+    expect({setupSelectionId('a'), feedbackSelectionId('b')}.isSetupsOnly, isFalse);
   });
 }

@@ -5,12 +5,14 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
+import '../../models/feedback/feedback_summary.dart';
 import '../../models/filters/layer_filter.dart';
 import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/text_search.dart';
+import '../items/feedback_list_tile.dart';
 import '../items/installation_list_tile.dart';
 import '../items/setup_tile.dart';
 import '../items/strava_list_tile.dart';
@@ -121,8 +123,23 @@ class SetupListSearch extends StatelessWidget {
           );
         }
 
+        if (appSettings.enableRating && layers.shows(TimelineLayer.feedback)) {
+          final feedbacks = appRepository.view.feedbacks.values;
+          matchingEntries.addAll(
+            feedbacks
+                .where(
+                  (f) => searchFieldsMatch([
+                    f.notes,
+                    ...f.orderedIssues.map(issueLabel),
+                    ...ContextPlace.searchableFields(f.place),
+                  ], searchTokens),
+                )
+                .map((f) => FeedbackTimelineEntry(f)),
+          );
+        }
+
         matchingEntries.sort((a, b) {
-          return sortAscending ? a.dateUTC.compareTo(b.dateUTC) : b.dateUTC.compareTo(a.dateUTC);
+          return sortAscending ? compareTimelineEntries(a, b) : compareTimelineEntries(b, a);
         });
 
         Widget entryWidget(TimelineEntry entry, {EdgeInsets edgeInset = EdgeInsets.zero}) {
@@ -163,6 +180,8 @@ class SetupListSearch extends StatelessWidget {
                   );
                 },
               );
+            case FeedbackTimelineEntry():
+              return FeedbackListTile(feedback: entry.feedback, showDate: false);
           }
         }
 

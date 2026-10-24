@@ -278,6 +278,9 @@ class _SetupTableState extends State<SetupTable> {
         return _adjustmentCell(context, setup, column, widget.previousValueFor?.call(setup, column));
       case PersonAttributeColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, widget.setupHistory.previousPersonValuesOf(setup.id)[adjustmentId]);
+      case SetupRankColumn():
+        final rank = widget.valueFor(setup, column)?.asNum;
+        return DataCell(Center(child: Text(rank == null ? '-' : '#$rank')));
     }
   }
 

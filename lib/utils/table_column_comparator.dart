@@ -17,7 +17,7 @@ Adjustment? adjustmentForColumn(
   ComponentAdjustmentColumn(:final adjustmentId) => componentAdjustments.firstWhereOrNull((a) => a.id == adjustmentId),
   PersonAttributeColumn(:final adjustmentId) => personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId),
   BikeAdjustmentColumn() => bikeAdjustmentFor?.call(column),
-  SetupTableColumn() => null,
+  SetupTableColumn() || SetupRankColumn() => null,
 };
 
 Comparator<Setup>? tableColumnComparator(
@@ -32,6 +32,9 @@ Comparator<Setup>? tableColumnComparator(
   switch (column) {
     case SetupTableColumn(column: final setupColumn):
       return setupColumnComparator(setupColumn, bikes: bikes, setupActivityCounts: setupActivityCounts);
+    // Ascending puts the best rank first and unranked setups last.
+    case SetupRankColumn():
+      return _by((s) => valueFor(s, column)?.asNum ?? double.infinity);
     case ComponentAdjustmentColumn() || PersonAttributeColumn() || BikeAdjustmentColumn():
       final adjustment = adjustmentForColumn(
         column,

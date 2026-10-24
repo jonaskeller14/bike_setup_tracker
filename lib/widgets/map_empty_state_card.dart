@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../models/app_settings.dart';
 import '../utils/filter_actions.dart';
 import '../utils/map_actions.dart';
 import '../utils/map_empty_state.dart';
@@ -143,7 +145,7 @@ class MapEmptyStateCard extends StatelessWidget {
       key: const Key('map-empty-error'),
       icon: Icons.cloud_off,
       title: "Couldn't load activities",
-      subtitle: 'Setups are still shown.',
+      subtitle: 'Setups and feedback are still shown.',
       pillLabel: 'Activities failed',
       actionLabel: 'Retry',
       actionIcon: Icons.refresh,
@@ -181,6 +183,7 @@ class MapEmptyStateCard extends StatelessWidget {
     const setups = 'Setups appear here once one is saved with a location.';
     final others = [
       if (MapActions.stravaActive(context)) 'Strava activities',
+      if (context.read<AppSettings>().enableRating) 'feedback',
     ];
     return others.isEmpty ? setups : '$setups\nSame for ${others.join(' and ')}.';
   }

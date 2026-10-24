@@ -1,7 +1,7 @@
 /// The timeline row kinds that take part in bulk selection. Strava activities
 /// and installations are left out: they are not standalone records the user
 /// deletes from the timeline.
-enum TimelineSelectionKind { setup, taskEntry }
+enum TimelineSelectionKind { setup, taskEntry, feedback }
 
 /// One selected timeline row. A record, so a selection set gets value equality
 /// across the three id namespaces for free.
@@ -10,6 +10,8 @@ typedef TimelineSelectionId = ({TimelineSelectionKind kind, String id});
 TimelineSelectionId setupSelectionId(String id) => (kind: TimelineSelectionKind.setup, id: id);
 
 TimelineSelectionId taskEntrySelectionId(String id) => (kind: TimelineSelectionKind.taskEntry, id: id);
+
+TimelineSelectionId feedbackSelectionId(String id) => (kind: TimelineSelectionKind.feedback, id: id);
 
 extension TimelineSelection on Set<TimelineSelectionId> {
   Set<String> idsOf(TimelineSelectionKind kind) => {

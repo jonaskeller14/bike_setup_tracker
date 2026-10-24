@@ -1,82 +1,158 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
-import '../../models/feedback/feedback_key.dart';
-import '../../models/feedback/feedback_vocabulary.dart';
+import '../../models/bike.dart';
+import '../../models/feedback/feedback_summary.dart';
 import '../../models/feedback/ride_feedback.dart';
-import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/feedback_actions.dart';
+import '../feedback/open_issues_chips.dart';
+import '../notes_text.dart';
+import '../sheets/feedback_details.dart';
+import 'tile_meta_row.dart';
+import 'timeline_selection_fill.dart';
 
 class FeedbackListTile extends StatelessWidget {
   final RideFeedback feedback;
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onSelectionChanged;
+  final bool showDate;
 
-  const FeedbackListTile({super.key, required this.feedback});
-
-  /// "Slightly better than S5", from the overall comparison.
-  static String? verdict(RideFeedback feedback, Map<String, Setup> setups) {
-    final comparison = feedback.comparisons.firstWhereOrNull((c) => c.aspect is OverallAspect && c.isValid);
-    if (comparison == null) return null;
-    final reference = setups[comparison.referenceSetupId]?.displayName ?? 'a deleted setup';
-    final label = FeedbackVocabulary.overallOutcomeLabels[comparison.outcome]!;
-    return comparison.outcome == 0 ? '$label as $reference' : '$label than $reference';
-  }
-
-  /// "Front: Harsh · Rear: Low grip", or "Dialled in".
-  static String? issuesSummary(RideFeedback feedback) {
-    if (feedback.nothingStoodOut) return FeedbackVocabulary.dialledIn;
-    final flagged = feedback.issues.map((key) => key.aspect).toSet();
-    final issues = EndAspect.values.where(flagged.contains);
-    if (issues.isEmpty) return null;
-    return issues.map((aspect) => '${aspect.end.label}: ${aspect.attribute.problemLabel}').join(' · ');
-  }
+  const FeedbackListTile({
+    super.key,
+    required this.feedback,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onSelectionChanged,
+    this.showDate = true,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.read<AppSettings>();
-    final setups = context.select<AppRepository, Map<String, Setup>>((r) => r.setups);
-    final lines = [?verdict(feedback, setups), ?issuesSummary(feedback), ?feedback.notes];
+    final colorScheme = Theme.of(context).colorScheme;
+    final appSettings = context.watch<AppSettings>();
+    final appRepository = context.watch<AppRepository>();
+    final bike = appRepository.bikes[feedback.bike];
+    final activity = feedback.stravaActivityId == null
+        ? null
+        : appRepository.stravaActivities[feedback.stravaActivityId];
+    final resolved = appRepository.resolvedSetupFor(feedback);
+    final hasDrift = appRepository.hasSetupDrift(feedback);
+    final issues = feedback.orderedIssues;
+    final showIssues = feedback.nothingStoodOut || issues.isNotEmpty;
+    final hasNotes = feedback.notes?.isNotEmpty ?? false;
+    final hasBottomBlock = hasDrift || showIssues || hasNotes;
 
-    return ListTile(
-      contentPadding: const EdgeInsets.only(left: 16, right: 4),
-      leading: const Icon(RideFeedback.iconData),
-      title: Text(
-        '${DateFormat(appSettings.dateFormat).format(feedback.dateTimeLocal)} • '
-        '${DateFormat(appSettings.timeFormat).format(feedback.dateTimeLocal)}',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: lines.isEmpty
-          ? null
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final line in lines) Text(line, maxLines: 2, overflow: TextOverflow.ellipsis),
-              ],
-            ),
-      onTap: () => FeedbackActions.editFeedback(context, feedback: feedback),
-      trailing: PopupMenuButton<_FeedbackOption>(
-        tooltip: 'Feedback actions',
-        onSelected: (option) => switch (option) {
-          _FeedbackOption.edit => FeedbackActions.editFeedback(context, feedback: feedback),
-          _FeedbackOption.remove => FeedbackActions.removeFeedback(context, feedback: feedback),
-        },
-        itemBuilder: (context) => [
-          for (final option in _FeedbackOption.values)
-            PopupMenuItem(
-              value: option,
-              child: Row(
-                spacing: 10,
-                children: [
-                  Icon(option.iconData, size: 20),
-                  Text(option.label),
-                ],
+    final dateText = DateFormat(appSettings.dateFormat).format(feedback.dateTimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat).format(feedback.dateTimeLocal);
+    final notesColor = colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
+
+    return TimelineSelectionFill(
+      selected: selected,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: selectionMode
+              ? onSelectionChanged
+              : () => showFeedbackDetailsSheet(context: context, feedbackId: feedback.id),
+          onLongPress: onSelectionChanged,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                selected: selected,
+                dense: true,
+                visualDensity: VisualDensity.compact,
+                titleAlignment: ListTileTitleAlignment.top,
+                minLeadingWidth: 0,
+                horizontalTitleGap: 8,
+                minTileHeight: 0,
+                minVerticalPadding: 0,
+                contentPadding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: hasBottomBlock ? 4 : 8),
+                leading: const Padding(
+                  padding: EdgeInsets.only(top: 1),
+                  child: Icon(RideFeedback.iconData),
+                ),
+                title: Text(
+                  feedback.verdict(appRepository.setups) ?? 'Feedback',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  children: [
+                    Text(
+                      showDate ? "$dateText • $timeText" : timeText,
+                      style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 12),
+                    ),
+                    TileMetaRow(icon: Bike.iconData, text: bike?.name ?? "BIKE NOT FOUND", isError: bike == null),
+                    if (activity != null) TileMetaRow(icon: SimpleIcons.strava, text: activity.name),
+                  ],
+                ),
+                trailing: selectionMode
+                    ? null
+                    : PopupMenuButton<_FeedbackOption>(
+                        tooltip: 'Feedback actions',
+                        onSelected: (option) => switch (option) {
+                          _FeedbackOption.edit => FeedbackActions.editFeedback(context, feedback: feedback),
+                          _FeedbackOption.remove => FeedbackActions.removeFeedback(context, feedback: feedback),
+                        },
+                        itemBuilder: (context) => [
+                          for (final option in _FeedbackOption.values)
+                            PopupMenuItem(
+                              value: option,
+                              child: Row(
+                                spacing: 10,
+                                children: [
+                                  Icon(option.iconData, size: 20),
+                                  Text(option.label),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
               ),
-            ),
-        ],
+              if (hasBottomBlock)
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 4,
+                    children: [
+                      if (hasDrift)
+                        TileMetaRow(
+                          icon: Icons.warning_amber_rounded,
+                          text:
+                              "Originally '${appRepository.setups[feedback.setupId]?.displayName ?? 'a deleted setup'}', "
+                              "now '${resolved?.displayName}'",
+                          isError: true,
+                        ),
+                      if (showIssues) OpenIssuesChips(issues: issues),
+                      if (hasNotes)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 3),
+                              child: Icon(Icons.notes, size: 12, color: notesColor),
+                            ),
+                            const SizedBox(width: 2),
+                            Expanded(child: NotesText(feedback.notes!, fontSize: 12, color: notesColor)),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

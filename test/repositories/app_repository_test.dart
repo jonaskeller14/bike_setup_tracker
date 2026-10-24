@@ -1337,6 +1337,32 @@ void main() {
       expect(repository.hasSetupsWithPosition, false);
     });
 
+    test("hasFeedbacksWithPosition needs a full position and drops a removed feedback", () async {
+      RideFeedback feedbackAt(ContextPosition position) => RideFeedback(
+        bike: bike1.id,
+        setupId: 'setup',
+        dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
+        dateTimeLocal: DateTime(2025, 6, 1),
+        position: position,
+      );
+      final positioned = feedbackAt(const ContextPosition(latitude: 44.16, longitude: 8.34));
+      await repository.addBikes([bike1]);
+      await repository.addFeedbacks([feedbackAt(const ContextPosition(latitude: 44.16))]);
+      await pumpEventQueue();
+
+      expect(repository.hasFeedbacksWithPosition, false);
+
+      await repository.addFeedbacks([positioned]);
+      await pumpEventQueue();
+
+      expect(repository.hasFeedbacksWithPosition, true);
+
+      await repository.removeFeedbacks([positioned]);
+      await pumpEventQueue();
+
+      expect(repository.hasFeedbacksWithPosition, false);
+    });
+
     test("hasStravaActivitiesWithPosition ignores the selected bike", () async {
       await repository.addBikes([bike1, bike2]);
       await repository.setStravaActivities([buildActivity(1, lat: 44.16, lon: 8.34)]);

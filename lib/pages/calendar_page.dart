@@ -11,6 +11,7 @@ import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
+import '../models/feedback/ride_feedback.dart';
 import '../models/filters/layer_filter.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
@@ -26,6 +27,7 @@ import '../widgets/app_snackbar.dart';
 import '../widgets/calendar_add_setup_appointment.dart';
 import '../widgets/calendar_entry_appointment.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
+import '../widgets/sheets/feedback_details.dart';
 import '../widgets/sheets/installation_sheet.dart';
 import '../widgets/sheets/replacement_sheet.dart';
 import '../widgets/sheets/setup_details.dart';
@@ -117,6 +119,7 @@ IconData calendarIconFor(
           : SimpleIcons.strava,
       TaskTimeLineEntry() => Icons.check_box_outlined,
       InstallationEntry() => entry.componentInstallation.component.componentType.getIconData(),
+      FeedbackTimelineEntry() => RideFeedback.iconData,
     };
 
 Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
@@ -124,6 +127,7 @@ Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
       StravaEntry() => kCalendarStravaColor,
       TaskTimeLineEntry() => cs.tertiary,
       InstallationEntry() => cs.secondary,
+      FeedbackTimelineEntry() => cs.primaryContainer,
     };
 
 Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
@@ -131,6 +135,7 @@ Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) 
       StravaEntry() => Colors.white,
       TaskTimeLineEntry() => cs.onTertiary,
       InstallationEntry() => cs.onSecondary,
+      FeedbackTimelineEntry() => cs.onPrimaryContainer,
     };
 
 String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
@@ -138,6 +143,7 @@ String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
       StravaEntry() => entry.activity.name,
       TaskTimeLineEntry() => entry.taskEntry.name,
       InstallationEntry() => entry.componentInstallation.shortLabel,
+      FeedbackTimelineEntry() => 'Feedback',
     };
 
 IconData calendarIconForRow(
@@ -271,6 +277,8 @@ class _CalendarPageState extends State<CalendarPage> {
         ...appRepository.view.taskEntries.values.map((t) => TaskTimeLineEntry(t)),
       if (layers.shows(TimelineLayer.installations))
         ...appRepository.view.installations.map((ci) => InstallationEntry(ci)),
+      if (appSettings.enableRating && layers.shows(TimelineLayer.feedback))
+        ...appRepository.view.feedbacks.values.map((f) => FeedbackTimelineEntry(f)),
     ];
   }
 
@@ -478,6 +486,8 @@ class _CalendarPageState extends State<CalendarPage> {
           component: entry.componentInstallation.component,
           editEntry: entry.componentInstallation,
         );
+      case FeedbackTimelineEntry():
+        await showFeedbackDetailsSheet(context: context, feedbackId: entry.feedback.id);
     }
   }
 
@@ -614,6 +624,20 @@ class _CalendarPageState extends State<CalendarPage> {
           oldLocal,
           newLocal,
           () => appRepository.editComponents([originalComponent]),
+        );
+      case FeedbackTimelineEntry():
+        final original = entry.feedback;
+        // A feedback needs a setup to rate, as on save.
+        if (appRepository.resolveSetupId(bikeId: original.bike, atUtc: newUtc) == null) {
+          _rejectMove("Can't move this feedback before the bike's first setup.");
+          return;
+        }
+        await appRepository.editFeedback(original.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal));
+        _showMoveUndoSnackBar(
+          calendarSubjectFor(entry),
+          oldLocal,
+          newLocal,
+          () => appRepository.editFeedback(original),
         );
       case StravaEntry():
         // Strava activities are synced and read-only.

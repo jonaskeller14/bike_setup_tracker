@@ -211,6 +211,7 @@ void main() {
         column,
         valueFor: (setup, column) => switch (column) {
           ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
+          SetupRankColumn() => setup.bikeAdjustmentValues['rank'],
           _ => null,
         },
         componentAdjustments: [numerical, boolean],
@@ -243,6 +244,15 @@ void main() {
         sortedByColumn(ComponentAdjustmentColumn('lockout', active: true), setups),
         ['missing', 'on'],
       );
+    });
+
+    test('the rank column sorts the best rank first and unranked setups last', () {
+      final setups = [
+        withAdjustments('unranked', const {}),
+        withAdjustments('third', {'rank': const StepValue(3)}),
+        withAdjustments('first', {'rank': const StepValue(1)}),
+      ];
+      expect(sortedByColumn(SetupRankColumn(active: true), setups), ['first', 'third', 'unranked']);
     });
 
     test('returns null for an adjustment column whose adjustment is gone', () {

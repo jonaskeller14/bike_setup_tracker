@@ -57,10 +57,17 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   TableColumn? _selectedHistogramColumn;
   Set<String>? _selectedSetupIds;
 
+  // Confident setup ranks only, as on the setup tiles.
+  Map<String, int> _ranks = {};
+
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
   AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
+    SetupRankColumn() => switch (_ranks[setup.id]) {
+      final rank? => StepValue(rank),
+      null => null,
+    },
     SetupTableColumn() || BikeAdjustmentColumn() => null,
   };
 
@@ -76,6 +83,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       BikeAdjustmentColumn(:final key) => key.adjustment.name,
+      SetupRankColumn() => "Rank",
     };
   }
 
@@ -166,6 +174,12 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         .reversed
         .toList();
 
+    _ranks = {
+      if (appSettings.enableRating)
+        for (final s in setupsUnsorted)
+          if (appRepository.rankFor(s.id) case final rank? when rank.isConfident) s.id: rank.rank,
+    };
+
     // Built-in columns available under the current feature flags.
     final availableSetupColumns = SetupColumn.values.where(
       (column) => switch (column) {
@@ -186,6 +200,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       for (final adjustment in componentAdjustments) retained(ComponentAdjustmentColumn(adjustment.id, active: true)),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
+      if (appSettings.enableRating) retained(SetupRankColumn(active: false)),
     };
 
     final orderedColumns = _columns.toList();

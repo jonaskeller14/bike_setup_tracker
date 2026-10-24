@@ -94,6 +94,8 @@ class _ExportSheetFlowState extends State<ExportSheetFlow> {
     setups: widget.allData.setups,
     taskRules: widget.allData.taskRules,
     taskEntries: widget.allData.taskEntries,
+    feedbacks: widget.allData.feedbacks,
+    testSessions: widget.allData.testSessions,
   );
 
   Future<void> _export(ExportDestination destination, SelectedData selectedData) async {

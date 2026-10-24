@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
@@ -36,7 +37,7 @@ void main() {
   late MockSubscriptionService subscriptionService;
   late List<VoidCallback> repositoryListeners;
 
-  void stubView({Map<String, Setup> setups = const {}}) {
+  void stubView({Map<String, Setup> setups = const {}, Map<String, RideFeedback> feedbacks = const {}}) {
     when(() => repository.view).thenReturn(
       FilteredView(
         bikes: const {},
@@ -45,7 +46,7 @@ void main() {
         persons: const {},
         taskRules: const {},
         taskEntries: const {},
-        feedbacks: const {},
+        feedbacks: feedbacks,
         testSessions: const {},
         hierarchy: ComponentHierarchyResolver(const {}),
         bikeId: null,
@@ -67,6 +68,7 @@ void main() {
     when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => []);
     when(() => repository.hasStravaActivitiesWithPosition()).thenAnswer((_) async => false);
     when(() => repository.hasSetupsWithPosition).thenReturn(false);
+    when(() => repository.hasFeedbacksWithPosition).thenReturn(false);
     repositoryListeners = [];
     when(() => repository.addListener(any())).thenAnswer(
       (invocation) => repositoryListeners.add(invocation.positionalArguments.first as VoidCallback),
@@ -94,6 +96,7 @@ void main() {
     Stream<LocationMarkerHeading?>? headingStream = const Stream.empty(),
     StravaActivity? focusActivity,
     List<Setup> focusSetups = const [],
+    RideFeedback? focusFeedback,
   }) {
     return MultiProvider(
       providers: [
@@ -107,6 +110,7 @@ void main() {
           headingStream: headingStream,
           focusActivity: focusActivity,
           focusSetups: focusSetups,
+          focusFeedback: focusFeedback,
         ),
       ),
     );
@@ -657,6 +661,48 @@ void main() {
       await tester.pump();
 
       expect(find.byKey(Key('map-focus-setup-${setup.id}')), findsNothing);
+    });
+  });
+
+  group('Feedback', () {
+    RideFeedback feedbackAt(double latitude, double longitude) => RideFeedback(
+      bike: 'bike-1',
+      setupId: 'setup-1',
+      dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
+      dateTimeLocal: DateTime(2025, 6, 1),
+      position: ContextPosition(latitude: latitude, longitude: longitude),
+    );
+
+    MapCamera cameraOf(WidgetTester tester) =>
+        tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!.camera;
+
+    testWidgets('opens centred on a focused feedback', (tester) async {
+      final feedback = feedbackAt(46.5, 9.8);
+      await tester.pumpWidget(buildPage(unpermittedService(), focusFeedback: feedback));
+      await tester.pump();
+
+      expect(cameraOf(tester).center.latitude, closeTo(46.5, 0.001));
+      expect(find.byKey(const Key('map-focus-feedback')), findsOneWidget);
+    });
+
+    testWidgets('pins feedback only while Feedback is on and its layer shows', (tester) async {
+      final feedback = feedbackAt(46.5, 9.8);
+      stubView(feedbacks: {feedback.id: feedback});
+      MapPinState pinState() => tester.state<MapPageState>(find.byType(MapPage)).pinState;
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+      expect(pinState(), MapPinState.none);
+
+      settings.enableRating = true;
+      await tester.pump();
+      expect(pinState(), MapPinState.success);
+
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.feedback});
+      for (final listener in repositoryListeners) {
+        listener();
+      }
+      await tester.pump();
+      expect(pinState(), MapPinState.none);
     });
   });
 

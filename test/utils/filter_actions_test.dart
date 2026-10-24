@@ -74,6 +74,7 @@ void main() {
     test('never offers a section the page did not name', () {
       settings.enableSetupTags = true;
       settings.enableTaskTags = true;
+      settings.enableRating = true;
 
       expect(enabled(const {FilterSection.bike}, stravaActive: true), {FilterSection.bike});
     });
@@ -126,6 +127,9 @@ void main() {
       expect(enabled(sections), isEmpty);
 
       expect(enabled(sections, stravaActive: true), sections);
+
+      settings.enableRating = true;
+      expect(enabled(sections), sections);
     });
 
     test('timeline layers also count tasks and installations', () {
@@ -138,11 +142,16 @@ void main() {
       settings.enableTask = false;
       settings.enableInstallationTimeline = true;
       expect(enabled(sections), sections);
+
+      settings.enableInstallationTimeline = false;
+      settings.enableRating = true;
+      expect(enabled(sections), sections);
     });
   });
 
   group('availableLayers', () {
     test('is empty without a layer section', () {
+      settings.enableRating = true;
       expect(layers(taskSections, stravaActive: true), isEmpty);
     });
 
@@ -155,6 +164,9 @@ void main() {
       settings.enableTask = true;
       settings.enableInstallationTimeline = true;
       expect(layers(mapSections, stravaActive: true), [TimelineLayer.setups, TimelineLayer.activities]);
+
+      settings.enableRating = true;
+      expect(layers(mapSections), [TimelineLayer.setups, TimelineLayer.feedback]);
     });
 
     test('lists the timeline layers whose feature is on, in display order', () {
@@ -162,6 +174,7 @@ void main() {
       expect(layers(timelineSections), [TimelineLayer.setups, TimelineLayer.tasks]);
 
       settings.enableInstallationTimeline = true;
+      settings.enableRating = true;
       expect(layers(timelineSections, stravaActive: true), TimelineLayer.values);
     });
   });
@@ -247,7 +260,7 @@ void main() {
     test('ignore a hidden layer whose feature is off', () {
       settings.enableTask = true;
       filters.layers = const LayerFilter(
-        hidden: {TimelineLayer.installations, TimelineLayer.activities},
+        hidden: {TimelineLayer.installations, TimelineLayer.feedback, TimelineLayer.activities},
       );
 
       expect(isFiltered(timelineSections), false);
@@ -261,6 +274,7 @@ void main() {
     });
 
     test('ignore a hidden layer only another section offers', () {
+      settings.enableRating = true;
       settings.enableTask = true;
       filters.layers = const LayerFilter(hidden: {TimelineLayer.tasks});
 

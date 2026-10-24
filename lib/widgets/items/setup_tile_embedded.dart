@@ -99,6 +99,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
           text: '${setup.attachments.length}',
           muted: true,
         ),
+      ?SetupTileHeader.rankOf(setup, appSettings, appRepository),
     ];
     final Widget? badge = widget.showCurrentBadge
         ? appRepository.setupHistory.isCurrent(setup.id)
@@ -118,6 +119,9 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
         badge: badge,
         showSetupIcon: false,
         selected: widget.selected,
+        footer: SetupTileHeader.showOpenIssuesInTiles
+            ? SetupTileHeader.openIssuesOf(setup, appSettings, appRepository)
+            : null,
         secondaryMetadata: null,
       ),
     );

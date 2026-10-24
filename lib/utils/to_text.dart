@@ -7,6 +7,8 @@ import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
+import '../models/feedback/feedback_summary.dart';
+import '../models/feedback/ride_feedback.dart';
 import '../models/person.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
@@ -67,6 +69,20 @@ String toText({
     for (int i = 0; i < taskEntries.length; i++) {
       _appendTaskEntryText(buffer, taskEntries[i], selectedData, appSettings);
       if (i < taskEntries.length - 1) {
+        buffer.writeln();
+      }
+    }
+  }
+
+  final feedbacks = selectedData.feedbacks.values.where((f) => !f.isDeleted).toList();
+  feedbacks.sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC)); // Sort newest first
+
+  if (appSettings.enableRating && feedbacks.isNotEmpty) {
+    if (buffer.isNotEmpty) buffer.writeln("\n-----------\n");
+    buffer.writeln("FEEDBACK:");
+    for (int i = 0; i < feedbacks.length; i++) {
+      _appendFeedbackText(buffer, feedbacks[i], selectedData, appSettings);
+      if (i < feedbacks.length - 1) {
         buffer.writeln();
       }
     }
@@ -156,6 +172,23 @@ void _appendSetupText(
     }
   }
 
+}
+
+void _appendFeedbackText(
+  StringBuffer buffer,
+  RideFeedback feedback,
+  SelectedData data,
+  AppSettings settings,
+) {
+  final dateString = DateFormat(settings.dateFormat).format(feedback.dateTimeLocal);
+  final timeString = DateFormat(settings.timeFormat).format(feedback.dateTimeLocal);
+  final setup = feedback.ratedSetupIn(data.setups) ?? data.setups[feedback.setupId];
+  final context = [?setup?.displayName, ?data.bikes[feedback.bike]?.name].join(', ');
+
+  buffer.writeln("💬 $dateString $timeString${context.isEmpty ? '' : ' ($context)'}");
+  for (final line in [?feedback.verdict(data.setups), ?feedback.issuesSummary, ?feedback.notes]) {
+    if (line.isNotEmpty) buffer.writeln(line);
+  }
 }
 
 void _appendTaskEntryText(

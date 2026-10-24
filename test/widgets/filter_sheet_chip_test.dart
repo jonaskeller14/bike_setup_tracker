@@ -270,6 +270,15 @@ void main() {
       expect(find.text('1 Filter'), findsNothing);
     });
 
+    testWidgets('offers the feedback layer without Strava while Feedback is on', (tester) async {
+      setStravaActive(false);
+      appSettings.enableRating = true;
+      hideLayers({TimelineLayer.feedback});
+      await tester.pumpWidget(createWidgetUnderTest(mapChip));
+
+      expect(find.text('1 Filter'), findsOneWidget);
+    });
+
     testWidgets('ignores a hidden layer the map does not show', (tester) async {
       hideLayers({TimelineLayer.tasks, TimelineLayer.installations});
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
@@ -307,7 +316,7 @@ void main() {
     });
 
     testWidgets('ignores a hidden layer whose feature is off', (tester) async {
-      hideLayers({TimelineLayer.installations, TimelineLayer.activities});
+      hideLayers({TimelineLayer.installations, TimelineLayer.feedback, TimelineLayer.activities});
       await tester.pumpWidget(createWidgetUnderTest(timelineChip));
 
       expect(find.text('Filter'), findsOneWidget);

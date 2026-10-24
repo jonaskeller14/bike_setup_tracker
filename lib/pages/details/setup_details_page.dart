@@ -29,6 +29,7 @@ import '../../widgets/items/context_bike_person_card.dart';
 import '../../widgets/items/context_location_weather_card.dart';
 import '../../widgets/items/context_meta_card.dart';
 import '../../widgets/items/feedback_list_tile.dart';
+import '../../widgets/items/setup_tile_header.dart';
 import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
@@ -386,7 +387,13 @@ class SetupDetailsPageContent extends StatelessWidget {
   }
 
   SliverToBoxAdapter _feedbackSection(BuildContext context, {required Setup setup}) {
-    final feedbacks = context.watch<AppRepository>().feedbacksForSetup(setup.id);
+    final appRepository = context.watch<AppRepository>();
+    final feedbacks = appRepository.feedbacksForSetup(setup.id);
+    final appSettings = context.watch<AppSettings>();
+    final summary = [
+      ?SetupTileHeader.rankOf(setup, appSettings, appRepository),
+      ?SetupTileHeader.openIssuesOf(setup, appSettings, appRepository),
+    ];
 
     return SliverToBoxAdapter(
       child: Padding(
@@ -401,6 +408,11 @@ class SetupDetailsPageContent extends StatelessWidget {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (summary.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 4, children: summary),
+                    ),
                   Card(
                     margin: EdgeInsets.zero,
                     clipBehavior: Clip.antiAlias,

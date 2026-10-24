@@ -81,7 +81,10 @@ class _SetupTileState extends State<SetupTile> {
     final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
     final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
 
-    final metadataRows = SetupTileHeader.metadataOf(setup, appSettings, hidePlace: widget.hidePlace);
+    final metadataRows = [
+      ...SetupTileHeader.metadataOf(setup, appSettings, hidePlace: widget.hidePlace),
+      ?SetupTileHeader.rankOf(setup, appSettings, appRepository),
+    ];
     final Widget? badge = widget.showCurrentBadge
         ? appRepository.setupHistory.isCurrent(setup.id)
               ? const CurrentSetupBadge()
@@ -120,6 +123,9 @@ class _SetupTileState extends State<SetupTile> {
                   badge: badge,
                   showSetupIcon: true,
                   selected: widget.selected,
+                  footer: SetupTileHeader.showOpenIssuesInTiles
+                      ? SetupTileHeader.openIssuesOf(setup, appSettings, appRepository)
+                      : null,
                   secondaryMetadata: TileMetaRow(
                     icon: Bike.iconData,
                     text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",

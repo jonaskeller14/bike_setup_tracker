@@ -286,6 +286,9 @@ class AppRepository extends ChangeNotifier {
   bool get hasSetupsWithPosition =>
       _setups.values.any((setup) => !setup.isDeleted && _isMappable(setup.position));
 
+  bool get hasFeedbacksWithPosition =>
+      _feedbacks.values.any((feedback) => !feedback.isDeleted && _isMappable(feedback.position));
+
   static bool _isMappable(ContextPosition? position) =>
       (position?.latitude?.isFinite ?? false) && (position?.longitude?.isFinite ?? false);
 

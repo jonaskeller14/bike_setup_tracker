@@ -492,6 +492,7 @@ class AppRepository extends ChangeNotifier {
     _setupRanks = null;
     _openIssuesBySetup.clear();
     _customIssues = null;
+    _feedbackActivityIds = null;
 
     final result = SetupResolutionService.resolveSetups(
       setups: _setups,
@@ -912,6 +913,22 @@ class AppRepository extends ChangeNotifier {
         setupId,
         () => FeedbackOpenIssuesService.openIssues(feedbacksForSetup(setupId)),
       );
+
+  Set<int>? _feedbackActivityIds;
+
+  /// Whether [activity] is a ride on the bike's current setup that no feedback
+  /// is linked to yet. Rides before the current setup belong to an older one.
+  bool activityNeedsFeedback(StravaActivity activity) {
+    final bike = _bikes.values.firstWhereOrNull((b) => b.stravaGear != null && b.stravaGear == activity.gearId);
+    if (bike == null) return false;
+    final current = _setups[resolveSetupId(bikeId: bike.id, atUtc: DateTime.now().toUtc())];
+    if (current == null || activity.startDate.isBefore(current.datetime)) return false;
+    final linked = _feedbackActivityIds ??= {
+      for (final feedback in _feedbacks.values)
+        if (feedback.stravaActivityId != null) feedback.stravaActivityId!,
+    };
+    return !linked.contains(activity.id);
+  }
 
   CustomIssueIndex? _customIssues;
 

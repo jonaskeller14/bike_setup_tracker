@@ -13,6 +13,7 @@ import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/forms/feedback_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -93,12 +94,19 @@ void main() {
   }
 
   /// S1 (May 1) → S2 (May 2, rebound +2, flagged "Front: Harsh") → S3 (May 3).
-  Future<void> seed(WidgetTester tester, {String? longName, List<RideFeedback> extraFeedbacks = const []}) async {
+  Future<void> seed(
+    WidgetTester tester, {
+    String? longName,
+    String? stravaGear,
+    List<RideFeedback> extraFeedbacks = const [],
+  }) async {
     await tester.runAsync(() async {
       database = AppDatabase.memory();
       appRepository = AppRepository(database);
       appSettings = AppSettings()..showOnboarding = false;
-      await appRepository.addBikes([Bike(id: _bikeId, name: longName ?? 'Test Bike', person: null)]);
+      await appRepository.addBikes([
+        Bike(id: _bikeId, name: longName ?? 'Test Bike', person: null, stravaGear: stravaGear),
+      ]);
       await appRepository.addComponents([
         Component(
           id: 'fork',
@@ -410,6 +418,43 @@ void main() {
       }
       await settle(tester);
       expect(find.byType(FeedbackPage), findsOneWidget);
+    });
+
+    testWidgets('prefills the bike, the time and the Strava link from an activity', (tester) async {
+      await seed(tester, stravaGear: 'gear_1');
+      final start = DateTime(2026, 5, 3, 14);
+      final activity = StravaActivity(
+        id: 77,
+        name: 'Afternoon ride',
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: start.toUtc(),
+        startDateLocal: start,
+        gearId: 'gear_1',
+        startLat: null,
+        startLon: null,
+        distance: null,
+        totalElevationGain: null,
+        movingTime: Duration.zero,
+        elapsedTime: Duration.zero,
+      );
+      await openForm(
+        tester,
+        () => FeedbackPage.addFromStravaActivity(
+          context: tester.element(find.byType(MaterialApp)),
+          stravaActivity: activity,
+        ),
+      );
+
+      expect(find.text('S3'), findsOneWidget, reason: 'rated setup');
+
+      final saved = (await save(tester))!;
+      expect(saved.bike, _bikeId);
+      expect(saved.setupId, 's3');
+      expect(saved.stravaActivityId, 77);
+      expect(saved.dateTimeLocal, start);
+      expect(saved.dateTimeUTC, start.toUtc());
+      expect(saved.position, isNull);
     });
 
     testWidgets('hides the comparison when no earlier setup exists', (tester) async {

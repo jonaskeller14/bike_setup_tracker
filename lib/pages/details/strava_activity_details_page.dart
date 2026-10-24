@@ -17,6 +17,7 @@ import '../../utils/component_actions.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/url.dart';
 import '../../widgets/empty_state_placeholder2.dart';
+import '../../widgets/feedback/strava_feedback_prompt.dart';
 import '../../widgets/items/component_list_card.dart';
 import '../../widgets/items/setup_tile.dart';
 import '../../widgets/sheets/sheet.dart';
@@ -242,6 +243,7 @@ class StravaActivityPageContent extends StatelessWidget {
             ),
           ),
           
+          StravaFeedbackPrompt(stravaActivity: stravaActivity),
           const Divider(height: 1),
           if (stravaGear != null) ...[
             Builder(

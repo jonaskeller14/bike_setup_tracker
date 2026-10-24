@@ -19,6 +19,7 @@ import '../../models/feedback/feedback_observation.dart';
 import '../../models/feedback/feedback_vocabulary.dart';
 import '../../models/feedback/ride_feedback.dart';
 import '../../models/setup.dart';
+import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
@@ -53,6 +54,7 @@ class FeedbackPage extends StatefulWidget {
   final DateTime? initialDateTimeUtc;
   final DateTime? initialDateTimeLocal;
   final Bike? initialBike;
+  final StravaActivity? initialStravaActivity;
 
   /// Shared with the setup tile header the form was opened from.
   final String? heroTag;
@@ -64,6 +66,7 @@ class FeedbackPage extends StatefulWidget {
     this.initialDateTimeUtc,
     this.initialDateTimeLocal,
     this.initialBike,
+    this.initialStravaActivity,
     this.heroTag,
   });
 
@@ -81,6 +84,24 @@ class FeedbackPage extends StatefulWidget {
     initialDateTimeLocal: initialDateTimeLocal,
     heroTag: heroTag,
   );
+
+  factory FeedbackPage.addFromStravaActivity({
+    Key? key,
+    required BuildContext context,
+    required StravaActivity stravaActivity,
+  }) {
+    final appRepository = context.read<AppRepository>();
+    final bike = appRepository.bikes.values.firstWhereOrNull((b) => b.stravaGear == stravaActivity.gearId);
+
+    return FeedbackPage._(
+      key: key,
+      mode: FeedbackPageMode.add,
+      initialBike: bike,
+      initialDateTimeUtc: stravaActivity.startDate,
+      initialDateTimeLocal: stravaActivity.startDateLocal,
+      initialStravaActivity: stravaActivity,
+    );
+  }
 
   factory FeedbackPage.edit({Key? key, required RideFeedback feedback}) =>
       FeedbackPage._(key: key, feedback: feedback, mode: FeedbackPageMode.edit);
@@ -169,7 +190,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     if (feedback != null) _initAnswers(feedback);
 
-    if (feedback == null) unawaited(fetchLocationAddressWeather());
+    final activity = widget.initialStravaActivity;
+    if (feedback != null) return;
+    // The ride's start, not wherever the rider is when filling this in later.
+    if (activity == null) {
+      unawaited(fetchLocationAddressWeather());
+    } else if (activity.hasStartPosition) {
+      unawaited(fetchActivityAddressWeather(activity));
+    }
   }
 
   void _initAnswers(RideFeedback feedback) {
@@ -384,6 +412,18 @@ class _FeedbackPageState extends State<FeedbackPage> {
     unawaited(updateAddress());
   }
 
+  Future<void> fetchActivityAddressWeather(StravaActivity activity) async {
+    final position = await _elevationService.addMissingElevation(
+      ContextPosition(latitude: activity.startLat, longitude: activity.startLon),
+    );
+    if (!mounted) return;
+
+    _currentLocation.value = position;
+    _changeListener();
+    unawaited(updateWeather());
+    unawaited(updateAddress());
+  }
+
   Future<bool> updateLocation() async {
     final previousLocation = _currentLocation.value;
     final fetchedLocation = await _locationService.fetchLocation();
@@ -592,7 +632,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         lastModified: DateTime.now(),
         bike: _bike,
         setupId: _setupId ?? rated.id,
-        stravaActivityId: feedback?.stravaActivityId,
+        stravaActivityId: feedback?.stravaActivityId ?? widget.initialStravaActivity?.id,
         dateTimeUTC: _selectedDateTimeUtc,
         dateTimeLocal: _selectedDateTimeLocal,
         notes: notesText.isEmpty ? null : notesText,

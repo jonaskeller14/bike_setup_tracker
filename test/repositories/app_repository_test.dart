@@ -1719,6 +1719,74 @@ void main() {
       await pumpEventQueue();
       expect(repository.lastModified, repository.testSessions.values.single.lastModified);
     });
+
+    group("activityNeedsFeedback", () {
+      final geared = Bike(name: "Geared", person: null, stravaGear: "gear_1");
+
+      StravaActivity ride(int id, DateTime start, {String? gearId = "gear_1"}) => StravaActivity(
+        id: id,
+        name: "Ride $id",
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: start.toUtc(),
+        startDateLocal: start,
+        gearId: gearId,
+        startLat: null,
+        startLon: null,
+        distance: null,
+        totalElevationGain: null,
+        movingTime: Duration.zero,
+        elapsedTime: Duration.zero,
+      );
+
+      setUp(() async {
+        await repository.addBikes([geared]);
+        await repository.addSetups([
+          buildSetup(DateTime(2026, 5, 1), bike: geared),
+          buildSetup(DateTime(2026, 6, 1), bike: geared),
+        ]);
+        await pumpEventQueue();
+      });
+
+      test("is true for a ride since the current setup", () {
+        expect(repository.activityNeedsFeedback(ride(1, DateTime(2026, 6, 2))), true);
+        expect(repository.activityNeedsFeedback(ride(2, DateTime(2026, 6, 1))), true);
+      });
+
+      test("is false for a ride before the current setup", () {
+        expect(repository.activityNeedsFeedback(ride(1, DateTime(2026, 5, 20))), false);
+      });
+
+      test("is false for a ride without a bike on its gear", () {
+        expect(repository.activityNeedsFeedback(ride(1, DateTime(2026, 6, 2), gearId: "other")), false);
+        expect(repository.activityNeedsFeedback(ride(2, DateTime(2026, 6, 2), gearId: null)), false);
+      });
+
+      test("is false for a bike without a setup yet", () async {
+        await repository.addBikes([Bike(name: "No setup", person: null, stravaGear: "gear_2")]);
+        await pumpEventQueue();
+
+        expect(repository.activityNeedsFeedback(ride(1, DateTime(2026, 6, 2), gearId: "gear_2")), false);
+      });
+
+      test("is false once a feedback is linked, and true again after it is trashed", () async {
+        final activity = ride(1, DateTime(2026, 6, 2));
+        final setupId = repository.resolveSetupId(bikeId: geared.id, atUtc: activity.startDate)!;
+        final feedback = buildFeedback(DateTime(2026, 6, 2, 18), setupId: setupId, bike: geared).copyWith(
+          stravaActivityId: activity.id,
+        );
+        await repository.addFeedbacks([feedback]);
+        await pumpEventQueue();
+
+        expect(repository.activityNeedsFeedback(activity), false);
+        expect(repository.activityNeedsFeedback(ride(2, DateTime(2026, 6, 3))), true);
+
+        await repository.removeFeedbacks([feedback]);
+        await pumpEventQueue();
+
+        expect(repository.activityNeedsFeedback(activity), true);
+      });
+    });
   });
 
   group("AppRepository - Initial load", () {

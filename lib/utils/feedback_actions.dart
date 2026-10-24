@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../models/bike.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/setup.dart';
+import '../models/strava/strava_activity.dart';
 import '../pages/forms/feedback_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
@@ -18,20 +19,29 @@ class FeedbackActions {
     DateTime? initialDateTimeUtc,
     DateTime? initialDateTimeLocal,
     String? heroTag,
-  }) async {
-    final appRepository = context.read<AppRepository>();
-
-    final newFeedback = await Navigator.push<RideFeedback>(
+  }) {
+    return _pushAndAdd(
       context,
-      MaterialPageRoute(
-        builder: (context) => FeedbackPage.add(
-          initialBike: initialBike,
-          initialDateTimeUtc: initialDateTimeUtc,
-          initialDateTimeLocal: initialDateTimeLocal,
-          heroTag: heroTag,
-        ),
+      (_) => FeedbackPage.add(
+        initialBike: initialBike,
+        initialDateTimeUtc: initialDateTimeUtc,
+        initialDateTimeLocal: initialDateTimeLocal,
+        heroTag: heroTag,
       ),
     );
+  }
+
+  static Future<void> addFeedbackFromStravaActivity(BuildContext context, {required StravaActivity stravaActivity}) {
+    return _pushAndAdd(
+      context,
+      (context) => FeedbackPage.addFromStravaActivity(context: context, stravaActivity: stravaActivity),
+    );
+  }
+
+  static Future<void> _pushAndAdd(BuildContext context, FeedbackPage Function(BuildContext) page) async {
+    final appRepository = context.read<AppRepository>();
+
+    final newFeedback = await Navigator.push<RideFeedback>(context, MaterialPageRoute(builder: page));
     if (newFeedback == null) return;
 
     await appRepository.addFeedbacks([newFeedback]);

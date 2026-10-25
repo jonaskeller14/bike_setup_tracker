@@ -143,17 +143,17 @@ class TestSessionActions {
     return saved;
   }
 
-  /// The candidates of a Compare session, the [suggestedId] one first.
+  /// The candidates of a Compare session, the [suggestedId] one highlighted.
   static Future<Setup?> _pickCandidate(BuildContext context, TestSession session, {String? suggestedId}) {
     final appRepository = context.read<AppRepository>();
     final candidates = [
       for (final id in (session.method as Tournament).candidateSetupIds) ?appRepository.setups[id],
-    ]..sort((a, b) => (b.id == suggestedId ? 1 : 0).compareTo(a.id == suggestedId ? 1 : 0));
+    ];
     return showPickSetupSheet(
       context,
-      title: 'Ride which setup?',
+      title: 'Which setup for the next run?',
       options: candidates,
-      subtitleFor: (setup) => setup.id == suggestedId ? 'Suggested' : null,
+      suggestedId: suggestedId,
     );
   }
 

@@ -33,12 +33,20 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin, SoftDel
   Future<List<TaskEntryDb>> getAllEntriesBypass() => select(taskEntries).get();
 
   /// Includes soft-deleted entries so their snapshots are correct on restore.
-  Future<List<TaskEntryDb>> getEntriesForComponentIdsBypass(Iterable<String> componentIds) {
-    final ids = componentIds.toSet();
-    if (ids.isEmpty) {
-      return Future.value(const []);
+  /// [since] keeps the entries dated at or after it.
+  Future<List<TaskEntryDb>> getEntriesBypass({Iterable<String>? componentIds, DateTime? since}) {
+    final query = select(taskEntries);
+    if (componentIds != null) {
+      final ids = componentIds.toSet();
+      if (ids.isEmpty) {
+        return Future.value(const []);
+      }
+      query.where((t) => t.componentId.isIn(ids));
     }
-    return (select(taskEntries)..where((t) => t.componentId.isIn(ids))).get();
+    if (since != null) {
+      query.where((t) => t.dateTimeUTC.isBiggerOrEqualValue(since.toUtc()));
+    }
+    return query.get();
   }
 
   Future<int> insertRule(TaskRulesCompanion entry) => into(taskRules).insert(entry);

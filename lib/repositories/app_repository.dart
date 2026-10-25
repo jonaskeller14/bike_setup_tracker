@@ -599,11 +599,10 @@ class AppRepository extends ChangeNotifier {
   /// Reads from the DB, not the in-memory `_taskEntries` cache: (1) the cache
   /// lags bulk writes (Strava sync, import) until the watch-stream propagates,
   /// and (2) it omits trashed entries, which must be healed too since restore
-  /// does not recompute the snapshot.
-  Future<void> refreshTaskEntrySnapshots({Set<String>? componentIds}) async {
-    final dbEntries = componentIds == null
-        ? await database.taskDao.getAllEntriesBypass()
-        : await database.taskDao.getEntriesForComponentIdsBypass(componentIds);
+  /// does not recompute the snapshot. [since] limits the refresh to entries
+  /// dated at or after it, for changes that can't reach earlier snapshots.
+  Future<void> refreshTaskEntrySnapshots({Set<String>? componentIds, DateTime? since}) async {
+    final dbEntries = await database.taskDao.getEntriesBypass(componentIds: componentIds, since: since);
     final entries = dbEntries
         .map((e) => e.toModel())
         .toList();
@@ -1026,27 +1025,79 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {
     final versionAtStart = _stravaOperationVersion;
+    final incoming = activities.toList();
+
+    // The earliest start date this sync adds, changes or removes. A snapshot
+    // only counts activities up to its entry's date, so earlier ones can't change.
+    DateTime? since;
+    void affects(DateTime date) {
+      if (since == null || date.isBefore(since!)) since = date;
+    }
 
     // Perform bulk operations in a single transaction for performance and to reduce race conditions
     await database.transaction(() async {
+      final stored = {
+        for (final row in await database.stravaDao.getActivitiesByIds([...incoming.map((a) => a.id), ...?toDelete]))
+          row.id: row.toModel(),
+      };
       if (toDelete != null && toDelete.isNotEmpty) {
+        for (final id in toDelete) {
+          if (stored[id] case final old?) affects(old.startDate);
+        }
         await database.stravaDao.deleteActivities(toDelete);
       }
       // Check if we were cleared while waiting for the transaction
       if (versionAtStart != _stravaOperationVersion) return;
-      await database.stravaDao.upsertActivities(activities.map((a) => a.toCompanion()));
+      // Firestore re-delivers batches that didn't change (e.g. on every
+      // launch); rewriting them would re-run every Strava watch query.
+      final changed = [
+        for (final activity in incoming)
+          if (!_isStoredUnchanged(stored[activity.id], activity)) activity,
+      ];
+      for (final activity in changed) {
+        affects(activity.startDate);
+        if (stored[activity.id] case final old?) affects(old.startDate);
+      }
+      if (changed.isNotEmpty) await database.stravaDao.upsertActivities(changed.map((a) => a.toCompanion()));
     });
 
     if (versionAtStart != _stravaOperationVersion) {
       return;
     }
 
-    await refreshTaskEntrySnapshots();
+    if (since != null) await refreshTaskEntrySnapshots(since: since);
 
     // Re-derive the in-memory window from the database so new, changed, or
     // deleted activities show everywhere (list, calendar) and not only in views
     // that query the DB directly. Reloads the full loaded window to keep scroll.
     await reloadStravaWindow();
+  }
+
+  /// Dates and durations are stored as whole seconds, so [incoming] is compared
+  /// at that precision; a sub-second `lastModified` would otherwise never match.
+  static bool _isStoredUnchanged(StravaActivity? stored, StravaActivity incoming) {
+    if (stored == null) return false;
+    DateTime seconds(DateTime date) => date.copyWith(millisecond: 0, microsecond: 0);
+    Duration wholeSeconds(Duration duration) => Duration(seconds: duration.inSeconds);
+    return stored ==
+        StravaActivity(
+          id: incoming.id,
+          lastModified: seconds(incoming.lastModified),
+          name: incoming.name,
+          athlete: incoming.athlete,
+          sportType: incoming.sportType,
+          startDate: seconds(incoming.startDate),
+          startDateLocal: seconds(incoming.startDateLocal),
+          gearId: incoming.gearId,
+          startLat: incoming.startLat,
+          startLon: incoming.startLon,
+          distance: incoming.distance,
+          totalElevationGain: incoming.totalElevationGain,
+          movingTime: wholeSeconds(incoming.movingTime),
+          elapsedTime: wholeSeconds(incoming.elapsedTime),
+          workoutType: incoming.workoutType,
+          averageWatts: incoming.averageWatts,
+        );
   }
 
   Future<void> setStravaAthletes(Iterable<StravaAthlete> athletes) async {

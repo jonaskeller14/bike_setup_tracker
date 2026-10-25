@@ -181,7 +181,6 @@ class _CompareSetupsState extends State<CompareSetups> {
           setupB: setupB,
           setups: selectableSetups,
           showBikeNames: _comparisonBikeId == null,
-          bikeNamesById: appRepository.bikes.map((id, bike) => MapEntry(id, bike.name)),
           currentSetupIds: appRepository.setupHistory.currentSetupIds,
           onSetupAChanged: (setup) => _selectSetup(setupAId: setup.id),
           onSetupBChanged: (setup) => _selectSetup(setupBId: setup.id),

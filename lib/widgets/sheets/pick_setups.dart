@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
-import '../../models/app_settings.dart';
 import '../../models/setup.dart';
+import 'setup_day_list.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
@@ -20,6 +18,7 @@ Future<List<String>> showPickSetupsSheet(
   required List<String> selectedIds,
   String? Function(int selectedCount)? warningFor,
   String emptyTitle = 'No setups yet',
+  bool showBikeNames = false,
 }) async {
   var selected = List.of(selectedIds);
   await showModalBottomSheet<void>(
@@ -33,6 +32,7 @@ Future<List<String>> showPickSetupsSheet(
       onChanged: (ids) => selected = ids,
       warningFor: warningFor,
       emptyTitle: emptyTitle,
+      showBikeNames: showBikeNames,
     ),
   );
   return selected;
@@ -45,6 +45,7 @@ class _PickSetupsSheet extends StatefulWidget {
   final ValueChanged<List<String>> onChanged;
   final String? Function(int selectedCount)? warningFor;
   final String emptyTitle;
+  final bool showBikeNames;
 
   const _PickSetupsSheet({
     required this.title,
@@ -53,6 +54,7 @@ class _PickSetupsSheet extends StatefulWidget {
     required this.onChanged,
     required this.warningFor,
     required this.emptyTitle,
+    required this.showBikeNames,
   });
 
   @override
@@ -76,7 +78,6 @@ class _PickSetupsSheetState extends State<_PickSetupsSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = context.read<AppSettings>().dateFormat;
     final warning = widget.warningFor?.call(_selected.length);
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -92,31 +93,32 @@ class _PickSetupsSheetState extends State<_PickSetupsSheet> {
             if (warning != null) SheetWarning(message: warning),
             const SizedBox(height: 8),
             Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: widget.options.isEmpty
-                    ? Padding(
+              child: widget.options.isEmpty
+                  ? SingleChildScrollView(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: SheetFilterEmptyHint(icon: Setup.iconData, title: widget.emptyTitle),
-                      )
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (final setup in widget.options)
-                            Material(
-                              type: MaterialType.transparency,
-                              child: CheckboxListTile(
-                                value: _selected.contains(setup.id),
-                                controlAffinity: ListTileControlAffinity.trailing,
-                                secondary: const Icon(Setup.iconData),
-                                title: Text(setup.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                subtitle: Text(DateFormat(dateFormat).format(setup.datetimeLocal)),
-                                onChanged: (checked) => _toggle(setup.id, checked ?? false),
-                              ),
-                            ),
-                        ],
                       ),
-              ),
+                    )
+                  : SetupDayList(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      setups: widget.options,
+                      tileBuilder: (setup) {
+                        final checked = _selected.contains(setup.id);
+                        return SetupPickTile(
+                          key: Key('pick-setup-option-${setup.id}'),
+                          setup: setup,
+                          showBikeName: widget.showBikeNames,
+                          selected: checked,
+                          trailing: Checkbox(
+                            value: checked,
+                            onChanged: (value) => _toggle(setup.id, value ?? false),
+                          ),
+                          onTap: () => _toggle(setup.id, !checked),
+                        );
+                      },
+                    ),
             ),
           ],
         ),

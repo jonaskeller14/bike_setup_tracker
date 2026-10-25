@@ -14,6 +14,8 @@ import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/forms/test_session_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/sheets/setup_day_list.dart';
+import 'package:bike_setup_tracker/widgets/timeline_day_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -246,8 +248,8 @@ void main() {
 
     await tester.tap(find.text('Pick at least 2 setups to compare.'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(CheckboxListTile, 'S3'));
-    await tester.tap(find.widgetWithText(CheckboxListTile, 'S4'));
+    await tester.tap(find.byKey(const Key('pick-setup-option-s3')));
+    await tester.tap(find.byKey(const Key('pick-setup-option-s4')));
     await tester.pump();
     await closeSheet(tester);
 
@@ -267,7 +269,7 @@ void main() {
     expect(find.text('Setups to compare'), findsOneWidget);
 
     for (final name in ['S1', 'S2', 'S3', 'S4']) {
-      await tester.tap(find.widgetWithText(CheckboxListTile, name));
+      await tester.tap(find.byKey(Key('pick-setup-option-${name.toLowerCase()}')));
       await tester.pump();
     }
     expect(find.text('Setups to compare (4)'), findsOneWidget);
@@ -284,6 +286,33 @@ void main() {
     expect(session.adjustmentIds, ['a1']);
   });
 
+  testWidgets('the setups sheet groups by day, hides the bike name and checks the picked tiles', (tester) async {
+    await open(tester);
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Compare'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('No setups yet'));
+    await tester.pumpAndSettle();
+
+    // One day header per setup (one setup each day), newest first.
+    expect(find.byType(TimelineDayHeader), findsNWidgets(5));
+    expect(
+      tester.getTopLeft(find.byKey(const Key('pick-setup-option-s5'))).dy,
+      lessThan(tester.getTopLeft(find.byKey(const Key('pick-setup-option-s1'))).dy),
+    );
+    expect(find.descendant(of: find.byType(SetupDayList), matching: find.text('Test Bike')), findsNothing);
+    expect(find.byIcon(Icons.arrow_forward_ios), findsNothing);
+
+    Finder checkbox(String id) =>
+        find.descendant(of: find.byKey(Key('pick-setup-option-$id')), matching: find.byType(Checkbox));
+    expect(tester.widget<Checkbox>(checkbox('s2')).value, isFalse);
+    await tester.tap(find.byKey(const Key('pick-setup-option-s2')));
+    await tester.pump();
+    expect(tester.widget<Checkbox>(checkbox('s2')).value, isTrue);
+    await tester.tap(checkbox('s2'));
+    await tester.pump();
+    expect(tester.widget<Checkbox>(checkbox('s2')).value, isFalse);
+  });
+
   testWidgets('more than four setups only warn, they are not refused', (tester) async {
     await open(tester);
     await tester.tap(find.widgetWithText(ChoiceChip, 'Compare'));
@@ -292,7 +321,7 @@ void main() {
     await tester.pumpAndSettle();
 
     for (final name in ['S1', 'S2', 'S3', 'S4', 'S5']) {
-      await tester.tap(find.widgetWithText(CheckboxListTile, name));
+      await tester.tap(find.byKey(Key('pick-setup-option-${name.toLowerCase()}')));
       await tester.pump();
     }
     expect(find.textContaining('5 setups take about 10 comparisons'), findsOneWidget, reason: 'in the sheet');

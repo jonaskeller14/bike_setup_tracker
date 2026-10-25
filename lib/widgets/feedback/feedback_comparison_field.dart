@@ -8,9 +8,11 @@ import '../../models/feedback/feedback_vocabulary.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
+import '../../theme.dart';
 import '../lists/adjustment_compact_display/adjustment_cell_layout.dart';
 import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import '../sheets/compare_setups.dart';
+import '../sheets/pick_setup.dart';
 import 'feedback_aspect_row.dart';
 
 /// One comparison as an outlined card: the reference setup (default: the
@@ -19,6 +21,7 @@ import 'feedback_aspect_row.dart';
 class FeedbackComparisonField extends StatefulWidget {
   final Setup rated;
   final String referenceId;
+  final bool referenceChanged;
 
   /// Earlier setups of the bike, newest first.
   final List<Setup> candidates;
@@ -36,6 +39,7 @@ class FeedbackComparisonField extends StatefulWidget {
     super.key,
     required this.rated,
     required this.referenceId,
+    this.referenceChanged = false,
     required this.candidates,
     this.usedReferenceIds = const {},
     required this.outcome,
@@ -164,49 +168,45 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
   }
 
   Widget _referenceField(BuildContext context, Setup? reference) {
-    final error = Theme.of(context).colorScheme.error;
-    final referenceId = widget.referenceId;
-    final candidates = widget.candidates;
-    final options = <(String, Setup?)>[
-      for (final candidate in candidates) (candidate.id, candidate),
-      // A stored reference that's no longer offered: deleted, or later than the rated setup.
-      if (!candidates.any((setup) => setup.id == referenceId)) (referenceId, reference),
-    ];
-    Widget label(Setup? setup) => setup == null
-        ? Text(
-            "SETUP NOT FOUND",
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: error, fontWeight: FontWeight.bold),
-          )
-        : _SetupLabel(setup: setup);
-
-    return DropdownButtonFormField<String>(
-      // The reference can move without the rider (date or bike change).
-      key: ValueKey(referenceId),
-      initialValue: referenceId,
-      isExpanded: true,
-      isDense: false,
-      itemHeight: null,
-      decoration: const InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        labelText: 'Reference setup',
-        border: OutlineInputBorder(),
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: () => _pickReference(context, reference),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          labelText: 'Reference setup',
+          border: const OutlineInputBorder(),
+          suffixIcon: Icon(Icons.arrow_drop_down, color: scheme.onSurfaceVariant),
+          fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+          filled: widget.referenceChanged,
+        ),
+        child: reference == null
+            ? Text(
+                "SETUP NOT FOUND",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: scheme.error, fontWeight: FontWeight.bold),
+              )
+            : _SetupLabel(setup: reference),
       ),
-      items: [
-        for (final (id, setup) in options)
-          if (widget.usedReferenceIds.contains(id))
-            DropdownMenuItem<String>(
-              value: id,
-              enabled: false,
-              child: Opacity(opacity: 0.38, child: label(setup)),
-            )
-          else
-            DropdownMenuItem<String>(value: id, child: label(setup)),
-      ],
-      onChanged: (id) {
-        if (id != null) widget.onReferenceChanged(id);
-      },
     );
+  }
+
+  Future<void> _pickReference(BuildContext context, Setup? reference) async {
+    final candidates = widget.candidates;
+    final picked = await showPickSetupSheet(
+      context,
+      title: 'Reference setup',
+      options: [
+        widget.rated,
+        ...candidates,
+        // A stored reference that's no longer offered: later than the rated setup.
+        if (reference != null && !candidates.any((setup) => setup.id == reference.id)) reference,
+      ],
+      // The rated setup is shown for orientation; it can't be its own reference.
+      disabledIds: {...widget.usedReferenceIds, widget.rated.id},
+      sideLabels: {widget.rated.id: 'Rated'},
+    );
+    if (picked != null && picked.id != widget.referenceId) widget.onReferenceChanged(picked.id);
   }
 
   Widget _changes(BuildContext context, Setup? reference) {

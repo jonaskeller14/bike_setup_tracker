@@ -3,11 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/bike.dart';
 import '../../models/setup.dart';
 import '../../utils/automation_ids.dart';
-import '../current_setup_badge.dart';
 import '../current_setup_highlight.dart';
+import '../sheets/pick_setup.dart';
 import '../sheets/sheet.dart';
 
 /// Horizontal inset of the band's content, matching the comparison cards below it.
@@ -15,10 +14,6 @@ const double _bandInset = 16;
 
 /// Gap between the two identities, matching the paired cards below them.
 const double _bandGap = 8;
-
-/// Gutters left by a setup menu on the side it edits and on the opposite side.
-const double _menuNearGutter = 8;
-const double _menuFarGutter = 32;
 
 class SetupComparisonHeader extends StatelessWidget {
   const SetupComparisonHeader({super.key});
@@ -46,7 +41,6 @@ class SetupComparisonIdentities extends StatelessWidget {
   final Setup setupB;
   final Iterable<Setup>? setups;
   final bool showBikeNames;
-  final Map<String, String> bikeNamesById;
   final Set<String> currentSetupIds;
   final ValueChanged<Setup>? onSetupAChanged;
   final ValueChanged<Setup>? onSetupBChanged;
@@ -59,7 +53,6 @@ class SetupComparisonIdentities extends StatelessWidget {
     required this.setupB,
     this.setups,
     this.showBikeNames = false,
-    this.bikeNamesById = const {},
     this.currentSetupIds = const {},
     this.onSetupAChanged,
     this.onSetupBChanged,
@@ -104,8 +97,6 @@ class SetupComparisonIdentities extends StatelessWidget {
                           timeFormat: appSettings.timeFormat,
                           setups: setups,
                           showBikeNames: showBikeNames,
-                          bikeNamesById: bikeNamesById,
-                          currentSetupIds: currentSetupIds,
                           highlightedSetupId: setupB.id,
                           onSetupChanged: onSetupAChanged,
                           animateSwap: animateSwap,
@@ -120,8 +111,6 @@ class SetupComparisonIdentities extends StatelessWidget {
                           timeFormat: appSettings.timeFormat,
                           setups: setups,
                           showBikeNames: showBikeNames,
-                          bikeNamesById: bikeNamesById,
-                          currentSetupIds: currentSetupIds,
                           highlightedSetupId: setupA.id,
                           onSetupChanged: onSetupBChanged,
                           animateSwap: animateSwap,
@@ -203,8 +192,6 @@ class _SetupIdentity extends StatelessWidget {
   final String timeFormat;
   final Iterable<Setup>? setups;
   final bool showBikeNames;
-  final Map<String, String> bikeNamesById;
-  final Set<String> currentSetupIds;
   final String? highlightedSetupId;
   final ValueChanged<Setup>? onSetupChanged;
   final bool animateSwap;
@@ -217,8 +204,6 @@ class _SetupIdentity extends StatelessWidget {
     required this.timeFormat,
     this.setups,
     this.showBikeNames = false,
-    this.bikeNamesById = const {},
-    this.currentSetupIds = const {},
     this.highlightedSetupId,
     this.onSetupChanged,
     this.animateSwap = false,
@@ -287,47 +272,34 @@ class _SetupIdentity extends StatelessWidget {
     );
     if (onSetupChanged == null || setups == null) return surface(animatedContent);
 
-    final availableSetups = setups!.toList()..sort((a, b) => b.datetime.compareTo(a.datetime));
     return surface(
-      // The band, not the screen, anchors the menu: a wide-screen sheet is narrower
-      // than the window, and the menu has to lean towards the side it edits.
-      LayoutBuilder(
-        builder: (context, constraints) {
-          final identityWidth = constraints.maxWidth;
-          final bandWidth = 2 * identityWidth + _bandGap + 2 * _bandInset;
-          final picker = PopupMenuButton<Setup>(
-            tooltip: 'Choose setup $side',
-            enableFeedback: true,
-            constraints: BoxConstraints.tightFor(width: bandWidth - _menuNearGutter - _menuFarGutter),
-            offset: Offset(
-              _isLeading
-                  ? _menuNearGutter - _bandInset
-                  : _menuFarGutter - _bandInset - _bandGap - identityWidth,
-              0,
-            ),
-            menuPadding: EdgeInsets.zero,
-            initialValue: setup,
-            itemBuilder: (context) => availableSetups
-                .map(
-                  (candidate) => _setupMenuItem(
-                    context,
-                    candidate,
-                    showBikeName: showBikeNames,
-                    bikeName: bikeNamesById[candidate.bike],
-                    selectedSides: {
-                      if (candidate.id == setup.id) side,
-                      if (candidate.id == highlightedSetupId) side == 'A' ? 'B' : 'A',
-                    },
-                  ),
-                )
-                .toList(growable: false),
-            onSelected: onSetupChanged!,
-            child: animatedContent,
-          );
-          return Semantics(container: true, identifier: AutomationIds.compareSetupsSide(side), child: picker);
-        },
+      Semantics(
+        container: true,
+        identifier: AutomationIds.compareSetupsSide(side),
+        child: InkWell(
+          onTap: () => _pickSetup(context),
+          child: animatedContent,
+        ),
       ),
     );
+  }
+
+  Future<void> _pickSetup(BuildContext context) async {
+    final otherSide = _isLeading ? 'B' : 'A';
+    final picked = await showPickSetupSheet(
+      context,
+      title: 'Choose setup $side',
+      options: setups!.toList(),
+      // Comparing a setup with itself shows nothing, so the other side's is taken.
+      disabledIds: {?highlightedSetupId},
+      sideLabels: {
+        setup.id: side,
+        ?highlightedSetupId: otherSide,
+      },
+      showBikeNames: showBikeNames,
+      semanticsIdentifier: AutomationIds.compareSetupsOption,
+    );
+    if (picked != null && picked.id != setup.id) onSetupChanged!(picked);
   }
 
   // Static so AnimatedSwitcher only rebuilds its transitions when the mode changes.
@@ -352,98 +324,6 @@ class _SetupIdentity extends StatelessWidget {
         position: Tween<Offset>(begin: Offset(dx, 0), end: Offset.zero).animate(animation),
         child: child,
       ),
-    );
-  }
-
-  PopupMenuEntry<Setup> _setupMenuItem(
-    BuildContext context,
-    Setup candidate, {
-    required Set<String> selectedSides,
-    required bool showBikeName,
-    required String? bikeName,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    final dateTime =
-        '${DateFormat(dateFormat).format(candidate.datetimeLocal)} • ${DateFormat(timeFormat).format(candidate.datetimeLocal)}';
-    final place = [
-      candidate.place?.locality,
-      candidate.place?.isoCountryCode,
-    ].whereType<String>().where((value) => value.isNotEmpty).join(', ');
-    final child = Container(
-      key: Key('compare-setup-option-${candidate.id}'),
-      width: double.infinity,
-      color: selectedSides.isEmpty ? null : scheme.secondaryContainer,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 2),
-            child: Icon(Setup.iconData, size: 20),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(child: Text(candidate.displayName, overflow: TextOverflow.ellipsis)),
-                          if (currentSetupIds.contains(candidate.id)) ...[
-                            const SizedBox(width: 4),
-                            const CurrentSetupBadge(compact: true),
-                          ],
-                        ],
-                      ),
-                    ),
-                    for (final selectedSide in selectedSides) _sideBadge(context, selectedSide),
-                  ],
-                ),
-                _pickerMetadata(context, Icons.calendar_today_outlined, dateTime),
-                if (showBikeName) _pickerMetadata(context, Bike.iconData, bikeName ?? 'Unknown bike'),
-                if (place.isNotEmpty) _pickerMetadata(context, Icons.location_on_outlined, place),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-    return PopupMenuItem<Setup>(
-      value: candidate,
-      padding: EdgeInsets.zero,
-      child: Semantics(identifier: AutomationIds.compareSetupsOption(candidate.id), child: child),
-    );
-  }
-
-  Widget _sideBadge(BuildContext context, String side) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.only(left: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(999)),
-      child: Text(side, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: scheme.onPrimaryContainer)),
-    );
-  }
-
-  Widget _pickerMetadata(BuildContext context, IconData icon, String text) {
-    final color = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Row(
-      spacing: 2,
-      children: [
-        Icon(icon, size: 11, color: color),
-        Expanded(
-          child: Text(
-            text,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 11, color: color),
-          ),
-        ),
-      ],
     );
   }
 }

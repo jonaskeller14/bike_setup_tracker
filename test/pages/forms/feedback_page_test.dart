@@ -231,6 +231,16 @@ void main() {
     return button.selected.contains(button.segments.firstWhere((s) => s.tooltip == label).value);
   }
 
+  Finder referenceField(Finder card) => find.descendant(
+    of: card,
+    matching: find.byWidgetPredicate((w) => w is InputDecorator && w.decoration.labelText == 'Reference setup'),
+  );
+
+  String? referenceName(WidgetTester tester, Finder card) => tester
+      .widgetList<Text>(find.descendant(of: referenceField(card), matching: find.byType(Text)))
+      .map((text) => text.data)
+      .firstWhere((data) => data != 'Reference setup', orElse: () => null);
+
   Future<RideFeedback?> save(WidgetTester tester) async {
     await tester.tap(find.byIcon(Icons.check));
     await settle(tester);
@@ -244,8 +254,8 @@ void main() {
 
       expect(find.text('S3'), findsOneWidget, reason: 'rated setup');
       expect(
-        tester.widget<DropdownButtonFormField<String>>(find.byType(DropdownButtonFormField<String>).last).initialValue,
-        's2',
+        referenceName(tester, find.byType(FeedbackComparisonField).last),
+        'S2',
       );
       expect(find.text('No values changed'), findsOneWidget);
       expect(find.byType(FeedbackAspectRow), findsOneWidget);
@@ -351,7 +361,7 @@ void main() {
       await tapChip(tester, followUpChip('Worse'));
       await tapChip(tester, overallChip('Same'));
 
-      await tester.tap(find.byType(DropdownButtonFormField<String>).last);
+      await tester.tap(referenceField(find.byType(FeedbackComparisonField).last));
       await settle(tester);
       await tester.tap(find.text('S1').last);
       await settle(tester);
@@ -577,6 +587,51 @@ void main() {
         const FeedbackObservation(key: UnknownFeedbackKey('future:m1'), value: 3, textValue: '3'),
         const FeedbackObservation(key: UnknownFeedbackKey('future.key'), value: 1),
       });
+    });
+
+    testWidgets('highlights a changed reference only in edit mode', (tester) async {
+      await seed(
+        tester,
+        extraFeedbacks: [
+          feedback(
+            id: 'f3',
+            day: 3,
+            setupId: 's3',
+            comparisons: {const FeedbackComparison(referenceSetupId: 's2', aspect: OverallAspect(), outcome: 1)},
+          ),
+        ],
+      );
+      await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['f3']!));
+      bool filled() => tester
+          .widget<InputDecorator>(referenceField(find.byType(FeedbackComparisonField).first))
+          .decoration
+          .filled!;
+      expect(filled(), isFalse);
+
+      await tester.tap(referenceField(find.byType(FeedbackComparisonField).first));
+      await settle(tester);
+      await tester.tap(find.text('S1').last);
+      await settle(tester);
+
+      expect(referenceName(tester, find.byType(FeedbackComparisonField).first), 'S1');
+      expect(filled(), isTrue);
+    });
+
+    testWidgets('highlights a reference picked where nothing was stored', (tester) async {
+      await seed(tester, extraFeedbacks: [feedback(id: 'f3', day: 3, setupId: 's3')]);
+      await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['f3']!));
+      bool filled() => tester
+          .widget<InputDecorator>(referenceField(find.byType(FeedbackComparisonField).first))
+          .decoration
+          .filled!;
+      expect(filled(), isFalse);
+
+      await tester.tap(referenceField(find.byType(FeedbackComparisonField).first));
+      await settle(tester);
+      await tester.tap(find.text('S1').last);
+      await settle(tester);
+
+      expect(filled(), isTrue);
     });
 
     testWidgets('shows the drift warning and relinks to the resolved setup', (tester) async {
@@ -852,8 +907,8 @@ void main() {
       expect(find.text('ANYTHING STAND OUT?'), findsOneWidget);
       expect(find.byType(FeedbackComparisonField), findsOneWidget);
       expect(
-        tester.widget<DropdownButtonFormField<String>>(find.byType(DropdownButtonFormField<String>).last).initialValue,
-        's2',
+        referenceName(tester, find.byType(FeedbackComparisonField).last),
+        'S2',
         reason: 'the previous run',
       );
 
@@ -884,8 +939,8 @@ void main() {
       await openForm(tester, () => addOnMay(3));
 
       expect(
-        tester.widget<DropdownButtonFormField<String>>(find.byType(DropdownButtonFormField<String>).last).initialValue,
-        's1',
+        referenceName(tester, find.byType(FeedbackComparisonField).last),
+        'S1',
         reason: 'S2 lost against S1, so Fine-tune compares the next run with S1, not with the previous run',
       );
     });
@@ -908,8 +963,6 @@ void main() {
 
     Finder inCard(int index, Finder finder) =>
         find.descendant(of: find.byType(FeedbackComparisonField).at(index), matching: finder);
-    String? cardReference(WidgetTester tester, int index) =>
-        tester.widget<DropdownButtonFormField<String>>(inCard(index, find.byType(DropdownButtonFormField<String>))).initialValue;
 
     testWidgets('compares with another run in a card of its own', (tester) async {
       await seedSession(tester);
@@ -917,7 +970,7 @@ void main() {
 
       await tapChip(tester, find.text('Compare with another run'));
       expect(find.byType(FeedbackComparisonField), findsNWidgets(2));
-      expect(cardReference(tester, 1), 's1', reason: 'the next run not compared yet');
+      expect(referenceName(tester, find.byType(FeedbackComparisonField).at(1)), 'S1', reason: 'the next run not compared yet');
       expect(find.text('Compare with another run'), findsNothing, reason: 'every other run is used');
       expect(inCard(1, find.byType(AdjustmentCompactDisplayList)), findsNothing, reason: 'its changes start collapsed');
       expect(inCard(1, find.text('Front: Unsettled')), findsOneWidget, reason: 'the goal is asked in every card');
@@ -932,13 +985,17 @@ void main() {
       });
     });
 
-    testWidgets("a card's dropdown disables the references of the other cards", (tester) async {
+    testWidgets("a card's reference sheet disables the references of the other cards", (tester) async {
       await seedSession(tester);
       await openForm(tester, () => addOnMay(3));
       await tapChip(tester, find.text('Compare with another run'));
 
-      final items = tester.widget<DropdownButton<String>>(inCard(0, find.byType(DropdownButton<String>))).items!;
-      expect({for (final item in items) item.value: item.enabled}, {'s2': true, 's1': false});
+      await tester.tap(referenceField(find.byType(FeedbackComparisonField).at(0)));
+      await settle(tester);
+
+      bool enabled(String id) => tester.widget<InkWell>(find.descendant(of: find.byKey(Key('pick-setup-option-$id')), matching: find.byType(InkWell))).onTap != null;
+      expect({'s3': enabled('s3'), 's2': enabled('s2'), 's1': enabled('s1')}, {'s3': false, 's2': true, 's1': false});
+      expect(find.descendant(of: find.byKey(const Key('pick-setup-option-s3')), matching: find.text('Rated')), findsOneWidget);
     });
 
     testWidgets('editing keeps the answers against other runs, and removing one drops it', (tester) async {
@@ -955,7 +1012,7 @@ void main() {
       await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['fr']!));
 
       expect(find.byType(FeedbackComparisonField), findsNWidgets(2));
-      expect(cardReference(tester, 1), 's1');
+      expect(referenceName(tester, find.byType(FeedbackComparisonField).at(1)), 'S1');
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isTrue);
 
       await tapChip(tester, find.byTooltip('Remove comparison'));

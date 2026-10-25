@@ -211,7 +211,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     if (references.isNotEmpty) _drafts.clear();
     for (final referenceId in references) {
-      final draft = _ComparisonDraft(referenceId: referenceId);
+      final draft = _ComparisonDraft(referenceId: referenceId, initialReferenceId: referenceId);
       for (final comparison in byReference[referenceId]!) {
         switch (comparison.aspect) {
           case OverallAspect():
@@ -1042,6 +1042,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   key: ObjectKey(draft),
                   rated: rated,
                   referenceId: referenceId,
+                  referenceChanged:
+                      widget.mode == FeedbackPageMode.edit &&
+                      (draft.initialReferenceId == null ? draft.referenceId != null : referenceId != draft.initialReferenceId),
                   candidates: candidates,
                   usedReferenceIds: used.difference({referenceId}),
                   // The first card shows its changes; further ones only on request.
@@ -1225,6 +1228,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
 class _ComparisonDraft {
   /// Null on the first card follows the default reference.
   String? referenceId;
+
+  /// The reference stored with the feedback; null for a card the form added.
   final String? initialReferenceId;
   int? overall;
   final Map<FeedbackAspect, int> aspectOutcomes = {};
@@ -1235,5 +1240,5 @@ class _ComparisonDraft {
   /// Run debriefs only: "Something else changed" is open.
   bool showAllAspects = false;
 
-  _ComparisonDraft({this.referenceId}) : initialReferenceId = referenceId;
+  _ComparisonDraft({this.referenceId, this.initialReferenceId});
 }

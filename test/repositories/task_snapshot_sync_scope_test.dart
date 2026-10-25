@@ -136,7 +136,7 @@ void main() {
       expect(await distanceOf(later), 0.0);
     });
 
-    test('an unchanged re-delivery neither writes nor refreshes', () async {
+    test('an unchanged re-delivery neither writes, refreshes nor notifies', () async {
       // Sub-second values, like a Firestore timestamp; drift stores whole seconds.
       final ride = _ride(
         1,
@@ -152,11 +152,16 @@ void main() {
       final subscription = database
           .tableUpdates(TableUpdateQuery.onTable(database.stravaActivities))
           .listen((_) => writes++);
+      var notifications = 0;
+      void countNotification() => notifications++;
+      repository.addListener(countNotification);
       await repository.setStravaActivities([ride]);
       await pumpEventQueue();
       await subscription.cancel();
+      repository.removeListener(countNotification);
 
       expect(writes, 0);
+      expect(notifications, 0);
       expect(await distanceOf(earlier), _marker.distance);
       expect(await distanceOf(later), _marker.distance);
     });

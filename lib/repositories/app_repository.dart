@@ -1078,7 +1078,11 @@ class AppRepository extends ChangeNotifier {
       return;
     }
 
-    if (since != null) await refreshTaskEntrySnapshots(since: since);
+    // Nothing was added, changed or removed (the relaunch re-delivery), so the
+    // window and every derived value are still current.
+    if (since == null) return;
+
+    await refreshTaskEntrySnapshots(since: since);
 
     // Re-derive the in-memory window from the database so new, changed, or
     // deleted activities show everywhere (list, calendar) and not only in views

@@ -71,7 +71,7 @@ class FilteredView {
       (entry) =>
           (_bikeId == null || entry.value.bike == _bikeId) &&
           _inDateRange(entry.value.datetimeLocal) &&
-          _setupFilter.matches(entry.value),
+          _setupFilter.matches(entry.value, testSessions: _testSessions),
     ),
   );
 

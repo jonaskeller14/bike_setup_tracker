@@ -513,6 +513,7 @@ class AppRepository extends ChangeNotifier {
     _testSessions = {for (final row in _testSessionRows) row.id: row.toModel(adjustmentTypes: adjustmentTypes)};
 
     _setupTags = SetupResolutionService.extractAllTags(_setups.values);
+    _testSessionNames = (_testSessions.values.map((session) => session.displayName).toSet().toList()..sort()).toSet();
     _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();
   }
 
@@ -523,9 +524,11 @@ class AppRepository extends ChangeNotifier {
   late final FilterController filters;
   void Function()? onFiltersChanged;
   Set<String> _setupTags = {};
+  Set<String> _testSessionNames = {};
   Set<String> _taskRuleTags = {};
 
   Set<String> get setupTags => _setupTags;
+  Set<String> get testSessionNames => _testSessionNames;
   Set<String> get taskRuleTags => _taskRuleTags;
 
   Map<String, Component> get archivedComponents => {
@@ -539,7 +542,12 @@ class AppRepository extends ChangeNotifier {
   FilteredView get view => _view;
 
   void _filter() {
-    filters.normalize(bikeIds: bikes.keys, setupTags: setupTags, taskRuleTags: taskRuleTags);
+    filters.normalize(
+      bikeIds: bikes.keys,
+      setupTags: setupTags,
+      testSessionNames: testSessionNames,
+      taskRuleTags: taskRuleTags,
+    );
     _view = _buildView();
     _strava.reloadIfQueryChanged();  // re-pages Strava if the bike scope changed
   }

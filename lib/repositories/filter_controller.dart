@@ -139,16 +139,20 @@ class FilterController {
     return gearId == null ? null : query.copyWith(gearId: gearId);
   }
 
-  /// Drops criteria whose bike or tags no longer exist. Runs inside the
+  /// Drops criteria whose bike, tags or test sessions no longer exist. Runs inside the
   /// repository's recompute, so it never fires [onChanged].
   void normalize({
     required Iterable<String> bikeIds,
     required Set<String> setupTags,
+    required Set<String> testSessionNames,
     required Set<String> taskRuleTags,
   }) {
     if (_bikeId != null && !bikeIds.contains(_bikeId)) _bikeId = null;
     if (!setupTags.containsAll(_setup.tags)) {
       _setup = _setup.copyWith(tags: _setup.tags.intersection(setupTags));
+    }
+    if (!testSessionNames.containsAll(_setup.testSessionNames)) {
+      _setup = _setup.copyWith(testSessionNames: _setup.testSessionNames.intersection(testSessionNames));
     }
     if (!taskRuleTags.containsAll(_taskRule.tags)) {
       _taskRule = _taskRule.copyWith(tags: _taskRule.tags.intersection(taskRuleTags));

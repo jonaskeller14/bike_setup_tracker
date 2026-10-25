@@ -324,7 +324,7 @@ void main() {
         'bikeId': "deleted",
         'setup': {'tags': ['race', 'gone']},
       });
-      restored.normalize(bikeIds: ["b1"], setupTags: {"race"}, taskRuleTags: {});
+      restored.normalize(bikeIds: ["b1"], setupTags: {"race"}, testSessionNames: {}, taskRuleTags: {});
 
       expect(restored.bikeId, null);
       expect(restored.setup.tags, {"race"});
@@ -343,7 +343,12 @@ void main() {
     });
 
     test("keeps criteria that still exist", () {
-      filters.normalize(bikeIds: ["b1", "b2"], setupTags: {"race", "wet"}, taskRuleTags: {"service", "fork"});
+      filters.normalize(
+        bikeIds: ["b1", "b2"],
+        setupTags: {"race", "wet"},
+        testSessionNames: {},
+        taskRuleTags: {"service", "fork"},
+      );
 
       expect(filters.bikeId, "b1");
       expect(filters.setup, const SetupFilter(tags: {"race", "wet"}, bookmarkedOnly: true));
@@ -351,19 +356,24 @@ void main() {
     });
 
     test("drops a deleted bike", () {
-      filters.normalize(bikeIds: ["b2"], setupTags: {"race", "wet"}, taskRuleTags: {"service", "fork"});
+      filters.normalize(
+        bikeIds: ["b2"],
+        setupTags: {"race", "wet"},
+        testSessionNames: {},
+        taskRuleTags: {"service", "fork"},
+      );
       expect(filters.bikeId, null);
     });
 
     test("drops vanished tags and keeps the other criteria", () {
-      filters.normalize(bikeIds: ["b1"], setupTags: {"race"}, taskRuleTags: {"fork"});
+      filters.normalize(bikeIds: ["b1"], setupTags: {"race"}, testSessionNames: {}, taskRuleTags: {"fork"});
 
       expect(filters.setup, const SetupFilter(tags: {"race"}, bookmarkedOnly: true));
       expect(filters.taskRule, TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {"fork"}));
     });
 
     test("never fires the callback", () {
-      filters.normalize(bikeIds: [], setupTags: {}, taskRuleTags: {});
+      filters.normalize(bikeIds: [], setupTags: {}, testSessionNames: {}, taskRuleTags: {});
 
       expect(filters.bikeId, null);
       expect(filters.setup.tags, isEmpty);

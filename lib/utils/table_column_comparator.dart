@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
+import '../models/feedback/test_session.dart';
 import '../models/setup.dart';
 import 'table_column.dart';
 
@@ -27,11 +28,17 @@ Comparator<Setup>? tableColumnComparator(
   required Iterable<Adjustment> personAdjustments,
   required Map<String, Bike> bikes,
   required Map<String, int> setupActivityCounts,
+  Map<String, TestSession> testSessions = const {},
   Adjustment? Function(BikeAdjustmentColumn column)? bikeAdjustmentFor,
 }) {
   switch (column) {
     case SetupTableColumn(column: final setupColumn):
-      return setupColumnComparator(setupColumn, bikes: bikes, setupActivityCounts: setupActivityCounts);
+      return setupColumnComparator(
+        setupColumn,
+        bikes: bikes,
+        setupActivityCounts: setupActivityCounts,
+        testSessions: testSessions,
+      );
     // Ascending puts the best rank first and unranked setups last.
     case SetupRankColumn():
       return _by((s) => valueFor(s, column)?.asNum ?? double.infinity);
@@ -58,6 +65,7 @@ Comparator<Setup> setupColumnComparator(
   SetupColumn column, {
   required Map<String, Bike> bikes,
   required Map<String, int> setupActivityCounts,
+  Map<String, TestSession> testSessions = const {},
 }) {
   return switch (column) {
     SetupColumn.name => _by((s) => s.displayName),
@@ -77,5 +85,6 @@ Comparator<Setup> setupColumnComparator(
     SetupColumn.windSpeed => _by((s) => s.weather?.currentWindSpeed ?? double.negativeInfinity),
     SetupColumn.soilMoisture => _by((s) => s.weather?.currentSoilMoisture0to7cm ?? double.negativeInfinity),
     SetupColumn.condition => _by((s) => s.weather?.condition?.value ?? ''),
+    SetupColumn.testSession => _by((s) => testSessions[s.testSessionId]?.displayName ?? ''),
   };
 }

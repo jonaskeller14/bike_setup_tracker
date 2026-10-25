@@ -25,7 +25,7 @@ class FilterActions {
     bool enabled(FilterSection section) => switch (section) {
       FilterSection.bike => true,
       FilterSection.dateRange => appSettings.enableAdvancedFilters,
-      FilterSection.setups => appSettings.enableSetupTags || appSettings.enableSetupBookmark,
+      FilterSection.setups => appSettings.enableSetupTags || appSettings.enableSetupBookmark || appSettings.enableRating,
       FilterSection.taskPriority => appSettings.enableTaskPriority,
       FilterSection.taskTags => appSettings.enableTaskTags,
       FilterSection.activity => appSettings.enableAdvancedFilters && stravaActive,
@@ -87,6 +87,7 @@ class FilterActions {
       dateFormat: appSettings.dateFormat,
     );
     final setupTagCount = setups && appSettings.enableSetupTags ? filters.setup.tags.length : 0;
+    final testSessionCount = setups && appSettings.enableRating ? filters.setup.testSessionNames.length : 0;
     final taskTagCount = enabled.contains(FilterSection.taskTags) ? filters.taskRule.tags.length : 0;
     final tagCount = setupTagCount + taskTagCount;
     final priorityCount = filters.taskRule.priorities.length;
@@ -109,6 +110,7 @@ class FilterActions {
       ?dateLabel,
       if (setups && appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) "Bookmarked",
       if (tagCount > 0) "$tagCount ${tagCount != 1 ? 'Tags' : 'Tag'}",
+      if (testSessionCount > 0) "$testSessionCount ${testSessionCount != 1 ? 'Test sessions' : 'Test session'}",
       if (enabled.contains(FilterSection.taskPriority) && filters.taskRule.hasActivePriorities)
         "$priorityCount ${priorityCount != 1 ? 'Priorities' : 'Priority'}",
       ?distanceLabel,

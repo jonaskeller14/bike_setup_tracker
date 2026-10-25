@@ -10,6 +10,7 @@ import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
+import '../../models/feedback/test_session.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
@@ -94,6 +95,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required Iterable<Adjustment> componentAdjustments,
     required Iterable<Adjustment> personAdjustments,
     required Map<String, Bike> bikes,
+    required Map<String, TestSession> testSessions,
     required Map<String, int> setupActivityCounts,
   }) {
     final sortColumn = _sortColumn;
@@ -105,6 +107,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       componentAdjustments: componentAdjustments,
       personAdjustments: personAdjustments,
       bikes: bikes,
+      testSessions: testSessions,
       setupActivityCounts: setupActivityCounts,
     );
     if (comparator == null) return setups;
@@ -186,6 +189,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         SetupColumn.tags => appSettings.enableSetupTags,
         SetupColumn.bookmarked => appSettings.enableSetupBookmark,
         SetupColumn.activities => hasAnyActivity,
+        SetupColumn.testSession => appSettings.enableRating,
         _ => true,
       },
     );
@@ -216,6 +220,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       componentAdjustments: componentAdjustments,
       personAdjustments: personAdjustments,
       bikes: bikes,
+      testSessions: appRepository.testSessions,
       setupActivityCounts: setupActivityCounts,
     );
 
@@ -424,6 +429,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   sortAscending: _sortAscending,
                   sortColumn: _sortColumn,
                   bikes: bikes,
+                  testSessions: appRepository.testSessions,
                   setupHistory: appRepository.setupHistory,
                   setupActivityCounts: setupActivityCounts,
                   valueFor: _rawValue,

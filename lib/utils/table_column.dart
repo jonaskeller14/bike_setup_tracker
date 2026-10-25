@@ -32,7 +32,9 @@ enum SetupColumn {
   humidity(TableColumnSection.weatherContext, "Humidity"),
   windSpeed(TableColumnSection.weatherContext, "Windspeed"),
   soilMoisture(TableColumnSection.weatherContext, "Soil Moisture"),
-  condition(TableColumnSection.weatherContext, "Condition");
+  condition(TableColumnSection.weatherContext, "Condition"),
+
+  testSession(TableColumnSection.feedback, "Test session");
 
   final TableColumnSection section;
   final String label;

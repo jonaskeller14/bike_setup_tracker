@@ -215,7 +215,10 @@ class FeaturesPage extends StatelessWidget {
                   value: appSettings.enableRating,
                   onChanged: (v) {
                     appSettings.enableRating = v;
-                    if (!v) _showLayer(context, TimelineLayer.feedback);
+                    if (v) return;
+                    _showLayer(context, TimelineLayer.feedback);
+                    final filters = context.read<AppRepository>().filters;
+                    filters.setup = filters.setup.copyWith(testSessionNames: const {});
                   },
                 ),
               _FeatureToggleTile(

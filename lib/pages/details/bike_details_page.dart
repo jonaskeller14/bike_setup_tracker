@@ -145,6 +145,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     required List<Setup> setups,
     required Iterable<Adjustment> personAdjustments,
     required Map<String, Bike> bikes,
+    required Map<String, TestSession> testSessions,
     required Map<String, int> setupActivityCounts,
   }) {
     final sortColumn = _sortColumn;
@@ -156,6 +157,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       componentAdjustments: const [],
       personAdjustments: personAdjustments,
       bikes: bikes,
+      testSessions: testSessions,
       setupActivityCounts: setupActivityCounts,
       bikeAdjustmentFor: (column) => _projection?.adjustmentFor(column.key),
     );
@@ -257,7 +259,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final bikeSetups = appRepository.setups.values.where((s) => s.bike == widget.bikeId).toList();
     // Newest first, narrowed by the tag and bookmark filters.
     final setupsUnsorted = bikeSetups
-        .where(appRepository.filters.setup.matches)
+        .where((s) => appRepository.filters.setup.matches(s, testSessions: appRepository.testSessions))
         .toList()
         .reversed
         .toList();
@@ -275,6 +277,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
         SetupColumn.tags => appSettings.enableSetupTags,
         SetupColumn.bookmarked => appSettings.enableSetupBookmark,
         SetupColumn.activities => hasAnyActivity,
+        SetupColumn.testSession => appSettings.enableRating,
         _ => true,
       },
     );
@@ -310,6 +313,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       setups: setupsUnsorted,
       personAdjustments: personAdjustments,
       bikes: bikes,
+      testSessions: appRepository.testSessions,
       setupActivityCounts: setupActivityCounts,
     );
 
@@ -374,7 +378,8 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                   );
                 },
               ),
-              if (appSettings.enableSetupTags || appSettings.enableSetupBookmark) FilterSheetChip.bikeDetailsPage,
+              if (appSettings.enableSetupTags || appSettings.enableSetupBookmark || appSettings.enableRating)
+                FilterSheetChip.bikeDetailsPage,
             ],
           ),
         ),
@@ -406,6 +411,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             sortAscending: _sortAscending,
             sortColumn: _sortColumn,
             bikes: bikes,
+            testSessions: appRepository.testSessions,
             setupHistory: appRepository.setupHistory,
             setupActivityCounts: setupActivityCounts,
             valueFor: _rawValue,

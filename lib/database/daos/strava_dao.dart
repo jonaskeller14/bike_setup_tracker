@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../../models/activity_rate_window.dart';
 import '../../models/component_stats.dart';
 import '../../models/filters/numeric_range.dart';
+import '../../models/stats_timeline.dart';
 import '../../models/strava/activity_bounds.dart';
 import '../../models/strava/strava_activity_query.dart';
 import '../../utils/text_search.dart';
@@ -26,13 +29,9 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   /// follows component-parent edges that were active at the activity start.
   /// The installation indexes cover both latest-event lookups and recursive
   /// parent-to-child traversal; the path value is only a defensive cycle guard.
-  ///
-  /// `origin` resolves the same hierarchy at the "since beginning" instant
-  /// (epoch 0): a component whose chain there ends at a bike inherits that
-  /// bike's initial stats, since it has been on the bike for its whole history.
-  String _componentStatsSql({required bool atDate}) =>
+  String _creditedCte({required bool atDate}) =>
       '''
-      WITH RECURSIVE credited(activity_id, component_id, path) AS (
+      credited(activity_id, component_id, path) AS (
         SELECT
           a.id,
           i.component_id,
@@ -89,7 +88,13 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
                 )
               )
           )
-      ),
+      )
+      ''';
+
+  /// Resolves the same hierarchy at the "since beginning" instant (epoch 0):
+  /// a component whose chain there ends at a bike inherits that bike's initial
+  /// stats, since it has been on the bike for its whole history.
+  static const _originCte = '''
       origin(component_id, bike_id, path) AS (
         SELECT
           i.component_id,
@@ -143,7 +148,13 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
                 )
               )
           )
-      ),
+      )
+      ''';
+
+  String _componentStatsSql({required bool atDate}) =>
+      '''
+      WITH RECURSIVE ${_creditedCte(atDate: atDate)},
+      $_originCte,
       unique_credits AS (
         SELECT DISTINCT activity_id, component_id FROM credited
       ),
@@ -578,5 +589,118 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
       activityCount: row.read<int>('activity_count'),
       kilojoules: row.read<double>('kilojoules'),
     );
+  }
+
+  /// [getComponentStatsAt] for any number of dates: the credits of every
+  /// component in [componentIds] come from one hierarchy pass. A component
+  /// that doesn't exist has no timeline.
+  Future<Map<String, StatsTimeline>> getComponentStatsTimelines(Set<String> componentIds) {
+    return _statsTimelines(
+      ids: componentIds,
+      initialSql: '''
+      WITH RECURSIVE $_originCte
+      SELECT
+        c.id AS owner_id,
+        c.initial_distance + COALESCE(ob.initial_distance, 0) AS distance,
+        c.initial_elevation_gain + COALESCE(ob.initial_elevation_gain, 0) AS elevation,
+        c.initial_moving_time + COALESCE(ob.initial_moving_time, 0) AS moving_time,
+        c.initial_elapsed_time + COALESCE(ob.initial_elapsed_time, 0) AS elapsed_time,
+        c.initial_activity_count + COALESCE(ob.initial_activity_count, 0) AS activity_count,
+        c.initial_kilojoules + COALESCE(ob.initial_kilojoules, 0) AS kilojoules
+      FROM components c
+      LEFT JOIN (SELECT DISTINCT component_id, bike_id FROM origin) o ON o.component_id = c.id
+      LEFT JOIN bikes ob ON ob.id = o.bike_id
+      WHERE c.id IN (SELECT value FROM json_each(:ids))
+      ''',
+      creditsSql: '''
+      WITH RECURSIVE ${_creditedCte(atDate: false)},
+      unique_credits AS (
+        SELECT DISTINCT activity_id, component_id FROM credited
+      )
+      SELECT
+        credits.component_id AS owner_id,
+        $_creditedActivityColumns
+      FROM unique_credits credits
+      JOIN strava_activities a ON a.id = credits.activity_id
+      WHERE credits.component_id IN (SELECT value FROM json_each(:ids))
+      ''',
+    );
+  }
+
+  /// [getBikeStatsAt] for any number of dates. A deleted bike has no timeline.
+  Future<Map<String, StatsTimeline>> getBikeStatsTimelines(Set<String> bikeIds) {
+    return _statsTimelines(
+      ids: bikeIds,
+      initialSql: '''
+      SELECT
+        b.id AS owner_id,
+        b.initial_distance AS distance,
+        b.initial_elevation_gain AS elevation,
+        b.initial_moving_time AS moving_time,
+        b.initial_elapsed_time AS elapsed_time,
+        b.initial_activity_count AS activity_count,
+        b.initial_kilojoules AS kilojoules
+      FROM bikes b
+      WHERE b.id IN (SELECT value FROM json_each(:ids))
+      AND b.is_deleted = 0
+      ''',
+      creditsSql: '''
+      SELECT
+        b.id AS owner_id,
+        $_creditedActivityColumns
+      FROM bikes b
+      JOIN strava_activities a ON a.gear_id = b.strava_gear
+      WHERE b.id IN (SELECT value FROM json_each(:ids))
+      AND b.is_deleted = 0
+      ''',
+    );
+  }
+
+  static const _creditedActivityColumns = '''
+        a.start_date,
+        COALESCE(a.distance, 0) AS distance,
+        COALESCE(a.total_elevation_gain, 0) AS elevation,
+        a.moving_time,
+        a.elapsed_time,
+        COALESCE(a.average_watts, 0) * a.moving_time AS watt_seconds
+  ''';
+
+  /// The ids go in as one JSON array, so the set may exceed SQLite's limit on
+  /// bound variables.
+  Future<Map<String, StatsTimeline>> _statsTimelines({
+    required Set<String> ids,
+    required String initialSql,
+    required String creditsSql,
+  }) async {
+    if (ids.isEmpty) return {};
+    final variables = [Variable<String>(jsonEncode(ids.toList()))];
+    final initialRows = await customSelect(initialSql, variables: variables).get();
+    final creditRows = await customSelect(creditsSql, variables: variables).get();
+
+    final credits = <String, List<CreditedActivity>>{};
+    for (final row in creditRows) {
+      (credits[row.read<String>('owner_id')] ??= []).add((
+        startSeconds: row.read<int>('start_date'),
+        distance: row.read<double>('distance'),
+        elevationGain: row.read<double>('elevation'),
+        movingSeconds: row.read<int>('moving_time'),
+        elapsedSeconds: row.read<int>('elapsed_time'),
+        wattSeconds: row.read<double>('watt_seconds'),
+      ));
+    }
+    return {
+      for (final row in initialRows)
+        row.read<String>('owner_id'): StatsTimeline(
+          initial: ComponentStats(
+            distance: row.read<double>('distance'),
+            elevationGain: row.read<double>('elevation'),
+            movingTime: Duration(seconds: row.read<int>('moving_time')),
+            elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
+            activityCount: row.read<int>('activity_count'),
+            kilojoules: row.read<double>('kilojoules'),
+          ),
+          activities: credits[row.read<String>('owner_id')] ?? const [],
+        ),
+    };
   }
 }

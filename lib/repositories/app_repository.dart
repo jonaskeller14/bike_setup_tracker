@@ -606,15 +606,7 @@ class AppRepository extends ChangeNotifier {
     final entries = dbEntries
         .map((e) => e.toModel())
         .toList();
-
-    // Issued together rather than one await at a time: each stats query is a
-    // round-trip to the database isolate, and awaiting them serially stalls on
-    // that latency once per entry.
-    final snapshots = await Future.wait(entries.map((entry) => getStatsAt(
-      componentId: entry.association.componentId,
-      bikeId: entry.association.bikeId,
-      date: entry.dateTimeUTC,
-    )));
+    final snapshots = await _snapshotsOf(entries);
 
     final changed = [
       for (var i = 0; i < entries.length; i++)
@@ -631,6 +623,27 @@ class AppRepository extends ChangeNotifier {
         await database.taskDao.updateEntrySnapshot(entry.id, entry.toCompanion().snapshot.value);
       }
     });
+  }
+
+  /// The stats as of each entry's date. One timeline per component or bike
+  /// instead of one stats query per entry: each query walks the whole
+  /// hierarchy over every activity.
+  Future<List<ComponentStats>> _snapshotsOf(List<TaskEntry> entries) async {
+    final componentTimelines = await database.stravaDao.getComponentStatsTimelines({
+      for (final entry in entries) ?entry.association.componentId,
+    });
+    final bikeTimelines = await database.stravaDao.getBikeStatsTimelines({
+      for (final entry in entries) ?entry.association.bikeId,
+    });
+    return [
+      for (final entry in entries)
+        switch (entry.association) {
+              ComponentTaskAssociation(:final id) => componentTimelines[id]?.at(entry.dateTimeUTC),
+              BikeTaskAssociation(:final id) => bikeTimelines[id]?.at(entry.dateTimeUTC),
+              GeneralTaskAssociation() => null,
+            } ??
+            ComponentStats.zero,
+    ];
   }
 
   /// What a rule is measured against: its most recent entry, when its component
@@ -1155,45 +1168,27 @@ class AppRepository extends ChangeNotifier {
   List<RideFeedback> get deletedFeedbacks => _deletedFeedbacks;
   List<TestSession> get deletedTestSessions => _deletedTestSessions;
 
+  /// Refreshes every snapshot: the bike's own entries change along with every
+  /// component ever on it and everything nested under those.
   Future<void> removeBikes(Iterable<Bike> bikes) async {
     if (bikes.isEmpty) return;
-    final affected = _componentsEverOnBikes(bikes.map((bike) => bike.id).toSet());
     await database.transaction(() async {
       for (var bike in bikes) {
         await database.bikesDao.deleteBike(bike.id);
       }
     });
-    await refreshTaskEntrySnapshots(componentIds: affected);
-  }
-
-  /// Components whose stats move when [bikeIds] are deleted or restored: the
-  /// ones ever installed on such a bike, plus everything ever nested under them
-  /// (a child inherits its parent's bike, so it gains and loses the same credit).
-  Set<String> _componentsEverOnBikes(Set<String> bikeIds) {
-    final hierarchy = componentHierarchy;
-    final affected = <String>{};
-    for (final component in _components.values) {
-      final wasOnBike = component.installations.any(
-        (installation) => installation is BikeInstallation && bikeIds.contains(installation.bikeId),
-      );
-      if (!wasOnBike) continue;
-      affected
-        ..add(component.id)
-        ..addAll(hierarchy.historicalDescendantsOf(component.id));
-    }
-    return affected;
+    await refreshTaskEntrySnapshots();
   }
 
   Future<void> restoreBikes(Iterable<Bike> bikes) async {
     if (bikes.isEmpty) return;
-    final affected = _componentsEverOnBikes(bikes.map((bike) => bike.id).toSet());
     await database.transaction(() async {
       for (var bike in bikes) {
         final updated = bike.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
         await database.bikesDao.updateBike(updated.toCompanion());
       }
     });
-    await refreshTaskEntrySnapshots(componentIds: affected);
+    await refreshTaskEntrySnapshots();
   }
 
   Future<void> removeComponents(Iterable<Component> components) async {
@@ -1203,7 +1198,16 @@ class AppRepository extends ChangeNotifier {
         await database.componentsDao.deleteComponent(component.id);
       }
     });
+    await refreshTaskEntrySnapshots(componentIds: _withHistoricalDescendants(components));
   }
+
+  /// A deleted component credits neither itself nor anything nested under it.
+  Set<String> _withHistoricalDescendants(Iterable<Component> components) => {
+    for (final component in components) ...{
+      component.id,
+      ...componentHierarchy.historicalDescendantsOf(component.id),
+    },
+  };
 
   Future<void> restoreComponents(Iterable<Component> components) async {
     if (components.isEmpty) return;
@@ -1213,6 +1217,7 @@ class AppRepository extends ChangeNotifier {
         await database.componentsDao.updateComponent(updated.toCompanion());
       }
     });
+    await refreshTaskEntrySnapshots(componentIds: _withHistoricalDescendants(components));
   }
 
   Future<void> removeSetups(Iterable<Setup> setups) async {
@@ -1435,14 +1440,22 @@ class AppRepository extends ChangeNotifier {
     await editTaskRules([rule.copyWith(delay: null)]);
   }
 
+  /// An entry moved to another date or association gets the stats there,
+  /// whatever snapshot it comes with (the calendar's drag keeps the old one).
   Future<void> editTaskEntry(Iterable<TaskEntry> entries) async {
-    if (entries.isEmpty) return;
+    final entryList = entries.toList();
+    if (entryList.isEmpty) return;
     final now = DateTime.now().toUtc();
+    final moved = entryList.where((entry) {
+      final stored = _taskEntries[entry.id];
+      return stored == null || stored.dateTimeUTC != entry.dateTimeUTC || stored.association != entry.association;
+    }).toList();
+    final movedSnapshots = Map.fromIterables(moved.map((entry) => entry.id), await _snapshotsOf(moved));
 
     await database.transaction(() async {
-      for (final entry in entries) {
+      for (final entry in entryList) {
         await database.taskDao.updateEntry(
-          entry.copyWith(lastModified: now).toCompanion(),
+          entry.copyWith(lastModified: now, snapshot: movedSnapshots[entry.id] ?? entry.snapshot).toCompanion(),
         );
       }
     });

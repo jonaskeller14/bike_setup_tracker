@@ -112,9 +112,14 @@ void main() {
           )
           .first,
       'trash cleanup': TrashCleanupService.run,
-      // A full snapshot refresh runs this once per task entry.
+      // What forms use for a single snapshot.
       'one task snapshot': (db) =>
           db.stravaDao.getComponentStatsAt(snapshotEntry.componentId!, snapshotEntry.dateTimeUTC),
+      // What a full snapshot refresh reads, for every task entry at once.
+      'all snapshot timelines': (db) => Future.wait([
+        db.stravaDao.getComponentStatsTimelines({for (final entry in entries) ?entry.componentId}),
+        db.stravaDao.getBikeStatsTimelines({for (final entry in entries) ?entry.bikeId}),
+      ]),
     };
 
     debugPrint('\nStartup queries, each alone on a fresh connection, median of $_runs:');
@@ -133,13 +138,13 @@ void main() {
       durations.sort();
       debugPrint('  ${name.padRight(28)} ${_fmt(durations[durations.length ~/ 2]).padLeft(7)}');
     }
-    debugPrint('  (a full snapshot refresh recomputes ${entries.length} task snapshots)');
+    debugPrint('  (a full snapshot refresh covers ${entries.length} task entries)');
   }, timeout: const Timeout(Duration(minutes: 10)));
 
   test('strava sync', () async {
     final newest = dataset.activities.last;
-    final syncs = <String, List<StravaActivity>>{
-      'one new activity': [
+    final syncs = <String, Future<void> Function(AppRepository)>{
+      'one new activity': (repository) => repository.setStravaActivities([
         StravaActivity(
           id: newest.id + 1,
           name: 'Ride ${newest.id + 1}',
@@ -155,14 +160,17 @@ void main() {
           movingTime: newest.movingTime,
           elapsedTime: newest.elapsedTime,
         ),
-      ],
+      ]),
       // What a relaunch delivers: every batch again, nothing changed.
-      'unchanged re-delivery': dataset.activities,
+      'unchanged re-delivery': (repository) => repository.setStravaActivities(dataset.activities),
+      // What an import or a bike's initial-stats edit runs. The seed leaves
+      // the snapshots empty, so this also writes every one of them.
+      'full snapshot refresh': (repository) => repository.refreshTaskEntrySnapshots(),
     };
 
     final syncFile = File(p.join(tempDir.path, 'sync.sqlite'));
-    debugPrint('\nStrava sync (setStravaActivities) on a settled app, median of $_runs:');
-    for (final MapEntry(key: name, value: activities) in syncs.entries) {
+    debugPrint('\nStrava sync and snapshot refresh on a settled app, median of $_runs:');
+    for (final MapEntry(key: name, value: sync) in syncs.entries) {
       final durations = <double>[];
       for (var i = 0; i < _runs; i++) {
         // A copy, so every run starts from the seeded data.
@@ -173,7 +181,7 @@ void main() {
         await repository.initialDataLoaded;
         await _settled(repository);
         final stopwatch = Stopwatch()..start();
-        await repository.setStravaActivities(activities);
+        await sync(repository);
         durations.add(stopwatch.elapsedMicroseconds / 1000);
         await repository.disposeAndAwaitCancellation();
         await database.close();

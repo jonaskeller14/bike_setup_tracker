@@ -24,15 +24,17 @@ The folder is outside `test/`, so CI and a plain `flutter test` skip it.
   one dominates.
 - **strava sync**: `setStravaActivities` on a settled app, for one new
   activity and for re-delivering every activity unchanged (what a relaunch
-  sync does). Each run starts from a copy of the seeded database.
+  sync does), plus a full `refreshTaskEntrySnapshots()` (what an import or a
+  bike's initial-stats edit runs). Each run starts from a copy of the seeded
+  database.
 
 It stops at the data layer. Widget build, plugin start-up and Firebase aren't
 included, and it runs on the host VM. Compare runs on the same machine. A phone
 is several times slower.
 
-Task-entry snapshots are left empty: a full snapshot refresh takes hours at
-this size (see "one task snapshot" × the entry count). Start only reads
-the stored column, so the timings don't depend on them.
+Task-entry snapshots are left empty, so the timings stay comparable with the
+rows from before Phase 2, when a full snapshot refresh took hours at this size.
+Start only reads the stored column, so the timings don't depend on them.
 
 ## Results
 
@@ -42,3 +44,4 @@ Medians in ms. Add a row when you change something on the startup path.
 | ---- | ------ | ------- | ---------: | -----------: | ------: | ------------: | ----- |
 | 2026-10-25 | eeccebde | Windows 11, host VM | 3355 | 1367 | 3326 | 24 | Baseline; componentStats query 1191, setups 368, one task snapshot 1114 |
 | 2026-10-25 | eeccebde + Phase 1 | Windows 11, host VM | 4613 | 2073 | 4550 | 24 | Startup path unchanged; machine ran ~35% slower than the baseline (componentStats 1665, one task snapshot 1317). Sync: one new activity 2970 (no snapshot refreshed; waits behind the Strava watch queries the write re-runs), unchanged re-delivery of 10k activities 516 (was a full refresh, ≈ 2376 × 1.1 s ≈ 44 min) |
+| 2026-10-25 | 0dc90b3f + Phase 2 | Windows 11, host VM | 2877 | 1208 | 2844 | 24 | Startup path unchanged. Snapshots: all timelines 890 (one per-entry query 1089), full refresh incl. writing 2376 snapshots 1271 (was ≈ 2376 × 1.1 s ≈ 44 min). Sync: one new activity 2593, unchanged re-delivery 541 |

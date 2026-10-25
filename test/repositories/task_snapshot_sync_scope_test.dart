@@ -1,6 +1,10 @@
+import 'dart:math';
+
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
@@ -156,5 +160,179 @@ void main() {
       expect(await distanceOf(earlier), _marker.distance);
       expect(await distanceOf(later), _marker.distance);
     });
+  });
+
+  // Guards the cutoff as a whole: whatever a sync adds, changes or deletes, no
+  // stored snapshot may differ from a fresh per-entry computation afterwards.
+  group('setStravaActivities — snapshots stay equal to a full recompute', () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test('over random syncs', () async {
+      final bike = Bike(name: 'Test Bike', person: null, stravaGear: 'g1');
+      await repository.addBikes([bike]);
+      final component = Component(
+        name: 'Chain',
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      await repository.addComponents([component]);
+      for (var day = 5; day <= 25; day += 5) {
+        for (final association in [ComponentTaskAssociation(component.id), BikeTaskAssociation(bike.id)]) {
+          final date = DateTime.utc(2024, 1, day, 12);
+          await database.taskDao.insertEntry(
+            TaskEntry(
+              name: 'Serviced',
+              taskRule: 'rule',
+              association: association,
+              dateTimeUTC: date,
+              dateTimeLocal: date,
+            ).toCompanion(),
+          );
+        }
+      }
+      await repository.refreshTaskEntrySnapshots();
+
+      final rng = Random(7);
+      final stored = <int, StravaActivity>{};
+      var nextId = 1;
+      var version = 0;
+      // Whole hours keep entry dates (noon) hit exactly now and then.
+      DateTime randomDate() => DateTime.utc(2024, 1, 1 + rng.nextInt(30), rng.nextInt(24));
+      StravaActivity activity(int id, DateTime startDate) => StravaActivity(
+        id: id,
+        lastModified: DateTime.utc(2024, 2, 1).add(Duration(seconds: version++)),
+        name: 'Ride $id',
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: startDate,
+        startDateLocal: startDate.copyWith(isUtc: false),
+        gearId: rng.nextDouble() < 0.8 ? 'g1' : 'g2',
+        startLat: null,
+        startLon: null,
+        distance: 1000.0 * (1 + rng.nextInt(50)),
+        totalElevationGain: 10.0 * rng.nextInt(50),
+        movingTime: Duration(minutes: 30 + rng.nextInt(120)),
+        elapsedTime: Duration(minutes: 30 + rng.nextInt(150)),
+      );
+
+      for (var round = 0; round < 40; round++) {
+        final upserts = <StravaActivity>[];
+        final deletes = <int>[];
+        for (var op = 0; op < 1 + rng.nextInt(3); op++) {
+          final ids = stored.keys.toList();
+          final roll = ids.isEmpty ? 0 : rng.nextInt(4);
+          switch (roll) {
+            case 0: // new
+              upserts.add(activity(nextId++, randomDate()));
+            case 1: // changed, possibly moved to another date
+              final id = ids[rng.nextInt(ids.length)];
+              upserts.add(activity(id, rng.nextBool() ? stored[id]!.startDate : randomDate()));
+            case 2: // deleted
+              deletes.add(ids[rng.nextInt(ids.length)]);
+            case 3: // re-delivered unchanged
+              upserts.add(stored[ids[rng.nextInt(ids.length)]]!);
+          }
+        }
+        deletes.removeWhere((id) => upserts.any((a) => a.id == id));
+        await repository.setStravaActivities(upserts, toDelete: deletes);
+        for (final a in upserts) {
+          stored[a.id] = a;
+        }
+        deletes.forEach(stored.remove);
+
+        for (final row in await database.taskDao.getAllEntriesBypass()) {
+          final entry = row.toModel();
+          final expected = await repository.getStatsAt(
+            componentId: entry.association.componentId,
+            bikeId: entry.association.bikeId,
+            date: entry.dateTimeUTC,
+          );
+          expect(entry.snapshot, expected, reason: 'round $round, entry ${entry.dateTimeUTC} ${entry.association}');
+        }
+      }
+    });
+  });
+
+  // `_isStoredUnchanged` rebuilds the activity field by field: a field it takes
+  // from the wrong side would make changes to it look unchanged, never written.
+  group('setStravaActivities — writes a change to any field', () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    final base = StravaActivity(
+      id: 1,
+      lastModified: DateTime.utc(2024, 2, 1),
+      name: 'Ride',
+      athlete: 1,
+      sportType: SportType.Ride,
+      startDate: DateTime.utc(2024, 1, 1, 12),
+      startDateLocal: DateTime(2024, 1, 1, 13),
+      gearId: 'g1',
+      startLat: 47.0,
+      startLon: 11.0,
+      distance: 10000.0,
+      totalElevationGain: 100.0,
+      movingTime: const Duration(hours: 1),
+      elapsedTime: const Duration(hours: 1),
+      workoutType: 10,
+      averageWatts: 150.0,
+    );
+
+    // Keyed by `toJson`, so a field added to the model fails the check below
+    // until it is covered here and in `_isStoredUnchanged`.
+    final changes = <String, Object>{
+      'lastModified': '2024-02-02T00:00:00.000Z',
+      'name': 'Renamed',
+      'athleteId': 2,
+      'sportType': SportType.GravelRide.name,
+      'startDate': '2024-01-02T12:00:00.000Z',
+      'startDateLocal': '2024-01-02T13:00:00.000',
+      'gearId': 'g2',
+      'startLat': 48.0,
+      'startLon': 12.0,
+      'distance': 20000.0,
+      'totalElevationGain': 200.0,
+      'movingTime': 7200,
+      'elapsedTime': 7200,
+      'workoutType': 11,
+      'averageWatts': 250.0,
+    };
+
+    test('covers every field of the model', () {
+      expect(changes.keys.toSet(), base.toJson().keys.toSet()..remove('id'));
+    });
+
+    for (final MapEntry(key: field, value: value) in changes.entries) {
+      test(field, () async {
+        await repository.setStravaActivities([base]);
+        final changed = StravaActivity.fromJson({...base.toJson(), field: value});
+        expect(changed, isNot(base));
+
+        await repository.setStravaActivities([changed]);
+
+        expect((await database.stravaDao.getActivityById(1))!.toModel(), changed);
+      });
+    }
   });
 }

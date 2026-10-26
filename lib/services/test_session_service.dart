@@ -11,6 +11,8 @@ import '../models/feedback/test_session_method.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
+import 'bike_adjustment_column_service.dart';
+import 'setup_carry_over.dart';
 
 /// An adjustment a test session can tune, with the component or rider it
 /// belongs to.
@@ -71,13 +73,55 @@ class TestSessionService {
     ];
   }
 
-  /// Adjustments whose value is not the same in every one of [setups].
-  static List<String> differingAdjustmentIds(Iterable<Setup> setups) {
-    final values = [for (final setup in setups) {...setup.bikeAdjustmentValues, ...setup.personAdjustmentValues}];
-    final ids = {for (final map in values) ...map.keys};
+  /// What [setups] differ in. Component adjustments are compared by column of
+  /// the bike details table, so a replaced component's adjustment and its
+  /// successor count once. [adjustmentIds] holds every adjustment of the
+  /// differing columns, [count] the differing columns and rider attributes.
+  static ({List<String> adjustmentIds, int count}) differencesBetween(
+    Iterable<Setup> setups,
+    BikeAdjustmentProjection projection,
+  ) {
+    final all = setups.toList();
+    if (all.isEmpty) return (adjustmentIds: const [], count: 0);
+    bool differ(AdjustmentValue? Function(Setup setup) valueIn) =>
+        all.any((setup) => valueIn(setup) != valueIn(all.first));
+
+    final ids = <String>[];
+    var count = 0;
+    for (final column in projection.columns) {
+      if (!differ((setup) => projection.valueFor(setup, column))) continue;
+      count++;
+      for (final member in projection.laneOf(column)?.members ?? const <SlotLaneMember>[]) {
+        ids.addAll([
+          for (final adjustment in member.component.adjustments)
+            if (laneAdjustmentKey(adjustment) == column.adjustment) adjustment.id,
+        ]);
+      }
+    }
+    final personIds = {for (final setup in all) ...setup.personAdjustmentValues.keys}.toList()..sort();
+    for (final id in personIds) {
+      if (!differ((setup) => setup.personAdjustmentValues[id])) continue;
+      count++;
+      ids.add(id);
+    }
+    return (adjustmentIds: ids, count: count);
+  }
+
+  /// The columns of [projection] that hold any of [adjustmentIds].
+  static List<BikeAdjustmentColumnKey> columnsOf(Iterable<String> adjustmentIds, BikeAdjustmentProjection projection) {
+    final ids = adjustmentIds.toSet();
     return [
-      for (final id in ids.toList()..sort())
-        if (values.any((map) => map[id] != values.first[id])) id,
+      for (final column in projection.columns)
+        if (projection
+                .laneOf(column)
+                ?.members
+                .any(
+                  (member) => member.component.adjustments.any(
+                    (adjustment) => ids.contains(adjustment.id) && laneAdjustmentKey(adjustment) == column.adjustment,
+                  ),
+                ) ??
+            false)
+          column,
     ];
   }
 
@@ -100,12 +144,14 @@ class TestSessionService {
   /// Run 1 or a later run: a copy of [source] stamped [now] with [values] (a
   /// proposal) set, and the session's locked values on top, so a lock holds
   /// even when [source] is an older run. A Compare run ignores locks: a locked
-  /// value would turn the candidate into a different setup.
+  /// value would turn the candidate into a different setup. A [carryOver]
+  /// moves the values of replaced components to their successors first.
   static Setup run({
     required Setup source,
     required TestSession session,
     required int number,
     Map<String, AdjustmentValue> values = const {},
+    SetupCarryOver? carryOver,
     String? notes,
     DateTime? now,
   }) {
@@ -126,7 +172,7 @@ class TestSessionService {
       tags: const {},
       bike: source.bike,
       person: source.person,
-      bikeAdjustmentValues: locked(source.bikeAdjustmentValues),
+      bikeAdjustmentValues: locked(carryOver?.applyTo(source.bikeAdjustmentValues) ?? source.bikeAdjustmentValues),
       personAdjustmentValues: locked(source.personAdjustmentValues),
       testSessionId: session.id,
       sourceSetupId: source.id,

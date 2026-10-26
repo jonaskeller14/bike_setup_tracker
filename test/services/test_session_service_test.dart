@@ -1,11 +1,16 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session_method.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/setup_history.dart';
+import 'package:bike_setup_tracker/services/bike_adjustment_column_service.dart';
+import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
+import 'package:bike_setup_tracker/services/setup_carry_over.dart';
 import 'package:bike_setup_tracker/services/test_session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -85,14 +90,91 @@ void main() {
     });
   });
 
-  test('differingAdjustmentIds lists the values that are not the same everywhere', () {
-    final differing = TestSessionService.differingAdjustmentIds([
-      setup('s1', bike: {'a': const StepValue(1), 'same': const StepValue(3)}, person: {'p': const StepValue(1)}),
-      setup('s2', bike: {'a': const StepValue(2), 'same': const StepValue(3)}, person: {'p': const StepValue(1)}),
-      setup('s3', bike: {'a': const StepValue(2), 'same': const StepValue(3), 'missing': const StepValue(1)}, person: {'p': const StepValue(1)}),
-    ]);
+  group('differencesBetween', () {
+    Installation onBike(int day) =>
+        BikeInstallation(bikeId: 'bike', dateTimeUTC: DateTime.utc(2026, 1, day), dateTimeLocal: DateTime(2026, 1, day));
 
-    expect(differing, ['a', 'missing']);
+    Component fork(String id, List<Installation> installations, String rebound) => Component(
+      id: id,
+      name: id,
+      componentType: ComponentType.fork,
+      installations: installations,
+      adjustments: [
+        StepAdjustment(
+          id: rebound,
+          name: 'Rebound',
+          notes: '',
+          unit: null,
+          min: 0,
+          max: 20,
+          step: 1,
+          visualization: StepAdjustmentVisualization.slider,
+        ),
+      ],
+    );
+
+    Setup at(int day, {Map<String, AdjustmentValue> bike = const {}, Map<String, AdjustmentValue> person = const {}}) {
+      final stamp = DateTime.utc(2026, 1, day, 12);
+      return Setup(
+        id: 's$day',
+        datetime: stamp,
+        datetimeLocal: stamp.toLocal(),
+        tags: const {},
+        bike: 'bike',
+        person: 'rider',
+        bikeAdjustmentValues: bike,
+        personAdjustmentValues: person,
+      );
+    }
+
+    final oldFork = fork('old-fork', [
+      onBike(1),
+      Uninstallation(dateTimeUTC: DateTime.utc(2026, 1, 5), dateTimeLocal: DateTime(2026, 1, 5)),
+    ], 'old');
+    final newFork = fork('new-fork', [onBike(5)], 'new');
+
+    BikeAdjustmentProjection project(List<Setup> setups) => BikeAdjustmentColumnService.build(
+      bikeId: 'bike',
+      setups: setups,
+      components: [oldFork, newFork],
+      hierarchy: ComponentHierarchyResolver({'old-fork': oldFork, 'new-fork': newFork}),
+      history: const SetupHistory(),
+    );
+
+    test('counts a replaced component and its successor as one column', () {
+      final setups = [
+        at(2, bike: {'old': const StepValue(8)}),
+        at(6, bike: {'new': const StepValue(8)}),
+        at(7, bike: {'new': const StepValue(4)}),
+      ];
+
+      final same = TestSessionService.differencesBetween(setups.take(2), project(setups));
+      final differing = TestSessionService.differencesBetween(setups, project(setups));
+
+      expect(same.count, 0);
+      expect(same.adjustmentIds, isEmpty);
+      expect(differing.count, 1);
+      expect(differing.adjustmentIds, ['old', 'new']);
+    });
+
+    test('lists the rider attributes that are not the same everywhere', () {
+      final setups = [
+        at(2, bike: {'old': const StepValue(8)}, person: {'p': const StepValue(1), 'same': const StepValue(3)}),
+        at(3, bike: {'old': const StepValue(8)}, person: {'p': const StepValue(2), 'same': const StepValue(3)}),
+      ];
+
+      final differences = TestSessionService.differencesBetween(setups, project(setups));
+
+      expect(differences.adjustmentIds, ['p']);
+      expect(differences.count, 1);
+    });
+
+    test('columnsOf finds the column of any of its adjustments', () {
+      final projection = project([at(2, bike: {'old': const StepValue(8)}), at(6, bike: {'new': const StepValue(8)})]);
+
+      expect(TestSessionService.columnsOf(['new'], projection), projection.columns);
+      expect(TestSessionService.columnsOf(['other'], projection), isEmpty);
+    });
   });
 
   group('editableIds', () {
@@ -158,6 +240,39 @@ void main() {
       final run = TestSessionService.run(source: candidate, session: compare, number: 2, now: now);
 
       expect(run.bikeAdjustmentValues, {'a': const StepValue(1)});
+    });
+
+    test('moves the values of replaced components to their successors', () {
+      Component fork(String id, String adjustmentId) => Component(
+        id: id,
+        name: id,
+        componentType: ComponentType.fork,
+        installations: const [],
+        adjustments: [step(adjustmentId)],
+      );
+      final oldFork = fork('old-fork', 'a');
+      final newFork = fork('new-fork', 'b');
+      final candidate = setup('s1', bike: {'a': const StepValue(1), 'x': const StepValue(9)});
+      final carryOver = SetupCarryOver([
+        CarryOverEntry(
+          fromComponent: oldFork,
+          from: oldFork.adjustments.single,
+          value: const StepValue(1),
+          toComponent: newFork,
+          to: newFork.adjustments.single,
+        ),
+      ]);
+
+      final run = TestSessionService.run(
+        source: candidate,
+        session: session(),
+        number: 2,
+        carryOver: carryOver,
+        now: now,
+      );
+
+      expect(run.bikeAdjustmentValues, {'x': const StepValue(9), 'b': const StepValue(1)});
+      expect(run.sourceSetupId, 's1');
     });
   });
 

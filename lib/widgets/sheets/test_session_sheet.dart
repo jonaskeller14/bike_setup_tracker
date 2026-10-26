@@ -8,6 +8,7 @@ import '../../models/feedback/test_session.dart';
 import '../../models/feedback/test_session_method.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/bike_adjustment_column_service.dart';
 import '../../services/test_session_service.dart';
 import '../../utils/test_session_actions.dart';
 import '../items/feedback_list_tile.dart';
@@ -156,11 +157,25 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
     if (session.method is Tournament) {
       final theme = Theme.of(context);
       final style = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+      // Like the bike details table, so a replaced component's adjustment keeps its column.
+      final projection = BikeAdjustmentColumnService.build(
+        bikeId: session.bike,
+        setups: appRepository.setups.values,
+        components: appRepository.components.values,
+        hierarchy: appRepository.componentHierarchy,
+        history: appRepository.setupHistory,
+      );
+      final labels = [
+        for (final column in TestSessionService.columnsOf(session.adjustmentIds, projection))
+          projection.columnLabel(column),
+        for (final id in session.adjustmentIds)
+          if (knobs[id]?.isRider ?? false) labelOf(id),
+      ];
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('The adjustments your setups differ in:', style: style),
-          for (final id in session.adjustmentIds) Text('•  ${labelOf(id)}', style: style),
+          for (final label in labels) Text('•  $label', style: style),
         ],
       );
     }

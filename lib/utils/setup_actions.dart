@@ -15,6 +15,7 @@ import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/set_tags_bulk.dart';
 import 'attachment_actions.dart';
 import 'bike_actions.dart';
+import 'carry_over_actions.dart';
 import 'component_actions.dart';
 import 'test_session_actions.dart';
 import 'to_text.dart';
@@ -102,6 +103,9 @@ class SetupActions {
     }
     if (!await TestSessionActions.ensureNoRunningSession(context, bikeId: setup.bike) || !context.mounted) return null;
 
+    final carryOver = await CarryOverActions.confirm(context, setup: setup);
+    if (!context.mounted) return null;
+
     final deepCopied = setup.deepCopy();
     final copiedAttachments = await AttachmentActions.copyAttachmentFiles(deepCopied.attachments);
 
@@ -115,6 +119,7 @@ class SetupActions {
       MaterialPageRoute(
         builder: (context) => SetupPage.restore(
           setup: deepCopied.copyWith(
+            bikeAdjustmentValues: carryOver?.applyTo(deepCopied.bikeAdjustmentValues),
             attachments: copiedAttachments,
             sourceSetupId: setup.id,
             sourceKind: SetupSourceKind.restore,

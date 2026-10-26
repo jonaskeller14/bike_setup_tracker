@@ -11,6 +11,7 @@ import '../../models/feedback/test_session.dart';
 import '../../models/feedback/test_session_method.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/bike_adjustment_column_service.dart';
 import '../../services/test_session_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_snackbar.dart';
@@ -20,6 +21,8 @@ import '../../widgets/sheets/pick_adjustments.dart';
 import '../../widgets/sheets/pick_setups.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
+
+typedef _Differences = ({List<String> adjustmentIds, int count});
 
 /// Which proposal strategy the rider picked; [Tournament] needs its candidates,
 /// so the page holds the choice apart from the [TestSessionMethod].
@@ -72,6 +75,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
   final List<String> _knobIds = [];
   final List<String> _candidateIds = [];
   final List<FeedbackAspect> _goal = [];
+  (Object, _Differences)? _differencesCache;
 
   bool get _isEdit => widget.session != null;
 
@@ -145,11 +149,37 @@ class _TestSessionPageState extends State<TestSessionPage> {
     _candidatesChanged();
   }
 
-  List<String> _sessionKnobIds() {
-    if (_choice != _MethodChoice.compare) return _knobIds;
-    final setups = context.read<AppRepository>().setups;
-    return TestSessionService.differingAdjustmentIds(_candidateIds.map((id) => setups[id]).nonNulls);
+  _Differences _differences() {
+    final appRepository = context.read<AppRepository>();
+    final source = (
+      appRepository.setups,
+      appRepository.components,
+      appRepository.componentHierarchy,
+      appRepository.setupHistory,
+      _bike,
+      _candidateIds.join(','),
+    );
+    if (_differencesCache case (final cachedSource, final differences) when cachedSource == source) return differences;
+
+    final projection = BikeAdjustmentColumnService.build(
+      bikeId: _bike,
+      setups: appRepository.setups.values,
+      components: appRepository.components.values,
+      hierarchy: appRepository.componentHierarchy,
+      history: appRepository.setupHistory,
+    );
+    final differences = TestSessionService.differencesBetween(
+      _candidateIds.map((id) => appRepository.setups[id]).nonNulls,
+      projection,
+    );
+    _differencesCache = (source, differences);
+    return differences;
   }
+
+  List<String> _sessionKnobIds() => _choice == _MethodChoice.compare ? _differences().adjustmentIds : _knobIds;
+
+  /// Adjustments to test, or for Compare the columns the setups differ in.
+  int get _knobCount => _choice == _MethodChoice.compare ? _differences().count : _knobIds.length;
 
   void _save() {
     if (widget.session case final session?) {
@@ -298,7 +328,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
     final theme = Theme.of(context);
     final expected = TestSessionService.expectedRuns(
       _choice == _MethodChoice.compare ? Tournament(candidateSetupIds: _candidateIds) : _choice.method,
-      _choice == _MethodChoice.compare ? _sessionKnobIds().length : _knobIds.length,
+      _knobCount,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,7 +484,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
   Widget _candidateSection() {
     final setups = context.read<AppRepository>().setups;
     final theme = Theme.of(context);
-    final differing = _sessionKnobIds().length;
+    final differing = _knobCount;
     return FormField<List<String>>(
       key: _candidateFieldKey,
       initialValue: _candidateIds,
@@ -463,7 +493,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
         if (_candidateIds.length < TestSessionService.minCompareSetups) {
           return 'Pick at least ${TestSessionService.minCompareSetups} setups to compare.';
         }
-        return _sessionKnobIds().isEmpty ? 'These setups have the same values. Pick setups that differ.' : null;
+        return _knobCount == 0 ? 'These setups have the same values. Pick setups that differ.' : null;
       },
       builder: (field) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

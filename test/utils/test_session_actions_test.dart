@@ -867,7 +867,7 @@ void main() {
       await pumpButton(tester, (context) => showTestSessionSheet(context: context, sessionId: 'ts'));
 
       expect(find.text('The adjustments your setups differ in:'), findsOneWidget);
-      expect(find.text('•  Rebound'), findsOneWidget);
+      expect(find.text('•  Rebound · Fork'), findsOneWidget);
       expect(find.widgetWithText(FilterChip, 'Rebound'), findsNothing);
     });
   });

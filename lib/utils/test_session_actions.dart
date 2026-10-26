@@ -13,11 +13,13 @@ import '../models/setup.dart';
 import '../pages/forms/setup_page.dart';
 import '../pages/forms/test_session_page.dart';
 import '../repositories/app_repository.dart';
+import '../services/setup_carry_over.dart';
 import '../services/test_session/suggestion_result.dart';
 import '../services/test_session_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/sheets/pick_setup.dart';
+import 'carry_over_actions.dart';
 import 'feedback_actions.dart';
 
 class TestSessionActions {
@@ -51,10 +53,15 @@ class TestSessionActions {
 
     final source = _firstRunSource(appRepository, session, baseSetup);
     if (source == null || !context.mounted) return;
+    final carryOver = session.method is Tournament ? await CarryOverActions.confirm(context, setup: source) : null;
+    if (!context.mounted) return;
     final firstRun = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(
-        builder: (context) => SetupPage.nextRun(run: _run(context, source: source, session: session, number: 1), session: session),
+        builder: (context) => SetupPage.nextRun(
+          run: _run(context, source: source, session: session, number: 1, carryOver: carryOver),
+          session: session,
+        ),
       ),
     );
     if (firstRun == null) return;
@@ -72,6 +79,7 @@ class TestSessionActions {
     required TestSession session,
     required int number,
     Map<String, AdjustmentValue> values = const {},
+    SetupCarryOver? carryOver,
   }) {
     final dateFormat = context.read<AppSettings>().dateFormat;
     return TestSessionService.run(
@@ -79,6 +87,7 @@ class TestSessionActions {
       session: session,
       number: number,
       values: values,
+      carryOver: carryOver,
       notes: TestSessionService.runNotes(source: source, session: session, dateFormat: dateFormat),
     );
   }
@@ -122,6 +131,8 @@ class TestSessionActions {
                     atUtc: DateTime.now().toUtc(),
                   )]);
     if (from == null || !context.mounted) return null;
+    final carryOver = session.method is Tournament ? await CarryOverActions.confirm(context, setup: from) : null;
+    if (!context.mounted) return null;
 
     final run = _run(
       context,
@@ -130,6 +141,7 @@ class TestSessionActions {
       number: number,
       // A candidate is ridden as it is.
       values: session.method is Tournament ? const {} : proposal?.values ?? const {},
+      carryOver: carryOver,
     );
 
     final saved = await Navigator.push<Setup>(

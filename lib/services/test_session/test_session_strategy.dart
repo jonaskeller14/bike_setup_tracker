@@ -186,7 +186,6 @@ abstract class TestSessionStrategy {
 
   /// Why nothing can be proposed for any method yet, or null.
   static SuggestionResult? waiting(TestSessionHistory history) {
-    if (!history.session.isRunning) return const NoSuggestion('The session has ended.');
     final latest = history.runs.lastOrNull;
     if (latest == null) return const NoSuggestion('Record a run first.');
     if (!history.ratedRunIds.contains(latest.id)) return NoSuggestion('Add feedback on ${latest.displayName} first.');

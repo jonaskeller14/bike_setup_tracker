@@ -94,13 +94,6 @@ void main() {
       expect(strategy.propose(history(rated: false)), const NoSuggestion('Add feedback on Run 1 first.'));
     });
 
-    test('an ended session', () {
-      expect(
-        strategy.propose(history(session: testSession(method: const PatternSearch(), knobs: ['a'], ended: true))),
-        isA<NoSuggestion>(),
-      );
-    });
-
     test('every knob locked', () {
       expect(
         strategy.propose(

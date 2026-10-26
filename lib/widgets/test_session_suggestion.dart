@@ -15,9 +15,10 @@ import '../utils/test_session_actions.dart';
 import 'dashed_border_painter.dart';
 import 'lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 
-/// Below the runs of a running session: the run the strategy suggests next as
-/// a ghost item, the best run once nothing is left to try, or what blocks the
-/// strategy. Nothing while it waits for feedback or for a free session.
+/// Below the runs of a session: the run the strategy suggests next as a ghost
+/// item, the best run once nothing is left to try, or what blocks the
+/// strategy. Nothing while it waits for feedback or for a free session. An
+/// ended session keeps only its result.
 class TestSessionSuggestion extends StatelessWidget {
   final TestSession session;
 
@@ -25,13 +26,12 @@ class TestSessionSuggestion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!session.isRunning) return const SizedBox.shrink();
     final appRepository = context.watch<AppRepository>();
     final theme = Theme.of(context);
     final runs = appRepository.setupsInSession(session.id);
 
     return switch (appRepository.suggestionFor(session.id)) {
-      final Proposal proposal when runs.isNotEmpty => _ghostRun(context, appRepository, proposal),
+      final Proposal proposal when session.isRunning && runs.isNotEmpty => _ghostRun(context, appRepository, proposal),
       Converged(:final bestSetupId, :final drift) => _converged(
         context,
         // A Compare session names a candidate; the run that rode it is shown beside it.
@@ -46,7 +46,7 @@ class TestSessionSuggestion extends StatelessWidget {
         },
         drift: drift,
       ),
-      InvalidData(:final error) => _notice(
+      InvalidData(:final error) when session.isRunning => _notice(
         context,
         icon: Icons.error_outline,
         color: theme.colorScheme.error,

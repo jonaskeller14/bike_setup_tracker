@@ -21,6 +21,21 @@ void main() {
   );
 
   group('PatternSearchStrategy', () {
+    test('keeps its result once the session has ended', () {
+      final simulation = oneKnob(start: 2, optimum: 7);
+      final converged = simulation.play() as Converged;
+
+      final ended = TestSessionHistory(
+        session: testSession(method: const PatternSearch(), knobs: ['a'], ended: true),
+        adjustments: simulation.adjustments,
+        runs: simulation.runs,
+        ratedRunIds: {for (final run in simulation.runs) run.id},
+        comparisons: simulation.comparisons,
+      );
+
+      expect(strategy.propose(ended), converged);
+    });
+
     test('converges on one knob by bracketing the optimum', () {
       final simulation = oneKnob(start: 2, optimum: 7);
 

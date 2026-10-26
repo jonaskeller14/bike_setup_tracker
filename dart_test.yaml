@@ -1,2 +1,6 @@
 tags:
   golden:
+  # Screenshot galleries (test/gallery/) are a manual aid: run one directly with
+  # `flutter test test/gallery/<file> --run-skipped`.
+  gallery:
+    skip: "Visual gallery, run on demand with --run-skipped"

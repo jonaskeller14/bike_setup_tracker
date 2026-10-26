@@ -178,3 +178,6 @@ idioms. Consistency with existing code outranks personal preference.
   migrations, computed status, date/duration math). Skip tests for pure-layout tweaks.
 - Mirror the `lib/` path under `test/`; use `group`/`setUp`/`tearDown` and
   `AppDatabase.memory()` (see `test/rating_score_service_test.dart`).
+- `test/gallery/` holds on-demand screenshot galleries of every widget state (skipped by
+  default, output in git-ignored `build/gallery/`). Run one with
+  `flutter test test/gallery/<file> --run-skipped`; create new ones with `/widget-gallery`.

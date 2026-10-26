@@ -330,7 +330,11 @@ void main() {
         ]),
       ];
 
-      testWidgets('offers only top-level, non-archived components other than itself', (WidgetTester tester) async {
+      /// The picker row titled [name], not an ancestor line that mentions it.
+      Finder parentRow(String name) =>
+          find.byWidgetPredicate((w) => w is ListTile && (w.title as Text?)?.data == name);
+
+      testWidgets('lists non-archived components other than itself, disabling nested ones with a reason', (WidgetTester tester) async {
         await seed(tester, [...nestedComponents, component('self', 'Self Wheel', [Installation.sinceBeginning(parent: 'bike1')])]);
         appSettings.enableInstallOnComponent = true;
 
@@ -341,10 +345,11 @@ void main() {
         await tester.pumpAndSettle();
         await openParentMenu(tester);
 
-        expect(find.text('Front Wheel'), findsOneWidget);
-        expect(find.text('Nested Tire'), findsNothing);
-        expect(find.text('Archived Wheel'), findsNothing);
-        expect(find.text('Self Wheel'), findsNothing);
+        expect(tester.widget<ListTile>(parentRow('Front Wheel')).enabled, isTrue);
+        expect(tester.widget<ListTile>(parentRow('Nested Tire')).enabled, isFalse);
+        expect(find.text('Mounted on a component itself'), findsOneWidget);
+        expect(parentRow('Archived Wheel'), findsNothing);
+        expect(parentRow('Self Wheel'), findsNothing);
       });
 
       testWidgets('offers no components when the feature is off', (WidgetTester tester) async {
@@ -378,7 +383,7 @@ void main() {
 
         expect(appSettings.enableInstallOnComponent, isTrue);
         expect(find.text('Mount it on Front Wheel?'), findsNothing);
-        expect(find.text('Front Wheel'), findsOneWidget);
+        expect(parentRow('Front Wheel'), findsOneWidget);
       });
 
       testWidgets('"Learn more" opens the Subcomponents explainer, whose "On" activates it', (WidgetTester tester) async {
@@ -401,10 +406,10 @@ void main() {
 
         expect(appSettings.enableInstallOnComponent, isTrue);
         expect(find.text('Mount it on Front Wheel?'), findsNothing);
-        expect(find.text('Front Wheel'), findsOneWidget);
+        expect(parentRow('Front Wheel'), findsOneWidget);
       });
 
-      testWidgets('offers no components to a component that carries children', (WidgetTester tester) async {
+      testWidgets('disables every component for a component that carries children', (WidgetTester tester) async {
         await seed(tester, [...nestedComponents, component('rim', 'Rim', [Installation.sinceBeginning(parent: 'bike1')])]);
         appSettings.enableInstallOnComponent = true;
 
@@ -415,7 +420,7 @@ void main() {
         await tester.pumpAndSettle();
         await openParentMenu(tester);
 
-        expect(find.text('Rim'), findsNothing);
+        expect(tester.widget<ListTile>(parentRow('Rim')).enabled, isFalse);
       });
 
       testWidgets('shows every initial parent state, including non-candidate and missing parents', (WidgetTester tester) async {

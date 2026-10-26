@@ -147,7 +147,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
     final names = session.adjustmentIds.map((id) => knobs[id]?.adjustment.name).nonNulls.toList();
     String labelOf(String id) {
       final knob = knobs[id];
-      if (knob == null) return 'Adjustment not found';
+      if (knob == null) return 'ADJUSTMENT NOT FOUND';
       final name = knob.adjustment.name;
       return names.where((other) => other == name).length > 1 ? '${knob.ownerName} · $name' : name;
     }

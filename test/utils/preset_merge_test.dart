@@ -118,17 +118,25 @@ void main() {
 
     test('never adopts a placeholder max', () {
       final own = _step('LSR', max: 12);
-      final catalog = _step(
-        'LSR',
-        presetKey: 'fork:lsr',
-        max: StepAdjustment.unknownMaxPlaceholder,
-        notes: StepAdjustment.unknownMaxWarning,
-      );
+      final catalog = _step('LSR', presetKey: 'fork:lsr', max: StepAdjustment.unknownMaxPlaceholder);
 
-      final merged = mergeAdjustment(own, catalog, const []);
+      final merged = mergeAdjustment(own, catalog, const [], unknownMaxKeys: {'fork:lsr'});
 
       expect(merged.adjustment, own.copyWith(presetKey: 'fork:lsr'));
       expect(merged.keptOwnRange, isFalse);
+      expect(
+        applyPresetMerge([own], [PresetMergeRow.merged(catalog, own)], const {}, unknownMaxKeys: {'fork:lsr'}).adjustments,
+        [own.copyWith(presetKey: 'fork:lsr')],
+      );
+    });
+
+    test('the placeholder warning in notes alone does not mark a max as unknown', () {
+      final own = _step('LSR', max: 12);
+      final catalog = _step('LSR', presetKey: 'fork:lsr', max: 16, notes: StepAdjustment.unknownMaxWarning);
+
+      final merged = mergeAdjustment(own, catalog, const []);
+
+      expect(merged.adjustment, isA<StepAdjustment>().having((a) => a.max, 'max', 16));
     });
 
     test('adopts a numerical range in the same unit', () {

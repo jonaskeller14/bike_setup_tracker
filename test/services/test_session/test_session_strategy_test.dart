@@ -116,13 +116,6 @@ void main() {
       expect(strategy.propose(history(adjustments: const {})), isA<InvalidData>());
     });
 
-    test('an unresolved catalog max', () {
-      expect(
-        strategy.propose(history(adjustments: {'a': stepKnob('a', notes: StepAdjustment.unknownMaxWarning)})),
-        isA<InvalidData>().having((r) => r.error, 'error', contains('placeholder')),
-      );
-    });
-
     test('a value out of range', () {
       expect(strategy.propose(history(values: {'a': const StepValue(25)})), isA<InvalidData>());
     });

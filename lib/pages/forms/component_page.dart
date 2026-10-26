@@ -468,7 +468,12 @@ class _ComponentPageState extends State<ComponentPage> {
   Future<void> _extendFromPreset(ResolvedPreset resolved, CatalogApplication app, {List<Adjustment>? adjustments}) async {
     // Only what an earlier pick in this session added is dropped — it was never saved.
     final kept = (adjustments ?? _adjustments).where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
-    var merge = applyPresetMerge(kept, [for (final a in app.adjustments) PresetMergeRow.newAdjustment(a)], const {});
+    var merge = applyPresetMerge(
+      kept,
+      [for (final a in app.adjustments) PresetMergeRow.newAdjustment(a)],
+      const {},
+      unknownMaxKeys: app.unknownMaxKeys,
+    );
     if (kept.isNotEmpty) {
       final recordedValues = _recordedValues(kept);
       final confirmed = await showPresetMergeSheet(
@@ -477,6 +482,7 @@ class _ComponentPageState extends State<ComponentPage> {
         existing: kept,
         proposal: proposePresetMerge(kept, app.adjustments),
         recordedValues: recordedValues,
+        unknownMaxKeys: app.unknownMaxKeys,
       );
       if (confirmed == null || !mounted) return;
       merge = confirmed;

@@ -32,6 +32,7 @@ CatalogApplication buildCatalogApplication(ResolvedPreset resolved) {
     componentType: resolved.catalog.componentType,
     notes: _buildNotes(resolved),
     adjustments: _buildAdjustments(resolved),
+    unknownMaxKeys: _unknownMaxKeys(resolved),
     preset: toComponentPreset(resolved),
   );
 }
@@ -121,6 +122,14 @@ List<Adjustment> _buildAdjustments(ResolvedPreset resolved) {
       for (final spec in value.adjustments) spec.build(),
   ];
 }
+
+Set<String> _unknownMaxKeys(ResolvedPreset resolved) => {
+  for (final spec in [
+    ...?resolved.product?.adjustments,
+    for (final value in resolved.selections.values) ...value.adjustments,
+  ])
+    if (spec.hasUnknownMax) spec.presetKey,
+};
 
 bool _takesSag(ComponentType type) => type == ComponentType.fork || type == ComponentType.shock;
 

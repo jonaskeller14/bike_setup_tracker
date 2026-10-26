@@ -208,12 +208,6 @@ abstract class TestSessionStrategy {
           result: const InvalidData('An adjustment of this session is no longer on the bike. Lock it to go on.'),
         );
       }
-      if (adjustment is StepAdjustment && (adjustment.notes?.contains(StepAdjustment.unknownMaxWarning) ?? false)) {
-        return (
-          knobs: const [],
-          result: InvalidData("The range of '${adjustment.name}' is a placeholder. Set its real max first."),
-        );
-      }
       final value = TestSessionHistory.valueOf(latest, id);
       if (value == null) {
         return (knobs: const [], result: InvalidData("${latest.displayName} has no value for '${adjustment.name}'."));

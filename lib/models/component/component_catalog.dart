@@ -25,6 +25,10 @@ class PresetAdjustmentSpec {
 
   String get id => presetKey.substring(presetKey.indexOf(':') + 1);
 
+  /// Authored as `max: ~`: the manufacturer doesn't publish the range, so
+  /// [build] fills in [StepAdjustment.unknownMaxPlaceholder].
+  bool get hasUnknownMax => raw.containsKey('max') && raw['max'] == null;
+
   Adjustment build() =>
       Adjustment.fromYaml({...raw}..remove('id')).copyWith(presetKey: presetKey);
 
@@ -354,6 +358,10 @@ class CatalogApplication {
   final String notes;
   final List<Adjustment> adjustments;
 
+  /// Preset keys of [adjustments] whose max is a placeholder, see
+  /// [PresetAdjustmentSpec.hasUnknownMax].
+  final Set<String> unknownMaxKeys;
+
   /// What the component persists: the node path plus the chosen options.
   final ComponentPreset preset;
 
@@ -362,6 +370,7 @@ class CatalogApplication {
     required this.componentType,
     required this.notes,
     required this.adjustments,
+    this.unknownMaxKeys = const {},
     required this.preset,
   });
 }

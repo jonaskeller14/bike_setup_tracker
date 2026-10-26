@@ -7,10 +7,10 @@ import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/services/test_session/suggestion_result.dart';
 import 'package:bike_setup_tracker/services/test_session/test_session_strategy.dart';
 
-StepAdjustment stepKnob(String id, {int min = 0, int max = 20, int step = 1, String? notes}) => StepAdjustment(
+StepAdjustment stepKnob(String id, {int min = 0, int max = 20, int step = 1}) => StepAdjustment(
   id: id,
   name: id,
-  notes: notes,
+  notes: null,
   unit: null,
   min: min,
   max: max,

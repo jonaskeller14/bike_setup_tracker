@@ -11,14 +11,16 @@ import 'sheet_header.dart';
 
 /// Lets the rider decide how [productName]'s adjusters combine with the
 /// component's [existing] adjustments: merged into them, starting from
-/// [proposal], or replacing them. Returns the resulting adjustments, or null
-/// when dismissed.
+/// [proposal], or replacing them. [unknownMaxKeys] are the catalog preset keys
+/// whose max is a placeholder. Returns the resulting adjustments, or null when
+/// dismissed.
 Future<PresetMergeResult?> showPresetMergeSheet(
   BuildContext context, {
   required String productName,
   required List<Adjustment> existing,
   required List<PresetMergeRow> proposal,
   required Map<String, List<AdjustmentValue>> recordedValues,
+  Set<String> unknownMaxKeys = const {},
 }) {
   return showModalBottomSheet<PresetMergeResult>(
     useSafeArea: true,
@@ -29,6 +31,7 @@ Future<PresetMergeResult?> showPresetMergeSheet(
       existing: existing,
       proposal: proposal,
       recordedValues: recordedValues,
+      unknownMaxKeys: unknownMaxKeys,
     ),
   );
 }
@@ -63,12 +66,14 @@ class _PresetMergeSheet extends StatefulWidget {
   final List<Adjustment> existing;
   final List<PresetMergeRow> proposal;
   final Map<String, List<AdjustmentValue>> recordedValues;
+  final Set<String> unknownMaxKeys;
 
   const _PresetMergeSheet({
     required this.productName,
     required this.existing,
     required this.proposal,
     required this.recordedValues,
+    required this.unknownMaxKeys,
   });
 
   @override
@@ -135,7 +140,12 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
   }
 
   _Entry _merged(Adjustment own, Adjustment catalog) {
-    final merged = mergeAdjustment(own, catalog, widget.recordedValues[own.id] ?? const []);
+    final merged = mergeAdjustment(
+      own,
+      catalog,
+      widget.recordedValues[own.id] ?? const [],
+      unknownMaxKeys: widget.unknownMaxKeys,
+    );
     return _Entry(
       merged.adjustment,
       _Status.merged,
@@ -162,7 +172,12 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
   }
 
   PresetMergeResult _result() => switch (_mode) {
-    _Mode.merge => applyPresetMerge(widget.existing, _rows, widget.recordedValues),
+    _Mode.merge => applyPresetMerge(
+      widget.existing,
+      _rows,
+      widget.recordedValues,
+      unknownMaxKeys: widget.unknownMaxKeys,
+    ),
     _Mode.replace => replaceWithPreset(widget.existing, _catalog),
   };
 

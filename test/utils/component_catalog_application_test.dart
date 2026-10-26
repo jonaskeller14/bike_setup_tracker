@@ -136,6 +136,7 @@ void main() {
       final lsc = app.adjustments.firstWhere((a) => a.name == 'LSC') as StepAdjustment;
       expect(lsc.max, StepAdjustment.unknownMaxPlaceholder);
       expect(lsc.notes, 'Low-Speed Compression; ${StepAdjustment.unknownMaxWarning}');
+      expect(app.unknownMaxKeys, {lsc.presetKey});
     });
 
     test('the chosen travel becomes the SAG reference travel', () {

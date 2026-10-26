@@ -1384,7 +1384,7 @@ class _CatalogParser {
     }
     return [
       for (final spec in _specs(product, id, when))
-        (adjustment: spec.build(), unknownMax: spec.raw.containsKey('max') && spec.raw['max'] == null),
+        (adjustment: spec.build(), unknownMax: spec.hasUnknownMax),
     ];
   }
 

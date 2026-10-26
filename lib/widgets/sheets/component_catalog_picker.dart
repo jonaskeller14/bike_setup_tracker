@@ -951,7 +951,8 @@ String _adjustmentSummary(OptionValue value) {
   for (final spec in value.adjustments) {
     final adjustment = spec.build();
     if (adjustment is StepAdjustment) {
-      parts.add('${_initials(adjustment.name)} ${_rangeLabel(adjustment)}');
+      // A placeholder max is not a published range, so don't present it as one.
+      parts.add('${_initials(adjustment.name)} ${spec.hasUnknownMax ? '?' : _rangeLabel(adjustment)}');
     }
   }
   return parts.join(' · ');
@@ -965,8 +966,6 @@ String _initials(String name) {
 }
 
 String _rangeLabel(StepAdjustment step) {
-  // A placeholder max is not a published range, so don't present it as one.
-  if (step.notes?.contains(StepAdjustment.unknownMaxWarning) ?? false) return '?';
   if (step.max > 0 && step.min == -step.max) return '±${step.max}';
   if (step.min == 0) return '${step.max}';
   return '${step.min}…${step.max}';

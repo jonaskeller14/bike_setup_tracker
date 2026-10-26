@@ -44,6 +44,9 @@ class StepAdjustment extends Adjustment {
 
   /// Stand-in for a catalog range authored as `max: ~` (see [StepAdjustment.fromYaml]).
   static const int unknownMaxPlaceholder = 20;
+
+  /// For the rider only; notes are theirs to edit, so code asks
+  /// [PresetAdjustmentSpec.hasUnknownMax] instead.
   static const String unknownMaxWarning =
       'Click count not published. Max is a placeholder, edit it to match your component.';
 

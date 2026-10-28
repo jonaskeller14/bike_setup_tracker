@@ -119,7 +119,7 @@ class SetupActions {
       MaterialPageRoute(
         builder: (context) => SetupPage.restore(
           setup: deepCopied.copyWith(
-            bikeAdjustmentValues: carryOver?.applyTo(deepCopied.bikeAdjustmentValues),
+            bikeAdjustmentValues: carryOver?.applyTo(deepCopied.bikeAdjustmentValues) ?? deepCopied.bikeAdjustmentValues,
             attachments: copiedAttachments,
             sourceSetupId: setup.id,
             sourceKind: SetupSourceKind.restore,

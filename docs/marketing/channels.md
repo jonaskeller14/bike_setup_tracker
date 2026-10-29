@@ -34,6 +34,20 @@ and when a post gets removed.
 - Don't post in competitors' threads. Answer older "how do you track your settings?" threads only
   where the app really fits.
 
+## Posting times
+
+Every post file gets a time (`Posted: YYYY-MM-DD HH:MM`, German local time), chosen for reach, not
+habit. There is no audience data yet, so the times follow the 2026 posting-time studies (vendor
+blogs that disagree in detail but agree that evenings work best) for an English MTB audience in
+Europe and North America. Replace them with each platform's own audience-activity data once the
+accounts have it.
+
+| Channel | Time | Reaches |
+|---|---|---|
+| `yt-shorts`, `yt-bst` (community post) | 17:00 | Europe late afternoon, US East Coast late morning |
+| `ig-bst` (Reels, carousel, story) | 18:00 | Europe after work, US lunch |
+| `tiktok` | 20:00 | Europe evening peak, US East Coast afternoon |
+
 ## Length limits (enforced)
 
 `tool/marketing/posts.py` checks these per field. The platform comes from the channel id
@@ -50,6 +64,7 @@ and when a post gets removed.
 | Instagram | Bio | 150 | The link goes in the separate "Links" field |
 | Instagram | Caption | 2,200 | About 125 characters show before "more". **≤5 hashtags** (checked; limit since late 2025) |
 | TikTok | Bio | 80 | |
+| TikTok | Title | 90 | Photo posts only; checked 2026-10-29 (Content Posting API reference, via a third-party summary) |
 | TikTok | Caption | 2,200 | Some sources say 4,000; 2,200 is safe. About 100 characters show in the feed |
 
 The forums, Strava and the directories have no limits that matter for these posts.
@@ -82,9 +97,20 @@ The forums, Strava and the directories have no limits that matter for these post
 | Hashtags | ≤5 per post, specific beats generic (#mtbsetup over #bike) | — |
 | Scheduling | Meta Business Suite | — |
 
+- **Every post gets a Location** (`### Location` in the draft; on a story, a location sticker on
+  the first frame), for reach, as on TikTok: posts then show on that place's page. Use the same
+  place as the TikTok post of the same content, from the rotation in the TikTok section.
+
 ## TikTok (`tiktok`)
 
 - English, the same 9:16 videos as the Reels, captions with ≤5 hashtags.
+- **Photo posts need a Title** (≤90 characters, checked by `build_kit.py`): the post's headline, in
+  practice the slideshow's hook from `messaging.md`.
+- **Every post gets a Location** (`### Location` in the draft), for reach: TikTok shows posts in
+  that place's page and its Nearby feed (rolled out December 2025). Rotate famous MTB destinations
+  so posts reach different audiences: Whistler Mountain Bike Park, Finale Ligure, Morzine, Moab,
+  Lenzerheide, Squamish, Queenstown. When the video shows a place (the sample's Finale Ligure), use
+  that one.
 - A clickable bio link needs a **Business account** or 1,000 followers. A Business account
   only limits TikTok's own music library; the kit videos bring their own licensed track.
 - Scheduling: TikTok web uploader.

@@ -1,0 +1,127 @@
+# scenario: dial_style
+# Demo: make the Lyrik's dials look like the knobs on the fork. Every dial
+# starts in the default style; rebound turns red and LSC small (the smaller
+# knob on top of HSC), then a new setup shows them. Short: 04_v1.6.4 kit, dial.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_dial_style
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+
+# RockShox Lyrik Ultimate: a double tap opens its details.
+- doubleTapOn:
+    id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn:
+    id: componentDetails.edit
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+- swipe:
+    start: 50%,80%
+    end: 50%,30%
+    duration: 2000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# Rebound
+- tapOn:
+    id: adjustment.actions.aefea436-580a-479b-bcd4-943a93c8e2fb
+- tapOn:
+    id: adjustment.actions.edit
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn:
+    id: adjustmentForm.dialStyle
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn:
+    id: dialStyle.color.red
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- runFlow: _close_sheet.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+- tapOn:
+    id: adjustmentForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# LSC
+- tapOn:
+    id: adjustment.actions.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+- tapOn:
+    id: adjustment.actions.edit
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: adjustmentForm.dialStyle
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: dialStyle.size.small
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- runFlow: _close_sheet.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+- tapOn:
+    id: adjustmentForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: componentForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# A new setup shows the dials as they look on the fork.
+- runFlow: _back.yaml
+- tapOn:
+    id: nav.setups
+- tapOn:
+    id: setups.add
+- extendedWaitUntil:
+    visible:
+      id: setupForm.name
+    timeout: 15000
+# The form opens with the Lyrik's header and all its dials on screen. No
+# scrolling: a drag that starts on a slider changes its value.
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 5000

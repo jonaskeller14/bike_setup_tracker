@@ -1,0 +1,448 @@
+{
+  "music": "the_mountain-app-184141.mp3",
+  "voice": "04_v1.6.4",
+  "recordings": "build/marketing/raw/ios",
+  "clips": {
+    "demo_add_component_catalog": {
+      "title": "Add a fork from the catalog",
+      "segments": [
+        [
+          0.5,
+          6.0,
+          1.4
+        ],
+        [
+          6.0,
+          12.0,
+          1.36
+        ],
+        [
+          12.0,
+          17.2,
+          1.9
+        ],
+        [
+          17.2,
+          22.6,
+          1.9
+        ],
+        [
+          26.35,
+          31.25,
+          1
+        ],
+        [
+          31.25,
+          35.7,
+          0.52
+        ]
+      ],
+      "callouts": [
+        {
+          "t0": 31.4,
+          "t1": 35.5,
+          "rect": [
+            40,
+            2250,
+            640,
+            200
+          ],
+          "mode": "lift"
+        }
+      ]
+    },
+    "demo_task_presets": {
+      "title": "Service tasks with the fork",
+      "segments": [
+        [
+          5.5,
+          12.5,
+          2.05
+        ],
+        [
+          12.5,
+          23.3,
+          2.75
+        ],
+        [
+          27.05,
+          37.4,
+          2.5
+        ],
+        [
+          37.4,
+          44.0,
+          0.68
+        ],
+        [
+          44.0,
+          47.4,
+          1
+        ],
+        [
+          47.4,
+          53.2,
+          2
+        ],
+        [
+          53.2,
+          57.5,
+          1
+        ]
+      ],
+      "callouts": [
+        {
+          "t0": 38.0,
+          "t1": 43.6,
+          "rect": [
+            60,
+            1665,
+            1200,
+            270
+          ],
+          "mode": "lift"
+        }
+      ]
+    },
+    "demo_dial_style": {
+      "title": "Dial color and size",
+      "segments": [
+        [
+          0.5,
+          9.5,
+          2.25
+        ],
+        [
+          9.5,
+          18.5,
+          1.4
+        ],
+        [
+          18.5,
+          24.0,
+          0.85
+        ],
+        [
+          24.0,
+          36.5,
+          4
+        ],
+        [
+          36.5,
+          41.0,
+          1
+        ],
+        [
+          41.0,
+          55.0,
+          5
+        ],
+        [
+          55.0,
+          59.5,
+          1
+        ]
+      ],
+      "callouts": [
+        {
+          "t0": 19.5,
+          "t1": 23.6,
+          "rect": [
+            40,
+            1850,
+            1240,
+            240
+          ],
+          "mode": "lift"
+        },
+        {
+          "t0": 55.5,
+          "t1": 59.3,
+          "rect": [
+            560,
+            1580,
+            740,
+            520
+          ],
+          "mode": "zoom"
+        }
+      ]
+    },
+    "demo_catalog_brands": {
+      "title": "Which fork do you ride?",
+      "segments": [
+        [
+          2.0,
+          11.5,
+          1.4
+        ],
+        [
+          11.5,
+          13.8,
+          1.15
+        ],
+        [
+          14.0,
+          21.0,
+          3.5
+        ],
+        [
+          21.0,
+          23.8,
+          1.4
+        ],
+        [
+          30.5,
+          36.5,
+          3
+        ],
+        [
+          36.5,
+          42.9,
+          1
+        ]
+      ],
+      "end": 43.0
+    }
+  },
+  "shorts": {
+    "catalog": {
+      "title": "How many rebound clicks does your fork have?",
+      "clips": [
+        "demo_add_component_catalog"
+      ],
+      "hook": "How many *rebound clicks* does your fork have?",
+      "voice": {
+        "lines": [
+          "batch-1#1"
+        ],
+        "at": [
+          0.3,
+          4.1,
+          8.4,
+          14.0,
+          21.2
+        ],
+        "captions": [
+          null,
+          "The manual's still *in the box*",
+          "Search, then pick *year and travel*",
+          "Every adjuster, *filled in*",
+          "Straight from the *service manual*"
+        ]
+      }
+    },
+    "tasks": {
+      "title": "How often does your fork need a lower leg service?",
+      "clips": [
+        "demo_task_presets"
+      ],
+      "hook": "How often does your fork need a *lower leg service*?",
+      "voice": {
+        "lines": [
+          "batch-1#2"
+        ],
+        "at": [
+          0.3,
+          3.4,
+          7.3,
+          11.5,
+          21.6
+        ],
+        "captions": [
+          null,
+          "It's in the *service manual*",
+          "Add your fork *from the catalog*",
+          "The *manufacturer's intervals*",
+          "Added to *your tasks*"
+        ]
+      }
+    },
+    "dial": {
+      "title": "Red dial or blue dial: which one was rebound?",
+      "clips": [
+        "demo_dial_style"
+      ],
+      "hook": "Red dial or blue dial: which one was *rebound*?",
+      "voice": {
+        "lines": [
+          "batch-1#3"
+        ],
+        "at": [
+          0.3,
+          4.6,
+          11.0,
+          20.2,
+          27.5
+        ],
+        "captions": [
+          null,
+          "Every dial *looked the same*",
+          "Rebound: *red*",
+          "LSC: the *small* knob",
+          "Looks like *your fork*"
+        ]
+      }
+    },
+    "brands": {
+      "title": "Which fork do you ride?",
+      "clips": [
+        "demo_catalog_brands"
+      ],
+      "hook": "Which *fork* do you ride?",
+      "voice": {
+        "lines": [
+          "batch-1#4"
+        ],
+        "at": [
+          0.3,
+          1.9,
+          8.0,
+          14.0
+        ],
+        "captions": [
+          null,
+          "*14 brands* of forks and shocks",
+          "Every *model*, every click range",
+          "Not listed yet? *Request it*"
+        ]
+      }
+    }
+  },
+  "images": {
+    "carousel": [
+      {
+        "kind": "cover",
+        "title": "New fork? *Every click range*, filled in.",
+        "sub": "The fork and shock catalog in Bike Setup Tracker 1.6.4.",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/ranges.png"
+      },
+      {
+        "title": "1 · Search *your fork*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/search.png"
+      },
+      {
+        "title": "2 · Pick the year and *travel*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/options.png"
+      },
+      {
+        "title": "3 · Every adjuster, *filled in*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/ranges.png",
+        "lift": "40,2250,640,200"
+      },
+      {
+        "title": "4 · Service tasks *included*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/tasks.png"
+      },
+      {
+        "kind": "release",
+        "version": "1.6.4",
+        "note": "iOS · Android",
+        "item1": "Fork & shock catalog: adjusters filled in",
+        "item2": "Service tasks with the manufacturer's intervals",
+        "item3": "Dial color and size, in one sheet",
+        "item4": "Restore an old setup onto new parts",
+        "footer": "Update in your app store"
+      },
+      {
+        "kind": "tip",
+        "label": "The catalog",
+        "title": "Which *fork* do you ride?",
+        "body": "FOX · RockShox · BOS · Cane Creek · Cannondale · DT Swiss · DVO · EXT · Formula · Manitou · Marzocchi · Öhlins · RST · SR SUNTOUR\n\nNot affiliated with or endorsed by the brands shown. Brand names are trademarks of their owners.",
+        "footer": "Missing yours? Request it"
+      },
+      {
+        "kind": "endcard"
+      }
+    ],
+    "square": [
+      {
+        "kind": "release",
+        "version": "1.6.4",
+        "note": "iOS · Android",
+        "item1": "Fork & shock catalog: adjusters filled in",
+        "item2": "Service tasks with the manufacturer's intervals",
+        "item3": "Dial color and size, in one sheet",
+        "item4": "Restore an old setup onto new parts",
+        "footer": "Update in your app store"
+      },
+      {
+        "title": "1 · Search *your fork*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/search.png"
+      },
+      {
+        "title": "2 · Pick the year and *travel*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/options.png"
+      },
+      {
+        "title": "3 · Every adjuster, *filled in*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/ranges.png",
+        "lift": "40,2250,640,200"
+      },
+      {
+        "title": "4 · Service tasks *included*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/tasks.png"
+      },
+      {
+        "kind": "tip",
+        "label": "The catalog",
+        "title": "Which *fork* do you ride?",
+        "body": "FOX · RockShox · BOS · Cane Creek · Cannondale · DT Swiss · DVO · EXT · Formula · Manitou · Marzocchi · Öhlins · RST · SR SUNTOUR",
+        "footer": "Missing yours? Request it"
+      },
+      {
+        "kind": "endcard"
+      }
+    ],
+    "vertical": [
+      {
+        "kind": "cover",
+        "title": "New fork? *Every click range*, filled in.",
+        "sub": "The fork and shock catalog in Bike Setup Tracker 1.6.4.",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/ranges.png"
+      },
+      {
+        "title": "1 · Search *your fork*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/search.png"
+      },
+      {
+        "title": "2 · Pick the year and *travel*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/options.png"
+      },
+      {
+        "title": "3 · Every adjuster, *filled in*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/ranges.png",
+        "lift": "40,2250,640,200"
+      },
+      {
+        "title": "4 · Service tasks *included*",
+        "shots": "build/marketing/raw/ios/stills/04_v1.6.4/tasks.png"
+      },
+      {
+        "kind": "release",
+        "version": "1.6.4",
+        "note": "iOS · Android",
+        "item1": "Fork & shock catalog: adjusters filled in",
+        "item2": "Service tasks with the manufacturer's intervals",
+        "item3": "Dial color and size, in one sheet",
+        "item4": "Restore an old setup onto new parts",
+        "footer": "Update in your app store"
+      },
+      {
+        "kind": "tip",
+        "label": "The catalog",
+        "title": "Which *fork* do you ride?",
+        "body": "FOX · RockShox · BOS · Cane Creek · Cannondale · DT Swiss · DVO · EXT · Formula · Manitou · Marzocchi · Öhlins · RST · SR SUNTOUR",
+        "footer": "Not affiliated with or endorsed by the brands shown. Brand names are trademarks of their owners."
+      },
+      {
+        "kind": "endcard"
+      }
+    ],
+    "thumbnail": {
+      "title": "New fork? *Every click range*, filled in.",
+      "shots": "build/marketing/raw/ios/stills/04_v1.6.4/ranges.png",
+      "lift": "40,2250,640,200"
+    }
+  }
+}

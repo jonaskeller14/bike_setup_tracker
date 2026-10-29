@@ -2,7 +2,7 @@
 
 Ideas and alternatives for the v1.6.4 (build 45) release content, with the picks marked
 **Recommended**. Nothing here is recorded or rendered yet; the picked items go into
-`/marketingkit v1.6.4+45` (kit `v1.6.4`). Rules from [`messaging.md`](messaging.md),
+`/marketingkit v1.6.4+45` (kit `04_v1.6.4`). Rules from [`messaging.md`](messaging.md),
 [`channels.md`](channels.md) and [`brand.md`](brand.md) apply to every item.
 
 **Release day for the posts: Wed 04.11.2026**, the last day the current Short queue has a
@@ -101,7 +101,7 @@ The `release` kind already exists in `post_4x5.html` and `post_1x1.html`: big ve
 | Channel | Format | Template |
 |---|---|---|
 | `ig-bst` carousel | 4:5, 1080×1350 | `post_4x5.html` ✓ |
-| `ig-bst` story | 9:16, 1080×1920; link sticker to the campaign link, poll sticker on 09.11 (E6) | `post_9x16.html` (new) |
+| `ig-bst` story | 9:16, 1080×1920; link sticker to the campaign link | `post_9x16.html` (new) |
 | `tiktok` photo mode | 9:16, 1080×1920, as in the previous kits | `post_9x16.html` (new) |
 | `yt-bst` community post | 1:1, rendered square from the start | `post_1x1.html` ✓ |
 
@@ -141,7 +141,7 @@ both fit this release well.
 | **E1** | **Log your setup before winter storage** | R · MTB | R3 | Re-cut of `demo_add_setup` with a seasonal caption and new voiceover | **Recommended** |
 | **E3** | **Off-season = service season** | S · Maint | S8 | `demo_tasks` + N2 footage: what's due on the fork before spring | **Recommended** |
 | **E4** | **Fork upgrade** | R · MTB | R16 | N1 re-cut with a new hook, posted 27.11 (Black Friday weekend; mention it only in the caption) | **Recommended** (no recording) |
-| **E6** | **Poll: where do you keep your settings?** (tape on the fork / notes app / memory / an app) | R · MTB | R9 | IG story poll sticker; TikTok photo post with the same question | **Recommended** (no recording) |
+| **E6** | **Poll: where do you keep your settings?** (tape on the fork / notes app / memory / an app) | R · MTB | R9 | IG story poll sticker; TikTok photo post with the same question | **Dropped** (29.10.): no polls, every post explains or shows something |
 | **E8** | **Dev story: 15 brands of click ranges from the service manuals** | — · dev | — | Screens of the YAML and its sources, the picker; `yt-jk` community post, r/SideProject, r/FlutterDev (modmail first, ≥2 days apart) | **Recommended**, dev channels only |
 | E2 | Your season in setups | C · MTB | C6 | Carousel from `demo_analysis` stills (`analysis` Short ran 25.10) | Maybe |
 | E5 | POV: you serviced your fork and forgot your clicks | R · MTB | — | Text-on-screen meme opener, then the setup history as the payoff | Maybe; check tone against `brand.md` |
@@ -163,7 +163,6 @@ Daily in the release week, then every other day to the end of November. Shorts g
 | Fri 06.11 | Shorts | N2 service tasks | 1 |
 | Sat 07.11 | Shorts | N8 dial color and size | 1 |
 | Sun 08.11 | Shorts | N5 "Which fork do you ride?" | 1 |
-| Mon 09.11 | `ig-bst` story, `tiktok` photo | E6 poll | 1 |
 | Wed 11.11 | Shorts | E1 log before winter | 2 |
 | Wed 11.11 | `yt-jk`, `reddit-sideproject` | E8 dev story | 2 |
 | Fri 13.11 | Shorts | E10 *Back to the setup that worked* | 2 |
@@ -193,10 +192,10 @@ Voiceover adds a round trip: the batch texts have to be ready for speechma befor
 | Wed 04.11 | Check 1.6.4 is live in both stores, then the release posts go out |
 
 If build 45 isn't live by the morning of 04.11, move the release slideshow and N1/N2/N8 by the
-same number of days and fill the gap with E6 and E1, which don't name a new feature.
+same number of days and fill the gap with E1, which doesn't name a new feature.
 
 ## Recommendation
 
 1. **Slideshow:** S2 for TikTok/Instagram, S1 for YouTube, plus the S5 brand wall.
 2. **New-feature Shorts:** N1, N2, N8, N5 in batch 1; N4 in batch 2.
-3. **General content:** E1, E3, E4, E6, E8 and three backlog rows (E10).
+3. **General content:** E1, E3, E4, E8 and three backlog rows (E10).

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/localized_number.dart';
 import '../../utils/value_migration_proposal.dart';
 import '../notes_text.dart';
@@ -150,26 +151,33 @@ class AdjustmentListCard extends StatelessWidget {
               index: index,
               child: const Icon(Icons.drag_handle),
             ),
-            PopupMenuButton<_AdjustmentOptions>(
-              onSelected: (_AdjustmentOptions value) {
-                switch (value) {
-                  case _AdjustmentOptions.edit: editAdjustment(adjustment);
-                  case _AdjustmentOptions.duplicate: duplicateAdjustment(adjustment);
-                  case _AdjustmentOptions.remove: removeAdjustment(adjustment);
-                }
-              },
-              itemBuilder: (BuildContext context) => _AdjustmentOptions.values.map((option) {
-                return PopupMenuItem<_AdjustmentOptions>(
-                  value: option,
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      Icon(option.iconData, size: 20),
-                      Text(option.label(context.l10n)),
-                    ],
-                  ),
-                );
-              }).toList(),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.adjustmentActions(adjustment.id),
+              child: PopupMenuButton<_AdjustmentOptions>(
+                onSelected: (_AdjustmentOptions value) {
+                  switch (value) {
+                    case _AdjustmentOptions.edit: editAdjustment(adjustment);
+                    case _AdjustmentOptions.duplicate: duplicateAdjustment(adjustment);
+                    case _AdjustmentOptions.remove: removeAdjustment(adjustment);
+                  }
+                },
+                itemBuilder: (BuildContext context) => _AdjustmentOptions.values.map((option) {
+                  return PopupMenuItem<_AdjustmentOptions>(
+                    value: option,
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        Icon(option.iconData, size: 20),
+                        Semantics(
+                          identifier: option == _AdjustmentOptions.edit ? AutomationIds.adjustmentActionsEdit : null,
+                          child: Text(option.label(context.l10n)),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ),

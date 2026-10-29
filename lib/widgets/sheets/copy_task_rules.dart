@@ -12,6 +12,7 @@ import '../../models/task/task_rule.dart';
 import '../../models/task/task_template.dart';
 import '../../repositories/app_repository.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/task_preset_resolver.dart';
 import '../app_snackbar.dart';
 import '../items/task_rule_sheet_tile.dart';
@@ -380,10 +381,14 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 4,
               children: [
-                FilledButton.icon(
-                  icon: Icon(isCopyMode ? Icons.copy : Icons.add),
-                  onPressed: count == 0 ? null : () => Navigator.pop(context, result),
-                  label: Text(isCopyMode ? context.l10n.taskSheetCopyButton(count) : context.l10n.taskSheetAddButton(count)),
+                Semantics(
+                  container: true,
+                  identifier: AutomationIds.taskRulesSheetAdd,
+                  child: FilledButton.icon(
+                    icon: Icon(isCopyMode ? Icons.copy : Icons.add),
+                    onPressed: count == 0 ? null : () => Navigator.pop(context, result),
+                    label: Text(isCopyMode ? context.l10n.taskSheetCopyButton(count) : context.l10n.taskSheetAddButton(count)),
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context),

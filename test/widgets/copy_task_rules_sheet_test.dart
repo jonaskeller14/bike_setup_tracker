@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/task/task_template.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/automation_ids.dart';
 import 'package:bike_setup_tracker/widgets/sheets/copy_task_rules.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -223,6 +224,22 @@ void main() {
       expect(find.text('Typical interval for chain'), findsOneWidget);
       expect(find.text('Add 1 task'), findsOneWidget);
       expect(find.text('Not now'), findsOneWidget);
+    });
+
+    testWidgets('exposes the add identifier', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpSheet(
+        tester,
+        (context) => showTaskRulesSheet(
+          context,
+          suggestions: [_suggestion('chain:wear_check', 'Check chain wear', preselected: true)],
+          componentName: 'New chain',
+          componentType: ComponentType.chain,
+        ),
+      );
+
+      expect(find.bySemanticsIdentifier(AutomationIds.taskRulesSheetAdd), findsOneWidget);
+      semantics.dispose();
     });
 
     testWidgets('names the preset in the header while a manufacturer interval is shown', (tester) async {

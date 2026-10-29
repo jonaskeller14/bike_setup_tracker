@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../utils/automation_ids.dart';
 import 'sheet.dart';
 
 class SheetHeader extends StatelessWidget {
@@ -62,7 +63,12 @@ class SheetHeader extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (onBack != null) sheetBackButton(context, onPressed: onBack!),
+          if (onBack != null)
+            Semantics(
+              container: true,
+              identifier: AutomationIds.sheetBack,
+              child: sheetBackButton(context, onPressed: onBack!),
+            ),
           Expanded(
             child: centerTitle ? Center(child: titleRow) : titleRow,
           ),

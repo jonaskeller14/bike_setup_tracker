@@ -1091,16 +1091,20 @@ class _ComponentPageState extends State<ComponentPage> {
                         if (appSettings.enableComponentPresets &&
                             (_componentType == ComponentType.fork || _componentType == ComponentType.shock)) ...[
                           const SizedBox(height: 12),
-                          PresetCatalogCard(
-                            componentType: _componentType!,
-                            onTap: _openPresetPicker,
-                            applied: _resolvedPreset,
-                            unresolved: _preset != null && _preset == _unresolvedPreset,
-                            onUnlink: _unlinkPreset,
-                            showGuideHint: appSettings.enableSetupGuides,
-                            updates: _pendingReviews,
-                            onReviewUpdate: _reviewCatalogUpdate,
-                            onDismissUpdate: _dismissCatalogUpdate,
+                          Semantics(
+                            container: true,
+                            identifier: AutomationIds.componentFormCatalog,
+                            child: PresetCatalogCard(
+                              componentType: _componentType!,
+                              onTap: _openPresetPicker,
+                              applied: _resolvedPreset,
+                              unresolved: _preset != null && _preset == _unresolvedPreset,
+                              onUnlink: _unlinkPreset,
+                              showGuideHint: appSettings.enableSetupGuides,
+                              updates: _pendingReviews,
+                              onReviewUpdate: _reviewCatalogUpdate,
+                              onDismissUpdate: _dismissCatalogUpdate,
+                            ),
                           ),
                           const SizedBox(height: 12),
                         ],

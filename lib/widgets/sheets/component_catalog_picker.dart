@@ -15,6 +15,7 @@ import '../../models/component/component_catalog.dart';
 import '../../models/component/preset_spec_keys.dart';
 import '../../models/component/year_span.dart';
 import '../../repositories/component_catalog_repository.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
@@ -478,16 +479,20 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   Widget _buildSearchField() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: TextField(
-        controller: _searchController,
-        textInputAction: TextInputAction.search,
-        onChanged: _onQueryChanged,
-        decoration: InputDecoration(
-          isDense: true,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: _query.isEmpty ? null : IconButton(icon: const Icon(Icons.clear), onPressed: _clearQuery),
-          hintText: context.l10n.catalogPickerSearchHint(widget.componentType.labelInSentence(context.l10n)),
-          border: const OutlineInputBorder(),
+      child: Semantics(
+        container: true,
+        identifier: AutomationIds.catalogPickerSearch,
+        child: TextField(
+          controller: _searchController,
+          textInputAction: TextInputAction.search,
+          onChanged: _onQueryChanged,
+          decoration: InputDecoration(
+            isDense: true,
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: _query.isEmpty ? null : IconButton(icon: const Icon(Icons.clear), onPressed: _clearQuery),
+            hintText: context.l10n.catalogPickerSearchHint(widget.componentType.labelInSentence(context.l10n)),
+            border: const OutlineInputBorder(),
+          ),
         ),
       ),
     );
@@ -1032,11 +1037,15 @@ class _OptionalAxesStepState extends State<_OptionalAxesStep> {
         Container(
           padding: const EdgeInsets.all(16),
           width: double.infinity,
-          child: FilledButton.icon(
-            icon: Icon(_hasChoice ? Icons.check : Icons.arrow_forward),
-            // Unset axes stay unset: nothing is guessed for what is skipped.
-            onPressed: () => widget.onDone(_preset),
-            label: Text(_hasChoice ? context.l10n.catalogPickerApply : context.l10n.catalogPickerSkip),
+          child: Semantics(
+            container: true,
+            identifier: AutomationIds.catalogPickerApply,
+            child: FilledButton.icon(
+              icon: Icon(_hasChoice ? Icons.check : Icons.arrow_forward),
+              // Unset axes stay unset: nothing is guessed for what is skipped.
+              onPressed: () => widget.onDone(_preset),
+              label: Text(_hasChoice ? context.l10n.catalogPickerApply : context.l10n.catalogPickerSkip),
+            ),
           ),
         ),
       ],
@@ -1255,10 +1264,14 @@ class _NoMatches extends StatelessWidget {
                   icon: const Icon(Icons.edit_outlined),
                   label: Text(context.l10n.catalogPickerEnterManually),
                 ),
-              TextButton.icon(
-                onPressed: onRequest,
-                icon: Icon(requested ? Icons.check : Icons.playlist_add),
-                label: Text(requested ? context.l10n.catalogPickerRequested : context.l10n.catalogPickerRequest),
+              Semantics(
+                container: true,
+                identifier: AutomationIds.catalogPickerRequest,
+                child: TextButton.icon(
+                  onPressed: onRequest,
+                  icon: Icon(requested ? Icons.check : Icons.playlist_add),
+                  label: Text(requested ? context.l10n.catalogPickerRequested : context.l10n.catalogPickerRequest),
+                ),
               ),
             ],
           ),

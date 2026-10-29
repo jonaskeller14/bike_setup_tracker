@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../utils/automation_ids.dart';
 import 'sheet_header.dart';
 
 const double _tileSize = 72;
@@ -104,6 +105,7 @@ class _DialStyleSheetState extends State<_DialStyleSheet> {
                     for (final c in StepAdjustmentDialColor.values)
                       _DialOptionTile(
                         label: c.label(context.l10n),
+                        identifier: AutomationIds.dialStyleColor(c.name),
                         selected: c == _color,
                         onTap: () => _selectColor(c),
                         child: widget.knobBuilder(context, c, _size),
@@ -113,6 +115,7 @@ class _DialStyleSheetState extends State<_DialStyleSheet> {
                     for (final s in StepAdjustmentDialSize.values)
                       _DialOptionTile(
                         label: s.label(context.l10n),
+                        identifier: AutomationIds.dialStyleSize(s.name),
                         selected: s == _size,
                         onTap: () => _selectSize(s),
                         child: widget.knobBuilder(context, _color, s),
@@ -130,12 +133,14 @@ class _DialStyleSheetState extends State<_DialStyleSheet> {
 
 class _DialOptionTile extends StatelessWidget {
   final String label;
+  final String identifier;
   final bool selected;
   final VoidCallback onTap;
   final Widget child;
 
   const _DialOptionTile({
     required this.label,
+    required this.identifier,
     required this.selected,
     required this.onTap,
     required this.child,
@@ -150,6 +155,8 @@ class _DialOptionTile extends StatelessWidget {
     );
 
     return Semantics(
+      container: true,
+      identifier: identifier,
       label: label,
       selected: selected,
       inMutuallyExclusiveGroup: true,

@@ -60,7 +60,11 @@ enum DemoScenario {
   serviceLoopBefore('service_loop_before'),
 
   /// [serviceLoopBefore] two rides later: the fork service is the only task due.
-  serviceLoopAfter('service_loop_after');
+  serviceLoopAfter('service_loop_after'),
+
+  /// The full master with the Lyrik's dials all in the default style, so the
+  /// flow can make rebound and LSC look like the knobs on the fork.
+  dialStyle('dial_style');
 
   const DemoScenario(this.id);
 
@@ -109,6 +113,7 @@ enum DemoScenario {
     ),
     serviceLoopBefore => _serviceLoop(json, due: false),
     serviceLoopAfter => _serviceLoop(json, due: true),
+    dialStyle => _withDefaultDials(json, _lyrikId),
   };
 }
 
@@ -119,6 +124,8 @@ const String _saddleSetbackId = '7c1d2e3f-4a5b-4c6d-8e7f-90a1b2c3d4e5';
 const String _grizlCockpitId = '8d2e3f4a-5b6c-4d7e-9f80-a1b2c3d4e5f6';
 const String _stemLengthId = '9e3f4a5b-6c7d-4e8f-a091-b2c3d4e5f607';
 const String _spacersId = 'af4a5b6c-7d8e-4f90-b1a2-c3d4e5f60718';
+
+const String _lyrikId = 'e47480ee-0f71-453e-bb97-61d2041d05f5';
 
 const String _hightowerGearId = 'b18168107';
 const String _forkLowersRuleId = '340ef012-fb70-40d6-889e-02ac62dd6699';
@@ -287,6 +294,23 @@ _Json _withBikeFit(_Json json) {
     ],
   };
 }
+
+/// Resets the color and size of [componentId]'s dials to the defaults.
+_Json _withDefaultDials(_Json json, String componentId) => {
+  ...json,
+  'components': [
+    for (final component in _list(json, 'components'))
+      component['id'] == componentId
+          ? {
+              ...component,
+              'adjustments': [
+                for (final adjustment in _list(component, 'adjustments'))
+                  adjustment['type'] == 'step' ? {...adjustment, 'dialColor': 'blue', 'dialSize': 'normal'} : adjustment,
+              ],
+            }
+          : component,
+  ],
+};
 
 List<_Json> _list(_Json json, String key) => (json[key] as List<dynamic>).cast<_Json>();
 

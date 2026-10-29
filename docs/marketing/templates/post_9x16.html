@@ -3,7 +3,7 @@
   Post, 9:16, 1080×1920: TikTok photo mode and Instagram stories. The same kinds and parameters as
   post_4x5.html, laid out inside the Short's safe area (brand.md): the brand row on top is
   decoration a top bar may cover, text stays above the caption block and, from y 760, left of the
-  action buttons. The phone may run under both. The last slide is endcard.html at this size.
+  action buttons. The phone may run under both, but always shows whole. The last slide is endcard.html at this size.
 -->
 <html lang="en">
 <head>
@@ -28,8 +28,8 @@
   .phone.cover { left: 300px; top: 820px; --pw: 480; }
 
   /* screen */
-  .screen-title { left: 60px; top: 330px; width: 960px; height: 400px; font-size: 112px; }
-  .phone.screen { left: 230px; top: 760px; --pw: 620; }
+  .screen-title { left: 60px; top: 250px; width: 960px; height: 330px; font-size: 112px; }
+  .phone.screen { left: 224px; top: 600px; --pw: 632; }
 
   /* changed */
   .setup { left: 60px; top: 330px; width: 960px; font-size: 44px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -67,7 +67,7 @@
   <!-- header of every kind but cover -->
   <div class="abs meta label" data-kind="screen changed tip release" data-param="label" data-default-changed="Setup history" data-default-tip="Tip" data-default-release="What&#39;s new"></div>
   <div class="abs meta muted note" data-kind="screen changed tip release" data-param="note"></div>
-  <div class="rule" data-kind="screen changed tip release" style="left:60px; right:60px; top:300px; --rule:2px"></div>
+  <div class="rule" data-kind="changed tip release" style="left:60px; right:60px; top:300px; --rule:2px"></div>
 
   <!-- screen -->
   <h1 class="abs hl screen-title" data-kind="screen" data-param="title" data-fit="72"></h1>

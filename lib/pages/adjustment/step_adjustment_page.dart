@@ -296,25 +296,29 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   }
 
   Widget _buildDialStyleButton(BuildContext context) {
-    return Tooltip(
-      message: context.l10n.adjustmentDialTooltip,
-      child: InkWell(
-        onTap: _openDialStyleSheet,
-        borderRadius: BorderRadius.circular(4),
-        // The decorator lays out against its incoming width, which is unbounded
-        // inside the Row, so the knob's own width has to be handed to it.
-        child: SizedBox(
-          width: _dialFieldWidth,
-          child: InputDecorator(
-            decoration: InputDecoration(
-              labelText: context.l10n.adjustmentDialLabel,
-              border: const OutlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-              filled: widget.mode == AdjustmentPageMode.edit &&
-                  (dialColor != widget.adjustment?.dialColor || dialSize != widget.adjustment?.dialSize),
+    return Semantics(
+      container: true,
+      identifier: AutomationIds.adjustmentFormDialStyle,
+      child: Tooltip(
+        message: context.l10n.adjustmentDialTooltip,
+        child: InkWell(
+          onTap: _openDialStyleSheet,
+          borderRadius: BorderRadius.circular(4),
+          // The decorator lays out against its incoming width, which is unbounded
+          // inside the Row, so the knob's own width has to be handed to it.
+          child: SizedBox(
+            width: _dialFieldWidth,
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: context.l10n.adjustmentDialLabel,
+                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                filled: widget.mode == AdjustmentPageMode.edit &&
+                    (dialColor != widget.adjustment?.dialColor || dialSize != widget.adjustment?.dialSize),
+              ),
+              child: _buildKnob(context, dialColor, dialSize, key: const ValueKey('DialStyle')),
             ),
-            child: _buildKnob(context, dialColor, dialSize, key: const ValueKey('DialStyle')),
           ),
         ),
       ),

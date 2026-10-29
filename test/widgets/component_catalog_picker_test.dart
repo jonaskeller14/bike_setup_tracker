@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
+import 'package:bike_setup_tracker/utils/automation_ids.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/widgets/sheets/component_catalog_picker.dart';
@@ -705,6 +706,27 @@ void main() {
 
       expect(find.text('Enter manually'), findsNothing);
       expect(find.text('Request this product'), findsOneWidget);
+    });
+
+    testWidgets('exposes the search and request identifiers', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await _open(tester);
+      expect(find.bySemanticsIdentifier(AutomationIds.catalogPickerSearch), findsOneWidget);
+
+      await search(tester, 'Zzz Fork');
+      expect(find.bySemanticsIdentifier(AutomationIds.catalogPickerRequest), findsOneWidget);
+      semantics.dispose();
+    });
+
+    testWidgets('exposes the apply and back identifiers', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await _open(tester);
+      await _openFoxTrims(tester);
+      await _tap(tester, 'Factory');
+      await _tap(tester, 'GRIP X2');
+      expect(find.bySemanticsIdentifier(AutomationIds.catalogPickerApply), findsOneWidget);
+      expect(find.bySemanticsIdentifier(AutomationIds.sheetBack), findsOneWidget);
+      semantics.dispose();
     });
 
     testWidgets('a query is requested once', (tester) async {

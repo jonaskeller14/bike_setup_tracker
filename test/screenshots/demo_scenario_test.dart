@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -255,6 +256,16 @@ void main() {
       expect(names, containsAll(['Saddle Height', 'Saddle Setback', 'Stem Length', 'Spacers']));
       for (final setup in (seedJson(DemoScenario.bikeFit)['setups'] as List).cast<Map<String, dynamic>>()) {
         expect((setup['bikeAdjustmentValues'] as Map).values, containsAll([738.0, 25.0, 90.0, 20.0]));
+      }
+    });
+
+    test('dial_style gives every Lyrik dial the default style', () async {
+      await seed(DemoScenario.dialStyle);
+      final lyrik = repository.components['e47480ee-0f71-453e-bb97-61d2041d05f5']!;
+      final dials = lyrik.adjustments.whereType<StepAdjustment>().toList();
+      expect(dials.map((a) => a.name), containsAll(['Rebound', 'LSC']));
+      for (final dial in dials) {
+        expect((dial.dialColor, dial.dialSize), (StepAdjustmentDialColor.blue, StepAdjustmentDialSize.normal), reason: dial.name);
       }
     });
   });

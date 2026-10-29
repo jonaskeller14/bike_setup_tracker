@@ -110,6 +110,7 @@ Before each flow, the run scripts delete the marker file `demo_scenario` in the 
 | `analysis` | The Hightower's 4 newest setups; fork and shock *Pressure* removed, so the click-based series fill the charts |
 | `tasks_one_due` | *Investigate BB creaking noise* as the only due task. It doesn't repeat, so ticking it off moves it to the completed section |
 | `tags` | The whole sample with setup and task tags on |
+| `dial_style` | The whole sample with every dial of the Hightower's Lyrik in the default color and size |
 
 Dropping a bike drops everything recorded on it: its components, setups, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
 
@@ -197,6 +198,10 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_calendar` | `full` | The month view, then the showcase day in the day view, opening its installation, setup, ride and task |
 | `demo_tasks` | `tasks_one_due` | Ticking off the only due task: the "all caught up" placeholder, then the task in the completed section |
 | `demo_strava_distance` | `full` | Rides counted automatically: the chain's distance and rides, its distance-based task, then the bike's due "every 150 km" bolt check |
+| `demo_add_component_catalog` | `one_bike_no_components` | The Hightower's fork from the catalog: search, Lyrik 2025–2026 Ultimate, 160 mm, every adjuster filled in with its range |
+| `demo_task_presets` | `one_bike_no_components` | The same fork, then the service tasks it comes with: add them, and the task list with the new ones |
+| `demo_dial_style` | `dial_style` | The Lyrik's rebound dial turned red and LSC small, then a new setup showing them |
+| `demo_catalog_brands` | `one_bike_no_components` | The catalog's brands, three of them opened, and a request for a fork that isn't listed |
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.
 - **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.

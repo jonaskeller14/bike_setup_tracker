@@ -327,31 +327,31 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                         index: widget.index,
                         child: const Icon(Icons.drag_handle),
                       ),
-                    if (!widget.selectionMode)
-                      PopupMenuButton<_BikeOptions>(
-                        onSelected: (value) async {
-                          switch (value) {
-                            case _BikeOptions.edit:
-                              await BikeActions.editBike(context, bike: widget.bike);
-                            case _BikeOptions.duplicate:
-                              await BikeActions.duplicateBikeWithComponents(context, bike: widget.bike);
-                            case _BikeOptions.remove:
-                              await BikeActions.removeBike(context, bike: widget.bike);
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => _BikeOptions.values.map((option) {
-                          return PopupMenuItem<_BikeOptions>(
-                            value: option,
-                            child: Row(
-                              spacing: 10,
-                              children: [
-                                Icon(option.iconData, size: 20),
-                                Text(option.label),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                    PopupMenuButton<_BikeOptions>(
+                      enabled: !widget.selectionMode,
+                      onSelected: (value) async {
+                        switch (value) {
+                          case _BikeOptions.edit:
+                            await BikeActions.editBike(context, bike: widget.bike);
+                          case _BikeOptions.duplicate:
+                            await BikeActions.duplicateBikeWithComponents(context, bike: widget.bike);
+                          case _BikeOptions.remove:
+                            await BikeActions.removeBike(context, bike: widget.bike);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => _BikeOptions.values.map((option) {
+                        return PopupMenuItem<_BikeOptions>(
+                          value: option,
+                          child: Row(
+                            spacing: 10,
+                            children: [
+                              Icon(option.iconData, size: 20),
+                              Text(option.label),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ],
                 ),
               ),

@@ -14,12 +14,14 @@ class SetupOptionsMenu extends StatelessWidget {
   final Setup setup;
   final String? heroTag; // Hero tag of the setup tile header
   final StravaActivity? stravaActivity;
+  final bool enabled;
 
   const SetupOptionsMenu({
     super.key,
     required this.setup,
     this.heroTag,
     this.stravaActivity,
+    this.enabled = true,
   });
 
   @override
@@ -27,6 +29,7 @@ class SetupOptionsMenu extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
 
     return PopupMenuButton<_SetupOption>(
+      enabled: enabled,
       onSelected: (option) => _handleSelection(context, option),
       itemBuilder: (context) => [
         for (final option in _SetupOption.values)

@@ -142,16 +142,20 @@ class _SetupTileState extends State<SetupTile> {
               ),
             ),
           ),
-          if (!widget.selectionMode)
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Semantics(
-                container: true,
-                identifier: AutomationIds.setupActions(setup.id),
-                child: SetupOptionsMenu(setup: setup, heroTag: _heroTag, stravaActivity: widget.stravaActivity),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Semantics(
+              container: true,
+              identifier: AutomationIds.setupActions(setup.id),
+              child: SetupOptionsMenu(
+                setup: setup,
+                heroTag: _heroTag,
+                stravaActivity: widget.stravaActivity,
+                enabled: !widget.selectionMode,
               ),
             ),
+          ),
           if (showInlineExpandIcon)
             Positioned(
               bottom: 0,

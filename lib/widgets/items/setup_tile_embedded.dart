@@ -184,7 +184,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (!_displayOnlyChanges && !widget.selectionMode) SetupOptionsMenu(setup: setup),
+                      if (!_displayOnlyChanges) SetupOptionsMenu(setup: setup, enabled: !widget.selectionMode),
                       Padding(
                         padding: EdgeInsets.only(top: !_displayOnlyChanges ? 0 : _collapsedChevronTop),
                         child: ExpandIcon(

@@ -7,12 +7,14 @@ import '../../utils/test_session_actions.dart';
 /// step card and the session sheet.
 class TestSessionOptionsMenu extends StatelessWidget {
   final TestSession session;
+  final bool enabled;
 
-  const TestSessionOptionsMenu({super.key, required this.session});
+  const TestSessionOptionsMenu({super.key, required this.session, this.enabled = true});
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<_TestSessionOption>(
+      enabled: enabled,
       tooltip: 'Test session actions',
       onSelected: (option) => switch (option) {
         _TestSessionOption.edit => TestSessionActions.editSession(context, session: session),

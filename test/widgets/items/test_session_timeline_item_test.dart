@@ -199,7 +199,7 @@ void main() {
     expect(find.byType(FilledButton), findsNothing);
   });
 
-  testWidgets('a long press selects the session, and selection mode hides the menus', (tester) async {
+  testWidgets('a long press selects the session, and selection mode disables the menus', (tester) async {
     final entry = await seed(tester, session(), runs: 1);
     var toggled = 0;
     await pump(tester, TestSessionTimelineItem(entry: entry, onSelectionChanged: () => toggled++));
@@ -213,10 +213,14 @@ void main() {
       tester,
       TestSessionTimelineItem(entry: entry, selectionMode: true, selected: true, onSelectionChanged: () => toggled++),
     );
-    expect(find.byType(TestSessionOptionsMenu), findsNothing);
-    expect(find.byType(SetupOptionsMenu), findsNothing);
+    for (final menu in [find.byType(TestSessionOptionsMenu), find.byType(SetupOptionsMenu)]) {
+      final button = find.descendant(of: menu, matching: find.byWidgetPredicate((widget) => widget is PopupMenuButton));
+      expect((tester.widget(button) as PopupMenuButton).enabled, isFalse);
+    }
     await tester.tap(find.byType(SetupGroupHeader));
     expect(toggled, 2);
+    await tester.tap(find.byType(TestSessionOptionsMenu));
+    expect(toggled, 3, reason: 'a tap on the disabled menu still toggles the session');
   });
 
   for (final (label, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {

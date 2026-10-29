@@ -376,7 +376,8 @@ class TaskRuleListCard extends StatelessWidget {
               ],
             ],
           ),
-          trailing: selectionMode ? null : PopupMenuButton<_TaskRuleOptions>(
+          trailing: PopupMenuButton<_TaskRuleOptions>(
+            enabled: !selectionMode,
             onSelected: (_TaskRuleOptions value) async {
               switch (value) {
                 case _TaskRuleOptions.edit:

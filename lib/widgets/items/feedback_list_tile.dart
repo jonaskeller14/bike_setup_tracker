@@ -94,28 +94,27 @@ class FeedbackListTile extends StatelessWidget {
                     if (activity != null) TileMetaRow(icon: SimpleIcons.strava, text: activity.name),
                   ],
                 ),
-                trailing: selectionMode
-                    ? null
-                    : PopupMenuButton<_FeedbackOption>(
-                        tooltip: 'Feedback actions',
-                        onSelected: (option) => switch (option) {
-                          _FeedbackOption.edit => FeedbackActions.editFeedback(context, feedback: feedback),
-                          _FeedbackOption.remove => FeedbackActions.removeFeedback(context, feedback: feedback),
-                        },
-                        itemBuilder: (context) => [
-                          for (final option in _FeedbackOption.values)
-                            PopupMenuItem(
-                              value: option,
-                              child: Row(
-                                spacing: 10,
-                                children: [
-                                  Icon(option.iconData, size: 20),
-                                  Text(option.label),
-                                ],
-                              ),
-                            ),
-                        ],
+                trailing: PopupMenuButton<_FeedbackOption>(
+                  enabled: !selectionMode,
+                  tooltip: 'Feedback actions',
+                  onSelected: (option) => switch (option) {
+                    _FeedbackOption.edit => FeedbackActions.editFeedback(context, feedback: feedback),
+                    _FeedbackOption.remove => FeedbackActions.removeFeedback(context, feedback: feedback),
+                  },
+                  itemBuilder: (context) => [
+                    for (final option in _FeedbackOption.values)
+                      PopupMenuItem(
+                        value: option,
+                        child: Row(
+                          spacing: 10,
+                          children: [
+                            Icon(option.iconData, size: 20),
+                            Text(option.label),
+                          ],
+                        ),
                       ),
+                  ],
+                ),
               ),
               if (hasBottomBlock)
                 Padding(

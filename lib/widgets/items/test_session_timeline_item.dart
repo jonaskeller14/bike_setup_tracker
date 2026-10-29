@@ -153,7 +153,7 @@ class TestSessionTimelineItem extends StatelessWidget {
               contextMetadata: metadata,
               selected: selected,
               badge: session.isRunning ? const RunningBadge() : null,
-              trailing: selectionMode ? null : TestSessionOptionsMenu(session: session),
+              trailing: TestSessionOptionsMenu(session: session, enabled: !selectionMode),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -275,7 +275,7 @@ class _RunRow extends StatelessWidget {
                     showSetupIcon: false,
                   ),
                 ),
-                if (!selectionMode) SetupOptionsMenu(setup: run),
+                SetupOptionsMenu(setup: run, enabled: !selectionMode),
               ],
             ),
           ),

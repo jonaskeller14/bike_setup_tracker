@@ -852,13 +852,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _revealFirstInvalidField();
       return;
     }
-    if ((widget.mode == SetupPageMode.add || widget.mode == SetupPageMode.restore) &&
-        context.read<AppRepository>().runningSessionFor(_bike) != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.error(context, 'A test session is running on this bike. End it before recording a setup.'),
-      );
-      return;
-    }
     if (_isBeforeRunStart(_selectedDateTimeUtc)) {
       _showRunStartError();
       return;
@@ -1289,12 +1282,23 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         ),
       );
     }
+    // A setup recorded or changed now would land between the runs of a session,
+    // so a bike running one can't be picked, and one preset says so before
+    // anything is entered. Runs of the running session never get here: their
+    // bike is locked above.
+    final appRepository = context.read<AppRepository>();
+    bool isRunning(String bikeId) => appRepository.runningSessionFor(bikeId) != null;
+    final runningError = widget.mode == SetupPageMode.edit
+        ? 'A test session is running on this bike. End it before editing its setups.'
+        : 'A test session is running on this bike. End it before recording a setup.';
     return DropdownButtonFormField<String>(
       initialValue: _bike,
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
+      forceErrorText: isRunning(_bike) ? runningError : null,
       decoration: InputDecoration(
         labelText: 'Bike',
+        errorMaxLines: 2,
         border: const OutlineInputBorder(),
         hintText: "Choose a bike for this component",
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -1306,17 +1310,27 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         return null;
       },
       items: bikes.values.map((b) {
+        final running = isRunning(b.id);
+        // The preset bike stays selectable, so the field can still show it.
+        final enabled = !running || b.id == _bike;
+        final row = Row(
+          spacing: 8,
+          children: [
+            const Icon(Bike.iconData),
+            Expanded(
+              child: Text(b.name, overflow: TextOverflow.ellipsis),
+            ),
+            if (running) ...[
+              const Icon(TestSession.iconData, size: 16),
+              Text('Session running', style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ],
+        );
         return DropdownMenuItem<String>(
           value: b.id,
-          child: Row(
-            spacing: 8,
-            children: [
-              const Icon(Bike.iconData),
-              Expanded(
-                child: Text(b.name, overflow: TextOverflow.ellipsis),
-              ),
-            ],
-          ),
+          enabled: enabled,
+          // A disabled item looks like any other, so it is dimmed like a disabled control.
+          child: enabled ? row : Opacity(opacity: 0.38, child: row),
         );
       }).toList() + [
         if (!bikes.containsKey(_bike))

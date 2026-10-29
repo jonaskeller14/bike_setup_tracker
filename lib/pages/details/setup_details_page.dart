@@ -33,6 +33,7 @@ import '../../widgets/items/setup_tile_header.dart';
 import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
+import '../../widgets/sheets/test_session_sheet.dart';
 import '../../widgets/text/section_title.dart';
 import '../../widgets/tooltips/component_tooltip.dart';
 import '../../widgets/tooltips/person_tooltip.dart';
@@ -379,6 +380,9 @@ class SetupDetailsPageContent extends StatelessWidget {
               person: person,
               personLinked: setup.person != null,
               showPerson: appSettings.enablePerson,
+              testSessionId: appSettings.enableRating ? setup.testSessionId : null,
+              testSession: context.watch<AppRepository>().testSessions[setup.testSessionId],
+              onTestSessionTap: () => showTestSessionSheet(context: context, sessionId: setup.testSessionId!),
             ),
           ],
         ),

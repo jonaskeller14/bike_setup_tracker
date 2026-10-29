@@ -48,6 +48,7 @@ void main() {
         taskEntries: const {},
         feedbacks: feedbacks,
         testSessions: const {},
+        ratedSetupIdOf: (feedback) => feedback.setupId,
         hierarchy: ComponentHierarchyResolver(const {}),
         bikeId: null,
         dateRange: null,

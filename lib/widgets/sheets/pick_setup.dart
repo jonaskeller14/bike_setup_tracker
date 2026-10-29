@@ -8,6 +8,7 @@ Future<Setup?> showPickSetupSheet(
   BuildContext context, {
   required String title,
   required List<Setup> options,
+  String? selectedId,
   String? suggestedId,
   Set<String> disabledIds = const {},
   Map<String, String> sideLabels = const {},
@@ -28,18 +29,27 @@ Future<Setup?> showPickSetupSheet(
           Flexible(
             child: SetupDayList(
               setups: options,
-              tileBuilder: (setup) => SetupPickTile(
-                key: Key('pick-setup-option-${setup.id}'),
-                setup: setup,
-                badges: [
-                  if (sideLabels[setup.id] case final label?) _SideBadge(label: label),
-                  if (setup.id == suggestedId) const _SuggestedBadge(),
-                ],
-                showBikeName: showBikeNames,
-                semanticsIdentifier: semanticsIdentifier?.call(setup.id),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: disabledIds.contains(setup.id) ? null : () => Navigator.pop(context, setup),
-              ),
+              tileBuilder: (setup) {
+                final selected = setup.id == selectedId;
+                return ColoredBox(
+                  color: selected ? Theme.of(context).colorScheme.secondaryContainer : Colors.transparent,
+                  child: SetupPickTile(
+                    key: Key('pick-setup-option-${setup.id}'),
+                    setup: setup,
+                    badges: [
+                      if (sideLabels[setup.id] case final label?) _SideBadge(label: label),
+                      if (setup.id == suggestedId) const _SuggestedBadge(),
+                    ],
+                    showBikeName: showBikeNames,
+                    selected: selected,
+                    semanticsIdentifier: semanticsIdentifier?.call(setup.id),
+                    trailing: selected
+                        ? const Icon(Icons.check, size: 20)
+                        : const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: disabledIds.contains(setup.id) ? null : () => Navigator.pop(context, setup),
+                  ),
+                );
+              },
             ),
           ),
         ],

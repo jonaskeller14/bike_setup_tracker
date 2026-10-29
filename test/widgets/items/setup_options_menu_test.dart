@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -50,7 +49,7 @@ void main() {
     );
   }
 
-  Future<void> openMenu(WidgetTester tester, String setupId, {bool enableRating = true, bool running = false}) async {
+  Future<void> openMenu(WidgetTester tester, String setupId, {bool enableRating = true}) async {
     await tester.runAsync(() async {
       database = AppDatabase.memory();
       appRepository = AppRepository(database);
@@ -59,21 +58,8 @@ void main() {
         ..enableRating = enableRating;
       await appRepository.addBikes([Bike(id: 'bike', name: 'Test Bike', person: null)]);
       await appRepository.addSetups([setup('old', 1), setup('current', 2)]);
-      if (running) {
-        final started = DateTime(2026, 5, 3);
-        await appRepository.addTestSessions([
-          TestSession(
-            bike: 'bike',
-            adjustmentIds: const [],
-            startedAtUTC: started.toUtc(),
-            startedAtLocal: started,
-          ),
-        ]);
-      }
       for (var attempt = 0; attempt < 100; attempt++) {
-        if (appRepository.setups.length == 2 &&
-            appRepository.setupHistory.isCurrent('current') &&
-            appRepository.testSessions.length == (running ? 1 : 0)) {
+        if (appRepository.setups.length == 2 && appRepository.setupHistory.isCurrent('current')) {
           break;
         }
         await Future<void>.delayed(const Duration(milliseconds: 20));
@@ -103,29 +89,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('the current setup offers to start a test session', (tester) async {
+  testWidgets('offers feedback, but no longer starts a test session', (tester) async {
     await openMenu(tester, 'current');
-
-    expect(find.text('Start Test Session'), findsOneWidget);
-  });
-
-  testWidgets('an older setup does not', (tester) async {
-    await openMenu(tester, 'old');
 
     expect(find.text('Add Feedback'), findsOneWidget);
     expect(find.text('Start Test Session'), findsNothing);
   });
 
-  testWidgets('neither does the current setup while a session runs on the bike', (tester) async {
-    await openMenu(tester, 'current', running: true);
-
-    expect(find.text('Start Test Session'), findsNothing);
-  });
-
-  testWidgets('nor with Feedback off', (tester) async {
+  testWidgets('hides feedback with Feedback off', (tester) async {
     await openMenu(tester, 'current', enableRating: false);
 
-    expect(find.text('Start Test Session'), findsNothing);
+    expect(find.text('Add Feedback'), findsNothing);
     expect(find.text('Edit'), findsOneWidget);
   });
 }

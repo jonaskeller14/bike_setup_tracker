@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/feedback/test_session.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/task/task_rule.dart';
@@ -17,6 +18,7 @@ import '../utils/bike_actions.dart';
 import '../utils/person_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
+import '../utils/test_session_actions.dart';
 import '../utils/timeline_actions.dart';
 import '../widgets/animated_app_bar_switcher.dart';
 import '../widgets/app_snackbar.dart';
@@ -123,6 +125,28 @@ class _HomePageState extends State<HomePage> {
         context,
         setupIds: selection.idsOf(TimelineSelectionKind.setup),
       ),
+    );
+  }
+
+  Widget _testSessionFab(AppRepository appRepository) {
+    final bikeId = appRepository.view.bikes.keys.firstOrNull ?? appRepository.bikes.keys.firstOrNull;
+    final running = bikeId == null ? null : appRepository.runningSessionFor(bikeId);
+    if (running != null) {
+      final scheme = Theme.of(context).colorScheme;
+      return FloatingActionButton.small(
+        heroTag: "testSession",
+        onPressed: () => TestSessionActions.endSession(context, session: running),
+        tooltip: "End test session '${running.displayName}'",
+        backgroundColor: scheme.errorContainer,
+        foregroundColor: scheme.onErrorContainer,
+        child: const Icon(Icons.stop),
+      );
+    }
+    return FloatingActionButton.small(
+      heroTag: "testSession",
+      onPressed: () => TestSessionActions.startSession(context, initialBike: appRepository.bikes[bikeId]),
+      tooltip: 'Start test session',
+      child: const Icon(TestSession.iconData),
     );
   }
 
@@ -439,6 +463,7 @@ class _HomePageState extends State<HomePage> {
           builder: (context, child) => Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
+            spacing: 8,
             children: [
               if (_garageListController.showBackToTop) ...[
                 FloatingActionButton.small(
@@ -447,7 +472,6 @@ class _HomePageState extends State<HomePage> {
                   tooltip: 'Back to top',
                   child: const Icon(Icons.arrow_upward),
                 ),
-                const SizedBox(height: 12),
               ],
               // Distinct keys: the tabs share this slot, and an identifier-only
               // change on a reused semantics node never reaches the platform.
@@ -472,6 +496,7 @@ class _HomePageState extends State<HomePage> {
           builder: (context, child) => Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
+            spacing: 8,
             children: [
               if (_setupListController.showBackToTop) ...[
                 FloatingActionButton.small(
@@ -480,7 +505,9 @@ class _HomePageState extends State<HomePage> {
                   tooltip: 'Back to top',
                   child: const Icon(Icons.arrow_upward),
                 ),
-                const SizedBox(height: 12),
+              ],
+              if (appSettings.enableRating) ...[
+                _testSessionFab(appRepository),
               ],
               Semantics(
                 key: const ValueKey(AutomationIds.addSetupFab),
@@ -521,6 +548,7 @@ class _HomePageState extends State<HomePage> {
             builder: (context, child) => Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
+              spacing: 8,
               children: [
                 if (_taskListController.showBackToTop) ...[
                   FloatingActionButton.small(
@@ -529,7 +557,6 @@ class _HomePageState extends State<HomePage> {
                     tooltip: 'Back to top',
                     child: const Icon(Icons.arrow_upward),
                   ),
-                  const SizedBox(height: 12),
                 ],
                 FloatingActionButton(
                   heroTag: "addTask",

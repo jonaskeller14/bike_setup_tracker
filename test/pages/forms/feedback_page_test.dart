@@ -21,6 +21,7 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/feedback/feedback_aspect_row.dart';
 import 'package:bike_setup_tracker/widgets/feedback/feedback_comparison_field.dart';
+import 'package:bike_setup_tracker/widgets/items/card_header_tile.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import 'package:bike_setup_tracker/widgets/sheets/custom_issues_sheet.dart';
 import 'package:flutter/material.dart';
@@ -231,15 +232,17 @@ void main() {
     return button.selected.contains(button.segments.firstWhere((s) => s.tooltip == label).value);
   }
 
-  Finder referenceField(Finder card) => find.descendant(
-    of: card,
-    matching: find.byWidgetPredicate((w) => w is InputDecorator && w.decoration.labelText == 'Reference setup'),
-  );
+  Finder referenceField(Finder card) => find.descendant(of: card, matching: find.byType(CardHeaderTile)).first;
 
-  String? referenceName(WidgetTester tester, Finder card) => tester
-      .widgetList<Text>(find.descendant(of: referenceField(card), matching: find.byType(Text)))
-      .map((text) => text.data)
-      .firstWhere((data) => data != 'Reference setup', orElse: () => null);
+  String? referenceName(WidgetTester tester, Finder card) =>
+      tester.widgetList<Text>(find.descendant(of: referenceField(card), matching: find.byType(Text))).first.data;
+
+  /// Whether the header of [card] shows its reference as changed.
+  bool referenceHighlighted(WidgetTester tester, Finder card) {
+    final header = referenceField(card);
+    return tester.widget<CardHeaderTile>(header).color ==
+        Theme.of(tester.element(header)).extension<ValueHighlightColors>()!.changedFill;
+  }
 
   Future<RideFeedback?> save(WidgetTester tester) async {
     await tester.tap(find.byIcon(Icons.check));
@@ -501,6 +504,22 @@ void main() {
       await settle(tester);
       expect(result, isNull);
     });
+
+    testWidgets('explains that a setup is needed when the bike has none', (tester) async {
+      await seed(tester);
+      await tester.runAsync(() async {
+        await appRepository.addBikes([Bike(id: 'empty', name: 'Empty Bike', person: null)]);
+        for (var attempt = 0; attempt < 100 && !appRepository.bikes.containsKey('empty'); attempt++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        }
+      });
+      await openForm(tester, () => FeedbackPage.add(initialBike: appRepository.bikes['empty']));
+
+      expect(find.text('No setups yet'), findsOneWidget);
+      expect(find.textContaining("Record Empty Bike's setup first"), findsOneWidget);
+      expect(find.textContaining('No setup at this time'), findsNothing);
+      expect(find.byType(FeedbackComparisonField), findsNothing);
+    });
   });
 
   testWidgets('outside a test session, only stored comparisons get extra cards', (tester) async {
@@ -602,10 +621,7 @@ void main() {
         ],
       );
       await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['f3']!));
-      bool filled() => tester
-          .widget<InputDecorator>(referenceField(find.byType(FeedbackComparisonField).first))
-          .decoration
-          .filled!;
+      bool filled() => referenceHighlighted(tester, find.byType(FeedbackComparisonField).first);
       expect(filled(), isFalse);
 
       await tester.tap(referenceField(find.byType(FeedbackComparisonField).first));
@@ -620,10 +636,7 @@ void main() {
     testWidgets('highlights a reference picked where nothing was stored', (tester) async {
       await seed(tester, extraFeedbacks: [feedback(id: 'f3', day: 3, setupId: 's3')]);
       await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['f3']!));
-      bool filled() => tester
-          .widget<InputDecorator>(referenceField(find.byType(FeedbackComparisonField).first))
-          .decoration
-          .filled!;
+      bool filled() => referenceHighlighted(tester, find.byType(FeedbackComparisonField).first);
       expect(filled(), isFalse);
 
       await tester.tap(referenceField(find.byType(FeedbackComparisonField).first));

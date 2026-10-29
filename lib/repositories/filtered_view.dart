@@ -29,6 +29,7 @@ class FilteredView {
   final Map<String, TaskEntry> _taskEntries;
   final Map<String, RideFeedback> _feedbacks;
   final Map<String, TestSession> _testSessions;
+  final String? Function(RideFeedback feedback) _ratedSetupIdOf;
   final ComponentHierarchyResolver _hierarchy;
   final String? _bikeId;
   final LocalDateRange? _dateRange;
@@ -44,6 +45,7 @@ class FilteredView {
     required this._taskEntries,
     required this._feedbacks,
     required this._testSessions,
+    required this._ratedSetupIdOf,
     required this._hierarchy,
     required this._bikeId,
     required this._dateRange,
@@ -75,11 +77,22 @@ class FilteredView {
     ),
   );
 
+  /// With a setup filter on, a feedback follows the setup it rates: filtering
+  /// for a test session shows its runs' feedbacks, not every other one. The
+  /// date range still applies to the feedback's own day.
   late final Map<String, RideFeedback> feedbacks = Map.fromEntries(
     _feedbacks.entries.where(
-      (entry) => (_bikeId == null || entry.value.bike == _bikeId) && _inDateRange(entry.value.dateTimeLocal),
+      (entry) =>
+          (_bikeId == null || entry.value.bike == _bikeId) &&
+          _inDateRange(entry.value.dateTimeLocal) &&
+          (!_setupFilter.isActive || _ratesMatchingSetup(entry.value)),
     ),
   );
+
+  bool _ratesMatchingSetup(RideFeedback feedback) {
+    final rated = _setups[_ratedSetupIdOf(feedback)];
+    return rated != null && _setupFilter.matches(rated, testSessions: _testSessions);
+  }
 
   /// A session spans days, so the date range leaves it alone.
   late final Map<String, TestSession> testSessions = Map.fromEntries(

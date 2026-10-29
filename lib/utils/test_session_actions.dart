@@ -26,10 +26,7 @@ class TestSessionActions {
   /// Opens the create form, then the form of the first run: a copy of the
   /// bike's current setup (or of the first setup to compare), stamped now. The
   /// session is only recorded once its first run is saved.
-  ///
-  /// With a [baseSetup] (e.g. the current setup from its menu) the first run
-  /// copies it, so a session never starts from an outdated setup by accident.
-  static Future<void> startSession(BuildContext context, {Bike? initialBike, Setup? baseSetup}) async {
+  static Future<void> startSession(BuildContext context, {Bike? initialBike}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
@@ -46,12 +43,12 @@ class TestSessionActions {
     final session = await Navigator.push<TestSession>(
       context,
       MaterialPageRoute(
-        builder: (context) => TestSessionPage(initialBike: initialBike, baseSetup: baseSetup),
+        builder: (context) => TestSessionPage(initialBike: initialBike),
       ),
     );
     if (session == null) return;
 
-    final source = _firstRunSource(appRepository, session, baseSetup);
+    final source = _firstRunSource(appRepository, session);
     if (source == null || !context.mounted) return;
     final carryOver = session.method is Tournament ? await CarryOverActions.confirm(context, setup: source) : null;
     if (!context.mounted) return;
@@ -92,13 +89,12 @@ class TestSessionActions {
     );
   }
 
-  static Setup? _firstRunSource(AppRepository appRepository, TestSession session, Setup? baseSetup) {
+  static Setup? _firstRunSource(AppRepository appRepository, TestSession session) {
     final candidates = switch (session.method) {
       Tournament(:final candidateSetupIds) => candidateSetupIds,
       _ => const <String>[],
     };
     if (candidates.isNotEmpty) return appRepository.setups[candidates.first];
-    if (baseSetup != null) return baseSetup;
     return appRepository.setups[appRepository.resolveSetupId(bikeId: session.bike, atUtc: DateTime.now().toUtc())];
   }
 
@@ -204,14 +200,6 @@ class TestSessionActions {
   static Future<void> endSession(BuildContext context, {required TestSession session}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
-
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: 'End session?',
-      content: "'${session.displayName}' keeps its runs, but you can't add new ones.",
-      trueText: 'End session',
-    );
-    if (!confirmed) return;
 
     unawaited(HapticFeedback.mediumImpact());
     await appRepository.endTestSession(session);

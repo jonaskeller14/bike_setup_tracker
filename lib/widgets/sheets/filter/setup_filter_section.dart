@@ -18,13 +18,18 @@ class SetupFilterSection extends StatelessWidget {
     final showBookmark = context.select<AppSettings, bool>((s) => s.enableSetupBookmark);
     final showTags = context.select<AppSettings, bool>((s) => s.enableSetupTags);
     final showTestSessions = context.select<AppSettings, bool>((s) => s.enableRating);
+    // Test sessions filter like tags, so one hint covers both.
+    final hasChips =
+        showBookmark ||
+        (showTags && appRepository.setupTags.isNotEmpty) ||
+        (showTestSessions && appRepository.testSessionNames.isNotEmpty);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         SheetSectionTitle(title: showBookmark || showTestSessions ? "Setups" : "Setup Tags"),
-        if (showBookmark || appRepository.setupTags.isNotEmpty || showTestSessions)
+        if (hasChips)
           Wrap(
             spacing: 6,
             children: [
@@ -69,17 +74,19 @@ class SetupFilterSection extends StatelessWidget {
                 }),
             ],
           ),
-        if (showTags && appRepository.setupTags.isEmpty)
-          const SheetFilterEmptyHint(
+        if (!hasChips && showTags)
+          SheetFilterEmptyHint(
             icon: Icons.tag,
             title: "No setup tags yet",
-            hint: "Add/Edit a Setup to add tags.",
-          ),
-        if (showTestSessions && appRepository.testSessionNames.isEmpty)
+            hint: showTestSessions
+                ? "Add/Edit a Setup to add tags, or start a test session to filter its runs."
+                : "Add/Edit a Setup to add tags.",
+          )
+        else if (!hasChips && showTestSessions)
           const SheetFilterEmptyHint(
             icon: TestSession.iconData,
             title: "No test sessions yet",
-            hint: "Start a test session to filter its setups.",
+            hint: "Start a test session to filter its runs.",
           ),
       ],
     );

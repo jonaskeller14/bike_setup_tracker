@@ -63,6 +63,7 @@ void main() {
       taskEntries: taskEntries,
       feedbacks: feedbacks,
       testSessions: testSessions,
+      ratedSetupIdOf: (feedback) => feedback.setupId,
       hierarchy: ComponentHierarchyResolver(allComponents, deletedComponentIds: const {"trashed"}),
       bikeId: bikeId,
       dateRange: dateRange,
@@ -185,6 +186,41 @@ void main() {
         ).testSessions.keys,
         ["t1", "t2"],
       );
+    });
+
+    test("with a setup filter, a feedback follows the setup it rates", () {
+      Setup run(String id, {String? testSessionId}) => Setup(
+        id: id,
+        tags: const {},
+        datetime: DateTime.utc(2024, 5, 10),
+        datetimeLocal: DateTime(2024, 5, 10),
+        bike: "b1",
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+        testSessionId: testSessionId,
+      );
+      final setups = byId([run("r1", testSessionId: "t1"), run("plain")], (setup) => setup.id);
+      RideFeedback rating(String id, String setupId) => RideFeedback(
+        id: id,
+        bike: "b1",
+        setupId: setupId,
+        dateTimeUTC: DateTime.utc(2024, 5, 11),
+        dateTimeLocal: DateTime(2024, 5, 11),
+      );
+      final ratings = byId([rating("onRun", "r1"), rating("onPlain", "plain"), rating("onGone", "gone")], (f) => f.id);
+
+      final filtered = build(
+        setups: setups,
+        feedbacks: ratings,
+        testSessions: testSessions,
+        setupFilter: SetupFilter(testSessionNames: {testSessions["t1"]!.displayName}),
+      );
+      expect(filtered.setups.keys, ["r1"]);
+      expect(filtered.feedbacks.keys, ["onRun"]);
+
+      final unfiltered = build(setups: setups, feedbacks: ratings, testSessions: testSessions);
+      expect(unfiltered.feedbacks.keys, ["onRun", "onPlain", "onGone"], reason: 'no setup filter, nothing follows');
     });
   });
 

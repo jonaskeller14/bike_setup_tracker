@@ -289,38 +289,6 @@ void main() {
       expect(appRepository.setups, hasLength(1));
     });
 
-    testWidgets('started from a setup, the first run copies it even when it is not the current one', (tester) async {
-      final current = baseSetup().copyWith(
-        id: 'current',
-        name: 'Current',
-        datetime: DateTime(2026, 5, 3, 10).toUtc(),
-        datetimeLocal: DateTime(2026, 5, 3, 10),
-        bikeAdjustmentValues: {_reboundId: const StepValue(15), _compressionId: const StepValue(8)},
-      );
-      await seed(tester, runs: [current]);
-      await pumpButton(
-        tester,
-        (context) => TestSessionActions.startSession(context, baseSetup: appRepository.setups['s1']),
-      );
-
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget, reason: 'the bike is fixed');
-      expect(find.text("The first run copies 'Base'."), findsOneWidget);
-
-      await tester.tap(find.text('No adjustments yet'));
-      await settle(tester);
-      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
-      await settle(tester);
-      await tester.tapAt(const Offset(10, 10));
-      await settle(tester);
-      await tester.tap(find.byIcon(Icons.check));
-      await settle(tester);
-      await saveForm(tester, saved: () => appRepository.testSessions.isNotEmpty && appRepository.setups.length == 3);
-
-      final started = appRepository.testSessions.values.single;
-      final first = appRepository.setupsInSession(started.id).single;
-      expect(first.bikeAdjustmentValues[_reboundId], const StepValue(5));
-    });
-
     testWidgets('does not start a second session on a bike', (tester) async {
       await seed(tester, session: session(), runs: [run(1)]);
       await pumpButton(tester, (context) => TestSessionActions.startSession(context));
@@ -638,7 +606,7 @@ void main() {
       expect(find.byType(SetupPage), findsOneWidget);
     });
 
-    testWidgets('the setup form refuses to save on the bike', (tester) async {
+    testWidgets('the setup form says so on the bike field before anything is entered, and refuses to save', (tester) async {
       await seed(tester, session: session(), runs: [run(1)]);
       await tester.pumpWidget(
         MultiProvider(
@@ -651,11 +619,45 @@ void main() {
         ),
       );
       await settle(tester);
+      const error = 'A test session is running on this bike. End it before recording a setup.';
+      expect(find.text(error), findsOneWidget, reason: 'shown on open, not after saving');
 
       await tester.tap(find.byIcon(Icons.check));
       await settle(tester);
 
-      expect(find.text('A test session is running on this bike. End it before recording a setup.'), findsOneWidget);
+      expect(find.text(error), findsOneWidget);
+      expect(find.byType(SetupPage), findsOneWidget);
+    });
+
+    Future<void> openEdit(WidgetTester tester, String setupId) async {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: appSettings),
+            ChangeNotifierProvider.value(value: appRepository),
+            ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
+          ],
+          child: MaterialApp(theme: materialAppTheme, home: SetupPage.edit(setup: appRepository.setups[setupId]!)),
+        ),
+      );
+      await settle(tester);
+    }
+
+    const editError = 'A test session is running on this bike. End it before editing its setups.';
+
+    testWidgets('editing another setup of the bike is refused too', (tester) async {
+      await seed(tester, session: session(), runs: [run(1)]);
+      await openEdit(tester, 's1');
+
+      expect(find.text(editError), findsOneWidget);
+    });
+
+    testWidgets("editing a run of the running session isn't", (tester) async {
+      await seed(tester, session: session(), runs: [run(1)]);
+      await openEdit(tester, 'r1');
+
+      expect(find.text(editError), findsNothing);
+      expect(find.byIcon(Icons.lock_outline), findsWidgets, reason: 'the run keeps its bike');
     });
   });
 
@@ -699,21 +701,24 @@ void main() {
       expect(appRepository.testSessions['ts']!.locks, isEmpty);
     });
 
-    testWidgets('End session asks, then stamps the end', (tester) async {
+    testWidgets('End session stamps the end without asking, and UNDO resumes it', (tester) async {
       await seed(tester, session: session(), runs: [run(1)]);
       await pumpButton(
         tester,
         (context) => TestSessionActions.endSession(context, session: appRepository.testSessions['ts']!),
       );
-
-      await tester.tap(find.text('End session'));
-      await settle(tester);
       await awaitData(tester, () => !appRepository.testSessions['ts']!.isRunning);
 
       final ended = appRepository.testSessions['ts']!;
       expect(ended.isRunning, isFalse);
       expect(ended.endedAtLocal, isNotNull);
       expect(appRepository.runningSessionFor(_bikeId), isNull);
+      expect(find.text("Test session 'Test session' ended."), findsOneWidget);
+
+      await tester.tap(find.text('UNDO'));
+      await settle(tester);
+      await awaitData(tester, () => appRepository.testSessions['ts']!.isRunning);
+      expect(appRepository.runningSessionFor(_bikeId)?.id, 'ts');
     });
   });
 
@@ -769,14 +774,18 @@ void main() {
       expectSessionBack();
     });
 
-    testWidgets('restoring the session from the trash restores its runs and feedbacks too', (tester) async {
+    testWidgets('restoring the session from the trash leaves its runs and feedbacks there', (tester) async {
       await seedSession(tester);
       await tester.runAsync(() => appRepository.removeTestSessions([appRepository.testSessions['ts']!]));
       await awaitData(tester, sessionInTrash);
 
       await tester.runAsync(() => appRepository.restoreTestSessions(appRepository.deletedTestSessions));
-      await awaitData(tester, () => appRepository.testSessions.isNotEmpty && appRepository.feedbacks.length == 3);
-      expectSessionBack();
+      await awaitData(tester, () => appRepository.testSessions.isNotEmpty);
+      expect(appRepository.testSessions.keys, ['ts']);
+      expect(appRepository.setupsInSession('ts'), isEmpty);
+      expect(appRepository.deletedSetups, hasLength(2));
+      expect(appRepository.deletedFeedbacks, hasLength(2));
+      expect(appRepository.feedbacks.keys, ['outside']);
     });
 
     testWidgets('edit saves the new name and keeps everything else', (tester) async {

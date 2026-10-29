@@ -9,6 +9,7 @@ import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../theme.dart';
+import '../items/card_header_tile.dart';
 import '../lists/adjustment_compact_display/adjustment_cell_layout.dart';
 import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import '../sheets/compare_setups.dart';
@@ -67,7 +68,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.only(top: 16, bottom: 12),
+        padding: const EdgeInsets.only(bottom: 12),
         child: AnimatedSize(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
@@ -75,16 +76,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: EdgeInsets.only(left: 16, right: widget.onRemove == null ? 16 : 4),
-                child: Row(
-                  children: [
-                    Expanded(child: _referenceField(context, reference)),
-                    if (widget.onRemove case final onRemove?)
-                      IconButton(icon: const Icon(Icons.close), tooltip: 'Remove comparison', onPressed: onRemove),
-                  ],
-                ),
-              ),
+              _referenceHeader(context, reference),
               const SizedBox(height: 8),
               InkWell(
                 onTap: () => setState(() => _showChanges = !_showChanges),
@@ -167,26 +159,49 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
     );
   }
 
-  Widget _referenceField(BuildContext context, Setup? reference) {
-    final scheme = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: () => _pickReference(context, reference),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          labelText: 'Reference setup',
-          border: const OutlineInputBorder(),
-          suffixIcon: Icon(Icons.arrow_drop_down, color: scheme.onSurfaceVariant),
-          fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-          filled: widget.referenceChanged,
+  Widget _referenceHeader(BuildContext context, Setup? reference) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final appSettings = context.read<AppSettings>();
+    final errorColor = reference == null ? scheme.error : null;
+
+    return CardHeaderTile(
+      color: widget.referenceChanged
+          ? theme.extension<ValueHighlightColors>()!.changedFill
+          : scheme.outlineVariant,
+      // Above the header's colour, so the tap ripple shows.
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          onTap: () => _pickReference(context, reference),
+          contentPadding: EdgeInsets.only(left: 16, right: widget.onRemove == null ? 16 : 4),
+          leading: Icon(Setup.iconData, color: errorColor),
+          title: Text(
+            reference?.displayName ?? 'SETUP NOT FOUND',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontWeight: FontWeight.bold, color: errorColor),
+          ),
+          subtitle: reference == null
+              ? null
+              : Text(
+                  '${DateFormat(appSettings.dateFormat).format(reference.datetimeLocal)} • '
+                  '${DateFormat(appSettings.timeFormat).format(reference.datetimeLocal)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Tooltip(
+                message: 'Change reference setup',
+                child: Icon(Icons.arrow_drop_down, color: scheme.onSurfaceVariant),
+              ),
+              if (widget.onRemove case final onRemove?)
+                IconButton(icon: const Icon(Icons.close), tooltip: 'Remove comparison', onPressed: onRemove),
+            ],
+          ),
         ),
-        child: reference == null
-            ? Text(
-                "SETUP NOT FOUND",
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: scheme.error, fontWeight: FontWeight.bold),
-              )
-            : _SetupLabel(setup: reference),
       ),
     );
   }
@@ -196,6 +211,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
     final picked = await showPickSetupSheet(
       context,
       title: 'Reference setup',
+      selectedId: reference?.id,
       options: [
         widget.rated,
         ...candidates,
@@ -255,37 +271,6 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
       displayOnlyChanges: true,
       displayPersonAdjustmentValues: appSettings.enablePerson,
       ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, rated.datetime),
-    );
-  }
-}
-
-class _SetupLabel extends StatelessWidget {
-  final Setup setup;
-
-  const _SetupLabel({required this.setup});
-
-  @override
-  Widget build(BuildContext context) {
-    final appSettings = context.read<AppSettings>();
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          setup.displayName,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text(
-          '${DateFormat(appSettings.dateFormat).format(setup.datetimeLocal)} • '
-          '${DateFormat(appSettings.timeFormat).format(setup.datetimeLocal)}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-        ),
-      ],
     );
   }
 }

@@ -32,6 +32,7 @@ import '../../widgets/chips/utils.dart';
 import '../../widgets/current_setup_badge.dart';
 import '../../widgets/dialogs/confirmation.dart';
 import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/feedback/feedback_aspect_row.dart';
 import '../../widgets/feedback/feedback_comparison_field.dart';
 import '../../widgets/feedback/feedback_issue_chips.dart';
@@ -924,6 +925,15 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final appRepository = context.read<AppRepository>();
     final theme = Theme.of(context);
     final bike = appRepository.bikes[_bike];
+
+    // Without any setup no other date helps, so say what's missing instead.
+    if (rated == null && !appRepository.setups.values.any((setup) => setup.bike == _bike)) {
+      return EmptyStatePlaceholder2(
+        iconData: Setup.iconData,
+        title: 'No setups yet',
+        subtitle: "Feedback rates the setup you rode. Record ${bike?.name ?? 'this bike'}'s setup first.",
+      );
+    }
 
     if (rated == null) {
       final errorColor = theme.colorScheme.error;

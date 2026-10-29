@@ -561,6 +561,7 @@ class AppRepository extends ChangeNotifier {
         taskEntries: _taskEntries,
         feedbacks: _feedbacks,
         testSessions: _testSessions,
+        ratedSetupIdOf: resolvedSetupIdFor,
         hierarchy: componentHierarchy,
         bikeId: filters.bikeId,
         dateRange: filters.dateRange,
@@ -1346,34 +1347,21 @@ class AppRepository extends ChangeNotifier {
     return (runs: runs, feedbacks: feedbacks);
   }
 
-  /// Restores [sessions] with their runs in the trash and the trashed
-  /// feedbacks that were recorded on those runs. An undo passes what
-  /// [removeTestSessions] took along as [runs] and [feedbacks], which also
-  /// covers a feedback that had drifted to a run.
+  /// Restores [sessions] only, like any other item in the trash: their runs
+  /// and feedbacks stay there until restored on their own. An undo passes what
+  /// [removeTestSessions] took along as [runs] and [feedbacks].
   Future<void> restoreTestSessions(
     Iterable<TestSession> sessions, {
     Iterable<Setup> runs = const [],
     Iterable<RideFeedback> feedbacks = const [],
   }) async {
     if (sessions.isEmpty) return;
-    final ids = {for (final session in sessions) session.id};
-    final allRuns = {
-      for (final run in [...runs, ..._deletedSetups.where((setup) => ids.contains(setup.testSessionId))]) run.id: run,
-    };
-    final allFeedbacks = {
-      for (final feedback in [
-        ...feedbacks,
-        ..._deletedFeedbacks.where((feedback) => allRuns.containsKey(feedback.setupId)),
-      ])
-        feedback.id: feedback,
-    };
-
     await database.transaction(() async {
-      for (final id in ids) {
-        await database.feedbackDao.restoreTestSession(id);
+      for (final session in sessions) {
+        await database.feedbackDao.restoreTestSession(session.id);
       }
-      await restoreSetups(allRuns.values);
-      await restoreFeedbacks(allFeedbacks.values);
+      await restoreSetups(runs);
+      await restoreFeedbacks(feedbacks);
     });
   }
 

@@ -51,15 +51,12 @@ enum _MethodChoice {
 class TestSessionPage extends StatefulWidget {
   final Bike? initialBike;
 
-  /// The setup the first run copies. Without one, the bike's current setup.
-  final Setup? baseSetup;
-
   /// The session being edited.
   final TestSession? session;
 
-  const TestSessionPage({super.key, this.initialBike, this.baseSetup}) : session = null;
+  const TestSessionPage({super.key, this.initialBike}) : session = null;
 
-  const TestSessionPage.edit({super.key, required TestSession this.session}) : initialBike = null, baseSetup = null;
+  const TestSessionPage.edit({super.key, required TestSession this.session}) : initialBike = null;
 
   @override
   State<TestSessionPage> createState() => _TestSessionPageState();
@@ -85,7 +82,6 @@ class _TestSessionPageState extends State<TestSessionPage> {
     final appRepository = context.read<AppRepository>();
     _bike =
         widget.session?.bike ??
-        widget.baseSetup?.bike ??
         widget.initialBike?.id ??
         appRepository.view.bikes.keys.firstOrNull ??
         appRepository.bikes.keys.firstOrNull ??
@@ -196,7 +192,6 @@ class _TestSessionPageState extends State<TestSessionPage> {
     if (appRepository.runningSessionFor(_bike) != null) {
       error = 'A test session is already running on this bike.';
     } else if (_choice != _MethodChoice.compare &&
-        widget.baseSetup == null &&
         appRepository.setups[appRepository.resolveSetupId(bikeId: _bike, atUtc: DateTime.now().toUtc())] == null) {
       error = 'Record a setup first. The first run starts from the bike’s current setup.';
     }
@@ -294,23 +289,17 @@ class _TestSessionPageState extends State<TestSessionPage> {
     _candidatesChanged();
   }
 
-  /// Started from a setup, its bike is fixed and its values start the first
-  /// run. An edited session keeps its bike.
+  /// An edited session keeps its bike: the runs already depend on it.
   Widget _lockedBike(Bike? bike) {
-    final base = widget.baseSetup;
     // Dimmed like the locked type field of the component form.
     final disabled = Theme.of(context).disabledColor;
     return InputDecorator(
       isEmpty: false,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Bike',
         enabled: false,
-        border: const OutlineInputBorder(),
-        suffixIcon: const Icon(Icons.lock_outline),
-        helperText: base == null || _choice == _MethodChoice.compare
-            ? null
-            : "The first run copies '${base.displayName}'.",
-        helperMaxLines: 2,
+        border: OutlineInputBorder(),
+        suffixIcon: Icon(Icons.lock_outline),
       ),
       child: Row(
         spacing: 8,
@@ -632,7 +621,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       spacing: 12,
                       children: [
-                        if (_isEdit || widget.baseSetup != null)
+                        if (_isEdit)
                           _lockedBike(bikes[_bike])
                         else
                           DropdownButtonFormField<String>(

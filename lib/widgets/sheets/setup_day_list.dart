@@ -85,30 +85,35 @@ class SetupPickTile extends StatelessWidget {
     final isCurrent = appRepository.setupHistory.isCurrent(setup.id);
     final bike = appRepository.bikes[setup.bike];
 
-    final tile = InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Expanded(
-              child: SetupTileHeader(
-                setup: setup,
-                dateTimeText: timeText,
-                metadata: SetupTileHeader.metadataOf(setup, appSettings),
-                badge: badges.isNotEmpty || isCurrent
-                    ? Wrap(spacing: 4, children: [...badges, if (isCurrent) const CurrentSetupBadge()])
-                    : null,
-                showSetupIcon: true,
-                selected: selected,
-                secondaryMetadata: showBikeName
-                    ? TileMetaRow(icon: Bike.iconData, text: bike?.name ?? 'Unknown bike', isError: bike == null)
-                    : null,
+    // The ripple paints on the nearest Material; the sheet's own sits outside
+    // the scroll view, so it would draw over the header while scrolling.
+    final tile = Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: SetupTileHeader(
+                  setup: setup,
+                  dateTimeText: timeText,
+                  metadata: SetupTileHeader.metadataOf(setup, appSettings),
+                  badge: badges.isNotEmpty || isCurrent
+                      ? Wrap(spacing: 4, children: [...badges, if (isCurrent) const CurrentSetupBadge()])
+                      : null,
+                  showSetupIcon: true,
+                  selected: selected,
+                  secondaryMetadata: showBikeName
+                      ? TileMetaRow(icon: Bike.iconData, text: bike?.name ?? 'Unknown bike', isError: bike == null)
+                      : null,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            trailing,
-          ],
+              const SizedBox(width: 8),
+              trailing,
+            ],
+          ),
         ),
       ),
     );

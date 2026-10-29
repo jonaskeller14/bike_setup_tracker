@@ -77,12 +77,14 @@ class FeedbackPage extends StatefulWidget {
     DateTime? initialDateTimeUtc,
     DateTime? initialDateTimeLocal,
     String? heroTag,
+    StravaActivity? stravaActivity,
   }) => FeedbackPage._(
     key: key,
     mode: FeedbackPageMode.add,
     initialBike: initialBike,
     initialDateTimeUtc: initialDateTimeUtc,
     initialDateTimeLocal: initialDateTimeLocal,
+    initialStravaActivity: stravaActivity,
     heroTag: heroTag,
   );
 
@@ -93,13 +95,14 @@ class FeedbackPage extends StatefulWidget {
   }) {
     final appRepository = context.read<AppRepository>();
     final bike = appRepository.bikes.values.firstWhereOrNull((b) => b.stravaGear == stravaActivity.gearId);
+    final (utc, local) = stravaActivity.feedbackTime();
 
     return FeedbackPage._(
       key: key,
       mode: FeedbackPageMode.add,
       initialBike: bike,
-      initialDateTimeUtc: stravaActivity.startDate,
-      initialDateTimeLocal: stravaActivity.startDateLocal,
+      initialDateTimeUtc: utc,
+      initialDateTimeLocal: local,
       initialStravaActivity: stravaActivity,
     );
   }

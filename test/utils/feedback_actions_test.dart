@@ -8,6 +8,7 @@ import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/forms/feedback_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -117,6 +118,54 @@ void main() {
       final s1 = appRepository.setups['s1']!;
 
       final (utc, local) = FeedbackActions.feedbackTimeFor(appRepository, s1, now: DateTime(2026, 6, 1, 18));
+
+      expect(local, s1Local);
+      expect(appRepository.resolveSetupId(bikeId: _bikeId, atUtc: utc), 's1');
+    });
+
+    StravaActivity ride({required DateTime start, required Duration elapsed}) => StravaActivity(
+      id: 7,
+      name: 'Ride',
+      athlete: 1,
+      sportType: SportType.Ride,
+      startDate: start.toUtc(),
+      startDateLocal: start,
+      gearId: null,
+      startLat: null,
+      startLon: null,
+      distance: null,
+      totalElevationGain: null,
+      movingTime: elapsed,
+      elapsedTime: elapsed,
+    );
+
+    testWidgets('dates feedback on the setup a ride ended on within the ride', (tester) async {
+      await seed(tester);
+      // s2 starts mid-ride, so the minute before the end resolves to it.
+      final activity = ride(start: DateTime(2026, 5, 2, 9), elapsed: const Duration(hours: 3));
+
+      final (utc, local) = FeedbackActions.feedbackTimeFor(
+        appRepository,
+        appRepository.setups['s2']!,
+        now: DateTime(2026, 6, 1, 18),
+        stravaActivity: activity,
+      );
+
+      expect(local, DateTime(2026, 5, 2, 11, 59));
+      expect(appRepository.resolveSetupId(bikeId: _bikeId, atUtc: utc), 's2');
+    });
+
+    testWidgets('dates feedback on a setup the ride did not end on at that setup\'s start', (tester) async {
+      await seed(tester);
+      final s1 = appRepository.setups['s1']!;
+      final activity = ride(start: DateTime(2026, 5, 2, 9), elapsed: const Duration(hours: 3));
+
+      final (utc, local) = FeedbackActions.feedbackTimeFor(
+        appRepository,
+        s1,
+        now: DateTime(2026, 6, 1, 18),
+        stravaActivity: activity,
+      );
 
       expect(local, s1Local);
       expect(appRepository.resolveSetupId(bikeId: _bikeId, atUtc: utc), 's1');

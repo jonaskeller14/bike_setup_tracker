@@ -396,7 +396,7 @@ class StravaActivityPageContent extends StatelessWidget {
                 // The ride's feedbacks, as cards of their own between the setups, newest first and
                 // ordered like the setup list, so a feedback stays above the setup it shares a time with.
                 final feedbacks = appSettings.enableRating
-                    ? appRepository.feedbacks.values.where((f) => f.stravaActivityId == stravaActivity.id).toList()
+                    ? appRepository.feedbacksForActivity(stravaActivity)
                     : const <RideFeedback>[];
                 final entries = <TimelineEntry>[
                   ...uniqueSetups.map(SetupEntry.new),
@@ -457,7 +457,7 @@ class StravaActivityPageContent extends StatelessWidget {
                         // Rounds the InkWell and the current-setup bar.
                         clipBehavior: Clip.antiAlias,
                         child: switch (entry) {
-                          SetupEntry(:final setup) => SetupTile(setupId: setup.id, onTap: null),
+                          SetupEntry(:final setup) => SetupTile(setupId: setup.id, onTap: null, stravaActivity: stravaActivity),
                           FeedbackTimelineEntry(:final feedback) => FeedbackListTile(feedback: feedback, showBike: false),
                           _ => const SizedBox.shrink(),
                         },

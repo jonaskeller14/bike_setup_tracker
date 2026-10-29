@@ -20,6 +20,7 @@ class FeedbackActions {
     DateTime? initialDateTimeUtc,
     DateTime? initialDateTimeLocal,
     String? heroTag,
+    StravaActivity? stravaActivity,
   }) {
     return _pushAndAdd(
       context,
@@ -28,6 +29,7 @@ class FeedbackActions {
         initialDateTimeUtc: initialDateTimeUtc,
         initialDateTimeLocal: initialDateTimeLocal,
         heroTag: heroTag,
+        stravaActivity: stravaActivity,
       ),
     );
   }
@@ -51,19 +53,35 @@ class FeedbackActions {
 
   /// Feedback on [setup]: dated now while it is the bike's active setup,
   /// otherwise at its start, so the new feedback resolves to it.
-  static Future<bool> addFeedbackForSetup(BuildContext context, {required Setup setup, String? heroTag}) {
+  static Future<bool> addFeedbackForSetup(
+    BuildContext context, {
+    required Setup setup,
+    String? heroTag,
+    StravaActivity? stravaActivity,
+  }) {
     final appRepository = context.read<AppRepository>();
-    final (utc, local) = feedbackTimeFor(appRepository, setup);
+    final (utc, local) = feedbackTimeFor(appRepository, setup, stravaActivity: stravaActivity);
     return addFeedback(
       context,
       initialBike: appRepository.bikes[setup.bike],
       initialDateTimeUtc: utc,
       initialDateTimeLocal: local,
       heroTag: heroTag,
+      stravaActivity: stravaActivity,
     );
   }
 
-  static (DateTime utc, DateTime local) feedbackTimeFor(AppRepository appRepository, Setup setup, {DateTime? now}) {
+  /// For a feedback on [setup] of a [stravaActivity], the ride's own time when
+  /// that resolves to [setup], so the ride's last setup is dated within the ride.
+  static (DateTime utc, DateTime local) feedbackTimeFor(
+    AppRepository appRepository,
+    Setup setup, {
+    DateTime? now,
+    StravaActivity? stravaActivity,
+  }) {
+    final ride = stravaActivity?.feedbackTime(now: now);
+    if (ride != null && appRepository.resolveSetupId(bikeId: setup.bike, atUtc: ride.$1) == setup.id) return ride;
+
     final localNow = now ?? DateTime.now();
     if (appRepository.resolveSetupId(bikeId: setup.bike, atUtc: localNow.toUtc()) == setup.id) {
       return (localNow.toUtc(), localNow);

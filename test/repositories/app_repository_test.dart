@@ -1723,7 +1723,12 @@ void main() {
     group("activityNeedsFeedback", () {
       final geared = Bike(name: "Geared", person: null, stravaGear: "gear_1");
 
-      StravaActivity ride(int id, DateTime start, {String? gearId = "gear_1"}) => StravaActivity(
+      StravaActivity ride(
+        int id,
+        DateTime start, {
+        String? gearId = "gear_1",
+        Duration elapsed = Duration.zero,
+      }) => StravaActivity(
         id: id,
         name: "Ride $id",
         athlete: 1,
@@ -1736,7 +1741,7 @@ void main() {
         distance: null,
         totalElevationGain: null,
         movingTime: Duration.zero,
-        elapsedTime: Duration.zero,
+        elapsedTime: elapsed,
       );
 
       setUp(() async {
@@ -1755,6 +1760,35 @@ void main() {
 
       test("is false for a ride before the current setup", () {
         expect(repository.activityNeedsFeedback(ride(1, DateTime(2026, 5, 20))), false);
+      });
+
+      test("is true for a ride that ended on the current setup, though it started before it", () {
+        final overlapping = ride(1, DateTime(2026, 5, 31, 23), elapsed: const Duration(hours: 3));
+
+        expect(repository.activityNeedsFeedback(overlapping), true);
+      });
+
+      test("lists the feedbacks linked to a ride and those recorded on its bike during it", () async {
+        final activity = ride(1, DateTime(2026, 6, 2, 10), elapsed: const Duration(hours: 2));
+        final setupId = repository.resolveSetupId(bikeId: geared.id, atUtc: activity.startDate)!;
+        RideFeedback at(DateTime local, {int? activityId, Bike? bike}) =>
+            buildFeedback(local, setupId: setupId, bike: bike ?? geared).copyWith(stravaActivityId: activityId);
+        final linked = at(DateTime(2026, 6, 9, 8), activityId: 1);
+        final during = at(DateTime(2026, 6, 2, 11));
+        final atEnd = at(DateTime(2026, 6, 2, 12));
+        final before = at(DateTime(2026, 6, 2, 9, 59));
+        final after = at(DateTime(2026, 6, 2, 12, 1));
+        final otherRide = at(DateTime(2026, 6, 2, 11), activityId: 2);
+        final otherBike = Bike(name: "Other", person: null, stravaGear: "gear_2");
+        await repository.addBikes([otherBike]);
+        final elsewhere = at(DateTime(2026, 6, 2, 11), bike: otherBike);
+        await repository.addFeedbacks([linked, during, atEnd, before, after, otherRide, elsewhere]);
+        await pumpEventQueue();
+
+        expect(
+          repository.feedbacksForActivity(activity).map((f) => f.id),
+          unorderedEquals([linked.id, during.id, atEnd.id]),
+        );
       });
 
       test("is false for a ride without a bike on its gear", () {

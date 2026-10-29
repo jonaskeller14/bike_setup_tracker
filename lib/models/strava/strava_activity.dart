@@ -47,6 +47,23 @@ class StravaActivity {
   StravaWorkoutType get workout => StravaWorkoutType.fromRaw(workoutType);
   double? get kilojoules => averageWatts != null ? averageWatts! * movingTime.inSeconds / 1000 : null;
   bool get hasStartPosition => (startLat?.isFinite ?? false) && (startLon?.isFinite ?? false);
+  DateTime get endDate => startDate.add(elapsedTime);
+  DateTime get endDateLocal => startDateLocal.add(elapsedTime);
+
+  /// When feedback on this ride is dated: now while it runs, else a minute
+  /// before it ended. That resolves to the setup the ride ended on, also when
+  /// a setup was changed mid-ride and not to one recorded long after.
+  (DateTime utc, DateTime local) feedbackTime({DateTime? now}) {
+    final last = endDate.subtract(const Duration(minutes: 1));
+    final latest = last.isBefore(startDate) ? startDate : last;
+    final nowUtc = (now ?? DateTime.now()).toUtc();
+    final utc = nowUtc.isBefore(startDate)
+        ? startDate
+        : nowUtc.isAfter(latest)
+        ? latest
+        : nowUtc;
+    return (utc, startDateLocal.add(utc.difference(startDate)));
+  }
 
   Map<String, dynamic> toJson() => {
     'id': id,

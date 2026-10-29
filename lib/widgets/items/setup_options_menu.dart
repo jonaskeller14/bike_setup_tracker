@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/feedback/ride_feedback.dart';
 import '../../models/setup.dart';
+import '../../models/strava/strava_activity.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/feedback_actions.dart';
 import '../../utils/setup_actions.dart';
@@ -11,14 +12,14 @@ import '../sheets/compare_setups.dart';
 
 class SetupOptionsMenu extends StatelessWidget {
   final Setup setup;
-
-  /// Hero tag of the tile header, so "Add Feedback" flies it into the form.
-  final String? heroTag;
+  final String? heroTag; // Hero tag of the setup tile header
+  final StravaActivity? stravaActivity;
 
   const SetupOptionsMenu({
     super.key,
     required this.setup,
     this.heroTag,
+    this.stravaActivity,
   });
 
   @override
@@ -76,7 +77,12 @@ class SetupOptionsMenu extends StatelessWidget {
       case _SetupOption.compare:
         await showCompareSetupsSheet(context, setupA: null, setupB: setup);
       case _SetupOption.addFeedback:
-        await FeedbackActions.addFeedbackForSetup(context, setup: setup, heroTag: heroTag);
+        await FeedbackActions.addFeedbackForSetup(
+          context,
+          setup: setup,
+          heroTag: heroTag,
+          stravaActivity: stravaActivity,
+        );
       case _SetupOption.remove:
         await SetupActions.removeSetup(context, setup: setup);
     }

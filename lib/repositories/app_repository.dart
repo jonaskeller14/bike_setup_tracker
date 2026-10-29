@@ -942,13 +942,31 @@ class AppRepository extends ChangeNotifier {
 
   Set<int>? _feedbackActivityIds;
 
+  /// The feedbacks of [activity]: linked to it, or recorded on its bike during
+  /// the ride without a link to another one.
+  List<RideFeedback> feedbacksForActivity(StravaActivity activity) {
+    final bikeIds = {
+      for (final bike in _bikes.values)
+        if (bike.stravaGear != null && bike.stravaGear == activity.gearId) bike.id,
+    };
+    return [
+      for (final feedback in _feedbacks.values)
+        if (feedback.stravaActivityId == activity.id ||
+            (feedback.stravaActivityId == null &&
+                bikeIds.contains(feedback.bike) &&
+                !feedback.dateTimeUTC.isBefore(activity.startDate) &&
+                !feedback.dateTimeUTC.isAfter(activity.endDate)))
+          feedback,
+    ];
+  }
+
   /// Whether [activity] is a ride on the bike's current setup that no feedback
-  /// is linked to yet. Rides before the current setup belong to an older one.
+  /// is linked to yet. Rides that ended before the current setup belong to an older one.
   bool activityNeedsFeedback(StravaActivity activity) {
     final bike = _bikes.values.firstWhereOrNull((b) => b.stravaGear != null && b.stravaGear == activity.gearId);
     if (bike == null) return false;
     final current = _setups[resolveSetupId(bikeId: bike.id, atUtc: DateTime.now().toUtc())];
-    if (current == null || activity.startDate.isBefore(current.datetime)) return false;
+    if (current == null || activity.endDate.isBefore(current.datetime)) return false;
     final linked = _feedbackActivityIds ??= {
       for (final feedback in _feedbacks.values)
         if (feedback.stravaActivityId != null) feedback.stravaActivityId!,

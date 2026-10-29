@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/setup.dart';
+import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../utils/automation_ids.dart';
@@ -36,6 +37,7 @@ class SetupTile extends StatefulWidget {
 
   /// When set, the collapsed values are these adjustments instead of the changes.
   final Set<String>? collapsedAdjustmentIds;
+  final StravaActivity? stravaActivity;
 
   const SetupTile({
     super.key,
@@ -50,6 +52,7 @@ class SetupTile extends StatefulWidget {
     this.edgeInset = EdgeInsets.zero,
     this.showCurrentBadge = false,
     this.collapsedAdjustmentIds,
+    this.stravaActivity,
   });
 
   @override
@@ -146,7 +149,7 @@ class _SetupTileState extends State<SetupTile> {
               child: Semantics(
                 container: true,
                 identifier: AutomationIds.setupActions(setup.id),
-                child: SetupOptionsMenu(setup: setup, heroTag: _heroTag),
+                child: SetupOptionsMenu(setup: setup, heroTag: _heroTag, stravaActivity: widget.stravaActivity),
               ),
             ),
           if (showInlineExpandIcon)

@@ -375,7 +375,11 @@ void main() {
     });
 
     for (final (description, configure) in [
-      ('task presets are off', () => appSettings.enableTask = true),
+      ('task presets are off', () {
+        appSettings
+          ..enableTask = true
+          ..enableTaskPresets = false;
+      }),
       ('the task interval is off', () {
         enableTaskPresets();
         appSettings.enableTaskInterval = false;

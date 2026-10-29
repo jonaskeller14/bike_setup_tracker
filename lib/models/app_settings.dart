@@ -43,8 +43,8 @@ class AppSettings extends ChangeNotifier {
   bool _enableAdvancedFilters = false;
   bool _enableAttachments = false;
   bool _enableSetupBookmark = false;
-  bool _enableComponentPresets = false;
-  bool _enableTaskPresets = false;
+  bool _enableComponentPresets = true;
+  bool _enableTaskPresets = true;
   bool _enableSetupGuides = false;
   bool _enableInstallOnComponent = false;
   bool _enablePressureAssistant = false;
@@ -92,8 +92,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableAttachments => _enableAttachments;
   bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
-  // Requires component presets; the stored choice survives toggling them off and on.
-  bool get enableTaskPresets => _enableTaskPresets && _enableComponentPresets;
+  bool get enableTaskPresets => _enableTaskPresets;
   bool get showTaskPresets => _enableTask && _enableTaskInterval && enableTaskPresets;
   bool get enableSetupGuides => _enableSetupGuides && _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;

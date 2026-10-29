@@ -185,7 +185,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
     // Built before the sheet can pop, while its context is still active.
     final snackBar = AppSnackBar.info(
       context,
-      'Task recommendations turned off. Turn them back on in Settings › Features.',
+      'Task recommendations turned off. Turn them back on in Settings › Features › Task Presets.',
       action: AppSnackBarAction(label: 'UNDO', onPressed: () => appSettings.enableTaskPresets = true),
     );
     appSettings.enableTaskPresets = false;

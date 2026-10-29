@@ -10,6 +10,7 @@ import '../app_snackbar.dart';
 import 'garage_list_hint.dart';
 import 'getting_started_guide_hint.dart';
 import 'release_44_hint.dart';
+import 'release_45_hint.dart';
 import 'setup_calendar_hint.dart';
 import 'setup_comparison_hint.dart';
 import 'setup_task_hint.dart';
@@ -67,6 +68,10 @@ class AppHintSlot extends StatelessWidget {
         onDismiss: () => unawaited(hintService.dismiss(AppHint.release44)),
         onEnableSubcomponents: () async => _turnOnSubcomponents(context),
         onEnableAttachments: () => _enableAttachments(context, hintService),
+      ),
+      AppHint.release45 => Release45Hint(
+        onDismiss: () => unawaited(hintService.dismiss(AppHint.release45)),
+        onEnableTasks: () => _enableTaskPresets(context, hintService),
       ),
     };
 
@@ -131,6 +136,20 @@ class AppHintSlot extends StatelessWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       AppSnackBar.success(context, 'Attachments enabled — add photos and files to bikes, components, setups and tasks'),
+    );
+  }
+
+  Future<void> _enableTaskPresets(
+    BuildContext context,
+    AppHintService hintService,
+  ) async {
+    context.read<AppSettings>()
+      ..enableTask = true
+      ..enableTaskInterval = true;
+    await hintService.complete(AppHint.release45);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.success(context, 'Tasks enabled — recommended tasks are offered when you add a component'),
     );
   }
 }

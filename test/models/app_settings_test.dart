@@ -189,38 +189,29 @@ void main() {
 
   group('AppSettings — enableTaskPresets', () {
     test('persists, loads and resets', () async {
-      SharedPreferences.setMockInitialValues({'${_kPrefix}enableComponentPresets': true});
+      SharedPreferences.setMockInitialValues({});
       final settings = AppSettings();
       await settings.loadAppSettings();
-      expect(settings.enableTaskPresets, isFalse);
+      expect(settings.enableTaskPresets, isTrue);
 
-      settings.enableTaskPresets = true;
+      settings.enableTaskPresets = false;
       await flushWrites();
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('${_kPrefix}enableTaskPresets'), isTrue);
+      expect(prefs.getBool('${_kPrefix}enableTaskPresets'), isFalse);
       expect(settings.hasDefaultValues, isFalse);
 
       final reloaded = AppSettings();
       await reloaded.loadAppSettings();
-      expect(reloaded.enableTaskPresets, isTrue);
+      expect(reloaded.enableTaskPresets, isFalse);
 
       await reloaded.resetToDefaults();
-      expect(reloaded.enableTaskPresets, isFalse);
+      expect(reloaded.enableTaskPresets, isTrue);
       expect(prefs.getBool('${_kPrefix}enableTaskPresets'), isNull);
     });
 
-    test('requires component presets and keeps the stored choice', () {
+    test('works without component presets', () {
       SharedPreferences.setMockInitialValues({});
-      final settings = AppSettings()..enableTaskPresets = true;
-      expect(settings.enableTaskPresets, isFalse);
-
-      settings.enableComponentPresets = true;
-      expect(settings.enableTaskPresets, isTrue);
-
-      settings.enableComponentPresets = false;
-      expect(settings.enableTaskPresets, isFalse);
-
-      settings.enableComponentPresets = true;
+      final settings = AppSettings()..enableComponentPresets = false;
       expect(settings.enableTaskPresets, isTrue);
     });
 
@@ -244,9 +235,6 @@ void main() {
       settings.enableTaskPresets = false;
       expect(settings.showTaskPresets, isFalse);
       settings.enableTaskPresets = true;
-
-      settings.enableComponentPresets = false;
-      expect(settings.showTaskPresets, isFalse);
     });
   });
 
@@ -274,7 +262,9 @@ void main() {
 
     test('requires component presets and keeps the stored choice', () {
       SharedPreferences.setMockInitialValues({});
-      final settings = AppSettings()..enableSetupGuides = true;
+      final settings = AppSettings()
+        ..enableComponentPresets = false
+        ..enableSetupGuides = true;
       expect(settings.enableSetupGuides, isFalse);
 
       settings.enableComponentPresets = true;

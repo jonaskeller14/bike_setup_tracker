@@ -13,6 +13,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../widgets/sheets/checkbox_group.dart';
 import '../../widgets/sheets/installation_timeline_hint_sheet.dart';
+import '../../widgets/sheets/presets_setting_sheets.dart';
 import '../../widgets/sheets/pressure_check_setting_sheet.dart';
 import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/sheets/subcomponents_hint_sheet.dart';
@@ -93,31 +94,13 @@ class FeaturesPage extends StatelessWidget {
                 onChanged: (v) => appSettings.enableInstallOnComponent = v,
                 sheet: (context, value) => showSubcomponentsSettingSheet(context, value: value),
               ),
-              if (appSettings.developerMode)
-                _FeatureToggleTile(
-                  icon: Icons.auto_awesome_outlined,
-                  title: "Component Presets",
-                  value: appSettings.enableComponentPresets,
-                  onChanged: (v) => appSettings.enableComponentPresets = v,
-                  infoText:
-                      'When adding a fork or shock, pick the model from a built-in '
-                      'catalog to prefill its name, notes and adjustments (click ranges, '
-                      'air pressure, SAG) automatically. You can still edit everything afterwards.',
-                ),
-              if (appSettings.developerMode)
-                _FeatureToggleTile(
-                  enabled: appSettings.enableComponentPresets,
-                  disabledSubtitle: 'Requires Component Presets',
-                  icon: Icons.auto_awesome_outlined,
-                  title: "Task Presets",
-                  value: appSettings.enableTaskPresets,
-                  onChanged: (v) => appSettings.enableTaskPresets = v,
-                  infoText:
-                      'Suggests recommended tasks for a component, like a chain wear check or a '
-                      'fork service, based on its type and catalog model. You pick each suggestion '
-                      'individually and can edit the created tasks freely. Requires Component Presets, '
-                      'Tasks and Task Intervals.',
-                ),
+              _FeatureToggleTile(
+                icon: Icons.auto_awesome_outlined,
+                title: "Component Presets",
+                value: appSettings.enableComponentPresets,
+                onChanged: (v) => appSettings.enableComponentPresets = v,
+                sheet: (context, value) => showComponentPresetsSettingSheet(context, value: value),
+              ),
               if (appSettings.developerMode)
                 _FeatureToggleTile(
                   enabled: appSettings.enableComponentPresets,
@@ -376,6 +359,15 @@ class FeaturesPage extends StatelessWidget {
                 value: appSettings.enableGarageTaskIndicator,
                 onChanged: (v) => appSettings.enableGarageTaskIndicator = v,
                 infoText: 'Shows a colored status dot on component icons in the Garage when they have open tasks.',
+              ),
+              _FeatureToggleTile(
+                enabled: appSettings.enableTask && appSettings.enableTaskInterval,
+                disabledSubtitle: appSettings.enableTask ? 'Requires Task Interval' : 'Requires Tasks',
+                icon: Icons.auto_awesome_outlined,
+                title: "Task Presets",
+                value: appSettings.enableTaskPresets,
+                onChanged: (v) => appSettings.enableTaskPresets = v,
+                sheet: (context, value) => showTaskPresetsSettingSheet(context, value: value),
               ),
               if (otherTiles.isNotEmpty) ...[
                 const Divider(),

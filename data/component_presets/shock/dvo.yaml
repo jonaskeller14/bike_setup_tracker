@@ -17,8 +17,8 @@
 #      range. DVO's own docs prove it: the 2020 Fork Set-Up Guide's Diamond
 #      rebound chart runs to column 22, while tech.dvosuspension.com states the
 #      Diamond's real range is 20 clicks total. A chart column is therefore
-#      only used as a flagged estimate (Topaz Prime / T3Air rebound 9); the
-#      Topaz Pro's 9 is stated in Pinkbike's Topaz 3 review.
+#      only used as a flagged estimate (Topaz T3Air rebound 9); the Gen 3
+#      Topaz Pro's and Prime's 9 is stated in Pinkbike's Topaz 3 review.
 #   2. A scale strip printed on the adjuster page IS a range statement — that
 #      is where the Jade X's HSC (Open 1..10 Closed) and LSC (Open 1..5 Closed)
 #      come from. The Jade X rebound strip reads "Open 18+ 16 ... 0 Closed":
@@ -50,7 +50,7 @@ sources:
   - https://dvosuspension.com/product/opal-hv-t3/
   # Secondary — staff-written review stating the Topaz Gen 3 rebound total
   - https://www.pinkbike.com/news/review-dvo-topaz-3-air-shock.html
-updated: 2026-10-13
+updated: 2026-10-29
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -117,17 +117,16 @@ option_values:
       adjustments:
         - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
         - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
-        - { name: Rebound, type: step, max: 9, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
+        - { name: Rebound, type: step, max: 9, notes: Counted from fully closed (slowest) }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
         - https://www.pinkbike.com/news/review-dvo-topaz-3-air-shock.html
       note: >-
         Topaz Set-Up Guide (May 2024), p.10 scale strips: HSC "Open 1 2 3 4 5 6 7 8 9 10
-        Closed" and LSC "Open 1 2 3 4 5 Closed". Rebound 9 is an estimate: the highest column
-        of the p.12 "Rebound Clicks from Closed" chart "for all Topaz models" (1-9); Pinkbike's
-        Topaz 3 review states 9 rebound clicks for the T3 version. The same chart shape
-        overshoots the real total on the Diamond (chart to 22, stated 20), so DVO prints no
-        stated total.
+        Closed" and LSC "Open 1 2 3 4 5 Closed". DVO states no rebound total. Rebound 9 is the
+        highest column of the p.12 "Rebound Clicks from Closed" chart "for all Topaz models"
+        (1-9), and Pinkbike's staff-written Topaz 3 review states it: "The rebound knob has 9
+        clicks in the range, each making a noticeable change".
 
     topaz_pro:
       name: Topaz Pro

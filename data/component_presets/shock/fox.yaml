@@ -44,7 +44,11 @@ sources:
   - https://tech.ridefox.com/bike/owners-manuals/2984/shock--2025-float-x2
   - https://tech.ridefox.com/bike/owners-manuals/2981/shock--2025-all-coil-shocks-(dhx2-and-dhx-models)
   - https://tech.ridefox.com/bike/owners-manuals/2833/shock--2023-float-dps-and-float-x
-updated: 2026-10-16
+  # Staff-written reviews — the 2021-2025 X2 damper click totals the manuals never state
+  - https://www.bikeradar.com/reviews/components/rear-shocks/fox-float-x2-factory-2pos-adjust-2022-review/
+  - https://flowmountainbike.com/post-all/2021-fox-36-38-40-forks-dhx2-float-x2-shocks/
+  - https://blisterreview.com/gear-reviews/2021-fox-float-x2-shock
+updated: 2026-10-29
 # Click ranges taken from the per-model spec tables on the official FOX
 # product pages (ridefox.com/pages/fox-<model>). Clicks counted from fully
 # closed (firmest) → default `dial_ccw`; an adjuster with "16 clicks" is 0..16.
@@ -160,22 +164,26 @@ option_values:
         - Four-way gravity damper with Variable Valve Control high-speed circuits
         - Shared by FLOAT X2 and DHX2 of these years
       adjustments:
-        - { name: HSC, type: step, max: 8, notes: "High-Speed Compression; estimated maximum, check your dial and edit it if it differs", dialColor: blue }
+        - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
         - { name: LSC, type: step, max: 18, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: HSR, type: step, max: 8, notes: High-Speed Rebound, dialColor: red }
         - { name: LSR, type: step, max: 18, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
         - https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
         - https://tech.ridefox.com/bike/owners-manuals/2984/shock--2025-float-x2
         - https://tech.ridefox.com/bike/owners-manuals/1080/shock--2021-all-coil-shocks-(dhx2-and-van-models)
+        - https://www.bikeradar.com/reviews/components/rear-shocks/fox-float-x2-factory-2pos-adjust-2022-review/
+        - https://flowmountainbike.com/post-all/2021-fox-36-38-40-forks-dhx2-float-x2-shocks/
+        - https://blisterreview.com/gear-reviews/2021-fox-float-x2-shock
       note: >-
-        No stated click range. Maxima are the highest values of the starting-point
-        table in the 2024 FLOAT X2 manual, which the 2021-2025 manuals repeat
-        unchanged (90-300 psi, counted from fully closed):
-        LSR 16-18, HSR 7-8, LSC 16-18, HSC 7-8. The 2021 DHX2 manual's spring-rate
-        tables top out at LSR 15-16, HSR 7-8, LSC 16-17, HSC 7-8, which is within
-        these figures.
+        FOX's owner's manuals state no click range. HSC and HSR are 8: Flow
+        Mountain Bike's 2021 launch article ("8-click HSC & HSR adjustment" on
+        FLOAT X2 and DHX2) and BikeRadar's 2022 FLOAT X2 Factory review ("eight
+        clicks of high-speed rebound adjustment"). The same review and Blister's
+        2021 FLOAT X2 review state 16 clicks for LSC and LSR, but the manuals'
+        starting-point tables run to 17-18 (2021 DHX2: LSC 17), so LSC and LSR
+        stay the table's estimated maximum of 18.
 
     x2_vvc_2021_ls:
       name: X2 VVC Low-Speed (2021-2025)
@@ -186,7 +194,8 @@ option_values:
       source: https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
       note: >-
         HSR and HSC are Factory Series only. Maxima are the highest values of the
-        manual's starting-point table (LSR 16-18, LSC 16-18).
+        manual's starting-point table (LSR 16-18, LSC 16-18); see x2_vvc_2021 for
+        the 16 clicks reviews state.
 
     x2_2019_ls:
       name: X2 Low-Speed (2019-2020)
@@ -1036,8 +1045,8 @@ nodes:
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
 #   - Click totals. FOX's shock owner's manuals never state a total range.
-#     x2_2019, x2_2019_ls, x2_vvc_2021, x2_vvc_2021_ls and dps_2018 use the
-#     highest value of the manual's starting-point table (estimates, flagged
+#     x2_2019, x2_2019_ls, x2_vvc_2021 (LSC/LSR only), x2_vvc_2021_ls and
+#     dps_2018 use the highest value of the manual's starting-point table (estimates, flagged
 #     in the adjustment notes). Still `max: ~`: the FLOAT DPX2 rebound and Comp
 #     Adj knob (dpx2_2018; the 2018-2021 manuals only tabulate FLOAT DPS). A
 #     FOX service manual or a staff-written bench test stating the totals would

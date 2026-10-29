@@ -42,7 +42,10 @@ sources:
   - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
   - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
   - https://tech.ridefox.com/bike/owners-manuals/2979/fork--2025-36mm-or-38mm
-updated: 2026-10-16
+  # Staff-written articles — the GRIP2 VVC rebound click totals the manuals never state
+  - https://www.ambmag.com.au/?p=27317
+  - https://flowmountainbike.com/post-all/2021-fox-36-38-40-forks-dhx2-float-x2-shocks/
+updated: 2026-10-29
 # Current-lineup click ranges were taken from the per-model spec tables on the
 # official FOX product pages (ridefox.com/pages/fox-<model>). Clicks are counted
 # from fully closed (firmest); an adjuster with "18 clicks" has range 0..18
@@ -180,19 +183,25 @@ option_values:
       adjustments:
         - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
         - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
-        - { name: LSR, type: step, max: 9, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red, dialSize: small }
+        - { name: HSR, type: step, max: 8, notes: High-Speed Rebound, dialColor: red }
+        - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
+        - https://www.ambmag.com.au/?p=27317
+        - https://flowmountainbike.com/post-all/2021-fox-36-38-40-forks-dhx2-float-x2-shocks/
       note: >-
         The setting diagram in the GRIP2 compression section of the 2021 and
         2024 manuals gives 8 clicks for HSC and 16 for LSC (start 5 and 10 clicks
         out, matching the text). The paragraph above it still carries the
         2018-2020 wording about 16 usable HSC clicks; the diagram is the
-        figure for this VVC cartridge. HSR and LSR are not stated: the maxima
-        are the highest values of the rebound starting-point table (120-250 lb,
-        counted from fully closed): LSR 9, HSR 8.
+        figure for this VVC cartridge. The manuals state no rebound total, but
+        two staff-written articles do: AMB's "TESTED: 2021 Fox 34 Factory GRIP2"
+        ("8 clicks of high speed compression and rebound adjustment and 16 clicks
+        of low speed compression and rebound adjustment") and Flow Mountain
+        Bike's 2021 launch article ("new 8-click HSC & HSR adjusters" on the
+        36, 38 and 40). The AMB figure is for the 34; its 8 and 16 match this
+        36/38 cartridge's diagram for HSC and LSC.
 
     fit4_2019:
       name: FIT4 (2019-2020)

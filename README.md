@@ -45,9 +45,9 @@ Here are the current development goals and their status:
 - [x] Add a **rider profile** (track body weight, ...) ➡️ **Opt-in**
 - [x] **Sub-components**: infinitely deep component hierarchy, Strava stats inherited from the parent ➡️ **Live, opt-in**
 - [x] Add **URL support for bike/components** ➡️ **URLs are recognized in notes**
+- [x] **Component & task presets** for the most common forks and shocks ➡️ **Live since v1.6.4**
 - [ ] **Rating procedure** to distinguish good setups from bad ➡️ **In development**
 - [ ] **Marketing** push to grow the user base ➡️ **In progress**
-- [ ] **Component & task presets** for the most common forks and shocks ➡️ **In testing**
 - [ ] **Multiple languages** ➡️ **Planned**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.

@@ -58,7 +58,7 @@ enum SetupPageMode {
   add,
   edit,
   restore,
-  nextRun,  // only the adjusmtents of the session can be changed
+  nextRun,  // only the adjustments of the session can be changed
 }
 
 class SetupPage extends StatefulWidget {

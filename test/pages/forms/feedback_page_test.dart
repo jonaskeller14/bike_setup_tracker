@@ -965,6 +965,8 @@ void main() {
       await tapChip(tester, find.text('Something else changed'));
       expect(find.byType(FeedbackAspectRow), findsNWidgets(EndAspect.values.length));
 
+      // The rows and the card around them animate their size one after the other.
+      await tester.pump(const Duration(milliseconds: 500));
       await tapChip(tester, rowFace('Front: Harsh', 'Worse'));
       // Closing it again keeps what was answered.
       await tapChip(tester, find.text('Something else changed'));

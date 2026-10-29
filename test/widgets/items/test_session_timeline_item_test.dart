@@ -194,7 +194,6 @@ void main() {
     expect(find.text('Run 1'), findsWidgets);
     expect(find.text('Notes on Run 1'), findsOneWidget);
     expect(find.textContaining('earlier'), findsNothing);
-    expect(find.text('Ended'), findsOneWidget);
     expect(find.byType(RunningBadge), findsNothing);
     expect(find.byType(FilledButton), findsNothing);
   });

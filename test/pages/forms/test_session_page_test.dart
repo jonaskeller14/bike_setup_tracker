@@ -145,7 +145,7 @@ void main() {
 
   Future<void> selectInSheet(WidgetTester tester, List<String> names) async {
     for (final name in names) {
-      final tile = find.widgetWithText(CheckboxListTile, name);
+      final tile = find.descendant(of: find.byType(BottomSheet), matching: find.widgetWithText(FilterChip, name));
       await tester.ensureVisible(tile);
       await tester.tap(tile);
       await tester.pump();

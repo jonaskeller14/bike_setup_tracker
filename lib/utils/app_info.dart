@@ -1,8 +1,8 @@
 class AppInfo {
   AppInfo._();
 
-  static const String appVersion = '1.6.3';
-  static const int buildNumber = 44;
+  static const String appVersion = '1.6.4';
+  static const int buildNumber = 45;
   static const String releaseDate = 'October 2026';
 
   static const String supportEmail = 'jonaskeller14.app+support@gmail.com';

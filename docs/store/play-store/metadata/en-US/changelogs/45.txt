@@ -1,0 +1,5 @@
+• Pick your fork or shock from a built-in catalog and get its adjusters filled in for you
+• Get recommended maintenance tasks for your parts (turn on Tasks in Settings > Features)
+• Change Adjustment unit, range or step and choose how your recorded values follow along
+• Choose dial color and size from one simple sheet
+• Restore an old setup and carry its values over to your new parts

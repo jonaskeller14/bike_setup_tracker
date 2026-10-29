@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +13,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../widgets/sheets/checkbox_group.dart';
 import '../../widgets/sheets/installation_timeline_hint_sheet.dart';
+import '../../widgets/sheets/presets_setting_sheets.dart';
 import '../../widgets/sheets/pressure_check_setting_sheet.dart';
 import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/sheets/subcomponents_hint_sheet.dart';
@@ -21,8 +21,6 @@ import '../../widgets/text/section_title.dart';
 
 class FeaturesPage extends StatelessWidget {
   const FeaturesPage({super.key});
-
-  static const String _setupExtrasTitle = kDebugMode ? "Setup Tags & Bookmarks" : "Setup Tags";
 
   static void _showLayer(BuildContext context, TimelineLayer layer) {
     final filters = context.read<AppRepository>().filters;
@@ -55,7 +53,7 @@ class FeaturesPage extends StatelessWidget {
           infoText:
               'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
         ),
-      if (kDebugMode)
+      if (appSettings.developerMode)
         _FeatureToggleTile(
           icon: Icons.map,
           title: "MapBox Tiles",
@@ -96,32 +94,14 @@ class FeaturesPage extends StatelessWidget {
                 onChanged: (v) => appSettings.enableInstallOnComponent = v,
                 sheet: (context, value) => showSubcomponentsSettingSheet(context, value: value),
               ),
-              if (kDebugMode)
-                _FeatureToggleTile(
-                  icon: Icons.auto_awesome_outlined,
-                  title: "Component Presets",
-                  value: appSettings.enableComponentPresets,
-                  onChanged: (v) => appSettings.enableComponentPresets = v,
-                  infoText:
-                      'When adding a fork or shock, pick the model from a built-in '
-                      'catalog to prefill its name, notes and adjustments (click ranges, '
-                      'air pressure, SAG) automatically. You can still edit everything afterwards.',
-                ),
-              if (kDebugMode)
-                _FeatureToggleTile(
-                  enabled: appSettings.enableComponentPresets,
-                  disabledSubtitle: 'Requires Component Presets',
-                  icon: Icons.auto_awesome_outlined,
-                  title: "Task Presets",
-                  value: appSettings.enableTaskPresets,
-                  onChanged: (v) => appSettings.enableTaskPresets = v,
-                  infoText:
-                      'Suggests recommended tasks for a component, like a chain wear check or a '
-                      'fork service, based on its type and catalog model. You pick each suggestion '
-                      'individually and can edit the created tasks freely. Requires Component Presets, '
-                      'Tasks and Task Intervals.',
-                ),
-              if (kDebugMode)
+              _FeatureToggleTile(
+                icon: Icons.auto_awesome_outlined,
+                title: "Component Presets",
+                value: appSettings.enableComponentPresets,
+                onChanged: (v) => appSettings.enableComponentPresets = v,
+                sheet: (context, value) => showComponentPresetsSettingSheet(context, value: value),
+              ),
+              if (appSettings.developerMode)
                 _FeatureToggleTile(
                   enabled: appSettings.enableComponentPresets,
                   disabledSubtitle: 'Requires Component Presets',
@@ -167,7 +147,7 @@ class FeaturesPage extends StatelessWidget {
               const SectionTitle(title: 'Setups'),
               _FeatureGroupTile(
                 icon: Icons.tag,
-                title: _setupExtrasTitle,
+                title: appSettings.developerMode ? "Setup Tags & Bookmarks" : "Setup Tags",
                 infoText: 'Extra ways to organize and annotate Setups. Each can be toggled on its own.',
                 options: [
                   CheckboxGroupSheetOption(
@@ -181,7 +161,7 @@ class FeaturesPage extends StatelessWidget {
                       filters.setup = filters.setup.copyWith(tags: const {});
                     },
                   ),
-                  if (kDebugMode)
+                  if (appSettings.developerMode)
                     CheckboxGroupSheetOption(
                       title: 'Bookmarks',
                       subtitle:
@@ -198,7 +178,7 @@ class FeaturesPage extends StatelessWidget {
                     ),
                 ],
               ),
-              if (kDebugMode)
+              if (appSettings.developerMode)
                 ListTile(
                   leading: const Icon(Icons.compress),
                   title: const Text("Pressure Check"),
@@ -211,14 +191,17 @@ class FeaturesPage extends StatelessWidget {
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => showPressureCheckSettingSheet(context),
                 ),
-              if (kDebugMode)
+              if (appSettings.developerMode)
                 _FeatureToggleTile(
                   icon: Icons.star,
-                  title: "Rating",
+                  title: "Feedback",
                   value: appSettings.enableRating,
                   onChanged: (v) {
                     appSettings.enableRating = v;
-                    if (!v) _showLayer(context, TimelineLayer.ratingEntries);
+                    if (v) return;
+                    _showLayer(context, TimelineLayer.feedback);
+                    final filters = context.read<AppRepository>().filters;
+                    filters.setup = filters.setup.copyWith(testSessionNames: const {});
                   },
                 ),
               _FeatureToggleTile(
@@ -232,7 +215,7 @@ class FeaturesPage extends StatelessWidget {
                     'A new rider starts with a "Riding weight" attribute. Turning this off hides the '
                     'rider but keeps its data.',
               ),
-              if (kDebugMode && appSettings.enablePerson)
+              if (appSettings.developerMode && appSettings.enablePerson)
                 _FeatureToggleTile(
                   icon: Icons.groups_outlined,
                   title: "Advanced Rider Layout",
@@ -376,6 +359,15 @@ class FeaturesPage extends StatelessWidget {
                 value: appSettings.enableGarageTaskIndicator,
                 onChanged: (v) => appSettings.enableGarageTaskIndicator = v,
                 infoText: 'Shows a colored status dot on component icons in the Garage when they have open tasks.',
+              ),
+              _FeatureToggleTile(
+                enabled: appSettings.enableTask && appSettings.enableTaskInterval,
+                disabledSubtitle: appSettings.enableTask ? 'Requires Task Interval' : 'Requires Tasks',
+                icon: Icons.auto_awesome_outlined,
+                title: "Task Presets",
+                value: appSettings.enableTaskPresets,
+                onChanged: (v) => appSettings.enableTaskPresets = v,
+                sheet: (context, value) => showTaskPresetsSettingSheet(context, value: value),
               ),
               if (otherTiles.isNotEmpty) ...[
                 const Divider(),

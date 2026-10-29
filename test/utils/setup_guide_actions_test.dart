@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
@@ -85,6 +86,36 @@ void main() {
 
     test('waits for the catalog to load', () {
       expect(guidedComponentsWithoutValues([component('guided')], resolve: (_) => null, previousValues: {}), isEmpty);
+    });
+
+    test('skips a link that stops at a group, though the group has the guide', () {
+      final brand = parseCatalogFile('''
+brand: Acme
+component_type: fork
+guides:
+  acme:
+    label: Acme owner's manual (2027)
+    source: https://example.com/acme
+    rules:
+      - { target: lsc, value: 4 }
+nodes:
+  - label: Guided
+    level: model
+    guide: acme
+    adjustments:
+      - { name: LSC, type: step, max: 10 }
+    children:
+      - label: Factory
+        level: trim
+''');
+      final group = resolvePreset([brand], ComponentPreset(const {
+        'brand': 'acme',
+        'component_type': 'fork',
+        'model': 'guided',
+      }))!;
+      expect(group.node.guide, isNotNull);
+
+      expect(guidedComponentsWithoutValues([component('guided')], resolve: (_) => group, previousValues: {}), isEmpty);
     });
   });
 

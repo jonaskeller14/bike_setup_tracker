@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import 'adjustment_icon_name_notes.dart';
+import 'outdated_value_note.dart';
 
 class DisplayDurationAdjustmentWidget extends StatelessWidget {
   final DurationAdjustment adjustment;
@@ -38,7 +39,9 @@ class DisplayDurationAdjustmentWidget extends StatelessWidget {
       isInitial = true;
       highlightColor = Theme.of(context).colorScheme.error;
     }
-    
+    final bool isOutdated = !isError && value != null && !adjustment.isValidValue(value!);
+    final Color? valueColor = isOutdated ? Theme.of(context).colorScheme.error : highlightColor;
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -58,18 +61,19 @@ class DisplayDurationAdjustmentWidget extends StatelessWidget {
                         text: value?.display ?? '-',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: highlightColor,
+                          color: valueColor,
                         ),
                       ),
                       TextSpan(
                         text: adjustment.unitSuffix(),
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: highlightColor,
+                          color: valueColor,
                         ),
                       ),
                     ],
                   ),
                 ),
+                if (isOutdated) OutdatedValueNote(adjustment: adjustment),
                 if (!isInitial && isChanged)
                   Opacity(
                     opacity: 0.7,

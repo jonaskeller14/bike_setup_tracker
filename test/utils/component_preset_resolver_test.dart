@@ -194,6 +194,228 @@ void main() {
     });
   });
 
+  group('moved paths', () {
+    // `trim` used to sit directly below the model, before generations existed.
+    final catalogs = [
+      parseCatalogFile('''
+brand: FOX
+component_type: fork
+moved:
+  36/factory: 36/2025/factory
+nodes:
+  - label: "36"
+    level: model
+    children:
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        children:
+          - label: Factory
+            level: trim
+            options:
+              travel_mm: [150, 160]
+'''),
+    ];
+    final old = ComponentPreset(const {
+      'brand': 'fox',
+      'component_type': 'fork',
+      'model': '36',
+      'trim': 'factory',
+      'travel_mm': 160,
+    });
+
+    test('an old path resolves through its redirect, whatever its level names', () {
+      final resolved = resolvePreset(catalogs, old)!;
+
+      expect(_labels(resolved), ['36', '2025–2026', 'Factory']);
+      expect(resolved.selections['travel_mm']!.id, 160);
+    });
+
+    test('saving the resolved selection writes the new path', () {
+      expect(toComponentPreset(resolvePreset(catalogs, old)!).toJson(), {
+        'brand': 'fox',
+        'component_type': 'fork',
+        'model': '36',
+        'generation': '2025',
+        'trim': 'factory',
+        'travel_mm': 160,
+      });
+    });
+
+    test('a path the redirect does not cover resolves as before', () {
+      final resolved = resolvePreset(catalogs, ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36'}))!;
+
+      expect(_labels(resolved), ['36']);
+    });
+  });
+
+  group('model year', () {
+    // A generation split: 2025 was one generation, now 2025–2026 and 2021–2024.
+    final catalogs = [
+      parseCatalogFile('''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "36"
+    level: model
+    children:
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        children:
+          - label: Factory
+            level: trim
+            options:
+              travel_mm: [150, 160]
+          - label: Performance
+            level: trim
+      - label: "2021–2024"
+        level: generation
+        id: "2021"
+        years: "2021-2024"
+        children:
+          - label: Factory
+            level: trim
+'''),
+    ];
+    ComponentPreset stored({String generation = '2025', Object? year, String trim = 'factory'}) => ComponentPreset({
+      'brand': 'fox',
+      'component_type': 'fork',
+      'model': '36',
+      'generation': generation,
+      'trim': trim,
+      'year': ?year,
+    });
+
+    test('is read back and written again', () {
+      final resolved = resolvePreset(catalogs, stored(year: 2026))!;
+
+      expect(resolved.year, 2026);
+      expect(toComponentPreset(resolved), stored(year: 2026));
+    });
+
+    test('is absent when none was chosen', () {
+      final resolved = resolvePreset(catalogs, stored())!;
+
+      expect(resolved.year, isNull);
+      expect(toComponentPreset(resolved).toJson().containsKey('year'), isFalse);
+    });
+
+    test('survives the JSON column', () {
+      final json = jsonDecode(jsonEncode(stored(year: 2025).toJson()));
+
+      expect(resolvePreset(catalogs, ComponentPreset.tryFromJson(json)!)!.year, 2025);
+    });
+
+    test('a year outside the matched generation switches to the sibling that contains it', () {
+      final resolved = resolvePreset(catalogs, stored(year: 2022))!;
+
+      expect(_labels(resolved), ['36', '2021–2024', 'Factory']);
+      expect(resolved.year, 2022);
+      expect(toComponentPreset(resolved), stored(generation: '2021', year: 2022));
+    });
+
+    test('a year inside the matched generation keeps it', () {
+      expect(_labels(resolvePreset(catalogs, stored(generation: '2021', year: 2024))!), ['36', '2021–2024', 'Factory']);
+      expect(_labels(resolvePreset(catalogs, stored(year: 2025))!), ['36', '2025–2026', 'Factory']);
+    });
+
+    test('the switch stops where the sibling lacks the stored trim', () {
+      final resolved = resolvePreset(catalogs, stored(year: 2022, trim: 'performance'))!;
+
+      expect(_labels(resolved), ['36', '2021–2024']);
+    });
+
+    test('a year no sibling contains keeps the matched node and drops the year', () {
+      final resolved = resolvePreset(catalogs, stored(year: 2010))!;
+
+      expect(_labels(resolved), ['36', '2025–2026', 'Factory']);
+      expect(resolved.year, isNull);
+    });
+
+    test('a year is ignored where the node has no years', () {
+      final resolved = resolvePreset(_catalogs, _factoryWith(changed: {'year': 2025}))!;
+
+      expect(resolved.year, isNull);
+      expect(toComponentPreset(resolved), ComponentPreset(_factory));
+    });
+
+    test('a year switches the generation behind a moved path too', () {
+      final moved = [
+        parseCatalogFile('''
+brand: FOX
+component_type: fork
+moved:
+  36/factory: 36/2025/factory
+nodes:
+  - label: "36"
+    level: model
+    children:
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        children:
+          - label: Factory
+            level: trim
+      - label: "2021–2024"
+        level: generation
+        id: "2021"
+        years: "2021-2024"
+        children:
+          - label: Factory
+            level: trim
+'''),
+      ];
+      final old = ComponentPreset(const {
+        'brand': 'fox',
+        'component_type': 'fork',
+        'model': '36',
+        'trim': 'factory',
+        'year': 2023,
+      });
+
+      expect(_labels(resolvePreset(moved, old)!), ['36', '2021–2024', 'Factory']);
+    });
+
+    test('withYear names a year within the product and ignores one outside it', () {
+      final product = resolvePreset(catalogs, stored())!;
+
+      expect(product.selectableYears, [2026, 2025]);
+      expect(product.withYear(2026).year, 2026);
+      expect(product.withYear(2026).withYear(null).year, isNull);
+      expect(product.withYear(2023).year, isNull);
+    });
+
+    test('select keeps the year', () {
+      final product = resolvePreset(catalogs, stored(year: 2026))!;
+
+      final travel = product.product!.options['travel_mm']!;
+
+      expect(product.select(travel, travel.values.first).year, 2026);
+    });
+
+    test('a single-year product has nothing to choose', () {
+      final single = parseCatalogFile('''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "36"
+    level: model
+    children:
+      - label: "2026"
+        level: generation
+        years: "2026"
+        children:
+          - label: Factory
+            level: trim
+''');
+
+      expect(catalogProducts(single).single.selectableYears, isEmpty);
+    });
+  });
+
   group('toComponentPreset', () {
     test('round-trips a resolved preset', () {
       expect(toComponentPreset(resolvePreset(_catalogs, ComponentPreset(_factory))!), ComponentPreset(_factory));

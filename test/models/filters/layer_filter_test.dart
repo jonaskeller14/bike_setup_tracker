@@ -16,7 +16,7 @@ void main() {
       expect(filter.shows(TimelineLayer.activities), false);
       expect(filter.shows(TimelineLayer.setups), true);
       expect(filter.shows(TimelineLayer.installations), true);
-      expect(filter.shows(TimelineLayer.ratingEntries), true);
+      expect(filter.shows(TimelineLayer.feedback), true);
     });
   });
 
@@ -31,7 +31,7 @@ void main() {
     });
 
     test("ignores a hidden layer that is not available", () {
-      const filter = LayerFilter(hidden: {TimelineLayer.activities, TimelineLayer.ratingEntries});
+      const filter = LayerFilter(hidden: {TimelineLayer.activities, TimelineLayer.feedback});
       expect(filter.isActiveFor({TimelineLayer.setups, TimelineLayer.tasks}), false);
       expect(filter.isActiveFor(const {}), false);
     });

@@ -25,7 +25,7 @@ class FilterActions {
     bool enabled(FilterSection section) => switch (section) {
       FilterSection.bike => true,
       FilterSection.dateRange => appSettings.enableAdvancedFilters,
-      FilterSection.setups => appSettings.enableSetupTags || appSettings.enableSetupBookmark,
+      FilterSection.setups => appSettings.enableSetupTags || appSettings.enableSetupBookmark || appSettings.enableRating,
       FilterSection.taskPriority => appSettings.enableTaskPriority,
       FilterSection.taskTags => appSettings.enableTaskTags,
       FilterSection.activity => appSettings.enableAdvancedFilters && stravaActive,
@@ -50,7 +50,7 @@ class FilterActions {
       TimelineLayer.activities => stravaActive,
       TimelineLayer.tasks => appSettings.enableTask,
       TimelineLayer.installations => appSettings.enableInstallationTimeline,
-      TimelineLayer.ratingEntries => appSettings.enableRating,
+      TimelineLayer.feedback => appSettings.enableRating,
     };
 
     final enabled = enabledSections(sections, appSettings: appSettings, stravaActive: stravaActive);
@@ -87,6 +87,7 @@ class FilterActions {
       dateFormat: appSettings.dateFormat,
     );
     final setupTagCount = setups && appSettings.enableSetupTags ? filters.setup.tags.length : 0;
+    final testSessionCount = setups && appSettings.enableRating ? filters.setup.testSessionNames.length : 0;
     final taskTagCount = enabled.contains(FilterSection.taskTags) ? filters.taskRule.tags.length : 0;
     final tagCount = setupTagCount + taskTagCount;
     final priorityCount = filters.taskRule.priorities.length;
@@ -109,6 +110,7 @@ class FilterActions {
       ?dateLabel,
       if (setups && appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) "Bookmarked",
       if (tagCount > 0) "$tagCount ${tagCount != 1 ? 'Tags' : 'Tag'}",
+      if (testSessionCount > 0) "$testSessionCount ${testSessionCount != 1 ? 'Test sessions' : 'Test session'}",
       if (enabled.contains(FilterSection.taskPriority) && filters.taskRule.hasActivePriorities)
         "$priorityCount ${priorityCount != 1 ? 'Priorities' : 'Priority'}",
       ?distanceLabel,
@@ -148,18 +150,20 @@ class FilterActions {
   static void clear(BuildContext context, Set<FilterSection> sections) {
     final filters = context.read<AppRepository>().filters;
 
-    if (sections.contains(FilterSection.bike)) filters.toggleBike(null);
-    if (sections.contains(FilterSection.dateRange)) filters.dateRange = null;
-    if (sections.contains(FilterSection.setups)) filters.setup = const SetupFilter();
-    filters.taskRule = filters.taskRule.copyWith(
-      priorities: sections.contains(FilterSection.taskPriority) ? TaskPriority.values.toSet() : null,
-      tags: sections.contains(FilterSection.taskTags) ? const {} : null,
-    );
-    if (sections.contains(FilterSection.activity)) filters.activity = const ActivityFilter();
-    filters.layers = filters.layers.copyWith(hidden: filters.layers.hidden.difference(_layersOf(sections)));
+    filters.batch(() {
+      if (sections.contains(FilterSection.bike)) filters.toggleBike(null);
+      if (sections.contains(FilterSection.dateRange)) filters.dateRange = null;
+      if (sections.contains(FilterSection.setups)) filters.setup = const SetupFilter();
+      filters.taskRule = filters.taskRule.copyWith(
+        priorities: sections.contains(FilterSection.taskPriority) ? TaskPriority.values.toSet() : null,
+        tags: sections.contains(FilterSection.taskTags) ? const {} : null,
+      );
+      if (sections.contains(FilterSection.activity)) filters.activity = const ActivityFilter();
+      filters.layers = filters.layers.copyWith(hidden: filters.layers.hidden.difference(_layersOf(sections)));
+    });
   }
 
-  static const _mapLayers = {TimelineLayer.setups, TimelineLayer.activities, TimelineLayer.ratingEntries};
+  static const _mapLayers = {TimelineLayer.setups, TimelineLayer.activities, TimelineLayer.feedback};
 
   /// Every layer the layer sections of [sections] cover, whatever the feature flags say.
   static Set<TimelineLayer> _layersOf(Set<FilterSection> sections) => {

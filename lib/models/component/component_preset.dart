@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 import 'component.dart';
+import 'preset_spec_keys.dart';
 
 /// The catalog selection a component was created from: one `<level>: <node id>`
 /// entry per tree level plus one `<axis id>: <value id>` entry per chosen
@@ -14,6 +15,11 @@ import 'component.dart';
 class ComponentPreset {
   static const String brandKey = 'brand';
   static const String componentTypeKey = 'component_type';
+  static const String yearKey = 'year';
+  static const String revisionKey = 'revision';
+
+  /// Entries that are not tree levels, so no level may be named after them.
+  static const Set<String> reservedKeys = {brandKey, componentTypeKey, yearKey, revisionKey};
 
   final Map<String, Object> _entries;
 
@@ -35,6 +41,32 @@ class ComponentPreset {
 
   ComponentType? get componentType =>
       ComponentType.values.firstWhereOrNull((type) => type.name == _entries[componentTypeKey]);
+
+  /// The exact model year the rider named; null when none was chosen.
+  int? get year => switch (_entries[yearKey]) {
+    final int year => year,
+    _ => null,
+  };
+
+  /// The brand file revision the component is up to date with. Revision 1 is
+  /// not stored, so a component built before revisions existed reads as 1.
+  int get revision => switch (_entries[revisionKey]) {
+    final int revision => revision,
+    _ => 1,
+  };
+
+  ComponentPreset withRevision(int revision) => ComponentPreset({
+    for (final MapEntry(:key, :value) in _entries.entries)
+      if (key != revisionKey) key: value,
+    if (revision > 1) revisionKey: revision,
+  });
+
+  /// The node ids in the order the levels were stored, whatever the levels are
+  /// called. A `moved:` redirect is matched against this path.
+  List<String> get nodeIds => [
+    for (final MapEntry(:key, :value) in _entries.entries)
+      if (!reservedKeys.contains(key) && PresetOptionAxes.byId(key) == null) '$value',
+  ];
 
   Map<String, Object> toJson() => _entries;
 

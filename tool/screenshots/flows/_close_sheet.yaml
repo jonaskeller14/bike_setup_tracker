@@ -1,0 +1,15 @@
+# Shared subflow: close the open modal bottom sheet by swiping its drag handle
+# down, the same gesture on both platforms. Taps can't do it on iOS: a tall
+# sheet leaves no barrier to tap, and XCTest doesn't see the close button in a
+# sheet's app bar. The handle's label is Material's English "Dismiss"; the app
+# ships no other localizations.
+appId: ${APP_ID}
+---
+- swipe:
+    from:
+      text: Dismiss
+    direction: DOWN
+    # A slower drag only shrinks a sheet that fills the screen.
+    duration: 200
+- waitForAnimationToEnd:
+    timeout: 3000

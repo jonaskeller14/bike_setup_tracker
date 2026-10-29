@@ -1,0 +1,5 @@
+• Wähle Federgabel oder Dämpfer aus dem Katalog – die Einstellungen sind direkt eingetragen
+• Wartungsaufgaben für deine Teile werden vorgeschlagen (Tasks unter Settings > Features aktivieren)
+• Ändere Einheit, Bereich oder Schritt eines Adjustments – deine gespeicherten Werte ziehen mit
+• Farbe und Größe der Drehknöpfe wählst du in einem Menü
+• Altes Setup wiederherstellen und Werte auf neue Teile übernehmen

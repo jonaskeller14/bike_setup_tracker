@@ -2,13 +2,12 @@ import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/component/resolved_installation.dart';
+import '../models/feedback/ride_feedback.dart';
+import '../models/feedback/test_session.dart';
 import '../models/filters/local_date_range.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/filters/task_rule_filter.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
-import '../models/rating/rating_association.dart';
-import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
@@ -25,11 +24,12 @@ class FilteredView {
   final Map<String, Bike> _bikes;
   final Map<String, Component> _components;
   final Map<String, Setup> _setups;
-  final Map<String, RatingEntry> _ratingEntries;
   final Map<String, Person> _persons;
-  final Map<String, Rating> _ratings;
   final Map<String, TaskRule> _taskRules;
   final Map<String, TaskEntry> _taskEntries;
+  final Map<String, RideFeedback> _feedbacks;
+  final Map<String, TestSession> _testSessions;
+  final String? Function(RideFeedback feedback) _ratedSetupIdOf;
   final ComponentHierarchyResolver _hierarchy;
   final String? _bikeId;
   final LocalDateRange? _dateRange;
@@ -40,11 +40,12 @@ class FilteredView {
     required this._bikes,
     required this._components,
     required this._setups,
-    required this._ratingEntries,
     required this._persons,
-    required this._ratings,
     required this._taskRules,
     required this._taskEntries,
+    required this._feedbacks,
+    required this._testSessions,
+    required this._ratedSetupIdOf,
     required this._hierarchy,
     required this._bikeId,
     required this._dateRange,
@@ -72,34 +73,35 @@ class FilteredView {
       (entry) =>
           (_bikeId == null || entry.value.bike == _bikeId) &&
           _inDateRange(entry.value.datetimeLocal) &&
-          _setupFilter.matches(entry.value),
+          _setupFilter.matches(entry.value, testSessions: _testSessions),
     ),
   );
 
-  late final Map<String, RatingEntry> ratingEntries = Map.fromEntries(
-    _ratingEntries.entries.where(
-      (entry) => (_bikeId == null || entry.value.bike == _bikeId) && _inDateRange(entry.value.dateTimeLocal),
+  /// With a setup filter on, a feedback follows the setup it rates: filtering
+  /// for a test session shows its runs' feedbacks, not every other one. The
+  /// date range still applies to the feedback's own day.
+  late final Map<String, RideFeedback> feedbacks = Map.fromEntries(
+    _feedbacks.entries.where(
+      (entry) =>
+          (_bikeId == null || entry.value.bike == _bikeId) &&
+          _inDateRange(entry.value.dateTimeLocal) &&
+          (!_setupFilter.isActive || _ratesMatchingSetup(entry.value)),
     ),
+  );
+
+  bool _ratesMatchingSetup(RideFeedback feedback) {
+    final rated = _setups[_ratedSetupIdOf(feedback)];
+    return rated != null && _setupFilter.matches(rated, testSessions: _testSessions);
+  }
+
+  /// A session spans days, so the date range leaves it alone.
+  late final Map<String, TestSession> testSessions = Map.fromEntries(
+    _testSessions.entries.where((entry) => _bikeId == null || entry.value.bike == _bikeId),
   );
 
   late final Map<String, Person> persons = _bikeId == null
       ? _persons
       : Map.fromEntries(_persons.entries.where((entry) => entry.value.id == _bikes[_bikeId]?.person));
-
-  late final Map<String, Rating> ratings = Map.fromEntries(
-    _ratings.entries.where((entry) {
-      if (_bikeId == null) return true;
-      return switch (entry.value.association) {
-        GlobalRatingAssociation() => true,
-        PersonRatingAssociation() => true,
-        BikeRatingAssociation(:final bikeId) => bikeId == _bikeId,
-        ComponentRatingAssociation(:final componentId) => components.containsKey(componentId),
-        ComponentTypeRatingAssociation(:final componentTypeStr) => components.values.any(
-          (c) => c.componentType.toString() == componentTypeStr,
-        ),
-      };
-    }),
-  );
 
   /// The task rules of the bike scope, before priority and tag narrowing.
   late final Map<String, TaskRule> taskRulesInScope = Map.fromEntries(

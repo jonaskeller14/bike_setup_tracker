@@ -1,9 +1,11 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/pages/adjustment/duration_adjustment_page.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../value_migration_test_utils.dart';
 import 'preset_key_test_utils.dart';
 
 void main() {
@@ -25,12 +27,13 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<DurationAdjustment>(
+              final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => DurationAdjustmentPage.edit(adjustment: initial),
                 ),
               );
+              result = edited?.value as DurationAdjustment?;
             },
             child: const Text('Open Page'),
           ),
@@ -103,12 +106,13 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<DurationAdjustment>(
+              final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => DurationAdjustmentPage.edit(adjustment: initial),
                 ),
               );
+              result = edited?.value as DurationAdjustment?;
             },
             child: const Text('Open Page'),
           ),
@@ -229,12 +233,13 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<DurationAdjustment>(
+              final edited = await Navigator.push<AdjustmentEditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => DurationAdjustmentPage.edit(adjustment: initial),
                 ),
               );
+              result = edited?.value as DurationAdjustment?;
             },
             child: const Text('Open Page'),
           ),
@@ -261,4 +266,50 @@ void main() {
     edit: () => DurationAdjustmentPage.edit(adjustment: preset),
     add: () => DurationAdjustmentPage.add(),
   );
+
+  group('recorded values on edit', () {
+    const sheetTitle = 'Update recorded values';
+
+    final ride = DurationAdjustment(
+      id: 'ride',
+      name: 'Ride time',
+      notes: null,
+      unit: null,
+      max: const Duration(hours: 5),
+    );
+
+    AdjustmentEditResult<Adjustment> edited(Object? result) => result! as AdjustmentEditResult<Adjustment>;
+
+    testWidgets('lowering the max below a recorded value offers Clamp', (tester) async {
+      final result = await pushAndSave(
+        tester,
+        DurationAdjustmentPage.edit(adjustment: ride, migrationContext: ValueMigrationContext(ride)),
+        repository: repositoryWithRecorded([recordedValue(const DurationValue(Duration(hours: 4)))]),
+        interact: () => setDurationHours(tester, 'Max Duration (optional)', from: 5, to: 3),
+        afterSave: () async {
+          expect(find.text(sheetTitle), findsOneWidget);
+          expect(find.text('Clamp'), findsOneWidget);
+          await tester.tap(find.byKey(const Key('value-migration-confirm')));
+          await tester.pumpAndSettle();
+        },
+      );
+
+      final migrations = edited(result).migrations;
+      expect(migrations, hasLength(1));
+      expect(migrations.single.apply(const DurationValue(Duration(hours: 4))), const DurationValue(Duration(hours: 3)));
+    });
+
+    testWidgets('lowering the max above every recorded value shows no sheet', (tester) async {
+      final result = await pushAndSave(
+        tester,
+        DurationAdjustmentPage.edit(adjustment: ride, migrationContext: ValueMigrationContext(ride)),
+        repository: repositoryWithRecorded([recordedValue(const DurationValue(Duration(hours: 2)))]),
+        interact: () => setDurationHours(tester, 'Max Duration (optional)', from: 5, to: 3),
+      );
+
+      expect(find.text(sheetTitle), findsNothing);
+      expect(edited(result).migrations, isEmpty);
+      expect((edited(result).value as DurationAdjustment).max, const Duration(hours: 3));
+    });
+  });
 }

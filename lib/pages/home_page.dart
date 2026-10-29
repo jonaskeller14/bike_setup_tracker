@@ -1,12 +1,14 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/feedback/test_session.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
 import '../models/setup.dart';
 import '../models/task/task_rule.dart';
 import '../models/timeline_selection.dart';
@@ -14,17 +16,17 @@ import '../repositories/app_repository.dart';
 import '../utils/automation_ids.dart';
 import '../utils/bike_actions.dart';
 import '../utils/person_actions.dart';
-import '../utils/rating_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
+import '../utils/test_session_actions.dart';
 import '../utils/timeline_actions.dart';
 import '../widgets/animated_app_bar_switcher.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../widgets/lists/garage_list.dart';
 import '../widgets/lists/list_scroll_controller.dart';
 import '../widgets/lists/list_selection_controller.dart';
 import '../widgets/lists/person_list.dart';
-import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/setup_list.dart';
 import '../widgets/lists/task_list.dart';
 import '../widgets/sheets/export.dart';
@@ -64,12 +66,26 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() {});
   }
 
+  void _toggleDeveloperMode() {
+    final appSettings = context.read<AppSettings>();
+    final enabled = !appSettings.developerMode;
+    appSettings.developerMode = enabled;
+    unawaited(HapticFeedback.mediumImpact());
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(AppSnackBar.info(context, enabled ? 'Developer mode on' : 'Developer mode off'));
+  }
+
   Future<void> _deleteSelectedBikes() {
     return _bikeSelection.run((bikeIds) async {
       final appRepository = context.read<AppRepository>();
       final bikes = bikeIds.map((id) => appRepository.bikes[id]).whereType<Bike>().toList();
       await BikeActions.removeBikes(context, bikes: bikes);
     });
+  }
+
+  Future<void> _setPersonForSelectedBikes() {
+    return _bikeSelection.runIfApplied((bikeIds) => BikeActions.setBikesPerson(context, bikeIds: bikeIds));
   }
 
   Future<void> _deleteSelectedTaskRules() {
@@ -112,6 +128,45 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _addSetupFab(AppRepository appRepository) {
+    final step = TestSessionActions.nextStepFor(appRepository);
+    final label = step?.label ?? 'Add Setup';
+
+    return FloatingActionButton.extended(
+      heroTag: "addSetup",
+      onPressed: () async {
+        await (step?.run(context) ?? SetupActions.addSetup(context));
+      },
+      tooltip: label,
+      isExtended: _setupListController.isNearTop,
+      extendedPadding: _setupListController.isNearTop ? null : const EdgeInsets.symmetric(horizontal: 16),
+      icon: Icon(step?.icon ?? Icons.add),
+      label: Text(label),
+    );
+  }
+
+  Widget _testSessionFab(AppRepository appRepository) {
+    final bikeId = TestSessionActions.activeBikeId(appRepository);
+    final running = bikeId == null ? null : appRepository.runningSessionFor(bikeId);
+    if (running != null) {
+      final scheme = Theme.of(context).colorScheme;
+      return FloatingActionButton.small(
+        heroTag: "testSession",
+        onPressed: () => TestSessionActions.endSession(context, session: running),
+        tooltip: "End test session '${running.displayName}'",
+        backgroundColor: scheme.errorContainer,
+        foregroundColor: scheme.onErrorContainer,
+        child: const Icon(Icons.stop),
+      );
+    }
+    return FloatingActionButton.small(
+      heroTag: "testSession",
+      onPressed: () => TestSessionActions.startSession(context, initialBike: appRepository.bikes[bikeId]),
+      tooltip: 'Start test session',
+      child: const Icon(TestSession.iconData),
+    );
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -122,7 +177,8 @@ class _HomePageState extends State<HomePage> {
       (entry) => switch (entry.kind) {
         TimelineSelectionKind.setup => appRepository.view.setups.containsKey(entry.id),
         TimelineSelectionKind.taskEntry => appRepository.view.taskEntries.containsKey(entry.id),
-        TimelineSelectionKind.ratingEntry => appRepository.view.ratingEntries.containsKey(entry.id),
+        TimelineSelectionKind.feedback => appRepository.view.feedbacks.containsKey(entry.id),
+        TimelineSelectionKind.testSession => appRepository.view.testSessions.containsKey(entry.id),
       },
     );
   }
@@ -153,9 +209,9 @@ class _HomePageState extends State<HomePage> {
     final defaultIndex = appRepository.bikes.isEmpty || appRepository.components.isEmpty ? 0 : 1;
     final pageIndex = (_currentPageIndex ?? defaultIndex).clamp(
       0,
-      1 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableRating ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
+      1 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
     );
-    final taskPageIndex = 2 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableRating ? 1 : 0);
+    final taskPageIndex = 2 + (appSettings.showAdvancedPersonUi ? 1 : 0);
     final showTaskSelectionAppBar =
         appSettings.enableTask && pageIndex == taskPageIndex && _taskRuleSelection.isSelectionMode;
     final showBikeSelectionAppBar = pageIndex == 0 && _bikeSelection.isSelectionMode;
@@ -187,6 +243,12 @@ class _HomePageState extends State<HomePage> {
                 ),
                 title: Text('${_bikeSelection.length} selected'),
                 actions: [
+                  if (appSettings.enablePerson)
+                    IconButton(
+                      onPressed: _bikeSelection.isBusy ? null : _setPersonForSelectedBikes,
+                      icon: const Icon(Person.iconData),
+                      tooltip: 'Set rider',
+                    ),
                   IconButton(
                     onPressed: _bikeSelection.isBusy ? null : _deleteSelectedBikes,
                     icon: const Icon(Icons.delete),
@@ -251,15 +313,18 @@ class _HomePageState extends State<HomePage> {
               )
             : AppBar(
                 key: const ValueKey('default-app-bar'),
-                leading: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/icons/logo_256.png',
-                        fit: BoxFit.contain,
+                leading: GestureDetector(
+                  onDoubleTap: kDebugMode ? _toggleDeveloperMode : null,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/icons/logo_256.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
@@ -268,7 +333,6 @@ class _HomePageState extends State<HomePage> {
                   const Text("Bikes"),
                   const Text("Setup History"),
                   if (appSettings.showAdvancedPersonUi) const Text("Riders"),
-                  if (appSettings.enableRating) const Text("Ratings"),
                   if (appSettings.enableTask) const Text("Tasks"),
                 ][pageIndex],
                 actions: [
@@ -288,34 +352,38 @@ class _HomePageState extends State<HomePage> {
                     ),
                   if (appSettings.enableStrava) const StravaSyncButton(),
                   if (appSettings.enableGoogleDrive) const GoogleDriveSyncButton(),
-                  PopupMenuButton<_AppOptions>(
-                    onSelected: (_AppOptions result) async {
-                      switch (result) {
-                        case _AppOptions.import:
-                          await importData(context);
-                        case _AppOptions.export:
-                          await exportData(context);
-                        case _AppOptions.share:
-                          await shareData(context);
-                        case _AppOptions.trash:
-                          await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
-                        case _AppOptions.settings:
-                          await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => _AppOptions.values.map((appOption) {
-                      return PopupMenuItem<_AppOptions>(
-                        value: appOption,
-                        child: Row(
-                          children: [
-                            Icon(appOption.iconData),
-                            const SizedBox(width: 8),
-                            Text(appOption.label),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    icon: const Icon(Icons.more_vert),
+                  Semantics(
+                    container: true,
+                    identifier: AutomationIds.appBarOptions,
+                    child: PopupMenuButton<_AppOptions>(
+                      onSelected: (_AppOptions result) async {
+                        switch (result) {
+                          case _AppOptions.import:
+                            await importData(context);
+                          case _AppOptions.export:
+                            await exportData(context);
+                          case _AppOptions.share:
+                            await shareData(context);
+                          case _AppOptions.trash:
+                            await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
+                          case _AppOptions.settings:
+                            await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => _AppOptions.values.map((appOption) {
+                        return PopupMenuItem<_AppOptions>(
+                          value: appOption,
+                          child: Row(
+                            children: [
+                              Icon(appOption.iconData),
+                              const SizedBox(width: 8),
+                              Text(appOption.label),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      icon: const Icon(Icons.more_vert),
+                    ),
                   ),
                 ],
               ),
@@ -364,7 +432,6 @@ class _HomePageState extends State<HomePage> {
             child: const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
           ),
           if (appSettings.showAdvancedPersonUi) const NavigationDestination(icon: Icon(Person.iconData), label: "Riders"),
-          if (appSettings.enableRating) const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
           if (appSettings.enableTask)
             Semantics(
               container: true,
@@ -397,7 +464,6 @@ class _HomePageState extends State<HomePage> {
               onSelectionChanged: _timelineSelection.isBusy ? null : _timelineSelection.toggle,
             ),
             if (appSettings.showAdvancedPersonUi) const PersonList(),
-            if (appSettings.enableRating) const RatingList(),
             if (appSettings.enableTask)
               TaskList(
                 controller: _taskListController,
@@ -414,6 +480,7 @@ class _HomePageState extends State<HomePage> {
           builder: (context, child) => Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
+            spacing: 8,
             children: [
               if (_garageListController.showBackToTop) ...[
                 FloatingActionButton.small(
@@ -422,7 +489,6 @@ class _HomePageState extends State<HomePage> {
                   tooltip: 'Back to top',
                   child: const Icon(Icons.arrow_upward),
                 ),
-                const SizedBox(height: 12),
               ],
               // Distinct keys: the tabs share this slot, and an identifier-only
               // change on a reused semantics node never reaches the platform.
@@ -447,6 +513,7 @@ class _HomePageState extends State<HomePage> {
           builder: (context, child) => Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
+            spacing: 8,
             children: [
               if (_setupListController.showBackToTop) ...[
                 FloatingActionButton.small(
@@ -455,7 +522,9 @@ class _HomePageState extends State<HomePage> {
                   tooltip: 'Back to top',
                   child: const Icon(Icons.arrow_upward),
                 ),
-                const SizedBox(height: 12),
+              ],
+              if (appSettings.enableRating) ...[
+                _testSessionFab(appRepository),
               ],
               Semantics(
                 key: const ValueKey(AutomationIds.addSetupFab),
@@ -464,18 +533,7 @@ class _HomePageState extends State<HomePage> {
                 child: AnimatedSize(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOutCubic,
-                  child: FloatingActionButton.extended(
-                    heroTag: "addSetup",
-                    onPressed: () async {
-                      await SetupActions.addSetup(context);
-                    },
-                    tooltip: 'Add Setup',
-                    isExtended: _setupListController.isNearTop,
-                    // Collapsed, the default asymmetric extended padding would leave it wider than a plain FAB.
-                    extendedPadding: _setupListController.isNearTop ? null : const EdgeInsets.symmetric(horizontal: 16),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Setup'),
-                  ),
+                  child: _addSetupFab(appRepository),
                 ),
               ),
             ],
@@ -490,21 +548,13 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'Add Rider',
             child: const Icon(Icons.add),
           ),
-        if (appSettings.enableRating)
-          FloatingActionButton(
-            heroTag: "addRating",
-            onPressed: () async {
-              await RatingActions.addRating(context);
-            },
-            tooltip: 'Add Rating',
-            child: const Icon(Icons.add),
-          ),
         if (appSettings.enableTask)
           ListenableBuilder(
             listenable: _taskListController,
             builder: (context, child) => Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
+              spacing: 8,
               children: [
                 if (_taskListController.showBackToTop) ...[
                   FloatingActionButton.small(
@@ -513,7 +563,6 @@ class _HomePageState extends State<HomePage> {
                     tooltip: 'Back to top',
                     child: const Icon(Icons.arrow_upward),
                   ),
-                  const SizedBox(height: 12),
                 ],
                 FloatingActionButton(
                   heroTag: "addTask",

@@ -109,7 +109,6 @@ void main() {
         'bikes': <dynamic>[],
         'setups': <dynamic>[],
         'components': <dynamic>[],
-        'ratings': <dynamic>[],
         'taskRules': <dynamic>[],
         'taskEntries': <dynamic>[],
         // No Strava keys here as they would be in a new backup

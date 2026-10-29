@@ -11,7 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
-import '../models/rating/rating_association.dart';
+import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
 import 'converters/attachment_list_converter.dart';
@@ -25,21 +25,19 @@ import 'converters/utc_datetime_converter.dart';
 import 'converters/weather_converter.dart';
 import 'daos/bikes_dao.dart';
 import 'daos/components_dao.dart';
+import 'daos/feedback_dao.dart';
 import 'daos/persons_dao.dart';
-import 'daos/rating_entries_dao.dart';
-import 'daos/ratings_dao.dart';
 import 'daos/setups_dao.dart';
 import 'daos/strava_dao.dart';
 import 'daos/task_dao.dart';
 import 'tables/adjustments.dart';
 import 'tables/bikes.dart';
 import 'tables/components.dart';
+import 'tables/feedback_comparisons.dart';
+import 'tables/feedback_observations.dart';
+import 'tables/feedbacks.dart';
 import 'tables/installations.dart';
 import 'tables/persons.dart';
-import 'tables/rating_entries.dart';
-import 'tables/rating_entry_values.dart';
-import 'tables/rating_metrics.dart';
-import 'tables/ratings.dart';
 import 'tables/setup_adjustment_values.dart';
 import 'tables/setups.dart';
 import 'tables/strava/strava_activities.dart';
@@ -47,6 +45,7 @@ import 'tables/strava/strava_athletes.dart';
 import 'tables/strava/strava_gears.dart';
 import 'tables/task_entries.dart';
 import 'tables/task_rules.dart';
+import 'tables/test_sessions.dart';
 
 part 'app_database.g.dart';
 
@@ -61,23 +60,22 @@ part 'app_database.g.dart';
     Setups,
     SetupAdjustmentValues,
     Persons,
-    Ratings,
-    RatingMetrics,
-    RatingEntries,
-    RatingEntryValues,
     StravaActivities,
     StravaAthletes,
     StravaGears,
+    Feedbacks,
+    FeedbackObservations,
+    FeedbackComparisons,
+    TestSessions,
   ],
   daos: [
     BikesDao,
     ComponentsDao,
     SetupsDao,
     PersonsDao,
-    RatingsDao,
-    RatingEntriesDao,
     TaskDao,
     StravaDao,
+    FeedbackDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -91,7 +89,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 27;
 
   @override
   MigrationStrategy get migration {
@@ -117,41 +115,37 @@ class AppDatabase extends _$AppDatabase {
           // those setups fall back to the (localizable) UI placeholder instead.
           //
           // This recreation rebuilds setups from the *current* schema, which
-          // now includes `attachments` (v20, `images` from v8) and `isBookmarked` (v13).
+          // now includes `attachments` (v20, `images` from v8), `isBookmarked` (v13)
+          // `testSessionId` (v26) and `sourceSetupId`/`sourceKind` (v27).
           // Pre-v4 rows have no such columns, so flag them as new columns —
           // Drift fills them from their defaults instead of trying to copy
           // them out of the old table.
           await m.alterTable(
-            TableMigration(setups, newColumns: [setups.attachments, setups.isBookmarked]),
+            TableMigration(
+              setups,
+              newColumns: [
+                setups.attachments,
+                setups.isBookmarked,
+                setups.testSessionId,
+                setups.sourceSetupId,
+                setups.sourceKind,
+              ],
+            ),
           );
           await customStatement("UPDATE setups SET name = NULL WHERE name = 'Unnamed Setup'");
         }
         if (from < 5) {
-          // Rating redesign: metrics move to their own RatingMetrics table and
-          // ratings are captured via RatingEntries (+ values). The unshipped
-          // rating data is disposable.
-          await m.createTable(ratingMetrics);
-          await m.createTable(ratingEntries);
-          await m.createTable(ratingEntryValues);
           // Drop the now-orphaned rating-metric adjustments (cascades to their
           // setup values), then recreate `adjustments` without the rating_id
-          // column / CHECK arm.
+          // column / CHECK arm. The rating tables this step once created are
+          // gone from the schema; v25 drops them where they exist.
           await customStatement('DELETE FROM adjustments WHERE rating_id IS NOT NULL');
           await m.alterTable(TableMigration(adjustments));
         }
-        if (from < 6) {
-          // RatingEntry.setupId became required (non-nullable). The unshipped rating
-          // entry data is disposable, so recreate the table with the new schema.
-          await m.deleteTable(ratingEntryValues.actualTableName);
-          await m.deleteTable(ratingEntries.actualTableName);
-          await m.createTable(ratingEntries);
-          await m.createTable(ratingEntryValues);
-        }
         if (from < 7) {
-          // AdjustmentCategory removed — drop the category column from both
-          // adjustments and rating_metrics via schema recreation.
+          // AdjustmentCategory removed — drop the category column from
+          // adjustments via schema recreation.
           await m.alterTable(TableMigration(adjustments));
-          await m.alterTable(TableMigration(ratingMetrics));
         }
         if (from < 8) {
           // v8 added `images`, which v20 replaces with `attachments`; add the
@@ -184,7 +178,7 @@ class AppDatabase extends _$AppDatabase {
           await migrateAdjustmentValuesToJson(this);
         }
         if (from < 12) {
-          // Adjustment/RatingMetric units move from free-spelled strings
+          // Adjustment units move from free-spelled strings
           // ("psi", "KPH", ...) to a structured `AdjustmentUnit` encoding
           // ("pressure:psi"). Normalize every existing unit string via the
           // alias table once; unmatched spellings become a `CustomUnit`
@@ -256,7 +250,12 @@ class AppDatabase extends _$AppDatabase {
           // dropped rather than converted. Only databases that ran the old v8
           // step still have it; every other path gained `attachments` above.
           if (await _columnExists('setups', 'images')) {
-            await m.alterTable(TableMigration(setups, newColumns: [setups.attachments]));
+            await m.alterTable(
+              TableMigration(
+                setups,
+                newColumns: [setups.attachments, setups.testSessionId, setups.sourceSetupId, setups.sourceKind],
+              ),
+            );
           }
           if (!await _columnExists('bikes', 'attachments')) {
             await m.addColumn(bikes, bikes.attachments);
@@ -299,23 +298,57 @@ class AppDatabase extends _$AppDatabase {
             'ON strava_activities (gear_id, start_date)',
           );
         }
+        if (from < 25) {
+          // Rating v2 (templates, metrics, entries) never shipped and is
+          // replaced by Feedback, so its data is dropped. Children first.
+          for (final table in const [
+            'rating_entry_values',
+            'rating_entries',
+            'rating_metrics',
+            'ratings',
+          ]) {
+            await customStatement('DROP TABLE IF EXISTS $table');
+          }
+        }
+        if (from < 26) {
+          // Feedback (rating v3): ride feedback with its answers and setup
+          // comparisons, and test sessions whose runs are setups. Upgrades that crossed the v4 boundary, or the v20
+          // recreation, already gained `test_session_id`.
+          await m.createTable(feedbacks);
+          await m.createTable(feedbackObservations);
+          await m.createTable(feedbackComparisons);
+          await m.createTable(testSessions);
+          if (!await _columnExists('setups', 'test_session_id')) {
+            await m.addColumn(setups, setups.testSessionId);
+          }
+        }
+        if (from < 27) {
+          // Where a setup was copied from. The v4/v20 recreations already
+          // gained both columns.
+          if (!await _columnExists('setups', 'source_setup_id')) {
+            await m.addColumn(setups, setups.sourceSetupId);
+          }
+          if (!await _columnExists('setups', 'source_kind')) {
+            await m.addColumn(setups, setups.sourceKind);
+          }
+        }
       }),
     );
   }
 
   /// Ordered children first so deletes never trip a foreign key.
   List<TableInfo<Table, dynamic>> get _userDataTables => [
+    feedbackObservations,
+    feedbackComparisons,
+    feedbacks,
+    testSessions,
     setupAdjustmentValues,
-    ratingEntryValues,
-    ratingEntries,
     setups,
     adjustments,
     installations,
     taskEntries,
     components,
     taskRules,
-    ratingMetrics,
-    ratings,
     bikes,
     persons,
   ];
@@ -359,18 +392,22 @@ class AppDatabase extends _$AppDatabase {
         ];
       }
 
+      final feedbackIds = await expiredIds(feedbacks, feedbacks.id, feedbacks.isDeleted, feedbacks.lastModified);
+      await (delete(feedbackObservations)..where((t) => t.feedbackId.isIn(feedbackIds))).go();
+      await (delete(feedbackComparisons)..where((t) => t.feedbackId.isIn(feedbackIds))).go();
+      await (delete(feedbacks)..where((t) => t.id.isIn(feedbackIds))).go();
+
+      final testSessionIds = await expiredIds(
+        testSessions,
+        testSessions.id,
+        testSessions.isDeleted,
+        testSessions.lastModified,
+      );
+      await (delete(testSessions)..where((t) => t.id.isIn(testSessionIds))).go();
+
       final setupIds = await expiredIds(setups, setups.id, setups.isDeleted, setups.lastModified);
       await (delete(setupAdjustmentValues)..where((t) => t.setupId.isIn(setupIds))).go();
       await (delete(setups)..where((t) => t.id.isIn(setupIds))).go();
-
-      final ratingEntryIds = await expiredIds(
-        ratingEntries,
-        ratingEntries.id,
-        ratingEntries.isDeleted,
-        ratingEntries.lastModified,
-      );
-      await (delete(ratingEntryValues)..where((t) => t.ratingEntryId.isIn(ratingEntryIds))).go();
-      await (delete(ratingEntries)..where((t) => t.id.isIn(ratingEntryIds))).go();
 
       final taskEntryIds = await expiredIds(
         taskEntries,
@@ -387,10 +424,6 @@ class AppDatabase extends _$AppDatabase {
 
       final taskRuleIds = await expiredIds(taskRules, taskRules.id, taskRules.isDeleted, taskRules.lastModified);
       await (delete(taskRules)..where((t) => t.id.isIn(taskRuleIds))).go();
-
-      final ratingIds = await expiredIds(ratings, ratings.id, ratings.isDeleted, ratings.lastModified);
-      await (delete(ratingMetrics)..where((t) => t.ratingId.isIn(ratingIds))).go();
-      await (delete(ratings)..where((t) => t.id.isIn(ratingIds))).go();
 
       final bikeIds = await expiredIds(bikes, bikes.id, bikes.isDeleted, bikes.lastModified);
       await (delete(bikes)..where((t) => t.id.isIn(bikeIds))).go();
@@ -464,7 +497,6 @@ class AppDatabase extends _$AppDatabase {
   @visibleForTesting
   static Future<void> migrateAdjustmentUnits(AppDatabase db) async {
     await db._reencodeUnitColumn('adjustments');
-    await db._reencodeUnitColumn('rating_metrics');
   }
 
   Future<void> _reencodeUnitColumn(String table) async {
@@ -488,12 +520,6 @@ class AppDatabase extends _$AppDatabase {
       keyColumns: ('setup_id', 'adjustment_id'),
       defTable: 'adjustments',
       defForeignKey: 'adjustment_id',
-    );
-    await db._reencodeValueColumn(
-      valueTable: 'rating_entry_values',
-      keyColumns: ('rating_entry_id', 'rating_metric_id'),
-      defTable: 'rating_metrics',
-      defForeignKey: 'rating_metric_id',
     );
   }
  

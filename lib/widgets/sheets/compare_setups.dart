@@ -21,7 +21,6 @@ import '../hints/app_hint_slot.dart';
 import '../items/context_bike_person_card_diff.dart';
 import '../items/context_location_weather_card_diff.dart';
 import '../items/context_meta_card_diff.dart';
-import '../items/rating_summary_card_diff.dart';
 import '../text/section_title.dart';
 import 'sheet.dart';
 
@@ -169,19 +168,6 @@ class _CompareSetupsState extends State<CompareSetups> {
         .where((group) => !group.isComponentInstallationDifference)
         .fold(0, (count, group) => count + group.differenceCount);
     final contextHasChanged = _contextHasChanged(setupA, setupB, appSettings);
-    final ratingsA = RatingSummaryData(
-      entryCount: appRepository.ratingEntriesForSetup(setupA.id).length,
-      score: appRepository.scoreForSetup(setupA.id),
-      metricScores: appRepository.metricScoresForSetup(setupA.id),
-      metrics: appRepository.allRatingMetricsById,
-    );
-    final ratingsB = RatingSummaryData(
-      entryCount: appRepository.ratingEntriesForSetup(setupB.id).length,
-      score: appRepository.scoreForSetup(setupB.id),
-      metricScores: appRepository.metricScoresForSetup(setupB.id),
-      metrics: appRepository.allRatingMetricsById,
-    );
-    final hasVisibleRatings = appSettings.enableRating;
     final selectableSetups = _comparisonBikeId == null
         ? appRepository.setups.values
         : appRepository.setups.values.where((setup) => setup.bike == _comparisonBikeId);
@@ -195,7 +181,6 @@ class _CompareSetupsState extends State<CompareSetups> {
           setupB: setupB,
           setups: selectableSetups,
           showBikeNames: _comparisonBikeId == null,
-          bikeNamesById: appRepository.bikes.map((id, bike) => MapEntry(id, bike.name)),
           currentSetupIds: appRepository.setupHistory.currentSetupIds,
           onSetupAChanged: (setup) => _selectSetup(setupAId: setup.id),
           onSetupBChanged: (setup) => _selectSetup(setupBId: setup.id),
@@ -273,22 +258,6 @@ class _CompareSetupsState extends State<CompareSetups> {
                     ),
                 ],
               ),
-              if (hasVisibleRatings)
-                SliverMainAxisGroup(
-                  slivers: [
-                    const SliverToBoxAdapter(child: Divider(height: 8)),
-                    _sectionTitle(context, 'Ratings'),
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                      sliver: SliverToBoxAdapter(
-                        child: RatingSummaryCardDiff(
-                          ratingsA: ratingsA,
-                          ratingsB: ratingsB,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
             ],
           ),
         ),

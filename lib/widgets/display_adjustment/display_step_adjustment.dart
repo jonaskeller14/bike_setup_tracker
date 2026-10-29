@@ -6,6 +6,7 @@ import '../../utils/value_delta.dart';
 import '../lists/adjustment_compact_display/adjustment_cell_layout.dart';
 import '../set_adjustment/set_step_adjustment_dial.dart';
 import 'adjustment_icon_name_notes.dart';
+import 'outdated_value_note.dart';
 import 'step_pips.dart';
 import 'value_delta_chip.dart';
 
@@ -48,6 +49,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
       isInitial = true;
       highlightColor = scheme.error;
     }
+    final bool isOutdated = !isError && value != null && !adjustment.isValidValue(value!);
     final previous = !isInitial && isChanged ? initialValue : null;
     final changeColor = highlights?.changed ?? Colors.orange;
     final accentColor = isError ? scheme.error : resolveStepAccentColor(context, adjustment);
@@ -76,7 +78,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerRight,
-                        child: _valueLine(context, previous: previous, highlightColor: highlightColor),
+                        child: _valueLine(context, previous: previous, highlightColor: isOutdated ? scheme.error : highlightColor),
                       ),
                     ),
                     if (previous != null && value != null)
@@ -90,6 +92,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
                   color: accentColor,
                   changeColor: changeColor,
                 ),
+                if (isOutdated) OutdatedValueNote(adjustment: adjustment),
               ],
             ),
           ),

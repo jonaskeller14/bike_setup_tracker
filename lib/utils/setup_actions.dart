@@ -7,9 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../models/bike.dart';
-import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
-import '../pages/forms/rating_entry_page.dart';
 import '../pages/forms/setup_page.dart';
 import '../repositories/app_repository.dart';
 import '../services/share_service.dart';
@@ -17,7 +15,9 @@ import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/set_tags_bulk.dart';
 import 'attachment_actions.dart';
 import 'bike_actions.dart';
+import 'carry_over_actions.dart';
 import 'component_actions.dart';
+import 'test_session_actions.dart';
 import 'to_text.dart';
 
 class SetupActions {
@@ -56,6 +56,9 @@ class SetupActions {
       return;
     }
 
+    final bikeId = initialBike?.id ?? TestSessionActions.activeBikeId(appRepository);
+    if (!await TestSessionActions.ensureNoRunningSession(context, bikeId: bikeId) || !context.mounted) return;
+
     final newSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(
@@ -87,6 +90,17 @@ class SetupActions {
 
   static Future<Setup?> duplicateSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
+    // Restoring a run of a running session is another run, e.g. to ride an
+    // earlier one again.
+    final session = appRepository.testSessions[setup.testSessionId];
+    if (session != null && session.isRunning) {
+      return TestSessionActions.addRun(context, session: session, source: setup);
+    }
+    if (!await TestSessionActions.ensureNoRunningSession(context, bikeId: setup.bike) || !context.mounted) return null;
+
+    final carryOver = await CarryOverActions.confirm(context, setup: setup);
+    if (!context.mounted) return null;
+
     final deepCopied = setup.deepCopy();
     final copiedAttachments = await AttachmentActions.copyAttachmentFiles(deepCopied.attachments);
 
@@ -98,7 +112,14 @@ class SetupActions {
     final newSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(
-        builder: (context) => SetupPage.duplicate(setup: deepCopied.copyWith(attachments: copiedAttachments)),
+        builder: (context) => SetupPage.restore(
+          setup: deepCopied.copyWith(
+            bikeAdjustmentValues: carryOver?.applyTo(deepCopied.bikeAdjustmentValues) ?? deepCopied.bikeAdjustmentValues,
+            attachments: copiedAttachments,
+            sourceSetupId: setup.id,
+            sourceKind: SetupSourceKind.restore,
+          ),
+        ),
       ),
     );
     if (newSetup != null) await appRepository.addSetups([newSetup]);
@@ -249,23 +270,5 @@ class SetupActions {
       context: context,
       text: content,
     );
-  }
-
-  static Future<void> addRatingEntryForSetup(BuildContext context, {required Setup setup}) async {
-    final appRepository = context.read<AppRepository>();
-    final bike = appRepository.bikes[setup.bike];
-
-    final newRatingEntry = await Navigator.push<RatingEntry>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RatingEntryPage.add(
-          initialBike: bike,
-          initialSetupId: setup.id,
-        ),
-      ),
-    );
-    if (newRatingEntry == null) return;
-
-    await appRepository.addRatingEntries([newRatingEntry]);
   }
 }

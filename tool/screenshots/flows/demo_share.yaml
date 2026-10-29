@@ -1,0 +1,35 @@
+# scenario: full
+# Demo: send one setup as text. The setup list (the clicks you'd forget), then
+# "Hometrails - angleset test" opens on its details page with every value, and
+# its menu shares it as plain text through the system share sheet. The flow
+# stops on the sheet: a chat app can't be recorded. Timed to the voiceover
+# (03_features, clip 12): list for the hook and scenario, details and menu for
+# "open the setup … tap Share", the sheet for "send it as a message".
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.setups
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_share
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 6500
+- tapOn: "(?s).*Hometrails - angleset test \\(slack\\).*"
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2800
+- tapOn:
+    id: setupDetails.actions
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn: Share
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 8000

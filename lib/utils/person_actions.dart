@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
-import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
-import '../models/rating/rating_association.dart';
 import '../pages/adjustment/adjustment_page.dart';
 import '../pages/adjustment/boolean_adjustment_page.dart';
 import '../pages/adjustment/categorical_adjustment_page.dart';
@@ -126,7 +124,7 @@ class PersonActions {
     );
     if (result == null) return;
 
-    await appRepository.editPerson(result.value, conversions: result.conversions);
+    await appRepository.editPerson(result.value, migrations: result.migrations);
   }
 
   static Future<void> duplicatePerson(BuildContext context, {required Person person}) async {
@@ -145,20 +143,11 @@ class PersonActions {
 
   static Future<void> removePerson(BuildContext context, {required Person person}) async {
     final appRepository = context.read<AppRepository>();
-    final appSettings = context.read<AppSettings>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final obsoleteRatings = appRepository.ratings.values
-        .where((r) => r.association == PersonRatingAssociation(person.id))
-        .toList();
-
     await appRepository.removePersons([person]);
-    await appRepository.removeRatings(obsoleteRatings);
 
-    String message = "Rider '${person.name}' moved to trash.";
-    if (obsoleteRatings.isNotEmpty && appSettings.enableRating) {
-      message += "\n${obsoleteRatings.length} Ratings which belong to this rider are deleted as well.";
-    }
+    final message = "Rider '${person.name}' moved to trash.";
     if (!context.mounted) return;
     messenger.showSnackBar(
       AppSnackBar.info(
@@ -169,7 +158,6 @@ class PersonActions {
           label: 'UNDO',
           onPressed: () async {
             await appRepository.restorePersons([person]);
-            await appRepository.restoreRatings(obsoleteRatings);
           },
         ),
       ),

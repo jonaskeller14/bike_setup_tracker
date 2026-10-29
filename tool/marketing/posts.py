@@ -1,4 +1,4 @@
-"""Turns a kit's post drafts into the channel sections of POST.md (Phase 4 of #69).
+"""Turns a kit's post drafts into one Markdown file per post (Phase 4 of #69).
 
 Drafts live in docs/marketing/kits/<kit>.posts.md. Each `## <channel> · <label>` section is one
 post; its `### <Field>` headings are followed by a ```text block with the text to paste. Prose
@@ -9,8 +9,9 @@ around the blocks is kept as posting notes. Placeholders anywhere in a section:
   {version}                            the app version from pubspec.yaml
   {chapters}                           the walkthrough chapter timestamps
 
-`[[...]]` marks something the maintainer fills in before posting. The limits below are the ones
-documented in docs/marketing/channels.md.
+`[[...]]` marks something the maintainer fills in before posting. `- [ ]` lines in the prose before
+the first field become steps of the post's checklist. The limits below are the ones documented in
+docs/marketing/channels.md.
 """
 
 import re
@@ -27,29 +28,35 @@ PLATFORMS = {"reddit-": "reddit", "yt-": "youtube", "ig-": "instagram", "tiktok"
 # Platform: {field: max characters}.
 LIMITS = {
     "reddit": {"Title": 300, "Body": 40000},
-    "youtube": {"Title": 100, "Description": 5000, "Tags": 500, "Post": 5000},
+    "youtube": {"Title": 100, "Description": 5000, "Tags": 500, "Post": 5000, "Pinned comment": 10000},
     "instagram": {"Bio": 150, "Caption": 2200},
     "tiktok": {"Bio": 80, "Caption": 2200},
 }
 # Platform: max hashtags per post (all fields of a section).
 MAX_HASHTAGS = {"instagram": 5, "youtube": 60}
 
-LINK_ROW = re.compile(r"^\| `([a-z0-9-]+)` \|.*?\]\((https://apps\.apple\.com[^)]+)\).*?\]\((https://play\.google\.com[^)]+)\)")
+LINK_ROW = re.compile(r"^\| `([a-z0-9-]+)` \| `([a-z]+)` \|")
+IOS_LINK = "https://apps.apple.com/app/apple-store/id6759974325?pt=128610953&ct={channel}&mt=8"
+ANDROID_LINK = ("https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker"
+                "&referrer=utm_source%3D{channel}%26utm_medium%3D{medium}")
 PLACEHOLDER = re.compile(r"\{(ios|android|smart):([a-z0-9-]+)\}")
 LEFTOVER = re.compile(r"\{[a-z]+(?::[^}\s]*)?\}")
 STORE_URL = re.compile(r"https://(?:apps\.apple\.com|play\.google\.com)[^\s)\]>]*")
 FIELD = re.compile(r"^### ([^\n]+)\n((?:(?!#|```)[^\n]*\n)*?)```text\n(.*?)\n```", re.MULTILINE | re.DOTALL)
 FILL_IN = re.compile(r"\[\[(.+?)\]\]")
 HASHTAG = re.compile(r"(?<![\w&/])#\w+")
+VIDEO_FILE = re.compile(r"\w+_(?:9x16|16x9)\.mp4")
+STEP = re.compile(r"^- \[ \] .+\n", re.MULTILINE)
 
 
 def load_links():
-    """{channel: (iOS link, Android link)} from links.md."""
+    """{channel: (iOS link, Android link)} from the channel table in links.md."""
     links = {}
     for line in LINKS.read_text(encoding="utf-8").splitlines():
         match = LINK_ROW.match(line)
         if match:
-            links[match[1]] = (match[2], match[3])
+            channel, medium = match[1], match[2]
+            links[channel] = (IOS_LINK.format(channel=channel), ANDROID_LINK.format(channel=channel, medium=medium))
     return links
 
 
@@ -62,8 +69,8 @@ def platform(channel):
     return next((name for prefix, name in PLATFORMS.items() if channel.startswith(prefix)), None)
 
 
-def render(source, chapters):
-    """(Markdown for POST.md, problems). Headings move down one level to nest under '## Posts'."""
+def render(source, chapters, files):
+    """([(heading, Markdown of the post's file)], problems). `files` are the kit's files, relative to its folder."""
     links = load_links()
     allowed = {url for pair in links.values() for url in pair}
     version = app_version()
@@ -108,18 +115,35 @@ def render(source, chapters):
             problems.append(f"posts '{heading[3:]}': {hashtags} hashtags, {name} allows {MAX_HASHTAGS[name]}")
 
         body = text.split("\n", 1)[1] if "\n" in text else ""
-        lines = [heading, "", "- [ ] Posted"]
-        lines += [f"- [ ] Fill in: {slot}" for slot in dict.fromkeys(FILL_IN.findall(body))]
-        out.append("\n".join(lines) + "\n" + body.rstrip() + "\n")
+        prose, fields = body.split("\n### ", 1) if "\n### " in body else (body, None)
+        steps = STEP.findall(prose + "\n")
+        prose = STEP.sub("", prose + "\n").strip()
+        body = "\n\n".join(part for part in (prose, f"### {fields}" if fields else "") if part)
 
-    return demote("\n".join(out)), problems
+        checklist = []
+        video = VIDEO_FILE.search(heading)
+        if video:
+            file = next((f for f in files if f.split("/")[-1] == video[0]), None)
+            if file is None:
+                problems.append(f"posts '{heading[3:]}': {video[0]} isn't a file of the kit")
+            checklist.append(f"- [ ] Upload `{file or video[0]}`")
+        checklist += [f"- [ ] Fill in: {slot}" for slot in dict.fromkeys(FILL_IN.findall(body))]
+        checklist += [step.rstrip("\n") for step in steps] + ["- [ ] Posted"]
+        out.append((heading[3:], promote("\n".join([heading, "", *checklist, "", body]).rstrip() + "\n")))
+
+    return out, problems
 
 
-def demote(markdown):
-    """Adds one level to every heading outside fenced blocks."""
+def slug(heading, number):
+    """File name of a post: its position (keeps the draft order) and the heading."""
+    return f"{number:02d}-{re.sub(r'[^a-z0-9]+', '-', heading.split(' (')[0].replace('.mp4', '').lower()).strip('-')}.md"
+
+
+def promote(markdown):
+    """Removes one level from every heading outside fenced blocks, so a post's file starts at '#'."""
     lines, fenced = [], False
     for line in markdown.splitlines():
         if line.startswith("```"):
             fenced = not fenced
-        lines.append("#" + line if not fenced and re.match(r"#{1,5} ", line) else line)
-    return "\n".join(lines)
+        lines.append(line[1:] if not fenced and re.match(r"#{2,6} ", line) else line)
+    return "\n".join(lines) + "\n"

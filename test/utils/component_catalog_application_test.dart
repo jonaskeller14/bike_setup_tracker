@@ -136,6 +136,7 @@ void main() {
       final lsc = app.adjustments.firstWhere((a) => a.name == 'LSC') as StepAdjustment;
       expect(lsc.max, StepAdjustment.unknownMaxPlaceholder);
       expect(lsc.notes, 'Low-Speed Compression; ${StepAdjustment.unknownMaxWarning}');
+      expect(app.unknownMaxKeys, {lsc.presetKey});
     });
 
     test('the chosen travel becomes the SAG reference travel', () {
@@ -158,6 +159,14 @@ void main() {
         '',
         'Setup guide: https://tech.ridefox.com/36',
       ]);
+    });
+
+    test('a chosen model year replaces the years in the notes', () {
+      final app = buildCatalogApplication(resolved.withYear(2026));
+
+      expect(app.notes, contains('- Model year: 2026'));
+      expect(app.notes, isNot(contains('Model years')));
+      expect(app.preset['year'], 2026);
     });
 
     test('fresh UUIDs on every adjustment', () {

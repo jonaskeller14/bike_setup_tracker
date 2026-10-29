@@ -1,0 +1,240 @@
+<!doctype html>
+<!--
+  Brand reference frames (#77 Phase 1): the design direction picked on 2026-10-18 ("E, teal
+  headline + orange values"). Templates built in Phase 2 should match these frames closely;
+  brand.md describes the rules behind them.
+  ?surface=search|header|short|endcard|post|og|screenshot   ?safe draws the surface's safe area
+  Open in Chrome; each surface is a fixed-size page (sizes below).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Brand Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #0a0a0a;
+    --muted: #6b6b6b;
+    --accent: #ef6c00; /* lib/theme.dart ValueHighlightColors.light.changed */
+    --headline-accent: #106681; /* lib/theme.dart light primary */
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    position: relative;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Archivo', sans-serif;
+  }
+  section { position: absolute; inset: 0; }
+  .hl {
+    font-weight: 900;
+    line-height: .92;
+    letter-spacing: -.045em;
+    word-spacing: .08em;
+    text-wrap: balance;
+  }
+  em { font-style: normal; color: var(--headline-accent); }
+  .new { color: var(--accent); }
+  .meta { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .muted { color: var(--muted); }
+  .rule { position: absolute; height: 0; border-top: var(--rule, 4px) solid var(--ink); }
+  .brand { position: absolute; display: flex; align-items: center; }
+  .brand img { display: block; }
+  .brand span { font-weight: 800; letter-spacing: -.02em; }
+  .phone {
+    position: absolute;
+    width: 1470px; height: 3000px;
+    transform-origin: top left;
+    transform: scale(var(--s));
+    filter: drop-shadow(0 50px 70px rgba(0, 0, 0, .18));
+  }
+  .phone .screen { position: absolute; left: 75px; top: 66px; width: 1320px; height: 2868px; border-radius: 185px; }
+  .phone .frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .num { font-weight: 900; letter-spacing: -.04em; line-height: .85; font-variant-numeric: tabular-nums; }
+  .badges { display: flex; justify-content: center; gap: calc(var(--badge-h) * .3); }
+  .badges .app-store { height: var(--badge-h); }
+  .badges .google-play { height: var(--badge-h); width: calc(var(--badge-h) * 566 / 166); overflow: hidden; }
+  .badges .google-play img {
+    height: calc(var(--badge-h) * 250 / 166);
+    margin: calc(var(--badge-h) * -42 / 166) 0 0 calc(var(--badge-h) * -40 / 166);
+  }
+</style>
+</head>
+<body>
+
+<!-- Search results asset, 3:2 -->
+<section data-for="search">
+  <div class="brand" style="left:200px; top:170px; gap:48px">
+    <img src="../../../../assets/icons/logo_1024.png" style="width:190px" alt="">
+    <span style="font-size:92px">Bike Setup Tracker</span>
+  </div>
+  <!-- Centered on the phone below: its rounded corners make an edge alignment look off. -->
+  <div class="meta muted" style="position:absolute; left:2560px; width:1088px; text-align:center; top:227px; font-size:64px; line-height:77px">Fork · Shock · Tires</div>
+  <!-- Ends behind the phone instead of reappearing past its corner. -->
+  <div class="rule" style="left:200px; width:2900px; top:420px; --rule:6px"></div>
+  <h1 class="hl" style="position:absolute; left:190px; top:540px; font-size:320px; width:2340px">The logbook for your <em>MTB suspension.</em></h1>
+  <div class="phone" style="left:2560px; top:300px; --s:.74">
+    <img class="screen" src="../../../store/app-store/iPhone-17-Pro-Max/04_raw.png" alt="">
+    <img class="frame" src="../../../store/app-store/iPhone-17-Pro-Max/frame.png" alt="">
+  </div>
+  <div class="rule" style="left:200px; width:2220px; top:1640px"></div>
+  <div style="position:absolute; left:200px; top:1720px; display:flex; gap:120px; align-items:flex-end">
+    <div>
+      <div class="meta muted" style="font-size:64px; margin-bottom:30px">Rebound</div>
+      <div class="num" style="font-size:460px">9→<span class="new">10</span></div>
+    </div>
+    <div style="padding-bottom:20px">
+      <div class="meta muted" style="font-size:64px; margin-bottom:24px">LSC</div>
+      <div class="num" style="font-size:200px">7→<span class="new">8</span></div>
+      <div class="meta muted" style="font-size:64px; margin:60px 0 24px">Pressure</div>
+      <div class="num" style="font-size:200px">84→<span class="new">85</span><span style="font-size:80px; letter-spacing:0"> psi</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- App Store header, 21:9, no phones: type only, everything that matters inside the safe area -->
+<section data-for="header">
+  <div class="brand" style="left:1097px; top:493px; gap:28px">
+    <img src="../../../../assets/icons/logo_1024.png" style="width:96px" alt="">
+    <span style="font-size:48px">Bike Setup Tracker</span>
+  </div>
+  <div class="meta muted" style="position:absolute; right:1097px; top:526px; font-size:36px">Fork · Shock · Tires</div>
+  <div class="rule" style="left:0; right:0; top:620px"></div>
+  <h1 class="hl" style="position:absolute; left:1090px; top:666px; width:1720px; font-size:140px; text-wrap:nowrap"><em>Fork and shock</em><br>settings, remembered.</h1>
+  <div class="rule" style="left:0; right:0; top:972px; --rule:2px"></div>
+  <div class="meta" style="position:absolute; left:1097px; top:1004px; font-size:40px; display:flex; gap:64px">
+    <span><span class="muted">Rebound</span> 9→<span class="new">10</span></span>
+    <span><span class="muted">LSC</span> 7→<span class="new">8</span></span>
+    <span><span class="muted">Pressure</span> 84→<span class="new">85</span> psi</span>
+  </div>
+</section>
+
+<!-- Short frame, 9:16 -->
+<section data-for="short">
+  <div class="brand" style="left:60px; top:120px; gap:20px">
+    <img src="../../../../assets/icons/logo_1024.png" style="width:72px" alt="">
+    <span style="font-size:36px">Bike Setup Tracker</span>
+  </div>
+  <div class="rule" style="left:60px; right:60px; top:218px"></div>
+  <h1 class="hl" style="position:absolute; left:56px; top:262px; width:980px; font-size:124px">Which <em>clicks</em> did you ride last weekend?</h1>
+  <div class="phone" style="left:230px; top:640px; --s:.4218">
+    <img class="screen" src="../../../store/app-store/iPhone-17-Pro-Max/04_raw.png" alt="">
+    <img class="frame" src="../../../store/app-store/iPhone-17-Pro-Max/frame.png" alt="">
+  </div>
+</section>
+
+<!-- End card, 9:16 -->
+<section data-for="endcard" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding-bottom:160px">
+  <img src="../../../../assets/icons/logo_1024.png" style="width:340px" alt="">
+  <div class="hl" style="font-size:150px; margin-top:10px">Bike Setup<br>Tracker</div>
+  <div class="rule" style="position:static; width:760px; margin:56px 0 44px"></div>
+  <div style="font-size:46px; font-weight:600">78 psi. 4 clicks. Saved.</div>
+  <div class="badges" style="--badge-h:104px; margin-top:96px">
+    <img class="app-store" src="../../../../tool/marketing/assets/badges/app-store_en-US.svg" alt="">
+    <div class="google-play"><img src="../../../../tool/marketing/assets/badges/google-play_en-US.png" alt=""></div>
+  </div>
+  <div class="meta muted" style="font-size:28px; margin-top:40px">Free on iOS and Android</div>
+</section>
+
+<!-- Post, 4:5: what changed -->
+<section data-for="post">
+  <div class="meta" style="position:absolute; left:72px; top:72px; font-size:28px">Setup history</div>
+  <div class="meta muted" style="position:absolute; right:72px; top:72px; font-size:28px">Wed 2026-09-23</div>
+  <div class="rule" style="left:72px; right:72px; top:128px"></div>
+  <div style="position:absolute; left:72px; top:160px; font-size:44px; font-weight:800; letter-spacing:-.02em">Hometrails – angleset test</div>
+  <div class="meta muted" style="position:absolute; left:72px; top:262px; font-size:30px">Fork · Rebound</div>
+  <div class="num" style="position:absolute; left:64px; top:310px; font-size:330px">9→<span class="new">10</span></div>
+  <div class="rule" style="left:72px; right:72px; top:720px; --rule:2px"></div>
+  <div style="position:absolute; left:72px; right:72px; top:756px; display:flex; justify-content:space-between">
+    <div>
+      <div class="meta muted" style="font-size:30px; margin-bottom:14px">LSC</div>
+      <div class="num" style="font-size:150px">7→<span class="new">8</span></div>
+    </div>
+    <div>
+      <div class="meta muted" style="font-size:30px; margin-bottom:14px">Pressure (psi)</div>
+      <div class="num" style="font-size:150px">84→<span class="new">85</span></div>
+    </div>
+  </div>
+  <div class="rule" style="left:72px; right:72px; top:1150px"></div>
+  <div class="brand" style="left:72px; top:1186px; gap:22px">
+    <img src="../../../../assets/icons/logo_1024.png" style="width:84px" alt="">
+    <span style="font-size:36px">Bike Setup Tracker</span>
+  </div>
+  <div class="meta muted" style="position:absolute; right:72px; top:1214px; font-size:28px">See what changed</div>
+</section>
+
+<!-- OG image, 1200×630 -->
+<section data-for="og">
+  <div class="brand" style="left:64px; top:52px; gap:16px">
+    <img src="../../../../assets/icons/logo_1024.png" style="width:56px" alt="">
+    <span style="font-size:28px">Bike Setup Tracker</span>
+  </div>
+  <div class="rule" style="left:64px; right:64px; top:130px; --rule:3px"></div>
+  <h1 class="hl" style="position:absolute; left:60px; top:178px; width:740px; font-size:92px">The logbook for your <em>MTB suspension.</em></h1>
+  <div class="meta muted" style="position:absolute; left:64px; bottom:52px; font-size:22px">Fork · Shock · Tire pressure · Service</div>
+  <div class="phone" style="left:830px; top:96px; --s:.26">
+    <img class="screen" src="../../../store/app-store/iPhone-17-Pro-Max/04_raw.png" alt="">
+    <img class="frame" src="../../../store/app-store/iPhone-17-Pro-Max/frame.png" alt="">
+  </div>
+</section>
+
+<!-- Store screenshot, iPhone 1206×2622 (Phase 12): the same layout, scaled with the width, on iPad, Play phone and Play tablet -->
+<section data-for="screenshot">
+  <div class="brand" style="left:80px; top:72px; gap:18px">
+    <img src="../../../../assets/icons/logo_1024.png" style="width:67px" alt="">
+    <span style="font-size:34px">Bike Setup Tracker</span>
+  </div>
+  <div class="meta muted" style="position:absolute; right:80px; top:90px; font-size:31px; line-height:37px">Setup history</div>
+  <div class="rule" style="left:80px; right:80px; top:156px; --rule:4px"></div>
+  <h1 class="hl" style="position:absolute; left:80px; top:188px; width:1046px; font-size:112px">See what changed on your <em>MTB</em></h1>
+  <div class="phone" style="left:69px; top:419px; --s:.726">
+    <img class="screen" src="../../../store/app-store/iPhone-17-Pro-Max/04_raw.png" alt="">
+    <img class="frame" src="../../../store/app-store/iPhone-17-Pro-Max/frame.png" alt="">
+  </div>
+</section>
+
+<script>
+// ?surface picks the frame; [data-for] elements of other surfaces are removed.
+(() => {
+  const SIZES = {
+    search: [3840, 2560],
+    header: [3840, 1646],
+    short: [1080, 1920],
+    endcard: [1080, 1920],
+    post: [1080, 1350],
+    og: [1200, 630],
+    screenshot: [1206, 2622],
+  };
+  // Apple's art safe areas for the search asset and the header; for Shorts, the area YouTube,
+  // TikTok and Reels keep free of their own UI.
+  const SAFE = {
+    search: [836, 765, 2168, 1030],
+    header: [1097, 493, 1646, 661],
+    short: [60, 220, 860, 1180],
+    endcard: [60, 220, 860, 1180],
+    screenshot: [80, 80, 1046, 2462],
+  };
+  const params = new URLSearchParams(location.search);
+  const surface = SIZES[params.get('surface')] ? params.get('surface') : 'search';
+  const [w, h] = SIZES[surface];
+  document.documentElement.style.width = document.body.style.width = `${w}px`;
+  document.documentElement.style.height = document.body.style.height = `${h}px`;
+  document.body.dataset.surface = surface;
+  document.querySelectorAll('[data-for]').forEach((el) => {
+    if (!el.dataset.for.split(' ').includes(surface)) el.remove();
+  });
+  if (params.has('safe') && SAFE[surface]) {
+    const [x, y, sw, sh] = SAFE[surface];
+    const box = document.createElement('div');
+    box.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${sw}px;height:${sh}px;` +
+      'outline:4px dashed #e0245e;z-index:99;pointer-events:none';
+    document.body.append(box);
+  }
+})();
+</script>
+</body>
+</html>

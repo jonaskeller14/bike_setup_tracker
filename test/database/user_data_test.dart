@@ -45,5 +45,24 @@ void main() {
       expect(await db.watchHasUserData().first, isFalse);
       expect(await db.select(db.bikes).get(), isEmpty);
     });
+
+    test('counts and clears test sessions', () async {
+      await db
+          .into(db.testSessions)
+          .insert(
+            TestSessionsCompanion.insert(
+              id: 'session',
+              bikeId: 'bike',
+              lastModified: DateTime.now().toUtc(),
+              startedAtUTC: DateTime.now().toUtc(),
+              startedAtLocal: DateTime.now(),
+            ),
+          );
+      expect(await db.watchHasUserData().first, isTrue);
+
+      await db.deleteAllUserData();
+
+      expect(await db.watchHasUserData().first, isFalse);
+    });
   });
 }

@@ -67,8 +67,9 @@ void main() {
       onSelectionChanged: toggled.addAll,
     );
 
-    // The options menu would compete with the toggle for the same row.
-    expect(find.byType(SetupOptionsMenu), findsNothing);
+    // The menu stays so the row layout does not shift, but is disabled.
+    final menuButton = find.byWidgetPredicate((widget) => widget is PopupMenuButton);
+    expect((tester.widget(menuButton) as PopupMenuButton).enabled, isFalse);
 
     final primary = Theme.of(tester.element(find.byType(SetupTile))).colorScheme.primary;
     final leadingIcon = tester.widget<Icon>(
@@ -84,5 +85,11 @@ void main() {
     await settle(tester);
 
     expect(toggled, [setupSelectionId(setup.id)]);
+
+    await tester.tap(find.byType(SetupOptionsMenu));
+    await settle(tester);
+
+    expect(find.byWidgetPredicate((widget) => widget is PopupMenuItem), findsNothing);
+    expect(toggled, hasLength(2), reason: 'a tap on the disabled menu still toggles the row');
   });
 }

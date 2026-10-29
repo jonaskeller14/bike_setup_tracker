@@ -1,0 +1,65 @@
+<!doctype html>
+<!--
+  Channel art, a native layout per size (size=, see template.js):
+    2560×1440   YouTube banner; everything inside the 1546×423 area every device shows, the rules
+                run full width for the TV and desktop crops
+    800×800     avatar (YouTube, Instagram, TikTok): the mark, cropped to a circle by the platforms
+    1080×1080   Instagram highlight cover, shown as a circle: big=… (e.g. "9→{10}") over title=…
+
+  URL parameters (and the shared ones in template.js):
+    title=…       banner: the line under the brand row (default: the signature); highlight: the label
+    big=…         highlight only: the big number or word above the label
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Channel Art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="marketing.css">
+<style>
+  .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+
+  .banner .brand { left: 507px; top: 520px; --mark: 112px; }
+  .banner .label { position: absolute; right: 507px; top: 562px; font-size: 32px; }
+  .banner .title { position: absolute; left: 503px; top: 700px; width: 1550px; height: 200px; font-size: 160px; white-space: nowrap; }
+
+  .avatar img { width: 520px; }
+
+  /* Inside the circle Instagram shows: about 640 px across the middle. */
+  .highlight .big { font-size: 280px; width: 640px; height: 260px; white-space: nowrap; }
+  .highlight .title { font-size: 64px; margin-top: 36px; }
+</style>
+</head>
+<body data-size="2560x1440" data-kind="banner">
+  <!-- banner -->
+  <div class="banner" data-kind="banner">
+    <div class="brand">
+      <img src="../../../assets/icons/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="meta muted label">Fork · Shock · Tires · Service</div>
+    <div class="rule" style="left:0; right:0; top:666px"></div>
+    <h1 class="hl title" data-param="title" data-default="78 psi. 4 clicks. Saved." data-fit="96"></h1>
+    <div class="rule" style="left:0; right:0; top:920px; --rule:2px"></div>
+  </div>
+
+  <!-- avatar -->
+  <div class="center avatar" data-kind="avatar">
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+  </div>
+
+  <!-- highlight -->
+  <div class="center highlight" data-kind="highlight">
+    <div class="num big" data-param="big" data-fit="120"></div>
+    <div class="meta title" data-param="title"></div>
+  </div>
+<script>
+  // The kind follows the size unless ?kind= says otherwise.
+  const size = new URLSearchParams(location.search).get('size');
+  document.body.dataset.kind = { '800x800': 'avatar', '1080x1080': 'highlight' }[size] || 'banner';
+</script>
+<script src="template.js"></script>
+</body>
+</html>

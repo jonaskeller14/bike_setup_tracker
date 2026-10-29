@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _MockAppRepository extends Mock implements AppRepository {}
 
@@ -44,11 +45,17 @@ TaskSuggestion _suggestion(
 
 void main() {
   late _MockAppRepository repository;
+  late AppSettings appSettings;
   late Set<TaskRule> doneRules;
 
   setUpAll(() => registerFallbackValue(TaskRule(name: 'fallback', tags: const {})));
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    appSettings = AppSettings()
+      ..enableTask = true
+      ..enableComponentPresets = true
+      ..enableTaskPresets = true;
     repository = _MockAppRepository();
     doneRules = {};
     when(() => repository.getTaskRuleStatus(any())).thenAnswer(
@@ -61,7 +68,7 @@ void main() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AppRepository>.value(value: repository),
-        ChangeNotifierProvider<AppSettings>(create: (_) => AppSettings()),
+        ChangeNotifierProvider<AppSettings>.value(value: appSettings),
       ],
       child: MaterialApp(
         theme: materialAppTheme,
@@ -214,7 +221,7 @@ void main() {
       expect(find.text('Time-based · every 500 km with Strava'), findsOneWidget);
       expect(find.text('Typical interval for chain'), findsOneWidget);
       expect(find.text('Add 1 task'), findsOneWidget);
-      expect(find.text('Skip'), findsOneWidget);
+      expect(find.text('Not now'), findsOneWidget);
     });
 
     testWidgets('names the preset in the header while a manufacturer interval is shown', (tester) async {
@@ -453,7 +460,7 @@ void main() {
       Object? result = 'unset';
       await pumpSheet(tester, open, (value) => result = value);
 
-      await tester.tap(find.text('Skip'));
+      await tester.tap(find.text('Not now'));
       await tester.pumpAndSettle();
       expect(result, isNull);
     });
@@ -482,6 +489,154 @@ void main() {
       );
 
       expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('success header', () {
+    Future<TaskRulesSheetResult?> openRecommend(BuildContext context, {TaskRulesTrigger? trigger}) =>
+        showTaskRulesSheet(
+          context,
+          suggestions: [_suggestion('chain:replace', 'Replace chain')],
+          componentName: 'New chain',
+          componentType: ComponentType.chain,
+          trigger: trigger,
+        );
+
+    for (final trigger in [TaskRulesTrigger.added, TaskRulesTrigger.duplicated]) {
+      testWidgets('${trigger.name} names the new component and words the offer as optional', (tester) async {
+        await pumpSheet(tester, (context) => openRecommend(context, trigger: trigger));
+
+        expect(find.text("'New chain' added"), findsOneWidget);
+        expect(find.text('Add tasks for this chain?'), findsOneWidget);
+        expect(find.textContaining('Optional — pick the tasks to add.'), findsOneWidget);
+        expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      });
+    }
+
+    testWidgets('replaced names the replaced component', (tester) async {
+      await pumpSheet(
+        tester,
+        (context) => showTaskRulesSheet(
+          context,
+          copyFrom: 'Old chain',
+          copyRules: [_rule('Wax chain')],
+          componentName: 'New chain',
+          trigger: TaskRulesTrigger.replaced,
+        ),
+      );
+
+      expect(find.text("'Old chain' replaced"), findsOneWidget);
+      expect(find.text("Copy tasks from 'Old chain'?"), findsOneWidget);
+    });
+
+    testWidgets('merged mode asks to carry tasks over', (tester) async {
+      await pumpSheet(
+        tester,
+        (context) => showTaskRulesSheet(
+          context,
+          copyFrom: 'Old chain',
+          copyRules: [_rule('Wax chain')],
+          suggestions: [_suggestion('chain:replace', 'Replace chain')],
+          componentName: 'New chain',
+          componentType: ComponentType.chain,
+          trigger: TaskRulesTrigger.duplicated,
+        ),
+      );
+
+      expect(find.text('Set up tasks for this chain?'), findsOneWidget);
+    });
+
+    testWidgets('the header close button closes the sheet without a result', (tester) async {
+      Object? result = 'unset';
+      await pumpSheet(
+        tester,
+        (context) => openRecommend(context, trigger: TaskRulesTrigger.added),
+        (value) => result = value,
+      );
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pumpAndSettle();
+
+      expect(result, isNull);
+    });
+
+    testWidgets('without a trigger the header keeps the plain title', (tester) async {
+      await pumpSheet(tester, openRecommend);
+
+      expect(find.text("Recommended tasks for 'New chain'"), findsOneWidget);
+      expect(find.byIcon(Icons.check_circle), findsNothing);
+      expect(find.textContaining('Optional'), findsNothing);
+    });
+  });
+
+  group('turning off recommendations', () {
+    final copied = _rule('Wax chain');
+
+    Future<TaskRulesSheetResult?> openRecommendOnly(BuildContext context) => showTaskRulesSheet(
+      context,
+      suggestions: [_suggestion('chain:replace', 'Replace chain')],
+      componentName: 'New chain',
+      componentType: ComponentType.chain,
+      trigger: TaskRulesTrigger.added,
+    );
+
+    Future<TaskRulesSheetResult?> openMerged(BuildContext context) => showTaskRulesSheet(
+      context,
+      copyFrom: 'Old chain',
+      copyRules: [copied],
+      suggestions: [_suggestion('chain:replace', 'Replace chain')],
+      componentName: 'New chain',
+      componentType: ComponentType.chain,
+      trigger: TaskRulesTrigger.added,
+    );
+
+    testWidgets('the link closes a recommend-only sheet, turns the flag off and offers UNDO', (tester) async {
+      Object? result = 'unset';
+      await pumpSheet(tester, openRecommendOnly, (value) => result = value);
+
+      await tester.tap(find.text('Turn off recommendations'));
+      await tester.pumpAndSettle();
+
+      expect(result, isNull);
+      expect(appSettings.enableTaskPresets, isFalse);
+      expect(find.textContaining('Task recommendations turned off'), findsOneWidget);
+
+      await tester.tap(find.text('UNDO'));
+      await tester.pump();
+      expect(appSettings.enableTaskPresets, isTrue);
+    });
+
+    testWidgets('the link leaves only the copy section in merged mode; turning it back on brings the card back', (tester) async {
+      await pumpSheet(tester, openMerged);
+
+      await tester.ensureVisible(find.text('Turn off recommendations'));
+      await tester.tap(find.text('Turn off recommendations'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Recommended for Chain'), findsNothing);
+      expect(find.text("Copy tasks from 'Old chain'?"), findsOneWidget);
+      expect(find.text('Copy 1 task'), findsOneWidget);
+
+      // The snackbar sits under the sheet's barrier, so UNDO's effect is applied directly.
+      appSettings.enableTaskPresets = true;
+      await tester.pumpAndSettle();
+      expect(find.text('Recommended for Chain'), findsOneWidget);
+      expect(find.text('Set up tasks for this chain?'), findsOneWidget);
+    });
+
+    testWidgets('a pure copy prompt offers no way to turn recommendations off', (tester) async {
+      await pumpSheet(
+        tester,
+        (context) => showTaskRulesSheet(
+          context,
+          copyFrom: 'Old chain',
+          copyRules: [copied],
+          componentName: 'New chain',
+          trigger: TaskRulesTrigger.replaced,
+        ),
+      );
+
+      expect(find.text('Turn off recommendations'), findsNothing);
     });
   });
 }

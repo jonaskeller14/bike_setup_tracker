@@ -1,6 +1,8 @@
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/widgets/preset_catalog_card.dart';
@@ -122,17 +124,27 @@ nodes:
       WidgetTester tester, {
       required Map<String, Object> preset,
       VoidCallback? onUnlink,
+      bool unresolved = false,
+      List<CatalogReview> updates = const [],
+      VoidCallback? onReviewUpdate,
+      VoidCallback? onDismissUpdate,
+      ThemeData? theme,
     }) async {
       await tester.pumpWidget(
         Provider<ComponentCatalogRepository>.value(
           value: ComponentCatalogRepository.withCatalogs([catalog]),
           child: MaterialApp(
+            theme: theme,
             home: Scaffold(
               body: PresetCatalogCard(
                 componentType: ComponentType.fork,
                 onTap: () {},
                 applied: resolvePreset([catalog], ComponentPreset(preset)),
+                unresolved: unresolved,
                 onUnlink: onUnlink ?? () {},
+                updates: updates,
+                onReviewUpdate: onReviewUpdate,
+                onDismissUpdate: onDismissUpdate,
               ),
             ),
           ),
@@ -160,6 +172,12 @@ nodes:
       expect(find.text('Choose from catalog'), findsNothing);
     });
 
+    testWidgets('shows the chosen model year instead of the years', (tester) async {
+      await pumpApplied(tester, preset: {...fullPreset, 'year': 2023});
+
+      expect(_subtitle(tester), '180 mm · 2023 · Tap to change');
+    });
+
     testWidgets('leaves a skipped optional choice out', (tester) async {
       await pumpApplied(tester, preset: {...fullPreset}..remove('travel_mm'));
 
@@ -181,5 +199,62 @@ nodes:
       await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
       expect(unlinked, 1);
     });
+
+    group('linked to an entry the catalog no longer has', () {
+      const gonePreset = <String, Object>{'brand': 'sram', 'component_type': 'fork', 'model': 'zeb'};
+
+      for (final (name, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
+        testWidgets('says so and offers to unlink on a narrow screen ($name)', (tester) async {
+          tester.view.physicalSize = const Size(320, 800);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          var unlinked = 0;
+          await pumpApplied(tester, preset: gonePreset, unresolved: true, theme: theme, onUnlink: () => unlinked++);
+
+          expect(tester.takeException(), isNull);
+          expect(find.text('Catalog entry not found'), findsOneWidget);
+          expect(_subtitle(tester), 'No longer in the catalog · Tap to choose another');
+          await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
+          expect(unlinked, 1);
+        });
+      }
+
+      testWidgets('a resolved entry wins', (tester) async {
+        await pumpApplied(tester, preset: fullPreset, unresolved: true);
+
+        expect(find.text('FOX 38 Factory GRIP X2'), findsOneWidget);
+        expect(find.text('Catalog entry not found'), findsNothing);
+      });
+    });
+
+    testWidgets('shows no update without pending reviews', (tester) async {
+      await pumpApplied(tester, preset: fullPreset);
+
+      expect(find.text('Update available'), findsNothing);
+    });
+
+    for (final (name, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
+      testWidgets('an update with a long summary fits a narrow screen ($name)', (tester) async {
+        tester.view.physicalSize = const Size(320, 800);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        var reviewed = 0;
+        var dismissed = 0;
+        await pumpApplied(
+          tester,
+          preset: fullPreset,
+          theme: theme,
+          updates: [CatalogReview(revision: 2, summary: 'Adds the bottom-out adjuster. ' * 10)],
+          onReviewUpdate: () => reviewed++,
+          onDismissUpdate: () => dismissed++,
+        );
+
+        expect(tester.takeException(), isNull);
+        expect(find.text('Update available'), findsOneWidget);
+        await tester.tap(find.widgetWithText(TextButton, 'Review'));
+        await tester.tap(find.widgetWithText(TextButton, 'Dismiss'));
+        expect((reviewed, dismissed), (1, 1));
+      });
+    }
   });
 }

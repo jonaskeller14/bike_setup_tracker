@@ -30,7 +30,7 @@ void main() {
 
     test('contains the sample and its Strava companion', () {
       expect(json['bikes'], hasLength(5));
-      expect(json['setups'], hasLength(25));
+      expect(json['setups'], hasLength(24));
       expect(json['stravaAthletes'], hasLength(1));
       expect(json['stravaGears'], hasLength(5));
       expect(json['stravaActivities'], hasLength(16));

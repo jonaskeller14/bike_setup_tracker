@@ -1,6 +1,9 @@
 import '../models/app_settings.dart';
 import '../models/component/installation.dart';
 import '../models/component/resolved_installation.dart';
+import '../models/feedback/ride_feedback.dart';
+import '../models/feedback/test_session.dart';
+import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';
@@ -174,6 +177,60 @@ ReplacementPairing pairReplacements(
     pairs[anchorId] = pair;
   }
   return ReplacementPairing(pairsByAnchorId: pairs, consumedIds: consumed);
+}
+
+/// Folds the runs of each session in [sessions], and the feedbacks that rate
+/// them, into one [TestSessionTimelineEntry], so a session is one item even
+/// across days. Runs of a session not in [sessions] (e.g. trashed) stay plain
+/// setups, and a feedback joins only a run that is among [entries]. The result
+/// is unsorted.
+List<TimelineEntry> bundleTestSessions(
+  List<TimelineEntry> entries, {
+  required Map<String, TestSession> sessions,
+  required String? Function(RideFeedback feedback) ratedSetupIdOf,
+}) {
+  final runsBySession = <String, List<Setup>>{};
+  final sessionOfRun = <String, String>{};
+  for (final entry in entries) {
+    if (entry case SetupEntry(:final setup) when sessions.containsKey(setup.testSessionId)) {
+      (runsBySession[setup.testSessionId!] ??= []).add(setup);
+      sessionOfRun[setup.id] = setup.testSessionId!;
+    }
+  }
+  if (runsBySession.isEmpty) return List.of(entries);
+
+  final feedbacksByRun = <String, List<RideFeedback>>{};
+  final result = <TimelineEntry>[];
+  for (final entry in entries) {
+    switch (entry) {
+      case SetupEntry(:final setup) when sessionOfRun.containsKey(setup.id):
+        continue;
+      case FeedbackTimelineEntry(:final feedback):
+        final runId = ratedSetupIdOf(feedback);
+        if (sessionOfRun.containsKey(runId)) {
+          (feedbacksByRun[runId!] ??= []).add(feedback);
+          continue;
+        }
+      default:
+    }
+    result.add(entry);
+  }
+
+  for (final MapEntry(key: sessionId, value: runs) in runsBySession.entries) {
+    runs.sort((a, b) => a.datetime.compareTo(b.datetime));
+    result.add(
+      TestSessionTimelineEntry(
+        sessions[sessionId]!,
+        runs: runs,
+        feedbacksByRun: {
+          for (final run in runs)
+            if (feedbacksByRun[run.id] case final feedbacks?)
+              run.id: feedbacks..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC)),
+        },
+      ),
+    );
+  }
+  return result;
 }
 
 /// The Strava activities used as grouping context. Activity membership is

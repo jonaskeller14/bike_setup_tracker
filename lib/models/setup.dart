@@ -12,6 +12,11 @@ import 'context/context_place.dart';
 import 'context/context_position.dart';
 import 'context/context_weather.dart';
 
+enum SetupSourceKind {
+  restore,
+  testSessionRun,
+}
+
 @immutable
 class Setup {
   final String id;
@@ -31,6 +36,9 @@ class Setup {
   final geo.Placemark? place;
   final ContextWeather? weather;
   final List<Attachment> attachments;
+  final String? testSessionId; // Set on the runs of a test session.
+  final String? sourceSetupId; // Set once on creation; the source may since be removed.
+  final SetupSourceKind? sourceKind;
 
   static const IconData iconData = Icons.tune;
 
@@ -55,6 +63,9 @@ class Setup {
     this.position,
     this.weather,
     List<Attachment>? attachments,
+    this.testSessionId,
+    this.sourceSetupId,
+    this.sourceKind,
   }) : id = id ?? const Uuid().v4(),
        attachments = attachments ?? const [],
        isDeleted = isDeleted ?? false,
@@ -63,7 +74,7 @@ class Setup {
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 8,
+    'version': 9,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -81,6 +92,9 @@ class Setup {
     'place': place != null ? ContextPlace.toJson(place!) : null,
     'weather': weather?.toJson(),
     'attachments': attachments.map((a) => a.toJson()).toList(),
+    'testSessionId': testSessionId,
+    'sourceSetupId': sourceSetupId,
+    'sourceKind': sourceKind?.name,
   };
 
   factory Setup.fromJson({
@@ -89,7 +103,7 @@ class Setup {
   }) {
     final int? version = json["version"] as int?;
     switch (version) {
-      case null || 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8:
+      case null || 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9:
         return Setup(
           id: json['id'] as String?,
           isDeleted: json["isDeleted"] as bool?,
@@ -108,6 +122,9 @@ class Setup {
           place: json['place'] != null ? ContextPlace.fromJson(json['place'] as Map<String, dynamic>) : null,
           weather: json['weather'] != null ? ContextWeather.fromJson(json['weather'] as Map<String, dynamic>) : null,
           attachments: (json['attachments'] as List?)?.map((e) => Attachment.fromJson(e as Map<String, dynamic>)).toList() ?? <Attachment>[],
+          testSessionId: json['testSessionId'] as String?,
+          sourceSetupId: json['sourceSetupId'] as String?,
+          sourceKind: SetupSourceKind.values.asNameMap()[json['sourceKind']],
         );
       default: throw Exception("Json Version $version of Setup incompatible.");
     }
@@ -228,6 +245,9 @@ class Setup {
     Object? place = const _Sentinel(),
     Object? weather = const _Sentinel(),
     Object? attachments = const _Sentinel(),
+    Object? testSessionId = const _Sentinel(),
+    Object? sourceSetupId = const _Sentinel(),
+    Object? sourceKind = const _Sentinel(),
   }) {
     return Setup(
       id: id is _Sentinel
@@ -281,6 +301,15 @@ class Setup {
       attachments: attachments is _Sentinel
           ? this.attachments
           : (attachments as List<Attachment>),
+      testSessionId: testSessionId is _Sentinel
+          ? this.testSessionId
+          : (testSessionId as String?),
+      sourceSetupId: sourceSetupId is _Sentinel
+          ? this.sourceSetupId
+          : (sourceSetupId as String?),
+      sourceKind: sourceKind is _Sentinel
+          ? this.sourceKind
+          : (sourceKind as SetupSourceKind?),
     );
   }
 
@@ -305,7 +334,10 @@ class Setup {
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
         weather == other.weather &&
-        listEquals(attachments, other.attachments);
+        listEquals(attachments, other.attachments) &&
+        testSessionId == other.testSessionId &&
+        sourceSetupId == other.sourceSetupId &&
+        sourceKind == other.sourceKind;
   }
 
   @override
@@ -328,6 +360,9 @@ class Setup {
       place,
       weather,
       Object.hashAll(attachments),
+      testSessionId,
+      sourceSetupId,
+      sourceKind,
     ]);
   }
 }

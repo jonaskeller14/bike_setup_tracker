@@ -118,17 +118,25 @@ void main() {
 
     test('never adopts a placeholder max', () {
       final own = _step('LSR', max: 12);
-      final catalog = _step(
-        'LSR',
-        presetKey: 'fork:lsr',
-        max: StepAdjustment.unknownMaxPlaceholder,
-        notes: StepAdjustment.unknownMaxWarning,
-      );
+      final catalog = _step('LSR', presetKey: 'fork:lsr', max: StepAdjustment.unknownMaxPlaceholder);
 
-      final merged = mergeAdjustment(own, catalog, const []);
+      final merged = mergeAdjustment(own, catalog, const [], unknownMaxKeys: {'fork:lsr'});
 
       expect(merged.adjustment, own.copyWith(presetKey: 'fork:lsr'));
       expect(merged.keptOwnRange, isFalse);
+      expect(
+        applyPresetMerge([own], [PresetMergeRow.merged(catalog, own)], const {}, unknownMaxKeys: {'fork:lsr'}).adjustments,
+        [own.copyWith(presetKey: 'fork:lsr')],
+      );
+    });
+
+    test('the placeholder warning in notes alone does not mark a max as unknown', () {
+      final own = _step('LSR', max: 12);
+      final catalog = _step('LSR', presetKey: 'fork:lsr', max: 16, notes: StepAdjustment.unknownMaxWarning);
+
+      final merged = mergeAdjustment(own, catalog, const []);
+
+      expect(merged.adjustment, isA<StepAdjustment>().having((a) => a.max, 'max', 16));
     });
 
     test('adopts a numerical range in the same unit', () {
@@ -155,6 +163,25 @@ void main() {
       ]);
 
       expect((merged.adjustment as CategoricalAdjustment).options, {'none', '1 x 10cc', '2 x 10cc'});
+    });
+
+    test('a recorded explicit clear does not block gaining catalog options', () {
+      final own = CategoricalAdjustment(name: 'Spacers', notes: null, unit: null, options: const {'none'});
+      final catalog = CategoricalAdjustment(
+        name: 'Spacers',
+        notes: null,
+        unit: null,
+        presetKey: 'fork:volume_spacers',
+        options: const {'1 x 10cc'},
+      );
+
+      final merged = mergeAdjustment(own, catalog, [
+        CategoricalValue(const ['none']),
+        CategoricalValue(const []),
+      ]);
+
+      expect(merged.keptOwnRange, isFalse);
+      expect((merged.adjustment as CategoricalAdjustment).options, {'none', '1 x 10cc'});
     });
 
     test('SAG only gets the preset key', () {
@@ -209,16 +236,16 @@ void main() {
     });
   });
 
-  group('convertRecordedValues', () {
-    test('applies a staged unit conversion before a range is checked', () {
-      const conversion = ValueUnitConversion(adjustmentId: 'p', from: _bar, to: _psi);
+  group('migrateRecordedValues', () {
+    test('applies a staged migration before a range is checked', () {
+      final migration = ValueMigration('p', const [ConvertUnitStep(_bar, _psi)]);
 
-      final converted = convertRecordedValues(
+      final converted = migrateRecordedValues(
         {
           'p': const [NumericalValue(5)],
           'other': const [NumericalValue(5)],
         },
-        {'p': conversion},
+        {'p': migration},
       );
 
       expect((converted['p']!.single as NumericalValue).value, closeTo(72.5, 0.1));
@@ -228,11 +255,11 @@ void main() {
     test('a range in the new unit is adopted once the values are converted', () {
       final own = _numerical('Pressure', unit: _psi);
       final catalog = _numerical('Pressure', presetKey: 'fork:pressure', unit: _psi, min: 40, max: 120);
-      final converted = convertRecordedValues(
+      final converted = migrateRecordedValues(
         {
           own.id: const [NumericalValue(5)],
         },
-        {own.id: ValueUnitConversion(adjustmentId: own.id, from: _bar, to: _psi)},
+        {own.id: ValueMigration(own.id, const [ConvertUnitStep(_bar, _psi)])},
       );
 
       expect(mergeAdjustment(own, catalog, converted[own.id]!).keptOwnRange, isFalse);

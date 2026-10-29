@@ -142,69 +142,81 @@ nodes:
   - label: "Era V2.1"
     level: model
     category: Trail / Enduro
-    years: "2025-2026"
-    url: https://extremeshox.com/product/ext-era-v2-1/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf
-    guide: ext_era_v2_2023
     tasks: &ext_service
       fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual }
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: "36mm, forged AL 7050 T6 crown", spring: Air }
-        adjustments: &hs3_air_spring
-          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 200 }
-          - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, max: 200, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 200 psi / 14 bar combined per the product warning label (not broken out per chamber) }
-        options:
-          damper: [era_cartridge]
-          travel_mm: [130, 140, 150, 160, 170]
-          wheel_size: [29]
-        note: HS3 hybrid dual-positive-chamber air spring; 15QR Boost Torque Cap dropout (15x110mm)
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/ext-era-v2-1/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf
+        guide: ext_era_v2_2023
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: "36mm, forged AL 7050 T6 crown", spring: Air }
+            adjustments: &hs3_air_spring
+              - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 200 }
+              - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, max: 200, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 200 psi / 14 bar combined per the product warning label (not broken out per chamber) }
+            options:
+              damper: [era_cartridge]
+              travel_mm: [130, 140, 150, 160, 170]
+              wheel_size: [29]
+            note: HS3 hybrid dual-positive-chamber air spring; 15QR Boost Torque Cap dropout (15x110mm)
 
   - label: "Era V2 LT"
     level: model
     category: Enduro
-    years: "2025-2026"
-    url: https://extremeshox.com/product/ext-era-v2-lt/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf  # the manual linked on the Era V2 LT product page
-    guide: ext_era_v2_2023
     tasks: *ext_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: "36mm, stem/crown-integrated design", spring: Air }
-        adjustments: *hs3_air_spring
-        options:
-          damper: [era_cartridge]
-          travel_mm: [180, 190]
-        note: >
-          Longer-travel Super Enduro sibling of the Era V2.1; same HS3
-          spring/damper system per EXT's combined Era V2/V2 LT quick manual.
-          Axle-to-crown: 594mm (180mm travel) / 604mm (190mm travel).
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/ext-era-v2-lt/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf  # the manual linked on the Era V2 LT product page
+        guide: ext_era_v2_2023
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: "36mm, stem/crown-integrated design", spring: Air }
+            adjustments: *hs3_air_spring
+            options:
+              damper: [era_cartridge]
+              travel_mm: [180, 190]
+            note: >
+              Longer-travel Super Enduro sibling of the Era V2.1; same HS3
+              spring/damper system per EXT's combined Era V2/V2 LT quick manual.
+              Axle-to-crown: 594mm (180mm travel) / 604mm (190mm travel).
 
   - label: "Vaia"
     level: model
     category: Downhill / Enduro
-    years: "2025-2026"
-    url: https://extremeshox.com/product/vaia/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2024/12/Vaia-Quick-Manual-1.pdf
     tasks: *ext_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: "38.5mm tapered, dual-crown", spring: Air }
-        offset_mm: [44, 48]
-        adjustments:
-          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0 }
-          - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 250 psi / 17 bar combined per the product warning label (not broken out per chamber) }
-        options:
-          damper: [vaia_cartridge]
-          travel_mm: [170, 180, 190, 200]
-          wheel_size: [29]
-        note: >
-          Interchangeable 20mm/15mm(110 Boost) Grade-5 titanium axle;
-          two-position cam stem sets 44mm (enduro) or 48mm (DH) offset.
-          Weight ~3195g (200mm travel, 20mm axle, cut steerer, oil included).
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/vaia/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2024/12/Vaia-Quick-Manual-1.pdf
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: "38.5mm tapered, dual-crown", spring: Air }
+            offset_mm: [44, 48]
+            adjustments:
+              - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 250 psi / 17 bar combined per the product warning label (not broken out per chamber) }
+            options:
+              damper: [vaia_cartridge]
+              travel_mm: [170, 180, 190, 200]
+              wheel_size: [29]
+            note: >
+              Interchangeable 20mm/15mm(110 Boost) Grade-5 titanium axle;
+              two-position cam stem sets 44mm (enduro) or 48mm (DH) offset.
+              Weight ~3195g (200mm travel, 20mm axle, cut steerer, oil included).
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

@@ -292,235 +292,269 @@ nodes:
   - label: "Storia V3"
     level: model
     category: Enduro / Trail
-    years: "2025-2026"
-    url: https://extremeshox.com/product/ext-storia/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
     specs: { spring: Coil }
-    note: Sold as "Storia V3-S" per the official quick manual; features a spring thrust bearing between spring and collar — do not omit it during spring install.
     tasks: &ext_service
       shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual }
     children:
-      - label: Metric Standard
-        level: trim
-        adjustments: &coil_spring
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-        options:
-          damper: [storia_v3]
-          size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
-      - label: Metric Trunnion
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [storia_v3]
-          size: ["165x45", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
-      - label: Imperial
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [storia_v3]
-          size: ["190x51", "200x51", "200x57", "216x63.5", "222x67"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/ext-storia/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
+        note: Sold as "Storia V3-S" per the official quick manual; features a spring thrust bearing between spring and collar — do not omit it during spring install.
+        children:
+          - label: Metric Standard
+            level: trim
+            adjustments: &coil_spring
+              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+            options:
+              damper: [storia_v3]
+              size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
+          - label: Metric Trunnion
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [storia_v3]
+              size: ["165x45", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
+          - label: Imperial
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [storia_v3]
+              size: ["190x51", "200x51", "200x57", "216x63.5", "222x67"]
 
   - label: "Storia V4"
     level: model
     category: Enduro / Trail
-    years: "2025-2026"
-    url: https://extremeshox.com/product/storia-v4/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
-    guide: ext_arma_storia_v4_2024
     specs: { spring: Coil }
-    note: >
-      Marketed as one of the lightest coil shocks available (397g without
-      spring); 30%-lighter steel spring option; inline low-pressure (55psi)
-      reservoir.
     tasks: *ext_service
     children:
-      - label: Metric Standard
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [storia_v4]
-          size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
-      - label: Metric Trunnion
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [storia_v4]
-          size: ["185x47.5", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/storia-v4/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
+        guide: ext_arma_storia_v4_2024
+        note: >
+          Marketed as one of the lightest coil shocks available (397g without
+          spring); 30%-lighter steel spring option; inline low-pressure (55psi)
+          reservoir.
+        children:
+          - label: Metric Standard
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [storia_v4]
+              size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
+          - label: Metric Trunnion
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [storia_v4]
+              size: ["185x47.5", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
 
   - label: "Arma V3"
     level: model
     category: Downhill
-    years: "2025-2026"
-    url: https://extremeshox.com/product/arma-v3/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
-    guide: ext_arma_storia_v3_2023
     specs: { spring: Coil }
     tasks: *ext_service
     children:
-      - label: Metric Standard
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [arma_v3]
-          size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
-      - label: Metric Trunnion
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [arma_v3]
-          size: ["165x45", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
-      - label: Imperial
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [arma_v3]
-          size: ["222x67", "241x74", "267x87"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/arma-v3/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
+        guide: ext_arma_storia_v3_2023
+        children:
+          - label: Metric Standard
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [arma_v3]
+              size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
+          - label: Metric Trunnion
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [arma_v3]
+              size: ["165x45", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
+          - label: Imperial
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [arma_v3]
+              size: ["222x67", "241x74", "267x87"]
 
   - label: "Arma V4"
     level: model
     category: Downhill
-    years: "2025-2026"
-    url: https://extremeshox.com/product/arma-v4/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
-    guide: ext_arma_storia_v4_2024
     specs: { spring: Coil }
-    note: Uses EV2S damper fluid; DLC-coated 14mm steel shaft.
     tasks: *ext_service
     children:
-      - label: Metric Standard
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [arma_v4]
-          size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
-      - label: Metric Trunnion
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [arma_v4]
-          size: ["185x47.5", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/arma-v4/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
+        guide: ext_arma_storia_v4_2024
+        note: Uses EV2S damper fluid; DLC-coated 14mm steel shaft.
+        children:
+          - label: Metric Standard
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [arma_v4]
+              size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
+          - label: Metric Trunnion
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [arma_v4]
+              size: ["185x47.5", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
 
   - label: "Aria"
     level: model
     category: Trail / Enduro
-    years: "2025-2026"
-    url: https://extremeshox.com/product/ext-aria/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/Quick-manual-Aria-min.pdf
     specs: { spring: Air }
-    note: AS3 dual-positive-chamber air spring (2 dynamic seals separating 3 chambers); 28mm hydraulic main piston.
     tasks: *ext_service
     children:
-      - label: Metric Standard
-        level: trim
-        adjustments: &aria_air_spring
-          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 280 }
-          - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber }
-        options:
-          damper: [aria]
-          size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
-      - label: Metric Trunnion
-        level: trim
-        adjustments: *aria_air_spring
-        options:
-          damper: [aria]
-          size: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/ext-aria/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/Quick-manual-Aria-min.pdf
+        note: AS3 dual-positive-chamber air spring (2 dynamic seals separating 3 chambers); 28mm hydraulic main piston.
+        children:
+          - label: Metric Standard
+            level: trim
+            adjustments: &aria_air_spring
+              - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 280 }
+              - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber }
+            options:
+              damper: [aria]
+              size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
+          - label: Metric Trunnion
+            level: trim
+            adjustments: *aria_air_spring
+            options:
+              damper: [aria]
+              size: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
 
   - label: "Aria V2"
     level: model
     category: Trail / Enduro
-    years: "2026"
-    url: https://extremeshox.com/product/aria-v2/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
     specs: { spring: Air }
-    note: AS3 dual-positive-chamber air spring with a vertical piggyback; tuned with the + and ++ chamber pressures instead of volume tokens.
     tasks: *ext_service
     children:
-      - label: Metric Standard
-        level: trim
-        adjustments: &aria_v2_air_spring
-          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 300 }
-          - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber }
-        options:
-          damper: [aria_v2]
-          size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
-      - label: Metric Trunnion
-        level: trim
-        adjustments: *aria_v2_air_spring
-        options:
-          damper: [aria_v2]
-          size: ["185x47.5", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
+      - label: "2026"
+        level: generation
+        years: "2026"
+        url: https://extremeshox.com/product/aria-v2/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
+        note: AS3 dual-positive-chamber air spring with a vertical piggyback; tuned with the + and ++ chamber pressures instead of volume tokens.
+        children:
+          - label: Metric Standard
+            level: trim
+            adjustments: &aria_v2_air_spring
+              - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber }
+            options:
+              damper: [aria_v2]
+              size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
+          - label: Metric Trunnion
+            level: trim
+            adjustments: *aria_v2_air_spring
+            options:
+              damper: [aria_v2]
+              size: ["185x47.5", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
 
   - label: "Aria V2 DH"
     level: model
     category: Downhill
-    years: "2026"
-    url: https://extremeshox.com/product/aria-v2-dh/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
     specs: { spring: Air }
-    note: Downhill / freeride version of the Aria V2 with a stronger HBC tune and no LOK lever.
     tasks: *ext_service
     children:
-      - label: Metric Standard
-        level: trim
-        adjustments: *aria_v2_air_spring
-        options:
-          damper: [aria_v2_dh]
-          size: ["230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
-      - label: Metric Trunnion
-        level: trim
-        adjustments: *aria_v2_air_spring
-        options:
-          damper: [aria_v2_dh]
-          size: ["205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
+      - label: "2026"
+        level: generation
+        years: "2026"
+        url: https://extremeshox.com/product/aria-v2-dh/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
+        note: Downhill / freeride version of the Aria V2 with a stronger HBC tune and no LOK lever.
+        children:
+          - label: Metric Standard
+            level: trim
+            adjustments: *aria_v2_air_spring
+            options:
+              damper: [aria_v2_dh]
+              size: ["230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
+          - label: Metric Trunnion
+            level: trim
+            adjustments: *aria_v2_air_spring
+            options:
+              damper: [aria_v2_dh]
+              size: ["205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
 
   - label: "e-Storia"
     level: model
     category: E-MTB / Enduro
-    years: "2025-2026"
-    url: https://extremeshox.com/product/ext-e-storia/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/e-Storia-quick-manual.pdf
     specs: { spring: Coil }
     tasks: *ext_service
     children:
-      - label: Metric Standard
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [e_storia]
-          size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
-      - label: Metric Trunnion
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [e_storia]
-          size: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/ext-e-storia/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/e-Storia-quick-manual.pdf
+        children:
+          - label: Metric Standard
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [e_storia]
+              size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
+          - label: Metric Trunnion
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [e_storia]
+              size: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
 
   - label: "Vecta"
     level: model
     category: Enduro / Trail
-    years: "2025-2026"
-    url: https://extremeshox.com/product/vecta/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2025/06/EXT-Vecta-Quick-Manual.pdf
-    guide: ext_ridemaster_2026
     specs: { spring: Coil }
-    note: >
-      Riders can adjust HSC/LSC with a common multi-tool (5mm/4mm Allen);
-      harder negative spring to avoid top-out knock; low-pressure (55psi)
-      air reservoir; factory-tuned HBC (not externally adjustable).
     tasks: *ext_service
     children:
-      - label: Metric Standard
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [vecta]
-          size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
-      - label: Metric Trunnion
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [vecta]
-          size: ["185x47.5", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://extremeshox.com/product/vecta/
+        setup_guide: https://extremeshox.com/wp-content/uploads/2025/06/EXT-Vecta-Quick-Manual.pdf
+        guide: ext_ridemaster_2026
+        note: >
+          Riders can adjust HSC/LSC with a common multi-tool (5mm/4mm Allen);
+          harder negative spring to avoid top-out knock; low-pressure (55psi)
+          air reservoir; factory-tuned HBC (not externally adjustable).
+        children:
+          - label: Metric Standard
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [vecta]
+              size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
+          - label: Metric Trunnion
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [vecta]
+              size: ["185x47.5", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

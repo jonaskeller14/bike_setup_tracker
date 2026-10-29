@@ -2,7 +2,7 @@
 
 Posting rules per channel for the content kits (Phase 4 of
 [#69](https://github.com/jonaskeller14/bike_setup_tracker/issues/69)). Post drafts live in
-`kits/<kit>.posts.md`. `build_kit.py` renders them into `POST.md` and fails if a post breaks a
+`kits/<kit>.posts.md`. `build_kit.py` renders them into one file per post under `posts/` and fails if a post breaks a
 limit below. Rules were checked on **2026-10-15**; re-check a channel's rules before its first post
 and when a post gets removed.
 
@@ -17,9 +17,16 @@ and when a post gets removed.
   any other App Store or Play link. Bios use the smart link
   `jonaskeller14.com/bike_setup_tracker/get?c=<channel>` (Phase 5). Check that it redirects
   before posting the first bio.
-- **Only state what release builds do.** No presets, ratings, pressure check, riders or bookmarks
-  (debug-only). Tasks, the calendar and setup tags are user toggles under Settings → Features; say
-  so when a post leans on them.
+- **Only state what release builds do.** No ratings, pressure check, setup guides, riders or
+  bookmarks (debug-only). Tasks, the calendar and setup tags are user toggles under Settings →
+  Features; say so when a post leans on them. The fork and shock catalog (Component Presets) and
+  the suggested service tasks (Task Presets) ship on by default from v1.6.4; the tasks still need
+  Tasks switched on. The catalog fills in what a part can do (click ranges), never what to set.
+- **Brand names as plain text only**, to say which products the catalog covers: no logos, brand
+  fonts or brand colors, never the biggest element, never "official", "partner" or "approved".
+  Every post that shows or names a manufacturer ends with the disclaimer — EN: `Not affiliated
+  with or endorsed by the brands shown. Brand names are trademarks of their owners.` DE: `Keine
+  Verbindung zu den gezeigten Marken. Markennamen sind Eigentum der jeweiligen Inhaber.`
 - Strava: "connects with Strava" / "Strava Sync". Never suggest that Strava endorses the app
   (Strava brand guidelines).
 - No numbers from `metrics/` in any post.
@@ -39,7 +46,7 @@ and when a post gets removed.
 | YouTube | Title | 100 | About 60 characters show in search. No `<` or `>` in titles or descriptions. |
 | YouTube | Description | 5,000 | Over 60 hashtags per video: YouTube ignores all of them (checked) |
 | YouTube | Tags | 500 | Comma-separated, commas count |
-| YouTube | Post (community) | 5,000 | Up to 10 images |
+| YouTube | Post (community) | 5,000 | Up to 10 images. Multi-image posts are cropped to **1:1**: render square, don't crop the 4:5 carousel |
 | Instagram | Bio | 150 | The link goes in the separate "Links" field |
 | Instagram | Caption | 2,200 | About 125 characters show before "more". **≤5 hashtags** (checked; limit since late 2025) |
 | TikTok | Bio | 80 | |
@@ -57,7 +64,7 @@ The forums, Strava and the directories have no limits that matter for these post
 | Hashtags | 2–4 per video; YouTube shows up to 3 of them next to the title | — |
 | Scheduling | YouTube Studio, natively | — |
 
-- **Walkthrough description template:** the `yt-bst` section of `kits/launch.posts.md`. It pulls in
+- **Walkthrough description template:** the `yt-bst` section of `kits/01_launch.posts.md`. It pulls in
   the app version and the chapter timestamps on every build. For a new release kit, copy that
   section and update the "What you can do" list.
 - Chapters need a first chapter at 0:00, at least 3 chapters, and ≥10 s per chapter.

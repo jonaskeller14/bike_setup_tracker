@@ -32,6 +32,7 @@ CatalogApplication buildCatalogApplication(ResolvedPreset resolved) {
     componentType: resolved.catalog.componentType,
     notes: _buildNotes(resolved),
     adjustments: _buildAdjustments(resolved),
+    unknownMaxKeys: _unknownMaxKeys(resolved),
     preset: toComponentPreset(resolved),
   );
 }
@@ -70,7 +71,10 @@ String _buildNotes(ResolvedPreset resolved) {
         if (axis.id != PresetOptionAxes.damper.id) ?_chosenText(axis, resolved.selections[axis.id]),
     ]),
     _joined(_specTexts(resolved, chosen)),
-    if (_isNotBlank(node.years)) 'Model years: ${node.years}',
+    if (resolved.year case final year?)
+      'Model year: $year'
+    else if (node.years case final years?)
+      'Model years: $years',
     ..._noteLines(node.note),
     if (missing.isNotEmpty) 'Not in the catalog yet, add by hand: ${missing.join(', ')}',
   ].where(_isNotBlank).map((line) => line!.startsWith('- ') ? line : '- $line');
@@ -118,6 +122,14 @@ List<Adjustment> _buildAdjustments(ResolvedPreset resolved) {
       for (final spec in value.adjustments) spec.build(),
   ];
 }
+
+Set<String> _unknownMaxKeys(ResolvedPreset resolved) => {
+  for (final spec in [
+    ...?resolved.product?.adjustments,
+    for (final value in resolved.selections.values) ...value.adjustments,
+  ])
+    if (spec.hasUnknownMax) spec.presetKey,
+};
 
 bool _takesSag(ComponentType type) => type == ComponentType.fork || type == ComponentType.shock;
 

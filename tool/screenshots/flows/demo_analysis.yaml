@@ -1,5 +1,7 @@
-# Demo: the Lyrik's details page, comparing all its setups in the line and
-# radial charts.
+# scenario: analysis
+# Demo: the Lyrik's details page with every setup selected. The line chart
+# first, with one adjustment highlighted from the legend, then a short look at
+# the radial chart and the activity histogram, without interaction.
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
@@ -19,19 +21,15 @@ appId: ${APP_ID}
     file: _pause.yaml
     env:
       MS: 1500
-
-# The charts compare the table's selected setups, by default only the latest
-# three.
-- scrollUntilVisible:
-    element:
-      id: setupTable.selectAll
-    direction: DOWN
+# The table starts with the 3 newest setups; all of them fill the line chart
+# and the histogram with the whole season.
 - tapOn:
     id: setupTable.selectAll
 - runFlow:
     file: _pause.yaml
     env:
       MS: 1000
+
 - scrollUntilVisible:
     element:
       id: componentDetails.lineChart
@@ -40,14 +38,29 @@ appId: ${APP_ID}
 - runFlow:
     file: _pause.yaml
     env:
-      MS: 2000
-# Highlight the newest setup in the radial chart.
+      MS: 1500
+# LSC, the series that moves most (legend entries follow the table's columns)
+- tapOn:
+    id: lineChart.legend.1
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2500
+
 - scrollUntilVisible:
     element:
-      id: radialChart.legend.0
+      id: componentDetails.radialChart
     direction: DOWN
-- tapOn:
-    id: radialChart.legend.0
+    centerElement: true
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- scrollUntilVisible:
+    element:
+      id: componentDetails.histogram
+    direction: DOWN
+    centerElement: true
 - runFlow:
     file: _stop_recording.yaml
     env:

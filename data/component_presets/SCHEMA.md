@@ -13,10 +13,14 @@ exactly one of them:
 
 - **Nodes say what the product is.** A tree per brand, as deep as that brand
   needs: `model › generation › trim` for FOX, `model › version › trim` for
-  Öhlins, `model › mount` for Cane Creek shocks, `model › trim` where a model
-  has a single generation. A node without `children` is a selectable
-  **product**, at whatever level it sits: a model sold in one version only is
-  itself the product.
+  Öhlins, `model › generation › mount` for Cane Creek shocks. Every model that
+  has model years has a generation (or version) level, even when only one
+  generation exists. A node without `children` is a selectable **product**, at
+  whatever level it sits: a model without years that is sold in one version
+  only is itself the product.
+- **Chassis variants are options, never nodes.** An e-bike chassis, a travel
+  variant or a size is an option axis of the product, because moving a node
+  changes the path every saved component stores.
 - **Options say how it is configured.** On the product, each option axis
   (`damper`, `travel_mm`, `wheel_size`, `size`) lists the values that product
   can be had with.
@@ -30,6 +34,16 @@ level plus one per chosen option:
 ```
 {brand: fox, component_type: fork, model: "36", generation: "2025", trim: factory, damper: grip_x2, travel_mm: 160}
 ```
+
+A rider may also name the exact model year, persisted as `year: 2025`. The
+picker offers it when the product's `years` cover more than one year. When a
+later catalog update splits a generation, a component that stores a `year`
+resolves to the generation whose `years` contain it; one without a `year` stays
+on the generation it names.
+
+The map also carries the brand file's `revision` the component is up to date
+with, as `revision: 2`; it is left out at revision 1. See
+[Catalog revisions](#catalog-revisions-revision-and-changes).
 
 ## Why dampers are separate from the nodes
 
@@ -49,6 +63,9 @@ every product that uses it gets it.
 | `updated` | ISO date of last verification |
 | `option_values` | Map of axis id → value id → definition, for axes whose values are defined once and referenced (today: `damper`) |
 | `guides` | Map of guide id → structured setup guide, referenced from nodes by `guide:`, see [Setup guides](#setup-guides-guides) |
+| `moved` | Map of old node path → new node path after a restructure, see [Moved paths](#moved-paths-moved) |
+| `revision` | Whole number, the file's data revision; `1` when absent, see [Catalog revisions](#catalog-revisions-revision-and-changes) |
+| `changes` | Append-only list of what each revision changed for existing components |
 | `nodes` | The product tree |
 
 ```yaml
@@ -167,7 +184,7 @@ grip2_2019:
 | `children` | no | — | Child nodes. A node without it is a product |
 | `draft` | no | nearest | `true` hides the node and its whole subtree from selection |
 | `category` | no | nearest | Discipline (`Enduro`, `XC`, …), informational |
-| `years` | no | nearest | Model years the specs apply to, `"2025-2026"` or `"2026"` |
+| `years` | no | nearest | Model years the specs apply to: `"2026"` or `"2021-2025"` (ASCII hyphen, ascending, quoted). The parser rejects every other format. Written on a generation or version node, never on a model |
 | `url` | no | nearest | Product page, for data editors; not shown to the rider |
 | `setup_guide` | no | nearest | Official rider setup or tuning guide (page or PDF), linked at the end of the generated component's notes |
 | `guide` | no | nearest | Id of an entry under `guides`: the guide's numbers as data, see [Setup guides](#setup-guides-guides) |
@@ -198,8 +215,10 @@ for the same step across one file:
 
 Level names share one namespace with the option axis ids of their product and
 with the two entries every persisted map has (`brand`, `component_type`). So do
-not call a level `damper`, `travel_mm`, `wheel_size` or `size`, and do not
-repeat a level name on one path; the parser rejects both.
+not call a level `damper`, `travel_mm`, `wheel_size`, `size`, `year` or
+`revision` (the last two are reserved for the model year and the catalog
+revision a component stores), and do not repeat a level name on one path; the
+parser rejects both.
 
 ### Inheritance
 
@@ -225,7 +244,7 @@ Every node has an `id`, which is what a saved component stores as
   (`Performance Elite` → `performance-elite`, `Select+` → `select-plus`).
   Accented characters are spelled out (`Öhlins` → `ohlins`).
 - Write an explicit `id:` only when the default does not fit: a label that was
-  renamed after rollout, a label that would slug to something unwieldy
+  renamed, a label that would slug to something unwieldy
   (`"2025–2026"` → `id: "2025"`, `m.3` → `id: m3`), or a character the slug
   cannot transliterate (the parser then asks for an explicit id).
 - Sibling ids must be unique; the parser rejects duplicates.
@@ -236,12 +255,15 @@ Every node has an `id`, which is what a saved component stores as
 
 Ids are **persisted on every component a user creates from the catalog**, which
 is what lets the app later offer setup guides and service intervals for that
-exact product. Once the feature is rolled out to users, these are frozen:
+exact product. These are frozen:
 
 - `level` names
 - node `id`s (explicit or derived from the label)
 - option axis ids (`damper`, `travel_mm`, …)
 - option value ids (`grip_x2`, `160`, …)
+- adjuster ids (the `id:` of an adjustment, or the slug of its `name`), because
+  every adjustment built from the catalog stores `<type>:<id>` as its
+  `presetKey`; adding an adjuster is fine, renaming or dropping one is not
 - brand-only task keys (`fork:air_spring_service`), which every task rule
   created from them stores, see [Task intervals](#task-intervals-tasks)
 
@@ -250,52 +272,153 @@ whose id is derived from it therefore needs an explicit `id:` that keeps the old
 slug. Extending `years: "2025-2026"` to `"2025-2027"` must leave a generation's
 `id: "2025"` untouched.
 
-Moving a node to another place in the tree changes its path. A component saved
-against the old path then resolves only as far as the path still matches (the
-resolver returns the deepest matching node), so restructure before rollout, not
-after.
+Moving a node to another place in the tree changes its path. Without a
+`moved:` entry, a component saved against the old path resolves only as far as
+the path still matches (the resolver returns the deepest matching node), so
+every move needs one.
+
+### Moved paths (`moved`)
+
+`moved:` is the escape hatch for a restructure. It maps an old
+node path to the new one, as `/`-joined node ids from the top-level node down:
+
+```yaml
+moved:
+  36/factory: 36/2025/factory   # a generation level was inserted
+  rxf36: ohlins-rxf36           # a whole model subtree was renamed
+```
+
+- Matching is by node id, in the order the component stored them, whatever the
+  old level names were. The longest matching prefix wins and the rest of the
+  path is kept.
+- The old path must no longer exist, the new one must, and entries never chain.
+  The parser rejects anything else.
+- A redirect only rewrites how a stored component is read; the next save writes
+  the new path.
+- Never reuse a retired id for something else while a redirect names it.
 
 `ids.lock` lists every node path, every option value
-(`fork/fox/36/2025/factory#damper=grip_x2`) and every brand-only task key
+(`fork/fox/36/2025/factory#damper=grip_x2`), every adjuster id (per product:
+`fork/fox/36/2025/factory#adjuster=pressure`; per option value, once per brand:
+`fork/fox#damper=grip_x2#adjuster=hsc`) and every brand-only task key
 (`fork/fox#task=fork:air_spring_service`). `test/component_catalog_ids_test.dart`
-fails when a locked id disappears; new ids are fine. After adding data,
-regenerate the lockfile:
+fails when a locked id disappears, unless a [`moved:`](#moved-paths-moved)
+entry covers its node path; new ids are fine. After adding data, add the new
+ids to the lockfile:
 
 ```
 UPDATE_CATALOG_IDS=1 flutter test test/component_catalog_ids_test.dart
 ```
 
-Until the feature flag is rolled out, ids may still change freely: regenerate
-the lockfile after a deliberate rename. After rollout the lockfile is
-append-only, and a failing test means an id must be restored.
+The lockfile is append-only: updating it keeps every locked id and refuses
+while one is missing. A failing test means an id must be restored, or its node
+path redirected with `moved:`. Never delete lines by hand.
 
 ### Generations
 
 Older generations are wanted — riders keep forks for a decade — but a
 generation is only worth adding when its numbers can actually be sourced.
 
-- **A model with more than one generation nests them as `generation` nodes.**
-  The label is the year span with an en dash (`"2025–2026"`), the `id` is the
-  generation's *first* year (`"2025"`), and `years` repeats the span in ASCII
-  (`"2025-2026"`). A single-year generation needs no explicit id (`"2026"`).
-- **A model with a single generation has no generation node.** Its `years` sit
-  on the model node and the trims are its direct children. Adding a second
-  generation later inserts the level, which changes the path of the existing
-  trims — do it before rollout where an earlier generation is foreseeable.
+- **Every model with model years nests them as `generation` nodes**, even a
+  model with a single generation: inserting the level later would change the
+  path of every existing trim. The label is the year span with an en dash
+  (`"2025–2026"`), the `id` is the generation's *first* year (`"2025"`), and
+  `years` repeats the span in ASCII (`"2025-2026"`). A single-year generation
+  needs no explicit id (`"2026"`). The picker skips a level with a single
+  child, so a model with one generation costs the rider no extra tap.
+- **A step the brand's riders know by name is a `version` instead** (Öhlins
+  `m.2` / `m.3`), with the same year rules.
+- **A model without known years has no generation node** and stays a plain
+  `model › trim` tree until its years are researched; it is listed as a
+  follow-up, not exempt. Generation fields (`years`, `url`, `setup_guide`,
+  `guide`, `note`) belong on the generation node, never on the model.
 - **A generation is left out of the component's name**: `FOX 36 Factory`, not
   `FOX 36 2025–2026 Factory`. Its years reach the user as a badge and a `Year:`
   line in the notes. A step that users know by name is a `version` instead.
-- **Author newest generation first.** Children are shown in file order.
+- **Author newest generation first.** Children are shown in file order, and CI
+  fails when sibling generations or versions are not ordered newest first.
+  YAML anchors must be defined before they are aliased, so when reordering
+  move the shared anchor to the model's own fields (for `tasks`) or into the
+  new first block.
 - **`category` sits on the model node**, the generation-level fields (`years`,
   `url`, `draft`, `note`) on the generation node.
 - **Trims that are not generations of each other are siblings.** Where a model
   grew by trims launched in different years (Formula Selva V / R / C / S), keep
   them as direct children of the model and give each its own `years` and `url`.
-- **Give each generation its own damper id** (`fit4_2018`, `grip2_vvc_2021`,
+- **A generation starts where the owner's manuals change something the
+  catalog encodes, not at every model year.** Compare the manuals of
+  consecutive years: pressure and click tables, base tunes, damper ranges,
+  pressure limits, spacer tables. Years that match on all of it share one
+  generation, and `years` spans them (`"2021-2025"`); one changed number, a
+  base tune included, starts a new one. The generation's `setup_guide` and
+  `guide` are the **latest manual of its span**.
+- **A trim that exists for only part of a generation's years carries its own
+  `years`** (a 38 Rhythm that first appears in the 2023 manual of a 2021-2024
+  generation: `years: "2023-2024"`). A model year with no manual has no source,
+  so a generation never starts or ends on a year the manuals do not show.
+- **Trims two generations have in common are written once**: anchor the trim
+  (`- &fox_36_factory` before `label:`) in the first generation and alias it in
+  the other (`- *fox_36_factory`). Only the generation's own `years`, `guide`
+  and extra trims differ.
+- **Give each generation its own damper id** (`fit4_2019`, `grip2_vvc_2021`,
   `charger_2_1`, `ttx18_m2`) even when the cartridge kept its name — brands
   revise internals and click counts under an unchanged badge.
 - **Don't inherit numbers across generations.** If the older damper's counts
   aren't published, see [Draft entries](#draft-entries).
+
+## Catalog revisions (`revision` and `changes`)
+
+A component keeps the adjustments it was built with; later data does not
+change them by itself. A brand file therefore records, per revision, what a
+correction means for components built before it:
+
+```yaml
+revision: 3
+changes:
+  - revision: 2
+    when: { damper: grip_x2_2021 }
+    fix: { adjuster: lsc, field: notes, from: Low-Speed Compression, to: "Low-Speed Compression; 18 clicks" }
+  - revision: 3
+    when: { model: "36", generation: "2025" }
+    review: Adds the bottom-out adjuster.
+```
+
+- **`fix`** changes one cosmetic field of one adjuster: `name`, `notes`,
+  `visualization`, `dialColor` or `dialSize`. The app applies it on startup,
+  without asking, to every matching adjustment whose field still holds what
+  the catalog built from `from`; a field the rider edited is left alone.
+  `from: ~` / `to: ~` stand for no notes. The last fix of an adjuster field
+  must end at what the data builds now; the parser checks it.
+- **`review`** is everything else: a new or removed adjuster, a range, a type,
+  an option of a categorical. Its text is rider-facing (see
+  [User-facing text](#user-facing-text-description-and-note)); the component page
+  shows it as "Update available", and the rider merges the new adjusters in the
+  merge sheet or dismisses the update.
+- **`when:`** scopes the entry like a guide rule's `when:`: level names and
+  option axes of this file, a value or a list of values. Without it the entry
+  applies to every component of the file. It must match at least one product.
+- **Append only.** Each entry's `revision` lies between 2 and the file's
+  `revision`, entries never go back in revision, and the newest entry is the
+  file's `revision`. Several entries may share one revision.
+- A component stores the revision it is up to date with. Accepting or
+  dismissing an update raises it to the file's revision; the startup fixes raise
+  it as far as no pending review holds it back.
+
+`adjusters.lock` holds every file's revision and a signature of the adjusters
+a rider gets per product and choice of its required axes
+(`fork/fox/36/2025/factory#damper=grip_x2 3f2a9c0d1e2b`).
+`test/component_catalog_adjusters_test.dart` fails when a signature changed and
+no change newer than the locked revision covers that product, and when the
+lockfile is out of date. Any change to what an adjuster builds, a renamed
+`notes` included, needs a `changes:` entry. Update the lockfile with
+
+```
+UPDATE_CATALOG_ADJUSTERS=1 flutter test test/component_catalog_adjusters_test.dart
+```
+
+which refuses to while a change has no revision. The lockfile is append-only:
+updating adds lines and changes hashes, but keeps the lines of products that
+are gone. Never delete lines by hand.
 
 ## Specs
 
@@ -533,7 +656,8 @@ setup guides can find "the HSC" of a component no matter what the rider calls it
 - Ids are unique within what a rider ends up with: the product's adjusters plus
   one value of each required axis. `sag` is reserved for the SAG adjuster the
   app adds to every fork and shock.
-- Ids stay free to change until the lockfile rollout, like guide ids.
+- Ids are frozen, see [Frozen ids](#frozen-ids). Guide ids are not persisted
+  and stay free to change.
 
 ### `visualization` values (step only)
 
@@ -627,9 +751,10 @@ adjustments: &air_spring
 adjustments: *air_spring
 ```
 
-Anchors are sugar for **identical** lists only; YAML cannot extend an aliased
-list. A trim that deviates in any way (extra chamber, published spacer count,
-different max) simply writes its own literal list instead of the alias. An
+Anchors are sugar for **identical** lists (or whole trims, see
+[Generations](#generations)) only; YAML cannot extend an aliased list. A trim
+that deviates in any way (extra chamber, published spacer count, different
+max) simply writes its own literal list instead of the alias. An
 anchor has to be defined above its first alias, so moving a node can require
 moving the definition with it.
 
@@ -684,8 +809,8 @@ nodes:
 - **A generic key overrides its template**: only `interval`, `fallback` and
   `source` change. Name, notes, priority and preselection stay generic, so a
   generic key rejects `name`, `priority` and `preselected`.
-- **Any other key is brand-only** and needs a `name`. It is frozen once rolled
-  out, like a node id.
+- **Any other key is brand-only** and needs a `name`. It is frozen, like a node
+  id.
 - **Inheritance is per key.** The nearest declaration wins, and a chosen
   damper's `tasks` override the product's. `<key>: ~` removes an inherited
   entry, so the generic template applies again (or the brand-only task is no
@@ -1030,7 +1155,9 @@ all publish specs the same way:
 ## CI
 
 `test/component_catalog_test.dart` parses every file in this directory with the
-parser the app uses and fails when a file does not parse, `component_type` does
+parser the app uses and fails when a file does not parse, a model carries
+`years` instead of a generation or version, sibling generations are not newest
+first, `component_type` does
 not match its directory, an adjustment spec does not build, a shock size is not
 in mm, a `url` is not http(s), two files claim the same product path, or a
 non-draft product offers a damper with `adjustments: []`, an adjustment counts
@@ -1054,3 +1181,13 @@ range reference outside the adjuster's range, a `comfort_at` other than `min` or
 two rules that can both match with equal specificity, an adjuster input that
 an applicable product lacks, or a cycle between adjuster inputs. Guide sources
 must be http(s), and rule notes follow the rider-facing text rules.
+
+A `changes:` entry is rejected for an unknown key, a `revision` outside 2 and
+the file's revision or older than the entry before it, a file `revision` the
+newest entry does not reach, a `when:` that names an unknown id or matches no
+product, not exactly one of `fix` and `review`, a `fix` of another field or of
+an adjuster no matching product has, `from` equal to `to`, a value the adjuster
+cannot take, a last fix that does not end at what the data builds, or a `step`
+that is not registered.
+`test/component_catalog_adjusters_test.dart` guards `adjusters.lock`, see
+[Catalog revisions](#catalog-revisions-revision-and-changes).

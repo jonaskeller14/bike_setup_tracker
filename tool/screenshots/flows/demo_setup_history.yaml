@@ -1,5 +1,7 @@
-# Demo: the Hightower's setup history, then its newest setup compared with
-# the one before.
+# scenario: full
+# Demo: the Hightower's setup history, then its newest setup compared with the
+# one before, then with "end of May reference" picked instead: 2 changed
+# values, the fork's rebound and the rider's weight.
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
@@ -42,10 +44,23 @@ appId: ${APP_ID}
 - runFlow:
     file: _pause.yaml
     env:
+      MS: 2500
+- tapOn:
+    id: compareSetups.side.A
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# Hometrails - end of May reference
+- tapOn:
+    id: compareSetups.option.50d59709-8863-40e0-8671-6cf4f0f3bc05
+- runFlow:
+    file: _pause.yaml
+    env:
       MS: 2000
 - swipe:
     start: 50%, 80%
-    end: 50%, 35%
+    end: 50%, 45%
     duration: 2000
 - runFlow:
     file: _stop_recording.yaml

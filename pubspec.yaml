@@ -17,7 +17,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 
-version: 1.6.3+44  # TODO: Update AppInfo (lib/utils/app_info.dart)
+version: 1.6.4+45 # TODO: Update AppInfo (lib/utils/app_info.dart)
 
 environment:
   # Floor raised from ^3.9.2 for in_app_purchase_android 0.5.2 (Play Billing 8),
@@ -98,6 +98,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   alchemist: ^0.14.0
+  crypto: ^3.0.7
   flutter_launcher_icons: "^0.14.4"
   # flutter_native_splash: "^2.4.7"  # Removed: 2.4.4 has broken SPM manifest; 2.4.7 fixes it but conflicts with
   #   excel ^4.0.6 (needs xml <7.0.0) vs flutter_native_splash >=2.4.6 (needs xml ^7.0.1).

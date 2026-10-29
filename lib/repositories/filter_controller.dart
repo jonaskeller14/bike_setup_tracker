@@ -26,6 +26,9 @@ class FilterController {
   LayerFilter _layers = const LayerFilter();
   ActivityFilter _activity = const ActivityFilter();
 
+  int _batchDepth = 0;
+  bool _changedInBatch = false;
+
   String? get bikeId => _bikeId;
 
   /// `null` shows the entries of every day.
@@ -40,37 +43,59 @@ class FilterController {
     final next = bikeId == _bikeId ? null : bikeId;
     if (next == _bikeId) return;
     _bikeId = next;
-    onChanged();
+    _changed();
   }
 
   set dateRange(LocalDateRange? value) {
     if (value == _dateRange) return;
     _dateRange = value;
-    onChanged();
+    _changed();
   }
 
   set setup(SetupFilter value) {
     if (value == _setup) return;
     _setup = value;
-    onChanged();
+    _changed();
   }
 
   set taskRule(TaskRuleFilter value) {
     if (value == _taskRule) return;
     _taskRule = value;
-    onChanged();
+    _changed();
   }
 
   set layers(LayerFilter value) {
     if (value == _layers) return;
     _layers = value;
-    onChanged();
+    _changed();
   }
 
   set activity(ActivityFilter value) {
     if (value == _activity) return;
     _activity = value;
-    onChanged();
+    _changed();
+  }
+
+  /// Runs [update] and fires [onChanged] once afterwards if any criterion
+  /// changed, so several setters cost one refilter instead of one each.
+  void batch(void Function() update) {
+    _batchDepth++;
+    try {
+      update();
+    } finally {
+      if (--_batchDepth == 0 && _changedInBatch) {
+        _changedInBatch = false;
+        onChanged();
+      }
+    }
+  }
+
+  void _changed() {
+    if (_batchDepth > 0) {
+      _changedInBatch = true;
+    } else {
+      onChanged();
+    }
   }
 
   Map<String, Object?> toJson() => {
@@ -114,16 +139,20 @@ class FilterController {
     return gearId == null ? null : query.copyWith(gearId: gearId);
   }
 
-  /// Drops criteria whose bike or tags no longer exist. Runs inside the
+  /// Drops criteria whose bike, tags or test sessions no longer exist. Runs inside the
   /// repository's recompute, so it never fires [onChanged].
   void normalize({
     required Iterable<String> bikeIds,
     required Set<String> setupTags,
+    required Set<String> testSessionNames,
     required Set<String> taskRuleTags,
   }) {
     if (_bikeId != null && !bikeIds.contains(_bikeId)) _bikeId = null;
     if (!setupTags.containsAll(_setup.tags)) {
       _setup = _setup.copyWith(tags: _setup.tags.intersection(setupTags));
+    }
+    if (!testSessionNames.containsAll(_setup.testSessionNames)) {
+      _setup = _setup.copyWith(testSessionNames: _setup.testSessionNames.intersection(testSessionNames));
     }
     if (!taskRuleTags.containsAll(_taskRule.tags)) {
       _taskRule = _taskRule.copyWith(tags: _taskRule.tags.intersection(taskRuleTags));

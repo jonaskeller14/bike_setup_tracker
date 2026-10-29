@@ -43,8 +43,8 @@ class AppSettings extends ChangeNotifier {
   bool _enableAdvancedFilters = false;
   bool _enableAttachments = false;
   bool _enableSetupBookmark = false;
-  bool _enableComponentPresets = false;
-  bool _enableTaskPresets = false;
+  bool _enableComponentPresets = true;
+  bool _enableTaskPresets = true;
   bool _enableSetupGuides = false;
   bool _enableInstallOnComponent = false;
   bool _enablePressureAssistant = false;
@@ -56,6 +56,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTimelineStravaContext = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
   bool _rememberFilters = true;
+  bool _developerMode = false;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -91,8 +92,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableAttachments => _enableAttachments;
   bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
-  // Requires component presets; the stored choice survives toggling them off and on.
-  bool get enableTaskPresets => _enableTaskPresets && _enableComponentPresets;
+  bool get enableTaskPresets => _enableTaskPresets;
   bool get showTaskPresets => _enableTask && _enableTaskInterval && enableTaskPresets;
   bool get enableSetupGuides => _enableSetupGuides && _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
@@ -105,6 +105,8 @@ class AppSettings extends ChangeNotifier {
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
   int get firstDayOfWeek => _firstDayOfWeek;
   bool get rememberFilters => _rememberFilters;
+  // Debug builds only: store screenshots and marketing content must show the production UI.
+  bool get developerMode => kDebugMode && _developerMode;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -407,6 +409,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('rememberFilters', newValue);
   }
 
+  set developerMode(bool newValue) {
+    if (newValue == _developerMode) return;
+    _developerMode = newValue;
+    notifyListeners();
+    _persistBool('developerMode', newValue);
+  }
+
   void _persistBool(String name, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_kPrefix$name', value);
@@ -493,6 +502,7 @@ class AppSettings extends ChangeNotifier {
           prefs.getBool('${_kPrefix}enableTimelineStravaContext') ?? _enableTimelineStravaContext;
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
       _rememberFilters = prefs.getBool('${_kPrefix}rememberFilters') ?? _rememberFilters;
+      _developerMode = prefs.getBool('${_kPrefix}developerMode') ?? _developerMode;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
       rethrow;
@@ -549,6 +559,7 @@ class AppSettings extends ChangeNotifier {
     _enableTimelineStravaContext = defaults._enableTimelineStravaContext;
     _firstDayOfWeek = defaults._firstDayOfWeek;
     _rememberFilters = defaults._rememberFilters;
+    _developerMode = defaults._developerMode;
     defaults.dispose();
     notifyListeners();
   }
@@ -601,6 +612,7 @@ class AppSettings extends ChangeNotifier {
     _enableTimelineStravaContext,
     _firstDayOfWeek,
     _rememberFilters,
+    _developerMode,
   ];
 
   /// Migrates the pre-existing monolithic `app_settings` JSON blob to per-key

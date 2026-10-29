@@ -336,142 +336,162 @@ nodes:
   - label: "Air IL"
     level: model
     category: XC / Downcountry
-    years: "2025-2026"
-    url: https://www.canecreek.com/products/air-il
-    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
-    guide: canecreek_air_coil_il_g2_2025
     specs: { spring: Air }
-    note: For bikes with 100-140mm rear travel; ~385g. Lightest shock in the Cane Creek lineup.
     tasks: &canecreek_service
       shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Cane Creek owner's manual }
     children:
-      - label: Standard
-        level: mount
-        specs: { mount: Standard }
-        adjustments: &il_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 50, max: 350, notes: "50 psi minimum, 350 psi maximum; Cane Creek recommends 25-35% sag" }
-        options:
-          damper: [il_twin_tube]
-          size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
-      - label: Trunnion
-        level: mount
-        specs: { mount: Trunnion }
-        adjustments: *il_air_spring
-        options:
-          damper: [il_twin_tube]
-          size: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.canecreek.com/products/air-il
+        setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
+        guide: canecreek_air_coil_il_g2_2025
+        note: For bikes with 100-140mm rear travel; ~385g. Lightest shock in the Cane Creek lineup.
+        children:
+          - label: Standard
+            level: mount
+            specs: { mount: Standard }
+            adjustments: &il_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 50, max: 350, notes: "50 psi minimum, 350 psi maximum; Cane Creek recommends 25-35% sag" }
+            options:
+              damper: [il_twin_tube]
+              size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
+          - label: Trunnion
+            level: mount
+            specs: { mount: Trunnion }
+            adjustments: *il_air_spring
+            options:
+              damper: [il_twin_tube]
+              size: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
 
   - label: "Coil IL"
     level: model
     category: XC / Trail
-    years: "2025-2026"
-    url: https://www.canecreek.com/products/coil-il
-    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
-    guide: canecreek_air_coil_il_g2_2025
     specs: { spring: Coil }
-    note: |-
-      - ~280g without a spring
-      - Not recommended for "clevis"-style suspension designs
-      - Not compatible with the Specialized Stumpjumper or Turbo Levo
     tasks: *canecreek_service
     children:
-      - label: Standard
-        level: mount
-        specs: { mount: Standard }
-        adjustments: &il_coil_spring
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT linear or progressive spring sold separately — see Cane Creek's spring-rate guide }
-          - { name: Preload, type: step, min: 3, max: 18, visualization: stepper, unit: clicks, notes: "Detented preload collar, 3 clicks per full turn. Keep at least 1 turn (3 clicks) engaged; 6 turns (18 clicks) is the maximum." }
-        options:
-          damper: [il_twin_tube]
-          size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
-      - label: Trunnion
-        level: mount
-        specs: { mount: Trunnion }
-        adjustments: *il_coil_spring
-        options:
-          damper: [il_twin_tube]
-          size: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.canecreek.com/products/coil-il
+        setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
+        guide: canecreek_air_coil_il_g2_2025
+        note: |-
+          - ~280g without a spring
+          - Not recommended for "clevis"-style suspension designs
+          - Not compatible with the Specialized Stumpjumper or Turbo Levo
+        children:
+          - label: Standard
+            level: mount
+            specs: { mount: Standard }
+            adjustments: &il_coil_spring
+              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT linear or progressive spring sold separately — see Cane Creek's spring-rate guide }
+              - { name: Preload, type: step, min: 3, max: 18, visualization: stepper, unit: clicks, notes: "Detented preload collar, 3 clicks per full turn. Keep at least 1 turn (3 clicks) engaged; 6 turns (18 clicks) is the maximum." }
+            options:
+              damper: [il_twin_tube]
+              size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
+          - label: Trunnion
+            level: mount
+            specs: { mount: Trunnion }
+            adjustments: *il_coil_spring
+            options:
+              damper: [il_twin_tube]
+              size: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
 
   - label: "Kitsuma"
     level: model
     category: Enduro / Downhill
-    years: "2025-2026"
-    url: https://www.canecreek.com/products/kitsuma-g2-air
-    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
-    guide: canecreek_kitsuma_g2_2025
     specs: { spring: Air }
-    note: "~585g. \"Gravity-first\" shock for long-travel trail/enduro/DH bikes; 2nd generation (G2)."
     tasks: *canecreek_service
     children:
-      - label: Standard
-        level: mount
-        specs: { mount: Standard }
-        adjustments: &kitsuma_g2_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; Cane Creek recommends 25-35% sag" }
-          - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Single-width strips, 5 included with the shock. Maximum depends on the size: 185, 205, 210 and 230 mm 9, 225 and 250 mm 11" }
-        options:
-          damper: [kitsuma_g2]
-          size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x75"]
-      - label: Trunnion
-        level: mount
-        specs: { mount: Trunnion }
-        adjustments: *kitsuma_g2_air_spring
-        options:
-          damper: [kitsuma_g2]
-          size: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.canecreek.com/products/kitsuma-g2-air
+        setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
+        guide: canecreek_kitsuma_g2_2025
+        note: "~585g. \"Gravity-first\" shock for long-travel trail/enduro/DH bikes; 2nd generation (G2)."
+        children:
+          - label: Standard
+            level: mount
+            specs: { mount: Standard }
+            adjustments: &kitsuma_g2_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; Cane Creek recommends 25-35% sag" }
+              - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Single-width strips, 5 included with the shock. Maximum depends on the size: 185, 205, 210 and 230 mm 9, 225 and 250 mm 11" }
+            options:
+              damper: [kitsuma_g2]
+              size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x75"]
+          - label: Trunnion
+            level: mount
+            specs: { mount: Trunnion }
+            adjustments: *kitsuma_g2_air_spring
+            options:
+              damper: [kitsuma_g2]
+              size: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
 
   - label: "Kitsuma Coil"
     level: model
     category: Enduro / Downhill
-    years: "2025-2026"
-    url: https://www.canecreek.com/products/kisuma-g2-coil
-    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
-    guide: canecreek_kitsuma_g2_2025
     specs: { spring: Coil }
-    note: ~417g without spring; 2nd generation (G2).
     tasks: *canecreek_service
     children:
-      - label: Standard
-        level: mount
-        specs: { mount: Standard }
-        adjustments: &kitsuma_g2_coil_spring
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide }
-          - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum" }
-        options:
-          damper: [kitsuma_g2]
-          size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x72.5", "250x75"]
-      - label: Trunnion
-        level: mount
-        specs: { mount: Trunnion }
-        adjustments: *kitsuma_g2_coil_spring
-        options:
-          damper: [kitsuma_g2]
-          size: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.canecreek.com/products/kisuma-g2-coil
+        setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
+        guide: canecreek_kitsuma_g2_2025
+        note: ~417g without spring; 2nd generation (G2).
+        children:
+          - label: Standard
+            level: mount
+            specs: { mount: Standard }
+            adjustments: &kitsuma_g2_coil_spring
+              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide }
+              - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum" }
+            options:
+              damper: [kitsuma_g2]
+              size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x72.5", "250x75"]
+          - label: Trunnion
+            level: mount
+            specs: { mount: Trunnion }
+            adjustments: *kitsuma_g2_coil_spring
+            options:
+              damper: [kitsuma_g2]
+              size: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
 
   - label: "Tigon"
     level: model
     category: Trail / Enduro
-    years: "2025-2026"
-    url: https://www.canecreek.com/products/tigon
-    setup_guide: https://www.canecreek.com/pages/tigon-set-up-procedure
-    guide: canecreek_tigon_2025
     tasks: *canecreek_service
-    specs: { spring: Coil }
-    adjustments:
-      - { name: Spring Rate, type: numerical, unit: lbs/in, min: 350, max: 650, notes: Cane Creek VALT linear coil spring only — not compatible with progressive or third-party springs }
-      - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Set sag with 0 psi in the RAMP Tube; keep at least 1 full turn engaged, 6 turns maximum" }
-      - { name: RAMP Tube Pressure, type: numerical, unit: psi, min: 0, max: 30, notes: "Air-assist chamber that adds mid-stroke/end-stroke support alongside the VALT coil spring, independent of coil preload. Add in 5-10psi increments." }
-    options:
-      damper: [tigon_damper]
-      size:
-        - { size: "185x50/52.5/55", mount: Trunnion }
-        - { size: "205x60/62.5/65", mount: Trunnion }
-        - { size: "210x50/52.5/55", mount: Standard }
-        - { size: "230x60/62.5/65", mount: Standard }
-    note: |-
-      - "Air-charged coil": a RAMP Tube air spring supplements the coil spring for tunable progression
-      - 441g in the 210 size, without a spring
-      - 12.7mm shaft
+    children:
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.canecreek.com/products/tigon
+        setup_guide: https://www.canecreek.com/pages/tigon-set-up-procedure
+        guide: canecreek_tigon_2025
+        specs: { spring: Coil }
+        adjustments:
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 350, max: 650, notes: Cane Creek VALT linear coil spring only — not compatible with progressive or third-party springs }
+          - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Set sag with 0 psi in the RAMP Tube; keep at least 1 full turn engaged, 6 turns maximum" }
+          - { name: RAMP Tube Pressure, type: numerical, unit: psi, min: 0, max: 30, notes: "Air-assist chamber that adds mid-stroke/end-stroke support alongside the VALT coil spring, independent of coil preload. Add in 5-10psi increments." }
+        options:
+          damper: [tigon_damper]
+          size:
+            - { size: "185x50/52.5/55", mount: Trunnion }
+            - { size: "205x60/62.5/65", mount: Trunnion }
+            - { size: "210x50/52.5/55", mount: Standard }
+            - { size: "230x60/62.5/65", mount: Standard }
+        note: |-
+          - "Air-charged coil": a RAMP Tube air spring supplements the coil spring for tunable progression
+          - 441g in the 210 size, without a spring
+          - 12.7mm shaft
 
   # ---- Legacy generations ------------------------------------------------
   - label: "DB Air IL G1"
@@ -555,28 +575,32 @@ nodes:
   - label: "DB Inline"
     level: model
     category: Trail / All-Mountain
-    years: "2014-2019"
-    url: https://www.canecreek.com/pages/legacy-products-product-support
-    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
-    guide: canecreek_double_barrel_tfg
     specs: { spring: Air }
-    note: |-
-      - The Double Barrel packed into an inline body, no piggyback reservoir
-      - Air volume is tuned with clip-in spacers inside the air can
-      - Adding a large volume spacer usually wants about 1/4 turn more High-Speed Rebound
-    # Manual: cdn.shopify.com/.../DB_owners-manual_2014_v11-web_...pdf
-    # 2014 introduction per canecreek.com's own company-history journal post.
     tasks: &double_barrel_air_service
       shock:air_can_service: { interval: { moving_time_h: 100 }, fallback: { days: 180 }, source: Cane Creek Double Barrel owner's manual }
       shock:full_service: &double_barrel_full_service { interval: { moving_time_h: 100 }, source: Cane Creek Double Barrel owner's manual }
     children:
-      - label: Standard
-        level: mount
-        specs: { mount: Standard }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        options:
-          damper: [db_inline]
+      - label: "2014–2019"
+        level: generation
+        id: "2014"
+        years: "2014-2019"
+        url: https://www.canecreek.com/pages/legacy-products-product-support
+        setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
+        guide: canecreek_double_barrel_tfg
+        note: |-
+          - The Double Barrel packed into an inline body, no piggyback reservoir
+          - Air volume is tuned with clip-in spacers inside the air can
+          - Adding a large volume spacer usually wants about 1/4 turn more High-Speed Rebound
+        # Manual: cdn.shopify.com/.../DB_owners-manual_2014_v11-web_...pdf
+        # 2014 introduction per canecreek.com's own company-history journal post.
+        children:
+          - label: Standard
+            level: mount
+            specs: { mount: Standard }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            options:
+              damper: [db_inline]
 
   - label: "DB Air CS"
     level: model

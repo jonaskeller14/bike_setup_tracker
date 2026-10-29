@@ -1,25 +1,35 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
-import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 const testPresetKey = 'test:preset';
 
-/// Pushes [page], runs [interact] on it, taps save, runs [afterSave] (e.g. to
+/// Pushes [page] (with [repository] provided, for edits that look up recorded
+/// values), runs [interact] on it, taps save, runs [afterSave] (e.g. to
 /// answer a dialog) and returns what the page popped.
 Future<Object?> pushAndSave(
   WidgetTester tester,
   Widget page, {
   Future<void> Function()? interact,
   Future<void> Function()? afterSave,
+  AppRepository? repository,
+  AppSettings? settings,
 }) async {
   Object? result;
   await tester.pumpWidget(
-    ChangeNotifierProvider<AppSettings>(
-      create: (_) => AppSettings(),
+    MultiProvider(
+      providers: [
+        if (settings != null)
+          ChangeNotifierProvider<AppSettings>.value(value: settings)
+        else
+          ChangeNotifierProvider<AppSettings>(create: (_) => AppSettings()),
+        if (repository != null) ChangeNotifierProvider<AppRepository>.value(value: repository),
+      ],
       child: MaterialApp(
         theme: materialAppTheme,
         home: Builder(
@@ -45,11 +55,9 @@ Future<Object?> pushAndSave(
   return result;
 }
 
-/// The adjustment an adjustment or metric page saved, whatever it was wrapped in.
+/// The adjustment an adjustment page saved, whatever it was wrapped in.
 Adjustment savedAdjustment(Object? result) => switch (result) {
-  EditResult<Adjustment>(:final value) => value,
-  EditResult<RatingMetric>(:final value) => value.adjustment,
-  RatingMetric(:final adjustment) => adjustment,
+  AdjustmentEditResult<Adjustment>(:final value) => value,
   Adjustment() => result,
   _ => throw TestFailure('Page saved nothing: $result'),
 };

@@ -15,6 +15,7 @@ import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import '../models/strava/strava_entitlement.dart';
 import '../models/strava/strava_plan.dart';
 import '../models/strava/strava_store_offer.dart';
+import 'error_reporter.dart';
 
 export '../models/strava/strava_entitlement.dart';
 
@@ -213,7 +214,10 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // platform may surface pending or restored purchases later.
       _purchaseSub = _iap.purchaseStream.listen(
         _onPurchaseUpdate,
-        onError: (Object e) => _setState(SubscriptionError('Purchase stream error: $e')),
+        onError: (Object e, StackTrace s) {
+          _report('purchaseStream', e, s);
+          _setState(SubscriptionError('Purchase stream error: $e'));
+        },
       );
 
       // Make sure Apple's StoreKit delegate is registered, otherwise some
@@ -240,7 +244,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         _beginRestore();
         unawaited(_iap.restorePurchases());
       }
-    } catch (e) {
+    } catch (e, s) {
+      _report('initialize', e, s);
       _setState(SubscriptionError('Subscription init failed: $e'));
       _isInitialized = false; // allow retry
     }
@@ -276,7 +281,10 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         _beginRestore();
         unawaited(_iap.restorePurchases());
       }
-    }, onError: (Object e) => _setState(SubscriptionError('Entitlement stream error: $e')));
+    }, onError: (Object e, StackTrace s) {
+      _report('entitlementStream', e, s);
+      _setState(SubscriptionError('Entitlement stream error: $e'));
+    });
   }
 
   Future<void> _loadProducts() async {
@@ -294,11 +302,13 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
       final response = await _iap.queryProductDetails(ids);
       if (response.error != null) {
+        _report('loadProducts', response.error!, StackTrace.current);
         _setState(SubscriptionError('Could not load plans: ${response.error!.message}'));
         return;
       }
       if (response.notFoundIDs.isNotEmpty) {
         debugPrint('SubscriptionService: products not found in store: ${response.notFoundIDs}');
+        _report('loadProducts', StateError('Products not found: ${response.notFoundIDs}'), StackTrace.current);
       }
 
       _planOffers.clear();
@@ -308,6 +318,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         await _loadIosOffers(response.productDetails);
       }
       if (!StravaPlan.values.every(_planOffers.containsKey)) {
+        final missing = StravaPlan.values.where((p) => !_planOffers.containsKey(p));
+        _report('loadProducts', StateError('Plans without offer: $missing'), StackTrace.current);
         _setState(
           const SubscriptionError(
             'Subscription plans are not fully available. Please try again later.',
@@ -316,7 +328,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         return;
       }
       _setState(const SubscriptionIdle());
-    } catch (e) {
+    } catch (e, s) {
+      _report('loadProducts', e, s);
       _setState(SubscriptionError('Could not load plans: $e'));
     }
   }
@@ -415,7 +428,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       if (!launched && _state is SubscriptionPurchasing) {
         _setState(const SubscriptionIdle());
       }
-    } catch (e) {
+    } catch (e, s) {
+      _report('buy', e, s);
       _setState(SubscriptionError('Purchase failed: $e'));
     }
   }
@@ -440,7 +454,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       if (_state is SubscriptionRestoring) {
         _setState(const SubscriptionIdle());
       }
-    } catch (e) {
+    } catch (e, s) {
+      _report('restorePurchases', e, s);
       _endRestore();
       _setState(SubscriptionError('Restore failed: $e'));
     }
@@ -475,6 +490,12 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
             _setState(const SubscriptionRestoring());
             unawaited(_iap.restorePurchases());
           } else {
+            _report(
+              'purchaseUpdate',
+              pd.error ?? StateError('Purchase error without details'),
+              StackTrace.current,
+              detail: '${pd.productID} ${pd.status.name}',
+            );
             _setState(SubscriptionError('Purchase failed: ${pd.error?.message ?? 'unknown'}'));
           }
         case PurchaseStatus.canceled:
@@ -488,8 +509,9 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       if (pd.pendingCompletePurchase && (pd.status != PurchaseStatus.purchased || granted)) {
         try {
           await _iap.completePurchase(pd);
-        } catch (e) {
+        } catch (e, s) {
           debugPrint('SubscriptionService: completePurchase threw (ignored): $e');
+          _report('completePurchase', e, s, detail: '${pd.productID} ${pd.status.name}');
         }
       }
     }
@@ -521,6 +543,12 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // serverVerificationData contains.
       final iosTxId = pd.purchaseID;
       if (Platform.isIOS && (iosTxId == null || iosTxId.isEmpty)) {
+        _report(
+          'verify',
+          StateError('Missing iOS transaction id'),
+          StackTrace.current,
+          detail: '${pd.productID} ${pd.status.name}',
+        );
         _setState(const SubscriptionError('Missing transaction id for iOS purchase.'));
         return false;
       }
@@ -541,7 +569,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // The Firestore listener will pick up the new entitlement and emit
       // notifyListeners on its own — no need to set state here.
       return true;
-    } on FirebaseFunctionsException catch (e) {
+    } on FirebaseFunctionsException catch (e, s) {
       // Transient (auth/App Check not ready, network) → bounded retry with
       // backoff. ensureSignedIn() is cheap when already signed in.
       final isTransient = e.code == 'unauthenticated' || e.code == 'unavailable' || e.code == 'deadline-exceeded';
@@ -571,9 +599,11 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         );
         return false;
       }
+      _report('verify', e, s, detail: '[${e.code}] ${pd.productID} ${pd.status.name}');
       _setState(SubscriptionError(_friendlyVerifyError(e) ?? 'Could not verify purchase: [${e.code}] ${e.message}'));
       return false;
-    } catch (e) {
+    } catch (e, s) {
+      _report('verify', e, s, detail: '${pd.productID} ${pd.status.name}');
       _setState(SubscriptionError('Could not verify purchase: $e'));
       return false;
     }
@@ -594,8 +624,17 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   void _setState(SubscriptionState newState) {
     if (_state == newState) return;
     if (newState is SubscriptionError) debugPrint('SubscriptionService error: ${newState.message}');
+    logBreadcrumb(
+      'Subscription: ${newState.runtimeType}${newState is SubscriptionError ? ' — ${newState.message}' : ''}',
+    );
     _state = newState;
     notifyListeners();
+  }
+
+  // Unexpected failures only — cancels, offline and lapsed subscriptions are
+  // expected outcomes and stay out of Crashlytics. Never pass purchase tokens.
+  void _report(String where, Object error, StackTrace stack, {String? detail}) {
+    recordNonFatal(error, stack, reason: 'subscription.$where${detail == null ? '' : ' $detail'}');
   }
 }
 

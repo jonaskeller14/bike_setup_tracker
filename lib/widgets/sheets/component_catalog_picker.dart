@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -9,10 +11,12 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_catalog.dart';
 import '../../models/component/preset_spec_keys.dart';
+import '../../models/component/year_span.dart';
 import '../../repositories/component_catalog_repository.dart';
 import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
+import '../year_badge.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
@@ -22,10 +26,15 @@ import 'sheet_header.dart';
 ///
 /// With a [current] selection the sheet opens on its options, preselected, with
 /// the path to it marked on the way back, so changing it is a short step.
+///
+/// A search without results offers [onEnterManually], called with the query
+/// once the sheet has closed, and [onRequestProduct] to ask for the product.
 Future<ResolvedPreset?> showComponentCatalogPicker({
   required BuildContext context,
   required ComponentType componentType,
   ResolvedPreset? current,
+  ValueChanged<String>? onEnterManually,
+  void Function(ComponentType type, String query) onRequestProduct = _logCatalogRequest,
 }) {
   return showModalBottomSheet<ResolvedPreset>(
     useSafeArea: true,
@@ -34,8 +43,24 @@ Future<ResolvedPreset?> showComponentCatalogPicker({
     builder: (_) => _ComponentCatalogPickerSheet(
       componentType: componentType,
       current: current?.catalog.componentType == componentType ? current : null,
+      onEnterManually: onEnterManually,
+      onRequestProduct: onRequestProduct,
     ),
   );
+}
+
+/// An Analytics event rather than a Crashlytics report: requests are counted
+/// per query, not grouped under one stack trace. Values are capped at 100
+/// characters by Analytics.
+void _logCatalogRequest(ComponentType type, String query) {
+  if (kDebugMode) return;
+  unawaited(FirebaseAnalytics.instance.logEvent(
+    name: 'catalog_request',
+    parameters: {
+      'component_type': type.name,
+      'query': query.length > 100 ? query.substring(0, 100) : query,
+    },
+  ));
 }
 
 const Duration _stageDuration = Duration(milliseconds: 260);
@@ -48,7 +73,7 @@ const Widget _chevron = Icon(Icons.arrow_forward_ios, size: 16);
 const Widget _check = Icon(Icons.check, size: 20);
 
 /// Nothing is left to ask after [preset], so choosing it closes the sheet.
-bool _completes(ResolvedPreset preset) => preset.openRequiredAxes.isEmpty && preset.optionalAxes.isEmpty;
+bool _completes(ResolvedPreset preset) => preset.openRequiredAxes.isEmpty && !preset.hasOptionalDetails;
 
 // --- where we are ------------------------------------------------------------
 
@@ -105,8 +130,15 @@ enum _Direction {
 class _ComponentCatalogPickerSheet extends StatefulWidget {
   final ComponentType componentType;
   final ResolvedPreset? current;
+  final ValueChanged<String>? onEnterManually;
+  final void Function(ComponentType type, String query) onRequestProduct;
 
-  const _ComponentCatalogPickerSheet({required this.componentType, this.current});
+  const _ComponentCatalogPickerSheet({
+    required this.componentType,
+    this.current,
+    this.onEnterManually,
+    required this.onRequestProduct,
+  });
 
   @override
   State<_ComponentCatalogPickerSheet> createState() => _ComponentCatalogPickerSheetState();
@@ -125,6 +157,9 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   final List<_Stage> _history = [];
   _Direction _direction = _Direction.none;
   String _query = '';
+
+  /// Queries already requested, so one search asks only once.
+  final Set<String> _requested = {};
 
   @override
   void initState() {
@@ -175,7 +210,8 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
       parents.add(match.node);
     }
     for (var depth = 0; depth <= parents.length; depth++) {
-      _enter(_Nodes(brand, parents.sublist(0, depth)));
+      final shown = _collapse(catalog, brand, parents.sublist(0, depth));
+      if (shown.length == depth || depth == parents.length) _enter(_Nodes(brand, shown));
     }
     if (product != null) _enterOptionsOf(product);
   }
@@ -219,11 +255,12 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   bool _isCurrent(ResolvedPreset preset) => _currentFor(preset) != null;
 
   /// [preset] with the optional values of the current selection chosen, when
-  /// it is the same product; a value the catalog dropped stays unset.
+  /// it is the same product; a value the catalog dropped stays unset. The model
+  /// year falls back to one typed in the search.
   ResolvedPreset _withCurrentOptions(ResolvedPreset preset) {
     final current = _currentFor(preset);
-    if (current == null) return preset;
-    var result = preset;
+    var result = preset.withYear(current?.year ?? queryYear(_query));
+    if (current == null) return result;
     for (final axis in preset.optionalAxes) {
       final id = current.selections[axis.id]?.id;
       final value = axis.values.firstWhereOrNull((value) => value.id == id);
@@ -254,11 +291,33 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
     });
   }
 
+  /// Returns to the stage at [depth] of the way taken, where the choice its
+  /// breadcrumb names was made.
+  void _goBackTo(int depth) {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() {
+      _stage = _history[depth];
+      _history.removeRange(depth, _history.length);
+      _direction = _Direction.backward;
+    });
+  }
+
+  /// [parents] extended through every group whose only child is another group:
+  /// listing that child would ask for a tap that decides nothing.
+  List<CatalogNode> _collapse(_Catalog catalog, BrandCatalog brand, List<CatalogNode> parents) {
+    var result = parents;
+    while (true) {
+      final children = catalog.childrenOf(brand, result);
+      if (children.length != 1 || children.single.node is! CatalogGroup) return result;
+      result = [...result, children.single.node];
+    }
+  }
+
   void _selectNode(_NodeEntry entry) {
     switch (entry.node) {
       case CatalogGroup():
         final stage = _stage as _Nodes;
-        _goTo(_Nodes(stage.catalog, [...stage.parents, entry.node]));
+        _goTo(_Nodes(stage.catalog, _collapse(_catalog!, stage.catalog, [...stage.parents, entry.node])));
       case CatalogProduct():
         _advance(entry.products.single);
     }
@@ -269,7 +328,7 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   /// never get a stage.
   void _advance(ResolvedPreset preset) {
     if (preset.openRequiredAxes.isNotEmpty) return _goTo(_RequiredAxis(preset));
-    if (preset.optionalAxes.isNotEmpty) return _goTo(_OptionalAxes(_withCurrentOptions(preset)));
+    if (preset.hasOptionalDetails) return _goTo(_OptionalAxes(_withCurrentOptions(preset)));
     _finish(preset);
   }
 
@@ -296,6 +355,18 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
     _onQueryChanged('');
   }
 
+  void _enterManually() {
+    final query = _query;
+    Navigator.pop(context);
+    widget.onEnterManually!(query);
+  }
+
+  void _requestProduct() {
+    unawaited(HapticFeedback.lightImpact());
+    widget.onRequestProduct(widget.componentType, _query);
+    setState(() => _requested.add(_query.toLowerCase()));
+  }
+
   // --- build ----------------------------------------------------------------
 
   String get _title => switch (_stage) {
@@ -312,37 +383,47 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: SafeArea(
-        // A modal sheet sizes itself to its content but does not animate that
-        // size changing, so stages of differing height would snap without this.
-        child: AnimatedSize(
-          duration: _stageDuration,
-          curve: Curves.easeOutCubic,
-          // Pin the header while the sheet grows downward, so drilling in
-          // reveals content instead of shifting everything vertically.
-          alignment: Alignment.topCenter,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SheetHeader(
-                title: _title,
-                onBack: _history.isEmpty ? null : _goBack,
-              ),
-              const SizedBox(height: 12),
-              if (_stage is _Brands) _buildSearchField(),
-              Flexible(
-                child: ListTileTheme.merge(
-                  selectedColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                  selectedTileColor: Theme.of(context).colorScheme.secondaryContainer,
-                  child: _StageSwitcher(
-                    direction: _direction,
-                    child: KeyedSubtree(key: _bodyKey, child: _buildBody()),
+    // System back steps back a stage; the close button pops directly.
+    return PopScope(
+      canPop: _history.isEmpty,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _goBack();
+      },
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: SafeArea(
+          // A modal sheet sizes itself to its content but does not animate that
+          // size changing, so stages of differing height would snap without this.
+          child: AnimatedSize(
+            duration: _stageDuration,
+            curve: Curves.easeOutCubic,
+            // Pin the header while the sheet grows downward, so drilling in
+            // reveals content instead of shifting everything vertically.
+            alignment: Alignment.topCenter,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SheetHeader(
+                  title: _title,
+                  onBack: _history.isEmpty ? null : _goBack,
+                ),
+                const SizedBox(height: 12),
+                if (_stage is _Brands)
+                  _buildSearchField()
+                else
+                  _Breadcrumb(crumbs: _crumbs([..._history, _stage]), onTap: _goBackTo),
+                Flexible(
+                  child: ListTileTheme.merge(
+                    selectedColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                    selectedTileColor: Theme.of(context).colorScheme.secondaryContainer,
+                    child: _StageSwitcher(
+                      direction: _direction,
+                      child: KeyedSubtree(key: _bodyKey, child: _buildBody()),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -360,32 +441,32 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
       _Brands() => _BrandList(
         brands: catalog.brands,
         isCurrent: (brand) => _onCurrentPath(brand.catalog, const []),
-        onSelect: (brand) => _goTo(_Nodes(brand.catalog, const [])),
+        onSelect: (brand) => _goTo(_Nodes(brand.catalog, _collapse(catalog, brand.catalog, const []))),
       ),
-      _Nodes(catalog: final brand, :final parents) => _WithContext(
-        label: [brand.brand, for (final node in parents) node.label].join(' '),
-        child: _NodeList(
-          rows: catalog.rowsFor(brand, parents),
-          isCurrent: (entry) => _onCurrentPath(brand, [...parents, entry.node]),
-          onSelect: _selectNode,
-        ),
+      _Nodes(catalog: final brand, :final parents) => _NodeList(
+        rows: catalog.rowsFor(brand, parents),
+        isCurrent: (entry) => _onCurrentPath(brand, [...parents, entry.node]),
+        onSelect: _selectNode,
       ),
-      final _RequiredAxis stage => _WithContext(
-        label: presetDisplayName(stage.preset),
-        child: _RequiredValueList(
-          values: stage.axis.values,
-          currentId: _currentFor(stage.preset)?.selections[stage.axis.id]?.id,
-          completes: (value) => _completes(stage.preset.select(stage.axis, value)),
-          onSelect: (value) => _advance(stage.preset.select(stage.axis, value)),
-        ),
+      final _RequiredAxis stage => _RequiredValueList(
+        values: stage.axis.values,
+        currentId: _currentFor(stage.preset)?.selections[stage.axis.id]?.id,
+        completes: (value) => _completes(stage.preset.select(stage.axis, value)),
+        onSelect: (value) => _advance(stage.preset.select(stage.axis, value)),
       ),
       _OptionalAxes(:final preset) => _OptionalAxesStep(preset: preset, onDone: _finish),
     };
   }
 
   Widget _buildSearchResults(_Catalog catalog) {
-    final results = filterPresets(catalog.products, _query);
-    if (results.isEmpty) return _EmptyHint(text: 'No matches for "$_query".');
+    final results = rankPresets(catalog.products, _query);
+    if (results.isEmpty) {
+      return _NoMatches(
+        query: _query,
+        onEnterManually: widget.onEnterManually == null ? null : _enterManually,
+        onRequest: _requested.contains(_query.toLowerCase()) ? null : _requestProduct,
+      );
+    }
     return _ProductList(products: results, isCurrent: _isCurrent, onSelect: _advance);
   }
 
@@ -415,6 +496,82 @@ String _nodesTitle(List<_NodeEntry> children) {
 }
 
 String _levelLabel(String level) => level.replaceAll('_', ' ');
+
+// --- breadcrumb --------------------------------------------------------------
+
+/// The choices that led to the last of [stages], one per stage they were made
+/// on, each named after what it opened: `FOX › 36 › 2025–2026 › Factory`.
+List<String> _crumbs(List<_Stage> stages) => [
+  for (var i = 0; i < stages.length - 1; i++) _crumbLabel(stages[i], stages[i + 1]),
+];
+
+String _crumbLabel(_Stage from, _Stage to) => switch ((from, to)) {
+  // Groups collapsed into one stage are one choice, so they share a crumb.
+  (_Nodes(parents: final above), _Nodes(:final parents)) =>
+    parents.skip(above.length).map((node) => node.label).join(' '),
+  (_, _Nodes(:final catalog, :final parents)) => [catalog.brand, for (final node in parents) node.label].join(' '),
+  (_RequiredAxis(:final axis), _RequiredAxis(:final preset) || _OptionalAxes(:final preset)) =>
+    preset.selections[axis.id]!.label,
+  (_Nodes(), _RequiredAxis(:final preset) || _OptionalAxes(:final preset)) => preset.node.label,
+  // A search result skips the tree, so its crumb is the whole name.
+  (_, _RequiredAxis(:final preset) || _OptionalAxes(:final preset)) => presetDisplayName(preset),
+  (_, _Brands()) => throw StateError('No choice leads to the brand list'),
+};
+
+class _Breadcrumb extends StatelessWidget {
+  const _Breadcrumb({required this.crumbs, required this.onTap});
+
+  final List<String> crumbs;
+
+  /// Called with the index of the tapped crumb.
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurfaceVariant;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Center(
+        // Clips the crumbs' ripples to the visible strip.
+        child: Material(
+          type: MaterialType.transparency,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            // Keeps the latest choice in view when the path is wider than the sheet.
+            reverse: true,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final (index, label) in crumbs.indexed) ...[
+                  if (index > 0) Icon(Icons.chevron_right, size: 16, color: muted),
+                  Semantics(
+                    button: true,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () => onTap(index),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: index == crumbs.length - 1 ? theme.colorScheme.onSurface : muted,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 // --- stage transition --------------------------------------------------------
 
@@ -499,7 +656,7 @@ class _Catalog {
   /// Stage 1, in first-seen order.
   List<_BrandEntry> get brands => [
     for (final MapEntry(key: catalog, value: products) in _productsByBrand.entries)
-      _BrandEntry(catalog: catalog, productCount: products.length),
+      _BrandEntry(catalog: catalog, models: _distinctLabels(products.map((product) => product.path.first))),
   ];
 
   /// The nodes one level below [parents], each with the products beneath it.
@@ -515,7 +672,7 @@ class _Catalog {
     }
     return [
       for (final MapEntry(key: node, value: products) in children.entries)
-        _NodeEntry(node: node, products: products, depth: depth),
+        _NodeEntry(node: node, products: products),
     ];
   }
 
@@ -536,11 +693,18 @@ class _Catalog {
 }
 
 class _BrandEntry {
-  const _BrandEntry({required this.catalog, required this.productCount});
+  const _BrandEntry({required this.catalog, required this.models});
 
   final BrandCatalog catalog;
-  final int productCount;
+
+  /// The labels of the brand's top level, in authored order.
+  final List<String> models;
 }
+
+/// The distinct labels of [nodes], in first-seen order.
+List<String> _distinctLabels(Iterable<CatalogNode> nodes) => [...{for (final node in nodes) node.label}];
+
+String? _labelsSubtitle(List<String> labels) => labels.isEmpty ? null : labels.join(' · ');
 
 /// One row of a node stage: a category header or a node.
 sealed class _NodeRow {
@@ -554,25 +718,13 @@ class _CategoryRow extends _NodeRow {
 }
 
 class _NodeEntry extends _NodeRow {
-  const _NodeEntry({required this.node, required this.products, required this.depth});
+  const _NodeEntry({required this.node, required this.products});
 
   final CatalogNode node;
 
   /// The selectable products at or below [node]; the single product itself
   /// when [node] is a [CatalogProduct].
   final List<ResolvedPreset> products;
-
-  /// Index of [node] in each of [products]' paths.
-  final int depth;
-
-  /// The distinct nodes directly below a group, so the row can say what a tap
-  /// leads to.
-  List<CatalogNode> get children => [
-    ...{
-      for (final product in products)
-        if (product.path.length > depth + 1) product.path[depth + 1],
-    },
-  ];
 }
 
 // --- stage 1: brands ---------------------------------------------------------
@@ -589,16 +741,17 @@ class _BrandList extends StatelessWidget {
     if (brands.isEmpty) {
       return const _EmptyHint(text: 'No catalog entries available.');
     }
-    return ListView.builder(
-      shrinkWrap: true,
+    return _TileList(
       itemCount: brands.length,
       itemBuilder: (context, index) {
         final entry = brands[index];
+        final subtitle = _labelsSubtitle(entry.models);
+        final selected = isCurrent(entry);
         return ListTile(
-          title: Text(entry.catalog.brand),
-          subtitle: Text(_count(entry.productCount, 'variant')),
+          title: _TileTitle(entry.catalog.brand, selected: selected),
+          subtitle: subtitle == null ? null : _SubtitleText(subtitle),
           trailing: _chevron,
-          selected: isCurrent(entry),
+          selected: selected,
           onTap: () => onSelect(entry),
         );
       },
@@ -617,16 +770,16 @@ class _NodeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
+    return _TileList(
       itemCount: rows.length,
       itemBuilder: (context, index) => switch (rows[index]) {
         _CategoryRow(:final category) => _CategoryHeader(category),
         final _NodeEntry entry => switch (entry.node) {
-          CatalogGroup() => ListTile(
-            title: Text(entry.node.label),
-            subtitle: _SubtitleText(_groupSubtitle(entry)),
-            trailing: _chevron,
+          CatalogGroup(:final level) => ListTile(
+            title: _TileTitle(entry.node.label, selected: isCurrent(entry)),
+            subtitle: _groupSubtitle(entry),
+            // A generation is named by its years already.
+            trailing: _Trailing(level == _generationLevel ? null : _yearSpan(entry), icon: _chevron),
             selected: isCurrent(entry),
             onTap: () => onSelect(entry),
           ),
@@ -642,33 +795,21 @@ class _NodeList extends StatelessWidget {
   }
 }
 
-/// `2018–2026 · 3 trims`: the years below the group, and what a tap opens.
-String _groupSubtitle(_NodeEntry entry) {
-  final children = entry.children;
-  final levels = {for (final child in children) child.level};
-  return [
-    ?_yearSpan(entry.products.map((product) => product.node.years)),
-    _count(children.length, levels.length == 1 ? _levelLabel(levels.single) : 'option'),
-  ].join(' · ');
+const String _generationLevel = 'generation';
+
+/// `Factory · Performance`: the products below the group, so a row says what a
+/// tap leads to. Generations are left out, as the rows below are named by them.
+Widget? _groupSubtitle(_NodeEntry entry) {
+  final labels = _labelsSubtitle(
+    _distinctLabels(entry.products.map((product) => product.node).where((node) => node.level != _generationLevel)),
+  );
+  return labels == null ? null : _SubtitleText(labels);
 }
 
 /// The years a group row covers. Its products can belong to different
 /// generations, so when they disagree the row shows the whole span
-/// (`2018–2026`) and the per-generation years stay on the deeper rows.
-String? _yearSpan(Iterable<String?> years) {
-  final ranges = {...years.nonNulls}..remove('');
-  if (ranges.isEmpty) return null;
-  if (ranges.length == 1) return ranges.first;
-  final found = [
-    for (final range in ranges)
-      for (final match in _yearPattern.allMatches(range)) match[0]!,
-  ]..sort();
-  return found.isEmpty ? null : '${found.first}–${found.last}';
-}
-
-final RegExp _yearPattern = RegExp(r'\d{4}');
-
-String _count(int count, String noun) => '$count $noun${count == 1 ? '' : 's'}';
+/// (`2018-2026`) and the per-generation years stay on the deeper rows.
+YearSpan? _yearSpan(_NodeEntry entry) => YearSpan.cover(entry.products.map((product) => product.node.years).nonNulls);
 
 // --- products, and the flat search results -----------------------------------
 
@@ -681,8 +822,7 @@ class _ProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
+    return _TileList(
       itemCount: products.length,
       itemBuilder: (context, index) {
         final product = products[index];
@@ -711,31 +851,29 @@ class _ProductTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final subtitle = _productSubtitle(product);
     return ListTile(
-      title: Text(title),
+      title: _TileTitle(title, selected: selected),
       subtitle: subtitle == null ? null : _SubtitleText(subtitle),
-      trailing: _ProductTrailing(product.node.years, completes: _completes(product)),
+      trailing: _Trailing(product.node.years, icon: _completes(product) ? _check : _chevron),
       selected: selected,
       onTap: onTap,
     );
   }
 }
 
-/// Chevron, or a check when the tap completes the selection, preceded by the
-/// year badge when the catalog knows the years.
-class _ProductTrailing extends StatelessWidget {
-  const _ProductTrailing(this.years, {required this.completes});
+/// [icon], preceded by the year badge when there are [years] to show.
+class _Trailing extends StatelessWidget {
+  const _Trailing(this.years, {required this.icon});
 
-  final String? years;
-  final bool completes;
+  final YearSpan? years;
+  final Widget icon;
 
   @override
   Widget build(BuildContext context) {
     final years = this.years;
-    final icon = completes ? _check : _chevron;
-    if (years == null || years.isEmpty) return icon;
+    if (years == null) return icon;
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [_YearBadge(years), const SizedBox(width: 6), icon],
+      children: [YearBadge(years), const SizedBox(width: 6), icon],
     );
   }
 }
@@ -770,18 +908,23 @@ class _RequiredValueList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
+    return _TileList(
       itemCount: values.length,
       itemBuilder: (context, index) {
         final value = values[index];
-        final description = value.description;
+        final lines = _valueSubtitleLines(value);
+        final selected = value.id == currentId;
         return ListTile(
-          title: Text(value.label),
-          subtitle: _valueSubtitle(value),
+          title: _TileTitle(value.label, selected: selected),
+          subtitle: lines.isEmpty
+              ? null
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [for (final line in lines) _SubtitleText(line)],
+                ),
           trailing: completes(value) ? _check : _chevron,
-          selected: value.id == currentId,
-          isThreeLine: description != null && description.isNotEmpty,
+          selected: selected,
+          isThreeLine: lines.length > 1,
           onTap: () => onSelect(value),
         );
       },
@@ -789,16 +932,16 @@ class _RequiredValueList extends StatelessWidget {
   }
 }
 
-/// Description above a summary of the value's click ranges; `null` when the
-/// catalog has neither.
-Widget? _valueSubtitle(OptionValue value) {
+/// Description above a summary of the value's click ranges, one line each, so
+/// each is cut short on its own rather than wrapping into the next.
+List<String> _valueSubtitleLines(OptionValue value) {
   final lines = <String>[];
   final description = value.description?.trim();
   if (description != null && description.isNotEmpty) lines.add(description);
   final adjustments = _adjustmentSummary(value);
   if (adjustments.isNotEmpty) lines.add(adjustments);
   if (value.missingAdjustments.isNotEmpty) lines.add('Add by hand: ${value.missingAdjustments.join(', ')}');
-  return lines.isEmpty ? null : Text(lines.join('\n'));
+  return lines;
 }
 
 /// `LSC ±7 · HSC 5` — initials and range of each stepped adjustment, so values
@@ -808,7 +951,8 @@ String _adjustmentSummary(OptionValue value) {
   for (final spec in value.adjustments) {
     final adjustment = spec.build();
     if (adjustment is StepAdjustment) {
-      parts.add('${_initials(adjustment.name)} ${_rangeLabel(adjustment)}');
+      // A placeholder max is not a published range, so don't present it as one.
+      parts.add('${_initials(adjustment.name)} ${spec.hasUnknownMax ? '?' : _rangeLabel(adjustment)}');
     }
   }
   return parts.join(' · ');
@@ -822,8 +966,6 @@ String _initials(String name) {
 }
 
 String _rangeLabel(StepAdjustment step) {
-  // A placeholder max is not a published range, so don't present it as one.
-  if (step.notes?.contains(StepAdjustment.unknownMaxWarning) ?? false) return '?';
   if (step.max > 0 && step.min == -step.max) return '±${step.max}';
   if (step.min == 0) return '${step.max}';
   return '${step.min}…${step.max}';
@@ -844,7 +986,8 @@ class _OptionalAxesStep extends StatefulWidget {
 class _OptionalAxesStepState extends State<_OptionalAxesStep> {
   late ResolvedPreset _preset = widget.preset;
 
-  bool get _hasChoice => _preset.optionalAxes.any((axis) => _preset.selections.containsKey(axis.id));
+  bool get _hasChoice =>
+      _preset.year != null || _preset.optionalAxes.any((axis) => _preset.selections.containsKey(axis.id));
 
   void _toggle(OptionAxis axis, OptionValue value) {
     unawaited(HapticFeedback.selectionClick());
@@ -852,42 +995,46 @@ class _OptionalAxesStepState extends State<_OptionalAxesStep> {
     setState(() => _preset = _preset.select(axis, selected ? null : value));
   }
 
+  void _toggleYear(int year) {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() => _preset = _preset.withYear(_preset.year == year ? null : year));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return _WithContext(
-      label: presetDisplayName(_preset),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Flexible(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final axis in _preset.optionalAxes)
-                    _AxisChips(
-                      axis: axis,
-                      selected: _preset.selections[axis.id],
-                      onTap: (value) => _toggle(axis, value),
-                    ),
-                ],
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Flexible(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final axis in _preset.optionalAxes)
+                  _AxisChips(
+                    axis: axis,
+                    selected: _preset.selections[axis.id],
+                    onTap: (value) => _toggle(axis, value),
+                  ),
+                if (_preset.selectableYears.isNotEmpty)
+                  _YearChips(years: _preset.selectableYears, selected: _preset.year, onTap: _toggleYear),
+              ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            width: double.infinity,
-            child: FilledButton.icon(
-              icon: Icon(_hasChoice ? Icons.check : Icons.arrow_forward),
-              // Unset axes stay unset: nothing is guessed for what is skipped.
-              onPressed: () => widget.onDone(_preset),
-              label: Text(_hasChoice ? 'Apply' : 'Skip'),
-            ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(16),
+          width: double.infinity,
+          child: FilledButton.icon(
+            icon: Icon(_hasChoice ? Icons.check : Icons.arrow_forward),
+            // Unset axes stay unset: nothing is guessed for what is skipped.
+            onPressed: () => widget.onDone(_preset),
+            label: Text(_hasChoice ? 'Apply' : 'Skip'),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -935,6 +1082,36 @@ class _AxisChips extends StatelessWidget {
   }
 }
 
+class _YearChips extends StatelessWidget {
+  const _YearChips({required this.years, required this.selected, required this.onTap});
+
+  final List<int> years;
+  final int? selected;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SheetGroupTitle(title: 'Model year'),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            for (final year in years)
+              ChoiceChip(
+                label: Text('$year'),
+                selected: year == selected,
+                onSelected: (_) => onTap(year),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
 /// Shock sizes are grouped by eye-to-eye length, since that is what a frame
 /// fixes and the stroke is chosen within it. Every other axis is one group
 /// without a heading, as is a size axis that lists strokes only.
@@ -953,34 +1130,40 @@ Map<String?, List<OptionValue>> _chipGroups(OptionAxis axis) {
 
 // --- shared bits -------------------------------------------------------------
 
-/// Names what the stage refines, since the header only names the level.
-class _WithContext extends StatelessWidget {
-  const _WithContext({required this.label, required this.child});
+class _TileList extends StatelessWidget {
+  const _TileList({required this.itemCount, required this.itemBuilder});
 
-  final String label;
-  final Widget child;
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        Flexible(child: child),
-      ],
+    // ListTile paints its tile color on the nearest Material; the sheet's own
+    // sits outside the scroll view, so the color would scroll over the header.
+    return Material(
+      type: MaterialType.transparency,
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: itemCount,
+        itemBuilder: itemBuilder,
+      ),
     );
   }
+}
+
+/// Bold on the current row only, so the rest keep their weight below the
+/// category headers.
+class _TileTitle extends StatelessWidget {
+  const _TileTitle(this.text, {required this.selected});
+
+  final String text;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: selected ? const TextStyle(fontWeight: FontWeight.w600) : null,
+  );
 }
 
 class _SubtitleText extends StatelessWidget {
@@ -991,7 +1174,7 @@ class _SubtitleText extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    maxLines: 2,
+    maxLines: 1,
     overflow: TextOverflow.ellipsis,
   );
 }
@@ -1018,32 +1201,6 @@ class _CategoryHeader extends StatelessWidget {
   }
 }
 
-class _YearBadge extends StatelessWidget {
-  final String text;
-
-  const _YearBadge(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: colors.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
-}
-
 class _EmptyHint extends StatelessWidget {
   final String text;
 
@@ -1054,6 +1211,54 @@ class _EmptyHint extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: SheetFilterEmptyHint(icon: Icons.search_off, title: text),
+    );
+  }
+}
+
+/// A search without results, with the ways on from it.
+class _NoMatches extends StatelessWidget {
+  const _NoMatches({required this.query, required this.onEnterManually, required this.onRequest});
+
+  final String query;
+  final VoidCallback? onEnterManually;
+
+  /// Null once [query] has been requested.
+  final VoidCallback? onRequest;
+
+  @override
+  Widget build(BuildContext context) {
+    final requested = onRequest == null;
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SheetFilterEmptyHint(
+            icon: Icons.search_off,
+            title: 'No matches for "$query".',
+            hint: 'Check the spelling, or search for the model name only.',
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            children: [
+              if (onEnterManually != null)
+                TextButton.icon(
+                  onPressed: onEnterManually,
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Enter manually'),
+                ),
+              TextButton.icon(
+                onPressed: onRequest,
+                icon: Icon(requested ? Icons.check : Icons.playlist_add),
+                label: Text(requested ? 'Requested, thanks' : 'Request this product'),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

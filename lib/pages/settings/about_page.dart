@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../database/app_database.dart';
 import '../../models/app_settings.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/app_info.dart';
@@ -119,7 +120,13 @@ class _AboutPageState extends State<AboutPage> {
                   ),
                 ],
               ),
-              if (_showUserId) _buildUserIdTile(),
+              if (_showUserId) ...[
+                _buildUserIdTile(),
+                _buildInfoTile(
+                  title: 'App Database',
+                  subtitle: 'Schema v${context.read<AppDatabase>().schemaVersion}',
+                ),
+              ],
 
               const Divider(),
               const SectionTitle(title: 'Legal Agreements'),

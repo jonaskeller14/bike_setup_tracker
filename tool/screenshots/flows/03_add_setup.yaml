@@ -1,4 +1,4 @@
-# 03 Add Setup: a filled-in form with tags and two changed adjustments.
+# 03 Add Setup: a filled-in form with two changed adjustments.
 # Location is fetched live; the run scripts pin the device's GPS to Finale
 # Ligure so the place chip matches the setup name. Weather comes from the
 # screenshot build's fixed ScreenshotWeatherService.
@@ -25,13 +25,6 @@ appId: ${APP_ID}
 - inputText: Loose over hard. Slowed rebound and firmed up for the long descents.
 - runFlow: _hide_keyboard_android.yaml
 
-# Tag names are record data (not localized), so selecting by text is stable.
-- tapOn:
-    id: setupForm.addTags
-- tapOn: Finale
-- tapOn: Trip
-- runFlow: _dismiss_sheet.yaml
-
 # Lyrik pressure (numerical field)
 - scrollUntilVisible:
     element:
@@ -42,13 +35,13 @@ appId: ${APP_ID}
 - eraseText: 10
 - inputText: '85'
 - runFlow: _hide_keyboard_android.yaml
-# Lyrik LSC (step slider): tapping the centre moves it to mid-range
+# Lyrik Rebound (step slider): tapping the centre moves it to mid-range (9)
 - scrollUntilVisible:
     element:
-      id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+      id: setAdjustment.aefea436-580a-479b-bcd4-943a93c8e2fb
     direction: DOWN
 - tapOn:
-    id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+    id: setAdjustment.aefea436-580a-479b-bcd4-943a93c8e2fb
 
 - scrollUntilVisible:
     element:
@@ -67,7 +60,7 @@ appId: ${APP_ID}
       platform: iOS
     commands:
       - tapOn:
-          id: setupForm.addTags
+          id: setupForm.condition
       - runFlow: _dismiss_sheet.yaml
 - waitForAnimationToEnd:
     timeout: 5000

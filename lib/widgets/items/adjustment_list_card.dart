@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../notes_text.dart';
+import '../sheets/value_migration_sheet.dart';
 import 'adjustment_properties.dart';
 import 'adjustment_type_icon.dart';
 
@@ -14,6 +17,7 @@ class AdjustmentListCard extends StatelessWidget {
   final void Function(Adjustment adjustment) removeAdjustment;
   final Map<String, Adjustment>? initialAdjustments;
   final double? metricWeight;
+  final MigrationProposal? pendingMigration;
 
   const AdjustmentListCard({
     super.key,
@@ -25,6 +29,7 @@ class AdjustmentListCard extends StatelessWidget {
     required this.removeAdjustment,
     this.initialAdjustments,
     this.metricWeight,
+    this.pendingMigration,
   });
 
   bool get _isScored =>
@@ -72,8 +77,13 @@ class AdjustmentListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       key: ValueKey(adjustment.id),
+      // Opaque, so the elevation shadow doesn't show through; the same color
+      // as a changed form field on the page.
       color: initialAdjustments != null && initialAdjustments![adjustment.id] != adjustment
-          ? Color.lerp(Theme.of(context).colorScheme.surface, Colors.orange, 0.08)
+          ? Color.alphaBlend(
+              Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+              Theme.of(context).colorScheme.surface,
+            )
           : null,
       child: ListTile(
         titleAlignment: ListTileTitleAlignment.titleHeight,
@@ -125,6 +135,10 @@ class AdjustmentListCard extends StatelessWidget {
                 ],
               ),
             ],
+            if (pendingMigration case final pending? when !pending.isEmpty) ...[
+              const SizedBox(height: 6),
+              _PendingMigrationLine(pending),
+            ],
           ],
         ),
         trailing: Row(
@@ -158,6 +172,43 @@ class AdjustmentListCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PendingMigrationLine extends StatelessWidget {
+  final MigrationProposal pending;
+
+  const _PendingMigrationLine(this.pending);
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    // The same count as the sheet's summary, plus the records left empty.
+    final color = pending.clearsValues ? scheme.error : scheme.primary;
+    final cleared = pending.cleared;
+    final text = [
+      'Updates ${affectedRecordsLabel(pending.affected)} on save',
+      if (cleared.live + cleared.deleted > 0)
+        '${affectedRecordsLabel(cleared)} ${cleared.isSingular ? 'loses its' : 'lose their'} value',
+    ].join(' · ');
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(Icons.sync_alt, size: 14, color: color),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
+          ),
+        ),
+      ],
     );
   }
 }

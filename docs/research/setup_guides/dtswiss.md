@@ -442,11 +442,50 @@ None.
 - The manual says the values vary considerably with the frame's chainstay
   characteristics (no leverage figure given). Proposed `note`.
 
+## Guides `dtswiss_f132one_2026` / `dtswiss_f132_2026` — F 132 ONE / F 132 user manuals
+
+### Source
+
+- F 132 ONE: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/06/17/6/MAN_FXD10000006176S_WEB_ZZ_001.pdf (User Manual V2026.03, multilingual, EN section used; sec. 4.1 p. 45, 4.2 p. 47, 4.3 p. 48)
+- F 132: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/07/78/8/MAN_FXD10000007788S_WEB_ZZ_001.pdf (User Manual V2026.07, sec. 4.1 p. 30)
+- Technical manual (F 132 ONE, V2026.03): https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/06/17/7/MAN_FXD10000006177S_WEB_EN_001.pdf (service intervals, fixed volume spacer)
+- Retrieved: 2026-10-22
+
+### Catalog mapping
+
+| Catalog path | `when:` | Notes |
+|---|---|---|
+| `fork/dt-swiss/f-132-one/2026/standard` | none | one pressure table, rebound table, `compression_mode: Open` |
+| `fork/dt-swiss/f-132/2026/standard` | none | pressure table only; "compression and rebound settings are preset" |
+
+### Air pressure (identical in both manuals)
+
+Input: rider weight (rider with equipment, without bike), kg · Output: bar and
+psi, non-e-bike column. 40 kg 58 psi, then +5 kg steps up to 120 kg 178 psi
+(4 bar at 40 kg to 12.3 bar at 120 kg). The second, higher e-bike column is not
+encoded. Max. air pressure 18 bar / 261 psi.
+
+### Rebound — pressure → clicks (F 132 ONE)
+
+Source direction: "Rebound klicks (from fully opened)", `+` closes the damping.
+Literal points, psi column: 29 → 0, 36 → 1, 44 → 1, 51 → 2, 58 → 2, 65 → 3,
+73 → 3, 80 → 4, 87 → 4, 94 → 5, 102 → 5, 109 → 6, 116 → 6, 123 → 7, 131 → 7,
+138 → 8, 145 → 8, 152 → 9, 160 → 9, 167 → 10, 174 → 10, 181 → 10, 189 → 10.
+No temperature correction is printed. Catalog `rebound` is `max: 10`, an
+estimate: Rennrad-News and Tour-Magazin state 9 clicks, which contradicts the
+manual's own 10-click rows.
+
+### Constants / SAG / spacers
+
+`compression_mode` Open (factory-set, "most sensitive"). No SAG target. The
+volume spacer is a fixed part inside the stanchion, no user setting, so
+`volume_spacers` is not in the catalog.
+
 ## Products without a structured guide
 
 | Catalog path | Reason |
 |---|---|
-| — | Every catalog product is covered by one of the four guides above. |
+| — | Every catalog product is covered by one of the guides above. |
 
 ## Catalog changes before encoding (R8, R9)
 

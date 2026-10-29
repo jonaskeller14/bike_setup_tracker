@@ -14,11 +14,16 @@ class DataExportService {
     final components = await database.componentsDao.getAllComponentsWithDataBypass();
     final setups = await database.setupsDao.getAllSetupsWithValuesBypass();
     final persons = await database.personsDao.getAllPersonsWithDataBypass();
-    final ratings = await database.ratingsDao.getAllRatingsWithDataBypass();
-    final ratingEntries = await database.ratingEntriesDao.getAllRatingEntriesWithValuesBypass();
 
     final taskRules = await database.taskDao.getAllRulesBypass();
     final taskEntries = await database.taskDao.getAllEntriesBypass();
+
+    final feedbacks = await database.feedbackDao.getAllFeedbacksWithChildrenBypass();
+    final testSessions = await database.feedbackDao.getAllTestSessionsBypass();
+    final adjustmentTypes = {
+      for (final adjustment in [...components.expand((c) => c.adjustments), ...persons.expand((p) => p.adjustments)])
+        adjustment.id: adjustment.type,
+    };
 
     final athletes = includeStrava ? await database.stravaDao.getAllAthletesBypass() : <StravaAthleteDb>[];
     final gears = includeStrava ? await database.stravaDao.getAllGearsBypass() : <StravaGearDb>[];
@@ -48,18 +53,6 @@ class DataExportService {
                 installations: c.installations.map((i) => i.toModel()).toList(),
               ).toJson())
           .toList(),
-      'ratings': ratings
-          .where((r) => subset == null || subset.ratings.containsKey(r.rating.id))
-          .map((r) => r.rating.toModel(
-                metrics: r.metrics.map((m) => m.toModel()).toList(),
-              ).toJson())
-          .toList(),
-      'ratingEntries': ratingEntries
-          .where((re) => subset == null || subset.ratingEntries.containsKey(re.entry.id))
-          .map((re) => re.entry.toModel(
-                values: re.values,
-              ).toJson())
-          .toList(),
       'taskRules': taskRules
           .where((tr) => subset == null || subset.taskRules.containsKey(tr.id))
           .map((tr) => tr.toModel().toJson())
@@ -67,6 +60,14 @@ class DataExportService {
       'taskEntries': taskEntries
           .where((te) => subset == null || subset.taskEntries.containsKey(te.id))
           .map((te) => te.toModel().toJson())
+          .toList(),
+      'feedbacks': feedbacks
+          .where((f) => subset == null || subset.feedbacks.containsKey(f.feedback.id))
+          .map((f) => f.toModel().toJson())
+          .toList(),
+      'testSessions': testSessions
+          .where((ts) => subset == null || subset.testSessions.containsKey(ts.id))
+          .map((ts) => ts.toModel(adjustmentTypes: adjustmentTypes).toJson())
           .toList(),
       if (includeStrava) ...{
         'stravaAthletes': athletes.map((a) => a.toModel().toJson()).toList(),

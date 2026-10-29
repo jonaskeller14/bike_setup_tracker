@@ -6,9 +6,12 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
 import '../../widgets/set_adjustment/set_step_adjustment_dial.dart';
+import '../../widgets/sheets/dial_style_sheet.dart';
 import 'adjustment_page.dart';
 
 const int _defaultStep = 1;
@@ -22,19 +25,21 @@ class StepAdjustmentPage extends StatefulWidget {
   final StepAdjustment? adjustment;
   final AdjustmentPageMode mode;
   final AdjustmentTerm term;
+  final ValueMigrationContext? migrationContext;
 
   const StepAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
     this.term = AdjustmentTerm.adjustment,
+    this.migrationContext,
   });
 
   factory StepAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
-      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term);
+  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment, ValueMigrationContext? migrationContext}) =>
+      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term, migrationContext: migrationContext);
 
   factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
       StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
@@ -124,7 +129,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     super.dispose();
   }
 
-  void _saveStepAdjustment() {
+  Future<void> _saveStepAdjustment() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
       return;
@@ -135,9 +140,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     final step = int.parse(_stepController.text.trim());
     final min = int.parse(_minController.text.trim());
     final max = int.parse(_maxController.text.trim());
-    _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(context, StepAdjustment(
+    final adjustment = StepAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
@@ -149,7 +152,28 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       visualization: visualization,
       dialColor: dialColor,
       dialSize: dialSize,
-    ));
+    );
+
+    MigrationProposal? pending;
+    if (widget.mode == AdjustmentPageMode.edit) {
+      final confirmed = await confirmValueMigrations(
+        context,
+        migrationContext: widget.migrationContext,
+        before: widget.adjustment!,
+        after: adjustment,
+      );
+      if (confirmed == null) return; // cancelled — stay on the page
+      pending = confirmed.pending;
+    }
+
+    _formHasChanges = false;
+    if (!mounted) return;
+    Navigator.pop(
+      context,
+      widget.mode == AdjustmentPageMode.edit
+          ? AdjustmentEditResult<Adjustment>(adjustment, pending: pending)
+          : adjustment,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -227,56 +251,67 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     });
   }
 
-  /// Cycles the dial through every palette color; wrapping back to the first
-  /// color flips the size, so repeated taps walk all color/size combinations.
-  void _cycleDialStyle() {
-    unawaited(HapticFeedback.selectionClick());
-    final nextIndex = (dialColor.index + 1) % StepAdjustmentDialColor.values.length;
-    dialColor = StepAdjustmentDialColor.values[nextIndex];
-    if (nextIndex == 0) {
-      dialSize = dialSize == StepAdjustmentDialSize.normal
-          ? StepAdjustmentDialSize.small
-          : StepAdjustmentDialSize.normal;
-    }
-    _updatePreview();
-    _changeListener();
+  void _openDialStyleSheet() {
+    unawaited(dialStyleSheet(
+      context: context,
+      color: dialColor,
+      size: dialSize,
+      knobBuilder: _buildKnob,
+      onColorChanged: (value) {
+        dialColor = value;
+        _updatePreview();
+        _changeListener();
+      },
+      onSizeChanged: (value) {
+        dialSize = value;
+        _updatePreview();
+        _changeListener();
+      },
+    ));
   }
 
-  Widget _buildDialStyleButton(BuildContext context) {
+  Widget _buildKnob(BuildContext context, StepAdjustmentDialColor color, StepAdjustmentDialSize size, {Key? key}) {
     final divisions = ((_previewAdjustment.max - _previewAdjustment.min) / _previewAdjustment.step).floor();
     final knobMax = (_previewAdjustment.min + divisions * _previewAdjustment.step).toDouble();
     final showStepTicks = divisions <= SetStepAdjustmentWidget.maxRenderedTicks;
-    final color = resolveDialColor(context, dialColor);
+    final resolvedColor = resolveDialColor(context, color);
 
+    return RotaryKnob(
+      key: key,
+      value: _previewValue.value.toDouble().clamp(_previewAdjustment.min.toDouble(), knobMax),
+      initialValue: null,
+      min: _previewAdjustment.min.toDouble(),
+      max: knobMax,
+      numberOfTicks: showStepTicks ? divisions + 1 : SetStepAdjustmentWidget.maxRenderedTicks + 1,
+      showAllTicks: showStepTicks,
+      clockwise: visualization.isClockwiseDial,
+      primaryColor: resolvedColor,
+      onPrimaryColor: resolveDialOnColor(context, resolvedColor),
+      tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+      small: size == StepAdjustmentDialSize.small,
+    );
+  }
+
+  Widget _buildDialStyleButton(BuildContext context) {
     return Tooltip(
-      message: 'Tap to change dial color and size',
+      message: 'Change dial color and size',
       child: InkWell(
-        onTap: _cycleDialStyle,
+        onTap: _openDialStyleSheet,
         borderRadius: BorderRadius.circular(4),
         // The decorator lays out against its incoming width, which is unbounded
         // inside the Row, so the knob's own width has to be handed to it.
         child: SizedBox(
           width: _dialFieldWidth,
           child: InputDecorator(
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Dial',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+              filled: widget.mode == AdjustmentPageMode.edit &&
+                  (dialColor != widget.adjustment?.dialColor || dialSize != widget.adjustment?.dialSize),
             ),
-            child: RotaryKnob(
-              key: const ValueKey('DialStyle'),
-              value: _previewValue.value.toDouble().clamp(_previewAdjustment.min.toDouble(), knobMax),
-              initialValue: null,
-              min: _previewAdjustment.min.toDouble(),
-              max: knobMax,
-              numberOfTicks: showStepTicks ? divisions + 1 : SetStepAdjustmentWidget.maxRenderedTicks + 1,
-              showAllTicks: showStepTicks,
-              clockwise: visualization.isClockwiseDial,
-              primaryColor: color,
-              onPrimaryColor: resolveDialOnColor(context, color),
-              tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-              small: dialSize == StepAdjustmentDialSize.small,
-            ),
+            child: _buildKnob(context, dialColor, dialSize, key: const ValueKey('DialStyle')),
           ),
         ),
       ),

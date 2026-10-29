@@ -3,10 +3,10 @@
   Creates the two dedicated screenshot AVDs (one-time setup).
 
 .DESCRIPTION
-  screenshots_phone  : 1080x2400 @ 420 dpi -> assets/store/play-store/phone
-  screenshots_tablet : 1200x1920 @ 240 dpi -> assets/store/play-store/tablet_10-inch
+  screenshots_phone  : 1080x2400 @ 420 dpi -> docs/store/play-store/phone
+  screenshots_tablet : 1200x1920 @ 240 dpi -> docs/store/play-store/tablet_10-inch
 
-  The resolutions must match the raw PNGs that assets/store/screenshots.af
+  The resolutions must match the raw PNGs that docs/store/screenshots.af
   links; check_output.py fails loudly if they drift.
 
 .PARAMETER Force

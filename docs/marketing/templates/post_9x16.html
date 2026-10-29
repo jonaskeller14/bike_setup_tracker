@@ -1,0 +1,113 @@
+<!doctype html>
+<!--
+  Post, 9:16, 1080×1920: TikTok photo mode and Instagram stories. The same kinds and parameters as
+  post_4x5.html, laid out inside the Short's safe area (brand.md): the brand row on top is
+  decoration a top bar may cover, text stays above the caption block and, from y 760, left of the
+  action buttons. The phone may run under both. The last slide is endcard.html at this size.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Post 9:16</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="marketing.css">
+<style>
+  html, body { width: 1080px; height: 1920px; }
+  .abs { position: absolute; }
+
+  .top-brand { left: 60px; top: 120px; --mark: 72px; }
+  .label { left: 60px; top: 244px; font-size: 28px; }
+  .note { right: 60px; top: 244px; font-size: 28px; }
+  .footer .meta { left: 60px; top: 1270px; width: 860px; font-size: 28px; }
+
+  /* cover */
+  .cover-copy { left: 60px; top: 250px; width: 960px; height: 520px; display: flex; flex-direction: column; gap: .4em; font-size: 120px; }
+  .cover-copy .sub { font-size: .35em; }
+  .phone.cover { left: 300px; top: 820px; --pw: 480; }
+
+  /* screen */
+  .screen-title { left: 60px; top: 330px; width: 960px; height: 400px; font-size: 112px; }
+  .phone.screen { left: 230px; top: 760px; --pw: 620; }
+
+  /* changed */
+  .setup { left: 60px; top: 330px; width: 960px; font-size: 44px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field { left: 60px; top: 432px; font-size: 30px; }
+  .big { left: 52px; top: 480px; font-size: 270px; }
+  .pairs { left: 60px; width: 860px; top: 900px; display: flex; justify-content: space-between; }
+  .pairs .meta { font-size: 30px; margin-bottom: 14px; }
+  .pairs .num { font-size: 150px; }
+
+  /* tip */
+  .tip-title { left: 60px; top: 330px; width: 860px; height: 560px; font-size: 120px; }
+  .tip-body { left: 60px; top: 960px; width: 860px; height: 270px; font-size: 40px; }
+
+  /* release */
+  .version { left: 52px; top: 320px; font-size: 300px; }
+  .items { left: 60px; width: 860px; top: 620px; }
+  .items div { border-top: 2px solid var(--ink); padding: 24px 0; font-size: 44px; font-weight: 700; letter-spacing: -.01em; line-height: 1.15; }
+</style>
+</head>
+<body data-size="1080x1920" data-kind="screen">
+  <!-- The platforms' top bar may cover the brand row. -->
+  <div class="brand top-brand" data-decor>
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
+  </div>
+  <div class="rule" style="left:60px; right:60px; top:218px"></div>
+
+  <!-- cover -->
+  <div class="abs cover-copy" data-kind="cover" data-fit="72">
+    <h1 class="hl" data-param="title"></h1>
+    <p class="body muted sub" data-param="sub"></p>
+  </div>
+  <div class="phone cover" data-kind="cover" data-shot="0"></div>
+
+  <!-- header of every kind but cover -->
+  <div class="abs meta label" data-kind="screen changed tip release" data-param="label" data-default-changed="Setup history" data-default-tip="Tip" data-default-release="What&#39;s new"></div>
+  <div class="abs meta muted note" data-kind="screen changed tip release" data-param="note"></div>
+  <div class="rule" data-kind="screen changed tip release" style="left:60px; right:60px; top:300px; --rule:2px"></div>
+
+  <!-- screen -->
+  <h1 class="abs hl screen-title" data-kind="screen" data-param="title" data-fit="72"></h1>
+  <div class="phone screen" data-kind="screen" data-shot="0" data-callout></div>
+
+  <!-- changed -->
+  <div class="abs setup" data-kind="changed" data-param="title"></div>
+  <div class="abs meta muted field" data-kind="changed" data-param="field"></div>
+  <div class="abs num big" data-kind="changed"><span data-param="from"></span>→<span class="new" data-param="to"></span></div>
+  <div class="rule" data-kind="changed" data-if="field2 field3" style="left:60px; width:860px; top:860px; --rule:2px"></div>
+  <div class="abs pairs" data-kind="changed">
+    <div data-if="field2">
+      <div class="meta muted" data-param="field2"></div>
+      <div class="num"><span data-param="from2"></span>→<span class="new" data-param="to2"></span></div>
+    </div>
+    <div data-if="field3">
+      <div class="meta muted" data-param="field3"></div>
+      <div class="num"><span data-param="from3"></span>→<span class="new" data-param="to3"></span></div>
+    </div>
+  </div>
+
+  <!-- tip -->
+  <h1 class="abs hl tip-title" data-kind="tip" data-param="title" data-fit="96"></h1>
+  <div class="rule" data-kind="tip" style="left:60px; width:860px; top:920px; --rule:2px"></div>
+  <p class="abs body tip-body" data-kind="tip" data-param="body" data-fit="36"></p>
+
+  <!-- release -->
+  <div class="abs num version" data-kind="release" data-param="version"></div>
+  <div class="abs items" data-kind="release">
+    <div data-param="item1"></div>
+    <div data-param="item2"></div>
+    <div data-param="item3"></div>
+    <div data-param="item4"></div>
+  </div>
+
+  <!-- footer of the text kinds: the brand row is on top, so only the footer text -->
+  <div class="footer" data-kind="changed tip release">
+    <div class="rule" style="left:60px; width:860px; top:1250px; --rule:2px"></div>
+    <div class="abs meta muted" data-param="footer"></div>
+  </div>
+<script src="template.js"></script>
+</body>
+</html>

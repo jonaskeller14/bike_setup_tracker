@@ -422,9 +422,9 @@ None for the catalog dampers (GRIP SL/GRIP have only the lever; GRIP X 5/5 print
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `fork/fox/36-sl/factory` | `damper: grip_x` | travel 130/140 |
-| `fork/fox/36-sl/performance-elite` | `damper: grip_x` | travel 140 |
-| `fork/fox/36-sl/performance` | `damper: grip` | travel 140 |
+| `fork/fox/36-sl/2027/factory`, `/2026/factory` | `damper: grip_x` | travel 130/140 |
+| `fork/fox/36-sl/2027/performance-elite`, `/2026/performance-elite` | `damper: grip_x` | travel 140 |
+| `fork/fox/36-sl/2027/performance`, `/2026/performance` | `damper: grip` | travel 140 |
 
 Gaps: the rebound table also has GRIP SL and GRIP X2 columns (no catalog 36 SL trim uses them); 120 mm rows have no catalog travel.
 
@@ -513,9 +513,9 @@ direction. **Conflict:** GRIP column 11-13 exceeds `grip` max 10 (rows 120-150 l
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `fork/fox/36/2025/factory` | `damper: grip_x2` / `damper: grip_x` | FLOAT pressure; travel 150/160 |
-| `fork/fox/36/2025/performance-elite` | `damper: grip_x` | FLOAT pressure; travel 160 |
-| `fork/fox/36/2025/performance` | `damper: grip` | FLOAT pressure; travel 160 |
+| `fork/fox/36/2025/factory`, `/2027/factory` | `damper: grip_x2` / `damper: grip_x` | FLOAT pressure; travel 150/160; GRIP X base tune 10 (2025-2026, `fox_36_2026`) / 5 (2027) |
+| `fork/fox/36/2025/performance-elite`, `/2027/performance-elite` | `damper: grip_x` | FLOAT pressure; travel 160 |
+| `fork/fox/36/2025/performance`, `/2027/performance` | `damper: grip` | FLOAT pressure; travel 160 |
 | `fork/fox/36/2025/rhythm` | `damper: grip` | pressure + spacers from `fox_36_38_2025`; rebound GRIP column here |
 
 Gaps: "36 FLOAT E-Bike+" pressure column and spacer table have no catalog option (Q3: not encoded).
@@ -795,7 +795,7 @@ Source direction: from closed. Catalog `grip` rebound max 10, `grip_x2` `lsr` 16
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| — | — | Not mapped yet. FLOAT pressures are 18-19 psi lower than 2026 and spacers switch to 10 cc + 5 cc parts, which points to a revised air spring. A `2027` generation node (or a decision that it replaces 2025-2026) is needed first. |
+| `fork/fox/38/2027/factory`, `/performance-elite`, `/rhythm` | `damper: grip_x2` (Rhythm: `grip`) | FLOAT pressures are 18-19 psi lower than 2026 and spacers switch to 10 cc + 5 cc parts, which points to a revised air spring, hence its own `2027` generation. |
 
 Differences vs `fox_38_2026`: FLOAT and FLOAT E-Bike+ merged into one "FLOAT/E-Bike+" column with new values;
 RHYTHM and RHYTHM E-Bike+ unchanged; rebound table unchanged; GRIP X base tune 5/5 (was 10/10); GRIP X2
@@ -1206,9 +1206,9 @@ AWL / AWL Sport max 140 psi; AWL HD / HD Sport max 120 psi; catalog 140 / 120 �
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `fork/fox/36/2018/factory` | `damper: grip2_2018` / `damper: fit4_2018` | travel 140-180 |
-| `fork/fox/36/2018/performance-elite` | `damper: grip2_2018` / `damper: fit4_2018` | travel 140-180 |
-| `fork/fox/36/2018/performance` | `damper: grip_2018` | travel 140-180 |
+| `fork/fox/36/2019/factory` | `damper: grip2_2019` / `damper: fit4_2019` | travel 140-180 |
+| `fork/fox/36/2019/performance-elite` | `damper: grip2_2019` / `damper: fit4_2019` | travel 140-180 |
+| `fork/fox/36/2019/performance` | `damper: grip_2019` | travel 140-180 |
 
 Gaps: E-Bike+ pressure/spacer tables and the 831 spacer row (100 mm) have no catalog option; the
 Performance Elite LSC adjuster section gives no starting value.
@@ -1254,11 +1254,11 @@ points; "75" at 160-170 lb and "76" at 170-180 lb are as printed):
 
 ### Rebound — 36mm (keyed on air pressure)
 
-Input: FLOAT/Rhythm air pressure (literal points) · Source direction: from closed. Catalog `fit4_2018`
-`rebound` max 8, `grip_2018` `rebound` max 13, `grip2_2018` `lsr` max 9 / `hsr` max 8, all `dial_ccw`
+Input: FLOAT/Rhythm air pressure (literal points) · Source direction: from closed. Catalog `fit4_2019`
+`rebound` max 8, `grip_2019` `rebound` max 13, `grip2_2019` `lsr` max 9 / `hsr` max 8, all `dial_ccw`
 (maxima are estimates taken from this very table) → same direction, encode as published.
 
-| Pressure (psi) | FIT4 (`fit4_2018`) | GRIP (`grip_2018`) | GRIP2 `lsr` | GRIP2 `hsr` |
+| Pressure (psi) | FIT4 (`fit4_2019`) | GRIP (`grip_2019`) | GRIP2 `lsr` | GRIP2 `hsr` |
 |---|---|---|---|---|
 | 55 | 8 | 13 | 9 | 8 |
 | 59 | 8 | 12 | 8 | 7 |
@@ -1278,11 +1278,11 @@ Input: FLOAT/Rhythm air pressure (literal points) · Source direction: from clos
 
 | Target | Value | Direction | `when:` |
 |---|---|---|---|
-| `compression_mode` | Open | categorical | `damper: fit4_2018` |
-| `open_mode_adjust` | 18 | from closed; `fit4_2018` `open_mode_adjust` max 22, `dial_ccw` → same | `damper: fit4_2018` |
-| `hsc` | 10 | from closed; `grip2_2018` `hsc` max 16 → same | `damper: grip2_2018` |
-| `lsc` | 6 | from closed; `grip2_2018` `lsc` max 12 → same | `damper: grip2_2018` |
-| `compression_mode` | Open | categorical | `damper: grip_2018` |
+| `compression_mode` | Open | categorical | `damper: fit4_2019` |
+| `open_mode_adjust` | 18 | from closed; `fit4_2019` `open_mode_adjust` max 22, `dial_ccw` → same | `damper: fit4_2019` |
+| `hsc` | 10 | from closed; `grip2_2019` `hsc` max 16 → same | `damper: grip2_2019` |
+| `lsc` | 6 | from closed; `grip2_2019` `lsc` max 12 → same | `damper: grip2_2019` |
+| `compression_mode` | Open | categorical | `damper: grip_2019` |
 
 ### SAG
 
@@ -1349,12 +1349,12 @@ Input: FLOAT/Rhythm air pressure (literal points) · Source direction: from clos
 |---|---|---|
 | `fork/fox/36/2021/factory` | `damper: grip2_vvc_2021` / `damper: fit4_2021` | 36 FLOAT pressure |
 | `fork/fox/36/2021/performance-elite` | `damper: grip2_vvc_2021` / `damper: fit4_2021` | 36 FLOAT pressure |
-| `fork/fox/36/2021/performance` | `damper: grip_2018` | 36 FLOAT pressure |
-| `fork/fox/36/2021/rhythm` | `damper: grip_2018` | 36 Rhythm pressure |
+| `fork/fox/36/2021/performance` | `damper: grip_2019` | 36 FLOAT pressure |
+| `fork/fox/36/2021/rhythm` | `damper: grip_2019` | 36 Rhythm pressure |
 | `fork/fox/38/2021/factory` | `damper: grip2_vvc_2021` | 38 FLOAT pressure |
 | `fork/fox/38/2021/performance-elite` | `damper: grip2_vvc_2021` | 38 FLOAT pressure |
-| `fork/fox/38/2021/performance` | `damper: grip_2018` | 38 FLOAT pressure |
-| `fork/fox/38/2021/rhythm` | `damper: grip_2018` | 38 RHYTHM pressure (2023+ manuals only) |
+| `fork/fox/38/2021/performance` | `damper: grip_2019` | 38 FLOAT pressure |
+| `fork/fox/38/2021/rhythm` | `damper: grip_2019` | 38 RHYTHM pressure (2023+ manuals only) |
 
 Gaps: E-Bike+ / E-Optimized columns have no catalog option.
 
@@ -1396,10 +1396,10 @@ Gaps: E-Bike+ / E-Optimized columns have no catalog option.
 
 ### Rebound — 36/38
 
-Source direction: from closed. Catalog `fit4_2021` `rebound` max 14, `grip_2018` `rebound` max 13,
+Source direction: from closed. Catalog `fit4_2021` `rebound` max 14, `grip_2019` `rebound` max 13,
 `grip2_vvc_2021` `lsr` max 9 / `hsr` max 8, all `dial_ccw` (estimates from this table) → same direction.
 
-| Rider weight (lb) | Rider weight (kg) | FIT4 (`fit4_2021`) | GRIP (`grip_2018`) | GRIP2 `lsr` | GRIP2 `hsr` |
+| Rider weight (lb) | Rider weight (kg) | FIT4 (`fit4_2021`) | GRIP (`grip_2019`) | GRIP2 `lsr` | GRIP2 `hsr` |
 |---|---|---|---|---|---|
 | 120-130 | 54-59 | 14 | 13 | 9 | 8 |
 | 130-140 | 59-64 | 13 | 12 | 8 | 7 |
@@ -1423,7 +1423,7 @@ Source direction: from closed. Catalog `fit4_2021` `rebound` max 14, `grip_2018`
 | `open_mode_adjust` | 18 | from closed; `fit4_2021` max 22 → same | `damper: fit4_2021` |
 | `hsc` | 5 | from closed; `grip2_vvc_2021` `hsc` max 8 → same | `damper: grip2_vvc_2021` |
 | `lsc` | 10 | from closed; `grip2_vvc_2021` `lsc` max 16 → same | `damper: grip2_vvc_2021` |
-| `compression_mode` | Open | categorical | `damper: grip_2018` |
+| `compression_mode` | Open | categorical | `damper: grip_2019` |
 
 ### SAG
 
@@ -1714,16 +1714,17 @@ FLOAT SL EVOL and FLOAT X 350 psi; FLOAT SL non-EVOL 300 psi; catalog 350 with t
 - Document: FOX owner's manual, model year 2027, English (HTML)
 - Section / page: "Setting Shock Air Pressure", "Recommended Damper Settings", "Using the 2-Pos Compression Lever"
 - Retrieved: 2026-10-11
-- The 2026 manual (3023, the catalog `setup_guide`) is identical. The 2025 FLOAT X2 manual (2984) still
-  prints the 2021-2024 table and 300 psi limit (see `fox_float_x2_2024`).
+- The 2026 manual (3023) is identical. The 2025 FLOAT X2 manual (2984) still prints the 2021-2024 table and
+  300 psi limit, so it belongs to the 2021-2025 generation (see `fox_float_x2_2025`), and `float-x2/2026`
+  starts with the 2026 manual.
 
 ### Catalog mapping
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `shock/fox/float-x2/2025/factory` | `damper: vvc2` | all four columns |
-| `shock/fox/float-x2/2025/performance-elite` | `damper: vvc2` | manual: HSR/HSC are Factory only |
-| `shock/fox/float-x2/2025/performance` | `damper: vvc2` | manual: HSR/HSC are Factory only |
+| `shock/fox/float-x2/2026/factory` | `damper: vvc2` | all four columns |
+| `shock/fox/float-x2/2026/performance-elite` | `damper: vvc2` | manual: HSR/HSC are Factory only |
+| `shock/fox/float-x2/2026/performance` | `damper: vvc2` | manual: HSR/HSC are Factory only |
 
 Gaps: the catalog gives Performance Elite and Performance the 4-way `vvc2`; the manual says only Factory has
 HSR/HSC. Encode `lsr`/`lsc` for all, `hsr`/`hsc` with `when: { trim: factory }` until the catalog splits the damper.
@@ -1790,11 +1791,12 @@ FLOAT X2 max 350 psi (24.1 bar); catalog 350 ✓.
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `shock/fox/float-x2/2016/factory` | `damper: x2_2016` | targets `lsr`, `hsr`, `lsc`, `hsc` |
-| `shock/fox/float-x2/2016/performance-elite` | `damper: x2_2016_ls` | LSR → `rebound`, LSC → `compression` (HSR/HSC Factory only) |
+| `shock/fox/float-x2/2019/factory` | `damper: x2_2019` | targets `lsr`, `hsr`, `lsc`, `hsc` |
+| `shock/fox/float-x2/2019/performance-elite` | `damper: x2_2019_ls` | LSR → `rebound`, LSC → `compression` (HSR/HSC Factory only) |
 
-Gaps: the catalog generation spans 2016-2020 without a year option, but the 2016-2017 table differs; the
-2019-2020 table is proposed as the encoded one (matches the catalog `setup_guide`), the others as notes.
+Gaps: the catalog generation is 2019-2020, the years this table covers. The 2016-2017 manuals print a
+different table and the 2018 manual lists volume spacers by stroke with a 250 psi limit, so those years are
+not in the catalog (see the shock file's Follow-ups).
 
 ### Air pressure
 
@@ -1802,8 +1804,8 @@ Formula (see above).
 
 ### Damper settings 2019-2020 (keyed on air pressure)
 
-Source direction: "Count clicks out from fully closed (0=Closed)". Catalog `x2_2016` `lsr` max 24, `hsr` max 23,
-`lsc` max 24, `hsc` max 23 (estimates, partly from this table); `x2_2016_ls` `rebound`/`compression` max 24;
+Source direction: "Count clicks out from fully closed (0=Closed)". Catalog `x2_2019` `lsr` max 24, `hsr` max 19,
+`lsc` max 22, `hsc` max 23 (estimates from this table); `x2_2019_ls` `rebound` max 24, `compression` max 22;
 all `dial_ccw` → same direction. Every cell is a range; "22-Open" runs to the open stop. HSC at 200 psi is
 printed "10-14" (2018 image: 12-14).
 
@@ -1887,7 +1889,7 @@ Maximum spacer pairs per size only (already in the catalog `notes`); no factory/
 - "Open" and "22-Open"/"23-Open" cells: range references `max`, `[22, max]`, `[23, max]` (R9). The catalog
   maxima are estimates, so they are resolved against the rider's `max`: a corrected max corrects them.
 
-## Guide `fox_float_x2_2024` — SHOCK- 2024 FLOAT X2
+## Guide `fox_float_x2_2025` — SHOCK- 2024 FLOAT X2
 
 ### Source
 
@@ -1895,7 +1897,8 @@ Maximum spacer pairs per size only (already in the catalog `notes`); no factory/
 - Document: FOX owner's manual, model year 2024, English (HTML)
 - Section / page: "Recommended Damper Settings", "Setting Shock Air Pressure"
 - Retrieved: 2026-10-11
-- The 2021 (1078), 2022 (1148), 2023 (2834) and 2025 (2984) FLOAT X2 manuals are identical.
+- The 2021 (1078), 2022 (1148), 2023 (2834), 2024 (2926) and 2025 (2984, the catalog `setup_guide`) FLOAT X2
+  manuals are identical; this is the guide of the 2021-2025 generation.
 
 ### Catalog mapping
 
@@ -1974,9 +1977,9 @@ Maximum spacer counts per size only (in the catalog `notes`); no recommendation.
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `shock/fox/dhx2/2025/factory` | `damper: vvc2` | all four columns |
-| `shock/fox/dhx2/2025/performance-elite` | `damper: vvc2` | manual: HSR and HSC are "Factory Series only" (LSC section is headed Factory and Performance Elite) |
-| `shock/fox/dhx2/2025/performance` | `damper: vvc2` | manual names no Performance adjusters; HSR/HSC Factory only |
+| `shock/fox/dhx2/2026/factory` | `damper: vvc2` | all four columns |
+| `shock/fox/dhx2/2026/performance-elite` | `damper: vvc2` | manual: HSR and HSC are "Factory Series only" (LSC section is headed Factory and Performance Elite) |
+| `shock/fox/dhx2/2026/performance` | `damper: vvc2` | manual names no Performance adjusters; HSR/HSC Factory only |
 
 ### Damper settings (keyed on coil spring rate)
 
@@ -2079,8 +2082,8 @@ No rebound or compression starting values (adjuster descriptions only).
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `shock/fox/dhx2/2016/factory` | `damper: x2_2016` | one value range for all four adjusters |
-| `shock/fox/dhx2/2016/performance-elite` | `damper: x2_2016` | manual: Performance Elite uses only LSC and LSR |
+| `shock/fox/dhx2/2019/factory` | `damper: x2_2019` | one value range for all four adjusters |
+| `shock/fox/dhx2/2019/performance-elite` | `damper: x2_2019` | manual: Performance Elite uses only LSC and LSR |
 
 ### Table selector (shock stroke × rear-wheel travel)
 
@@ -2095,7 +2098,7 @@ No rebound or compression starting values (adjuster descriptions only).
 
 ### Damper settings (keyed on spring rate; one range for HSC, LSC, HSR, LSR)
 
-Source direction: from closed (fully clockwise, then counter-clockwise). Catalog `x2_2016` max 23/24/23/24,
+Source direction: from closed (fully clockwise, then counter-clockwise). Catalog `x2_2019` max 23 (HSC) / 22 (LSC) / 19 (HSR) / 24 (LSR),
 `dial_ccw` → same direction. "20-Open" (Table A, 200) → `[20, max]`.
 
 | Spring rate | Table A | Table B | Table C |
@@ -2134,10 +2137,10 @@ Preload: snug, then one more full turn (2020 manual); no catalog preload adjuste
 ### Does not fit B3
 
 - Needs two bike inputs (shock stroke, rear-wheel travel) to pick A/B/C, plus `spring_rate`. The catalog has
-  no `size` option on `dhx2/2016` and no rear-wheel-travel input. No rule until bike-level inputs exist
+  no `size` option on `dhx2/2019` and no rear-wheel-travel input. No rule until bike-level inputs exist
   (#71); then the A/B/C table can be a `when:` on stroke and rear-wheel travel. A `note` at most until then.
 
-## Guide `fox_coil_2024` — SHOCK- 2024 All Coil Shocks (DHX2 and DHX models)
+## Guide `fox_coil_2025` — SHOCK- 2024 All Coil Shocks (DHX2 and DHX models)
 
 ### Source
 
@@ -2147,8 +2150,8 @@ Preload: snug, then one more full turn (2020 manual); no catalog preload adjuste
 - Document: FOX owner's manual, model year 2024, English (HTML)
 - Section / page: "Recommended Starting Damper Settings (DHX2)"
 - Retrieved: 2026-10-12
-- The 2021 (1080), 2022 (1146), 2023 (2832) and 2025 (2981) coil manuals use the same images. The catalog
-  `setup_guide` of `shock/fox/dhx2/2021` points at the 2021 FLOAT X2 manual (1078) instead (see Follow-ups).
+- The 2021 (1080), 2022 (1146), 2023 (2832) and 2025 (2981, the catalog `setup_guide`) coil manuals use the
+  same images; this is the guide of the 2021-2025 generation.
 
 ### Catalog mapping
 
@@ -2337,17 +2340,16 @@ R9 type changes:
 - **`rail` rebound max 9 vs AWL 10 / AWL HD 13**. The AWL HD table equals the GRIP table; the HD may have a
   different rebound cartridge.
 - **40 `grip_x2` HSR max 8 vs table 10** (identical LSR/HSR columns, possibly a copy error in the manual).
-- **38 2027**: decide whether the 2027 tables (lower FLOAT pressures, 10 cc/5 cc spacers) need a `2027`
-  generation node or replace `fork/fox/38/2025`.
+- **38 2027**: resolved, the 2027 tables (lower FLOAT pressures, 10 cc/5 cc spacers) have their own `2027`
+  generation next to `fork/fox/38/2025`.
 - **GRIP X base tune changed 10 → 5** (both HSC and LSC) in the 2027 34SL/36/36SL/38 manuals, while the 2027
-  32/34 manual keeps 10. Proposed: encode 5 for 36 SL and 36 (newest), keep 10 for the 34.
+  32/34 manual keeps 10. Resolved: the 36 and 36 SL have a `2027` generation (5) next to the 2025-2026 /
+  2026 one (10); the 34 SL has no GRIP X trim and the 34 keeps 10 in every year.
 - **DHX2 2025-2027 direction** is not restated in the 2026/2027 text; inferred from-closed. Confirm.
 - **FLOAT X2 2025 manual** (2984) prints the 2021-2024 table and a 300 psi limit, the 2026 manual a new table
-  and 350 psi. If 2025 shocks are the older damper, the catalog generation split (2021-2024 vs 2025-2026)
-  may be one year off.
+  and 350 psi. Resolved: the generations are 2021-2025 and 2026-2027 (the coil manuals split the same way).
 - **Trim vs damper mismatch**: manuals reserve HSR/HSC for Factory on FLOAT X2 (2025+) and LSC/LSR-only for
   Performance Elite on DHX2 (2016-2025), but the catalog gives those trims the 4-way damper.
-- **Catalog `setup_guide`** of `shock/fox/dhx2/2021` points at the 2021 FLOAT X2 manual (1078); the coil
-  manual is owners-manuals/1080 (or 2928 for 2024).
+- **Catalog `setup_guide`** of `shock/fox/dhx2/2021`: resolved, it points at the 2025 coil manual (2981).
 - E-Bike+ / E-Optimized columns exist for 36, 38, Podium and the 2018-2020 36; no catalog option.
 - 36 Rhythm max pressure is not printed in the 2026/2027 manuals (the 2025 manual: 120 psi for "36 FLOAT/Rhythm/E-bike+").

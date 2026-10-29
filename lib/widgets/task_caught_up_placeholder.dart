@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'empty_state_placeholder.dart';
 
@@ -69,7 +68,6 @@ class _TaskCaughtUpPlaceholderState extends State<TaskCaughtUpPlaceholder> with 
       _controller.value = 1;
       return;
     }
-    unawaited(HapticFeedback.mediumImpact());
     unawaited(_controller.forward());
   }
 

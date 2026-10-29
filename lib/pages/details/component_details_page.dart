@@ -10,6 +10,7 @@ import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
+import '../../models/feedback/test_session.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
@@ -57,18 +58,17 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   TableColumn? _selectedHistogramColumn;
   Set<String>? _selectedSetupIds;
 
-  Map<String, double?> _ratingScores = {};
-  Map<String, Map<String, double>> _metricScores = {};
-  // ratingMetricId → display name, for the per-metric rating columns.
-  Map<String, String> _ratingMetricNames = {};
+  // Confident setup ranks only, as on the setup tiles.
+  Map<String, int> _ranks = {};
 
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
-  // Rating scores ride along as numerical values so tables and charts treat them like any number.
   AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
-    RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
-    RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
+    SetupRankColumn() => switch (_ranks[setup.id]) {
+      final rank? => StepValue(rank),
+      null => null,
+    },
     SetupTableColumn() || BikeAdjustmentColumn() => null,
   };
 
@@ -79,13 +79,12 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   ) {
     return switch (column) {
       SetupTableColumn(column: final setupColumn) => setupColumn.label,
-      RatingScoreColumn() => "Rating Score",
-      RatingMetricColumn(:final metricId) => _ratingMetricNames[metricId] ?? metricId,
       ComponentAdjustmentColumn(:final adjustmentId) =>
         componentAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       BikeAdjustmentColumn(:final key) => key.adjustment.name,
+      SetupRankColumn() => "Rank",
     };
   }
 
@@ -96,6 +95,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required Iterable<Adjustment> componentAdjustments,
     required Iterable<Adjustment> personAdjustments,
     required Map<String, Bike> bikes,
+    required Map<String, TestSession> testSessions,
     required Map<String, int> setupActivityCounts,
   }) {
     final sortColumn = _sortColumn;
@@ -107,6 +107,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       componentAdjustments: componentAdjustments,
       personAdjustments: personAdjustments,
       bikes: bikes,
+      testSessions: testSessions,
       setupActivityCounts: setupActivityCounts,
     );
     if (comparator == null) return setups;
@@ -176,17 +177,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         .reversed
         .toList();
 
-    // Rating scores derived from RatingEntries that resolve to each setup:
-    // overall (0–10) and per-metric sub-scores (0–10).
-    _ratingScores = {for (final s in setupsUnsorted) s.id: appRepository.scoreForSetup(s.id)};
-    _metricScores = {for (final s in setupsUnsorted) s.id: appRepository.metricScoresForSetup(s.id)};
-
-    // Rating-metric columns: one per metric that actually has data here, named
-    // after the metric (values are the 0–10 sub-scores above).
-    final allRatingMetrics = appRepository.allRatingMetricsById;
-    final ratingMetricIds = <String>{for (final m in _metricScores.values) ...m.keys};
-    _ratingMetricNames = {
-      for (final id in ratingMetricIds) id: allRatingMetrics[id]?.adjustment.name ?? id,
+    _ranks = {
+      if (appSettings.enableRating)
+        for (final s in setupsUnsorted)
+          if (appRepository.rankFor(s.id) case final rank? when rank.isConfident) s.id: rank.rank,
     };
 
     // Built-in columns available under the current feature flags.
@@ -195,6 +189,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         SetupColumn.tags => appSettings.enableSetupTags,
         SetupColumn.bookmarked => appSettings.enableSetupBookmark,
         SetupColumn.activities => hasAnyActivity,
+        SetupColumn.testSession => appSettings.enableRating,
         _ => true,
       },
     );
@@ -209,10 +204,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       for (final adjustment in componentAdjustments) retained(ComponentAdjustmentColumn(adjustment.id, active: true)),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
-      if (appSettings.enableRating) ...[
-        for (final id in ratingMetricIds) retained(RatingMetricColumn(id, active: false)),
-        retained(RatingScoreColumn(active: false)),
-      ],
+      if (appSettings.enableRating) retained(SetupRankColumn(active: false)),
     };
 
     final orderedColumns = _columns.toList();
@@ -228,6 +220,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       componentAdjustments: componentAdjustments,
       personAdjustments: personAdjustments,
       bikes: bikes,
+      testSessions: appRepository.testSessions,
       setupActivityCounts: setupActivityCounts,
     );
 
@@ -436,6 +429,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   sortAscending: _sortAscending,
                   sortColumn: _sortColumn,
                   bikes: bikes,
+                  testSessions: appRepository.testSessions,
                   setupHistory: appRepository.setupHistory,
                   setupActivityCounts: setupActivityCounts,
                   valueFor: _rawValue,
@@ -541,13 +535,17 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               ),
 
               const Divider(height: 1),
-              const SectionTitle(
-                title: "Radial Chart",
-                infoText:
-                    "• Shows the setups selected in the table above.\n"
-                    "• Axes are normalized across all data for stable comparison.\n"
-                    "• Tap a legend entry to highlight a specific graph.\n"
-                    "• Long-press a legend entry to remove it from the selection.",
+              Semantics(
+                container: true,
+                identifier: AutomationIds.componentDetailsRadialChart,
+                child: const SectionTitle(
+                  title: "Radial Chart",
+                  infoText:
+                      "• Shows the setups selected in the table above.\n"
+                      "• Axes are normalized across all data for stable comparison.\n"
+                      "• Tap a legend entry to highlight a specific graph.\n"
+                      "• Long-press a legend entry to remove it from the selection.",
+                ),
               ),
               SetupRadialChart(
                 activeColumns: activeColumns,
@@ -571,14 +569,18 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
 
               if (appSettings.enableStrava) ...[
                 const Divider(height: 1),
-                const SectionTitle(
-                  title: "Activity Histogram",
-                  infoText:
-                      "• Shows how many Strava activities were ridden with each adjustment value.\n"
-                      "• Counts all setups in the table above, not just the selected ones.\n"
-                      "• Numerical values are grouped into ranges when there are many distinct values.\n"
-                      "• Tap a legend entry to show a different adjustment.\n"
-                      "• Long-press a legend entry to remove its column.",
+                Semantics(
+                  container: true,
+                  identifier: AutomationIds.componentDetailsHistogram,
+                  child: const SectionTitle(
+                    title: "Activity Histogram",
+                    infoText:
+                        "• Shows how many Strava activities were ridden with each adjustment value.\n"
+                        "• Counts all setups in the table above, not just the selected ones.\n"
+                        "• Numerical values are grouped into ranges when there are many distinct values.\n"
+                        "• Tap a legend entry to show a different adjustment.\n"
+                        "• Long-press a legend entry to remove its column.",
+                  ),
                 ),
                 if (!subscriptionService.hasStravaEntitlement)
                   EmptyStatePlaceholder(

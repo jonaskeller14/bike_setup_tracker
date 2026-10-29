@@ -5,13 +5,15 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_comparison.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating/rating.dart';
-import 'package:bike_setup_tracker/models/rating/rating_association.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
-import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
@@ -409,10 +411,9 @@ void main() {
     });
   });
 
-  group("AppRepository - Ratings", () {
+  group("AppRepository - recordedValues", () {
     late AppDatabase database;
     late AppRepository repository;
-    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: const []);
 
     setUp(() async {
       database = AppDatabase.memory();
@@ -424,59 +425,89 @@ void main() {
       await database.close();
     });
 
-    test("addRating", () async {
-      await repository.addRatings([rating1]);
+    Setup buildSetup(
+      String bikeId, {
+      String? name = "Setup",
+      DateTime? day,
+      Map<String, AdjustmentValue>? bikeValues,
+      Map<String, AdjustmentValue>? personValues,
+    }) => Setup(
+      name: name,
+      tags: const {},
+      datetime: (day ?? DateTime(2020)).toUtc(),
+      datetimeLocal: day ?? DateTime(2020),
+      bike: bikeId,
+      person: null,
+      bikeAdjustmentValues: bikeValues ?? {},
+      personAdjustmentValues: personValues ?? {},
+    );
+
+    Component buildFork(Bike bike, Adjustment adjustment) => Component(
+      name: "Fork",
+      componentType: ComponentType.fork,
+      adjustments: [adjustment],
+      installations: [Installation.sinceBeginning(parent: bike.id)],
+    );
+
+    test("returns component adjustment values of live and deleted setups, newest first", () async {
+      final bike = Bike(name: "B", person: null);
+      final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: null);
+      final old = buildSetup(bike.id, name: "Old", day: DateTime(2020, 1, 1), bikeValues: {adj.id: const NumericalValue(1)});
+      final recent = buildSetup(bike.id, name: "Recent", day: DateTime(2022, 1, 1), bikeValues: {adj.id: const NumericalValue(3)});
+      final gone = buildSetup(bike.id, name: "Gone", day: DateTime(2021, 1, 1), bikeValues: {adj.id: const NumericalValue(2)});
+      await repository.addBikes([bike]);
+      await repository.addComponents([buildFork(bike, adj)]);
+      await repository.addSetups([old, recent, gone]);
       await pumpEventQueue();
-      
-      expect(repository.ratings.containsKey(rating1.id), true);
+      await repository.removeSetups([gone]);
+      await pumpEventQueue();
+
+      final recorded = await repository.recordedValues(adj.id);
+
+      expect(recorded.map((r) => r.label), ["Recent", "Gone", "Old"]);
+      expect(recorded.map((r) => r.isDeleted), [false, true, false]);
+      expect(recorded.map((r) => r.value), const [NumericalValue(3), NumericalValue(2), NumericalValue(1)]);
+      expect(recorded.map((r) => r.recordId), [recent.id, gone.id, old.id]);
     });
 
-    test("restoreRating preserves adjustments", () async {
-      final adjustment = NumericalAdjustment(
-        name: "Difficulty",
-        notes: "",
-        unit: null,
-      );
-      final ratingWithAdj = rating1.copyWith(id: rating1.id, metrics: [RatingMetric(adjustment: adjustment)]);
-
-      await repository.addRatings([ratingWithAdj]);
+    test("returns person attribute values", () async {
+      final bike = Bike(name: "B", person: null);
+      final attribute = NumericalAdjustment(name: "Weight", notes: null, unit: null);
+      final person = Person(name: "P", adjustments: [attribute]);
+      final setup = buildSetup(bike.id, personValues: {attribute.id: const NumericalValue(70)});
+      await repository.addBikes([bike]);
+      await repository.addPersons([person]);
+      await repository.addSetups([setup]);
       await pumpEventQueue();
 
-      expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
+      final recorded = await repository.recordedValues(attribute.id);
 
-      // Remove
-      await repository.removeRatings([ratingWithAdj]);
-      await pumpEventQueue();
-
-      expect(repository.ratings.containsKey(ratingWithAdj.id), false);
-      final deletedRating = repository.deletedRatings.firstWhere((r) => r.id == ratingWithAdj.id);
-      expect(deletedRating.metrics.isEmpty, true);
-
-      // Restore
-      await repository.restoreRatings([deletedRating]);
-      await pumpEventQueue();
-
-      expect(repository.ratings.containsKey(ratingWithAdj.id), true);
-      expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
+      expect(recorded.map((r) => r.recordId), [setup.id]);
+      expect(recorded.single.value, const NumericalValue(70));
     });
 
-    test("a metric value that does not match its type asserts on add and edit", () async {
-      final metric = RatingMetric(adjustment: BooleanAdjustment(name: "Fun", notes: null, unit: null));
-      await repository.addRatings([rating1.copyWith(id: rating1.id, metrics: [metric])]);
+    test("falls back to the placeholder name for unnamed records", () async {
+      final bike = Bike(name: "B", person: null);
+      final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: null);
+      final live = buildSetup(bike.id, name: null, day: DateTime(2021), bikeValues: {adj.id: const NumericalValue(1)});
+      final gone = buildSetup(bike.id, name: null, day: DateTime(2020), bikeValues: {adj.id: const NumericalValue(2)});
+      await repository.addBikes([bike]);
+      await repository.addComponents([buildFork(bike, adj)]);
+      await repository.addSetups([live, gone]);
+      await pumpEventQueue();
+      await repository.removeSetups([gone]);
       await pumpEventQueue();
 
-      final entry = RatingEntry(
-        bike: 'bike',
-        setupId: 'setup',
-        dateTimeUTC: DateTime.utc(2024),
-        dateTimeLocal: DateTime(2024),
-        metricValues: {metric.id: TextValue.orNull('yes')!},
-      );
+      final recorded = await repository.recordedValues(adj.id);
 
-      await expectLater(repository.addRatingEntries([entry]), throwsA(isA<AssertionError>()));
-      await expectLater(repository.editRatingEntry(entry), throwsA(isA<AssertionError>()));
+      expect(recorded.map((r) => r.label), [Setup.namePlaceholder, Setup.namePlaceholder]);
+    });
+
+    test("an unknown id returns an empty list", () async {
+      expect(await repository.recordedValues("unknown"), isEmpty);
     });
   });
+
   group("AppRepository - Unit Conversions", () {
     late AppDatabase database;
     late AppRepository repository;
@@ -534,7 +565,7 @@ void main() {
       final convertedComponent = component.copyWith(adjustments: [adj.copyWith(unit: bar)]);
       await repository.editComponents(
         [convertedComponent],
-        conversions: [ValueUnitConversion(adjustmentId: adj.id, from: psi, to: bar)],
+        migrations: [ValueMigration(adj.id, const [ConvertUnitStep(psi, bar)])],
       );
       await pumpEventQueue();
 
@@ -543,7 +574,7 @@ void main() {
       expect(repository.setups[setup.id]!.lastModified.isAfter(before), isTrue);
     });
 
-    test("editComponents without conversions leaves setup values and lastModified untouched", () async {
+    test("editComponents without migrations leaves setup values and lastModified untouched", () async {
       final bike = Bike(name: "B", person: null);
       final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi);
       final component = Component(
@@ -561,7 +592,7 @@ void main() {
 
       final before = repository.setups[setup.id]!.lastModified;
 
-      // "Keep numbers": unit changes but no conversion staged.
+      // "Keep numbers": unit changes but no migration staged.
       await repository.editComponents([component.copyWith(adjustments: [adj.copyWith(unit: bar)])]);
       await pumpEventQueue();
 
@@ -582,79 +613,12 @@ void main() {
 
       await repository.editPerson(
         person.copyWith(adjustments: [padj.copyWith(unit: lb)]),
-        conversions: [ValueUnitConversion(adjustmentId: padj.id, from: kg, to: lb)],
+        migrations: [ValueMigration(padj.id, const [ConvertUnitStep(kg, lb)])],
       );
       await pumpEventQueue();
 
       final value = repository.setups[setup.id]!.personAdjustmentValues[padj.id]! as NumericalValue;
       expect(value.value, closeTo(convertUnit(70.0, kg, lb), 1e-9));
-    });
-
-    test("editRating with Convert rewrites rating-entry values and bumps lastModified", () async {
-      final metricAdj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi, min: 0, max: 300);
-      final rating = Rating(
-        name: "R",
-        association: const GlobalRatingAssociation(),
-        metrics: [RatingMetric(adjustment: metricAdj)],
-      );
-      final entry = RatingEntry(
-        bike: "b",
-        setupId: "s",
-        dateTimeUTC: DateTime(2020).toUtc(),
-        dateTimeLocal: DateTime(2020),
-        metricValues: {metricAdj.id: const NumericalValue(65.0)},
-      );
-
-      await repository.addRatings([rating]);
-      await repository.addRatingEntries([entry]);
-      await pumpEventQueue();
-
-      // Age the entry so the lastModified bump is unambiguous despite
-      // second-resolution timestamps (add + edit fall in the same second).
-      await (database.update(database.ratingEntries)..where((t) => t.id.equals(entry.id)))
-          .write(RatingEntriesCompanion(lastModified: Value(DateTime(2000).toUtc())));
-      await pumpEventQueue();
-      final before = repository.ratingEntries[entry.id]!.lastModified;
-
-      final convertedRating = rating.copyWith(metrics: [
-        RatingMetric(adjustment: metricAdj.copyWith(unit: bar)),
-      ]);
-      await repository.editRating(
-        convertedRating,
-        conversions: [ValueUnitConversion(adjustmentId: metricAdj.id, from: psi, to: bar)],
-      );
-      await pumpEventQueue();
-
-      final value = repository.ratingEntries[entry.id]!.metricValues[metricAdj.id]! as NumericalValue;
-      expect(value.value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
-      expect(repository.ratingEntries[entry.id]!.lastModified.isAfter(before), isTrue);
-    });
-
-    test("convertAdjustmentValues converts numeric rows and leaves unparseable rows untouched", () async {
-      const adjId = 'adj-x';
-      await database.into(database.setupAdjustmentValues).insert(
-        SetupAdjustmentValuesCompanion.insert(setupId: 's1', adjustmentId: adjId, value: const NumericalValue(10.0).encode()));
-      await database.into(database.setupAdjustmentValues).insert(
-        SetupAdjustmentValuesCompanion.insert(setupId: 's2', adjustmentId: adjId, value: '"n/a"'));
-
-      await database.setupsDao.convertAdjustmentValues(adjId, (v) => NumericalValue(v.value * 2));
-
-      final rows = await database.select(database.setupAdjustmentValues).get();
-      final byId = {for (final r in rows) r.setupId: r.value};
-      expect(byId['s1'], const NumericalValue(20.0).encode());
-      expect(byId['s2'], '"n/a"'); // unparseable — left untouched
-    });
-
-    test("ValueUnitConversion composes to a single from->to and detects no-ops", () {
-      const kpa = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'kiloPascal');
-      const first = ValueUnitConversion(adjustmentId: 'a', from: psi, to: bar);
-      final composed = first.composeWith(const ValueUnitConversion(adjustmentId: 'a', from: bar, to: kpa));
-      expect(composed.from, psi);
-      expect(composed.to, kpa);
-      expect(composed.isNoOp, isFalse);
-
-      final roundTrip = first.composeWith(const ValueUnitConversion(adjustmentId: 'a', from: bar, to: psi));
-      expect(roundTrip.isNoOp, isTrue);
     });
   });
 
@@ -1314,14 +1278,6 @@ void main() {
       position: position,
     );
 
-    RatingEntry buildRatingEntry(String bikeId, String setupId, {ContextPosition? position}) => RatingEntry(
-      bike: bikeId,
-      setupId: setupId,
-      dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
-      dateTimeLocal: DateTime(2025, 6, 1).toLocal(),
-      position: position,
-    );
-
     StravaActivity buildActivity(int id, {double? lat, double? lon}) => StravaActivity(
       id: id,
       name: "Ride $id",
@@ -1381,29 +1337,30 @@ void main() {
       expect(repository.hasSetupsWithPosition, false);
     });
 
-    test("hasRatingEntriesWithPosition reflects positioned entries", () async {
-      final setup = buildSetup(bike1.id);
-      await repository.addBikes([bike1]);
-      await repository.addSetups([setup]);
-      await repository.addRatingEntries([buildRatingEntry(bike1.id, setup.id)]);
-      await pumpEventQueue();
-
-      expect(repository.hasRatingEntriesWithPosition, false);
-
-      final positioned = buildRatingEntry(
-        bike1.id,
-        setup.id,
-        position: const ContextPosition(latitude: 44.16, longitude: 8.34),
+    test("hasFeedbacksWithPosition needs a full position and drops a removed feedback", () async {
+      RideFeedback feedbackAt(ContextPosition position) => RideFeedback(
+        bike: bike1.id,
+        setupId: 'setup',
+        dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
+        dateTimeLocal: DateTime(2025, 6, 1),
+        position: position,
       );
-      await repository.addRatingEntries([positioned]);
+      final positioned = feedbackAt(const ContextPosition(latitude: 44.16, longitude: 8.34));
+      await repository.addBikes([bike1]);
+      await repository.addFeedbacks([feedbackAt(const ContextPosition(latitude: 44.16))]);
       await pumpEventQueue();
 
-      expect(repository.hasRatingEntriesWithPosition, true);
+      expect(repository.hasFeedbacksWithPosition, false);
 
-      await repository.removeRatingEntries([positioned]);
+      await repository.addFeedbacks([positioned]);
       await pumpEventQueue();
 
-      expect(repository.hasRatingEntriesWithPosition, false);
+      expect(repository.hasFeedbacksWithPosition, true);
+
+      await repository.removeFeedbacks([positioned]);
+      await pumpEventQueue();
+
+      expect(repository.hasFeedbacksWithPosition, false);
     });
 
     test("hasStravaActivitiesWithPosition ignores the selected bike", () async {
@@ -1436,6 +1393,433 @@ void main() {
       await pumpEventQueue();
 
       expect(await repository.hasStravaActivitiesWithPosition(), false);
+    });
+  });
+
+  group("AppRepository - Feedback", () {
+    late AppDatabase database;
+    late AppRepository repository;
+    final bike1 = Bike(name: "Bike #1", person: null);
+    final bike2 = Bike(name: "Bike #2", person: null);
+    const grade = EndAspect(FeedbackEnd.front, FeedbackAttribute.comfort);
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+      await repository.addBikes([bike1, bike2]);
+    });
+
+    tearDown(() async {
+      await repository.disposeAndAwaitCancellation();
+      await database.close();
+    });
+
+    Setup buildSetup(DateTime datetime, {Bike? bike, String? testSessionId}) => Setup(
+      name: "Setup",
+      tags: const {},
+      datetime: datetime.toUtc(),
+      datetimeLocal: datetime,
+      bike: (bike ?? bike1).id,
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      testSessionId: testSessionId,
+    );
+
+    RideFeedback buildFeedback(
+      DateTime at, {
+      required String setupId,
+      Bike? bike,
+      Set<FeedbackObservation>? observations,
+      Set<FeedbackComparison>? comparisons,
+    }) => RideFeedback(
+      bike: (bike ?? bike1).id,
+      setupId: setupId,
+      dateTimeUTC: at.toUtc(),
+      dateTimeLocal: at,
+      observations: observations,
+      comparisons: comparisons,
+    );
+
+    TestSession buildSession({
+      Bike? bike,
+      DateTime? startedAt,
+      DateTime? endedAt,
+      Map<String, AdjustmentValue>? locks,
+    }) {
+      final started = startedAt ?? DateTime(2026, 6, 1);
+      return TestSession(
+        bike: (bike ?? bike1).id,
+        adjustmentIds: const ["dial"],
+        locks: locks,
+        startedAtUTC: started.toUtc(),
+        startedAtLocal: started,
+        endedAtUTC: endedAt?.toUtc(),
+        endedAtLocal: endedAt,
+      );
+    }
+
+    test("addFeedbacks stores the observations and comparisons", () async {
+      final reference = buildSetup(DateTime(2026, 5, 1));
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([reference, setup]);
+      final feedback = buildFeedback(
+        DateTime(2026, 6, 2),
+        setupId: setup.id,
+        observations: {const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.comfort))},
+        comparisons: {
+          FeedbackComparison(referenceSetupId: reference.id, aspect: const OverallAspect(), outcome: 2),
+          FeedbackComparison(referenceSetupId: reference.id, aspect: grade, outcome: -1),
+        },
+      );
+
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.feedbacks[feedback.id]?.observations, feedback.observations);
+      expect(repository.feedbacks[feedback.id]?.comparisons, feedback.comparisons);
+    });
+
+    test("addFeedbacks rolls back the batch when one insert fails", () async {
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([setup]);
+      final feedback = buildFeedback(DateTime(2026, 6, 2), setupId: setup.id);
+
+      await expectLater(repository.addFeedbacks([feedback, feedback]), throwsA(anything));
+      await pumpEventQueue();
+
+      expect(repository.feedbacks, isEmpty);
+    });
+
+    test("editFeedback replaces the children as a whole", () async {
+      final reference = buildSetup(DateTime(2026, 5, 1));
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([reference, setup]);
+      final feedback = buildFeedback(
+        DateTime(2026, 6, 2),
+        setupId: setup.id,
+        observations: {const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.grip))},
+        comparisons: {FeedbackComparison(referenceSetupId: reference.id, aspect: const OverallAspect(), outcome: 1)},
+      );
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      await repository.editFeedback(
+        feedback.copyWith(
+          notes: "Better",
+          observations: {const FeedbackObservation.flag(NoIssueKey())},
+          comparisons: <FeedbackComparison>{},
+        ),
+      );
+      await pumpEventQueue();
+
+      final stored = repository.feedbacks[feedback.id]!;
+      expect(stored.notes, "Better");
+      expect(stored.observations, {const FeedbackObservation.flag(NoIssueKey())});
+      expect(stored.comparisons, isEmpty);
+    });
+
+    test("removeFeedbacks and restoreFeedbacks keep the children", () async {
+      final reference = buildSetup(DateTime(2026, 5, 1));
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([reference, setup]);
+      final feedback = buildFeedback(
+        DateTime(2026, 6, 2),
+        setupId: setup.id,
+        observations: {const FeedbackObservation.flag(NoIssueKey())},
+        comparisons: {FeedbackComparison(referenceSetupId: reference.id, aspect: const OverallAspect(), outcome: 1)},
+      );
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      await repository.removeFeedbacks([feedback]);
+      await pumpEventQueue();
+      expect(repository.feedbacks, isEmpty);
+      expect(repository.deletedFeedbacks.map((f) => f.id), [feedback.id]);
+      expect(repository.deletedFeedbacks.single.comparisons, feedback.comparisons);
+
+      await repository.restoreFeedbacks(repository.deletedFeedbacks);
+      await pumpEventQueue();
+      expect(repository.deletedFeedbacks, isEmpty);
+      expect(repository.feedbacks[feedback.id]?.observations, feedback.observations);
+      expect(repository.feedbacks[feedback.id]?.comparisons, feedback.comparisons);
+    });
+
+    test("a setup inserted between a setup and its feedback re-resolves the feedback (drift)", () async {
+      final early = buildSetup(DateTime(2026, 5, 1));
+      final late_ = buildSetup(DateTime(2026, 7, 1));
+      await repository.addSetups([early, late_]);
+      final feedback = buildFeedback(DateTime(2026, 6, 15), setupId: early.id);
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.resolvedSetupIdFor(feedback), early.id);
+      expect(repository.resolvedSetupFor(feedback)?.id, early.id);
+      expect(repository.hasSetupDrift(feedback), false);
+      expect(repository.feedbacksForSetup(early.id).map((f) => f.id), [feedback.id]);
+
+      final between = buildSetup(DateTime(2026, 6, 10));
+      await repository.addSetups([between]);
+      await pumpEventQueue();
+
+      expect(repository.resolvedSetupIdFor(feedback), between.id);
+      expect(repository.hasSetupDrift(feedback), true);
+      expect(repository.feedbacksForSetup(early.id), isEmpty);
+      expect(repository.feedbacksForSetup(between.id).map((f) => f.id), [feedback.id]);
+      expect(repository.feedbacks[feedback.id]?.setupId, early.id, reason: "the stored setupId is write-once");
+    });
+
+    test("a feedback before every setup resolves to nothing and has no drift", () async {
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([setup]);
+      final feedback = buildFeedback(DateTime(2026, 5, 1), setupId: setup.id);
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.resolvedSetupIdFor(feedback), isNull);
+      expect(repository.resolvedSetupFor(feedback), isNull);
+      expect(repository.hasSetupDrift(feedback), false);
+    });
+
+    test("feedbacksForSetup lists the newest feedback first and ignores other bikes", () async {
+      final setup = buildSetup(DateTime(2026, 5, 1));
+      final otherBikeSetup = buildSetup(DateTime(2026, 5, 1), bike: bike2);
+      await repository.addSetups([setup, otherBikeSetup]);
+      final older = buildFeedback(DateTime(2026, 6, 1), setupId: setup.id);
+      final newer = buildFeedback(DateTime(2026, 6, 5), setupId: setup.id);
+      final otherBike = buildFeedback(DateTime(2026, 6, 3), setupId: otherBikeSetup.id, bike: bike2);
+      await repository.addFeedbacks([older, newer, otherBike]);
+      await pumpEventQueue();
+
+      expect(repository.feedbacksForSetup(setup.id).map((f) => f.id), [newer.id, older.id]);
+      expect(repository.feedbacksForSetup(otherBikeSetup.id).map((f) => f.id), [otherBike.id]);
+      expect(repository.feedbacksForSetup("unknown"), isEmpty);
+    });
+
+    test("rankFor and openIssuesFor follow re-resolution after a setup insert", () async {
+      final reference = buildSetup(DateTime(2026, 5, 1));
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([reference, setup]);
+      final feedback = buildFeedback(
+        DateTime(2026, 6, 15),
+        setupId: setup.id,
+        observations: {const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.comfort))},
+        comparisons: {FeedbackComparison(referenceSetupId: reference.id, aspect: const OverallAspect(), outcome: 2)},
+      );
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.rankFor(setup.id)?.rank, 1);
+      expect(repository.rankFor(reference.id)?.rank, 2);
+      expect(repository.openIssuesFor(setup.id)?.issues.map((i) => i.aspect), [feedback.issues.single.aspect]);
+      expect(repository.openIssuesFor(reference.id), isNull);
+
+      final between = buildSetup(DateTime(2026, 6, 10));
+      await repository.addSetups([between]);
+      await pumpEventQueue();
+
+      expect(repository.rankFor(setup.id), isNull);
+      expect(repository.rankFor(between.id)?.rank, 1);
+      expect(repository.openIssuesFor(setup.id), isNull);
+      expect(repository.openIssuesFor(between.id)?.feedbackId, feedback.id);
+    });
+
+    test("setupsInSession lists the runs in chronological order", () async {
+      final session = buildSession();
+      await repository.addTestSessions([session]);
+      final run2 = buildSetup(DateTime(2026, 6, 1, 11), testSessionId: session.id);
+      final run1 = buildSetup(DateTime(2026, 6, 1, 10), testSessionId: session.id);
+      final unrelated = buildSetup(DateTime(2026, 6, 1, 9));
+      await repository.addSetups([run2, unrelated, run1]);
+      await pumpEventQueue();
+
+      expect(repository.setupsInSession(session.id).map((s) => s.id), [run1.id, run2.id]);
+      expect(repository.setupsInSession("unknown"), isEmpty);
+    });
+
+    test("runningSessionFor returns the latest started session that has not ended", () async {
+      final ended = buildSession(startedAt: DateTime(2026, 6, 3), endedAt: DateTime(2026, 6, 3, 12));
+      final earlier = buildSession(startedAt: DateTime(2026, 6, 1));
+      final later = buildSession(startedAt: DateTime(2026, 6, 2));
+      final otherBike = buildSession(bike: bike2, startedAt: DateTime(2026, 6, 4));
+      await repository.addTestSessions([ended, earlier, later, otherBike]);
+      await pumpEventQueue();
+
+      expect(repository.runningSessionFor(bike1.id)?.id, later.id);
+      expect(repository.runningSessionFor(bike2.id)?.id, otherBike.id);
+
+      await repository.endTestSession(later);
+      await repository.endTestSession(earlier);
+      await pumpEventQueue();
+      expect(repository.runningSessionFor(bike1.id), isNull);
+    });
+
+    test("endTestSession ends the session", () async {
+      final session = buildSession();
+      await repository.addTestSessions([session]);
+      await pumpEventQueue();
+
+      final endedAt = DateTime(2026, 6, 1, 15);
+      await repository.endTestSession(session, at: endedAt);
+      await pumpEventQueue();
+
+      final ended = repository.testSessions[session.id]!;
+      expect(ended.isRunning, false);
+      expect(ended.endedAtUTC, endedAt.toUtc());
+      expect(ended.endedAtLocal, endedAt);
+    });
+
+    test("removeTestSessions and restoreTestSessions", () async {
+      final session = buildSession();
+      await repository.addTestSessions([session]);
+      await pumpEventQueue();
+
+      await repository.removeTestSessions([session]);
+      await pumpEventQueue();
+      expect(repository.testSessions, isEmpty);
+      expect(repository.deletedTestSessions.map((s) => s.id), [session.id]);
+
+      await repository.restoreTestSessions(repository.deletedTestSessions);
+      await pumpEventQueue();
+      expect(repository.deletedTestSessions, isEmpty);
+      expect(repository.testSessions.keys, [session.id]);
+    });
+
+    test("locks stay unresolved until the knob's component is known", () async {
+      final session = buildSession(locks: const {"dial": UnresolvedValue("true")});
+      await repository.addTestSessions([session]);
+      await pumpEventQueue();
+      expect(repository.testSessions[session.id]?.locks["dial"], isA<UnresolvedValue>());
+
+      await repository.addComponents([
+        Component(
+          name: "Fork",
+          installations: [Installation.sinceBeginning(parent: bike1.id)],
+          componentType: ComponentType.fork,
+          adjustments: [BooleanAdjustment(id: "dial", name: "Lockout", notes: null, unit: null)],
+        ),
+      ]);
+      await pumpEventQueue();
+
+      expect(repository.testSessions[session.id]?.locks["dial"], const BooleanValue(true));
+    });
+
+    test("lastModified and firstEntryDay cover feedbacks and sessions", () async {
+      final setup = buildSetup(DateTime(2026, 6, 1));
+      await repository.addSetups([setup]);
+      await pumpEventQueue();
+      final feedback = buildFeedback(DateTime(2026, 5, 20), setupId: setup.id);
+      await repository.addFeedbacks([feedback]);
+      await pumpEventQueue();
+
+      expect(repository.firstEntryDay, DateTime(2026, 5, 20));
+
+      await repository.addTestSessions([buildSession()]);
+      await pumpEventQueue();
+      expect(repository.lastModified, repository.testSessions.values.single.lastModified);
+    });
+
+    group("activityNeedsFeedback", () {
+      final geared = Bike(name: "Geared", person: null, stravaGear: "gear_1");
+
+      StravaActivity ride(
+        int id,
+        DateTime start, {
+        String? gearId = "gear_1",
+        Duration elapsed = Duration.zero,
+      }) => StravaActivity(
+        id: id,
+        name: "Ride $id",
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: start.toUtc(),
+        startDateLocal: start,
+        gearId: gearId,
+        startLat: null,
+        startLon: null,
+        distance: null,
+        totalElevationGain: null,
+        movingTime: Duration.zero,
+        elapsedTime: elapsed,
+      );
+
+      setUp(() async {
+        await repository.addBikes([geared]);
+        await repository.addSetups([
+          buildSetup(DateTime(2026, 5, 1), bike: geared),
+          buildSetup(DateTime(2026, 6, 1), bike: geared),
+        ]);
+        await pumpEventQueue();
+      });
+
+      test("is true for a ride since the current setup", () {
+        expect(repository.activityNeedsFeedback(ride(1, DateTime(2026, 6, 2))), true);
+        expect(repository.activityNeedsFeedback(ride(2, DateTime(2026, 6, 1))), true);
+      });
+
+      test("is false for a ride before the current setup", () {
+        expect(repository.activityNeedsFeedback(ride(1, DateTime(2026, 5, 20))), false);
+      });
+
+      test("is true for a ride that ended on the current setup, though it started before it", () {
+        final overlapping = ride(1, DateTime(2026, 5, 31, 23), elapsed: const Duration(hours: 3));
+
+        expect(repository.activityNeedsFeedback(overlapping), true);
+      });
+
+      test("lists the feedbacks linked to a ride and those recorded on its bike during it", () async {
+        final activity = ride(1, DateTime(2026, 6, 2, 10), elapsed: const Duration(hours: 2));
+        final setupId = repository.resolveSetupId(bikeId: geared.id, atUtc: activity.startDate)!;
+        RideFeedback at(DateTime local, {int? activityId, Bike? bike}) =>
+            buildFeedback(local, setupId: setupId, bike: bike ?? geared).copyWith(stravaActivityId: activityId);
+        final linked = at(DateTime(2026, 6, 9, 8), activityId: 1);
+        final during = at(DateTime(2026, 6, 2, 11));
+        final atEnd = at(DateTime(2026, 6, 2, 12));
+        final before = at(DateTime(2026, 6, 2, 9, 59));
+        final after = at(DateTime(2026, 6, 2, 12, 1));
+        final otherRide = at(DateTime(2026, 6, 2, 11), activityId: 2);
+        final otherBike = Bike(name: "Other", person: null, stravaGear: "gear_2");
+        await repository.addBikes([otherBike]);
+        final elsewhere = at(DateTime(2026, 6, 2, 11), bike: otherBike);
+        await repository.addFeedbacks([linked, during, atEnd, before, after, otherRide, elsewhere]);
+        await pumpEventQueue();
+
+        expect(
+          repository.feedbacksForActivity(activity).map((f) => f.id),
+          unorderedEquals([linked.id, during.id, atEnd.id]),
+        );
+      });
+
+      test("is false for a ride without a bike on its gear", () {
+        expect(repository.activityNeedsFeedback(ride(1, DateTime(2026, 6, 2), gearId: "other")), false);
+        expect(repository.activityNeedsFeedback(ride(2, DateTime(2026, 6, 2), gearId: null)), false);
+      });
+
+      test("is false for a bike without a setup yet", () async {
+        await repository.addBikes([Bike(name: "No setup", person: null, stravaGear: "gear_2")]);
+        await pumpEventQueue();
+
+        expect(repository.activityNeedsFeedback(ride(1, DateTime(2026, 6, 2), gearId: "gear_2")), false);
+      });
+
+      test("is false once a feedback is linked, and true again after it is trashed", () async {
+        final activity = ride(1, DateTime(2026, 6, 2));
+        final setupId = repository.resolveSetupId(bikeId: geared.id, atUtc: activity.startDate)!;
+        final feedback = buildFeedback(DateTime(2026, 6, 2, 18), setupId: setupId, bike: geared).copyWith(
+          stravaActivityId: activity.id,
+        );
+        await repository.addFeedbacks([feedback]);
+        await pumpEventQueue();
+
+        expect(repository.activityNeedsFeedback(activity), false);
+        expect(repository.activityNeedsFeedback(ride(2, DateTime(2026, 6, 3))), true);
+
+        await repository.removeFeedbacks([feedback]);
+        await pumpEventQueue();
+
+        expect(repository.activityNeedsFeedback(activity), true);
+      });
     });
   });
 

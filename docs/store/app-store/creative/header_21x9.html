@@ -1,0 +1,58 @@
+<!doctype html>
+<!--
+  App Store product page header ("Kopfzeile"), 21:9, 3840×1646 PNG (reference: "header" in
+  docs/marketing/brand/reference/reference.html). Headline R2 (docs/marketing/messaging.md).
+  Notes: README.md.
+
+  No phone: Apple's guidance makes the header about the brand. Everything that matters sits in
+  the art safe area (1097, 493, 1646×661), the only part an iPhone shows; the rules run full width
+  for the iPad and Mac crops.
+
+  URL parameters (and the shared ones in docs/marketing/templates/template.js):
+    ?lang=de   German texts (default: English)
+    ?step=N    show only the first N changed values; the frames of the header video
+               (tool/marketing/build_kit.py 00_appstore)
+
+  Render (Windows and macOS, repo root; --safe also writes the safe-area overlay):
+    python tool/marketing/render_images.py appstore-header
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App Store Header Asset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="../../../marketing/templates/marketing.css">
+<style>
+  html, body { width: 3840px; height: 1646px; }
+  .brand { left: 1097px; top: 493px; --mark: 96px; }
+  .label { position: absolute; right: 1097px; top: 526px; font-size: 36px; }
+  h1 { position: absolute; left: 1097px; top: 666px; width: 1646px; height: 280px; font-size: 140px; text-wrap: nowrap; }
+  .values { position: absolute; left: 1097px; top: 1004px; font-size: 40px; display: flex; gap: 64px; }
+</style>
+</head>
+<body>
+  <div class="brand">
+    <img src="../../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
+  </div>
+  <div class="meta muted label" data-i18n="label"></div>
+  <div class="rule" style="left:0; right:0; top:620px"></div>
+  <h1 class="hl" data-i18n="headline" data-fit="120"></h1>
+  <div class="rule" style="left:0; right:0; top:972px; --rule:2px"></div>
+  <div class="meta values">
+    <span><span class="muted" data-i18n="rebound"></span> 9<span data-step="1">→<span class="new">10</span></span></span>
+    <span><span class="muted">LSC</span> 7<span data-step="2">→<span class="new">8</span></span></span>
+    <!-- The unit sits in the label, so nothing follows the value that fades in. -->
+    <span><span class="muted" data-i18n="pressure"></span> 84<span data-step="3">→<span class="new">85</span></span></span>
+  </div>
+<script>
+  const STRINGS = {
+    en: { label: 'Fork · Shock · Tires', headline: '<em>Fork and shock</em><br>settings, remembered.', rebound: 'Rebound', pressure: 'Pressure (psi)' },
+    de: { label: 'Gabel · Dämpfer · Reifen', headline: '<em>Gabel und Dämpfer:</em><br>kein Klick geht verloren.', rebound: 'Zugstufe', pressure: 'Druck (psi)' },
+  };
+</script>
+<script src="../../../marketing/templates/template.js"></script>
+</body>
+</html>

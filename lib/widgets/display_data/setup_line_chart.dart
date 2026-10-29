@@ -11,6 +11,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/table_column.dart';
 import '../empty_state_placeholder.dart';
 
@@ -59,7 +60,6 @@ class _SetupLineChartState extends State<SetupLineChart> {
     final appSettings = context.read<AppSettings>();
 
     final activeChartColumns = widget.activeColumns.where((column) {
-      if (column is RatingScoreColumn || column is RatingMetricColumn) return true;
       final adjustment = widget.adjustmentFor(column);
       return adjustment is StepAdjustment || adjustment is NumericalAdjustment;
     }).toList();
@@ -299,7 +299,7 @@ class _SetupLineChartState extends State<SetupLineChart> {
               final dashArray = _dashPatterns[index % _dashPatterns.length];
               final columnName = widget.columnLabel(column);
 
-              return InkWell(
+              final entry = InkWell(
                 onTap: () {
                   unawaited(HapticFeedback.selectionClick());
                   widget.onSelectedColumnChanged(
@@ -346,6 +346,7 @@ class _SetupLineChartState extends State<SetupLineChart> {
                   ),
                 ),
               );
+              return Semantics(container: true, identifier: AutomationIds.lineChartLegend(index), child: entry);
             }).toList(),
           ),
         ),

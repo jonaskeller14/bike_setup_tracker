@@ -3,8 +3,9 @@
 Usage: python tool/screenshots/check_output.py [folder ...]
 
 Folders are keys of EXPECTED_SIZES (e.g. play-store/phone); default is all.
-Folders in FRAMED_SIZES also have their exported frames (0N.png) checked.
-Exits 1 if any raw or checked frame is missing or has an unexpected size.
+Folders in FRAMED_EXPORTS also have their rendered store screenshots checked
+(tool/marketing/render_images.py store-screenshots writes them).
+Exits 1 if any raw or checked export is missing or has an unexpected size.
 """
 
 import struct
@@ -13,11 +14,11 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-STORE_DIR = REPO_ROOT / "assets" / "store"
+STORE_DIR = REPO_ROOT / "docs" / "store"
 SCREEN_COUNT = 8
 
-# assets/store/screenshots.af links these raws; its device frames assume
-# exactly these pixel sizes.
+# docs/store/screenshots.html puts these raws into its device frames, which
+# assume exactly these pixel sizes.
 EXPECTED_SIZES = {
     "play-store/phone": (1080, 2400),
     "play-store/tablet_10-inch": (1200, 1920),
@@ -25,10 +26,14 @@ EXPECTED_SIZES = {
     "app-store/iPad-Pro-13-inch_M5": (2064, 2752),
 }
 
-# App Store Connect's 6.1"/6.3" iPhone slot (default page and custom product
-# pages) only accepts 1179x2556 and 1206x2622.
-FRAMED_SIZES = {
-    "app-store/iPhone-17-Pro-Max": (1206, 2622),
+# Raw folder -> (export folder, export file name, size) of the store screenshot
+# rendered from it. App Store Connect's 6.1"/6.3" iPhone slot only accepts
+# 1179x2556 and 1206x2622.
+FRAMED_EXPORTS = {
+    "app-store/iPhone-17-Pro-Max": ("app-store/screenshots/en-US", "iphone_{:02d}.png", (1206, 2622)),
+    "app-store/iPad-Pro-13-inch_M5": ("app-store/screenshots/en-US", "ipad_{:02d}.png", (2064, 2752)),
+    "play-store/phone": ("play-store/metadata/en-US/images/phoneScreenshots", "{:02d}.png", (1080, 1920)),
+    "play-store/tablet_10-inch": ("play-store/metadata/en-US/images/tenInchScreenshots", "{:02d}.png", (1800, 2650)),
 }
 
 
@@ -63,23 +68,24 @@ def main(argv):
 
     problems = []
     for folder in folders:
-        checks = [("_raw.png", EXPECTED_SIZES[folder])]
-        if folder in FRAMED_SIZES:
-            checks.append((".png", FRAMED_SIZES[folder]))
-        for suffix, expected in checks:
+        checks = [(folder, "{:02d}_raw.png", EXPECTED_SIZES[folder])]
+        if folder in FRAMED_EXPORTS:
+            checks.append(FRAMED_EXPORTS[folder])
+        for check_folder, name_format, expected in checks:
             for index in range(1, SCREEN_COUNT + 1):
-                path = STORE_DIR / folder / f"{index:02d}{suffix}"
+                name = name_format.format(index)
+                path = STORE_DIR / check_folder / name
                 if not path.exists():
-                    problems.append(f"{folder}/{path.name}: missing")
+                    problems.append(f"{check_folder}/{name}: missing")
                     continue
                 try:
                     size = png_size(path)
                 except ValueError as error:
-                    problems.append(f"{folder}/{path.name}: {error}")
+                    problems.append(f"{check_folder}/{name}: {error}")
                     continue
                 if size != expected:
                     problems.append(
-                        f"{folder}/{path.name}: {size[0]}x{size[1]}, "
+                        f"{check_folder}/{name}: {size[0]}x{size[1]}, "
                         f"expected {expected[0]}x{expected[1]}"
                     )
 
@@ -91,10 +97,10 @@ def main(argv):
     if problems:
         print()
         print("!" * 72)
-        print("SIZE CHECK FAILED - the Affinity device frames in")
-        print("assets/store/screenshots.af assume the expected raw sizes. Fix the")
-        print("device/AVD, or adjust the frames before recomposing. Wrong frame")
-        print("exports (0N.png) need re-exporting from Affinity:")
+        print("SIZE CHECK FAILED - the device frames in docs/store/screenshots.html")
+        print("assume the expected raw sizes. Fix the device/AVD, or adjust the")
+        print("frames. Wrong store screenshots need rendering again with")
+        print("python tool/marketing/render_images.py store-screenshots:")
         for problem in problems:
             print(f"  {problem}")
         print("!" * 72)

@@ -306,6 +306,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         _priority != (widget.taskRule?.priority ?? TaskPriority.medium) ||
         !setEquals(_tags, _initialTags) ||
         _association != _initialAssociation ||
+        _presetKey != widget.taskRule?.presetKey ||
         _repeat != (widget.taskRule?.repeat ?? true) ||
         _intervalType != _getThresholdType(widget.taskRule?.interval) ||
         _valueChanged(_intervalValueController, widget.taskRule?.interval, _intervalDurationUnit) ||
@@ -402,7 +403,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       typeItem(_ThresholdType.movingTime),
       typeItem(_ThresholdType.elapsedTime),
       typeItem(_ThresholdType.activityCount),
-      if ((enableKilojoules || kDebugMode) || widget.taskRule?.interval is KilojoulesThreshold)
+      if ((enableKilojoules || context.read<AppSettings>().developerMode) || widget.taskRule?.interval is KilojoulesThreshold)
         typeItem(_ThresholdType.kilojoules),
     ];
   }
@@ -604,29 +605,67 @@ class _TaskRulePageState extends State<TaskRulePage> {
   }
 
   /// Suggestions for the linked component, offered until one fills the form.
+  /// A linked preset stays in the row as a grey chip, and unlinking it brings
+  /// the suggestions back without clearing the fields.
   Widget? _presetChips(AppSettings appSettings, AppRepository appRepository, bool hasStravaEntitlement) {
-    if (widget.mode != TaskRulePageMode.add || !appSettings.showTaskPresets || _presetKey != null) return null;
+    if (!appSettings.showTaskPresets) return null;
     final component = appRepository.components[_association.componentId];
-    if (component == null) return null;
-    final preset = component.preset;
-    final suggestions = taskSuggestionsFor(
-      component,
-      existingRules: appRepository.taskRules.values,
-      hasStravaEntitlement: hasStravaEntitlement,
-      overrides: preset == null ? const {} : context.read<ComponentCatalogRepository>().loadedTaskOverrides(preset),
-    );
-    if (suggestions.isEmpty) return null;
+    final appliedKey = _presetKey;
+    // Only a rule made from a preset gets suggestions in edit mode, so unlinking it can offer them again.
+    if (appliedKey == null && widget.mode != TaskRulePageMode.add && widget.taskRule?.presetKey == null) return null;
+    // Editing frees the rule's own template on unlink, so the rule does not count as consuming it.
+    final rules = appRepository.taskRules.values.where((rule) => widget.mode != TaskRulePageMode.edit || rule.id != widget.taskRule!.id);
+    final suggestions = component == null
+        ? const <TaskSuggestion>[]
+        : taskSuggestionsFor(
+            component,
+            existingRules: rules,
+            hasStravaEntitlement: hasStravaEntitlement,
+            overrides: _loadedOverrides(component),
+          );
+    if (appliedKey == null && suggestions.isEmpty) return null;
     return TaskPresetChips(
       suggestions: suggestions,
+      onSelected: (suggestion) {
+        if (component != null) _applySuggestion(suggestion, component);
+      },
+      appliedKey: appliedKey,
+      appliedName: appliedKey == null ? null : _presetName(appliedKey, component, hasStravaEntitlement) ?? _nameController.text.trim(),
+      onUnlink: _unlinkPreset,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      onSelected: (suggestion) => _applySuggestion(suggestion, component),
     );
+  }
+
+  void _unlinkPreset() {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() {
+      _presetKey = null;
+      _presetComponentType = null;
+    });
+    _changeListener();
+  }
+
+  String? _presetName(String key, Component? component, bool hasStravaEntitlement) {
+    final offered = component == null
+        ? null
+        : taskSuggestionsFor(
+            component,
+            existingRules: const [],
+            hasStravaEntitlement: hasStravaEntitlement,
+            overrides: _loadedOverrides(component),
+          ).where((suggestion) => suggestion.key == key).firstOrNull;
+    return offered?.name ?? taskPresets.values.expand((templates) => templates).where((template) => template.key == key).firstOrNull?.name;
+  }
+
+  Map<String, TaskTemplateOverride> _loadedOverrides(Component component) {
+    final preset = component.preset;
+    return preset == null ? const {} : context.read<ComponentCatalogRepository>().loadedTaskOverrides(preset);
   }
 
   /// Loads the catalog of a linked catalog component, so its chips switch from
   /// the generic intervals to the manufacturer's once it is there.
   Future<void> _loadTaskOverrides(TaskAssociation association) async {
-    if (widget.mode != TaskRulePageMode.add || !context.read<AppSettings>().showTaskPresets) return;
+    if (!context.read<AppSettings>().showTaskPresets) return;
     final preset = context.read<AppRepository>().components[association.componentId]?.preset;
     if (preset == null) return;
     try {

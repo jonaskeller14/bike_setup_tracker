@@ -1,12 +1,15 @@
 <!doctype html>
 <!--
-  Landscape banner at any size: YouTube thumbnail (1280×720), website OG image (1200×630) and
-  forum header (1920×640). Phase 3 of #69. Text left, two phones right; everything scales with
-  the window height.
+  Landscape banners, a native layout per size (size=, see template.js):
+    1280×720   YouTube thumbnail v2 (brand.md, Thumbnail formula): a 2–3 word headline filling
+               the left, the phone on the right; ?lift= floats one UI element above it, ?dark is
+               the high-contrast variant, ?bg= an illustration or AI image behind
+    1200×630   website OG image (reference: "og" in docs/marketing/brand/reference/reference.html)
+    1920×640   forum header
 
-  URL parameters:
-    title=…, sub=…   texts; *word* is highlighted
-    shots=04,03      store raws (assets/store/app-store/iPhone-17-Pro-Max/NN_raw.png), front phone first
+  URL parameters (and the shared ones in template.js):
+    title=…   headline; *key phrase* in teal
+    sub=…     the label row under it (OG image and forum header only), e.g. "Fork · Shock · Tires"
 -->
 <html lang="en">
 <head>
@@ -14,49 +17,40 @@
 <title>Banner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@500&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
 <link rel="stylesheet" href="marketing.css">
 <style>
-  /* --u: 1 at a window height of 720 px. */
-  html, body { width: 100vw; height: 100vh; }
-  .copy {
-    position: absolute;
-    left: calc(var(--u) * 64px); top: 0; bottom: 0;
-    width: calc(100vw - var(--u) * 600px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: calc(var(--u) * 32px);
-  }
-  .brand { gap: calc(var(--u) * 20px); }
-  .brand img { width: calc(var(--u) * 72px); height: calc(var(--u) * 72px); }
-  .brand span { font-size: calc(var(--u) * 34px); }
-  h1 { font-size: calc(var(--u) * 84px); }
-  .sub { font-size: calc(var(--u) * 32px); line-height: 1.3; color: var(--ink-muted); text-wrap: balance; }
-  .phone.second { left: calc(100vw - var(--u) * 540px); top: calc(var(--u) * 110px); transform: scale(calc(var(--u) * .205)) rotate(-5deg); }
-  .phone.first { left: calc(100vw - var(--u) * 330px); top: calc(var(--u) * 60px); transform: scale(calc(var(--u) * .22)) rotate(4deg); }
+  .title { position: absolute; }
+  .sub { position: absolute; }
+
+  [data-size="1280x720"] .brand { left: 64px; top: 56px; --mark: 56px; }
+  [data-size="1280x720"] .rule { left: 64px; width: 780px; top: 136px; }
+  [data-size="1280x720"] .title { left: 62px; top: 172px; width: 700px; height: 470px; font-size: 180px; }
+  [data-size="1280x720"] .sub { display: none; }
+  [data-size="1280x720"] .phone { left: 820px; top: 64px; --pw: 380; }
+
+  [data-size="1200x630"] .brand { left: 64px; top: 52px; --mark: 56px; }
+  [data-size="1200x630"] .rule { left: 64px; right: 64px; top: 130px; --rule: 3px; }
+  [data-size="1200x630"] .title { left: 60px; top: 178px; width: 740px; height: 330px; font-size: 92px; }
+  [data-size="1200x630"] .sub { left: 64px; bottom: 52px; font-size: 22px; }
+  [data-size="1200x630"] .phone { left: 830px; top: 96px; --pw: 382; }
+
+  [data-size="1920x640"] .brand { left: 64px; top: 56px; --mark: 64px; }
+  [data-size="1920x640"] .rule { left: 64px; width: 1420px; top: 150px; }
+  [data-size="1920x640"] .title { left: 62px; top: 196px; width: 1240px; height: 300px; font-size: 120px; }
+  [data-size="1920x640"] .sub { left: 64px; top: 548px; font-size: 26px; }
+  [data-size="1920x640"] .phone { left: 1420px; top: 64px; --pw: 420; }
 </style>
 </head>
-<body>
-  <div class="copy">
-    <div class="brand">
-      <img src="../../../assets/icons/logo_1024.png" alt="">
-      <span>Bike Setup Tracker</span>
-    </div>
-    <h1 data-param="title"></h1>
-    <p class="sub" data-param="sub"></p>
+<body data-size="1280x720">
+  <div class="brand">
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
   </div>
-  <div class="phone second">
-    <img class="screen" data-shot="1" alt="">
-    <img class="frame" src="../../../assets/store/app-store/iPhone-17-Pro-Max/frame.png" alt="">
-  </div>
-  <div class="phone first">
-    <img class="screen" data-shot="0" alt="">
-    <img class="frame" src="../../../assets/store/app-store/iPhone-17-Pro-Max/frame.png" alt="">
-  </div>
-<script>
-  document.documentElement.style.setProperty('--u', innerHeight / 720);
-</script>
+  <div class="rule"></div>
+  <h1 class="hl title" data-param="title" data-fit="64"></h1>
+  <div class="meta muted sub" data-param="sub"></div>
+  <div class="phone" data-shot="0"></div>
 <script src="template.js"></script>
 </body>
 </html>

@@ -71,6 +71,31 @@ nodes:
           travel_mm: [150, 160]
 ''';
 
+// Generations authored oldest first, which the picker must not rely on.
+const _generationsYaml = '''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "36"
+    level: model
+    children:
+      - label: Factory
+        level: trim
+        children:
+          - label: "2019–2020"
+            level: generation
+            id: "2019"
+            years: "2019-2020"
+          - label: "2021–2024"
+            level: generation
+            id: "2021"
+            years: "2021-2024"
+          - label: "2025–2026"
+            level: generation
+            id: "2025"
+            years: "2025-2026"
+''';
+
 const _ohlinsYaml = '''
 brand: Öhlins
 component_type: fork
@@ -149,16 +174,119 @@ void main() {
     });
   });
 
-  group('filterPresets', () {
-    test('keeps matching products in catalog order, one row per product', () {
-      final results = filterPresets(all, 'factory');
+  group('suggestionMatches', () {
+    final fox36 = fox.first;
+    final suggestions = suggestPresets(fox, 'fox 36');
+
+    ResolvedPreset pick(String damperId) {
+      final damper = fox36.product!.options['damper']!;
+      return fox36.select(damper, damper.values.firstWhere((value) => value.id == damperId));
+    }
+
+    test('matches only the suggestion with the same damper', () {
+      expect(suggestions.map((s) => suggestionMatches(s, pick('grip'))), [false, true]);
+    });
+
+    test('ignores the optional values and the year of the current selection', () {
+      final travel = fox36.product!.options['travel_mm']!;
+      final current = pick('grip_x2').select(travel, travel.values.last).withYear(2025);
+
+      expect(suggestionMatches(suggestions.first, current), isTrue);
+    });
+
+    test('a current selection without the damper matches no damper suggestion', () {
+      expect(suggestions.any((s) => suggestionMatches(s, fox36)), isFalse);
+    });
+
+    test('another product does not match', () {
+      final fox38 = suggestPresets(fox, 'fox 38').single;
+
+      expect(suggestionMatches(fox38, pick('grip_x2')), isFalse);
+    });
+  });
+
+  group('rankPresets', () {
+    test('one row per matching product', () {
+      final results = rankPresets(all, 'factory');
 
       expect(results.map(presetDisplayName), ['FOX 36 Factory', 'FOX 38 Factory']);
     });
 
     test('every token has to match', () {
-      expect(filterPresets(all, 'factory lyrik'), isEmpty);
-      expect(filterPresets(all, 'ULTIMATE lyrik'), hasLength(1));
+      expect(rankPresets(all, 'factory lyrik'), isEmpty);
+      expect(rankPresets(all, 'ULTIMATE lyrik'), hasLength(1));
+    });
+
+    test('a year token matches the years a product spans, not just its text', () {
+      expect(rankPresets(all, 'fox 38 2022').map(presetDisplayName), ['FOX 38 Factory']);
+      expect(rankPresets(all, 'fox 38 2023').map(presetDisplayName), ['FOX 38 Factory']);
+      expect(rankPresets(all, 'fox 38 2024').map(presetDisplayName), ['FOX 38 Factory']);
+      expect(rankPresets(all, 'fox 38 2021'), isEmpty);
+      expect(rankPresets(all, 'fox 38 2025'), isEmpty);
+    });
+
+    test('fox 36 2022 finds the generation spanning 2022 first', () {
+      final catalog = _products(_generationsYaml);
+
+      final results = rankPresets(catalog, 'fox 36 2022');
+
+      expect(results.map((p) => p.node.years.toString()), ['2021-2024']);
+      expect(rankPresets(catalog, 'fox 36 2023').single.node.years.toString(), '2021-2024');
+    });
+
+    test('a year inside no span does not match a product without years', () {
+      expect(rankPresets(_products(_ohlinsYaml), 'ohlins 2022'), isEmpty);
+    });
+
+    test('match tier outranks the year', () {
+      // "ohl" prefixes the Öhlins brand; the FOX model only contains it.
+      final catalog = [..._products(_ohlLabelYaml), ..._products(_ohlinsYaml)];
+
+      expect(rankPresets(catalog, 'ohl').map(presetDisplayName), ['Öhlins RXF36', 'FOX Ohlala']);
+    });
+
+    test('within a tier a product spanning the typed year comes first, then the newest', () {
+      final catalog = _products(_generationsYaml);
+
+      // Authored oldest first, to prove the order is not the catalog's.
+      expect(rankPresets(catalog, 'fox 36').map((p) => p.node.years.toString()), [
+        '2025-2026',
+        '2021-2024',
+        '2019-2020',
+      ]);
+      expect(rankPresets(catalog, 'fox 2020 36').map((p) => p.node.years.toString()), ['2019-2020']);
+    });
+
+    test('equal years keep the catalog order', () {
+      const yaml = '''
+brand: FOX
+component_type: fork
+nodes:
+  - { label: Zeta, level: model, years: "2024" }
+  - { label: Alpha, level: model, years: "2024" }
+''';
+
+      expect(rankPresets(_products(yaml), 'fox').map(presetDisplayName), ['FOX Zeta', 'FOX Alpha']);
+    });
+
+    test('a product without years ranks after one with years', () {
+      final catalog = [..._products(_ohlLabelYaml), ...fox];
+
+      expect(rankPresets(catalog, 'o').map(presetDisplayName).last, 'FOX Ohlala');
+    });
+  });
+
+  group('queryYear', () {
+    test('finds a four-digit year among the tokens', () {
+      expect(queryYear('fox 36 2022'), 2022);
+      expect(queryYear('2019 float'), 2019);
+    });
+
+    test('ignores numbers that are not a year', () {
+      expect(queryYear('fox 36'), isNull);
+      expect(queryYear('fox 38 170'), isNull);
+      expect(queryYear('210x52.5'), isNull);
+      expect(queryYear('12022'), isNull);
     });
   });
 }

@@ -2,7 +2,6 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
-import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/setup_comparison.dart' as comparison;
 import 'package:bike_setup_tracker/models/setup_history.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -716,28 +715,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('setup menus lean towards the side they change', (tester) async {
-    final (setupAId, setupBId) = await seedPair(tester);
-    await pumpComparison(tester, setupAId, setupBId);
-    final band = tester.getRect(find.byKey(const Key('compare-identity-band')));
-
-    await tester.tap(find.byKey(const Key('compare-identity-a')));
-    await settle(tester);
-    final menuA = tester.getRect(find.byKey(const Key('compare-setup-option-older')));
-    expect(menuA.left - band.left, moreOrLessEquals(8));
-    expect(band.right - menuA.right, moreOrLessEquals(32));
-
-    Navigator.of(tester.element(find.byType(CompareSetups))).pop();
-    await settle(tester);
-
-    await tester.tap(find.byKey(const Key('compare-identity-b')));
-    await settle(tester);
-    final menuB = tester.getRect(find.byKey(const Key('compare-setup-option-older')));
-    expect(band.right - menuB.right, moreOrLessEquals(8));
-    expect(menuB.left - band.left, moreOrLessEquals(32));
-    expect(menuB.width, moreOrLessEquals(menuA.width));
-  });
-
   testWidgets('stacks the pinned Values header below identities and keeps its filter operable', (tester) async {
     await harness.addExtraAdjustments(tester);
     final (setupAId, setupBId) = await seedPair(tester, extraDifferences: true);
@@ -804,7 +781,7 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('identities select another setup and highlight the opposite selection', (tester) async {
+  testWidgets('identities pick another setup, badge both sides and disable the opposite one', (tester) async {
     final (setupAId, setupBId) = await seedPair(tester);
     final third = harness.setup(
       id: 'third',
@@ -814,21 +791,17 @@ void main() {
     await harness.addSetups(tester, [third]);
     await pumpComparison(tester, setupAId, setupBId);
 
-    expect(
-      tester.widget<PopupMenuButton<Setup>>(find.byType(PopupMenuButton<Setup>).first).initialValue,
-      harness.repository.setups[setupAId],
-    );
-    await tester.tap(find.byType(PopupMenuButton<Setup>).first);
+    await tester.tap(find.byKey(const Key('compare-identity-a')));
     await settle(tester);
 
-    final highlightedOption = tester.widget<Container>(find.byKey(const Key('compare-setup-option-newer')));
-    expect(
-      highlightedOption.color,
-      Theme.of(tester.element(find.byType(CompareSetups))).colorScheme.secondaryContainer,
-    );
-    expect(find.byType(CheckedPopupMenuItem<Setup>), findsNothing);
+    Finder option(String id) => find.byKey(Key('pick-setup-option-$id'));
+    InkWell inkWell(String id) => tester.widget<InkWell>(find.descendant(of: option(id), matching: find.byType(InkWell)));
+    expect(find.descendant(of: option('older'), matching: find.text('A')), findsOneWidget);
+    expect(find.descendant(of: option('newer'), matching: find.text('B')), findsOneWidget);
+    expect(inkWell('older').onTap, isNotNull);
+    expect(inkWell('newer').onTap, isNull, reason: 'a setup is not compared with itself');
+    expect(inkWell('third').onTap, isNotNull);
     expect(find.byType(CurrentSetupBadge), findsOneWidget);
-    expect(find.text('2026-08-03 • 10:00'), findsOneWidget);
 
     await tester.tap(find.text('Third setup'));
     await settle(tester);
@@ -852,12 +825,12 @@ void main() {
     await harness.reload(tester);
     await pumpComparison(tester, setupA.id, setupB.id);
 
-    await tester.tap(find.byType(PopupMenuButton<Setup>).first);
+    await tester.tap(find.byKey(const Key('compare-identity-a')));
     await settle(tester);
 
-    expect(find.byKey(const Key('compare-setup-option-same-bike-a')), findsOneWidget);
-    expect(find.byKey(const Key('compare-setup-option-same-bike-b')), findsOneWidget);
-    expect(find.byKey(const Key('compare-setup-option-other-bike')), findsNothing);
+    expect(find.byKey(const Key('pick-setup-option-same-bike-a')), findsOneWidget);
+    expect(find.byKey(const Key('pick-setup-option-same-bike-b')), findsOneWidget);
+    expect(find.byKey(const Key('pick-setup-option-other-bike')), findsNothing);
   });
 
   testWidgets('cross-bike comparisons offer all setups and show bike names', (tester) async {
@@ -872,19 +845,19 @@ void main() {
     await harness.reload(tester);
     await pumpComparison(tester, setupA.id, setupB.id);
 
-    await tester.tap(find.byType(PopupMenuButton<Setup>).first);
+    await tester.tap(find.byKey(const Key('compare-identity-a')));
     await settle(tester);
 
     expect(
       find.descendant(
-        of: find.byKey(const Key('compare-setup-option-bike-a-setup')),
+        of: find.byKey(const Key('pick-setup-option-bike-a-setup')),
         matching: find.text('Bike A'),
       ),
       findsOneWidget,
     );
     expect(
       find.descendant(
-        of: find.byKey(const Key('compare-setup-option-bike-b-setup')),
+        of: find.byKey(const Key('pick-setup-option-bike-b-setup')),
         matching: find.text('Bike B'),
       ),
       findsOneWidget,
@@ -920,31 +893,5 @@ void main() {
     expect(find.byIcon(Icons.close), findsOneWidget);
     expect(find.byKey(const Key('compare-identity-band')), findsNothing);
     expect(find.text('A setup is no longer available'), findsOneWidget);
-  });
-
-  testWidgets('Ratings is shown in Differences and All when enabled', (tester) async {
-    harness.settings.enableRating = true;
-    final (setupAId, setupBId) = await seedPair(tester);
-    await pumpComparison(tester, setupAId, setupBId);
-
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
-    await settle(tester);
-    expect(find.text('RATINGS'), findsOneWidget);
-    expect(find.text('No ratings yet'), findsNWidgets(2));
-
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, 2000));
-    await settle(tester);
-    await tester.tap(find.text('All'));
-    await settle(tester);
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
-    await settle(tester);
-    expect(find.text('RATINGS'), findsOneWidget);
-    expect(find.byType(PinnedHeaderSliver), findsNWidgets(4));
-    expect(find.text('No ratings yet'), findsNWidgets(2));
-
-    harness.settings.enableRating = false;
-    await tester.pump();
-    await settle(tester);
-    expect(find.text('Ratings'), findsNothing);
   });
 }

@@ -21,17 +21,30 @@ import render_images
 
 FPS = 30
 CAPTION_FADE = 0.25
+# Callouts (brand.md, Callouts): ease in and out over CALLOUT_EASE s; a lift is shown LIFT_SCALE×
+# its size in the phone (template.js uses the same factor for stills).
+CALLOUT_EASE = 0.4
+LIFT_SCALE = 1.6
+INK = "0x0A0A0A"
 END_CARD_SECONDS = 2.0
 END_CARD_FADE = 0.4
+JOIN_FADE = 0.4  # Crossfade between two takes of one video.
 MUSIC_CROSSFADE = 4.0
+# Voiceover: the voice at VOICE_LOUDNESS LUFS, the music bed at VOICE_BED of its level under it,
+# and VOICE_PAD s of air kept around each line.
+VOICE_LOUDNESS = -15
+VOICE_BED = 0.3
+VOICE_PAD = 0.08
 GIF_LIMIT = 8 * 1024 * 1024
 # (fps, width) tried in order until a GIF fits GIF_LIMIT.
 GIF_STEPS = [(15, 360), (12, 320), (10, 270)]
-# Website loops: lossy animated WebP, about a quarter of the GIF's size.
+# Website loops: lossy animated WebP. Sharp YUV keeps the orange and red UI edges from fringing
+# (4:2:0 chroma). The landing page shows the screen 224–287 CSS px wide, so 540 px stays sharp on
+# a 2× display; v1 (400 px, q55) smeared text and value chips.
 WEB_FPS = 12
-WEB_WIDTH = 400
-WEB_QUALITY = 55
-WEB_STILL_QUALITY = 75
+WEB_WIDTH = 540
+WEB_QUALITY = 85
+WEB_STILL_QUALITY = 85
 
 # Near-lossless intermediates; only the final files are encoded for delivery.
 INTERMEDIATE = ["-c:v", "libx264", "-preset", "fast", "-crf", "12", "-pix_fmt", "yuv420p"]
@@ -98,11 +111,14 @@ class Edit:
 
     segments: (start, end, speed) in recording seconds; anything outside them is cut.
     captions: (recording second, text); each shows until the next one or the end of the clip.
+    callouts: {"t0", "t1", "rect": [x, y, w, h], "mode": "zoom" | "lift"}, in recording seconds and
+    recording pixels.
     """
 
-    def __init__(self, segments, captions=()):
+    def __init__(self, segments, captions=(), callouts=()):
         self.segments = [(float(a), float(b), float(s)) for a, b, s in segments]
         self.captions = [(float(t), text) for t, text in captions]
+        self.callouts = list(callouts)
 
     def out_time(self, t):
         """Maps a recording second to the edited clip; a cut second maps to the next kept one."""
@@ -114,6 +130,11 @@ class Edit:
                 return elapsed + (t - start) / speed
             elapsed += (end - start) / speed
         return elapsed
+
+    def callout_spans(self, mode):
+        """(start, end, rect) in edited seconds of the callouts of one mode."""
+        return [(self.out_time(c["t0"]), self.out_time(c["t1"]), c["rect"])
+                for c in self.callouts if c["mode"] == mode]
 
     def caption_spans(self, length):
         """(start, end, text) in edited seconds, without empty captions."""
@@ -138,9 +159,40 @@ def prepare(source, edit, out):
     return duration(out)
 
 
+def ease(start, end):
+    """ffmpeg expression of t: 0 outside [start, end], rising to 1 over CALLOUT_EASE at both ends."""
+    p = f"clip(min(t-{start:.3f},{end:.3f}-t)/{CALLOUT_EASE},0,1)"
+    return f"({p}*{p}*(3-2*{p}))"
+
+
+def zoom(clip, spans, out):
+    """Eases into each (start, end, [x, y, w, h]) rect of the clip and back out, at the clip's size.
+
+    The zoom fits the rect with a 10 % margin. scale runs per frame, so the zoom is smooth rather
+    than stepping by whole source pixels like zoompan.
+    """
+    width, height = video_size(clip)
+    z, cx, cy = "1", f"{width / 2}", f"{height / 2}"
+    for start, end, (x, y, w, h) in spans:
+        e = ease(start, end)
+        target = max(1.0, 0.9 * min(width / w, height / h))
+        z += f"+{target - 1:.4f}*{e}"
+        cx += f"+{x + w / 2 - width / 2:.1f}*{e}"
+        cy += f"+{y + h / 2 - height / 2:.1f}*{e}"
+    z = f"({z})"
+    # The rect's center moves to the frame's center, as far as the zoomed frame allows.
+    crop_x = f"clip(({cx})*{z}-{width / 2},0,{width}*{z}-{width})"
+    crop_y = f"clip(({cy})*{z}-{height / 2},0,{height}*{z}-{height})"
+    ffmpeg("-i", clip, "-vf",
+           f"scale=w='2*trunc({width}*{z}/2)':h='2*trunc({height}*{z}/2)':eval=frame:flags=bicubic,"
+           f"crop=w={width}:h={height}:x='{crop_x}':y='{crop_y}':exact=1",
+           *INTERMEDIATE, out)
+    return duration(out)
+
+
 def load_layout(chrome, template, size, query):
     """Asks the template where its data-video phone sits (template.js, ?video)."""
-    url = (render_images.REPO_ROOT / template).resolve().as_uri() + query
+    url = render_images.page_url(template, size, query)
     dom = subprocess.run(
         [str(chrome), "--headless", "--hide-scrollbars", "--force-device-scale-factor=1",
          f"--window-size={size[0]},{size[1]}", "--virtual-time-budget=5000", "--dump-dom", url],
@@ -164,12 +216,13 @@ def make_mask(path, width, height, radius):
            "-vf", f"format=gray,geq=lum='255*{inside}'", "-frames:v", "1", path)
 
 
-def compose(chrome, template, size, clip, params, captions, out, out_size=None):
+def compose(chrome, template, size, clip, params, captions, out, out_size=None, lifts=()):
     """Puts a clip into the template's phone, over the rendered background.
 
     params: URL parameters of the background; captions: (start, end, extra parameters) layers,
-    each a full background render faded in and out over the base. Writes a video-only
-    intermediate and returns its length.
+    each a full background render faded in and out over the base; lifts: (start, end, rect) lift
+    callouts in clip seconds and recording pixels. Writes a video-only intermediate and returns
+    its length.
     """
     work = out.with_suffix("")
     work.mkdir(parents=True, exist_ok=True)
@@ -195,7 +248,8 @@ def compose(chrome, template, size, clip, params, captions, out, out_size=None):
     still = ["-loop", "1", "-framerate", FPS, "-t", f"{length:.3f}", "-i"]
     inputs = [*still, work / "base.png", "-i", clip, "-loop", "1", "-i", layout["frame"], "-loop", "1", "-i", mask]
     graph = [
-        f"[1:v]scale={sw}:{sh}:force_original_aspect_ratio=increase,crop={sw}:{sh},format=rgba[screen]",
+        f"[1:v]split={1 + len(lifts)}[recording]" + "".join(f"[lift_src{i}]" for i in range(len(lifts))),
+        f"[recording]scale={sw}:{sh}:force_original_aspect_ratio=increase,crop={sw}:{sh},format=rgba[screen]",
         "[3:v]format=gray[mask]",
         "[screen][mask]alphamerge[screen_alpha]",
         f"[2:v]scale={phone_w}:{phone_h},format=rgba[frame]",
@@ -222,12 +276,56 @@ def compose(chrome, template, size, clip, params, captions, out, out_size=None):
         current = f"bg{i}"
 
     cx, cy = layout["center"]
-    final = f"[{current}][phone]overlay=x={cx:.1f}-overlay_w/2:y={cy:.1f}-overlay_h/2:shortest=1"
+    graph.append(f"[{current}][phone]overlay=x={cx:.1f}-overlay_w/2:y={cy:.1f}-overlay_h/2:shortest=1[composed]")
+    current = "composed"
+    if lifts:
+        if abs(layout["angle"]) > 0.01:
+            raise ValueError(f"{template}: lift callouts need an unrotated phone")
+        current = add_lifts(graph, current, lifts, size,
+                            (cx - phone_w / 2 + sx, cy - phone_h / 2 + sy, sw / video_size(clip)[0]))
+    final = f"[{current}]null"
     if out_size:
         final += f",scale={out_size[0]}:{out_size[1]}:flags=lanczos"
     graph.append(final + f",fps={FPS},format=yuv420p[out]")
     ffmpeg(*inputs, "-filter_complex", ";".join(graph), "-map", "[out]", "-t", f"{length:.3f}", *INTERMEDIATE, out)
     return duration(out)
+
+
+def add_lifts(graph, current, lifts, size, screen):
+    """Appends one lift layer per (start, end, [x, y, w, h]) to the filter graph; returns its output.
+
+    screen: (left, top, scale) of the phone screen in the frame. The element grows from its size
+    in the phone to LIFT_SCALE× (less if that doesn't fit the safe area) while it fades in, with a
+    2 px ink border and a soft shadow, and stays centered on the element, inside the format's safe
+    area.
+    """
+    left, top, scale = screen
+    safe = render_images.SAFE_AREAS.get(tuple(size), {}).get("safe", (24, 24, size[0] - 48, size[1] - 48))
+    blur = max(4, round(size[0] * .025))
+    for i, (start, end, (x, y, w, h)) in enumerate(lifts):
+        # A wide element grows less, so it still fits the safe area.
+        lift = min(LIFT_SCALE, (safe[2] - 4) / (w * scale), (safe[3] - 4) / (h * scale))
+        lw, lh = (2 * round(v * scale * lift / 2) for v in (w, h))
+        bw, bh = lw + 4, lh + 4
+        cx = min(max(left + (x + w / 2) * scale, safe[0] + bw / 2), safe[0] + safe[2] - bw / 2)
+        cy = min(max(top + (y + h / 2) * scale, safe[1] + bh / 2), safe[1] + safe[3] - bh / 2)
+        e = ease(start, end)
+        grow = f"({1 / lift:.4f}+{1 - 1 / lift:.4f}*{e})"
+        graph += [
+            f"[lift_src{i}]crop={w}:{h}:{x}:{y},scale={lw}:{lh}:flags=lanczos,pad={bw}:{bh}:2:2:color={INK},"
+            f"format=rgba[lift_box{i}]",
+            f"color=c=black@0.28:s={bw}x{bh}:r={FPS},format=rgba,pad={bw + 4 * blur}:{bh + 4 * blur}:"
+            f"{2 * blur}:{2 * blur + blur // 2}:color=black@0,boxblur=luma_radius=0:chroma_radius=0:"
+            f"alpha_radius={blur}:alpha_power=2[lift_shadow{i}]",
+            f"[lift_shadow{i}][lift_box{i}]overlay={2 * blur}:{2 * blur}:shortest=1,"
+            f"scale=w='2*trunc(iw*{grow}/2)':h='2*trunc(ih*{grow}/2)':eval=frame,"
+            f"fade=t=in:st={start:.3f}:d={CALLOUT_EASE}:alpha=1,"
+            f"fade=t=out:st={end - CALLOUT_EASE:.3f}:d={CALLOUT_EASE}:alpha=1[lift{i}]",
+            f"[{current}][lift{i}]overlay=x='{cx:.1f}-overlay_w/2':y='{cy:.1f}-overlay_h/2':eval=frame:"
+            f"enable='between(t,{start:.3f},{end:.3f})'[lifted{i}]",
+        ]
+        current = f"lifted{i}"
+    return current
 
 
 def render_still(chrome, template, size, params, out):
@@ -237,18 +335,30 @@ def render_still(chrome, template, size, params, out):
         raise RuntimeError("; ".join(problems))
 
 
-def assemble(segments, out, end_card=None, music=None, audio=True):
+def assemble(segments, out, end_card=None, music=None, audio=True, fade=0.0, voice=()):
     """Joins video-only segments, crossfades into the end card still and adds audio.
 
-    audio: the music bed (looped, faded, loudness-normalized) if music is given, else a silent
-    stereo track. Returns the length.
+    fade: crossfade between segments in seconds (0 cuts). audio: the music bed (looped, faded,
+    loudness-normalized) if music is given, else a silent stereo track. voice: (mp3, start, end, at)
+    lines, each cut from start to end of its mp3 and placed at second `at` of the video; the music
+    ducks under them. Returns the length.
     """
     inputs = []
     for segment in segments:
         inputs += ["-i", segment]
     n = len(segments)
-    total = sum(duration(s) for s in segments)
-    graph = ["".join(f"[{i}:v]" for i in range(n)) + f"concat=n={n}:v=1:a=0,settb=AVTB,fps={FPS}[main]"]
+    lengths = [duration(s) for s in segments]
+    total = sum(lengths) - fade * (n - 1)
+    if fade and n > 1:
+        graph = [f"[{i}:v]settb=AVTB,fps={FPS}[c{i}]" for i in range(n)]
+        current, offset = "c0", 0.0
+        for i in range(1, n):
+            offset += lengths[i - 1] - fade
+            graph.append(f"[{current}][c{i}]xfade=transition=fade:duration={fade}:offset={offset:.3f}[j{i}]")
+            current = f"j{i}"
+        graph.append(f"[{current}]null[main]")
+    else:
+        graph = ["".join(f"[{i}:v]" for i in range(n)) + f"concat=n={n}:v=1:a=0,settb=AVTB,fps={FPS}[main]"]
     if end_card:
         inputs += ["-loop", "1", "-framerate", FPS, "-t", END_CARD_SECONDS + END_CARD_FADE, "-i", end_card]
         graph.append(f"[{n}:v]format=yuv420p,settb=AVTB,fps={FPS}[card]")
@@ -274,12 +384,92 @@ def assemble(segments, out, end_card=None, music=None, audio=True):
                 looped = f"loop{i}"
             graph.append(f"[{looped}]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,loudnorm=I=-16:TP=-1.5,"
                          f"afade=t=in:d=0.5,afade=t=out:st={total - 2:.3f}:d=2,"
-                         "aformat=sample_rates=48000:channel_layouts=stereo[a]")
+                         "aformat=sample_rates=48000:channel_layouts=stereo[bed]")
+            n += 1
         else:
-            graph.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{total:.3f}[a]")
+            graph.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{total:.3f}[bed]")
+        if voice:
+            graph += voice_track(inputs, n, voice, total)
+            # The bed sits under the voice and dips further while a line plays.
+            graph += [
+                "[vo]asplit[vo_key][vo_mix]",
+                f"[bed]volume={VOICE_BED}[bed_low]",
+                "[bed_low][vo_key]sidechaincompress=threshold=0.02:ratio=6:attack=40:release=500[ducked]",
+                "[ducked][vo_mix]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.89:level=0[a]",
+            ]
+        else:
+            graph.append("[bed]anull[a]")
         maps += ["-map", "[a]", "-c:a", "aac", "-b:a", "192k"]
     out.parent.mkdir(parents=True, exist_ok=True)
     ffmpeg(*inputs, "-filter_complex", ";".join(graph), *maps, "-t", f"{total:.3f}", *DELIVERY, out)
+    return duration(out)
+
+
+def voice_track(inputs, first, lines, total):
+    """Appends one input per voice line to inputs; returns the filter graph of the voice track [vo].
+
+    first: the index of the first line's input. The track is loudness-normalized as a whole, so
+    lines from different batches match, and padded with silence to the video's length.
+    """
+    graph = []
+    for i, (mp3, start, end, at) in enumerate(lines):
+        # A little air at both ends: silencedetect marks speech from -40 dB, which clips soft onsets.
+        inputs += ["-i", mp3]
+        graph.append(f"[{first + i}:a]atrim={max(0.0, start - VOICE_PAD):.3f}:{end + VOICE_PAD:.3f},"
+                     f"asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,"
+                     f"afade=t=in:d=0.03,areverse,afade=t=in:d=0.08,areverse,"
+                     f"adelay={max(0, round((at - VOICE_PAD) * 1000))}:all=1[line{i}]")
+    graph.append("".join(f"[line{i}]" for i in range(len(lines)))
+                 + f"amix=inputs={len(lines)}:duration=longest:normalize=0,apad,atrim=0:{total:.3f},"
+                 f"loudnorm=I={VOICE_LOUDNESS}:TP=-1.5:LRA=7,aformat=sample_rates=48000:channel_layouts=stereo[vo]")
+    return graph
+
+
+def animate(chrome, template, size, steps, out, out_size=None):
+    """A video of template renders that crossfade into each other, for pages without a recording.
+
+    steps: (URL parameters, seconds shown) in order; the video then fades back into the first
+    step, so it loops without a jump. Writes a video-only intermediate and returns its length.
+    """
+    work = out.with_suffix("")
+    work.mkdir(parents=True, exist_ok=True)
+    pngs = {work / f"step{i}.png": "?" + urlencode(params) for i, (params, _) in enumerate(steps)}
+    problems = render_images.render(chrome, template, size, pngs)
+    if problems:
+        raise RuntimeError("; ".join(problems))
+    inputs = []
+    for path, (_, seconds) in zip([*pngs, next(iter(pngs))], [*steps, (None, 0)]):
+        inputs += ["-loop", "1", "-framerate", FPS, "-t", f"{seconds + CAPTION_FADE:.3f}", "-i", path]
+    graph = [f"[{i}:v]format=yuv420p,settb=AVTB,fps={FPS}[s{i}]" for i in range(len(steps) + 1)]
+    current, offset = "s0", 0.0
+    for i, (_, seconds) in enumerate(steps, 1):
+        offset += seconds
+        graph.append(f"[{current}][s{i}]xfade=transition=fade:duration={CAPTION_FADE}:offset={offset:.3f}[x{i}]")
+        current = f"x{i}"
+    scale = f",scale={out_size[0]}:{out_size[1]}:flags=lanczos" if out_size else ""
+    graph.append(f"[{current}]null{scale}[out]")
+    length = offset + CAPTION_FADE
+    ffmpeg(*inputs, "-filter_complex", ";".join(graph), "-map", "[out]", "-t", f"{length:.3f}", *INTERMEDIATE, out)
+    return duration(out)
+
+
+def join(clips, out, fade=JOIN_FADE):
+    """Crossfades prepared clips of the same size into one video-only intermediate; returns its length."""
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if len(clips) == 1:
+        shutil.copyfile(clips[0], out)
+        return duration(out)
+    inputs = []
+    for clip in clips:
+        inputs += ["-i", clip]
+    graph = [f"[{i}:v]settb=AVTB,fps={FPS}[c{i}]" for i in range(len(clips))]
+    current, offset = "c0", 0.0
+    for i, clip in enumerate(clips[1:], 1):
+        offset += duration(clips[i - 1]) - fade
+        graph.append(f"[{current}][c{i}]xfade=transition=fade:duration={fade}:offset={offset:.3f}[j{i}]")
+        current = f"j{i}"
+    graph.append(f"[{current}]null[out]")
+    ffmpeg(*inputs, "-filter_complex", ";".join(graph), "-map", "[out]", *INTERMEDIATE, out)
     return duration(out)
 
 
@@ -318,7 +508,8 @@ def web_loop(clip, work, out, still):
     ffmpeg("-i", clip, "-vf", f"fps={WEB_FPS},scale={WEB_WIDTH}:-2:flags=lanczos", work / "%04d.png")
     frames = sorted(p.name for p in work.glob("*.png"))
     # An argument file keeps the command line short enough for Windows.
-    args = ["-loop", "0", "-lossy", "-q", WEB_QUALITY, "-d", round(1000 / WEB_FPS), *frames, "-o", out.resolve()]
+    args = ["-loop", "0", "-lossy", "-sharp_yuv", "-q", WEB_QUALITY, "-d", round(1000 / WEB_FPS), *frames,
+            "-o", out.resolve()]
     (work / "args.txt").write_text(" ".join(map(str, args)), encoding="utf-8")
     libwebp("img2webp", "args.txt", cwd=work)
-    libwebp("cwebp", "-quiet", "-q", WEB_STILL_QUALITY, work / frames[-1], "-o", still)
+    libwebp("cwebp", "-quiet", "-sharp_yuv", "-q", WEB_STILL_QUALITY, work / frames[-1], "-o", still)

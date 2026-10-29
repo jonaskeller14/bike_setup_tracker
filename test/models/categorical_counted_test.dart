@@ -50,8 +50,10 @@ void main() {
       expect(build(multiSelect: true, counted: true).isValidValue(CategoricalValue(const ['Bar', 'Bar', 'Gel', 'Gel', 'Gel'])), isTrue);
     });
 
-    test('empty value is always invalid', () {
-      expect(build(multiSelect: true, counted: true).isValidValue(CategoricalValue(const [])), isFalse);
+    test('empty value is valid in every mode (an explicit clear)', () {
+      for (final (multiSelect, counted) in const [(false, false), (true, false), (false, true), (true, true)]) {
+        expect(build(multiSelect: multiSelect, counted: counted).isValidValue(CategoricalValue(const [])), isTrue);
+      }
     });
 
     test('an option outside the option set is always invalid', () {

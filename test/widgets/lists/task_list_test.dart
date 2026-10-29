@@ -13,7 +13,6 @@ import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
 import 'package:bike_setup_tracker/widgets/sticky_section.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
@@ -173,22 +172,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('completing the final due task animates and haptics only once', (tester) async {
-    final haptics = <MethodCall>[];
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (call) async {
-        if (call.method == 'HapticFeedback.vibrate') haptics.add(call);
-        return null;
-      },
-    );
-    addTearDown(
-      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        null,
-      ),
-    );
-
+  testWidgets('completing the final due task shows the caught-up placeholder', (tester) async {
     await seedDueAndUpcoming(tester, dueCount: 1);
     await tester.pumpWidget(buildSubject());
     await tester.pumpAndSettle();
@@ -202,29 +186,9 @@ void main() {
 
     expect(find.text('All caught up'), findsOneWidget);
     expect(repository.completedTaskRules, hasLength(1));
-    expect(haptics, hasLength(1));
-
-    await tester.pumpWidget(buildSubject());
-    await tester.pumpAndSettle();
-    expect(haptics, hasLength(1));
   });
 
-  testWidgets('reduced motion completes without animation or success haptic', (tester) async {
-    final haptics = <MethodCall>[];
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (call) async {
-        if (call.method == 'HapticFeedback.vibrate') haptics.add(call);
-        return null;
-      },
-    );
-    addTearDown(
-      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        null,
-      ),
-    );
-
+  testWidgets('reduced motion completes without animation', (tester) async {
     await seedDueAndUpcoming(tester, dueCount: 1);
     await tester.pumpWidget(buildSubject(disableAnimations: true));
     await tester.pumpAndSettle();
@@ -233,7 +197,6 @@ void main() {
     await tester.pump();
 
     expect(find.text('All caught up'), findsOneWidget);
-    expect(haptics, isEmpty);
     expect(tester.takeException(), isNull);
   });
 

@@ -67,7 +67,7 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
 
   @override
   Widget build(BuildContext context) {
-    // Free text has no meaningful distribution; rating columns are not linked to adjustment values.
+    // Free text has no meaningful distribution.
     final chartColumns = widget.activeColumns.where((column) {
       final adjustment = widget.adjustmentFor(column);
       return adjustment != null && adjustment is! TextAdjustment;

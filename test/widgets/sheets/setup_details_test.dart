@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/pages/details/setup_details_page.dart';
+import 'package:bike_setup_tracker/utils/automation_ids.dart';
 import 'package:bike_setup_tracker/widgets/sheets/compare_setups.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,9 @@ void main() {
 
     expect(find.byIcon(Icons.edit), findsNothing);
     expect(find.byIcon(Icons.close), findsOneWidget);
+    final semantics = tester.ensureSemantics();
+    expect(find.bySemanticsIdentifier(AutomationIds.setupDetailsActions), findsOneWidget);
+    semantics.dispose();
     await tester.tap(find.byTooltip('Setup actions'));
     await settle(tester);
     expect(find.text('Edit'), findsOneWidget);
@@ -60,5 +64,32 @@ void main() {
     await tester.tap(find.descendant(of: find.byType(CompareSetups), matching: find.byIcon(Icons.close)));
     await settle(tester);
     expect(find.byType(SetupDetailsPageContent), findsOneWidget);
+  });
+
+  testWidgets('feedback section and action follow the Feedback flag', (tester) async {
+    final setup = harness.setup(id: 'only', name: 'Only', local: DateTime(2026, 8, 1, 10));
+    await harness.addSetups(tester, [setup]);
+    await harness.reload(tester);
+    await pumpDetails(tester, setup.id);
+
+    expect(find.text('FEEDBACK'), findsNothing);
+    await tester.tap(find.byTooltip('Setup actions'));
+    await settle(tester);
+    expect(find.text('Add Feedback'), findsNothing);
+    await tester.tapAt(Offset.zero);
+    await settle(tester);
+
+    harness.settings.enableRating = true;
+    await settle(tester);
+
+    await tester.scrollUntilVisible(
+      find.text('No feedback yet'),
+      200,
+      scrollable: find.descendant(of: find.byType(CustomScrollView), matching: find.byType(Scrollable)).first,
+    );
+    expect(find.text('FEEDBACK'), findsOneWidget);
+    await tester.tap(find.byTooltip('Setup actions'));
+    await settle(tester);
+    expect(find.text('Add Feedback'), findsOneWidget);
   });
 }

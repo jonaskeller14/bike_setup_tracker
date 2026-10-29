@@ -326,14 +326,17 @@ class TaskRuleListCard extends StatelessWidget {
             spacing: 6,
             children: [
               Flexible(
-                child: Text(
-                  taskRule.name,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    decoration: isCompleted ? TextDecoration.lineThrough : null,
-                    decorationThickness: 2,
+                child: Semantics(
+                  identifier: AutomationIds.taskRuleTitle(taskRuleId),
+                  child: Text(
+                    taskRule.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      decoration: isCompleted ? TextDecoration.lineThrough : null,
+                      decorationThickness: 2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (appSettings.enableTaskPriority)
@@ -373,7 +376,8 @@ class TaskRuleListCard extends StatelessWidget {
               ],
             ],
           ),
-          trailing: selectionMode ? null : PopupMenuButton<_TaskRuleOptions>(
+          trailing: PopupMenuButton<_TaskRuleOptions>(
+            enabled: !selectionMode,
             onSelected: (_TaskRuleOptions value) async {
               switch (value) {
                 case _TaskRuleOptions.edit:

@@ -1,0 +1,1 @@
+Verknüpfe jedes Setup mit der Strava-Fahrt, die du damit gefahren bist. Setups und Fahrten auf einer Karte, Distanz pro Komponente.

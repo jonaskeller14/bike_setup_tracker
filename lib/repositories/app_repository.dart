@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../database/app_database.dart';
+import '../database/daos/deleted_record_value.dart';
 import '../database/mappers.dart';
 import '../models/activity_rate_window.dart';
 import '../models/adjustment/adjustment.dart';
@@ -14,11 +16,11 @@ import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
+import '../models/feedback/custom_issue.dart';
+import '../models/feedback/ride_feedback.dart';
+import '../models/feedback/test_session.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
-import '../models/rating/rating_association.dart';
-import '../models/rating/rating_entry.dart';
-import '../models/rating/rating_metric.dart';
+import '../models/recorded_value.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/setup_history.dart';
@@ -33,13 +35,17 @@ import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
 import '../services/backup_service.dart';
 import '../services/component_hierarchy_resolver.dart';
-import '../services/rating_score_service.dart';
+import '../services/custom_issue_service.dart';
+import '../services/feedback_open_issues_service.dart';
+import '../services/feedback_ranking_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
+import '../services/test_session/suggestion_result.dart';
+import '../services/test_session/test_session_strategy.dart';
+import '../services/test_session_service.dart';
 import '../services/trash_cleanup_service.dart';
 import '../utils/adjustment_value_type_check.dart';
-import '../utils/unit_conversion.dart';
 import 'filter_controller.dart';
 import 'filtered_view.dart';
 import 'strava_paging_controller.dart';
@@ -67,8 +73,6 @@ class AppRepository extends ChangeNotifier {
     'bikes',
     'components',
     'persons',
-    'ratings',
-    'ratingEntries',
     'taskRules',
     'taskEntries',
     'setups',
@@ -167,10 +171,11 @@ class AppRepository extends ChangeNotifier {
   Map<String, Setup> _setups = {};
   Map<String, Component> _components = {};
   ComponentHierarchyResolver? _componentHierarchyCache;
-  Map<String, Rating> _ratings = {};
-  Map<String, RatingEntry> _ratingEntries = {};
   Map<String, TaskRule> _taskRules = {};
   Map<String, TaskEntry> _taskEntries = {};
+  Map<String, RideFeedback> _feedbacks = {};
+  List<TestSessionDb> _testSessionRows = [];
+  Map<String, TestSession> _testSessions = {};
   Map<int, StravaAthlete> _stravaAthletes = {};
   Map<String, StravaGear> _stravaGears = {};
   Map<String, ComponentStats> _componentStats = {};
@@ -184,10 +189,10 @@ class AppRepository extends ChangeNotifier {
   Map<String, Bike> get bikes => _bikes;
   Map<String, Setup> get setups => _setups;
   Map<String, Component> get components => _components;
-  Map<String, Rating> get ratings => _ratings;
-  Map<String, RatingEntry> get ratingEntries => _ratingEntries;
   Map<String, TaskRule> get taskRules => _taskRules;
   Map<String, TaskEntry> get taskEntries => _taskEntries;
+  Map<String, RideFeedback> get feedbacks => _feedbacks;
+  Map<String, TestSession> get testSessions => _testSessions;
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
   // Strava is paginated per active filter, so the loaded window is the filtered set.
   Map<int, StravaActivity> get stravaActivities => _strava.activities;
@@ -202,15 +207,15 @@ class AppRepository extends ChangeNotifier {
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
   ActivityBounds get activityBounds => _activityBounds;
 
-  /// The earliest local day the date range can narrow: of setups, rating
-  /// entries, task entries and activities. Installations are left out, as a
-  /// "since the beginning" install is dated at the epoch. `null` without any.
+  /// The earliest local day the date range can narrow: of setups, task entries,
+  /// feedbacks and activities. Installations are left out, as a "since the beginning"
+  /// install is dated at the epoch. `null` without any.
   DateTime? get firstEntryDay {
     var first = _activityBounds.firstStartLocal;
     final dates = _setups.values
         .map((s) => s.datetimeLocal)
-        .followedBy(_ratingEntries.values.map((e) => e.dateTimeLocal))
-        .followedBy(_taskEntries.values.map((e) => e.dateTimeLocal));
+        .followedBy(_taskEntries.values.map((e) => e.dateTimeLocal))
+        .followedBy(_feedbacks.values.map((f) => f.dateTimeLocal));
     for (final date in dates) {
       if (first == null || date.isBefore(first)) first = date;
     }
@@ -222,12 +227,62 @@ class AppRepository extends ChangeNotifier {
 
   Map<String, List<AdjustmentValue>> recordedAdjustmentValues(Set<String> adjustmentIds) {
     final values = <String, List<AdjustmentValue>>{};
-    for (final setup in _setups.values) {  // Soft-Deleted included
+    for (final setup in _setups.values) {  // live setups only; see recordedValues for deleted ones
       for (final MapEntry(:key, :value) in setup.bikeAdjustmentValues.entries) {
         if (adjustmentIds.contains(key)) (values[key] ??= []).add(value);
       }
     }
     return values;
+  }
+
+  /// Every decodable value stored for [adjustmentId] (a component adjustment or
+  /// person attribute), newest first. Soft-deleted setups are read from the
+  /// database as they are held without values.
+  Future<List<RecordedValue>> recordedValues(String adjustmentId) async {
+    final type = _findAdjustment(adjustmentId)?.type;
+    if (type == null) return const [];
+
+    final recorded = <RecordedValue>[];
+    for (final setup in _setups.values) {
+      final value = setup.bikeAdjustmentValues[adjustmentId] ?? setup.personAdjustmentValues[adjustmentId];
+      if (value == null || value is UnresolvedValue) continue;
+      recorded.add(RecordedValue(
+        recordId: setup.id,
+        label: setup.displayName,
+        dateTimeLocal: setup.datetimeLocal,
+        value: value,
+        isDeleted: false,
+      ));
+    }
+
+    void addDeleted(String placeholder, List<DeletedRecordValue> rows) {
+      for (final row in rows) {
+        final value = AdjustmentValue.decode(row.rawValue, type);
+        if (value == null || value is UnresolvedValue) continue;
+        recorded.add(RecordedValue(
+          recordId: row.recordId,
+          label: row.name ?? placeholder,
+          dateTimeLocal: row.dateTimeLocal,
+          value: value,
+          isDeleted: true,
+        ));
+      }
+    }
+    addDeleted(Setup.namePlaceholder, await database.setupsDao.getDeletedValuesFor(adjustmentId));
+
+    return recorded..sort((a, b) => b.dateTimeLocal.compareTo(a.dateTimeLocal));
+  }
+
+  Adjustment? _findAdjustment(String id) {
+    for (final component in _components.values) {
+      final adjustment = component.adjustments.firstWhereOrNull((a) => a.id == id);
+      if (adjustment != null) return adjustment;
+    }
+    for (final person in _persons.values) {
+      final adjustment = person.adjustments.firstWhereOrNull((a) => a.id == id);
+      if (adjustment != null) return adjustment;
+    }
+    return null;
   }
 
   @visibleForTesting
@@ -236,8 +291,8 @@ class AppRepository extends ChangeNotifier {
   bool get hasSetupsWithPosition =>
       _setups.values.any((setup) => !setup.isDeleted && _isMappable(setup.position));
 
-  bool get hasRatingEntriesWithPosition =>
-      _ratingEntries.values.any((entry) => !entry.isDeleted && _isMappable(entry.position));
+  bool get hasFeedbacksWithPosition =>
+      _feedbacks.values.any((feedback) => !feedback.isDeleted && _isMappable(feedback.position));
 
   static bool _isMappable(ContextPosition? position) =>
       (position?.latitude?.isFinite ?? false) && (position?.longitude?.isFinite ?? false);
@@ -264,9 +319,10 @@ class AppRepository extends ChangeNotifier {
       ..._bikes.values.map((b) => b.lastModified),
       ..._setups.values.map((s) => s.lastModified),
       ..._components.values.map((c) => c.lastModified),
-      ..._ratings.values.map((r) => r.lastModified),
       ..._taskRules.values.map((tr) => tr.lastModified),
       ..._taskEntries.values.map((te) => te.lastModified),
+      ..._feedbacks.values.map((f) => f.lastModified),
+      ..._testSessions.values.map((ts) => ts.lastModified),
     ].whereType<DateTime>();
 
     if (allDates.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
@@ -299,14 +355,6 @@ class AppRepository extends ChangeNotifier {
         adjustments: p.adjustments.map((a) => a.toModel()).toList(),
       )};
       _markInitialStreamFired('persons');
-      _dataChanged();
-    });
-
-    _listenInitial(database.ratingsDao.watchAllRatingsWithData(), (list) {
-      _ratings = {for (var r in list) r.rating.id: r.rating.toModel(
-        metrics: r.metrics.map((m) => m.toModel()).toList(),
-      )};
-      _markInitialStreamFired('ratings');
       _dataChanged();
     });
 
@@ -363,11 +411,17 @@ class AppRepository extends ChangeNotifier {
       _dataChanged();
     });
 
-    _listenInitial(database.ratingEntriesDao.watchAllRatingEntriesWithValues(), (list) {
-      _ratingEntries = {for (var e in list) e.entry.id: e.entry.toModel(values: e.values)};
-      _markInitialStreamFired('ratingEntries');
+    _subscriptions.add(database.feedbackDao.watchAllFeedbacksWithChildren().listen((list) {
+      _feedbacks = {for (var f in list) f.feedback.id: f.toModel()};
       _dataChanged();
-    });
+    }));
+
+    // Held raw: the locks and proposals decode by adjustment type, and the
+    // components that define the types may arrive after the sessions.
+    _subscriptions.add(database.feedbackDao.watchAllTestSessions().listen((list) {
+      _testSessionRows = list;
+      _dataChanged();
+    }));
 
     // Deleted item streams
     _subscriptions.add(database.bikesDao.watchDeletedBikes().listen((list) {
@@ -387,20 +441,20 @@ class AppRepository extends ChangeNotifier {
       _deletedPersons = list.map((p) => p.toModel(adjustments: [])).toList();
       _notifyIfActive();
     }));
-    _subscriptions.add(database.ratingsDao.watchDeletedRatings().listen((list) {
-      _deletedRatings = list.map((r) => r.toModel(metrics: [])).toList();
-      _notifyIfActive();
-    }));
-    _subscriptions.add(database.ratingEntriesDao.watchDeletedRatingEntries().listen((list) {
-      _deletedRatingEntries = list.map((e) => e.toModel()).toList();
-      _notifyIfActive();
-    }));
     _subscriptions.add(database.taskDao.watchDeletedRules().listen((list) {
       _deletedTaskRules = list.map((tr) => tr.toModel()).toList();
       _notifyIfActive();
     }));
     _subscriptions.add(database.taskDao.watchDeletedEntries().listen((list) {
       _deletedTaskEntries = list.map((te) => te.toModel()).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.feedbackDao.watchDeletedFeedbacksWithChildren().listen((list) {
+      _deletedFeedbacks = list.map((f) => f.toModel()).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.feedbackDao.watchDeletedTestSessions().listen((list) {
+      _deletedTestSessions = list.map((ts) => ts.toModel()).toList();
       _notifyIfActive();
     }));
   }
@@ -435,24 +489,31 @@ class AppRepository extends ChangeNotifier {
 
   void _resolveData() {
     _componentHierarchyCache = null;
-    // Drop the lazily built rating/score lookup caches
+    // Drop the lazily built setup and feedback lookup caches
     _setupsByBikeSorted = null;
-    _ratingEntriesBySetup = null;
-    _applicableMetricsByBike = null;
-    _setupScoreCache.clear();
+    _feedbacksBySetup = null;
+    _setupRanks = null;
+    _openIssuesBySetup.clear();
+    _customIssues = null;
+    _feedbackActivityIds = null;
+    _suggestions.clear();
+    _strategyReferences.clear();
 
     final result = SetupResolutionService.resolveSetups(
       setups: _setups,
       bikes: _bikes,
       persons: _persons,
       components: _components,
-      ratings: _ratings,
     );
     _setups = result.setups;
     _currentAdjustmentValues = result.globalState;
     _setupHistory = result.history;
 
+    final adjustmentTypes = adjustmentTypesOf(components: _components.values, persons: _persons.values);
+    _testSessions = {for (final row in _testSessionRows) row.id: row.toModel(adjustmentTypes: adjustmentTypes)};
+
     _setupTags = SetupResolutionService.extractAllTags(_setups.values);
+    _testSessionNames = (_testSessions.values.map((session) => session.displayName).toSet().toList()..sort()).toSet();
     _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();
   }
 
@@ -463,9 +524,11 @@ class AppRepository extends ChangeNotifier {
   late final FilterController filters;
   void Function()? onFiltersChanged;
   Set<String> _setupTags = {};
+  Set<String> _testSessionNames = {};
   Set<String> _taskRuleTags = {};
 
   Set<String> get setupTags => _setupTags;
+  Set<String> get testSessionNames => _testSessionNames;
   Set<String> get taskRuleTags => _taskRuleTags;
 
   Map<String, Component> get archivedComponents => {
@@ -479,7 +542,12 @@ class AppRepository extends ChangeNotifier {
   FilteredView get view => _view;
 
   void _filter() {
-    filters.normalize(bikeIds: bikes.keys, setupTags: setupTags, taskRuleTags: taskRuleTags);
+    filters.normalize(
+      bikeIds: bikes.keys,
+      setupTags: setupTags,
+      testSessionNames: testSessionNames,
+      taskRuleTags: taskRuleTags,
+    );
     _view = _buildView();
     _strava.reloadIfQueryChanged();  // re-pages Strava if the bike scope changed
   }
@@ -488,11 +556,12 @@ class AppRepository extends ChangeNotifier {
         bikes: _bikes,
         components: _components,
         setups: _setups,
-        ratingEntries: _ratingEntries,
         persons: _persons,
-        ratings: _ratings,
         taskRules: _taskRules,
         taskEntries: _taskEntries,
+        feedbacks: _feedbacks,
+        testSessions: _testSessions,
+        ratedSetupIdOf: resolvedSetupIdFor,
         hierarchy: componentHierarchy,
         bikeId: filters.bikeId,
         dateRange: filters.dateRange,
@@ -539,23 +608,14 @@ class AppRepository extends ChangeNotifier {
   /// Reads from the DB, not the in-memory `_taskEntries` cache: (1) the cache
   /// lags bulk writes (Strava sync, import) until the watch-stream propagates,
   /// and (2) it omits trashed entries, which must be healed too since restore
-  /// does not recompute the snapshot.
-  Future<void> refreshTaskEntrySnapshots({Set<String>? componentIds}) async {
-    final dbEntries = componentIds == null
-        ? await database.taskDao.getAllEntriesBypass()
-        : await database.taskDao.getEntriesForComponentIdsBypass(componentIds);
+  /// does not recompute the snapshot. [since] limits the refresh to entries
+  /// dated at or after it, for changes that can't reach earlier snapshots.
+  Future<void> refreshTaskEntrySnapshots({Set<String>? componentIds, DateTime? since}) async {
+    final dbEntries = await database.taskDao.getEntriesBypass(componentIds: componentIds, since: since);
     final entries = dbEntries
         .map((e) => e.toModel())
         .toList();
-
-    // Issued together rather than one await at a time: each stats query is a
-    // round-trip to the database isolate, and awaiting them serially stalls on
-    // that latency once per entry.
-    final snapshots = await Future.wait(entries.map((entry) => getStatsAt(
-      componentId: entry.association.componentId,
-      bikeId: entry.association.bikeId,
-      date: entry.dateTimeUTC,
-    )));
+    final snapshots = await _snapshotsOf(entries);
 
     final changed = [
       for (var i = 0; i < entries.length; i++)
@@ -572,6 +632,27 @@ class AppRepository extends ChangeNotifier {
         await database.taskDao.updateEntrySnapshot(entry.id, entry.toCompanion().snapshot.value);
       }
     });
+  }
+
+  /// The stats as of each entry's date. One timeline per component or bike
+  /// instead of one stats query per entry: each query walks the whole
+  /// hierarchy over every activity.
+  Future<List<ComponentStats>> _snapshotsOf(List<TaskEntry> entries) async {
+    final componentTimelines = await database.stravaDao.getComponentStatsTimelines({
+      for (final entry in entries) ?entry.association.componentId,
+    });
+    final bikeTimelines = await database.stravaDao.getBikeStatsTimelines({
+      for (final entry in entries) ?entry.association.bikeId,
+    });
+    return [
+      for (final entry in entries)
+        switch (entry.association) {
+              ComponentTaskAssociation(:final id) => componentTimelines[id]?.at(entry.dateTimeUTC),
+              BikeTaskAssociation(:final id) => bikeTimelines[id]?.at(entry.dateTimeUTC),
+              GeneralTaskAssociation() => null,
+            } ??
+            ComponentStats.zero,
+    ];
   }
 
   /// What a rule is measured against: its most recent entry, when its component
@@ -778,14 +859,11 @@ class AppRepository extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
-  // RATINGS: SCORES & LOOKUPS
+  // SETUP LOOKUPS
   // ---------------------------------------------------------------------------
 
-  // Lazily built lookup caches for rating/score resolution.
+  // Lazily built lookup cache for setup resolution.
   Map<String, List<Setup>>? _setupsByBikeSorted;
-  Map<String, List<RatingEntry>>? _ratingEntriesBySetup;
-  Map<String, List<RatingMetric>>? _applicableMetricsByBike;
-  final Map<String, double?> _setupScoreCache = {};
 
   Map<String, List<Setup>> get _setupsByBike {
     final cached = _setupsByBikeSorted;
@@ -798,17 +876,6 @@ class AppRepository extends ChangeNotifier {
       list.sort((a, b) => a.datetime.compareTo(b.datetime));
     }
     return _setupsByBikeSorted = map;
-  }
-
-  Map<String, List<RatingEntry>> get _entriesBySetup {
-    final cached = _ratingEntriesBySetup;
-    if (cached != null) return cached;
-    final map = <String, List<RatingEntry>>{};
-    for (final ratingEntry in _ratingEntries.values) {
-      final setupId = resolveSetupId(bikeId: ratingEntry.bike, atUtc: ratingEntry.dateTimeUTC);
-      if (setupId != null) (map[setupId] ??= []).add(ratingEntry);
-    }
-    return _ratingEntriesBySetup = map;
   }
 
   String? resolveSetupId({required String bikeId, required DateTime atUtc}) {
@@ -829,68 +896,141 @@ class AppRepository extends ChangeNotifier {
     return best?.id;
   }
 
-  String? resolvedSetupIdFor(RatingEntry entry) => resolveSetupId(bikeId: entry.bike, atUtc: entry.dateTimeUTC);
+  // ---------------------------------------------------------------------------
+  // FEEDBACK: LOOKUPS
+  // ---------------------------------------------------------------------------
 
-  List<RatingMetric> _applicableMetricsForBike(String bikeId) => (_applicableMetricsByBike ??= {}).putIfAbsent(
-        bikeId,
-        () => _computeApplicableMetricsForBike(bikeId),
+  /// Lazily built index behind [feedbacksForSetup], dropped on every data change.
+  Map<String, List<RideFeedback>>? _feedbacksBySetup;
+
+  Map<String, List<RideFeedback>> get _feedbacksBySetupIndex {
+    final cached = _feedbacksBySetup;
+    if (cached != null) return cached;
+    final map = <String, List<RideFeedback>>{};
+    for (final feedback in _feedbacks.values) {
+      final setupId = resolvedSetupIdFor(feedback);
+      if (setupId != null) (map[setupId] ??= []).add(feedback);
+    }
+    for (final list in map.values) {
+      list.sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+    }
+    return _feedbacksBySetup = map;
+  }
+
+  String? resolvedSetupIdFor(RideFeedback feedback) => resolveSetupId(bikeId: feedback.bike, atUtc: feedback.dateTimeUTC);
+  Setup? resolvedSetupFor(RideFeedback feedback) => _setups[resolvedSetupIdFor(feedback)];
+
+  bool hasSetupDrift(RideFeedback feedback) {
+    final resolved = resolvedSetupIdFor(feedback);
+    return resolved != null && resolved != feedback.setupId;
+  }
+
+  List<RideFeedback> feedbacksForSetup(String setupId) => _feedbacksBySetupIndex[setupId] ?? const []; // newest first
+
+  /// Lazily built caches behind [rankFor] and [openIssuesFor], dropped on every
+  /// data change. They ignore the filters: a rank needs every setup of the bike.
+  Map<String, SetupRank>? _setupRanks;
+  final Map<String, OpenIssues?> _openIssuesBySetup = {};
+
+  SetupRank? rankFor(String setupId) =>
+      (_setupRanks ??= FeedbackRankingService.rank(setups: _setups, feedbacksBySetup: _feedbacksBySetupIndex))[setupId];
+
+  OpenIssues? openIssuesFor(String setupId) => _openIssuesBySetup.putIfAbsent(
+        setupId,
+        () => FeedbackOpenIssuesService.openIssues(feedbacksForSetup(setupId)),
       );
 
-  List<RatingMetric> _computeApplicableMetricsForBike(String bikeId) {
-    final bikePerson = _bikes[bikeId]?.person;
-    final hierarchy = componentHierarchy;
-    final bikeComponents = _components.values.where(
-      (component) => hierarchy.currentBike(component.id) == bikeId,
-    );
-    final componentIds = bikeComponents.map((c) => c.id).toSet();
-    final componentTypes = bikeComponents.map((c) => c.componentType.toString()).toSet();
+  Set<int>? _feedbackActivityIds;
 
-    final metrics = <RatingMetric>[];
-    for (final rating in _ratings.values) {
-      final applies = switch (rating.association) {
-        GlobalRatingAssociation() => true,
-        BikeRatingAssociation(bikeId: final ratingBikeId) => ratingBikeId == bikeId,
-        PersonRatingAssociation(:final personId) => personId == bikePerson,
-        ComponentRatingAssociation(:final componentId) => componentIds.contains(componentId),
-        ComponentTypeRatingAssociation(:final componentTypeStr) => componentTypes.contains(componentTypeStr),
-      };
-      if (applies) metrics.addAll(rating.metrics);
+  /// The feedbacks of [activity]: linked to it, or recorded on its bike during
+  /// the ride without a link to another one.
+  List<RideFeedback> feedbacksForActivity(StravaActivity activity) {
+    final bikeIds = {
+      for (final bike in _bikes.values)
+        if (bike.stravaGear != null && bike.stravaGear == activity.gearId) bike.id,
+    };
+    return [
+      for (final feedback in _feedbacks.values)
+        if (feedback.stravaActivityId == activity.id ||
+            (feedback.stravaActivityId == null &&
+                bikeIds.contains(feedback.bike) &&
+                !feedback.dateTimeUTC.isBefore(activity.startDate) &&
+                !feedback.dateTimeUTC.isAfter(activity.endDate)))
+          feedback,
+    ];
+  }
+
+  /// Whether [activity] is a ride on the bike's current setup that no feedback
+  /// is linked to yet. Rides that ended before the current setup belong to an older one.
+  bool activityNeedsFeedback(StravaActivity activity) {
+    final bike = _bikes.values.firstWhereOrNull((b) => b.stravaGear != null && b.stravaGear == activity.gearId);
+    if (bike == null) return false;
+    final current = _setups[resolveSetupId(bikeId: bike.id, atUtc: DateTime.now().toUtc())];
+    if (current == null || activity.endDate.isBefore(current.datetime)) return false;
+    final linked = _feedbackActivityIds ??= {
+      for (final feedback in _feedbacks.values)
+        if (feedback.stravaActivityId != null) feedback.stravaActivityId!,
+    };
+    return !linked.contains(activity.id);
+  }
+
+  CustomIssueIndex? _customIssues;
+
+  /// The custom issues the live feedbacks use, regardless of the filters.
+  CustomIssueIndex get customIssues => _customIssues ??= CustomIssueService.index(_feedbacks.values);
+
+  /// The runs of a session, oldest first.
+  List<Setup> setupsInSession(String sessionId) =>
+      _setups.values.where((setup) => setup.testSessionId == sessionId).toList()
+        ..sort((a, b) => a.datetime.compareTo(b.datetime));
+
+  /// Lazily built caches behind [suggestionFor] and [strategyReferenceFor],
+  /// dropped on every data change.
+  final Map<String, SuggestionResult?> _suggestions = {};
+  final Map<String, String?> _strategyReferences = {};
+
+  /// What the strategy of the session proposes next; null for a free session.
+  SuggestionResult? suggestionFor(String sessionId) => _suggestions.putIfAbsent(sessionId, () {
+    final session = _testSessions[sessionId];
+    if (session == null) return null;
+    return TestSessionStrategy.of(session.method)?.propose(_historyOf(session));
+  });
+
+  /// The run the strategy asked [run] to be compared with, replayed from the
+  /// runs before it; null outside a session with a strategy.
+  String? strategyReferenceFor(Setup run) => _strategyReferences.putIfAbsent(run.id, () {
+    final session = _testSessions[run.testSessionId];
+    if (session == null) return null;
+    final result = TestSessionStrategy.of(session.method)?.propose(_historyOf(session, before: run));
+    return result is Proposal ? result.referenceSetupId : null;
+  });
+
+  TestSessionHistory _historyOf(TestSession session, {Setup? before}) {
+    final now = DateTime.now().toUtc();
+    final knobs = TestSessionService.knobsFor(
+      bikeComponents: _components.values.where(
+        (component) => componentHierarchy.bikeAt(component.id, now) == session.bike,
+      ),
+      rider: _persons[_bikes[session.bike]?.person],
+    );
+    return TestSessionHistory.collect(
+      session: session,
+      sessions: _testSessions.values,
+      setups: _setups,
+      feedbacksForSetup: feedbacksForSetup,
+      adjustments: {for (final knob in knobs) knob.adjustment.id: knob.adjustment},
+      before: before,
+    );
+  }
+
+  TestSession? runningSessionFor(String bikeId) {
+    TestSession? running;
+    for (final session in _testSessions.values) {
+      if (session.bike != bikeId || !session.isRunning) continue;
+      if (running == null || session.startedAtUTC.isAfter(running.startedAtUTC)) running = session;
     }
-    return metrics;
+    return running;
   }
-
-  EntryScore? entryScore(RatingEntry entry) =>
-      RatingScoreService.scoreEntry(_applicableMetricsForBike(entry.bike), entry.metricValues);
-
-  EntryScoreBreakdown entryBreakdown(RatingEntry entry) =>
-      RatingScoreService.breakdown(_applicableMetricsForBike(entry.bike), entry.metricValues);
-
-  List<RatingEntry> ratingEntriesForSetup(String setupId) => _entriesBySetup[setupId] ?? const [];
-
-  double? scoreForSetup(String setupId) {
-    if (_setupScoreCache.containsKey(setupId)) return _setupScoreCache[setupId];
-    final entries = ratingEntriesForSetup(setupId);
-    final score = entries.isEmpty
-        ? null
-        : RatingScoreService.setupScore(
-            entries.map((e) => (metrics: _applicableMetricsForBike(e.bike), values: e.metricValues)),
-          );
-    _setupScoreCache[setupId] = score;
-    return score;
-  }
-
-  Map<String, double> metricScoresForSetup(String setupId) {
-    final entries = ratingEntriesForSetup(setupId);
-    if (entries.isEmpty) return const {};
-    return RatingScoreService.setupMetricScores(
-      entries.map((e) => (metrics: _applicableMetricsForBike(e.bike), values: e.metricValues)),
-    );
-  }
-
-  Map<String, RatingMetric> get allRatingMetricsById => {
-        for (final rating in _ratings.values)
-          for (final metric in rating.metrics) metric.id: metric,
-      };
 
   // ---------------------------------------------------------------------------
   // STRAVA: PAGING, QUERIES & SYNC
@@ -925,27 +1065,83 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {
     final versionAtStart = _stravaOperationVersion;
+    final incoming = activities.toList();
+
+    // The earliest start date this sync adds, changes or removes. A snapshot
+    // only counts activities up to its entry's date, so earlier ones can't change.
+    DateTime? since;
+    void affects(DateTime date) {
+      if (since == null || date.isBefore(since!)) since = date;
+    }
 
     // Perform bulk operations in a single transaction for performance and to reduce race conditions
     await database.transaction(() async {
+      final stored = {
+        for (final row in await database.stravaDao.getActivitiesByIds([...incoming.map((a) => a.id), ...?toDelete]))
+          row.id: row.toModel(),
+      };
       if (toDelete != null && toDelete.isNotEmpty) {
+        for (final id in toDelete) {
+          if (stored[id] case final old?) affects(old.startDate);
+        }
         await database.stravaDao.deleteActivities(toDelete);
       }
       // Check if we were cleared while waiting for the transaction
       if (versionAtStart != _stravaOperationVersion) return;
-      await database.stravaDao.upsertActivities(activities.map((a) => a.toCompanion()));
+      // Firestore re-delivers batches that didn't change (e.g. on every
+      // launch); rewriting them would re-run every Strava watch query.
+      final changed = [
+        for (final activity in incoming)
+          if (!_isStoredUnchanged(stored[activity.id], activity)) activity,
+      ];
+      for (final activity in changed) {
+        affects(activity.startDate);
+        if (stored[activity.id] case final old?) affects(old.startDate);
+      }
+      if (changed.isNotEmpty) await database.stravaDao.upsertActivities(changed.map((a) => a.toCompanion()));
     });
 
     if (versionAtStart != _stravaOperationVersion) {
       return;
     }
 
-    await refreshTaskEntrySnapshots();
+    // Nothing was added, changed or removed (the relaunch re-delivery), so the
+    // window and every derived value are still current.
+    if (since == null) return;
+
+    await refreshTaskEntrySnapshots(since: since);
 
     // Re-derive the in-memory window from the database so new, changed, or
     // deleted activities show everywhere (list, calendar) and not only in views
     // that query the DB directly. Reloads the full loaded window to keep scroll.
     await reloadStravaWindow();
+  }
+
+  /// Dates and durations are stored as whole seconds, so [incoming] is compared
+  /// at that precision; a sub-second `lastModified` would otherwise never match.
+  static bool _isStoredUnchanged(StravaActivity? stored, StravaActivity incoming) {
+    if (stored == null) return false;
+    DateTime seconds(DateTime date) => date.copyWith(millisecond: 0, microsecond: 0);
+    Duration wholeSeconds(Duration duration) => Duration(seconds: duration.inSeconds);
+    return stored ==
+        StravaActivity(
+          id: incoming.id,
+          lastModified: seconds(incoming.lastModified),
+          name: incoming.name,
+          athlete: incoming.athlete,
+          sportType: incoming.sportType,
+          startDate: seconds(incoming.startDate),
+          startDateLocal: seconds(incoming.startDateLocal),
+          gearId: incoming.gearId,
+          startLat: incoming.startLat,
+          startLon: incoming.startLon,
+          distance: incoming.distance,
+          totalElevationGain: incoming.totalElevationGain,
+          movingTime: wholeSeconds(incoming.movingTime),
+          elapsedTime: wholeSeconds(incoming.elapsedTime),
+          workoutType: incoming.workoutType,
+          averageWatts: incoming.averageWatts,
+        );
   }
 
   Future<void> setStravaAthletes(Iterable<StravaAthlete> athletes) async {
@@ -989,59 +1185,41 @@ class AppRepository extends ChangeNotifier {
   List<Bike> _deletedBikes = [];
   List<Component> _deletedComponents = [];
   List<Setup> _deletedSetups = [];
-  List<Rating> _deletedRatings = [];
-  List<RatingEntry> _deletedRatingEntries = [];
   List<TaskRule> _deletedTaskRules = [];
   List<TaskEntry> _deletedTaskEntries = [];
+  List<RideFeedback> _deletedFeedbacks = [];
+  List<TestSession> _deletedTestSessions = [];
 
   List<Person> get deletedPersons => _deletedPersons;
   List<Bike> get deletedBikes => _deletedBikes;
   List<Component> get deletedComponents => _deletedComponents;
   List<Setup> get deletedSetups => _deletedSetups;
-  List<Rating> get deletedRatings => _deletedRatings;
-  List<RatingEntry> get deletedRatingEntries => _deletedRatingEntries;
   List<TaskRule> get deletedTaskRules => _deletedTaskRules;
   List<TaskEntry> get deletedTaskEntries => _deletedTaskEntries;
+  List<RideFeedback> get deletedFeedbacks => _deletedFeedbacks;
+  List<TestSession> get deletedTestSessions => _deletedTestSessions;
 
+  /// Refreshes every snapshot: the bike's own entries change along with every
+  /// component ever on it and everything nested under those.
   Future<void> removeBikes(Iterable<Bike> bikes) async {
     if (bikes.isEmpty) return;
-    final affected = _componentsEverOnBikes(bikes.map((bike) => bike.id).toSet());
     await database.transaction(() async {
       for (var bike in bikes) {
         await database.bikesDao.deleteBike(bike.id);
       }
     });
-    await refreshTaskEntrySnapshots(componentIds: affected);
-  }
-
-  /// Components whose stats move when [bikeIds] are deleted or restored: the
-  /// ones ever installed on such a bike, plus everything ever nested under them
-  /// (a child inherits its parent's bike, so it gains and loses the same credit).
-  Set<String> _componentsEverOnBikes(Set<String> bikeIds) {
-    final hierarchy = componentHierarchy;
-    final affected = <String>{};
-    for (final component in _components.values) {
-      final wasOnBike = component.installations.any(
-        (installation) => installation is BikeInstallation && bikeIds.contains(installation.bikeId),
-      );
-      if (!wasOnBike) continue;
-      affected
-        ..add(component.id)
-        ..addAll(hierarchy.historicalDescendantsOf(component.id));
-    }
-    return affected;
+    await refreshTaskEntrySnapshots();
   }
 
   Future<void> restoreBikes(Iterable<Bike> bikes) async {
     if (bikes.isEmpty) return;
-    final affected = _componentsEverOnBikes(bikes.map((bike) => bike.id).toSet());
     await database.transaction(() async {
       for (var bike in bikes) {
         final updated = bike.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
         await database.bikesDao.updateBike(updated.toCompanion());
       }
     });
-    await refreshTaskEntrySnapshots(componentIds: affected);
+    await refreshTaskEntrySnapshots();
   }
 
   Future<void> removeComponents(Iterable<Component> components) async {
@@ -1051,7 +1229,16 @@ class AppRepository extends ChangeNotifier {
         await database.componentsDao.deleteComponent(component.id);
       }
     });
+    await refreshTaskEntrySnapshots(componentIds: _withHistoricalDescendants(components));
   }
+
+  /// A deleted component credits neither itself nor anything nested under it.
+  Set<String> _withHistoricalDescendants(Iterable<Component> components) => {
+    for (final component in components) ...{
+      component.id,
+      ...componentHierarchy.historicalDescendantsOf(component.id),
+    },
+  };
 
   Future<void> restoreComponents(Iterable<Component> components) async {
     if (components.isEmpty) return;
@@ -1061,6 +1248,7 @@ class AppRepository extends ChangeNotifier {
         await database.componentsDao.updateComponent(updated.toCompanion());
       }
     });
+    await refreshTaskEntrySnapshots(componentIds: _withHistoricalDescendants(components));
   }
 
   Future<void> removeSetups(Iterable<Setup> setups) async {
@@ -1097,44 +1285,6 @@ class AppRepository extends ChangeNotifier {
       for (var person in persons) {
         final updated = person.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
         await database.personsDao.updatePerson(updated.toCompanion());
-      }
-    });
-  }
-
-  Future<void> removeRatings(Iterable<Rating> ratings) async {
-    if (ratings.isEmpty) return;
-    await database.transaction(() async {
-      for (var rating in ratings) {
-        await database.ratingsDao.deleteRating(rating.id);
-      }
-    });
-  }
-
-  Future<void> restoreRatings(Iterable<Rating> ratings) async {
-    if (ratings.isEmpty) return;
-    await database.transaction(() async {
-      for (var rating in ratings) {
-        final updated = rating.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-        await database.ratingsDao.updateRating(updated.toCompanion());
-      }
-    });
-  }
-
-  Future<void> removeRatingEntries(Iterable<RatingEntry> entries) async {
-    if (entries.isEmpty) return;
-    await database.transaction(() async {
-      for (final entry in entries) {
-        await database.ratingEntriesDao.deleteRatingEntry(entry.id);
-      }
-    });
-  }
-
-  Future<void> restoreRatingEntries(Iterable<RatingEntry> entries) async {
-    if (entries.isEmpty) return;
-    await database.transaction(() async {
-      for (final entry in entries) {
-        final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-        await database.ratingEntriesDao.updateRatingEntry(updated.toCompanion());
       }
     });
   }
@@ -1177,33 +1327,65 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // WRITE OPERATIONS
-  // ---------------------------------------------------------------------------
-
-  Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
-    if (entries.isEmpty) return;
-    checkRatingEntryValueTypes(entries, ratings: _ratings.values);
-    final now = DateTime.now().toUtc();
+  Future<void> removeFeedbacks(Iterable<RideFeedback> feedbacks) async {
+    if (feedbacks.isEmpty) return;
     await database.transaction(() async {
-      for (final entry in entries) {
-        final updated = entry.copyWith(lastModified: now);
-        await database.ratingEntriesDao.insertRatingEntryWithValues(
-          entry: updated.toCompanion(),
-          values: updated.metricValues,
-        );
+      for (final feedback in feedbacks) {
+        await database.feedbackDao.deleteFeedback(feedback.id);
       }
     });
   }
 
-  Future<void> editRatingEntry(RatingEntry entry) async {
-    checkRatingEntryValueTypes([entry], ratings: _ratings.values);
-    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
-    await database.ratingEntriesDao.updateRatingEntryWithValues(
-      entry: updated.toCompanion(),
-      values: updated.metricValues,
-    );
+  Future<void> restoreFeedbacks(Iterable<RideFeedback> feedbacks) async {
+    if (feedbacks.isEmpty) return;
+    await database.transaction(() async {
+      for (final feedback in feedbacks) {
+        await database.feedbackDao.restoreFeedback(feedback.id);
+      }
+    });
   }
+
+  /// Moves [sessions] to the trash together with their runs and the feedbacks
+  /// that rate those runs. Returns the runs and feedbacks it took along, so an
+  /// undo can restore exactly them.
+  Future<({List<Setup> runs, List<RideFeedback> feedbacks})> removeTestSessions(Iterable<TestSession> sessions) async {
+    final ids = {for (final session in sessions) session.id};
+    final runs = _setups.values.where((setup) => ids.contains(setup.testSessionId)).toList();
+    final runIds = {for (final run in runs) run.id};
+    final feedbacks = _feedbacks.values.where((feedback) => runIds.contains(resolvedSetupIdFor(feedback))).toList();
+    if (ids.isEmpty) return (runs: runs, feedbacks: feedbacks);
+
+    await database.transaction(() async {
+      for (final id in ids) {
+        await database.feedbackDao.deleteTestSession(id);
+      }
+      await removeSetups(runs);
+      await removeFeedbacks(feedbacks);
+    });
+    return (runs: runs, feedbacks: feedbacks);
+  }
+
+  /// Restores [sessions] only, like any other item in the trash: their runs
+  /// and feedbacks stay there until restored on their own. An undo passes what
+  /// [removeTestSessions] took along as [runs] and [feedbacks].
+  Future<void> restoreTestSessions(
+    Iterable<TestSession> sessions, {
+    Iterable<Setup> runs = const [],
+    Iterable<RideFeedback> feedbacks = const [],
+  }) async {
+    if (sessions.isEmpty) return;
+    await database.transaction(() async {
+      for (final session in sessions) {
+        await database.feedbackDao.restoreTestSession(session.id);
+      }
+      await restoreSetups(runs);
+      await restoreFeedbacks(feedbacks);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // WRITE OPERATIONS
+  // ---------------------------------------------------------------------------
 
   Future<void> addBikes(Iterable<Bike> bikes) async {
     final now = DateTime.now().toUtc();
@@ -1225,22 +1407,6 @@ class AppRepository extends ChangeNotifier {
           person: updated.toCompanion(),
           adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
             entry.value.toCompanion(personId: updated.id, orderIndex: entry.key)
-          ).toList(),
-        );
-      }
-    });
-  }
-
-  Future<void> addRatings(Iterable<Rating> ratings) async {
-    if (ratings.isEmpty) return;
-    final now = DateTime.now().toUtc();
-    await database.transaction(() async {
-      for (final rating in ratings) {
-        final updated = rating.copyWith(lastModified: now);
-        await database.ratingsDao.insertRatingWithData(
-          rating: updated.toCompanion(),
-          metricsList: updated.metrics.asMap().entries.map((entry) =>
-            entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
           ).toList(),
         );
       }
@@ -1292,17 +1458,146 @@ class AppRepository extends ChangeNotifier {
     await editTaskRules([rule.copyWith(delay: null)]);
   }
 
+  /// An entry moved to another date or association gets the stats there,
+  /// whatever snapshot it comes with (the calendar's drag keeps the old one).
   Future<void> editTaskEntry(Iterable<TaskEntry> entries) async {
-    if (entries.isEmpty) return;
+    final entryList = entries.toList();
+    if (entryList.isEmpty) return;
     final now = DateTime.now().toUtc();
+    final moved = entryList.where((entry) {
+      final stored = _taskEntries[entry.id];
+      return stored == null || stored.dateTimeUTC != entry.dateTimeUTC || stored.association != entry.association;
+    }).toList();
+    final movedSnapshots = Map.fromIterables(moved.map((entry) => entry.id), await _snapshotsOf(moved));
 
     await database.transaction(() async {
-      for (final entry in entries) {
+      for (final entry in entryList) {
         await database.taskDao.updateEntry(
-          entry.copyWith(lastModified: now).toCompanion(),
+          entry.copyWith(lastModified: now, snapshot: movedSnapshots[entry.id] ?? entry.snapshot).toCompanion(),
         );
       }
     });
+  }
+
+  Future<void> addFeedbacks(Iterable<RideFeedback> feedbacks) async {
+    if (feedbacks.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final feedback in feedbacks) {
+        final updated = feedback.copyWith(lastModified: now);
+        await database.feedbackDao.insertFeedbackWithChildren(
+          feedback: updated.toCompanion(),
+          observations: updated.observationCompanions(),
+          comparisons: updated.comparisonCompanions(),
+        );
+      }
+    });
+  }
+
+  Future<void> editFeedback(RideFeedback feedback) async {
+    final updated = feedback.copyWith(lastModified: DateTime.now().toUtc());
+    await database.feedbackDao.upsertFeedbackWithChildren(
+      feedback: updated.toCompanion(),
+      observations: updated.observationCompanions(),
+      comparisons: updated.comparisonCompanions(),
+    );
+  }
+
+  /// Renames the custom issue [slug] to [label] in every feedback, trashed ones
+  /// included, and in the goals of every session. Merges into the issue the new
+  /// label names when that exists. Returns false when [label] is blank.
+  Future<bool> renameCustomIssue(String slug, String label) async {
+    final to = CustomIssue.fromLabel(label);
+    if (to == null) return false;
+    await _rewriteCustomIssue(
+      feedback: (feedback) => CustomIssueService.rename(feedback, slug, to),
+      session: (session) => CustomIssueService.renameGoal(session, slug, to),
+    );
+    return true;
+  }
+
+  /// Strips the custom issue [slug] from every feedback, trashed ones included,
+  /// and from the goals of every session.
+  Future<void> removeCustomIssue(String slug) => _rewriteCustomIssue(
+    feedback: (feedback) => CustomIssueService.remove(feedback, slug),
+    session: (session) => CustomIssueService.removeGoal(session, slug),
+  );
+
+  Future<void> _rewriteCustomIssue({
+    required RideFeedback? Function(RideFeedback feedback) feedback,
+    required TestSession? Function(TestSession session) session,
+  }) async {
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final original in [..._feedbacks.values, ..._deletedFeedbacks]) {
+        if (feedback(original) case final changed?) {
+          final updated = changed.copyWith(lastModified: now);
+          await database.feedbackDao.upsertFeedbackWithChildren(
+            feedback: updated.toCompanion(),
+            observations: updated.observationCompanions(),
+            comparisons: updated.comparisonCompanions(),
+          );
+        }
+      }
+      for (final original in [..._testSessions.values, ..._deletedTestSessions]) {
+        if (session(original) case final changed?) {
+          await database.feedbackDao.upsertTestSession(changed.copyWith(lastModified: now).toCompanion());
+        }
+      }
+    });
+  }
+
+  Future<void> addTestSessions(Iterable<TestSession> sessions) async {
+    if (sessions.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final session in sessions) {
+        await database.feedbackDao.insertTestSession(session.copyWith(lastModified: now).toCompanion());
+      }
+    });
+  }
+
+  Future<void> editTestSession(TestSession session) async {
+    await database.feedbackDao.upsertTestSession(
+      session.copyWith(lastModified: DateTime.now().toUtc()).toCompanion(),
+    );
+  }
+
+  /// Stores the session together with its first run.
+  Future<void> startTestSession(TestSession session, Setup firstRun) async {
+    await database.transaction(() async {
+      await addTestSessions([session]);
+      await addSetups([firstRun]);
+    });
+  }
+
+  /// Stores a run of [session] together with the values the strategy proposed
+  /// for it.
+  Future<void> addTestSessionRun(TestSession session, Setup run, {Map<String, AdjustmentValue>? proposal}) async {
+    await database.transaction(() async {
+      await addSetups([run]);
+      if (proposal == null) return;
+      final current = _testSessions[session.id] ?? session;
+      await editTestSession(current.copyWith(proposals: {...current.proposals, run.id: proposal}));
+    });
+  }
+
+  /// Freezes [adjustmentId] at [value], or releases it when [value] is null.
+  Future<void> setTestSessionLock(TestSession session, String adjustmentId, AdjustmentValue? value) {
+    final locks = {...session.locks};
+    if (value == null) {
+      locks.remove(adjustmentId);
+    } else {
+      locks[adjustmentId] = value;
+    }
+    return editTestSession(session.copyWith(locks: locks));
+  }
+
+  Future<void> endTestSession(TestSession session, {DateTime? at}) {
+    final when = at ?? DateTime.now();
+    return editTestSession(session.copyWith(endedAtUTC: when.toUtc(), endedAtLocal: when));
   }
 
   Future<void> addComponents(Iterable<Component> components) async {
@@ -1328,7 +1623,7 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> editPerson(Person person, {List<ValueUnitConversion> conversions = const []}) async {
+  Future<void> editPerson(Person person, {List<ValueMigration> migrations = const []}) async {
     final updated = person.copyWith(lastModified: DateTime.now().toUtc());
     await database.transaction(() async {
       await database.personsDao.updatePersonWithData(
@@ -1337,11 +1632,10 @@ class AppRepository extends ChangeNotifier {
           entry.value.toCompanion(personId: updated.id, orderIndex: entry.key)
         ).toList(),
       );
-      for (final c in conversions) {
-        await database.setupsDao.convertAdjustmentValues(
-          c.adjustmentId,
-          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
-        );
+      for (final migration in migrations) {
+        final adjustment = updated.adjustments.firstWhereOrNull((a) => a.id == migration.adjustmentId);
+        if (adjustment == null) continue;
+        await database.setupsDao.migrateAdjustmentValues(adjustment.id, adjustment.type, migration);
       }
     });
   }
@@ -1364,7 +1658,7 @@ class AppRepository extends ChangeNotifier {
     if (statsInputsChanged) await refreshTaskEntrySnapshots();
   }
 
-  Future<void> editComponents(Iterable<Component> components, {List<ValueUnitConversion> conversions = const []}) async {
+  Future<void> editComponents(Iterable<Component> components, {List<ValueMigration> migrations = const []}) async {
     final componentList = components.toList();
     if (componentList.isEmpty) return;
     final changedComponentIds = componentList
@@ -1391,11 +1685,12 @@ class AppRepository extends ChangeNotifier {
       for (final updated in updates) {
         await _writeComponentWithData(updated);
       }
-      for (final c in conversions) {
-        await database.setupsDao.convertAdjustmentValues(
-          c.adjustmentId,
-          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
-        );
+      for (final migration in migrations) {
+        final adjustment = updates
+            .expand((component) => component.adjustments)
+            .firstWhereOrNull((a) => a.id == migration.adjustmentId);
+        if (adjustment == null) continue;
+        await database.setupsDao.migrateAdjustmentValues(adjustment.id, adjustment.type, migration);
       }
     });
 
@@ -1447,24 +1742,6 @@ class AppRepository extends ChangeNotifier {
     await editComponents([component.copyWith(installations: updated)]);
   }
 
-  Future<void> editRating(Rating rating, {List<ValueUnitConversion> conversions = const []}) async {
-    final updated = rating.copyWith(lastModified: DateTime.now().toUtc());
-    await database.transaction(() async {
-      await database.ratingsDao.updateRatingWithData(
-        rating: updated.toCompanion(),
-        metricsList: updated.metrics.asMap().entries.map((entry) =>
-          entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
-        ).toList(),
-      );
-      for (final c in conversions) {
-        await database.ratingEntriesDao.convertMetricValues(
-          c.adjustmentId,
-          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
-        );
-      }
-    });
-  }
-
   Future<void> addSetups(Iterable<Setup> setups) async {
     if (setups.isEmpty) return;
     checkSetupValueTypes(setups, components: _components.values, persons: _persons.values);
@@ -1496,28 +1773,6 @@ class AppRepository extends ChangeNotifier {
         );
       }
     });
-  }
-
-  Future<void> reorderRating({required int oldIndex, required int newIndex, required List<Rating> filteredRatingsList}) async {
-    final globalList = ratings.values.toList()..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
-    final itemToMove = filteredRatingsList[oldIndex];
-    final int globalOldIndex = globalList.indexOf(itemToMove);
-    final targetItem = newIndex < filteredRatingsList.length ? filteredRatingsList[newIndex] : null;
-    final int globalNewIndex = targetItem == null ? globalList.length : globalList.indexOf(targetItem);
-
-    globalList.removeAt(globalOldIndex);
-    globalList.insert(globalNewIndex, itemToMove);
-
-    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent
-    // the UI from 'snapping back' while we wait for the database round-trip.
-    _ratings = {
-      for (int i = 0; i < globalList.length; i++)
-        globalList[i].id: globalList[i].copyWith(orderIndex: i)
-    };
-    _filter();
-    notifyListeners();
-
-    await database.ratingsDao.reorder(globalList.map((e) => e.id).toList());
   }
 
   Future<void> reorderPerson({required int oldIndex, required int newIndex, required List<Person> filteredPersonsList}) async {

@@ -4,9 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/context/context_weather.dart';
-import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
+import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../utils/automation_ids.dart';
@@ -36,6 +35,10 @@ class SetupTile extends StatefulWidget {
   final EdgeInsets edgeInset;
   final bool showCurrentBadge;
 
+  /// When set, the collapsed values are these adjustments instead of the changes.
+  final Set<String>? collapsedAdjustmentIds;
+  final StravaActivity? stravaActivity;
+
   const SetupTile({
     super.key,
     required this.setupId,
@@ -48,6 +51,8 @@ class SetupTile extends StatefulWidget {
     this.currentBarLeft = 0,
     this.edgeInset = EdgeInsets.zero,
     this.showCurrentBadge = false,
+    this.collapsedAdjustmentIds,
+    this.stravaActivity,
   });
 
   @override
@@ -58,6 +63,9 @@ class _SetupTileState extends State<SetupTile> {
   static const double _bookmarkRight = kMinInteractiveDimension + 8 - BookmarkRibbon.width;
 
   bool _displayOnlyChanges = true;
+
+  // Per tile, not per setup: one setup can sit in several lists on the same route.
+  late final String _heroTag = 'setup-tile-${widget.setupId}-${identityHashCode(this)}';
 
   Widget _bookmarkRibbon({required bool visible}) {
     return ClipRect(
@@ -71,69 +79,20 @@ class _SetupTileState extends State<SetupTile> {
     );
   }
 
-  Widget _scoreBadge(BuildContext context, double score) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9A825),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 2,
-        children: [
-          const Icon(RatingEntry.iconData, size: 13, color: Colors.white),
-          Text(
-            score.toStringAsFixed(1),
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _setupListTile(BuildContext context, Setup setup, AdjustmentCompactSummary summary) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
-    final double? score = appSettings.enableRating ? appRepository.scoreForSetup(setup.id) : null;
     final bool showInlineExpandIcon = summary.collapsedHidesSomething;
 
     final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
     final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
 
-    final metadataRows = <Widget>[
-      if (setup.place != null && !widget.hidePlace)
-        TileMetaRow(
-          icon: Icons.location_pin,
-          text: "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
-          muted: true,
-        ),
-      if (setup.weather?.currentTemperature != null)
-        TileMetaRow(
-          icon: ContextWeather.currentTemperatureIconData,
-          text:
-              "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
-          muted: true,
-        ),
-      if (setup.weather?.condition != null)
-        TileMetaRow(
-          icon: setup.weather?.condition?.iconData ?? Icons.question_mark,
-          text: setup.weather?.condition?.value ?? "-",
-          iconColor: setup.weather?.condition?.color,
-          muted: true,
-        ),
-      if (appSettings.enableSetupTags) ...setup.tags.map((tag) => TileMetaRow(icon: Icons.tag, text: tag, muted: true)),
-      if (appSettings.enableAttachments && setup.attachments.isNotEmpty)
-        TileMetaRow(
-          icon: Icons.attach_file,
-          text: '${setup.attachments.length}',
-          muted: true,
-        ),
+    final metadataRows = [
+      ...SetupTileHeader.metadataOf(setup, appSettings, hidePlace: widget.hidePlace),
+      ?SetupTileHeader.rankOf(setup, appSettings, appRepository),
     ];
-    final Widget? badge = score != null
-        ? _scoreBadge(context, score)
-        : widget.showCurrentBadge
+    final Widget? badge = widget.showCurrentBadge
         ? appRepository.setupHistory.isCurrent(setup.id)
               ? const CurrentSetupBadge()
               : null
@@ -160,33 +119,43 @@ class _SetupTileState extends State<SetupTile> {
                 bottom: 8,
                 right: kMinInteractiveDimension + 8,
               ),
-              child: SetupTileHeader(
-                setup: setup,
-                dateTimeText: widget.showDate
-                    ? "$dateText • $timeText"
-                    : timeText,
-                metadata: metadataRows,
-                badge: badge,
-                showSetupIcon: true,
-                selected: widget.selected,
-                secondaryMetadata: TileMetaRow(
-                  icon: Bike.iconData,
-                  text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
-                  isError: !bikes.containsKey(setup.bike),
+              child: Hero(
+                tag: _heroTag,
+                child: SetupTileHeader(
+                  setup: setup,
+                  dateTimeText: widget.showDate
+                      ? "$dateText • $timeText"
+                      : timeText,
+                  metadata: metadataRows,
+                  badge: badge,
+                  showSetupIcon: true,
+                  selected: widget.selected,
+                  footer: SetupTileHeader.showOpenIssuesInTiles
+                      ? SetupTileHeader.openIssuesOf(setup, appSettings, appRepository)
+                      : null,
+                  secondaryMetadata: TileMetaRow(
+                    icon: Bike.iconData,
+                    text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                    isError: !bikes.containsKey(setup.bike),
+                  ),
                 ),
               ),
             ),
           ),
-          if (!widget.selectionMode)
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Semantics(
-                container: true,
-                identifier: AutomationIds.setupActions(setup.id),
-                child: SetupOptionsMenu(setup: setup),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Semantics(
+              container: true,
+              identifier: AutomationIds.setupActions(setup.id),
+              child: SetupOptionsMenu(
+                setup: setup,
+                heroTag: _heroTag,
+                stravaActivity: widget.stravaActivity,
+                enabled: !widget.selectionMode,
               ),
             ),
+          ),
           if (showInlineExpandIcon)
             Positioned(
               bottom: 0,
@@ -234,6 +203,7 @@ class _SetupTileState extends State<SetupTile> {
       adjustmentValues: adjustmentValues,
       previousAdjustmentValues: previousAdjustmentValues,
       displayPersonAdjustmentValues: appSettings.enablePerson,
+      collapsedAdjustmentIds: widget.collapsedAdjustmentIds,
     );
 
     final adjustmentList = AdjustmentCompactDisplayList(
@@ -247,6 +217,7 @@ class _SetupTileState extends State<SetupTile> {
       highlightInitialValues: true,
       displayOnlyChanges: _displayOnlyChanges,
       displayPersonAdjustmentValues: appSettings.enablePerson,
+      collapsedAdjustmentIds: widget.collapsedAdjustmentIds,
       ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, setup.datetimeLocal.toUtc()),
     );
 

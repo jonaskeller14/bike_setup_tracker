@@ -101,70 +101,82 @@ nodes:
   - label: "Stoy 4"
     level: model
     category: Enduro / Freeride / Downhill
-    years: "2025-2026"
-    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422708
     specs: { spring: Coil }
-    note: |-
-      - Light, compact three-way monotube shock; 393g in 205x65mm trunnion without spring
-      - Coil spring sold separately, with a preload adjustment
     children:
-      - label: Standard
-        level: trim
-        mounts: [Eyelet, Trunnion]
-        adjustments: &coil_spring
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-        options:
-          damper: [stoy4_2025]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422708
+        note: |-
+          - Light, compact three-way monotube shock; 393g in 205x65mm trunnion without spring
+          - Coil spring sold separately, with a preload adjustment
+        children:
+          - label: Standard
+            level: trim
+            mounts: [Eyelet, Trunnion]
+            adjustments: &coil_spring
+              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+            options:
+              damper: [stoy4_2025]
 
   - label: "Void 4"
     level: model
     category: Enduro / Freeride / Downhill
-    years: "2025-2026"
-    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422711
     specs: { spring: Air }
-    note: |-
-      - High-volume air spring with adjustable positive and negative chamber volume via spacers
-      - Fourth generation of the Void, first released in 2012
-      - 550g in 230x60mm without lever; maximum pressure 300 psi
     children:
-      - label: Standard
-        level: trim
-        mounts: [Eyelet, Trunnion]
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
-        options:
-          damper: [void4_2025]
-      - label: Lever
-        level: trim
-        mounts: [Eyelet, Trunnion]
-        adjustments: *air_spring
-        options:
-          damper: [void4_2025]
-        note: Adds the optional pedalling-platform lever.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422711
+        note: |-
+          - High-volume air spring with adjustable positive and negative chamber volume via spacers
+          - Fourth generation of the Void, first released in 2012
+          - 550g in 230x60mm without lever; maximum pressure 300 psi
+        children:
+          - label: Standard
+            level: trim
+            mounts: [Eyelet, Trunnion]
+            adjustments: &air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+            options:
+              damper: [void4_2025]
+          - label: Lever
+            level: trim
+            mounts: [Eyelet, Trunnion]
+            adjustments: *air_spring
+            options:
+              damper: [void4_2025]
+            note: Adds the optional pedalling-platform lever.
 
   - label: "Syors 2"
     level: model
     category: Enduro / Freeride / Downhill
-    years: "2025-2026"
-    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422837
     specs: { spring: Coil }
-    note: |-
-      - Coil shock with an adjustable hydraulic bottom-out stop; 450g in 250x75mm without spring
-      - Coil spring sold separately, with a preload adjustment
     children:
-      - label: Standard
-        level: trim
-        mounts: [Eyelet, Trunnion]
-        adjustments: *coil_spring
-        options:
-          damper: [syors2_2025]
-      - label: Lever
-        level: trim
-        mounts: [Eyelet, Trunnion]
-        adjustments: *coil_spring
-        options:
-          damper: [syors2_2025]
-        note: Adds the optional pedalling-platform lever.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422837
+        note: |-
+          - Coil shock with an adjustable hydraulic bottom-out stop; 450g in 250x75mm without spring
+          - Coil spring sold separately, with a preload adjustment
+        children:
+          - label: Standard
+            level: trim
+            mounts: [Eyelet, Trunnion]
+            adjustments: *coil_spring
+            options:
+              damper: [syors2_2025]
+          - label: Lever
+            level: trim
+            mounts: [Eyelet, Trunnion]
+            adjustments: *coil_spring
+            options:
+              damper: [syors2_2025]
+            note: Adds the optional pedalling-platform lever.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

@@ -149,217 +149,257 @@ nodes:
   - label: "Samurai XC 29"
     level: model
     category: XC / Down-country
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/samurai-xc/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: &intend_service
       fork:upper_leg_service: { name: Upper leg service, interval: { days: 365 }, preselected: true, source: Intend fork setup guide }
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { spring: Air }
-        offset_mm: [44]
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        options:
-          damper: [energizer, rs_charger_raceday]
-          travel_mm: [100, 110, 120, 130]
-          wheel_size: [29]
-        note: >
-          Max travel is 130mm with the Energizer cartridge but only 120mm
-          when fitted with the RockShox Charger Raceday cartridge.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/samurai-xc/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { spring: Air }
+            offset_mm: [44]
+            adjustments: &air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            options:
+              damper: [energizer, rs_charger_raceday]
+              travel_mm: [100, 110, 120, 130]
+              wheel_size: [29]
+            note: >
+              Max travel is 130mm with the Energizer cartridge but only 120mm
+              when fitted with the RockShox Charger Raceday cartridge.
 
   - label: "Samurai XC 32"
     level: model
     category: XC
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/samurai-32/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [46, 48] # 46mm at sag, 48mm fully extended
-        adjustments: *air_spring
-        options:
-          damper: [energizer, rs_charger_raceday]
-          travel_mm: [120, 130]
-          wheel_size: [32]
-        note: >
-          Max travel is 130mm with the Energizer cartridge but only 120mm
-          when fitted with the RockShox Charger Raceday cartridge.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/samurai-32/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [46, 48] # 46mm at sag, 48mm fully extended
+            adjustments: *air_spring
+            options:
+              damper: [energizer, rs_charger_raceday]
+              travel_mm: [120, 130]
+              wheel_size: [32]
+            note: >
+              Max travel is 130mm with the Energizer cartridge but only 120mm
+              when fitted with the RockShox Charger Raceday cartridge.
 
   - label: "Samurai Super TR"
     level: model
     category: Downcountry / Trail / Enduro
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/samurai-supertr/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { spring: Air }
-        offset_mm: [44]
-        adjustments: *air_spring
-        options:
-          damper: [closed_cartridge]
-          travel_mm: [140, 150, 160, 170]
-          wheel_size: [29]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/samurai-supertr/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { spring: Air }
+            offset_mm: [44]
+            adjustments: *air_spring
+            options:
+              damper: [closed_cartridge]
+              travel_mm: [140, 150, 160, 170]
+              wheel_size: [29]
 
   - label: "Hero"
     level: model
     category: Trail / All-Mountain / Enduro
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/intend-hero/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { stanchion: 44mm upper / 35mm lower (inverted), spring: Air }
-        offset_mm: [44]
-        adjustments: *air_spring
-        options:
-          damper: [closed_cartridge]
-          travel_mm: [140, 150, 160, 170]
-          wheel_size: [29]
-        note: No TorqueCap compatibility from April 2025 on.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/intend-hero/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { stanchion: 44mm upper / 35mm lower (inverted), spring: Air }
+            offset_mm: [44]
+            adjustments: *air_spring
+            options:
+              damper: [closed_cartridge]
+              travel_mm: [140, 150, 160, 170]
+              wheel_size: [29]
+            note: No TorqueCap compatibility from April 2025 on.
 
   - label: "Essential"
     level: model
     category: Trail / All-Mountain / Enduro
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/essentials/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [44]
-        adjustments: *air_spring
-        options:
-          damper: [open_bath]
-          travel_mm: [150, 160, 170]
-          wheel_size: [29]
-        note: >
-          Budget-line model. Early first-production-batch units are not
-          compatible with a retrofit Linearizer or the current TravelRanger
-          air unit.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/essentials/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [44]
+            adjustments: *air_spring
+            options:
+              damper: [open_bath]
+              travel_mm: [150, 160, 170]
+              wheel_size: [29]
+            note: >
+              Budget-line model. Early first-production-batch units are not
+              compatible with a retrofit Linearizer or the current TravelRanger
+              air unit.
 
   - label: "Edge"
     level: model
     category: Enduro
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/intend-edge/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [44]
-        adjustments: *air_spring
-        options:
-          damper: [closed_cartridge]
-          travel_mm: [150, 160, 170, 180]
-          wheel_size: [29]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/intend-edge/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [44]
+            adjustments: *air_spring
+            options:
+              damper: [closed_cartridge]
+              travel_mm: [150, 160, 170, 180]
+              wheel_size: [29]
 
   - label: "Flash 35"
     level: model
     category: Enduro / Freeride
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/intend-flash/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [44]
-        adjustments: *air_spring
-        options:
-          damper: [closed_cartridge]
-          travel_mm: [160, 170, 180, 190]
-          wheel_size: [29]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/intend-flash/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [44]
+            adjustments: *air_spring
+            options:
+              damper: [closed_cartridge]
+              travel_mm: [160, 170, 180, 190]
+              wheel_size: [29]
 
   - label: "Flash 38"
     level: model
     category: Enduro / Freeride / DH
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/flash-38/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { stanchion: 38mm, spring: Air }
-        offset_mm: [44]
-        adjustments: *air_spring
-        options:
-          damper: [closed_cartridge]
-          travel_mm: [160, 170, 180, 190]
-          wheel_size: [29]
-        note: Swappable axle design — 15x110 or 20x110 Boost.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/flash-38/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { stanchion: 38mm, spring: Air }
+            offset_mm: [44]
+            adjustments: *air_spring
+            options:
+              damper: [closed_cartridge]
+              travel_mm: [160, 170, 180, 190]
+              wheel_size: [29]
+            note: Swappable axle design — 15x110 or 20x110 Boost.
 
   - label: "Infinity EN"
     level: model
     category: Enduro / Freeride / DH (Dual Crown)
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/infinity-en/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [44]
-        adjustments: *air_spring
-        options:
-          damper: [closed_cartridge]
-          travel_mm: [160, 170, 180, 190]
-          wheel_size: [29]
-        note: Dual-crown chassis.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/infinity-en/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [44]
+            adjustments: *air_spring
+            options:
+              damper: [closed_cartridge]
+              travel_mm: [160, 170, 180, 190]
+              wheel_size: [29]
+            note: Dual-crown chassis.
 
   - label: "Bandit"
     level: model
     category: Enduro / Freeride
-    years: "2025-2026"
-    url: https://www.intend-bc.com/products/bandit/
-    setup_guide: https://www.intend-bc.com/fork-setup/
-    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
-      - label: Standard
-        level: trim
-        draft: true
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [44]
-        adjustments: *air_spring
-        options:
-          damper: [closed_cartridge]
-          travel_mm: [160, 170, 180, 190]
-          wheel_size: [29]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.intend-bc.com/products/bandit/
+        setup_guide: https://www.intend-bc.com/fork-setup/
+        guide: intend_fork_setup_2025
+        children:
+          - label: Standard
+            level: trim
+            draft: true
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [44]
+            adjustments: *air_spring
+            options:
+              damper: [closed_cartridge]
+              travel_mm: [160, 170, 180, 190]
+              wheel_size: [29]
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

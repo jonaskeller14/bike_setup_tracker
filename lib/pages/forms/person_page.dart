@@ -10,6 +10,8 @@ import '../../models/strava/strava_athlete.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
+import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/lists/adjustment_edit_list.dart';
@@ -61,7 +63,10 @@ class _PersonPageState extends State<PersonPage> {
 
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  final Map<String, ValueUnitConversion> _pendingConversions = {};
+  final Map<String, MigrationProposal> _pendingMigrations = {};
+  late final Map<String, Adjustment> _savedAdjustments = widget.mode == PersonPageMode.edit
+      ? {for (final a in widget.person!.adjustments) a.id: a}
+      : const <String, Adjustment>{};
 
   @override
   void initState() {
@@ -146,21 +151,19 @@ class _PersonPageState extends State<PersonPage> {
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
         final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
-        final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute, migrationContext: _migrationContext(a.id)),
+        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute, migrationContext: _migrationContext(a.id)),
+        final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute, migrationContext: _migrationContext(a.id)),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute, migrationContext: _migrationContext(a.id)),
         final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute, migrationContext: _migrationContext(a.id)),
       }),
     );
     if (result == null) return;
     final Adjustment editedAdjustment;
-    if (result is EditResult<Adjustment>) {
+    if (result is AdjustmentEditResult<Adjustment>) {
       editedAdjustment = result.value;
-      for (final conversion in result.conversions) {
-        _stageConversion(conversion);
-      }
+      _stagePending(editedAdjustment.id, result.pending);
     } else {
       editedAdjustment = result as Adjustment;
     }
@@ -174,13 +177,16 @@ class _PersonPageState extends State<PersonPage> {
     onChanged?.call();
   }
 
-  void _stageConversion(ValueUnitConversion conversion) {
-    final existing = _pendingConversions[conversion.adjustmentId];
-    final composed = existing == null ? conversion : existing.composeWith(conversion);
-    if (composed.isNoOp) {
-      _pendingConversions.remove(conversion.adjustmentId);
+  ValueMigrationContext? _migrationContext(String id) =>
+      ValueMigrationContext.of(id, _savedAdjustments, _pendingMigrations);
+
+  /// A further edit's proposal replaces the earlier one: it already covers the
+  /// whole change from the saved definition.
+  void _stagePending(String id, MigrationProposal? pending) {
+    if (pending == null) {
+      _pendingMigrations.remove(id);
     } else {
-      _pendingConversions[conversion.adjustmentId] = composed;
+      _pendingMigrations[id] = pending;
     }
   }
 
@@ -205,7 +211,7 @@ class _PersonPageState extends State<PersonPage> {
 
   Future<void> removeAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
     setState(() => _adjustments.remove(adjustment));
-    _pendingConversions.remove(adjustment.id);
+    _pendingMigrations.remove(adjustment.id);
     _changeListener();
     onChanged?.call();
   }
@@ -230,7 +236,7 @@ class _PersonPageState extends State<PersonPage> {
     Navigator.pop(
       context,
       widget.mode == PersonPageMode.edit
-          ? EditResult<Person>(person, conversions: _pendingConversions.values.toList())
+          ? EditResult<Person>(person, migrations: pendingValueMigrations(_pendingMigrations))
           : person,
     );
   }
@@ -445,6 +451,7 @@ class _PersonPageState extends State<PersonPage> {
                                     initialAdjustments: widget.mode == PersonPageMode.edit
                                         ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a)))
                                         : null,
+                                    pendingMigrations: _pendingMigrations,
                                     editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
                                     duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
                                     removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),

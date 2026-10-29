@@ -8,20 +8,20 @@ import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
+import '../models/feedback/ride_feedback.dart';
+import '../models/feedback/test_session.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
-import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
 import '../utils/bike_actions.dart';
 import '../utils/component_actions.dart';
+import '../utils/feedback_actions.dart';
 import '../utils/person_actions.dart';
-import '../utils/rating_actions.dart';
-import '../utils/rating_entry_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
+import '../utils/test_session_actions.dart';
 import '../widgets/animated_app_bar_switcher.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/empty_state_placeholder.dart';
@@ -47,10 +47,10 @@ class _TrashPageState extends State<TrashPage> {
       ...appRepository.deletedBikes.map((b) => _BikeTrashItem(b)),
       ...appRepository.deletedComponents.map((c) => _ComponentTrashItem(c)),
       ...appRepository.deletedSetups.map((s) => _SetupTrashItem(s)),
-      ...appRepository.deletedRatings.map((r) => _RatingTrashItem(r)),
-      ...appRepository.deletedRatingEntries.map((re) => _RatingEntryTrashItem(re)),
       ...appRepository.deletedTaskRules.map((tr) => _TaskRuleTrashItem(tr)),
       ...appRepository.deletedTaskEntries.map((te) => _TaskEntryTrashItem(te)),
+      ...appRepository.deletedFeedbacks.map((f) => _FeedbackTrashItem(f)),
+      ...appRepository.deletedTestSessions.map((ts) => _TestSessionTrashItem(ts)),
     ];
 
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
@@ -298,10 +298,10 @@ class _TrashSelection {
   final List<Bike> bikes = [];
   final List<Component> components = [];
   final List<Setup> setups = [];
-  final List<Rating> ratings = [];
-  final List<RatingEntry> ratingEntries = [];
   final List<TaskRule> taskRules = [];
   final List<TaskEntry> taskEntries = [];
+  final List<RideFeedback> feedbacks = [];
+  final List<TestSession> testSessions = [];
 
   _TrashSelection(Iterable<_TrashItem> items) {
     for (final item in items) {
@@ -314,14 +314,14 @@ class _TrashSelection {
           components.add(component);
         case _SetupTrashItem(:final setup):
           setups.add(setup);
-        case _RatingTrashItem(:final rating):
-          ratings.add(rating);
-        case _RatingEntryTrashItem(:final ratingEntry):
-          ratingEntries.add(ratingEntry);
         case _TaskRuleTrashItem(:final taskRule):
           taskRules.add(taskRule);
         case _TaskEntryTrashItem(:final taskEntry):
           taskEntries.add(taskEntry);
+        case _FeedbackTrashItem(:final feedback):
+          feedbacks.add(feedback);
+        case _TestSessionTrashItem(:final session):
+          testSessions.add(session);
       }
     }
   }
@@ -331,10 +331,10 @@ class _TrashSelection {
     await appRepository.restoreBikes(bikes);
     await appRepository.restoreComponents(components);
     await appRepository.restoreSetups(setups);
-    await appRepository.restoreRatings(ratings);
-    await appRepository.restoreRatingEntries(ratingEntries);
     await appRepository.restoreTaskRules(taskRules);
     await appRepository.restoreTaskEntries(taskEntries);
+    await appRepository.restoreFeedbacks(feedbacks);
+    await appRepository.restoreTestSessions(testSessions);
   }
 
   Future<void> remove(AppRepository appRepository) async {
@@ -342,10 +342,10 @@ class _TrashSelection {
     await appRepository.removeBikes(bikes);
     await appRepository.removeComponents(components);
     await appRepository.removeSetups(setups);
-    await appRepository.removeRatings(ratings);
-    await appRepository.removeRatingEntries(ratingEntries);
     await appRepository.removeTaskRules(taskRules);
     await appRepository.removeTaskEntries(taskEntries);
+    await appRepository.removeFeedbacks(feedbacks);
+    await appRepository.removeTestSessions(testSessions);
   }
 }
 
@@ -401,32 +401,6 @@ class _SetupTrashItem extends _TrashItem {
   const _SetupTrashItem(this.setup);
 }
 
-class _RatingTrashItem extends _TrashItem {
-  final Rating rating;
-  @override String get id => 'rating-${rating.id}';
-  @override DateTime get lastModified => rating.lastModified;
-  @override IconData get iconData => Rating.iconData;
-  @override String get name => rating.name;
-  @override
-  void restore(BuildContext context) async {
-    await RatingActions.restoreRating(context, rating: rating);
-  }
-  const _RatingTrashItem(this.rating);
-}
-
-class _RatingEntryTrashItem extends _TrashItem {
-  final RatingEntry ratingEntry;
-  @override String get id => 'rating-entry-${ratingEntry.id}';
-  @override DateTime get lastModified => ratingEntry.lastModified;
-  @override IconData get iconData => RatingEntry.iconData;
-  @override String get name => ratingEntry.displayName;
-  @override
-  void restore(BuildContext context) async {
-    await RatingEntryActions.restoreRatingEntry(context, ratingEntry: ratingEntry);
-  }
-  const _RatingEntryTrashItem(this.ratingEntry);
-}
-
 class _TaskRuleTrashItem extends _TrashItem {
   final TaskRule taskRule;
   @override String get id => 'task-rule-${taskRule.id}';
@@ -451,4 +425,30 @@ class _TaskEntryTrashItem extends _TrashItem {
     await TaskActions.restoreTaskEntry(context, taskEntry: taskEntry);
   }
   const _TaskEntryTrashItem(this.taskEntry);
+}
+
+class _FeedbackTrashItem extends _TrashItem {
+  final RideFeedback feedback;
+  @override String get id => 'feedback-${feedback.id}';
+  @override DateTime get lastModified => feedback.lastModified;
+  @override IconData get iconData => RideFeedback.iconData;
+  @override String get name => 'Feedback';
+  @override
+  void restore(BuildContext context) async {
+    await FeedbackActions.restoreFeedback(context, feedback: feedback);
+  }
+  const _FeedbackTrashItem(this.feedback);
+}
+
+class _TestSessionTrashItem extends _TrashItem {
+  final TestSession session;
+  @override String get id => 'test-session-${session.id}';
+  @override DateTime get lastModified => session.lastModified;
+  @override IconData get iconData => TestSession.iconData;
+  @override String get name => session.displayName;
+  @override
+  void restore(BuildContext context) async {
+    await TestSessionActions.restoreTestSession(context, session: session);
+  }
+  const _TestSessionTrashItem(this.session);
 }

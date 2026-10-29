@@ -1,0 +1,67 @@
+<!doctype html>
+<!--
+  App Store search results asset, 3:2, 3840×2560 PNG (reference: "search" in
+  docs/marketing/brand/reference/reference.html). Headline R4 (docs/marketing/messaging.md).
+  Notes: README.md.
+
+  URL parameters (and the shared ones in docs/marketing/templates/template.js):
+    ?lang=de   German texts (default: English)
+    ?video     hide the phone for the video variant (tool/marketing/build_kit.py)
+
+  Render (Windows and macOS, repo root; --safe also writes the safe-area overlay):
+    python tool/marketing/render_images.py appstore-search
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App Store Search Results Asset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="../../../marketing/templates/marketing.css">
+<style>
+  html, body { width: 3840px; height: 2560px; }
+  .brand { left: 200px; top: 170px; --mark: 190px; --name: 92px; }
+  /* Centered on the phone below: its rounded corners make an edge alignment look off. */
+  .label { position: absolute; left: 2560px; width: 1088px; text-align: center; top: 227px; font-size: 64px; line-height: 77px; }
+  h1 { position: absolute; left: 190px; top: 540px; width: 2340px; font-size: 320px; }
+  .phone { left: 2560px; top: 300px; --pw: 1088; }
+  .values { position: absolute; left: 200px; top: 1720px; display: flex; gap: 120px; align-items: flex-end; }
+  .values .meta { font-size: 64px; margin-bottom: 30px; }
+  .values .small { padding-bottom: 20px; }
+  .values .small .num { font-size: 200px; }
+  .values .small .meta + .num + .meta { margin-top: 60px; }
+</style>
+</head>
+<body>
+  <div class="brand">
+    <img src="../../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
+  </div>
+  <div class="meta muted label" data-i18n="label"></div>
+  <!-- Ends behind the phone instead of reappearing past its corner. -->
+  <div class="rule" style="left:200px; width:2900px; top:420px; --rule:6px"></div>
+  <h1 class="hl" data-i18n="headline"></h1>
+  <div class="phone" data-default="04" data-video></div>
+  <div class="rule" style="left:200px; width:2220px; top:1640px"></div>
+  <div class="values">
+    <div>
+      <div class="meta muted" data-i18n="rebound"></div>
+      <div class="num" style="font-size:460px">9→<span class="new">10</span></div>
+    </div>
+    <div class="small">
+      <div class="meta muted">LSC</div>
+      <div class="num">7→<span class="new">8</span></div>
+      <div class="meta muted" data-i18n="pressure"></div>
+      <div class="num">84→<span class="new">85</span><span style="font-size:80px; letter-spacing:0"> psi</span></div>
+    </div>
+  </div>
+<script>
+  const STRINGS = {
+    en: { label: 'Fork · Shock · Tires', headline: 'The logbook for your <em>MTB suspension.</em>', rebound: 'Rebound', pressure: 'Pressure' },
+    de: { label: 'Gabel · Dämpfer · Reifen', headline: 'Das Logbuch für dein <em>MTB-Fahrwerk.</em>', rebound: 'Zugstufe', pressure: 'Druck' },
+  };
+</script>
+<script src="../../../marketing/templates/template.js"></script>
+</body>
+</html>

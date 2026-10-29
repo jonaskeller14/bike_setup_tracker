@@ -136,4 +136,27 @@ void main() {
     expect(service.statusOf(AppHint.release44), AppHintStatus.completed);
     expect(find.text('Attachments'), findsNothing);
   });
+
+  testWidgets('the build 45 deck turns on Tasks with its intervals and completes', (tester) async {
+    SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 44});
+    settings
+      ..enableTask = false
+      ..enableTaskInterval = false;
+    service.dispose();
+    service = AppHintService(appRepository: repository, appSettings: settings, currentBuild: 45);
+    await tester.runAsync(service.load);
+    service.update(appRepository: repository, appSettings: settings);
+
+    await tester.pumpWidget(buildSubject());
+    expect(find.text('Fork & shock catalog').hitTestable(), findsOneWidget);
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Turn on Tasks').hitTestable());
+    await tester.pumpAndSettle();
+    expect(settings.enableTask, isTrue);
+    expect(settings.enableTaskInterval, isTrue);
+    expect(service.statusOf(AppHint.release45), AppHintStatus.completed);
+    expect(find.text('Recommended tasks'), findsNothing);
+  });
 }

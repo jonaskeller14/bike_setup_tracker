@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/repositories/component_catalog_repository.dar
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/widgets/sheets/component_catalog_picker.dart';
+import 'package:bike_setup_tracker/widgets/year_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -54,6 +55,36 @@ nodes:
         children:
           - label: Rhythm
             level: trim
+      - label: "2019–2020"
+        level: generation
+        id: "2019"
+        years: "2019-2020"
+        children:
+          - label: Float
+            level: trim
+  - label: "38"
+    level: model
+    children:
+      - label: Factory
+        level: trim
+''';
+
+/// A single model with a single generation: nothing to choose before the trims.
+const _soloYaml = '''
+brand: Solo
+component_type: fork
+nodes:
+  - label: Only
+    level: model
+    children:
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        children:
+          - label: Base
+            level: trim
+          - label: Plus
+            level: trim
 ''';
 
 /// One level deep: the model itself is the product, without any options.
@@ -89,6 +120,26 @@ nodes:
           size: ["210x50/52.5/55", "185x50/55"]
 ''';
 
+/// The model's products are its generations, so their labels add nothing.
+const _ohlinsGenerationYaml = '''
+brand: Öhlins
+component_type: shock
+nodes:
+  - label: TTX22
+    level: model
+    children:
+      - label: "2020–2024"
+        level: generation
+        id: "2020"
+        years: "2020-2024"
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+  - label: Coil
+    level: model
+''';
+
 ComponentCatalogRepository _repository([List<String> files = const [_foxYaml, _acmeYaml, _draftYaml, _ohlinsYaml]]) =>
     ComponentCatalogRepository.withCatalogs([for (final file in files) parseCatalogFile(file)]);
 
@@ -115,6 +166,8 @@ Future<_Outcome> _open(
   ComponentCatalogRepository? repository,
   ComponentType type = ComponentType.fork,
   ResolvedPreset? current,
+  ValueChanged<String>? onEnterManually,
+  void Function(ComponentType type, String query)? onRequestProduct,
   bool settle = true,
 }) async {
   final outcome = _Outcome();
@@ -130,6 +183,8 @@ Future<_Outcome> _open(
                   context: context,
                   componentType: type,
                   current: current,
+                  onEnterManually: onEnterManually,
+                  onRequestProduct: onRequestProduct ?? (_, _) {},
                 );
                 outcome.closed = true;
               },
@@ -169,6 +224,20 @@ Future<void> _openFoxTrims(WidgetTester tester) async {
 bool _isSelected(WidgetTester tester, String label) =>
     tester.widget<ListTile>(find.widgetWithText(ListTile, label)).selected;
 
+/// The breadcrumb is the sheet's only horizontal scroll view.
+final Finder _breadcrumb = find.byWidgetPredicate(
+  (widget) => widget is SingleChildScrollView && widget.scrollDirection == Axis.horizontal,
+);
+
+List<String> _crumbTexts(WidgetTester tester) => [
+  for (final text in tester.widgetList<Text>(find.descendant(of: _breadcrumb, matching: find.byType(Text)))) text.data!,
+];
+
+Future<void> _tapCrumb(WidgetTester tester, String label) async {
+  await tester.tap(find.descendant(of: _breadcrumb, matching: find.text(label)));
+  await tester.pumpAndSettle();
+}
+
 /// FOX 36 Factory with GRIP X2 and 160 mm by default, from its own parse of
 /// the file, as a saved component resolves it.
 ResolvedPreset _currentFoxFactory([Map<String, Object> values = const {'damper': 'grip_x2', 'travel_mm': 160}]) {
@@ -205,7 +274,7 @@ void main() {
 
       await _tap(tester, '2025–2026');
       expect(find.text('Select trim'), findsOneWidget);
-      expect(find.text('FOX 36 2025–2026'), findsOneWidget, reason: 'the context line names the path');
+      expect(_crumbTexts(tester), ['FOX', '36', '2025–2026'], reason: 'the breadcrumb names the path');
       expect(find.text('Factory'), findsOneWidget);
       expect(find.text('Performance'), findsOneWidget);
     });
@@ -229,6 +298,75 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Select generation'), findsOneWidget);
+    });
+  });
+
+  group('row subtitles', () {
+    testWidgets('a brand lists its models in authored order', (tester) async {
+      await _open(tester);
+
+      expect(find.text('36 · 38'), findsOneWidget);
+      expect(find.text('Bolt'), findsOneWidget);
+    });
+
+    testWidgets('a model lists the products below it and spans their years', (tester) async {
+      await _open(tester);
+      await _tap(tester, 'FOX');
+
+      final row = find.widgetWithText(ListTile, '36');
+      expect(find.descendant(of: row, matching: find.text('Factory · Performance · Float')), findsOneWidget);
+      expect(find.descendant(of: row, matching: find.byType(YearBadge)), findsOneWidget);
+      expect(find.text('2019-2026'), findsOneWidget);
+      expect(
+        find.descendant(of: find.widgetWithText(ListTile, '38'), matching: find.byType(YearBadge)),
+        findsNothing,
+        reason: 'no years known',
+      );
+    });
+
+    testWidgets('a generation lists its trims without a year badge', (tester) async {
+      await _open(tester);
+      await _tap(tester, 'FOX');
+      await _tap(tester, '36');
+
+      final row = find.widgetWithText(ListTile, '2025–2026');
+      expect(find.descendant(of: row, matching: find.text('Factory · Performance')), findsOneWidget);
+      expect(find.descendant(of: row, matching: find.byType(YearBadge)), findsNothing);
+    });
+
+    testWidgets('a model whose products are generations lists no subtitle', (tester) async {
+      await _open(tester, repository: _repository([_ohlinsGenerationYaml]), type: ComponentType.shock);
+      await _tap(tester, 'Öhlins');
+
+      final row = find.widgetWithText(ListTile, 'TTX22');
+      expect(tester.widget<ListTile>(row).subtitle, isNull);
+      expect(find.descendant(of: row, matching: find.text('2020-2026')), findsOneWidget);
+    });
+  });
+
+  group('single-child levels', () {
+    testWidgets('are skipped on the way in and on the way back', (tester) async {
+      await _open(tester, repository: _repository([_foxYaml, _soloYaml]));
+
+      await _tap(tester, 'Solo');
+      expect(find.text('Select trim'), findsOneWidget);
+      expect(find.text('Base'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
+      expect(find.text('Choose from catalog'), findsOneWidget);
+    });
+
+    testWidgets('are skipped when opening on the current selection', (tester) async {
+      final solo = catalogProducts(parseCatalogFile(_soloYaml)).first;
+      await _open(tester, repository: _repository([_foxYaml, _soloYaml]), current: solo);
+
+      expect(find.text('Select trim'), findsOneWidget);
+      expect(_isSelected(tester, 'Base'), isTrue);
+
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
+      expect(find.text('Choose from catalog'), findsOneWidget);
     });
   });
 
@@ -294,8 +432,7 @@ void main() {
     testWidgets('groups shock sizes by eye-to-eye length', (tester) async {
       final outcome = await _open(tester, type: ComponentType.shock);
       await _tap(tester, 'Öhlins');
-      await _tap(tester, 'TTX22');
-      expect(find.text('Select version'), findsOneWidget);
+      expect(find.text('Select version'), findsOneWidget, reason: 'the brand has a single model');
 
       await _tap(tester, 'm.2');
       expect(find.text('Eye-to-eye 210 mm'), findsOneWidget);
@@ -405,6 +542,61 @@ void main() {
     });
   });
 
+  group('model year', () {
+    testWidgets('offers the years of the generation, newest first, and persists the choice', (tester) async {
+      final outcome = await _open(tester);
+      await _openFoxTrims(tester);
+      await _tap(tester, 'Performance');
+
+      expect(find.text('Model year'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.widgetWithText(ChoiceChip, '2026')).dx,
+        lessThan(tester.getTopLeft(find.widgetWithText(ChoiceChip, '2025')).dx),
+      );
+
+      await _tapChip(tester, '2025');
+      await _tap(tester, 'Apply');
+
+      expect(toComponentPreset(outcome.result!).toJson()['year'], 2025);
+    });
+
+    testWidgets('skipping leaves the year unset', (tester) async {
+      final outcome = await _open(tester);
+      await _openFoxTrims(tester);
+      await _tap(tester, 'Performance');
+      await _tap(tester, 'Skip');
+
+      expect(toComponentPreset(outcome.result!).toJson().containsKey('year'), isFalse);
+    });
+
+    testWidgets('a product with one year or none has no year chips', (tester) async {
+      await _open(tester, repository: _repository([_soloYaml]));
+      await _tap(tester, 'Solo');
+      await _tap(tester, 'Base');
+
+      expect(find.text('Model year'), findsNothing);
+    });
+
+    testWidgets('opens with the year of the current selection chosen', (tester) async {
+      await _open(tester, current: _currentFoxFactory().withYear(2026));
+
+      expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, '2026')).selected, isTrue);
+      expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, '2025')).selected, isFalse);
+    });
+
+    testWidgets('prefills a year typed in the search', (tester) async {
+      final outcome = await _open(tester);
+
+      await tester.enterText(find.byType(TextField), 'fox 36 performance 2026');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'FOX 36 Performance');
+
+      expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, '2026')).selected, isTrue);
+      await _tap(tester, 'Apply');
+      expect(outcome.result!.year, 2026);
+    });
+  });
+
   testWidgets('search jumps straight to a product', (tester) async {
     await _open(tester);
 
@@ -419,6 +611,112 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
     expect(find.text('FOX 36 Factory'), findsOneWidget, reason: 'back returns to the results');
+  });
+
+  group('breadcrumb', () {
+    testWidgets('names each choice on the way in, a chosen value included', (tester) async {
+      await _open(tester);
+      await _openFoxTrims(tester);
+      await _tap(tester, 'Factory');
+      await _tap(tester, 'GRIP X2');
+
+      expect(_crumbTexts(tester), ['FOX', '36', '2025–2026', 'Factory', 'GRIP X2']);
+    });
+
+    testWidgets('joins a collapsed group to its brand', (tester) async {
+      await _open(tester, type: ComponentType.shock);
+      await _tap(tester, 'Öhlins');
+      expect(_crumbTexts(tester), ['Öhlins TTX22']);
+
+      await _tap(tester, 'm.2');
+      expect(_crumbTexts(tester), ['Öhlins TTX22', 'm.2']);
+    });
+
+    testWidgets('a search result is one crumb', (tester) async {
+      await _open(tester);
+      await tester.enterText(find.byType(TextField), 'grip x2');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'FOX 36 Factory');
+
+      expect(_crumbTexts(tester), ['FOX 36 Factory']);
+    });
+
+    testWidgets('a tap returns to where that choice was made', (tester) async {
+      await _open(tester, current: _currentFoxFactory());
+      expect(_crumbTexts(tester), ['FOX', '36', '2025–2026', 'Factory', 'GRIP X2']);
+
+      await _tapCrumb(tester, '36');
+      expect(find.text('Select model'), findsOneWidget);
+      expect(_isSelected(tester, '36'), isTrue);
+      expect(_crumbTexts(tester), ['FOX']);
+
+      await _tapCrumb(tester, 'FOX');
+      expect(find.text('Choose from catalog'), findsOneWidget);
+      expect(_breadcrumb, findsNothing, reason: 'the brand list has the search field instead');
+    });
+  });
+
+  testWidgets('system back steps back a stage, then closes the sheet', (tester) async {
+    final outcome = await _open(tester);
+    await _tap(tester, 'FOX');
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Choose from catalog'), findsOneWidget);
+    expect(outcome.closed, isFalse);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(outcome.closed, isTrue);
+    expect(outcome.result, isNull);
+  });
+
+  testWidgets('only the current row has a bold title', (tester) async {
+    await _open(tester, current: _currentFoxFactory());
+    await _tapCrumb(tester, 'Factory');
+
+    expect(tester.widget<Text>(find.text('Factory')).style?.fontWeight, FontWeight.w600);
+    expect(tester.widget<Text>(find.text('Performance')).style?.fontWeight, isNull);
+  });
+
+  group('no matches', () {
+    Future<void> search(WidgetTester tester, String query) async {
+      await tester.enterText(find.byType(TextField), query);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('entering manually closes the sheet with the query', (tester) async {
+      String? entered;
+      final outcome = await _open(tester, onEnterManually: (query) => entered = query);
+      await search(tester, 'Zzz Fork');
+      expect(find.text('No matches for "Zzz Fork".'), findsOneWidget);
+
+      await _tap(tester, 'Enter manually');
+
+      expect(entered, 'Zzz Fork');
+      expect(outcome.closed, isTrue);
+      expect(outcome.result, isNull);
+    });
+
+    testWidgets('manual entry is offered only when the caller takes it', (tester) async {
+      await _open(tester);
+      await search(tester, 'zzz');
+
+      expect(find.text('Enter manually'), findsNothing);
+      expect(find.text('Request this product'), findsOneWidget);
+    });
+
+    testWidgets('a query is requested once', (tester) async {
+      final requests = <(ComponentType, String)>[];
+      await _open(tester, onRequestProduct: (type, query) => requests.add((type, query)));
+      await search(tester, 'Zzz Fork');
+
+      await _tap(tester, 'Request this product');
+      expect(find.text('Requested, thanks'), findsOneWidget);
+      await _tap(tester, 'Requested, thanks');
+
+      expect(requests, [(ComponentType.fork, 'Zzz Fork')]);
+    });
   });
 
   group('states', () {
@@ -470,7 +768,8 @@ nodes:
     await _tap(tester, 'Cane Creek With An Unusually Long Brand Name For Testing');
     await _tap(tester, 'DBcoil IL Inline Coil Shock With A Very Long Model Name That Wraps');
 
-    expect(find.byType(ChoiceChip), findsNWidgets(27));
+    // 27 sizes, plus one chip per model year 2019–2026.
+    expect(find.byType(ChoiceChip), findsNWidgets(35));
     expect(tester.takeException(), isNull);
   });
 }

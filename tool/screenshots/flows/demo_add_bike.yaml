@@ -1,5 +1,7 @@
-# Demo: add a bike to the garage. Run it with `run_android.sh --demo`, which
-# records it with touch dots to build/marketing/raw/demo_add_bike.mp4.
+# scenario: empty
+# Demo: from an empty garage to the first bike. Run it with
+# `run_ios.sh iphone --demo` (or `run_android.sh --demo`), which records it with
+# touch dots to build/marketing/raw/.
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
@@ -11,7 +13,7 @@ appId: ${APP_ID}
 - runFlow:
     file: _pause.yaml
     env:
-      MS: 1000
+      MS: 1500
 
 # The name field is focused when the form opens. Typing during the page
 # transition can double the first letter.

@@ -8,11 +8,11 @@ enum MapPinState {
 
 bool hasAnyPositionedMapData({
   required bool hasSetups,
-  required bool hasRatingEntries,
+  required bool hasFeedbacks,
   required bool hasStravaActivities,
-  required bool ratingEnabled,
+  required bool feedbackEnabled,
   required bool stravaActive,
-}) => hasSetups || (ratingEnabled && hasRatingEntries) || (stravaActive && hasStravaActivities);
+}) => hasSetups || (feedbackEnabled && hasFeedbacks) || (stravaActive && hasStravaActivities);
 
 MapPinState mapPinState(int visiblePinCount, bool hasAnyPositionedData) {
   if (visiblePinCount > 0) return MapPinState.success;

@@ -2,18 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/rating/rating_entry.dart';
+import '../../models/feedback/ride_feedback.dart';
 import '../../models/setup.dart';
+import '../../models/strava/strava_activity.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/feedback_actions.dart';
 import '../../utils/setup_actions.dart';
 import '../sheets/compare_setups.dart';
 
 class SetupOptionsMenu extends StatelessWidget {
   final Setup setup;
+  final String? heroTag; // Hero tag of the setup tile header
+  final StravaActivity? stravaActivity;
+  final bool enabled;
 
   const SetupOptionsMenu({
     super.key,
     required this.setup,
+    this.heroTag,
+    this.stravaActivity,
+    this.enabled = true,
   });
 
   @override
@@ -21,6 +29,7 @@ class SetupOptionsMenu extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
 
     return PopupMenuButton<_SetupOption>(
+      enabled: enabled,
       onSelected: (option) => _handleSelection(context, option),
       itemBuilder: (context) => [
         for (final option in _SetupOption.values)
@@ -31,9 +40,11 @@ class SetupOptionsMenu extends StatelessWidget {
                 spacing: 10,
                 children: [
                   Icon(_iconData(option), size: 20),
-                  Semantics(
-                    identifier: option == _SetupOption.compare ? AutomationIds.setupActionsCompare : null,
-                    child: Text(option.label),
+                  Flexible(
+                    child: Semantics(
+                      identifier: option == _SetupOption.compare ? AutomationIds.setupActionsCompare : null,
+                      child: Text(option.label, overflow: TextOverflow.ellipsis),
+                    ),
                   ),
                 ],
               ),
@@ -45,14 +56,11 @@ class SetupOptionsMenu extends StatelessWidget {
   IconData _iconData(_SetupOption option) =>
       option == _SetupOption.bookmark && setup.isBookmarked ? Icons.bookmark_remove : option.iconData;
 
-  bool _isVisible(
-    _SetupOption option,
-    AppSettings appSettings,
-  ) {
+  bool _isVisible(_SetupOption option, AppSettings appSettings) {
     return switch (option) {
       _SetupOption.edit || _SetupOption.share || _SetupOption.restore || _SetupOption.compare || _SetupOption.remove => true,
       _SetupOption.bookmark => appSettings.enableSetupBookmark,
-      _SetupOption.addRating => appSettings.enableRating,
+      _SetupOption.addFeedback => appSettings.enableRating,
     };
   }
 
@@ -71,8 +79,13 @@ class SetupOptionsMenu extends StatelessWidget {
         await SetupActions.duplicateSetup(context, setup: setup);
       case _SetupOption.compare:
         await showCompareSetupsSheet(context, setupA: null, setupB: setup);
-      case _SetupOption.addRating:
-        await SetupActions.addRatingEntryForSetup(context, setup: setup);
+      case _SetupOption.addFeedback:
+        await FeedbackActions.addFeedbackForSetup(
+          context,
+          setup: setup,
+          heroTag: heroTag,
+          stravaActivity: stravaActivity,
+        );
       case _SetupOption.remove:
         await SetupActions.removeSetup(context, setup: setup);
     }
@@ -85,7 +98,7 @@ enum _SetupOption {
   share('Share', Icons.share),
   restore('Restore', Icons.restore),
   compare('Compare', Icons.compare),
-  addRating('Add Rating', RatingEntry.iconData),
+  addFeedback('Add Feedback', RideFeedback.iconData),
   remove('Remove', Icons.delete);
 
   final String label;

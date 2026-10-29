@@ -31,11 +31,29 @@ void main() {
   // Reshapes a freshly-created (current-schema) database back to [version] by
   // undoing every structural change introduced after it, newest-first. This lets
   // us drive the real `onUpgrade` from any historical version without
-  // hand-writing each full schema. v4 (setups.name NOT NULL -> nullable), v6
-  // (rating_entries reshape) and the data-only steps (v2, v11, v12) need no
+  // hand-writing each full schema. v4 (setups.name NOT NULL -> nullable)
+  // and the data-only steps (v2, v11, v12) need no
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 27) {
+      // v27 added where a setup was copied from.
+      await db.customStatement('ALTER TABLE setups DROP COLUMN source_setup_id');
+      await db.customStatement('ALTER TABLE setups DROP COLUMN source_kind');
+    }
+    if (version < 26) {
+      // v26 added the feedback tables and setups.test_session_id.
+      for (final table in _feedbackTables) {
+        await db.customStatement('DROP TABLE $table');
+      }
+      await db.customStatement('ALTER TABLE setups DROP COLUMN test_session_id');
+    }
+    if (version >= 5 && version < 25) {
+      // v25 dropped the rating v2 tables, which exist from v5 on.
+      for (final table in _ratingV2Tables) {
+        await db.customStatement('CREATE TABLE $table (id TEXT NOT NULL PRIMARY KEY)');
+      }
+    }
     if (version < 24) {
       // v24 added the strava_activities gear/date index.
       await db.customStatement('DROP INDEX strava_activities_gear_date_idx');
@@ -93,18 +111,12 @@ void main() {
       await db.customStatement('ALTER TABLE setups DROP COLUMN images');
     }
     if (version < 7) {
-      // v7 dropped the `category` column from adjustments + rating_metrics.
+      // v7 dropped the `category` column from adjustments.
       await db.customStatement('ALTER TABLE adjustments ADD COLUMN category TEXT');
     }
     if (version < 5) {
-      // v5 introduced the rating_* tables and dropped adjustments.rating_id.
-      await db.customStatement('DROP TABLE rating_entry_values');
-      await db.customStatement('DROP TABLE rating_entries');
-      await db.customStatement('DROP TABLE rating_metrics');
+      // v5 dropped adjustments.rating_id.
       await db.customStatement('ALTER TABLE adjustments ADD COLUMN rating_id TEXT');
-    } else if (version < 7) {
-      // rating_metrics exists from v5 on and carried `category` until v7.
-      await db.customStatement('ALTER TABLE rating_metrics ADD COLUMN category TEXT');
     }
     if (version < 3) {
       // v3 added task_rules.tags.
@@ -217,7 +229,7 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -295,11 +307,13 @@ void main() {
           expect(row.read<String?>('name'), 'Unnamed Setup');
         }
 
-        // Schema converged on the post-v5 rating tables / post-v7 column drops
-        // regardless of entry point.
+        // Schema converged on the post-v7 column drops and the v25 rating
+        // table drops regardless of entry point.
         expect(await columnNames(db, 'adjustments'), isNot(contains('category')));
         expect(await columnNames(db, 'adjustments'), isNot(contains('rating_id')));
-        expect(await columnNames(db, 'rating_metrics'), isNot(contains('category')));
+        for (final table in _ratingV2Tables) {
+          expect(await columnNames(db, table), isEmpty, reason: '$table left behind after v$startVersion upgrade');
+        }
         expect(await columnNames(db, 'task_rules'), contains('tags'));
 
         // The v18 step adds the bike initial stats, defaulting to zero.
@@ -330,6 +344,20 @@ void main() {
         final taskEntry = await (db.select(db.taskEntries)..where((t) => t.id.equals('te1'))).getSingle();
         expect(taskRule.attachments, isEmpty);
         expect(taskEntry.attachments, isEmpty);
+
+        // Every path ends with exactly one v26 `test_session_id` column on
+        // setups, whether the v4/v20 recreation or the v26 step added it.
+        expect(await columnCount(db, 'setups', 'test_session_id'), 1);
+        expect(typed.testSessionId, isNull);
+
+        // Likewise for the v27 source columns.
+        expect(await columnCount(db, 'setups', 'source_setup_id'), 1);
+        expect(await columnCount(db, 'setups', 'source_kind'), 1);
+        expect(typed.sourceSetupId, isNull);
+        expect(typed.sourceKind, isNull);
+        for (final table in _feedbackTables) {
+          expect(await columnNames(db, table), isNotEmpty, reason: '$table missing after v$startVersion upgrade');
+        }
       });
     }
   });
@@ -362,6 +390,20 @@ void main() {
     expect(await columnNames(retry, 'installations'), contains('parent_type'));
   });
 }
+
+const _ratingV2Tables = [
+  'rating_entry_values',
+  'rating_entries',
+  'rating_metrics',
+  'ratings',
+];
+
+const _feedbackTables = [
+  'feedbacks',
+  'feedback_observations',
+  'feedback_comparisons',
+  'test_sessions',
+];
 
 const _bikeInitialStatsColumns = [
   'initial_distance',

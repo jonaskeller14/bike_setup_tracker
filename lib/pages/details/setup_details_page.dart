@@ -6,11 +6,13 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
+import '../../models/feedback/ride_feedback.dart';
 import '../../models/person.dart';
-import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
+import '../../utils/automation_ids.dart';
+import '../../utils/feedback_actions.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/setup_actions.dart';
 import '../../utils/url.dart';
@@ -26,10 +28,12 @@ import '../../widgets/items/card_header_tile.dart';
 import '../../widgets/items/context_bike_person_card.dart';
 import '../../widgets/items/context_location_weather_card.dart';
 import '../../widgets/items/context_meta_card.dart';
-import '../../widgets/items/rating_summary_card.dart';
+import '../../widgets/items/feedback_list_tile.dart';
+import '../../widgets/items/setup_tile_header.dart';
 import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
+import '../../widgets/sheets/test_session_sheet.dart';
 import '../../widgets/text/section_title.dart';
 import '../../widgets/tooltips/component_tooltip.dart';
 import '../../widgets/tooltips/person_tooltip.dart';
@@ -198,11 +202,11 @@ class SetupDetailsPageContent extends StatelessWidget {
         await SetupActions.shareSetup(context, setup: setup);
       case _SetupDetailsAction.compare:
         await showCompareSetupsSheet(context, setupA: null, setupB: setup, showViewOnMap: showViewOnMap);
+      case _SetupDetailsAction.addFeedback:
+        await FeedbackActions.addFeedbackForSetup(context, setup: setup);
       case _SetupDetailsAction.restore:
         final restored = await SetupActions.duplicateSetup(context, setup: setup);
         if (restored != null && context.mounted) Navigator.pop(context);
-      case _SetupDetailsAction.addRating:
-        await SetupActions.addRatingEntryForSetup(context, setup: setup);
       case _SetupDetailsAction.viewOnMap:
         await MapActions.openSetupsOnMap(context, [setup]);
       case _SetupDetailsAction.openInMapsApp:
@@ -211,58 +215,61 @@ class SetupDetailsPageContent extends StatelessWidget {
   }
 
   Widget _actionsMenu(BuildContext context, {required Setup setup}) {
-    final appSettings = context.read<AppSettings>();
     final hasPosition = setup.position?.latitude != null && setup.position?.longitude != null;
     final actions = <_SetupDetailsAction>[
       if (showEditAction) _SetupDetailsAction.edit,
       _SetupDetailsAction.share,
       _SetupDetailsAction.compare,
+      if (context.watch<AppSettings>().enableRating) _SetupDetailsAction.addFeedback,
       if (!context.watch<AppRepository>().setupHistory.isCurrent(setup.id)) _SetupDetailsAction.restore,
-      if (appSettings.enableRating) _SetupDetailsAction.addRating,
       if (showViewOnMap) ...[_SetupDetailsAction.viewOnMap, _SetupDetailsAction.openInMapsApp],
     ];
-    return PopupMenuButton<_SetupDetailsAction>(
-      tooltip: 'Setup actions',
-      onSelected: (action) => _onAction(context, action, setup: setup),
-      itemBuilder: (context) => [
-        for (final action in actions)
-          PopupMenuItem(
-            value: action,
-            enabled: hasPosition || !action.needsPosition,
-            child: Row(
-              spacing: 10,
-              children: [
-                Icon(action.icon),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(action.label),
-                      if (!hasPosition && action.needsPosition)
-                        Text(
-                          'Location not available',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return Semantics(
+      container: true,
+      identifier: AutomationIds.setupDetailsActions,
+      child: PopupMenuButton<_SetupDetailsAction>(
+        tooltip: 'Setup actions',
+        onSelected: (action) => _onAction(context, action, setup: setup),
+        itemBuilder: (context) => [
+          for (final action in actions)
+            PopupMenuItem(
+              value: action,
+              enabled: hasPosition || !action.needsPosition,
+              child: Row(
+                spacing: 10,
+                children: [
+                  Icon(action.icon),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(action.label),
+                        if (!hasPosition && action.needsPosition)
+                          Text(
+                            'Location not available',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+        ],
+        child: AbsorbPointer(
+          child: IconButton.filled(
+            iconSize: 20,
+            style: IconButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {},
+            icon: const Icon(Icons.more_vert),
           ),
-      ],
-      child: AbsorbPointer(
-        child: IconButton.filled(
-          iconSize: 20,
-          style: IconButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          onPressed: () {},
-          icon: const Icon(Icons.more_vert),
         ),
       ),
     );
@@ -373,9 +380,60 @@ class SetupDetailsPageContent extends StatelessWidget {
               person: person,
               personLinked: setup.person != null,
               showPerson: appSettings.enablePerson,
+              testSessionId: appSettings.enableRating ? setup.testSessionId : null,
+              testSession: context.watch<AppRepository>().testSessions[setup.testSessionId],
+              onTestSessionTap: () => showTestSessionSheet(context: context, sessionId: setup.testSessionId!),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _feedbackSection(BuildContext context, {required Setup setup}) {
+    final appRepository = context.watch<AppRepository>();
+    final feedbacks = appRepository.feedbacksForSetup(setup.id);
+    final appSettings = context.watch<AppSettings>();
+    final summary = [
+      ?SetupTileHeader.rankOf(setup, appSettings, appRepository),
+      ?SetupTileHeader.openIssuesOf(setup, appSettings, appRepository),
+    ];
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        child: feedbacks.isEmpty
+            ? EmptyStatePlaceholder2(
+                iconData: RideFeedback.iconData,
+                title: "No feedback yet",
+                subtitle: "Tap to note how this setup rode",
+                onTap: () => FeedbackActions.addFeedbackForSetup(context, setup: setup),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (summary.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 4, children: summary),
+                    ),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      children: [
+                        for (final feedback in feedbacks) FeedbackListTile(feedback: feedback),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => FeedbackActions.addFeedbackForSetup(context, setup: setup),
+                    icon: const Icon(Icons.add),
+                    label: const Text("Add Feedback"),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -647,25 +705,8 @@ class SetupDetailsPageContent extends StatelessWidget {
     );
   }
 
-  SliverToBoxAdapter _ratingEntriesSection(BuildContext context, {required Setup setup}) {
-    final appRepository = context.watch<AppRepository>();
-
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        child: RatingSummaryCard(
-          entryCount: appRepository.ratingEntriesForSetup(setup.id).length,
-          score: appRepository.scoreForSetup(setup.id),
-          metricScores: appRepository.metricScoresForSetup(setup.id),
-          metrics: appRepository.allRatingMetricsById,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -727,12 +768,12 @@ class SetupDetailsPageContent extends StatelessWidget {
                     _legend(context),
                   ]
                 ),
-                if (appSettings.enableRating)
+                if (context.watch<AppSettings>().enableRating)
                   SliverMainAxisGroup(
                     slivers: [
                       const SliverToBoxAdapter(child: Divider(height: 8)),
-                      _sectionTitle(context, setup: setup, title: "Ratings"),
-                      _ratingEntriesSection(context, setup: setup),
+                      _sectionTitle(context, setup: setup, title: "Feedback"),
+                      _feedbackSection(context, setup: setup),
                     ],
                   ),
               ],
@@ -774,8 +815,8 @@ enum _SetupDetailsAction {
   edit('Edit', Icons.edit),
   share('Share', Icons.share),
   compare('Compare', Icons.compare),
+  addFeedback('Add Feedback', RideFeedback.iconData),
   restore('Restore', Icons.restore),
-  addRating('Add Rating', RatingEntry.iconData),
   viewOnMap('View on map', Icons.map, needsPosition: true),
   openInMapsApp('Open in maps app', Icons.directions, needsPosition: true);
 

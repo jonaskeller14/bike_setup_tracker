@@ -6,6 +6,7 @@ class TileMetaRow extends StatelessWidget {
   final bool isError;
   final Color? iconColor;
   final bool muted;
+  final bool bold;
 
   const TileMetaRow({
     super.key,
@@ -14,6 +15,7 @@ class TileMetaRow extends StatelessWidget {
     this.isError = false,
     this.iconColor,
     this.muted = false,
+    this.bold = false,
   });
 
   @override
@@ -37,7 +39,7 @@ class TileMetaRow extends StatelessWidget {
         Flexible(
           child: Text(
             text,
-            style: TextStyle(color: textColor, fontSize: 12),
+            style: TextStyle(color: textColor, fontSize: 12, fontWeight: bold ? FontWeight.w600 : null),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),

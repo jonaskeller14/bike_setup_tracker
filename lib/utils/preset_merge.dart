@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 
 import '../models/adjustment/adjustment.dart';
 import 'adjustment_role.dart';
-import 'unit_conversion.dart';
 
 enum PresetMergeAction { merged, newAdjustment, notAdded }
 
@@ -86,12 +85,17 @@ class MergedAdjustment {
 /// It adopts the catalog range only while every recorded value stays valid; a
 /// numerical range only in the same unit. A categorical adjustment gains the
 /// catalog options it lacks, so option values of a guide can be applied.
-MergedAdjustment mergeAdjustment(Adjustment existing, Adjustment catalog, Iterable<AdjustmentValue> recorded) {
+/// [unknownMaxKeys] are the catalog preset keys whose max is a placeholder.
+MergedAdjustment mergeAdjustment(
+  Adjustment existing,
+  Adjustment catalog,
+  Iterable<AdjustmentValue> recorded, {
+  Set<String> unknownMaxKeys = const {},
+}) {
   final stamped = existing.copyWith(presetKey: catalog.presetKey);
   final Adjustment? withRange = switch ((stamped, catalog)) {
     // A placeholder max is a guess; the rider's own range is better.
-    (StepAdjustment(), StepAdjustment(:final notes)) when notes?.contains(StepAdjustment.unknownMaxWarning) ?? false =>
-      null,
+    (StepAdjustment(), StepAdjustment(:final presetKey)) when unknownMaxKeys.contains(presetKey) => null,
     (final StepAdjustment own, final StepAdjustment c) => own.copyWith(min: c.min, max: c.max, step: c.step),
     (SagAdjustment(), _) => null,
     (final NumericalAdjustment own, final NumericalAdjustment c) when own.unit == c.unit => own.copyWith(
@@ -125,12 +129,18 @@ class PresetMergeResult {
 PresetMergeResult applyPresetMerge(
   List<Adjustment> existing,
   List<PresetMergeRow> rows,
-  Map<String, List<AdjustmentValue>> recordedValues,
-) {
+  Map<String, List<AdjustmentValue>> recordedValues, {
+  Set<String> unknownMaxKeys = const {},
+}) {
   final merged = <String, Adjustment>{
     for (final row in rows)
       if (row.existing case final own?)
-        own.id: mergeAdjustment(own, row.catalog, recordedValues[own.id] ?? const []).adjustment,
+        own.id: mergeAdjustment(
+          own,
+          row.catalog,
+          recordedValues[own.id] ?? const [],
+          unknownMaxKeys: unknownMaxKeys,
+        ).adjustment,
   };
   final newAdjustments = [
     for (final row in rows)
@@ -146,21 +156,16 @@ PresetMergeResult applyPresetMerge(
 PresetMergeResult replaceWithPreset(List<Adjustment> existing, List<Adjustment> catalog) =>
     PresetMergeResult(List.of(catalog), List.of(catalog), removed: List.of(existing));
 
-/// [recordedValues] as they will be stored once the [conversions] staged for an
-/// unsaved unit change are applied, so a range is checked in the unit it has.
-Map<String, List<AdjustmentValue>> convertRecordedValues(
+/// [recordedValues] as they will be stored once the [migrations] staged for
+/// unsaved adjustment edits are applied, so a range is checked in the unit it
+/// has. A value a migration clears is left out.
+Map<String, List<AdjustmentValue>> migrateRecordedValues(
   Map<String, List<AdjustmentValue>> recordedValues,
-  Map<String, ValueUnitConversion> conversions,
+  Map<String, ValueMigration> migrations,
 ) => {
   for (final MapEntry(:key, :value) in recordedValues.entries)
-    key: switch (conversions[key]) {
-      final conversion? => [
-        for (final recorded in value)
-          if (recorded is NumericalValue)
-            NumericalValue(convertUnit(recorded.value, conversion.from, conversion.to))
-          else
-            recorded,
-      ],
+    key: switch (migrations[key]) {
+      final migration? => [for (final recorded in value) ?migration.apply(recorded)],
       null => value,
     },
 };

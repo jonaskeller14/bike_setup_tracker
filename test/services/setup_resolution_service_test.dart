@@ -105,7 +105,6 @@ void main() {
         bikes: {myBike.id: myBike},
         persons: {me.id: me},
         components: {fork.id: fork, shock.id: shock},
-        ratings: {},
       );
 
       expect(result.history.previousBikeValuesOf('s2')[reboundAdj.id], TextValue.orNull('5'));
@@ -168,7 +167,6 @@ void main() {
         bikes: {myBike.id: myBike},
         persons: {me.id: me},
         components: {fork.id: fork, shock.id: shock},
-        ratings: {},
       );
       final resolved = result.setups;
 
@@ -227,7 +225,6 @@ void main() {
         bikes: {myBike.id: myBike, otherBike.id: otherBike},
         persons: {me.id: me},
         components: {movingShock.id: movingShock},
-        ratings: {},
       );
 
       // s2 should inherit the shock value even though it's on a different bike
@@ -284,7 +281,6 @@ void main() {
         bikes: {myBike.id: myBike},
         persons: {me.id: me},
         components: {earlyFork.id: earlyFork},
-        ratings: {},
       );
       final resolved = result.setups;
 
@@ -344,7 +340,6 @@ void main() {
         bikes: {myBike.id: myBike, otherBike.id: otherBike},
         persons: {me.id: me},
         components: {fork.id: fork, shock.id: shock},
-        ratings: {},
       );
 
       // s3 should inherit fork pressure '80' from s1, even though s2 was the most recent global setup.
@@ -547,7 +542,6 @@ void main() {
           bikes: {for (final bike in bikes) bike.id: bike},
           persons: {},
           components: {},
-          ratings: {},
         ).history.currentSetupIds;
 
     test('the latest setup of each bike is current, regardless of input order', () {

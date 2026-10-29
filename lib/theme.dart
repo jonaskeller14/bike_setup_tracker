@@ -119,6 +119,60 @@ class SnackBarColors extends ThemeExtension<SnackBarColors> {
   }
 }
 
+/// Feedback outcomes, from worse (red) to better (green).
+class FeedbackOutcomeColors extends ThemeExtension<FeedbackOutcomeColors> {
+  final Color better;
+  final Color worse;
+
+  /// "Same": grey, so it stands apart from both ends and from the primary colour.
+  final Color neutral;
+
+  /// Text on a full [better] or [worse] fill.
+  final Color onOutcome;
+
+  const FeedbackOutcomeColors({
+    required this.better,
+    required this.worse,
+    required this.neutral,
+    required this.onOutcome,
+  });
+
+  static const light = FeedbackOutcomeColors(
+    better: Color(0xFF2E7D32), // green 800 — matches SnackBarColors.success
+    worse: Color(0xFFC62828), // red 800 — matches TaskStatusColors.overdue
+    neutral: Color(0xFF757575), // grey 600
+    onOutcome: Colors.white,
+  );
+
+  static const dark = FeedbackOutcomeColors(
+    better: Color(0xFF81C784), // green 300
+    worse: Color(0xFFE57373), // red 300
+    neutral: Color(0xFFBDBDBD), // grey 400
+    onOutcome: Colors.black,
+  );
+
+  @override
+  FeedbackOutcomeColors copyWith({Color? better, Color? worse, Color? neutral, Color? onOutcome}) {
+    return FeedbackOutcomeColors(
+      better: better ?? this.better,
+      worse: worse ?? this.worse,
+      neutral: neutral ?? this.neutral,
+      onOutcome: onOutcome ?? this.onOutcome,
+    );
+  }
+
+  @override
+  FeedbackOutcomeColors lerp(FeedbackOutcomeColors? other, double t) {
+    if (other == null) return this;
+    return FeedbackOutcomeColors(
+      better: Color.lerp(better, other.better, t)!,
+      worse: Color.lerp(worse, other.worse, t)!,
+      neutral: Color.lerp(neutral, other.neutral, t)!,
+      onOutcome: Color.lerp(onOutcome, other.onOutcome, t)!,
+    );
+  }
+}
+
 /// Dedicated "Sand" palette for app hints so they read as guidance, not regular UI.
 /// Primary roles of `ColorScheme.fromSeed(seedColor: Color(0xFFC8A165))` (tonal spot), matching the app theme's tonality.
 class HintColors extends ThemeExtension<HintColors> {
@@ -268,7 +322,7 @@ final materialAppTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.light, TaskStatusColors.light, SnackBarColors.light, DialColors.light, HintColors.light],
+  extensions: const [ValueHighlightColors.light, TaskStatusColors.light, SnackBarColors.light, DialColors.light, HintColors.light, FeedbackOutcomeColors.light],
 );
 
 final _darkColorScheme = ColorScheme.fromSeed(
@@ -287,7 +341,7 @@ final materialAppDarkTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.dark, TaskStatusColors.dark, SnackBarColors.dark, DialColors.dark, HintColors.dark],
+  extensions: const [ValueHighlightColors.dark, TaskStatusColors.dark, SnackBarColors.dark, DialColors.dark, HintColors.dark, FeedbackOutcomeColors.dark],
 );
 
 List<Color> chartColors(Color primary, int count, {int hueStep = 137}) {

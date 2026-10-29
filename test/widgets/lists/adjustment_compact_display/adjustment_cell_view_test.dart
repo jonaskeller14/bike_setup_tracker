@@ -222,6 +222,32 @@ void main() {
     });
   });
 
+  group('AdjustmentCellView outdated value', () {
+    Color? valueColor(WidgetTester tester, String text) =>
+        tester.widget<Text>(find.descendant(of: find.byType(AdjustmentCellView), matching: find.text(text))).style?.color;
+
+    testWidgets('renders a value outside the current range in the error color', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(250), const NumericalValue(180)));
+
+      expect(valueColor(tester, '250'), materialAppTheme.colorScheme.error);
+      expect(labelOf(tester), 'Fork Pressure, changed from 180 to 250 psi, Outside the current range');
+
+      semantics.dispose();
+    });
+
+    testWidgets('keeps the highlight color for a value inside the range', (tester) async {
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(150), const NumericalValue(180)));
+
+      expect(valueColor(tester, '150'), isNot(materialAppTheme.colorScheme.error));
+    });
+
+    test('a dangling owner value is an error, not outdated', () {
+      expect(ErrorCell(pressure, const NumericalValue(250)).isOutdated, isFalse);
+      expect(ConstantCell(pressure, const NumericalValue(250)).isOutdated, isTrue);
+    });
+  });
+
   group('AdjustmentCellView tooltip', () {
     testWidgets("shows the untruncated values with the cell's arrow", (tester) async {
       await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), TextValue.orNull('RockShox Lyrik Ultimate')!));

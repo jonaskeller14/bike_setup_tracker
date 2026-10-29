@@ -10,8 +10,8 @@ import '../../models/timeline_row.dart';
 import '../../models/timeline_selection.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../items/feedback_list_tile.dart';
 import '../items/installation_list_tile.dart';
-import '../items/rating_entry_list_tile.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
 import '../sheets/installation_sheet.dart';
@@ -23,6 +23,7 @@ import 'replacement_list_tile.dart';
 import 'setup_group_section.dart';
 import 'setup_tile.dart';
 import 'strava_context_wrapper.dart';
+import 'test_session_timeline_item.dart';
 
 class TimelineDaySection extends StatelessWidget{
   final DayHeaderRow header;
@@ -139,14 +140,23 @@ class TimelineDaySection extends StatelessWidget{
             );
           },
         );
-      case RatingEntryTimelineEntry():
-        final selectionId = ratingEntrySelectionId(entry.ratingEntry.id);
-        return RatingEntryListTile(
-          ratingEntry: entry.ratingEntry,
+      case FeedbackTimelineEntry():
+        final selectionId = feedbackSelectionId(entry.feedback.id);
+        return FeedbackListTile(
+          feedback: entry.feedback,
           selectionMode: _selectionMode,
           selected: selection.contains(selectionId),
           onSelectionChanged: _toggleSelection(selectionId),
           showDate: false,
+        );
+      case TestSessionTimelineEntry():
+        final selectionId = testSessionSelectionId(entry.session.id);
+        return TestSessionTimelineItem(
+          entry: entry,
+          onTapRun: (run) => _openSetupDetails(context, setupsList, run),
+          selectionMode: _selectionMode,
+          selected: selection.contains(selectionId),
+          onSelectionChanged: _toggleSelection(selectionId),
         );
     }
   }

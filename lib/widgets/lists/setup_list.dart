@@ -37,7 +37,7 @@ class SetupList extends StatelessWidget {
   bool _hasAnyContent(AppRepository appRepository) {
     return appRepository.setups.isNotEmpty ||
         appRepository.taskEntries.isNotEmpty ||
-        appRepository.ratingEntries.isNotEmpty ||
+        appRepository.feedbacks.isNotEmpty ||
         appRepository.components.values.any((c) => c.installations.isNotEmpty);
   }
 
@@ -123,7 +123,7 @@ class SetupList extends StatelessWidget {
         ? stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isAfter(b) ? a : b)
         : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
 
-    final List<TimelineEntry> entries = [
+    final List<TimelineEntry> flatEntries = [
       if (layers.shows(TimelineLayer.setups))
         ...setupsList
             .where((s) {
@@ -152,18 +152,25 @@ class SetupList extends StatelessWidget {
                   : !ci.installation.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
             })
             .map((ci) => InstallationEntry(ci)),
-      if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries))
-        ...appRepository.view.ratingEntries.values
-            .where((re) {
+      if (appSettings.enableRating && layers.shows(TimelineLayer.feedback))
+        ...appRepository.view.feedbacks.values
+            .where((f) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
               return sortAscending
-                  ? !re.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
-                  : !re.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
+                  ? !f.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
+                  : !f.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
             })
-            .map((re) => RatingEntryTimelineEntry(re)),
+            .map((f) => FeedbackTimelineEntry(f)),
     ];
+    final entries = appSettings.enableRating
+        ? bundleTestSessions(
+            flatEntries,
+            sessions: appRepository.view.testSessions,
+            ratedSetupIdOf: appRepository.resolvedSetupIdFor,
+          )
+        : flatEntries;
     entries.sort(
-      (a, b) => sortAscending ? a.dateUTC.compareTo(b.dateUTC) : b.dateUTC.compareTo(a.dateUTC),
+      (a, b) => sortAscending ? compareTimelineEntries(a, b) : compareTimelineEntries(b, a),
     );
 
     final rows = buildTimelineRows(

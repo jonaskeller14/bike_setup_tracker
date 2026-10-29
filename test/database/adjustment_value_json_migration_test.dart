@@ -48,20 +48,6 @@ void main() {
     );
   }
 
-  Future<void> insertMetric(AppDatabase db, String id, String type) {
-    return db.customStatement(
-      'INSERT INTO rating_metrics (id, rating_id, order_index, weight, name, type, json_payload) '
-      "VALUES ('$id', 'r1', 0, 1.0, '$id', '$type', '{}')",
-    );
-  }
-
-  Future<void> insertEntryValue(AppDatabase db, String metricId, String rawValue) {
-    return db.customStatement(
-      'INSERT INTO rating_entry_values (rating_entry_id, rating_metric_id, value) '
-      "VALUES ('e1', '$metricId', '$rawValue')",
-    );
-  }
-
   /// Seeds a v10 database file with old-format value rows and returns the
   /// re-opened (migrated) database.
   Future<AppDatabase> seedAndMigrate() async {
@@ -75,10 +61,6 @@ void main() {
     await seed.customStatement(
       'INSERT INTO setups (id, bike_id, name, is_deleted, last_modified, datetime, datetime_local, tags) '
       "VALUES ('s1', 'b1', 'S', 0, $epoch, $epoch, $epoch, '[]')",
-    );
-    await seed.customStatement(
-      'INSERT INTO rating_entries (id, bike_id, setup_id, is_deleted, last_modified, date_time_u_t_c, date_time_local) '
-      "VALUES ('e1', 'b1', 's1', 0, $epoch, $epoch, $epoch)",
     );
 
     // Adjustments + old-format setup values, one per type.
@@ -99,14 +81,6 @@ void main() {
     await insertAdjustment(seed, 'd1', 'duration');
     await insertSetupValue(seed, 'd1', '0:00:10.000000');
 
-    // Rating metrics + old-format entry values (proves the 2nd table migrates).
-    await insertMetric(seed, 'mNum', 'numerical');
-    await insertEntryValue(seed, 'mNum', '2.5');
-    await insertMetric(seed, 'mCat', 'categorical');
-    await insertEntryValue(seed, 'mCat', 'Firm');
-    await insertMetric(seed, 'mDur', 'duration');
-    await insertEntryValue(seed, 'mDur', '0:01:00.000000');
-
     await seed.customStatement('PRAGMA user_version = 10');
     await seed.close();
 
@@ -118,13 +92,6 @@ void main() {
   Future<String> rawSetupValue(AppDatabase db, String adjId) async {
     final rows = await db.customSelect(
       "SELECT value FROM setup_adjustment_values WHERE adjustment_id = '$adjId'",
-    ).get();
-    return rows.single.read<String>('value');
-  }
-
-  Future<String> rawEntryValue(AppDatabase db, String metricId) async {
-    final rows = await db.customSelect(
-      "SELECT value FROM rating_entry_values WHERE rating_metric_id = '$metricId'",
     ).get();
     return rows.single.read<String>('value');
   }
@@ -161,16 +128,6 @@ void main() {
       final db = await seedAndMigrate();
       addTearDown(db.close);
       expect(await rawSetupValue(db, 'd1'), '10000000');
-    });
-  });
-
-  group('rating_entry_values re-encoded to JSON', () {
-    test('every metric value type is migrated', () async {
-      final db = await seedAndMigrate();
-      addTearDown(db.close);
-      expect(await rawEntryValue(db, 'mNum'), '2.5');
-      expect(await rawEntryValue(db, 'mCat'), '["Firm"]');
-      expect(await rawEntryValue(db, 'mDur'), '60000000');
     });
   });
 

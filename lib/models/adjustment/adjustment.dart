@@ -5,10 +5,12 @@ import 'package:uuid/uuid.dart';
 
 import 'adjustment_unit.dart';
 import 'adjustment_value.dart';
+import 'value_range.dart';
 
 export 'adjustment_unit.dart';
 export 'adjustment_value.dart';
-export 'value_unit_conversion.dart';
+export 'value_migration.dart';
+export 'value_range.dart';
 
 part 'boolean_adjustment.dart';
 part 'categorical_adjustment.dart';

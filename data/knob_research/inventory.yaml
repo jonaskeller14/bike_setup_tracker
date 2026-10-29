@@ -1,0 +1,597 @@
+# Knob inventory for custom dials (issue #79). See README.md in this folder.
+#
+# One entry per physical knob. A knob shared by several dampers or generations
+# is one entry; list every catalog adjuster that uses it under `catalog`.
+#
+# knobs:
+#   - id: fox/grip_x2_hsc              # <brand>/<slug>, also the knob: value in the catalog
+#     type: step                       # step | categorical | boolean
+#     catalog:                         # <component_type>/<brand>#<damper>.<adjuster>
+#       - fork/fox#grip_x2.hsc
+#     shared_by: "36, 38, 40; 2023-2026 trims"
+#     shape: "round ring with a scalloped grip; LSC cross nested inside"
+#     colors: "black ring, red LSC marker"
+#     sweep_degrees: null              # real rotation if the research finds one
+#     positions: null                  # discrete positions for categorical and boolean knobs
+#     images:
+#       full: [fox/grip_x2_hsc/full/fox-tuning-guide-2025-1.jpg]
+#       knob: []
+#     rendering_notes: ""
+#     status: researching              # researching | archived | no_image | drawn
+#
+# Adjusters with no usable image get status no_image and keep the generic dial.
+
+knobs:
+  - id: "fox/grip_x2_hsc"
+    type: step
+    catalog: ["fork/fox#grip_x2.hsc"]
+    shared_by: "GRIP X2 cap on the 36, 38 and 40 and the 36 SL (same cap in the photos)"
+    shape: "round cap; outer HSC ring with arc markings around a four-window dial"
+    colors: "blue (dialColor blue)"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/grip_x2_hsc/full/fox-36-front-gripx2-1.png", "fox/grip_x2_hsc/full/enduro-mtb-fox38-grip-x2-fork-1.jpg"]
+      knob: ["fox/grip_x2_hsc/knob/fox-36-product-carousel-1.jpg", "fox/grip_x2_hsc/knob/fox-36-learn-more-damper-1.jpg", "fox/grip_x2_hsc/knob/fox-36sl-grip-x2-carousel-1.jpg", "fox/grip_x2_hsc/knob/fox-38-learn-more-damper-config-1.jpg", "fox/grip_x2_hsc/knob/fox-40-learn-more-damper-config-1.jpg", "fox/grip_x2_hsc/knob/fox-38-learn-more-feature-left-1.jpg"]
+    rendering_notes: "Outer ring of the cap. The LSC knob sits inside it, so the HSC knob is drawn as the ring."
+    status: archived
+  - id: "fox/grip_x2_lsc"
+    type: step
+    catalog: ["fork/fox#grip_x2.lsc"]
+    shared_by: "same cap as fox/grip_x2_hsc"
+    shape: "four-arm cross in the centre of the HSC ring"
+    colors: "blue (dialColor blue, dialSize small)"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/grip_x2_hsc/full/fox-36-front-gripx2-1.png", "fox/grip_x2_hsc/full/enduro-mtb-fox38-grip-x2-fork-1.jpg"]
+      knob: ["fox/grip_x2_hsc/knob/fox-36-product-carousel-1.jpg", "fox/grip_x2_hsc/knob/fox-36-learn-more-damper-1.jpg", "fox/grip_x2_hsc/knob/fox-36sl-grip-x2-carousel-1.jpg", "fox/grip_x2_hsc/knob/fox-38-learn-more-damper-config-1.jpg", "fox/grip_x2_hsc/knob/fox-40-learn-more-damper-config-1.jpg", "fox/grip_x2_hsc/knob/fox-38-learn-more-feature-left-1.jpg"]
+    rendering_notes: "Drawn inside a faded HSC ring (plan decision E). The cross is 90-degree symmetric, so it needs an index mark to show rotation at 50 px."
+    status: archived
+  - id: "fox/grip_x2_hsr"
+    type: step
+    catalog: ["fork/fox#grip_x2.hsr"]
+    shape: "large knurled red knob with a flat top, on the rebound leg"
+    colors: "red (dialColor red)"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/grip_x2_hsc/full/enduro-mtb-fox38-grip-x2-fork-1.jpg"]
+      knob: ["fox/grip_x2_hsr/knob/enduro-mtb-grip-x2-rebound-1.png"]
+    rendering_notes: "Photo confirms red. Large knob = HSR, small knob = LSR (plan section 'Telling knobs apart')."
+    status: archived
+  - id: "fox/grip_x2_lsr"
+    type: step
+    catalog: ["fork/fox#grip_x2.lsr"]
+    shape: "small round red knob next to the HSR knob, same rebound leg"
+    colors: "red (dialColor red, dialSize small)"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: ["fox/grip_x2_hsr/knob/enduro-mtb-grip-x2-rebound-1.png"]
+    rendering_notes: "Same photo as fox/grip_x2_hsr (the LSR knob is the small one beside it)."
+    status: archived
+  - id: "fox/grip_x_hsc"
+    type: step
+    catalog: ["fork/fox#grip_x.hsc"]
+    shared_by: "GRIP X only"
+    shape: "round cap with an HSC ring; Firm detent at the last click"
+    colors: "blue (dialColor blue)"
+    sweep_degrees: 170
+    positions: null
+    images:
+      full: ["fox/grip_x_hsc/full/fox-34-front-gripx-1.png", "fox/grip_x_hsc/full/fox-34-grip-x-1.jpg"]
+      knob: ["fox/grip_x_hsc/knob/fox-34-grip-x-2.jpg", "fox/grip_x_hsc/knob/fox-36sl-grip-x-feature-1.jpg"]
+    rendering_notes: "170-degree sweep from the catalog damper description. The cap looks like the GRIP X2 cap but smaller; check proportions before reusing the GRIP X2 drawing."
+    status: archived
+  - id: "fox/grip_x_lsc"
+    type: step
+    catalog: ["fork/fox#grip_x.lsc"]
+    shared_by: "same cap as fox/grip_x_hsc"
+    shape: "LSC marker in the centre of the cap"
+    colors: "blue (dialColor blue, dialSize small)"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/grip_x_hsc/full/fox-34-front-gripx-1.png"]
+      knob: ["fox/grip_x_hsc/knob/fox-34-grip-x-2.jpg"]
+    rendering_notes: ""
+    status: archived
+  - id: "fox/grip_x_rebound"
+    type: step
+    catalog: ["fork/fox#grip_x.rebound"]
+    shape: "knurled red knob with a flat top"
+    colors: "red (dialColor red)"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/grip_x_hsc/full/fox-34-front-gripx-1.png"]
+      knob: ["fox/grip_x_rebound/knob/enduro-mtb-grip-x-rebound-1.png"]
+    rendering_notes: "Single rebound knob, photo confirms red. Sits on the same fork leg as the GRIP X cap."
+    status: archived
+  - id: "fox/grip_rebound"
+    type: step
+    catalog: ["fork/fox#grip_sl.rebound", "fork/fox#grip.rebound", "fork/fox#grip_tc.rebound", "fork/fox#grip_2019.rebound"]
+    shared_by: "GRIP cartridge family; not checked per generation"
+    shape: "unknown: not photographed"
+    colors: "catalog says red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/grip_rebound/full/fox-34sl-grip-sl-1.jpg"]
+      knob: []
+    rendering_notes: "The GRIP TC has 22 clicks and the others 13 or 17, so the physical knob may differ between cartridges."
+    status: researching
+  - id: "fox/grip_mode_lever"
+    type: categorical
+    catalog: ["fork/fox#grip_sl.compression_mode", "fork/fox#grip.compression_mode", "fork/fox#grip_tc.compression_mode", "fork/fox#grip_2019.compression_mode"]
+    shared_by: "GRIP cartridge family"
+    shape: "blue lever on the cap, swings to a FIRM mark at the far end"
+    colors: "blue"
+    sweep_degrees: null
+    positions: ["Open", "Medium", "Firm"]
+    images:
+      full: []
+      knob: ["fox/grip_mode_lever/knob/fox-36-grip-cap-1.jpg"]
+    rendering_notes: "Three positions; the lever is the shape that matters, the cap is the context."
+    status: archived
+  - id: "fox/rail_rebound"
+    type: step
+    catalog: ["fork/fox#rail.rebound", "fork/fox#rail_hd.rebound"]
+    shared_by: "RAIL and RAIL (AWL HD) in one entry; rebound clicks differ (10 and 13)"
+    shape: "unknown: not photographed"
+    colors: "catalog says red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/rail_rebound/full/fox-34awl-rail-front-1.png"]
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/rail_mode_lever"
+    type: categorical
+    catalog: ["fork/fox#rail.compression_mode", "fork/fox#rail_hd.compression_mode"]
+    shared_by: "RAIL and RAIL (AWL HD)"
+    shape: "unknown: not photographed"
+    colors: ""
+    sweep_degrees: null
+    positions: ["1", "2"]
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Two-position SWEEP ADJUST lever."
+    status: researching
+  - id: "fox/grip2_hsc"
+    type: step
+    catalog: ["fork/fox#grip2_2019.hsc", "fork/fox#grip2_vvc_2021.hsc"]
+    shared_by: "GRIP2 2019-2020 and VVC 2021-2024 share one entry; not verified"
+    shape: "unknown: not photographed"
+    colors: "blue"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Not distinct from fox/grip_x2_hsc until photos are checked."
+    status: researching
+  - id: "fox/grip2_lsc"
+    type: step
+    catalog: ["fork/fox#grip2_2019.lsc", "fork/fox#grip2_vvc_2021.lsc"]
+    shared_by: "GRIP2 2019-2020 and VVC 2021-2024 share one entry; not verified"
+    shape: "unknown: not photographed"
+    colors: "blue, small"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/grip2_hsr"
+    type: step
+    catalog: ["fork/fox#grip2_2019.hsr", "fork/fox#grip2_vvc_2021.hsr"]
+    shared_by: "GRIP2 2019-2020 and VVC 2021-2024 share one entry; not verified"
+    shape: "unknown: not photographed"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/grip2_lsr"
+    type: step
+    catalog: ["fork/fox#grip2_2019.lsr", "fork/fox#grip2_vvc_2021.lsr"]
+    shared_by: "GRIP2 2019-2020 and VVC 2021-2024 share one entry; not verified"
+    shape: "unknown: not photographed"
+    colors: "red, small"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/fit4_rebound"
+    type: step
+    catalog: ["fork/fox#fit4_2019.rebound", "fork/fox#fit4_2021.rebound"]
+    shared_by: "FIT4 2019-2020 and 2021-2024"
+    shape: "unknown: not photographed"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/fit4_mode_lever"
+    type: categorical
+    catalog: ["fork/fox#fit4_2019.compression_mode", "fork/fox#fit4_2021.compression_mode"]
+    shared_by: "FIT4 2019-2020 and 2021-2024"
+    shape: "unknown: not photographed"
+    colors: ""
+    sweep_degrees: null
+    positions: ["Open", "Medium", "Firm"]
+    images:
+      full: ["fox/fit4_mode_lever/full/fox-32tc-fit4-front-1.png"]
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/fit4_open_adjust"
+    type: step
+    catalog: ["fork/fox#fit4_2019.open_mode_adjust", "fork/fox#fit4_2021.open_mode_adjust"]
+    shared_by: "FIT4 2019-2020 and 2021-2024"
+    shape: "unknown: not photographed"
+    colors: "blue, small"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: "22 positions, Open mode only."
+    status: researching
+  - id: "fox/vvc2_hsc"
+    type: step
+    catalog: ["shock/fox#vvc2.hsc"]
+    shape: "unknown: not photographed"
+    colors: "blue"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/vvc2_lsc"
+    type: step
+    catalog: ["shock/fox#vvc2.lsc"]
+    shape: "unknown: not photographed"
+    colors: "blue, small"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/vvc2_hsr"
+    type: step
+    catalog: ["shock/fox#vvc2.hsr"]
+    shape: "unknown: not photographed"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/vvc2_lsr"
+    type: step
+    catalog: ["shock/fox#vvc2.lsr"]
+    shape: "unknown: not photographed"
+    colors: "red, small"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/x2_hsc"
+    type: step
+    catalog: ["shock/fox#x2_2019.hsc", "shock/fox#x2_vvc_2021.hsc"]
+    shared_by: "X2 4-way 2019-2020 and VVC 2021-2025 share one entry; not verified"
+    shape: "none found"
+    colors: "blue"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/x2_hsc/full/fox-float-x2-1.jpg", "fox/x2_hsc/full/fox-float-x2-damper-config-1.jpg"]
+      knob: []
+    rendering_notes: "Search returned only spec text. Photos show the shock, not the knobs."
+    status: no_image
+  - id: "fox/x2_lsc"
+    type: step
+    catalog: ["shock/fox#x2_2019.lsc", "shock/fox#x2_vvc_2021.lsc"]
+    shared_by: "X2 4-way 2019-2020 and VVC 2021-2025 share one entry; not verified"
+    shape: "none found"
+    colors: "blue, small"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/x2_hsc/full/fox-float-x2-1.jpg", "fox/x2_hsc/full/fox-float-x2-damper-config-1.jpg"]
+      knob: []
+    rendering_notes: ""
+    status: no_image
+  - id: "fox/x2_hsr"
+    type: step
+    catalog: ["shock/fox#x2_2019.hsr", "shock/fox#x2_vvc_2021.hsr"]
+    shared_by: "X2 4-way 2019-2020 and VVC 2021-2025 share one entry; not verified"
+    shape: "none found"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/x2_hsc/full/fox-float-x2-1.jpg", "fox/x2_hsc/full/fox-float-x2-damper-config-1.jpg"]
+      knob: []
+    rendering_notes: ""
+    status: no_image
+  - id: "fox/x2_lsr"
+    type: step
+    catalog: ["shock/fox#x2_2019.lsr", "shock/fox#x2_vvc_2021.lsr"]
+    shared_by: "X2 4-way 2019-2020 and VVC 2021-2025 share one entry; not verified"
+    shape: "none found"
+    colors: "red, small"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/x2_hsc/full/fox-float-x2-1.jpg", "fox/x2_hsc/full/fox-float-x2-damper-config-1.jpg"]
+      knob: []
+    rendering_notes: ""
+    status: no_image
+  - id: "fox/x2_ls_compression"
+    type: step
+    catalog: ["shock/fox#x2_vvc_2021_ls.compression", "shock/fox#x2_2019_ls.compression"]
+    shared_by: "Low-speed-only X2 2019-2020 and 2021-2025"
+    shape: "unknown: not photographed"
+    colors: "blue"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/x2_ls_rebound"
+    type: step
+    catalog: ["shock/fox#x2_vvc_2021_ls.rebound", "shock/fox#x2_2019_ls.rebound"]
+    shared_by: "Low-speed-only X2 2019-2020 and 2021-2025"
+    shape: "unknown: not photographed"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/float_x_compression"
+    type: step
+    catalog: ["shock/fox#float_x.compression"]
+    shape: "round dial with knurled grip and COMPRESSION text"
+    colors: "blue"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/floatx_compression/full/fox-floatx-feature-1.png"]
+      knob: ["fox/floatx_compression/knob/fox-floatx-compression-1.jpg"]
+    rendering_notes: "The dial sits beside the blue Firm lever in the photos."
+    status: archived
+  - id: "fox/float_x_rebound"
+    type: step
+    catalog: ["shock/fox#float_x.rebound"]
+    shape: "red knob on top of the shock"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/floatx_compression/full/fox-floatx-feature-1.png"]
+      knob: []
+    rendering_notes: "Visible at the top of the shock in the feature image, too small for a close-up."
+    status: researching
+  - id: "fox/float_x_mode_lever"
+    type: categorical
+    catalog: ["shock/fox#float_x.compression_mode"]
+    shape: "flat blue lever with a FIRM end"
+    colors: "blue"
+    sweep_degrees: null
+    positions: ["Open", "Firm"]
+    images:
+      full: ["fox/floatx_compression/full/fox-floatx-feature-1.png"]
+      knob: ["fox/floatx_compression/knob/fox-floatx-compression-1.jpg"]
+    rendering_notes: "Tool-free lever; the lever is the same blue as the compression dial."
+    status: archived
+  - id: "fox/float_rebound"
+    type: step
+    catalog: ["shock/fox#float.rebound"]
+    shape: "unknown: not photographed"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/float_rebound/full/fox-float-1.jpg"]
+      knob: []
+    rendering_notes: "Only a lifestyle photo."
+    status: researching
+  - id: "fox/float_mode_lever"
+    type: categorical
+    catalog: ["shock/fox#float.compression_mode"]
+    shape: "unknown: not photographed"
+    colors: ""
+    sweep_degrees: null
+    positions: ["Open", "Firm"]
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/float_open_mode"
+    type: categorical
+    catalog: ["shock/fox#float.open_mode_adjust"]
+    shape: "unknown: not photographed"
+    colors: ""
+    sweep_degrees: null
+    positions: ["1", "2", "3"]
+    images:
+      full: []
+      knob: []
+    rendering_notes: "1 is plushest, 3 firmest."
+    status: researching
+  - id: "fox/float_sl_rebound"
+    type: step
+    catalog: ["shock/fox#float_sl.rebound"]
+    shape: "round red knob with a notched rim and an index line on the trunnion"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: ["fox/float_sl_rebound/full/fox-float-sl-side-1.png"]
+      knob: ["fox/float_sl_rebound/knob/fox-float-sl-rebound-1.jpg"]
+    rendering_notes: "Sweep not checked; the default 270 is assumed."
+    status: archived
+  - id: "fox/float_sl_mode_lever"
+    type: categorical
+    catalog: ["shock/fox#float_sl.compression_mode"]
+    shape: "unknown: not photographed"
+    colors: ""
+    sweep_degrees: null
+    positions: ["Open", "Medium", "Firm"]
+    images:
+      full: ["fox/float_sl_rebound/full/fox-float-sl-side-1.png"]
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/float_sl_open_mode"
+    type: categorical
+    catalog: ["shock/fox#float_sl.open_mode_adjust"]
+    shape: "unknown: not photographed"
+    colors: ""
+    sweep_degrees: null
+    positions: ["1", "2", "3"]
+    images:
+      full: []
+      knob: []
+    rendering_notes: ""
+    status: researching
+  - id: "fox/dhx_compression"
+    type: step
+    catalog: ["shock/fox#dhx_coil.compression"]
+    shape: "none found"
+    colors: "blue"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Text only: 11 or 12 clicks depending on the source."
+    status: no_image
+  - id: "fox/dhx_rebound"
+    type: step
+    catalog: ["shock/fox#dhx_coil.rebound"]
+    shape: "none found"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Text only: 16 clicks in one listing."
+    status: no_image
+  - id: "fox/dhx_mode_lever"
+    type: categorical
+    catalog: ["shock/fox#dhx_coil.compression_mode"]
+    shape: "none found"
+    colors: ""
+    sweep_degrees: null
+    positions: ["Open", "Firm"]
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Text only: 2-position Firm lever."
+    status: no_image
+  - id: "fox/dps_rebound"
+    type: step
+    catalog: ["shock/fox#dps_2018.rebound"]
+    shape: "none found"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Text only."
+    status: no_image
+  - id: "fox/dps_mode_lever"
+    type: categorical
+    catalog: ["shock/fox#dps_2018.compression_mode"]
+    shape: "none found"
+    colors: ""
+    sweep_degrees: null
+    positions: ["Open", "Medium", "Firm"]
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Text only: 3-position lever."
+    status: no_image
+  - id: "fox/dps_open_mode"
+    type: categorical
+    catalog: ["shock/fox#dps_2018.open_mode_adjust"]
+    shape: "none found"
+    colors: ""
+    sweep_degrees: null
+    positions: ["1", "2", "3"]
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Text only."
+    status: no_image
+  - id: "fox/dpx2_compression"
+    type: step
+    catalog: ["shock/fox#dpx2_2018.compression"]
+    shape: "none found"
+    colors: "blue"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Text only: a blue lever with three modes; catalog max is unknown (~)."
+    status: no_image
+  - id: "fox/dpx2_rebound"
+    type: step
+    catalog: ["shock/fox#dpx2_2018.rebound"]
+    shape: "none found"
+    colors: "red"
+    sweep_degrees: null
+    positions: null
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Text only: a red dial, one listing says 14 clicks; catalog max is unknown (~)."
+    status: no_image
+  - id: "fox/dpx2_mode_lever"
+    type: categorical
+    catalog: ["shock/fox#dpx2_2018.compression_mode"]
+    shape: "none found"
+    colors: ""
+    sweep_degrees: null
+    positions: ["Open", "Medium", "Firm"]
+    images:
+      full: []
+      knob: []
+    rendering_notes: "Text only: 3-position lever."
+    status: no_image

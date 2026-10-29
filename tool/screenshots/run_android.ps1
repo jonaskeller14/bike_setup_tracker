@@ -1,12 +1,13 @@
 <#
 .SYNOPSIS
-  Regenerates the Play Store raw screenshots (assets/store/play-store/**/0N_raw.png).
+  Regenerates the Play Store raw screenshots (docs/store/play-store/**/0N_raw.png).
 
 .DESCRIPTION
   Builds the screenshot entry point (lib/main_screenshots.dart), boots each
   dedicated AVD (see create_avds.ps1), pins the status bar via SystemUI demo
   mode, runs the Maestro flows in tool/screenshots/flows and overwrites the raws
-  in place, then runs check_output.py.
+  in place, runs check_output.py, then renders the store screenshots (raw screen
+  in the device frame with its caption) from the new raws.
 
 .PARAMETER Device
   phone, tablet or all (default).
@@ -19,6 +20,9 @@
 
 .PARAMETER KeepRunning
   Leave the emulators running (faster reruns while fixing a flow).
+
+.PARAMETER RawOnly
+  Don't render the store screenshots from the new raws.
 
 .PARAMETER TileWaitMs
   Fixed wait for live map tiles on screen 07.
@@ -33,6 +37,7 @@ param(
     [int[]]$Screens,
     [switch]$SkipBuild,
     [switch]$KeepRunning,
+    [switch]$RawOnly,
     [int]$TileWaitMs = 20000,
     [switch]$Demo
 )
@@ -141,6 +146,22 @@ function Set-TouchDots([string]$serial, [bool]$enabled) {
     }
 }
 
+# The app seeds the demo scenario named in this marker (from the flow's
+# `# scenario:` line); without it, the full sample.
+$scenarioMarker = 'app_flutter/demo_scenario'
+function Set-Scenario([string]$serial, [string]$scenario) {
+    Invoke-Adb $serial @('shell', 'run-as', $appId, 'rm', '-f', $scenarioMarker)
+    if ($scenario) {
+        Invoke-Adb $serial @('shell', 'run-as', $appId, 'sh', '-c', "'mkdir -p app_flutter && printf %s $scenario > $scenarioMarker'")
+    }
+}
+
+# Returns the flow's `# scenario: <name>` (see lib/screenshots/demo_scenario.dart), if any.
+function Get-FlowScenario([System.IO.FileInfo]$flow) {
+    $match = Select-String -Path $flow.FullName -Pattern '^# scenario: *([a-z_]+)' | Select-Object -First 1
+    if ($match) { $match.Matches[0].Groups[1].Value } else { '' }
+}
+
 # Maestro connects to every entry in `adb devices` and reports no device at all
 # when a single one is not ready (offline, authorizing, unauthorized), even an
 # unrelated emulator.
@@ -169,7 +190,7 @@ foreach ($name in $selected) {
         $outDir = Join-Path ([System.IO.Path]::GetTempPath()) "screenshots_$name"
         Remove-Item $outDir -Recurse -Force -ErrorAction SilentlyContinue
         New-Item -ItemType Directory -Path $outDir | Out-Null
-        $targetDir = Join-Path $repoRoot "assets\store\$($config.Folder)"
+        $targetDir = Join-Path $repoRoot "docs\store\$($config.Folder)"
         if ($Demo) {
             $targetDir = Join-Path $repoRoot 'build\marketing\raw'
             New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
@@ -186,6 +207,7 @@ foreach ($name in $selected) {
                 Write-Host "[$name] $($flow.Name)$(if ($attempt -gt 1) { ' (retry)' })"
                 & $adb -s $serial wait-for-device
                 Set-DemoStatusBar $serial
+                Set-Scenario $serial (Get-FlowScenario $flow)
                 Push-Location $flowsDir
                 try {
                     & $maestro --device $serial test $flow.Name `
@@ -209,7 +231,7 @@ foreach ($name in $selected) {
         $checkedFolders += $config.Folder
     } finally {
         # Best effort: a dropped adb transport here must not abort the next device.
-        & $adb -s $serial shell run-as $appId rm -f $touchMarker 2>&1 | Out-Null
+        & $adb -s $serial shell run-as $appId rm -f $touchMarker $scenarioMarker 2>&1 | Out-Null
         & $adb -s $serial shell am broadcast -a com.android.systemui.demo -e command exit 2>&1 | Out-Null
         if (-not $KeepRunning) { & $adb -s $serial emu kill 2>&1 | Out-Null }
     }
@@ -221,6 +243,12 @@ if ($Demo) {
 } else {
     python (Join-Path $PSScriptRoot 'check_output.py') @checkedFolders
     $checkExit = $LASTEXITCODE
+    if (-not $RawOnly) {
+        $renderArgs = @($selected)
+        if ($Screens) { $renderArgs += ($Screens -join ',') }
+        python (Join-Path $repoRoot 'tool\marketing\render_images.py') store-screenshots @renderArgs
+        if ($LASTEXITCODE -ne 0) { $checkExit = $LASTEXITCODE }
+    }
 }
 
 if ($failed) {

@@ -258,7 +258,6 @@ void main() {
         bikes: {myBike.id: myBike},
         persons: {me.id: me},
         components: {fork.id: fork},
-        ratings: {},
       );
       Widget compactAt(String id) =>
           compactFor(result.setups[id]!, previous: result.history.previousValuesOf(id), displayOnlyChanges: false);
@@ -343,6 +342,17 @@ void main() {
       );
       expect(summary.hasContent, isTrue);
       expect(summary.collapsedHidesSomething, isTrue);
+    });
+
+    test('collapsedAdjustmentIds -> collapsing keeps those, changed or not, and hides the rest', () {
+      final summary = AdjustmentCompactDisplayList.summarize(
+        components: [fork],
+        adjustmentValues: {pressure.id: const NumericalValue(80), rebound.id: const NumericalValue(5)},
+        previousAdjustmentValues: {pressure.id: const NumericalValue(80), rebound.id: const NumericalValue(4)},
+        collapsedAdjustmentIds: {pressure.id},
+      );
+      expect(summary.collapsedHasContent, isTrue, reason: 'the unchanged pressure stays');
+      expect(summary.collapsedHidesSomething, isTrue, reason: 'the changed rebound is hidden');
     });
   });
 

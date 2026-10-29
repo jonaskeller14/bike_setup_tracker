@@ -141,7 +141,7 @@ void main() {
       expect(components, hasLength(1));
       expect(components.first.name, 'Lyrik');
 
-      // Verify Adjustments (rating metrics now live in their own table, not here)
+      // Verify Adjustments (legacy rating metrics are ignored)
       final adjustments = await db.select(db.adjustments).get();
       expect(adjustments, hasLength(7)); // 6 (component) + 1 (person)
       expect(adjustments.any((a) => a.name == 'Rebound'), true);
@@ -151,16 +151,6 @@ void main() {
       expect(adjustments.any((a) => a.name == 'Note'), true);
       expect(adjustments.any((a) => a.name == 'Service'), true);
       expect(adjustments.any((a) => a.name == 'Weight'), true);
-
-      // Verify Ratings
-      final ratings = await db.ratingsDao.watchAllRatings().first;
-      expect(ratings, hasLength(1));
-      expect(ratings.first.name, 'Overall Feel');
-
-      // Verify Rating Metrics (migrated into the dedicated rating_metrics table)
-      final ratingMetrics = await db.select(db.ratingMetrics).get();
-      expect(ratingMetrics, hasLength(1));
-      expect(ratingMetrics.first.name, 'Grip');
 
       // Verify Setups
       final setups = await db.setupsDao.watchAllSetups().first;
@@ -172,7 +162,7 @@ void main() {
       expect(setups.first.position?.latitude, 47.6);
       expect(setups.first.place?.name, 'Leogang');
 
-      // Verify Setup Values (rating answers are no longer stored on setups)
+      // Verify Setup Values (legacy rating answers are ignored)
       final values = await db.select(db.setupAdjustmentValues).get();
       expect(values, hasLength(7)); // 6 (bike) + 1 (person)
 

@@ -8,8 +8,7 @@ enum TableColumnSection {
   weatherContext("Weather Context"),
   componentAdjustments("Component Adjustments"),
   personAttributes("Rider Attributes"),
-  ratingMetrics("Rating Metrics"),
-  ratingScore("Rating");
+  feedback("Feedback");
 
   final String label;
   const TableColumnSection(this.label);
@@ -33,7 +32,9 @@ enum SetupColumn {
   humidity(TableColumnSection.weatherContext, "Humidity"),
   windSpeed(TableColumnSection.weatherContext, "Windspeed"),
   soilMoisture(TableColumnSection.weatherContext, "Soil Moisture"),
-  condition(TableColumnSection.weatherContext, "Condition");
+  condition(TableColumnSection.weatherContext, "Condition"),
+
+  testSession(TableColumnSection.feedback, "Test session");
 
   final TableColumnSection section;
   final String label;
@@ -114,29 +115,16 @@ class PersonAttributeColumn extends TableColumn {
   int get hashCode => Object.hash(section, adjustmentId);
 }
 
-class RatingMetricColumn extends TableColumn {
-  final String metricId;
-
-  RatingMetricColumn(this.metricId, {required super.active});
-
-  @override
-  TableColumnSection get section => TableColumnSection.ratingMetrics;
+/// The setup's rank on its bike, from feedback comparisons. Sortable only: a
+/// rank is not a measurement, so charts leave it out.
+class SetupRankColumn extends TableColumn {
+  SetupRankColumn({required super.active});
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is RatingMetricColumn && other.metricId == metricId;
+  TableColumnSection get section => TableColumnSection.feedback;
 
   @override
-  int get hashCode => Object.hash(section, metricId);
-}
-
-class RatingScoreColumn extends TableColumn {
-  RatingScoreColumn({required super.active});
-
-  @override
-  TableColumnSection get section => TableColumnSection.ratingScore;
-
-  @override
-  bool operator ==(Object other) => other is RatingScoreColumn;
+  bool operator ==(Object other) => other is SetupRankColumn;
 
   @override
   int get hashCode => section.hashCode;

@@ -187,43 +187,42 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                     ),
                   ],
                 ),
-                trailing: widget.selectionMode
-                    ? null
-                    : PopupMenuButton<_TaskEntryListCardPopupMenuButtonOptions>(
-                        onSelected: (_TaskEntryListCardPopupMenuButtonOptions value) async {
-                          switch (value) {
-                            case _TaskEntryListCardPopupMenuButtonOptions.edit:
-                              await TaskActions.editTaskEntry(
-                                context,
-                                taskEntry: taskEntry,
-                                heroTag: widget.heroTag,
-                              );
-                            case _TaskEntryListCardPopupMenuButtonOptions.dupliate:
-                              await TaskActions.duplicateTaskEntry(context, taskEntry: taskEntry);
-                            case _TaskEntryListCardPopupMenuButtonOptions.remove:
-                              await TaskActions.removeTaskEntry(context, taskEntry: taskEntry);
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => _TaskEntryListCardPopupMenuButtonOptions.values
-                            .where(
-                              (option) =>
-                                  option != _TaskEntryListCardPopupMenuButtonOptions.dupliate ||
-                                  (taskRule != null && (taskRule.interval != null && taskRule.repeat)),
-                            )
-                            .map(
-                              (option) => PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
-                                value: option,
-                                child: Row(
-                                  spacing: 10,
-                                  children: [
-                                    Icon(option.iconData, size: 20),
-                                    Text(option.label),
-                                  ],
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
+                trailing: PopupMenuButton<_TaskEntryListCardPopupMenuButtonOptions>(
+                  enabled: !widget.selectionMode,
+                  onSelected: (_TaskEntryListCardPopupMenuButtonOptions value) async {
+                    switch (value) {
+                      case _TaskEntryListCardPopupMenuButtonOptions.edit:
+                        await TaskActions.editTaskEntry(
+                          context,
+                          taskEntry: taskEntry,
+                          heroTag: widget.heroTag,
+                        );
+                      case _TaskEntryListCardPopupMenuButtonOptions.dupliate:
+                        await TaskActions.duplicateTaskEntry(context, taskEntry: taskEntry);
+                      case _TaskEntryListCardPopupMenuButtonOptions.remove:
+                        await TaskActions.removeTaskEntry(context, taskEntry: taskEntry);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => _TaskEntryListCardPopupMenuButtonOptions.values
+                      .where(
+                        (option) =>
+                            option != _TaskEntryListCardPopupMenuButtonOptions.dupliate ||
+                            (taskRule != null && (taskRule.interval != null && taskRule.repeat)),
+                      )
+                      .map(
+                        (option) => PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
+                          value: option,
+                          child: Row(
+                            spacing: 10,
+                            children: [
+                              Icon(option.iconData, size: 20),
+                              Text(option.label),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
               ),
               if (hasBottomBlock)
                 Padding(

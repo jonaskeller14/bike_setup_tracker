@@ -1,13 +1,12 @@
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating/rating.dart';
-import 'package:bike_setup_tracker/models/rating/rating_association.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
@@ -46,10 +45,10 @@ void main() {
     String? bikeId,
     Map<String, Component>? rawComponents,
     Map<String, Setup> setups = const {},
-    Map<String, RatingEntry> ratingEntries = const {},
-    Map<String, Rating> ratings = const {},
     Map<String, TaskRule> taskRules = const {},
     Map<String, TaskEntry> taskEntries = const {},
+    Map<String, RideFeedback> feedbacks = const {},
+    Map<String, TestSession> testSessions = const {},
     SetupFilter setupFilter = const SetupFilter(),
     TaskRuleFilter? taskRuleFilter,
     LocalDateRange? dateRange,
@@ -59,11 +58,12 @@ void main() {
       bikes: bikes,
       components: allComponents,
       setups: setups,
-      ratingEntries: ratingEntries,
       persons: persons,
-      ratings: ratings,
       taskRules: taskRules,
       taskEntries: taskEntries,
+      feedbacks: feedbacks,
+      testSessions: testSessions,
+      ratedSetupIdOf: (feedback) => feedback.setupId,
       hierarchy: ComponentHierarchyResolver(allComponents, deletedComponentIds: const {"trashed"}),
       bikeId: bikeId,
       dateRange: dateRange,
@@ -134,41 +134,93 @@ void main() {
     });
   });
 
-  test("rating entries follow the bike scope", () {
-    RatingEntry entry(String id, String bike) =>
-        RatingEntry(id: id, bike: bike, setupId: "s1", dateTimeUTC: DateTime.utc(2024), dateTimeLocal: DateTime(2024));
-    final ratingEntries = byId([entry("e1", "b1"), entry("e2", "b2")], (entry) => entry.id);
+  group("feedbacks and test sessions", () {
+    RideFeedback feedback(String id, String bike, DateTime local) =>
+        RideFeedback(id: id, bike: bike, setupId: "s", dateTimeUTC: local.toUtc(), dateTimeLocal: local);
+    TestSession session(String id, String bike, DateTime local) => TestSession(
+      id: id,
+      bike: bike,
+      adjustmentIds: const [],
+      startedAtUTC: local.toUtc(),
+      startedAtLocal: local,
+    );
 
-    expect(build(ratingEntries: ratingEntries).ratingEntries.keys, ["e1", "e2"]);
-    expect(build(ratingEntries: ratingEntries, bikeId: "b1").ratingEntries.keys, ["e1"]);
-  });
+    final feedbacks = {
+      "f1": feedback("f1", "b1", DateTime(2024, 5, 10)),
+      "f2": feedback("f2", "b1", DateTime(2024, 5, 20)),
+      "f3": feedback("f3", "b2", DateTime(2024, 5, 10)),
+    };
+    final testSessions = {
+      "t1": session("t1", "b1", DateTime(2024, 5, 10)),
+      "t2": session("t2", "b2", DateTime(2024, 5, 20)),
+    };
 
-  group("ratings", () {
-    Rating rating(String id, RatingAssociation association) => Rating(id: id, name: id, association: association);
-    final ratings = byId([
-      rating("global", const GlobalRatingAssociation()),
-      rating("otherPerson", const PersonRatingAssociation("p2")),
-      rating("bike1", const BikeRatingAssociation("b1")),
-      rating("bike2", const BikeRatingAssociation("b2")),
-      rating("fork", const ComponentRatingAssociation("fork")),
-      rating("shock", const ComponentRatingAssociation("shock")),
-      rating("wheel", const ComponentRatingAssociation("wheel")),
-      rating("forkType", ComponentTypeRatingAssociation(ComponentType.fork.toString())),
-      rating("shockType", ComponentTypeRatingAssociation(ComponentType.shock.toString())),
-    ], (rating) => rating.id);
+    test("without criteria everything is kept", () {
+      final view = build(feedbacks: feedbacks, testSessions: testSessions);
 
-    test("without a bike every rating is kept", () {
-      expect(build(ratings: ratings).ratings.keys, ratings.keys);
+      expect(view.feedbacks.keys, ["f1", "f2", "f3"]);
+      expect(view.testSessions.keys, ["t1", "t2"]);
     });
 
-    test("a selected bike narrows bike, component and component type ratings", () {
-      expect(build(ratings: ratings, bikeId: "b1").ratings.keys, [
-        "global",
-        "otherPerson",
-        "bike1",
-        "fork",
-        "forkType",
-      ]);
+    test("bike scope", () {
+      final view = build(feedbacks: feedbacks, testSessions: testSessions, bikeId: "b1");
+
+      expect(view.feedbacks.keys, ["f1", "f2"]);
+      expect(view.testSessions.keys, ["t1"]);
+    });
+
+    test("the date range narrows feedbacks by local day but leaves sessions alone", () {
+      final view = build(
+        feedbacks: feedbacks,
+        testSessions: testSessions,
+        dateRange: LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12)),
+        bikeId: "b1",
+      );
+
+      expect(view.feedbacks.keys, ["f1"]);
+      expect(view.testSessions.keys, ["t1"]);
+      expect(
+        build(
+          testSessions: testSessions,
+          dateRange: LocalDateRange(start: DateTime(2020), end: DateTime(2020, 12, 31)),
+        ).testSessions.keys,
+        ["t1", "t2"],
+      );
+    });
+
+    test("with a setup filter, a feedback follows the setup it rates", () {
+      Setup run(String id, {String? testSessionId}) => Setup(
+        id: id,
+        tags: const {},
+        datetime: DateTime.utc(2024, 5, 10),
+        datetimeLocal: DateTime(2024, 5, 10),
+        bike: "b1",
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+        testSessionId: testSessionId,
+      );
+      final setups = byId([run("r1", testSessionId: "t1"), run("plain")], (setup) => setup.id);
+      RideFeedback rating(String id, String setupId) => RideFeedback(
+        id: id,
+        bike: "b1",
+        setupId: setupId,
+        dateTimeUTC: DateTime.utc(2024, 5, 11),
+        dateTimeLocal: DateTime(2024, 5, 11),
+      );
+      final ratings = byId([rating("onRun", "r1"), rating("onPlain", "plain"), rating("onGone", "gone")], (f) => f.id);
+
+      final filtered = build(
+        setups: setups,
+        feedbacks: ratings,
+        testSessions: testSessions,
+        setupFilter: SetupFilter(testSessionNames: {testSessions["t1"]!.displayName}),
+      );
+      expect(filtered.setups.keys, ["r1"]);
+      expect(filtered.feedbacks.keys, ["onRun"]);
+
+      final unfiltered = build(setups: setups, feedbacks: ratings, testSessions: testSessions);
+      expect(unfiltered.feedbacks.keys, ["onRun", "onPlain", "onGone"], reason: 'no setup filter, nothing follows');
     });
   });
 
@@ -305,10 +357,6 @@ void main() {
     );
 
     final setups = {for (final MapEntry(:key, :value) in moments.entries) key: setup(key, value)};
-    final ratingEntries = {
-      for (final MapEntry(:key, :value) in moments.entries)
-        key: RatingEntry(id: key, bike: "b1", setupId: "first", dateTimeUTC: value.toUtc(), dateTimeLocal: value),
-    };
     final taskRules = byId([
       TaskRule(id: "done", name: "done", tags: const {}),
       TaskRule(id: "open", name: "open", tags: const {}),
@@ -329,7 +377,6 @@ void main() {
     FilteredView view({LocalDateRange? dateRange, String? bikeId}) => build(
       rawComponents: moving,
       setups: setups,
-      ratingEntries: ratingEntries,
       taskRules: taskRules,
       taskEntries: taskEntries,
       dateRange: dateRange,
@@ -343,7 +390,6 @@ void main() {
       final unfiltered = view();
 
       expect(unfiltered.setups.keys, moments.keys);
-      expect(unfiltered.ratingEntries.keys, moments.keys);
       expect(unfiltered.taskEntries.keys, moments.keys);
       expect(installationIds(unfiltered), moments.keys);
     });
@@ -352,7 +398,6 @@ void main() {
       final filtered = view(dateRange: range);
 
       expect(filtered.setups.keys, ["first", "last"]);
-      expect(filtered.ratingEntries.keys, ["first", "last"]);
       expect(filtered.taskEntries.keys, ["first", "last"]);
       expect(installationIds(filtered), ["first", "last"]);
     });

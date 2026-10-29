@@ -1,0 +1,180 @@
+{
+  "music": "the_mountain-app-184141.mp3",
+  "recordings": "build/marketing/raw/ios",
+  "clips": {
+    "demo_add_bike": {
+      "title": "Your garage",
+      "segments": [[0.3, 3.0, 1], [3.0, 5.5, 1], [5.5, 10.6, 3], [10.6, 14.0, 1]],
+      "captions": [[3.0, "Add *your bike*"], [10.6, "One garage for *every bike*"]]
+    },
+    "demo_add_component": {
+      "title": "Components",
+      "segments": [[0.5, 2.0, 1], [2.0, 5.0, 1.5], [5.0, 7.0, 1.5], [7.0, 9.5, 1], [9.5, 13.0, 2.5],
+                   [13.0, 16.0, 1.5], [16.0, 19.0, 2.5], [19.0, 21.5, 1], [21.5, 23.0, 3], [23.0, 26.5, 1.5],
+                   [26.5, 30.0, 1]],
+      "captions": [
+        [0.5, "Add the *fork*"],
+        [7.0, "*Suggested settings* for every part"],
+        [19.0, "Pressure and *rebound*, ready to log"],
+        [26.5, "On the bike, *ready to ride*"]
+      ],
+      "callouts": [{"t0": 19.2, "t1": 21.4, "rect": [53, 1294, 1214, 686], "mode": "lift"}]
+    },
+    "demo_add_setup": {
+      "title": "Record a setup",
+      "segments": [[0.3, 4.0, 1], [5.5, 8.0, 1], [11.3, 12.6, 1], [15.6, 19.6, 1], [19.6, 23.8, 3],
+                   [23.8, 27.8, 1.5], [27.8, 29.7, 3], [29.7, 33.5, 1]],
+      "captions": [
+        [3.0, "Location and *weather* fill in"],
+        [11.3, "Set only *what changed*"],
+        [23.8, "*Name* it, save it"],
+        [29.7, "Saved to your *history*"]
+      ]
+    },
+    "demo_setup_list": {
+      "title": "Setup history",
+      "segments": [[0.6, 1.9, 0.5], [1.9, 7.9, 1]],
+      "captions": [[0.6, "A season later: *every change*"]],
+      "callouts": [{"t0": 0.7, "t1": 1.85, "rect": [53, 1585, 1214, 135], "mode": "lift"}]
+    },
+    "demo_setup_history": {
+      "title": "Compare setups",
+      "segments": [[0.3, 3.0, 1], [3.0, 10.0, 2], [10.0, 13.0, 1], [13.0, 15.9, 2], [15.9, 17.3, 1],
+                   [17.3, 19.4, 2], [19.4, 23.5, 1], [23.5, 29.4, 1.5]],
+      "captions": [
+        [3.0, "Every setup, *in order*"],
+        [10.0, "Compare *any two*"],
+        [19.4, "Rebound 9\u00a0→\u00a0{10}. *See what changed.*"]
+      ],
+      "callouts": [{"t0": 19.8, "t1": 23.3, "rect": [53, 2280, 1214, 250], "mode": "lift"}]
+    },
+    "demo_analysis": {
+      "title": "Analysis",
+      "segments": [[0.8, 3.0, 1], [3.0, 7.0, 1.2], [7.0, 10.5, 2], [10.5, 13.6, 1], [13.6, 18.0, 1],
+                   [18.0, 20.3, 2], [20.3, 23.5, 1], [23.5, 26.5, 2.5], [26.5, 30.3, 1]],
+      "captions": [
+        [3.0, "Every value, *every setup*"],
+        [13.6, "Tap *LSC* to follow it"],
+        [20.3, "Or all setups *at once*"]
+      ],
+      "callouts": [{"t0": 14.6, "t1": 17.8, "rect": [390, 2035, 240, 95], "mode": "lift"}]
+    },
+    "demo_tasks": {
+      "title": "Maintenance",
+      "segments": [[2.3, 5.3, 1.5], [5.3, 9.0, 1], [9.0, 13.2, 1], [13.2, 18.8, 1.5], [18.8, 21.0, 0.7]],
+      "captions": [
+        [5.3, "Tick it off *when it's done*"],
+        [9.0, "*All caught up*"],
+        [13.2, "Kept under *Completed*"],
+        [18.8, "Switch it on: *Settings\u00a0→\u00a0Features*"]
+      ]
+    },
+    "demo_map": {
+      "title": "Ride map",
+      "segments": [[0.2, 1.0, 0.4], [1.0, 4.6, 1.6], [4.6, 13.2, 1.2], [13.2, 17.2, 1.6], [17.2, 21.6, 1]],
+      "captions": [
+        [1.0, "Your *Strava rides* on the map"],
+        [4.6, "With the *setups* you rode"],
+        [13.2, "Every setup, *pinned*"]
+      ],
+      "callouts": [{"t0": 18.0, "t1": 21.5, "rect": [40, 2560, 1240, 175], "mode": "lift"}]
+    },
+    "demo_calendar": {
+      "title": "Calendar",
+      "segments": [[1.2, 4.6, 1.5], [4.6, 8.5, 1], [8.5, 12.6, 1.2], [17.0, 23.2, 1.6], [23.2, 29.0, 1.8],
+                   [29.0, 35.5, 1.6], [35.5, 39.0, 1]],
+      "captions": [
+        [4.6, "Your season *in one calendar*"],
+        [8.5, "One day: *setup, ride, service*"],
+        [35.5, "Switch it on: *Settings\u00a0→\u00a0Features*"]
+      ],
+      "callouts": [{"t0": 6.0, "t1": 8.4, "rect": [0, 1290, 740, 420], "mode": "zoom"}]
+    },
+    "demo_strava_distance": {
+      "title": "Strava distance",
+      "segments": [[0.3, 2.0, 0.7], [2.0, 5.5, 1], [5.5, 7.5, 1], [7.5, 10.0, 2], [10.0, 13.5, 1],
+                   [13.5, 17.0, 1.5], [17.0, 20.0, 1], [20.0, 24.4, 1]],
+      "captions": [
+        [2.0, "*156 km*, counted from Strava"],
+        [10.0, "Chain: *every 2,000 km*"],
+        [17.0, "Due by *distance*"],
+        [20.0, "Bolt check: *6 km* over"]
+      ],
+      "callouts": [{"t0": 2.3, "t1": 5.4, "rect": [90, 380, 300, 230], "mode": "lift"}]
+    }
+  },
+  "shorts": {
+    "core": {
+      "title": "Log your MTB suspension setup in seconds",
+      "clips": ["demo_add_setup", "demo_setup_list"],
+      "hook": "Which *clicks* did you ride last weekend?"
+    },
+    "compare": {
+      "title": "Compare two MTB suspension setups",
+      "clips": ["demo_setup_history"],
+      "hook": "Was it the *rebound* or the tire pressure?"
+    },
+    "garage": {
+      "title": "Every bike, fork and shock in one MTB garage",
+      "clips": ["demo_add_bike", "demo_add_component"],
+      "hook": "Where do you keep your *fork settings*?"
+    },
+    "analysis": {
+      "title": "How your fork setup changed this season",
+      "clips": ["demo_analysis"],
+      "hook": "How did your *fork setup* change this season?"
+    },
+    "tasks": {
+      "title": "Bike service reminders you can tick off",
+      "clips": ["demo_tasks"],
+      "hook": "What's due on your *bike* this week?"
+    },
+    "map": {
+      "title": "Which fork setup did you ride on that trip?",
+      "clips": ["demo_map"],
+      "hook": "Which *fork setup* did you ride on that trip?"
+    },
+    "calendar": {
+      "title": "Rides, setups and bike service in one calendar",
+      "clips": ["demo_calendar"],
+      "hook": "What did you change on your *bike* before that ride?"
+    },
+    "strava": {
+      "title": "Bike service by km, counted from Strava",
+      "clips": ["demo_strava_distance"],
+      "hook": "How many *km* has your chain done?"
+    }
+  },
+  "walkthrough": [
+    "demo_add_bike",
+    "demo_add_component",
+    "demo_add_setup",
+    "demo_setup_history",
+    "demo_analysis",
+    "demo_map",
+    "demo_calendar",
+    "demo_tasks",
+    "demo_strava_distance"
+  ],
+  "gifs": [
+    "demo_add_bike",
+    "demo_add_component",
+    "demo_add_setup",
+    "demo_setup_history",
+    "demo_analysis",
+    "demo_tasks",
+    "demo_map",
+    "demo_calendar"
+  ],
+  "web": [
+    "demo_add_bike",
+    "demo_add_component",
+    "demo_add_setup",
+    "demo_setup_history",
+    "demo_analysis",
+    "demo_tasks",
+    "demo_map",
+    "demo_calendar",
+    "demo_strava_distance"
+  ]
+}

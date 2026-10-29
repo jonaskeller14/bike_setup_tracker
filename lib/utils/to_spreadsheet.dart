@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
+import '../models/feedback/feedback_summary.dart';
+import '../models/feedback/feedback_vocabulary.dart';
+import '../models/feedback/ride_feedback.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/task/task_association.dart';
@@ -48,6 +51,7 @@ class SpreadsheetExport {
     }
 
     _appendTaskLogSheet(excel, data, settings);
+    _appendFeedbackSheet(excel, data, settings);
 
     // Drop the default empty sheet once any real sheet has been added.
     if (excel.sheets.length > 1 && excel.sheets.containsKey('Sheet1')) {
@@ -76,6 +80,7 @@ class SpreadsheetExport {
     }
 
     _appendTaskLogCsv(buffer, data, settings);
+    _appendFeedbackCsv(buffer, data, settings);
 
     return buffer.toString();
   }
@@ -94,6 +99,22 @@ class SpreadsheetExport {
 
     for (final entry in entries) {
       final row = _generateTaskEntryStringRow(entry, data, settings);
+      buffer.writeln(row.map(_csvCell).join(','));
+    }
+  }
+
+  static void _appendFeedbackCsv(StringBuffer buffer, SelectedData data, AppSettings settings) {
+    if (!settings.enableRating) return;
+
+    final feedbacks = _sortedFeedbacks(data);
+    if (feedbacks.isEmpty) return;
+
+    buffer.writeln();
+    buffer.writeln(_csvCell('Feedback'));
+    buffer.writeln(_feedbackHeaders.map(_csvCell).join(','));
+
+    for (final feedback in feedbacks) {
+      final row = [DateFormat('yyyy-MM-dd HH:mm').format(feedback.dateTimeLocal), ..._feedbackColumns(feedback, data)];
       buffer.writeln(row.map(_csvCell).join(','));
     }
   }
@@ -382,6 +403,44 @@ class SpreadsheetExport {
     for (final entry in entries) {
       sheet.appendRow(_generateTaskEntryCellValueRow(entry, data, settings));
     }
+  }
+
+  static void _appendFeedbackSheet(Excel excel, SelectedData data, AppSettings settings) {
+    if (!settings.enableRating) return;
+
+    final feedbacks = _sortedFeedbacks(data);
+    if (feedbacks.isEmpty) return;
+
+    final sheet = excel['Feedback'];
+    sheet.appendRow(_feedbackHeaders.map((e) => TextCellValue(e)).toList());
+    for (final feedback in feedbacks) {
+      final dt = feedback.dateTimeLocal;
+      sheet.appendRow([
+        DateTimeCellValue(year: dt.year, month: dt.month, day: dt.day, hour: dt.hour, minute: dt.minute),
+        ..._feedbackColumns(feedback, data).map((e) => TextCellValue(e)),
+      ]);
+    }
+  }
+
+  static List<RideFeedback> _sortedFeedbacks(SelectedData data) {
+    final feedbacks = data.feedbacks.values.where((f) => !f.isDeleted).toList();
+    feedbacks.sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+    return feedbacks;
+  }
+
+  static const List<String> _feedbackHeaders = ['DateTime', 'Bike', 'Setup', 'Compared to', 'Outcome', 'Issues', 'Notes'];
+
+  /// Every column of [_feedbackHeaders] after the date.
+  static List<String> _feedbackColumns(RideFeedback feedback, SelectedData data) {
+    final overall = feedback.overallComparison;
+    return [
+      data.bikes[feedback.bike]?.name ?? '',
+      (feedback.ratedSetupIn(data.setups) ?? data.setups[feedback.setupId])?.displayName ?? '',
+      overall == null ? '' : data.setups[overall.referenceSetupId]?.displayName ?? '',
+      overall == null ? '' : FeedbackVocabulary.overallOutcomeLabels[overall.outcome]!,
+      feedback.issuesSummary ?? '',
+      feedback.notes ?? '',
+    ];
   }
 
   static List<CellValue> _generateTaskEntryCellValueRow(TaskEntry entry, SelectedData data, AppSettings settings) {

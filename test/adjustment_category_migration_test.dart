@@ -29,12 +29,6 @@ void main() {
         expect(cols, containsAll(['id', 'name', 'type', 'json_payload']));
       });
 
-      test('rating_metrics table has no category column', () async {
-        final cols = await columnNames('rating_metrics');
-        expect(cols, isNot(contains('category')));
-        expect(cols, containsAll(['id', 'rating_id', 'name', 'type', 'json_payload']));
-      });
-
       test('insert and read adjustment row without category', () async {
         // FK checks are ON by default in Drift memory DB; disable so we can
         // insert without a parent component/person row.
@@ -49,25 +43,6 @@ void main() {
 
         expect(row.id, 'adj1');
         expect(row.name, 'Rebound');
-        expect(row.type, AdjustmentType.step);
-      });
-
-      test('insert and read rating_metric row without category', () async {
-        await db.customStatement('PRAGMA foreign_keys = OFF');
-        await db.customStatement(
-          'INSERT INTO ratings (id, is_deleted, last_modified, name, filter_type, order_index) '
-          "VALUES ('r1', 0, 0, 'Ride Feel', 'global', 0)",
-        );
-        await db.customStatement(
-          'INSERT INTO rating_metrics (id, rating_id, order_index, weight, name, type, json_payload) '
-          "VALUES ('m1', 'r1', 0, 1.0, 'Grip', 'step', '{\"step\":1,\"min\":0,\"max\":10,\"visualization\":\"slider\"}')",
-        );
-        final row = await (db.select(db.ratingMetrics)
-              ..where((t) => t.id.equals('m1')))
-            .getSingle();
-
-        expect(row.id, 'm1');
-        expect(row.name, 'Grip');
         expect(row.type, AdjustmentType.step);
       });
     });

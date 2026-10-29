@@ -3,8 +3,6 @@ import 'package:flutter/foundation.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/person.dart';
-import '../models/rating/rating.dart';
-import '../models/rating/rating_entry.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 
@@ -17,13 +15,6 @@ void checkSetupValueTypes(
   for (final setup in setups) {
     _checkValueTypes(setup.bikeAdjustmentValues, adjustments);
     _checkValueTypes(setup.personAdjustmentValues, adjustments);
-  }
-}
-
-void checkRatingEntryValueTypes(Iterable<RatingEntry> entries, {required Iterable<Rating> ratings}) {
-  final adjustments = metricAdjustmentsById(ratings);
-  for (final entry in entries) {
-    _checkValueTypes(entry.metricValues, adjustments);
   }
 }
 

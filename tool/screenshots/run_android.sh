@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-# Regenerates the Play Store raw screenshots (assets/store/play-store/**/0N_raw.png).
+# Regenerates the Play Store raw screenshots (docs/store/play-store/**/0N_raw.png).
 # macOS/Linux counterpart of run_android.ps1: builds lib/main_screenshots.dart,
 # boots each dedicated AVD (see create_avds.sh), pins the status bar via
 # SystemUI demo mode, runs the Maestro flows and overwrites the raws in place,
-# then runs check_output.py.
+# runs check_output.py, then renders the store screenshots (raw screen in the
+# device frame with its caption) from the new raws.
 #
 # Usage: run_android.sh [phone|tablet|all] [--screens 3,7] [--skip-build]
-#                       [--keep-running] [--tile-wait-ms N] [--demo]
+#                       [--keep-running] [--raw-only] [--tile-wait-ms N] [--demo]
 #   --screens N,N         Screen numbers to capture. Default: all flows.
 #   --skip-build          Reuse the last built APK.
 #   --keep-running        Leave the emulators running (faster reruns).
+#   --raw-only            Don't render the store screenshots from the new raws.
 #   --tile-wait-ms N      Fixed wait for live map tiles on screen 07 (default 20000).
 #   --demo                Record the demo_*.yaml flows instead, on the phone with
 #                         touch dots, to build/marketing/raw/*.mp4.
@@ -29,6 +31,7 @@ device='all'
 screens=''
 skip_build=0
 keep_running=0
+raw_only=0
 tile_wait_ms=20000
 demo=0
 while [ $# -gt 0 ]; do
@@ -37,6 +40,7 @@ while [ $# -gt 0 ]; do
     --screens) screens="$2"; shift ;;
     --skip-build) skip_build=1 ;;
     --keep-running) keep_running=1 ;;
+    --raw-only) raw_only=1 ;;
     --tile-wait-ms) tile_wait_ms="$2"; shift ;;
     --demo) demo=1 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
@@ -146,6 +150,22 @@ set_touch_dots() {
   fi
 }
 
+# The app seeds the demo scenario named in this marker (from the flow's
+# `# scenario:` line); without it, the full sample.
+scenario_marker='app_flutter/demo_scenario'
+set_scenario() {
+  local serial="$1" scenario="$2"
+  "$adb" -s "$serial" shell run-as "$app_id" rm -f "$scenario_marker"
+  if [ -n "$scenario" ]; then
+    "$adb" -s "$serial" shell run-as "$app_id" sh -c "'mkdir -p app_flutter && printf %s $scenario > $scenario_marker'"
+  fi
+}
+
+# Prints the flow's `# scenario: <name>` (see lib/screenshots/demo_scenario.dart), if any.
+flow_scenario() {
+  sed -n 's/^# scenario: *\([a-z_]*\).*/\1/p' "$flows_dir/$1" | head -n 1
+}
+
 # Maestro connects to every entry in `adb devices` and reports no device at all
 # when a single one is not ready (offline, authorizing, unauthorized), even an
 # unrelated emulator.
@@ -168,7 +188,7 @@ for name in $selected; do
   serial="$(start_avd "$avd" "$port")"
 
   out_dir="$(mktemp -d -t "screenshots_$name")"
-  target_dir="$repo_root/assets/store/$folder"
+  target_dir="$repo_root/docs/store/$folder"
   if [ "$demo" -eq 1 ]; then
     target_dir="$repo_root/build/marketing/raw"
     mkdir -p "$target_dir"
@@ -187,6 +207,7 @@ for name in $selected; do
       if [ "$attempt" -eq 1 ]; then echo "[$name] $flow"; else echo "[$name] $flow (retry)"; fi
       "$adb" -s "$serial" wait-for-device
       set_demo_status_bar "$serial"
+      set_scenario "$serial" "$(flow_scenario "$flow")"
       if (cd "$flows_dir" && "$maestro" --device "$serial" test "$flow" \
         --test-output-dir "$out_dir" \
         -e "APP_ID=$app_id" \
@@ -197,10 +218,11 @@ for name in $selected; do
       fi
     done
 
+    # Each attempt writes to its own timestamped folder: take the last one.
     if [ "$demo" -eq 1 ]; then
-      shot="$(find "$out_dir" -name "${flow%.yaml}.mp4" | head -n 1)"
+      shot="$(find "$out_dir" -name "${flow%.yaml}.mp4" | sort | tail -n 1)"
     else
-      shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | head -n 1)"
+      shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | sort | tail -n 1)"
     fi
     if [ "$ok" -eq 1 ] && [ -n "$shot" ]; then
       cp "$shot" "$target_dir/"
@@ -212,6 +234,7 @@ for name in $selected; do
 
   # Best effort: a dropped adb transport here must not abort the next device.
   set_touch_dots "$serial" 0 || true
+  set_scenario "$serial" '' || true
   "$adb" -s "$serial" shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null 2>&1 || true
   if [ "$keep_running" -eq 0 ]; then "$adb" -s "$serial" emu kill > /dev/null 2>&1 || true; fi
 done
@@ -221,6 +244,10 @@ if [ "$demo" -eq 1 ]; then
   echo "Recordings: $repo_root/build/marketing/raw"
 else
   python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+  if [ "$raw_only" -eq 0 ]; then
+    # shellcheck disable=SC2086 # $selected is a list of device names
+    python3 "$repo_root/tool/marketing/render_images.py" store-screenshots $selected ${screens:+"$screens"} || check_exit=$?
+  fi
 fi
 
 if [ ${#failed[@]} -gt 0 ]; then

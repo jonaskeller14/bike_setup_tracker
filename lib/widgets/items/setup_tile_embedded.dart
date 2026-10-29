@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
@@ -79,31 +78,9 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     );
   }
 
-  Widget _scoreBadge(BuildContext context, double score) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9A825),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 2,
-        children: [
-          const Icon(RatingEntry.iconData, size: 13, color: Colors.white),
-          Text(
-            score.toStringAsFixed(1),
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _setupHeader(BuildContext context, Setup setup) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final double? score = appSettings.enableRating ? appRepository.scoreForSetup(setup.id) : null;
 
     final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
     final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
@@ -122,10 +99,9 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
           text: '${setup.attachments.length}',
           muted: true,
         ),
+      ?SetupTileHeader.rankOf(setup, appSettings, appRepository),
     ];
-    final Widget? badge = score != null
-        ? _scoreBadge(context, score)
-        : widget.showCurrentBadge
+    final Widget? badge = widget.showCurrentBadge
         ? appRepository.setupHistory.isCurrent(setup.id)
               ? const CurrentSetupBadge()
               : null
@@ -143,6 +119,9 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
         badge: badge,
         showSetupIcon: false,
         selected: widget.selected,
+        footer: SetupTileHeader.showOpenIssuesInTiles
+            ? SetupTileHeader.openIssuesOf(setup, appSettings, appRepository)
+            : null,
         secondaryMetadata: null,
       ),
     );
@@ -205,7 +184,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (!_displayOnlyChanges && !widget.selectionMode) SetupOptionsMenu(setup: setup),
+                      if (!_displayOnlyChanges) SetupOptionsMenu(setup: setup, enabled: !widget.selectionMode),
                       Padding(
                         padding: EdgeInsets.only(top: !_displayOnlyChanges ? 0 : _collapsedChevronTop),
                         child: ExpandIcon(

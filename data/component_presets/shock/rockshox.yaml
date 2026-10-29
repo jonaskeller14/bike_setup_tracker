@@ -628,22 +628,26 @@ nodes:
   - label: "Super Deluxe Ultimate DH"
     level: model
     category: Downhill
-    years: "2023-2026"
-    url: https://www.sram.com/en/rockshox/series/super-deluxe-dh
-    setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
-    guide: rockshox_rear_shock_um
     specs: { spring: Air }
     tasks: *rockshox_service
     children:
-      - label: Ultimate DH
-        level: trim
-        draft: true
-        specs: { spring: DebonAir+ }
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        options:
-          damper: [rc2]
-        note: Gravity-specific tune with a narrower damping window than the trail Super Deluxe
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
+        url: https://www.sram.com/en/rockshox/series/super-deluxe-dh
+        setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
+        guide: rockshox_rear_shock_um
+        children:
+          - label: Ultimate DH
+            level: trim
+            draft: true
+            specs: { spring: DebonAir+ }
+            adjustments: &air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            options:
+              damper: [rc2]
+            note: Gravity-specific tune with a narrower damping window than the trail Super Deluxe
 
   - label: "Vivid Air"
     level: model
@@ -708,162 +712,182 @@ nodes:
   - label: "Vivid Coil"
     level: model
     category: Trail / Enduro
-    years: "2024-2026"
-    url: https://www.sram.com/en/rockshox/series/vivid-coil
-    setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
-    guide: rockshox_rear_shock_um
     specs: { spring: Coil }
     mounts: [Standard, Trunnion]
     tasks:
       shock:full_service: *rockshox_full_service
     children:
-      - label: Ultimate
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [vivid_ultimate]
-          size: *coil_strokes
-        note: |-
-          - Five positions each of high- and low-speed compression
-          - Twenty clicks of rebound and five positions of hydraulic bottom-out
-          - LSC turns by hand, HSC takes a 3mm hex key
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://www.sram.com/en/rockshox/series/vivid-coil
+        setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
+        guide: rockshox_rear_shock_um
+        children:
+          - label: Ultimate
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [vivid_ultimate]
+              size: *coil_strokes
+            note: |-
+              - Five positions each of high- and low-speed compression
+              - Twenty clicks of rebound and five positions of hydraulic bottom-out
+              - LSC turns by hand, HSC takes a 3mm hex key
 
   - label: "Vivid Coil Ultimate DH"
     level: model
     category: Downhill
-    years: "2024-2026"
-    url: https://www.sram.com/en/rockshox/series/vivid-coil-dh
-    setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
-    guide: rockshox_rear_shock_um
     specs: { spring: Coil }
     tasks:
       shock:full_service: *rockshox_full_service
     children:
-      - label: Ultimate DH
-        level: trim
-        adjustments: *coil_spring
-        options:
-          damper: [vivid_ultimate]
-        note: Downhill build of the Vivid Coil
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://www.sram.com/en/rockshox/series/vivid-coil-dh
+        setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
+        guide: rockshox_rear_shock_um
+        children:
+          - label: Ultimate DH
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [vivid_ultimate]
+            note: Downhill build of the Vivid Coil
 
   - label: "SIDLuxe"
     level: model
     draft: true
     category: XC
-    years: "2024-2026"
-    url: https://www.sram.com/en/rockshox/series/sidluxe
-    guide: rockshox_rear_shock_um
     specs: { spring: Air }
     mounts: [Standard, Trunnion]
     tasks: *rockshox_service
     children:
-      - label: Ultimate Flight Attendant
-        level: trim
-        specs: { spring: DebonAir+ }
-        adjustments: &sidluxe_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-          - { name: Volume Spacers, type: step, max: 1, unit: tokens, visualization: stepper, notes: "Bottomless Token clamps onto the sealhead in a large or small size; only one fits at a time" }
-        options:
-          damper: [rct]
-          size: &sidluxe_sizes
-            - "145x27.5/30/32.5/35"
-            - "170x27.5/30/32.5/35"
-            - "165x37.5/40/42.5/45"
-            - "190x37.5/40/42.5/45"
-            - "185x47.5/50/52.5/55"
-            - "210x47.5/50/52.5/55"
-        note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
-      - label: Ultimate
-        level: trim
-        specs: { spring: DebonAir+ }
-        adjustments: *sidluxe_air_spring
-        options:
-          damper: [rct]
-          size: *sidluxe_sizes
-      - label: Select+
-        level: trim
-        specs: { spring: DebonAir }
-        adjustments: *sidluxe_air_spring
-        options:
-          damper: [rct]
-          size: *sidluxe_sizes
-        note: OEM only
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://www.sram.com/en/rockshox/series/sidluxe
+        guide: rockshox_rear_shock_um
+        children:
+          - label: Ultimate Flight Attendant
+            level: trim
+            specs: { spring: DebonAir+ }
+            adjustments: &sidluxe_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, type: step, max: 1, unit: tokens, visualization: stepper, notes: "Bottomless Token clamps onto the sealhead in a large or small size; only one fits at a time" }
+            options:
+              damper: [rct]
+              size: &sidluxe_sizes
+                - "145x27.5/30/32.5/35"
+                - "170x27.5/30/32.5/35"
+                - "165x37.5/40/42.5/45"
+                - "190x37.5/40/42.5/45"
+                - "185x47.5/50/52.5/55"
+                - "210x47.5/50/52.5/55"
+            note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
+          - label: Ultimate
+            level: trim
+            specs: { spring: DebonAir+ }
+            adjustments: *sidluxe_air_spring
+            options:
+              damper: [rct]
+              size: *sidluxe_sizes
+          - label: Select+
+            level: trim
+            specs: { spring: DebonAir }
+            adjustments: *sidluxe_air_spring
+            options:
+              damper: [rct]
+              size: *sidluxe_sizes
+            note: OEM only
 
   - label: "Monarch"
     level: model
     draft: true
     category: XC / Trail
-    years: "2013-2018"
-    url: https://www.sram.com/en/rockshox/series/monarch
-    guide: rockshox_rear_shock_um
     specs: { spring: Air }
-    note: Inline air shock; Bottomless Rings tune the air can volume
     tasks: *rockshox_100h_service
     children:
-      - label: RT3
-        level: trim
-        specs: { spring: SoloAir }
-        adjustments: &monarch_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-          - { name: Volume Spacers, type: step, max: 9, unit: tokens, visualization: stepper, notes: "Bottomless Rings; Maximum depends on the stroke: 38mm 4, 44.5mm 5, 51-63.5mm 8, 66mm 9" }
-        options:
-          damper: [monarch_rt3]
-          size: &monarch_sizes
-            - "152x31"
-            - "165x38"
-            - "184x44"
-            - "190x51"
-            - "200x51"
-            - "200x57"
-            - "216x63"
-      - label: RL
-        level: trim
-        specs: { spring: DebonAir }
-        adjustments: *monarch_air_spring
-        options:
-          damper: [monarch_rt3]
-          size: *monarch_sizes
-      - label: XX
-        level: trim
-        specs: { spring: SoloAir }
-        adjustments: *monarch_air_spring
-        options:
-          damper: [monarch_rt3]
-          size: *monarch_sizes
-        note: XLoc remote lockout
-      - label: R
-        level: trim
-        specs: { spring: SoloAir }
-        adjustments: *monarch_air_spring
-        options:
-          damper: [monarch_rt3]
-          size: *monarch_sizes
+      - label: "2013–2018"
+        level: generation
+        id: "2013"
+        years: "2013-2018"
+        url: https://www.sram.com/en/rockshox/series/monarch
+        guide: rockshox_rear_shock_um
+        note: Inline air shock; Bottomless Rings tune the air can volume
+        children:
+          - label: RT3
+            level: trim
+            specs: { spring: SoloAir }
+            adjustments: &monarch_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, type: step, max: 9, unit: tokens, visualization: stepper, notes: "Bottomless Rings; Maximum depends on the stroke: 38mm 4, 44.5mm 5, 51-63.5mm 8, 66mm 9" }
+            options:
+              damper: [monarch_rt3]
+              size: &monarch_sizes
+                - "152x31"
+                - "165x38"
+                - "184x44"
+                - "190x51"
+                - "200x51"
+                - "200x57"
+                - "216x63"
+          - label: RL
+            level: trim
+            specs: { spring: DebonAir }
+            adjustments: *monarch_air_spring
+            options:
+              damper: [monarch_rt3]
+              size: *monarch_sizes
+          - label: XX
+            level: trim
+            specs: { spring: SoloAir }
+            adjustments: *monarch_air_spring
+            options:
+              damper: [monarch_rt3]
+              size: *monarch_sizes
+            note: XLoc remote lockout
+          - label: R
+            level: trim
+            specs: { spring: SoloAir }
+            adjustments: *monarch_air_spring
+            options:
+              damper: [monarch_rt3]
+              size: *monarch_sizes
 
   - label: "Monarch Plus"
     level: model
     draft: true
     category: Enduro / Gravity
-    years: "2013-2018"
-    url: https://www.sram.com/en/rockshox/series/monarch-plus
-    guide: rockshox_rear_shock_um
     specs: { spring: Air }
-    note: Piggyback reservoir version of the Monarch
     tasks: *rockshox_100h_service
     children:
-      - label: RC3
-        level: trim
-        specs: { spring: DebonAir }
-        adjustments: *monarch_air_spring
-        options:
-          damper: [monarch_plus_rc3]
-          size: *monarch_sizes
-      - label: R
-        level: trim
-        specs: { spring: SoloAir }
-        adjustments: *monarch_air_spring
-        options:
-          damper: [monarch_plus_rc3]
-          size: *monarch_sizes
+      - label: "2013–2018"
+        level: generation
+        id: "2013"
+        years: "2013-2018"
+        url: https://www.sram.com/en/rockshox/series/monarch-plus
+        guide: rockshox_rear_shock_um
+        note: Piggyback reservoir version of the Monarch
+        children:
+          - label: RC3
+            level: trim
+            specs: { spring: DebonAir }
+            adjustments: *monarch_air_spring
+            options:
+              damper: [monarch_plus_rc3]
+              size: *monarch_sizes
+          - label: R
+            level: trim
+            specs: { spring: SoloAir }
+            adjustments: *monarch_air_spring
+            options:
+              damper: [monarch_plus_rc3]
+              size: *monarch_sizes
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

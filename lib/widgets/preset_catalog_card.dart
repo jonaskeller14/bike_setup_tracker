@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/component/component.dart';
+import '../models/component/component_catalog.dart';
 import '../repositories/component_catalog_repository.dart';
 import '../utils/component_catalog_application.dart';
 import '../utils/component_preset_resolver.dart';
@@ -14,19 +15,32 @@ class PresetCatalogCard extends StatefulWidget {
 
   /// What the component links to, as deep as its preset still resolves.
   final ResolvedPreset? applied;
+
+  /// The component links to an entry the catalog no longer has; ignored
+  /// while [applied] is set.
+  final bool unresolved;
   final VoidCallback onUnlink;
 
   /// Tells an unlinked component that linking a product with a setup guide
   /// gets it recommended values.
   final bool showGuideHint;
 
+  /// Catalog changes the rider has not reviewed yet; shown as an update.
+  final List<CatalogReview> updates;
+  final VoidCallback? onReviewUpdate;
+  final VoidCallback? onDismissUpdate;
+
   const PresetCatalogCard({
     super.key,
     required this.componentType,
     required this.onTap,
     this.applied,
+    this.unresolved = false,
     required this.onUnlink,
     this.showGuideHint = false,
+    this.updates = const [],
+    this.onReviewUpdate,
+    this.onDismissUpdate,
   });
 
   @override
@@ -36,7 +50,6 @@ class PresetCatalogCard extends StatefulWidget {
 class _PresetCatalogCardState extends State<PresetCatalogCard> {
   String? _teaser;
   bool _hasGuides = false;
-  static const List<String> _popularBrands = ['fox', 'rockshox'];
 
   @override
   void initState() {
@@ -66,13 +79,6 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
         if (!brands.contains(product.catalog.brand)) brands.add(product.catalog.brand);
       }
       if (brands.isEmpty) return; // Keep the generic subtitle.
-      // Surface popular brands first, keeping the alphabetical order otherwise.
-      brands.sort((a, b) {
-        final ia = _popularBrands.indexOf(a.toLowerCase());
-        final ib = _popularBrands.indexOf(b.toLowerCase());
-        if (ia != ib) return (ia == -1 ? 999 : ia).compareTo(ib == -1 ? 999 : ib);
-        return a.compareTo(b);
-      });
       const shown = 3;
       final teaser = brands.take(shown).join(' · ');
       setState(() =>
@@ -84,10 +90,10 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
 
   /// The title names the required choices; the optional ones follow here.
   String _appliedSubtitle(ResolvedPreset applied) {
-    final years = applied.node.years;
+    final years = applied.year ?? applied.node.years;
     return [
       for (final axis in applied.optionalAxes) ?applied.selections[axis.id]?.label,
-      if (years != null && years.isNotEmpty) years,
+      if (years != null) years.toString(),
       'Tap to change',
     ].join(' · ');
   }
@@ -97,40 +103,116 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
     final colors = Theme.of(context).colorScheme;
     final applied = widget.applied;
     final isApplied = applied != null;
-    // Neutral surface once applied: picking a preset is no longer the page's primary action.
-    final foreground = isApplied ? colors.onSurface : colors.onPrimaryContainer;
-    final subtitleColor = isApplied ? colors.onSurfaceVariant : colors.onPrimaryContainer.withValues(alpha: 0.8);
+    final isLinked = isApplied || widget.unresolved;
+    // Neutral surface once linked: picking a preset is no longer the page's primary action.
+    final foreground = isLinked ? colors.onSurface : colors.onPrimaryContainer;
+    final subtitleColor = isLinked ? colors.onSurfaceVariant : colors.onPrimaryContainer.withValues(alpha: 0.8);
     return Card(
       margin: EdgeInsets.zero,
-      color: isApplied ? colors.surfaceContainerHighest : colors.primaryContainer,
-      child: ListTile(
-        leading: Icon(Icons.auto_awesome, color: isApplied ? null : colors.onPrimaryContainer),
-        title: Text(
-          isApplied ? presetDisplayName(applied) : 'Choose from catalog',
-          maxLines: isApplied ? 1 : null,
-          overflow: isApplied ? TextOverflow.ellipsis : null,
-          style: TextStyle(fontWeight: FontWeight.w600, color: foreground),
-        ),
-        subtitle: Text(
-          isApplied
-              ? _appliedSubtitle(applied)
-              : [
-                  _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
-                  if (widget.showGuideHint && _hasGuides) 'Link to a catalog product to get recommended values',
-                ].join('\n'),
-          maxLines: isApplied ? 1 : null,
-          overflow: isApplied ? TextOverflow.ellipsis : null,
-          style: TextStyle(color: subtitleColor),
-        ),
-        trailing: isApplied
-            ? IconButton(
-                icon: const Icon(Icons.link_off),
-                color: subtitleColor,
-                tooltip: 'Unlink preset (keeps values)',
-                onPressed: widget.onUnlink,
-              )
-            : Icon(Icons.arrow_forward_ios, size: 16, color: foreground),
-        onTap: widget.onTap,
+      color: isLinked ? colors.surfaceContainerHighest : colors.primaryContainer,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(
+              isApplied || !isLinked ? Icons.auto_awesome : Icons.help_outline,
+              color: isLinked ? null : colors.onPrimaryContainer,
+            ),
+            title: Text(
+              isApplied
+                  ? presetDisplayName(applied)
+                  : isLinked
+                  ? 'Catalog entry not found'
+                  : 'Choose from catalog',
+              maxLines: isLinked ? 1 : null,
+              overflow: isLinked ? TextOverflow.ellipsis : null,
+              style: TextStyle(fontWeight: FontWeight.w600, color: foreground),
+            ),
+            subtitle: Text(
+              isApplied
+                  ? _appliedSubtitle(applied)
+                  : isLinked
+                  ? 'No longer in the catalog · Tap to choose another'
+                  : [
+                      _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
+                      if (widget.showGuideHint && _hasGuides) 'Link to a catalog product to get recommended values',
+                    ].join('\n'),
+              maxLines: isApplied ? 1 : null,
+              overflow: isApplied ? TextOverflow.ellipsis : null,
+              style: TextStyle(color: subtitleColor),
+            ),
+            trailing: isLinked
+                ? IconButton(
+                    icon: const Icon(Icons.link_off),
+                    color: subtitleColor,
+                    tooltip: 'Unlink preset (keeps values)',
+                    onPressed: widget.onUnlink,
+                  )
+                : Icon(Icons.arrow_forward_ios, size: 16, color: foreground),
+            onTap: widget.onTap,
+          ),
+          if (isApplied && widget.updates.isNotEmpty)
+            _CatalogUpdate(
+              updates: widget.updates,
+              onReview: widget.onReviewUpdate,
+              onDismiss: widget.onDismissUpdate,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogUpdate extends StatelessWidget {
+  final List<CatalogReview> updates;
+  final VoidCallback? onReview;
+  final VoidCallback? onDismiss;
+
+  const _CatalogUpdate({required this.updates, required this.onReview, required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(Icons.update, size: 20, color: colors.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Update available',
+                  style: theme.textTheme.titleSmall?.copyWith(color: colors.primary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          for (final update in updates)
+            Padding(
+              padding: const EdgeInsets.only(right: 8, bottom: 4),
+              child: Text(
+                update.summary,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
+              ),
+            ),
+          OverflowBar(
+            alignment: MainAxisAlignment.end,
+            spacing: 8,
+            children: [
+              TextButton(onPressed: onDismiss, child: const Text('Dismiss')),
+              TextButton(onPressed: onReview, child: const Text('Review')),
+            ],
+          ),
+        ],
       ),
     );
   }

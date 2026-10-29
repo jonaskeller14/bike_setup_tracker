@@ -11,8 +11,8 @@ import 'package:provider/provider.dart';
 import '../env/env.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
+import '../models/feedback/ride_feedback.dart';
 import '../models/filters/layer_filter.dart';
-import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
@@ -30,7 +30,7 @@ import '../widgets/map/map_control_button.dart';
 import '../widgets/map/map_tile_layer.dart';
 import '../widgets/map_empty_state_card.dart';
 import '../widgets/map_pins.dart';
-import '../widgets/sheets/rating_entry_details.dart';
+import '../widgets/sheets/feedback_details.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
 
@@ -40,7 +40,7 @@ class MapPage extends StatefulWidget {
 
   final StravaActivity? focusActivity;
   final List<Setup> focusSetups;
-  final RatingEntry? focusRatingEntry;
+  final RideFeedback? focusFeedback;
 
   const MapPage({
     super.key,
@@ -48,7 +48,7 @@ class MapPage extends StatefulWidget {
     this.headingStream,
     this.focusActivity,
     this.focusSetups = const [],
-    this.focusRatingEntry,
+    this.focusFeedback,
   });
 
   @override
@@ -157,7 +157,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       });
     } catch (_) {
       if (!mounted || requestId != _stravaRequestId) return;
-      // Keep the last known activities: setups and rating entries stay pinned.
+      // Keep the last known activities: setups stay pinned.
       setState(() {
         _stravaResolved = true;
         _stravaFailed = true;
@@ -187,9 +187,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       visiblePinCount,
       hasAnyPositionedMapData(
         hasSetups: appRepository.hasSetupsWithPosition,
-        hasRatingEntries: appRepository.hasRatingEntriesWithPosition,
+        hasFeedbacks: appRepository.hasFeedbacksWithPosition,
         hasStravaActivities: _stravaHasAnyPosition,
-        ratingEnabled: appSettings.enableRating,
+        feedbackEnabled: appSettings.enableRating,
         stravaActive: stravaActive,
       ),
     );
@@ -271,13 +271,17 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   Future<void> _zoomBy(double delta) =>
       _camera.move(_mapController.camera.center, (_mapController.camera.zoom + delta).clamp(3.0, 18.0));
 
-  Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin}) {
+  Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin, String? identifier}) {
     return Marker(
       point: point,
       width: 40,
       height: 40,
       alignment: mapPinAlignment,
-      child: GestureDetector(onTap: () => _openPinSheet(point, onTap), child: pin),
+      child: Semantics(
+        container: true,
+        identifier: identifier,
+        child: GestureDetector(onTap: () => _openPinSheet(point, onTap), child: pin),
+      ),
     );
   }
 
@@ -304,6 +308,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
               isCurrent: appRepository.setupHistory.isCurrent(setup.id),
               isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
             ),
+            identifier: AutomationIds.mapSetup(setup.id),
           ),
         );
   }
@@ -320,15 +325,16 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         );
   }
 
-  Iterable<Marker> _ratingEntryMarkers(AppRepository appRepository) {
-    return appRepository.view.ratingEntries.values
-        .where((re) => (re.position?.latitude?.isFinite ?? false) && (re.position?.longitude?.isFinite ?? false))
-        .where((re) => re.id != widget.focusRatingEntry?.id)
+  Iterable<Marker> _feedbackMarkers(AppRepository appRepository) {
+    return appRepository.view.feedbacks.values
+        .where((f) => f.id != widget.focusFeedback?.id)
+        .map((feedback) => (feedback: feedback, point: _pointOf(feedback.position)))
+        .where((entry) => entry.point != null)
         .map(
-          (ratingEntry) => _pinMarker(
-            point: LatLng(ratingEntry.position!.latitude!, ratingEntry.position!.longitude!),
-            onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry, showViewOnMap: false),
-            pin: const RatingEntryMapPin(),
+          (entry) => _pinMarker(
+            point: entry.point!,
+            onTap: () => showFeedbackDetailsSheet(context: context, feedbackId: entry.feedback.id, showViewOnMap: false),
+            pin: const FeedbackMapPin(),
           ),
         );
   }
@@ -388,14 +394,15 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             isCurrent: appRepository.setupHistory.isCurrent(setup.id),
             isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
           ),
+          identifier: AutomationIds.mapSetup(setup.id),
         ),
-    if (widget.focusRatingEntry case final ratingEntry?)
-      if (_pointOf(ratingEntry.position) case final point?)
+    if (widget.focusFeedback case final feedback?)
+      if (_pointOf(feedback.position) case final point?)
         _focusMarker(
-          key: const Key('map-focus-rating-entry'),
+          key: const Key('map-focus-feedback'),
           point: point,
-          onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry, showViewOnMap: false),
-          pin: const RatingEntryMapPin(),
+          onTap: () => showFeedbackDetailsSheet(context: context, feedbackId: feedback.id, showViewOnMap: false),
+          pin: const FeedbackMapPin(),
         ),
   ];
 
@@ -413,7 +420,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final List<Marker> clusterMarkers = [
       if (layers.shows(TimelineLayer.setups)) ..._setupMarkers(appRepository, appSettings),
       if (stravaActive && layers.shows(TimelineLayer.activities)) ..._activityMarkers(),
-      if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries)) ..._ratingEntryMarkers(appRepository),
+      if (appSettings.enableRating && layers.shows(TimelineLayer.feedback)) ..._feedbackMarkers(appRepository),
     ];
 
     final focusMarkers = _focusMarkers(appRepository, appSettings);

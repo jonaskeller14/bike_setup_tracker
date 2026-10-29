@@ -14,6 +14,10 @@ class AddTagChip extends StatefulWidget {
 
   final ValueChanged<bool>? onEditingChanged;
 
+  /// What the chip adds, for the tooltip and the field's hint.
+  final String noun;
+  final IconData icon;
+
   /// Returns an error message to show inline, or null once the tag was added.
   final String? Function(String value) onSubmit;
 
@@ -22,6 +26,8 @@ class AddTagChip extends StatefulWidget {
     this.autofocus = false,
     this.prominent = false,
     this.onEditingChanged,
+    this.noun = 'tag',
+    this.icon = Icons.tag,
     required this.onSubmit,
   });
 
@@ -89,7 +95,7 @@ class _AddTagChipState extends State<AddTagChip> {
     if (!_editing) {
       return IconButton(
         icon: const Icon(Icons.add),
-        tooltip: 'Add tag',
+        tooltip: 'Add ${widget.noun}',
         color: theme.colorScheme.primary,
         visualDensity: VisualDensity.compact,
         padding: EdgeInsets.zero,
@@ -107,7 +113,7 @@ class _AddTagChipState extends State<AddTagChip> {
 
     // Prefix slot + content padding + the suffix button's own tap target.
     final double chrome = 32 + horizontalPadding * 2 + 40;
-    final double minWidth = _widthFor('New tag', style, chrome);
+    final double minWidth = _widthFor('New ${widget.noun}', style, chrome);
 
     return LayoutBuilder(builder: (context, constraints) {
       // Grows with the text until it fills the row it sits in; past that the
@@ -135,9 +141,9 @@ class _AddTagChipState extends State<AddTagChip> {
           },
           decoration: InputDecoration(
             isDense: true,
-            hintText: 'New tag',
+            hintText: 'New ${widget.noun}',
             errorText: _error,
-            prefixIcon: Icon(Icons.tag, size: iconSize),
+            prefixIcon: Icon(widget.icon, size: iconSize),
             prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 0),
             contentPadding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
             border: const OutlineInputBorder(

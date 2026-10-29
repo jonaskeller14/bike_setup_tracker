@@ -90,11 +90,15 @@ void main() {
     await pumpCard(tester, state: MapPinState.none);
     expect(find.textContaining('Same for'), findsNothing);
 
-    settings.enableRating = true;
     when(() => subscriptionService.hasStravaEntitlement).thenReturn(true);
     await pumpCard(tester, state: MapPinState.none);
 
-    expect(find.textContaining('Same for Strava activities and rating entries.'), findsOneWidget);
+    expect(find.textContaining('Same for Strava activities.'), findsOneWidget);
+
+    settings.enableRating = true;
+    await pumpCard(tester, state: MapPinState.none);
+
+    expect(find.textContaining('Same for Strava activities and feedback.'), findsOneWidget);
   });
 
   testWidgets('clears the filters from the filtered state', (tester) async {
@@ -181,7 +185,6 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    settings.enableRating = true;
     when(() => subscriptionService.hasStravaEntitlement).thenReturn(true);
     await pumpCard(tester, state: MapPinState.filtered);
 

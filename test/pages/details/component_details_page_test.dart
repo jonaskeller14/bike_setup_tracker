@@ -1076,10 +1076,19 @@ void main() {
           bikeAdjustmentValues: const {'Rebound': StepValue(1), 'LSC': StepValue(2), 'HSC': StepValue(3)},
           personAdjustmentValues: const {},
         ),
+        // The line chart (and its legend) needs at least two setups.
+        Setup(
+          id: 's2', name: 'Setup 2',
+          datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2),
+          tags: const {}, bike: 'bike1', person: null,
+          bikeAdjustmentValues: const {'Rebound': StepValue(2), 'LSC': StepValue(2), 'HSC': StepValue(3)},
+          personAdjustmentValues: const {},
+        ),
       ]);
     });
     appRepository.dispose();
     appRepository = AppRepository(database);
+    appSettings.enableTask = true;
     await tester.pumpWidget(createWidgetUnderTest('comp1'));
     await tester.runAsync(() async {
       int attempts = 0;
@@ -1095,7 +1104,10 @@ void main() {
       AutomationIds.componentDetailsColumns,
       AutomationIds.setupTableSelectAll,
       AutomationIds.componentDetailsLineChart,
+      AutomationIds.lineChartLegend(0),
+      AutomationIds.componentDetailsRadialChart,
       AutomationIds.radialChartLegend(0),
+      AutomationIds.openTasks,
     ]) {
       expect(find.bySemanticsIdentifier(id, skipOffstage: false), findsOneWidget, reason: id);
     }

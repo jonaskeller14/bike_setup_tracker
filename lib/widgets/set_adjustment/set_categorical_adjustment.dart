@@ -50,8 +50,9 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
     // value, even when that value happens to match the previous setup's.
     final bool canReset = optional ? value != null : isChanged;
 
-    // Only options that still exist are shown in the field; any dangling values
-    // are surfaced (and removable) inside the sheet.
+    // An outdated selection is shown as stored (in error color, next to the
+    // validator message); otherwise options are listed in the adjustment's order.
+    final bool isOutdated = value != null && !adjustment.isValidValue(value!);
     final List<String> selected = value?.options ?? const [];
     final List<String> validSelected = [
       for (final option in adjustment.options)
@@ -81,7 +82,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                 flex: 3,
                 child: FormField<List<String>>(
                   initialValue: value?.options,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  autovalidateMode: AutovalidateMode.always,
                   validator: (_) {
                     final selection = value?.options ?? const <String>[];
                     if (selection.any((e) => !adjustment.options.contains(e))) {
@@ -93,6 +94,11 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                     }
                     if (!adjustment.counted && selection.length != distinct.length) {
                       return 'An option cannot be selected more than once';
+                    }
+                    // Only an explicitly emptied selection is flagged; an unset
+                    // (null) value stays allowed, as for the other adjustment types.
+                    if (!adjustment.multiSelect && !adjustment.counted && value != null && selection.isEmpty) {
+                      return 'Please select an option';
                     }
                     return null;
                   },
@@ -139,10 +145,14 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          hasValidValue ? CategoricalValue(validSelected).display : "Please select",
+                          isOutdated
+                              ? value!.display
+                              : hasValidValue ? CategoricalValue(validSelected).display : "Please select",
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: hasValidValue ? highlightColor : Theme.of(context).hintColor,
+                            color: isOutdated
+                                ? Theme.of(context).colorScheme.error
+                                : hasValidValue ? highlightColor : Theme.of(context).hintColor,
                           ),
                         ),
                       ),

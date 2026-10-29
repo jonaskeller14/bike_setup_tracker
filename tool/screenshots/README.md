@@ -1,6 +1,6 @@
 # Store screenshots
 
-This tooling regenerates the store raws (`assets/store/**/0N_raw.png`) from seeded data. `assets/store/screenshots.af` links the raws, so after a run, recomposing in Affinity takes one click.
+This tooling regenerates the store raws (`docs/store/**/0N_raw.png`) from seeded data, then renders the store screenshots from them: the raw screen in its device frame with the caption from `docs/store/captions/`, via `docs/store/screenshots.html` (`tool/marketing/render_images.py store-screenshots`). One run gives the raw and the edited version. Pass `--raw-only` (`-RawOnly` on Windows) to skip the rendering.
 
 | Folder | Device | Size (px) |
 |---|---|---|
@@ -9,9 +9,9 @@ This tooling regenerates the store raws (`assets/store/**/0N_raw.png`) from seed
 | `app-store/iPhone-17-Pro-Max` | iPhone 17 Pro Max simulator | 1320×2868 |
 | `app-store/iPad-Pro-13-inch_M5` | iPad Pro 13-inch (M5) simulator | 2064×2752 |
 
-The Affinity device frames assume these sizes. If `check_output.py` reports a mismatch, fix the device or adjust the frames before recomposing.
+The device frames in the template assume these sizes. If `check_output.py` reports a mismatch, fix the device or adjust the frames before rendering.
 
-The exported iPhone frames (`app-store/iPhone-17-Pro-Max/0N.png`) are 1206×2622, the 6.3″ slot size App Store Connect accepts for the default page and every custom product page. The raws have the same aspect ratio, so the composition is exported at that canvas size rather than from a new simulator. `check_output.py` checks the frames as well as the raws.
+The exported iPhone frames (`app-store/screenshots/en-US/iphone_0N.png`) are 1206×2622, the 6.3″ slot size App Store Connect accepts for the default page and every custom product page. The raws have the same aspect ratio, so the composition is exported at that canvas size rather than from a new simulator. `check_output.py` checks the frames as well as the raws.
 
 The phone AVD uses the generic `medium_phone` profile on purpose. Device profiles such as `pixel_8` add a camera cutout, which makes the status bar about twice as tall as in the old raws.
 
@@ -74,8 +74,10 @@ The iPhone flows run with `DEVICE=phone` and the iPad flows with `DEVICE=tablet`
 ## How the flows stay deterministic
 
 - **Fresh data on every launch.** `lib/main_screenshots.dart` wipes the database and preferences on each launch, seeds `assets/data/20260925_sample_simple.json` plus the Strava sample, and shifts all dates so that the newest one is yesterday. Every flow cold-starts the app through `flows/_launch.yaml`, so no flow depends on another.
+- **Tags are off.** Setup and task tags add noise, so the seed turns both off. Only the `tags` scenario shows them.
+- **Demo scenarios.** A flow can start from a named subset of the sample instead of all of it (see [Demo scenarios](#demo-scenarios)).
 - **One set of flows for both platforms.** The bundle ID differs (`com.jonaskeller14.bike_setup_tracker` on Android, `com.jonaskeller14.bike-setup-tracker` on iOS), so the flows use `appId: ${APP_ID}`, which the run scripts pass in. Platform differences live in `when: platform:` blocks: `flows/_dismiss_sheet.yaml` presses Back on Android and taps the barrier above the sheet on iOS, which has no Back key, and the Location Accuracy subflow runs on Android only.
-- **Keyboard on iOS (screen 03).** Maestro's `hideKeyboard` fails on Flutter text fields on iOS, so it only runs on Android (`flows/_hide_keyboard_android.yaml`). On iOS the keyboard stays up while the flow fills the form. At the end, the flow opens and closes the tags sheet, which closes the keyboard for good.
+- **Keyboard on iOS (screen 03).** Maestro's `hideKeyboard` fails on Flutter text fields on iOS, so it only runs on Android (`flows/_hide_keyboard_android.yaml`). On iOS the keyboard stays up while the flow fills the form. At the end, the flow opens and closes the trail-condition sheet, which closes the keyboard for good.
 - **Selectors are identifiers.** Flows select elements by `Semantics.identifier` values from `lib/utils/automation_ids.dart`, never by UI labels, so localization won't break them. Record names such as tags are data rather than UI labels, so the flows can select them by text.
 - **Record IDs are fixed.** Records are addressed by the sample's fixed IDs, for example `garage.component.<Lyrik id>`.
 - **Screen 03 (Add Setup):**
@@ -87,6 +89,37 @@ The iPhone flows run with `DEVICE=phone` and the iPad flows with `DEVICE=tablet`
   - It then drags from a section title over 10 s. That's slow enough that Flutter doesn't fling, and the title's centre lands at 10 % of the screen height. The phone anchors on *Line Chart* (both charts). On the iPhone the status bar plus app bar are taller than 10 % of the screen, so a second slow drag pulls the title back down by 5 %; the tablet anchors on *Adjustment History* (table and both charts). The run scripts pass the device as `DEVICE` (`phone` or `tablet`).
 - **Screen 07 (map):** tiles load live from CyclOSM. `-TileWaitMs` / `--tile-wait-ms` (default 20 s) is a fixed wait, because nothing signals that the tiles have finished loading.
 - **Screen 08 (calendar):** `flows/scripts/calendar_months_back.js` pages back to the sample's busiest month, which is mid-May before the date shift.
+
+## Demo scenarios
+
+`lib/screenshots/demo_scenario.dart` derives named starting states from the sample, so only the sample needs curating. A flow picks one with a comment line:
+
+```yaml
+# scenario: one_bike_no_components
+appId: ${APP_ID}
+```
+
+Before each flow, the run scripts delete the marker file `demo_scenario` in the app's documents folder and, if the flow has a `# scenario:` line, write the name into it (iOS: the data container's `Documents`; Android: `app_flutter` via `adb shell run-as`). `lib/main_screenshots.dart` reads it at launch. Without the marker, the app seeds `full`; an unknown name stops the launch, so a typo can't record the wrong state.
+
+| Scenario | Data |
+|---|---|
+| `full` | The whole sample (default; store screenshots) |
+| `empty` | No bikes, and nothing recorded on them |
+| `one_bike_no_components` | The Santa Cruz Hightower and its rides, no components or setups |
+| `no_setups` | Bikes and components, no setups |
+| `analysis` | The Hightower's 4 newest setups; fork and shock *Pressure* removed, so the click-based series fill the charts |
+| `tasks_one_due` | *Investigate BB creaking noise* as the only due task. It doesn't repeat, so ticking it off moves it to the completed section |
+| `tags` | The whole sample with setup and task tags on |
+
+Dropping a bike drops everything recorded on it: its components, setups, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
+
+**Content rules.** `test/screenshots/demo_scenario_test.dart` checks the sample against the rules from the marketing review (#77):
+
+- Every setup changes at most 3 values against the bike's previous setup.
+- Every Strava ride links at most 2 setups (the one active at the start, plus those recorded during the ride, as on the activity page).
+- One calendar day has a setup, a ride, an installation and a task: 18 May before the shift (Mia's ride, the Fox 40 off for service, a brake bleed).
+
+When you edit the sample, keep these passing, and keep installations, UTC/local time pairs and the weather time of each setup consistent.
 
 ## Adding a screen
 
@@ -131,9 +164,11 @@ Check these against App Store Connect's current *App preview specifications* bef
 
 ### Trim, resize and encode
 
-`python tool/marketing/build_kit.py appstore` cuts `preview_setup.mp4` as set in `docs/marketing/kits/appstore.json`, scales it to 886×1920 at a constant 30 fps (H.264 High, level 4.0) and adds a silent stereo AAC track: `build/marketing/appstore/preview_iphone.mp4`. See `tool/marketing/README.md`. The kit has no iPad preview yet; `render_video.appstore_preview` takes the size (`(1200, 1600)`) for one.
+`python tool/marketing/build_kit.py 00_appstore` cuts the demo clips as set in `docs/marketing/kits/00_appstore.json`, crossfades the clips of each preview, scales it to 886×1920 at a constant 30 fps (H.264 High, level 4.0) and adds a silent stereo AAC track: `build/marketing/00_appstore/preview_N.mp4`, copied to `docs/store/app-store/app_previews/en-US/iphone_65/` when it passes. See `tool/marketing/README.md`. The kit has no iPad preview yet; `render_video.appstore_preview` takes the size (`(1200, 1600)`) for one.
 
 ## Demo clips (marketing)
+
+**Production policy.** Everything published is recorded with Maestro: reviews always lead to re-takes, so a take has to be repeatable. Claude driving the simulator directly is for exploring the app, drafting new flows and one-off stills. System UI that is hard to automate, such as the file picker for attachments, is avoided by seeding the state in a scenario instead.
 
 ```powershell
 tool/screenshots/run_android.ps1 -Demo                 # records flows/demo_*.yaml
@@ -144,24 +179,29 @@ tool/screenshots/run_android.sh --demo
 tool/screenshots/run_ios.sh iphone --demo              # the clips the marketing kits use
 ```
 
-`-Demo` / `--demo` records the `demo_*.yaml` flows with touch dots and the same build, seeded data, status bar and GPS as the screenshots. Each recording lands in `build/marketing/raw/<flow name>.mp4` on the phone AVD (1080×2400) and in `build/marketing/raw/ios/<flow name>.mp4` on the iPhone (1320×2868); both H.264, no audio, variable frame rate. `-Screens` / `--screens` don't apply.
+`-Demo` / `--demo` records the `demo_*.yaml` flows with touch dots and the same build, seeded data, status bar and GPS as the screenshots. Each recording lands in `build/marketing/raw/<flow name>.mp4` on the phone AVD (1080×2400) and in `build/marketing/raw/ios/<flow name>.mp4` on the iPhone (1320×2868); both H.264, no audio, variable frame rate. `-Screens` / `--screens` don't apply. `run_ios.sh --flows demo_analysis,demo_tasks` re-records only those flows, so the other clips keep the timings the kits cut them at.
 
-The marketing kits use the iPhone clips: the iPhone frame's screen hole is exactly 1320×2868, so the recording fits without cropping, and an iPhone looks familiar on social media. The Android clips stay available for a kit that sets `"recordings": "build/marketing/raw"`.
+The marketing kits use the iPhone clips: the iPhone frame's screen hole is exactly 1320×2868, so the recording fits without cropping, and an iPhone looks familiar on social media. A kit that sets `"recordings": "build/marketing/raw"` and `"device": "android"` uses the Android clips in the Android frame (`tool/marketing/assets/frames/android.png`, screen hole 1080×2400).
 
-| Flow | Shows |
-|---|---|
-| `demo_add_bike` | A new bike in the garage |
-| `demo_add_component` | A fork with Pressure and Rebound from the type's suggestions |
-| `demo_add_setup` | Location and weather filling in, tags, one adjustment, save |
-| `demo_setup_history` | The Hightower's history, then its newest setup compared with the one before |
-| `demo_analysis` | The Lyrik's line and radial charts over all setups |
-| `demo_tasks` | Ticking off a due task |
-| `demo_map` | The Finale Ligure ride on the map with its setups |
-| `demo_calendar` | The month view |
-| `demo_strava` | The Strava dashboard, then a ride with the setup ridden on it |
+Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` line.
 
-- **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as the component preset catalog.
+| Flow | Scenario | Shows |
+|---|---|---|
+| `demo_add_bike` | `empty` | From an empty garage to the first bike |
+| `demo_add_component` | `one_bike_no_components` | The Hightower's fork, with Pressure and Rebound from the type's suggestions |
+| `demo_add_setup` | `no_setups` | Location and weather filling in, the fork's rebound and pressure, save |
+| `demo_setup_list` | `full` | The setup history after a season: the second take of `demo_add_setup`, for a transition |
+| `demo_setup_history` | `full` | The Hightower's history, its newest setup compared with the one before, then with another setup picked (2 changed values) |
+| `demo_analysis` | `analysis` | The Lyrik's line chart with LSC highlighted from the legend, then the radial chart and the activity histogram, without interaction |
+| `demo_map` | `full` | The Finale Ligure ride's pin with its 2 setups, then one of the setup pins |
+| `demo_calendar` | `full` | The month view, then the showcase day in the day view, opening its installation, setup, ride and task |
+| `demo_tasks` | `tasks_one_due` | Ticking off the only due task: the "all caught up" placeholder, then the task in the completed section |
+| `demo_strava_distance` | `full` | Rides counted automatically: the chain's distance and rides, its distance-based task, then the bike's due "every 150 km" bolt check |
+
+- **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.
 - **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.
 - **Ending.** Flows end with `_stop_recording.yaml` instead of `stopRecording`. Both the Android encoder and the iOS Simulator keep the last frames before a still screen until the screen changes again, and `stopRecording` drops them, so a clip would end before its final transition. The subflow holds the screen, then presses *Volume Up* (Android) or *Home* (iOS). The volume panel or home animation that follows stays in the file; `tool/marketing/build_kit.py` cuts it off automatically. A tap can't do this: the status bar opens the notification shade, and an in-app tap depends on the page.
 - **Map tiles.** `demo_map` waits `TILE_WAIT_MS` before it starts recording, so the clip doesn't show tiles loading.
+- **Sheets.** `flows/_close_sheet.yaml` swipes the drag handle down, on both platforms. A tall sheet leaves no barrier to tap on iOS, and XCTest doesn't see the close button in a sheet's app bar. `flows/_back.yaml` presses Back on Android and swipes from the left edge on iOS.
+- **Calendar day.** `flows/scripts/calendar_showcase_day.js` pages the month view to the showcase day (see the content rules above) and taps its cell by the date label the calendar package writes, e.g. `Mon, 14 September 2026`.
 - Running a demo flow by hand needs `-e APP_ID=<bundle id>`, plus `-e TILE_WAIT_MS=<ms>` for `demo_map`; `maestro test --test-output-dir <dir>` keeps the mp4.

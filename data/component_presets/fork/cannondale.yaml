@@ -243,12 +243,6 @@ nodes:
   - label: Lefty Ocho 120
     level: model
     category: Cross-Country
-    years: "2021-2026"
-    url: https://www.cannondale.com/en/gear/components/suspension/lefty-ocho/lefty-ocho-120-carbon
-    # Travel 120mm / 110mm, 50mm offset, recommended sag 25% (30mm / 27.5mm),
-    # Lefty 60 hub: owner's manual 138227 p.9. Ramp Clamp count (four fitted, six
-    # maximum) and 29in-only: BikeRadar's launch article. Max air pressure is 250 psi
-    # in the spec table (p.9) but 200 psi in the pressure table (p.10).
     source:
       - https://www.cannondale.com/en-gb/owners-manuals/-/media/files/manual-uploads/my21/021_138227_oms_lefty%20ocho_120_pdfs_021_138227_oms_lefty%20ocho_en.pdf
       - https://www.bikeradar.com/news/lefty-ocho-120-fork-debuts-on-cannondale-scalpel-se-ltd
@@ -261,64 +255,78 @@ nodes:
         source: Lefty Ocho owner's manual
       fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 730 }, source: Lefty Ocho owner's manual }
     children:
-      - label: Carbon
-        level: trim
-        specs: { spring: Air }
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 50 }
-          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Ramp Clamps on the air-piston carrier; four are fitted as standard" }
-        options:
-          damper: [chamber_ocho120_2021]
-          travel_mm: [110, 120]
-          wheel_size: [29]
-        note: |-
-          - Single-leg, single-crown fork on triangulated needle bearings; needs a Lefty 60 hub
-          - Carbon upper leg, aluminum lower leg, 50mm offset, 29in wheels
-          - One SideCar valve charges the air spring and the negative chamber equalizes itself
-          - Ramp Clamps tune how progressive the end of the stroke feels
-          - Remote or crown-mounted lockout, StopLock quick-release brake mount
+      - label: "2021–2026"
+        level: generation
+        id: "2021"
+        years: "2021-2026"
+        url: https://www.cannondale.com/en/gear/components/suspension/lefty-ocho/lefty-ocho-120-carbon
+        # Travel 120mm / 110mm, 50mm offset, recommended sag 25% (30mm / 27.5mm),
+        # Lefty 60 hub: owner's manual 138227 p.9. Ramp Clamp count (four fitted, six
+        # maximum) and 29in-only: BikeRadar's launch article. Max air pressure is 250 psi
+        # in the spec table (p.9) but 200 psi in the pressure table (p.10).
+        children:
+          - label: Carbon
+            level: trim
+            specs: { spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 50 }
+              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Ramp Clamps on the air-piston carrier; four are fitted as standard" }
+            options:
+              damper: [chamber_ocho120_2021]
+              travel_mm: [110, 120]
+              wheel_size: [29]
+            note: |-
+              - Single-leg, single-crown fork on triangulated needle bearings; needs a Lefty 60 hub
+              - Carbon upper leg, aluminum lower leg, 50mm offset, 29in wheels
+              - One SideCar valve charges the air spring and the negative chamber equalizes itself
+              - Ramp Clamps tune how progressive the end of the stroke feels
+              - Remote or crown-mounted lockout, StopLock quick-release brake mount
 
   - label: Lefty Ocho
     level: model
     category: Cross-Country
-    years: "2018-2026"
-    url: https://www.cannondale.com/en/gear/components/suspension/lefty-ocho
-    setup_guide: https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
-    guide: cannondale_lefty_ocho_2018
-    # 100mm travel, 27.5in / 29in, offset 50mm (27.5) / 55mm (29), recommended sag
-    # 25% (25mm), air pressure limits 50-250 psi, Lefty 60 hub: owner's manual
-    # 134923 p.6. Ramp Clamps: BikeRadar's launch article (max count not stated).
     source:
       - https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
       - https://www.bikeradar.com/news/everything-you-need-to-know-about-the-new-cannondale-lefty-ocho-fork
     tasks: *lefty_ocho_service
     children:
-      - label: Carbon
-        level: trim
-        specs: { spring: Air }
-        adjustments: &ocho_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 50, max: 250 }
-        options:
-          damper: [chamber_ocho_2018]
-          travel_mm: [100]
-          wheel_size: [27.5, 29]
-        note: |-
-          - Single-leg, single-crown XC fork on triangulated needle bearings; needs a Lefty 60 hub
-          - Carbon chassis, 50mm offset on 27.5in and 55mm on 29in
-          - One SideCar valve charges the air spring and the negative chamber equalizes itself
-          - Optional Ramp Clamps add progression near the end of the stroke
-          - Remote lockout with Descend and Climb modes, StopLock quick-release brake mount
-      - label: Alloy
-        level: trim
-        specs: { spring: Air }
-        adjustments: *ocho_air_spring
-        options:
-          damper: [chamber_ocho_2018]
-          travel_mm: [100]
-          wheel_size: [27.5, 29]
-        note: |-
-          - Aluminum-chassis version of the Ocho with the same air spring and damper
-          - Heavier than the carbon fork, otherwise adjusted identically
+      - label: "2018–2026"
+        level: generation
+        id: "2018"
+        years: "2018-2026"
+        url: https://www.cannondale.com/en/gear/components/suspension/lefty-ocho
+        setup_guide: https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
+        guide: cannondale_lefty_ocho_2018
+        # 100mm travel, 27.5in / 29in, offset 50mm (27.5) / 55mm (29), recommended sag
+        # 25% (25mm), air pressure limits 50-250 psi, Lefty 60 hub: owner's manual
+        # 134923 p.6. Ramp Clamps: BikeRadar's launch article (max count not stated).
+        children:
+          - label: Carbon
+            level: trim
+            specs: { spring: Air }
+            adjustments: &ocho_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 50, max: 250 }
+            options:
+              damper: [chamber_ocho_2018]
+              travel_mm: [100]
+              wheel_size: [27.5, 29]
+            note: |-
+              - Single-leg, single-crown XC fork on triangulated needle bearings; needs a Lefty 60 hub
+              - Carbon chassis, 50mm offset on 27.5in and 55mm on 29in
+              - One SideCar valve charges the air spring and the negative chamber equalizes itself
+              - Optional Ramp Clamps add progression near the end of the stroke
+              - Remote lockout with Descend and Climb modes, StopLock quick-release brake mount
+          - label: Alloy
+            level: trim
+            specs: { spring: Air }
+            adjustments: *ocho_air_spring
+            options:
+              damper: [chamber_ocho_2018]
+              travel_mm: [100]
+              wheel_size: [27.5, 29]
+            note: |-
+              - Aluminum-chassis version of the Ocho with the same air spring and damper
+              - Heavier than the carbon fork, otherwise adjusted identically
 
   - label: Lefty Oliver
     level: model

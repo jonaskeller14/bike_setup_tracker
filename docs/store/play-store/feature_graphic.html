@@ -1,0 +1,55 @@
+<!doctype html>
+<!--
+  Play Store feature graphic, 1024×500 PNG. Headline C3 (docs/marketing/messaging.md).
+  Notes and texts: docs/store/README.md.
+
+  Text stays inside the central 784×400 (120 px side margins): Play crops the sides on some
+  layouts. The phone is the Android frame with the Play raws.
+
+  URL parameters (and the shared ones in docs/marketing/templates/template.js):
+    ?lang=de   German texts (default: English)
+
+  Render (Windows and macOS, repo root; --safe also writes the safe-area overlay):
+    python tool/marketing/render_images.py play-feature
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Play Store Feature Graphic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="../../marketing/templates/marketing.css">
+<style>
+  html, body { width: 1024px; height: 500px; }
+  .brand { left: 120px; top: 54px; --mark: 40px; }
+  h1 { position: absolute; left: 120px; top: 140px; width: 520px; height: 230px; font-size: 60px; }
+  .values { position: absolute; left: 120px; top: 410px; font-size: 18px; display: flex; gap: 28px; }
+  /* The whole phone, vertically centered: 196 px wide is 415 px high. */
+  .phone { left: 700px; top: 43px; --pw: 196; --shadow: drop-shadow(0 16px 24px rgba(0, 0, 0, .18)); }
+</style>
+</head>
+<body data-device="android">
+  <div class="brand">
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
+  </div>
+  <!-- Ends behind the phone. -->
+  <div class="rule" style="left:120px; width:620px; top:114px; --rule:3px"></div>
+  <h1 class="hl" data-i18n="headline" data-fit="44"></h1>
+  <div class="rule" style="left:120px; width:520px; top:390px; --rule:2px"></div>
+  <div class="meta values">
+    <span><span class="muted" data-i18n="rebound"></span> 9→<span class="new">10</span></span>
+    <span><span class="muted">LSC</span> 7→<span class="new">8</span></span>
+    <span><span class="muted" data-i18n="pressure"></span> 84→<span class="new">85</span> psi</span>
+  </div>
+  <div class="phone" data-default="04"></div>
+<script>
+  const STRINGS = {
+    en: { headline: 'Find the <em>fork setting</em> that works for you.', rebound: 'Rebound', pressure: 'Pressure' },
+    de: { headline: 'Finde die <em>Gabel-Einstellung</em>, die zu dir passt.', rebound: 'Zugstufe', pressure: 'Druck' },
+  };
+</script>
+<script src="../../marketing/templates/template.js"></script>
+</body>
+</html>

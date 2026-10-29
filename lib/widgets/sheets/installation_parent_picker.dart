@@ -26,6 +26,8 @@ class InstallationParentOption {
   final bool isMissing;
   /// False moves the option behind the "Show all" row.
   final bool isSuggested;
+  final bool isEnabled;
+  final String? disabledReason;
 
   const InstallationParentOption({
     required this.value,
@@ -38,6 +40,8 @@ class InstallationParentOption {
     this.ancestors = const [],
     this.isMissing = false,
     this.isSuggested = true,
+    this.isEnabled = true,
+    this.disabledReason,
   });
 }
 
@@ -187,7 +191,7 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
         selected: isSelected,
         highlightColor: _highlightColorFor(option.value),
         isPrevious: _isPrevious(option.value),
-        onTap: () => _select(option.value),
+        onTap: option.isEnabled ? () => _select(option.value) : null,
       );
     }
 
@@ -386,7 +390,7 @@ class _ParentRow extends StatelessWidget {
   final bool selected;
   final Color? highlightColor;
   final bool isPrevious;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _ParentRow({
     super.key,
@@ -398,9 +402,33 @@ class _ParentRow extends StatelessWidget {
     required this.onTap,
   });
 
+  Widget? _subtitle(ThemeData theme) {
+    final reason = option.disabledReason;
+    if (option.ancestors.isEmpty && reason == null) return null;
+    final mutedColor = option.isEnabled ? null : theme.disabledColor;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (option.ancestors.isNotEmpty) ComponentAncestorsColumn(ancestors: option.ancestors, bikes: bikes, color: mutedColor),
+        if (reason != null)
+          Row(
+            spacing: 4,
+            children: [
+              Icon(Icons.info_outline, size: 14, color: theme.hintColor),
+              Expanded(
+                child: Text(reason, style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
       // ListTile paints its tile color on the nearest Material; the sheet's own
@@ -415,7 +443,8 @@ class _ParentRow extends StatelessWidget {
             option.label,
             style: TextStyle(color: option.color, fontWeight: selected ? FontWeight.w600 : null),
           ),
-          subtitle: option.ancestors.isEmpty ? null : ComponentAncestorsColumn(ancestors: option.ancestors, bikes: bikes),
+          subtitle: _subtitle(theme),
+          enabled: option.isEnabled,
           selected: selected,
           selectedColor: highlightColor == null ? scheme.onSecondaryContainer : scheme.onSurface,
           selectedTileColor: highlightColor?.withValues(alpha: 0.18) ?? scheme.secondaryContainer,

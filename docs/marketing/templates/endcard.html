@@ -1,0 +1,58 @@
+<!doctype html>
+<!--
+  End card of every video and the last carousel slide (brand.md, End card; #77 decision J): the
+  mark and name first, the signature, the store badges, then "Free on iOS and Android" smallest.
+  A native layout per size: 1080×1920 (Shorts), 1920×1080 (walkthrough), 1080×1350 and 1080×1080
+  (posts). No URL; the post carries the link.
+
+  URL parameters (and size, safe from template.js):
+    signature=…   default "78 psi. 4 clicks. Saved." (messaging.md)
+    note=…        default "Free on iOS and Android"
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>End Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="marketing.css">
+<style>
+    /* Centered in the format's safe area (render_images.SAFE_AREAS). */
+  .card {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .card > img { width: var(--mark); }
+  .name { font-size: var(--name); margin-top: calc(var(--mark) * .03); }
+  .card .rule { position: static; width: var(--rule-w); margin: calc(var(--sig) * 1.2) 0 calc(var(--sig) * .95); }
+  .signature { font-size: var(--sig); font-weight: 600; }
+  .badges { margin-top: calc(var(--badge-h) * .92); }
+  .note { font-size: var(--note); margin-top: calc(var(--badge-h) * .38); }
+
+  [data-size="1080x1920"] .card { left: 60px; top: 220px; width: 960px; height: 1180px; --mark: 340px; --name: 140px; --rule-w: 760px; --sig: 46px; --badge-h: 104px; --note: 28px; }
+  [data-size="1920x1080"] .card { inset: 0; --mark: 220px; --name: 128px; --rule-w: 760px; --sig: 44px; --badge-h: 96px; --note: 28px; }
+  [data-size="1920x1080"] .name br { display: none; }
+  [data-size="1080x1350"] .card { inset: 72px; --mark: 260px; --name: 128px; --rule-w: 640px; --sig: 42px; --badge-h: 96px; --note: 28px; }
+  [data-size="1080x1080"] .card { inset: 72px; --mark: 200px; --name: 112px; --rule-w: 600px; --sig: 40px; --badge-h: 88px; --note: 28px; }
+</style>
+</head>
+<body data-size="1080x1920">
+  <div class="card">
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <div class="hl name">Bike Setup <br>Tracker</div>
+    <div class="rule"></div>
+    <div class="signature" data-param="signature" data-default="78 psi. 4 clicks. Saved."></div>
+    <div class="badges">
+      <img class="app-store" src="../../../tool/marketing/assets/badges/app-store_en-US.svg" alt="Download on the App Store">
+      <div class="google-play"><img src="../../../tool/marketing/assets/badges/google-play_en-US.png" alt="Get it on Google Play"></div>
+    </div>
+    <div class="meta muted note" data-param="note" data-default="Free on iOS and Android"></div>
+  </div>
+<script src="template.js"></script>
+</body>
+</html>

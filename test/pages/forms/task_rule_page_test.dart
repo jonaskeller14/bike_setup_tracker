@@ -313,7 +313,7 @@ void main() {
       return result! as TaskRule;
     }
 
-    testWidgets('a chip fills the form, hides the row and saves its presetKey', (tester) async {
+    testWidgets('a chip fills the form, stays as a grey applied chip and saves its presetKey', (tester) async {
       enableTaskPresets();
       hasStravaEntitlement = true;
       await seed(tester);
@@ -325,7 +325,10 @@ void main() {
       await tester.tap(chip('Check chain wear'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(TaskPresetChips), findsNothing);
+      expect(chip('Replace chain'), findsNothing);
+      final applied = find.widgetWithText(InputChip, 'Check chain wear');
+      expect(applied, findsOneWidget);
+      expect(tester.widget<InputChip>(applied).backgroundColor, Theme.of(tester.element(applied)).colorScheme.surfaceContainerHighest);
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse);
       final saved = await save(tester);
       expect(saved.name, 'Check chain wear');
@@ -334,6 +337,100 @@ void main() {
       expect(saved.interval, const DistanceThreshold(500000));
       expect(saved.repeat, isTrue);
       expect(saved.notes, isNot(contains('Recommended interval')));
+    });
+
+    testWidgets('the tapped chip stays in place while it turns grey', (tester) async {
+      enableTaskPresets();
+      hasStravaEntitlement = true;
+      await seed(tester);
+      await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'ch1'));
+
+      final left = tester.getTopLeft(chip('Check chain wear')).dx;
+      await tester.tap(chip('Check chain wear'));
+      for (var frame = 0; frame < 6; frame++) {
+        await tester.pump(const Duration(milliseconds: 35));
+        expect(tester.getTopLeft(find.widgetWithText(InputChip, 'Check chain wear')).dx, closeTo(left, 0.5), reason: 'frame $frame');
+        final outgoing = find.widgetWithText(ActionChip, 'Check chain wear');
+        if (outgoing.evaluate().isNotEmpty) {
+          expect(tester.getTopLeft(outgoing).dx, closeTo(left, 0.5), reason: 'outgoing, frame $frame');
+        }
+      }
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(find.widgetWithText(InputChip, 'Check chain wear')).dx, closeTo(left, 0.5));
+    });
+
+    testWidgets('unlinking the applied chip offers the suggestions again and keeps the filled fields', (tester) async {
+      enableTaskPresets();
+      hasStravaEntitlement = true;
+      await seed(tester);
+      await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'ch1'));
+
+      await tester.tap(chip('Check chain wear'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.link_off));
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(InputChip, 'Check chain wear'), findsNothing);
+      expect(chip('Check chain wear'), findsOneWidget);
+      expect(chip('Replace chain'), findsOneWidget);
+      final saved = await save(tester);
+      expect(saved.name, 'Check chain wear');
+      expect(saved.interval, const DistanceThreshold(500000));
+      expect(saved.presetKey, isNull);
+    });
+
+    testWidgets('edit mode shows the saved preset, and unlinking it offers its own template again', (tester) async {
+      enableTaskPresets();
+      hasStravaEntitlement = true;
+      final saved = TaskRule(
+        id: 'r1',
+        name: 'Check chain wear',
+        tags: const {},
+        association: const ComponentTaskAssociation('ch1'),
+        interval: const DistanceThreshold(500000),
+        presetKey: 'chain:wear_check',
+      );
+      await seed(tester, rules: [saved]);
+      await openForm(tester, () => TaskRulePage.edit(taskRule: saved));
+
+      expect(find.widgetWithText(InputChip, 'Check chain wear'), findsOneWidget);
+      expect(chip('Replace chain'), findsNothing);
+
+      await tester.tap(find.byIcon(Icons.link_off));
+      await tester.pumpAndSettle();
+
+      expect(chip('Check chain wear'), findsOneWidget);
+      expect(chip('Replace chain'), findsOneWidget);
+      final result = await save(tester);
+      expect(result.presetKey, isNull);
+      expect(result.interval, const DistanceThreshold(500000));
+    });
+
+    testWidgets('edit mode shows the applied chip when another rule uses the same preset, and unlinking offers no chip for it', (tester) async {
+      enableTaskPresets();
+      hasStravaEntitlement = true;
+      final edited = TaskRule(
+        id: 'r1',
+        name: 'Check chain wear',
+        tags: const {},
+        association: const ComponentTaskAssociation('ch1'),
+        interval: const DistanceThreshold(500000),
+        presetKey: 'chain:wear_check',
+      );
+      final other = edited.copyWith(id: 'r2', name: 'Chain check (2)');
+      await seed(tester, rules: [edited, other]);
+      await openForm(tester, () => TaskRulePage.edit(taskRule: edited));
+
+      expect(find.widgetWithText(InputChip, 'Check chain wear'), findsOneWidget);
+      expect(chip('Check chain wear'), findsNothing);
+
+      await tester.tap(find.byIcon(Icons.link_off));
+      await tester.pumpAndSettle();
+
+      expect(chip('Check chain wear'), findsNothing);
+      expect(chip('Replace chain'), findsOneWidget);
+      final result = await save(tester);
+      expect(result.presetKey, isNull);
     });
 
     testWidgets('a catalog fork offers the manufacturer interval and its brand-only tasks', (tester) async {
@@ -418,7 +515,7 @@ nodes:
 
     for (final (label, page) in [
       ('a bike association', () => TaskRulePage.addForBike(bikeId: 'b1')),
-      ('edit mode', () => TaskRulePage.edit(taskRule: rule().copyWith(association: const ComponentTaskAssociation('ch1')))),
+      ('edit mode of a rule without a preset', () => TaskRulePage.edit(taskRule: rule().copyWith(association: const ComponentTaskAssociation('ch1')))),
     ]) {
       testWidgets('no chips for $label', (tester) async {
         enableTaskPresets();

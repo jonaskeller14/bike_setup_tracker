@@ -114,10 +114,10 @@ class InstallationParentField extends StatelessWidget {
   /// `Bike > Component > Component` is allowed,
   /// `Bike > Component > Component > Component` is not.
   ///
-  /// Enforced from both ends:
+  /// Enforced from both ends, by listing the blocked parents disabled:
   /// - a parent must be top-level (its latest installation is not on a component);
   /// - the edited component must be a leaf (no current descendants), otherwise
-  ///   no component parents are offered at all.
+  ///   every component parent is disabled.
   ///
   /// Caveats: both checks use the current state, not the entry's date, so a
   /// backdated entry can still create a deeper chain in the past. The cap is
@@ -125,11 +125,7 @@ class InstallationParentField extends StatelessWidget {
   /// credit all support arbitrary depth, so deeper existing data keeps working.
   Iterable<Component> _parentComponentCandidates(AppRepository appRepository, AppSettings appSettings) {
     if (!appSettings.enableInstallOnComponent) return const [];
-    final componentId = this.componentId;
-    if (componentId != null && appRepository.affectedDescendantIds(componentId).isNotEmpty) return const [];
-    return appRepository.components.values.where(
-      (c) => c.id != componentId && !c.isArchived && c.latestInstallation is! ComponentInstallation,
-    );
+    return appRepository.components.values.where((c) => c.id != componentId && !c.isArchived);
   }
 
   List<InstallationParentOption> _options(BuildContext context) {
@@ -141,6 +137,10 @@ class InstallationParentField extends StatelessWidget {
     final parentComponentCandidates = _parentComponentCandidates(appRepository, appSettings).toList();
     final errorColor = Theme.of(context).colorScheme.error;
     final initial = this.initial;
+    final componentId = this.componentId;
+    final carriesParts = parentComponentCandidates.isNotEmpty &&
+        componentId != null &&
+        appRepository.affectedDescendantIds(componentId).isNotEmpty;
 
     // The chain the component would effectively hang off at this entry's date.
     // "From beginning" (epoch 0) predates every installation, so show the current chain.
@@ -148,19 +148,28 @@ class InstallationParentField extends StatelessWidget {
         ? hierarchy.currentAncestors(componentId)
         : hierarchy.ancestorsAt(componentId, installation.dateTimeUTC);
 
-    // The current and saved parents always stay suggested, so an unusual
-    // existing parent is never tucked away behind "Show all".
+    bool isCurrentOrSaved(String parentComponentId) =>
+        parentComponentId == installation.parent ||
+        (initial is ComponentInstallation && parentComponentId == initial.parent);
+
+    // The current and saved parents always stay suggested and pickable, so an
+    // unusual or too deep existing parent is never tucked away or locked.
     bool isSuggested(Component? component, String parentComponentId) =>
         component == null ||
-        parentComponentId == installation.parent ||
-        (initial is ComponentInstallation && parentComponentId == initial.parent) ||
+        isCurrentOrSaved(parentComponentId) ||
         isSuggestedParent(componentType, component.componentType);
 
     InstallationParentOption componentOption(ComponentInstallation value) {
       final component = components[value.parentComponentId];
       final ancestors = ancestorsOf(value.parentComponentId);
+      final isKept = isCurrentOrSaved(value.parentComponentId);
+      final isNested = component?.latestInstallation is ComponentInstallation;
       return InstallationParentOption(
         isSuggested: isSuggested(component, value.parentComponentId),
+        isEnabled: isKept || (!carriesParts && !isNested),
+        disabledReason: !isKept && !carriesParts && isNested
+            ? 'Mounted on a component itself'
+            : null,
         value: value,
         icon: component?.componentType.getIconData() ?? Component.iconData,
         label: component?.name ?? 'COMPONENT NOT FOUND',
@@ -320,6 +329,7 @@ class InstallationParentField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final option = _options(context).where((o) => o.value == installation).firstOrNull;
+    final tint = this.tint ?? (enabled ? null : theme.disabledColor);
     return InkWell(
       onTap: enabled ? () => unawaited(_pick(context)) : null,
       // Matches OutlineInputBorder's radius so the ink stays inside the field.

@@ -35,7 +35,8 @@ class CategoricalAdjustment extends Adjustment {
   bool isValidValue(AdjustmentValue value) {
     if (value is! CategoricalValue) return false;
     final list = value.options;
-    if (list.isEmpty) return false;
+    // An empty list is a valid explicit "cleared" value; whether a selection is
+    // required is up to the form.
     if (!list.every(options.contains)) return false;
     final distinct = list.toSet();
     if (distinct.length > 1 && !multiSelect) return false;

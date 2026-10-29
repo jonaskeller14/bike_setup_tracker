@@ -142,6 +142,10 @@ void main() {
       settings.enableTask = false;
       settings.enableInstallationTimeline = true;
       expect(enabled(sections), sections);
+
+      settings.enableInstallationTimeline = false;
+      settings.enableRating = true;
+      expect(enabled(sections), sections);
     });
   });
 
@@ -162,7 +166,7 @@ void main() {
       expect(layers(mapSections, stravaActive: true), [TimelineLayer.setups, TimelineLayer.activities]);
 
       settings.enableRating = true;
-      expect(layers(mapSections), [TimelineLayer.setups, TimelineLayer.ratingEntries]);
+      expect(layers(mapSections), [TimelineLayer.setups, TimelineLayer.feedback]);
     });
 
     test('lists the timeline layers whose feature is on, in display order', () {
@@ -256,7 +260,7 @@ void main() {
     test('ignore a hidden layer whose feature is off', () {
       settings.enableTask = true;
       filters.layers = const LayerFilter(
-        hidden: {TimelineLayer.installations, TimelineLayer.ratingEntries, TimelineLayer.activities},
+        hidden: {TimelineLayer.installations, TimelineLayer.feedback, TimelineLayer.activities},
       );
 
       expect(isFiltered(timelineSections), false);
@@ -499,7 +503,7 @@ void main() {
       expect(filters.dateRange, null);
     });
 
-    testWidgets('notifies once per changed filter object', (tester) async {
+    testWidgets('notifies once, and not at all when nothing changed', (tester) async {
       var changes = 0;
       filters = FilterController(onChanged: () => changes++);
       when(() => repository.filters).thenReturn(filters);
@@ -507,10 +511,10 @@ void main() {
       changes = 0;
 
       await clear(tester, FilterSection.values.toSet());
-      expect(changes, 6);
+      expect(changes, 1);
 
       await clear(tester, FilterSection.values.toSet());
-      expect(changes, 6);
+      expect(changes, 1);
     });
   });
 }

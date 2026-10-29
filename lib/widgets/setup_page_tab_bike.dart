@@ -35,6 +35,8 @@ class SetupBikeTab extends StatefulWidget {
   /// Changes when [bikeAdjustmentValues] were written from outside the fields,
   /// so they re-read them.
   final int valuesRevision;
+  final bool allowAdding; // Allow adding components and adjustments
+  final Set<String> readOnlyIds;
 
   const SetupBikeTab({
     super.key,
@@ -53,6 +55,8 @@ class SetupBikeTab extends StatefulWidget {
     this.onAddCategoricalOption,
     this.header,
     this.valuesRevision = 0,
+    this.allowAdding = true,
+    this.readOnlyIds = const {},
   });
 
   @override
@@ -84,6 +88,9 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
   }
 
   Widget _buildEmptyComponentsPlaceholder(BuildContext context, String bike) {
+    if (!widget.allowAdding) {
+      return const EmptyStatePlaceholder2(iconData: Component.iconData, title: "No bike adjustments to change");
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -120,6 +127,8 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
         ] else ...[
           ...widget.bikeComponents.map((bikeComponent) {
             final ancestors = widget.ancestorsOf(bikeComponent.id);
+            final readOnly = [...bikeComponent.adjustments.where((a) => widget.readOnlyIds.contains(a.id))];
+            final editable = [...bikeComponent.adjustments.where((a) => !widget.readOnlyIds.contains(a.id))];
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
               clipBehavior: Clip.antiAlias,
@@ -156,42 +165,46 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                         child: Icon(bikeComponent.componentType.getIconData()),
                       ),
                       enabled: bikeComponent.adjustments.isNotEmpty,
-                      trailing: IconButton(
-                        onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
-                        icon: const Icon(Icons.add),
-                      ),
-                      // trailing: _initiallyEmptyComponentIds.contains(bikeComponent.id)
-                      //     ? IconButton(
-                      //         onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
-                      //         icon: const Icon(Icons.add),
-                      //       )
-                      //     : null,
+                      trailing: widget.allowAdding
+                          ? IconButton(
+                              onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
+                              icon: const Icon(Icons.add),
+                            )
+                          : null,
                     ),
                   ),
-                  AdjustmentSetList(
-                    key: ValueKey(Object.hash(
-                      bikeComponent.id,
-                      Object.hashAll(widget.previousBikeAdjustmentValues.values),
-                      widget.valuesRevision,
-                    )),
-                    adjustments: bikeComponent.adjustments,
-                    initialAdjustmentValues: widget.previousBikeAdjustmentValues,
-                    adjustmentValues: widget.bikeAdjustmentValues,
-                    onAdjustmentValueChanged: widget.onAdjustmentValueChanged,
-                    removeFromAdjustmentValues: widget.onRemoveFromAdjustmentValues,
-                    onAddCategoricalOption: widget.onAddCategoricalOption,
-                  ),
+                  if (editable.isNotEmpty || readOnly.isEmpty)
+                    AdjustmentSetList(
+                      key: ValueKey(Object.hash(
+                        bikeComponent.id,
+                        Object.hashAll(widget.previousBikeAdjustmentValues.values),
+                        widget.valuesRevision,
+                      )),
+                      adjustments: editable,
+                      initialAdjustmentValues: widget.previousBikeAdjustmentValues,
+                      adjustmentValues: widget.bikeAdjustmentValues,
+                      onAdjustmentValueChanged: widget.onAdjustmentValueChanged,
+                      removeFromAdjustmentValues: widget.onRemoveFromAdjustmentValues,
+                      onAddCategoricalOption: widget.onAddCategoricalOption,
+                    ),
+                  if (readOnly.isNotEmpty)
+                    AdjustmentDisplayList(
+                      adjustments: readOnly,
+                      initialAdjustmentValues: widget.previousBikeAdjustmentValues,
+                      adjustmentValues: widget.bikeAdjustmentValues,
+                    ),
                 ],
               ),
             );
           }),
-          Center(
-            child: TextButton.icon(
-              onPressed: () => ComponentActions.addComponent(context, initialBike: widget.bike),
-              icon: const Icon(Icons.add),
-              label: const Text("Add Component"),
+          if (widget.allowAdding)
+            Center(
+              child: TextButton.icon(
+                onPressed: () => ComponentActions.addComponent(context, initialBike: widget.bike),
+                icon: const Icon(Icons.add),
+                label: const Text("Add Component"),
+              ),
             ),
-          ),
         ],
         if (componentSplit.groups.isNotEmpty || componentSplit.deletedValues.isNotEmpty) ...[
           const Divider(height: 50),

@@ -10,6 +10,7 @@ import '../../pages/details/strava_activity_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../../utils/automation_ids.dart';
+import '../feedback/strava_feedback_prompt.dart';
 import 'strava_context_wrapper.dart';
 
 class StravaListTile extends StatelessWidget {
@@ -131,6 +132,7 @@ class StravaListTile extends StatelessWidget {
                       ),
                   ],
                 ),
+                StravaFeedbackPrompt(stravaActivity: stravaActivity, compact: true),
               ],
             ),
             trailing: TextButton(

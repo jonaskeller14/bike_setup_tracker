@@ -177,36 +177,6 @@ class FileImport {
       // continue;
     }
 
-    for (final remoteRating in remoteData.ratings.values) {
-      final localRating = localData.ratings[remoteRating.id];
-
-      if (localRating == null) {
-        if (!remoteRating.isDeleted) localData.ratings[remoteRating.id] = remoteRating;
-        continue;
-      }
-
-      final bool remoteIsNewer = remoteRating.lastModified.isAfter(localRating.lastModified);
-      if (remoteIsNewer) {
-        localData.ratings[remoteRating.id] = remoteRating;
-        continue;
-      }
-    }
-
-    for (final remoteRatingEntry in remoteData.ratingEntries.values) {
-      final localRatingEntry = localData.ratingEntries[remoteRatingEntry.id];
-
-      if (localRatingEntry == null) {
-        if (!remoteRatingEntry.isDeleted) localData.ratingEntries[remoteRatingEntry.id] = remoteRatingEntry;
-        continue;
-      }
-
-      final bool remoteIsNewer = remoteRatingEntry.lastModified.isAfter(localRatingEntry.lastModified);
-      if (remoteIsNewer) {
-        localData.ratingEntries[remoteRatingEntry.id] = remoteRatingEntry;
-        continue;
-      }
-    }
-
     for (final remoteBike in remoteData.bikes.values) {
       final localBike = localData.bikes[remoteBike.id];
       
@@ -275,6 +245,30 @@ class FileImport {
         continue;
       }
     }
+
+    for (final remoteFeedback in remoteData.feedbacks.values) {
+      final localFeedback = localData.feedbacks[remoteFeedback.id];
+      if (localFeedback == null) {
+        if (!remoteFeedback.isDeleted) localData.feedbacks[remoteFeedback.id] = remoteFeedback;
+        continue;
+      }
+      if (remoteFeedback.lastModified.isAfter(localFeedback.lastModified)) {
+        localData.feedbacks[remoteFeedback.id] = remoteFeedback;
+        continue;
+      }
+    }
+
+    for (final remoteSession in remoteData.testSessions.values) {
+      final localSession = localData.testSessions[remoteSession.id];
+      if (localSession == null) {
+        if (!remoteSession.isDeleted) localData.testSessions[remoteSession.id] = remoteSession;
+        continue;
+      }
+      if (remoteSession.lastModified.isAfter(localSession.lastModified)) {
+        localData.testSessions[remoteSession.id] = remoteSession;
+        continue;
+      }
+    }
   }
 
   static void _overwriteInternal({
@@ -287,18 +281,16 @@ class FileImport {
     localData.bikes.addAll(remoteData.bikes);
     localData.components.addAll(remoteData.components);
     localData.setups.addAll(remoteData.setups);
-    localData.ratings.addAll(remoteData.ratings);
-    localData.ratingEntries.addAll(remoteData.ratingEntries);
     localData.taskRules.addAll(remoteData.taskRules);
     localData.taskEntries.addAll(remoteData.taskEntries);
+    localData.feedbacks.addAll(remoteData.feedbacks);
+    localData.testSessions.addAll(remoteData.testSessions);
   }
 
   static List<String> cleanupIsDeleted({required SelectedData data}) {
     final deleteDateTime = DateTime.now().toUtc().subtract(TrashCleanupService.retention);
 
     data.persons.removeWhere((_, p) => p.isDeleted && p.lastModified.isBefore(deleteDateTime));
-    data.ratings.removeWhere((_, r) => r.isDeleted && r.lastModified.isBefore(deleteDateTime));
-    data.ratingEntries.removeWhere((_, re) => re.isDeleted && re.lastModified.isBefore(deleteDateTime));
 
     final purgedAttachments = <String>[];
     data.bikes.removeWhere((_, b) {
@@ -329,6 +321,9 @@ class FileImport {
       if (purge) purgedAttachments.addAll(te.attachments.map((a) => a.filename));
       return purge;
     });
+
+    data.feedbacks.removeWhere((_, f) => f.isDeleted && f.lastModified.isBefore(deleteDateTime));
+    data.testSessions.removeWhere((_, ts) => ts.isDeleted && ts.lastModified.isBefore(deleteDateTime));
 
     // Never delete a file a surviving setup, bike, component or task still references.
     final stillReferenced = {

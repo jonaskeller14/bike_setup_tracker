@@ -6,8 +6,12 @@ import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_comparison.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
+import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
@@ -106,28 +110,11 @@ void main() {
     );
   }
 
-  RatingEntry ratingEntry(String id, {DateTime? lastModified, bool isDeleted = false}) {
-    final now = DateTime.now();
-    return RatingEntry(
-      id: id,
-      lastModified: lastModified,
-      isDeleted: isDeleted,
-      bike: 'bike',
-      setupId: 'setup',
-      dateTimeUTC: now.toUtc(),
-      dateTimeLocal: now,
-    );
-  }
-
   Future<void> insert(SelectedData data) => DatabaseMigrationService(database).migrateFromSelectedData(data);
 
   Future<void> insertSetupValue(String setupId) => database
       .into(database.setupAdjustmentValues)
       .insert(SetupAdjustmentValuesCompanion.insert(setupId: setupId, adjustmentId: 'adjustment', value: 'true'));
-
-  Future<void> insertRatingEntryValue(String ratingEntryId) => database
-      .into(database.ratingEntryValues)
-      .insert(RatingEntryValuesCompanion.insert(ratingEntryId: ratingEntryId, ratingMetricId: 'metric', value: '1'));
 
   group('AppDatabase.purgeTrash', () {
     test('removes trashed rows older than the cutoff and keeps the rest', () async {
@@ -187,16 +174,10 @@ void main() {
             'old': setup('old', lastModified: expired, isDeleted: true),
             'live': setup('live'),
           },
-          ratingEntries: {
-            'old': ratingEntry('old', lastModified: expired, isDeleted: true),
-            'live': ratingEntry('live'),
-          },
         ),
       );
       await insertSetupValue('old');
       await insertSetupValue('live');
-      await insertRatingEntryValue('old');
-      await insertRatingEntryValue('live');
 
       await database.purgeTrash(cutoff);
 
@@ -204,7 +185,6 @@ void main() {
       expect((await database.select(database.adjustments).get()).map((a) => a.componentId), ['live']);
       expect((await database.select(database.installations).get()).map((i) => i.componentId), ['live']);
       expect((await database.select(database.setupAdjustmentValues).get()).map((v) => v.setupId), ['live']);
-      expect((await database.select(database.ratingEntryValues).get()).map((v) => v.ratingEntryId), ['live']);
     });
 
     test('does nothing on an empty database', () async {
@@ -334,6 +314,50 @@ void main() {
       await TrashCleanupService.run(database);
 
       expect(await storedFiles(), {'unlinked.jpg'});
+    });
+
+    test('purges expired feedback and sessions of a database holding only those', () async {
+      RideFeedback feedback(String id, {DateTime? lastModified, bool isDeleted = false}) => RideFeedback(
+        id: id,
+        bike: 'bike',
+        setupId: 'setup',
+        dateTimeUTC: DateTime.utc(2026, 5, 1),
+        dateTimeLocal: DateTime(2026, 5, 1),
+        lastModified: lastModified,
+        isDeleted: isDeleted,
+        observations: {const FeedbackObservation.flag(NoIssueKey())},
+        comparisons: {
+          const FeedbackComparison(referenceSetupId: 'reference', aspect: OverallAspect(), outcome: 1),
+        },
+      );
+      TestSession session(String id, {DateTime? lastModified, bool isDeleted = false}) => TestSession(
+        id: id,
+        bike: 'bike',
+        adjustmentIds: const [],
+        startedAtUTC: DateTime.utc(2026, 5, 1),
+        startedAtLocal: DateTime(2026, 5, 1),
+        lastModified: lastModified,
+        isDeleted: isDeleted,
+      );
+      await insert(
+        SelectedData(
+          feedbacks: {
+            'old': feedback('old', lastModified: expired, isDeleted: true),
+            'recent': feedback('recent', lastModified: recent, isDeleted: true),
+          },
+          testSessions: {
+            'old': session('old', lastModified: expired, isDeleted: true),
+            'recent': session('recent', lastModified: recent, isDeleted: true),
+          },
+        ),
+      );
+
+      await TrashCleanupService.run(database);
+
+      expect((await database.select(database.feedbacks).get()).map((f) => f.id), ['recent']);
+      expect((await database.select(database.feedbackObservations).get()).map((o) => o.feedbackId), ['recent']);
+      expect((await database.select(database.feedbackComparisons).get()).map((c) => c.feedbackId), ['recent']);
+      expect((await database.select(database.testSessions).get()).map((s) => s.id), ['recent']);
     });
 
     test('does not fail when the attachments folder is missing', () async {

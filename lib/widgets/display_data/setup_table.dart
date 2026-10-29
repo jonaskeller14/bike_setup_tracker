@@ -9,6 +9,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/context/context_weather.dart';
+import '../../models/feedback/test_session.dart';
 import '../../models/setup.dart';
 import '../../models/setup_history.dart';
 import '../../theme.dart';
@@ -22,6 +23,7 @@ class SetupTable extends StatefulWidget {
   final bool sortAscending;
   final TableColumn? sortColumn;
   final Map<String, Bike> bikes;
+  final Map<String, TestSession> testSessions;
   final SetupHistory setupHistory;
   final Map<String, int> setupActivityCounts;
   final AdjustmentValue? Function(Setup setup, TableColumn column) valueFor;
@@ -47,6 +49,7 @@ class SetupTable extends StatefulWidget {
     required this.columnLabel,
     required this.onSort,
     required this.onColumnRemoved,
+    this.testSessions = const {},
     this.isDangling,
     this.previousValueFor,
     this.columnTooltip,
@@ -271,6 +274,7 @@ class _SetupTableState extends State<SetupTable> {
           SetupColumn.condition => DataCell(
             Center(child: Text(setup.weather?.condition?.value ?? "-")),
           ),
+          SetupColumn.testSession => _scrollableTextCell(widget.testSessions[setup.testSessionId]?.displayName ?? '-'),
         };
       case ComponentAdjustmentColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, widget.setupHistory.previousBikeValuesOf(setup.id)[adjustmentId]);
@@ -278,11 +282,9 @@ class _SetupTableState extends State<SetupTable> {
         return _adjustmentCell(context, setup, column, widget.previousValueFor?.call(setup, column));
       case PersonAttributeColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, widget.setupHistory.previousPersonValuesOf(setup.id)[adjustmentId]);
-      case RatingScoreColumn() || RatingMetricColumn():
-        final score = widget.valueFor(setup, column)?.asNum;
-        return DataCell(
-          Center(child: Text(score == null ? '-' : "${score.toStringAsFixed(1)} / 10")),
-        );
+      case SetupRankColumn():
+        final rank = widget.valueFor(setup, column)?.asNum;
+        return DataCell(Center(child: Text(rank == null ? '-' : '#$rank')));
     }
   }
 

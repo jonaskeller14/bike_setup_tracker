@@ -97,6 +97,40 @@ void main() {
     });
   });
 
+  group('loading', () {
+    test('concurrent requests share one load', () async {
+      var reads = 0;
+      final repository = ComponentCatalogRepository.withLoader((type) async {
+        reads++;
+        await Future<void>.delayed(Duration.zero);
+        return [if (type == ComponentType.fork) parseCatalogFile(_foxYaml)];
+      });
+      final preset = ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36'});
+
+      final results = await Future.wait([
+        repository.forType(ComponentType.fork),
+        repository.resolve(preset),
+        repository.forType(ComponentType.fork),
+      ]);
+
+      expect(reads, 1);
+      expect((results.first as List).length, 1);
+      expect(repository.loadedPreset(preset), isNotNull);
+    });
+
+    test('a failed load is retried on the next request', () async {
+      var reads = 0;
+      final repository = ComponentCatalogRepository.withLoader((type) async {
+        if (++reads == 1) throw StateError('unreadable');
+        return [parseCatalogFile(_foxYaml)];
+      });
+
+      await expectLater(repository.forType(ComponentType.fork), throwsStateError);
+      expect(await repository.forType(ComponentType.fork), hasLength(1));
+      expect(reads, 2);
+    });
+  });
+
   group('asset bundle', () {
     setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 

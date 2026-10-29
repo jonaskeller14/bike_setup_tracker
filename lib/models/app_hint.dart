@@ -9,6 +9,7 @@ enum AppHint {
   subcomponentsV1,
   taskGesturesV1,
   release44,
+  release45,
 }
 
 /// "What's new" hints, keyed by the `AppInfo.buildNumber` they shipped in.
@@ -24,6 +25,7 @@ enum AppHint {
 /// Each entry needs an [AppHint] value, a build, and a widget in `AppHintSlot`.
 const Map<AppHint, int> releaseHintBuilds = <AppHint, int>{
   AppHint.release44: 44,
+  AppHint.release45: 45,
 };
 
 enum AppHintPlacement {

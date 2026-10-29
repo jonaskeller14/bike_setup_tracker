@@ -1,8 +1,8 @@
 import 'package:bike_setup_tracker/models/context/context_weather.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Covers the Weather/Condition chip highlighting split on the Setup and
-/// Rating pages: the two chips must react to disjoint sets of changes.
+/// Covers the Weather/Condition chip highlighting split on the Setup page:
+/// the two chips must react to disjoint sets of changes.
 /// [ContextWeather.withoutCondition] normalizes the condition fields so
 /// pages can compare "everything but condition" without the condition
 /// itself (or whether it was set manually) leaking into that comparison.

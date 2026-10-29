@@ -1,9 +1,9 @@
 import 'adjustment/adjustment.dart';
 import 'bike.dart';
 import 'component/component.dart';
+import 'feedback/ride_feedback.dart';
+import 'feedback/test_session.dart';
 import 'person.dart';
-import 'rating/rating.dart';
-import 'rating/rating_entry.dart';
 import 'setup.dart';
 import 'task/task_entry.dart';
 import 'task/task_rule.dart';
@@ -13,34 +13,34 @@ class SelectedData {
   final Map<String, Bike> bikes;
   final Map<String, Component> components;
   final Map<String, Setup> setups;
-  final Map<String, Rating> ratings;
-  final Map<String, RatingEntry> ratingEntries;
   final Map<String, TaskRule> taskRules;
   final Map<String, TaskEntry> taskEntries;
+  final Map<String, RideFeedback> feedbacks;
+  final Map<String, TestSession> testSessions;
 
   SelectedData({
     Map<String, Person>? persons,
     Map<String, Bike>? bikes,
     Map<String, Component>? components,
     Map<String, Setup>? setups,
-    Map<String, Rating>? ratings,
-    Map<String, RatingEntry>? ratingEntries,
     Map<String, TaskRule>? taskRules,
     Map<String, TaskEntry>? taskEntries,
+    Map<String, RideFeedback>? feedbacks,
+    Map<String, TestSession>? testSessions,
   })  : persons = persons ?? {},
         bikes = bikes ?? {},
         components = components ?? {},
         setups = setups ?? {},
-        ratings = ratings ?? {},
-        ratingEntries = ratingEntries ?? {},
         taskRules = taskRules ?? {},
-        taskEntries = taskEntries ?? {};
+        taskEntries = taskEntries ?? {},
+        feedbacks = feedbacks ?? {},
+        testSessions = testSessions ?? {};
 
   factory SelectedData.fromJson(Map<String, dynamic> rawJson) {
-    // Backup import (all legacy versions): normalize adjustment/rating-metric
+    // Backup import (all legacy versions): normalize adjustment
     // unit spellings ("psi", "KPH", ...) to the canonical AdjustmentUnit
     // encoding before any model parsing happens, so old backups arrive
-    // structured. `"unit"` is only ever used by Adjustment/RatingMetric json.
+    // structured. `"unit"` is only ever used by Adjustment json.
     final json = _normalizeLegacyUnits(rawJson) as Map<String, dynamic>;
 
     final loadedPersons = (json['persons'] as List<dynamic>? ?? [])
@@ -51,31 +51,30 @@ class SelectedData {
     final loadedComponents = (json['components'] as List<dynamic>? ?? [])
         .map((a) => Component.fromJson(json: a as Map<String, dynamic>))
         .toList();
-    final loadedRatings = (json['ratings'] as List<dynamic>? ?? [])
-        .map((a) => Rating.fromJson(json: a as Map<String, dynamic>))
-        .toList();
 
     final adjustmentTypes = adjustmentTypesOf(components: loadedComponents, persons: loadedPersons);
-    final metricTypes = metricTypesOf(loadedRatings);
 
     final loadedSetups = (json['setups'] as List<dynamic>? ?? [])
         .map((a) => Setup.fromJson(json: a as Map<String, dynamic>, adjustmentTypes: adjustmentTypes));
-    final loadedRatingEntries = (json['ratingEntries'] as List<dynamic>? ?? [])
-        .map((a) => RatingEntry.fromJson(json: a as Map<String, dynamic>, metricTypes: metricTypes));
     final loadedTaskRules = (json['taskRules'] as List<dynamic>? ?? [])
         .map((a) => TaskRule.fromJson(a as Map<String, dynamic>));
     final loadedTaskEntries = (json['taskEntries'] as List<dynamic>? ?? [])
         .map((a) => TaskEntry.fromJson(a as Map<String, dynamic>));
+    final loadedFeedbacks = (json['feedbacks'] as List<dynamic>? ?? [])
+        .map((a) => RideFeedback.fromJson(a as Map<String, dynamic>));
+    final loadedTestSessions = (json['testSessions'] as List<dynamic>? ?? []).map(
+      (a) => TestSession.fromJson(json: a as Map<String, dynamic>, adjustmentTypes: adjustmentTypes),
+    );
 
     return SelectedData(
       persons: {for (var item in loadedPersons) item.id: item},
       bikes: {for (var item in loadedBikes) item.id: item},
       components: {for (var item in loadedComponents) item.id: item},
       setups: {for (var item in loadedSetups) item.id: item},
-      ratings: {for (var item in loadedRatings) item.id: item},
-      ratingEntries: {for (var item in loadedRatingEntries) item.id: item},
       taskRules: {for (var item in loadedTaskRules) item.id: item},
       taskEntries: {for (var item in loadedTaskEntries) item.id: item},
+      feedbacks: {for (var item in loadedFeedbacks) item.id: item},
+      testSessions: {for (var item in loadedTestSessions) item.id: item},
     );
   }
 }
@@ -90,17 +89,10 @@ Map<String, Adjustment> adjustmentsById({
     for (final adjustment in person.adjustments) adjustment.id: adjustment,
 };
 
-Map<String, Adjustment> metricAdjustmentsById(Iterable<Rating> ratings) => {
-  for (final rating in ratings)
-    for (final metric in rating.metrics) metric.id: metric.adjustment,
-};
-
 Map<String, AdjustmentType> adjustmentTypesOf({
   required Iterable<Component> components,
   required Iterable<Person> persons,
 }) => _typesOf(adjustmentsById(components: components, persons: persons));
-
-Map<String, AdjustmentType> metricTypesOf(Iterable<Rating> ratings) => _typesOf(metricAdjustmentsById(ratings));
 
 Map<String, AdjustmentType> _typesOf(Map<String, Adjustment> adjustments) =>
     adjustments.map((id, adjustment) => MapEntry(id, adjustment.type));

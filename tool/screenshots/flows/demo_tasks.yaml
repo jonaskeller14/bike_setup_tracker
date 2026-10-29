@@ -1,5 +1,7 @@
-# Demo: tick off a due maintenance task; it moves from "Due now" to
-# "Upcoming".
+# scenario: tasks_one_due
+# Demo: tick off the only due task. The due section turns into the "all caught
+# up" placeholder, then the list scrolls to the completed section, where the
+# task went (it doesn't repeat).
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
@@ -14,9 +16,9 @@ appId: ${APP_ID}
     file: _pause.yaml
     env:
       MS: 2000
-# Bolt torque check (every 150 km, due on the Hightower)
+# Investigate BB creaking noise
 - tapOn:
-    id: taskRule.complete.6b0f4d7e-2c1a-4e59-8f3d-9a7c5e1b2d40
+    id: taskRule.complete.d18b5523-f7a1-46b2-8348-ee765964d139
 - runFlow:
     file: _pause.yaml
     env:
@@ -24,6 +26,16 @@ appId: ${APP_ID}
 - runFlow: _hide_keyboard_android.yaml
 - tapOn:
     id: taskEntryForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2500
+- scrollUntilVisible:
+    element:
+      id: taskRule.complete.d18b5523-f7a1-46b2-8348-ee765964d139
+    direction: DOWN
+    speed: 20
+    centerElement: true
 - runFlow:
     file: _stop_recording.yaml
     env:

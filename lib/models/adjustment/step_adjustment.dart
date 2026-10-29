@@ -44,6 +44,9 @@ class StepAdjustment extends Adjustment {
 
   /// Stand-in for a catalog range authored as `max: ~` (see [StepAdjustment.fromYaml]).
   static const int unknownMaxPlaceholder = 20;
+
+  /// For the rider only; notes are theirs to edit, so code asks
+  /// [PresetAdjustmentSpec.hasUnknownMax] instead.
   static const String unknownMaxWarning =
       'Click count not published. Max is a placeholder, edit it to match your component.';
 
@@ -107,9 +110,9 @@ class StepAdjustment extends Adjustment {
   }
 
   @override
-  bool isValidValue(AdjustmentValue value) {
-    return value is StepValue && value.value >= min && value.value <= max && ((value.value - min) % step == 0);
-  }
+  bool isValidValue(AdjustmentValue value) => range.contains(value);
+
+  StepGrid get range => StepGrid(min, max, step);
 
   @override
   Map<String, dynamic> toJson() => {

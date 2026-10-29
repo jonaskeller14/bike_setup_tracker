@@ -1,0 +1,62 @@
+# scenario: histogram
+# Demo: the tire pressure ridden most. The Hightower's rear tire counts its
+# Strava rides, and its activity histogram, switched to Pressure, has one bar
+# per value; holding the tallest bar shows its ride count. Timed to the
+# voiceover (03_features, clip 14, without its last line).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_histogram
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 5000
+# Rear Tire: double-tap opens its details page
+- doubleTapOn:
+    id: garage.component.3f6bcbb2-2d4b-45de-9901-3a2b9686509e
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# The stats pager's second page counts the rides.
+- swipe:
+    start: 80%, 17%
+    end: 20%, 17%
+    duration: 500
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+# The histogram is the last section, so the page always ends at the bottom
+# with its bars in the same place.
+- scrollUntilVisible:
+    element:
+      id: componentDetails.histogram
+    direction: DOWN
+    centerElement: true
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+# The histogram starts on Tire, the first column; legend entries are
+# adjustment names from the record data.
+- tapOn:
+    text: Pressure
+    below:
+      id: componentDetails.histogram
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# The 1.65 bar: a tap only flashes the tooltip, holding keeps it up. The kit
+# cuts to the end card while it's held.
+- longPressOn:
+    point: 55%,73%
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 1000

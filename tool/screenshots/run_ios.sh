@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
-# Regenerates the App Store raw screenshots (assets/store/app-store/**/0N_raw.png).
+# Regenerates the App Store raw screenshots (docs/store/app-store/**/0N_raw.png).
 #
 # Builds the screenshot entry point (lib/main_screenshots.dart) for the
 # simulator, boots each simulator, pins the status bar via `simctl status_bar`,
 # runs the Maestro flows in tool/screenshots/flows and overwrites the raws in
-# place, then runs check_output.py.
+# place, runs check_output.py, then renders the store screenshots (raw screen
+# in the device frame with its caption) from the new raws.
 #
 # Usage: tool/screenshots/run_ios.sh [iphone|ipad|all] [options]
 #   --screens 3,7         Screen numbers to capture. Default: all flows.
 #   --skip-build          Reuse the last built Runner.app.
 #   --keep-running        Leave simulators booted by this script running.
+#   --raw-only            Don't render the store screenshots from the new raws.
 #   --tile-wait-ms N      Fixed wait for live map tiles on screen 07 (default 20000).
 #   --preview             Record the preview_*.yaml flows instead, with touch dots,
 #                         to build/store_previews/<device>/*.mp4.
 #   --demo                Record the demo_*.yaml flows instead, on the iPhone with
 #                         touch dots, to build/marketing/raw/ios/*.mp4.
+#   --flows a,b           With --preview or --demo: only these flows (names without
+#                         .yaml), so the other recordings keep the timings kits use.
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -28,8 +32,10 @@ gps='44.1690,8.3439'
 
 device='all'
 screens=''
+only_flows=''
 skip_build=0
 keep_running=0
+raw_only=0
 tile_wait_ms=20000
 preview=0
 demo=0
@@ -37,8 +43,10 @@ while [ $# -gt 0 ]; do
   case "$1" in
     iphone | ipad | all) device="$1" ;;
     --screens) screens="$2"; shift ;;
+    --flows) only_flows="$2"; shift ;;
     --skip-build) skip_build=1 ;;
     --keep-running) keep_running=1 ;;
+    --raw-only) raw_only=1 ;;
     --tile-wait-ms) tile_wait_ms="$2"; shift ;;
     --preview) preview=1 ;;
     --demo) demo=1 ;;
@@ -72,7 +80,10 @@ flows=()
 if [ "$record" -eq 1 ]; then
   if [ "$demo" -eq 1 ]; then pattern='demo_*.yaml'; else pattern='preview_*.yaml'; fi
   for flow in "$flows_dir"/$pattern; do
-    flows+=("$(basename "$flow")")
+    name="$(basename "$flow" .yaml)"
+    if [ -z "$only_flows" ] || [[ ",$only_flows," == *",$name,"* ]]; then
+      flows+=("$name.yaml")
+    fi
   done
 else
   for flow in "$flows_dir"/[0-9][0-9]_*.yaml; do
@@ -103,6 +114,11 @@ simulator_booted() {
   xcrun simctl list devices | grep -q "($1) (Booted)"
 }
 
+# Prints the flow's `# scenario: <name>` (see lib/screenshots/demo_scenario.dart), if any.
+flow_scenario() {
+  sed -n 's/^# scenario: *\([a-z_]*\).*/\1/p' "$flows_dir/$1" | head -n 1
+}
+
 if [ "$skip_build" -eq 0 ]; then
   (cd "$repo_root" && flutter build ios --simulator --debug -t lib/main_screenshots.dart)
 fi
@@ -131,11 +147,13 @@ for name in $selected; do
   xcrun simctl location "$udid" set "$gps"
 
   out_dir="$(mktemp -d -t "screenshots_$name")"
-  target_dir="$repo_root/assets/store/$folder"
+  target_dir="$repo_root/docs/store/$folder"
   # lib/main_screenshots.dart draws touch dots while this marker exists. It is
   # removed first, in case an aborted preview run left it behind.
   touch_marker="$(xcrun simctl get_app_container "$udid" "$app_id" data)/Documents/screenshot_show_touches"
   rm -f "$touch_marker"
+  # The app seeds this demo scenario; without the marker it seeds the full sample.
+  scenario_marker="$(dirname "$touch_marker")/demo_scenario"
   if [ "$record" -eq 1 ]; then
     if [ "$demo" -eq 1 ]; then
       target_dir="$repo_root/build/marketing/raw/ios"
@@ -147,6 +165,12 @@ for name in $selected; do
   fi
 
   for flow in "${flows[@]}"; do
+    rm -f "$scenario_marker"
+    scenario="$(flow_scenario "$flow")"
+    if [ -n "$scenario" ]; then
+      mkdir -p "$(dirname "$scenario_marker")"
+      printf '%s' "$scenario" > "$scenario_marker"
+    fi
     ok=0
     # Retry a failed flow once, like the Android runner: the first Maestro run
     # after a boot sometimes fails while its XCTest driver is still starting.
@@ -162,10 +186,11 @@ for name in $selected; do
       fi
     done
 
+    # Each attempt writes to its own timestamped folder: take the last one.
     if [ "$record" -eq 1 ]; then
-      shot="$(find "$out_dir" -name "${flow%.yaml}.mp4" | head -n 1)"
+      shot="$(find "$out_dir" -name "${flow%.yaml}.mp4" | sort | tail -n 1)"
     else
-      shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | head -n 1)"
+      shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | sort | tail -n 1)"
     fi
     if [ "$ok" -eq 1 ] && [ -n "$shot" ]; then
       cp "$shot" "$target_dir/"
@@ -175,7 +200,7 @@ for name in $selected; do
   done
   checked_folders+=("$folder")
 
-  rm -f "$touch_marker"
+  rm -f "$touch_marker" "$scenario_marker"
   xcrun simctl status_bar "$udid" clear || true
   if [ "$booted_here" -eq 1 ] && [ "$keep_running" -eq 0 ]; then
     xcrun simctl shutdown "$udid" || true
@@ -189,6 +214,10 @@ elif [ "$preview" -eq 1 ]; then
   echo "Recordings: $repo_root/build/store_previews"
 else
   python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+  if [ "$raw_only" -eq 0 ]; then
+    # shellcheck disable=SC2086 # $selected is a list of device names
+    python3 "$repo_root/tool/marketing/render_images.py" store-screenshots $selected ${screens:+"$screens"} || check_exit=$?
+  fi
 fi
 
 if [ ${#failed[@]} -gt 0 ]; then

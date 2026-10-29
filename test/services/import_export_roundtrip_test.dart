@@ -1,13 +1,15 @@
+import 'dart:convert';
+
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/services/data_export_service.dart';
 import 'package:bike_setup_tracker/services/database_migration_service.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter_test/flutter_test.dart';
 
 /// General guard against import/export serialization asymmetries, across every
-/// model in a backup (persons, bikes, components, setups, ratings, rating
-/// entries, task rules, task entries).
+/// model in a backup (persons, bikes, components, setups, task rules, task
+/// entries, feedbacks, test sessions). Rating v2 keys of older backups are carried in the sample to prove they are dropped.
 ///
 /// Adjustment values cross a codec boundary twice: they are written to the DB
 /// on import ([DatabaseMigrationService.migrateFromSelectedData]) and read back
@@ -18,8 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// path stored `["open"]` via `List.toString()` (`[open]`) instead of the JSON
 /// codec, so a re-export produced `["[open]"]` — a phantom bracket that grows
 /// on each cycle. The same encoded-value path is shared by setup
-/// `bikeAdjustmentValues`/`personAdjustmentValues` and rating-entry
-/// `metricValues`, so both are exercised here.
+/// `bikeAdjustmentValues`/`personAdjustmentValues`, which are exercised here.
 void main() {
   // Each round-trip opens a fresh in-memory DB; several may briefly coexist.
   setUpAll(() => driftRuntimeOptions.dontWarnAboutMultipleDatabases = true);
@@ -46,7 +47,7 @@ void main() {
 
   // A full backup covering every model. Adjustment values include the shapes
   // that broke: a single-element, a multi-element, and an empty categorical
-  // list — both on a setup and on a rating entry.
+  // list on a setup.
   Map<String, dynamic> sampleData() => {
         'persons': [
           {
@@ -161,6 +162,51 @@ void main() {
             },
           },
         ],
+        'feedbacks': [
+          {
+            'version': 1,
+            'id': 'fb1',
+            'isDeleted': false,
+            'lastModified': '2026-05-01T14:00:00Z',
+            'bike': 'b1',
+            'setupId': 's1',
+            'stravaActivityId': 123456,
+            'dateTimeUTC': '2026-05-01T13:30:00Z',
+            'dateTimeLocal': '2026-05-01T15:30:00',
+            'notes': 'Front felt harsh',
+            'observations': [
+              {'key': 'issue.front.comfort', 'value': 1.0, 'textValue': null},
+              {'key': 'custom:lap', 'value': 95.0, 'textValue': '0:01:35.000000'},
+            ],
+            'comparisons': [
+              {'referenceSetupId': 's0', 'aspect': 'overall', 'outcome': 2},
+              {'referenceSetupId': 's0', 'aspect': 'front.comfort', 'outcome': -1},
+            ],
+          },
+        ],
+        'testSessions': [
+          {
+            'version': 1,
+            'id': 'ts1',
+            'isDeleted': false,
+            'lastModified': '2026-05-01T12:00:00Z',
+            'bike': 'b1',
+            'name': 'Fork pressure',
+            'method': {'type': 'patternSearch'},
+            'adjustmentIds': ['num', 'stp'],
+            'goal': ['front.comfort'],
+            'locks': {'bln': true},
+            'startedAtUTC': '2026-05-01T09:00:00Z',
+            'startedAtLocal': '2026-05-01T11:00:00',
+            'endedAtUTC': null,
+            'endedAtLocal': null,
+            'place': null,
+            'notes': null,
+            'proposals': {
+              's1': {'num': 90.0, 'stp': 6},
+            },
+          },
+        ],
         'taskRules': [
           {
             'version': 1,
@@ -229,23 +275,51 @@ void main() {
         'time': '2026-05-01T12:00:00.000Z',
         'isMock': null,
       });
+    });
 
-      // Rating-entry metric values go through the same codec path.
-      final entry = findById(export, 'ratingEntries', 're1');
-      final metricValues = (entry['metricValues'] as Map).cast<String, dynamic>();
-      expect(metricValues['m_grip'], 8.0);
-      expect(metricValues['m_feel'], ['Balanced']);
-      expect(entry['position'], {
-        'latitude': 47.1,
-        'longitude': 8.3,
-        'altitude': 456.7,
-        'accuracy': 4.2,
-        'heading': 180.0,
-        'speed': 8.5,
-        'speedAccuracy': 0.6,
-        'time': '2026-05-01T13:00:00.123Z',
-        'isMock': false,
+    test('preserves feedback with its observations and comparisons', () async {
+      final export = await importThenExport(sampleData());
+
+      final feedback = findById(export, 'feedbacks', 'fb1');
+      expect(feedback['bike'], 'b1');
+      expect(feedback['setupId'], 's1');
+      expect(feedback['stravaActivityId'], 123456);
+      expect(feedback['notes'], 'Front felt harsh');
+      expect(
+        (feedback['observations'] as List).map(jsonEncode).toSet(),
+        {
+          jsonEncode({'key': 'issue.front.comfort', 'value': 1.0, 'textValue': null}),
+          jsonEncode({'key': 'custom:lap', 'value': 95.0, 'textValue': '0:01:35.000000'}),
+        },
+      );
+      expect(
+        (feedback['comparisons'] as List).map(jsonEncode).toSet(),
+        {
+          jsonEncode({'referenceSetupId': 's0', 'aspect': 'overall', 'outcome': 2}),
+          jsonEncode({'referenceSetupId': 's0', 'aspect': 'front.comfort', 'outcome': -1}),
+        },
+      );
+    });
+
+    test('preserves test sessions, decoding locks and proposals by type', () async {
+      final export = await importThenExport(sampleData());
+
+      final session = findById(export, 'testSessions', 'ts1');
+      expect(session['method'], {'type': 'patternSearch'});
+      expect(session['adjustmentIds'], ['num', 'stp']);
+      expect(session['goal'], ['front.comfort']);
+      expect(session['locks'], {'bln': true});
+      expect(session['endedAtUTC'], isNull);
+      expect(session['proposals'], {
+        's1': {'num': 90.0, 'stp': 6},
       });
+    });
+
+    test('drops the rating v2 keys of an older backup', () async {
+      final export = await importThenExport(sampleData());
+
+      expect(export.keys, isNot(contains('ratings')));
+      expect(export.keys, isNot(contains('ratingEntries')));
     });
 
     test('is idempotent across all models: a second import→export equals the first', () async {
@@ -258,7 +332,7 @@ void main() {
       // Every top-level collection must be present and stable.
       for (final key in const [
         'persons', 'bikes', 'components', 'setups',
-        'ratings', 'ratingEntries', 'taskRules', 'taskEntries',
+        'taskRules', 'taskEntries', 'feedbacks', 'testSessions',
       ]) {
         expect(exportA[key], isNotEmpty, reason: '$key should be populated');
       }

@@ -5,10 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
+import '../repositories/app_repository.dart';
 import '../utils/filter_actions.dart';
 import '../utils/map_actions.dart';
 import '../utils/map_empty_state.dart';
 import '../utils/setup_actions.dart';
+import '../utils/test_session_actions.dart';
 import 'chips/filter_sheet_chip.dart';
 
 class MapEmptyStateCard extends StatelessWidget {
@@ -145,7 +147,7 @@ class MapEmptyStateCard extends StatelessWidget {
       key: const Key('map-empty-error'),
       icon: Icons.cloud_off,
       title: "Couldn't load activities",
-      subtitle: 'Setups and rating entries are still shown.',
+      subtitle: 'Setups and feedback are still shown.',
       pillLabel: 'Activities failed',
       actionLabel: 'Retry',
       actionIcon: Icons.refresh,
@@ -166,24 +168,29 @@ class MapEmptyStateCard extends StatelessWidget {
       },
     ),
     // The map hides the card while loading or showing pins, so this is the `none` copy.
-    _ => _MapEmptyCopy(
+    _ => _noneCopy(context),
+  };
+
+  _MapEmptyCopy _noneCopy(BuildContext context) {
+    final step = TestSessionActions.nextStepFor(context.watch<AppRepository>());
+    return _MapEmptyCopy(
       key: const Key('map-empty-none'),
       icon: Icons.place_outlined,
       title: 'No locations yet',
       subtitle: _noneSubtitle(context),
       pillLabel: 'No pins',
-      actionLabel: 'Add setup',
-      actionIcon: Icons.add,
-      onAction: (context) => unawaited(SetupActions.addSetup(context)),
-    ),
-  };
+      actionLabel: step?.label ?? 'Add setup',
+      actionIcon: step?.icon ?? Icons.add,
+      onAction: (context) => unawaited(step?.run(context) ?? SetupActions.addSetup(context)),
+    );
+  }
 
   /// Names the other pin sources only while they can actually produce a pin.
   static String _noneSubtitle(BuildContext context) {
     const setups = 'Setups appear here once one is saved with a location.';
     final others = [
       if (MapActions.stravaActive(context)) 'Strava activities',
-      if (context.read<AppSettings>().enableRating) 'rating entries',
+      if (context.read<AppSettings>().enableRating) 'feedback',
     ];
     return others.isEmpty ? setups : '$setups\nSame for ${others.join(' and ')}.';
   }

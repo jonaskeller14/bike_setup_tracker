@@ -254,290 +254,333 @@ nodes:
   - label: "RUX"
     level: model
     category: Downhill
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-RUX38-Boost-8390.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: &suntour_service
       fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual }
     children:
-      - label: Boost
-        level: trim
-        draft: true
-        specs: { stanchion: 38mm (Alloy), spring: Air }
-        offset_mm: 50
-        axle: ø20-110 (Q-LOC2 tool-type or tool-free)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 105 }
-          - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Rubber clip spacers" }
-        options:
-          damper: [rc_plus_pcs]
-          travel_mm: [200]
-          wheel_size: [29, 27.5]
-        note: Downhill/Freeride chassis. Postmount 203mm, max rotor 220mm.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-RUX38-Boost-8390.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Boost
+            level: trim
+            draft: true
+            specs: { stanchion: 38mm (Alloy), spring: Air }
+            offset_mm: 50
+            axle: ø20-110 (Q-LOC2 tool-type or tool-free)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 105 }
+              - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Rubber clip spacers" }
+            options:
+              damper: [rc_plus_pcs]
+              travel_mm: [200]
+              wheel_size: [29, 27.5]
+            note: Downhill/Freeride chassis. Postmount 203mm, max rotor 220mm.
 
   - label: "DUROLUX 36X"
     level: model
     category: All-Mountain (eMTB)
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-DUROLUX36X-Boost-8049.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Boost
-        level: trim
-        draft: true
-        specs: { stanchion: 36mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-          - { name: Volume Spacers, type: step, max: 10, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10" }
-        options:
-          damper: [rc_plus_pcs]
-          travel_mm: [150, 160]
-          wheel_size: [29, 27.5]
-        note: eMTB_AM-tuned variant of the DUROLUX chassis with a lighter 36mm stanchion; ABS mount optional.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-DUROLUX36X-Boost-8049.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Boost
+            level: trim
+            draft: true
+            specs: { stanchion: 36mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, type: step, max: 10, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10" }
+            options:
+              damper: [rc_plus_pcs]
+              travel_mm: [150, 160]
+              wheel_size: [29, 27.5]
+            note: eMTB_AM-tuned variant of the DUROLUX chassis with a lighter 36mm stanchion; ABS mount optional.
 
   - label: "DUROLUX 38"
     level: model
     draft: true
     category: Enduro
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38-Boost-8051.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: 38mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 105 }
-          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8" }
-        options:
-          damper: [rc_plus_pcs]
-          travel_mm: [160, 170, 180]
-          wheel_size: [29]
-        note: Postmount 203mm, max rotor 220mm. Semi-open oil bath.
-      - label: E-Bike
-        level: trim
-        url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38X-Boost-8052.html
-        specs: { stanchion: 38mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 110 }
-          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8" }
-        options:
-          damper: [rc_plus_pcs]
-          travel_mm: [160, 170, 180]
-          wheel_size: [29]
-        note: eMTB_Enduro tune; ABS mount optional.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38-Boost-8051.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 38mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 105 }
+              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8" }
+            options:
+              damper: [rc_plus_pcs]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29]
+            note: Postmount 203mm, max rotor 220mm. Semi-open oil bath.
+          - label: E-Bike
+            level: trim
+            url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38X-Boost-8052.html
+            specs: { stanchion: 38mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 110 }
+              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8" }
+            options:
+              damper: [rc_plus_pcs]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29]
+            note: eMTB_Enduro tune; ABS mount optional.
 
   - label: "AION 36"
     level: model
     category: All-Mountain
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-AION36-Boost-8057.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Boost
-        level: trim
-        draft: true
-        specs: { stanchion: 36mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
-          - { name: Volume Spacers, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
-        options:
-          damper: [cr3_pcs, cr2_pcs, rc_pcs]
-          travel_mm: [120, 130, 140, 150, 160]
-          wheel_size: [29, 27.5]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-AION36-Boost-8057.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Boost
+            level: trim
+            draft: true
+            specs: { stanchion: 36mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
+              - { name: Volume Spacers, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
+            options:
+              damper: [cr3_pcs, cr2_pcs, rc_pcs]
+              travel_mm: [120, 130, 140, 150, 160]
+              wheel_size: [29, 27.5]
 
   - label: "AION 38X"
     level: model
     category: All-Mountain (eMTB)
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-AION38X-Boost-8053.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Boost
-        level: trim
-        draft: true
-        specs: { stanchion: 38mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 110 }
-          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 29in: 180mm 6, 170mm 7, 160mm 8; 27.5in: 170mm 5, 160mm 6" }
-        options:
-          damper: [cr3_pcs, cr2_pcs, rc_pcs]
-          travel_mm: [160, 170, 180]
-          wheel_size: [29, 27.5]
-        note: ABS mount optional.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-AION38X-Boost-8053.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Boost
+            level: trim
+            draft: true
+            specs: { stanchion: 38mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 110 }
+              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 29in: 180mm 6, 170mm 7, 160mm 8; 27.5in: 170mm 5, 160mm 6" }
+            options:
+              damper: [cr3_pcs, cr2_pcs, rc_pcs]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29, 27.5]
+            note: ABS mount optional.
 
   - label: "AURON 36"
     level: model
     category: All-Mountain
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-AURON36-Boost-8244.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Boost
-        level: trim
-        draft: true
-        specs: { stanchion: 36mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 4, 150mm 5, 140mm 6" }
-        options:
-          damper: [rc_plus_pcs]
-          travel_mm: [140, 150, 160]
-          wheel_size: [27.5, 29]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-AURON36-Boost-8244.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Boost
+            level: trim
+            draft: true
+            specs: { stanchion: 36mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 4, 150mm 5, 140mm 6" }
+            options:
+              damper: [rc_plus_pcs]
+              travel_mm: [140, 150, 160]
+              wheel_size: [27.5, 29]
 
   - label: "ZERON 36"
     level: model
     category: All-Mountain
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-ZERON36-Boost-8138.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Boost
-        level: trim
-        draft: true
-        specs: { stanchion: 36mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
-          - { name: Volume Spacers, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
-        options:
-          damper: [cr3_pcs, cr2_pcs, rc_pcs]
-          travel_mm: [120, 130, 140, 150, 160]
-          wheel_size: [29, 27.5]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-ZERON36-Boost-8138.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Boost
+            level: trim
+            draft: true
+            specs: { stanchion: 36mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
+              - { name: Volume Spacers, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
+            options:
+              damper: [cr3_pcs, cr2_pcs, rc_pcs]
+              travel_mm: [120, 130, 140, 150, 160]
+              wheel_size: [29, 27.5]
 
   - label: "ZERON 36X"
     level: model
     category: All-Mountain (eMTB)
-    years: "2026"
-    url: https://www.srsuntour.com/products/fork/SF26-ZERON36X-Boost-8140.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Boost
-        level: trim
-        draft: true
-        specs: { stanchion: 36mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
-          - { name: Volume Spacers, type: step, max: 12, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10, 140mm 11, 130mm 12" }
-        options:
-          damper: [cr3_pcs, cr2_pcs, rc_pcs]
-          travel_mm: [130, 140, 150, 160]
-          wheel_size: [29, 27.5]
-        # The product page also lists a 4th damper abbreviated "R", which SR
-        # SUNTOUR's function legend does not define; omitted rather than
-        # guessed (see Follow-ups).
-        note: ABS mount optional.
+      - label: "2026"
+        level: generation
+        years: "2026"
+        url: https://www.srsuntour.com/products/fork/SF26-ZERON36X-Boost-8140.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Boost
+            level: trim
+            draft: true
+            specs: { stanchion: 36mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
+              - { name: Volume Spacers, type: step, max: 12, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10, 140mm 11, 130mm 12" }
+            options:
+              damper: [cr3_pcs, cr2_pcs, rc_pcs]
+              travel_mm: [130, 140, 150, 160]
+              wheel_size: [29, 27.5]
+            # The product page also lists a 4th damper abbreviated "R", which SR
+            # SUNTOUR's function legend does not define; omitted rather than
+            # guessed (see Follow-ups).
+            note: ABS mount optional.
 
   - label: "AXON 34"
     level: model
     category: Trail / XC
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-AXON34-Boost-8060.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Boost
-        level: trim
-        specs: { stanchion: 34mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-          - { name: Volume Spacers, type: step, max: 13, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 10, 130mm 11, 120mm 12, 100mm 13" }
-        options:
-          damper: [rlrc_pcs, lorc_pcs]
-          travel_mm: [100, 120, 130, 140]
-          wheel_size: [29]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-AXON34-Boost-8060.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Boost
+            level: trim
+            specs: { stanchion: 34mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, type: step, max: 13, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 10, 130mm 11, 120mm 12, 100mm 13" }
+            options:
+              damper: [rlrc_pcs, lorc_pcs]
+              travel_mm: [100, 120, 130, 140]
+              wheel_size: [29]
 
   - label: "AXON 34 Werx"
     level: model
     category: Trail / XC
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-AXON34-Werx-Boost-8059.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Werx
-        level: trim
-        specs: { stanchion: 34mm (Alloy), spring: Air }
-        offset_mm: 51
-        axle: ø15-110 (15AHL)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
-          - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11" }
-        options:
-          damper: [rlrc_pcs]
-          travel_mm: [100, 110, 120]
-          wheel_size: [29]
-        note: One-piece hollow carbon steerer. Flagship XC race fork.
-      - label: Elite
-        level: trim
-        url: https://www.srsuntour.com/products/fork/SF20-AXON34-Elite-Boost-8061.html
-        specs: { stanchion: 34mm (Alloy), spring: Air }
-        offset_mm: 51
-        axle: ø15-110 (15AHL)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
-          - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11" }
-        options:
-          damper: [rlrc_pcs]
-          travel_mm: [100, 110, 120]
-          wheel_size: [29]
-        note: Same chassis/travel as Werx with an alloy (not carbon) steerer.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-AXON34-Werx-Boost-8059.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Werx
+            level: trim
+            specs: { stanchion: 34mm (Alloy), spring: Air }
+            offset_mm: 51
+            axle: ø15-110 (15AHL)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+              - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11" }
+            options:
+              damper: [rlrc_pcs]
+              travel_mm: [100, 110, 120]
+              wheel_size: [29]
+            note: One-piece hollow carbon steerer. Flagship XC race fork.
+          - label: Elite
+            level: trim
+            url: https://www.srsuntour.com/products/fork/SF20-AXON34-Elite-Boost-8061.html
+            specs: { stanchion: 34mm (Alloy), spring: Air }
+            offset_mm: 51
+            axle: ø15-110 (15AHL)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+              - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11" }
+            options:
+              damper: [rlrc_pcs]
+              travel_mm: [100, 110, 120]
+              wheel_size: [29]
+            note: Same chassis/travel as Werx with an alloy (not carbon) steerer.
 
   - label: "RAIDON 34"
     level: model
     category: Trail / XC
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/fork/SF25-RAIDON34-Boost-8070.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
-    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
-      - label: Boost
-        level: trim
-        specs: { stanchion: 34mm (Alloy), spring: Air }
-        offset_mm: 44
-        axle: ø15-110 (15AH4)
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
-          - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 5, 130mm 6, 120mm 7, 100mm 9" }
-        options:
-          damper: [r_2cr_pcs, cr2_pcs]
-          travel_mm: [100, 120, 130, 140]
-          wheel_size: [29, 27.5]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/fork/SF25-RAIDON34-Boost-8070.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+        guide: suntour_forks_my26
+        children:
+          - label: Boost
+            level: trim
+            specs: { stanchion: 34mm (Alloy), spring: Air }
+            offset_mm: 44
+            axle: ø15-110 (15AH4)
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+              - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 5, 130mm 6, 120mm 7, 100mm 9" }
+            options:
+              damper: [r_2cr_pcs, cr2_pcs]
+              travel_mm: [100, 120, 130, 140]
+              wheel_size: [29, 27.5]
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

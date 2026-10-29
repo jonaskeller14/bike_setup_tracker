@@ -1,4 +1,4 @@
-# DT Swiss mountain-bike forks — adjustment preset database
+# DT Swiss mountain-bike and gravel forks — adjustment preset database
 #
 # Same design as fork/fox.yaml and fork/rockshox.yaml: click ranges belong to
 # the DAMPER cartridge, defined once under `option_values.damper` and referenced by id from
@@ -14,6 +14,8 @@ sources:
   - https://www.dtswiss.com/en/suspension/forks/f-535-one
   - https://www.dtswiss.com/en/suspension/forks/f-535
   - https://www.dtswiss.com/en/suspension/forks/f-232-one
+  - https://www.dtswiss.com/en/suspension/forks/f-132-one
+  - https://www.dtswiss.com/en/suspension/forks/f-132
   - https://www.dtswiss.com/en/support/manuals
   - https://setupguide.dtswiss.com/en/
   # Primary — DT Swiss official user / technical manuals (PDF)
@@ -23,10 +25,15 @@ sources:
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/81/9/MAN_FXD10000002819S_WEB_ZZ_001.pdf
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/82/0/MAN_FXD10000002820S_WEB_EN_001.pdf
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/00/87/0/MAN_FXWXXXXXXXXXUMEXXS_WEB_EN_001.pdf
+  - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/06/17/6/MAN_FXD10000006176S_WEB_ZZ_001.pdf
+  - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/06/17/7/MAN_FXD10000006177S_WEB_EN_001.pdf
+  - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/07/78/8/MAN_FXD10000007788S_WEB_ZZ_001.pdf
   # Secondary — editorial (article body text only)
   - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
   - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-updated: 2026-10-13
+  - https://www.tour-magazin.de/rennraeder/gravel-bike/dt-swiss-f-132-f-132-one-gravel-federgabeln/
+  - https://www.rennrad-news.de/news/dt-swiss-f-132-one-f-132-gravel-federgabel/
+updated: 2026-10-22
 # Service intervals (`tasks`) come from the user manuals cited above: a small
 # service every 50 operating hours and a full service annually or after 200
 # operating hours.
@@ -43,6 +50,14 @@ updated: 2026-10-13
 #     print the recommended settings but never the total.
 #   * APT volume spacers: the maximum of three is DT Swiss's own limit
 #     ("Never mount more than three volume spacers!").
+#   * F 132 ONE rebound is counted from fully open as well ("Rebound klicks
+#     (from fully opened)" in its user manual). The F 132 has no compression,
+#     lockout or rebound adjuster and no user-adjustable volume spacer (the
+#     technical manual shows one fixed spacer inside the stanchion), so it has
+#     no damper entry.
+#   * Service intervals of the F 132 / F 132 ONE (small service annually or 150
+#     operating hours, full service every 2 years or 500 operating hours) are
+#     identical in both user manuals and the F 132 ONE technical manual.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -105,6 +120,32 @@ option_values:
         `max: ~`. Rebound is an estimate: the manual's rebound table (sec. 4.4,
         "Rebound klicks (from fully opened)", 29-138 psi) tops out at 25 clicks,
         so the dial has at least 25 clicks counted from fully open.
+
+    plaingain_ol_2026:
+      name: PLAINGAIN O.L.
+      description: |-
+        - Open and Lock modes, switched with the L1 remote lever on the handlebar (PUSHCONTROL)
+        - Open is the most sensitive, factory-set mode; in Lock a blow-off valve releases the oil flow on heavy impacts
+        - External rebound adjuster on the lower leg
+      adjustments:
+        - { name: Compression Mode, type: categorical, options: [Open, Lock] }
+        - { name: Rebound, type: step, max: 10, notes: "Counted from fully open (fastest); estimated maximum, check your dial and edit it if it differs", dialColor: red }
+      source:
+        - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/06/17/6/MAN_FXD10000006176S_WEB_ZZ_001.pdf
+        - https://www.dtswiss.com/en/suspension/forks/f-132-one
+        - https://www.rennrad-news.de/news/dt-swiss-f-132-one-f-132-gravel-federgabel/
+        - https://www.tour-magazin.de/rennraeder/gravel-bike/dt-swiss-f-132-f-132-one-gravel-federgabeln/
+      note: >-
+        Open / Lock modes, the factory-set Open mode and the blow-off valve from
+        the F 132 ONE user manual V2026.03 (sec. 4.2); damper name from the
+        product page. Rebound direction and counting from the same manual (sec.
+        4.3, "Rebound klicks (from fully opened)"); the red knob on the lower
+        leg is shown in its illustration and named by Rennrad-News. DT Swiss
+        publishes no click total; the manual's rebound table (0-10 clicks, 29-189
+        psi) tops out at 10, so `max: 10` is an estimate. Rennrad-News and
+        Tour state 9 clicks, which would not cover the manual's own 10-click
+        recommendation above 160 psi; the manual wins, check against a real fork.
+        No compression adjuster: the F 132 ONE has only the lever.
 
 # --------------------------------------------------------------------------
 # Setup guides — the user manuals' starting points as data (SCHEMA.md,
@@ -325,88 +366,199 @@ guides:
       - { target: compression_mode, value: Open }
       - { target: volume_spacers, value: 2, note: "As delivered; fewer for a more linear feel, 3 for a more progressive one" }
 
+  dtswiss_f132one_2026:
+    label: DT Swiss F 132 ONE user manual (2026)
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/06/17/6/MAN_FXD10000006176S_WEB_ZZ_001.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          40: 58, 45: 65, 50: 73, 55: 80, 60: 88,
+          65: 95, 70: 103, 75: 110, 80: 118, 85: 125,
+          90: 133, 95: 141, 100: 148, 105: 156, 110: 163,
+          115: 171, 120: 178
+        }
+        note: Rider weight with riding gear, without the bike
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        rows: {
+          29: 0, 36: 1, 44: 1, 51: 2, 58: 2, 65: 3, 73: 3, 80: 4,
+          87: 4, 94: 5, 102: 5, 109: 6, 116: 6, 123: 7, 131: 7, 138: 8,
+          145: 8, 152: 9, 160: 9, 167: 10, 174: 10, 181: 10, 189: 10
+        }
+      - { target: compression_mode, value: Open, note: Factory-set and most sensitive mode }
+
+  dtswiss_f132_2026:
+    label: DT Swiss F 132 user manual (2026)
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/07/78/8/MAN_FXD10000007788S_WEB_ZZ_001.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          40: 58, 45: 65, 50: 73, 55: 80, 60: 88,
+          65: 95, 70: 103, 75: 110, 80: 118, 85: 125,
+          90: 133, 95: 141, 100: 148, 105: 156, 110: 163,
+          115: 171, 120: 178
+        }
+        note: Rider weight with riding gear, without the bike
+
 # --------------------------------------------------------------------------
-# Forks — current lineup. DT Swiss only offers 29" versions of all three.
+# Forks — current lineup. DT Swiss only offers 29" versions of the three
+# mountain-bike forks; the two gravel forks are 700c.
 # --------------------------------------------------------------------------
 nodes:
   - label: "F 535 ONE"
     level: model
     category: Trail / All-Mountain
-    years: "2023-2026"
-    url: https://www.dtswiss.com/en/suspension/forks/f-535-one
-    setup_guide: https://setupguide.dtswiss.com/en/
-    guide: dtswiss_f535_2023
     tasks: &dtswiss_service
       fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual }
       fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual }
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [44]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 197, notes: "Maximum depends on travel: 120mm 197 psi, 130mm 186, 140mm 175, 150mm 164, 160mm 154" }
-          - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
-        options:
-          damper: [incontrol_odl_plushport_2023]
-          travel_mm: [120, 130, 140, 150, 160]
-          wheel_size: [29]
-        note: |-
-          - COILPAIR spring: a small coil works with the air spring over the first 30mm of travel
-          - PLUSHPORT travel-dependent damping
-          - One APT volume spacer fitted as delivered, two more in the box
-          - 15mm Boost thru-axle, magnesium lowers
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
+        url: https://www.dtswiss.com/en/suspension/forks/f-535-one
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_f535_2023
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [44]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 197, notes: "Maximum depends on travel: 120mm 197 psi, 130mm 186, 140mm 175, 150mm 164, 160mm 154" }
+              - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+            options:
+              damper: [incontrol_odl_plushport_2023]
+              travel_mm: [120, 130, 140, 150, 160]
+              wheel_size: [29]
+            note: |-
+              - COILPAIR spring: a small coil works with the air spring over the first 30mm of travel
+              - PLUSHPORT travel-dependent damping
+              - One APT volume spacer fitted as delivered, two more in the box
+              - 15mm Boost thru-axle, magnesium lowers
 
   - label: "F 535"
     level: model
     category: Trail / All-Mountain
-    years: "2023-2026"
-    url: https://www.dtswiss.com/en/suspension/forks/f-535
-    setup_guide: https://setupguide.dtswiss.com/en/
-    guide: dtswiss_f535_2023
     tasks: *dtswiss_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: 35mm, spring: Air }
-        offset_mm: [44]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 191, notes: "Maximum depends on travel: 120mm 191 psi, 130mm 180, 140mm 170, 150mm 158, 160mm 148" }
-          - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
-        options:
-          damper: [incontrol_ol_2023]
-          travel_mm: [120, 130, 140, 150, 160]
-          wheel_size: [29]
-        note: |-
-          - Lower-priced sibling of the F 535 ONE without COILPAIR or PLUSHPORT
-          - Two-mode lever (Open / Lock)
-          - One APT volume spacer fitted as delivered, two more in the box
-          - 15mm Boost thru-axle, magnesium lowers
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
+        url: https://www.dtswiss.com/en/suspension/forks/f-535
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_f535_2023
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 35mm, spring: Air }
+            offset_mm: [44]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 191, notes: "Maximum depends on travel: 120mm 191 psi, 130mm 180, 140mm 170, 150mm 158, 160mm 148" }
+              - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+            options:
+              damper: [incontrol_ol_2023]
+              travel_mm: [120, 130, 140, 150, 160]
+              wheel_size: [29]
+            note: |-
+              - Lower-priced sibling of the F 535 ONE without COILPAIR or PLUSHPORT
+              - Two-mode lever (Open / Lock)
+              - One APT volume spacer fitted as delivered, two more in the box
+              - 15mm Boost thru-axle, magnesium lowers
 
   - label: "F 232 ONE"
     level: model
     category: XC
-    years: "2020-2026"
-    url: https://www.dtswiss.com/en/suspension/forks/f-232-one
-    setup_guide: https://setupguide.dtswiss.com/en/
-    guide: dtswiss_f232one_2021
     tasks: *dtswiss_service
     children:
-      - label: Standard
-        level: trim
-        specs: { stanchion: 32mm, spring: Air }
-        offset_mm: [44, 51]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 152, notes: "Maximum depends on travel: 100mm 152 psi, 110mm 149, 120mm 145" }
-          - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
-        options:
-          damper: [incontrol_odl_232_2020]
-          travel_mm: [100, 110, 120]
-          wheel_size: [29]
-        note: |-
-          - Topology-optimised lowers, from 1,480g
-          - XC-tuned LINEAIR dual-chamber air spring
-          - Two APT volume spacers fitted as delivered, one more in the box
+      - label: "2020–2026"
+        level: generation
+        id: "2020"
+        years: "2020-2026"
+        url: https://www.dtswiss.com/en/suspension/forks/f-232-one
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_f232one_2021
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 32mm, spring: Air }
+            offset_mm: [44, 51]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 152, notes: "Maximum depends on travel: 100mm 152 psi, 110mm 149, 120mm 145" }
+              - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+            options:
+              damper: [incontrol_odl_232_2020]
+              travel_mm: [100, 110, 120]
+              wheel_size: [29]
+            note: |-
+              - Topology-optimised lowers, from 1,480g
+              - XC-tuned LINEAIR dual-chamber air spring
+              - Two APT volume spacers fitted as delivered, one more in the box
+
+  - label: "F 132 ONE"
+    level: model
+    category: Gravel
+    tasks: &dtswiss_gravel_service
+      fork:lower_leg_service: { interval: { moving_time_h: 150 }, fallback: { days: 365 }, source: DT Swiss user manual }
+      fork:full_service: { interval: { moving_time_h: 500 }, fallback: { days: 730 }, source: DT Swiss user manual }
+    children:
+      - label: "2026"
+        level: generation
+        years: "2026"
+        url: https://www.dtswiss.com/en/suspension/forks/f-132-one
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_f132one_2026
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 32mm, spring: Air }
+            offset_mm: [45, 50, 56]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 261 }
+            options:
+              damper: [plaingain_ol_2026]
+              travel_mm: [40]
+              wheel_size: [700c]
+            note: |-
+              - Short-travel gravel fork with 40mm of travel, 45 / 50 / 56mm offset and a 12x100mm thru-axle
+              - LINEAIR SL air spring with a positive and a negative chamber
+              - Lockout lever for the drop bar; the right-hand lever is sold separately
+              - Flat-mount brakes, tires up to 50mm; optional bikepacking adapters carry 3 kg per side
+
+  - label: "F 132"
+    level: model
+    category: Gravel
+    tasks: *dtswiss_gravel_service
+    children:
+      - label: "2026"
+        level: generation
+        years: "2026"
+        url: https://www.dtswiss.com/en/suspension/forks/f-132
+        setup_guide: https://setupguide.dtswiss.com/en/
+        guide: dtswiss_f132_2026
+        children:
+          - label: Standard
+            level: trim
+            specs: { stanchion: 32mm, spring: Air }
+            offset_mm: [45, 50, 56]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 261 }
+            options:
+              travel_mm: [40]
+              wheel_size: [700c]
+            note: |-
+              - Lower-priced sibling of the F 132 ONE without lockout or rebound adjuster
+              - OpenFlow damper with continuous oil flow, always open and preset
+              - LINEAIR SL air spring with a positive and a negative chamber
+              - 40mm of travel, 12x100mm thru-axle, flat-mount brakes, tires up to 50mm
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
@@ -428,6 +580,15 @@ nodes:
 #   - Maximum air pressure is printed per travel in the user manuals (F 535
 #     ONE 13.6-10.6 bar, F 535 13.2-10.2 bar, F 232 ONE 10.5-10 bar); Pressure
 #     carries the highest value and the per-travel maxima in its notes.
-#   - F 132 ONE (gravel/bikepacking) is not a mountain-bike fork and is not
-#     covered.
+#   - F 132 ONE rebound click count: DT Swiss publishes no total. The user
+#     manual's rebound table runs 0-10 clicks from fully open, Rennrad-News and
+#     Tour state 9 clicks. Carries `max: 10` as an estimate; check it on a real
+#     fork. Compression Mode, the red rebound knob and the Open / Lock lever are
+#     from the manual.
+#   - F 132 / F 132 ONE model year: both user manuals are V2026 and the
+#     magazine articles are dated 14 Oct 2026 ("ab sofort"), so the generation is
+#     2026. The F 132 ONE first shipped on the Canyon Grail CFR RIFT; an earlier
+#     year may exist but no manual shows it.
+#   - F 132 / F 132 ONE e-bike pressure column (the user manuals print a second,
+#     higher column) is not encoded, the catalog has no e-bike option.
 # --------------------------------------------------------------------------

@@ -97,10 +97,10 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
     bikes: widget.appRepository.bikes,
     components: widget.appRepository.components,
     setups: widget.appRepository.setups,
-    ratings: widget.appRepository.ratings,
-    ratingEntries: widget.appRepository.ratingEntries,
     taskRules: widget.appRepository.taskRules,
     taskEntries: widget.appRepository.taskEntries,
+    feedbacks: widget.appRepository.feedbacks,
+    testSessions: widget.appRepository.testSessions,
   );
 
   Future<void> _share(SelectedData selectedData) async {

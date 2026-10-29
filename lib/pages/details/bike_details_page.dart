@@ -11,6 +11,7 @@ import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
+import '../../models/feedback/test_session.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
@@ -22,6 +23,7 @@ import '../../utils/component_actions.dart';
 import '../../utils/filter_actions.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
+import '../../utils/test_session_actions.dart';
 import '../../widgets/attachment_row.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_stats_card.dart';
@@ -34,11 +36,13 @@ import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/installation_timeline_table.dart';
 import '../../widgets/items/component_list_card.dart';
+import '../../widgets/items/test_session_tile.dart';
 import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/sheets/set_initial_stats.dart' as initial_stats;
 import '../../widgets/sheets/strava.dart';
+import '../../widgets/sheets/test_session_sheet.dart';
 import '../../widgets/text/section_title.dart';
 
 class BikeDetailsPage extends StatefulWidget {
@@ -64,23 +68,22 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   Set<String>? _selectedSetupIds;
   Set<TableColumn> _columns = {};
 
-  Map<String, double?> _ratingScores = {};
-  Map<String, Map<String, double>> _metricScores = {};
-  // ratingMetricId -> display name, for the per-metric rating columns.
-  Map<String, String> _ratingMetricNames = {};
-
   BikeAdjustmentProjection? _projection;
   // Columns whose value changes at least once; these are active by default.
   Set<BikeAdjustmentColumnKey> _changingColumns = {};
   Object? _projectionSource;
 
+  // Confident setup ranks only, as on the setup tiles.
+  Map<String, int> _ranks = {};
+
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
-  // Rating scores ride along as numerical values so tables and charts treat them like any number.
   AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
-    RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
-    RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
     BikeAdjustmentColumn(:final key) => _projection?.valueFor(setup, key),
+    SetupRankColumn() => switch (_ranks[setup.id]) {
+      final rank? => StepValue(rank),
+      null => null,
+    },
     ComponentAdjustmentColumn() || SetupTableColumn() => null,
   };
 
@@ -130,12 +133,11 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   String _columnLabel(TableColumn column, Iterable<Adjustment> personAdjustments) {
     return switch (column) {
       SetupTableColumn(column: final setupColumn) => setupColumn.label,
-      RatingScoreColumn() => "Rating Score",
-      RatingMetricColumn(:final metricId) => _ratingMetricNames[metricId] ?? metricId,
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       ComponentAdjustmentColumn(:final adjustmentId) => adjustmentId,
       BikeAdjustmentColumn(:final key) => _projection?.columnLabel(key) ?? key.adjustment.name,
+      SetupRankColumn() => "Rank",
     };
   }
 
@@ -143,6 +145,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     required List<Setup> setups,
     required Iterable<Adjustment> personAdjustments,
     required Map<String, Bike> bikes,
+    required Map<String, TestSession> testSessions,
     required Map<String, int> setupActivityCounts,
   }) {
     final sortColumn = _sortColumn;
@@ -154,6 +157,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       componentAdjustments: const [],
       personAdjustments: personAdjustments,
       bikes: bikes,
+      testSessions: testSessions,
       setupActivityCounts: setupActivityCounts,
       bikeAdjustmentFor: (column) => _projection?.adjustmentFor(column.key),
     );
@@ -169,6 +173,60 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
       if (_selectedHistogramColumn == column) _selectedHistogramColumn = null;
     });
+  }
+
+  Widget _testSessions(BuildContext context, AppRepository appRepository, Bike bike) {
+    final sessions = appRepository.testSessions.values
+        .where((session) => session.bike == bike.id)
+        .sorted((a, b) => b.startedAtUTC.compareTo(a.startedAtUTC));
+
+    return ExpansionTile(
+      shape: const Border(),
+      collapsedShape: const Border(),
+      leading: const Icon(TestSession.iconData),
+      title: Text(
+        "Test sessions (${sessions.length})",
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+      ),
+      childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+      children: [
+        if (sessions.isEmpty) ...[
+          EmptyStatePlaceholder2(
+            iconData: TestSession.iconData,
+            title: 'No test sessions yet',
+            subtitle: 'Try adjustments one after the other and see which works best',
+            onTap: () => unawaited(TestSessionActions.startSession(context, initialBike: bike)),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => unawaited(TestSessionActions.startSession(context, initialBike: bike)),
+              icon: const Icon(Icons.add),
+              label: const Text('Start Test Session'),
+            ),
+          ),
+        ] else ...[
+          for (final session in sessions)
+            Card(
+              key: ValueKey(session.id),
+              margin: const EdgeInsets.symmetric(vertical: 4.0),
+              clipBehavior: Clip.antiAlias, // Borderradius for InkWell
+              child: TestSessionTile(
+                session: session,
+                onTap: () => unawaited(showTestSessionSheet(context: context, sessionId: session.id)),
+              ),
+            ),
+          Center(
+            child: TextButton.icon(
+              onPressed: () => unawaited(TestSessionActions.startSession(context, initialBike: bike)),
+              icon: const Icon(Icons.add),
+              label: const Text('Start Test Session'),
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
   Widget _setupHistory(
@@ -201,21 +259,15 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final bikeSetups = appRepository.setups.values.where((s) => s.bike == widget.bikeId).toList();
     // Newest first, narrowed by the tag and bookmark filters.
     final setupsUnsorted = bikeSetups
-        .where(appRepository.filters.setup.matches)
+        .where((s) => appRepository.filters.setup.matches(s, testSessions: appRepository.testSessions))
         .toList()
         .reversed
         .toList();
 
-    // Rating scores derived from RatingEntries that resolve to each setup:
-    // overall (0-10) and per-metric sub-scores (0-10).
-    // Scored over all bike setups so filtering does not drop rating-metric columns.
-    _ratingScores = {for (final s in bikeSetups) s.id: appRepository.scoreForSetup(s.id)};
-    _metricScores = {for (final s in bikeSetups) s.id: appRepository.metricScoresForSetup(s.id)};
-
-    final allRatingMetrics = appRepository.allRatingMetricsById;
-    final ratingMetricIds = <String>{for (final m in _metricScores.values) ...m.keys};
-    _ratingMetricNames = {
-      for (final id in ratingMetricIds) id: allRatingMetrics[id]?.adjustment.name ?? id,
+    _ranks = {
+      if (appSettings.enableRating)
+        for (final s in bikeSetups)
+          if (appRepository.rankFor(s.id) case final rank? when rank.isConfident) s.id: rank.rank,
     };
 
     // Built-in columns available under the current feature flags; the bike is fixed here.
@@ -225,6 +277,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
         SetupColumn.tags => appSettings.enableSetupTags,
         SetupColumn.bookmarked => appSettings.enableSetupBookmark,
         SetupColumn.activities => hasAnyActivity,
+        SetupColumn.testSession => appSettings.enableRating,
         _ => true,
       },
     );
@@ -239,10 +292,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       for (final key in projection.columns) retained(BikeAdjustmentColumn(key, active: _changingColumns.contains(key))),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
-      if (appSettings.enableRating) ...[
-        for (final id in ratingMetricIds) retained(RatingMetricColumn(id, active: false)),
-        retained(RatingScoreColumn(active: false)),
-      ],
+      if (appSettings.enableRating) retained(SetupRankColumn(active: false)),
     };
 
     final orderedColumns = _columns.toList();
@@ -263,6 +313,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       setups: setupsUnsorted,
       personAdjustments: personAdjustments,
       bikes: bikes,
+      testSessions: appRepository.testSessions,
       setupActivityCounts: setupActivityCounts,
     );
 
@@ -327,7 +378,8 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                   );
                 },
               ),
-              if (appSettings.enableSetupTags || appSettings.enableSetupBookmark) FilterSheetChip.bikeDetailsPage,
+              if (appSettings.enableSetupTags || appSettings.enableSetupBookmark || appSettings.enableRating)
+                FilterSheetChip.bikeDetailsPage,
             ],
           ),
         ),
@@ -359,6 +411,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             sortAscending: _sortAscending,
             sortColumn: _sortColumn,
             bikes: bikes,
+            testSessions: appRepository.testSessions,
             setupHistory: appRepository.setupHistory,
             setupActivityCounts: setupActivityCounts,
             valueFor: _rawValue,
@@ -651,6 +704,10 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                 ],
               ),
               const Divider(height: 1),
+              if (appSettings.enableRating) ...[
+                _testSessions(context, appRepository, bike),
+                const Divider(height: 1),
+              ],
               _setupHistory(context, appSettings, appRepository, subscriptionService, person),
               if (appSettings.enableInstallationTimeline) ...[
                 const Divider(height: 1),

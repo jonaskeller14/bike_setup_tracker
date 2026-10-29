@@ -476,7 +476,8 @@ SPEC2027 p. 24 (both wheels):
 
 Gaps:
 - SPEC2023/2026 list the ZEB Base damper as **Charger R**, while the catalog
-  has `rush_rc`. Flagged as a follow-up.
+  has `rush_rc`. Flagged as a follow-up (resolved for the 2023 Base: SRAM's
+  model page lists the Rush RC).
 - The Dual Position Air rows (ZEB Select/Base A2, "Featured on E-MTB models
   only") have no catalog spring option. They are transcribed in the 2023 guide.
 
@@ -1257,7 +1258,7 @@ TH: `RCNG-80`, `RCNG-100` (100/120), `RCNG-130`, `RCNG-140` (140/150). `motion_c
 
 - URL: https://trailhead.rockshox.com/en/product/<model code>/tuning/setup (e.g. `FS-PIKE-ULT-C2`)
 - Document: RockShox TrailHead web app (official setup app). Coefficients are in the page's `tuneModels` data. The formula is in the setup page's client script (`page-e2d8199b5e7d6443.js`).
-- Retrieved: 2026-10-11
+- Retrieved: 2026-10-11; verified against the live app 2026-10-16/17 ([Verification](#verification-against-live-trailhead-phase-11-2026-10-1617))
 - On-page statement: "Rebound suggestions are set from the full clockwise/full slow position."
 
 ### Formula (our words)
@@ -1508,6 +1509,79 @@ Formula coefficients (rebound = rs1 × weight_lb + rb, clamped to [-17, 0], roun
 | 115 | 253.5 | 5 | max-5 | 6 | max-6 |
 | 120 | 264.6 | 4 | max-4 | 5 | max-5 |
 
+### Verification against live TrailHead (Phase 11, 2026-10-16/17)
+
+The formulas, coefficients and YAML rows above were checked against the live app. The setup page (`/en/product/<model code>/tuning/setup`) was driven in a browser: travel select, kg / lb field, and the rendered "Rebound" recommendation read back. The page's client script is the same file as in the Phase 1 research (`page-e2d8199b5e7d6443.js`), so the formula did not change between 2026-10-11 and the check.
+
+**1. Formula check, 39 sweeps.** One model code and travel per formula (all 39 formulas of the coefficient table), rider weight 57–330 lb in 3 lb steps (92 readings each):
+- Every sweep reproduces `rs1 × lb + rb` exactly, with 0 mismatches, and no other formula fits any sweep. This resolves the four pairs the three-weight check could not tell apart (`RUSH-P120` / `SID-C1-SEL`, `RUSH-P130` / `BASE-B`, `SID-C1-SELP` / `REBA-110`, `PSYL-130` / `PSYL-140`).
+- **Clamp to −17…0:** readings stop at 17 clicks (Recon Gold, Yari, SIDS Select+) and at 0 (Rudy, Psylo, BoXXer D1, `C3-A` above about 305 lb).
+- **Half-up rounding:** Rudy XL (`RDYX`: −22 + 0.05 × lb) lands exactly on a half at 210 / 230 / 250 / 270 / 290 / 310 lb and TrailHead shows 11 / 10 / 9 / 8 / 7 / 6 clicks, which is `Math.round` (toward fewer clicks), not round-half-away.
+- **Below 60 lb** no recommendation is shown (57 lb in every sweep).
+- **kg input:** kg × 2.20462, confirmed by the kg readings below.
+- **Counted from closed:** the page states it ("Rebound suggestions are set from the full clockwise/full slow position"), and the numbers fall with weight as a closed-count would.
+- **E-bike mode is not testable here.** The model-code page has no e-bike control; the client script only carries an `ebike` form field (default `false`). The claim that it leaves rebound unchanged stays script-read (Phase 1) and is not covered by the YAML anyway (#72).
+
+**2. Spot-check against the YAML.** 55 model codes (every code of the Phase 1 table, both generations of the SID / SID SL codes, Reba 10B / 12B, Rudy A1 / A2) at every travel TrailHead offers, at 55, 82 and 110 kg, against the app's own evaluator on the catalog YAML (`rebound` rule, clicks from closed = the dial's `max` − recommended value; `max: ~` dampers evaluated with max 30). 55 and 110 kg are published rows; 82 kg lies between the 80 and 85 kg rows.
+
+| | Cases | Result |
+|---|---|---|
+| 55 kg and 110 kg (published rows) | 390 | all equal |
+| 82 kg (between rows) | 195 | 161 equal, 34 are **+1 click** |
+| Travels TrailHead offers but the catalog does not (Yari 100–140, Recon 65, Psylo 100 / 120, Domain 130 / 140, SID SL 90) | 42 | not compared |
+
+The 34 differences are all one click, all at 82 kg, and all explained: TrailHead rounds the formula at 82 kg (180.78 lb), while the YAML interpolates between the **rounded** 80 and 85 kg rows (Q8). For the same weight, interpolating the rounded rows can land one click above the rounded formula. The same weight at a published row never differs. Affected: C3-C, BXR-D-190, SIDSL-E1, SID-C1-ULT, RUDY, RVL-120 / 130 and RCNG-130, with their model codes. The rider-visible effect is one click on a starting value the rider fine-tunes anyway, so the rows stay at 5 kg steps (finer rows would remove it).
+
+Not compared, because TrailHead has no matching combination: `sid/2021` at 100 mm (the code lists 110 and 120 only; the SID C1 formulas carry no travel term, 110 and 120 give the same clicks, and the YAML rules have no travel condition) and `zeb/2025/ultimate-flight-attendant` at 190 mm (TrailHead lists 190 mm only for Ultimate and Select+, whose C3-C is verified; the YAML uses the same rule). `FS-PIKE-SEL-C1` (Charger RC, not in the catalog) has formulas the table does not contain and is not encoded.
+
+One row per formula (clicks from closed, TrailHead / YAML):
+
+| Formula | Model code, travel | Catalog product | 55 kg | 82 kg | 110 kg |
+|---|---|---|---|---|---|
+| `C3-A` | `FS-PIKE-ULT-C2` 120 mm | `pike/2025/ultimate` | 12 / 12 | 9 / 9 | 5 / 5 |
+| `C3-B` | `FS-PIKE-ULT-C2` 130 mm | `pike/2025/ultimate` | 14 / 14 | 10 / 10 | 6 / 6 |
+| `C3-C` | `FS-ZEB-ULT-A3` 190 mm | `zeb/2025/ultimate` | 15 / 15 | 11 / 12 | 8 / 8 |
+| `RUSH-P120` | `FS-PIKE-BSE-C1` 120 mm | `pike/2025/base` | 13 / 13 | 10 / 10 | 7 / 7 |
+| `RUSH-P130` | `FS-PIKE-BSE-C1` 130 mm | `pike/2025/base` | 13 / 13 | 11 / 11 | 8 / 8 |
+| `BASE-A` | `FS-LYRK-BSE-D1` 140 mm | `lyrik/2025/base` | 12 / 12 | 10 / 10 | 7 / 7 |
+| `BASE-B` | `FS-LYRK-BSE-D1` 150 mm | `lyrik/2025/base` | 13 / 13 | 11 / 11 | 8 / 8 |
+| `BASE-C` | `FS-ZEB-BSE-A2` 190 mm | `zeb/2025/base` | 14 / 14 | 11 / 11 | 9 / 9 |
+| `BXR-D-180` | `FS-BXR-ULT-D1` 180 mm | `boxxer/2024/ultimate` | 12 / 12 | 8 / 8 | 3 / 3 |
+| `BXR-D-190` | `FS-BXR-ULT-D1` 190 mm | `boxxer/2024/ultimate` | 14 / 14 | 9 / 10 | 4 / 4 |
+| `BXR-C-180` | `FS-BXR-ULT-C2` 180 mm | `boxxer/2019/ultimate` | 10 / 10 | 8 / 8 | 5 / 5 |
+| `BXR-C-190` | `FS-BXR-ULT-C2` 190 mm | `boxxer/2019/ultimate` | 11 / 11 | 9 / 9 | 6 / 6 |
+| `SIDSL-E1` | `FS-SIDS-ULT2-E1` 100 mm | `sid-sl/2026/ultimate` | 11 / 11 | 6 / 7 | 2 / 2 |
+| `SID-D1` | `FS-SIDS-ULT2-D1` 100 mm | `sid-sl/2025/ultimate` | 11 / 11 | 7 / 7 | 3 / 3 |
+| `SIDSL-C1-ULT` | `FS-SIDS-ULT-C1` 100 mm | `sid-sl/2021/ultimate` | 8 / 8 | 5 / 5 | 2 / 2 |
+| `SIDSL-C1-SELP` | `FS-SIDS-SELP-C1` 100 mm | `sid-sl/2021/select-plus` | 17 / 17 | 12 / 12 | 7 / 7 |
+| `SIDSL-C1-SEL` | `FS-SIDS-SEL-C1` 100 mm | `sid-sl/2021/select` | 16 / 16 | 13 / 13 | 9 / 9 |
+| `SIDSL-C1-BSE` | `FS-SIDS-BSE-C1` 100 mm | `sid-sl/2021/base` | 9 / 9 | 7 / 7 | 4 / 4 |
+| `SID-C1-ULT` | `FS-SID-ULT-C1` 110 mm | `sid/2021/ultimate` | 11 / 11 | 6 / 7 | 1 / 1 |
+| `SID-C1-SELP` | `FS-SID-SELP-C1` 110 mm | `sid/2021/select-plus` | 13 / 13 | 9 / 9 | 5 / 5 |
+| `SID-C1-SEL` | `FS-SID-SEL-C1` 110 mm | `sid/2021/select` | 13 / 13 | 10 / 10 | 7 / 7 |
+| `SID-C1-BSE` | `FS-SID-BSE-C1` 110 mm | `sid/2021/base` | 8 / 8 | 6 / 6 | 3 / 3 |
+| `REBA-100` | `FS-REBA-12B-A9` 100 mm | `reba/rl` | 13 / 13 | 9 / 9 | 4 / 4 |
+| `REBA-110` | `FS-REBA-12B-A9` 110 mm | `reba/rl` | 13 / 13 | 9 / 9 | 5 / 5 |
+| `PSYL-130` | `FS-PSYL-GRC-A1` 130 mm | `psylo/gold-rc` | 6 / 6 | 3 / 3 | 0 / 0 |
+| `PSYL-140` | `FS-PSYL-GRC-A1` 140 mm | `psylo/gold-rc` | 6 / 6 | 3 / 3 | 0 / 0 |
+| `DOMN-150` | `FS-DOMN-GRC-C1` 150 mm | `domain/gold-rc` | 9 / 9 | 6 / 6 | 3 / 3 |
+| `DOMN-160` | `FS-DOMN-GRC-C1` 160 mm | `domain/gold-rc` | 10 / 10 | 7 / 7 | 4 / 4 |
+| `RUDY` | `FS-RUDY-ULT-A1` 30 mm | `rudy-xplr/ultimate` | 12 / 12 | 6 / 7 | 0 / 0 |
+| `RDYX` | `FS-RDYX-ULT-A1` 50 mm | `rudy-xl/ultimate` | 16 / 16 | 13 / 13 | 10 / 10 |
+| `YARI-150` | `FS-YARI-RC-B3` 150 mm | `yari/rc` | 16 / 16 | 12 / 12 | 7 / 7 |
+| `YARI-170` | `FS-YARI-RC-B3` 170 mm | `yari/rc` | 17 / 17 | 13 / 13 | 9 / 9 |
+| `RVL-120` | `FS-RVL-RC-A3` 120 mm | `revelation/rc` | 11 / 11 | 7 / 8 | 4 / 4 |
+| `RVL-130` | `FS-RVL-RC-A3` 130 mm | `revelation/rc` | 10 / 10 | 6 / 7 | 3 / 3 |
+| `RVL-150` | `FS-RVL-RC-A3` 150 mm | `revelation/rc` | 10 / 10 | 7 / 7 | 3 / 3 |
+| `RCNG-80` | `FS-RCNG-RL-C1` 80 mm | `recon-gold/gold-rl` | 14 / 14 | 11 / 11 | 8 / 8 |
+| `RCNG-100` | `FS-RCNG-RL-C1` 100 mm | `recon-gold/gold-rl` | 17 / 17 | 14 / 14 | 9 / 9 |
+| `RCNG-130` | `FS-RCNG-RL-C1` 130 mm | `recon-gold/gold-rl` | 17 / 17 | 16 / 17 | 13 / 13 |
+| `RCNG-140` | `FS-RCNG-RL-C1` 140 mm | `recon-gold/gold-rl` | 17 / 17 | 16 / 16 | 12 / 12 |
+
+**Provenance decision:** keep the TrailHead-derived rebound rows. TrailHead is SRAM's own public setup app for these exact forks, the formulas reproduce its live output on every sweep, and no PDF publishes rebound clicks, so dropping them would leave every RockShox fork without a rebound recommendation. They stay cited as "Calculated from RockShox TrailHead's formula" and only numbers are re-typed (Q8). The source is undocumented and SRAM can change it without notice, so the check is repeatable: model codes in the table above, retrieval 2026-10-16/17.
+
+**Shock click totals:** the catalog's 15 (RC2T, Super Deluxe D1) and 20 (Vivid Ultimate) are what SRAM itself publishes: the support articles for the MY23 Super Deluxe, the Super Deluxe D1 and the Vivid Coil D1, and the model pages (Super Deluxe "15 clicks", Vivid D1 "20 clicks"; the English Super Deluxe page was reported as "14-15"). What stays unchecked is that TrailHead's own `Rebound Clicks` attribute, which feeds `a = total − 1`, holds the same number: shock model-code pages do not expose attributes, and the lookup needs a real serial number. The fork formulas point the same way: their clamp of −17 on an 18-click Charger 3 dial is "total − 1" as well. See Follow-ups.
+
 ---
 
 ## Guide `rockshox_rear_shock_um` — Suspension User Manual (rear shocks) + TrailHead shock formulas
@@ -1682,8 +1756,15 @@ R9 type changes: none. Rebound uses `max-N` on the existing step adjusters,
   references for Lyrik/ZEB 2027 and BoXXer 2027 resolve against it, so a
   rider who corrects the max gets corrected clicks. Confirm it anyway.
 - **ZEB Base damper:** SPEC2023 and SPEC2026 name "Charger R" for
-  FS-ZEB-BSE-A2, while the catalog has `rush_rc`. Re-check the service-manual
-  exploded view.
+  FS-ZEB-BSE-A2. SRAM's model page for FS-ZEB-BSE-A2 lists the **Rush RC**, so
+  `zeb/2023/base` and `zeb/2025/base` (both A2) are encoded: TrailHead's `BASE-A` (150-160 mm), `BASE-B`
+  (170-180 mm) and `BASE-C` (190 mm), each sweep-verified on FS-ZEB-BSE-A2.
+  The same code is `zeb/2025/base` in SPEC2026, so both generations get the
+  rules. SRAM's model page for FS-ZEB-BSE-A3 lists a **Delta RC** (a new
+  damper, also on the 2026 ZEB Select). It is the A3 Base of the 2027 spec
+  (see the ZEB 2027 gaps) and stays out of the catalog like the other Delta RC
+  trims. The 2021-2022 service manual's Charger
+  R (ZEB A1) publishes no click count.
 - **SID SL 2025–2026:** one catalog generation covers D1 (MY24–25,
   DebonAir) and E1 (MY26+, DebonAir+), whose charts differ. Consider splitting
   the generation, or pick E1.
@@ -1694,11 +1775,26 @@ R9 type changes: none. Rebound uses `max-N` on the existing step adjusters,
 - **Missing `volume_spacers` adjusters:** factory counts are known for Lyrik
   2027, ZEB 2027, BoXXer 2024/2027, SID/SID SL 2025, Psylo and Domain (see the
   guides). Adding the adjuster (with maxima) would make them encodable.
-- **TrailHead shock `Rebound Clicks`:** confirm it equals 15 (RC2T, D1) and
-  20 (Vivid Ultimate). A serial lookup on a real shock would show it.
+- **TrailHead shock `Rebound Clicks`:** SRAM publishes 15 (RC2T, D1) and 20
+  (Vivid Ultimate) for the dials themselves. Whether TrailHead's attribute
+  equals them still needs a serial lookup on a real shock.
 - **Pressure maxima** printed for every fork (163 / 148 / 194 / 195 / 146 /
   150 / 200 / 265 psi …) are not yet in the catalog `Pressure` adjusters,
   except Lyrik/ZEB 2027.
+- **Travels TrailHead lists but the catalog does not (checked 2026-10-17):**
+  Psylo Gold RC ships in 130-160 mm and Domain Gold RC in 150-180 mm (press
+  coverage of the 2025 launch), so TrailHead's Psylo 100 / 120 and Domain
+  130 / 140 entries are template extras, not products. Yari RC reviews list
+  120-180 mm (27.5") and 120-160 mm (29"), so 120-140 mm may be real, but the
+  SRAM PDFs have no pressure table below 150 mm. Recon 65 mm and SID SL 90 mm
+  are unconfirmed. Nothing was added: a travel without a pressure source would
+  give a rebound-only guide.
+- **Select trims with Charger RC (Pike, Lyrik, ZEB 2023, FS-PIKE-SEL-C1 and
+  siblings):** TrailHead has rebound formulas for them, but SRAM publishes no
+  rebound click count for the Charger RC (the product page only says "low-speed
+  compression and rebound adjustment"). They stay out of the catalog, as listed
+  at the end of the YAML; adding them needs a `max: ~` damper and per-fork
+  formula research.
 - **Coil fork spring charts:** the specification PDFs have a coil-fork page
   (e.g. SPEC2023 p. 13) that was not transcribed, because the catalog has no
   coil forks.

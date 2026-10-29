@@ -250,12 +250,16 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   flex: 3,
                   child: Align(
                     alignment: Alignment.centerRight,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
+                    child: Semantics(
+                      container: true,
+                      identifier: AutomationIds.setAdjustment(adjustment.id),
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        onPressed: () {onChanged(StepValue(adjustment.min)); onChangedEnd(StepValue(adjustment.min));},
+                        child: const Text("Set value"),
                       ),
-                      onPressed: () {onChanged(StepValue(adjustment.min)); onChangedEnd(StepValue(adjustment.min));},
-                      child: const Text("Set value"),
                     ),
                   ),
                 )

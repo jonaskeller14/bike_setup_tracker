@@ -1,11 +1,11 @@
 import 'package:drift/drift.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../adjustment_value_codec.dart';
 import '../app_database.dart';
 import '../tables/adjustments.dart';
 import '../tables/setup_adjustment_values.dart';
 import '../tables/setups.dart';
+import 'deleted_record_value.dart';
 import 'soft_delete_dao_mixin.dart';
 
 part 'setups_dao.g.dart';
@@ -60,7 +60,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
   }
 
   // Operation to fetch a setup along with its values and the adjustments they belong to
-  // This helps in mapping back to the bikeAdjustmentValues/personAdjustmentValues/ratingAdjustmentValues
+  // This helps in mapping back to the bikeAdjustmentValues/personAdjustmentValues
   Stream<List<TypedSetupValue>> watchTypedValuesForSetup(String setupId) {
     final query = select(setupAdjustmentValues).join([
       innerJoin(adjustments, adjustments.id.equalsExp(setupAdjustmentValues.adjustmentId)),
@@ -112,34 +112,58 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
     });
   }
 
-  /// Rewrites every stored value of [adjustmentId] via [transform] (values are
-  /// numerical doubles) and bumps `lastModified` on each affected setup so
-  /// backup merges propagate the change. Unparseable/null values are left as-is.
-  Future<void> convertAdjustmentValues(
+  /// Rewrites every stored value of [adjustmentId] (an adjustment of [type])
+  /// with [migration], soft-deleted setups included, and bumps `lastModified`
+  /// on each setup whose value changed so backup merges propagate the change.
+  /// A value the migration clears loses its row; undecodable rows are left as-is.
+  Future<void> migrateAdjustmentValues(
     String adjustmentId,
-    NumericalValue Function(NumericalValue) transform,
+    AdjustmentType type,
+    ValueMigration migration,
   ) async {
     final rows = await (select(setupAdjustmentValues)
           ..where((t) => t.adjustmentId.equals(adjustmentId)))
         .get();
-    if (rows.isEmpty) return;
 
     final now = DateTime.now().toUtc();
     final touchedSetupIds = <String>{};
     for (final row in rows) {
-      final decoded = decodeNumericalValueOrNull(row.value);
-      if (decoded == null) continue; // unparseable/null — leave untouched
-      final newValue = transform(NumericalValue(decoded)).encode();
-      if (newValue == row.value) continue; // no material change
-      await (update(setupAdjustmentValues)
-            ..where((t) => t.setupId.equals(row.setupId) & t.adjustmentId.equals(adjustmentId)))
-          .write(SetupAdjustmentValuesCompanion(value: Value(newValue)));
+      final decoded = AdjustmentValue.decode(row.value, type);
+      if (decoded == null || decoded is UnresolvedValue) continue;
+      final migrated = migration.apply(decoded);
+      if (migrated == decoded) continue;
+      if (migrated == null) {
+        await (delete(setupAdjustmentValues)
+              ..where((t) => t.setupId.equals(row.setupId) & t.adjustmentId.equals(adjustmentId)))
+            .go();
+      } else {
+        await (update(setupAdjustmentValues)
+              ..where((t) => t.setupId.equals(row.setupId) & t.adjustmentId.equals(adjustmentId)))
+            .write(SetupAdjustmentValuesCompanion(value: Value(migrated.encode())));
+      }
       touchedSetupIds.add(row.setupId);
     }
     for (final setupId in touchedSetupIds) {
       await (update(setups)..where((t) => t.id.equals(setupId)))
           .write(SetupsCompanion(lastModified: Value(now)));
     }
+  }
+
+  /// The stored values of [adjustmentId] in soft-deleted setups; the in-memory
+  /// setups hold live records only.
+  Future<List<DeletedRecordValue>> getDeletedValuesFor(String adjustmentId) async {
+    final query = select(setups).join([
+      innerJoin(setupAdjustmentValues, setupAdjustmentValues.setupId.equalsExp(setups.id)),
+    ])..where(isDeletedColumn.equals(true) & setupAdjustmentValues.adjustmentId.equals(adjustmentId));
+    return [
+      for (final row in await query.get())
+        DeletedRecordValue(
+          recordId: row.readTable(setups).id,
+          name: row.readTable(setups).name,
+          dateTimeLocal: row.readTable(setups).datetimeLocal,
+          rawValue: row.readTable(setupAdjustmentValues).value,
+        ),
+    ];
   }
 
   Future<void> _upsertValuesMap(String setupId, Map<String, AdjustmentValue> valuesMap) async {

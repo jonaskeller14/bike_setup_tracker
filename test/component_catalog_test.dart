@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
+import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 
@@ -127,6 +130,26 @@ void main() {
         }
       });
 
+      test('every product, option value and model year survives the persisted round trip', () {
+        // What a component stores is resolved again on every load; a value id
+        // that changes type in JSON (27.5 vs "27.5") would silently drop the choice.
+        for (final product in catalogProducts(catalog)) {
+          final choices = [
+            product,
+            for (final axis in product.axes)
+              for (final value in axis.values) product.select(axis, value),
+            for (final year in product.selectableYears) product.withYear(year),
+          ];
+          for (final chosen in choices) {
+            final stored = toComponentPreset(chosen);
+            final reloaded = ComponentPreset.tryFromJson(jsonDecode(jsonEncode(stored.toJson())));
+            final back = reloaded == null ? null : resolvePreset([catalog], reloaded);
+            expect(back == null ? null : toComponentPreset(back), stored, reason: '$stored');
+            expect(back?.node, same(chosen.node), reason: '$stored');
+          }
+        }
+      });
+
       test('urls are http(s)', () {
         for (final MapEntry(key: path, value: node) in nodes.entries) {
           for (final url in [node.url, node.setupGuide, node.guide?.source].nonNulls) {
@@ -135,6 +158,32 @@ void main() {
               uri != null && (uri.scheme == 'http' || uri.scheme == 'https'),
               isTrue,
               reason: '$path: bad url "$url"',
+            );
+          }
+        }
+      });
+
+      test('years sit on a generation or version, never on a model', () {
+        // A model that carries its years would move every product path the day
+        // a second generation is added, so the level is there from the start.
+        for (final MapEntry(key: path, value: node) in nodes.entries) {
+          if (node.level != 'model') continue;
+          expect(node.years, isNull, reason: '$path: put "years" on a generation or version node');
+        }
+      });
+
+      test('generations and versions are authored newest first', () {
+        for (final MapEntry(key: path, value: node) in nodes.entries) {
+          if (node is! CatalogGroup) continue;
+          final spans = [
+            for (final child in node.children)
+              if ((child.level == 'generation' || child.level == 'version') && child.years != null) child.years!,
+          ];
+          for (var i = 1; i < spans.length; i++) {
+            expect(
+              spans[i].first <= spans[i - 1].first,
+              isTrue,
+              reason: '$path: ${spans[i]} is listed after ${spans[i - 1]}, newest generation goes first',
             );
           }
         }

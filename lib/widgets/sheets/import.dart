@@ -210,10 +210,10 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
               bikes: _remoteAllData!.bikes,
               components: _remoteAllData!.components,
               setups: _remoteAllData!.setups,
-              ratings: _remoteAllData!.ratings,
-              ratingEntries: _remoteAllData!.ratingEntries,
               taskRules: _remoteAllData!.taskRules,
               taskEntries: _remoteAllData!.taskEntries,
+              feedbacks: _remoteAllData!.feedbacks,
+              testSessions: _remoteAllData!.testSessions,
             ),
             onConfirm: (SelectedData selectedData) {
               _remoteSelectedData = selectedData;

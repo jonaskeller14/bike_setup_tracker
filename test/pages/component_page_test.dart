@@ -7,15 +7,19 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/forms/component_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
+import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/widgets/attachment_strip.dart';
 import 'package:bike_setup_tracker/widgets/installation_parent_field.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
@@ -68,6 +72,15 @@ nodes:
         options:
           damper: [grip_x2, grip_x]
           travel_mm: [150, 160]
+'''),
+      parseCatalogFile('''
+brand: FOX
+component_type: shock
+nodes:
+  - label: FLOAT X
+    level: model
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0 }
 '''),
     ]);
   });
@@ -392,6 +405,45 @@ nodes:
       expect(find.text('Please select type'), findsOneWidget);
     });
 
+    testWidgets('reopened suggestions mark the applied preset and close on a tap outside', (WidgetTester tester) async {
+      await applyPresetViaAutocomplete(tester);
+
+      final tiles = find.widgetWithText(ListTile, presetName);
+      expect(tiles, findsOneWidget, reason: 'only the preset card');
+
+      await tester.tap(find.widgetWithText(TextFormField, presetName));
+      await tester.pumpAndSettle();
+      expect(tiles, findsNWidgets(2), reason: 'the card and the suggestion');
+      expect(
+        find.ancestor(of: find.text(presetName), matching: find.byWidgetPredicate((w) => w is ListTile && w.selected)),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Add Component'));
+      await tester.pumpAndSettle();
+      expect(tiles, findsOneWidget, reason: 'the suggestion closed');
+    });
+
+    testWidgets('the name suggestions follow the chosen type', (WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      await tester.pumpWidget(createWidgetUnderTest(mode: ComponentPageMode.add));
+      await tester.pumpAndSettle();
+      final nameField = find.widgetWithText(TextFormField, 'Component Name');
+
+      await tester.enterText(nameField, 'fox float');
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(ListTile, 'FOX FLOAT X'), findsOneWidget, reason: 'Without a type, every type is offered');
+
+      await tester.enterText(nameField, 'fox 38');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ListTile, presetName));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.widgetWithText(TextFormField, presetName), 'fox float');
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(ListTile, 'FOX FLOAT X'), findsNothing, reason: 'A fork is not offered shocks');
+    });
+
     testWidgets('unlinking keeps the prefilled values', (WidgetTester tester) async {
       await applyPresetViaAutocomplete(tester);
 
@@ -430,6 +482,76 @@ nodes:
       expect(find.text(presetName), findsNothing);
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse,
           reason: 'Unlinking changes the persisted preset');
+    });
+
+    testWidgets('a link the catalog no longer resolves says so and can be unlinked', (WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      await tester.runAsync(() => presetRepository.all());
+
+      final component = Component(
+        id: 'c1',
+        name: 'My Fork',
+        componentType: ComponentType.fork,
+        installations: const [],
+        adjustments: const [],
+        preset: ComponentPreset(const {'brand': 'sram', 'component_type': 'fork', 'model': 'zeb'}),
+      );
+      await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Catalog entry not found'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Choose from catalog'), findsOneWidget);
+      expect(find.text('Unlinked from catalog — values kept'), findsOneWidget);
+      expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse);
+
+      await tester.tap(find.text('UNDO'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Catalog entry not found'), findsOneWidget);
+    });
+
+    testWidgets('a type change clears a link that has not resolved yet', (WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      final forks = Completer<List<BrandCatalog>>();
+      presetRepository = ComponentCatalogRepository.withLoader(
+        (type) => type == ComponentType.fork ? forks.future : Future.value(const <BrandCatalog>[]),
+      );
+
+      final component = Component(
+        id: 'c1',
+        name: 'My Fork',
+        componentType: ComponentType.fork,
+        installations: const [],
+        adjustments: const [],
+        preset: ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '38', 'trim': 'factory'}),
+      );
+      await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Fork').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Shock').last);
+      await tester.pumpAndSettle();
+      forks.complete([
+        parseCatalogFile('''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "38"
+    level: model
+    children:
+      - label: Factory
+        level: trim
+'''),
+      ]);
+      await tester.pumpAndSettle();
+
+      expect(find.text(presetName), findsNothing, reason: 'The fork link resolving late must not come back on a shock');
+      expect(find.text('Choose from catalog'), findsOneWidget);
     });
 
     testWidgets('picking in edit mode only adds missing adjustments', (WidgetTester tester) async {
@@ -551,6 +673,336 @@ nodes:
       );
       expect(saved.adjustments.map((a) => a.name), ['SAG', 'LSC']);
       expect(saved.adjustments.whereType<SagAdjustment>().single.referenceTravelMm, 160);
+    });
+  });
+
+  group('ComponentPage catalog update', () {
+    const revision1 = '''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "38"
+    level: model
+    adjustments:
+      - { name: HSC, type: step, max: 8 }
+''';
+    const revision2 = '''
+brand: FOX
+component_type: fork
+revision: 2
+changes:
+  - { revision: 2, review: Adds the low-speed compression adjuster. }
+nodes:
+  - label: "38"
+    level: model
+    adjustments:
+      - { name: HSC, type: step, max: 8 }
+      - { name: LSC, type: step, max: 16 }
+''';
+
+    /// Opens the edit page on a fork built from revision 1 while the catalog is
+    /// at revision 2; the returned getter reads what it saved.
+    Future<Component Function()> openOutdated(WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      presetRepository = ComponentCatalogRepository.withCatalogs([parseCatalogFile(revision2)]);
+      await tester.runAsync(() => presetRepository.all());
+      final app = buildCatalogApplication(catalogProducts(parseCatalogFile(revision1)).single);
+      final component = Component(
+        id: 'c1',
+        name: app.name,
+        componentType: ComponentType.fork,
+        installations: [Installation.sinceBeginning(parent: null)],
+        adjustments: app.adjustments,
+        preset: app.preset,
+      );
+
+      Object? result;
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: appSettings),
+            ChangeNotifierProvider.value(value: appRepository),
+            ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
+            ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
+            Provider<ComponentCatalogRepository>.value(value: presetRepository),
+          ],
+          child: MaterialApp(
+            theme: materialAppTheme,
+            home: Builder(
+              builder: (context) => TextButton(
+                onPressed: () async => result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ComponentPage.edit(component: component)),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      return () => (result! as EditResult<Component>).value;
+    }
+
+    Future<void> save(WidgetTester tester) async {
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('shows the pending review on the card', (WidgetTester tester) async {
+      await openOutdated(tester);
+
+      expect(find.text('Update available'), findsOneWidget);
+      expect(find.text('Adds the low-speed compression adjuster.'), findsOneWidget);
+    });
+
+    testWidgets('dismissing keeps the adjustments and stores the revision', (WidgetTester tester) async {
+      final saved = await openOutdated(tester);
+
+      await tester.tap(find.widgetWithText(TextButton, 'Dismiss'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Catalog update dismissed'), findsOneWidget);
+      expect(find.text('Update available'), findsNothing);
+      await save(tester);
+      expect(saved().preset!.revision, 2);
+      expect(saved().adjustments.map((adjustment) => adjustment.name), ['HSC', 'SAG']);
+    });
+
+    testWidgets('reviewing merges the new adjuster and stores the revision', (WidgetTester tester) async {
+      final saved = await openOutdated(tester);
+
+      await tester.tap(find.widgetWithText(TextButton, 'Review'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Update available'), findsNothing);
+      await save(tester);
+      expect(saved().preset!.revision, 2);
+      expect(saved().adjustments.map((adjustment) => adjustment.name), ['HSC', 'SAG', 'LSC']);
+    });
+  });
+
+  group('ComponentPage recorded values', () {
+    const psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
+    const kPa = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'kiloPascal');
+    final bike = Bike(name: 'Bike', person: null);
+
+    Component fork(Adjustment adjustment) => Component(
+      id: 'fork',
+      name: 'Fork',
+      componentType: ComponentType.fork,
+      adjustments: [adjustment],
+      installations: [Installation.sinceBeginning(parent: bike.id)],
+    );
+
+    /// Saves [component] with a setup holding [value] for its adjustment,
+    /// opens it in edit mode and returns a getter for what the form pops.
+    Future<Object? Function()> openForm(WidgetTester tester, Component component, AdjustmentValue value) async {
+      await tester.runAsync(() async {
+        await appRepository.addBikes([bike]);
+        await appRepository.addComponents([component]);
+        await appRepository.addSetups([
+          Setup(
+            name: 'Setup',
+            tags: const {},
+            datetime: DateTime(2024).toUtc(),
+            datetimeLocal: DateTime(2024),
+            bike: bike.id,
+            person: null,
+            bikeAdjustmentValues: {component.adjustments.single.id: value},
+            personAdjustmentValues: const {},
+          ),
+        ]);
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+
+      Object? result;
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: appSettings),
+            ChangeNotifierProvider.value(value: appRepository),
+            ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
+            ChangeNotifierProvider<SubscriptionService>.value(value: _StravaSubscriptionService()),
+            Provider<ComponentCatalogRepository>.value(value: presetRepository),
+          ],
+          child: MaterialApp(
+            theme: materialAppTheme,
+            home: Builder(
+              builder: (context) => TextButton(
+                onPressed: () async => result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ComponentPage.edit(component: component)),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      return () => result;
+    }
+
+    /// Edits the only adjustment through [interact] and saves it. With
+    /// [confirm], expects the value migration sheet and confirms it.
+    Future<void> editAdjustment(
+      WidgetTester tester,
+      Future<void> Function() interact, {
+      bool confirm = true,
+      Future<void> Function()? inSheet,
+    }) async {
+      await tester.ensureVisible(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Edit'));
+      await tester.pumpAndSettle();
+      await interact();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+      await tester.pumpAndSettle();
+      if (!confirm) {
+        expect(find.text('Update recorded values'), findsNothing);
+        return;
+      }
+      expect(find.text('Update recorded values'), findsOneWidget);
+      await inSheet?.call();
+      await tester.tap(find.byKey(const Key('value-migration-confirm')));
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> setMax(WidgetTester tester, String label, String max) async {
+      await tester.enterText(find.widgetWithText(TextFormField, label), max);
+      await tester.pumpAndSettle();
+    }
+
+    Future<EditResult<Component>> saveForm(WidgetTester tester, Object? Function() result) async {
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+      return result()! as EditResult<Component>;
+    }
+
+    testWidgets('two unit edits of one adjustment stage a single combined migration', (WidgetTester tester) async {
+      final pressure = NumericalAdjustment(id: 'pressure', name: 'Pressure', notes: null, unit: psi);
+      final result = await openForm(tester, fork(pressure), const NumericalValue(10));
+
+      Future<void> changeUnitTo(String label) => editAdjustment(tester, () async {
+        await tester.tap(find.byKey(const Key('unit_picker_field')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(label));
+        await tester.pumpAndSettle();
+      });
+
+      await changeUnitTo('bar');
+      await changeUnitTo('kPa');
+
+      final saved = await saveForm(tester, result);
+      expect(saved.value.adjustments.single.unit, kPa);
+      expect(saved.migrations, [
+        ValueMigration('pressure', const [ConvertUnitStep(psi, kPa)]),
+      ]);
+    });
+
+    group('a narrowed maximum edited again', () {
+      final pressure = NumericalAdjustment(id: 'pressure', name: 'Pressure', notes: null, unit: psi, min: 0, max: 20);
+      const maxField = 'Max Value (optional)';
+
+      testWidgets('clamps to the newest maximum and shows the net change', (WidgetTester tester) async {
+        final result = await openForm(tester, fork(pressure), const NumericalValue(20));
+
+        await editAdjustment(tester, () => setMax(tester, maxField, '10'));
+        await editAdjustment(
+          tester,
+          () => setMax(tester, maxField, '15'),
+          inSheet: () async {
+            expect(find.textContaining('This replaces the change you confirmed earlier.'), findsOneWidget);
+            expect(find.text('Clamp'), findsOneWidget);
+            expect(find.text('15 psi'), findsOneWidget);
+          },
+        );
+
+        final migration = (await saveForm(tester, result)).migrations.single;
+        expect(migration.apply(const NumericalValue(20)), const NumericalValue(15));
+      });
+
+      testWidgets('back to the saved maximum writes nothing', (WidgetTester tester) async {
+        final result = await openForm(tester, fork(pressure), const NumericalValue(20));
+
+        await editAdjustment(tester, () => setMax(tester, maxField, '10'));
+        await editAdjustment(tester, () => setMax(tester, maxField, '20'), confirm: false);
+
+        expect((await saveForm(tester, result)).migrations, isEmpty);
+      });
+
+      testWidgets('a rename-only re-edit shows the pending change again', (WidgetTester tester) async {
+        final result = await openForm(tester, fork(pressure), const NumericalValue(20));
+
+        await editAdjustment(tester, () => setMax(tester, maxField, '10'));
+        await editAdjustment(tester, () async {
+          await tester.enterText(find.widgetWithText(TextFormField, 'Adjustment Name'), 'Air');
+          await tester.pumpAndSettle();
+        });
+
+        final migration = (await saveForm(tester, result)).migrations.single;
+        expect(migration.apply(const NumericalValue(20)), const NumericalValue(10));
+      });
+    });
+
+    group('a preset merge after an edit', () {
+      final rebound = StepAdjustment(
+        id: 'rebound',
+        name: 'rebound',
+        notes: '',
+        unit: null,
+        step: 1,
+        min: 0,
+        max: 20,
+        visualization: StepAdjustmentVisualization.slider,
+      );
+
+      Future<Object? Function()> narrowThenMerge(WidgetTester tester) async {
+        appSettings.enableComponentPresets = true;
+        await tester.runAsync(() => presetRepository.all());
+        final result = await openForm(tester, fork(rebound), const StepValue(20));
+        await editAdjustment(tester, () => setMax(tester, 'Max Value', '10'));
+
+        await tester.ensureVisible(find.text('Choose from catalog'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Choose from catalog'));
+        await tester.pumpAndSettle();
+        for (final step in ['FOX', '38', 'Factory']) {
+          final row = find.widgetWithText(ListTile, step);
+          if (row.evaluate().isEmpty) continue; // The picker skips single-choice levels.
+          await tester.tap(row.last);
+          await tester.pumpAndSettle();
+        }
+        await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
+        await tester.pumpAndSettle();
+        return result;
+      }
+
+      testWidgets('rebuilds the pending change for the merged range', (WidgetTester tester) async {
+        final result = await narrowThenMerge(tester);
+
+        // The catalog's 0..20 is adopted, which is the saved range again.
+        final saved = await saveForm(tester, result);
+        expect((saved.value.adjustments.firstWhere((a) => a.id == 'rebound') as StepAdjustment).max, 20);
+        expect(saved.migrations, isEmpty);
+      });
+
+      testWidgets('UNDO restores the pending change', (WidgetTester tester) async {
+        final result = await narrowThenMerge(tester);
+        await tester.tap(find.text('UNDO'));
+        await tester.pumpAndSettle();
+
+        final migration = (await saveForm(tester, result)).migrations.single;
+        expect(migration.apply(const StepValue(20)), const StepValue(10));
+      });
     });
   });
 

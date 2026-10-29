@@ -21,19 +21,28 @@ class ResolvedPreset {
   /// value is always present, so it is never asked for and is persisted anyway.
   final Map<String, OptionValue> selections;
 
-  const ResolvedPreset._(this.catalog, this.path, this.selections);
+  /// The exact model year the rider named, always within the node's years.
+  final int? year;
+
+  const ResolvedPreset._(this.catalog, this.path, this.selections, this.year);
 
   factory ResolvedPreset({
     required BrandCatalog catalog,
     required List<CatalogNode> path,
     Map<String, OptionValue> selections = const {},
+    int? year,
   }) {
     final node = path.last;
-    return ResolvedPreset._(catalog, path, {
-      if (node is CatalogProduct)
-        for (final axis in node.options.values)
-          axis.id: ?(axis.values.length == 1 ? axis.values.single : selections[axis.id]),
-    });
+    return ResolvedPreset._(
+      catalog,
+      path,
+      {
+        if (node is CatalogProduct)
+          for (final axis in node.options.values)
+            axis.id: ?(axis.values.length == 1 ? axis.values.single : selections[axis.id]),
+      },
+      year != null && (node.years?.contains(year) ?? false) ? year : null,
+    );
   }
 
   CatalogNode get node => path.last;
@@ -67,6 +76,13 @@ class ResolvedPreset {
       if (!axis.required && axis.values.length > 1) axis,
   ];
 
+  bool get hasOptionalDetails => optionalAxes.isNotEmpty || selectableYears.isNotEmpty;
+
+  List<int> get selectableYears {
+    final years = product?.years;
+    return years == null || years.first == years.last ? const [] : years.newestFirst;
+  }
+
   /// A copy with [value] chosen on [axis]; null clears the choice.
   ResolvedPreset select(OptionAxis axis, OptionValue? value) {
     final next = {...selections};
@@ -75,8 +91,11 @@ class ResolvedPreset {
     } else {
       next[axis.id] = value;
     }
-    return ResolvedPreset(catalog: catalog, path: path, selections: next);
+    return ResolvedPreset(catalog: catalog, path: path, selections: next, year: year);
   }
+
+  ResolvedPreset withYear(int? year) =>
+      ResolvedPreset(catalog: catalog, path: path, selections: selections, year: year);
 }
 
 /// Every product of [catalog] in authored order, draft ones included.
@@ -101,7 +120,10 @@ Iterable<ResolvedPreset> catalogProducts(BrandCatalog catalog) {
 /// Walks the tree one level per step and stops at the deepest node that still
 /// matches, so a map that is short, or whose deeper entries were retired from
 /// the data, resolves as far as it can. Entries that match nothing are ignored.
-/// Null when not even the first level matches.
+/// A path covered by the catalog's `moved:` redirects is first rewritten to its
+/// new place. A model year outside the years of a matched node moves the match
+/// to the sibling whose years contain it, as after a generation split. Null
+/// when not even the first level matches.
 ResolvedPreset? resolvePreset(Iterable<BrandCatalog> catalogs, ComponentPreset preset) {
   final catalog = catalogs.firstWhereOrNull(
     (catalog) => preset.brand == catalog.id && preset.componentType == catalog.componentType,
@@ -110,11 +132,19 @@ ResolvedPreset? resolvePreset(Iterable<BrandCatalog> catalogs, ComponentPreset p
 
   final path = <CatalogNode>[];
   List<CatalogNode>? siblings = catalog.nodes;
+  // A restructured path is walked by node id: its level names are those of the
+  // old tree.
+  final moved = catalog.redirect(preset.nodeIds);
+  var depth = 0;
   while (siblings != null) {
-    final node = siblings.firstWhereOrNull((node) => preset[node.level] == node.id);
-    if (node == null) break;
+    final matched = siblings.firstWhereOrNull(
+      (node) => moved == null ? preset[node.level] == node.id : depth < moved.length && moved[depth] == node.id,
+    );
+    if (matched == null) break;
+    final node = _siblingForYear(siblings, matched, preset.year);
     path.add(node);
     siblings = node is CatalogGroup ? node.children : null;
+    depth++;
   }
   if (path.isEmpty) return null;
 
@@ -127,14 +157,25 @@ ResolvedPreset? resolvePreset(Iterable<BrandCatalog> catalogs, ComponentPreset p
         for (final axis in node.options.values)
           axis.id: ?axis.values.firstWhereOrNull((value) => value.id == preset[axis.id]),
     },
+    year: preset.year,
   );
 }
 
+/// [node], or the one of [siblings] whose years contain [year] when [node]'s
+/// do not; [node] again when none does.
+CatalogNode _siblingForYear(List<CatalogNode> siblings, CatalogNode node, int? year) {
+  final years = node.years;
+  if (year == null || years == null || years.contains(year)) return node;
+  return siblings.firstWhereOrNull((sibling) => sibling.years?.contains(year) ?? false) ?? node;
+}
+
 /// What a component persists for [resolved]: one entry per tree level and one
-/// per chosen option. An option the user skipped is absent.
+/// per chosen option, plus the brand file's revision. An option the user
+/// skipped is absent.
 ComponentPreset toComponentPreset(ResolvedPreset resolved) => ComponentPreset({
   ComponentPreset.brandKey: resolved.catalog.id,
   ComponentPreset.componentTypeKey: resolved.catalog.componentType.name,
   for (final node in resolved.path) node.level: node.id,
+  ComponentPreset.yearKey: ?resolved.year,
   for (final MapEntry(key: axisId, :value) in resolved.selections.entries) axisId: value.id,
-});
+}).withRevision(resolved.catalog.revision);

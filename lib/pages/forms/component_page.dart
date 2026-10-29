@@ -21,11 +21,14 @@ import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/catalog_revisions.dart';
 import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../utils/preset_merge.dart';
+import '../../utils/value_migration_actions.dart';
+import '../../utils/value_migration_proposal.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/dialogs/apply_preset_adjustments.dart';
@@ -41,6 +44,7 @@ import '../../widgets/sheets/component_type_picker.dart';
 import '../../widgets/sheets/preset_merge_sheet.dart';
 import '../../widgets/sheets/set_initial_stats.dart';
 import '../../widgets/text/section_title.dart';
+import '../../widgets/year_badge.dart';
 import '../adjustment/boolean_adjustment_page.dart';
 import '../adjustment/categorical_adjustment_page.dart';
 import '../adjustment/duration_adjustment_page.dart';
@@ -91,7 +95,10 @@ class _ComponentPageState extends State<ComponentPage> {
   late TextEditingController _notesController;
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  final Map<String, ValueUnitConversion> _pendingConversions = {};
+  final Map<String, MigrationProposal> _pendingMigrations = {};
+  late final Map<String, Adjustment> _savedAdjustments = widget.mode == ComponentPageMode.edit
+      ? {for (final a in widget.component!.adjustments) a.id: a}
+      : const <String, Adjustment>{};
   late List<Installation> _installations;
   late ComponentType? _componentType;
   late ComponentType? _initialComponentType;
@@ -100,6 +107,7 @@ class _ComponentPageState extends State<ComponentPage> {
   bool _expanded = false;
   ComponentPreset? _preset;
   ResolvedPreset? _resolvedPreset;
+  ComponentPreset? _unresolvedPreset;
   Set<String> _presetAdjustmentIds = {};
   String? _appendedPresetNotes;
 
@@ -221,10 +229,16 @@ class _ComponentPageState extends State<ComponentPage> {
   Future<void> _loadAppliedPreset(ComponentPreset preset) async {
     try {
       final resolved = await context.read<ComponentCatalogRepository>().resolve(preset);
-      if (!mounted || resolved == null || _preset != preset) return;
-      setState(() => _resolvedPreset = resolved);
+      if (!mounted || _preset != preset) return;
+      setState(() {
+        if (resolved == null) {
+          _unresolvedPreset = preset;
+        } else {
+          _resolvedPreset = resolved;
+        }
+      });
     } catch (_) {
-      // Provenance display is optional; an unresolvable preset just shows nothing.
+      if (mounted && _preset == preset) setState(() => _unresolvedPreset = preset);
     }
   }
 
@@ -314,21 +328,19 @@ class _ComponentPageState extends State<ComponentPage> {
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
         final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a),
-        final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, componentType: _componentType),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, componentType: _componentType, enableSagConversion: true),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, migrationContext: _migrationContext(a.id)),
+        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, migrationContext: _migrationContext(a.id)),
+        final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, componentType: _componentType, migrationContext: _migrationContext(a.id)),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, componentType: _componentType, enableSagConversion: true, migrationContext: _migrationContext(a.id)),
         final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
+        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, migrationContext: _migrationContext(a.id)),
       }),
     );
     if (result == null) return;
     final Adjustment editedAdjustment;
-    if (result is EditResult<Adjustment>) {
+    if (result is AdjustmentEditResult<Adjustment>) {
       editedAdjustment = result.value;
-      for (final conversion in result.conversions) {
-        _stageConversion(conversion);
-      }
+      _stagePending(editedAdjustment.id, result.pending);
     } else {
       editedAdjustment = result as Adjustment;
     }
@@ -342,13 +354,16 @@ class _ComponentPageState extends State<ComponentPage> {
     onChanged?.call();
   }
 
-  void _stageConversion(ValueUnitConversion conversion) {
-    final existing = _pendingConversions[conversion.adjustmentId];
-    final composed = existing == null ? conversion : existing.composeWith(conversion);
-    if (composed.isNoOp) {
-      _pendingConversions.remove(conversion.adjustmentId);
+  ValueMigrationContext? _migrationContext(String id) =>
+      ValueMigrationContext.of(id, _savedAdjustments, _pendingMigrations);
+
+  /// A further edit's proposal replaces the earlier one: it already covers the
+  /// whole change from the saved definition.
+  void _stagePending(String id, MigrationProposal? pending) {
+    if (pending == null) {
+      _pendingMigrations.remove(id);
     } else {
-      _pendingConversions[conversion.adjustmentId] = composed;
+      _pendingMigrations[id] = pending;
     }
   }
 
@@ -373,7 +388,7 @@ class _ComponentPageState extends State<ComponentPage> {
 
   Future<void> removeAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
     setState(() => _adjustments.remove(adjustment));
-    _pendingConversions.remove(adjustment.id);
+    _pendingMigrations.remove(adjustment.id);
     _changeListener();
     onChanged?.call();
   }
@@ -391,9 +406,15 @@ class _ComponentPageState extends State<ComponentPage> {
       context: context,
       componentType: type,
       current: _resolvedPreset,
+      onEnterManually: _enterNameManually,
     );
     if (result == null || !mounted) return;
     await _applyPreset(result);
+  }
+
+  void _enterNameManually(String query) {
+    if (_nameController.text.trim().isEmpty) setState(() => _nameController.text = query);
+    _nameFocusNode.requestFocus();
   }
 
   /// [typedName] overrides the name UNDO restores: the autocomplete has already
@@ -443,21 +464,25 @@ class _ComponentPageState extends State<ComponentPage> {
   /// decides in the merge sheet whether saved adjustments merge with the catalog
   /// adjusters or are replaced; the name stays the user's and the preset notes
   /// are appended (a re-pick swaps the block the previous pick appended).
-  Future<void> _extendFromPreset(ResolvedPreset resolved, CatalogApplication app) async {
+  /// [adjustments] stands in for the current list, e.g. with catalog fixes applied.
+  Future<void> _extendFromPreset(ResolvedPreset resolved, CatalogApplication app, {List<Adjustment>? adjustments}) async {
     // Only what an earlier pick in this session added is dropped — it was never saved.
-    final kept = _adjustments.where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
-    var merge = applyPresetMerge(kept, [for (final a in app.adjustments) PresetMergeRow.newAdjustment(a)], const {});
+    final kept = (adjustments ?? _adjustments).where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
+    var merge = applyPresetMerge(
+      kept,
+      [for (final a in app.adjustments) PresetMergeRow.newAdjustment(a)],
+      const {},
+      unknownMaxKeys: app.unknownMaxKeys,
+    );
     if (kept.isNotEmpty) {
-      final recordedValues = convertRecordedValues(
-        context.read<AppRepository>().recordedAdjustmentValues({for (final a in kept) a.id}),
-        _pendingConversions,
-      );
+      final recordedValues = _recordedValues(kept);
       final confirmed = await showPresetMergeSheet(
         context,
         productName: app.name,
         existing: kept,
         proposal: proposePresetMerge(kept, app.adjustments),
         recordedValues: recordedValues,
+        unknownMaxKeys: app.unknownMaxKeys,
       );
       if (confirmed == null || !mounted) return;
       merge = confirmed;
@@ -479,6 +504,14 @@ class _ComponentPageState extends State<ComponentPage> {
       _resolvedPreset = resolved;
       _presetAdjustmentIds = {for (final a in added) a.id};
       _adjustments = merge.adjustments;
+      // A pending proposal follows its adjustment into the merged definition.
+      final pending = {
+        for (final adjustment in merge.adjustments)
+          if (_pendingMigrations[adjustment.id] case final proposal?) adjustment.id: proposal.rebuild(after: adjustment),
+      };
+      _pendingMigrations
+        ..clear()
+        ..addAll(pending);
     });
     _adjustmentsFieldNotify?.call();
     _changeListener();
@@ -493,14 +526,63 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
-  void _unlinkPreset() {
+  /// Reviews a saved component has not accepted or dismissed yet.
+  List<CatalogReview> get _pendingReviews {
+    final preset = _preset;
     final resolved = _resolvedPreset;
-    if (resolved == null) return;
+    if (widget.mode != ComponentPageMode.edit || preset == null || resolved == null) return const [];
+    return pendingCatalogReviews(resolved, preset.revision);
+  }
+
+  /// Fixes the startup migration has not applied yet are applied first, as
+  /// accepting moves the component past them.
+  List<Adjustment> _withCatalogFixes(ResolvedPreset resolved, ComponentPreset preset) => applyCatalogFixes(
+    _adjustments,
+    resolved,
+    catalogChangesSince(resolved, preset.revision),
+    _recordedValues(_adjustments),
+  );
+
+  /// The values recorded for [adjustments] as they will be stored once the
+  /// staged edits are saved.
+  Map<String, List<AdjustmentValue>> _recordedValues(Iterable<Adjustment> adjustments) => migrateRecordedValues(
+    context.read<AppRepository>().recordedAdjustmentValues({for (final a in adjustments) a.id}),
+    {for (final MapEntry(:key, :value) in _pendingMigrations.entries) key: value.toMigration()},
+  );
+
+  Future<void> _reviewCatalogUpdate() async {
+    final preset = _preset;
+    final resolved = _resolvedPreset;
+    if (preset == null || resolved == null) return;
+    await _extendFromPreset(
+      resolved,
+      buildCatalogApplication(resolved),
+      adjustments: _withCatalogFixes(resolved, preset),
+    );
+  }
+
+  void _dismissCatalogUpdate() {
+    final preset = _preset;
+    final resolved = _resolvedPreset;
+    if (preset == null || resolved == null) return;
+    final snapshot = _snapshot();
+    setState(() {
+      _adjustments = _withCatalogFixes(resolved, preset);
+      _preset = preset.withRevision(resolved.catalog.revision);
+    });
+    _adjustmentsFieldNotify?.call();
+    _changeListener();
+    _showPresetUndoSnackBar('Catalog update dismissed', snapshot);
+  }
+
+  void _unlinkPreset() {
+    if (_preset == null) return;
+    final resolved = _resolvedPreset;
     final snapshot = _snapshot();
     setState(_clearPresetLink);
     _changeListener();
     _showPresetUndoSnackBar(
-      'Unlinked from ${presetDisplayName(resolved)} — values kept',
+      'Unlinked from ${resolved == null ? 'catalog' : presetDisplayName(resolved)} — values kept',
       snapshot,
     );
   }
@@ -519,6 +601,7 @@ class _ComponentPageState extends State<ComponentPage> {
         notes: _notesController.text,
         componentType: _componentType,
         adjustments: List.of(_adjustments),
+        pendingMigrations: Map.of(_pendingMigrations),
         lastPresetAdjustments: _lastPresetAdjustments,
         presetAdjustmentIds: _presetAdjustmentIds,
         appendedPresetNotes: _appendedPresetNotes,
@@ -533,6 +616,9 @@ class _ComponentPageState extends State<ComponentPage> {
       _notesController.text = snapshot.notes;
       _componentType = snapshot.componentType;
       _adjustments = List.of(snapshot.adjustments);
+      _pendingMigrations
+        ..clear()
+        ..addAll(snapshot.pendingMigrations);
       _lastPresetAdjustments = snapshot.lastPresetAdjustments;
       _presetAdjustmentIds = snapshot.presetAdjustmentIds;
       _appendedPresetNotes = snapshot.appendedPresetNotes;
@@ -588,7 +674,7 @@ class _ComponentPageState extends State<ComponentPage> {
     Navigator.pop(
       context,
       widget.mode == ComponentPageMode.edit
-          ? EditResult<Component>(component, conversions: _pendingConversions.values.toList())
+          ? EditResult<Component>(component, migrations: pendingValueMigrations(_pendingMigrations))
           : component,
     );
   }
@@ -622,7 +708,11 @@ class _ComponentPageState extends State<ComponentPage> {
       optionsBuilder: (TextEditingValue value) {
         final index = _presetIndex;
         if (index == null) return const Iterable<ResolvedPreset>.empty();
-        return suggestPresets(index, value.text);
+        final type = _componentType;
+        return suggestPresets(
+          type == null ? index : index.where((product) => product.catalog.componentType == type).toList(),
+          value.text,
+        );
       },
       displayStringForOption: presetDisplayName,
       onSelected: (suggestion) {
@@ -636,6 +726,12 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
+  String? _nameTip() => switch (_componentType) {
+    null || ComponentType.fork => "Tip: type a product name — e.g. 'Fox 38'",
+    ComponentType.shock => "Tip: type a product name — e.g. 'Fox Float X'",
+    _ => null,
+  };
+
   Widget _nameTextField({required bool presetsEnabled, VoidCallback? onFieldSubmitted}) {
     return TextFormField(
       controller: _nameController,
@@ -644,13 +740,14 @@ class _ComponentPageState extends State<ComponentPage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (value) => setState(() => _typedName = value), // see filled/fillColor
       onFieldSubmitted: (_) => onFieldSubmitted?.call(),
+      // Touch outside keeps focus by default on mobile, which would leave the
+      // suggestions open; tapping a suggestion is inside the field's region.
+      onTapOutside: (_) => _nameFocusNode.unfocus(),
       decoration: InputDecoration(
         labelText: 'Component Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter component name',
-        helperText: presetsEnabled && _nameController.text.trim().isEmpty
-            ? "Tip: type a product name — e.g. 'Fox 38'"
-            : null,
+        helperText: presetsEnabled && _nameController.text.trim().isEmpty ? _nameTip() : null,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
       ),
@@ -686,11 +783,19 @@ class _ComponentPageState extends State<ComponentPage> {
                 final suggestion = options[i];
                 final subtitle = presetSuggestionSubtitle(suggestion);
                 final yearRange = suggestion.node.years;
+                final current = _resolvedPreset;
+                final selected = current != null && suggestionMatches(suggestion, current);
                 return ListTile(
                   dense: true,
-                  title: Text(presetDisplayName(suggestion)),
+                  title: Text(
+                    presetDisplayName(suggestion),
+                    style: selected ? const TextStyle(fontWeight: FontWeight.w600) : null,
+                  ),
                   subtitle: subtitle == null ? null : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  trailing: yearRange == null || yearRange.isEmpty ? null : _PresetYearBadge(yearRange),
+                  trailing: yearRange == null ? null : YearBadge(yearRange),
+                  selected: selected,
+                  selectedColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  selectedTileColor: Theme.of(context).colorScheme.secondaryContainer,
                   onTap: () => onSelected(suggestion),
                 );
               },
@@ -785,7 +890,8 @@ class _ComponentPageState extends State<ComponentPage> {
     setState(() {
       _componentType = picked;
       // A fork preset link is meaningless on a shock; the prefilled values stay.
-      if (_resolvedPreset != null && _resolvedPreset!.catalog.componentType != picked) _clearPresetLink();
+      // Read from the stored link, which is there before (or without) resolving.
+      if (_preset != null && _preset!.componentType != picked) _clearPresetLink();
     });
     field.didChange(picked);
     _changeListener();
@@ -994,8 +1100,12 @@ class _ComponentPageState extends State<ComponentPage> {
                             componentType: _componentType!,
                             onTap: _openPresetPicker,
                             applied: _resolvedPreset,
+                            unresolved: _preset != null && _preset == _unresolvedPreset,
                             onUnlink: _unlinkPreset,
                             showGuideHint: appSettings.enableSetupGuides,
+                            updates: _pendingReviews,
+                            onReviewUpdate: _reviewCatalogUpdate,
+                            onDismissUpdate: _dismissCatalogUpdate,
                           ),
                           const SizedBox(height: 12),
                         ],
@@ -1140,6 +1250,7 @@ class _ComponentPageState extends State<ComponentPage> {
                                     initialAdjustments: widget.mode == ComponentPageMode.edit
                                         ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a)))
                                         : null,
+                                    pendingMigrations: _pendingMigrations,
                                     editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
                                     duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
                                     removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
@@ -1196,6 +1307,7 @@ class _PresetSnapshot {
   final String notes;
   final ComponentType? componentType;
   final List<Adjustment> adjustments;
+  final Map<String, MigrationProposal> pendingMigrations;
   final List<Adjustment>? lastPresetAdjustments;
   final Set<String> presetAdjustmentIds;
   final String? appendedPresetNotes;
@@ -1208,6 +1320,7 @@ class _PresetSnapshot {
     required this.notes,
     required this.componentType,
     required this.adjustments,
+    required this.pendingMigrations,
     required this.lastPresetAdjustments,
     required this.presetAdjustmentIds,
     required this.appendedPresetNotes,
@@ -1215,32 +1328,4 @@ class _PresetSnapshot {
     required this.resolvedPreset,
     required this.expanded,
   });
-}
-
-/// Small year-range chip for autocomplete suggestion rows (mirrors the picker's
-/// year badge).
-class _PresetYearBadge extends StatelessWidget {
-  final String text;
-
-  const _PresetYearBadge(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: colors.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
 }

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
-import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -178,23 +177,6 @@ void main() {
       expect(setup.bikeAdjustmentValues['cat'], CategoricalValue(const ['Front']));
       expect(setup.personAdjustmentValues['weight'], isA<NumericalValue>());
     });
-
-    test('RatingEntry.fromJson decodes metric values by type', () {
-      final entry = RatingEntry.fromJson(
-        json: const {
-          'version': 1,
-          'id': 'r1',
-          'bike': 'b1',
-          'setupId': 's1',
-          'dateTimeUTC': '2026-09-27T09:00:00.000Z',
-          'metricValues': {'comment': '0:10:00', 'score': 4},
-        },
-        metricTypes: const {'comment': AdjustmentType.text, 'score': AdjustmentType.numerical},
-      );
-
-      expect(entry.metricValues['comment'], TextValue.orNull('0:10:00'));
-      expect(entry.metricValues['score'], const NumericalValue(4.0));
-    });
   });
 
   group('Setup attachments', () {
@@ -211,7 +193,7 @@ void main() {
       attachments: attachments,
     );
 
-    test('round-trip through version 8 json in order', () {
+    test('round-trip through version 9 json in order', () {
       final original = setup(
         attachments: [
           Attachment(id: 'b', extension: '.pdf', name: 'Fox 38 Service Manual'),
@@ -219,7 +201,7 @@ void main() {
         ],
       );
       final json = jsonDecode(jsonEncode(original.toJson())) as Map<String, dynamic>;
-      expect(json['version'], 8);
+      expect(json['version'], 9);
       expect(json.containsKey('images'), isFalse);
 
       final restored = Setup.fromJson(json: json, adjustmentTypes: const {});
@@ -240,6 +222,82 @@ void main() {
       final copy = setup(attachments: attachments).deepCopy();
       expect(copy.attachments, attachments);
       expect(identical(copy.attachments, attachments), isFalse);
+    });
+  });
+
+  group('Setup test session', () {
+    Setup setup({String? testSessionId}) => Setup(
+      id: 's1',
+      lastModified: DateTime.utc(2026, 10, 1, 10),
+      datetime: DateTime.utc(2026, 10, 1, 9),
+      datetimeLocal: DateTime(2026, 10, 1, 11),
+      tags: const {},
+      bike: 'b1',
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      testSessionId: testSessionId,
+    );
+
+    test('round-trips through version 9 json', () {
+      final original = setup(testSessionId: 'session1');
+      final json = jsonDecode(jsonEncode(original.toJson())) as Map<String, dynamic>;
+      expect(json['testSessionId'], 'session1');
+      expect(Setup.fromJson(json: json, adjustmentTypes: const {}), original);
+    });
+
+    test('older versions have no test session', () {
+      final json = setup().toJson()
+        ..['version'] = 8
+        ..remove('testSessionId');
+      expect(Setup.fromJson(json: json, adjustmentTypes: const {}).testSessionId, isNull);
+    });
+
+    test('copyWith sets and clears it', () {
+      final run = setup().copyWith(testSessionId: 'session1');
+      expect(run.testSessionId, 'session1');
+      expect(run.copyWith(name: 'Run 2').testSessionId, 'session1');
+      expect(run.copyWith(testSessionId: null).testSessionId, isNull);
+    });
+
+    test('deepCopy clears it', () {
+      expect(setup(testSessionId: 'session1').deepCopy().testSessionId, isNull);
+    });
+  });
+
+  group('Setup source', () {
+    final copy = Setup(
+      id: 's2',
+      lastModified: DateTime.utc(2026, 10, 1, 10),
+      datetime: DateTime.utc(2026, 10, 1, 9),
+      datetimeLocal: DateTime(2026, 10, 1, 11),
+      tags: const {},
+      bike: 'b1',
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      sourceSetupId: 's1',
+      sourceKind: SetupSourceKind.restore,
+    );
+
+    test('round-trips through json', () {
+      final json = jsonDecode(jsonEncode(copy.toJson())) as Map<String, dynamic>;
+      expect(json['sourceSetupId'], 's1');
+      expect(json['sourceKind'], 'restore');
+      expect(Setup.fromJson(json: json, adjustmentTypes: const {}), copy);
+    });
+
+    test('an unknown kind from a newer app is dropped, the source kept', () {
+      final json = copy.toJson()..['sourceKind'] = 'somethingNew';
+      final decoded = Setup.fromJson(json: json, adjustmentTypes: const {});
+      expect(decoded.sourceSetupId, 's1');
+      expect(decoded.sourceKind, isNull);
+    });
+
+    test('is part of equality, and deepCopy clears it', () {
+      expect(copy, isNot(copy.copyWith(sourceKind: SetupSourceKind.testSessionRun)));
+      expect(copy.deepCopy().sourceSetupId, isNull);
+      expect(copy.deepCopy().sourceKind, isNull);
     });
   });
 }

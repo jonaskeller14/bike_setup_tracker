@@ -1,30 +1,29 @@
-# Demo: give a new bike its fork, with Pressure and Rebound from the
-# suggestions for the type. The name comes last: returning from an adjustment
-# page refocuses the name field, which would bring the keyboard back up.
+# scenario: one_bike_no_components
+# Demo: give the Hightower, which has no components yet, its fork, with
+# Pressure and Rebound from the suggestions for the type. The name comes last:
+# returning from an adjustment page refocuses the name field, which would bring
+# the keyboard back up.
 appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
+# Without components the app opens on the garage, but only as the default
+# tab, which turns to the setups once a component exists. Picking the tab
+# keeps the garage on screen after saving.
+- tapOn:
+    id: nav.setups
 - tapOn:
     id: nav.bikes
-- tapOn:
-    id: garage.addBike
-- waitForAnimationToEnd:
-    timeout: 3000
-- inputText: Yeti SB160
-- pressKey: Enter
 - waitForAnimationToEnd:
     timeout: 5000
 - startRecording: demo_add_component
 - runFlow:
     file: _pause.yaml
     env:
-      MS: 1000
+      MS: 1500
 
-# New bikes get orderIndex 0, like the seeded Hightower, and sort right after
-# it: the second add-component button is the new bike's.
+# Santa Cruz Hightower
 - tapOn:
-    id: garage\.addComponent\..*
-    index: 1
+    id: garage.addComponent.93f93d45-3a56-43ae-8936-5cfcbd768c9b
 - tapOn:
     id: componentForm.type
 - tapOn:
@@ -60,13 +59,13 @@ appId: ${APP_ID}
 # Typing while the keyboard slides in can double the first letter.
 - waitForAnimationToEnd:
     timeout: 3000
-- inputText: Fox 38 Factory
+- inputText: RockShox Lyrik Ultimate
 - runFlow: _hide_keyboard_android.yaml
 - runFlow:
     file: _pause.yaml
     env:
       MS: 1000
-# Back in the garage with the fork on the new bike.
+# Back in the garage with the fork on the bike.
 - tapOn:
     id: componentForm.save
 - runFlow:

@@ -18,7 +18,6 @@ class FilterSheetChip extends StatelessWidget {
     FilterSection.timelineLayers,
   });
   static const personList = FilterSheetChip._({FilterSection.bike});
-  static const ratingList = FilterSheetChip._({FilterSection.bike});
   static const taskList = FilterSheetChip._({FilterSection.bike, FilterSection.taskPriority, FilterSection.taskTags});
   static const map = FilterSheetChip._({
     FilterSection.bike,

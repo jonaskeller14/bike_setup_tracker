@@ -1,0 +1,1 @@
+Link every setup to the Strava ride you actually rode. See setups and rides on one map, and track distance per component.

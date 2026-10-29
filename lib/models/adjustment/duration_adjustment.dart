@@ -50,9 +50,9 @@ class DurationAdjustment extends Adjustment {
   }
 
   @override
-  bool isValidValue(AdjustmentValue value) {
-    return value is DurationValue && (min == null || value.value.compareTo(min!) >= 0) && (max == null || value.value.compareTo(max!) <= 0);
-  }
+  bool isValidValue(AdjustmentValue value) => range.contains(value);
+
+  DurationRange get range => DurationRange(min, max);
 
   @override
   Map<String, dynamic> toJson() => {

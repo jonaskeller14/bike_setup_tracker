@@ -23,8 +23,10 @@ import 'repositories/component_catalog_repository.dart';
 import 'repositories/filter_persistence.dart';
 import 'services/app_hint_service.dart';
 import 'services/backup_service.dart';
+import 'services/catalog_migration_service.dart';
 import 'services/database_migration_service.dart';
 import 'services/deep_link_service.dart';
+import 'services/error_reporter.dart';
 import 'services/google_drive_service.dart';
 import 'services/navigation_service.dart';
 import 'services/notification_service.dart';
@@ -104,19 +106,7 @@ void configureSystemChrome() {
   );
 }
 
-typedef BootErrorReporter = void Function(Object error, StackTrace stack, {required String reason});
-
-void _reportBootErrorToCrashlytics(Object error, StackTrace stack, {required String reason}) {
-  unawaited(
-    FirebaseCrashlytics.instance.recordError(error, stack, reason: reason, fatal: false),
-  );
-}
-
-/// Startup failures never reach the global handlers: [LoadingGate] catches them
-/// to show [LoadingErrorPage] or to degrade silently, so they must be reported
-/// explicitly. Overridable for tests and the screenshot entry point, which
-/// run without Firebase.
-BootErrorReporter recordBootError = _reportBootErrorToCrashlytics;
+BootErrorReporter recordBootError = recordNonFatal;
 
 class LoadingGate extends StatefulWidget {
   final AppSettings appSettings;
@@ -142,6 +132,7 @@ class LoadingGate extends StatefulWidget {
 
 class _LoadingGateState extends State<LoadingGate> {
   late final Future<void> _initialization;
+  final _catalogRepository = ComponentCatalogRepository();
 
   @override
   void initState() {
@@ -164,6 +155,9 @@ class _LoadingGateState extends State<LoadingGate> {
         ),
       ]);
       await _restoreFilters();
+      if (widget.appSettings.enableComponentPresets) {
+        unawaited(CatalogMigrationService.run(widget.appRepository, _catalogRepository));
+      }
     } catch (e, s) {
       if (!kDebugMode) unawaited(FirebaseAnalytics.instance.logEvent(name: 'app_init_failed'));
       recordBootError(e, s, reason: 'App initialization failed');
@@ -238,7 +232,7 @@ class _LoadingGateState extends State<LoadingGate> {
               ChangeNotifierProvider<SetupActivityAnalysisService>(
                 create: (_) => SetupActivityAnalysisService(widget.appRepository.database),
               ),
-              Provider<ComponentCatalogRepository>(create: (_) => ComponentCatalogRepository()),
+              Provider<ComponentCatalogRepository>.value(value: _catalogRepository),
               ChangeNotifierProvider.value(value: widget.appSettings),
               ChangeNotifierProvider.value(value: widget.appRepository),
               ListenableProxyProvider2<AppRepository, AppSettings, AppHintService>(

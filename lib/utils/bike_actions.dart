@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
-import '../models/rating/rating_association.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
 import '../pages/forms/bike_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/delete_task_rules.dart';
+import '../widgets/sheets/set_bike_person.dart';
 import 'attachment_actions.dart';
 
 class BikeActions {
@@ -85,6 +84,53 @@ class BikeActions {
     return newBike;
   }
 
+  static Future<bool> setBikesPerson(BuildContext context, {required Iterable<String> bikeIds}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final bikes = bikeIds.map((id) => appRepository.bikes[id]).whereType<Bike>().toList();
+    if (bikes.isEmpty) return false;
+
+    final result = await showSetBikePersonSheet(
+      context: context,
+      bikePersons: bikes.map((bike) => bike.person).toList(),
+      persons: appRepository.persons,
+    );
+    if (result == null) return false;
+    final newPerson = result.person;
+
+    final bikesToUpdate = bikes.where((bike) => bike.person != newPerson).toList();
+    if (bikesToUpdate.isEmpty) return true;
+
+    final updatedBikes = bikesToUpdate.map((bike) => bike.copyWith(person: newPerson)).toList();
+    await appRepository.editBikes(updatedBikes);
+
+    if (!context.mounted) return true;
+    final personName = appRepository.persons[newPerson]?.name;
+    messenger.showSnackBar(
+      AppSnackBar.success(
+        context,
+        personName == null
+            ? Intl.plural(
+                updatedBikes.length,
+                one: "Rider removed from 1 Bike.",
+                other: "Rider removed from ${updatedBikes.length} Bikes.",
+              )
+            : Intl.plural(
+                updatedBikes.length,
+                one: "Rider set to '$personName' for 1 Bike.",
+                other: "Rider set to '$personName' for ${updatedBikes.length} Bikes.",
+              ),
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.editBikes(bikesToUpdate),
+        ),
+      ),
+    );
+    return true;
+  }
+
   static Future<void> removeBike(BuildContext context, {required Bike bike}) =>
       removeBikes(context, bikes: [bike]);
 
@@ -93,7 +139,6 @@ class BikeActions {
     if (bikeList.isEmpty) return;
 
     final appRepository = context.read<AppRepository>();
-    final appSettings = context.read<AppSettings>();
     final messenger = ScaffoldMessenger.of(context);
 
     final bikeIds = bikeList.map((bike) => bike.id).toSet();
@@ -101,12 +146,6 @@ class BikeActions {
       (component) => bikeIds.contains(appRepository.componentHierarchy.currentBike(component.id)),
     ).toList();
     final obsoleteSetups = appRepository.setups.values.where((s) => bikeIds.contains(s.bike)).toList();
-    final obsoleteRatings = appRepository.ratings.values
-        .where((r) => switch (r.association) {
-          BikeRatingAssociation(:final bikeId) => bikeIds.contains(bikeId),
-          _ => false,
-        })
-        .toList();
     final obsoleteComponentIds = obsoleteComponents.map((component) => component.id).toSet();
     final relatedTaskRules = appRepository.taskRules.values
         .where((rule) => switch (rule.association) {
@@ -127,7 +166,6 @@ class BikeActions {
     await appRepository.removeBikes(bikeList);
     await appRepository.removeComponents(obsoleteComponents);
     await appRepository.removeSetups(obsoleteSetups);
-    await appRepository.removeRatings(obsoleteRatings);
     await appRepository.removeTaskRules(selectedTaskRules);
     await appRepository.removeTaskEntries(obsoleteTaskEntries);
 
@@ -136,8 +174,6 @@ class BikeActions {
         Intl.plural(obsoleteComponents.length, one: '1 component', other: '${obsoleteComponents.length} components'),
       if (obsoleteSetups.isNotEmpty)
         Intl.plural(obsoleteSetups.length, one: '1 setup', other: '${obsoleteSetups.length} setups'),
-      if (appSettings.enableRating && obsoleteRatings.isNotEmpty)
-        Intl.plural(obsoleteRatings.length, one: '1 rating', other: '${obsoleteRatings.length} ratings'),
       if (selectedTaskRules.isNotEmpty)
         Intl.plural(
           selectedTaskRules.length,
@@ -170,7 +206,6 @@ class BikeActions {
             await appRepository.restoreBikes(bikeList);
             await appRepository.restoreComponents(obsoleteComponents);
             await appRepository.restoreSetups(obsoleteSetups);
-            await appRepository.restoreRatings(obsoleteRatings);
             await appRepository.restoreTaskRules(selectedTaskRules);
             await appRepository.restoreTaskEntries(obsoleteTaskEntries);
           },

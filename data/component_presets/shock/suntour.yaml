@@ -155,131 +155,147 @@ nodes:
   - label: "EDGE Evo"
     level: model
     category: XC / Trail
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
-    guide: suntour_shocks_my27
     specs: { spring: Air }
     tasks: &suntour_service
       shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual }
     children:
-      - label: 2CR
-        level: trim
-        mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
-        options:
-          damper: [edge_2cr]
-          size: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
-        note: Glide ring; air-volume-spacer spring-curve adjustment.
-      - label: R
-        level: trim
-        url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
-        mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: *air_spring
-        options:
-          damper: [edge_r]
-          size: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
-      - label: R-2CR
-        level: trim
-        url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-2CR-METRIC-8201.html
-        mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: *air_spring
-        options:
-          damper: [edge_evo_r_2cr]
-          size: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
-        note: Handlebar-remote compression lever.
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
+        guide: suntour_shocks_my27
+        children:
+          - label: 2CR
+            level: trim
+            mounts: [Metric, Trunnion, Standard eyelet]
+            adjustments: &air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+            options:
+              damper: [edge_2cr]
+              size: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+            note: Glide ring; air-volume-spacer spring-curve adjustment.
+          - label: R
+            level: trim
+            url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
+            mounts: [Metric, Trunnion, Standard eyelet]
+            adjustments: *air_spring
+            options:
+              damper: [edge_r]
+              size: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+          - label: R-2CR
+            level: trim
+            url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-2CR-METRIC-8201.html
+            mounts: [Metric, Trunnion, Standard eyelet]
+            adjustments: *air_spring
+            options:
+              damper: [edge_evo_r_2cr]
+              size: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+            note: Handlebar-remote compression lever.
 
   - label: "EDGE X"
     level: model
     category: Trail (eMTB, reinforced)
-    years: "2024-2026"
-    url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
-    guide: suntour_shocks_my27
     specs: { spring: Air }
     tasks: *suntour_service
     children:
-      - label: 2CR
-        level: trim
-        mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: *air_spring
-        options:
-          damper: [edge_2cr]
-          size: ["210x47.5/50/52.5/55", "190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
-        note: Reinforced/updated structure for demands of modern full-suspension e-MTBs.
-      - label: R
-        level: trim
-        url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-R-METRIC-8196.html
-        mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: *air_spring
-        options:
-          damper: [edge_r]
-          size: ["210x47.5/50/52.5/55", "190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
+        guide: suntour_shocks_my27
+        children:
+          - label: 2CR
+            level: trim
+            mounts: [Metric, Trunnion, Standard eyelet]
+            adjustments: *air_spring
+            options:
+              damper: [edge_2cr]
+              size: ["210x47.5/50/52.5/55", "190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
+            note: Reinforced/updated structure for demands of modern full-suspension e-MTBs.
+          - label: R
+            level: trim
+            url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-R-METRIC-8196.html
+            mounts: [Metric, Trunnion, Standard eyelet]
+            adjustments: *air_spring
+            options:
+              damper: [edge_r]
+              size: ["210x47.5/50/52.5/55", "190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
 
   - label: "TRIAIR2"
     level: model
     category: Enduro (eMTB)
-    years: "2024-2026"
-    url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-3CR-METRIC-8203.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
-    guide: suntour_shocks_my27
     specs: { spring: Air }
     tasks: *suntour_service
     children:
-      - label: 3CR
-        level: trim
-        mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: &triair2_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
-          - { name: Reservoir Pressure, type: numerical, unit: psi, min: 170, max: 200, notes: "Air-backed piggyback reservoir (IFP); ships at 180 psi" }
-        options:
-          damper: [triair2_3cr]
-          size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
-        note: Redesigned piggyback for better oil flow/clearance; air-backed IFP; volume-spacer spring-curve adjustment; glide ring.
-      - label: 2CR
-        level: trim
-        url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-2CR-METRIC-8205.html
-        mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: *triair2_air_spring
-        options:
-          damper: [triair2_2cr]
-          size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
-      - label: R
-        level: trim
-        url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-R-METRIC-8207.html
-        mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: *triair2_air_spring
-        options:
-          damper: [triair2_r]
-          size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+      - label: "2024–2026"
+        level: generation
+        id: "2024"
+        years: "2024-2026"
+        url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-3CR-METRIC-8203.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
+        guide: suntour_shocks_my27
+        children:
+          - label: 3CR
+            level: trim
+            mounts: [Metric, Trunnion, Standard eyelet]
+            adjustments: &triair2_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Reservoir Pressure, type: numerical, unit: psi, min: 170, max: 200, notes: "Air-backed piggyback reservoir (IFP); ships at 180 psi" }
+            options:
+              damper: [triair2_3cr]
+              size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+            note: Redesigned piggyback for better oil flow/clearance; air-backed IFP; volume-spacer spring-curve adjustment; glide ring.
+          - label: 2CR
+            level: trim
+            url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-2CR-METRIC-8205.html
+            mounts: [Metric, Trunnion, Standard eyelet]
+            adjustments: *triair2_air_spring
+            options:
+              damper: [triair2_2cr]
+              size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+          - label: R
+            level: trim
+            url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-R-METRIC-8207.html
+            mounts: [Metric, Trunnion, Standard eyelet]
+            adjustments: *triair2_air_spring
+            options:
+              damper: [triair2_r]
+              size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
 
   - label: "RAIDON"
     level: model
     category: XC / Trail
-    years: "2025-2026"
-    url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
-    guide: suntour_shocks_my27
     specs: { spring: Air }
     tasks: *suntour_service
     children:
-      - label: R
-        level: trim
-        draft: true
-        mounts: [Metric, Standard eyelet]
-        adjustments: *air_spring
-        options:
-          damper: [raidon_shock_r]
-          size: ["190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
-      - label: LO
-        level: trim
-        url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-LO-METRIC-8156.html
-        mounts: [Metric, Standard eyelet]
-        adjustments: *air_spring
-        options:
-          damper: [raidon_shock_lo]
-          size: ["190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
+      - label: "2025–2026"
+        level: generation
+        id: "2025"
+        years: "2025-2026"
+        url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
+        setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
+        guide: suntour_shocks_my27
+        children:
+          - label: R
+            level: trim
+            draft: true
+            mounts: [Metric, Standard eyelet]
+            adjustments: *air_spring
+            options:
+              damper: [raidon_shock_r]
+              size: ["190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
+          - label: LO
+            level: trim
+            url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-LO-METRIC-8156.html
+            mounts: [Metric, Standard eyelet]
+            adjustments: *air_spring
+            options:
+              damper: [raidon_shock_lo]
+              size: ["190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

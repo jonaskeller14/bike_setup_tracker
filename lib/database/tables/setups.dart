@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../models/setup.dart';
 import '../converters/attachment_list_converter.dart';
 import '../converters/context_position_converter.dart';
 import '../converters/local_floating_datetime_converter.dart';
@@ -35,6 +36,11 @@ class Setups extends Table {
   TextColumn get position => text().map(const ContextPositionConverter()).nullable()();
   TextColumn get place => text().map(const PlacemarkConverter()).nullable()();
   TextColumn get weather => text().map(const WeatherConverter()).nullable()();
+
+  TextColumn get testSessionId => text().nullable()();
+
+  TextColumn get sourceSetupId => text().nullable()();
+  TextColumn get sourceKind => textEnum<SetupSourceKind>().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

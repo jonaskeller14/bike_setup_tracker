@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/task/task_rule.dart';
 import '../pages/forms/task_rule_page.dart';
 import '../repositories/app_repository.dart';
+import '../utils/automation_ids.dart';
 import 'empty_state_placeholder2.dart';
 import 'items/task_rule_list_card.dart';
 
@@ -55,10 +56,13 @@ class OpenTasksTile extends StatelessWidget {
         backgroundColor: aggregatedStatus.getStatusColor(context),
         child: const Icon(Icons.checklist),
       ),
-      title: Text(
-        "Open Tasks",
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          fontWeight: FontWeight.bold,
+      title: Semantics(
+        identifier: AutomationIds.openTasks,
+        child: Text(
+          "Open Tasks",
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),

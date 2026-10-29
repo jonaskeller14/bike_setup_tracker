@@ -10,8 +10,6 @@ import '../running_badge.dart';
 import 'test_session_options_menu.dart';
 import 'tile_meta_row.dart';
 
-/// A test session as one list row: name, method, number of runs, whether it is
-/// still running, and its Edit / Remove menu.
 class TestSessionTile extends StatelessWidget {
   final TestSession session;
   final VoidCallback? onTap;

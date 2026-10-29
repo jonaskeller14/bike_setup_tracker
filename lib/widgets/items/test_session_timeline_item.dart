@@ -88,10 +88,9 @@ class TestSessionTimelineItem extends StatelessWidget {
         : items.sublist(0, visibleItems);
 
     final metadata = <Widget>[
-      if (!session.isRunning) const TileMetaRow(icon: Icons.stop_circle_outlined, text: 'Ended', muted: true),
-      TileMetaRow(icon: Icons.tune, text: TestSessionService.methodLabel(session.method), muted: true),
+      TileMetaRow(icon: Icons.psychology, text: TestSessionService.methodLabel(session.method), muted: true),
       TileMetaRow(
-        icon: Icons.directions_bike,
+        icon: Icons.repeat,
         text: Intl.plural(entry.runs.length, one: '1 run', other: '${entry.runs.length} runs'),
         muted: true,
       ),

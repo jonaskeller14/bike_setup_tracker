@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/feedback/ride_feedback.dart';
 import '../models/feedback/test_session.dart';
 import '../models/feedback/test_session_method.dart';
 import '../models/setup.dart';
@@ -22,7 +23,34 @@ import '../widgets/sheets/pick_setup.dart';
 import 'carry_over_actions.dart';
 import 'feedback_actions.dart';
 
+typedef SessionStep = ({String label, IconData icon, Future<void> Function(BuildContext context) run});
+
 class TestSessionActions {
+  /// The bike new setups and sessions land on: the first one in view.
+  static String? activeBikeId(AppRepository appRepository) {
+    if (appRepository.bikes.isEmpty) return null;
+    return appRepository.view.bikes.keys.firstOrNull ?? appRepository.bikes.keys.first;
+  }
+
+  /// What a button that adds a setup does instead while a session runs on the
+  /// active bike, so it never opens a different form than its label says. Null
+  /// without a running session.
+  static SessionStep? nextStepFor(AppRepository appRepository) {
+    final bikeId = activeBikeId(appRepository);
+    final session = bikeId == null ? null : appRepository.runningSessionFor(bikeId);
+    if (session == null) return null;
+
+    final latest = appRepository.setupsInSession(session.id).lastOrNull;
+    if (latest != null && appRepository.feedbacksForSetup(latest.id).isEmpty) {
+      return (
+        label: 'Add Feedback',
+        icon: RideFeedback.iconData,
+        run: (context) => addRunFeedback(context, session: session),
+      );
+    }
+    return (label: 'Next run', icon: Icons.add, run: (context) => addRun(context, session: session));
+  }
+
   /// Opens the create form, then the form of the first run: a copy of the
   /// bike's current setup (or of the first setup to compare), stamped now. The
   /// session is only recorded once its first run is saved.

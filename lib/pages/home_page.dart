@@ -128,8 +128,25 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _addSetupFab(AppRepository appRepository) {
+    final step = TestSessionActions.nextStepFor(appRepository);
+    final label = step?.label ?? 'Add Setup';
+
+    return FloatingActionButton.extended(
+      heroTag: "addSetup",
+      onPressed: () async {
+        await (step?.run(context) ?? SetupActions.addSetup(context));
+      },
+      tooltip: label,
+      isExtended: _setupListController.isNearTop,
+      extendedPadding: _setupListController.isNearTop ? null : const EdgeInsets.symmetric(horizontal: 16),
+      icon: Icon(step?.icon ?? Icons.add),
+      label: Text(label),
+    );
+  }
+
   Widget _testSessionFab(AppRepository appRepository) {
-    final bikeId = appRepository.view.bikes.keys.firstOrNull ?? appRepository.bikes.keys.firstOrNull;
+    final bikeId = TestSessionActions.activeBikeId(appRepository);
     final running = bikeId == null ? null : appRepository.runningSessionFor(bikeId);
     if (running != null) {
       final scheme = Theme.of(context).colorScheme;
@@ -516,18 +533,7 @@ class _HomePageState extends State<HomePage> {
                 child: AnimatedSize(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOutCubic,
-                  child: FloatingActionButton.extended(
-                    heroTag: "addSetup",
-                    onPressed: () async {
-                      await SetupActions.addSetup(context);
-                    },
-                    tooltip: 'Add Setup',
-                    isExtended: _setupListController.isNearTop,
-                    // Collapsed, the default asymmetric extended padding would leave it wider than a plain FAB.
-                    extendedPadding: _setupListController.isNearTop ? null : const EdgeInsets.symmetric(horizontal: 16),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Setup'),
-                  ),
+                  child: _addSetupFab(appRepository),
                 ),
               ),
             ],

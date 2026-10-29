@@ -548,17 +548,48 @@ void main() {
   });
 
   group('while a session runs on the bike', () {
-    testWidgets('a new setup is the next run', (tester) async {
+    testWidgets('adding a setup asks to end the session first instead of opening a run', (tester) async {
       await seed(tester, session: session(), runs: [run(1)]);
       await pumpButton(tester, (context) => SetupActions.addSetup(context));
 
+      expect(find.text('End the session first?'), findsOneWidget);
+      expect(find.text('Next Run'), findsNothing);
+      await tester.tap(find.text('Cancel'));
+      await settle(tester);
+
+      expect(find.byType(SetupPage), findsNothing);
+      expect(appRepository.runningSessionFor(_bikeId), isNotNull);
+    });
+
+    testWidgets('the next step is the next run once the latest run is rated', (tester) async {
+      await seed(tester, session: session(), runs: [run(1)]);
+
+      final step = TestSessionActions.nextStepFor(appRepository)!;
+      expect(step.label, 'Next run');
+
+      await pumpButton(tester, step.run);
       expect(find.text('Next Run'), findsOneWidget);
-      expect(find.text('Add Setup'), findsNothing);
+    });
+
+    testWidgets('the next step is feedback while the latest run is unrated', (tester) async {
+      await seed(tester, session: session(), runs: [run(1)], rated: false);
+
+      final step = TestSessionActions.nextStepFor(appRepository)!;
+      expect(step.label, 'Add Feedback');
+
+      await pumpButton(tester, step.run);
+      expect(find.byType(FeedbackPage), findsOneWidget);
+    });
+
+    testWidgets('there is no next step without a running session', (tester) async {
+      await seed(tester, session: session(ended: true), runs: [run(1)]);
+
+      expect(TestSessionActions.nextStepFor(appRepository), isNull);
     });
 
     testWidgets('an unrated latest run is rated first, even with an empty feedback', (tester) async {
       await seed(tester, session: session(), runs: [run(1)], rated: false);
-      await pumpButton(tester, (context) => SetupActions.addSetup(context));
+      await pumpButton(tester, (context) => TestSessionActions.addRun(context, session: session()));
 
       expect(find.byType(FeedbackPage), findsOneWidget);
       await tester.tap(find.byIcon(Icons.check));
@@ -572,7 +603,7 @@ void main() {
 
     testWidgets('backing out of the feedback keeps the session where it was', (tester) async {
       await seed(tester, session: session(), runs: [run(1)], rated: false);
-      await pumpButton(tester, (context) => SetupActions.addSetup(context));
+      await pumpButton(tester, (context) => TestSessionActions.addRun(context, session: session()));
 
       await tester.pageBack();
       await settle(tester);

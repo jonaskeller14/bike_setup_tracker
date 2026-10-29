@@ -56,13 +56,8 @@ class SetupActions {
       return;
     }
 
-    // While a session runs on the bike, a new setup is its next run.
-    final bikeId = initialBike?.id ?? appRepository.view.bikes.keys.firstOrNull ?? appRepository.bikes.keys.firstOrNull;
-    final running = bikeId == null ? null : appRepository.runningSessionFor(bikeId);
-    if (running != null) {
-      await TestSessionActions.addRun(context, session: running);
-      return;
-    }
+    final bikeId = initialBike?.id ?? TestSessionActions.activeBikeId(appRepository);
+    if (!await TestSessionActions.ensureNoRunningSession(context, bikeId: bikeId) || !context.mounted) return;
 
     final newSetup = await Navigator.push<Setup>(
       context,

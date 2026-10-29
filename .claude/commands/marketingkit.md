@@ -132,5 +132,7 @@ that now have a Short: delete their rows from `backlog.md`. Ask before staging o
 - Never post, upload, stage or commit. Never overwrite an existing recording or kit without asking.
 - Never put store numbers from `docs/marketing/metrics/` into any file, issue or post.
 - Never claim the app finds, recommends or tunes a setting (messaging.md, Is / is not).
-- No presets, ratings, pressure check, riders or bookmarks in any demo or post.
+- No ratings, pressure check, setup guides, riders or bookmarks in any demo or post. The fork and
+  shock catalog and suggested service tasks only from v1.6.4, and brand names only as
+  `channels.md` allows (plain text, disclaimer).
 - No Claude or Co-Authored-By attribution in anything written here.

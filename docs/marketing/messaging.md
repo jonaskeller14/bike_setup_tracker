@@ -25,9 +25,9 @@ finds, recommends or optimizes a setting; the rider does, the app remembers.
 
 | # | Pillar | Proof in the app | Flag state |
 |---|---|---|---|
-| R | **Remember what worked** | Setups with every fork, shock, tire and cockpit value; weather and location filled in automatically | Released |
+| R | **Remember what worked** | Setups with every fork, shock, tire and cockpit value; weather and location filled in automatically; a fork and shock catalog that fills in the click ranges | Released; the catalog from v1.6.4 |
 | C | **See what changed** | Setup history with `9 → 10` diffs, setup comparison, line and radial charts | Released |
-| S | **Service on time** | Tasks with date intervals; distance-based intervals and component km with Strava | Tasks are opt-in (Settings → Features); km needs Strava, the one paid add-on |
+| S | **Service on time** | Tasks with date intervals; distance-based intervals and component km with Strava; suggested service tasks with the manufacturer's intervals for catalog parts | Tasks are opt-in (Settings → Features); km needs Strava, the one paid add-on; suggestions from v1.6.4 |
 | D | **Your data stays yours** | No account, no ads, local database, export to Excel, CSV and JSON | Released |
 
 Content for S always carries "Switch it on under Settings → Features"; km-based service also
@@ -54,7 +54,7 @@ build.
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
   never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
-- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R12, C5–C8, S4–S6, D4, D5) open Shorts and
+- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16, R17, C5–C8, S4–S8, D4, D5) open Shorts and
   posts; store assets use statements.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
@@ -80,6 +80,11 @@ German riders, not translated word for word.
 | R10 | Which fork setup did you ride on that trip? | Mit welchem Gabel-Setup bist du den Trip gefahren? |
 | R11 | What saddle height did your bike fit give you? | Welche Sattelhöhe kam beim Bikefitting raus? |
 | R12 | Which bike are your pedals on right now? | An welchem Bike sind deine Pedale gerade? |
+| R13 | How many rebound clicks does your fork have? | Wie viele Zugstufen-Klicks hat deine Gabel? |
+| R14 | Which fork do you ride? | Welche Gabel fährst du? |
+| R15 | New fork? Every click range, filled in. | Neue Gabel? Alle Klickbereiche schon eingetragen. |
+| R16 | Thinking about upgrading your fork? | Überlegst du, deine Gabel aufzurüsten? |
+| R17 | Red dial or blue dial: which one was rebound? | Rotes oder blaues Rad: Welches war die Zugstufe? |
 
 ### C — See what changed
 
@@ -104,6 +109,8 @@ German riders, not translated word for word.
 | S4 | When did you last service your fork? | Wann war dein letzter Gabel-Service? |
 | S5 | What's due on your bike this week? | Was ist an deinem Bike diese Woche fällig? |
 | S6 | How many km has your chain done? | Wie viele Kilometer hat deine Kette schon? |
+| S7 | How often does your fork need a lower leg service? | Wie oft braucht deine Gabel einen Lower-Leg-Service? |
+| S8 | Off-season: what's due on your fork? | Winterpause: Was ist an deiner Gabel fällig? |
 
 ### D — Your data stays yours
 

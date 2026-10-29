@@ -122,7 +122,7 @@ Uppercase is only for labels. Arrows are the `→` glyph, tight to the numbers o
 | Search results asset | 3840×2560 | 200 px | Apple art safe area 836, 765, 2168×1030; the headline may reach past it (#69: the preview shows the full image) |
 | App Store header | 3840×1646 | — | 1097, 493, 1646×661: everything that matters; rules run full width |
 | Play feature graphic | 1024×500 | 120 px left and right | Text inside the central 784×400 |
-| Short frame / end card | 1080×1920 | 60 px | 60, 220, 960×1180, minus the action buttons at 920, 760, 160×640 (clear of the platforms' top bar, caption block and buttons). The brand row above it is decoration a top bar may cover |
+| Short frame / end card / 9:16 post | 1080×1920 | 60 px | 60, 220, 960×1180, minus the action buttons at 920, 760, 160×640 (clear of the platforms' top bar, caption block and buttons). The brand row above it is decoration a top bar may cover |
 | Post | 1080×1350 (4:5), 1080×1080 (1:1) | 72 px | Whole frame |
 | OG image | 1200×630 | 60 px | Whole frame |
 | Thumbnail | 1280×720 | 64 px | Bottom-right 220×80 is covered by the duration badge |

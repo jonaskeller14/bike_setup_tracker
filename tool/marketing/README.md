@@ -113,9 +113,10 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
   "gifs": ["clip", "…"],
   "web": ["clip", "…"],         // website loops, see the website repo's CLAUDE.md
   "images": {
-    // Slides: URL parameters of post_4x5.html (carousel) or post_1x1.html (square); {"kind": "endcard"} is the end card.
+    // Slides: URL parameters of post_4x5.html (carousel), post_1x1.html (square) or post_9x16.html (vertical); {"kind": "endcard"} is the end card.
     "carousel": [{ "kind": "cover|screen|changed|tip|release", "title": "…", "sub": "…", "shots": "04" }],
     "square": [ … ],
+    "vertical": [ … ],
     // banner.html at 1280×720, 1200×630, 1920×640.
     "thumbnail": { "title": "…", "shots": "04", "lift": "x,y,w,h", "dark": "" }, "og": { … }, "og_de": { … }, "forum_header": { … }
   },
@@ -295,6 +296,7 @@ header lists its parameters.
 | `endcard.html` | 1080×1920, 1920×1080, 1080×1350, 1080×1080 | End card of every video and the last slide |
 | `post_4x5.html` | 1080×1350 | Instagram carousel and feed: `cover`, `screen`, `changed`, `tip`, `release` |
 | `post_1x1.html` | 1080×1080 | YouTube community posts, X, Mastodon: the same kinds, the phone always whole |
+| `post_9x16.html` | 1080×1920 | TikTok photo mode, Instagram stories: the same kinds inside the Short's safe area |
 | `banner.html` | 1280×720, 1200×630, 1920×640 | Thumbnail v2 (`?dark`, `?lift=`, `?bg=`), OG image, forum header |
 | `channel_art.html` | 2560×1440, 800×800, 1080×1080 | YouTube banner, avatar, Instagram highlight cover |
 

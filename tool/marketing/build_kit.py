@@ -40,6 +40,7 @@ ENDCARD = f"{TEMPLATES}/endcard.html"
 POSTS_SLIDES = {
     "carousel": (f"{TEMPLATES}/post_4x5.html", (1080, 1350), "carousel"),
     "square": (f"{TEMPLATES}/post_1x1.html", (1080, 1080), "square"),
+    "vertical": (f"{TEMPLATES}/post_9x16.html", (1080, 1920), "vertical"),
 }
 # Kit key: (template, size, output file).
 BANNERS = {

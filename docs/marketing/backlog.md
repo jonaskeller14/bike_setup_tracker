@@ -13,8 +13,8 @@ Every topic carries a pillar and an audience from [`messaging.md`](messaging.md)
 
 **Pick rules.** Spread a batch over at least three pillars and two audiences. Check each topic
 against the latest release build before planning (`messaging.md`, Pillars; `channels.md`): demos
-show only shipped, release-build features, so no presets, ratings, pressure check, riders or
-bookmarks. A feature that is off by default carries "Switch it on under Settings → Features" in the
+show only shipped, release-build features, so no ratings, pressure check, setup guides, riders or
+bookmarks; the fork and shock catalog and suggested service tasks only from v1.6.4. A feature that is off by default carries "Switch it on under Settings → Features" in the
 post; Strava Sync is the only paid part and is named wherever a topic needs it.
 
 ## Ready: core features, free
@@ -29,6 +29,7 @@ post; Strava Sync is the only paid part and is named wherever a topic needs it.
 | Restore a deleted setup | D | MTB | new | Delete a setup, open the trash, restore it | Check the trash flow and its confirmation dialog |
 | New phone, same data | D | MTB | new | Share Data → JSON, then the import on a second install | Check the import flow exists in the release build before planning |
 | Bike details and component table | C | Maint | C4 | Bike details table and charts; component table with filter and column selection | Good long-form material, a lot to explain in a Short |
+| Edit an adjustment, your recorded values follow | C | MTB | new | Change an adjustment's range or steps: the value migration sheet with its before/after preview | Since v1.6.4. Advanced and mostly troubleshooting: low priority, better as a carousel tip than a Short. Needs a scenario with recorded values |
 | Add a missing component or adjustment from the setup page | R | MTB | new | — | v1.6.3 shows only an empty-state hint (`setup_page_tab_bike.dart`), no add flow. Check before planning |
 
 ## Ready: opt-in features (Settings → Features)
@@ -64,7 +65,7 @@ post; Strava Sync is the only paid part and is named wherever a topic needs it.
 | Topic | Shipped as | Notes |
 |---|---|---|
 | Pressure check | Not shipped (developer mode only) | Wait until released |
-| Component presets, task presets | Not shipped (developer mode only) | Wait until released. Content for them may be rendered now and held |
+| Setup guides | Not shipped (developer mode only) | Wait until released |
 
 ## Reminders
 

@@ -198,7 +198,7 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_tasks` | `tasks_one_due` | Ticking off the only due task: the "all caught up" placeholder, then the task in the completed section |
 | `demo_strava_distance` | `full` | Rides counted automatically: the chain's distance and rides, its distance-based task, then the bike's due "every 150 km" bolt check |
 
-- **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as the component preset catalog.
+- **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.
 - **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.
 - **Ending.** Flows end with `_stop_recording.yaml` instead of `stopRecording`. Both the Android encoder and the iOS Simulator keep the last frames before a still screen until the screen changes again, and `stopRecording` drops them, so a clip would end before its final transition. The subflow holds the screen, then presses *Volume Up* (Android) or *Home* (iOS). The volume panel or home animation that follows stays in the file; `tool/marketing/build_kit.py` cuts it off automatically. A tap can't do this: the status bar opens the notification shade, and an in-app tap depends on the page.
 - **Map tiles.** `demo_map` waits `TILE_WAIT_MS` before it starts recording, so the clip doesn't show tiles loading.

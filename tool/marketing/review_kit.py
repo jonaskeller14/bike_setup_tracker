@@ -184,7 +184,7 @@ class Review:
 
     def images(self):
         cards = []
-        for name in self.matching(r"[^/]+\.png|(carousel|square)/\d+\.png"):
+        for name in self.matching(r"[^/]+\.png|(carousel|square|vertical)/\d+\.png"):
             cards.append(item(f"image:{name}", esc(name), f'<img class="still" src="{esc(name)}" alt="" loading="lazy">', "media"))
         self.add("images", f"Images ({len(cards)})", "", cards)
 

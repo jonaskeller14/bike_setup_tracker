@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/enum_labels.dart';
@@ -459,7 +458,7 @@ class _ComponentPageState extends State<ComponentPage> {
     _adjustmentsFieldNotify?.call();
     _componentTypeFieldNotify?.call();
     _changeListener();
-    _showPresetUndoSnackBar('Filled from ${app.name}', snapshot);
+    _showPresetUndoSnackBar(context.l10n.componentFormPresetFilled(app.name), snapshot);
   }
 
   /// Edit mode extends: setups store values by adjustment id, so the rider
@@ -518,12 +517,9 @@ class _ComponentPageState extends State<ComponentPage> {
     _adjustmentsFieldNotify?.call();
     _changeListener();
     _showPresetUndoSnackBar(
-      merge.removed.isNotEmpty ? 'Replaced adjustments with ${app.name}' : Intl.plural(
-        added.length,
-        zero: 'Linked to ${app.name} · no adjustments added',
-        one: 'Linked to ${app.name} · 1 adjustment added',
-        other: 'Linked to ${app.name} · ${added.length} adjustments added',
-      ),
+      merge.removed.isNotEmpty
+          ? context.l10n.componentFormPresetReplaced(app.name)
+          : context.l10n.componentFormPresetLinked(app.name, added.length),
       snapshot,
     );
   }
@@ -574,7 +570,7 @@ class _ComponentPageState extends State<ComponentPage> {
     });
     _adjustmentsFieldNotify?.call();
     _changeListener();
-    _showPresetUndoSnackBar('Catalog update dismissed', snapshot);
+    _showPresetUndoSnackBar(context.l10n.componentFormCatalogUpdateDismissed, snapshot);
   }
 
   void _unlinkPreset() {
@@ -584,7 +580,9 @@ class _ComponentPageState extends State<ComponentPage> {
     setState(_clearPresetLink);
     _changeListener();
     _showPresetUndoSnackBar(
-      'Unlinked from ${resolved == null ? 'catalog' : presetDisplayName(resolved)} — values kept',
+      context.l10n.componentFormPresetUnlinked(
+        resolved == null ? context.l10n.componentFormCatalogFallback : presetDisplayName(resolved),
+      ),
       snapshot,
     );
   }
@@ -640,7 +638,7 @@ class _ComponentPageState extends State<ComponentPage> {
         context,
         message,
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () {
             if (mounted) _restoreSnapshot(snapshot);
           },
@@ -729,8 +727,8 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   String? _nameTip() => switch (_componentType) {
-    null || ComponentType.fork => "Tip: type a product name — e.g. 'Fox 38'",
-    ComponentType.shock => "Tip: type a product name — e.g. 'Fox Float X'",
+    null || ComponentType.fork => context.l10n.componentFormNameTipFork,
+    ComponentType.shock => context.l10n.componentFormNameTipShock,
     _ => null,
   };
 
@@ -746,15 +744,15 @@ class _ComponentPageState extends State<ComponentPage> {
       // suggestions open; tapping a suggestion is inside the field's region.
       onTapOutside: (_) => _nameFocusNode.unfocus(),
       decoration: InputDecoration(
-        labelText: 'Component Name',
+        labelText: context.l10n.componentFormNameLabel,
         border: const OutlineInputBorder(),
-        hintText: 'Enter component name',
+        hintText: context.l10n.componentFormNameHint,
         helperText: presetsEnabled && _nameController.text.trim().isEmpty ? _nameTip() : null,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
       ),
       validator: (String? value) {
-        if (value == null || value.trim().isEmpty) return 'Name is required';
+        if (value == null || value.trim().isEmpty) return context.l10n.componentFormNameRequired;
         return null;
       },
     );
@@ -821,7 +819,7 @@ class _ComponentPageState extends State<ComponentPage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (ComponentType? value) {
         if (value == null) {
-          return 'Component type cannot be empty. You can edit it later.';
+          return context.l10n.componentFormTypeRequired;
         }
         return null;
       },
@@ -836,17 +834,13 @@ class _ComponentPageState extends State<ComponentPage> {
             // label keeps floating (as the dropdown's `hint` used to make it).
             isEmpty: false,
             decoration: InputDecoration(
-              labelText: 'Type',
+              labelText: context.l10n.componentFormTypeLabel,
               enabled: !isReplace,
               border: const OutlineInputBorder(),
               errorText: field.errorText,
               suffixIcon: Icon(isReplace ? Icons.lock_outline : Icons.arrow_drop_down),
               helperText: isOverLimit
-                  ? Intl.plural(
-                      type.maxCount,
-                      one: "WARNING: There is already one ${type.label(context.l10n)}-Component installed on this bike.",
-                      other: "WARNING: There are already ${type.maxCount} ${type.label(context.l10n)}-Components installed on this bike.",
-                    )
+                  ? context.l10n.componentFormTypeOverLimit(type.maxCount, type.label(context.l10n))
                   : null,
               helperMaxLines: 2,
               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -861,7 +855,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     )
                   : dropdownTextStyle,
               child: type == null
-                  ? const Text("Please select type")
+                  ? Text(context.l10n.componentFormTypePlaceholder)
                   : Row(
                       spacing: 8,
                       children: [
@@ -907,8 +901,8 @@ class _ComponentPageState extends State<ComponentPage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (value) => setState(() {}), // see filled/fillColor
       decoration: InputDecoration(
-        labelText: 'Notes (optional)',
-        hintText: 'Enter brand, model, serial number, costs, ...',
+        labelText: context.l10n.notesOptionalLabel,
+        hintText: context.l10n.componentFormNotesHint,
         border: const OutlineInputBorder(),
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == ComponentPageMode.edit && _notesController.text.trim() != (widget.component?.notes ?? ""),
@@ -929,17 +923,18 @@ class _ComponentPageState extends State<ComponentPage> {
 
   Widget _initialStatsChip() {
     final appSettings = context.watch<AppSettings>();
-    final summary = initialStatsSummary(_initialStats, appSettings);
+    final l10n = context.l10n;
+    final summary = initialStatsSummary(_initialStats, appSettings, l10n);
     return FilterChip(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       avatar: const Icon(Icons.start),
       showCheckmark: false,
       selected: widget.mode != ComponentPageMode.edit && _initialStats != ComponentStats.zero,
       label: Text(
-        summary == null ? "Initial Stats" : "Initial: $summary",
+        summary == null ? l10n.initialStatsTitle : l10n.initialStatsChip(summary),
         overflow: TextOverflow.ellipsis,
       ),
-      tooltip: "Usage before this component was tracked",
+      tooltip: l10n.initialStatsComponentTooltip,
       backgroundColor: widget.mode == ComponentPageMode.edit && _initialStats != widget.component!.initialStats
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
@@ -954,7 +949,7 @@ class _ComponentPageState extends State<ComponentPage> {
       labelPadding: const EdgeInsets.symmetric(vertical: 2),
       padding: EdgeInsets.zero,
       avatar: const Icon(Icons.attach_file),
-      tooltip: 'Add Attachment',
+      tooltip: context.l10n.addAttachmentTooltip,
       backgroundColor: widget.mode == ComponentPageMode.edit && !listEquals(_attachments, widget.component!.attachments)
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
@@ -969,13 +964,10 @@ class _ComponentPageState extends State<ComponentPage> {
     if (fromPreset == 0) return null;
     final others = _adjustments.length - fromPreset;
     final name = presetDisplayName(resolved);
-    final caption = Intl.plural(
-      fromPreset,
-      one: '1 adjustment prefilled from $name',
-      other: '$fromPreset adjustments prefilled from $name',
-    );
+    final l10n = context.l10n;
+    final caption = l10n.componentFormPresetCaption(fromPreset, name);
     if (others == 0) return caption;
-    return '$caption · ${Intl.plural(others, one: '1 other', other: '$others others')}';
+    return '$caption · ${l10n.componentFormPresetOthers(others)}';
   }
 
   Widget _presetCaptionRow(String caption) {
@@ -1006,7 +998,7 @@ class _ComponentPageState extends State<ComponentPage> {
       validator: (_) {
         final current = _installations.lastOrNull;
         if (current is BikeInstallation && !bikes.containsKey(current.bikeId)) {
-          return "Please select valid bike";
+          return context.l10n.componentFormInstalledOnInvalid;
         }
         return null;
       },
@@ -1023,8 +1015,8 @@ class _ComponentPageState extends State<ComponentPage> {
           // Locked like the timeline: the replace flow relies on this placement.
           enabled: widget.mode != ComponentPageMode.replace,
           changed: isEdit && current != _initialInstallations.lastOrNull,
-          labelText: 'Installed on',
-          helperText: current.parentType == InstallationParentType.none ? "WARNING: Select Bike to install Component." : null,
+          labelText: context.l10n.componentFormInstalledOnLabel,
+          helperText: current.parentType == InstallationParentType.none ? context.l10n.componentFormInstalledOnWarning : null,
           errorText: state.errorText,
           timelineOfferInstallations: isEdit ? widget.component?.installations : null,
           onChanged: (picked) {
@@ -1044,6 +1036,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
+    final l10n = context.l10n;
     final bikes = appRepository.bikes;
     final currentBike = _installations.lastOrNull?.parent;  // _installations are sorted in init() 
     final existingComponentsCount = currentBike == null
@@ -1065,8 +1058,8 @@ class _ComponentPageState extends State<ComponentPage> {
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            ComponentPageMode.add || ComponentPageMode.duplicate || ComponentPageMode.replace => const Text('Add Component'),
-            ComponentPageMode.edit => const Text('Edit Component'),
+            ComponentPageMode.add || ComponentPageMode.duplicate || ComponentPageMode.replace => Text(l10n.componentFormAddTitle),
+            ComponentPageMode.edit => Text(l10n.componentFormEditTitle),
           },
           actions: [
             Semantics(
@@ -1132,8 +1125,8 @@ class _ComponentPageState extends State<ComponentPage> {
                                   : Icons.expand_more,
                               ),
                               label: Text(_expanded
-                                  ? "Hide Additional Fields"
-                                  : "Show Additional Fields"
+                                  ? l10n.hideAdditionalFields
+                                  : l10n.showAdditionalFields
                               ),
                             ),
                           ),
@@ -1211,7 +1204,7 @@ class _ComponentPageState extends State<ComponentPage> {
                             Icon(Icons.lock_outline, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             Expanded(
                               child: Text(
-                                "The timeline is locked during the replacement. The new component is installed at the same time the old one is removed. You can edit the timeline after saving.",
+                                l10n.componentFormTimelineLocked,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
@@ -1222,7 +1215,7 @@ class _ComponentPageState extends State<ComponentPage> {
                       ),
                   ],
                   // const Divider(height: 1),
-                  const SectionTitle(title: "Adjustments", infoText: "Adjustments are physical parameters on this component that can be tuned—such as dial positions, switch settings, or pressure ranges. Step 1: Define what adjustment parameters exist for this component and set their limits here. Step 2: After you save this component, create a Setup to save actual adjustment values for your bike."),
+                  SectionTitle(title: l10n.componentFormAdjustmentsTitle, infoText: l10n.componentFormAdjustmentsInfo),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                     child: FormField<List<Adjustment>>(
@@ -1259,10 +1252,10 @@ class _ComponentPageState extends State<ComponentPage> {
                                     onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
                                   )
                                 : EmptyStatePlaceholder2(
-                                    title: "No adjustments yet",
+                                    title: l10n.componentFormAdjustmentsEmptyTitle,
                                     errorTitle: field.errorText,
-                                    subtitle: "Tap 'Add Adjustment' to define settings for this component",
-                                    errorSubtitle: "Tap here to add the first adjustment",
+                                    subtitle: l10n.componentFormAdjustmentsEmptySubtitle,
+                                    errorSubtitle: l10n.componentFormAdjustmentsEmptyError,
                                     onTap: showAddBottomSheet,
                                   ),
                             const SizedBox(height: 8),
@@ -1274,7 +1267,7 @@ class _ComponentPageState extends State<ComponentPage> {
                                 child: FilledButton.icon(
                                   onPressed: showAddBottomSheet,
                                   icon: const Icon(Icons.add),
-                                  label: const Text("Add Adjustment"),
+                                  label: Text(l10n.componentFormAddAdjustment),
                                 ),
                               ),
                             ),

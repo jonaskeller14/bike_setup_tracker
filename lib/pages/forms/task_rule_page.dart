@@ -750,7 +750,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
         icon = component.componentType.getIconData();
         primary = component.name;
         final root = hierarchy.currentRoot(component.id);
-        secondary = root is BikeAncestor && !root.isMissing(bikes) ? "on ${root.label(bikes)}" : root.label(bikes);
+        secondary = root is BikeAncestor && !root.isMissing(bikes)
+            ? "on ${root.label(bikes, context.l10n)}"
+            : root.label(bikes, context.l10n);
         if (root.isMissing(bikes)) errorColor = scheme.error;
     }
 

@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/component/component.dart';
@@ -46,9 +46,9 @@ class ComponentActions {
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(
           context,
-          'Add a bike first',
+          context.l10n.componentAddBikeFirst,
           action: AppSnackBarAction(
-            label: 'ADD',
+            label: context.l10n.snackbarAdd,
             onPressed: () => BikeActions.addBike(context),
           ),
         ),
@@ -110,7 +110,7 @@ class ComponentActions {
       await AttachmentActions.deleteUnsaved(result.value.attachments, saved: component.attachments);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.error(context, 'Not saved: this would create a loop of components.'),
+        AppSnackBar.error(context, context.l10n.installationNotSavedLoop),
       );
       return;
     }
@@ -245,6 +245,7 @@ class ComponentActions {
 
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     final copyRules = source == null
         ? const <TaskRule>[]
@@ -285,14 +286,15 @@ class ComponentActions {
     await appRepository.addTaskRules(created);
 
     if (!context.mounted) return;
-    final verb = result.suggested.isEmpty ? 'Copied' : 'Added';
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
-        "$verb ${created.length} task${created.length == 1 ? '' : 's'} to '${target.name}'.",
+        result.suggested.isEmpty
+            ? l10n.componentTasksCopied(created.length, target.name)
+            : l10n.componentTasksAdded(created.length, target.name),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async => appRepository.removeTaskRules(created),
         ),
       ),
@@ -316,6 +318,7 @@ class ComponentActions {
     final appRepository = context.read<AppRepository>();
     final appSettings = context.read<AppSettings>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     final result = await showReplaceComponentSheet(context, component: component);
     if (result == null) return;
@@ -373,7 +376,7 @@ class ComponentActions {
         messenger.showSnackBar(
           AppSnackBar.success(
             context,
-            "Replaced '${component.name}' with '${existingComponent.name}'.",
+            l10n.componentReplaced(component.name, existingComponent.name),
             duration: const Duration(seconds: 5),
           ),
         );
@@ -451,6 +454,7 @@ class ComponentActions {
   static Future<void> removeComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     final hierarchy = appRepository.componentHierarchy;
 
     final descendants = appRepository.affectedDescendants(component.id);
@@ -492,34 +496,27 @@ class ComponentActions {
     await appRepository.removeTaskEntries(obsoleteTaskEntries);
 
     final subcomponentCount = withSubcomponents ? descendants.length : detached.length;
-    final subcomponents = Intl.plural(
-      subcomponentCount,
-      one: '1 subcomponent',
-      other: '$subcomponentCount subcomponents',
-    );
     final subcomponentSummary = switch (choice) {
       _ when subcomponentCount == 0 => '',
-      (withSubcomponents: true, detach: _) => '\nAlso moved to trash: $subcomponents.',
-      (withSubcomponents: false, detach: SubcomponentDetach.uninstall) => '\n$subcomponents uninstalled.',
+      (withSubcomponents: true, detach: _) =>
+        '\n${l10n.bikeAlsoTrashed(l10n.componentTrashedSubcomponents(subcomponentCount))}',
+      (withSubcomponents: false, detach: SubcomponentDetach.uninstall) =>
+        '\n${l10n.componentSubcomponentsUninstalled(subcomponentCount)}',
       (withSubcomponents: false, detach: SubcomponentDetach.installOnBike) =>
-        "\n$subcomponents installed on '${appRepository.bikes[bikeId]?.name}'.",
+        '\n${l10n.componentSubcomponentsInstalledOnBike(subcomponentCount, appRepository.bikes[bikeId]?.name ?? '')}',
       _ => '',
     };
     final taskSummary = selectedTaskRules.isEmpty
         ? ''
-        : '\nAlso moved to trash: ${Intl.plural(
-            selectedTaskRules.length,
-            one: '1 task and its entries',
-            other: '${selectedTaskRules.length} tasks and their entries',
-          )}.';
+        : '\n${l10n.bikeAlsoTrashed(l10n.bikeTrashedTasks(selectedTaskRules.length))}';
     if (!context.mounted) return;
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Component '${component.name}' moved to trash.$subcomponentSummary$taskSummary",
+        '${l10n.componentMovedToTrash(component.name)}$subcomponentSummary$taskSummary',
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async {
             final detachedIds = detached.map((c) => c.id).toSet();
             await appRepository.restoreComponents(removed);
@@ -535,6 +532,7 @@ class ComponentActions {
   static Future<void> restoreComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     await appRepository.restoreComponents([component]);
 
@@ -542,10 +540,10 @@ class ComponentActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Component '${component.name}' restored from trash.",
+        l10n.componentRestoredFromTrash(component.name),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async => appRepository.removeComponents([component]),
         ),
       ),

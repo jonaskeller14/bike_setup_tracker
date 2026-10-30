@@ -2225,5 +2225,1443 @@
   "hintGuideRecordSetup": "Record a setup",
   "@hintGuideRecordSetup": {
     "description": "Third step of the getting-started hint."
+  },
+  "undo": "UNDO",
+  "@undo": {
+    "description": "Snackbar action that reverts the action just performed."
+  },
+  "listJoinTwo": "{first} and {second}",
+  "@listJoinTwo": {
+    "description": "Joins two items in a sentence.",
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
+  },
+  "listJoinMany": "{leading}, and {last}",
+  "@listJoinMany": {
+    "description": "Joins three or more items in a sentence. {leading} is the comma-separated start of the list, {last} the final item.",
+    "placeholders": {
+      "leading": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineProblemNoEntries": "At least one entry is required",
+  "@timelineProblemNoEntries": {
+    "description": "Error under the installation timeline when it has no entries."
+  },
+  "timelineProblemArchivalNotLast": "Archival can only be the last entry in the timeline",
+  "@timelineProblemArchivalNotLast": {
+    "description": "Error under the installation timeline when an archival is followed by another entry."
+  },
+  "timelineProblemConsecutiveUninstallations": "Cannot have consecutive uninstallations",
+  "@timelineProblemConsecutiveUninstallations": {
+    "description": "Error under the installation timeline when two uninstall entries follow each other."
+  },
+  "timelineProblemConsecutiveOnSameBike": "Cannot have consecutive installations on the same bike",
+  "@timelineProblemConsecutiveOnSameBike": {
+    "description": "Error under the installation timeline when two entries in a row install the component on the same bike."
+  },
+  "timelineProblemConsecutiveOnSameComponent": "Cannot have consecutive installations on the same component",
+  "@timelineProblemConsecutiveOnSameComponent": {
+    "description": "Error under the installation timeline when two entries in a row install the component on the same parent component."
+  },
+  "timelineProblemMultipleFromBeginning": "Multiple \"From beginning\" entries are not allowed",
+  "@timelineProblemMultipleFromBeginning": {
+    "description": "Error under the installation timeline. \"From beginning\" is the timeline's date choice for the start of the component's life."
+  },
+  "timelineProblemSameDateTime": "Two entries cannot have the same date & time",
+  "@timelineProblemSameDateTime": {
+    "description": "Error under the installation timeline when two entries share a date and time."
+  },
+  "timelineProblemBikeMissing": "This entry is installed on a bike that no longer exists",
+  "@timelineProblemBikeMissing": {
+    "description": "Error under the installation timeline when an entry points to a deleted bike."
+  },
+  "timelineProblemInstalledOnItself": "A component cannot be installed on itself",
+  "@timelineProblemInstalledOnItself": {
+    "description": "Error under the installation timeline when a component is installed on itself."
+  },
+  "timelineProblemComponentLoop": "This installation creates a loop of components",
+  "@timelineProblemComponentLoop": {
+    "description": "Error under the installation timeline when components would end up installed on each other in a circle."
+  },
+  "bikeRiderRemoved": "{count, plural, =1{Rider removed from 1 Bike.} other{Rider removed from {count} Bikes.}}",
+  "@bikeRiderRemoved": {
+    "description": "Snackbar after clearing the rider of bikes. {count} is the number of bikes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bikeRiderSet": "{count, plural, =1{Rider set to '{name}' for 1 Bike.} other{Rider set to '{name}' for {count} Bikes.}}",
+  "@bikeRiderSet": {
+    "description": "Snackbar after assigning a rider to bikes. {name} is the rider's name, {count} the number of bikes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bikeMovedToTrash": "{count, plural, =1{Bike '{name}' moved to trash.} other{{count} bikes moved to trash.}}",
+  "@bikeMovedToTrash": {
+    "description": "Snackbar after deleting bikes. {count} is the number of bikes, {name} the name of the first one.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bikeTrashedComponents": "{count, plural, =1{1 component} other{{count} components}}",
+  "@bikeTrashedComponents": {
+    "description": "Part of the list of items trashed along with a bike. {count} is the number of components.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bikeTrashedSetups": "{count, plural, =1{1 setup} other{{count} setups}}",
+  "@bikeTrashedSetups": {
+    "description": "Part of the list of items trashed along with a bike. {count} is the number of setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bikeTrashedTasks": "{count, plural, =1{1 task and its entries} other{{count} tasks and their entries}}",
+  "@bikeTrashedTasks": {
+    "description": "Part of the list of items trashed along with a bike. {count} is the number of tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bikeAlsoTrashed": "Also moved to trash: {summary}.",
+  "@bikeAlsoTrashed": {
+    "description": "Second line of the snackbar after deleting a bike. {summary} lists the related items, e.g. \"2 components and 1 setup\".",
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "bikeRestoredFromTrash": "Bike '{name}' restored from trash.",
+  "@bikeRestoredFromTrash": {
+    "description": "Snackbar after restoring a bike from the trash. {name} is the bike name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineEntriesMovedToTrash": "{count, plural, =1{1 entry moved to trash.} other{{count} entries moved to trash.}}",
+  "@timelineEntriesMovedToTrash": {
+    "description": "Snackbar after deleting entries from the bike timeline. {count} is the number of entries.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stravaGearUnlinked": "Unlinked '{gear}' from '{bike}'.",
+  "@stravaGearUnlinked": {
+    "description": "Snackbar after unlinking a Strava gear from a bike. {gear} is the gear name, {bike} the bike name.",
+    "placeholders": {
+      "gear": {
+        "type": "String"
+      },
+      "bike": {
+        "type": "String"
+      }
+    }
+  },
+  "installationTimelineTitle": "Installation Timeline",
+  "@installationTimelineTitle": {
+    "description": "Title of the installation timeline section on the component form and details."
+  },
+  "timelineFromBeginning": "From beginning",
+  "@timelineFromBeginning": {
+    "description": "Date label of a timeline entry that applies from the very start of the component's life."
+  },
+  "timelineNow": "Now",
+  "@timelineNow": {
+    "description": "Menu item that sets a timeline entry to the current date and time."
+  },
+  "timelineSelectDateTime": "Select date & time...",
+  "@timelineSelectDateTime": {
+    "description": "Menu item that opens the date and time pickers for a timeline entry."
+  },
+  "timelineAddEntryTooltip": "Add Timeline Entry",
+  "@timelineAddEntryTooltip": {
+    "description": "Tooltip of the button that adds an entry to the installation timeline."
+  },
+  "bikeNotFound": "BIKE NOT FOUND",
+  "@bikeNotFound": {
+    "description": "Shown in red in the timeline when an entry points to a bike that no longer exists."
+  },
+  "componentNotFound": "COMPONENT NOT FOUND",
+  "@componentNotFound": {
+    "description": "Shown in red in the timeline when an entry points to a component that no longer exists."
+  },
+  "timelineUninstalled": "Uninstalled",
+  "@timelineUninstalled": {
+    "description": "Timeline entry for the moment a component was taken off."
+  },
+  "timelineArchived": "Archived",
+  "@timelineArchived": {
+    "description": "Timeline entry for the moment a component was archived."
+  },
+  "timelineVia": "via {name}",
+  "@timelineVia": {
+    "description": "Second line of an inherited timeline entry. {name} is the component the entry's placement comes through.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineDayToday": "Today · {date}",
+  "@timelineDayToday": {
+    "description": "Timeline day header for today. {date} is the formatted date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineDayYesterday": "Yesterday · {date}",
+  "@timelineDayYesterday": {
+    "description": "Timeline day header for yesterday. {date} is the formatted date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineTableInfo": "Visualizes component setup history, including overlaps and periods with no active components.",
+  "@timelineTableInfo": {
+    "description": "Info text of the installation timeline table title on the bike details."
+  },
+  "timelineAllComponentTypes": "All Component Types",
+  "@timelineAllComponentTypes": {
+    "description": "Label of the component type filter chip of the timeline table while nothing is hidden."
+  },
+  "timelineComponentTypesCount": "Component Types {visible}/{total}",
+  "@timelineComponentTypesCount": {
+    "description": "Label of the component type filter chip while some types are hidden. {visible} types are shown out of {total}.",
+    "placeholders": {
+      "visible": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "timelineEmptyTitle": "No installation history",
+  "@timelineEmptyTitle": {
+    "description": "Title of the empty state of the timeline table."
+  },
+  "timelineEmptySubtitle": "Install components on this bike to see the timeline",
+  "@timelineEmptySubtitle": {
+    "description": "Subtitle of the empty state of the timeline table."
+  },
+  "timelineNoTypesTitle": "No component types selected",
+  "@timelineNoTypesTitle": {
+    "description": "Title of the empty state when every component type is hidden in the timeline table."
+  },
+  "timelineNoTypesSubtitle": "Select a component type to display the table",
+  "@timelineNoTypesSubtitle": {
+    "description": "Subtitle of the empty state when every component type is hidden in the timeline table."
+  },
+  "timelineTableCorner": "Timeline",
+  "@timelineTableCorner": {
+    "description": "Header of the date column in the timeline table."
+  },
+  "timelineMenuComponentDetails": "Component details",
+  "@timelineMenuComponentDetails": {
+    "description": "Menu item on a timeline table block that opens the component."
+  },
+  "timelineMenuEditInstallation": "Edit installation",
+  "@timelineMenuEditInstallation": {
+    "description": "Menu item on a timeline table block that edits the installation entry."
+  },
+  "garageNoBikesMatchTitle": "No bikes match this filter",
+  "@garageNoBikesMatchTitle": {
+    "description": "Title of the garage empty state while the bike filter hides every bike."
+  },
+  "garageNoBikesMatchSubtitle": "The bike filter is hiding all bikes.",
+  "@garageNoBikesMatchSubtitle": {
+    "description": "Subtitle of the garage empty state while the bike filter hides every bike."
+  },
+  "garageNoBikesTitle": "No bikes yet",
+  "@garageNoBikesTitle": {
+    "description": "Title of the garage empty state when there are no bikes."
+  },
+  "garageNoBikesSubtitle": "Add your first bike to get started.",
+  "@garageNoBikesSubtitle": {
+    "description": "Subtitle of the garage empty state when there are no bikes."
+  },
+  "garageAddBike": "Add a bike",
+  "@garageAddBike": {
+    "description": "Button of the garage empty state that opens the new bike form."
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Menu item or button that opens an item for editing."
+  },
+  "duplicate": "Duplicate",
+  "@duplicate": {
+    "description": "Menu item or button that creates a copy of an item."
+  },
+  "replace": "Replace",
+  "@replace": {
+    "description": "Menu item or button that replaces a component with another one."
+  },
+  "remove": "Remove",
+  "@remove": {
+    "description": "Menu item or button that moves an item to the trash."
+  },
+  "timelineNotInstalled": "Not installed",
+  "@timelineNotInstalled": {
+    "description": "Label of the 'not installed' step in a component's installation chain."
+  },
+  "timelineArchive": "Archive",
+  "@timelineArchive": {
+    "description": "Destination label of a timeline entry that moved a component to the archive."
+  },
+  "timelineAdded": "Added {name}",
+  "@timelineAdded": {
+    "description": "Title of the first timeline entry of a component. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineInstalled": "Installed {name}",
+  "@timelineInstalled": {
+    "description": "Title of a timeline entry that installed a component. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineUninstalledName": "Uninstalled {name}",
+  "@timelineUninstalledName": {
+    "description": "Title of a timeline entry that took a component off. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineArchivedName": "Archived {name}",
+  "@timelineArchivedName": {
+    "description": "Title of a timeline entry that archived a component. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineReplaced": "Replaced {type}",
+  "@timelineReplaced": {
+    "description": "Title of a timeline entry that swapped one component for another. {type} is the component type, e.g. \"Fork\".",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "installationNotSavedLoop": "Not saved: this would create a loop of components.",
+  "@installationNotSavedLoop": {
+    "description": "Error snackbar when saving an installation would make components sit on each other in a circle."
+  },
+  "timelineInstalledCaption": "Installed",
+  "@timelineInstalledCaption": {
+    "description": "Caption under the newly installed component in the replacement preview."
+  },
+  "replacementTitleWithStatus": "{name} ({status})",
+  "@replacementTitleWithStatus": {
+    "description": "Title of a timeline section in the replacement sheet when both components share a name. {status} is e.g. \"Installed\".",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "replacementExplanation": "A replacement is simply two installations within {minutes, plural, =1{1 minute} other{{minutes} minutes}}: one component removed and another installed on the same bike.",
+  "@replacementExplanation": {
+    "description": "Explanation at the top of the replacement sheet. {minutes} is the time window that groups two entries into a replacement.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "continueLabel": "Continue",
+  "@continueLabel": {
+    "description": "Button that moves on to the next step of a sheet or flow."
+  },
+  "replaceTitle": "Replace '{name}'",
+  "@replaceTitle": {
+    "description": "Title of the replace component sheet. {name} is the component being replaced.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "replaceOutcomeReplacement": "Replacement",
+  "@replaceOutcomeReplacement": {
+    "description": "Label in the replace preview for the chosen replacement component when none is picked yet."
+  },
+  "replaceOutcomeNewComponent": "New component",
+  "@replaceOutcomeNewComponent": {
+    "description": "Label in the replace preview for the component that will be created."
+  },
+  "replaceModeExisting": "Existing",
+  "@replaceModeExisting": {
+    "description": "Segment of the replace sheet: replace with a component that already exists."
+  },
+  "replaceModeNew": "New",
+  "@replaceModeNew": {
+    "description": "Segment of the replace sheet: replace with a newly created component."
+  },
+  "replaceDescriptionExistingDated": "Pick an already uninstalled component to install in place of this one, and set the replacement date. This is when the current component is retired and the selected one installed.",
+  "@replaceDescriptionExistingDated": {
+    "description": "Explanation in the replace sheet: existing component, installation timeline on."
+  },
+  "replaceDescriptionNewDated": "Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
+  "@replaceDescriptionNewDated": {
+    "description": "Explanation in the replace sheet: new component, installation timeline on."
+  },
+  "replaceDescriptionExistingUndated": "Pick an already uninstalled component to install in place of this one. The current component is uninstalled.",
+  "@replaceDescriptionExistingUndated": {
+    "description": "Explanation in the replace sheet: existing component, installation timeline off."
+  },
+  "replaceDescriptionNewUndated": "The current component is uninstalled and a new one installed in its place. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
+  "@replaceDescriptionNewUndated": {
+    "description": "Explanation in the replace sheet: new component, installation timeline off."
+  },
+  "replaceTimelineHint": "Without a swap date, the new part counts as installed from the start. Past setups then no longer show the old part and the values you recorded for it. Date the swap to keep both histories intact.",
+  "@replaceTimelineHint": {
+    "description": "Hint in the replace sheet that offers to turn on the installation timeline."
+  },
+  "replaceNoUninstalledTitle": "No uninstalled {type} available",
+  "@replaceNoUninstalledTitle": {
+    "description": "Title of the empty hint in the replace sheet. {type} is the component type, e.g. \"Fork\".",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "replaceNoUninstalledHint": "Create a new component instead.",
+  "@replaceNoUninstalledHint": {
+    "description": "Hint of the empty state in the replace sheet."
+  },
+  "replaceComponentLabel": "Replacement Component",
+  "@replaceComponentLabel": {
+    "description": "Label of the dropdown in the replace sheet that picks the existing replacement."
+  },
+  "replaceComponentHint": "Select a component",
+  "@replaceComponentHint": {
+    "description": "Placeholder of the replacement dropdown."
+  },
+  "replaceComponentRequired": "Please select a component",
+  "@replaceComponentRequired": {
+    "description": "Validation error of the replacement dropdown."
+  },
+  "replaceDateLabel": "Replacement Date",
+  "@replaceDateLabel": {
+    "description": "Label of the date field in the replace sheet."
+  },
+  "replaceDateAfterLast": "Must be after last installation ({date})",
+  "@replaceDateAfterLast": {
+    "description": "Validation error of the replacement date. {date} is the date and time of the last installation.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "replaceMoveSubcomponents": "Move subcomponents to replacement",
+  "@replaceMoveSubcomponents": {
+    "description": "Option in the replace sheet."
+  },
+  "replaceMoveSubcomponentsHint": "They are installed on the replacement at the replacement date.",
+  "@replaceMoveSubcomponentsHint": {
+    "description": "Description of the option that moves subcomponents to the replacement."
+  },
+  "uninstallSubcomponents": "Uninstall subcomponents",
+  "@uninstallSubcomponents": {
+    "description": "Option in the replace sheet."
+  },
+  "uninstallSubcomponentsHint": "They move to your uninstalled components.",
+  "@uninstallSubcomponentsHint": {
+    "description": "Description of the option that uninstalls subcomponents."
+  },
+  "previousValueTooltip": "Previous value",
+  "@previousValueTooltip": {
+    "description": "Tooltip of a picker option that marks the value the item had before it was edited."
+  },
+  "enterValidValue": "Please enter a valid value",
+  "@enterValidValue": {
+    "description": "Validation error of a numeric field."
+  },
+  "notesOptionalLabel": "Notes (optional)",
+  "@notesOptionalLabel": {
+    "description": "Label of the optional notes field of a form."
+  },
+  "addAttachmentTooltip": "Add Attachment",
+  "@addAttachmentTooltip": {
+    "description": "Tooltip of the paperclip chip that attaches images or files in a form."
+  },
+  "showAdditionalFields": "Show Additional Fields",
+  "@showAdditionalFields": {
+    "description": "Button that expands the optional fields of a form."
+  },
+  "hideAdditionalFields": "Hide Additional Fields",
+  "@hideAdditionalFields": {
+    "description": "Button that collapses the optional fields of a form."
+  },
+  "riderNotFound": "RIDER NOT FOUND",
+  "@riderNotFound": {
+    "description": "Shown in red when an item points to a rider that no longer exists."
+  },
+  "stravaGearNotFound": "GEAR NOT FOUND",
+  "@stravaGearNotFound": {
+    "description": "Shown in red when a bike points to a Strava gear that no longer exists."
+  },
+  "componentTypePickerTitle": "Select Component Type",
+  "@componentTypePickerTitle": {
+    "description": "Title of the component type picker sheet."
+  },
+  "initialStatsTitle": "Initial Stats",
+  "@initialStatsTitle": {
+    "description": "Title of the sheet and label of the chip for the usage an item had before it was tracked."
+  },
+  "initialStatsChip": "Initial: {summary}",
+  "@initialStatsChip": {
+    "description": "Label of the initial stats chip once values are set. {summary} lists them, e.g. \"1,200 km · 30 h\".",
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "initialStatsBikeTooltip": "Usage before this bike was tracked",
+  "@initialStatsBikeTooltip": {
+    "description": "Tooltip of the initial stats chip on the bike form."
+  },
+  "initialStatsComponentTooltip": "Usage before this component was tracked",
+  "@initialStatsComponentTooltip": {
+    "description": "Tooltip of the initial stats chip on the component form."
+  },
+  "initialStatsBikeDescription": "Usage this bike had before it was tracked here, e.g. for a second-hand bike. It is added on top of the stats from your activities. Components installed 'Since beginning' inherit these stats.",
+  "@initialStatsBikeDescription": {
+    "description": "Explanation in the initial stats sheet of a bike."
+  },
+  "initialStatsComponentDescription": "Usage this component had before it was tracked here, e.g. for a second-hand part. It is added on top of the stats from your activities. Components installed 'Since beginning' also include their bike's initial stats.",
+  "@initialStatsComponentDescription": {
+    "description": "Explanation in the initial stats sheet of a component."
+  },
+  "initialStatsActivities": "{count, plural, =1{1 activity} other{{count} activities}}",
+  "@initialStatsActivities": {
+    "description": "Activity count in the initial stats summary.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "initialStatsDistance": "Distance",
+  "@initialStatsDistance": {
+    "description": "Label of the distance field in the initial stats sheet."
+  },
+  "initialStatsElevationGain": "Elevation Gain",
+  "@initialStatsElevationGain": {
+    "description": "Label of the elevation gain field in the initial stats sheet."
+  },
+  "initialStatsMovingTime": "Moving Time",
+  "@initialStatsMovingTime": {
+    "description": "Label of the moving time field in the initial stats sheet."
+  },
+  "initialStatsElapsedTime": "Elapsed Time",
+  "@initialStatsElapsedTime": {
+    "description": "Label of the elapsed time field in the initial stats sheet."
+  },
+  "initialStatsActivityCount": "Activities",
+  "@initialStatsActivityCount": {
+    "description": "Label of the activity count field in the initial stats sheet."
+  },
+  "initialStatsEnergy": "Energy",
+  "@initialStatsEnergy": {
+    "description": "Label of the energy field in the initial stats sheet."
+  },
+  "bikeFormAddTitle": "Add Bike",
+  "@bikeFormAddTitle": {
+    "description": "App bar title of the form that adds a bike."
+  },
+  "bikeFormEditTitle": "Edit Bike",
+  "@bikeFormEditTitle": {
+    "description": "App bar title of the form that edits a bike."
+  },
+  "bikeFormNameLabel": "Bike Name",
+  "@bikeFormNameLabel": {
+    "description": "Label of the bike name field."
+  },
+  "bikeFormNameHint": "Enter bike name",
+  "@bikeFormNameHint": {
+    "description": "Placeholder of the bike name field."
+  },
+  "bikeFormNameRequired": "Please enter a bike name",
+  "@bikeFormNameRequired": {
+    "description": "Validation error of the bike name field."
+  },
+  "bikeFormRiderLabel": "Rider",
+  "@bikeFormRiderLabel": {
+    "description": "Label of the rider dropdown on the bike form."
+  },
+  "bikeFormRiderHint": "Choose a rider for this bike",
+  "@bikeFormRiderHint": {
+    "description": "Placeholder of the rider dropdown on the bike form."
+  },
+  "bikeFormRiderHelper": "You can assign a rider later, as soon as you've created one.",
+  "@bikeFormRiderHelper": {
+    "description": "Helper text of the rider dropdown while no rider exists."
+  },
+  "bikeFormRiderInvalid": "Please select a valid rider",
+  "@bikeFormRiderInvalid": {
+    "description": "Validation error of the rider dropdown."
+  },
+  "bikeFormNoRider": "No rider",
+  "@bikeFormNoRider": {
+    "description": "Dropdown entry that leaves the bike without a rider."
+  },
+  "bikeFormNotesHint": "Enter Bike brand, model, size, year, costs, ...",
+  "@bikeFormNotesHint": {
+    "description": "Placeholder of the notes field of the bike form."
+  },
+  "bikeFormStravaGearLabel": "Strava Gear",
+  "@bikeFormStravaGearLabel": {
+    "description": "Label of the Strava gear dropdown on the bike form."
+  },
+  "bikeFormStravaGearHint": "Link Strava Gear",
+  "@bikeFormStravaGearHint": {
+    "description": "Placeholder of the Strava gear dropdown."
+  },
+  "bikeFormStravaGearTaken": "WARNING: Strava Gear already assigned to another Bike",
+  "@bikeFormStravaGearTaken": {
+    "description": "Helper text when the chosen Strava gear is already linked to another bike."
+  },
+  "bikeFormStravaGearInvalid": "Please select valid Gear",
+  "@bikeFormStravaGearInvalid": {
+    "description": "Validation error of the Strava gear dropdown."
+  },
+  "bikeFormStravaGearNotLinked": "NOT LINKED",
+  "@bikeFormStravaGearNotLinked": {
+    "description": "Dropdown entry that leaves the bike without Strava gear."
+  },
+  "componentFormAddTitle": "Add Component",
+  "@componentFormAddTitle": {
+    "description": "App bar title of the form that adds a component."
+  },
+  "componentFormEditTitle": "Edit Component",
+  "@componentFormEditTitle": {
+    "description": "App bar title of the form that edits a component."
+  },
+  "componentFormNameLabel": "Component Name",
+  "@componentFormNameLabel": {
+    "description": "Label of the component name field."
+  },
+  "componentFormNameHint": "Enter component name",
+  "@componentFormNameHint": {
+    "description": "Placeholder of the component name field."
+  },
+  "componentFormNameRequired": "Name is required",
+  "@componentFormNameRequired": {
+    "description": "Validation error of the component name field."
+  },
+  "componentFormNameTipFork": "Tip: type a product name — e.g. 'Fox 38'",
+  "@componentFormNameTipFork": {
+    "description": "Helper text of the component name field for forks, which offers catalog suggestions."
+  },
+  "componentFormNameTipShock": "Tip: type a product name — e.g. 'Fox Float X'",
+  "@componentFormNameTipShock": {
+    "description": "Helper text of the component name field for shocks, which offers catalog suggestions."
+  },
+  "componentFormNotesHint": "Enter brand, model, serial number, costs, ...",
+  "@componentFormNotesHint": {
+    "description": "Placeholder of the notes field of the component form."
+  },
+  "componentFormTypeLabel": "Type",
+  "@componentFormTypeLabel": {
+    "description": "Label of the component type field."
+  },
+  "componentFormTypePlaceholder": "Please select type",
+  "@componentFormTypePlaceholder": {
+    "description": "Placeholder of the component type field while no type is chosen."
+  },
+  "componentFormTypeRequired": "Component type cannot be empty. You can edit it later.",
+  "@componentFormTypeRequired": {
+    "description": "Validation error of the component type field."
+  },
+  "componentFormTypeOverLimit": "{count, plural, =1{WARNING: There is already one {type}-Component installed on this bike.} other{WARNING: There are already {count} {type}-Components installed on this bike.}}",
+  "@componentFormTypeOverLimit": {
+    "description": "Helper text when the bike already carries as many components of the chosen type as allowed. {count} is that limit, {type} the type name.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "componentFormInstalledOnLabel": "Installed on",
+  "@componentFormInstalledOnLabel": {
+    "description": "Label of the field that picks where the component is installed."
+  },
+  "componentFormInstalledOnInvalid": "Please select valid bike",
+  "@componentFormInstalledOnInvalid": {
+    "description": "Validation error of the installed-on field."
+  },
+  "componentFormInstalledOnWarning": "WARNING: Select Bike to install Component.",
+  "@componentFormInstalledOnWarning": {
+    "description": "Helper text while the component is not installed anywhere."
+  },
+  "componentFormTimelineLocked": "The timeline is locked during the replacement. The new component is installed at the same time the old one is removed. You can edit the timeline after saving.",
+  "@componentFormTimelineLocked": {
+    "description": "Note under the installation timeline while replacing a component."
+  },
+  "componentFormAdjustmentsTitle": "Adjustments",
+  "@componentFormAdjustmentsTitle": {
+    "description": "Section title of the adjustments on the component form."
+  },
+  "componentFormAdjustmentsInfo": "Adjustments are physical parameters on this component that can be tuned—such as dial positions, switch settings, or pressure ranges. Step 1: Define what adjustment parameters exist for this component and set their limits here. Step 2: After you save this component, create a Setup to save actual adjustment values for your bike.",
+  "@componentFormAdjustmentsInfo": {
+    "description": "Info text of the adjustments section on the component form."
+  },
+  "componentFormAdjustmentsEmptyTitle": "No adjustments yet",
+  "@componentFormAdjustmentsEmptyTitle": {
+    "description": "Title of the empty state of the adjustments list on the component form."
+  },
+  "componentFormAdjustmentsEmptySubtitle": "Tap 'Add Adjustment' to define settings for this component",
+  "@componentFormAdjustmentsEmptySubtitle": {
+    "description": "Subtitle of the empty adjustments list."
+  },
+  "componentFormAdjustmentsEmptyError": "Tap here to add the first adjustment",
+  "@componentFormAdjustmentsEmptyError": {
+    "description": "Subtitle of the empty adjustments list while the form shows an error."
+  },
+  "componentFormAddAdjustment": "Add Adjustment",
+  "@componentFormAddAdjustment": {
+    "description": "Button below the adjustments list of the component form."
+  },
+  "componentFormPresetFilled": "Filled from {name}",
+  "@componentFormPresetFilled": {
+    "description": "Snackbar after a catalog product was applied to the form. {name} is the product name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "componentFormPresetReplaced": "Replaced adjustments with {name}",
+  "@componentFormPresetReplaced": {
+    "description": "Snackbar after a catalog product replaced the component's adjustments. {name} is the product name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "componentFormPresetLinked": "{count, plural, =0{Linked to {name} · no adjustments added} =1{Linked to {name} · 1 adjustment added} other{Linked to {name} · {count} adjustments added}}",
+  "@componentFormPresetLinked": {
+    "description": "Snackbar after an existing component was linked to a catalog product. {name} is the product name, {count} the number of added adjustments.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "componentFormCatalogUpdateDismissed": "Catalog update dismissed",
+  "@componentFormCatalogUpdateDismissed": {
+    "description": "Snackbar after the catalog update notice was dismissed."
+  },
+  "componentFormPresetUnlinked": "Unlinked from {name} — values kept",
+  "@componentFormPresetUnlinked": {
+    "description": "Snackbar after the link to a catalog product was removed. {name} is the product name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "componentFormCatalogFallback": "catalog",
+  "@componentFormCatalogFallback": {
+    "description": "Replaces the product name in the unlink snackbar when the product is no longer in the catalog."
+  },
+  "componentFormPresetCaption": "{count, plural, =1{1 adjustment prefilled from {name}} other{{count} adjustments prefilled from {name}}}",
+  "@componentFormPresetCaption": {
+    "description": "Caption above the adjustments list. {count} adjustments came from the catalog product {name}.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "componentFormPresetOthers": "{count, plural, =1{1 other} other{{count} others}}",
+  "@componentFormPresetOthers": {
+    "description": "Appended to the prefill caption for adjustments that did not come from the catalog.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "clearFilters": "Clear filters",
+  "@clearFilters": {
+    "description": "Button of an empty state that removes the active filters."
+  },
+  "columnsLabel": "Columns",
+  "@columnsLabel": {
+    "description": "Label of the chip that opens the column picker of a table."
+  },
+  "addComponent": "Add Component",
+  "@addComponent": {
+    "description": "Button that opens the new component form."
+  },
+  "setupColumnRank": "Rank",
+  "@setupColumnRank": {
+    "description": "Table column that shows the rank of a setup."
+  },
+  "bikeDetailsLaneNow": "now",
+  "@bikeDetailsLaneNow": {
+    "description": "End of a component's time range in the column history when it is still on the bike."
+  },
+  "bikeDetailsNotFoundTitle": "Bike not found",
+  "@bikeDetailsNotFoundTitle": {
+    "description": "Title of the bike details page when the bike no longer exists."
+  },
+  "bikeDetailsNotFoundSubtitle": "This bike was deleted or is no longer available.",
+  "@bikeDetailsNotFoundSubtitle": {
+    "description": "Subtitle of the bike details page when the bike no longer exists."
+  },
+  "bikeDetailsNoRider": "No rider linked to this bike.",
+  "@bikeDetailsNoRider": {
+    "description": "Row on the bike details page when the bike has no rider."
+  },
+  "bikeDetailsNoStravaGear": "No Strava Gear linked to this bike.",
+  "@bikeDetailsNoStravaGear": {
+    "description": "Row on the bike details page when the bike has no Strava gear."
+  },
+  "bikeDetailsStravaGearNotFound": "STRAVA GEAR NOT FOUND",
+  "@bikeDetailsStravaGearNotFound": {
+    "description": "Shown in red on the bike details page when the linked Strava gear no longer exists."
+  },
+  "bikeDetailsComponentsTitle": "Components ({count})",
+  "@bikeDetailsComponentsTitle": {
+    "description": "Title of the expandable components section of the bike details. {count} is the number of components.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noComponentsTitle": "No components yet",
+  "@noComponentsTitle": {
+    "description": "Title of the empty state of the components section of the bike details."
+  },
+  "bikeDetailsNoComponentsSubtitle": "Add a component to this bike",
+  "@bikeDetailsNoComponentsSubtitle": {
+    "description": "Subtitle of the empty state of the components section of the bike details."
+  },
+  "bikeDetailsTestSessionsTitle": "Test sessions ({count})",
+  "@bikeDetailsTestSessionsTitle": {
+    "description": "Title of the expandable test sessions section of the bike details. {count} is the number of sessions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bikeDetailsNoTestSessionsTitle": "No test sessions yet",
+  "@bikeDetailsNoTestSessionsTitle": {
+    "description": "Title of the empty state of the test sessions section."
+  },
+  "bikeDetailsNoTestSessionsSubtitle": "Try adjustments one after the other and see which works best",
+  "@bikeDetailsNoTestSessionsSubtitle": {
+    "description": "Subtitle of the empty state of the test sessions section."
+  },
+  "startTestSession": "Start Test Session",
+  "@startTestSession": {
+    "description": "Button that starts a new test session."
+  },
+  "bikeDetailsSetupHistoryTitle": "Setup History",
+  "@bikeDetailsSetupHistoryTitle": {
+    "description": "Section title of the setup table on the bike details."
+  },
+  "bikeDetailsSetupHistoryInfo": "All setups of this bike. Add or remove columns via the Columns button, or long-press a column header to remove it. Green values are new (no prior value), orange values have changed from the previous setup. Select rows to compare setups in the charts below.",
+  "@bikeDetailsSetupHistoryInfo": {
+    "description": "Info text of the setup history section on the bike details."
+  },
+  "bikeDetailsMergedColumnsInfo": "\n\nComponents that followed each other in the same position (e.g. the tire on the front wheel) share a column, so a replacement continues its predecessor's column and starts with a green value. Red values belong to a component that was not installed at that setup.",
+  "@bikeDetailsMergedColumnsInfo": {
+    "description": "Second paragraph of the setup history info text, appended to it."
+  },
+  "noSetupsTitle": "No setups yet",
+  "@noSetupsTitle": {
+    "description": "Title of the empty state of the setup history when the bike has no setups."
+  },
+  "bikeDetailsNoSetupsSubtitle": "No setups reference this bike",
+  "@bikeDetailsNoSetupsSubtitle": {
+    "description": "Subtitle of the empty state of the setup history when the bike has no setups."
+  },
+  "bikeDetailsFilterEmptyTitle": "Nothing matches this filter",
+  "@bikeDetailsFilterEmptyTitle": {
+    "description": "Title of the empty state of the setup history while the filters hide every setup."
+  },
+  "bikeDetailsFilterEmptySubtitle": "Your filters are hiding all setups.",
+  "@bikeDetailsFilterEmptySubtitle": {
+    "description": "Subtitle of the empty state of the setup history while the filters hide every setup."
+  },
+  "tableNoColumnsTitle": "No columns",
+  "@tableNoColumnsTitle": {
+    "description": "Title of the empty state of the setup history when every column is hidden."
+  },
+  "tableNoColumnsSubtitle": "Select a column to display the table",
+  "@tableNoColumnsSubtitle": {
+    "description": "Subtitle of the empty state of the setup history when every column is hidden."
+  },
+  "chartLineTitle": "Line Chart",
+  "@chartLineTitle": {
+    "description": "Section title of the line chart on the bike details."
+  },
+  "bikeDetailsLineChartInfo": "• Shows the setups selected in the table above in their current sort order.\n• The y-axis represents adjustment values.\n• Select at least two setups to display a trend.\n• Tap a legend entry to highlight a specific line.\n• Long-press a legend entry to remove its column.",
+  "@bikeDetailsLineChartInfo": {
+    "description": "Info text of the line chart section on the bike details."
+  },
+  "chartRadialTitle": "Radial Chart",
+  "@chartRadialTitle": {
+    "description": "Section title of the radial chart on the bike details."
+  },
+  "chartRadialInfo": "• Shows the setups selected in the table above.\n• Axes are normalized across all data for stable comparison.\n• Tap a legend entry to highlight a specific graph.\n• Long-press a legend entry to remove it from the selection.",
+  "@chartRadialInfo": {
+    "description": "Info text of the radial chart section on the bike details."
+  },
+  "chartHistogramTitle": "Activity Histogram",
+  "@chartHistogramTitle": {
+    "description": "Section title of the activity histogram on the bike details."
+  },
+  "bikeDetailsHistogramInfo": "• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Components that followed each other in the same position are counted together in one column.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.",
+  "@bikeDetailsHistogramInfo": {
+    "description": "Info text of the activity histogram section on the bike details."
+  },
+  "chartHistogramLockedTitle": "Strava Sync required",
+  "@chartHistogramLockedTitle": {
+    "description": "Title of the locked activity histogram without a Strava subscription."
+  },
+  "chartHistogramLockedSubtitle": "See how many activities you rode with each adjustment value.",
+  "@chartHistogramLockedSubtitle": {
+    "description": "Subtitle of the locked activity histogram without a Strava subscription."
+  },
+  "viewPlans": "View plans",
+  "@viewPlans": {
+    "description": "Button of the locked activity histogram that opens the Strava plans."
+  },
+  "componentDetailsNotFoundTitle": "Component not found",
+  "@componentDetailsNotFoundTitle": {
+    "description": "Title of the component details page when the component no longer exists."
+  },
+  "componentDetailsNotFoundSubtitle": "This component was deleted or is no longer available.",
+  "@componentDetailsNotFoundSubtitle": {
+    "description": "Subtitle of the component details page when the component no longer exists."
+  },
+  "componentDetailsHistory": "History",
+  "@componentDetailsHistory": {
+    "description": "Title of the expandable installation history section of the component details."
+  },
+  "componentDetailsSubcomponentsTitle": "Subcomponents ({count})",
+  "@componentDetailsSubcomponentsTitle": {
+    "description": "Title of the expandable subcomponents section of the component details. {count} is the number of subcomponents.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "componentDetailsNoSubcomponentsSubtitle": "Install a component on this component",
+  "@componentDetailsNoSubcomponentsSubtitle": {
+    "description": "Subtitle of the empty state of the subcomponents section."
+  },
+  "componentDetailsAdjustmentHistoryTitle": "Adjustment History",
+  "@componentDetailsAdjustmentHistoryTitle": {
+    "description": "Section title of the setup table on the component details."
+  },
+  "componentDetailsAdjustmentHistoryInfo": "• Add or remove columns via the Columns button.\n• Long-press a column header to remove it.\n• Tap a column header to sort.\n• Use the filter button to narrow down by bike or tags.\n• Select rows to compare setups in the charts below.\n\nValue colors:\n• Green: new value (no prior value).\n• Orange: changed from the previous setup.\n• Red: dangling value (component not installed or rider not linked at setup time).",
+  "@componentDetailsAdjustmentHistoryInfo": {
+    "description": "Info text of the adjustment history section on the component details."
+  },
+  "componentDetailsNoAdjustmentsTitle": "No adjustments",
+  "@componentDetailsNoAdjustmentsTitle": {
+    "description": "Title of the empty state of the adjustment history when the component has no adjustments."
+  },
+  "componentDetailsNoAdjustmentsSubtitle": "No adjustments are defined for this component",
+  "@componentDetailsNoAdjustmentsSubtitle": {
+    "description": "Subtitle of the empty state of the adjustment history when the component has no adjustments."
+  },
+  "componentDetailsLineChartInfo": "• Shows the setups selected in the table above in their current sort order.\n• The y-axis represents adjustment values.\n• Select at least two setups to display a trend.\n• Tap a legend entry to highlight a specific line.\n• Long-press a legend entry to remove it from the selection.",
+  "@componentDetailsLineChartInfo": {
+    "description": "Info text of the line chart section on the component details."
+  },
+  "componentDetailsHistogramInfo": "• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.",
+  "@componentDetailsHistogramInfo": {
+    "description": "Info text of the activity histogram section on the component details."
+  },
+  "snackbarAdd": "ADD",
+  "@snackbarAdd": {
+    "description": "Snackbar action that starts adding the missing item."
+  },
+  "componentAddBikeFirst": "Add a bike first",
+  "@componentAddBikeFirst": {
+    "description": "Error snackbar when a component is added while no bike exists."
+  },
+  "componentTasksCopied": "{count, plural, =1{Copied 1 task to '{name}'.} other{Copied {count} tasks to '{name}'.}}",
+  "@componentTasksCopied": {
+    "description": "Snackbar after copying task rules to a component. {count} is the number of tasks, {name} the component name.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "componentTasksAdded": "{count, plural, =1{Added 1 task to '{name}'.} other{Added {count} tasks to '{name}'.}}",
+  "@componentTasksAdded": {
+    "description": "Snackbar after adding recommended task rules to a component. {count} is the number of tasks, {name} the component name.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "componentReplaced": "Replaced '{oldName}' with '{newName}'.",
+  "@componentReplaced": {
+    "description": "Snackbar after a component was swapped for an existing one. {oldName} is the retired component, {newName} the replacement.",
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      },
+      "newName": {
+        "type": "String"
+      }
+    }
+  },
+  "componentTrashedSubcomponents": "{count, plural, =1{1 subcomponent} other{{count} subcomponents}}",
+  "@componentTrashedSubcomponents": {
+    "description": "Part of the list of items trashed along with a component. {count} is the number of subcomponents.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "componentSubcomponentsUninstalled": "{count, plural, =1{1 subcomponent uninstalled.} other{{count} subcomponents uninstalled.}}",
+  "@componentSubcomponentsUninstalled": {
+    "description": "Line of the snackbar after removing a component whose subcomponents were uninstalled. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "componentSubcomponentsInstalledOnBike": "{count, plural, =1{1 subcomponent installed on '{bike}'.} other{{count} subcomponents installed on '{bike}'.}}",
+  "@componentSubcomponentsInstalledOnBike": {
+    "description": "Line of the snackbar after removing a component whose subcomponents moved to its bike. {count} is their number, {bike} the bike name.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "bike": {
+        "type": "String"
+      }
+    }
+  },
+  "componentMovedToTrash": "Component '{name}' moved to trash.",
+  "@componentMovedToTrash": {
+    "description": "First line of the snackbar after deleting a component. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "componentRestoredFromTrash": "Component '{name}' restored from trash.",
+  "@componentRestoredFromTrash": {
+    "description": "Snackbar after restoring a component from the trash. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "archive": "Archive",
+  "@archive": {
+    "description": "Button that archives an item."
+  },
+  "installSubcomponentsOnBike": "Install subcomponents on '{bike}'",
+  "@installSubcomponentsOnBike": {
+    "description": "Option in the archive and remove sheets. {bike} is the bike name.",
+    "placeholders": {
+      "bike": {
+        "type": "String"
+      }
+    }
+  },
+  "installSubcomponentsOnBikeHint": "They are installed directly on the bike.",
+  "@installSubcomponentsOnBikeHint": {
+    "description": "Description of the option that installs subcomponents on the bike."
+  },
+  "subcomponentsKeepHint": "Subcomponents are kept. Choose what happens to them below.",
+  "@subcomponentsKeepHint": {
+    "description": "Description of the option that archives or removes only the component itself."
+  },
+  "archiveComponentTitle": "Archive '{name}'",
+  "@archiveComponentTitle": {
+    "description": "Title of the archive component sheet. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveComponentIntro": "Other components are mounted on '{name}'. Choose whether they are archived along with it.",
+  "@archiveComponentIntro": {
+    "description": "Explanation in the archive component sheet. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveWithSubcomponents": "Archive with subcomponents",
+  "@archiveWithSubcomponents": {
+    "description": "Option in the archive component sheet."
+  },
+  "archiveWithSubcomponentsHint": "They stay mounted and are archived along with it.",
+  "@archiveWithSubcomponentsHint": {
+    "description": "Description of the option that archives subcomponents too."
+  },
+  "archiveOnly": "Archive only '{name}'",
+  "@archiveOnly": {
+    "description": "Option in the archive component sheet. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "removeComponentTitle": "Remove '{name}'",
+  "@removeComponentTitle": {
+    "description": "Title of the remove component sheet. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "removeComponentIntro": "Other components are mounted on '{name}'. Choose what happens to them.",
+  "@removeComponentIntro": {
+    "description": "Explanation in the remove component sheet. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "removeWithSubcomponents": "Remove with subcomponents",
+  "@removeWithSubcomponents": {
+    "description": "Option in the remove component sheet."
+  },
+  "removeWithSubcomponentsHint": "All {count} components are moved to the trash.",
+  "@removeWithSubcomponentsHint": {
+    "description": "Description of the option that trashes the subcomponents too. {count} includes the component itself.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "removeOnly": "Remove only '{name}'",
+  "@removeOnly": {
+    "description": "Option in the remove component sheet. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "removeKeepLinked": "Keep subcomponents linked",
+  "@removeKeepLinked": {
+    "description": "Option in the remove component sheet."
+  },
+  "removeKeepLinkedHint": "They stay mounted on '{name}' and return with it when restored from the trash. Until then they are shown under uninstalled components with a missing parent.",
+  "@removeKeepLinkedHint": {
+    "description": "Description of the option that leaves subcomponents mounted on the trashed component. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "removeOutcomeTrash": "Trash",
+  "@removeOutcomeTrash": {
+    "description": "Label in the remove preview for items that go to the trash."
+  },
+  "removeOutcomeMissingParent": "Missing parent",
+  "@removeOutcomeMissingParent": {
+    "description": "Label in the remove preview for subcomponents whose parent is trashed."
+  },
+  "removeMoveToTrashMany": "Move {count} components to trash",
+  "@removeMoveToTrashMany": {
+    "description": "Button of the remove sheet when subcomponents go along. {count} includes the component itself.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "removeMoveToTrash": "Move to trash",
+  "@removeMoveToTrash": {
+    "description": "Button of the remove sheet when only the component is trashed."
+  },
+  "installationHintTitle": "Installation history",
+  "@installationHintTitle": {
+    "description": "Title of the sheet that explains the installation timeline."
+  },
+  "installationHintBody": "Track when you install, remove, move, or archive components. Set the date for each change to keep an accurate history. This lets your setups show only the components that were installed on the bike at that time.",
+  "@installationHintBody": {
+    "description": "First paragraph of the installation timeline explanation sheet."
+  },
+  "installationHintWithout": "Without installation history, the app only saves the bike where this component is installed now. It does not save past installs or removals.",
+  "@installationHintWithout": {
+    "description": "Second paragraph of the installation timeline explanation sheet."
+  },
+  "installationHintChangeAnytime": "You can change this anytime in Settings.",
+  "@installationHintChangeAnytime": {
+    "description": "Sentence appended to the second paragraph while the sheet offers the choice for the first time."
+  },
+  "installationHintExample": "Example timeline",
+  "@installationHintExample": {
+    "description": "Title of the sample timeline in the explanation sheet."
+  },
+  "installationHintExampleTrailBike": "Trail bike",
+  "@installationHintExampleTrailBike": {
+    "description": "Name of the first sample bike in the example timeline."
+  },
+  "installationHintExampleEnduroBike": "Enduro bike",
+  "@installationHintExampleEnduroBike": {
+    "description": "Name of the second sample bike in the example timeline."
+  },
+  "installationHintActivate": "Activate now",
+  "@installationHintActivate": {
+    "description": "Button of the explanation sheet that turns the installation timeline on."
+  },
+  "installationHintDecline": "Continue without tracking",
+  "@installationHintDecline": {
+    "description": "Button of the explanation sheet that keeps the installation timeline off."
+  },
+  "showAll": "Show all",
+  "@showAll": {
+    "description": "Button that reveals items that were hidden by default."
+  },
+  "parentPickerNoMatches": "No matches for \"{query}\"",
+  "@parentPickerNoMatches": {
+    "description": "Empty state of the installed-on picker while searching. {query} is the search text.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "parentPickerHidden": "{count, plural, =1{1 part hidden} other{{count} parts hidden}}",
+  "@parentPickerHidden": {
+    "description": "Note under the installed-on picker about parts that are not suggested. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentPickerHiddenUnusual": "{count, plural, =1{1 part hidden · unusual for a {type}} other{{count} parts hidden · unusual for a {type}}}",
+  "@parentPickerHiddenUnusual": {
+    "description": "Note under the installed-on picker about parts that are not suggested for the component's type. {count} is their number, {type} the type name.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "parentPickerSearchHint": "Search bikes and parts…",
+  "@parentPickerSearchHint": {
+    "description": "Placeholder of the search field of the installed-on picker."
+  },
+  "parentPickerBikes": "Bikes",
+  "@parentPickerBikes": {
+    "description": "Section title of the bikes in the installed-on picker."
+  },
+  "parentPickerMissingParent": "Components with a missing parent",
+  "@parentPickerMissingParent": {
+    "description": "Section title in the installed-on picker for components whose parent no longer exists."
+  },
+  "parentPickerUninstalled": "Uninstalled components",
+  "@parentPickerUninstalled": {
+    "description": "Section title in the installed-on picker for components that are not installed."
+  },
+  "parentPickerArchived": "Archived components",
+  "@parentPickerArchived": {
+    "description": "Section title in the installed-on picker for archived components."
+  },
+  "parentPickerOnBike": "Components on {bike}",
+  "@parentPickerOnBike": {
+    "description": "Section title in the installed-on picker for the components mounted on a bike. {bike} is the bike name.",
+    "placeholders": {
+      "bike": {
+        "type": "String"
+      }
+    }
+  },
+  "parentFieldMountedOnComponent": "Mounted on a component itself",
+  "@parentFieldMountedOnComponent": {
+    "description": "Reason shown under a component in the installed-on picker that cannot become a parent because it sits on another component."
+  },
+  "parentFieldUninstalled": "UNINSTALLED",
+  "@parentFieldUninstalled": {
+    "description": "Entry of the installed-on field for a component that is not installed."
+  },
+  "parentFieldArchived": "ARCHIVED",
+  "@parentFieldArchived": {
+    "description": "Entry of the installed-on field for an archived component."
+  },
+  "parentFieldTimelineHint": "Keep a dated history of where this part was installed, so setups and ride stats match the parts that were really on the bike.",
+  "@parentFieldTimelineHint": {
+    "description": "Hint in the installed-on picker that offers to turn on the installation timeline."
+  },
+  "parentFieldDepthCap": "{count, plural, =1{Can't mount on a component while it carries 1 part} other{Can't mount on a component while it carries {count} parts}}",
+  "@parentFieldDepthCap": {
+    "description": "Note in the installed-on picker. A component that carries parts cannot itself be mounted on a component. {count} is the number of parts.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentFieldSelectBike": "Select Bike",
+  "@parentFieldSelectBike": {
+    "description": "Placeholder of the installed-on field while nothing is selected."
+  },
+  "garageDragToInstall": "Drag here to install on {bike}",
+  "@garageDragToInstall": {
+    "description": "Hint on a bike card in the garage while a component is dragged. {bike} is the bike name.",
+    "placeholders": {
+      "bike": {
+        "type": "String"
+      }
+    }
+  },
+  "garageReleaseToInstall": "Release to install to {bike}",
+  "@garageReleaseToInstall": {
+    "description": "Hint on a bike card while a dragged component hovers over it. {bike} is the bike name.",
+    "placeholders": {
+      "bike": {
+        "type": "String"
+      }
+    }
+  },
+  "garageReleaseToUnarchive": "Release to unarchive",
+  "@garageReleaseToUnarchive": {
+    "description": "Hint on the uninstalled area while an archived component hovers over it."
+  },
+  "garageReleaseToUninstall": "Release to uninstall component",
+  "@garageReleaseToUninstall": {
+    "description": "Hint on the uninstalled area while a component hovers over it."
+  },
+  "garageReleaseToUninstallFrom": "Release to uninstall from {parent}",
+  "@garageReleaseToUninstallFrom": {
+    "description": "Hint on the uninstalled area while a subcomponent hovers over it. {parent} is the component it is mounted on.",
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "garageDragComponentsToUninstall": "Drag components here to uninstall from bike",
+  "@garageDragComponentsToUninstall": {
+    "description": "Placeholder of the uninstalled area of the garage while it is empty."
+  },
+  "garageOrTapToAdd": "or tap to add new",
+  "@garageOrTapToAdd": {
+    "description": "Second line of the empty uninstalled area of the garage."
+  },
+  "garageDragToUninstall": "Drag here to uninstall",
+  "@garageDragToUninstall": {
+    "description": "Hint on the uninstalled area while a component is dragged."
+  },
+  "garageDragToUninstallFrom": "Drag here to uninstall from {parent}",
+  "@garageDragToUninstallFrom": {
+    "description": "Hint on the uninstalled area while a subcomponent is dragged. {parent} is the component it is mounted on.",
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "garageDragToArchive": "Drag here to archive",
+  "@garageDragToArchive": {
+    "description": "Hint on the archive area while a component is dragged."
+  },
+  "garageReleaseToArchive": "Release to archive",
+  "@garageReleaseToArchive": {
+    "description": "Hint on the archive area while a component hovers over it."
   }
 }

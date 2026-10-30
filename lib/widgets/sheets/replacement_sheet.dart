@@ -99,6 +99,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final ancestors = _ancestorsAbove(
       appRepository.componentHierarchy,
@@ -109,17 +110,17 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
     final installedColor = theme.extension<ValueHighlightColors>()!.initial;
 
     final String removedVerb = switch (widget.removed.installation.parentType) {
-      InstallationParentType.archived => 'Archived',
-      _ => 'Uninstalled',
+      InstallationParentType.archived => l10n.timelineArchived,
+      _ => l10n.timelineUninstalled,
     };
 
     final bool sameName =
         widget.removed.component.name == widget.installed.component.name;
     final String removedTitle = sameName
-        ? "${widget.removed.component.name} ($removedVerb)"
+        ? l10n.replacementTitleWithStatus(widget.removed.component.name, removedVerb)
         : widget.removed.component.name;
     final String installedTitle = sameName
-        ? "${widget.installed.component.name} (Installed)"
+        ? l10n.replacementTitleWithStatus(widget.installed.component.name, l10n.timelineInstalledCaption)
         : widget.installed.component.name;
 
     return SafeArea(
@@ -130,7 +131,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SheetHeader(
-              title: "Replaced ${widget.removed.component.componentType.label(context.l10n)}",
+              title: l10n.timelineReplaced(widget.removed.component.componentType.label(l10n)),
               leadingIcon: const Icon(Icons.swap_horiz),
             ),
             const SizedBox(height: 16),
@@ -143,9 +144,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: Text(
-                        'A replacement is simply two installations within '
-                        '${kReplacementWindow.inMinutes} minutes: one component '
-                        'removed and another installed on the same bike.',
+                        l10n.replacementExplanation(kReplacementWindow.inMinutes),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -199,7 +198,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
                                 Expanded(
                                   child: _ComponentPreview(
                                     component: widget.installed.component,
-                                    caption: 'Installed',
+                                    caption: l10n.timelineInstalledCaption,
                                     color: installedColor,
                                   ),
                                 ),
@@ -256,7 +255,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
               width: double.infinity,
               child: FilledButton(
                 onPressed: _hasChanges ? _onConfirm : null,
-                child: const Text('Save'),
+                child: Text(l10n.save),
               ),
             ),
           ],

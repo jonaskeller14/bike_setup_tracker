@@ -8,6 +8,7 @@ import 'package:bike_setup_tracker/models/strava/strava_plan.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/tip_product.dart';
 import 'package:bike_setup_tracker/utils/installation_issue.dart';
+import 'package:bike_setup_tracker/utils/installation_timeline_validation.dart';
 import 'package:drift/drift.dart' show EnumNameConverter;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -45,6 +46,10 @@ void main() {
     );
     test('TipProduct', () => expectLabeled(TipProduct.values, (v, l10n) => v.label(l10n)));
     test('InstallationIssue', () => expectLabeled(InstallationIssue.values, (v, l10n) => v.label(l10n)));
+    test(
+      'InstallationTimelineProblem',
+      () => expectLabeled(InstallationTimelineProblem.values, (v, l10n) => v.label(l10n)),
+    );
   });
 
   test('English labels keep the wording the app had before translation', () {

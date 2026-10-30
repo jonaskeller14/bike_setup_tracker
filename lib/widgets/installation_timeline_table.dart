@@ -51,6 +51,7 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
     final appSettings = context.watch<AppSettings>();
     final theme = Theme.of(context);
     final textScaler = MediaQuery.textScalerOf(context);
+    final l10n = context.l10n;
 
     final components = widget.componentHierarchy.components;
     final intervals = effectiveBikeIntervals(widget.componentHierarchy, components.values, widget.bikeId);
@@ -99,9 +100,9 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(
-          title: "Installation Timeline",
-          infoText: "Visualizes component setup history, including overlaps and periods with no active components.",
+        SectionTitle(
+          title: l10n.installationTimelineTitle,
+          infoText: l10n.timelineTableInfo,
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -110,8 +111,8 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
             showCheckmark: false,
             label: Text(
               _hiddenComponentTypes.isEmpty
-                  ? "All Component Types"
-                  : "Component Types ${visibleComponentTypes.length}/${activeComponentTypes.length}",
+                  ? l10n.timelineAllComponentTypes
+                  : l10n.timelineComponentTypesCount(visibleComponentTypes.length, activeComponentTypes.length),
             ),
             selected: _hiddenComponentTypes.isNotEmpty,
             onSelected: (bool _) async {
@@ -127,16 +128,16 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
         ),
         const SizedBox(height: 8),
         if (intervals.isEmpty)
-          const EmptyStatePlaceholder(
+          EmptyStatePlaceholder(
             icon: Icons.history_rounded,
-            title: "No installation history",
-            subtitle: "Install components on this bike to see the timeline",
+            title: l10n.timelineEmptyTitle,
+            subtitle: l10n.timelineEmptySubtitle,
           )
         else if (visibleComponentTypes.isEmpty)
-          const EmptyStatePlaceholder(
+          EmptyStatePlaceholder(
             icon: Icons.view_column_outlined,
-            title: "No component types selected",
-            subtitle: "Select a component type to display the table",
+            title: l10n.timelineNoTypesTitle,
+            subtitle: l10n.timelineNoTypesSubtitle,
           )
         else
           Padding(
@@ -167,7 +168,7 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
                           padding: const EdgeInsets.all(2 * _cellPadding),
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child: Text("Timeline", style: headerStyle),
+                            child: Text(l10n.timelineTableCorner, style: headerStyle),
                           ),
                         ),
                       ),
@@ -292,7 +293,7 @@ class _RowLabel extends StatelessWidget {
     if (row.isInitialSetup) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2 * padding, vertical: padding),
-        child: Text("From beginning", style: dateStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
+        child: Text(context.l10n.timelineFromBeginning, style: dateStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
       );
     }
 
@@ -408,7 +409,7 @@ class _TimelineBlock extends StatelessWidget {
       items: [
         _menuItem(
           icon: component.componentType.getIconData(),
-          label: 'Component details',
+          label: context.l10n.timelineMenuComponentDetails,
           value: () => Navigator.of(context).push(
             MaterialPageRoute<void>(builder: (context) => ComponentDetailsPage(componentId: component.id)),
           ),
@@ -416,7 +417,7 @@ class _TimelineBlock extends StatelessWidget {
         if (startIndex >= 0)
           _menuItem(
             icon: Icons.edit,
-            label: 'Edit installation',
+            label: context.l10n.timelineMenuEditInstallation,
             value: () => showEditInstallationSheet(
               context,
               component: component,

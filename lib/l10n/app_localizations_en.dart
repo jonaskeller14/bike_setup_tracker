@@ -1747,4 +1747,1083 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hintGuideRecordSetup => 'Record a setup';
+
+  @override
+  String get undo => 'UNDO';
+
+  @override
+  String listJoinTwo(String first, String second) {
+    return '$first and $second';
+  }
+
+  @override
+  String listJoinMany(String leading, String last) {
+    return '$leading, and $last';
+  }
+
+  @override
+  String get timelineProblemNoEntries => 'At least one entry is required';
+
+  @override
+  String get timelineProblemArchivalNotLast => 'Archival can only be the last entry in the timeline';
+
+  @override
+  String get timelineProblemConsecutiveUninstallations => 'Cannot have consecutive uninstallations';
+
+  @override
+  String get timelineProblemConsecutiveOnSameBike => 'Cannot have consecutive installations on the same bike';
+
+  @override
+  String get timelineProblemConsecutiveOnSameComponent => 'Cannot have consecutive installations on the same component';
+
+  @override
+  String get timelineProblemMultipleFromBeginning => 'Multiple \"From beginning\" entries are not allowed';
+
+  @override
+  String get timelineProblemSameDateTime => 'Two entries cannot have the same date & time';
+
+  @override
+  String get timelineProblemBikeMissing => 'This entry is installed on a bike that no longer exists';
+
+  @override
+  String get timelineProblemInstalledOnItself => 'A component cannot be installed on itself';
+
+  @override
+  String get timelineProblemComponentLoop => 'This installation creates a loop of components';
+
+  @override
+  String bikeRiderRemoved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Rider removed from $count Bikes.',
+      one: 'Rider removed from 1 Bike.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bikeRiderSet(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Rider set to \'$name\' for $count Bikes.',
+      one: 'Rider set to \'$name\' for 1 Bike.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bikeMovedToTrash(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bikes moved to trash.',
+      one: 'Bike \'$name\' moved to trash.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bikeTrashedComponents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count components',
+      one: '1 component',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bikeTrashedSetups(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count setups',
+      one: '1 setup',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bikeTrashedTasks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tasks and their entries',
+      one: '1 task and its entries',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bikeAlsoTrashed(String summary) {
+    return 'Also moved to trash: $summary.';
+  }
+
+  @override
+  String bikeRestoredFromTrash(String name) {
+    return 'Bike \'$name\' restored from trash.';
+  }
+
+  @override
+  String timelineEntriesMovedToTrash(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries moved to trash.',
+      one: '1 entry moved to trash.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stravaGearUnlinked(String gear, String bike) {
+    return 'Unlinked \'$gear\' from \'$bike\'.';
+  }
+
+  @override
+  String get installationTimelineTitle => 'Installation Timeline';
+
+  @override
+  String get timelineFromBeginning => 'From beginning';
+
+  @override
+  String get timelineNow => 'Now';
+
+  @override
+  String get timelineSelectDateTime => 'Select date & time...';
+
+  @override
+  String get timelineAddEntryTooltip => 'Add Timeline Entry';
+
+  @override
+  String get bikeNotFound => 'BIKE NOT FOUND';
+
+  @override
+  String get componentNotFound => 'COMPONENT NOT FOUND';
+
+  @override
+  String get timelineUninstalled => 'Uninstalled';
+
+  @override
+  String get timelineArchived => 'Archived';
+
+  @override
+  String timelineVia(String name) {
+    return 'via $name';
+  }
+
+  @override
+  String timelineDayToday(String date) {
+    return 'Today · $date';
+  }
+
+  @override
+  String timelineDayYesterday(String date) {
+    return 'Yesterday · $date';
+  }
+
+  @override
+  String get timelineTableInfo =>
+      'Visualizes component setup history, including overlaps and periods with no active components.';
+
+  @override
+  String get timelineAllComponentTypes => 'All Component Types';
+
+  @override
+  String timelineComponentTypesCount(int visible, int total) {
+    return 'Component Types $visible/$total';
+  }
+
+  @override
+  String get timelineEmptyTitle => 'No installation history';
+
+  @override
+  String get timelineEmptySubtitle => 'Install components on this bike to see the timeline';
+
+  @override
+  String get timelineNoTypesTitle => 'No component types selected';
+
+  @override
+  String get timelineNoTypesSubtitle => 'Select a component type to display the table';
+
+  @override
+  String get timelineTableCorner => 'Timeline';
+
+  @override
+  String get timelineMenuComponentDetails => 'Component details';
+
+  @override
+  String get timelineMenuEditInstallation => 'Edit installation';
+
+  @override
+  String get garageNoBikesMatchTitle => 'No bikes match this filter';
+
+  @override
+  String get garageNoBikesMatchSubtitle => 'The bike filter is hiding all bikes.';
+
+  @override
+  String get garageNoBikesTitle => 'No bikes yet';
+
+  @override
+  String get garageNoBikesSubtitle => 'Add your first bike to get started.';
+
+  @override
+  String get garageAddBike => 'Add a bike';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get duplicate => 'Duplicate';
+
+  @override
+  String get replace => 'Replace';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get timelineNotInstalled => 'Not installed';
+
+  @override
+  String get timelineArchive => 'Archive';
+
+  @override
+  String timelineAdded(String name) {
+    return 'Added $name';
+  }
+
+  @override
+  String timelineInstalled(String name) {
+    return 'Installed $name';
+  }
+
+  @override
+  String timelineUninstalledName(String name) {
+    return 'Uninstalled $name';
+  }
+
+  @override
+  String timelineArchivedName(String name) {
+    return 'Archived $name';
+  }
+
+  @override
+  String timelineReplaced(String type) {
+    return 'Replaced $type';
+  }
+
+  @override
+  String get installationNotSavedLoop => 'Not saved: this would create a loop of components.';
+
+  @override
+  String get timelineInstalledCaption => 'Installed';
+
+  @override
+  String replacementTitleWithStatus(String name, String status) {
+    return '$name ($status)';
+  }
+
+  @override
+  String replacementExplanation(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '1 minute',
+    );
+    return 'A replacement is simply two installations within $_temp0: one component removed and another installed on the same bike.';
+  }
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String replaceTitle(String name) {
+    return 'Replace \'$name\'';
+  }
+
+  @override
+  String get replaceOutcomeReplacement => 'Replacement';
+
+  @override
+  String get replaceOutcomeNewComponent => 'New component';
+
+  @override
+  String get replaceModeExisting => 'Existing';
+
+  @override
+  String get replaceModeNew => 'New';
+
+  @override
+  String get replaceDescriptionExistingDated =>
+      'Pick an already uninstalled component to install in place of this one, and set the replacement date. This is when the current component is retired and the selected one installed.';
+
+  @override
+  String get replaceDescriptionNewDated =>
+      'Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.';
+
+  @override
+  String get replaceDescriptionExistingUndated =>
+      'Pick an already uninstalled component to install in place of this one. The current component is uninstalled.';
+
+  @override
+  String get replaceDescriptionNewUndated =>
+      'The current component is uninstalled and a new one installed in its place. In the next step, you can configure the new component, which will be pre-filled with details from this one.';
+
+  @override
+  String get replaceTimelineHint =>
+      'Without a swap date, the new part counts as installed from the start. Past setups then no longer show the old part and the values you recorded for it. Date the swap to keep both histories intact.';
+
+  @override
+  String replaceNoUninstalledTitle(String type) {
+    return 'No uninstalled $type available';
+  }
+
+  @override
+  String get replaceNoUninstalledHint => 'Create a new component instead.';
+
+  @override
+  String get replaceComponentLabel => 'Replacement Component';
+
+  @override
+  String get replaceComponentHint => 'Select a component';
+
+  @override
+  String get replaceComponentRequired => 'Please select a component';
+
+  @override
+  String get replaceDateLabel => 'Replacement Date';
+
+  @override
+  String replaceDateAfterLast(String date) {
+    return 'Must be after last installation ($date)';
+  }
+
+  @override
+  String get replaceMoveSubcomponents => 'Move subcomponents to replacement';
+
+  @override
+  String get replaceMoveSubcomponentsHint => 'They are installed on the replacement at the replacement date.';
+
+  @override
+  String get uninstallSubcomponents => 'Uninstall subcomponents';
+
+  @override
+  String get uninstallSubcomponentsHint => 'They move to your uninstalled components.';
+
+  @override
+  String get previousValueTooltip => 'Previous value';
+
+  @override
+  String get enterValidValue => 'Please enter a valid value';
+
+  @override
+  String get notesOptionalLabel => 'Notes (optional)';
+
+  @override
+  String get addAttachmentTooltip => 'Add Attachment';
+
+  @override
+  String get showAdditionalFields => 'Show Additional Fields';
+
+  @override
+  String get hideAdditionalFields => 'Hide Additional Fields';
+
+  @override
+  String get riderNotFound => 'RIDER NOT FOUND';
+
+  @override
+  String get stravaGearNotFound => 'GEAR NOT FOUND';
+
+  @override
+  String get componentTypePickerTitle => 'Select Component Type';
+
+  @override
+  String get initialStatsTitle => 'Initial Stats';
+
+  @override
+  String initialStatsChip(String summary) {
+    return 'Initial: $summary';
+  }
+
+  @override
+  String get initialStatsBikeTooltip => 'Usage before this bike was tracked';
+
+  @override
+  String get initialStatsComponentTooltip => 'Usage before this component was tracked';
+
+  @override
+  String get initialStatsBikeDescription =>
+      'Usage this bike had before it was tracked here, e.g. for a second-hand bike. It is added on top of the stats from your activities. Components installed \'Since beginning\' inherit these stats.';
+
+  @override
+  String get initialStatsComponentDescription =>
+      'Usage this component had before it was tracked here, e.g. for a second-hand part. It is added on top of the stats from your activities. Components installed \'Since beginning\' also include their bike\'s initial stats.';
+
+  @override
+  String initialStatsActivities(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count activities',
+      one: '1 activity',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get initialStatsDistance => 'Distance';
+
+  @override
+  String get initialStatsElevationGain => 'Elevation Gain';
+
+  @override
+  String get initialStatsMovingTime => 'Moving Time';
+
+  @override
+  String get initialStatsElapsedTime => 'Elapsed Time';
+
+  @override
+  String get initialStatsActivityCount => 'Activities';
+
+  @override
+  String get initialStatsEnergy => 'Energy';
+
+  @override
+  String get bikeFormAddTitle => 'Add Bike';
+
+  @override
+  String get bikeFormEditTitle => 'Edit Bike';
+
+  @override
+  String get bikeFormNameLabel => 'Bike Name';
+
+  @override
+  String get bikeFormNameHint => 'Enter bike name';
+
+  @override
+  String get bikeFormNameRequired => 'Please enter a bike name';
+
+  @override
+  String get bikeFormRiderLabel => 'Rider';
+
+  @override
+  String get bikeFormRiderHint => 'Choose a rider for this bike';
+
+  @override
+  String get bikeFormRiderHelper => 'You can assign a rider later, as soon as you\'ve created one.';
+
+  @override
+  String get bikeFormRiderInvalid => 'Please select a valid rider';
+
+  @override
+  String get bikeFormNoRider => 'No rider';
+
+  @override
+  String get bikeFormNotesHint => 'Enter Bike brand, model, size, year, costs, ...';
+
+  @override
+  String get bikeFormStravaGearLabel => 'Strava Gear';
+
+  @override
+  String get bikeFormStravaGearHint => 'Link Strava Gear';
+
+  @override
+  String get bikeFormStravaGearTaken => 'WARNING: Strava Gear already assigned to another Bike';
+
+  @override
+  String get bikeFormStravaGearInvalid => 'Please select valid Gear';
+
+  @override
+  String get bikeFormStravaGearNotLinked => 'NOT LINKED';
+
+  @override
+  String get componentFormAddTitle => 'Add Component';
+
+  @override
+  String get componentFormEditTitle => 'Edit Component';
+
+  @override
+  String get componentFormNameLabel => 'Component Name';
+
+  @override
+  String get componentFormNameHint => 'Enter component name';
+
+  @override
+  String get componentFormNameRequired => 'Name is required';
+
+  @override
+  String get componentFormNameTipFork => 'Tip: type a product name — e.g. \'Fox 38\'';
+
+  @override
+  String get componentFormNameTipShock => 'Tip: type a product name — e.g. \'Fox Float X\'';
+
+  @override
+  String get componentFormNotesHint => 'Enter brand, model, serial number, costs, ...';
+
+  @override
+  String get componentFormTypeLabel => 'Type';
+
+  @override
+  String get componentFormTypePlaceholder => 'Please select type';
+
+  @override
+  String get componentFormTypeRequired => 'Component type cannot be empty. You can edit it later.';
+
+  @override
+  String componentFormTypeOverLimit(int count, String type) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'WARNING: There are already $count $type-Components installed on this bike.',
+      one: 'WARNING: There is already one $type-Component installed on this bike.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get componentFormInstalledOnLabel => 'Installed on';
+
+  @override
+  String get componentFormInstalledOnInvalid => 'Please select valid bike';
+
+  @override
+  String get componentFormInstalledOnWarning => 'WARNING: Select Bike to install Component.';
+
+  @override
+  String get componentFormTimelineLocked =>
+      'The timeline is locked during the replacement. The new component is installed at the same time the old one is removed. You can edit the timeline after saving.';
+
+  @override
+  String get componentFormAdjustmentsTitle => 'Adjustments';
+
+  @override
+  String get componentFormAdjustmentsInfo =>
+      'Adjustments are physical parameters on this component that can be tuned—such as dial positions, switch settings, or pressure ranges. Step 1: Define what adjustment parameters exist for this component and set their limits here. Step 2: After you save this component, create a Setup to save actual adjustment values for your bike.';
+
+  @override
+  String get componentFormAdjustmentsEmptyTitle => 'No adjustments yet';
+
+  @override
+  String get componentFormAdjustmentsEmptySubtitle => 'Tap \'Add Adjustment\' to define settings for this component';
+
+  @override
+  String get componentFormAdjustmentsEmptyError => 'Tap here to add the first adjustment';
+
+  @override
+  String get componentFormAddAdjustment => 'Add Adjustment';
+
+  @override
+  String componentFormPresetFilled(String name) {
+    return 'Filled from $name';
+  }
+
+  @override
+  String componentFormPresetReplaced(String name) {
+    return 'Replaced adjustments with $name';
+  }
+
+  @override
+  String componentFormPresetLinked(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Linked to $name · $count adjustments added',
+      one: 'Linked to $name · 1 adjustment added',
+      zero: 'Linked to $name · no adjustments added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get componentFormCatalogUpdateDismissed => 'Catalog update dismissed';
+
+  @override
+  String componentFormPresetUnlinked(String name) {
+    return 'Unlinked from $name — values kept';
+  }
+
+  @override
+  String get componentFormCatalogFallback => 'catalog';
+
+  @override
+  String componentFormPresetCaption(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count adjustments prefilled from $name',
+      one: '1 adjustment prefilled from $name',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String componentFormPresetOthers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count others',
+      one: '1 other',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get clearFilters => 'Clear filters';
+
+  @override
+  String get columnsLabel => 'Columns';
+
+  @override
+  String get addComponent => 'Add Component';
+
+  @override
+  String get setupColumnRank => 'Rank';
+
+  @override
+  String get bikeDetailsLaneNow => 'now';
+
+  @override
+  String get bikeDetailsNotFoundTitle => 'Bike not found';
+
+  @override
+  String get bikeDetailsNotFoundSubtitle => 'This bike was deleted or is no longer available.';
+
+  @override
+  String get bikeDetailsNoRider => 'No rider linked to this bike.';
+
+  @override
+  String get bikeDetailsNoStravaGear => 'No Strava Gear linked to this bike.';
+
+  @override
+  String get bikeDetailsStravaGearNotFound => 'STRAVA GEAR NOT FOUND';
+
+  @override
+  String bikeDetailsComponentsTitle(int count) {
+    return 'Components ($count)';
+  }
+
+  @override
+  String get noComponentsTitle => 'No components yet';
+
+  @override
+  String get bikeDetailsNoComponentsSubtitle => 'Add a component to this bike';
+
+  @override
+  String bikeDetailsTestSessionsTitle(int count) {
+    return 'Test sessions ($count)';
+  }
+
+  @override
+  String get bikeDetailsNoTestSessionsTitle => 'No test sessions yet';
+
+  @override
+  String get bikeDetailsNoTestSessionsSubtitle => 'Try adjustments one after the other and see which works best';
+
+  @override
+  String get startTestSession => 'Start Test Session';
+
+  @override
+  String get bikeDetailsSetupHistoryTitle => 'Setup History';
+
+  @override
+  String get bikeDetailsSetupHistoryInfo =>
+      'All setups of this bike. Add or remove columns via the Columns button, or long-press a column header to remove it. Green values are new (no prior value), orange values have changed from the previous setup. Select rows to compare setups in the charts below.';
+
+  @override
+  String get bikeDetailsMergedColumnsInfo =>
+      '\n\nComponents that followed each other in the same position (e.g. the tire on the front wheel) share a column, so a replacement continues its predecessor\'s column and starts with a green value. Red values belong to a component that was not installed at that setup.';
+
+  @override
+  String get noSetupsTitle => 'No setups yet';
+
+  @override
+  String get bikeDetailsNoSetupsSubtitle => 'No setups reference this bike';
+
+  @override
+  String get bikeDetailsFilterEmptyTitle => 'Nothing matches this filter';
+
+  @override
+  String get bikeDetailsFilterEmptySubtitle => 'Your filters are hiding all setups.';
+
+  @override
+  String get tableNoColumnsTitle => 'No columns';
+
+  @override
+  String get tableNoColumnsSubtitle => 'Select a column to display the table';
+
+  @override
+  String get chartLineTitle => 'Line Chart';
+
+  @override
+  String get bikeDetailsLineChartInfo =>
+      '• Shows the setups selected in the table above in their current sort order.\n• The y-axis represents adjustment values.\n• Select at least two setups to display a trend.\n• Tap a legend entry to highlight a specific line.\n• Long-press a legend entry to remove its column.';
+
+  @override
+  String get chartRadialTitle => 'Radial Chart';
+
+  @override
+  String get chartRadialInfo =>
+      '• Shows the setups selected in the table above.\n• Axes are normalized across all data for stable comparison.\n• Tap a legend entry to highlight a specific graph.\n• Long-press a legend entry to remove it from the selection.';
+
+  @override
+  String get chartHistogramTitle => 'Activity Histogram';
+
+  @override
+  String get bikeDetailsHistogramInfo =>
+      '• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Components that followed each other in the same position are counted together in one column.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.';
+
+  @override
+  String get chartHistogramLockedTitle => 'Strava Sync required';
+
+  @override
+  String get chartHistogramLockedSubtitle => 'See how many activities you rode with each adjustment value.';
+
+  @override
+  String get viewPlans => 'View plans';
+
+  @override
+  String get componentDetailsNotFoundTitle => 'Component not found';
+
+  @override
+  String get componentDetailsNotFoundSubtitle => 'This component was deleted or is no longer available.';
+
+  @override
+  String get componentDetailsHistory => 'History';
+
+  @override
+  String componentDetailsSubcomponentsTitle(int count) {
+    return 'Subcomponents ($count)';
+  }
+
+  @override
+  String get componentDetailsNoSubcomponentsSubtitle => 'Install a component on this component';
+
+  @override
+  String get componentDetailsAdjustmentHistoryTitle => 'Adjustment History';
+
+  @override
+  String get componentDetailsAdjustmentHistoryInfo =>
+      '• Add or remove columns via the Columns button.\n• Long-press a column header to remove it.\n• Tap a column header to sort.\n• Use the filter button to narrow down by bike or tags.\n• Select rows to compare setups in the charts below.\n\nValue colors:\n• Green: new value (no prior value).\n• Orange: changed from the previous setup.\n• Red: dangling value (component not installed or rider not linked at setup time).';
+
+  @override
+  String get componentDetailsNoAdjustmentsTitle => 'No adjustments';
+
+  @override
+  String get componentDetailsNoAdjustmentsSubtitle => 'No adjustments are defined for this component';
+
+  @override
+  String get componentDetailsLineChartInfo =>
+      '• Shows the setups selected in the table above in their current sort order.\n• The y-axis represents adjustment values.\n• Select at least two setups to display a trend.\n• Tap a legend entry to highlight a specific line.\n• Long-press a legend entry to remove it from the selection.';
+
+  @override
+  String get componentDetailsHistogramInfo =>
+      '• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.';
+
+  @override
+  String get snackbarAdd => 'ADD';
+
+  @override
+  String get componentAddBikeFirst => 'Add a bike first';
+
+  @override
+  String componentTasksCopied(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Copied $count tasks to \'$name\'.',
+      one: 'Copied 1 task to \'$name\'.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String componentTasksAdded(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Added $count tasks to \'$name\'.',
+      one: 'Added 1 task to \'$name\'.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String componentReplaced(String oldName, String newName) {
+    return 'Replaced \'$oldName\' with \'$newName\'.';
+  }
+
+  @override
+  String componentTrashedSubcomponents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subcomponents',
+      one: '1 subcomponent',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String componentSubcomponentsUninstalled(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subcomponents uninstalled.',
+      one: '1 subcomponent uninstalled.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String componentSubcomponentsInstalledOnBike(int count, String bike) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subcomponents installed on \'$bike\'.',
+      one: '1 subcomponent installed on \'$bike\'.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String componentMovedToTrash(String name) {
+    return 'Component \'$name\' moved to trash.';
+  }
+
+  @override
+  String componentRestoredFromTrash(String name) {
+    return 'Component \'$name\' restored from trash.';
+  }
+
+  @override
+  String get archive => 'Archive';
+
+  @override
+  String installSubcomponentsOnBike(String bike) {
+    return 'Install subcomponents on \'$bike\'';
+  }
+
+  @override
+  String get installSubcomponentsOnBikeHint => 'They are installed directly on the bike.';
+
+  @override
+  String get subcomponentsKeepHint => 'Subcomponents are kept. Choose what happens to them below.';
+
+  @override
+  String archiveComponentTitle(String name) {
+    return 'Archive \'$name\'';
+  }
+
+  @override
+  String archiveComponentIntro(String name) {
+    return 'Other components are mounted on \'$name\'. Choose whether they are archived along with it.';
+  }
+
+  @override
+  String get archiveWithSubcomponents => 'Archive with subcomponents';
+
+  @override
+  String get archiveWithSubcomponentsHint => 'They stay mounted and are archived along with it.';
+
+  @override
+  String archiveOnly(String name) {
+    return 'Archive only \'$name\'';
+  }
+
+  @override
+  String removeComponentTitle(String name) {
+    return 'Remove \'$name\'';
+  }
+
+  @override
+  String removeComponentIntro(String name) {
+    return 'Other components are mounted on \'$name\'. Choose what happens to them.';
+  }
+
+  @override
+  String get removeWithSubcomponents => 'Remove with subcomponents';
+
+  @override
+  String removeWithSubcomponentsHint(int count) {
+    return 'All $count components are moved to the trash.';
+  }
+
+  @override
+  String removeOnly(String name) {
+    return 'Remove only \'$name\'';
+  }
+
+  @override
+  String get removeKeepLinked => 'Keep subcomponents linked';
+
+  @override
+  String removeKeepLinkedHint(String name) {
+    return 'They stay mounted on \'$name\' and return with it when restored from the trash. Until then they are shown under uninstalled components with a missing parent.';
+  }
+
+  @override
+  String get removeOutcomeTrash => 'Trash';
+
+  @override
+  String get removeOutcomeMissingParent => 'Missing parent';
+
+  @override
+  String removeMoveToTrashMany(int count) {
+    return 'Move $count components to trash';
+  }
+
+  @override
+  String get removeMoveToTrash => 'Move to trash';
+
+  @override
+  String get installationHintTitle => 'Installation history';
+
+  @override
+  String get installationHintBody =>
+      'Track when you install, remove, move, or archive components. Set the date for each change to keep an accurate history. This lets your setups show only the components that were installed on the bike at that time.';
+
+  @override
+  String get installationHintWithout =>
+      'Without installation history, the app only saves the bike where this component is installed now. It does not save past installs or removals.';
+
+  @override
+  String get installationHintChangeAnytime => 'You can change this anytime in Settings.';
+
+  @override
+  String get installationHintExample => 'Example timeline';
+
+  @override
+  String get installationHintExampleTrailBike => 'Trail bike';
+
+  @override
+  String get installationHintExampleEnduroBike => 'Enduro bike';
+
+  @override
+  String get installationHintActivate => 'Activate now';
+
+  @override
+  String get installationHintDecline => 'Continue without tracking';
+
+  @override
+  String get showAll => 'Show all';
+
+  @override
+  String parentPickerNoMatches(String query) {
+    return 'No matches for \"$query\"';
+  }
+
+  @override
+  String parentPickerHidden(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count parts hidden',
+      one: '1 part hidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String parentPickerHiddenUnusual(int count, String type) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count parts hidden · unusual for a $type',
+      one: '1 part hidden · unusual for a $type',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentPickerSearchHint => 'Search bikes and parts…';
+
+  @override
+  String get parentPickerBikes => 'Bikes';
+
+  @override
+  String get parentPickerMissingParent => 'Components with a missing parent';
+
+  @override
+  String get parentPickerUninstalled => 'Uninstalled components';
+
+  @override
+  String get parentPickerArchived => 'Archived components';
+
+  @override
+  String parentPickerOnBike(String bike) {
+    return 'Components on $bike';
+  }
+
+  @override
+  String get parentFieldMountedOnComponent => 'Mounted on a component itself';
+
+  @override
+  String get parentFieldUninstalled => 'UNINSTALLED';
+
+  @override
+  String get parentFieldArchived => 'ARCHIVED';
+
+  @override
+  String get parentFieldTimelineHint =>
+      'Keep a dated history of where this part was installed, so setups and ride stats match the parts that were really on the bike.';
+
+  @override
+  String parentFieldDepthCap(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Can\'t mount on a component while it carries $count parts',
+      one: 'Can\'t mount on a component while it carries 1 part',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentFieldSelectBike => 'Select Bike';
+
+  @override
+  String garageDragToInstall(String bike) {
+    return 'Drag here to install on $bike';
+  }
+
+  @override
+  String garageReleaseToInstall(String bike) {
+    return 'Release to install to $bike';
+  }
+
+  @override
+  String get garageReleaseToUnarchive => 'Release to unarchive';
+
+  @override
+  String get garageReleaseToUninstall => 'Release to uninstall component';
+
+  @override
+  String garageReleaseToUninstallFrom(String parent) {
+    return 'Release to uninstall from $parent';
+  }
+
+  @override
+  String get garageDragComponentsToUninstall => 'Drag components here to uninstall from bike';
+
+  @override
+  String get garageOrTapToAdd => 'or tap to add new';
+
+  @override
+  String get garageDragToUninstall => 'Drag here to uninstall';
+
+  @override
+  String garageDragToUninstallFrom(String parent) {
+    return 'Drag here to uninstall from $parent';
+  }
+
+  @override
+  String get garageDragToArchive => 'Drag here to archive';
+
+  @override
+  String get garageReleaseToArchive => 'Release to archive';
 }

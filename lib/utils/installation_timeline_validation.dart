@@ -13,13 +13,26 @@ bool shouldUseInstallationTimeline({
 }) =>
     featureEnabled || isComplexInstallationTimeline(installations);
 
+enum InstallationTimelineProblem {
+  noEntries,
+  archivalNotLast,
+  consecutiveUninstallations,
+  consecutiveOnSameBike,
+  consecutiveOnSameComponent,
+  multipleFromBeginning,
+  sameDateTime,
+  bikeMissing,
+  installedOnItself,
+  componentLoop,
+}
+
 class InstallationTimelineIssue {
-  final String message;
+  final InstallationTimelineProblem problem;
   final Set<int> dateTimeIndices;
   final Set<int> parentIndices;
 
   const InstallationTimelineIssue({
-    required this.message,
+    required this.problem,
     this.dateTimeIndices = const {},
     this.parentIndices = const {},
   });
@@ -32,7 +45,7 @@ InstallationTimelineIssue? installationTimelineIssue(
   Map<String, Bike>? bikes,
 }) {
   if (installations.isEmpty) {
-    return const InstallationTimelineIssue(message: 'At least one entry is required');
+    return const InstallationTimelineIssue(problem: InstallationTimelineProblem.noEntries);
   }
 
   final order = List<int>.generate(installations.length, (i) => i)
@@ -44,19 +57,19 @@ InstallationTimelineIssue? installationTimelineIssue(
 
     if (current is Archival) {
       return InstallationTimelineIssue(
-        message: 'Archival can only be the last entry in the timeline',
+        problem: InstallationTimelineProblem.archivalNotLast,
         parentIndices: {order[i]},
       );
     }
     if (current is Uninstallation && next is Uninstallation) {
       return InstallationTimelineIssue(
-        message: 'Cannot have consecutive uninstallations',
+        problem: InstallationTimelineProblem.consecutiveUninstallations,
         parentIndices: {order[i], order[i + 1]},
       );
     }
     if (current is BikeInstallation && next is BikeInstallation && current.bikeId == next.bikeId) {
       return InstallationTimelineIssue(
-        message: 'Cannot have consecutive installations on the same bike',
+        problem: InstallationTimelineProblem.consecutiveOnSameBike,
         parentIndices: {order[i], order[i + 1]},
       );
     }
@@ -64,7 +77,7 @@ InstallationTimelineIssue? installationTimelineIssue(
         next is ComponentInstallation &&
         current.parentComponentId == next.parentComponentId) {
       return InstallationTimelineIssue(
-        message: 'Cannot have consecutive installations on the same component',
+        problem: InstallationTimelineProblem.consecutiveOnSameComponent,
         parentIndices: {order[i], order[i + 1]},
       );
     }
@@ -74,7 +87,7 @@ InstallationTimelineIssue? installationTimelineIssue(
       order.where((i) => installations[i].dateTimeUTC.millisecondsSinceEpoch == 0).toSet();
   if (fromBeginning.length > 1) {
     return InstallationTimelineIssue(
-      message: 'Multiple "From beginning" entries are not allowed',
+      problem: InstallationTimelineProblem.multipleFromBeginning,
       dateTimeIndices: fromBeginning,
     );
   }
@@ -83,7 +96,7 @@ InstallationTimelineIssue? installationTimelineIssue(
     final at = installations[order[i]].dateTimeUTC;
     if (at == installations[order[i + 1]].dateTimeUTC) {
       return InstallationTimelineIssue(
-        message: 'Two entries cannot have the same date & time',
+        problem: InstallationTimelineProblem.sameDateTime,
         dateTimeIndices: order.where((j) => installations[j].dateTimeUTC == at).toSet(),
       );
     }
@@ -94,7 +107,7 @@ InstallationTimelineIssue? installationTimelineIssue(
       final installation = installations[index];
       if (installation is BikeInstallation && !bikes.containsKey(installation.bikeId)) {
         return InstallationTimelineIssue(
-          message: 'This entry is installed on a bike that no longer exists',
+          problem: InstallationTimelineProblem.bikeMissing,
           parentIndices: {index},
         );
       }
@@ -121,7 +134,7 @@ InstallationTimelineIssue? _hierarchyIssue(
     final installation = installations[index];
     if (installation is ComponentInstallation && installation.parentComponentId == componentId) {
       return InstallationTimelineIssue(
-        message: 'A component cannot be installed on itself',
+        problem: InstallationTimelineProblem.installedOnItself,
         parentIndices: {index},
       );
     }
@@ -140,7 +153,7 @@ InstallationTimelineIssue? _hierarchyIssue(
     if (at == null || !e.componentIds.contains(componentId)) return null;
     final active = resolver.installationAt(edited, at);
     return InstallationTimelineIssue(
-      message: 'This installation creates a loop of components',
+      problem: InstallationTimelineProblem.componentLoop,
       parentIndices: {if (active != null) installations.indexOf(active)},
     );
   }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
@@ -202,6 +203,7 @@ class _GarageListState extends State<GarageList> {
 
   Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository) {
     final filtered = appRepository.filters.bikeId != null && appRepository.bikes.isNotEmpty;
+    final l10n = context.l10n;
     return CustomScrollView(
       controller: widget.controller.scrollController,
       slivers: [
@@ -219,17 +221,17 @@ class _GarageListState extends State<GarageList> {
             child: filtered
                 ? EmptyStatePlaceholder(
                     icon: Icons.filter_alt_off,
-                    title: 'No bikes match this filter',
-                    subtitle: 'The bike filter is hiding all bikes.',
-                    actionLabel: 'Clear filters',
+                    title: l10n.garageNoBikesMatchTitle,
+                    subtitle: l10n.garageNoBikesMatchSubtitle,
+                    actionLabel: l10n.clearFilters,
                     actionIcon: Icons.filter_alt_off,
                     onAction: () => appRepository.filters.toggleBike(null),
                   )
                 : EmptyStatePlaceholder(
                     icon: Bike.iconData,
-                    title: 'No bikes yet',
-                    subtitle: 'Add your first bike to get started.',
-                    actionLabel: 'Add a bike',
+                    title: l10n.garageNoBikesTitle,
+                    subtitle: l10n.garageNoBikesSubtitle,
+                    actionLabel: l10n.garageAddBike,
                     onAction: () => BikeActions.addBike(context),
                   ),
           ),

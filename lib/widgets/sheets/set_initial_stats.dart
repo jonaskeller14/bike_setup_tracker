@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/component_stats.dart';
 import '../../models/context/context_position.dart';
@@ -12,7 +13,7 @@ import '../../utils/number_input_formatters.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
 
-String? initialStatsSummary(ComponentStats stats, AppSettings appSettings) {
+String? initialStatsSummary(ComponentStats stats, AppSettings appSettings, AppLocalizations l10n) {
   final number = NumberFormat('#,##0.#');
   final parts = [
     if (stats.distance > 0)
@@ -21,22 +22,18 @@ String? initialStatsSummary(ComponentStats stats, AppSettings appSettings) {
       "${number.format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit))} ${appSettings.altitudeUnit}",
     if (stats.movingTime.inHours > 0) "${stats.movingTime.inHours} h",
     if (stats.elapsedTime.inHours > 0) "${stats.elapsedTime.inHours} h",
-    if (stats.activityCount > 0)
-      Intl.plural(stats.activityCount, one: "1 activity", other: "${stats.activityCount} activities"),
+    if (stats.activityCount > 0) l10n.initialStatsActivities(stats.activityCount),
     if (stats.kilojoules > 0) "${number.format(stats.kilojoules)} kJ",
   ];
   if (parts.isEmpty) return null;
   return parts.join(" · ");
 }
 
-const _componentDescription =
-    "Usage this component had before it was tracked here, e.g. for a second-hand part. It is added on top of the stats from your activities. Components installed 'Since beginning' also include their bike's initial stats.";
-
 Future<ComponentStats?> showSetInitialStatsSheet({
   required BuildContext context,
   required ComponentStats initialStats,
   ComponentStats? originalStats,
-  String description = _componentDescription,
+  String? description,
 }) async {
   return showModalBottomSheet<ComponentStats?>(
     useSafeArea: true,
@@ -55,13 +52,13 @@ Future<ComponentStats?> showSetInitialStatsSheet({
 class SetInitialStatsSheetContent extends StatefulWidget {
   final ComponentStats initialStats;
   final ComponentStats? originalStats;
-  final String description;
+  final String? description;
 
   const SetInitialStatsSheetContent({
     super.key,
     required this.initialStats,
     this.originalStats,
-    this.description = _componentDescription,
+    this.description,
   });
 
   @override
@@ -168,7 +165,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
       ),
       validator: (String? newValue) {
         final parsed = decimal ? parseLocalizedDouble(newValue ?? '') : int.tryParse(newValue ?? '');
-        if (parsed == null) return "Please enter a valid value";
+        if (parsed == null) return context.l10n.enterValidValue;
         return null;
       },
     );
@@ -178,6 +175,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final original = widget.originalStats;
+    final l10n = context.l10n;
 
     return PopScope(
       canPop: false,
@@ -191,7 +189,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SheetHeader(title: 'Initial Stats'),
+                SheetHeader(title: l10n.initialStatsTitle),
                 const SizedBox(height: 16),
                 Flexible(
                   child: SingleChildScrollView(
@@ -202,7 +200,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                       spacing: 12,
                       children: [
                         Text(
-                          widget.description,
+                          widget.description ?? l10n.initialStatsComponentDescription,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -214,7 +212,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                             Expanded(
                               child: _statField(
                                 controller: _distanceController,
-                                label: 'Distance',
+                                label: l10n.initialStatsDistance,
                                 decimal: true,
                                 suffixText: appSettings.distanceUnit,
                                 isChanged:
@@ -229,7 +227,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                             Expanded(
                               child: _statField(
                                 controller: _elevationGainController,
-                                label: 'Elevation Gain',
+                                label: l10n.initialStatsElevationGain,
                                 decimal: true,
                                 suffixText: appSettings.altitudeUnit,
                                 isChanged:
@@ -249,7 +247,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                             Expanded(
                               child: _statField(
                                 controller: _movingTimeController,
-                                label: 'Moving Time',
+                                label: l10n.initialStatsMovingTime,
                                 decimal: false,
                                 suffixText: "h",
                                 isChanged:
@@ -260,7 +258,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                             Expanded(
                               child: _statField(
                                 controller: _elapsedTimeController,
-                                label: 'Elapsed Time',
+                                label: l10n.initialStatsElapsedTime,
                                 decimal: false,
                                 suffixText: "h",
                                 isChanged:
@@ -276,7 +274,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                             Expanded(
                               child: _statField(
                                 controller: _activityCountController,
-                                label: 'Activities',
+                                label: l10n.initialStatsActivityCount,
                                 decimal: false,
                                 isChanged:
                                     original != null &&
@@ -286,7 +284,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                             Expanded(
                               child: _statField(
                                 controller: _kilojoulesController,
-                                label: 'Energy',
+                                label: l10n.initialStatsEnergy,
                                 decimal: true,
                                 suffixText: "kJ",
                                 textInputAction: TextInputAction.done,
@@ -308,7 +306,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: _hasChanges ? _save : null,
-                      child: const Text("Save"),
+                      child: Text(l10n.save),
                     ),
                   ),
                 ),

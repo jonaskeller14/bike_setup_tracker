@@ -51,5 +51,14 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Settings / Preferences / Features | Einstellungen / Voreinstellungen / Funktionen | |
 | Trash | Papierkorb | |
 | Bookmark | Lesezeichen | |
+| Initial Stats | Anfangswerte | Usage before the item was tracked |
+| Distance / Elevation Gain / Moving Time / Elapsed Time | Distanz / Höhenmeter / Bewegungszeit / Verstrichene Zeit | |
+| Activities (count field) | Anzahl Aktivitäten | The field label; the plural noun is Aktivitäten |
+| Replace / Replacement | Ersetzen / Austausch, Ersatz | The swap is the Austausch, the new part the Ersatz |
+| Install / Uninstall (verb) | Verbauen / Ausbauen | Einbau for the event, e.g. Einbau bearbeiten |
+| From beginning | Von Beginn an | |
+| Strava Gear | Strava-Ausrüstung | Strava's own German term |
+| Line / Radial Chart | Liniendiagramm / Netzdiagramm | |
+| Test session | Testsitzung | |
 
 Unit symbols (`km`, `bar`, `°C`) are not translated.

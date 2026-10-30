@@ -18,18 +18,6 @@ class ResolvedInstallation {
     this.isInitial = false,
   });
 
-  String get label {
-    final verb = isInitial
-        ? 'Added'
-        : switch (installation.parentType) {
-            InstallationParentType.bike => 'Installed',
-            InstallationParentType.component => 'Installed',
-            InstallationParentType.none => 'Uninstalled',
-            InstallationParentType.archived => 'Archived',
-          };
-    return "$verb ${component.name}";
-  }
-
   String get shortLabel {
     final symbol = isInitial
         ? '+'

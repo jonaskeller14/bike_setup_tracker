@@ -82,6 +82,7 @@ class ReplacementListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final l10n = context.l10n;
     final targetInstallation = row.installed.installation;
     final targetParentId = targetInstallation.parent;
     final targetIcon = switch (targetInstallation) {
@@ -92,10 +93,10 @@ class ReplacementListTile extends StatelessWidget {
       Archival() => Icons.inventory_2_outlined,
     };
     final targetName = switch (targetInstallation) {
-      BikeInstallation(:final bikeId) => appRepository.bikes[bikeId]?.name ?? 'BIKE NOT FOUND',
-      ComponentInstallation(:final parentComponentId) => appRepository.components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
-      Uninstallation() => 'Uninstalled',
-      Archival() => 'Archive',
+      BikeInstallation(:final bikeId) => appRepository.bikes[bikeId]?.name ?? l10n.bikeNotFound,
+      ComponentInstallation(:final parentComponentId) => appRepository.components[parentComponentId]?.name ?? l10n.componentNotFound,
+      Uninstallation() => l10n.timelineUninstalled,
+      Archival() => l10n.timelineArchive,
     };
     final isTargetError = targetParentId != null && switch (targetInstallation.parentType) {
       InstallationParentType.bike => !appRepository.bikes.containsKey(targetParentId),
@@ -132,7 +133,7 @@ class ReplacementListTile extends StatelessWidget {
               ),
             ),
             title: Text(
-              "Replaced ${componentType.label(context.l10n)}",
+              l10n.timelineReplaced(componentType.label(l10n)),
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.bold),
               maxLines: 1,

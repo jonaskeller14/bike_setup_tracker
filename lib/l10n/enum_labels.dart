@@ -1,11 +1,14 @@
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
+import '../models/component/installation.dart';
+import '../models/component/resolved_installation.dart';
 import '../models/context/context_weather.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_plan.dart';
 import '../models/task/task_rule.dart';
 import '../models/tip_product.dart';
 import '../utils/installation_issue.dart';
+import '../utils/installation_timeline_validation.dart';
 import 'app_localizations.dart';
 
 /// Display names of enums. The enums themselves are persisted by `name` (or
@@ -199,5 +202,32 @@ extension InstallationIssueLabel on InstallationIssue {
   String label(AppLocalizations l10n) => switch (this) {
     InstallationIssue.missingBike => l10n.installationIssueMissingBike,
     InstallationIssue.missingParent => l10n.installationIssueMissingParent,
+  };
+}
+
+extension ResolvedInstallationLabel on ResolvedInstallation {
+  String label(AppLocalizations l10n) {
+    final name = component.name;
+    if (isInitial) return l10n.timelineAdded(name);
+    return switch (installation.parentType) {
+      InstallationParentType.bike || InstallationParentType.component => l10n.timelineInstalled(name),
+      InstallationParentType.none => l10n.timelineUninstalledName(name),
+      InstallationParentType.archived => l10n.timelineArchivedName(name),
+    };
+  }
+}
+
+extension InstallationTimelineProblemLabel on InstallationTimelineProblem {
+  String label(AppLocalizations l10n) => switch (this) {
+    InstallationTimelineProblem.noEntries => l10n.timelineProblemNoEntries,
+    InstallationTimelineProblem.archivalNotLast => l10n.timelineProblemArchivalNotLast,
+    InstallationTimelineProblem.consecutiveUninstallations => l10n.timelineProblemConsecutiveUninstallations,
+    InstallationTimelineProblem.consecutiveOnSameBike => l10n.timelineProblemConsecutiveOnSameBike,
+    InstallationTimelineProblem.consecutiveOnSameComponent => l10n.timelineProblemConsecutiveOnSameComponent,
+    InstallationTimelineProblem.multipleFromBeginning => l10n.timelineProblemMultipleFromBeginning,
+    InstallationTimelineProblem.sameDateTime => l10n.timelineProblemSameDateTime,
+    InstallationTimelineProblem.bikeMissing => l10n.timelineProblemBikeMissing,
+    InstallationTimelineProblem.installedOnItself => l10n.timelineProblemInstalledOnItself,
+    InstallationTimelineProblem.componentLoop => l10n.timelineProblemComponentLoop,
   };
 }

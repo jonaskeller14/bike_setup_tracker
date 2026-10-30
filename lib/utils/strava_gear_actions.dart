@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/bike.dart';
 import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
@@ -21,6 +22,7 @@ class StravaGearActions {
   static Future<void> unlinkBike(BuildContext context, {required StravaGear gear, required Bike bike}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     unawaited(HapticFeedback.selectionClick());
     await appRepository.editBikes([bike.copyWith(stravaGear: null)]);
@@ -29,8 +31,8 @@ class StravaGearActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Unlinked '${gear.name}' from '${bike.name}'.",
-        action: AppSnackBarAction(label: 'UNDO', onPressed: () => unawaited(appRepository.editBikes([bike]))),
+        l10n.stravaGearUnlinked(gear.name, bike.name),
+        action: AppSnackBarAction(label: l10n.undo, onPressed: () => unawaited(appRepository.editBikes([bike]))),
       ),
     );
   }

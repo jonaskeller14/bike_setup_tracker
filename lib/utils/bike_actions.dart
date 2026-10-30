@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
+import '../l10n/list_text.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/task/task_association.dart';
@@ -87,6 +88,7 @@ class BikeActions {
   static Future<bool> setBikesPerson(BuildContext context, {required Iterable<String> bikeIds}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     final bikes = bikeIds.map((id) => appRepository.bikes[id]).whereType<Bike>().toList();
     if (bikes.isEmpty) return false;
@@ -111,19 +113,11 @@ class BikeActions {
       AppSnackBar.success(
         context,
         personName == null
-            ? Intl.plural(
-                updatedBikes.length,
-                one: "Rider removed from 1 Bike.",
-                other: "Rider removed from ${updatedBikes.length} Bikes.",
-              )
-            : Intl.plural(
-                updatedBikes.length,
-                one: "Rider set to '$personName' for 1 Bike.",
-                other: "Rider set to '$personName' for ${updatedBikes.length} Bikes.",
-              ),
+            ? l10n.bikeRiderRemoved(updatedBikes.length)
+            : l10n.bikeRiderSet(updatedBikes.length, personName),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async => appRepository.editBikes(bikesToUpdate),
         ),
       ),
@@ -140,6 +134,7 @@ class BikeActions {
 
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     final bikeIds = bikeList.map((bike) => bike.id).toSet();
     final obsoleteComponents = appRepository.components.values.where(
@@ -170,29 +165,13 @@ class BikeActions {
     await appRepository.removeTaskEntries(obsoleteTaskEntries);
 
     final deletedItems = [
-      if (obsoleteComponents.isNotEmpty)
-        Intl.plural(obsoleteComponents.length, one: '1 component', other: '${obsoleteComponents.length} components'),
-      if (obsoleteSetups.isNotEmpty)
-        Intl.plural(obsoleteSetups.length, one: '1 setup', other: '${obsoleteSetups.length} setups'),
-      if (selectedTaskRules.isNotEmpty)
-        Intl.plural(
-          selectedTaskRules.length,
-          one: '1 task and its entries',
-          other: '${selectedTaskRules.length} tasks and their entries',
-        ),
+      if (obsoleteComponents.isNotEmpty) l10n.bikeTrashedComponents(obsoleteComponents.length),
+      if (obsoleteSetups.isNotEmpty) l10n.bikeTrashedSetups(obsoleteSetups.length),
+      if (selectedTaskRules.isNotEmpty) l10n.bikeTrashedTasks(selectedTaskRules.length),
     ];
-    String message = Intl.plural(
-      bikeList.length,
-      one: "Bike '${bikeList.first.name}' moved to trash.",
-      other: '${bikeList.length} bikes moved to trash.',
-    );
+    String message = l10n.bikeMovedToTrash(bikeList.length, bikeList.first.name);
     if (deletedItems.isNotEmpty) {
-      final summary = switch (deletedItems.length) {
-        1 => deletedItems.single,
-        2 => '${deletedItems.first} and ${deletedItems.last}',
-        _ => '${deletedItems.sublist(0, deletedItems.length - 1).join(', ')}, and ${deletedItems.last}',
-      };
-      message += '\nAlso moved to trash: $summary.';
+      message += '\n${l10n.bikeAlsoTrashed(joinItems(l10n, deletedItems))}';
     }
     if (!context.mounted) return;
     messenger.showSnackBar(
@@ -201,7 +180,7 @@ class BikeActions {
         message,
         duration: const Duration(seconds: 10),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async {
             await appRepository.restoreBikes(bikeList);
             await appRepository.restoreComponents(obsoleteComponents);
@@ -217,6 +196,7 @@ class BikeActions {
   static Future<void> restoreBike(BuildContext context, {required Bike bike}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     await appRepository.restoreBikes([bike]);
 
@@ -224,10 +204,10 @@ class BikeActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Bike '${bike.name}' restored from trash.",
+        l10n.bikeRestoredFromTrash(bike.name),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async {
             await appRepository.removeBikes([bike]);
           },

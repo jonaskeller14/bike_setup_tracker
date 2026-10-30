@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -18,7 +20,7 @@ Uninstallation uninstall(int day) => Uninstallation(
     );
 
 String? validate(List<Installation> installations) =>
-    installationTimelineIssue(installations)?.message;
+    installationTimelineIssue(installations)?.problem.label(englishL10n);
 
 Archival archive(int day) => Archival(
       dateTimeUTC: _utc(day),
@@ -294,7 +296,7 @@ void main() {
         uninstall(2),
       ]);
 
-      expect(issue!.message, 'Cannot have consecutive uninstallations');
+      expect(issue!.problem.label(englishL10n), 'Cannot have consecutive uninstallations');
       expect(issue.parentIndices, {0, 2});
       expect(issue.dateTimeIndices, isEmpty);
     });
@@ -309,7 +311,7 @@ void main() {
     test('points at the parent of a non-final archival, by input index', () {
       final issue = installationTimelineIssue([installOn('b1', 5), archive(1)]);
 
-      expect(issue!.message, 'Archival can only be the last entry in the timeline');
+      expect(issue!.problem.label(englishL10n), 'Archival can only be the last entry in the timeline');
       expect(issue.parentIndices, {1});
     });
 
@@ -320,7 +322,7 @@ void main() {
         installOn('b3', 1),
       ]);
 
-      expect(issue!.message, 'Two entries cannot have the same date & time');
+      expect(issue!.problem.label(englishL10n), 'Two entries cannot have the same date & time');
       expect(issue.dateTimeIndices, {0, 1, 2});
       expect(issue.parentIndices, isEmpty);
     });
@@ -331,7 +333,7 @@ void main() {
         Installation.sinceBeginning(parent: 'b2'),
       ]);
 
-      expect(issue!.message, 'Multiple "From beginning" entries are not allowed');
+      expect(issue!.problem.label(englishL10n), 'Multiple "From beginning" entries are not allowed');
       expect(issue.dateTimeIndices, {0, 1});
     });
 
@@ -362,7 +364,7 @@ void main() {
         components: {'tire': component('tire', [installOnComponent('tire', 1)])},
       );
 
-      expect(issue?.message, 'A component cannot be installed on itself');
+      expect(issue?.problem.label(englishL10n), 'A component cannot be installed on itself');
       expect(issue?.parentIndices, {0});
     });
 
@@ -376,7 +378,7 @@ void main() {
         },
       );
 
-      expect(issue?.message, 'This installation creates a loop of components');
+      expect(issue?.problem.label(englishL10n), 'This installation creates a loop of components');
       expect(issue?.parentIndices, {0});
     });
 
@@ -391,7 +393,7 @@ void main() {
         },
       );
 
-      expect(issue?.message, 'This installation creates a loop of components');
+      expect(issue?.problem.label(englishL10n), 'This installation creates a loop of components');
       expect(issue?.parentIndices, {1});
     });
 
@@ -405,7 +407,7 @@ void main() {
         },
       );
 
-      expect(issue?.message, 'This installation creates a loop of components');
+      expect(issue?.problem.label(englishL10n), 'This installation creates a loop of components');
       expect(issue?.parentIndices, {0});
     });
 
@@ -468,7 +470,7 @@ void main() {
         bikes: const {},
       );
 
-      expect(issue?.message, 'This entry is installed on a bike that no longer exists');
+      expect(issue?.problem.label(englishL10n), 'This entry is installed on a bike that no longer exists');
       expect(issue?.parentIndices, {0});
     });
 

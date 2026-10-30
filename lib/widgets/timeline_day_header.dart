@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 
 class TimelineDayHeader extends StatelessWidget {
@@ -24,14 +25,14 @@ class TimelineDayHeader extends StatelessWidget {
   static DateFormat _format(String pattern) =>
       _formats.putIfAbsent('${Intl.defaultLocale}|$pattern', () => DateFormat(pattern));
 
-  String _label(AppSettings appSettings) {
+  String _label(AppSettings appSettings, AppLocalizations l10n) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = DateTime(now.year, now.month, now.day - 1);
     final dateText =
         "${_format('EEE').format(day)}, ${_format(appSettings.dateFormat).format(day)}";
-    if (day == today) return "Today · $dateText";
-    if (day == yesterday) return "Yesterday · $dateText";
+    if (day == today) return l10n.timelineDayToday(dateText);
+    if (day == yesterday) return l10n.timelineDayYesterday(dateText);
     return dateText;
   }
 
@@ -54,7 +55,7 @@ class TimelineDayHeader extends StatelessWidget {
             : null,
       ),
       child: Text(
-        _label(appSettings),
+        _label(appSettings, context.l10n),
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
           color: colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.bold,

@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
@@ -84,7 +85,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       BikeAdjustmentColumn(:final key) => key.adjustment.name,
-      SetupRankColumn() => "Rank",
+      SetupRankColumn() => context.l10n.setupColumnRank,
     };
   }
 
@@ -121,6 +122,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
+    final l10n = context.l10n;
     final hasAnyActivity = context.select<SetupActivityAnalysisService, bool>(
       (service) => service.hasAnyActivity,
     );
@@ -141,17 +143,17 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     if (component == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const SafeArea(
+        body: SafeArea(
           child: EmptyStatePlaceholder.error(
-            title: "Component not found",
-            subtitle: "This component was deleted or is no longer available.",
+            title: l10n.componentDetailsNotFoundTitle,
+            subtitle: l10n.componentDetailsNotFoundSubtitle,
           ),
         ),
       );
     }
     final componentAdjustments = component.adjustments;
     final descendants = appRepository.affectedDescendants(component.id);
-    final initialStats = initialStatsSummary(component.initialStats, appSettings);
+    final initialStats = initialStatsSummary(component.initialStats, appSettings, l10n);
     final attachments = appSettings.enableAttachments ? component.attachments : const <Attachment>[];
 
     final bikes = appRepository.bikes;
@@ -273,7 +275,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               if (initialStats != null)
                 ListTile(
                   leading: const Icon(Icons.start),
-                  title: Text("Initial: $initialStats"),
+                  title: Text(l10n.initialStatsChip(initialStats)),
                   dense: true,
                 ),
 
@@ -289,7 +291,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   shape: const Border(),
                   collapsedShape: const Border(),
                   title: Text(
-                    "History",
+                    l10n.componentDetailsHistory,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -322,7 +324,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   collapsedShape: const Border(),
                   leading: const Icon(Component.iconData),
                   title: Text(
-                    "Subcomponents (${descendants.length})",
+                    l10n.componentDetailsSubcomponentsTitle(descendants.length),
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -332,8 +334,8 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     if (descendants.isEmpty) ...[
                       EmptyStatePlaceholder2(
                         iconData: Component.iconData,
-                        title: 'No components yet',
-                        subtitle: 'Install a component on this component',
+                        title: l10n.noComponentsTitle,
+                        subtitle: l10n.componentDetailsNoSubcomponentsSubtitle,
                         onTap: () => ComponentActions.addComponent(
                             context,
                             initialInstallations: [Installation.componentSinceBeginning(parentComponentId: component.id)],
@@ -348,7 +350,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                             initialInstallations: [Installation.componentSinceBeginning(parentComponentId: component.id)],
                           ),
                           icon: const Icon(Icons.add),
-                          label: const Text('Add Component'),
+                          label: Text(l10n.addComponent),
                         ),
                       ),
                     ] else ...[
@@ -365,7 +367,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                             initialInstallations: [Installation.componentSinceBeginning(parentComponentId: component.id)],
                           ),
                           icon: const Icon(Icons.add),
-                          label: const Text('Add Component'),
+                          label: Text(l10n.addComponent),
                         ),
                       ),
                     ],
@@ -377,19 +379,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               Semantics(
                 container: true,
                 identifier: AutomationIds.componentDetailsAdjustmentHistory,
-                child: const SectionTitle(
-                  title: "Adjustment History",
-                  infoText:
-                      "• Add or remove columns via the Columns button.\n"
-                      "• Long-press a column header to remove it.\n"
-                      "• Tap a column header to sort.\n"
-                      "• Use the filter button to narrow down by bike or tags.\n"
-                      "• Select rows to compare setups in the charts below.\n"
-                      "\n"
-                      "Value colors:\n"
-                      "• Green: new value (no prior value).\n"
-                      "• Orange: changed from the previous setup.\n"
-                      "• Red: dangling value (component not installed or rider not linked at setup time).",
+                child: SectionTitle(
+                  title: l10n.componentDetailsAdjustmentHistoryTitle,
+                  infoText: l10n.componentDetailsAdjustmentHistoryInfo,
                 ),
               ),
 
@@ -405,7 +397,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       child: FilterChip(
                         avatar: const Icon(Icons.view_column_outlined),
                         showCheckmark: false,
-                        label: const Text("Columns"),
+                        label: Text(l10n.columnsLabel),
                         selected: _columns.any((c) => c.active),
                         onSelected: (bool newValue) async {
                           await showColumnFilterSheet(
@@ -476,16 +468,16 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   },
                 ),
               if (setups.isNotEmpty && activeColumns.isEmpty)
-                const EmptyStatePlaceholder(
+                EmptyStatePlaceholder(
                   icon: Icons.view_column_outlined,
-                  title: "No columns",
-                  subtitle: 'Select a column to display the table',
+                  title: l10n.tableNoColumnsTitle,
+                  subtitle: l10n.tableNoColumnsSubtitle,
                 ),
               if (setups.isEmpty)
                 EmptyStatePlaceholder(
                   icon: Icons.history_rounded,
-                  title: component.adjustments.isEmpty ? 'No adjustments' : 'No setups yet',
-                  subtitle: component.adjustments.isEmpty ? 'No adjustments are defined for this component' : null,
+                  title: component.adjustments.isEmpty ? l10n.componentDetailsNoAdjustmentsTitle : l10n.noSetupsTitle,
+                  subtitle: component.adjustments.isEmpty ? l10n.componentDetailsNoAdjustmentsSubtitle : null,
                 ),
               if (activeColumns.isNotEmpty && setups.isNotEmpty) InitialChangedValueLegend(showDangling: hasDanglingValues),
               const SizedBox(height: 16),
@@ -494,14 +486,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               Semantics(
                 container: true,
                 identifier: AutomationIds.componentDetailsLineChart,
-                child: const SectionTitle(
-                  title: "Line Chart",
-                  infoText:
-                      "• Shows the setups selected in the table above in their current sort order.\n"
-                      "• The y-axis represents adjustment values.\n"
-                      "• Select at least two setups to display a trend.\n"
-                      "• Tap a legend entry to highlight a specific line.\n"
-                      "• Long-press a legend entry to remove it from the selection.",
+                child: SectionTitle(
+                  title: l10n.chartLineTitle,
+                  infoText: l10n.componentDetailsLineChartInfo,
                 ),
               ),
               SetupLineChart(
@@ -538,13 +525,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               Semantics(
                 container: true,
                 identifier: AutomationIds.componentDetailsRadialChart,
-                child: const SectionTitle(
-                  title: "Radial Chart",
-                  infoText:
-                      "• Shows the setups selected in the table above.\n"
-                      "• Axes are normalized across all data for stable comparison.\n"
-                      "• Tap a legend entry to highlight a specific graph.\n"
-                      "• Long-press a legend entry to remove it from the selection.",
+                child: SectionTitle(
+                  title: l10n.chartRadialTitle,
+                  infoText: l10n.chartRadialInfo,
                 ),
               ),
               SetupRadialChart(
@@ -572,22 +555,17 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 Semantics(
                   container: true,
                   identifier: AutomationIds.componentDetailsHistogram,
-                  child: const SectionTitle(
-                    title: "Activity Histogram",
-                    infoText:
-                        "• Shows how many Strava activities were ridden with each adjustment value.\n"
-                        "• Counts all setups in the table above, not just the selected ones.\n"
-                        "• Numerical values are grouped into ranges when there are many distinct values.\n"
-                        "• Tap a legend entry to show a different adjustment.\n"
-                        "• Long-press a legend entry to remove its column.",
+                  child: SectionTitle(
+                    title: l10n.chartHistogramTitle,
+                    infoText: l10n.componentDetailsHistogramInfo,
                   ),
                 ),
                 if (!subscriptionService.hasStravaEntitlement)
                   EmptyStatePlaceholder(
                     icon: Icons.lock_outline,
-                    title: "Strava Sync required",
-                    subtitle: "See how many activities you rode with each adjustment value.",
-                    actionLabel: "View plans",
+                    title: l10n.chartHistogramLockedTitle,
+                    subtitle: l10n.chartHistogramLockedSubtitle,
+                    actionLabel: l10n.viewPlans,
                     actionIcon: Icons.auto_awesome,
                     onAction: () => showStravaSheet(context: context),
                   )

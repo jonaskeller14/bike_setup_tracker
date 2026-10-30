@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
@@ -174,7 +175,7 @@ class ComponentListCard extends StatelessWidget{
                               Icon(option.iconData, size: 20),
                               Semantics(
                                 identifier: option == _ComponentOptions.duplicate ? AutomationIds.componentActionsDuplicate : null,
-                                child: Text(option.label),
+                                child: Text(option.label(context.l10n)),
                               ),
                             ],
                           ),
@@ -220,11 +221,17 @@ class ComponentListCard extends StatelessWidget{
 }
 
 enum _ComponentOptions {
-  edit("Edit", Icons.edit),
-  duplicate("Duplicate", Icons.copy),
-  replace("Replace", Icons.swap_horiz),
-  remove("Remove", Icons.delete);
-  final String label;
+  edit(Icons.edit),
+  duplicate(Icons.copy),
+  replace(Icons.swap_horiz),
+  remove(Icons.delete);
   final IconData iconData;
-  const _ComponentOptions(this.label, this.iconData);
+  const _ComponentOptions(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    duplicate => l10n.duplicate,
+    replace => l10n.replace,
+    remove => l10n.remove,
+  };
 }

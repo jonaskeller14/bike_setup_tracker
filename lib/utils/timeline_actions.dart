@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/feedback/test_session.dart';
 import '../models/setup.dart';
@@ -17,6 +17,7 @@ class TimelineActions {
   }) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     final setups = selection
         .idsOf(TimelineSelectionKind.setup)
@@ -52,14 +53,10 @@ class TimelineActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        Intl.plural(
-          total,
-          one: '1 entry moved to trash.',
-          other: '$total entries moved to trash.',
-        ),
+        l10n.timelineEntriesMovedToTrash(total),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async {
             await appRepository.restoreSetups(setups);
             await appRepository.restoreTaskEntries(taskEntries);

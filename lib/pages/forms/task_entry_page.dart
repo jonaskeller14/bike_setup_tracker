@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
@@ -318,7 +319,9 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
         // Resolved at the entry's date: the entry records what happened then,
         // and the same date drives its stats snapshot.
         final root = hierarchy.rootAt(component.id, _selectedDateTimeUtc);
-        secondary = root is BikeAncestor && !root.isMissing(bikes) ? "on ${root.label(bikes)}" : root.label(bikes);
+        secondary = root is BikeAncestor && !root.isMissing(bikes)
+            ? "on ${root.label(bikes, context.l10n)}"
+            : root.label(bikes, context.l10n);
         if (root.isMissing(bikes)) errorColor = scheme.error;
     }
 

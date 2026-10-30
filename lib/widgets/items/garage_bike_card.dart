@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
@@ -478,14 +479,14 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                           Positioned.fill(
                             child: _dragHintToBikeWidget(
                               context,
-                              message: "Drag here to install on ${widget.bike.name}",
+                              message: context.l10n.garageDragToInstall(widget.bike.name),
                             ),
                           ),
                         if (showDropZone)
                           Positioned.fill(
                             child: _releaseToBikeWidget(
                               context,
-                              message: "Release to install to ${widget.bike.name}",
+                              message: context.l10n.garageReleaseToInstall(widget.bike.name),
                             ),
                           ),
                       ],

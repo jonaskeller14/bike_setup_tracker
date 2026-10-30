@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/subcomponent_detach.dart';
@@ -40,21 +41,27 @@ class _ArchiveComponentSheetState extends State<_ArchiveComponentSheet> {
   bool _withSubcomponents = true;
   SubcomponentDetach _detach = SubcomponentDetach.uninstall;
 
-  ComponentOutcome? _outcomeFor({required int depth, required SubcomponentDetach detach, required Bike? bike}) {
-    const archived = ComponentOutcome(icon: Icons.inventory_2_outlined, label: 'Archived');
+  ComponentOutcome? _outcomeFor({
+    required int depth,
+    required SubcomponentDetach detach,
+    required Bike? bike,
+    required AppLocalizations l10n,
+  }) {
+    final archived = ComponentOutcome(icon: Icons.inventory_2_outlined, label: l10n.timelineArchived);
     if (depth == 0 || _withSubcomponents) return archived;
     // Deeper levels stay on their own parent and follow it.
     if (depth > 1) return null;
     return switch (detach) {
       SubcomponentDetach.installOnBike => ComponentOutcome(icon: Bike.iconData, label: bike?.name ?? ''),
       SubcomponentDetach.uninstall ||
-      SubcomponentDetach.keepLinked => const ComponentOutcome(icon: Icons.shelves, label: 'Uninstalled'),
+      SubcomponentDetach.keepLinked => ComponentOutcome(icon: Icons.shelves, label: l10n.timelineUninstalled),
     };
   }
 
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final l10n = context.l10n;
     final hierarchy = appRepository.componentHierarchy;
     final name = widget.component.name;
     final bike = appRepository.bikes[hierarchy.bikeAt(widget.component.id, widget.atUTC)];
@@ -67,7 +74,7 @@ class _ArchiveComponentSheetState extends State<_ArchiveComponentSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SheetHeader(title: "Archive '$name'"),
+          SheetHeader(title: l10n.archiveComponentTitle(name)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -76,7 +83,7 @@ class _ArchiveComponentSheetState extends State<_ArchiveComponentSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Other components are mounted on '$name'. Choose whether they are archived along with it.",
+                    l10n.archiveComponentIntro(name),
                     style: textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   const SizedBox(height: 16),
@@ -84,7 +91,7 @@ class _ArchiveComponentSheetState extends State<_ArchiveComponentSheet> {
                     root: widget.component,
                     components: appRepository.components,
                     childrenOf: (id) => hierarchy.childrenOf(id, atUTC: widget.atUTC),
-                    outcomeForDepth: (depth) => _outcomeFor(depth: depth, detach: detach, bike: bike),
+                    outcomeForDepth: (depth) => _outcomeFor(depth: depth, detach: detach, bike: bike, l10n: l10n),
                   ),
                   const SizedBox(height: 16),
                   Column(
@@ -93,14 +100,14 @@ class _ArchiveComponentSheetState extends State<_ArchiveComponentSheet> {
                       RadioOptionCard(
                         selected: _withSubcomponents,
                         onTap: () => setState(() => _withSubcomponents = true),
-                        title: "Archive with subcomponents",
-                        subtitle: "They stay mounted and are archived along with it.",
+                        title: l10n.archiveWithSubcomponents,
+                        subtitle: l10n.archiveWithSubcomponentsHint,
                       ),
                       RadioOptionCard(
                         selected: !_withSubcomponents,
                         onTap: () => setState(() => _withSubcomponents = false),
-                        title: "Archive only '$name'",
-                        subtitle: "Subcomponents are kept. Choose what happens to them below.",
+                        title: l10n.archiveOnly(name),
+                        subtitle: l10n.subcomponentsKeepHint,
                       ),
                       AnimatedSize(
                         duration: const Duration(milliseconds: 200),
@@ -116,16 +123,16 @@ class _ArchiveComponentSheetState extends State<_ArchiveComponentSheet> {
                                       compact: true,
                                       selected: detach == SubcomponentDetach.uninstall,
                                       onTap: () => setState(() => _detach = SubcomponentDetach.uninstall),
-                                      title: "Uninstall subcomponents",
-                                      subtitle: "They move to your uninstalled components.",
+                                      title: l10n.uninstallSubcomponents,
+                                      subtitle: l10n.uninstallSubcomponentsHint,
                                     ),
                                     if (bike != null)
                                       RadioOptionCard(
                                         compact: true,
                                         selected: detach == SubcomponentDetach.installOnBike,
                                         onTap: () => setState(() => _detach = SubcomponentDetach.installOnBike),
-                                        title: "Install subcomponents on '${bike.name}'",
-                                        subtitle: "They are installed directly on the bike.",
+                                        title: l10n.installSubcomponentsOnBike(bike.name),
+                                        subtitle: l10n.installSubcomponentsOnBikeHint,
                                       ),
                                   ],
                                 ),
@@ -143,7 +150,7 @@ class _ArchiveComponentSheetState extends State<_ArchiveComponentSheet> {
             child: FilledButton.icon(
               icon: const Icon(Icons.inventory_2_outlined),
               onPressed: () => Navigator.pop(context, (withSubcomponents: _withSubcomponents, detach: detach)),
-              label: const Text('Archive'),
+              label: Text(l10n.archive),
             ),
           ),
         ],

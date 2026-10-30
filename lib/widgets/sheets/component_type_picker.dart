@@ -74,7 +74,7 @@ class _ComponentTypePickerSheetState extends State<_ComponentTypePickerSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Select Component Type'),
+          SheetHeader(title: context.l10n.componentTypePickerTitle),
           const SizedBox(height: 8),
           Flexible(
             child: SingleChildScrollView(
@@ -177,6 +177,6 @@ class _TypeChip extends StatelessWidget {
       identifier: AutomationIds.componentType(componentType.name),
       child: chip,
     );
-    return isPrevious ? Tooltip(message: 'Previous value', child: identified) : identified;
+    return isPrevious ? Tooltip(message: context.l10n.previousValueTooltip, child: identified) : identified;
   }
 }

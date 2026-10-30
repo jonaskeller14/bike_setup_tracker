@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
@@ -204,15 +205,15 @@ class _BikePageState extends State<BikePage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       autofocus: widget.mode == BikePageMode.add,
       decoration: InputDecoration(
-        labelText: 'Bike Name',
+        labelText: context.l10n.bikeFormNameLabel,
         border: const OutlineInputBorder(),
-        hintText: 'Enter bike name',
+        hintText: context.l10n.bikeFormNameHint,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == BikePageMode.edit && _nameController.text.trim() != widget.bike?.name,
       ),
       validator: (String? value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter a bike name';
+          return context.l10n.bikeFormNameRequired;
         }
         return null;
       },
@@ -220,34 +221,33 @@ class _BikePageState extends State<BikePage> {
   }
 
   Widget _personField({required Map<String, Person> persons}) {
+    final l10n = context.l10n;
     return DropdownButtonFormField<String?>(
       initialValue: _person,
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: 'Rider',
+        labelText: l10n.bikeFormRiderLabel,
         border: const OutlineInputBorder(),
-        hintText: "Choose a rider for this bike",
-        helperText: persons.isEmpty
-            ? "You can assign a rider later, as soon as you've created one."
-            : null,
+        hintText: l10n.bikeFormRiderHint,
+        helperText: persons.isEmpty ? l10n.bikeFormRiderHelper : null,
         helperMaxLines: 99,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == BikePageMode.edit && _person != _initialPerson,
       ),
       validator: (String? newPerson) {
         if (newPerson == null) return null;
-        if (!persons.containsKey(newPerson)) return "Please select a valid rider";
+        if (!persons.containsKey(newPerson)) return l10n.bikeFormRiderInvalid;
         return null;
       },
       items: [
-        const DropdownMenuItem<String?>(
+        DropdownMenuItem<String?>(
           value: null,
           child: Row(
             spacing: 8,
             children: [
-              Icon(Icons.person_off),
-              Expanded(child: Text("No rider", overflow: TextOverflow.ellipsis))
+              const Icon(Icons.person_off),
+              Expanded(child: Text(l10n.bikeFormNoRider, overflow: TextOverflow.ellipsis))
             ],
           ),
         ),
@@ -270,7 +270,7 @@ class _BikePageState extends State<BikePage> {
             spacing: 8,
             children: [
               Icon(Icons.person, color: Theme.of(context).colorScheme.error),
-              Expanded(child: Text("RIDER NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+              Expanded(child: Text(l10n.riderNotFound, overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
             ],
           ),
         ), 
@@ -289,8 +289,8 @@ class _BikePageState extends State<BikePage> {
       maxLines: null,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: 'Notes (optional)',
-        hintText: 'Enter Bike brand, model, size, year, costs, ...',
+        labelText: context.l10n.notesOptionalLabel,
+        hintText: context.l10n.bikeFormNotesHint,
         border: const OutlineInputBorder(),
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == BikePageMode.edit && _notesController.text.trim() != (widget.bike?.notes ?? ""),
@@ -303,7 +303,7 @@ class _BikePageState extends State<BikePage> {
       context: context,
       initialStats: _initialStats,
       originalStats: widget.mode == BikePageMode.edit ? widget.bike?.initialStats : null,
-      description: "Usage this bike had before it was tracked here, e.g. for a second-hand bike. It is added on top of the stats from your activities. Components installed 'Since beginning' inherit these stats.",
+      description: context.l10n.initialStatsBikeDescription,
     );
     if (newStats == null || !mounted) return;
     setState(() => _initialStats = newStats);
@@ -312,17 +312,18 @@ class _BikePageState extends State<BikePage> {
 
   Widget _initialStatsChip() {
     final appSettings = context.watch<AppSettings>();
-    final summary = initialStatsSummary(_initialStats, appSettings);
+    final l10n = context.l10n;
+    final summary = initialStatsSummary(_initialStats, appSettings, l10n);
     return FilterChip(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       avatar: const Icon(Icons.start),
       showCheckmark: false,
       selected: widget.mode != BikePageMode.edit && _initialStats != ComponentStats.zero,
       label: Text(
-        summary == null ? "Initial Stats" : "Initial: $summary",
+        summary == null ? l10n.initialStatsTitle : l10n.initialStatsChip(summary),
         overflow: TextOverflow.ellipsis,
       ),
-      tooltip: "Usage before this bike was tracked",
+      tooltip: l10n.initialStatsBikeTooltip,
       backgroundColor: widget.mode == BikePageMode.edit && _initialStats != widget.bike!.initialStats
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
@@ -337,7 +338,7 @@ class _BikePageState extends State<BikePage> {
       labelPadding: const EdgeInsets.symmetric(vertical: 2),
       padding: EdgeInsets.zero,
       avatar: const Icon(Icons.attach_file),
-      tooltip: 'Add Attachment',
+      tooltip: context.l10n.addAttachmentTooltip,
       backgroundColor: widget.mode == BikePageMode.edit && !listEquals(_attachments, widget.bike!.attachments)
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
@@ -346,33 +347,34 @@ class _BikePageState extends State<BikePage> {
   }
 
   Widget _stravaGearField({required Map<String, Bike> existingBikes, required Map<String, StravaGear> stravaGears}) {
+    final l10n = context.l10n;
     return DropdownButtonFormField<String?>(
       initialValue: _stravaGear,
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: 'Strava Gear',
+        labelText: l10n.bikeFormStravaGearLabel,
         border: const OutlineInputBorder(),
-        hintText: "Link Strava Gear",
+        hintText: l10n.bikeFormStravaGearHint,
         helperText: existingBikes.values.any((b) => b.id != widget.bike?.id && b.stravaGear != null && b.stravaGear == _stravaGear)
-            ? "WARNING: Strava Gear already assigned to another Bike"
+            ? l10n.bikeFormStravaGearTaken
             : null,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == BikePageMode.edit && _stravaGear != _initialStravaGear,
       ),
       validator: (String? newStravaGear) {
         if (newStravaGear == null) return null;
-        if (!stravaGears.containsKey(newStravaGear)) return "Please select valid Gear";
+        if (!stravaGears.containsKey(newStravaGear)) return l10n.bikeFormStravaGearInvalid;
         return null;
       },
       items: [
-        const DropdownMenuItem<String?>(
+        DropdownMenuItem<String?>(
           value: null,
           child: Row(
             spacing: 8,
             children: [
-              Icon(Icons.link_off),
-              Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
+              const Icon(Icons.link_off),
+              Expanded(child: Text(l10n.bikeFormStravaGearNotLinked, overflow: TextOverflow.ellipsis))
             ],
           ),
         ),
@@ -395,7 +397,7 @@ class _BikePageState extends State<BikePage> {
             spacing: 8,
             children: [
               Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
-              Expanded(child: Text("GEAR NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+              Expanded(child: Text(l10n.stravaGearNotFound, overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
             ],
           ),
         ), 
@@ -426,8 +428,8 @@ class _BikePageState extends State<BikePage> {
           title: switch (widget.mode) {
             BikePageMode.add || 
             BikePageMode.duplicate || 
-            BikePageMode.template => const Text('Add Bike'),
-            BikePageMode.edit => const Text('Edit Bike'),
+            BikePageMode.template => Text(context.l10n.bikeFormAddTitle),
+            BikePageMode.edit => Text(context.l10n.bikeFormEditTitle),
           },
           actions: [
             Semantics(
@@ -469,9 +471,9 @@ class _BikePageState extends State<BikePage> {
                                 ? Icons.expand_less 
                                 : Icons.expand_more,
                             ),
-                            label: Text(_expanded 
-                                ? "Hide Additional Fields" 
-                                : "Show Additional Fields"
+                            label: Text(_expanded
+                                ? context.l10n.hideAdditionalFields
+                                : context.l10n.showAdditionalFields
                             ),
                           ),
                         ),

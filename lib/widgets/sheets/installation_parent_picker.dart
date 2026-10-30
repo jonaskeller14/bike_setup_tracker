@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
@@ -210,7 +211,7 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SheetHeader(title: 'Installed on'),
+            SheetHeader(title: context.l10n.componentFormInstalledOnLabel),
             if (showSearch) ...[
               const SizedBox(height: 12),
               _searchField(),
@@ -225,7 +226,7 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: SheetFilterEmptyHint(
                           icon: Icons.search_off,
-                          title: 'No matches for "$_query"',
+                          title: context.l10n.parentPickerNoMatches(_query),
                         ),
                       )
                     : Column(
@@ -264,7 +265,7 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
   Widget _showAllRow(int hiddenCount) {
     final theme = Theme.of(context);
     final typeLabel = widget.componentTypeLabel;
-    final parts = hiddenCount == 1 ? 'part' : 'parts';
+    final l10n = context.l10n;
     return Padding(
       // Lines the text up with the row titles.
       padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 0),
@@ -272,13 +273,15 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
         children: [
           Expanded(
             child: Text(
-              typeLabel == null ? '$hiddenCount $parts hidden' : '$hiddenCount $parts hidden · unusual for a $typeLabel',
+              typeLabel == null
+                  ? l10n.parentPickerHidden(hiddenCount)
+                  : l10n.parentPickerHiddenUnusual(hiddenCount, typeLabel),
               style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
             ),
           ),
           TextButton(
             onPressed: () => setState(() => _showAll = true),
-            child: const Text('Show all'),
+            child: Text(l10n.showAll),
           ),
         ],
       ),
@@ -304,7 +307,7 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
                     setState(() => _query = '');
                   },
                 ),
-          hintText: 'Search bikes and parts…',
+          hintText: context.l10n.parentPickerSearchHint,
           border: const OutlineInputBorder(),
         ),
       ),
@@ -340,6 +343,7 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
       }
     }
 
+    final l10n = context.l10n;
     final currentBikeId = widget.currentBikeId;
     final order = <Object>[
       ?currentBikeId,
@@ -349,16 +353,16 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
     ];
 
     return [
-      if (notInstalled.isNotEmpty) _Section('Not installed', notInstalled),
-      if (bikeOptions.isNotEmpty) _Section('Bikes', bikeOptions, isBikes: true),
+      if (notInstalled.isNotEmpty) _Section(l10n.timelineNotInstalled, notInstalled),
+      if (bikeOptions.isNotEmpty) _Section(l10n.parentPickerBikes, bikeOptions, isBikes: true),
       for (final key in order)
         if (componentsByRoot[key] case final options?)
           _Section(
             switch (key) {
-              _Root.brokenChain => 'Components with a missing parent',
-              _Root.uninstalled => 'Uninstalled components',
-              _Root.archived => 'Archived components',
-              _ => 'Components on ${widget.bikes[key]?.name ?? 'BIKE NOT FOUND'}',
+              _Root.brokenChain => l10n.parentPickerMissingParent,
+              _Root.uninstalled => l10n.parentPickerUninstalled,
+              _Root.archived => l10n.parentPickerArchived,
+              _ => l10n.parentPickerOnBike(widget.bikes[key]?.name ?? l10n.bikeNotFound),
             },
             options,
           ),
@@ -452,7 +456,7 @@ class _ParentRow extends StatelessWidget {
               ? Icon(Icons.check, color: highlightColor)
               : isPrevious
                   ? Tooltip(
-                      message: 'Previous value',
+                      message: context.l10n.previousValueTooltip,
                       child: Icon(Icons.history, color: scheme.onSurfaceVariant),
                     )
                   : null,

@@ -3361,6 +3361,1608 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record a setup'**
   String get hintGuideRecordSetup;
+
+  /// Snackbar action that reverts the action just performed.
+  ///
+  /// In en, this message translates to:
+  /// **'UNDO'**
+  String get undo;
+
+  /// Joins two items in a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {second}'**
+  String listJoinTwo(String first, String second);
+
+  /// Joins three or more items in a sentence. {leading} is the comma-separated start of the list, {last} the final item.
+  ///
+  /// In en, this message translates to:
+  /// **'{leading}, and {last}'**
+  String listJoinMany(String leading, String last);
+
+  /// Error under the installation timeline when it has no entries.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one entry is required'**
+  String get timelineProblemNoEntries;
+
+  /// Error under the installation timeline when an archival is followed by another entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Archival can only be the last entry in the timeline'**
+  String get timelineProblemArchivalNotLast;
+
+  /// Error under the installation timeline when two uninstall entries follow each other.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot have consecutive uninstallations'**
+  String get timelineProblemConsecutiveUninstallations;
+
+  /// Error under the installation timeline when two entries in a row install the component on the same bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot have consecutive installations on the same bike'**
+  String get timelineProblemConsecutiveOnSameBike;
+
+  /// Error under the installation timeline when two entries in a row install the component on the same parent component.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot have consecutive installations on the same component'**
+  String get timelineProblemConsecutiveOnSameComponent;
+
+  /// Error under the installation timeline. "From beginning" is the timeline's date choice for the start of the component's life.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple \"From beginning\" entries are not allowed'**
+  String get timelineProblemMultipleFromBeginning;
+
+  /// Error under the installation timeline when two entries share a date and time.
+  ///
+  /// In en, this message translates to:
+  /// **'Two entries cannot have the same date & time'**
+  String get timelineProblemSameDateTime;
+
+  /// Error under the installation timeline when an entry points to a deleted bike.
+  ///
+  /// In en, this message translates to:
+  /// **'This entry is installed on a bike that no longer exists'**
+  String get timelineProblemBikeMissing;
+
+  /// Error under the installation timeline when a component is installed on itself.
+  ///
+  /// In en, this message translates to:
+  /// **'A component cannot be installed on itself'**
+  String get timelineProblemInstalledOnItself;
+
+  /// Error under the installation timeline when components would end up installed on each other in a circle.
+  ///
+  /// In en, this message translates to:
+  /// **'This installation creates a loop of components'**
+  String get timelineProblemComponentLoop;
+
+  /// Snackbar after clearing the rider of bikes. {count} is the number of bikes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Rider removed from 1 Bike.} other{Rider removed from {count} Bikes.}}'**
+  String bikeRiderRemoved(int count);
+
+  /// Snackbar after assigning a rider to bikes. {name} is the rider's name, {count} the number of bikes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Rider set to \'{name}\' for 1 Bike.} other{Rider set to \'{name}\' for {count} Bikes.}}'**
+  String bikeRiderSet(int count, String name);
+
+  /// Snackbar after deleting bikes. {count} is the number of bikes, {name} the name of the first one.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Bike \'{name}\' moved to trash.} other{{count} bikes moved to trash.}}'**
+  String bikeMovedToTrash(int count, String name);
+
+  /// Part of the list of items trashed along with a bike. {count} is the number of components.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 component} other{{count} components}}'**
+  String bikeTrashedComponents(int count);
+
+  /// Part of the list of items trashed along with a bike. {count} is the number of setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 setup} other{{count} setups}}'**
+  String bikeTrashedSetups(int count);
+
+  /// Part of the list of items trashed along with a bike. {count} is the number of tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 task and its entries} other{{count} tasks and their entries}}'**
+  String bikeTrashedTasks(int count);
+
+  /// Second line of the snackbar after deleting a bike. {summary} lists the related items, e.g. "2 components and 1 setup".
+  ///
+  /// In en, this message translates to:
+  /// **'Also moved to trash: {summary}.'**
+  String bikeAlsoTrashed(String summary);
+
+  /// Snackbar after restoring a bike from the trash. {name} is the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike \'{name}\' restored from trash.'**
+  String bikeRestoredFromTrash(String name);
+
+  /// Snackbar after deleting entries from the bike timeline. {count} is the number of entries.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 entry moved to trash.} other{{count} entries moved to trash.}}'**
+  String timelineEntriesMovedToTrash(int count);
+
+  /// Snackbar after unlinking a Strava gear from a bike. {gear} is the gear name, {bike} the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlinked \'{gear}\' from \'{bike}\'.'**
+  String stravaGearUnlinked(String gear, String bike);
+
+  /// Title of the installation timeline section on the component form and details.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation Timeline'**
+  String get installationTimelineTitle;
+
+  /// Date label of a timeline entry that applies from the very start of the component's life.
+  ///
+  /// In en, this message translates to:
+  /// **'From beginning'**
+  String get timelineFromBeginning;
+
+  /// Menu item that sets a timeline entry to the current date and time.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get timelineNow;
+
+  /// Menu item that opens the date and time pickers for a timeline entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date & time...'**
+  String get timelineSelectDateTime;
+
+  /// Tooltip of the button that adds an entry to the installation timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Timeline Entry'**
+  String get timelineAddEntryTooltip;
+
+  /// Shown in red in the timeline when an entry points to a bike that no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'BIKE NOT FOUND'**
+  String get bikeNotFound;
+
+  /// Shown in red in the timeline when an entry points to a component that no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPONENT NOT FOUND'**
+  String get componentNotFound;
+
+  /// Timeline entry for the moment a component was taken off.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstalled'**
+  String get timelineUninstalled;
+
+  /// Timeline entry for the moment a component was archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get timelineArchived;
+
+  /// Second line of an inherited timeline entry. {name} is the component the entry's placement comes through.
+  ///
+  /// In en, this message translates to:
+  /// **'via {name}'**
+  String timelineVia(String name);
+
+  /// Timeline day header for today. {date} is the formatted date.
+  ///
+  /// In en, this message translates to:
+  /// **'Today · {date}'**
+  String timelineDayToday(String date);
+
+  /// Timeline day header for yesterday. {date} is the formatted date.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday · {date}'**
+  String timelineDayYesterday(String date);
+
+  /// Info text of the installation timeline table title on the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'Visualizes component setup history, including overlaps and periods with no active components.'**
+  String get timelineTableInfo;
+
+  /// Label of the component type filter chip of the timeline table while nothing is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'All Component Types'**
+  String get timelineAllComponentTypes;
+
+  /// Label of the component type filter chip while some types are hidden. {visible} types are shown out of {total}.
+  ///
+  /// In en, this message translates to:
+  /// **'Component Types {visible}/{total}'**
+  String timelineComponentTypesCount(int visible, int total);
+
+  /// Title of the empty state of the timeline table.
+  ///
+  /// In en, this message translates to:
+  /// **'No installation history'**
+  String get timelineEmptyTitle;
+
+  /// Subtitle of the empty state of the timeline table.
+  ///
+  /// In en, this message translates to:
+  /// **'Install components on this bike to see the timeline'**
+  String get timelineEmptySubtitle;
+
+  /// Title of the empty state when every component type is hidden in the timeline table.
+  ///
+  /// In en, this message translates to:
+  /// **'No component types selected'**
+  String get timelineNoTypesTitle;
+
+  /// Subtitle of the empty state when every component type is hidden in the timeline table.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a component type to display the table'**
+  String get timelineNoTypesSubtitle;
+
+  /// Header of the date column in the timeline table.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeline'**
+  String get timelineTableCorner;
+
+  /// Menu item on a timeline table block that opens the component.
+  ///
+  /// In en, this message translates to:
+  /// **'Component details'**
+  String get timelineMenuComponentDetails;
+
+  /// Menu item on a timeline table block that edits the installation entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit installation'**
+  String get timelineMenuEditInstallation;
+
+  /// Title of the garage empty state while the bike filter hides every bike.
+  ///
+  /// In en, this message translates to:
+  /// **'No bikes match this filter'**
+  String get garageNoBikesMatchTitle;
+
+  /// Subtitle of the garage empty state while the bike filter hides every bike.
+  ///
+  /// In en, this message translates to:
+  /// **'The bike filter is hiding all bikes.'**
+  String get garageNoBikesMatchSubtitle;
+
+  /// Title of the garage empty state when there are no bikes.
+  ///
+  /// In en, this message translates to:
+  /// **'No bikes yet'**
+  String get garageNoBikesTitle;
+
+  /// Subtitle of the garage empty state when there are no bikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first bike to get started.'**
+  String get garageNoBikesSubtitle;
+
+  /// Button of the garage empty state that opens the new bike form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a bike'**
+  String get garageAddBike;
+
+  /// Menu item or button that opens an item for editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// Menu item or button that creates a copy of an item.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get duplicate;
+
+  /// Menu item or button that replaces a component with another one.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get replace;
+
+  /// Menu item or button that moves an item to the trash.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// Label of the 'not installed' step in a component's installation chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Not installed'**
+  String get timelineNotInstalled;
+
+  /// Destination label of a timeline entry that moved a component to the archive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get timelineArchive;
+
+  /// Title of the first timeline entry of a component. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {name}'**
+  String timelineAdded(String name);
+
+  /// Title of a timeline entry that installed a component. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed {name}'**
+  String timelineInstalled(String name);
+
+  /// Title of a timeline entry that took a component off. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstalled {name}'**
+  String timelineUninstalledName(String name);
+
+  /// Title of a timeline entry that archived a component. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived {name}'**
+  String timelineArchivedName(String name);
+
+  /// Title of a timeline entry that swapped one component for another. {type} is the component type, e.g. "Fork".
+  ///
+  /// In en, this message translates to:
+  /// **'Replaced {type}'**
+  String timelineReplaced(String type);
+
+  /// Error snackbar when saving an installation would make components sit on each other in a circle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved: this would create a loop of components.'**
+  String get installationNotSavedLoop;
+
+  /// Caption under the newly installed component in the replacement preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed'**
+  String get timelineInstalledCaption;
+
+  /// Title of a timeline section in the replacement sheet when both components share a name. {status} is e.g. "Installed".
+  ///
+  /// In en, this message translates to:
+  /// **'{name} ({status})'**
+  String replacementTitleWithStatus(String name, String status);
+
+  /// Explanation at the top of the replacement sheet. {minutes} is the time window that groups two entries into a replacement.
+  ///
+  /// In en, this message translates to:
+  /// **'A replacement is simply two installations within {minutes, plural, =1{1 minute} other{{minutes} minutes}}: one component removed and another installed on the same bike.'**
+  String replacementExplanation(int minutes);
+
+  /// Button that moves on to the next step of a sheet or flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// Title of the replace component sheet. {name} is the component being replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace \'{name}\''**
+  String replaceTitle(String name);
+
+  /// Label in the replace preview for the chosen replacement component when none is picked yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Replacement'**
+  String get replaceOutcomeReplacement;
+
+  /// Label in the replace preview for the component that will be created.
+  ///
+  /// In en, this message translates to:
+  /// **'New component'**
+  String get replaceOutcomeNewComponent;
+
+  /// Segment of the replace sheet: replace with a component that already exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing'**
+  String get replaceModeExisting;
+
+  /// Segment of the replace sheet: replace with a newly created component.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get replaceModeNew;
+
+  /// Explanation in the replace sheet: existing component, installation timeline on.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an already uninstalled component to install in place of this one, and set the replacement date. This is when the current component is retired and the selected one installed.'**
+  String get replaceDescriptionExistingDated;
+
+  /// Explanation in the replace sheet: new component, installation timeline on.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.'**
+  String get replaceDescriptionNewDated;
+
+  /// Explanation in the replace sheet: existing component, installation timeline off.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an already uninstalled component to install in place of this one. The current component is uninstalled.'**
+  String get replaceDescriptionExistingUndated;
+
+  /// Explanation in the replace sheet: new component, installation timeline off.
+  ///
+  /// In en, this message translates to:
+  /// **'The current component is uninstalled and a new one installed in its place. In the next step, you can configure the new component, which will be pre-filled with details from this one.'**
+  String get replaceDescriptionNewUndated;
+
+  /// Hint in the replace sheet that offers to turn on the installation timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Without a swap date, the new part counts as installed from the start. Past setups then no longer show the old part and the values you recorded for it. Date the swap to keep both histories intact.'**
+  String get replaceTimelineHint;
+
+  /// Title of the empty hint in the replace sheet. {type} is the component type, e.g. "Fork".
+  ///
+  /// In en, this message translates to:
+  /// **'No uninstalled {type} available'**
+  String replaceNoUninstalledTitle(String type);
+
+  /// Hint of the empty state in the replace sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new component instead.'**
+  String get replaceNoUninstalledHint;
+
+  /// Label of the dropdown in the replace sheet that picks the existing replacement.
+  ///
+  /// In en, this message translates to:
+  /// **'Replacement Component'**
+  String get replaceComponentLabel;
+
+  /// Placeholder of the replacement dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a component'**
+  String get replaceComponentHint;
+
+  /// Validation error of the replacement dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a component'**
+  String get replaceComponentRequired;
+
+  /// Label of the date field in the replace sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Replacement Date'**
+  String get replaceDateLabel;
+
+  /// Validation error of the replacement date. {date} is the date and time of the last installation.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be after last installation ({date})'**
+  String replaceDateAfterLast(String date);
+
+  /// Option in the replace sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Move subcomponents to replacement'**
+  String get replaceMoveSubcomponents;
+
+  /// Description of the option that moves subcomponents to the replacement.
+  ///
+  /// In en, this message translates to:
+  /// **'They are installed on the replacement at the replacement date.'**
+  String get replaceMoveSubcomponentsHint;
+
+  /// Option in the replace sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall subcomponents'**
+  String get uninstallSubcomponents;
+
+  /// Description of the option that uninstalls subcomponents.
+  ///
+  /// In en, this message translates to:
+  /// **'They move to your uninstalled components.'**
+  String get uninstallSubcomponentsHint;
+
+  /// Tooltip of a picker option that marks the value the item had before it was edited.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous value'**
+  String get previousValueTooltip;
+
+  /// Validation error of a numeric field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid value'**
+  String get enterValidValue;
+
+  /// Label of the optional notes field of a form.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get notesOptionalLabel;
+
+  /// Tooltip of the paperclip chip that attaches images or files in a form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Attachment'**
+  String get addAttachmentTooltip;
+
+  /// Button that expands the optional fields of a form.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Additional Fields'**
+  String get showAdditionalFields;
+
+  /// Button that collapses the optional fields of a form.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide Additional Fields'**
+  String get hideAdditionalFields;
+
+  /// Shown in red when an item points to a rider that no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'RIDER NOT FOUND'**
+  String get riderNotFound;
+
+  /// Shown in red when a bike points to a Strava gear that no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'GEAR NOT FOUND'**
+  String get stravaGearNotFound;
+
+  /// Title of the component type picker sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Component Type'**
+  String get componentTypePickerTitle;
+
+  /// Title of the sheet and label of the chip for the usage an item had before it was tracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Stats'**
+  String get initialStatsTitle;
+
+  /// Label of the initial stats chip once values are set. {summary} lists them, e.g. "1,200 km · 30 h".
+  ///
+  /// In en, this message translates to:
+  /// **'Initial: {summary}'**
+  String initialStatsChip(String summary);
+
+  /// Tooltip of the initial stats chip on the bike form.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage before this bike was tracked'**
+  String get initialStatsBikeTooltip;
+
+  /// Tooltip of the initial stats chip on the component form.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage before this component was tracked'**
+  String get initialStatsComponentTooltip;
+
+  /// Explanation in the initial stats sheet of a bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage this bike had before it was tracked here, e.g. for a second-hand bike. It is added on top of the stats from your activities. Components installed \'Since beginning\' inherit these stats.'**
+  String get initialStatsBikeDescription;
+
+  /// Explanation in the initial stats sheet of a component.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage this component had before it was tracked here, e.g. for a second-hand part. It is added on top of the stats from your activities. Components installed \'Since beginning\' also include their bike\'s initial stats.'**
+  String get initialStatsComponentDescription;
+
+  /// Activity count in the initial stats summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 activity} other{{count} activities}}'**
+  String initialStatsActivities(int count);
+
+  /// Label of the distance field in the initial stats sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get initialStatsDistance;
+
+  /// Label of the elevation gain field in the initial stats sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation Gain'**
+  String get initialStatsElevationGain;
+
+  /// Label of the moving time field in the initial stats sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving Time'**
+  String get initialStatsMovingTime;
+
+  /// Label of the elapsed time field in the initial stats sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Elapsed Time'**
+  String get initialStatsElapsedTime;
+
+  /// Label of the activity count field in the initial stats sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities'**
+  String get initialStatsActivityCount;
+
+  /// Label of the energy field in the initial stats sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy'**
+  String get initialStatsEnergy;
+
+  /// App bar title of the form that adds a bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Bike'**
+  String get bikeFormAddTitle;
+
+  /// App bar title of the form that edits a bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Bike'**
+  String get bikeFormEditTitle;
+
+  /// Label of the bike name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike Name'**
+  String get bikeFormNameLabel;
+
+  /// Placeholder of the bike name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter bike name'**
+  String get bikeFormNameHint;
+
+  /// Validation error of the bike name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a bike name'**
+  String get bikeFormNameRequired;
+
+  /// Label of the rider dropdown on the bike form.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider'**
+  String get bikeFormRiderLabel;
+
+  /// Placeholder of the rider dropdown on the bike form.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a rider for this bike'**
+  String get bikeFormRiderHint;
+
+  /// Helper text of the rider dropdown while no rider exists.
+  ///
+  /// In en, this message translates to:
+  /// **'You can assign a rider later, as soon as you\'ve created one.'**
+  String get bikeFormRiderHelper;
+
+  /// Validation error of the rider dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a valid rider'**
+  String get bikeFormRiderInvalid;
+
+  /// Dropdown entry that leaves the bike without a rider.
+  ///
+  /// In en, this message translates to:
+  /// **'No rider'**
+  String get bikeFormNoRider;
+
+  /// Placeholder of the notes field of the bike form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Bike brand, model, size, year, costs, ...'**
+  String get bikeFormNotesHint;
+
+  /// Label of the Strava gear dropdown on the bike form.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Gear'**
+  String get bikeFormStravaGearLabel;
+
+  /// Placeholder of the Strava gear dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Strava Gear'**
+  String get bikeFormStravaGearHint;
+
+  /// Helper text when the chosen Strava gear is already linked to another bike.
+  ///
+  /// In en, this message translates to:
+  /// **'WARNING: Strava Gear already assigned to another Bike'**
+  String get bikeFormStravaGearTaken;
+
+  /// Validation error of the Strava gear dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select valid Gear'**
+  String get bikeFormStravaGearInvalid;
+
+  /// Dropdown entry that leaves the bike without Strava gear.
+  ///
+  /// In en, this message translates to:
+  /// **'NOT LINKED'**
+  String get bikeFormStravaGearNotLinked;
+
+  /// App bar title of the form that adds a component.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Component'**
+  String get componentFormAddTitle;
+
+  /// App bar title of the form that edits a component.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Component'**
+  String get componentFormEditTitle;
+
+  /// Label of the component name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Component Name'**
+  String get componentFormNameLabel;
+
+  /// Placeholder of the component name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter component name'**
+  String get componentFormNameHint;
+
+  /// Validation error of the component name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get componentFormNameRequired;
+
+  /// Helper text of the component name field for forks, which offers catalog suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: type a product name — e.g. \'Fox 38\''**
+  String get componentFormNameTipFork;
+
+  /// Helper text of the component name field for shocks, which offers catalog suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: type a product name — e.g. \'Fox Float X\''**
+  String get componentFormNameTipShock;
+
+  /// Placeholder of the notes field of the component form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter brand, model, serial number, costs, ...'**
+  String get componentFormNotesHint;
+
+  /// Label of the component type field.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get componentFormTypeLabel;
+
+  /// Placeholder of the component type field while no type is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select type'**
+  String get componentFormTypePlaceholder;
+
+  /// Validation error of the component type field.
+  ///
+  /// In en, this message translates to:
+  /// **'Component type cannot be empty. You can edit it later.'**
+  String get componentFormTypeRequired;
+
+  /// Helper text when the bike already carries as many components of the chosen type as allowed. {count} is that limit, {type} the type name.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{WARNING: There is already one {type}-Component installed on this bike.} other{WARNING: There are already {count} {type}-Components installed on this bike.}}'**
+  String componentFormTypeOverLimit(int count, String type);
+
+  /// Label of the field that picks where the component is installed.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed on'**
+  String get componentFormInstalledOnLabel;
+
+  /// Validation error of the installed-on field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select valid bike'**
+  String get componentFormInstalledOnInvalid;
+
+  /// Helper text while the component is not installed anywhere.
+  ///
+  /// In en, this message translates to:
+  /// **'WARNING: Select Bike to install Component.'**
+  String get componentFormInstalledOnWarning;
+
+  /// Note under the installation timeline while replacing a component.
+  ///
+  /// In en, this message translates to:
+  /// **'The timeline is locked during the replacement. The new component is installed at the same time the old one is removed. You can edit the timeline after saving.'**
+  String get componentFormTimelineLocked;
+
+  /// Section title of the adjustments on the component form.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustments'**
+  String get componentFormAdjustmentsTitle;
+
+  /// Info text of the adjustments section on the component form.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustments are physical parameters on this component that can be tuned—such as dial positions, switch settings, or pressure ranges. Step 1: Define what adjustment parameters exist for this component and set their limits here. Step 2: After you save this component, create a Setup to save actual adjustment values for your bike.'**
+  String get componentFormAdjustmentsInfo;
+
+  /// Title of the empty state of the adjustments list on the component form.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustments yet'**
+  String get componentFormAdjustmentsEmptyTitle;
+
+  /// Subtitle of the empty adjustments list.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \'Add Adjustment\' to define settings for this component'**
+  String get componentFormAdjustmentsEmptySubtitle;
+
+  /// Subtitle of the empty adjustments list while the form shows an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here to add the first adjustment'**
+  String get componentFormAdjustmentsEmptyError;
+
+  /// Button below the adjustments list of the component form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Adjustment'**
+  String get componentFormAddAdjustment;
+
+  /// Snackbar after a catalog product was applied to the form. {name} is the product name.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled from {name}'**
+  String componentFormPresetFilled(String name);
+
+  /// Snackbar after a catalog product replaced the component's adjustments. {name} is the product name.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaced adjustments with {name}'**
+  String componentFormPresetReplaced(String name);
+
+  /// Snackbar after an existing component was linked to a catalog product. {name} is the product name, {count} the number of added adjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Linked to {name} · no adjustments added} =1{Linked to {name} · 1 adjustment added} other{Linked to {name} · {count} adjustments added}}'**
+  String componentFormPresetLinked(String name, int count);
+
+  /// Snackbar after the catalog update notice was dismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog update dismissed'**
+  String get componentFormCatalogUpdateDismissed;
+
+  /// Snackbar after the link to a catalog product was removed. {name} is the product name.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlinked from {name} — values kept'**
+  String componentFormPresetUnlinked(String name);
+
+  /// Replaces the product name in the unlink snackbar when the product is no longer in the catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'catalog'**
+  String get componentFormCatalogFallback;
+
+  /// Caption above the adjustments list. {count} adjustments came from the catalog product {name}.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 adjustment prefilled from {name}} other{{count} adjustments prefilled from {name}}}'**
+  String componentFormPresetCaption(int count, String name);
+
+  /// Appended to the prefill caption for adjustments that did not come from the catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 other} other{{count} others}}'**
+  String componentFormPresetOthers(int count);
+
+  /// Button of an empty state that removes the active filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get clearFilters;
+
+  /// Label of the chip that opens the column picker of a table.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns'**
+  String get columnsLabel;
+
+  /// Button that opens the new component form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Component'**
+  String get addComponent;
+
+  /// Table column that shows the rank of a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank'**
+  String get setupColumnRank;
+
+  /// End of a component's time range in the column history when it is still on the bike.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get bikeDetailsLaneNow;
+
+  /// Title of the bike details page when the bike no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike not found'**
+  String get bikeDetailsNotFoundTitle;
+
+  /// Subtitle of the bike details page when the bike no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This bike was deleted or is no longer available.'**
+  String get bikeDetailsNotFoundSubtitle;
+
+  /// Row on the bike details page when the bike has no rider.
+  ///
+  /// In en, this message translates to:
+  /// **'No rider linked to this bike.'**
+  String get bikeDetailsNoRider;
+
+  /// Row on the bike details page when the bike has no Strava gear.
+  ///
+  /// In en, this message translates to:
+  /// **'No Strava Gear linked to this bike.'**
+  String get bikeDetailsNoStravaGear;
+
+  /// Shown in red on the bike details page when the linked Strava gear no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'STRAVA GEAR NOT FOUND'**
+  String get bikeDetailsStravaGearNotFound;
+
+  /// Title of the expandable components section of the bike details. {count} is the number of components.
+  ///
+  /// In en, this message translates to:
+  /// **'Components ({count})'**
+  String bikeDetailsComponentsTitle(int count);
+
+  /// Title of the empty state of the components section of the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'No components yet'**
+  String get noComponentsTitle;
+
+  /// Subtitle of the empty state of the components section of the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a component to this bike'**
+  String get bikeDetailsNoComponentsSubtitle;
+
+  /// Title of the expandable test sessions section of the bike details. {count} is the number of sessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Test sessions ({count})'**
+  String bikeDetailsTestSessionsTitle(int count);
+
+  /// Title of the empty state of the test sessions section.
+  ///
+  /// In en, this message translates to:
+  /// **'No test sessions yet'**
+  String get bikeDetailsNoTestSessionsTitle;
+
+  /// Subtitle of the empty state of the test sessions section.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjustments one after the other and see which works best'**
+  String get bikeDetailsNoTestSessionsSubtitle;
+
+  /// Button that starts a new test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Test Session'**
+  String get startTestSession;
+
+  /// Section title of the setup table on the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup History'**
+  String get bikeDetailsSetupHistoryTitle;
+
+  /// Info text of the setup history section on the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'All setups of this bike. Add or remove columns via the Columns button, or long-press a column header to remove it. Green values are new (no prior value), orange values have changed from the previous setup. Select rows to compare setups in the charts below.'**
+  String get bikeDetailsSetupHistoryInfo;
+
+  /// Second paragraph of the setup history info text, appended to it.
+  ///
+  /// In en, this message translates to:
+  /// **'\n\nComponents that followed each other in the same position (e.g. the tire on the front wheel) share a column, so a replacement continues its predecessor\'s column and starts with a green value. Red values belong to a component that was not installed at that setup.'**
+  String get bikeDetailsMergedColumnsInfo;
+
+  /// Title of the empty state of the setup history when the bike has no setups.
+  ///
+  /// In en, this message translates to:
+  /// **'No setups yet'**
+  String get noSetupsTitle;
+
+  /// Subtitle of the empty state of the setup history when the bike has no setups.
+  ///
+  /// In en, this message translates to:
+  /// **'No setups reference this bike'**
+  String get bikeDetailsNoSetupsSubtitle;
+
+  /// Title of the empty state of the setup history while the filters hide every setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches this filter'**
+  String get bikeDetailsFilterEmptyTitle;
+
+  /// Subtitle of the empty state of the setup history while the filters hide every setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Your filters are hiding all setups.'**
+  String get bikeDetailsFilterEmptySubtitle;
+
+  /// Title of the empty state of the setup history when every column is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'No columns'**
+  String get tableNoColumnsTitle;
+
+  /// Subtitle of the empty state of the setup history when every column is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a column to display the table'**
+  String get tableNoColumnsSubtitle;
+
+  /// Section title of the line chart on the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'Line Chart'**
+  String get chartLineTitle;
+
+  /// Info text of the line chart section on the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'• Shows the setups selected in the table above in their current sort order.\n• The y-axis represents adjustment values.\n• Select at least two setups to display a trend.\n• Tap a legend entry to highlight a specific line.\n• Long-press a legend entry to remove its column.'**
+  String get bikeDetailsLineChartInfo;
+
+  /// Section title of the radial chart on the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'Radial Chart'**
+  String get chartRadialTitle;
+
+  /// Info text of the radial chart section on the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'• Shows the setups selected in the table above.\n• Axes are normalized across all data for stable comparison.\n• Tap a legend entry to highlight a specific graph.\n• Long-press a legend entry to remove it from the selection.'**
+  String get chartRadialInfo;
+
+  /// Section title of the activity histogram on the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Histogram'**
+  String get chartHistogramTitle;
+
+  /// Info text of the activity histogram section on the bike details.
+  ///
+  /// In en, this message translates to:
+  /// **'• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Components that followed each other in the same position are counted together in one column.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.'**
+  String get bikeDetailsHistogramInfo;
+
+  /// Title of the locked activity histogram without a Strava subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Sync required'**
+  String get chartHistogramLockedTitle;
+
+  /// Subtitle of the locked activity histogram without a Strava subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'See how many activities you rode with each adjustment value.'**
+  String get chartHistogramLockedSubtitle;
+
+  /// Button of the locked activity histogram that opens the Strava plans.
+  ///
+  /// In en, this message translates to:
+  /// **'View plans'**
+  String get viewPlans;
+
+  /// Title of the component details page when the component no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Component not found'**
+  String get componentDetailsNotFoundTitle;
+
+  /// Subtitle of the component details page when the component no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This component was deleted or is no longer available.'**
+  String get componentDetailsNotFoundSubtitle;
+
+  /// Title of the expandable installation history section of the component details.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get componentDetailsHistory;
+
+  /// Title of the expandable subcomponents section of the component details. {count} is the number of subcomponents.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcomponents ({count})'**
+  String componentDetailsSubcomponentsTitle(int count);
+
+  /// Subtitle of the empty state of the subcomponents section.
+  ///
+  /// In en, this message translates to:
+  /// **'Install a component on this component'**
+  String get componentDetailsNoSubcomponentsSubtitle;
+
+  /// Section title of the setup table on the component details.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment History'**
+  String get componentDetailsAdjustmentHistoryTitle;
+
+  /// Info text of the adjustment history section on the component details.
+  ///
+  /// In en, this message translates to:
+  /// **'• Add or remove columns via the Columns button.\n• Long-press a column header to remove it.\n• Tap a column header to sort.\n• Use the filter button to narrow down by bike or tags.\n• Select rows to compare setups in the charts below.\n\nValue colors:\n• Green: new value (no prior value).\n• Orange: changed from the previous setup.\n• Red: dangling value (component not installed or rider not linked at setup time).'**
+  String get componentDetailsAdjustmentHistoryInfo;
+
+  /// Title of the empty state of the adjustment history when the component has no adjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustments'**
+  String get componentDetailsNoAdjustmentsTitle;
+
+  /// Subtitle of the empty state of the adjustment history when the component has no adjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustments are defined for this component'**
+  String get componentDetailsNoAdjustmentsSubtitle;
+
+  /// Info text of the line chart section on the component details.
+  ///
+  /// In en, this message translates to:
+  /// **'• Shows the setups selected in the table above in their current sort order.\n• The y-axis represents adjustment values.\n• Select at least two setups to display a trend.\n• Tap a legend entry to highlight a specific line.\n• Long-press a legend entry to remove it from the selection.'**
+  String get componentDetailsLineChartInfo;
+
+  /// Info text of the activity histogram section on the component details.
+  ///
+  /// In en, this message translates to:
+  /// **'• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.'**
+  String get componentDetailsHistogramInfo;
+
+  /// Snackbar action that starts adding the missing item.
+  ///
+  /// In en, this message translates to:
+  /// **'ADD'**
+  String get snackbarAdd;
+
+  /// Error snackbar when a component is added while no bike exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a bike first'**
+  String get componentAddBikeFirst;
+
+  /// Snackbar after copying task rules to a component. {count} is the number of tasks, {name} the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Copied 1 task to \'{name}\'.} other{Copied {count} tasks to \'{name}\'.}}'**
+  String componentTasksCopied(int count, String name);
+
+  /// Snackbar after adding recommended task rules to a component. {count} is the number of tasks, {name} the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Added 1 task to \'{name}\'.} other{Added {count} tasks to \'{name}\'.}}'**
+  String componentTasksAdded(int count, String name);
+
+  /// Snackbar after a component was swapped for an existing one. {oldName} is the retired component, {newName} the replacement.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaced \'{oldName}\' with \'{newName}\'.'**
+  String componentReplaced(String oldName, String newName);
+
+  /// Part of the list of items trashed along with a component. {count} is the number of subcomponents.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 subcomponent} other{{count} subcomponents}}'**
+  String componentTrashedSubcomponents(int count);
+
+  /// Line of the snackbar after removing a component whose subcomponents were uninstalled. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 subcomponent uninstalled.} other{{count} subcomponents uninstalled.}}'**
+  String componentSubcomponentsUninstalled(int count);
+
+  /// Line of the snackbar after removing a component whose subcomponents moved to its bike. {count} is their number, {bike} the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 subcomponent installed on \'{bike}\'.} other{{count} subcomponents installed on \'{bike}\'.}}'**
+  String componentSubcomponentsInstalledOnBike(int count, String bike);
+
+  /// First line of the snackbar after deleting a component. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Component \'{name}\' moved to trash.'**
+  String componentMovedToTrash(String name);
+
+  /// Snackbar after restoring a component from the trash. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Component \'{name}\' restored from trash.'**
+  String componentRestoredFromTrash(String name);
+
+  /// Button that archives an item.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get archive;
+
+  /// Option in the archive and remove sheets. {bike} is the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Install subcomponents on \'{bike}\''**
+  String installSubcomponentsOnBike(String bike);
+
+  /// Description of the option that installs subcomponents on the bike.
+  ///
+  /// In en, this message translates to:
+  /// **'They are installed directly on the bike.'**
+  String get installSubcomponentsOnBikeHint;
+
+  /// Description of the option that archives or removes only the component itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcomponents are kept. Choose what happens to them below.'**
+  String get subcomponentsKeepHint;
+
+  /// Title of the archive component sheet. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive \'{name}\''**
+  String archiveComponentTitle(String name);
+
+  /// Explanation in the archive component sheet. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Other components are mounted on \'{name}\'. Choose whether they are archived along with it.'**
+  String archiveComponentIntro(String name);
+
+  /// Option in the archive component sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive with subcomponents'**
+  String get archiveWithSubcomponents;
+
+  /// Description of the option that archives subcomponents too.
+  ///
+  /// In en, this message translates to:
+  /// **'They stay mounted and are archived along with it.'**
+  String get archiveWithSubcomponentsHint;
+
+  /// Option in the archive component sheet. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive only \'{name}\''**
+  String archiveOnly(String name);
+
+  /// Title of the remove component sheet. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \'{name}\''**
+  String removeComponentTitle(String name);
+
+  /// Explanation in the remove component sheet. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Other components are mounted on \'{name}\'. Choose what happens to them.'**
+  String removeComponentIntro(String name);
+
+  /// Option in the remove component sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove with subcomponents'**
+  String get removeWithSubcomponents;
+
+  /// Description of the option that trashes the subcomponents too. {count} includes the component itself.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count} components are moved to the trash.'**
+  String removeWithSubcomponentsHint(int count);
+
+  /// Option in the remove component sheet. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove only \'{name}\''**
+  String removeOnly(String name);
+
+  /// Option in the remove component sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep subcomponents linked'**
+  String get removeKeepLinked;
+
+  /// Description of the option that leaves subcomponents mounted on the trashed component. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'They stay mounted on \'{name}\' and return with it when restored from the trash. Until then they are shown under uninstalled components with a missing parent.'**
+  String removeKeepLinkedHint(String name);
+
+  /// Label in the remove preview for items that go to the trash.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash'**
+  String get removeOutcomeTrash;
+
+  /// Label in the remove preview for subcomponents whose parent is trashed.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing parent'**
+  String get removeOutcomeMissingParent;
+
+  /// Button of the remove sheet when subcomponents go along. {count} includes the component itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {count} components to trash'**
+  String removeMoveToTrashMany(int count);
+
+  /// Button of the remove sheet when only the component is trashed.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to trash'**
+  String get removeMoveToTrash;
+
+  /// Title of the sheet that explains the installation timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation history'**
+  String get installationHintTitle;
+
+  /// First paragraph of the installation timeline explanation sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Track when you install, remove, move, or archive components. Set the date for each change to keep an accurate history. This lets your setups show only the components that were installed on the bike at that time.'**
+  String get installationHintBody;
+
+  /// Second paragraph of the installation timeline explanation sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Without installation history, the app only saves the bike where this component is installed now. It does not save past installs or removals.'**
+  String get installationHintWithout;
+
+  /// Sentence appended to the second paragraph while the sheet offers the choice for the first time.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change this anytime in Settings.'**
+  String get installationHintChangeAnytime;
+
+  /// Title of the sample timeline in the explanation sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Example timeline'**
+  String get installationHintExample;
+
+  /// Name of the first sample bike in the example timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Trail bike'**
+  String get installationHintExampleTrailBike;
+
+  /// Name of the second sample bike in the example timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Enduro bike'**
+  String get installationHintExampleEnduroBike;
+
+  /// Button of the explanation sheet that turns the installation timeline on.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate now'**
+  String get installationHintActivate;
+
+  /// Button of the explanation sheet that keeps the installation timeline off.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without tracking'**
+  String get installationHintDecline;
+
+  /// Button that reveals items that were hidden by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get showAll;
+
+  /// Empty state of the installed-on picker while searching. {query} is the search text.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches for \"{query}\"'**
+  String parentPickerNoMatches(String query);
+
+  /// Note under the installed-on picker about parts that are not suggested. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 part hidden} other{{count} parts hidden}}'**
+  String parentPickerHidden(int count);
+
+  /// Note under the installed-on picker about parts that are not suggested for the component's type. {count} is their number, {type} the type name.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 part hidden · unusual for a {type}} other{{count} parts hidden · unusual for a {type}}}'**
+  String parentPickerHiddenUnusual(int count, String type);
+
+  /// Placeholder of the search field of the installed-on picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Search bikes and parts…'**
+  String get parentPickerSearchHint;
+
+  /// Section title of the bikes in the installed-on picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Bikes'**
+  String get parentPickerBikes;
+
+  /// Section title in the installed-on picker for components whose parent no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Components with a missing parent'**
+  String get parentPickerMissingParent;
+
+  /// Section title in the installed-on picker for components that are not installed.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstalled components'**
+  String get parentPickerUninstalled;
+
+  /// Section title in the installed-on picker for archived components.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived components'**
+  String get parentPickerArchived;
+
+  /// Section title in the installed-on picker for the components mounted on a bike. {bike} is the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Components on {bike}'**
+  String parentPickerOnBike(String bike);
+
+  /// Reason shown under a component in the installed-on picker that cannot become a parent because it sits on another component.
+  ///
+  /// In en, this message translates to:
+  /// **'Mounted on a component itself'**
+  String get parentFieldMountedOnComponent;
+
+  /// Entry of the installed-on field for a component that is not installed.
+  ///
+  /// In en, this message translates to:
+  /// **'UNINSTALLED'**
+  String get parentFieldUninstalled;
+
+  /// Entry of the installed-on field for an archived component.
+  ///
+  /// In en, this message translates to:
+  /// **'ARCHIVED'**
+  String get parentFieldArchived;
+
+  /// Hint in the installed-on picker that offers to turn on the installation timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep a dated history of where this part was installed, so setups and ride stats match the parts that were really on the bike.'**
+  String get parentFieldTimelineHint;
+
+  /// Note in the installed-on picker. A component that carries parts cannot itself be mounted on a component. {count} is the number of parts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Can\'t mount on a component while it carries 1 part} other{Can\'t mount on a component while it carries {count} parts}}'**
+  String parentFieldDepthCap(int count);
+
+  /// Placeholder of the installed-on field while nothing is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Bike'**
+  String get parentFieldSelectBike;
+
+  /// Hint on a bike card in the garage while a component is dragged. {bike} is the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag here to install on {bike}'**
+  String garageDragToInstall(String bike);
+
+  /// Hint on a bike card while a dragged component hovers over it. {bike} is the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Release to install to {bike}'**
+  String garageReleaseToInstall(String bike);
+
+  /// Hint on the uninstalled area while an archived component hovers over it.
+  ///
+  /// In en, this message translates to:
+  /// **'Release to unarchive'**
+  String get garageReleaseToUnarchive;
+
+  /// Hint on the uninstalled area while a component hovers over it.
+  ///
+  /// In en, this message translates to:
+  /// **'Release to uninstall component'**
+  String get garageReleaseToUninstall;
+
+  /// Hint on the uninstalled area while a subcomponent hovers over it. {parent} is the component it is mounted on.
+  ///
+  /// In en, this message translates to:
+  /// **'Release to uninstall from {parent}'**
+  String garageReleaseToUninstallFrom(String parent);
+
+  /// Placeholder of the uninstalled area of the garage while it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag components here to uninstall from bike'**
+  String get garageDragComponentsToUninstall;
+
+  /// Second line of the empty uninstalled area of the garage.
+  ///
+  /// In en, this message translates to:
+  /// **'or tap to add new'**
+  String get garageOrTapToAdd;
+
+  /// Hint on the uninstalled area while a component is dragged.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag here to uninstall'**
+  String get garageDragToUninstall;
+
+  /// Hint on the uninstalled area while a subcomponent is dragged. {parent} is the component it is mounted on.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag here to uninstall from {parent}'**
+  String garageDragToUninstallFrom(String parent);
+
+  /// Hint on the archive area while a component is dragged.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag here to archive'**
+  String get garageDragToArchive;
+
+  /// Hint on the archive area while a component hovers over it.
+  ///
+  /// In en, this message translates to:
+  /// **'Release to archive'**
+  String get garageReleaseToArchive;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

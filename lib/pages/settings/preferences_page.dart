@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_weather.dart';
 import '../../widgets/sheets/radio_group.dart';
@@ -9,102 +11,107 @@ import '../../widgets/text/section_title.dart';
 class PreferencesPage extends StatelessWidget {
   const PreferencesPage({super.key});
 
-  static const Map<ThemeMode, Row> _themeModeOptionWidgets = {
+  static Map<ThemeMode, Row> _themeModeOptionWidgets(AppLocalizations l10n) => {
     ThemeMode.system: Row(
       spacing: 8,
-      children: [Icon(Icons.settings), Text("System")],
+      children: [const Icon(Icons.settings), Text(l10n.preferencesThemeSystem)],
     ),
     ThemeMode.light: Row(
       spacing: 8,
-      children: [Icon(Icons.light_mode), Text("Light")],
+      children: [const Icon(Icons.light_mode), Text(l10n.preferencesThemeLight)],
     ),
     ThemeMode.dark: Row(
       spacing: 8,
-      children: [Icon(Icons.dark_mode), Text("Dark")],
+      children: [const Icon(Icons.dark_mode), Text(l10n.preferencesThemeDark)],
     ),
   };
 
   static const _systemLanguage = 'system';
 
-  static const Map<String, Text> _languageOptionWidgets = {
-    _systemLanguage: Text('System'),
-    'en': Text('English'),
-    'de': Text('Deutsch'),
+  /// Each language is shown in its own name.
+  static Map<String, Text> _languageOptionWidgets(AppLocalizations l10n) => {
+    _systemLanguage: Text(l10n.preferencesLanguageSystem),
+    'en': const Text('English'),
+    'de': const Text('Deutsch'),
   };
 
-  static const Map<String, Text> _dateFormatOptionWidgets = {
-    'dd.MM.yyyy': Text('dd.MM.yyyy (09.12.2025)'),
-    'dd/MM/yyyy': Text('dd/MM/yyyy (09/12/2025)'),
-    'MM/dd/yyyy': Text('MM/dd/yyyy (12/09/2025)'),
-    'yyyy-MM-dd': Text('yyyy-MM-dd (2025-12-09)'),
-    'dd MMM yyyy': Text('dd MMM yyyy (09 Dec 2025)'),
+  /// The samples are formatted, so month names follow the app language.
+  static Map<String, Text> _dateFormatOptionWidgets() {
+    final sample = DateTime(2025, 12, 9);
+    return {
+      for (final pattern in const ['dd.MM.yyyy', 'dd/MM/yyyy', 'MM/dd/yyyy', 'yyyy-MM-dd', 'dd MMM yyyy'])
+        pattern: Text('$pattern (${DateFormat(pattern).format(sample)})'),
+    };
+  }
+
+  static Map<String, Text> _timeFormatOptionWidgets() {
+    final sample = DateTime(2025, 12, 9, 20, 7);
+    return {
+      for (final pattern in const ['HH:mm', 'h:mm a']) pattern: Text('$pattern (${DateFormat(pattern).format(sample)})'),
+    };
+  }
+
+  static Map<int, Text> _firstDayOfWeekOptionWidgets(AppLocalizations l10n) => {
+    DateTime.monday: Text(l10n.preferencesMonday),
+    DateTime.sunday: Text(l10n.preferencesSunday),
   };
 
-  static const Map<String, Text> _timeFormatOptionWidgets = {
-    'HH:mm': Text('HH:mm (20:07)'),
-    'h:mm a': Text('h:mm a (8:07 PM)'),
+  static Map<String, Text> _tempUnitOptionWidgets(AppLocalizations l10n) => {
+    '°C': Text(l10n.preferencesUnitCelsius),
+    '°F': Text(l10n.preferencesUnitFahrenheit),
+    'K': Text(l10n.preferencesUnitKelvin),
   };
 
-  static const Map<int, Text> _firstDayOfWeekOptionWidgets = {
-    DateTime.monday: Text('Monday'),
-    DateTime.sunday: Text('Sunday'),
+  static Map<String, Text> _windSpeedUnitOptionWidgets(AppLocalizations l10n) => {
+    'km/h': Text(l10n.preferencesUnitKmh),
+    'mph': Text(l10n.preferencesUnitMph),
+    'm/s': Text(l10n.preferencesUnitMs),
+    'kt': Text(l10n.preferencesUnitKnots),
   };
 
-  static const Map<String, Text> _tempUnitOptionWidgets = {
-    '°C': Text('Celsius (°C)'),
-    '°F': Text('Fahrenheit (°F)'),
-    'K': Text('Kelvin (K)'),
+  static Map<String, Text> _distanceUnitOptionWidgets(AppLocalizations l10n) => {
+    'km': Text(l10n.preferencesUnitKilometers),
+    'mi': Text(l10n.preferencesUnitMiles),
   };
 
-  static const Map<String, Text> _windSpeedUnitOptionWidgets = {
-    'km/h': Text('Kilometers per hour (km/h)'),
-    'mph': Text('Miles per hour (mph)'),
-    'm/s': Text('Meters per second (m/s)'),
-    'kt': Text('Knots (kt)'),
+  static Map<String, Text> _altitudeUnitOptionWidgets(AppLocalizations l10n) => {
+    'm': Text(l10n.preferencesUnitMeters),
+    'ft': Text(l10n.preferencesUnitFeet),
   };
 
-  static const Map<String, Text> _distanceUnitOptionWidgets = {
-    'km': Text('Kilometers (km)'),
-    'mi': Text('Miles (mi)'),
+  static Map<String, Text> _precipitationUnitOptionWidgets(AppLocalizations l10n) => {
+    'mm': Text(l10n.preferencesUnitMillimeters),
+    'in': Text(l10n.preferencesUnitInches),
   };
 
-  static const Map<String, Text> _altitudeUnitOptionWidgets = {
-    'm': Text('Meters (m)'),
-    'ft': Text('Feet (ft)'),
-  };
-
-  static const Map<String, Text> _precipitationUnitOptionWidgets = {
-    'mm': Text('Millimeters (mm)'),
-    'in': Text('Inches (in)'),
-  };
-
-  static const Map<bool, Text> _offOnOptionWidgets = {
-    false: Text('Off'),
-    true: Text('On'),
+  static Map<bool, Text> _offOnOptionWidgets(AppLocalizations l10n) => {
+    false: Text(l10n.valueOff),
+    true: Text(l10n.valueOn),
   };
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final appSettings = context.watch<AppSettings>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Preferences')),
+      appBar: AppBar(title: Text(l10n.preferencesTitle)),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionTitle(title: 'Appearance'),
+              SectionTitle(title: l10n.preferencesSectionAppearance),
               ListTile(
                 leading: const Icon(Icons.color_lens),
-                title: const Text("App Theme Mode"),
-                subtitle: _themeModeOptionWidgets[appSettings.themeMode]?.children[1] ?? const Text("-"),
+                title: Text(l10n.preferencesThemeMode),
+                subtitle: _themeModeOptionWidgets(l10n)[appSettings.themeMode]?.children[1] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<ThemeMode>(
                   context: context,
-                  title: "App Theme Mode",
+                  title: l10n.preferencesThemeMode,
                   value: appSettings.themeMode,
-                  optionWidgets: _themeModeOptionWidgets,
+                  optionWidgets: _themeModeOptionWidgets(l10n),
                   onChanged: (ThemeMode? newValue) {
                     if (newValue == null) return;
                     appSettings.themeMode = newValue;
@@ -115,14 +122,14 @@ class PreferencesPage extends StatelessWidget {
               if (appSettings.enableLanguageSelection)
                 ListTile(
                   leading: const Icon(Icons.language),
-                  title: const Text("Language"),
-                  subtitle: _languageOptionWidgets[appSettings.localeCode ?? _systemLanguage] ?? const Text("-"),
+                  title: Text(l10n.preferencesLanguage),
+                  subtitle: _languageOptionWidgets(l10n)[appSettings.localeCode ?? _systemLanguage] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => radioGroupSheet<String>(
                     context: context,
-                    title: "Language",
+                    title: l10n.preferencesLanguage,
                     value: appSettings.localeCode ?? _systemLanguage,
-                    optionWidgets: _languageOptionWidgets,
+                    optionWidgets: _languageOptionWidgets(l10n),
                     onChanged: (String? newValue) {
                       if (newValue == null) return;
                       appSettings.localeCode = newValue == _systemLanguage ? null : newValue;
@@ -131,37 +138,37 @@ class PreferencesPage extends StatelessWidget {
                   ),
                 ),
               const Divider(),
-              const SectionTitle(title: 'Filters'),
+              SectionTitle(title: l10n.preferencesSectionFilters),
               ListTile(
                 leading: const Icon(Icons.filter_alt),
-                title: const Text("Remember Filters"),
-                subtitle: _offOnOptionWidgets[appSettings.rememberFilters],
+                title: Text(l10n.preferencesRememberFilters),
+                subtitle: _offOnOptionWidgets(l10n)[appSettings.rememberFilters],
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<bool>(
                   context: context,
-                  title: "Remember Filters",
+                  title: l10n.preferencesRememberFilters,
                   value: appSettings.rememberFilters,
-                  optionWidgets: _offOnOptionWidgets,
+                  optionWidgets: _offOnOptionWidgets(l10n),
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
                     appSettings.rememberFilters = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'Keep the selected bike and filters when reopening the app. Date ranges are not kept.',
+                  infoText: l10n.preferencesRememberFiltersInfo,
                 ),
               ),
               const Divider(),
-              const SectionTitle(title: 'Default Formats'),
+              SectionTitle(title: l10n.preferencesSectionFormats),
               ListTile(
                 leading: const Icon(Icons.calendar_month),
-                title: const Text("Date Format"),
-                subtitle: _dateFormatOptionWidgets[appSettings.dateFormat] ?? const Text("-"),
+                title: Text(l10n.preferencesDateFormat),
+                subtitle: _dateFormatOptionWidgets()[appSettings.dateFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<String>(
                   context: context,
-                  title: "Date Format",
+                  title: l10n.preferencesDateFormat,
                   value: appSettings.dateFormat,
-                  optionWidgets: _dateFormatOptionWidgets,
+                  optionWidgets: _dateFormatOptionWidgets(),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
                     appSettings.dateFormat = newValue;
@@ -171,14 +178,14 @@ class PreferencesPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.access_time),
-                title: const Text("Time Format"),
-                subtitle: _timeFormatOptionWidgets[appSettings.timeFormat] ?? const Text("-"),
+                title: Text(l10n.preferencesTimeFormat),
+                subtitle: _timeFormatOptionWidgets()[appSettings.timeFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<String>(
                   context: context,
-                  title: "Time Format",
+                  title: l10n.preferencesTimeFormat,
                   value: appSettings.timeFormat,
-                  optionWidgets: _timeFormatOptionWidgets,
+                  optionWidgets: _timeFormatOptionWidgets(),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
                     appSettings.timeFormat = newValue;
@@ -189,14 +196,14 @@ class PreferencesPage extends StatelessWidget {
               if (appSettings.enableCalendar)
                 ListTile(
                   leading: const Icon(Icons.calendar_month_outlined),
-                  title: const Text("First Day of Week"),
-                  subtitle: _firstDayOfWeekOptionWidgets[appSettings.firstDayOfWeek] ?? const Text("-"),
+                  title: Text(l10n.preferencesFirstDayOfWeek),
+                  subtitle: _firstDayOfWeekOptionWidgets(l10n)[appSettings.firstDayOfWeek] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => radioGroupSheet<int>(
                     context: context,
-                    title: "First Day of Week",
+                    title: l10n.preferencesFirstDayOfWeek,
                     value: appSettings.firstDayOfWeek,
-                    optionWidgets: _firstDayOfWeekOptionWidgets,
+                    optionWidgets: _firstDayOfWeekOptionWidgets(l10n),
                     onChanged: (int? newValue) {
                       if (newValue == null) return;
                       appSettings.firstDayOfWeek = newValue;
@@ -205,17 +212,17 @@ class PreferencesPage extends StatelessWidget {
                   ),
                 ),
               const Divider(),
-              const SectionTitle(title: 'Default Units'),
+              SectionTitle(title: l10n.preferencesSectionUnits),
               ListTile(
                 leading: const Icon(Icons.route),
-                title: const Text("Distance Unit"),
-                subtitle: _distanceUnitOptionWidgets[appSettings.distanceUnit] ?? const Text("-"),
+                title: Text(l10n.preferencesDistanceUnit),
+                subtitle: _distanceUnitOptionWidgets(l10n)[appSettings.distanceUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<String>(
                   context: context,
-                  title: "Distance Unit",
+                  title: l10n.preferencesDistanceUnit,
                   value: appSettings.distanceUnit,
-                  optionWidgets: _distanceUnitOptionWidgets,
+                  optionWidgets: _distanceUnitOptionWidgets(l10n),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
                     appSettings.distanceUnit = newValue;
@@ -225,14 +232,14 @@ class PreferencesPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.arrow_upward),
-                title: const Text("Altitude Unit"),
-                subtitle: _altitudeUnitOptionWidgets[appSettings.altitudeUnit] ?? const Text("-"),
+                title: Text(l10n.preferencesAltitudeUnit),
+                subtitle: _altitudeUnitOptionWidgets(l10n)[appSettings.altitudeUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<String>(
                   context: context,
-                  title: "Altitude Unit",
+                  title: l10n.preferencesAltitudeUnit,
                   value: appSettings.altitudeUnit,
-                  optionWidgets: _altitudeUnitOptionWidgets,
+                  optionWidgets: _altitudeUnitOptionWidgets(l10n),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
                     appSettings.altitudeUnit = newValue;
@@ -242,14 +249,14 @@ class PreferencesPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(ContextWeather.currentTemperatureIconData),
-                title: const Text("Temperature Unit"),
-                subtitle: _tempUnitOptionWidgets[appSettings.temperatureUnit] ?? const Text("-"),
+                title: Text(l10n.preferencesTemperatureUnit),
+                subtitle: _tempUnitOptionWidgets(l10n)[appSettings.temperatureUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<String>(
                   context: context,
-                  title: "Temperature Unit",
+                  title: l10n.preferencesTemperatureUnit,
                   value: appSettings.temperatureUnit,
-                  optionWidgets: _tempUnitOptionWidgets,
+                  optionWidgets: _tempUnitOptionWidgets(l10n),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
                     appSettings.temperatureUnit = newValue;
@@ -259,14 +266,14 @@ class PreferencesPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(ContextWeather.currentWindSpeedIconData),
-                title: const Text("Wind Speed Unit"),
-                subtitle: _windSpeedUnitOptionWidgets[appSettings.windSpeedUnit] ?? const Text("-"),
+                title: Text(l10n.preferencesWindSpeedUnit),
+                subtitle: _windSpeedUnitOptionWidgets(l10n)[appSettings.windSpeedUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<String>(
                   context: context,
-                  title: "Wind Speed Unit",
+                  title: l10n.preferencesWindSpeedUnit,
                   value: appSettings.windSpeedUnit,
-                  optionWidgets: _windSpeedUnitOptionWidgets,
+                  optionWidgets: _windSpeedUnitOptionWidgets(l10n),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
                     appSettings.windSpeedUnit = newValue;
@@ -276,14 +283,14 @@ class PreferencesPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
-                title: const Text("Precipitation Unit"),
-                subtitle: _precipitationUnitOptionWidgets[appSettings.precipitationUnit] ?? const Text("-"),
+                title: Text(l10n.preferencesPrecipitationUnit),
+                subtitle: _precipitationUnitOptionWidgets(l10n)[appSettings.precipitationUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<String>(
                   context: context,
-                  title: "Precipitation Unit",
+                  title: l10n.preferencesPrecipitationUnit,
                   value: appSettings.precipitationUnit,
-                  optionWidgets: _precipitationUnitOptionWidgets,
+                  optionWidgets: _precipitationUnitOptionWidgets(l10n),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
                     appSettings.precipitationUnit = newValue;

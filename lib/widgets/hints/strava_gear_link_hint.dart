@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'app_hint_deck.dart';
 
 class StravaGearLinkHint extends StatelessWidget {
@@ -9,13 +10,15 @@ class StravaGearLinkHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AppHintDeck(
       icon: Icons.info_outline,
-      label: 'Info',
-      pages: const [
+      label: l10n.hintLabelInfo,
+      pages: [
         AppHintPage(
-          title: 'Link your Strava gear',
-          content: Text('Choose a bike for each gear. Your setups are then matched with the right Strava activities.'),
+          title: l10n.hintStravaLinkTitle,
+          content: Text(l10n.hintStravaLinkBody),
         ),
       ],
       onDismiss: onDismiss,

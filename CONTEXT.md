@@ -35,5 +35,21 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Spring Rate | Federrate | |
 | Task priority | Niedrig, Mittel, Hoch, Kritisch | |
 | Ground condition | Trocken, Feucht, Nass, Matschig | |
+| Adjustment | Einstellung | The configurable part of a component. The app's own "Settings" is Einstellungen; the context tells them apart |
+| Numerical / Step / Categorical / On/Off / Text Adjustment | Numerische / Stufen- / Kategorische / An/Aus- / Texteinstellung | |
+| Rider | Rider | Stays an English loanword, like Setup and Bike |
+| Riding weight | Fahrergewicht | |
+| Task | Aufgabe | Plural Aufgaben |
+| Task Rule / Task Entry | Aufgabenregel / Aufgabeneintrag | |
+| Due / Overdue | Fällig / Überfällig | |
+| Setup History | Setup-Verlauf | |
+| Installation Timeline | Einbauhistorie | |
+| Installed on | Verbaut an | |
+| Uninstalled / Archived | Nicht verbaut / Archiviert | |
+| Subcomponent | Unterkomponente | |
+| Attachments | Anhänge | |
+| Settings / Preferences / Features | Einstellungen / Voreinstellungen / Funktionen | |
+| Trash | Papierkorb | |
+| Bookmark | Lesezeichen | |
 
 Unit symbols (`km`, `bar`, `°C`) are not translated.

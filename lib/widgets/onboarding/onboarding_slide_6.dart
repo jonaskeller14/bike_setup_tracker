@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/strava/strava_plan.dart';
 import '../../services/strava_service.dart';
 import '../../services/subscription_service.dart';
@@ -22,47 +23,37 @@ class OnboardingSlide6 extends StatelessWidget {
   /// the sheet will actually show once it opens.
   static const StravaPlan _ctaPlan = StravaPlan.yearly;
 
-  static const List<String> _freeFeatures = [
-    'As many bikes, components and setups as you want',
-    'Custom adjustments, with weather and location on every setup',
-    'Tasks, calendar and installation history',
-    'Export to Excel, CSV or JSON — your data stays yours',
-  ];
-
-  static const List<String> _stravaFeatures = [
-    'Setups matched to the rides you actually rode — available in map and calendar',
-    'Ridden distance and time stats per bike and component',
-    'Maintenance reminders based on your riding activity',
-  ];
-
   /// Derived from live state on every build: onboarding is replayable, so the
   /// same slide has to speak to a first-time rider and to a subscriber.
-  String _stravaActionLabel(SubscriptionService subscription, StravaService strava) {
+  String _stravaActionLabel(AppLocalizations l10n, SubscriptionService subscription, StravaService strava) {
     if (subscription.hasStravaEntitlement) {
-      return strava.isConnected ? 'Open Strava Sync' : 'Connect Strava';
+      return strava.isConnected ? l10n.onboardingStravaOpen : l10n.onboardingStravaConnect;
     }
     // Until the store and the slot check have answered, the label promises
     // nothing — the sheet owns the offline, waitlist and loading states.
     if (!subscription.offersReady || strava.availability != StravaAvailability.available) {
-      return 'Explore Strava Sync';
+      return l10n.onboardingStravaExplore;
     }
-    return subscription.offerFor(_ctaPlan)?.isTrialEligible == true ? 'Start 7-day free trial' : 'Subscribe';
+    return subscription.offerFor(_ctaPlan)?.isTrialEligible == true
+        ? l10n.onboardingStravaTrial
+        : l10n.onboardingStravaSubscribe;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final subscription = context.watch<SubscriptionService>();
     final strava = context.watch<StravaService>();
 
     return OnboardingSlideScaffold(
       onNext: onFinish,
       // Nothing is left to decline once the subscription is held.
-      nextLabel: subscription.hasStravaEntitlement ? "Continue" : "Continue free",
+      nextLabel: subscription.hasStravaEntitlement ? l10n.onboardingContinue : l10n.onboardingContinueFree,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Free by default',
+            l10n.onboardingFreeTitle,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -70,30 +61,39 @@ class OnboardingSlide6 extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            "One optional add-on. Everything else is included, permanently.",
+            l10n.onboardingFreeBody,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-          const DelayedFade(
+          DelayedFade(
             delay: Duration.zero,
             child: _Section(
-              label: 'FREE FOREVER',
-              icon: Icon(Icons.all_inclusive),
-              features: _freeFeatures,
+              label: l10n.onboardingFreeSection,
+              icon: const Icon(Icons.all_inclusive),
+              features: [
+                l10n.onboardingFreeFeature1,
+                l10n.onboardingFreeFeature2,
+                l10n.onboardingFreeFeature3,
+                l10n.onboardingFreeFeature4,
+              ],
             ),
           ),
           const SizedBox(height: 16),
           DelayedFade(
             delay: kOnboardingStageDelay * 2,
             child: _Section(
-              label: 'OPTIONAL: STRAVA SYNC',
+              label: l10n.onboardingStravaSection,
               icon: const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
-              features: _stravaFeatures,
+              features: [
+                l10n.onboardingStravaFeature1,
+                l10n.onboardingStravaFeature2,
+                l10n.onboardingStravaFeature3,
+              ],
               action: FilledButton.tonal(
                 onPressed: () => showStravaSheet(context: context),
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                child: Text(_stravaActionLabel(subscription, strava), overflow: TextOverflow.ellipsis),
+                child: Text(_stravaActionLabel(l10n, subscription, strava), overflow: TextOverflow.ellipsis),
               ),
             ),
           ),

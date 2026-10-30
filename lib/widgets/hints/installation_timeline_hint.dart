@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../sheets/installation_timeline_hint_sheet.dart';
 import 'app_hint_deck.dart';
 
@@ -13,14 +14,16 @@ class InstallationTimelineHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AppHintDeck(
       icon: Icons.lightbulb_outline,
-      label: 'Suggestion',
+      label: l10n.hintLabelSuggestion,
       pages: [
         AppHintPage(
-          title: 'Track installation history',
+          title: l10n.hintTimelineTitle,
           onLearnMore: () => showInstallationTimelineSettingSheet(context, value: false),
-          action: AppHintAction(label: 'Activate Timeline', icon: Icons.timeline, onPressed: onActivate),
+          action: AppHintAction(label: l10n.hintTimelineAction, icon: Icons.timeline, onPressed: onActivate),
           content: Text(message),
         ),
       ],

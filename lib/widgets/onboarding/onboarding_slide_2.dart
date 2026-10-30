@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../icons/bike_icons.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/markup_text.dart';
 import '../../models/bike.dart';
 import 'onboarding_component_card.dart';
 import 'onboarding_motion.dart';
@@ -43,7 +45,7 @@ class OnboardingSlide2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return OnboardingSlideScaffold(
       onNext: onNext,
-      nextLabel: "Next",
+      nextLabel: context.l10n.onboardingNext,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -72,7 +74,7 @@ class OnboardingSlide2 extends StatelessWidget {
           stepWidget(context: context, step: 1),
           const SizedBox(height: 12),
           Text(
-            'Build Your Bike',
+            context.l10n.onboardingSlide2Title,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -82,17 +84,7 @@ class OnboardingSlide2 extends StatelessWidget {
           Text.rich(
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge,
-            const TextSpan(
-              children: [
-                TextSpan(text: "Add your "),
-                TextSpan(text: "bikes", style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(text: " and their "),
-                TextSpan(text: "components", style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(
-                  text: " that you want to track. Create a perfect digital twin of your real-world garage.",
-                ),
-              ],
-            ),
+            markupTextSpan(context.l10n.onboardingSlide2Body),
           ),
         ],
       ),

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+import '../../l10n/markup_text.dart';
 import 'onboarding_component_card.dart';
 import 'onboarding_motion.dart';
 import 'onboarding_shared_element.dart';
@@ -69,7 +71,7 @@ class _OnboardingSlide3State extends State<OnboardingSlide3> with SingleTickerPr
   Widget build(BuildContext context) {
     return OnboardingSlideScaffold(
       onNext: widget.onNext,
-      nextLabel: "Next",
+      nextLabel: context.l10n.onboardingNext,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -94,7 +96,7 @@ class _OnboardingSlide3State extends State<OnboardingSlide3> with SingleTickerPr
           stepWidget(context: context, step: 2),
           const SizedBox(height: 12),
           Text(
-            'Virtual Dials for Physical Knobs',
+            context.l10n.onboardingSlide3Title,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -104,15 +106,7 @@ class _OnboardingSlide3State extends State<OnboardingSlide3> with SingleTickerPr
           Text.rich(
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
-            const TextSpan(
-              children: [
-                TextSpan(text: "Every component is built from a few simple "),
-                TextSpan(text: "Adjustments", style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(text: ". This modular design lets you track anything. "),
-                TextSpan(text: "Adjustments", style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(text: " define the rules—like limits and units—not the actual values."),
-              ],
-            ),
+            markupTextSpan(context.l10n.onboardingSlide3Body),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'app_hint_deck.dart';
 
 class SetupComparisonHint extends StatelessWidget {
@@ -9,16 +10,16 @@ class SetupComparisonHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AppHintDeck(
       key: const Key('compare-setups-hint'),
       icon: Icons.info_outline,
-      label: 'Info',
-      pages: const [
+      label: l10n.hintLabelInfo,
+      pages: [
         AppHintPage(
-          title: 'Compare two setups',
-          content: Text(
-            'By default, A is your current setup and B is the setup you chose. Tap either setup above to pick another one. Orange values indicate differences; switch to All to include all recorded values.',
-          ),
+          title: l10n.hintComparisonTitle,
+          content: Text(l10n.hintComparisonBody),
         ),
       ],
       onDismiss: onDismiss,

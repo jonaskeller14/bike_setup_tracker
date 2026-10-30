@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'onboarding_motion.dart';
 
 Widget stepWidget({required BuildContext context, required int step}) {
@@ -12,7 +13,7 @@ Widget stepWidget({required BuildContext context, required int step}) {
       borderRadius: BorderRadius.circular(20),
     ),
     child: Text(
-      "STEP $step",
+      context.l10n.onboardingStepBadge(step),
       style: Theme.of(context).textTheme.labelLarge?.copyWith(
         color: Theme.of(context).colorScheme.onSecondaryContainer,
         fontWeight: FontWeight.bold,

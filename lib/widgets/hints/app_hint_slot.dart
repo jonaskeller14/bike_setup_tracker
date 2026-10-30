@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../services/app_hint_service.dart';
@@ -20,8 +21,6 @@ import 'task_list_hint.dart';
 
 class AppHintSlot extends StatelessWidget {
   static const _sizeAnimationDuration = Duration(milliseconds: 200);
-  static const _subcomponentsEnabledMessage =
-      'Subcomponents enabled — edit a part and pick its parent under "Installed on"';
   final EdgeInsetsGeometry padding;
 
   const AppHintSlot({super.key, required this.placement, this.padding = EdgeInsetsGeometry.zero});
@@ -91,7 +90,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.setupTasksV1);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, 'Tasks enabled — find it in the home bottom navigation bar'),
+      AppSnackBar.success(context, context.l10n.hintTasksEnabled),
     );
   }
 
@@ -103,7 +102,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.setupCalendarV1);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, 'Calendar enabled — find it next to the search button on the Setups tab'),
+      AppSnackBar.success(context, context.l10n.hintCalendarEnabled),
     );
   }
 
@@ -115,7 +114,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.subcomponentsV1);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, _subcomponentsEnabledMessage),
+      AppSnackBar.success(context, context.l10n.hintSubcomponentsEnabled),
     );
   }
 
@@ -123,7 +122,7 @@ class AppHintSlot extends StatelessWidget {
   void _turnOnSubcomponents(BuildContext context) {
     context.read<AppSettings>().enableInstallOnComponent = true;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, _subcomponentsEnabledMessage),
+      AppSnackBar.success(context, context.l10n.hintSubcomponentsEnabled),
     );
   }
 
@@ -135,7 +134,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.release44);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, 'Attachments enabled — add photos and files to bikes, components, setups and tasks'),
+      AppSnackBar.success(context, context.l10n.hintAttachmentsEnabled),
     );
   }
 

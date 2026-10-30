@@ -30,68 +30,59 @@ class FeaturesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final appSettings = context.watch<AppSettings>();
     final subscriptionService = context.watch<SubscriptionService>();
 
     final otherTiles = [
       _FeatureToggleTile(
         icon: Icons.attach_file,
-        title: "Attachments",
+        title: l10n.featuresAttachments,
         value: appSettings.enableAttachments,
         onChanged: (v) => appSettings.enableAttachments = v,
-        infoText:
-            'Attach images and files to bikes, components, setups and tasks. WARNING: attachments '
-            'are stored only on this device. They are NOT included in cloud/Drive backups and '
-            'will be lost on reinstall or when restoring from a backup. Use "Export Attachment '
-            'Bundle" to move them to a new device.',
+        infoText: l10n.featuresAttachmentsInfo,
       ),
       if (Platform.isAndroid)
         _FeatureToggleTile(
           icon: SimpleIcons.googledrive,
-          title: "Google Drive Sync",
+          title: l10n.featuresGoogleDrive,
           value: appSettings.enableGoogleDrive,
           onChanged: (v) => appSettings.enableGoogleDrive = v,
-          infoText:
-              'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
+          infoText: l10n.featuresGoogleDriveInfo,
         ),
       if (appSettings.developerMode)
         _FeatureToggleTile(
           icon: Icons.map,
-          title: "MapBox Tiles",
+          title: l10n.featuresMapBoxTiles,
           value: appSettings.useMapBoxTiles,
           onChanged: (v) => appSettings.useMapBoxTiles = v,
         ),
       if (appSettings.developerMode)
         _FeatureToggleTile(
           icon: Icons.language,
-          title: "Language Selection",
+          title: l10n.featuresLanguageSelection,
           value: appSettings.enableLanguageSelection,
           onChanged: (v) => appSettings.enableLanguageSelection = v,
-          infoText:
-              'Follows the system language, or the language picked in Preferences, instead of '
-              'always showing English. Translations are still being added, so some screens '
-              'stay English.',
+          infoText: l10n.featuresLanguageSelectionInfo,
         ),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Features')),
+      appBar: AppBar(title: Text(l10n.featuresTitle)),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const ListTile(
-                leading: Icon(Icons.info_outline),
-                title: Text(
-                  'Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.',
-                ),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: Text(l10n.featuresIntro),
                 dense: true,
               ),
-              const SectionTitle(title: 'Components'),
+              SectionTitle(title: l10n.featuresSectionComponents),
               _FeatureToggleTile(
                 icon: Icons.timeline,
-                title: "Installation Timeline",
+                title: l10n.featuresInstallationTimeline,
                 value: appSettings.enableInstallationTimeline,
                 onChanged: (v) {
                   appSettings.enableInstallationTimeline = v;
@@ -101,14 +92,14 @@ class FeaturesPage extends StatelessWidget {
               ),
               _FeatureToggleTile(
                 icon: Icons.account_tree_outlined,
-                title: "Subcomponents",
+                title: l10n.featuresSubcomponents,
                 value: appSettings.enableInstallOnComponent,
                 onChanged: (v) => appSettings.enableInstallOnComponent = v,
                 sheet: (context, value) => showSubcomponentsSettingSheet(context, value: value),
               ),
               _FeatureToggleTile(
                 icon: Icons.auto_awesome_outlined,
-                title: "Component Presets",
+                title: l10n.featuresComponentPresets,
                 value: appSettings.enableComponentPresets,
                 onChanged: (v) => appSettings.enableComponentPresets = v,
                 sheet: (context, value) => showComponentPresetsSettingSheet(context, value: value),
@@ -116,33 +107,29 @@ class FeaturesPage extends StatelessWidget {
               if (appSettings.developerMode)
                 _FeatureToggleTile(
                   enabled: appSettings.enableComponentPresets,
-                  disabledSubtitle: 'Requires Component Presets',
+                  disabledSubtitle: l10n.featuresRequiresComponentPresets,
                   icon: Icons.auto_awesome_outlined,
-                  title: "Setup Guides",
+                  title: l10n.featuresSetupGuides,
                   value: appSettings.enableSetupGuides,
                   onChanged: (v) => appSettings.enableSetupGuides = v,
-                  infoText:
-                      'Suggests recommended values for the first setup of a component, like air '
-                      'pressure or rebound clicks, based on your riding weight and the component model. '
-                      'These are starting points, so check the manufacturer manual. '
-                      'Requires Component Presets.',
+                  infoText: l10n.featuresSetupGuidesInfo,
                 ),
               const Divider(),
-              const SectionTitle(title: 'Adjustments'),
+              SectionTitle(title: l10n.featuresSectionAdjustments),
               _FeatureGroupTile(
                 icon: CategoricalAdjustment.iconData,
-                title: "Categorical Adjustment",
-                infoText: 'Extra options for Categorical Adjustments. Each can be toggled on its own.',
+                title: l10n.featuresCategoricalAdjustment,
+                infoText: l10n.featuresCategoricalAdjustmentInfo,
                 options: [
                   CheckboxGroupSheetOption(
-                    title: 'Multi-select',
-                    subtitle: 'Allow selecting multiple categories instead of only one.',
+                    title: l10n.featuresMultiSelect,
+                    subtitle: l10n.featuresMultiSelectSubtitle,
                     value: () => appSettings.enableMultiSelect,
                     onChanged: (v) => appSettings.enableMultiSelect = v,
                   ),
                   CheckboxGroupSheetOption(
-                    title: 'Count occurrences',
-                    subtitle: 'Record how many times each category is selected.',
+                    title: l10n.featuresCountOccurrences,
+                    subtitle: l10n.featuresCountOccurrencesSubtitle,
                     value: () => appSettings.enableCountedSelect,
                     onChanged: (v) => appSettings.enableCountedSelect = v,
                   ),
@@ -150,21 +137,21 @@ class FeaturesPage extends StatelessWidget {
               ),
               _FeatureToggleTile(
                 icon: TextAdjustment.iconData,
-                title: "Text Adjustment",
+                title: l10n.featuresTextAdjustment,
                 value: appSettings.enableTextAdjustment,
                 onChanged: (v) => appSettings.enableTextAdjustment = v,
-                infoText: 'Adds a Text Adjustment type that provides a free-form text field.',
+                infoText: l10n.featuresTextAdjustmentInfo,
               ),
               const Divider(),
-              const SectionTitle(title: 'Setups'),
+              SectionTitle(title: l10n.featuresSectionSetups),
               _FeatureGroupTile(
                 icon: Icons.tag,
-                title: appSettings.developerMode ? "Setup Tags & Bookmarks" : "Setup Tags",
-                infoText: 'Extra ways to organize and annotate Setups. Each can be toggled on its own.',
+                title: appSettings.developerMode ? l10n.featuresSetupTagsAndBookmarks : l10n.featuresSetupTags,
+                infoText: l10n.featuresSetupTagsInfo,
                 options: [
                   CheckboxGroupSheetOption(
-                    title: 'Tags',
-                    subtitle: 'Adds the option to add tags to Setups.',
+                    title: l10n.featuresSetupTagsTags,
+                    subtitle: l10n.featuresSetupTagsTagsSubtitle,
                     value: () => appSettings.enableSetupTags,
                     onChanged: (v) {
                       appSettings.enableSetupTags = v;
@@ -175,11 +162,8 @@ class FeaturesPage extends StatelessWidget {
                   ),
                   if (appSettings.developerMode)
                     CheckboxGroupSheetOption(
-                      title: 'Bookmarks',
-                      subtitle:
-                          'Mark good setups with a bookmark so they stand out among all the '
-                          'setups you record. Bookmarks are stored with the setup and are '
-                          'included in backups and exports.',
+                      title: l10n.featuresSetupBookmarks,
+                      subtitle: l10n.featuresSetupBookmarksSubtitle,
                       value: () => appSettings.enableSetupBookmark,
                       onChanged: (v) {
                         appSettings.enableSetupBookmark = v;
@@ -193,12 +177,14 @@ class FeaturesPage extends StatelessWidget {
               if (appSettings.developerMode)
                 ListTile(
                   leading: const Icon(Icons.compress),
-                  title: const Text("Pressure Check"),
+                  title: Text(l10n.featuresPressureCheck),
                   subtitle: Text(
                     appSettings.enablePressureAssistant
-                        ? 'On · ${appSettings.pressureCheckThresholdPercent} % · '
-                              '${pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, context.l10n)}'
-                        : 'Off',
+                        ? l10n.featuresPressureCheckOn(
+                            appSettings.pressureCheckThresholdPercent,
+                            pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, l10n),
+                          )
+                        : l10n.valueOff,
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => showPressureCheckSettingSheet(context),
@@ -206,7 +192,7 @@ class FeaturesPage extends StatelessWidget {
               if (appSettings.developerMode)
                 _FeatureToggleTile(
                   icon: Icons.star,
-                  title: "Feedback",
+                  title: l10n.featuresFeedback,
                   value: appSettings.enableRating,
                   onChanged: (v) {
                     appSettings.enableRating = v;
@@ -218,51 +204,43 @@ class FeaturesPage extends StatelessWidget {
                 ),
               _FeatureToggleTile(
                 icon: Icons.person,
-                title: "Rider",
+                title: l10n.featuresRider,
                 value: appSettings.enablePerson,
                 onChanged: (v) => appSettings.enablePerson = v,
-                infoText:
-                    'Adds a rider profile, opened with the rider button in the app bar. Link the rider '
-                    'to your bikes to record riding weight and other rider attributes with each setup. '
-                    'A new rider starts with a "Riding weight" attribute. Turning this off hides the '
-                    'rider but keeps its data.',
+                infoText: l10n.featuresRiderInfo,
               ),
               if (appSettings.developerMode && appSettings.enablePerson)
                 _FeatureToggleTile(
                   icon: Icons.groups_outlined,
-                  title: "Advanced Rider Layout",
+                  title: l10n.featuresRiderAdvanced,
                   value: appSettings.enablePersonAdvanced,
                   onChanged: (v) => appSettings.enablePersonAdvanced = v,
-                  infoText:
-                      'Restores the multi-rider UI: a Riders tab with reorder and bike filter, '
-                      'Duplicate, the rider details page and the Strava athlete link.',
+                  infoText: l10n.featuresRiderAdvancedInfo,
                 ),
               const Divider(),
-              const SectionTitle(title: 'Setup History'),
+              SectionTitle(title: l10n.featuresSectionSetupHistory),
               _FeatureGroupTile(
                 icon: Icons.view_agenda_outlined,
-                title: "Timeline Grouping",
-                infoText:
-                    'Controls how the Setup History timeline condenses '
-                    'related entries. Each pass can be toggled on its own.',
+                title: l10n.featuresTimelineGrouping,
+                infoText: l10n.featuresTimelineGroupingInfo,
                 options: [
                   CheckboxGroupSheetOption(
-                    title: 'Setup Grouping',
-                    subtitle: 'Merge setups of the same bike recorded close together.',
+                    title: l10n.featuresSetupGrouping,
+                    subtitle: l10n.featuresSetupGroupingSubtitle,
                     value: () => appSettings.enableTimelineSetupGrouping,
                     onChanged: (v) => appSettings.enableTimelineSetupGrouping = v,
                   ),
                   CheckboxGroupSheetOption(
-                    title: 'Replacement Detection',
-                    subtitle: 'Show a removal and the install replacing it as one entry.',
+                    title: l10n.featuresReplacementDetection,
+                    subtitle: l10n.featuresReplacementDetectionSubtitle,
                     value: () => appSettings.enableTimelineReplacementDetection,
                     onChanged: (v) => appSettings.enableTimelineReplacementDetection = v,
                   ),
                   CheckboxGroupSheetOption(
-                    title: 'Strava Context',
+                    title: l10n.featuresStravaContext,
                     subtitle: subscriptionService.hasStravaEntitlement
-                        ? 'Mark entries recorded during a ride as part of that activity.'
-                        : 'Mark entries recorded during a ride as part of that activity. Needs a connected Strava subscription.',
+                        ? l10n.featuresStravaContextSubtitle
+                        : l10n.featuresStravaContextNeedsSubscription,
                     value: () => appSettings.enableTimelineStravaContext,
                     onChanged: (v) => appSettings.enableTimelineStravaContext = v,
                     enabled: appSettings.enableStrava && subscriptionService.hasStravaEntitlement,
@@ -271,15 +249,14 @@ class FeaturesPage extends StatelessWidget {
               ),
               _FeatureToggleTile(
                 icon: Icons.calendar_month_outlined,
-                title: "Calendar",
+                title: l10n.featuresCalendar,
                 value: appSettings.enableCalendar,
                 onChanged: (v) => appSettings.enableCalendar = v,
-                infoText:
-                    "Adds a calendar view, reachable from the Setup History page via the calendar button next to search and map buttons.",
+                infoText: l10n.featuresCalendarInfo,
               ),
               _FeatureToggleTile(
                 icon: Icons.filter_alt_outlined,
-                title: "Advanced Filters",
+                title: l10n.featuresAdvancedFilters,
                 value: appSettings.enableAdvancedFilters,
                 onChanged: (v) {
                   appSettings.enableAdvancedFilters = v;
@@ -288,32 +265,29 @@ class FeaturesPage extends StatelessWidget {
                   filters.dateRange = null;
                   filters.activity = const ActivityFilter();
                 },
-                infoText:
-                    'Adds a date range and, with Strava connected, activity distance and elevation filters '
-                    'to the filter sheet of the Setup History, map and calendar.',
+                infoText: l10n.featuresAdvancedFiltersInfo,
               ),
               const Divider(),
-              const SectionTitle(title: 'Tasks'),
+              SectionTitle(title: l10n.featuresSectionTasks),
               _FeatureToggleTile(
                 icon: Icons.checklist,
-                title: "Tasks",
+                title: l10n.featuresTasks,
                 value: appSettings.enableTask,
                 onChanged: (v) {
                   appSettings.enableTask = v;
                   if (!v) _showLayer(context, TimelineLayer.tasks);
                 },
-                infoText:
-                    "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
+                infoText: l10n.featuresTasksInfo,
               ),
               _FeatureGroupTile(
                 enabled: appSettings.enableTask,
                 icon: Icons.label_outline,
-                title: "Task Tags, Priority, Interval & Delay",
-                infoText: 'Extra fields and behaviors for Tasks. Each can be toggled on its own.',
+                title: l10n.featuresTaskExtras,
+                infoText: l10n.featuresTaskExtrasInfo,
                 options: [
                   CheckboxGroupSheetOption(
-                    title: 'Tags',
-                    subtitle: 'Adds the option to add tags to Task Rules.',
+                    title: l10n.featuresTaskTags,
+                    subtitle: l10n.featuresTaskTagsSubtitle,
                     value: () => appSettings.enableTaskTags,
                     onChanged: (v) {
                       appSettings.enableTaskTags = v;
@@ -323,8 +297,8 @@ class FeaturesPage extends StatelessWidget {
                     },
                   ),
                   CheckboxGroupSheetOption(
-                    title: 'Priority',
-                    subtitle: 'Shows the Priority field on tasks. Disable to simplify the task interface.',
+                    title: l10n.featuresTaskPriority,
+                    subtitle: l10n.featuresTaskPrioritySubtitle,
                     value: () => appSettings.enableTaskPriority,
                     onChanged: (v) {
                       appSettings.enableTaskPriority = v;
@@ -334,18 +308,14 @@ class FeaturesPage extends StatelessWidget {
                     },
                   ),
                   CheckboxGroupSheetOption(
-                    title: 'Interval',
-                    subtitle:
-                        "Adds an optional trigger to tasks with a progress bar based on time or, with "
-                        "Strava connected, activity stats like distance, elevation and ride time.",
+                    title: l10n.featuresTaskInterval,
+                    subtitle: l10n.featuresTaskIntervalSubtitle,
                     value: () => appSettings.enableTaskInterval,
                     onChanged: (v) => appSettings.enableTaskInterval = v,
                   ),
                   CheckboxGroupSheetOption(
-                    title: 'Delay',
-                    subtitle:
-                        'Lets you postpone when a task becomes due, without changing its interval. '
-                        'A delay only applies once: completing the task clears it automatically.',
+                    title: l10n.featuresTaskDelay,
+                    subtitle: l10n.featuresTaskDelaySubtitle,
                     value: () => appSettings.enableTaskDelay,
                     onChanged: (v) => appSettings.enableTaskDelay = v,
                   ),
@@ -354,36 +324,31 @@ class FeaturesPage extends StatelessWidget {
               _FeatureToggleTile(
                 enabled: appSettings.enableTask,
                 icon: Icons.insights,
-                title: "Task Due Prediction",
+                title: l10n.featuresTaskDuePrediction,
                 value: appSettings.enableTaskDuePrediction,
                 onChanged: (v) => appSettings.enableTaskDuePrediction = v,
-                infoText:
-                    'Estimates when a task will come due. For date and duration intervals, '
-                    'this is calculated directly from the last completion, no Strava needed. '
-                    'For other intervals (distance, elevation, ride time, ...), it extrapolates '
-                    'from how much the bike has been ridden recently and needs a connected '
-                    'Strava subscription. Only shows for tasks that are not due yet.',
+                infoText: l10n.featuresTaskDuePredictionInfo,
               ),
               _FeatureToggleTile(
                 enabled: appSettings.enableTask,
                 icon: Icons.adjust,
-                title: "Garage Task Indicator",
+                title: l10n.featuresGarageTaskIndicator,
                 value: appSettings.enableGarageTaskIndicator,
                 onChanged: (v) => appSettings.enableGarageTaskIndicator = v,
-                infoText: 'Shows a colored status dot on component icons in the Garage when they have open tasks.',
+                infoText: l10n.featuresGarageTaskIndicatorInfo,
               ),
               _FeatureToggleTile(
                 enabled: appSettings.enableTask && appSettings.enableTaskInterval,
                 disabledSubtitle: appSettings.enableTask ? 'Requires Task Interval' : 'Requires Tasks',
                 icon: Icons.auto_awesome_outlined,
-                title: "Task Presets",
+                title: l10n.featuresTaskPresets,
                 value: appSettings.enableTaskPresets,
                 onChanged: (v) => appSettings.enableTaskPresets = v,
                 sheet: (context, value) => showTaskPresetsSettingSheet(context, value: value),
               ),
               if (otherTiles.isNotEmpty) ...[
                 const Divider(),
-                const SectionTitle(title: 'Other'),
+                SectionTitle(title: l10n.featuresSectionOther),
                 ...otherTiles,
               ],
             ],
@@ -420,24 +385,26 @@ class _FeatureToggleTile extends StatelessWidget {
     if (newValue != null && newValue != value) onChanged(newValue);
   }
 
-  static const Map<bool, Text> _offOnOptionWidgets = {
-    false: Text('Off'),
-    true: Text('On'),
+  static Map<bool, Text> _offOnOptionWidgets(AppLocalizations l10n) => {
+    false: Text(l10n.valueOff),
+    true: Text(l10n.valueOn),
   };
 
   @override
   Widget build(BuildContext context) {
+    final offOnOptionWidgets = _offOnOptionWidgets(context.l10n);
+
     return ListTile(
       enabled: enabled,
       leading: Icon(icon),
       title: Text(title),
-      subtitle: !enabled && disabledSubtitle != null ? Text(disabledSubtitle!) : _offOnOptionWidgets[value],
+      subtitle: !enabled && disabledSubtitle != null ? Text(disabledSubtitle!) : offOnOptionWidgets[value],
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
       onTap: () => sheet != null ? _openSheet(context, sheet!) : radioGroupSheet<bool>(
         context: context,
         title: title,
         value: value,
-        optionWidgets: _offOnOptionWidgets,
+        optionWidgets: offOnOptionWidgets,
         onChanged: (bool? newValue) {
           if (newValue == null) return;
           onChanged(newValue);
@@ -471,7 +438,7 @@ class _FeatureGroupTile extends StatelessWidget {
       enabled: enabled,
       leading: Icon(icon),
       title: Text(title),
-      subtitle: Text(enabledTitles.isEmpty ? 'Off' : enabledTitles.join(', ')),
+      subtitle: Text(enabledTitles.isEmpty ? context.l10n.valueOff : enabledTitles.join(', ')),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
       onTap: () => checkboxGroupSheet(
         context: context,

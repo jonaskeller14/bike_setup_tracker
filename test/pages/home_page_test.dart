@@ -30,6 +30,7 @@ import 'package:bike_setup_tracker/widgets/sheets/rider_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -94,6 +95,31 @@ void main() {
     await tester.tap(_navigationDestination('Setups'));
     await tester.pumpAndSettle();
     expect(_appBarTitle(tester), 'Setup History');
+  });
+
+  testWidgets('shows the shell in German when the language is selected', (tester) async {
+    appSettings
+      ..enableLanguageSelection = true
+      ..localeCode = 'de'
+      ..enableTask = true;
+    addTearDown(() => Intl.defaultLocale = null);
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pumpAndSettle();
+
+    expect(_appBarTitle(tester), 'Bikes');
+    expect(_navigationDestination('Aufgaben'), findsOneWidget);
+    expect(_navigationDestination('Tasks'), findsNothing);
+
+    await tester.tap(_navigationDestination('Setups'));
+    await tester.pumpAndSettle();
+    expect(_appBarTitle(tester), 'Setup-Verlauf');
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+    expect(find.text('Daten importieren'), findsOneWidget);
+    expect(find.text('Papierkorb'), findsOneWidget);
+    expect(find.text('Einstellungen'), findsOneWidget);
   });
 
   testWidgets('opens Setup History by default when bikes and components exist', (tester) async {

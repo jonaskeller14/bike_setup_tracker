@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../services/app_hint_service.dart';
 import '../../utils/app_info.dart';
@@ -34,9 +35,11 @@ class HelpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Help & Support'),
+        title: Text(l10n.helpTitle),
       ),
       body: SafeArea(
         bottom: false,
@@ -45,11 +48,11 @@ class HelpPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const SectionTitle(title: 'Help'),
+              SectionTitle(title: l10n.helpSectionHelp),
               ListTile(
                 leading: const Icon(Icons.pageview_outlined),
-                title: const Text("Show Onboarding"),
-                subtitle: const Text("Show onboarding slides to get started."),
+                title: Text(l10n.helpShowOnboarding),
+                subtitle: Text(l10n.helpShowOnboardingSubtitle),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () async {
                   final appSettings = context.read<AppSettings>();
@@ -62,34 +65,34 @@ class HelpPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.question_answer_outlined),
-                title: const Text("FAQ"),
-                subtitle: const Text("Show frequently asked questions."),
+                title: Text(l10n.helpFaq),
+                subtitle: Text(l10n.helpFaqSubtitle),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const FAQPage())),
               ),
               ListTile(
                 leading: const Icon(SimpleIcons.strava),
-                title: const Text("Strava Club Forum"),
-                subtitle: const Text("Get help and discuss the app with other users."),
+                title: Text(l10n.helpStravaForum),
+                subtitle: Text(l10n.helpStravaForumSubtitle),
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
                 onTap: () => launchAppUrl(context, url: AppInfo.stravaClubForumUrl),
               ),
 
               const Divider(),
-              const SectionTitle(title: 'Contact & Feedback'),
+              SectionTitle(title: l10n.helpSectionContact),
               ListTile(
                 leading: const Icon(Icons.local_cafe_outlined),
-                title: const Text('Buy me a coffee'),
-                subtitle: const Text('Support development with a small tip.'),
+                title: Text(l10n.helpCoffee),
+                subtitle: Text(l10n.helpCoffeeSubtitle),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => showTipJarSheet(context: context),
               ),
               ListTile(
                 leading: const Icon(Icons.star_outline),
-                title: const Text('Rate this app'),
+                title: Text(l10n.helpRate),
                 subtitle: Theme.of(context).platform == TargetPlatform.iOS
-                    ? const Text('Rate this app on Apple AppStore.')
-                    : const Text('Rate this app on Google PlayStore.'),
+                    ? Text(l10n.helpRateAppStore)
+                    : Text(l10n.helpRatePlayStore),
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
                 onTap: () {
                   final url = Theme.of(context).platform == TargetPlatform.iOS
@@ -100,21 +103,21 @@ class HelpPage extends StatelessWidget {
               ),
               _buildContactTile(
                 context: context,
-                title: 'General Support',
+                title: l10n.helpGeneralSupport,
                 email: AppInfo.supportEmail,
                 icon: Icons.headset_mic_outlined,
                 subject: 'Bike Setup Tracker: Support Request [v${AppInfo.appVersion}+${AppInfo.buildNumber}]',
               ),
               _buildContactTile(
                 context: context,
-                title: 'Suggest Features',
+                title: l10n.helpSuggestFeatures,
                 email: AppInfo.featuresEmail,
                 icon: Icons.lightbulb_outline,
                 subject: 'Bike Setup Tracker: Feature Suggestion [v${AppInfo.appVersion}+${AppInfo.buildNumber}]',
               ),
               _buildContactTile(
                 context: context,
-                title: 'Report Bugs',
+                title: l10n.helpReportBugs,
                 email: AppInfo.bugsEmail,
                 icon: Icons.bug_report_outlined,
                 subject: 'Bike Setup Tracker: Bug Report [v${AppInfo.appVersion}+${AppInfo.buildNumber}]',

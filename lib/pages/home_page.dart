@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/feedback/test_session.dart';
@@ -130,7 +131,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _addSetupFab(AppRepository appRepository) {
     final step = TestSessionActions.nextStepFor(appRepository);
-    final label = step?.label ?? 'Add Setup';
+    final label = step?.label ?? context.l10n.homeAddSetup;
 
     return FloatingActionButton.extended(
       heroTag: "addSetup",
@@ -153,7 +154,7 @@ class _HomePageState extends State<HomePage> {
       return FloatingActionButton.small(
         heroTag: "testSession",
         onPressed: () => TestSessionActions.endSession(context, session: running),
-        tooltip: "End test session '${running.displayName}'",
+        tooltip: context.l10n.homeTooltipEndTestSession(running.displayName),
         backgroundColor: scheme.errorContainer,
         foregroundColor: scheme.onErrorContainer,
         child: const Icon(Icons.stop),
@@ -162,7 +163,7 @@ class _HomePageState extends State<HomePage> {
     return FloatingActionButton.small(
       heroTag: "testSession",
       onPressed: () => TestSessionActions.startSession(context, initialBike: appRepository.bikes[bikeId]),
-      tooltip: 'Start test session',
+      tooltip: context.l10n.homeTooltipStartTestSession,
       child: const Icon(TestSession.iconData),
     );
   }
@@ -202,6 +203,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final actionableTaskRulesCount = appRepository.actionableTaskRulesCount;
@@ -241,18 +243,18 @@ class _HomePageState extends State<HomePage> {
                   icon: const Icon(Icons.close),
                   onPressed: _bikeSelection.clear,
                 ),
-                title: Text('${_bikeSelection.length} selected'),
+                title: Text(l10n.selectionCount(_bikeSelection.length)),
                 actions: [
                   if (appSettings.enablePerson)
                     IconButton(
                       onPressed: _bikeSelection.isBusy ? null : _setPersonForSelectedBikes,
                       icon: const Icon(Person.iconData),
-                      tooltip: 'Set rider',
+                      tooltip: l10n.homeTooltipSetRider,
                     ),
                   IconButton(
                     onPressed: _bikeSelection.isBusy ? null : _deleteSelectedBikes,
                     icon: const Icon(Icons.delete),
-                    tooltip: 'Delete selected',
+                    tooltip: l10n.deleteSelectedTooltip,
                   ),
                 ],
               )
@@ -263,24 +265,24 @@ class _HomePageState extends State<HomePage> {
                   icon: const Icon(Icons.close),
                   onPressed: _timelineSelection.clear,
                 ),
-                title: Text('${_timelineSelection.length} selected'),
+                title: Text(l10n.selectionCount(_timelineSelection.length)),
                 actions: [
                   if (appSettings.enableSetupBookmark && selectedSetupsOnly)
                     IconButton(
                       onPressed: _timelineSelection.isBusy ? null : _toggleBookmarkForSelectedSetups,
                       icon: Icon(removesBookmarks ? Icons.bookmark_remove : Icons.bookmark_add_outlined),
-                      tooltip: removesBookmarks ? 'Remove bookmark' : 'Bookmark',
+                      tooltip: removesBookmarks ? l10n.homeTooltipRemoveBookmark : l10n.homeTooltipBookmark,
                     ),
                   if (appSettings.enableSetupTags && selectedSetupsOnly)
                     IconButton(
                       onPressed: _timelineSelection.isBusy ? null : _setTagsForSelectedSetups,
                       icon: const Icon(Icons.tag),
-                      tooltip: 'Set tags',
+                      tooltip: l10n.homeTooltipSetTags,
                     ),
                   IconButton(
                     onPressed: _timelineSelection.isBusy ? null : _deleteSelectedTimelineEntries,
                     icon: const Icon(Icons.delete),
-                    tooltip: 'Delete selected',
+                    tooltip: l10n.deleteSelectedTooltip,
                   ),
                 ],
               )
@@ -291,23 +293,23 @@ class _HomePageState extends State<HomePage> {
                   icon: const Icon(Icons.close),
                   onPressed: _taskRuleSelection.clear,
                 ),
-                title: Text('${_taskRuleSelection.length} selected'),
+                title: Text(l10n.selectionCount(_taskRuleSelection.length)),
                 actions: [
                   IconButton(
                     onPressed: _taskRuleSelection.isBusy ? null : _setPriorityForSelectedTaskRules,
                     icon: const Icon(TaskPriority.iconData),
-                    tooltip: 'Set priority',
+                    tooltip: l10n.homeTooltipSetPriority,
                   ),
                   if (appSettings.enableTaskTags)
                     IconButton(
                       onPressed: _taskRuleSelection.isBusy ? null : _setTagsForSelectedTaskRules,
                       icon: const Icon(Icons.tag),
-                      tooltip: 'Set tags',
+                      tooltip: l10n.homeTooltipSetTags,
                     ),
                   IconButton(
                     onPressed: _taskRuleSelection.isBusy ? null : _deleteSelectedTaskRules,
                     icon: const Icon(Icons.delete),
-                    tooltip: 'Delete selected',
+                    tooltip: l10n.deleteSelectedTooltip,
                   ),
                 ],
               )
@@ -330,10 +332,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 title: <Text>[
-                  const Text("Bikes"),
-                  const Text("Setup History"),
-                  if (appSettings.showAdvancedPersonUi) const Text("Riders"),
-                  if (appSettings.enableTask) const Text("Tasks"),
+                  Text(l10n.homeTitleBikes),
+                  Text(l10n.homeTitleSetupHistory),
+                  if (appSettings.showAdvancedPersonUi) Text(l10n.homeTitleRiders),
+                  if (appSettings.enableTask) Text(l10n.homeTitleTasks),
                 ][pageIndex],
                 actions: [
                   if (appSettings.enablePerson)
@@ -347,7 +349,7 @@ class _HomePageState extends State<HomePage> {
                           backgroundColor: Theme.of(context).primaryColor,
                           child: const Icon(Person.iconData),
                         ),
-                        tooltip: 'Rider',
+                        tooltip: l10n.homeTooltipRider,
                       ),
                     ),
                   if (appSettings.enableStrava) const StravaSyncButton(),
@@ -377,7 +379,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               Icon(appOption.iconData),
                               const SizedBox(width: 8),
-                              Text(appOption.label),
+                              Flexible(child: Text(appOption.label(l10n), overflow: TextOverflow.ellipsis)),
                             ],
                           ),
                         );
@@ -423,15 +425,16 @@ class _HomePageState extends State<HomePage> {
                 backgroundColor: Theme.of(context).primaryColor,
                 child: const Icon(Bike.iconData),
               ),
-              label: 'Bikes',
+              label: l10n.homeNavBikes,
             ),
           ),
           Semantics(
             container: true,
             identifier: AutomationIds.navSetups,
-            child: const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
+            child: NavigationDestination(icon: const Icon(Setup.iconData), label: l10n.homeNavSetups),
           ),
-          if (appSettings.showAdvancedPersonUi) const NavigationDestination(icon: Icon(Person.iconData), label: "Riders"),
+          if (appSettings.showAdvancedPersonUi)
+            NavigationDestination(icon: const Icon(Person.iconData), label: l10n.homeNavRiders),
           if (appSettings.enableTask)
             Semantics(
               container: true,
@@ -444,7 +447,7 @@ class _HomePageState extends State<HomePage> {
                   backgroundColor: (appRepository.worstActionableTaskStatus ?? TaskStatusType.completed).getStatusColor(context),
                   child: const Icon(Icons.checklist),
                 ),
-                label: "Tasks",
+                label: l10n.homeNavTasks,
               ),
             ),
         ],
@@ -486,7 +489,7 @@ class _HomePageState extends State<HomePage> {
                 FloatingActionButton.small(
                   heroTag: "garageBackToTop",
                   onPressed: _garageListController.scrollBackToTop,
-                  tooltip: 'Back to top',
+                  tooltip: l10n.backToTopTooltip,
                   child: const Icon(Icons.arrow_upward),
                 ),
               ],
@@ -501,7 +504,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () async {
                     await BikeActions.addBike(context);
                   },
-                  tooltip: 'Add Bike',
+                  tooltip: l10n.homeTooltipAddBike,
                   child: const Icon(Icons.add),
                 ),
               ),
@@ -519,7 +522,7 @@ class _HomePageState extends State<HomePage> {
                 FloatingActionButton.small(
                   heroTag: "setupBackToTop",
                   onPressed: _setupListController.scrollBackToTop,
-                  tooltip: 'Back to top',
+                  tooltip: l10n.backToTopTooltip,
                   child: const Icon(Icons.arrow_upward),
                 ),
               ],
@@ -545,7 +548,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () async {
               await PersonActions.addPerson(context);
             },
-            tooltip: 'Add Rider',
+            tooltip: l10n.homeTooltipAddRider,
             child: const Icon(Icons.add),
           ),
         if (appSettings.enableTask)
@@ -560,7 +563,7 @@ class _HomePageState extends State<HomePage> {
                   FloatingActionButton.small(
                     heroTag: "taskBackToTop",
                     onPressed: _taskListController.scrollBackToTop,
-                    tooltip: 'Back to top',
+                    tooltip: l10n.backToTopTooltip,
                     child: const Icon(Icons.arrow_upward),
                   ),
                 ],
@@ -569,7 +572,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () async {
                     await TaskActions.addTaskRule(context);
                   },
-                  tooltip: 'Add Task',
+                  tooltip: l10n.homeTooltipAddTask,
                   child: const Icon(Icons.add),
                 ),
               ],
@@ -582,13 +585,20 @@ class _HomePageState extends State<HomePage> {
 }
 
 enum _AppOptions {
-  import('Import Data', Icons.file_upload),
-  export('Export Data', Icons.file_download),
-  share('Share Data', Icons.share),
-  trash('Trash', Icons.delete),
-  settings("Settings", Icons.settings);
+  import(Icons.file_upload),
+  export(Icons.file_download),
+  share(Icons.share),
+  trash(Icons.delete),
+  settings(Icons.settings);
 
-  final String label;
   final IconData iconData;
-  const _AppOptions(this.label, this.iconData);
+  const _AppOptions(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    _AppOptions.import => l10n.homeMenuImport,
+    _AppOptions.export => l10n.homeMenuExport,
+    _AppOptions.share => l10n.homeMenuShare,
+    _AppOptions.trash => l10n.homeMenuTrash,
+    _AppOptions.settings => l10n.homeMenuSettings,
+  };
 }

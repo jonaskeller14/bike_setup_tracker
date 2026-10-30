@@ -531,5 +531,1699 @@
   "installationIssueMissingParent": "Parent component not found",
   "@installationIssueMissingParent": {
     "description": "Warning that a component's installation target is gone: \"Parent component not found\"."
+  },
+  "valueOn": "On",
+  "@valueOn": {
+    "description": "Label of the \"on\" choice of a setting that can be switched on or off."
+  },
+  "valueOff": "Off",
+  "@valueOff": {
+    "description": "Label of the \"off\" choice of a setting that can be switched on or off."
+  },
+  "selectionCount": "{count} selected",
+  "@selectionCount": {
+    "description": "App bar title while list items are selected. {count} is the number of selected items.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteSelectedTooltip": "Delete selected",
+  "@deleteSelectedTooltip": {
+    "description": "Tooltip of the app bar button that deletes all selected items."
+  },
+  "backToTopTooltip": "Back to top",
+  "@backToTopTooltip": {
+    "description": "Tooltip of the floating button that scrolls a list back to its top."
+  },
+  "errorCouldNotOpenEmailClient": "Could not open email client.",
+  "@errorCouldNotOpenEmailClient": {
+    "description": "Snackbar shown when no email app can be opened."
+  },
+  "homeTitleBikes": "Bikes",
+  "@homeTitleBikes": {
+    "description": "App bar title of the Bikes tab."
+  },
+  "homeTitleSetupHistory": "Setup History",
+  "@homeTitleSetupHistory": {
+    "description": "App bar title of the Setups tab."
+  },
+  "homeTitleRiders": "Riders",
+  "@homeTitleRiders": {
+    "description": "App bar title of the Riders tab."
+  },
+  "homeTitleTasks": "Tasks",
+  "@homeTitleTasks": {
+    "description": "App bar title of the Tasks tab."
+  },
+  "homeNavBikes": "Bikes",
+  "@homeNavBikes": {
+    "description": "Label of the Bikes destination in the bottom navigation bar."
+  },
+  "homeNavSetups": "Setups",
+  "@homeNavSetups": {
+    "description": "Label of the Setups destination in the bottom navigation bar."
+  },
+  "homeNavRiders": "Riders",
+  "@homeNavRiders": {
+    "description": "Label of the Riders destination in the bottom navigation bar."
+  },
+  "homeNavTasks": "Tasks",
+  "@homeNavTasks": {
+    "description": "Label of the Tasks destination in the bottom navigation bar."
+  },
+  "homeMenuImport": "Import Data",
+  "@homeMenuImport": {
+    "description": "Entry of the home overflow menu that imports data."
+  },
+  "homeMenuExport": "Export Data",
+  "@homeMenuExport": {
+    "description": "Entry of the home overflow menu that exports data."
+  },
+  "homeMenuShare": "Share Data",
+  "@homeMenuShare": {
+    "description": "Entry of the home overflow menu that shares data."
+  },
+  "homeMenuTrash": "Trash",
+  "@homeMenuTrash": {
+    "description": "Entry of the home overflow menu that opens the trash."
+  },
+  "homeMenuSettings": "Settings",
+  "@homeMenuSettings": {
+    "description": "Entry of the home overflow menu that opens the settings."
+  },
+  "homeTooltipSetRider": "Set rider",
+  "@homeTooltipSetRider": {
+    "description": "Tooltip of the app bar button that assigns a rider to the selected bikes."
+  },
+  "homeTooltipRemoveBookmark": "Remove bookmark",
+  "@homeTooltipRemoveBookmark": {
+    "description": "Tooltip of the app bar button that removes the bookmark from the selected setups."
+  },
+  "homeTooltipBookmark": "Bookmark",
+  "@homeTooltipBookmark": {
+    "description": "Tooltip of the app bar button that bookmarks the selected setups."
+  },
+  "homeTooltipSetTags": "Set tags",
+  "@homeTooltipSetTags": {
+    "description": "Tooltip of the app bar button that sets tags on the selected items."
+  },
+  "homeTooltipSetPriority": "Set priority",
+  "@homeTooltipSetPriority": {
+    "description": "Tooltip of the app bar button that sets the priority of the selected tasks."
+  },
+  "homeTooltipRider": "Rider",
+  "@homeTooltipRider": {
+    "description": "Tooltip of the app bar button that opens the rider profile."
+  },
+  "homeTooltipAddBike": "Add Bike",
+  "@homeTooltipAddBike": {
+    "description": "Tooltip of the floating button that adds a bike."
+  },
+  "homeTooltipAddRider": "Add Rider",
+  "@homeTooltipAddRider": {
+    "description": "Tooltip of the floating button that adds a rider."
+  },
+  "homeTooltipAddTask": "Add Task",
+  "@homeTooltipAddTask": {
+    "description": "Tooltip of the floating button that adds a task."
+  },
+  "homeAddSetup": "Add Setup",
+  "@homeAddSetup": {
+    "description": "Label and tooltip of the floating button that adds a setup."
+  },
+  "homeTooltipStartTestSession": "Start test session",
+  "@homeTooltipStartTestSession": {
+    "description": "Tooltip of the floating button that starts a test session."
+  },
+  "homeTooltipEndTestSession": "End test session '{name}'",
+  "@homeTooltipEndTestSession": {
+    "description": "Tooltip of the floating button that ends the running test session. {name} is the session name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "loadingErrorMessage": "Failed to load data. \nClose and restart the app.",
+  "@loadingErrorMessage": {
+    "description": "Message on the page shown when the app fails to load its data."
+  },
+  "loadingErrorContactSupport": "Contact Support",
+  "@loadingErrorContactSupport": {
+    "description": "Title of the entry that opens an email to support on the load error page."
+  },
+  "loadingErrorDownloadBackup": "Download latest Backup",
+  "@loadingErrorDownloadBackup": {
+    "description": "Title of the entry that exports the latest backup on the load error page."
+  },
+  "loadingErrorDownloadBackupSubtitle": "Download app data as JSON file",
+  "@loadingErrorDownloadBackupSubtitle": {
+    "description": "Subtitle of the entry that exports the latest backup on the load error page."
+  },
+  "loadingErrorDownloadBundle": "Download Backup with Attachments",
+  "@loadingErrorDownloadBundle": {
+    "description": "Title of the entry that exports the latest backup with attachments on the load error page."
+  },
+  "loadingErrorDownloadBundleSubtitle": "Latest backup and attachment files as ZIP bundle",
+  "@loadingErrorDownloadBundleSubtitle": {
+    "description": "Subtitle of the entry that exports the latest backup with attachments on the load error page."
+  },
+  "onboardingSkip": "Skip",
+  "@onboardingSkip": {
+    "description": "App bar button that skips the onboarding."
+  },
+  "onboardingNotNow": "Not now",
+  "@onboardingNotNow": {
+    "description": "App bar button of the rider slide that moves on without entering a name."
+  },
+  "onboardingNext": "Next",
+  "@onboardingNext": {
+    "description": "Button that moves to the next onboarding slide."
+  },
+  "onboardingContinue": "Continue",
+  "@onboardingContinue": {
+    "description": "Button that saves the rider name, or finishes onboarding for subscribers."
+  },
+  "onboardingContinueFree": "Continue free",
+  "@onboardingContinueFree": {
+    "description": "Button on the last onboarding slide that finishes onboarding without subscribing."
+  },
+  "onboardingStepOfTotal": "Step {current} of {total}",
+  "@onboardingStepOfTotal": {
+    "description": "Screen reader label of the onboarding progress dots. {current} is the 1-based slide, {total} the slide count.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingStepBadge": "STEP {step}",
+  "@onboardingStepBadge": {
+    "description": "Uppercase badge above the title of the teaching onboarding slides. {step} is the number.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingSlide1Title": "Ready to Dial It In?",
+  "@onboardingSlide1Title": {
+    "description": "Title of the first onboarding slide."
+  },
+  "onboardingSlide1Body": "Stop guessing your settings. Start tracking!\nFind your perfect setup with <i>Bike Setup Tracker.</i>",
+  "@onboardingSlide1Body": {
+    "description": "Body of the first onboarding slide. <i>…</i> marks the italic app name."
+  },
+  "onboardingSlide2Title": "Build Your Bike",
+  "@onboardingSlide2Title": {
+    "description": "Title of the second onboarding slide."
+  },
+  "onboardingSlide2Body": "Add your <b>bikes</b> and their <b>components</b> that you want to track. Create a perfect digital twin of your real-world garage.",
+  "@onboardingSlide2Body": {
+    "description": "Body of the second onboarding slide. <b>…</b> marks bold words."
+  },
+  "onboardingSlide3Title": "Virtual Dials for Physical Knobs",
+  "@onboardingSlide3Title": {
+    "description": "Title of the third onboarding slide."
+  },
+  "onboardingSlide3Body": "Every component is built from a few simple <b>Adjustments</b>. This modular design lets you track anything. <b>Adjustments</b> define the rules—like limits and units—not the actual values.",
+  "@onboardingSlide3Body": {
+    "description": "Body of the third onboarding slide. <b>…</b> marks bold words."
+  },
+  "onboardingSlide4Title": "Your Setup Diary",
+  "@onboardingSlide4Title": {
+    "description": "Title of the fourth onboarding slide."
+  },
+  "onboardingSlide4Body": "A <b>Setup</b> is a current snapshot of all components of one bike. It captures the specific <b>values</b> of your adjustments and automatically adds context (e.g. location, weather, trail conditions).",
+  "@onboardingSlide4Body": {
+    "description": "Body of the fourth onboarding slide. <b>…</b> marks bold words."
+  },
+  "onboardingRiderTitle": "What's your name?",
+  "@onboardingRiderTitle": {
+    "description": "Title of the onboarding slide that asks for the rider name."
+  },
+  "onboardingRiderBody": "You can change it any time.",
+  "@onboardingRiderBody": {
+    "description": "Subtitle of the onboarding slide that asks for the rider name."
+  },
+  "onboardingRiderGreeting": "Nice to meet you, {name}!",
+  "@onboardingRiderGreeting": {
+    "description": "Confirmation after the rider name was saved. {name} is the rider name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingFreeTitle": "Free by default",
+  "@onboardingFreeTitle": {
+    "description": "Title of the last onboarding slide."
+  },
+  "onboardingFreeBody": "One optional add-on. Everything else is included, permanently.",
+  "@onboardingFreeBody": {
+    "description": "Subtitle of the last onboarding slide."
+  },
+  "onboardingFreeSection": "FREE FOREVER",
+  "@onboardingFreeSection": {
+    "description": "Uppercase heading of the list of free features."
+  },
+  "onboardingStravaSection": "OPTIONAL: STRAVA SYNC",
+  "@onboardingStravaSection": {
+    "description": "Uppercase heading of the list of Strava Sync features."
+  },
+  "onboardingFreeFeature1": "As many bikes, components and setups as you want",
+  "@onboardingFreeFeature1": {
+    "description": "First free feature on the last onboarding slide."
+  },
+  "onboardingFreeFeature2": "Custom adjustments, with weather and location on every setup",
+  "@onboardingFreeFeature2": {
+    "description": "Second free feature on the last onboarding slide."
+  },
+  "onboardingFreeFeature3": "Tasks, calendar and installation history",
+  "@onboardingFreeFeature3": {
+    "description": "Third free feature on the last onboarding slide."
+  },
+  "onboardingFreeFeature4": "Export to Excel, CSV or JSON — your data stays yours",
+  "@onboardingFreeFeature4": {
+    "description": "Fourth free feature on the last onboarding slide."
+  },
+  "onboardingStravaFeature1": "Setups matched to the rides you actually rode — available in map and calendar",
+  "@onboardingStravaFeature1": {
+    "description": "First Strava Sync feature on the last onboarding slide."
+  },
+  "onboardingStravaFeature2": "Ridden distance and time stats per bike and component",
+  "@onboardingStravaFeature2": {
+    "description": "Second Strava Sync feature on the last onboarding slide."
+  },
+  "onboardingStravaFeature3": "Maintenance reminders based on your riding activity",
+  "@onboardingStravaFeature3": {
+    "description": "Third Strava Sync feature on the last onboarding slide."
+  },
+  "onboardingStravaOpen": "Open Strava Sync",
+  "@onboardingStravaOpen": {
+    "description": "Button on the last onboarding slide for subscribers who are connected to Strava."
+  },
+  "onboardingStravaConnect": "Connect Strava",
+  "@onboardingStravaConnect": {
+    "description": "Button on the last onboarding slide for subscribers who are not connected to Strava yet."
+  },
+  "onboardingStravaExplore": "Explore Strava Sync",
+  "@onboardingStravaExplore": {
+    "description": "Button on the last onboarding slide while the store offers are not known yet."
+  },
+  "onboardingStravaTrial": "Start 7-day free trial",
+  "@onboardingStravaTrial": {
+    "description": "Button on the last onboarding slide that opens the Strava Sync paywall when a free trial is available."
+  },
+  "onboardingStravaSubscribe": "Subscribe",
+  "@onboardingStravaSubscribe": {
+    "description": "Button on the last onboarding slide that opens the Strava Sync paywall when there is no free trial."
+  },
+  "onboardingExampleFork": "Suspension Fork",
+  "@onboardingExampleFork": {
+    "description": "Name of the example component on the onboarding slides."
+  },
+  "onboardingExamplePressure": "Pressure",
+  "@onboardingExamplePressure": {
+    "description": "Name of the example pressure adjustment on the onboarding slides."
+  },
+  "onboardingExampleRebound": "Rebound",
+  "@onboardingExampleRebound": {
+    "description": "Name of the example rebound adjustment on the onboarding slides."
+  },
+  "onboardingExampleLockout": "Lockout",
+  "@onboardingExampleLockout": {
+    "description": "Name of the example lockout adjustment on the onboarding slides."
+  },
+  "onboardingExampleNumericalType": "Numerical Adjustment",
+  "@onboardingExampleNumericalType": {
+    "description": "Type caption of the example pressure adjustment on the onboarding slides."
+  },
+  "onboardingExampleNumericalDetail": "in PSI",
+  "@onboardingExampleNumericalDetail": {
+    "description": "Detail line of the example pressure adjustment."
+  },
+  "onboardingExampleStepType": "Step Adjustment",
+  "@onboardingExampleStepType": {
+    "description": "Type caption of the example rebound adjustment on the onboarding slides."
+  },
+  "onboardingExampleStepDetail": "0 to 12 Clicks",
+  "@onboardingExampleStepDetail": {
+    "description": "Detail line of the example rebound adjustment."
+  },
+  "onboardingExampleBooleanType": "On/Off Adjustment",
+  "@onboardingExampleBooleanType": {
+    "description": "Type caption of the example lockout adjustment on the onboarding slides."
+  },
+  "onboardingExampleBooleanDetail": "Open or Firm",
+  "@onboardingExampleBooleanDetail": {
+    "description": "Detail line of the example lockout adjustment."
+  },
+  "onboardingExampleNewSetup": "My new Setup",
+  "@onboardingExampleNewSetup": {
+    "description": "Name of the setup being recorded on the fourth onboarding slide."
+  },
+  "onboardingExampleSetupEnduro": "Enduro Day",
+  "@onboardingExampleSetupEnduro": {
+    "description": "Name of the first older example setup on the fourth onboarding slide."
+  },
+  "onboardingExampleSetupBikepark": "Bikepark Day",
+  "@onboardingExampleSetupBikepark": {
+    "description": "Name of the second older example setup on the fourth onboarding slide."
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "App bar title of the settings page."
+  },
+  "settingsManageSubscription": "Manage Subscription",
+  "@settingsManageSubscription": {
+    "description": "Title of the settings entry that opens the store's subscription page."
+  },
+  "settingsManageSubscriptionSubtitle": "Cancel or change your plan in the store",
+  "@settingsManageSubscriptionSubtitle": {
+    "description": "Subtitle of the settings entry that opens the store's subscription page."
+  },
+  "settingsDisconnectStrava": "Disconnect Strava",
+  "@settingsDisconnectStrava": {
+    "description": "Title of the settings entry that disconnects Strava."
+  },
+  "settingsDisconnectStravaSubtitle": "Revoke access and delete synced activities",
+  "@settingsDisconnectStravaSubtitle": {
+    "description": "Subtitle of the settings entry that disconnects Strava."
+  },
+  "settingsStravaNotifications": "Strava Notifications",
+  "@settingsStravaNotifications": {
+    "description": "Title of the settings entry and sheet for Strava push notifications."
+  },
+  "settingsStravaNotificationsInfo": "Receive push notifications when Strava activities are imported.",
+  "@settingsStravaNotificationsInfo": {
+    "description": "Explanation in the Strava notifications sheet."
+  },
+  "settingsPreferences": "Preferences",
+  "@settingsPreferences": {
+    "description": "Title of the settings entry that opens the preferences page."
+  },
+  "settingsPreferencesSubtitle": "Appearance, formats and units",
+  "@settingsPreferencesSubtitle": {
+    "description": "Subtitle of the settings entry that opens the preferences page."
+  },
+  "settingsFeatures": "Features",
+  "@settingsFeatures": {
+    "description": "Title of the settings entry that opens the features page."
+  },
+  "settingsFeaturesSubtitle": "Enable or disable optional functionality",
+  "@settingsFeaturesSubtitle": {
+    "description": "Subtitle of the settings entry that opens the features page."
+  },
+  "settingsAttachments": "Attachments",
+  "@settingsAttachments": {
+    "description": "Title of the settings entry that opens the attachments page."
+  },
+  "settingsAttachmentsSubtitle": "Images and files from setups, bikes, components and tasks",
+  "@settingsAttachmentsSubtitle": {
+    "description": "Subtitle of the settings entry that opens the attachments page."
+  },
+  "settingsAbout": "About",
+  "@settingsAbout": {
+    "description": "Title of the settings entry that opens the about page."
+  },
+  "settingsAboutSubtitle": "Version, privacy policy and agreements",
+  "@settingsAboutSubtitle": {
+    "description": "Subtitle of the settings entry that opens the about page."
+  },
+  "settingsHelp": "Help",
+  "@settingsHelp": {
+    "description": "Title of the settings entry that opens the help page."
+  },
+  "settingsHelpSubtitle": "FAQ, onboarding and contact",
+  "@settingsHelpSubtitle": {
+    "description": "Subtitle of the settings entry that opens the help page."
+  },
+  "settingsReset": "Reset",
+  "@settingsReset": {
+    "description": "Title of the settings entry that opens the reset page."
+  },
+  "settingsResetSubtitle": "Reset settings, delete backups or clear data",
+  "@settingsResetSubtitle": {
+    "description": "Subtitle of the settings entry that opens the reset page."
+  },
+  "preferencesTitle": "Preferences",
+  "@preferencesTitle": {
+    "description": "App bar title of the preferences page."
+  },
+  "preferencesSectionAppearance": "Appearance",
+  "@preferencesSectionAppearance": {
+    "description": "Section heading of the appearance preferences."
+  },
+  "preferencesThemeMode": "App Theme Mode",
+  "@preferencesThemeMode": {
+    "description": "Title of the preference and sheet that picks light, dark or system theme."
+  },
+  "preferencesThemeSystem": "System",
+  "@preferencesThemeSystem": {
+    "description": "Theme choice that follows the device setting."
+  },
+  "preferencesThemeLight": "Light",
+  "@preferencesThemeLight": {
+    "description": "Theme choice for the light theme."
+  },
+  "preferencesThemeDark": "Dark",
+  "@preferencesThemeDark": {
+    "description": "Theme choice for the dark theme."
+  },
+  "preferencesLanguage": "Language",
+  "@preferencesLanguage": {
+    "description": "Title of the preference and sheet that picks the app language."
+  },
+  "preferencesLanguageSystem": "System",
+  "@preferencesLanguageSystem": {
+    "description": "Language choice that follows the device language."
+  },
+  "preferencesSectionFilters": "Filters",
+  "@preferencesSectionFilters": {
+    "description": "Section heading of the filter preferences."
+  },
+  "preferencesRememberFilters": "Remember Filters",
+  "@preferencesRememberFilters": {
+    "description": "Title of the preference and sheet that keeps filters across app starts."
+  },
+  "preferencesRememberFiltersInfo": "Keep the selected bike and filters when reopening the app. Date ranges are not kept.",
+  "@preferencesRememberFiltersInfo": {
+    "description": "Explanation in the Remember Filters sheet."
+  },
+  "preferencesSectionFormats": "Default Formats",
+  "@preferencesSectionFormats": {
+    "description": "Section heading of the format preferences."
+  },
+  "preferencesDateFormat": "Date Format",
+  "@preferencesDateFormat": {
+    "description": "Title of the preference and sheet that picks the date format."
+  },
+  "preferencesTimeFormat": "Time Format",
+  "@preferencesTimeFormat": {
+    "description": "Title of the preference and sheet that picks the time format."
+  },
+  "preferencesFirstDayOfWeek": "First Day of Week",
+  "@preferencesFirstDayOfWeek": {
+    "description": "Title of the preference and sheet that picks the first day of the week."
+  },
+  "preferencesMonday": "Monday",
+  "@preferencesMonday": {
+    "description": "First day of the week choice."
+  },
+  "preferencesSunday": "Sunday",
+  "@preferencesSunday": {
+    "description": "First day of the week choice."
+  },
+  "preferencesSectionUnits": "Default Units",
+  "@preferencesSectionUnits": {
+    "description": "Section heading of the unit preferences."
+  },
+  "preferencesDistanceUnit": "Distance Unit",
+  "@preferencesDistanceUnit": {
+    "description": "Title of the preference and sheet that picks the distance unit."
+  },
+  "preferencesAltitudeUnit": "Altitude Unit",
+  "@preferencesAltitudeUnit": {
+    "description": "Title of the preference and sheet that picks the altitude unit."
+  },
+  "preferencesTemperatureUnit": "Temperature Unit",
+  "@preferencesTemperatureUnit": {
+    "description": "Title of the preference and sheet that picks the temperature unit."
+  },
+  "preferencesWindSpeedUnit": "Wind Speed Unit",
+  "@preferencesWindSpeedUnit": {
+    "description": "Title of the preference and sheet that picks the wind speed unit."
+  },
+  "preferencesPrecipitationUnit": "Precipitation Unit",
+  "@preferencesPrecipitationUnit": {
+    "description": "Title of the preference and sheet that picks the precipitation unit."
+  },
+  "preferencesUnitCelsius": "Celsius (°C)",
+  "@preferencesUnitCelsius": {
+    "description": "Temperature unit choice."
+  },
+  "preferencesUnitFahrenheit": "Fahrenheit (°F)",
+  "@preferencesUnitFahrenheit": {
+    "description": "Temperature unit choice."
+  },
+  "preferencesUnitKelvin": "Kelvin (K)",
+  "@preferencesUnitKelvin": {
+    "description": "Temperature unit choice."
+  },
+  "preferencesUnitKmh": "Kilometers per hour (km/h)",
+  "@preferencesUnitKmh": {
+    "description": "Wind speed unit choice."
+  },
+  "preferencesUnitMph": "Miles per hour (mph)",
+  "@preferencesUnitMph": {
+    "description": "Wind speed unit choice."
+  },
+  "preferencesUnitMs": "Meters per second (m/s)",
+  "@preferencesUnitMs": {
+    "description": "Wind speed unit choice."
+  },
+  "preferencesUnitKnots": "Knots (kt)",
+  "@preferencesUnitKnots": {
+    "description": "Wind speed unit choice."
+  },
+  "preferencesUnitKilometers": "Kilometers (km)",
+  "@preferencesUnitKilometers": {
+    "description": "Distance unit choice."
+  },
+  "preferencesUnitMiles": "Miles (mi)",
+  "@preferencesUnitMiles": {
+    "description": "Distance unit choice."
+  },
+  "preferencesUnitMeters": "Meters (m)",
+  "@preferencesUnitMeters": {
+    "description": "Altitude unit choice."
+  },
+  "preferencesUnitFeet": "Feet (ft)",
+  "@preferencesUnitFeet": {
+    "description": "Altitude unit choice."
+  },
+  "preferencesUnitMillimeters": "Millimeters (mm)",
+  "@preferencesUnitMillimeters": {
+    "description": "Precipitation unit choice."
+  },
+  "preferencesUnitInches": "Inches (in)",
+  "@preferencesUnitInches": {
+    "description": "Precipitation unit choice."
+  },
+  "featuresTitle": "Features",
+  "@featuresTitle": {
+    "description": "App bar title of the features page."
+  },
+  "featuresIntro": "Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.",
+  "@featuresIntro": {
+    "description": "Introduction at the top of the features page."
+  },
+  "featuresSectionComponents": "Components",
+  "@featuresSectionComponents": {
+    "description": "Section heading of the component features."
+  },
+  "featuresSectionAdjustments": "Adjustments",
+  "@featuresSectionAdjustments": {
+    "description": "Section heading of the adjustment features."
+  },
+  "featuresSectionSetups": "Setups",
+  "@featuresSectionSetups": {
+    "description": "Section heading of the setup features."
+  },
+  "featuresSectionSetupHistory": "Setup History",
+  "@featuresSectionSetupHistory": {
+    "description": "Section heading of the setup history features."
+  },
+  "featuresSectionTasks": "Tasks",
+  "@featuresSectionTasks": {
+    "description": "Section heading of the task features."
+  },
+  "featuresSectionOther": "Other",
+  "@featuresSectionOther": {
+    "description": "Section heading of the remaining features."
+  },
+  "featuresInstallationTimeline": "Installation Timeline",
+  "@featuresInstallationTimeline": {
+    "description": "Title of the installation timeline feature."
+  },
+  "featuresSubcomponents": "Subcomponents",
+  "@featuresSubcomponents": {
+    "description": "Title of the subcomponents feature."
+  },
+  "featuresComponentPresets": "Component Presets",
+  "@featuresComponentPresets": {
+    "description": "Title of the component presets feature (developer builds)."
+  },
+  "featuresComponentPresetsInfo": "When adding a fork or shock, pick the model from a built-in catalog to prefill its name, notes and adjustments (click ranges, air pressure, SAG) automatically. You can still edit everything afterwards.",
+  "@featuresComponentPresetsInfo": {
+    "description": "Explanation of the component presets feature."
+  },
+  "featuresRequiresComponentPresets": "Requires Component Presets",
+  "@featuresRequiresComponentPresets": {
+    "description": "Subtitle of a disabled feature that depends on component presets."
+  },
+  "featuresTaskPresets": "Task Presets",
+  "@featuresTaskPresets": {
+    "description": "Title of the task presets feature (developer builds)."
+  },
+  "featuresTaskPresetsInfo": "Suggests recommended tasks for a component, like a chain wear check or a fork service, based on its type and catalog model. You pick each suggestion individually and can edit the created tasks freely. Requires Component Presets, Tasks and Task Intervals.",
+  "@featuresTaskPresetsInfo": {
+    "description": "Explanation of the task presets feature."
+  },
+  "featuresSetupGuides": "Setup Guides",
+  "@featuresSetupGuides": {
+    "description": "Title of the setup guides feature (developer builds)."
+  },
+  "featuresSetupGuidesInfo": "Suggests recommended values for the first setup of a component, like air pressure or rebound clicks, based on your riding weight and the component model. These are starting points, so check the manufacturer manual. Requires Component Presets.",
+  "@featuresSetupGuidesInfo": {
+    "description": "Explanation of the setup guides feature."
+  },
+  "featuresCategoricalAdjustment": "Categorical Adjustment",
+  "@featuresCategoricalAdjustment": {
+    "description": "Title of the group of categorical adjustment features."
+  },
+  "featuresCategoricalAdjustmentInfo": "Extra options for Categorical Adjustments. Each can be toggled on its own.",
+  "@featuresCategoricalAdjustmentInfo": {
+    "description": "Explanation of the categorical adjustment feature group."
+  },
+  "featuresMultiSelect": "Multi-select",
+  "@featuresMultiSelect": {
+    "description": "Title of the multi-select option."
+  },
+  "featuresMultiSelectSubtitle": "Allow selecting multiple categories instead of only one.",
+  "@featuresMultiSelectSubtitle": {
+    "description": "Description of the multi-select option."
+  },
+  "featuresCountOccurrences": "Count occurrences",
+  "@featuresCountOccurrences": {
+    "description": "Title of the counted-select option."
+  },
+  "featuresCountOccurrencesSubtitle": "Record how many times each category is selected.",
+  "@featuresCountOccurrencesSubtitle": {
+    "description": "Description of the counted-select option."
+  },
+  "featuresTextAdjustment": "Text Adjustment",
+  "@featuresTextAdjustment": {
+    "description": "Title of the text adjustment feature."
+  },
+  "featuresTextAdjustmentInfo": "Adds a Text Adjustment type that provides a free-form text field.",
+  "@featuresTextAdjustmentInfo": {
+    "description": "Explanation of the text adjustment feature."
+  },
+  "featuresSetupTags": "Setup Tags",
+  "@featuresSetupTags": {
+    "description": "Title of the setup tags feature."
+  },
+  "featuresSetupTagsAndBookmarks": "Setup Tags & Bookmarks",
+  "@featuresSetupTagsAndBookmarks": {
+    "description": "Title of the setup tags and bookmarks feature group (developer builds)."
+  },
+  "featuresSetupTagsInfo": "Extra ways to organize and annotate Setups. Each can be toggled on its own.",
+  "@featuresSetupTagsInfo": {
+    "description": "Explanation of the setup tags feature group."
+  },
+  "featuresSetupTagsTags": "Tags",
+  "@featuresSetupTagsTags": {
+    "description": "Title of the option that adds tags to setups."
+  },
+  "featuresSetupTagsTagsSubtitle": "Adds the option to add tags to Setups.",
+  "@featuresSetupTagsTagsSubtitle": {
+    "description": "Description of the option that adds tags to setups."
+  },
+  "featuresSetupBookmarks": "Bookmarks",
+  "@featuresSetupBookmarks": {
+    "description": "Title of the option that bookmarks setups (developer builds)."
+  },
+  "featuresSetupBookmarksSubtitle": "Mark good setups with a bookmark so they stand out among all the setups you record. Bookmarks are stored with the setup and are included in backups and exports.",
+  "@featuresSetupBookmarksSubtitle": {
+    "description": "Description of the option that bookmarks setups."
+  },
+  "featuresPressureCheck": "Pressure Check",
+  "@featuresPressureCheck": {
+    "description": "Title of the pressure check feature (developer builds)."
+  },
+  "featuresPressureCheckOn": "On · {percent} % · {types}",
+  "@featuresPressureCheckOn": {
+    "description": "Subtitle of the pressure check entry while it is on. {percent} is the threshold, {types} the summary of component types.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "types": {
+        "type": "String"
+      }
+    }
+  },
+  "featuresFeedback": "Feedback",
+  "@featuresFeedback": {
+    "description": "Title of the feedback feature (developer builds)."
+  },
+  "featuresRider": "Rider",
+  "@featuresRider": {
+    "description": "Title of the rider feature."
+  },
+  "featuresRiderInfo": "Adds a rider profile, opened with the rider button in the app bar. Link the rider to your bikes to record riding weight and other rider attributes with each setup. A new rider starts with a \"Riding weight\" attribute. Turning this off hides the rider but keeps its data.",
+  "@featuresRiderInfo": {
+    "description": "Explanation of the rider feature."
+  },
+  "featuresRiderAdvanced": "Advanced Rider Layout",
+  "@featuresRiderAdvanced": {
+    "description": "Title of the advanced rider layout feature (developer builds)."
+  },
+  "featuresRiderAdvancedInfo": "Restores the multi-rider UI: a Riders tab with reorder and bike filter, Duplicate, the rider details page and the Strava athlete link.",
+  "@featuresRiderAdvancedInfo": {
+    "description": "Explanation of the advanced rider layout feature."
+  },
+  "featuresTimelineGrouping": "Timeline Grouping",
+  "@featuresTimelineGrouping": {
+    "description": "Title of the group of timeline grouping features."
+  },
+  "featuresTimelineGroupingInfo": "Controls how the Setup History timeline condenses related entries. Each pass can be toggled on its own.",
+  "@featuresTimelineGroupingInfo": {
+    "description": "Explanation of the timeline grouping feature group."
+  },
+  "featuresSetupGrouping": "Setup Grouping",
+  "@featuresSetupGrouping": {
+    "description": "Title of the option that merges setups recorded close together."
+  },
+  "featuresSetupGroupingSubtitle": "Merge setups of the same bike recorded close together.",
+  "@featuresSetupGroupingSubtitle": {
+    "description": "Description of the setup grouping option."
+  },
+  "featuresReplacementDetection": "Replacement Detection",
+  "@featuresReplacementDetection": {
+    "description": "Title of the option that merges a removal and its replacement."
+  },
+  "featuresReplacementDetectionSubtitle": "Show a removal and the install replacing it as one entry.",
+  "@featuresReplacementDetectionSubtitle": {
+    "description": "Description of the replacement detection option."
+  },
+  "featuresStravaContext": "Strava Context",
+  "@featuresStravaContext": {
+    "description": "Title of the option that links entries to Strava activities."
+  },
+  "featuresStravaContextSubtitle": "Mark entries recorded during a ride as part of that activity.",
+  "@featuresStravaContextSubtitle": {
+    "description": "Description of the Strava context option."
+  },
+  "featuresStravaContextNeedsSubscription": "Mark entries recorded during a ride as part of that activity. Needs a connected Strava subscription.",
+  "@featuresStravaContextNeedsSubscription": {
+    "description": "Description of the Strava context option while there is no Strava subscription."
+  },
+  "featuresCalendar": "Calendar",
+  "@featuresCalendar": {
+    "description": "Title of the calendar feature."
+  },
+  "featuresCalendarInfo": "Adds a calendar view, reachable from the Setup History page via the calendar button next to search and map buttons.",
+  "@featuresCalendarInfo": {
+    "description": "Explanation of the calendar feature."
+  },
+  "featuresAdvancedFilters": "Advanced Filters",
+  "@featuresAdvancedFilters": {
+    "description": "Title of the advanced filters feature."
+  },
+  "featuresAdvancedFiltersInfo": "Adds a date range and, with Strava connected, activity distance and elevation filters to the filter sheet of the Setup History, map and calendar.",
+  "@featuresAdvancedFiltersInfo": {
+    "description": "Explanation of the advanced filters feature."
+  },
+  "featuresTasks": "Tasks",
+  "@featuresTasks": {
+    "description": "Title of the tasks feature."
+  },
+  "featuresTasksInfo": "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
+  "@featuresTasksInfo": {
+    "description": "Explanation of the tasks feature."
+  },
+  "featuresTaskExtras": "Task Tags, Priority, Interval & Delay",
+  "@featuresTaskExtras": {
+    "description": "Title of the group of extra task features."
+  },
+  "featuresTaskExtrasInfo": "Extra fields and behaviors for Tasks. Each can be toggled on its own.",
+  "@featuresTaskExtrasInfo": {
+    "description": "Explanation of the extra task features group."
+  },
+  "featuresTaskTags": "Tags",
+  "@featuresTaskTags": {
+    "description": "Title of the option that adds tags to task rules."
+  },
+  "featuresTaskTagsSubtitle": "Adds the option to add tags to Task Rules.",
+  "@featuresTaskTagsSubtitle": {
+    "description": "Description of the option that adds tags to task rules."
+  },
+  "featuresTaskPriority": "Priority",
+  "@featuresTaskPriority": {
+    "description": "Title of the option that shows the priority of tasks."
+  },
+  "featuresTaskPrioritySubtitle": "Shows the Priority field on tasks. Disable to simplify the task interface.",
+  "@featuresTaskPrioritySubtitle": {
+    "description": "Description of the task priority option."
+  },
+  "featuresTaskInterval": "Interval",
+  "@featuresTaskInterval": {
+    "description": "Title of the option that adds intervals to tasks."
+  },
+  "featuresTaskIntervalSubtitle": "Adds an optional trigger to tasks with a progress bar based on time or, with Strava connected, activity stats like distance, elevation and ride time.",
+  "@featuresTaskIntervalSubtitle": {
+    "description": "Description of the task interval option."
+  },
+  "featuresTaskDelay": "Delay",
+  "@featuresTaskDelay": {
+    "description": "Title of the option that lets tasks be postponed."
+  },
+  "featuresTaskDelaySubtitle": "Lets you postpone when a task becomes due, without changing its interval. A delay only applies once: completing the task clears it automatically.",
+  "@featuresTaskDelaySubtitle": {
+    "description": "Description of the task delay option."
+  },
+  "featuresTaskDuePrediction": "Task Due Prediction",
+  "@featuresTaskDuePrediction": {
+    "description": "Title of the task due prediction feature."
+  },
+  "featuresTaskDuePredictionInfo": "Estimates when a task will come due. For date and duration intervals, this is calculated directly from the last completion, no Strava needed. For other intervals (distance, elevation, ride time, ...), it extrapolates from how much the bike has been ridden recently and needs a connected Strava subscription. Only shows for tasks that are not due yet.",
+  "@featuresTaskDuePredictionInfo": {
+    "description": "Explanation of the task due prediction feature."
+  },
+  "featuresGarageTaskIndicator": "Garage Task Indicator",
+  "@featuresGarageTaskIndicator": {
+    "description": "Title of the garage task indicator feature."
+  },
+  "featuresGarageTaskIndicatorInfo": "Shows a colored status dot on component icons in the Garage when they have open tasks.",
+  "@featuresGarageTaskIndicatorInfo": {
+    "description": "Explanation of the garage task indicator feature."
+  },
+  "featuresAttachments": "Attachments",
+  "@featuresAttachments": {
+    "description": "Title of the attachments feature."
+  },
+  "featuresAttachmentsInfo": "Attach images and files to bikes, components, setups and tasks. WARNING: attachments are stored only on this device. They are NOT included in cloud/Drive backups and will be lost on reinstall or when restoring from a backup. Use \"Export Attachment Bundle\" to move them to a new device.",
+  "@featuresAttachmentsInfo": {
+    "description": "Explanation of the attachments feature, including the warning that they are not backed up."
+  },
+  "featuresGoogleDrive": "Google Drive Sync",
+  "@featuresGoogleDrive": {
+    "description": "Title of the Google Drive sync feature."
+  },
+  "featuresGoogleDriveInfo": "Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.",
+  "@featuresGoogleDriveInfo": {
+    "description": "Explanation of the Google Drive sync feature."
+  },
+  "featuresMapBoxTiles": "MapBox Tiles",
+  "@featuresMapBoxTiles": {
+    "description": "Title of the MapBox tiles feature (developer builds)."
+  },
+  "featuresLanguageSelection": "Language Selection",
+  "@featuresLanguageSelection": {
+    "description": "Title of the language selection feature (developer builds)."
+  },
+  "featuresLanguageSelectionInfo": "Follows the system language, or the language picked in Preferences, instead of always showing English. Translations are still being added, so some screens stay English.",
+  "@featuresLanguageSelectionInfo": {
+    "description": "Explanation of the language selection feature."
+  },
+  "aboutTitle": "About & Legal",
+  "@aboutTitle": {
+    "description": "App bar title of the about page."
+  },
+  "aboutSectionInformation": "App Information",
+  "@aboutSectionInformation": {
+    "description": "Section heading of the version information on the about page."
+  },
+  "aboutVersion": "Version",
+  "@aboutVersion": {
+    "description": "Label of the app version on the about page."
+  },
+  "aboutReleaseDate": "Release Date",
+  "@aboutReleaseDate": {
+    "description": "Label of the release date on the about page."
+  },
+  "aboutUserUid": "User UID",
+  "@aboutUserUid": {
+    "description": "Label of the anonymous user ID on the about page."
+  },
+  "aboutUserUidUnavailable": "Not available yet",
+  "@aboutUserUidUnavailable": {
+    "description": "Shown instead of the user ID while there is none."
+  },
+  "aboutCopy": "Copy",
+  "@aboutCopy": {
+    "description": "Tooltip of the button that copies the user ID."
+  },
+  "aboutUserUidCopied": "User UID copied",
+  "@aboutUserUidCopied": {
+    "description": "Snackbar after the user ID was copied."
+  },
+  "aboutSectionLegal": "Legal Agreements",
+  "@aboutSectionLegal": {
+    "description": "Section heading of the legal links on the about page."
+  },
+  "aboutPrivacyPolicy": "Privacy Policy",
+  "@aboutPrivacyPolicy": {
+    "description": "Title of the link to the privacy policy."
+  },
+  "aboutEula": "End-User License Agreement (EULA)",
+  "@aboutEula": {
+    "description": "Title of the link to the license agreement."
+  },
+  "aboutTermsOfService": "Terms of Service",
+  "@aboutTermsOfService": {
+    "description": "Title of the link to the terms of service."
+  },
+  "aboutLicenses": "Open-Source Licenses",
+  "@aboutLicenses": {
+    "description": "Title of the entry that opens the open-source license page."
+  },
+  "aboutLegalese": "© 2025-2026 Jonas Keller. All rights reserved.",
+  "@aboutLegalese": {
+    "description": "Copyright line on the open-source license page."
+  },
+  "aboutTrademarks": "Third-party trademarks",
+  "@aboutTrademarks": {
+    "description": "Title of the entry that lists third-party trademarks."
+  },
+  "aboutTrademarksStravaAndDrive": "Strava is a trademark of Strava, Inc.\nGoogle Drive is a trademark of Google LLC.",
+  "@aboutTrademarksStravaAndDrive": {
+    "description": "Trademark notice when Strava is enabled."
+  },
+  "aboutTrademarksDrive": "Google Drive is a trademark of Google LLC.",
+  "@aboutTrademarksDrive": {
+    "description": "Trademark notice when Strava is not enabled."
+  },
+  "attachmentsTitle": "Attachments",
+  "@attachmentsTitle": {
+    "description": "App bar title of the attachments page."
+  },
+  "attachmentsUnavailableTitle": "Attachments unavailable",
+  "@attachmentsUnavailableTitle": {
+    "description": "Title of the error state when the attachments folder cannot be read."
+  },
+  "attachmentsUnavailableSubtitle": "The attachments folder could not be opened.",
+  "@attachmentsUnavailableSubtitle": {
+    "description": "Subtitle of the error state when the attachments folder cannot be read."
+  },
+  "attachmentsEmptyTitle": "No attachments yet",
+  "@attachmentsEmptyTitle": {
+    "description": "Title of the empty state of the attachments page."
+  },
+  "attachmentsEmptySubtitle": "Images and files you add to a setup, bike, component or task appear here.",
+  "@attachmentsEmptySubtitle": {
+    "description": "Subtitle of the empty state of the attachments page."
+  },
+  "attachmentsUnlinkedHint": "{count, plural, =1{1 attachment is no longer linked to a setup, bike, component or task. It is removed the next time the app starts.} other{{count} attachments are no longer linked to a setup, bike, component or task. They are removed the next time the app starts.}}",
+  "@attachmentsUnlinkedHint": {
+    "description": "Warning above the attachment grid. {count} is the number of unlinked attachments.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "helpTitle": "Help & Support",
+  "@helpTitle": {
+    "description": "App bar title of the help page."
+  },
+  "helpSectionHelp": "Help",
+  "@helpSectionHelp": {
+    "description": "Section heading of the help entries."
+  },
+  "helpShowOnboarding": "Show Onboarding",
+  "@helpShowOnboarding": {
+    "description": "Title of the entry that replays the onboarding."
+  },
+  "helpShowOnboardingSubtitle": "Show onboarding slides to get started.",
+  "@helpShowOnboardingSubtitle": {
+    "description": "Subtitle of the entry that replays the onboarding."
+  },
+  "helpFaq": "FAQ",
+  "@helpFaq": {
+    "description": "Title of the entry that opens the FAQ."
+  },
+  "helpFaqSubtitle": "Show frequently asked questions.",
+  "@helpFaqSubtitle": {
+    "description": "Subtitle of the entry that opens the FAQ."
+  },
+  "helpStravaForum": "Strava Club Forum",
+  "@helpStravaForum": {
+    "description": "Title of the link to the Strava club forum."
+  },
+  "helpStravaForumSubtitle": "Get help and discuss the app with other users.",
+  "@helpStravaForumSubtitle": {
+    "description": "Subtitle of the link to the Strava club forum."
+  },
+  "helpSectionContact": "Contact & Feedback",
+  "@helpSectionContact": {
+    "description": "Section heading of the contact entries."
+  },
+  "helpCoffee": "Buy me a coffee",
+  "@helpCoffee": {
+    "description": "Title of the entry that opens the tip jar."
+  },
+  "helpCoffeeSubtitle": "Support development with a small tip.",
+  "@helpCoffeeSubtitle": {
+    "description": "Subtitle of the entry that opens the tip jar."
+  },
+  "helpRate": "Rate this app",
+  "@helpRate": {
+    "description": "Title of the entry that opens the store page to rate the app."
+  },
+  "helpRateAppStore": "Rate this app on Apple AppStore.",
+  "@helpRateAppStore": {
+    "description": "Subtitle of the rate entry on iOS."
+  },
+  "helpRatePlayStore": "Rate this app on Google PlayStore.",
+  "@helpRatePlayStore": {
+    "description": "Subtitle of the rate entry on Android."
+  },
+  "helpGeneralSupport": "General Support",
+  "@helpGeneralSupport": {
+    "description": "Title of the entry that emails support."
+  },
+  "helpSuggestFeatures": "Suggest Features",
+  "@helpSuggestFeatures": {
+    "description": "Title of the entry that emails a feature suggestion."
+  },
+  "helpReportBugs": "Report Bugs",
+  "@helpReportBugs": {
+    "description": "Title of the entry that emails a bug report."
+  },
+  "resetTitle": "Reset",
+  "@resetTitle": {
+    "description": "App bar title of the reset page."
+  },
+  "resetSettings": "Reset Settings",
+  "@resetSettings": {
+    "description": "Title of the entry that resets all settings."
+  },
+  "resetSettingsDefaults": "All settings are at their defaults",
+  "@resetSettingsDefaults": {
+    "description": "Subtitle of the reset settings entry while nothing was changed."
+  },
+  "resetSettingsRestore": "Restore all preferences and features to their defaults",
+  "@resetSettingsRestore": {
+    "description": "Subtitle of the reset settings entry while settings were changed."
+  },
+  "resetDeleteBackups": "Delete All Backups",
+  "@resetDeleteBackups": {
+    "description": "Title of the entry that deletes the automatic backups."
+  },
+  "resetDeleteBackupsSubtitle": "Remove all automatic backups stored on this device",
+  "@resetDeleteBackupsSubtitle": {
+    "description": "Subtitle of the entry that deletes the automatic backups."
+  },
+  "resetNoBackups": "No backups on this device",
+  "@resetNoBackups": {
+    "description": "Subtitle of the delete backups entry while there are no backups."
+  },
+  "resetClearDatabase": "Clear Database",
+  "@resetClearDatabase": {
+    "description": "Title of the entry that deletes all data."
+  },
+  "resetClearDatabaseSubtitle": "Delete all bikes, components, setups and other data",
+  "@resetClearDatabaseSubtitle": {
+    "description": "Subtitle of the entry that deletes all data."
+  },
+  "resetDatabaseEmpty": "The database is empty",
+  "@resetDatabaseEmpty": {
+    "description": "Subtitle of the clear database entry while there is no data."
+  },
+  "faqTitle": "Frequently asked Questions",
+  "@faqTitle": {
+    "description": "App bar title of the FAQ page."
+  },
+  "faqSectionGeneral": "General",
+  "@faqSectionGeneral": {
+    "description": "Heading of the general FAQ section."
+  },
+  "faqSectionBikes": "Bikes",
+  "@faqSectionBikes": {
+    "description": "Heading of the FAQ section about bikes and components."
+  },
+  "faqSectionSetup": "Setup",
+  "@faqSectionSetup": {
+    "description": "Heading of the FAQ section about setups."
+  },
+  "faqSectionRider": "Rider",
+  "@faqSectionRider": {
+    "description": "Heading of the FAQ section about the rider."
+  },
+  "faqSectionStrava": "Strava Sync",
+  "@faqSectionStrava": {
+    "description": "Heading of the FAQ section about Strava Sync."
+  },
+  "faqSectionTasks": "Tasks",
+  "@faqSectionTasks": {
+    "description": "Heading of the FAQ section about tasks."
+  },
+  "faqGeneralAboutQuestion": "What is this app about?",
+  "@faqGeneralAboutQuestion": {
+    "description": "Question of the FAQ entry \"GeneralAbout\"."
+  },
+  "faqGeneralAboutAnswer": "This app helps you track, manage, and optimize your bike setup adjustments for better performance.",
+  "@faqGeneralAboutAnswer": {
+    "description": "Answer of the FAQ entry \"GeneralAbout\"."
+  },
+  "faqGeneralExportQuestion": "Can I export or share my data?",
+  "@faqGeneralExportQuestion": {
+    "description": "Question of the FAQ entry \"GeneralExport\"."
+  },
+  "faqGeneralExportAnswer": "Yes. Use \"Export\" to save your entire database as a JSON file. You choose where to save it in your device’s file picker. This file is intended for backups and can be reimported later. \n\nUse \"Share\" to send a snapshot of your data directly to another app (like Mail, Cloud, or Messenger). You can choose between multiple formats: JSON (reimportable), Excel, CSV, or plain text.",
+  "@faqGeneralExportAnswer": {
+    "description": "Answer of the FAQ entry \"GeneralExport\"."
+  },
+  "faqGeneralLocalQuestion": "Is my data stored locally?",
+  "@faqGeneralLocalQuestion": {
+    "description": "Question of the FAQ entry \"GeneralLocal\"."
+  },
+  "faqGeneralLocalAnswer": "Yes, all your data is stored locally on your device. We do not collect or store any of your personal information.",
+  "@faqGeneralLocalAnswer": {
+    "description": "Answer of the FAQ entry \"GeneralLocal\"."
+  },
+  "faqGeneralRecoverQuestion": "I accidentally deleted something. Can I recover it?",
+  "@faqGeneralRecoverQuestion": {
+    "description": "Question of the FAQ entry \"GeneralRecover\"."
+  },
+  "faqGeneralRecoverAnswer": "Yes. Open the menu in the top-right corner of the home page and select \"Trash.\" You can restore items deleted within the last 30 days. After 30 days, items are permanently deleted.",
+  "@faqGeneralRecoverAnswer": {
+    "description": "Answer of the FAQ entry \"GeneralRecover\"."
+  },
+  "faqGeneralMoveQuestion": "How do I move my data to a new device?",
+  "@faqGeneralMoveQuestion": {
+    "description": "Question of the FAQ entry \"GeneralMove\"."
+  },
+  "faqGeneralMoveAnswer": "Data is typically restored by your operating system if you have cloud backups enabled. To move data manually: Export your data as a JSON file from the home page menu, transfer that file to your new device (via cloud or cable), and select \"Import\" from the menu on the new device.",
+  "@faqGeneralMoveAnswer": {
+    "description": "Answer of the FAQ entry \"GeneralMove\"."
+  },
+  "faqBikesAddQuestion": "How do I add a new bike?",
+  "@faqBikesAddQuestion": {
+    "description": "Question of the FAQ entry \"BikesAdd\"."
+  },
+  "faqBikesAddAnswer": "Tap the \"+\" button in the \"Bikes\" tab to create a new bike.",
+  "@faqBikesAddAnswer": {
+    "description": "Answer of the FAQ entry \"BikesAdd\"."
+  },
+  "faqBikesComponentsQuestion": "Where are my components?",
+  "@faqBikesComponentsQuestion": {
+    "description": "Question of the FAQ entry \"BikesComponents\"."
+  },
+  "faqBikesComponentsAnswer": "Components are listed directly under the bike they are installed on. Tap a component to see its details and make adjustments.",
+  "@faqBikesComponentsAnswer": {
+    "description": "Answer of the FAQ entry \"BikesComponents\"."
+  },
+  "faqBikesEditDeleteQuestion": "How do I edit or delete a component?",
+  "@faqBikesEditDeleteQuestion": {
+    "description": "Question of the FAQ entry \"BikesEditDelete\"."
+  },
+  "faqBikesEditDeleteAnswer": "Tap on a component to open its detailed view, then tap the three-dot menu in the top-right corner to edit, duplicate, or delete it.",
+  "@faqBikesEditDeleteAnswer": {
+    "description": "Answer of the FAQ entry \"BikesEditDelete\"."
+  },
+  "faqBikesMoveComponentQuestion": "How do I move a component to a different bike?",
+  "@faqBikesMoveComponentQuestion": {
+    "description": "Question of the FAQ entry \"BikesMoveComponent\"."
+  },
+  "faqBikesMoveComponentAnswer": "Long-press a component and drag it onto the card of the bike you want to move it to.",
+  "@faqBikesMoveComponentAnswer": {
+    "description": "Answer of the FAQ entry \"BikesMoveComponent\"."
+  },
+  "faqBikesReorderComponentsQuestion": "How do I reorder my components?",
+  "@faqBikesReorderComponentsQuestion": {
+    "description": "Question of the FAQ entry \"BikesReorderComponents\"."
+  },
+  "faqBikesReorderComponentsAnswer": "Long-press and drag a component icon to change its position within a bike or list.",
+  "@faqBikesReorderComponentsAnswer": {
+    "description": "Answer of the FAQ entry \"BikesReorderComponents\"."
+  },
+  "faqBikesUninstalledQuestion": "What is the \"Uninstalled\" section?",
+  "@faqBikesUninstalledQuestion": {
+    "description": "Question of the FAQ entry \"BikesUninstalled\"."
+  },
+  "faqBikesUninstalledAnswer": "This section at the bottom of the \"Bikes\" tab lists components that are currently not assigned to any bike. You can drag them from here onto a bike to install them.",
+  "@faqBikesUninstalledAnswer": {
+    "description": "Answer of the FAQ entry \"BikesUninstalled\"."
+  },
+  "faqBikesUninstalledVsArchivedQuestion": "What is the difference between \"Uninstalled\" and \"Archived\"?",
+  "@faqBikesUninstalledVsArchivedQuestion": {
+    "description": "Question of the FAQ entry \"BikesUninstalledVsArchived\"."
+  },
+  "faqBikesUninstalledVsArchivedAnswer": "Both states mean a component is off the bike, but they serve different purposes.\n\n\"Uninstalled\" means the component is off the bike but still usable. It stays visible in the Uninstalled section and can be reinstalled at any time — for example, a spare wheelset you swap in for race day, or a saddle you temporarily moved to another bike.\n\n\"Archived\" means the component is retired and will never be used again. It is hidden from the main view to keep your garage clean, but all its history and statistics are preserved. Use this for worn-out brake pads or tires, broken or sold parts, or anything you no longer ride. You can still find archived components in the Archived section and restore them if needed.",
+  "@faqBikesUninstalledVsArchivedAnswer": {
+    "description": "Answer of the FAQ entry \"BikesUninstalledVsArchived\"."
+  },
+  "faqAdjustmentWhatQuestion": "What is an \"Adjustment\"?",
+  "@faqAdjustmentWhatQuestion": {
+    "description": "Question of the FAQ entry \"AdjustmentWhat\"."
+  },
+  "faqAdjustmentWhatAnswer": "An Adjustment defines a specific part of a component that can be modified (e.g., tire pressure or suspension rebound). It sets the rules — the type, the unit, and the allowed range — while the actual values are recorded within a \"Setup.\"",
+  "@faqAdjustmentWhatAnswer": {
+    "description": "Answer of the FAQ entry \"AdjustmentWhat\"."
+  },
+  "faqAdjustmentTypesQuestion": "Which adjustment types can I choose from?",
+  "@faqAdjustmentTypesQuestion": {
+    "description": "Question of the FAQ entry \"AdjustmentTypes\"."
+  },
+  "faqAdjustmentTypesAnswer": "Numerical for measured values with a unit (e.g. 22.5 psi), Step for click-based dials (e.g. rebound 8 of 15), Categorical for a fixed list of options, and On/Off for things like a lockout. Text, for free-form entries, appears once you enable it under Settings → Features → Text Adjustment.\n\nYou pick the type when adding the adjustment — it decides how you enter values in a Setup later. Above the types, the \"Add Adjustment\" sheet also suggests ready-made templates for the component you are on, which are the quickest way to get started.",
+  "@faqAdjustmentTypesAnswer": {
+    "description": "Answer of the FAQ entry \"AdjustmentTypes\"."
+  },
+  "faqAdjustmentOtherUnitQuestion": "Can I read or enter a value in a different unit?",
+  "@faqAdjustmentOtherUnitQuestion": {
+    "description": "Question of the FAQ entry \"AdjustmentOtherUnit\"."
+  },
+  "faqAdjustmentOtherUnitAnswer": "Yes — tap the unit label next to the value (the small \"psi\", \"bar\", \"mm\" … text). Each tap cycles to the next compatible unit and converts the number for you. This works both when reading a setup and when typing a value into one. While a converted unit is active, a small line shows what the value is in the unit the adjustment is actually stored in.\n\nThis only changes what you see: the adjustment and the stored value stay untouched, and the display resets when you leave the page. To change the unit permanently, edit the adjustment.",
+  "@faqAdjustmentOtherUnitAnswer": {
+    "description": "Answer of the FAQ entry \"AdjustmentOtherUnit\"."
+  },
+  "faqAdjustmentSagQuestion": "What is \"SAG\"?",
+  "@faqAdjustmentSagQuestion": {
+    "description": "Question of the FAQ entry \"AdjustmentSag\"."
+  },
+  "faqAdjustmentSagAnswer": "SAG is not a type of its own — it is a special flavour of the Numerical adjustment, made for suspension sag. It is always stored as a percentage between 0 and 100 %.\n\nWhat it adds is the reference travel: fill in the \"Fork Travel\" or \"Shock Stroke\" of the component and the app can convert that percentage into an absolute length. Tap the unit label on the value to cycle % → mm → in. That way you can measure sag with a ruler on the stanchion or shock shaft and let the app do the math — in either direction.",
+  "@faqAdjustmentSagAnswer": {
+    "description": "Answer of the FAQ entry \"AdjustmentSag\"."
+  },
+  "faqAdjustmentSagAddQuestion": "How do I add a SAG adjustment?",
+  "@faqAdjustmentSagAddQuestion": {
+    "description": "Question of the FAQ entry \"AdjustmentSagAdd\"."
+  },
+  "faqAdjustmentSagAddAnswer": "You will not find SAG in the list of adjustment types. Add it from the \"SAG\" template that the \"Add Adjustment\" sheet suggests for a fork or a shock, then enter the travel or stroke.\n\nIf you already track sag as a plain numerical adjustment in %, you do not have to start over: edit it, and as long as its name contains \"sag\" and its unit is %, a \"Convert to SAG adjustment\" banner appears. All recorded values and the full history stay attached, and it is reversible — on a SAG adjustment, use the three-dot menu → \"Convert to plain numerical\".",
+  "@faqAdjustmentSagAddAnswer": {
+    "description": "Answer of the FAQ entry \"AdjustmentSagAdd\"."
+  },
+  "faqAdjustmentChangeUnitQuestion": "What happens to my recorded values if I change an adjustment’s unit?",
+  "@faqAdjustmentChangeUnitQuestion": {
+    "description": "Question of the FAQ entry \"AdjustmentChangeUnit\"."
+  },
+  "faqAdjustmentChangeUnitAnswer": "If no setup has a value recorded for the adjustment, nothing happens. Otherwise a sheet shows how many setups are affected, including deleted ones, with an example. If the old and the new unit measure the same thing (e.g. bar → psi), you choose:\n\n\"Convert values\" recalculates every previously recorded value into the new unit (10 bar becomes 145 psi). Use this when your old values were correct and you just want to read them differently.\n\n\"Keep numbers\" leaves the numbers untouched and only relabels them (10 bar becomes 10 psi). Use this when the values had been recorded in the wrong unit all along.\n\nIf the units are not compatible (e.g. psi → mm), no conversion is possible: you can keep the numbers, which are then read in the new unit, or clear the recorded values. Min and max are always kept exactly as you typed them.",
+  "@faqAdjustmentChangeUnitAnswer": {
+    "description": "Answer of the FAQ entry \"AdjustmentChangeUnit\"."
+  },
+  "faqBikesReorderBikesQuestion": "How do I reorder my bikes?",
+  "@faqBikesReorderBikesQuestion": {
+    "description": "Question of the FAQ entry \"BikesReorderBikes\"."
+  },
+  "faqBikesReorderBikesAnswer": "Long-press and drag a bike card to move it up or down in the list.",
+  "@faqBikesReorderBikesAnswer": {
+    "description": "Answer of the FAQ entry \"BikesReorderBikes\"."
+  },
+  "faqSetupWhatQuestion": "What is a \"Setup\"?",
+  "@faqSetupWhatQuestion": {
+    "description": "Question of the FAQ entry \"SetupWhat\"."
+  },
+  "faqSetupWhatAnswer": "A Setup is a snapshot of your entire bike configuration. It captures the specific values of all your adjustments alongside context like location, weather, and trail conditions.",
+  "@faqSetupWhatAnswer": {
+    "description": "Answer of the FAQ entry \"SetupWhat\"."
+  },
+  "faqSetupRecordQuestion": "How do I record a new setup?",
+  "@faqSetupRecordQuestion": {
+    "description": "Question of the FAQ entry \"SetupRecord\"."
+  },
+  "faqSetupRecordAnswer": "Go to the \"Setups\" tab and tap the \"+\" button to record a new setup for your bike.",
+  "@faqSetupRecordAnswer": {
+    "description": "Answer of the FAQ entry \"SetupRecord\"."
+  },
+  "faqSetupHighlightsQuestion": "What do the green and orange highlights on a value mean?",
+  "@faqSetupHighlightsQuestion": {
+    "description": "Question of the FAQ entry \"SetupHighlights\"."
+  },
+  "faqSetupHighlightsAnswer": "They show how a value compares to the setup you last recorded.\n\nGreen means the value is recorded for the first time — there was no earlier value to compare it to.\n\nOrange means you changed the value: the previous one is shown underneath, crossed out, so you can see at a glance what you actually touched.",
+  "@faqSetupHighlightsAnswer": {
+    "description": "Answer of the FAQ entry \"SetupHighlights\"."
+  },
+  "faqSetupRestoreIconQuestion": "What does the ↺ icon next to a value do?",
+  "@faqSetupRestoreIconQuestion": {
+    "description": "Question of the FAQ entry \"SetupRestoreIcon\"."
+  },
+  "faqSetupRestoreIconAnswer": "It restores the value the adjustment had when you opened the setup — usually the one carried over from your last setup. Use it to undo a change you are not happy with, without leaving the page.",
+  "@faqSetupRestoreIconAnswer": {
+    "description": "Answer of the FAQ entry \"SetupRestoreIcon\"."
+  },
+  "faqSetupOtherUnitQuestion": "Can I enter a value in a different unit than the adjustment uses?",
+  "@faqSetupOtherUnitQuestion": {
+    "description": "Question of the FAQ entry \"SetupOtherUnit\"."
+  },
+  "faqSetupOtherUnitAnswer": "Yes. Tap the unit label next to the input field to cycle through the compatible units — type in whichever one you measured in, and the app converts and stores it in the adjustment’s own unit. A small line below the field shows the value as it will be stored. See the Adjustment questions above for the full details.",
+  "@faqSetupOtherUnitAnswer": {
+    "description": "Answer of the FAQ entry \"SetupOtherUnit\"."
+  },
+  "faqSetupLocationLaterQuestion": "I recorded a setup without GPS. Can I add the location later?",
+  "@faqSetupLocationLaterQuestion": {
+    "description": "Question of the FAQ entry \"SetupLocationLater\"."
+  },
+  "faqSetupLocationLaterAnswer": "Yes. Edit the setup, tap the location chip (showing a pin or \"Location Context\"), and use the search bar in the sheet to find the address. Alternatively, you can manually enter the Latitude and Longitude.",
+  "@faqSetupLocationLaterAnswer": {
+    "description": "Answer of the FAQ entry \"SetupLocationLater\"."
+  },
+  "faqSetupOfflineQuestion": "I recorded a setup without Internet. How do I update address and weather?",
+  "@faqSetupOfflineQuestion": {
+    "description": "Question of the FAQ entry \"SetupOffline\"."
+  },
+  "faqSetupOfflineAnswer": "Edit the setup and open the location sheet (tap the location chip) to manually fetch the address from Latitude and Longitude. Then, open the weather sheet (tap the weather chip) and tap \"Update Weather by Location\".",
+  "@faqSetupOfflineAnswer": {
+    "description": "Answer of the FAQ entry \"SetupOffline\"."
+  },
+  "faqSetupRawDataQuestion": "Can I see a raw data overview of all my setups?",
+  "@faqSetupRawDataQuestion": {
+    "description": "Question of the FAQ entry \"SetupRawData\"."
+  },
+  "faqSetupRawDataAnswer": "Yes. Open the detailed view of a component (by tapping its icon in \"Bikes\" tab) and then tap on the large card representing the component. This opens a table view where you can compare setups, select which columns to show, and sort the data for deeper analysis.",
+  "@faqSetupRawDataAnswer": {
+    "description": "Answer of the FAQ entry \"SetupRawData\"."
+  },
+  "faqSetupRestoreQuestion": "What does the \"Restore\" option do?",
+  "@faqSetupRestoreQuestion": {
+    "description": "Question of the FAQ entry \"SetupRestore\"."
+  },
+  "faqSetupRestoreAnswer": "It duplicates the selected setup, copying all adjustment values, but sets the date and time to now. It also automatically updates the location and weather to your current position. \n\nThis is especially useful if you made changes that feel worse than before and want to easily go back to a previous, known good setup.",
+  "@faqSetupRestoreAnswer": {
+    "description": "Answer of the FAQ entry \"SetupRestore\"."
+  },
+  "faqRiderWhyQuestion": "Why?",
+  "@faqRiderWhyQuestion": {
+    "description": "Question of the FAQ entry \"RiderWhy\"."
+  },
+  "faqRiderWhyAnswer": "Your rider profile adds personal context to your setups. Values like your riding weight directly influence how bike components behave, so recording them with each setup makes finding the optimal setup easier.",
+  "@faqRiderWhyAnswer": {
+    "description": "Answer of the FAQ entry \"RiderWhy\"."
+  },
+  "faqRiderAddQuestion": "How to add a Rider?",
+  "@faqRiderAddQuestion": {
+    "description": "Question of the FAQ entry \"RiderAdd\"."
+  },
+  "faqRiderAddAnswer": "Tap the rider icon in the top bar and enter your name. You can also create your rider from the rider tab while adding a setup.",
+  "@faqRiderAddAnswer": {
+    "description": "Answer of the FAQ entry \"RiderAdd\"."
+  },
+  "faqRiderLinkQuestion": "How to link a Rider to a Bike?",
+  "@faqRiderLinkQuestion": {
+    "description": "Question of the FAQ entry \"RiderLink\"."
+  },
+  "faqRiderLinkAnswer": "Navigate to the \"Bikes\" tab and select the bike you want to link. Tap the three-dot menu, select \"Edit\", and choose the rider from the \"Rider\" dropdown menu. Alternatively, tap \"Link rider\" in the rider tab while adding a setup for that bike. A bike can also have no rider, e.g. a bike of a family member.",
+  "@faqRiderLinkAnswer": {
+    "description": "Answer of the FAQ entry \"RiderLink\"."
+  },
+  "faqRiderWeightQuestion": "How do I update my riding weight?",
+  "@faqRiderWeightQuestion": {
+    "description": "Question of the FAQ entry \"RiderWeight\"."
+  },
+  "faqRiderWeightAnswer": "Rider values are recorded with each setup: add a setup and enter the current values in its rider tab. To add, rename or remove attributes, tap the rider icon in the top bar and then tap your rider.",
+  "@faqRiderWeightAnswer": {
+    "description": "Answer of the FAQ entry \"RiderWeight\"."
+  },
+  "faqStravaWhatQuestion": "What is Strava Sync?",
+  "@faqStravaWhatQuestion": {
+    "description": "Question of the FAQ entry \"StravaWhat\"."
+  },
+  "faqStravaWhatAnswer": "Strava Sync is a paid subscription that automatically imports your Strava activities into the app. New, updated, and deleted activities are synced in real time so you can see which setup you ran on every ride. You can also trigger a manual sync at any time — up to once per hour.",
+  "@faqStravaWhatAnswer": {
+    "description": "Answer of the FAQ entry \"StravaWhat\"."
+  },
+  "faqStravaCancelQuestion": "How do I cancel my subscription?",
+  "@faqStravaCancelQuestion": {
+    "description": "Question of the FAQ entry \"StravaCancel\"."
+  },
+  "faqStravaCancelAnswer": "You can cancel at any time directly through the App Store or Google Play — not through the app itself.\n\nOn iPhone: Settings → [your name] → Subscriptions → Bike Setup Tracker → Cancel.\n\nOn Android: Google Play → Profile icon → Payments & subscriptions → Subscriptions → Bike Setup Tracker → Cancel.\n\nYour access remains active until the end of the current billing period.",
+  "@faqStravaCancelAnswer": {
+    "description": "Answer of the FAQ entry \"StravaCancel\"."
+  },
+  "faqStravaRefundQuestion": "How do I request a refund?",
+  "@faqStravaRefundQuestion": {
+    "description": "Question of the FAQ entry \"StravaRefund\"."
+  },
+  "faqStravaRefundAnswer": "Refunds are handled by Apple or Google, not by us.\n\nOn iPhone: Visit reportaproblem.apple.com, find the charge, and request a refund.\n\nOn Android: Open Google Play → Profile icon → Payments & subscriptions → Subscriptions or Order history → tap the purchase → Request a refund.",
+  "@faqStravaRefundAnswer": {
+    "description": "Answer of the FAQ entry \"StravaRefund\"."
+  },
+  "faqStravaRestoreQuestion": "How do I restore a previous subscription?",
+  "@faqStravaRestoreQuestion": {
+    "description": "Question of the FAQ entry \"StravaRestore\"."
+  },
+  "faqStravaRestoreAnswer": "Open the Strava Sync sheet (tap the Strava icon in the top bar) and tap \"Restore previous purchase.\" The app will contact the store and restore your active subscription automatically.",
+  "@faqStravaRestoreAnswer": {
+    "description": "Answer of the FAQ entry \"StravaRestore\"."
+  },
+  "faqStravaPaywallQuestion": "I resubscribed but the app still shows the paywall. What do I do?",
+  "@faqStravaPaywallQuestion": {
+    "description": "Question of the FAQ entry \"StravaPaywall\"."
+  },
+  "faqStravaPaywallAnswer": "Tap \"Restore previous purchase\" on the paywall screen. The app will check your current subscription status with the store and unlock access.",
+  "@faqStravaPaywallAnswer": {
+    "description": "Answer of the FAQ entry \"StravaPaywall\"."
+  },
+  "faqStravaExpireQuestion": "What happens to my data when my subscription expires?",
+  "@faqStravaExpireQuestion": {
+    "description": "Question of the FAQ entry \"StravaExpire\"."
+  },
+  "faqStravaExpireAnswer": "Your synced activities are removed from the app to respect your privacy. Your bike and component configurations are unaffected. If you resubscribe and reconnect Strava, a fresh sync will restore your activity history.",
+  "@faqStravaExpireAnswer": {
+    "description": "Answer of the FAQ entry \"StravaExpire\"."
+  },
+  "faqTasksWhatQuestion": "What is a Task?",
+  "@faqTasksWhatQuestion": {
+    "description": "Question of the FAQ entry \"TasksWhat\"."
+  },
+  "faqTasksWhatAnswer": "A Task is a piece of maintenance or an action you want to track for your bike or a specific component.",
+  "@faqTasksWhatAnswer": {
+    "description": "Answer of the FAQ entry \"TasksWhat\"."
+  },
+  "faqTasksRuleQuestion": "What is a \"Task Rule\"?",
+  "@faqTasksRuleQuestion": {
+    "description": "Question of the FAQ entry \"TasksRule\"."
+  },
+  "faqTasksRuleAnswer": "Think of a Task Rule as a \"Plan\" or \"Template.\" It defines what needs to happen (e.g., \"Bleed Brakes\"), its priority, and which bike or component it applies to. It sets the foundation for tracking when something should be done.",
+  "@faqTasksRuleAnswer": {
+    "description": "Answer of the FAQ entry \"TasksRule\"."
+  },
+  "faqTasksEntryQuestion": "What is a \"Task Entry\"?",
+  "@faqTasksEntryQuestion": {
+    "description": "Question of the FAQ entry \"TasksEntry\"."
+  },
+  "faqTasksEntryAnswer": "A Task Entry is a \"Log\" or \"Record\" of work actually performed. When you complete a task defined by a Task Rule, you create a Task Entry to save exactly when it happened and any notes you want to keep.",
+  "@faqTasksEntryAnswer": {
+    "description": "Answer of the FAQ entry \"TasksEntry\"."
+  },
+  "faqTasksTogetherQuestion": "How do they work together?",
+  "@faqTasksTogetherQuestion": {
+    "description": "Question of the FAQ entry \"TasksTogether\"."
+  },
+  "faqTasksTogetherAnswer": "The Task Rule defines the goal, and Task Entries track your history. Every time you finish a task, a new Entry is added to that Rule. This allows the app to show you a complete timeline of when the task was performed in the past.",
+  "@faqTasksTogetherAnswer": {
+    "description": "Answer of the FAQ entry \"TasksTogether\"."
+  },
+  "faqTasksDueOverdueQuestion": "What is the difference between \"Due\" and \"Overdue\"?",
+  "@faqTasksDueOverdueQuestion": {
+    "description": "Question of the FAQ entry \"TasksDueOverdue\"."
+  },
+  "faqTasksDueOverdueAnswer": "Both statuses mean the task needs your attention, but at different urgency levels.\n\n\"Due\" (shown in orange) means the task has reached 100% of its interval — it's time to do it.\n\n\"Overdue\" (shown in red) means the task has exceeded the interval by more than 10%. There is a small grace window before a task escalates from Due to Overdue, so a minor overshoot will not immediately turn red.",
+  "@faqTasksDueOverdueAnswer": {
+    "description": "Answer of the FAQ entry \"TasksDueOverdue\"."
+  },
+  "hintNoThanks": "No thanks",
+  "@hintNoThanks": {
+    "description": "Button that dismisses a hint card without acting on it."
+  },
+  "hintLearnMore": "Learn more",
+  "@hintLearnMore": {
+    "description": "Tooltip of the info button on a hint card that opens an explanation."
+  },
+  "hintNext": "Next",
+  "@hintNext": {
+    "description": "Button on a hint card that shows the next page."
+  },
+  "hintSkip": "Skip",
+  "@hintSkip": {
+    "description": "Button on a hint card that dismisses the remaining pages."
+  },
+  "hintGotIt": "Got it",
+  "@hintGotIt": {
+    "description": "Button on the last page of a hint card that dismisses it."
+  },
+  "hintLabelTip": "Tip",
+  "@hintLabelTip": {
+    "description": "Label above a hint card that teaches a gesture."
+  },
+  "hintLabelSuggestion": "Suggestion",
+  "@hintLabelSuggestion": {
+    "description": "Label above a hint card that suggests turning on a feature."
+  },
+  "hintLabelInfo": "Info",
+  "@hintLabelInfo": {
+    "description": "Label above a hint card that explains something."
+  },
+  "hintLabelWhatsNew": "What's new",
+  "@hintLabelWhatsNew": {
+    "description": "Label above the hint card that announces new features."
+  },
+  "hintTasksEnabled": "Tasks enabled — find it in the home bottom navigation bar",
+  "@hintTasksEnabled": {
+    "description": "Snackbar after tasks were turned on from a hint."
+  },
+  "hintCalendarEnabled": "Calendar enabled — find it next to the search button on the Setups tab",
+  "@hintCalendarEnabled": {
+    "description": "Snackbar after the calendar was turned on from a hint."
+  },
+  "hintSubcomponentsEnabled": "Subcomponents enabled — edit a part and pick its parent under \"Installed on\"",
+  "@hintSubcomponentsEnabled": {
+    "description": "Snackbar after subcomponents were turned on from a hint."
+  },
+  "hintAttachmentsEnabled": "Attachments enabled — add photos and files to bikes, components, setups and tasks",
+  "@hintAttachmentsEnabled": {
+    "description": "Snackbar after attachments were turned on from a hint."
+  },
+  "hintGarageTitle": "Gestures in Garage",
+  "@hintGarageTitle": {
+    "description": "Title of the garage gestures hint."
+  },
+  "hintGarageTip1": "Drag component icons to reorder, swap them to other bikes, or drop them into Uninstalled.",
+  "@hintGarageTip1": {
+    "description": "First tip of the garage gestures hint."
+  },
+  "hintGarageTip2": "Double-tap a component icon to view its setup history, notes, and charts.",
+  "@hintGarageTip2": {
+    "description": "Second tip of the garage gestures hint."
+  },
+  "hintGarageTip3": "Double-tap a bike card to quickly filter your view and focus on its parts.",
+  "@hintGarageTip3": {
+    "description": "Third tip of the garage gestures hint."
+  },
+  "hintTimelineTitle": "Track installation history",
+  "@hintTimelineTitle": {
+    "description": "Title of the installation timeline hint."
+  },
+  "hintTimelineAction": "Activate Timeline",
+  "@hintTimelineAction": {
+    "description": "Button of the installation timeline hint."
+  },
+  "hintReleaseFiltersTitle": "Your filters are remembered",
+  "@hintReleaseFiltersTitle": {
+    "description": "Title of the what's-new page about remembered filters."
+  },
+  "hintReleaseFiltersBody": "The selected bike and filters now stay applied when you reopen the app. Prefer a fresh start? Turn off Remember Filters in Settings › Preferences.",
+  "@hintReleaseFiltersBody": {
+    "description": "Body of the what's-new page about remembered filters."
+  },
+  "hintReleaseSubcomponentsTitle": "Subcomponents",
+  "@hintReleaseSubcomponentsTitle": {
+    "description": "Title of the what's-new page about subcomponents."
+  },
+  "hintReleaseSubcomponentsBody": "Install parts on other parts, like a tire on a wheel. They move between bikes along with their parent.",
+  "@hintReleaseSubcomponentsBody": {
+    "description": "Body of the what's-new page about subcomponents."
+  },
+  "hintReleaseAttachmentsTitle": "Attachments",
+  "@hintReleaseAttachmentsTitle": {
+    "description": "Title of the what's-new page about attachments."
+  },
+  "hintReleaseAttachmentsBody": "Add photos and files to bikes, components, setups and tasks. They are stored on this device only and are not included in backups.",
+  "@hintReleaseAttachmentsBody": {
+    "description": "Body of the what's-new page about attachments."
+  },
+  "hintReleaseTurnOnHere": " Turn it on here or anytime in Settings › Features.",
+  "@hintReleaseTurnOnHere": {
+    "description": "Sentence appended to a what's-new page while its feature is off. Starts with a space."
+  },
+  "hintReleaseTurnOn": "Turn on",
+  "@hintReleaseTurnOn": {
+    "description": "Button of a what's-new page that turns its feature on."
+  },
+  "hintCalendarTitle": "See your history at a glance",
+  "@hintCalendarTitle": {
+    "description": "Title of the calendar hint."
+  },
+  "hintCalendarBody": "Turn on the Calendar to browse your setups and entries by date.",
+  "@hintCalendarBody": {
+    "description": "Body of the calendar hint."
+  },
+  "hintCalendarAction": "Turn on Calendar",
+  "@hintCalendarAction": {
+    "description": "Button of the calendar hint."
+  },
+  "hintComparisonTitle": "Compare two setups",
+  "@hintComparisonTitle": {
+    "description": "Title of the setup comparison hint."
+  },
+  "hintComparisonBody": "By default, A is your current setup and B is the setup you chose. Tap either setup above to pick another one. Orange values indicate differences; switch to All to include all recorded values.",
+  "@hintComparisonBody": {
+    "description": "Body of the setup comparison hint."
+  },
+  "hintTasksTitle": "Organize your bike tasks",
+  "@hintTasksTitle": {
+    "description": "Title of the tasks hint."
+  },
+  "hintTasksBody": "Turn on Task Management to note anything bike related — maintenance, tweaks to try, or trails to ride.",
+  "@hintTasksBody": {
+    "description": "Body of the tasks hint."
+  },
+  "hintTasksAction": "Activate Tasks",
+  "@hintTasksAction": {
+    "description": "Button of the tasks hint."
+  },
+  "hintStravaLinkTitle": "Link your Strava gear",
+  "@hintStravaLinkTitle": {
+    "description": "Title of the Strava gear hint."
+  },
+  "hintStravaLinkBody": "Choose a bike for each gear. Your setups are then matched with the right Strava activities.",
+  "@hintStravaLinkBody": {
+    "description": "Body of the Strava gear hint."
+  },
+  "hintStravaNoGearsLabel": "No gear found",
+  "@hintStravaNoGearsLabel": {
+    "description": "Label of the hint shown when Strava has no gear."
+  },
+  "hintStravaNoGearsTitle": "Add a bike in Strava",
+  "@hintStravaNoGearsTitle": {
+    "description": "Title of the hint shown when Strava has no gear."
+  },
+  "hintStravaNoGearsOpen": "Open Strava",
+  "@hintStravaNoGearsOpen": {
+    "description": "Button of the hint shown when Strava has no gear."
+  },
+  "hintStravaNoGearsStep1": "Open the Strava app",
+  "@hintStravaNoGearsStep1": {
+    "description": "First step of the hint shown when Strava has no gear."
+  },
+  "hintStravaNoGearsStep2": "Profile picture → Gear → Add a new Bike",
+  "@hintStravaNoGearsStep2": {
+    "description": "Second step of the hint shown when Strava has no gear."
+  },
+  "hintStravaNoGearsStep3": "Come back here and tap Sync",
+  "@hintStravaNoGearsStep3": {
+    "description": "Third step of the hint shown when Strava has no gear."
+  },
+  "hintStravaNoGearsTip": "Tip: you can also assign the bike to existing activities in Strava.",
+  "@hintStravaNoGearsTip": {
+    "description": "Closing tip of the hint shown when Strava has no gear."
+  },
+  "hintSubcomponentsTitle": "Group parts under their parent",
+  "@hintSubcomponentsTitle": {
+    "description": "Title of the subcomponents hint for a crowded bike."
+  },
+  "hintSubcomponentsTitleParent": "Mount it on {parent}?",
+  "@hintSubcomponentsTitleParent": {
+    "description": "Title of the subcomponents hint that suggests a parent. {parent} is the name of the parent component.",
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "hintSubcomponentsBody": "Turn on Subcomponents to install parts on other parts, like a tire on a wheel. They move along with their parent.",
+  "@hintSubcomponentsBody": {
+    "description": "Body of the subcomponents hint."
+  },
+  "hintSubcomponentsAction": "Activate Subcomponents",
+  "@hintSubcomponentsAction": {
+    "description": "Button of the subcomponents hint."
+  },
+  "hintTaskListTitle": "Postpone a task",
+  "@hintTaskListTitle": {
+    "description": "Title of the task swipe hint."
+  },
+  "hintTaskListBody": "Swipe a task to the left to add a delay. This works for every interval type except a fixed date.",
+  "@hintTaskListBody": {
+    "description": "Body of the task swipe hint."
+  },
+  "hintGuideLabel": "Steps to get started",
+  "@hintGuideLabel": {
+    "description": "Label of the getting-started hint."
+  },
+  "hintGuideHide": "Hide guide",
+  "@hintGuideHide": {
+    "description": "Button that dismisses the getting-started hint."
+  },
+  "hintGuideAddBike": "Add your bike",
+  "@hintGuideAddBike": {
+    "description": "First step of the getting-started hint."
+  },
+  "hintGuideAddComponent": "Add a component",
+  "@hintGuideAddComponent": {
+    "description": "Second step of the getting-started hint."
+  },
+  "hintGuideRecordSetup": "Record a setup",
+  "@hintGuideRecordSetup": {
+    "description": "Third step of the getting-started hint."
   }
 }

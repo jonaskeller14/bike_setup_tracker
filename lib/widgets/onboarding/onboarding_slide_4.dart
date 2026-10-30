@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
+import '../../l10n/markup_text.dart';
 import 'onboarding_motion.dart';
 import 'onboarding_setup_card.dart';
 import 'onboarding_slide_scaffold.dart';
@@ -68,8 +70,12 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
   late final AnimationController _script = AnimationController(vsync: this, duration: kOnboardingSetupScript);
 
   late final DateTime _now = DateTime.now();
-  late final OnboardingSnapshot _recorded = OnboardingSetupExample.newSetup(_now);
-  late final List<OnboardingSnapshot> _older = OnboardingSetupExample.olderSnapshots(_now);
+
+  /// Rebuilt only when the language changes, so a card keeps its identity while
+  /// the script runs.
+  String? _snapshotLocale;
+  late OnboardingSnapshot _recorded;
+  late List<OnboardingSnapshot> _older;
 
   /// Set on the first touch: the values are the user's from then on and the
   /// script stops driving them.
@@ -81,6 +87,7 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _syncSnapshots();
     _syncScript();
   }
 
@@ -94,6 +101,15 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
   void dispose() {
     _script.dispose();
     super.dispose();
+  }
+
+  void _syncSnapshots() {
+    final l10n = context.l10n;
+    if (_snapshotLocale == l10n.localeName) return;
+    final example = OnboardingSetupExample.of(l10n);
+    _snapshotLocale = l10n.localeName;
+    _recorded = example.newSetup(_now);
+    _older = example.olderSnapshots(_now);
   }
 
   /// Runs the script only while this is the settled page: swiping away pauses
@@ -279,9 +295,11 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return OnboardingSlideScaffold(
       onNext: widget.onNext,
-      nextLabel: "Next",
+      nextLabel: l10n.onboardingNext,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -305,7 +323,7 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
           stepWidget(context: context, step: 3),
           const SizedBox(height: 12),
           Text(
-            'Your Setup Diary',
+            l10n.onboardingSlide4Title,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -315,25 +333,7 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
           Text.rich(
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge,
-            const TextSpan(
-              children: [
-                TextSpan(text: "A "),
-                TextSpan(
-                  text: "Setup",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text: " is a current snapshot of all components of one bike. It captures the specific ",
-                ),
-                TextSpan(
-                  text: "values",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text: " of your adjustments and automatically adds context (e.g. location, weather, trail conditions).",
-                )
-              ],
-            ),
+            markupTextSpan(l10n.onboardingSlide4Body),
           ),
         ],
       ),

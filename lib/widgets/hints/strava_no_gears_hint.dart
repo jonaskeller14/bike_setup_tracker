@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../theme.dart';
 import '../../utils/url.dart';
 import 'app_hint_deck.dart';
 
 /// Transient dashboard empty-state guidance, not a persisted app hint.
 class StravaNoGearsHint extends StatelessWidget {
-  static const _noGearsSteps = [
-    'Open the Strava app',
-    'Profile picture → Gear → Add a new Bike',
-    'Come back here and tap Sync',
-  ];
-
   const StravaNoGearsHint({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final hint = HintColors.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final noGearsSteps = [l10n.hintStravaNoGearsStep1, l10n.hintStravaNoGearsStep2, l10n.hintStravaNoGearsStep3];
 
     return AppHintDeck(
       icon: Icons.directions_bike_outlined,
-      label: 'No gear found',
+      label: l10n.hintStravaNoGearsLabel,
       pages: [
         AppHintPage(
-          title: 'Add a bike in Strava',
+          title: l10n.hintStravaNoGearsTitle,
           action: AppHintAction(
-            label: 'Open Strava',
+            label: l10n.hintStravaNoGearsOpen,
             icon: Icons.open_in_new,
             completesHint: false,
             onPressed: () => launchStrava(context),
@@ -35,7 +32,7 @@ class StravaNoGearsHint extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 6,
             children: [
-              for (final (index, step) in _noGearsSteps.indexed)
+              for (final (index, step) in noGearsSteps.indexed)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 8,
@@ -59,7 +56,7 @@ class StravaNoGearsHint extends StatelessWidget {
                 ),
               const SizedBox(height: 2),
               Text(
-                'Tip: you can also assign the bike to existing activities in Strava.',
+                l10n.hintStravaNoGearsTip,
                 style: textTheme.bodySmall?.copyWith(
                   color: hint.onContainer.withValues(alpha: 0.75),
                   fontStyle: FontStyle.italic,

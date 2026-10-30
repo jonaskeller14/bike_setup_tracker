@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/onboarding/onboarding_component_card.dart';
@@ -28,7 +29,11 @@ class OnboardingPage extends StatefulWidget {
 }
 
 /// One slide plus the secondary action the app bar offers while it is shown.
-typedef _OnboardingSlide = ({Widget Function() build, String? secondaryLabel, VoidCallback? onSecondary});
+typedef _OnboardingSlide = ({
+  Widget Function() build,
+  String Function(AppLocalizations l10n)? secondaryLabel,
+  VoidCallback? onSecondary,
+});
 
 class _OnboardingPageState extends State<OnboardingPage> {
   /// The rider slide exists only where the Person feature does; the rest of
@@ -96,7 +101,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     _slides = [
       (
         build: () => OnboardingSlide1(onNext: _next),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
       if (_showRiderSlide)
@@ -108,12 +113,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
             savedName: _savedRiderName,
             onSaved: (name) => setState(() => _savedRiderName = name),
           ),
-          secondaryLabel: "Not now",
+          secondaryLabel: (l10n) => l10n.onboardingNotNow,
           onSecondary: _next,
         ),
       (
         build: () => OnboardingSlide2(onNext: _next, forkKey: _forkSourceKey, forkHidden: _forkInFlight),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
       (
@@ -128,7 +133,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           rowsKey: _rowsSourceKey,
           rowsHidden: _rowsInFlight,
         ),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
       (
@@ -138,12 +143,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
           rowsKey: _rowsTargetKey,
           rowsHidden: _rowsInFlight,
         ),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
       (
         build: () => OnboardingSlide6(onFinish: _complete),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
     ];
@@ -199,7 +204,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         centerTitle: true,
         title: Semantics(
           container: true,
-          label: "Step ${_currentPage + 1} of ${_slides.length}",
+          label: context.l10n.onboardingStepOfTotal(_currentPage + 1, _slides.length),
           child: ExcludeSemantics(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -209,7 +214,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         ),
         actions: [
           if (_slides[_currentPage].secondaryLabel case final label?)
-            TextButton(onPressed: _slides[_currentPage].onSecondary, child: Text(label)),
+            TextButton(onPressed: _slides[_currentPage].onSecondary, child: Text(label(context.l10n))),
         ],
       ),
       body: SafeArea(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/l10n.dart';
 import '../utils/app_info.dart';
 import '../utils/file_export.dart';
 import '../widgets/app_snackbar.dart';
@@ -23,7 +24,7 @@ class LoadingErrorPage extends StatelessWidget {
                 size: 60,
               ),
               Text(
-                "Failed to load data. \nClose and restart the app.",
+                context.l10n.loadingErrorMessage,
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
@@ -34,7 +35,7 @@ class LoadingErrorPage extends StatelessWidget {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.headset_mic_outlined),
-                      title: const Text('Contact Support'),
+                      title: Text(context.l10n.loadingErrorContactSupport),
                       subtitle: const Text(AppInfo.supportEmail),
                       trailing: const Icon(Icons.open_in_new, size: 16.0),
                       onTap: () async {
@@ -44,7 +45,7 @@ class LoadingErrorPage extends StatelessWidget {
                         } else {
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            AppSnackBar.error(context, 'Could not open email client.'),
+                            AppSnackBar.error(context, context.l10n.errorCouldNotOpenEmailClient),
                           );
                         }
                       },
@@ -52,8 +53,8 @@ class LoadingErrorPage extends StatelessWidget {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.download_outlined),
-                      title: const Text('Download latest Backup'),
-                      subtitle: const Text('Download app data as JSON file'),
+                      title: Text(context.l10n.loadingErrorDownloadBackup),
+                      subtitle: Text(context.l10n.loadingErrorDownloadBackupSubtitle),
                       onTap: () async {
                         await FileExport.exportLatestBackup(context);
                       },
@@ -61,8 +62,8 @@ class LoadingErrorPage extends StatelessWidget {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.folder_zip_outlined),
-                      title: const Text('Download Backup with Attachments'),
-                      subtitle: const Text('Latest backup and attachment files as ZIP bundle'),
+                      title: Text(context.l10n.loadingErrorDownloadBundle),
+                      subtitle: Text(context.l10n.loadingErrorDownloadBundleSubtitle),
                       onTap: () async {
                         await FileExport.exportLatestBackupBundle(context);
                       },

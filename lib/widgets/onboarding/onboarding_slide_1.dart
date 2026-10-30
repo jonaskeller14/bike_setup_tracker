@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+import '../../l10n/markup_text.dart';
 import 'onboarding_slide_scaffold.dart';
 import 'onboarding_slide_utils.dart';
 
@@ -12,7 +14,7 @@ class OnboardingSlide1 extends StatelessWidget {
   Widget build(BuildContext context) {
     return OnboardingSlideScaffold(
       onNext: onNext,
-      nextLabel: "Next",
+      nextLabel: context.l10n.onboardingNext,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -25,7 +27,7 @@ class OnboardingSlide1 extends StatelessWidget {
           ),
           const SizedBox(height: 60),
           Text(
-            'Ready to Dial It In?',
+            context.l10n.onboardingSlide1Title,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -35,13 +37,7 @@ class OnboardingSlide1 extends StatelessWidget {
           Text.rich(
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge,
-            const TextSpan(
-              children: [
-                TextSpan(text: "Stop guessing your settings. Start tracking!\n"),
-                TextSpan(text: "Find your perfect setup with "),
-                TextSpan(text: "Bike Setup Tracker.", style: TextStyle(fontStyle: FontStyle.italic)),
-              ],
-            ),
+            markupTextSpan(context.l10n.onboardingSlide1Body),
           ),
         ],
       ),

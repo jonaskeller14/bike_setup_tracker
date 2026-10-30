@@ -64,7 +64,7 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Template / Preset (adjustments) | Vorlage | Also Komponentenvorlagen, Aufgabenvorlagen |
 | Setup comparison | Setup-Vergleich | |
 | Context (place, weather) | Kontext | Ortskontext, Wetterkontext |
-| Dangling value | Verwaister Wert | A value whose adjustment, component or rider is no longer part of the setup |
+| Dangling value | Wert ohne Zuordnung | A value whose adjustment, component or rider is no longer part of the setup |
 | Step size / Dial / Visualization | Schrittweite / Drehrad / Darstellung | |
 | Run (of a test session) | Lauf | Erster Lauf, Nächster Lauf |
 | Weather code / Trail condition | Wettercode / Trailzustand | Weather descriptions follow the Open-Meteo (WMO) codes |

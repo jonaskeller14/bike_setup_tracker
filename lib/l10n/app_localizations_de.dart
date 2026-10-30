@@ -2528,7 +2528,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get componentDetailsAdjustmentHistoryInfo =>
-      '• Füge Spalten über die Schaltfläche „Spalten“ hinzu oder entferne sie.\n• Halte eine Spaltenüberschrift gedrückt, um sie zu entfernen.\n• Tippe auf eine Spaltenüberschrift, um zu sortieren.\n• Nutze die Filterschaltfläche, um nach Bike oder Tags einzugrenzen.\n• Wähle Zeilen aus, um Setups in den Diagrammen darunter zu vergleichen.\n\nWertfarben:\n• Grün: neuer Wert (kein vorheriger Wert).\n• Orange: gegenüber dem vorherigen Setup geändert.\n• Rot: verwaister Wert (Komponente nicht verbaut oder Rider nicht verknüpft zum Zeitpunkt des Setups).';
+      '• Füge Spalten über die Schaltfläche „Spalten“ hinzu oder entferne sie.\n• Halte eine Spaltenüberschrift gedrückt, um sie zu entfernen.\n• Tippe auf eine Spaltenüberschrift, um zu sortieren.\n• Nutze die Filterschaltfläche, um nach Bike oder Tags einzugrenzen.\n• Wähle Zeilen aus, um Setups in den Diagrammen darunter zu vergleichen.\n\nWertfarben:\n• Grün: neuer Wert (kein vorheriger Wert).\n• Orange: gegenüber dem vorherigen Setup geändert.\n• Rot: Wert ohne Zuordnung (Komponente nicht verbaut oder Rider nicht verknüpft zum Zeitpunkt des Setups).';
 
   @override
   String get componentDetailsNoAdjustmentsTitle => 'Keine Einstellungen';
@@ -3971,13 +3971,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get setupDanglingAdjustmentsTitle => 'Verwaiste Einstellungswerte';
+  String get setupDanglingAdjustmentsTitle => 'Einstellungswerte ohne Zuordnung';
 
   @override
   String get setupDanglingAdjustmentsCause => 'Komponente mit Einstellung wurde gelöscht';
 
   @override
-  String get setupDanglingAttributesTitle => 'Verwaiste Attributwerte';
+  String get setupDanglingAttributesTitle => 'Attributwerte ohne Zuordnung';
 
   @override
   String get setupDanglingAttributesCause => 'Attribut wurde gelöscht';
@@ -4361,7 +4361,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get legendChangedValue => 'Geänderter Wert';
 
   @override
-  String get legendDanglingValue => 'Verwaister Wert';
+  String get legendDanglingValue => 'Wert ohne Zuordnung';
 
   @override
   String adjustmentPresetAlreadyAdded(int count) {

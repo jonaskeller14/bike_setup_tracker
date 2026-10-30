@@ -187,6 +187,56 @@ void main() {
     });
   });
 
+  group('AppSettings — language', () {
+    test('defaults to the flag off and the system language', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      expect(settings.enableLanguageSelection, isFalse);
+      expect(settings.localeCode, isNull);
+    });
+
+    test('persists, loads and resets', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      settings.enableLanguageSelection = true;
+      settings.localeCode = 'de';
+      await flushWrites();
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enableLanguageSelection'), isTrue);
+      expect(prefs.getString('${_kPrefix}localeCode'), 'de');
+      expect(settings.hasDefaultValues, isFalse);
+
+      final reloaded = AppSettings();
+      await reloaded.loadAppSettings();
+      expect(reloaded.enableLanguageSelection, isTrue);
+      expect(reloaded.localeCode, 'de');
+
+      await reloaded.resetToDefaults();
+      expect(reloaded.enableLanguageSelection, isFalse);
+      expect(reloaded.localeCode, isNull);
+      expect(prefs.getBool('${_kPrefix}enableLanguageSelection'), isNull);
+      expect(prefs.getString('${_kPrefix}localeCode'), isNull);
+    });
+
+    test('choosing the system language again removes the stored override', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}localeCode': 'de'});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+      expect(settings.localeCode, 'de');
+
+      settings.localeCode = null;
+      await flushWrites();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('${_kPrefix}localeCode'), isFalse);
+      expect(settings.hasDefaultValues, isTrue);
+    });
+  });
+
   group('AppSettings — enableTaskPresets', () {
     test('persists, loads and resets', () async {
       SharedPreferences.setMockInitialValues({});

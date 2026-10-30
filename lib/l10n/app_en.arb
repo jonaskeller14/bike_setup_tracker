@@ -19,5 +19,9 @@
   "ok": "OK",
   "@ok": {
     "description": "Button that acknowledges a message."
+  },
+  "quickActionAddSetup": "Add New Setup",
+  "@quickActionAddSetup": {
+    "description": "Title of the home screen long-press shortcut that opens the new setup form."
   }
 }

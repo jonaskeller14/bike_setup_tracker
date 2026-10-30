@@ -4,5 +4,6 @@
   "cancel": "Abbrechen",
   "save": "Speichern",
   "delete": "Löschen",
-  "ok": "OK"
+  "ok": "OK",
+  "quickActionAddSetup": "Neues Setup hinzufügen"
 }

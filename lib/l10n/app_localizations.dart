@@ -121,6 +121,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
+
+  /// Title of the home screen long-press shortcut that opens the new setup form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Setup'**
+  String get quickActionAddSetup;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

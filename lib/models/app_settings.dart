@@ -56,6 +56,8 @@ class AppSettings extends ChangeNotifier {
   bool _enableTimelineStravaContext = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
   bool _rememberFilters = true;
+  bool _enableLanguageSelection = false;
+  String? _localeCode; // null = follow the system language
   bool _developerMode = false;
 
   bool get showOnboarding => _showOnboarding;
@@ -105,6 +107,8 @@ class AppSettings extends ChangeNotifier {
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
   int get firstDayOfWeek => _firstDayOfWeek;
   bool get rememberFilters => _rememberFilters;
+  bool get enableLanguageSelection => _enableLanguageSelection;
+  String? get localeCode => _localeCode;
   // Debug builds only: store screenshots and marketing content must show the production UI.
   bool get developerMode => kDebugMode && _developerMode;
 
@@ -409,6 +413,20 @@ class AppSettings extends ChangeNotifier {
     _persistBool('rememberFilters', newValue);
   }
 
+  set enableLanguageSelection(bool newValue) {
+    if (newValue == _enableLanguageSelection) return;
+    _enableLanguageSelection = newValue;
+    notifyListeners();
+    _persistBool('enableLanguageSelection', newValue);
+  }
+
+  set localeCode(String? newValue) {
+    if (newValue == _localeCode) return;
+    _localeCode = newValue;
+    notifyListeners();
+    _persistNullableString('localeCode', newValue);
+  }
+
   set developerMode(bool newValue) {
     if (newValue == _developerMode) return;
     _developerMode = newValue;
@@ -424,6 +442,15 @@ class AppSettings extends ChangeNotifier {
   void _persistString(String name, String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('$_kPrefix$name', value);
+  }
+
+  void _persistNullableString(String name, String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove('$_kPrefix$name');
+    } else {
+      await prefs.setString('$_kPrefix$name', value);
+    }
   }
 
   void _persistInt(String name, int value) async {
@@ -502,6 +529,9 @@ class AppSettings extends ChangeNotifier {
           prefs.getBool('${_kPrefix}enableTimelineStravaContext') ?? _enableTimelineStravaContext;
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
       _rememberFilters = prefs.getBool('${_kPrefix}rememberFilters') ?? _rememberFilters;
+      _enableLanguageSelection =
+          prefs.getBool('${_kPrefix}enableLanguageSelection') ?? _enableLanguageSelection;
+      _localeCode = prefs.getString('${_kPrefix}localeCode') ?? _localeCode;
       _developerMode = prefs.getBool('${_kPrefix}developerMode') ?? _developerMode;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
@@ -559,6 +589,8 @@ class AppSettings extends ChangeNotifier {
     _enableTimelineStravaContext = defaults._enableTimelineStravaContext;
     _firstDayOfWeek = defaults._firstDayOfWeek;
     _rememberFilters = defaults._rememberFilters;
+    _enableLanguageSelection = defaults._enableLanguageSelection;
+    _localeCode = defaults._localeCode;
     _developerMode = defaults._developerMode;
     defaults.dispose();
     notifyListeners();
@@ -612,6 +644,8 @@ class AppSettings extends ChangeNotifier {
     _enableTimelineStravaContext,
     _firstDayOfWeek,
     _rememberFilters,
+    _enableLanguageSelection,
+    _localeCode ?? '',
     _developerMode,
   ];
 

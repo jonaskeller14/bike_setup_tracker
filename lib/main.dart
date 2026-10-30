@@ -9,12 +9,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'database/app_database.dart';
 import 'l10n/l10n.dart';
+import 'l10n/locale_resolution.dart';
 import 'models/app_settings.dart';
 import 'pages/home_page.dart';
 import 'pages/loading_error_page.dart';
@@ -318,21 +320,55 @@ class _LoadingGateState extends State<LoadingGate> {
   }
 }
 
-class BikeSetupTrackerApp extends StatelessWidget {
+class BikeSetupTrackerApp extends StatefulWidget {
   const BikeSetupTrackerApp({super.key});
+
+  @override
+  State<BikeSetupTrackerApp> createState() => _BikeSetupTrackerAppState();
+}
+
+class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // The device language is an input to resolveAppLocale, so a system change has to rebuild.
+  @override
+  void didChangeLocales(List<Locale>? locales) => setState(() {});
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    final locale = resolveAppLocale(
+      enabled: appSettings.enableLanguageSelection,
+      override: appSettings.localeCode,
+      deviceLocales: WidgetsBinding.instance.platformDispatcher.locales,
+    );
 
     return MaterialApp(
       title: 'Bike Setup Tracker',
       theme: materialAppTheme,
       darkTheme: materialAppDarkTheme,
       themeMode: appSettings.themeMode,
-      locale: const Locale('en'),
+      locale: locale,
       localizationsDelegates: appLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      // Runs inside Localizations, so the date symbols for the new language are
+      // loaded before DateFormat starts using it as the default.
+      builder: (context, child) {
+        final loadedLocale = Localizations.localeOf(context);
+        Intl.defaultLocale = loadedLocale.toString();
+        unawaited(QuickActionsService().updateLocale(loadedLocale));
+        return child!;
+      },
       navigatorKey: NavigationService.navigatorKey,
       home: appSettings.showOnboarding ? const OnboardingPage() : const HomePage(),
       debugShowCheckedModeBanner: false,

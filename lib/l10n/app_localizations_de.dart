@@ -21,4 +21,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get quickActionAddSetup => 'Neues Setup hinzufügen';
 }

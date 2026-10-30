@@ -60,6 +60,17 @@ class FeaturesPage extends StatelessWidget {
           value: appSettings.useMapBoxTiles,
           onChanged: (v) => appSettings.useMapBoxTiles = v,
         ),
+      if (appSettings.developerMode)
+        _FeatureToggleTile(
+          icon: Icons.language,
+          title: "Language Selection",
+          value: appSettings.enableLanguageSelection,
+          onChanged: (v) => appSettings.enableLanguageSelection = v,
+          infoText:
+              'Follows the system language, or the language picked in Preferences, instead of '
+              'always showing English. Translations are still being added, so some screens '
+              'stay English.',
+        ),
     ];
 
     return Scaffold(

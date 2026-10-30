@@ -24,6 +24,14 @@ class PreferencesPage extends StatelessWidget {
     ),
   };
 
+  static const _systemLanguage = 'system';
+
+  static const Map<String, Text> _languageOptionWidgets = {
+    _systemLanguage: Text('System'),
+    'en': Text('English'),
+    'de': Text('Deutsch'),
+  };
+
   static const Map<String, Text> _dateFormatOptionWidgets = {
     'dd.MM.yyyy': Text('dd.MM.yyyy (09.12.2025)'),
     'dd/MM/yyyy': Text('dd/MM/yyyy (09/12/2025)'),
@@ -104,6 +112,24 @@ class PreferencesPage extends StatelessWidget {
                   },
                 ),
               ),
+              if (appSettings.enableLanguageSelection)
+                ListTile(
+                  leading: const Icon(Icons.language),
+                  title: const Text("Language"),
+                  subtitle: _languageOptionWidgets[appSettings.localeCode ?? _systemLanguage] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => radioGroupSheet<String>(
+                    context: context,
+                    title: "Language",
+                    value: appSettings.localeCode ?? _systemLanguage,
+                    optionWidgets: _languageOptionWidgets,
+                    onChanged: (String? newValue) {
+                      if (newValue == null) return;
+                      appSettings.localeCode = newValue == _systemLanguage ? null : newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
               const Divider(),
               const SectionTitle(title: 'Filters'),
               ListTile(

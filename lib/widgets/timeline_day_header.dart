@@ -18,9 +18,11 @@ class TimelineDayHeader extends StatelessWidget {
 
   // One header is built per day in the timeline, so DateFormat instances are
   // cached instead of re-created (and their pattern re-parsed) per header.
+  // The key includes the locale because a cached format keeps its month and
+  // day names after the app language changes.
   static final Map<String, DateFormat> _formats = {};
   static DateFormat _format(String pattern) =>
-      _formats.putIfAbsent(pattern, () => DateFormat(pattern));
+      _formats.putIfAbsent('${Intl.defaultLocale}|$pattern', () => DateFormat(pattern));
 
   String _label(AppSettings appSettings) {
     final now = DateTime.now();

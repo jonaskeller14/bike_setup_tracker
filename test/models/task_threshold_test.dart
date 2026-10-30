@@ -40,6 +40,19 @@ void main() {
       expect(Intl.withLocale('de', () => threshold.toDisplayValue()), '12.345 kJ');
     });
 
+    test('days and rides take the unit word of the language', () {
+      expect(const DurationThreshold(Duration(days: 1)).toDisplayValue(), '1 day');
+      expect(const DurationThreshold(Duration(days: 3)).toDisplayValue(), '3 days');
+      expect(const ActivityCountThreshold(1).toDisplayValue(), '1 ride');
+      expect(const ActivityCountThreshold(5).toDisplayValue(), '5 rides');
+      Intl.withLocale('de', () {
+        expect(const DurationThreshold(Duration(days: 1)).toDisplayValue(), '1 Tag');
+        expect(const DurationThreshold(Duration(days: 3)).toDisplayValue(), '3 Tage');
+        expect(const ActivityCountThreshold(1).toDisplayValue(), '1 Fahrt');
+        expect(const ActivityCountThreshold(1500).toDisplayValue(), '1.500 Fahrten');
+      });
+    });
+
     test('the stored threshold does not change', () {
       const threshold = DistanceThreshold(2500.5);
       expect(Intl.withLocale('de', () => threshold.toJson()), threshold.toJson());

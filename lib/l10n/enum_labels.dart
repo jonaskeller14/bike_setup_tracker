@@ -63,6 +63,10 @@ extension ComponentTypeLabel on ComponentType {
     ComponentType.equipment => l10n.componentTypeEquipment,
     ComponentType.other => l10n.componentTypeOther,
   };
+
+  /// [label] inside a sentence: lowercase in English, while German nouns keep their capital.
+  String labelInSentence(AppLocalizations l10n) =>
+      l10n.localeName == 'de' ? label(l10n) : label(l10n).toLowerCase();
 }
 
 extension UnitQuantityLabel on UnitQuantity {

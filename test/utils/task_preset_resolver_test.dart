@@ -7,6 +7,7 @@ import 'package:bike_setup_tracker/models/task/task_template.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/utils/task_preset_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 Component component(ComponentType type, {String id = 'c1'}) =>
     Component(id: id, name: type.label(englishL10n), installations: const [], componentType: type);
@@ -264,6 +265,15 @@ void main() {
 
       expect(created.interval, const DurationThreshold(Duration(days: 30)));
       expect(created.notes, endsWith('Recommended interval: every month (time-based; every 500 km with Strava)'));
+    });
+
+    test('writes the interval line in the app language, once, when the rule is created', () {
+      final suggestion = taskSuggestionsFor(component(ComponentType.chain), existingRules: const [], hasStravaEntitlement: false).single;
+
+      final created = Intl.withLocale('de', () => suggestion.toTaskRule('c1'));
+
+      expect(created.notes, endsWith('Empfohlenes Intervall: jeden Monat (zeitbasiert; alle 500 km mit Strava)'));
+      expect(suggestion.toTaskRule('c1').notes, endsWith('Recommended interval: every month (time-based; every 500 km with Strava)'));
     });
 
     test('names the override source', () {

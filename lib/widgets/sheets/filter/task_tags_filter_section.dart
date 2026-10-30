@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../l10n/l10n.dart';
 import '../../../repositories/app_repository.dart';
 import '../../text/sheet_section_title.dart';
 import '../sheet.dart';
@@ -18,12 +19,12 @@ class TaskTagsFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SheetSectionTitle(title: "Task Tags"),
+        SheetSectionTitle(title: context.l10n.taskFilterTagsTitle),
         appRepository.taskRuleTags.isEmpty
-            ? const SheetFilterEmptyHint(
+            ? SheetFilterEmptyHint(
                 icon: Icons.tag,
-                title: "No task tags yet",
-                hint: "Add/Edit a Task Rule to add tags.",
+                title: context.l10n.taskFilterTagsEmptyTitle,
+                hint: context.l10n.taskFilterTagsEmptyHint,
               )
             : Wrap(
                 spacing: 6,

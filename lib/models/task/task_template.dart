@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 
+import '../../l10n/l10n.dart';
 import 'task_association.dart';
 import 'task_rule.dart';
 import 'task_threshold/task_threshold.dart';
@@ -111,29 +111,30 @@ class TaskSuggestion {
   String? _recommendationLine({required String distanceUnit, required String altitudeUnit}) {
     final strava = stravaInterval;
     if (strava == null && source == null) return null;
+    final l10n = currentL10n;
     final effective = taskIntervalLabel(interval, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit);
     final origin = strava != null
-        ? ' (time-based; ${taskIntervalLabel(strava, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit)} with Strava)'
+        ? l10n.taskRecommendedTimeBased(taskIntervalLabel(strava, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit))
         : '';
     final sourceSuffix = source == null ? '' : ' — $source';
-    return 'Recommended interval: $effective$origin$sourceSuffix';
+    return '${l10n.taskRecommendedInterval(effective)}$origin$sourceSuffix';
   }
 }
 
-/// "every 2,000 km", "every 6 months", "every year".
+/// "every 2,000 km", "every 6 months", "every year", in the app language.
 String taskIntervalLabel(TaskThreshold interval, {String distanceUnit = 'km', String altitudeUnit = 'm'}) {
+  final l10n = currentL10n;
   if (interval is DurationThreshold) {
     final days = interval.days.inDays;
-    for (final (dayCount, singular, plural) in const [
-      (365, 'year', 'years'),
-      (30, 'month', 'months'),
-      (7, 'week', 'weeks'),
-      (1, 'day', 'days'),
+    for (final (dayCount, label) in [
+      (365, l10n.taskIntervalEveryYears),
+      (30, l10n.taskIntervalEveryMonths),
+      (7, l10n.taskIntervalEveryWeeks),
+      (1, l10n.taskIntervalEveryDays),
     ]) {
       if (days < dayCount || days % dayCount != 0) continue;
-      final count = days ~/ dayCount;
-      return count == 1 ? 'every $singular' : 'every ${NumberFormat.decimalPattern().format(count)} $plural';
+      return label(days ~/ dayCount);
     }
   }
-  return 'every ${interval.toDisplayValue(distanceUnit: distanceUnit, altitudeUnit: altitudeUnit)}';
+  return l10n.taskIntervalEvery(interval.toDisplayValue(distanceUnit: distanceUnit, altitudeUnit: altitudeUnit));
 }

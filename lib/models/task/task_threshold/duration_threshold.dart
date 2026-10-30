@@ -18,7 +18,7 @@ class DurationThreshold extends AccumulatingThreshold {
 
   @override
   String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) =>
-      '${NumberFormat.decimalPattern().format(days.inDays)} ${days.inDays == 1 ? 'day' : 'days'}';
+      '${NumberFormat.decimalPattern().format(days.inDays)} ${currentL10n.taskUnitDays(days.inDays)}';
 
   @override
   Map<String, dynamic> toJson() => {

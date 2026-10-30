@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/task/task_template.dart';
 
 /// One horizontally scrolling row of recommended tasks; a tap hands the
@@ -48,7 +49,7 @@ class TaskPresetChips extends StatelessWidget {
             child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
           deleteIcon: const Icon(Icons.link_off),
-          deleteButtonTooltipMessage: 'Unlink preset (keeps values)',
+          deleteButtonTooltipMessage: context.l10n.taskPresetUnlinkTooltip,
           onPressed: onUnlink,
           onDeleted: onUnlink,
         );

@@ -77,6 +77,12 @@ void main() {
     expect(TipProduct.small.label(en), 'Buy me a coffee');
   });
 
+  test('a component type inside a sentence is lowercase in English and keeps its capital in German', () {
+    expect(ComponentType.fork.labelInSentence(locales['en']!), 'fork');
+    expect(ComponentType.wheelFront.labelInSentence(locales['en']!), 'front wheel');
+    expect(ComponentType.fork.labelInSentence(locales['de']!), 'Gabel');
+  });
+
   test('German labels follow the glossary', () {
     final de = locales['de']!;
     expect(ComponentType.fork.label(de), 'Gabel');

@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../goldens/support/localized_test_app.dart';
@@ -28,11 +29,13 @@ void main() {
     bool repeat = true,
     ThemeData? theme,
     double width = 400,
+    Locale locale = const Locale('en'),
   }) {
     return ChangeNotifierProvider.value(
       value: appSettings,
       child: localizedTestApp(
         theme: theme ?? materialAppTheme,
+        locale: locale,
         home: Scaffold(
           body: Align(
             alignment: Alignment.topLeft,
@@ -69,6 +72,21 @@ void main() {
     );
     expect(spanStyle(tester, ' 22')?.color, ValueHighlightColors.light.changed);
     expect(spanStyle(tester, ' 22')?.decoration, isNull);
+  });
+
+  testWidgets('reads in German, with the German unit words', (tester) async {
+    Intl.defaultLocale = 'de';
+    addTearDown(() => Intl.defaultLocale = null);
+    const de = Locale('de');
+
+    await tester.pumpWidget(wrap(const ActivityCountThreshold(10), delay: const ActivityCountThreshold(12), locale: de));
+    expect(find.text('Alle 10 22 Fahrten', findRichText: true), findsOneWidget);
+
+    await tester.pumpWidget(wrap(const DistanceThreshold(2500000), locale: de));
+    expect(find.text('Alle 2.500 km'), findsOneWidget);
+
+    await tester.pumpWidget(wrap(const DurationThreshold(Duration(days: 30)), repeat: false, locale: de));
+    expect(find.text('Einmalig: 30 Tage'), findsOneWidget);
   });
 
   testWidgets('strikes the interval for a negative delay too', (tester) async {

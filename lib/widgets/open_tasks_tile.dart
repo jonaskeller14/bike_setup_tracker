@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/task/task_rule.dart';
 import '../pages/forms/task_rule_page.dart';
 import '../repositories/app_repository.dart';
@@ -59,7 +60,7 @@ class OpenTasksTile extends StatelessWidget {
       title: Semantics(
         identifier: AutomationIds.openTasks,
         child: Text(
-          "Open Tasks",
+          context.l10n.taskOpenTasksTitle,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -70,8 +71,8 @@ class OpenTasksTile extends StatelessWidget {
         if (openTasks.isEmpty) ...[
           EmptyStatePlaceholder2(
             iconData: Icons.checklist,
-            title: 'No open tasks',
-            subtitle: 'Add a task to keep track of maintenance',
+            title: context.l10n.taskOpenEmptyTitle,
+            subtitle: context.l10n.taskOpenEmptySubtitle,
             onTap: () => _addTaskRule(context, appRepository),
           ),
           const SizedBox(height: 8),
@@ -80,7 +81,7 @@ class OpenTasksTile extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: () => _addTaskRule(context, appRepository),
               icon: const Icon(Icons.add),
-              label: const Text('Add Task'),
+              label: Text(context.l10n.taskAdd),
             ),
           ),
         ] else ...[
@@ -94,7 +95,7 @@ class OpenTasksTile extends StatelessWidget {
             child: TextButton.icon(
               onPressed: () => _addTaskRule(context, appRepository),
               icon: const Icon(Icons.add),
-              label: const Text('Add Task'),
+              label: Text(context.l10n.taskAdd),
             ),
           ),
         ],

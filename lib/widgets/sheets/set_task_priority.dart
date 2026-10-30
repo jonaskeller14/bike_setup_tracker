@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/task/task_rule.dart';
 import '../task_priority_badge.dart';
 import 'radio_group.dart';
@@ -12,7 +13,7 @@ Future<void> showSetTaskPrioritySheet({
   return radioGroupSheet<TaskPriority>(
     context: context,
     leadingIcon: const Icon(TaskPriority.iconData),
-    title: "Task Priority",
+    title: context.l10n.taskPriorityTitle,
     value: currentPriority,
     optionWidgets: Map.fromEntries(
       TaskPriority.values.map((priority) {

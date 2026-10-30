@@ -105,7 +105,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
     final components = appRepository.components;
 
     final groups = _buildGroups(bikes, components, appRepository.componentHierarchy);
-    final showGeneral = _matches('general task');
+    final showGeneral = _matches('${context.l10n.taskGeneral} ${englishL10n.taskGeneral}'.toLowerCase());
     final dangling = _danglingAssociations(bikes, components);
     final isEmpty = groups.isEmpty && !showGeneral && dangling.isEmpty;
 
@@ -116,11 +116,11 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SheetHeader(title: 'Link task to'),
+            SheetHeader(title: context.l10n.taskAssociationTitle),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               child: Text(
-                'Tap a bike or a component to link this task to it.',
+                context.l10n.taskAssociationHint,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -135,7 +135,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
                 child: isEmpty
                     ? SheetFilterEmptyHint(
                         icon: Icons.search_off,
-                        title: 'No matches for "$_query"',
+                        title: context.l10n.taskAssociationNoMatches(_query),
                       )
                     : Column(
                         mainAxisSize: MainAxisSize.min,
@@ -173,7 +173,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
                     setState(() => _query = '');
                   },
                 ),
-          hintText: 'Search bikes and parts…',
+          hintText: context.l10n.taskAssociationSearchHint,
           border: const OutlineInputBorder(),
         ),
       ),
@@ -191,8 +191,8 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
         child: _chipFor(
           association: association,
           icon: Icons.circle_outlined,
-          label: 'General Task',
-          tooltip: 'A task that is not linked to a bike or component',
+          label: context.l10n.taskGeneral,
+          tooltip: context.l10n.taskAssociationGeneralTooltip,
           emphasized: true,
         ),
       ),
@@ -208,8 +208,8 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
         child: _chipFor(
           association: association,
           icon: Icons.error_outline,
-          label: association.bikeId != null ? 'BIKE NOT FOUND' : 'COMPONENT NOT FOUND',
-          tooltip: 'This entry no longer exists',
+          label: association.bikeId != null ? context.l10n.bikeNotFound : context.l10n.componentNotFound,
+          tooltip: context.l10n.taskAssociationMissingTooltip,
           backgroundColor: scheme.errorContainer,
           foregroundColor: scheme.onErrorContainer,
           borderColor: scheme.error,
@@ -386,9 +386,9 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
       groups.add(_Group(label: label, icon: icon, components: visible, color: color));
     }
 
-    addBucket(shelf, 'Not installed', Icons.shelves);
-    addBucket(orphaned, 'Bike not found', Icons.error_outline, color: scheme.error);
-    addBucket(archived, 'Archived', Icons.inventory_2_outlined);
+    addBucket(shelf, context.l10n.timelineNotInstalled, Icons.shelves);
+    addBucket(orphaned, context.l10n.taskAssociationBikeMissing, Icons.error_outline, color: scheme.error);
+    addBucket(archived, context.l10n.timelineArchived, Icons.inventory_2_outlined);
 
     return groups;
   }
@@ -526,7 +526,7 @@ class _AssociationChip extends StatelessWidget {
     );
 
     return Tooltip(
-      message: isPrevious ? 'Previous value' : tooltip,
+      message: isPrevious ? context.l10n.previousValueTooltip : tooltip,
       child: maxWidth == null
           ? chip
           : ConstrainedBox(constraints: BoxConstraints(maxWidth: maxWidth!), child: chip),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/task/task_association.dart';
@@ -56,7 +57,7 @@ class DataSelectTaskRule extends StatelessWidget {
               ),
               Flexible(
                 child: Text(
-                  component?.name ?? "COMPONENT NOT FOUND",
+                  component?.name ?? context.l10n.componentNotFound,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -79,7 +80,7 @@ class DataSelectTaskRule extends StatelessWidget {
               ),
               Flexible(
                 child: Text(
-                  bike?.name ?? "BIKE NOT FOUND",
+                  bike?.name ?? context.l10n.bikeNotFound,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -100,7 +101,7 @@ class DataSelectTaskRule extends StatelessWidget {
               ),
               Flexible(
                 child: Text(
-                  "General Task",
+                  context.l10n.taskGeneral,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(

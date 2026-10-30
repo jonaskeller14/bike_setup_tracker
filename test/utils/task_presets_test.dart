@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/task/task_template.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/utils/task_presets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   group('taskPresets', () {
@@ -83,6 +84,18 @@ void main() {
       expect(taskIntervalLabel(const DistanceThreshold(1609344), distanceUnit: 'mi'), 'every 1,000 mi');
       expect(taskIntervalLabel(const MovingTimeThreshold(Duration(hours: 125))), 'every 125 h');
       expect(taskIntervalLabel(const ActivityCountThreshold(5)), 'every 5 rides');
+    });
+
+    test('reads in German', () {
+      Intl.withLocale('de', () {
+        expect(taskIntervalLabel(const DurationThreshold(Duration(days: 1))), 'jeden Tag');
+        expect(taskIntervalLabel(const DurationThreshold(Duration(days: 14))), 'alle 2 Wochen');
+        expect(taskIntervalLabel(const DurationThreshold(Duration(days: 30))), 'jeden Monat');
+        expect(taskIntervalLabel(const DurationThreshold(Duration(days: 180))), 'alle 6 Monate');
+        expect(taskIntervalLabel(const DurationThreshold(Duration(days: 365))), 'jedes Jahr');
+        expect(taskIntervalLabel(const DistanceThreshold(2000000)), 'alle 2.000 km');
+        expect(taskIntervalLabel(const ActivityCountThreshold(5)), 'alle 5 Fahrten');
+      });
     });
   });
 }

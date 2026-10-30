@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import 'empty_state_placeholder.dart';
 
 class TaskCaughtUpPlaceholder extends StatefulWidget {
@@ -82,12 +83,11 @@ class _TaskCaughtUpPlaceholderState extends State<TaskCaughtUpPlaceholder> with 
     final iconColor = Theme.of(
       context,
     ).colorScheme.onSurfaceVariant.withValues(alpha: 0.35);
-    final scope = widget.bikeName == null
-        ? 'There are no tasks due right now.'
-        : '${widget.bikeName} has no tasks due right now.';
+    final l10n = context.l10n;
+    final scope = widget.bikeName == null ? l10n.taskCaughtUpScope : l10n.taskCaughtUpScopeBike(widget.bikeName!);
     final semanticsLabel =
-        'All caught up. $scope'
-        '${widget.nextTaskName == null ? '' : ' Next up: ${widget.nextTaskName}.'}';
+        '${l10n.taskCaughtUpTitle}. $scope'
+        '${widget.nextTaskName == null ? '' : ' ${l10n.taskCaughtUpNext(widget.nextTaskName!)}'}';
 
     return Semantics(
       container: true,
@@ -103,9 +103,9 @@ class _TaskCaughtUpPlaceholderState extends State<TaskCaughtUpPlaceholder> with 
               scale: _iconScale,
               child: Icon(Icons.task_alt, size: 40, color: iconColor),
             ),
-            title: 'All caught up',
+            title: l10n.taskCaughtUpTitle,
             subtitle: scope,
-            actionLabel: 'Add task',
+            actionLabel: l10n.taskCaughtUpAction,
             onAction: widget.onAddTask,
           ),
         ),

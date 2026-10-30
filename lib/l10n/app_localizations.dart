@@ -7369,6 +7369,1062 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All suggestions added'**
   String get adjustmentPresetAllAdded;
+
+  /// Name of a task that is not linked to a bike or a component.
+  ///
+  /// In en, this message translates to:
+  /// **'General Task'**
+  String get taskGeneral;
+
+  /// Shown instead of the task name when the task of an entry no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'TASK NOT FOUND'**
+  String get taskNotFound;
+
+  /// Unit word after a number of days, without the number. {count} only selects singular or plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{day} other{days}}'**
+  String taskUnitDays(int count);
+
+  /// Unit word after a number of weeks, without the number. {count} only selects singular or plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{week} other{weeks}}'**
+  String taskUnitWeeks(int count);
+
+  /// Unit word after a number of months, without the number. {count} only selects singular or plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{month} other{months}}'**
+  String taskUnitMonths(int count);
+
+  /// Unit word after a number of years, without the number. {count} only selects singular or plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{year} other{years}}'**
+  String taskUnitYears(int count);
+
+  /// Unit word after a number of rides, without the number. {count} only selects singular or plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{ride} other{rides}}'**
+  String taskUnitRides(int count);
+
+  /// Recurring interval in days, inside a sentence. {count} is the number of days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{every day} other{every {count} days}}'**
+  String taskIntervalEveryDays(int count);
+
+  /// Recurring interval in weeks, inside a sentence. {count} is the number of weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{every week} other{every {count} weeks}}'**
+  String taskIntervalEveryWeeks(int count);
+
+  /// Recurring interval in months, inside a sentence. {count} is the number of months.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{every month} other{every {count} months}}'**
+  String taskIntervalEveryMonths(int count);
+
+  /// Recurring interval in years, inside a sentence. {count} is the number of years.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{every year} other{every {count} years}}'**
+  String taskIntervalEveryYears(int count);
+
+  /// Recurring interval, inside a sentence. {value} is the amount with its unit, like 2,000 km.
+  ///
+  /// In en, this message translates to:
+  /// **'every {value}'**
+  String taskIntervalEvery(String value);
+
+  /// Start of the interval line of a repeating task. The amount follows, like Every 500 km.
+  ///
+  /// In en, this message translates to:
+  /// **'Every'**
+  String get taskIntervalPrefixEvery;
+
+  /// Start of the interval line of a task that does not repeat. The amount follows, like After 500 km. German avoids the case ending a literal translation would need.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get taskIntervalPrefixAfter;
+
+  /// First line of the note of a task created from a recommendation. It is stored with the note. {interval} is the interval, like every 6 months.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended interval: {interval}'**
+  String taskRecommendedInterval(String interval);
+
+  /// Added to the recommended interval line when no Strava is connected. Keep the leading space. {interval} is the ride-based interval that applies with Strava.
+  ///
+  /// In en, this message translates to:
+  /// **' (time-based; {interval} with Strava)'**
+  String taskRecommendedTimeBased(String interval);
+
+  /// Origin line of a recommended task when it falls back to a time-based interval. {interval} is the interval that applies with Strava.
+  ///
+  /// In en, this message translates to:
+  /// **'Time-based · {interval} with Strava'**
+  String taskSuggestionTimeBased(String interval);
+
+  /// Origin line of a recommended task. {type} is the component type.
+  ///
+  /// In en, this message translates to:
+  /// **'Typical interval for {type}'**
+  String taskSuggestionTypical(String type);
+
+  /// Forecast of when a task becomes due.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get taskForecastToday;
+
+  /// Forecast of when a task becomes due.
+  ///
+  /// In en, this message translates to:
+  /// **'tomorrow'**
+  String get taskForecastTomorrow;
+
+  /// Forecast of when a task becomes due. {count} is the number of days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{in 1 day} other{in {count} days}}'**
+  String taskForecastInDays(int count);
+
+  /// Forecast of when a task becomes due. {count} is the number of weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{in 1 week} other{in {count} weeks}}'**
+  String taskForecastInWeeks(int count);
+
+  /// Tooltip of the due forecast on a task card.
+  ///
+  /// In en, this message translates to:
+  /// **'Forecast for when this task will become due. Exact for date and duration intervals; for other intervals it is estimated from recent riding activity and needs a connected Strava subscription.'**
+  String get taskForecastTooltip;
+
+  /// Progress of a task toward its interval. {amount} is the amount left with its unit, like 12 km.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} remaining'**
+  String taskRemaining(String amount);
+
+  /// Progress of a task past its interval. {amount} is the amount over with its unit, like 12 km.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} exceeded'**
+  String taskExceeded(String amount);
+
+  /// Snackbar after a task was renamed. {count} is the number of entries renamed with it.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Renamed 1 corresponding Task Entry.} other{Renamed {count} corresponding Task Entries.}}'**
+  String taskActionRenamedEntries(int count);
+
+  /// Snackbar after changing the priority. {priority} is the new priority, {count} the number of tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Priority set to \'{priority}\' for 1 Task.} other{Priority set to \'{priority}\' for {count} Tasks.}}'**
+  String taskActionPrioritySet(int count, String priority);
+
+  /// Title of the sheet that sets the tags of selected tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Tags'**
+  String get taskSetTagsTitle;
+
+  /// Explanation in the tags sheets of a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)'**
+  String get taskTagsSubtitle;
+
+  /// Apply button of the bulk tags sheet. {count} is the number of tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Apply to 1 Task} other{Apply to {count} Tasks}}'**
+  String taskApplyTags(int count);
+
+  /// Snackbar after changing tags. {count} is the number of tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Tags updated for 1 Task.} other{Tags updated for {count} Tasks.}}'**
+  String taskTagsUpdated(int count);
+
+  /// Snackbar after removing tasks. {name} is the task if there is one, {count} the number of tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Task \'{name}\' and corresponding entries moved to trash.} other{{count} Tasks and corresponding entries moved to trash.}}'**
+  String taskRulesMovedToTrash(int count, String name);
+
+  /// Snackbar after a task was restored.
+  ///
+  /// In en, this message translates to:
+  /// **'Task \'{name}\' restored from trash.'**
+  String taskRestoredFromTrash(String name);
+
+  /// Snackbar after completing tasks. {name} is the task if there is one, {count} the number of tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Task \'{name}\' completed.} other{{count} Tasks completed.}}'**
+  String taskCompleted(int count, String name);
+
+  /// Snackbar after removing task entries. {name} is the entry if there is one, {count} the number of entries.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Task Entry \'{name}\' moved to trash.} other{{count} Task Entries moved to trash.}}'**
+  String taskEntriesMovedToTrash(int count, String name);
+
+  /// Snackbar after a task entry was restored.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Entry \'{name}\' restored from trash.'**
+  String taskEntryRestoredFromTrash(String name);
+
+  /// Used in a sentence when the component type is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'component'**
+  String get taskComponentTypeFallback;
+
+  /// Title of the priority sheet and of the priority section of the task filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Priority'**
+  String get taskPriorityTitle;
+
+  /// Title of the tags section of the task filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Tags'**
+  String get taskFilterTagsTitle;
+
+  /// Shown in the task filter when no task has a tag.
+  ///
+  /// In en, this message translates to:
+  /// **'No task tags yet'**
+  String get taskFilterTagsEmptyTitle;
+
+  /// Hint below the empty tags title in the task filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Add/Edit a Task Rule to add tags.'**
+  String get taskFilterTagsEmptyHint;
+
+  /// Tooltip of the remove button on the chip of the applied task preset.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink preset (keeps values)'**
+  String get taskPresetUnlinkTooltip;
+
+  /// Menu entry, swipe label and sheet title for a task that has no delay yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Delay'**
+  String get taskDelayAdd;
+
+  /// Menu entry, swipe label and sheet title for a task that already has a delay.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Delay'**
+  String get taskDelayEdit;
+
+  /// Warning on a task entry whose link differs from its task. {name} is what the entry is linked to.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked to {name}'**
+  String taskEntryLinkedTo(String name);
+
+  /// Button that adds a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Task'**
+  String get taskAdd;
+
+  /// Header of the list section of due tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Due now'**
+  String get taskListDueNow;
+
+  /// Header of the list section of tasks that are not due yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get taskListUpcoming;
+
+  /// Header of the list section of completed tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get taskListCompleted;
+
+  /// Title of the empty task list.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks yet'**
+  String get taskListEmptyTitle;
+
+  /// Subtitle of the empty task list.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a task to track service intervals or other bike related todos.'**
+  String get taskListEmptySubtitle;
+
+  /// Button of the empty task list.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a task'**
+  String get taskListEmptyAction;
+
+  /// Title of the due section when filters hide the tasks that are due.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing due in this view'**
+  String get taskListFilteredTitle;
+
+  /// Subtitle of the due section when filters hide the tasks that are due.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority or tag filters are hiding tasks that need attention.'**
+  String get taskListFilteredSubtitle;
+
+  /// Screen reader label of the button that collapses the upcoming section.
+  ///
+  /// In en, this message translates to:
+  /// **'Show fewer upcoming tasks'**
+  String get taskListShowFewerUpcoming;
+
+  /// Screen reader label of the button that collapses the completed section.
+  ///
+  /// In en, this message translates to:
+  /// **'Show fewer completed tasks'**
+  String get taskListShowFewerCompleted;
+
+  /// Screen reader label of the button that expands the upcoming section. {count} is the number of tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all {count} upcoming tasks'**
+  String taskListShowAllUpcoming(int count);
+
+  /// Screen reader label of the button that expands the completed section. {count} is the number of tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all {count} completed tasks'**
+  String taskListShowAllCompleted(int count);
+
+  /// Button that collapses a task list section.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get taskListShowLess;
+
+  /// Button that expands a task list section. {count} is the number of tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all ({count})'**
+  String taskListShowAllCount(int count);
+
+  /// Screen reader label of a list section header. {label} is the header with its count.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}. Scroll to section'**
+  String taskListScrollToSection(String label);
+
+  /// Title shown when no task is due.
+  ///
+  /// In en, this message translates to:
+  /// **'All caught up'**
+  String get taskCaughtUpTitle;
+
+  /// Subtitle shown when no task is due.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no tasks due right now.'**
+  String get taskCaughtUpScope;
+
+  /// Subtitle shown when no task of a bike is due. {name} is the bike.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has no tasks due right now.'**
+  String taskCaughtUpScopeBike(String name);
+
+  /// Screen reader addition naming the next task. {name} is the task.
+  ///
+  /// In en, this message translates to:
+  /// **'Next up: {name}.'**
+  String taskCaughtUpNext(String name);
+
+  /// Button below the caught up message.
+  ///
+  /// In en, this message translates to:
+  /// **'Add task'**
+  String get taskCaughtUpAction;
+
+  /// Title of the open tasks tile of a bike or component.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Tasks'**
+  String get taskOpenTasksTitle;
+
+  /// Title of the open tasks tile when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No open tasks'**
+  String get taskOpenEmptyTitle;
+
+  /// Subtitle of the open tasks tile when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a task to keep track of maintenance'**
+  String get taskOpenEmptySubtitle;
+
+  /// Title of the sheet that asks which related tasks are deleted along with a bike or component.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete related tasks?'**
+  String get taskDeleteTitle;
+
+  /// Explanation in the delete related tasks sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting a task also deletes its corresponding task entries.'**
+  String get taskDeleteBody;
+
+  /// Header of the task list in the delete sheet. {selected} of {total} tasks are checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks ({selected} / {total})'**
+  String taskDeleteCount(int selected, int total);
+
+  /// Button of the delete sheet while no task is checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without deleting tasks'**
+  String get taskDeleteContinue;
+
+  /// Button of the delete sheet. {count} is the number of checked tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete 1 task} other{Delete {count} tasks}}'**
+  String taskDeleteButton(int count);
+
+  /// Group header in the delete sheet for tasks of a component that no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Component not found'**
+  String get taskGroupComponentNotFound;
+
+  /// Marker on the group header of the component itself in the delete sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'This component'**
+  String get taskGroupThisComponent;
+
+  /// Marker on the group header of a subcomponent in the delete sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcomponent'**
+  String get taskGroupSubcomponent;
+
+  /// Title of the sheet that copies tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy tasks?'**
+  String get taskSheetCopyTitle;
+
+  /// Title of the sheet that recommends tasks. {name} is the component.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended tasks for \'{name}\''**
+  String taskSheetRecommendTitle(String name);
+
+  /// Title of the sheet that copies and recommends tasks. {name} is the component.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks for \'{name}\''**
+  String taskSheetMergedTitle(String name);
+
+  /// Description of the copy sheet. {name} is the component the tasks go to.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the tasks to copy to \'{name}\'. Copies start fresh — the completion history stays with the original component.'**
+  String taskSheetCopyDescription(String name);
+
+  /// Description of the recommendation sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the tasks to add. Each one becomes a normal task you can edit later.'**
+  String get taskSheetRecommendDescription;
+
+  /// Description of the sheet that copies and recommends. {from} is the source component.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies start fresh — the completion history stays with \'{from}\'. Recommended tasks become normal tasks you can edit later.'**
+  String taskSheetMergedDescription(String from);
+
+  /// Description of the copy sheet when it opens after adding a component. {name} is the component the tasks go to.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — pick the tasks to copy to \'{name}\'. Copies start fresh — the completion history stays with the original component.'**
+  String taskSheetCopyDescriptionOptional(String name);
+
+  /// Description of the recommendation sheet when it opens after adding a component.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — pick the tasks to add. Each one becomes a normal task you can edit later.'**
+  String get taskSheetRecommendDescriptionOptional;
+
+  /// Description of the sheet that copies and recommends when it opens after adding a component. {from} is the source component.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — copies start fresh — the completion history stays with \'{from}\'. Recommended tasks become normal tasks you can edit later.'**
+  String taskSheetMergedDescriptionOptional(String from);
+
+  /// Title of the task sheet after a component was added. {name} is the component.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{name}\' added'**
+  String taskSheetAdded(String name);
+
+  /// Title of the task sheet after a component was replaced. {name} is the component.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{name}\' replaced'**
+  String taskSheetReplaced(String name);
+
+  /// Question in the task sheet after adding a component. {from} is the source component.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy tasks from \'{from}\'?'**
+  String taskSheetPromptCopy(String from);
+
+  /// Question in the task sheet after adding a component. {type} is the component type.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tasks for this {type}?'**
+  String taskSheetPromptRecommend(String type);
+
+  /// Question in the task sheet after adding a component. {type} is the component type.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up tasks for this {type}?'**
+  String taskSheetPromptMerged(String type);
+
+  /// Snackbar after the task recommendations were switched off.
+  ///
+  /// In en, this message translates to:
+  /// **'Task recommendations turned off. Turn them back on in Settings › Features.'**
+  String get taskSheetRecommendationsOff;
+
+  /// Header of the copied tasks when recommendations are shown too. {from} is the source component.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy from \'{from}\''**
+  String taskSheetCopyFrom(String from);
+
+  /// Header of the copied tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get taskSheetTasks;
+
+  /// Header of the recommended tasks. {name} is the catalog model or the component type.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended for {name}'**
+  String taskSheetRecommendedFor(String name);
+
+  /// Button that switches the task recommendations off.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off recommendations'**
+  String get taskSheetTurnOff;
+
+  /// Main button of the copy sheet. {count} is the number of checked tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Copy 1 task} other{Copy {count} tasks}}'**
+  String taskSheetCopyButton(int count);
+
+  /// Main button of the recommendation sheet. {count} is the number of checked tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Add 1 task} other{Add {count} tasks}}'**
+  String taskSheetAddButton(int count);
+
+  /// Secondary button of the copy sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without copying tasks'**
+  String get taskSheetContinueWithoutCopy;
+
+  /// Secondary button of the recommendation sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get taskSheetNotNow;
+
+  /// Label of the value field in the delay sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Delay Value'**
+  String get taskDelayValueLabel;
+
+  /// Button in the delay sheet that sets a delay which makes the task due right away.
+  ///
+  /// In en, this message translates to:
+  /// **'Make Due Now'**
+  String get taskDelayMakeDueNow;
+
+  /// Explanation of the task delay, in the delay sheet and the tooltip of the task form.
+  ///
+  /// In en, this message translates to:
+  /// **'A delay postpones when this task becomes due, or brings it forward when negative, without changing its interval. It only applies once: completing the task clears the delay automatically.'**
+  String get taskDelayExplanation;
+
+  /// Tooltip of a button that empties a text field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearTooltip;
+
+  /// Validation message of a task value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value'**
+  String get taskValidationEnterValue;
+
+  /// Validation message of a task value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number'**
+  String get taskValidationWholeNumber;
+
+  /// Validation message of a task value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number'**
+  String get taskValidationValidNumber;
+
+  /// Validation message of a task delay field.
+  ///
+  /// In en, this message translates to:
+  /// **'Must not be 0'**
+  String get taskValidationNotZero;
+
+  /// Validation message of a task delay field when a negative delay exceeds the interval.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot bring it forward by more than its interval'**
+  String get taskValidationForwardTooFar;
+
+  /// Title of the sheet that picks what a task is linked to.
+  ///
+  /// In en, this message translates to:
+  /// **'Link task to'**
+  String get taskAssociationTitle;
+
+  /// Explanation in the link picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a bike or a component to link this task to it.'**
+  String get taskAssociationHint;
+
+  /// Hint of the search field of the link picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Search bikes and parts…'**
+  String get taskAssociationSearchHint;
+
+  /// Shown in the link picker when the search finds nothing. {query} is the search text.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches for \"{query}\"'**
+  String taskAssociationNoMatches(String query);
+
+  /// Tooltip of the General Task chip in the link picker.
+  ///
+  /// In en, this message translates to:
+  /// **'A task that is not linked to a bike or component'**
+  String get taskAssociationGeneralTooltip;
+
+  /// Tooltip of the chip of a deleted bike or component in the link picker.
+  ///
+  /// In en, this message translates to:
+  /// **'This entry no longer exists'**
+  String get taskAssociationMissingTooltip;
+
+  /// Group header in the link picker for components whose bike no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike not found'**
+  String get taskAssociationBikeMissing;
+
+  /// Minimum shown in the duration sheet. {value} is the duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Min: {value}'**
+  String setDurationMin(String value);
+
+  /// Maximum shown in the duration sheet. {value} is the duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Max: {value}'**
+  String setDurationMax(String value);
+
+  /// Error in the duration sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected duration is below the minimum'**
+  String get setDurationBelowMin;
+
+  /// Error in the duration sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected duration exceeds the maximum'**
+  String get setDurationAboveMax;
+
+  /// Trigger type: the task has no trigger.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get taskTriggerTypeNone;
+
+  /// Trigger type of a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get taskTriggerTypeDistance;
+
+  /// Trigger type of a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation'**
+  String get taskTriggerTypeElevation;
+
+  /// Trigger type of a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving Time'**
+  String get taskTriggerTypeMovingTime;
+
+  /// Trigger type of a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Elapsed Time'**
+  String get taskTriggerTypeElapsedTime;
+
+  /// Trigger type of a task: a time span.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get taskTriggerTypeDuration;
+
+  /// Trigger type of a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Count'**
+  String get taskTriggerTypeActivityCount;
+
+  /// Trigger type of a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Kilojoules (Accumulated Watts)'**
+  String get taskTriggerTypeKilojoules;
+
+  /// Trigger type of a task: a fixed date. Also the label of its date field.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get taskTriggerTypeDate;
+
+  /// Header of the time-based trigger types in the dropdown. It is shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Time-based'**
+  String get taskTriggerSectionTimeBased;
+
+  /// Header of the Strava trigger types in the dropdown. It is shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity-based (Strava)'**
+  String get taskTriggerSectionActivityBased;
+
+  /// Title of the banner shown without a Strava subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity-based triggers need Strava'**
+  String get taskTriggerStravaTitle;
+
+  /// Body of the banner shown without a Strava subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance, elevation, time and ride-count triggers update automatically from your Strava activities.'**
+  String get taskTriggerStravaBody;
+
+  /// Button of the Strava banner.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect'**
+  String get taskTriggerStravaConnect;
+
+  /// App bar title of the task rule form when adding.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Task Rule'**
+  String get taskFormAddTitle;
+
+  /// App bar title of the task rule form when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Task Rule'**
+  String get taskFormEditTitle;
+
+  /// Label of the name field of the task rule form.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Rule Name'**
+  String get taskFormNameLabel;
+
+  /// Hint of the name field of the task rule form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter task name'**
+  String get taskFormNameHint;
+
+  /// Validation message of the name field of the task rule form.
+  ///
+  /// In en, this message translates to:
+  /// **'Name required'**
+  String get taskFormNameRequired;
+
+  /// Hint of the notes field of the task rule form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add additional details or instructions...'**
+  String get taskFormNotesHint;
+
+  /// Tooltip of the add tags chip and title of its sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Tags'**
+  String get taskFormAddTags;
+
+  /// Label of the link field of the task forms.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked To'**
+  String get taskFormLinkedTo;
+
+  /// Second line of the link field for a component. {bike} is the bike it is installed on.
+  ///
+  /// In en, this message translates to:
+  /// **'on {bike}'**
+  String taskFormOnBike(String bike);
+
+  /// Warning below the link field when the component is archived.
+  ///
+  /// In en, this message translates to:
+  /// **'WARNING: Tasks of archived components are hidden in the task list.'**
+  String get taskFormArchivedWarning;
+
+  /// Validation message of the link field when the trigger measures ride data.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected trigger needs a linked Bike or Component'**
+  String get taskFormTriggerNeedsLink;
+
+  /// Section title of the trigger part of the task rule form.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Trigger'**
+  String get taskFormTriggerTitle;
+
+  /// Info text of the trigger section title.
+  ///
+  /// In en, this message translates to:
+  /// **'(Optional) Set a trigger to display a progress bar that updates automatically based on activity stats or time.'**
+  String get taskFormTriggerInfo;
+
+  /// Label of the trigger type dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get taskFormTypeLabel;
+
+  /// Label of the value fields of the trigger and the delay.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get taskFormValueLabel;
+
+  /// Placeholder of the date field of a date trigger.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get taskFormSelectDate;
+
+  /// Validation message of the date field of a date trigger.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a date'**
+  String get taskFormSelectDateError;
+
+  /// Tooltip of the unit button of a duration value.
+  ///
+  /// In en, this message translates to:
+  /// **'Change unit'**
+  String get taskFormChangeUnitTooltip;
+
+  /// Title of the repeat switch of the task rule form.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat Interval'**
+  String get taskFormRepeatTitle;
+
+  /// Subtitle of the repeat switch of the task rule form.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the interval over after each entry'**
+  String get taskFormRepeatSubtitle;
+
+  /// Title of the delay row of the task rule form.
+  ///
+  /// In en, this message translates to:
+  /// **'Delay'**
+  String get taskFormDelayLabel;
+
+  /// Subtitle of the delay row of the task rule form.
+  ///
+  /// In en, this message translates to:
+  /// **'Postpone the next due date once'**
+  String get taskFormDelaySubtitle;
+
+  /// App bar title of the task entry form when adding.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Task Entry'**
+  String get taskEntryFormAddTitle;
+
+  /// App bar title of the task entry form when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Task Entry'**
+  String get taskEntryFormEditTitle;
+
+  /// Label of the name field of the task entry form.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Entry Name'**
+  String get taskEntryFormNameLabel;
+
+  /// Hint of the name field of the task entry form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter task entry name'**
+  String get taskEntryFormNameHint;
+
+  /// Validation message of the name field of the task entry form.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get taskEntryFormNameRequired;
+
+  /// Hint of the notes field of the task entry form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add additional details...'**
+  String get taskEntryFormNotesHint;
+
+  /// Title of the date picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Task Entry Date'**
+  String get taskEntryPickDate;
+
+  /// Title of the time picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Task Entry Time'**
+  String get taskEntryPickTime;
+
+  /// Names what the task rule is linked to, after “linked to”.
+  ///
+  /// In en, this message translates to:
+  /// **'a deleted component'**
+  String get taskEntryDeletedComponent;
+
+  /// Names what the task rule is linked to, after “linked to”.
+  ///
+  /// In en, this message translates to:
+  /// **'a deleted bike'**
+  String get taskEntryDeletedBike;
+
+  /// Names what the task rule is linked to, after “linked to”.
+  ///
+  /// In en, this message translates to:
+  /// **'a general task'**
+  String get taskEntryGeneralTask;
+
+  /// Warning below the link field of an entry whose link differs from its task. {target} is what the task is linked to.
+  ///
+  /// In en, this message translates to:
+  /// **'WARNING: Differs from the task rule, which is linked to {target}.'**
+  String taskEntryLinkMismatch(String target);
+
+  /// App bar title of the task details page.
+  ///
+  /// In en, this message translates to:
+  /// **'Task'**
+  String get taskDetailsTitle;
+
+  /// Title shown when the task no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Task not found'**
+  String get taskDetailsNotFoundTitle;
+
+  /// Subtitle shown when the task no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This task was deleted or is no longer available.'**
+  String get taskDetailsNotFoundSubtitle;
+
+  /// Section title of the entries of a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Entries'**
+  String get taskDetailsEntriesTitle;
+
+  /// Info text of the entries section title.
+  ///
+  /// In en, this message translates to:
+  /// **'The card above is the Task — the rule defining what to do and when it\'s due. Each time you complete it, an entry is logged below. A recurring task collects multiple entries, one per completion.'**
+  String get taskDetailsEntriesInfo;
+
+  /// Title shown when a task has no entries.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries yet'**
+  String get taskDetailsEmptyTitle;
+
+  /// Subtitle shown when a task has no entries.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete this task to log your first entry.'**
+  String get taskDetailsEmptySubtitle;
+
+  /// Button shown when a task has no entries.
+  ///
+  /// In en, this message translates to:
+  /// **'Add entry'**
+  String get taskDetailsEmptyAction;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

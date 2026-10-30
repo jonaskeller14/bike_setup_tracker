@@ -72,34 +72,52 @@ class TaskRulePage extends StatefulWidget {
 }
 
 enum _ThresholdType {
-  none('None'),
-  distance('Distance'),
-  elevation('Elevation'),
-  movingTime('Moving Time'),
-  elapsedTime('Elapsed Time'),
-  duration('Duration'),
-  activityCount('Activity Count'),
-  kilojoules('Kilojoules (Accumulated Watts)'),
-  dateTime('Date');
+  none,
+  distance,
+  elevation,
+  movingTime,
+  elapsedTime,
+  duration,
+  activityCount,
+  kilojoules,
+  dateTime;
 
-  final String label;
-  const _ThresholdType(this.label);
+  String label(AppLocalizations l10n) => switch (this) {
+    none => l10n.taskTriggerTypeNone,
+    distance => l10n.taskTriggerTypeDistance,
+    elevation => l10n.taskTriggerTypeElevation,
+    movingTime => l10n.taskTriggerTypeMovingTime,
+    elapsedTime => l10n.taskTriggerTypeElapsedTime,
+    duration => l10n.taskTriggerTypeDuration,
+    activityCount => l10n.taskTriggerTypeActivityCount,
+    kilojoules => l10n.taskTriggerTypeKilojoules,
+    dateTime => l10n.taskTriggerTypeDate,
+  };
 }
 
+/// Plural selector for a unit word beside a typed value: only exactly 1 reads singular.
+int _unitCount(String rawValue) => parseLocalizedDouble(rawValue) == 1 ? 1 : 2;
+
 enum _DurationUnit {
-  days(1, 'day', 'days'),
-  weeks(7, 'week', 'weeks'),
-  months(30, 'month', 'months'),
-  years(365, 'year', 'years');
+  days(1),
+  weeks(7),
+  months(30),
+  years(365);
 
   final int dayCount;
-  final String singular;
-  final String plural;
-  const _DurationUnit(this.dayCount, this.singular, this.plural);
+  const _DurationUnit(this.dayCount);
 
   _DurationUnit get next => _DurationUnit.values[(index + 1) % _DurationUnit.values.length];
 
-  String labelFor(String rawValue) => parseLocalizedDouble(rawValue) == 1 ? singular : plural;
+  String labelFor(AppLocalizations l10n, String rawValue) {
+    final count = _unitCount(rawValue);
+    return switch (this) {
+      days => l10n.taskUnitDays(count),
+      weeks => l10n.taskUnitWeeks(count),
+      months => l10n.taskUnitMonths(count),
+      years => l10n.taskUnitYears(count),
+    };
+  }
 
   /// The largest unit [duration] divides into evenly, so a saved "30 days"
   /// reopens as "1 month" instead of a number the user has to convert.
@@ -384,7 +402,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
           children: [
             Flexible(
               child: Text(
-                type.label,
+                type.label(context.l10n),
                 overflow: TextOverflow.ellipsis,
                 style: locked ? TextStyle(color: Theme.of(context).disabledColor) : null,
               ),
@@ -397,10 +415,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
     return [
       typeItem(_ThresholdType.none),
-      sectionHeader("TIME-BASED"),
+      sectionHeader(context.l10n.taskTriggerSectionTimeBased),
       typeItem(_ThresholdType.duration),
       typeItem(_ThresholdType.dateTime),
-      sectionHeader("ACTIVITY-BASED (STRAVA)"),
+      sectionHeader(context.l10n.taskTriggerSectionActivityBased),
       typeItem(_ThresholdType.distance),
       typeItem(_ThresholdType.elevation),
       typeItem(_ThresholdType.movingTime),
@@ -428,10 +446,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Activity-based triggers need Strava", style: Theme.of(context).textTheme.labelLarge),
+                Text(context.l10n.taskTriggerStravaTitle, style: Theme.of(context).textTheme.labelLarge),
                 const SizedBox(height: 2),
                 Text(
-                  "Distance, elevation, time and ride-count triggers update automatically from your Strava activities.",
+                  context.l10n.taskTriggerStravaBody,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
               ],
@@ -439,7 +457,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
           ),
           TextButton(
             onPressed: () => showStravaSheet(context: context),
-            child: const Text("Connect"),
+            child: Text(context.l10n.taskTriggerStravaConnect),
           ),
         ],
       ),
@@ -500,16 +518,16 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
     final value = rawValue?.trim() ?? '';
     if (value.isEmpty) {
-      return 'Enter a value';
+      return context.l10n.taskValidationEnterValue;
     }
 
     final requiresInteger = _thresholdRequiresInteger(type);
     final num? parsed = requiresInteger ? int.tryParse(value) : parseLocalizedDouble(value);
     if (parsed == null) {
-      return requiresInteger ? 'Enter a whole number' : 'Enter a valid number';
+      return requiresInteger ? context.l10n.taskValidationWholeNumber : context.l10n.taskValidationValidNumber;
     }
     if (parsed <= 0) {
-      return 'Must be greater than 0';
+      return context.l10n.adjustmentMustBePositive;
     }
     return null;
   }
@@ -524,16 +542,16 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final requiresInteger = _thresholdRequiresInteger(_delayType);
     final num? parsed = requiresInteger ? int.tryParse(raw) : parseLocalizedDouble(raw);
     if (parsed == null) {
-      return requiresInteger ? 'Enter a whole number' : 'Enter a valid number';
+      return requiresInteger ? context.l10n.taskValidationWholeNumber : context.l10n.taskValidationValidNumber;
     }
     // Zero reads as "drop the delay", which only makes sense for a delay that
     // is already saved. _saveTaskRule then stores no delay at all.
-    if (parsed == 0) return _hasSavedDelay ? null : 'Must not be 0';
+    if (parsed == 0) return _hasSavedDelay ? null : context.l10n.taskValidationNotZero;
 
     final interval = _createThreshold(_intervalType, _intervalValueController.text, _intervalDate, _intervalDurationUnit);
     final delay = _createThreshold(_delayType, raw, null, _delayDurationUnit);
     if (interval is AccumulatingThreshold && interval.totalTarget(delay) < 0) {
-      return 'Cannot bring it forward by more than its interval';
+      return context.l10n.taskValidationForwardTooFar;
     }
     return null;
   }
@@ -733,17 +751,17 @@ class _TaskRulePageState extends State<TaskRulePage> {
     switch (_association) {
       case GeneralTaskAssociation():
         icon = Icons.circle_outlined;
-        primary = "General Task";
+        primary = context.l10n.taskGeneral;
       case BikeTaskAssociation(:final id):
         final bike = bikes[id];
         icon = Bike.iconData;
-        primary = bike?.name ?? "BIKE NOT FOUND";
+        primary = bike?.name ?? context.l10n.bikeNotFound;
         errorColor = bike == null ? scheme.error : null;
       case ComponentTaskAssociation(:final id):
         final component = components[id];
         if (component == null) {
           icon = Component.iconData;
-          primary = "COMPONENT NOT FOUND";
+          primary = context.l10n.componentNotFound;
           errorColor = scheme.error;
           break;
         }
@@ -751,7 +769,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         primary = component.name;
         final root = hierarchy.currentRoot(component.id);
         secondary = root is BikeAncestor && !root.isMissing(bikes)
-            ? "on ${root.label(bikes, context.l10n)}"
+            ? context.l10n.taskFormOnBike(root.label(bikes, context.l10n))
             : root.label(bikes, context.l10n);
         if (root.isMissing(bikes)) errorColor = scheme.error;
     }
@@ -798,8 +816,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
       _ThresholdType.distance => 'km',
       _ThresholdType.elevation => 'm',
       _ThresholdType.movingTime || _ThresholdType.elapsedTime => 'h',
-      _ThresholdType.duration => durationUnit.labelFor(rawValue),
-      _ThresholdType.activityCount => 'rides',
+      _ThresholdType.duration => durationUnit.labelFor(context.l10n, rawValue),
+      _ThresholdType.activityCount => context.l10n.taskUnitRides(_unitCount(rawValue)),
       _ThresholdType.kilojoules => 'kJ',
       _ThresholdType.dateTime || _ThresholdType.none => '',
     };
@@ -818,7 +836,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
     return Tooltip(
-      message: 'Change unit',
+      message: context.l10n.taskFormChangeUnitTooltip,
       child: InkWell(
         // The value field keeps the focus, so the keyboard stays up while cycling.
         canRequestFocus: false,
@@ -835,7 +853,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
             children: [
               Flexible(
                 child: Text(
-                  unit.labelFor(controller.text),
+                  unit.labelFor(context.l10n, controller.text),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: style,
@@ -872,13 +890,12 @@ class _TaskRulePageState extends State<TaskRulePage> {
                       // as one list.
                       Flexible(
                         child: Text(
-                          "Delay",
+                          context.l10n.taskFormDelayLabel,
                           style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurface),
                         ),
                       ),
                       Tooltip(
-                        message: "A delay postpones when this task becomes due, or brings it forward when negative, "
-                            "without changing its interval. It only applies once: completing the task clears the delay automatically.",
+                        message: context.l10n.taskDelayExplanation,
                         triggerMode: TooltipTriggerMode.tap,
                         padding: const EdgeInsets.all(12),
                         margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -892,7 +909,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                     ],
                   ),
                   Text(
-                    "Postpone the next due date once",
+                    context.l10n.taskFormDelaySubtitle,
                     style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ],
@@ -912,7 +929,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
               validator: _validateDelayValue,
               onChanged: (value) => setState(() {}),
               decoration: InputDecoration(
-                labelText: "Value",
+                labelText: context.l10n.taskFormValueLabel,
                 errorMaxLines: 3,
                 suffixText: delayType == _ThresholdType.duration
                     ? null
@@ -946,13 +963,13 @@ class _TaskRulePageState extends State<TaskRulePage> {
       autofocus: widget.mode == TaskRulePageMode.add,
       onChanged: (value) => setState(() {}),  // trigger filled
       decoration: InputDecoration(
-        labelText: 'Task Rule Name',
+        labelText: context.l10n.taskFormNameLabel,
         border: const OutlineInputBorder(),
-        hintText: 'Enter task name',
+        hintText: context.l10n.taskFormNameHint,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == TaskRulePageMode.edit && _nameController.text.trim() != widget.taskRule?.name,
       ),
-      validator: (v) => v == null || v.trim().isEmpty ? 'Name required' : null,
+      validator: (v) => v == null || v.trim().isEmpty ? context.l10n.taskFormNameRequired : null,
       onFieldSubmitted: (_) => _saveTaskRule(),
     );
   }
@@ -965,8 +982,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (value) => setState(() {}),
       decoration: InputDecoration(
-        labelText: 'Notes (optional)',
-        hintText: 'Add additional details or instructions...',
+        labelText: context.l10n.notesOptionalLabel,
+        hintText: context.l10n.taskFormNotesHint,
         border: const OutlineInputBorder(),
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == TaskRulePageMode.edit && _notesController.text.trim() != (widget.taskRule?.notes ?? ""),
@@ -1023,14 +1040,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
             labelPadding: const EdgeInsets.symmetric(vertical: 2),
             padding: EdgeInsets.zero,
             avatar: const Icon(Icons.tag),
-            tooltip: 'Add Tags',
+            tooltip: context.l10n.taskFormAddTags,
             onPressed: () async {
               await showSetTagsSheet(
                 context: context,
                 tags: _tags,
                 availableTags: context.read<AppRepository>().taskRuleTags,
-                title: 'Add Tags',
-                subtitle: "Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)",
+                title: context.l10n.taskFormAddTags,
+                subtitle: context.l10n.taskTagsSubtitle,
                 onChanged: (Set<String> newTags) {
                   setState(() => _tags = newTags);
                   _changeListener();
@@ -1045,7 +1062,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
             labelPadding: const EdgeInsets.symmetric(vertical: 2),
             padding: EdgeInsets.zero,
             avatar: const Icon(Icons.attach_file),
-            tooltip: 'Add Attachment',
+            tooltip: context.l10n.addAttachmentTooltip,
             backgroundColor: widget.mode == TaskRulePageMode.edit && !listEquals(_attachments, widget.taskRule!.attachments) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
             onPressed: _importingAttachments ? null : _addAttachments,
           ),
@@ -1068,8 +1085,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
         appBar: AppBar(
           title: switch (widget.mode) {
             TaskRulePageMode.add ||
-            TaskRulePageMode.duplicate => const Text('Add Task Rule'),
-            TaskRulePageMode.edit => const Text('Edit Task Rule'),
+            TaskRulePageMode.duplicate => Text(context.l10n.taskFormAddTitle),
+            TaskRulePageMode.edit => Text(context.l10n.taskFormEditTitle),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveTaskRule),
@@ -1123,7 +1140,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (TaskAssociation? ta) {
                             if (_needsAsset && (ta == null || ta is GeneralTaskAssociation)) {
-                              return 'The selected trigger needs a linked Bike or Component';
+                              return context.l10n.taskFormTriggerNeedsLink;
                             }
                             return null;
                           },
@@ -1153,7 +1170,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                               },
                               child: InputDecorator(
                                 decoration: InputDecoration(
-                                  labelText: 'Linked To',
+                                  labelText: context.l10n.taskFormLinkedTo,
                                   border: const OutlineInputBorder(),
                                   errorText: field.errorText,
                                   suffixIcon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -1161,7 +1178,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   filled: widget.mode == TaskRulePageMode.edit && _association != _initialAssociation,
                                   helperText: (_association is ComponentTaskAssociation &&
                                           components[_association.componentId]?.isArchived == true)
-                                      ? 'WARNING: Tasks of archived components are hidden in the task list.'
+                                      ? context.l10n.taskFormArchivedWarning
                                       : null,
                                   helperMaxLines: 3,
                                   helperStyle: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -1178,7 +1195,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                   if (appSettings.enableTaskInterval) ...[
                     const SizedBox(height: 16),
                     const Divider(height: 1),
-                    const SectionTitle(title: "Task Trigger", infoText: "(Optional) Set a trigger to display a progress bar that updates automatically based on activity stats or time."),
+                    SectionTitle(title: context.l10n.taskFormTriggerTitle, infoText: context.l10n.taskFormTriggerInfo),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       child: Column(
@@ -1196,7 +1213,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   isExpanded: true,
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
-                                    labelText: "Type",
+                                    labelText: context.l10n.taskFormTypeLabel,
                                     border: const OutlineInputBorder(),
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     filled: widget.mode == TaskRulePageMode.edit && _intervalType != _getThresholdType(widget.taskRule?.interval),
@@ -1219,7 +1236,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   child: FormField<DateTime>(
                                     initialValue: _intervalDate,
                                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                                    validator: (value) => value == null ? 'Select a date' : null,
+                                    validator: (value) => value == null ? context.l10n.taskFormSelectDateError : null,
                                     builder: (field) {
                                       return InkWell(
                                         onTap: () async {
@@ -1237,7 +1254,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         },
                                         child: InputDecorator(
                                           decoration: InputDecoration(
-                                            labelText: "Date",
+                                            labelText: context.l10n.taskTriggerTypeDate,
                                             border: const OutlineInputBorder(),
                                             suffixIcon: const Icon(Icons.calendar_today, size: 20),
                                             errorText: field.errorText,
@@ -1246,7 +1263,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                           ),
                                           child: Text(
                                             _intervalDate == null
-                                                ? "Select Date"
+                                                ? context.l10n.taskFormSelectDate
                                                 : DateFormat(appSettings.dateFormat).format(_intervalDate!.toLocal()),
                                             style: Theme.of(context).textTheme.bodyLarge,
                                           ),
@@ -1275,7 +1292,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                     onChanged: (value) => setState(() {}),
                                     validator: _validateIntervalValue,
                                     decoration: InputDecoration(
-                                      labelText: "Value",
+                                      labelText: context.l10n.taskFormValueLabel,
                                       suffixText: _intervalType == _ThresholdType.duration
                                           ? null
                                           : _unitLabel(_intervalType, _intervalDurationUnit, _intervalValueController.text),
@@ -1310,8 +1327,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                     ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                                     : null,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                title: const Text("Repeat Interval"),
-                                subtitle: const Text("Start the interval over after each entry"),
+                                title: Text(context.l10n.taskFormRepeatTitle),
+                                subtitle: Text(context.l10n.taskFormRepeatSubtitle),
                                 trailing: Switch(
                                   value: _repeat,
                                   onChanged: (v) {

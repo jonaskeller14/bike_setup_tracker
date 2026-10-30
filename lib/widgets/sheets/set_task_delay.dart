@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/task/task_rule.dart';
@@ -37,13 +38,14 @@ bool canQuickEditTaskDelay(TaskRule taskRule, AppSettings appSettings) {
   return delay == null || delay.runtimeType == interval.runtimeType;
 }
 
-String _delaySuffix(TaskThreshold interval, AppSettings appSettings) {
+// The field takes any amount, so the unit words read plural (a count of 2).
+String _delaySuffix(TaskThreshold interval, AppSettings appSettings, AppLocalizations l10n) {
   return switch (interval) {
     DistanceThreshold() => appSettings.distanceUnit,
     ElevationThreshold() => appSettings.altitudeUnit,
     MovingTimeThreshold() || ElapsedTimeThreshold() => 'h',
-    DurationThreshold() => 'days',
-    ActivityCountThreshold() => 'rides',
+    DurationThreshold() => l10n.taskUnitDays(2),
+    ActivityCountThreshold() => l10n.taskUnitRides(2),
     KilojoulesThreshold() => 'kJ',
     DateTimeThreshold() => '',
   };
@@ -165,15 +167,15 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
     final decimal = _acceptsDecimals(_interval);
     final num? parsed = decimal ? parseLocalizedDouble(value) : int.tryParse(value);
     if (parsed == null) {
-      return decimal ? 'Enter a valid number' : 'Enter a whole number';
+      return decimal ? context.l10n.taskValidationValidNumber : context.l10n.taskValidationWholeNumber;
     }
     // Zero reads as "drop the delay", which only makes sense for a delay that
     // is already there — _buildDelay turns it into no delay at all.
-    if (parsed == 0) return _hadDelay ? null : 'Must not be 0';
+    if (parsed == 0) return _hadDelay ? null : context.l10n.taskValidationNotZero;
     final interval = _interval;
     if (interval is AccumulatingThreshold &&
         interval.totalTarget(_buildDelay(interval, value, context.read<AppSettings>())) < 0) {
-      return 'Cannot bring it forward by more than its interval';
+      return context.l10n.taskValidationForwardTooFar;
     }
     return null;
   }
@@ -204,7 +206,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SheetHeader(title: _hadDelay ? 'Edit Delay' : 'Add Delay'),
+            SheetHeader(title: _hadDelay ? context.l10n.taskDelayEdit : context.l10n.taskDelayAdd),
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(
@@ -241,14 +243,14 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
                                 onFieldSubmitted: (_) => _save(),
                                 validator: _validate,
                                 decoration: InputDecoration(
-                                  labelText: 'Delay Value',
+                                  labelText: context.l10n.taskDelayValueLabel,
                                   errorMaxLines: 2,
-                                  suffixText: _delaySuffix(_interval, appSettings),
+                                  suffixText: _delaySuffix(_interval, appSettings, context.l10n),
                                   suffixIcon: _valueController.text.isEmpty
                                       ? null
                                       : IconButton(
                                           icon: const Icon(Icons.clear, size: 20),
-                                          tooltip: 'Clear',
+                                          tooltip: context.l10n.clearTooltip,
                                           onPressed: () {
                                             _valueController.clear();
                                             setState(() {});
@@ -264,7 +266,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
                               height: 58, // matches the outlined field height
                               child: FilledButton(
                                 onPressed: _save,
-                                child: const Text('Save'),
+                                child: Text(context.l10n.save),
                               ),
                             ),
                           ],
@@ -272,9 +274,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'A delay postpones when this task becomes due, or brings it forward '
-                        'when negative, without changing its interval. It only applies once: '
-                        'completing the task clears the delay automatically.',
+                        context.l10n.taskDelayExplanation,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).hintColor,
                         ),
@@ -285,7 +285,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
                           width: double.infinity,
                           child: OutlinedButton.icon(
                             icon: const Icon(Icons.update),
-                            label: const Text('Make Due Now'),
+                            label: Text(context.l10n.taskDelayMakeDueNow),
                             onPressed: _makeDueNow,
                           ),
                         ),

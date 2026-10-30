@@ -68,7 +68,7 @@ class TaskRuleListCard extends StatelessWidget {
                 ),
                 Flexible(
                   child: Text(
-                    component?.name ?? "COMPONENT NOT FOUND",
+                    component?.name ?? context.l10n.componentNotFound,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -117,7 +117,7 @@ class TaskRuleListCard extends StatelessWidget {
                 ),
                 Flexible(
                   child: Text(
-                    bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+                    bikes[bikeId]?.name ?? context.l10n.bikeNotFound,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -142,7 +142,7 @@ class TaskRuleListCard extends StatelessWidget {
                 ),
                 Flexible(
                   child: Text(
-                    "General Task",
+                    context.l10n.taskGeneral,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
@@ -242,7 +242,7 @@ class TaskRuleListCard extends StatelessWidget {
           children: [
             Icon(Icons.history, size: 20, color: color),
             Text(
-              taskRule.delay == null ? 'Add Delay' : 'Edit Delay',
+              taskRule.delay == null ? context.l10n.taskDelayAdd : context.l10n.taskDelayEdit,
               style: TextStyle(color: color, fontWeight: FontWeight.w500),
             ),
           ],
@@ -396,11 +396,11 @@ class TaskRuleListCard extends StatelessWidget {
             },
             itemBuilder: (BuildContext context) =>
                 <PopupMenuEntry<_TaskRuleOptions>>[
-                  const PopupMenuItem<_TaskRuleOptions>(
+                  PopupMenuItem<_TaskRuleOptions>(
                     value: _TaskRuleOptions.edit,
                     child: Row(
                       spacing: 10,
-                      children: [Icon(Icons.edit, size: 20), Text('Edit')],
+                      children: [const Icon(Icons.edit, size: 20), Text(context.l10n.edit)],
                     ),
                   ),
                   if (canSetDelay)
@@ -411,23 +411,23 @@ class TaskRuleListCard extends StatelessWidget {
                         children: [
                           const Icon(Icons.history, size: 20),
                           Text(
-                            taskRule.delay == null ? 'Add Delay' : 'Edit Delay',
+                            taskRule.delay == null ? context.l10n.taskDelayAdd : context.l10n.taskDelayEdit,
                           ),
                         ],
                       ),
                     ),
-                  const PopupMenuItem<_TaskRuleOptions>(
+                  PopupMenuItem<_TaskRuleOptions>(
                     value: _TaskRuleOptions.duplicate,
                     child: Row(
                       spacing: 10,
-                      children: [Icon(Icons.copy, size: 20), Text('Duplicate')],
+                      children: [const Icon(Icons.copy, size: 20), Text(context.l10n.duplicate)],
                     ),
                   ),
-                  const PopupMenuItem<_TaskRuleOptions>(
+                  PopupMenuItem<_TaskRuleOptions>(
                     value: _TaskRuleOptions.remove,
                     child: Row(
                       spacing: 10,
-                      children: [Icon(Icons.delete, size: 20), Text('Remove')],
+                      children: [const Icon(Icons.delete, size: 20), Text(context.l10n.remove)],
                     ),
                   ),
                 ],
@@ -478,12 +478,6 @@ class TaskRuleListCard extends StatelessWidget {
   }
 }
 
-/// Whether the unit reads as plural for the value actually shown.
-bool _isPlural(TaskThreshold threshold) => switch (threshold) {
-  DurationThreshold(:final days) => days.inDays != 1,
-  ActivityCountThreshold(:final count) => count != 1,
-  _ => true,
-};
 
 /// The interval and its delay added up: the target this cycle really runs to,
 /// and the one the progress bar measures against. Null when the two cannot be
@@ -511,9 +505,9 @@ TaskThreshold? _combined(TaskThreshold interval, TaskThreshold delay) => switch 
 /// threshold whose value is not a plain number, i.e. a deadline.
 ({String number, String unit})? _thresholdParts(
   TaskThreshold threshold,
-  AppSettings appSettings, {
-  required bool plural,
-}) {
+  AppSettings appSettings,
+  AppLocalizations l10n,
+) {
   final fmt = NumberFormat.decimalPattern();
   return switch (threshold) {
     DistanceThreshold(:final meters) => (
@@ -527,8 +521,8 @@ TaskThreshold? _combined(TaskThreshold interval, TaskThreshold delay) => switch 
     ),
     MovingTimeThreshold(:final hours) ||
     ElapsedTimeThreshold(:final hours) => (number: fmt.format(hours.inHours), unit: 'h'),
-    DurationThreshold(:final days) => (number: fmt.format(days.inDays), unit: plural ? 'days' : 'day'),
-    ActivityCountThreshold(:final count) => (number: fmt.format(count), unit: plural ? 'rides' : 'ride'),
+    DurationThreshold(:final days) => (number: fmt.format(days.inDays), unit: l10n.taskUnitDays(days.inDays)),
+    ActivityCountThreshold(:final count) => (number: fmt.format(count), unit: l10n.taskUnitRides(count)),
     KilojoulesThreshold(:final kilojoules) => (number: fmt.format(kilojoules.round()), unit: 'kJ'),
     DateTimeThreshold() => null,
   };
@@ -570,7 +564,8 @@ class TaskIntervalText extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
     final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
     final delayColor = Theme.of(context).extension<ValueHighlightColors>()!.changed;
-    final prefix = repeat ? 'Every ' : 'After ';
+    final l10n = context.l10n;
+    final prefix = repeat ? l10n.taskIntervalPrefixEvery : l10n.taskIntervalPrefixAfter;
     final activeDelay = switch (delay) {
       AccumulatingThreshold(:final isPullForward) when isPullForward => delay,
       final delay? when delay.isPositive => delay,
@@ -578,9 +573,9 @@ class TaskIntervalText extends StatelessWidget {
     };
 
     final combined = activeDelay == null ? null : _combined(interval, activeDelay);
-    final plural = _isPlural(combined ?? interval);
-    final originalParts = combined == null ? null : _thresholdParts(interval, appSettings, plural: plural);
-    final combinedParts = combined == null ? null : _thresholdParts(combined, appSettings, plural: plural);
+    // The unit follows the number that governs this cycle, so both numbers share it.
+    final originalParts = combined == null ? null : _thresholdParts(interval, appSettings, l10n);
+    final combinedParts = combined == null ? null : _thresholdParts(combined, appSettings, l10n);
 
     if (originalParts != null && combinedParts != null) {
       return _chip(
@@ -589,7 +584,7 @@ class TaskIntervalText extends StatelessWidget {
         iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
         label: Text.rich(
           TextSpan(
-            text: prefix,
+            text: '$prefix ',
             children: [
               TextSpan(
                 text: originalParts.number,
@@ -615,7 +610,7 @@ class TaskIntervalText extends StatelessWidget {
       icon: interval.iconData,
       iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
       label: Text(
-        '$prefix${interval.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+        '$prefix ${interval.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
         style: TextStyle(color: mutedColor, fontSize: 13),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

@@ -4344,4 +4344,791 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adjustmentPresetAllAdded => 'All suggestions added';
+
+  @override
+  String get taskGeneral => 'General Task';
+
+  @override
+  String get taskNotFound => 'TASK NOT FOUND';
+
+  @override
+  String taskUnitDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days',
+      one: 'day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskUnitWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'weeks',
+      one: 'week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskUnitMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'months',
+      one: 'month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskUnitYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'years',
+      one: 'year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskUnitRides(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'rides',
+      one: 'ride',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskIntervalEveryDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'every $countString days',
+      one: 'every day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskIntervalEveryWeeks(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'every $countString weeks',
+      one: 'every week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskIntervalEveryMonths(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'every $countString months',
+      one: 'every month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskIntervalEveryYears(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'every $countString years',
+      one: 'every year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskIntervalEvery(String value) {
+    return 'every $value';
+  }
+
+  @override
+  String get taskIntervalPrefixEvery => 'Every';
+
+  @override
+  String get taskIntervalPrefixAfter => 'After';
+
+  @override
+  String taskRecommendedInterval(String interval) {
+    return 'Recommended interval: $interval';
+  }
+
+  @override
+  String taskRecommendedTimeBased(String interval) {
+    return ' (time-based; $interval with Strava)';
+  }
+
+  @override
+  String taskSuggestionTimeBased(String interval) {
+    return 'Time-based · $interval with Strava';
+  }
+
+  @override
+  String taskSuggestionTypical(String type) {
+    return 'Typical interval for $type';
+  }
+
+  @override
+  String get taskForecastToday => 'today';
+
+  @override
+  String get taskForecastTomorrow => 'tomorrow';
+
+  @override
+  String taskForecastInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'in $count days',
+      one: 'in 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskForecastInWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'in $count weeks',
+      one: 'in 1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskForecastTooltip =>
+      'Forecast for when this task will become due. Exact for date and duration intervals; for other intervals it is estimated from recent riding activity and needs a connected Strava subscription.';
+
+  @override
+  String taskRemaining(String amount) {
+    return '$amount remaining';
+  }
+
+  @override
+  String taskExceeded(String amount) {
+    return '$amount exceeded';
+  }
+
+  @override
+  String taskActionRenamedEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Renamed $count corresponding Task Entries.',
+      one: 'Renamed 1 corresponding Task Entry.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskActionPrioritySet(int count, String priority) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Priority set to \'$priority\' for $count Tasks.',
+      one: 'Priority set to \'$priority\' for 1 Task.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskSetTagsTitle => 'Set Tags';
+
+  @override
+  String get taskTagsSubtitle =>
+      'Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)';
+
+  @override
+  String taskApplyTags(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Apply to $count Tasks',
+      one: 'Apply to 1 Task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskTagsUpdated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tags updated for $count Tasks.',
+      one: 'Tags updated for 1 Task.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskRulesMovedToTrash(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Tasks and corresponding entries moved to trash.',
+      one: 'Task \'$name\' and corresponding entries moved to trash.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskRestoredFromTrash(String name) {
+    return 'Task \'$name\' restored from trash.';
+  }
+
+  @override
+  String taskCompleted(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Tasks completed.',
+      one: 'Task \'$name\' completed.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskEntriesMovedToTrash(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Task Entries moved to trash.',
+      one: 'Task Entry \'$name\' moved to trash.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskEntryRestoredFromTrash(String name) {
+    return 'Task Entry \'$name\' restored from trash.';
+  }
+
+  @override
+  String get taskComponentTypeFallback => 'component';
+
+  @override
+  String get taskPriorityTitle => 'Task Priority';
+
+  @override
+  String get taskFilterTagsTitle => 'Task Tags';
+
+  @override
+  String get taskFilterTagsEmptyTitle => 'No task tags yet';
+
+  @override
+  String get taskFilterTagsEmptyHint => 'Add/Edit a Task Rule to add tags.';
+
+  @override
+  String get taskPresetUnlinkTooltip => 'Unlink preset (keeps values)';
+
+  @override
+  String get taskDelayAdd => 'Add Delay';
+
+  @override
+  String get taskDelayEdit => 'Edit Delay';
+
+  @override
+  String taskEntryLinkedTo(String name) {
+    return 'Linked to $name';
+  }
+
+  @override
+  String get taskAdd => 'Add Task';
+
+  @override
+  String get taskListDueNow => 'Due now';
+
+  @override
+  String get taskListUpcoming => 'Upcoming';
+
+  @override
+  String get taskListCompleted => 'Completed';
+
+  @override
+  String get taskListEmptyTitle => 'No tasks yet';
+
+  @override
+  String get taskListEmptySubtitle => 'Add a task to track service intervals or other bike related todos.';
+
+  @override
+  String get taskListEmptyAction => 'Add a task';
+
+  @override
+  String get taskListFilteredTitle => 'Nothing due in this view';
+
+  @override
+  String get taskListFilteredSubtitle => 'Priority or tag filters are hiding tasks that need attention.';
+
+  @override
+  String get taskListShowFewerUpcoming => 'Show fewer upcoming tasks';
+
+  @override
+  String get taskListShowFewerCompleted => 'Show fewer completed tasks';
+
+  @override
+  String taskListShowAllUpcoming(int count) {
+    return 'Show all $count upcoming tasks';
+  }
+
+  @override
+  String taskListShowAllCompleted(int count) {
+    return 'Show all $count completed tasks';
+  }
+
+  @override
+  String get taskListShowLess => 'Show less';
+
+  @override
+  String taskListShowAllCount(int count) {
+    return 'Show all ($count)';
+  }
+
+  @override
+  String taskListScrollToSection(String label) {
+    return '$label. Scroll to section';
+  }
+
+  @override
+  String get taskCaughtUpTitle => 'All caught up';
+
+  @override
+  String get taskCaughtUpScope => 'There are no tasks due right now.';
+
+  @override
+  String taskCaughtUpScopeBike(String name) {
+    return '$name has no tasks due right now.';
+  }
+
+  @override
+  String taskCaughtUpNext(String name) {
+    return 'Next up: $name.';
+  }
+
+  @override
+  String get taskCaughtUpAction => 'Add task';
+
+  @override
+  String get taskOpenTasksTitle => 'Open Tasks';
+
+  @override
+  String get taskOpenEmptyTitle => 'No open tasks';
+
+  @override
+  String get taskOpenEmptySubtitle => 'Add a task to keep track of maintenance';
+
+  @override
+  String get taskDeleteTitle => 'Delete related tasks?';
+
+  @override
+  String get taskDeleteBody => 'Deleting a task also deletes its corresponding task entries.';
+
+  @override
+  String taskDeleteCount(int selected, int total) {
+    return 'Tasks ($selected / $total)';
+  }
+
+  @override
+  String get taskDeleteContinue => 'Continue without deleting tasks';
+
+  @override
+  String taskDeleteButton(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Delete $count tasks',
+      one: 'Delete 1 task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskGroupComponentNotFound => 'Component not found';
+
+  @override
+  String get taskGroupThisComponent => 'This component';
+
+  @override
+  String get taskGroupSubcomponent => 'Subcomponent';
+
+  @override
+  String get taskSheetCopyTitle => 'Copy tasks?';
+
+  @override
+  String taskSheetRecommendTitle(String name) {
+    return 'Recommended tasks for \'$name\'';
+  }
+
+  @override
+  String taskSheetMergedTitle(String name) {
+    return 'Tasks for \'$name\'';
+  }
+
+  @override
+  String taskSheetCopyDescription(String name) {
+    return 'Pick the tasks to copy to \'$name\'. Copies start fresh — the completion history stays with the original component.';
+  }
+
+  @override
+  String get taskSheetRecommendDescription =>
+      'Pick the tasks to add. Each one becomes a normal task you can edit later.';
+
+  @override
+  String taskSheetMergedDescription(String from) {
+    return 'Copies start fresh — the completion history stays with \'$from\'. Recommended tasks become normal tasks you can edit later.';
+  }
+
+  @override
+  String taskSheetCopyDescriptionOptional(String name) {
+    return 'Optional — pick the tasks to copy to \'$name\'. Copies start fresh — the completion history stays with the original component.';
+  }
+
+  @override
+  String get taskSheetRecommendDescriptionOptional =>
+      'Optional — pick the tasks to add. Each one becomes a normal task you can edit later.';
+
+  @override
+  String taskSheetMergedDescriptionOptional(String from) {
+    return 'Optional — copies start fresh — the completion history stays with \'$from\'. Recommended tasks become normal tasks you can edit later.';
+  }
+
+  @override
+  String taskSheetAdded(String name) {
+    return '\'$name\' added';
+  }
+
+  @override
+  String taskSheetReplaced(String name) {
+    return '\'$name\' replaced';
+  }
+
+  @override
+  String taskSheetPromptCopy(String from) {
+    return 'Copy tasks from \'$from\'?';
+  }
+
+  @override
+  String taskSheetPromptRecommend(String type) {
+    return 'Add tasks for this $type?';
+  }
+
+  @override
+  String taskSheetPromptMerged(String type) {
+    return 'Set up tasks for this $type?';
+  }
+
+  @override
+  String get taskSheetRecommendationsOff =>
+      'Task recommendations turned off. Turn them back on in Settings › Features.';
+
+  @override
+  String taskSheetCopyFrom(String from) {
+    return 'Copy from \'$from\'';
+  }
+
+  @override
+  String get taskSheetTasks => 'Tasks';
+
+  @override
+  String taskSheetRecommendedFor(String name) {
+    return 'Recommended for $name';
+  }
+
+  @override
+  String get taskSheetTurnOff => 'Turn off recommendations';
+
+  @override
+  String taskSheetCopyButton(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Copy $count tasks',
+      one: 'Copy 1 task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskSheetAddButton(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Add $count tasks',
+      one: 'Add 1 task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskSheetContinueWithoutCopy => 'Continue without copying tasks';
+
+  @override
+  String get taskSheetNotNow => 'Not now';
+
+  @override
+  String get taskDelayValueLabel => 'Delay Value';
+
+  @override
+  String get taskDelayMakeDueNow => 'Make Due Now';
+
+  @override
+  String get taskDelayExplanation =>
+      'A delay postpones when this task becomes due, or brings it forward when negative, without changing its interval. It only applies once: completing the task clears the delay automatically.';
+
+  @override
+  String get clearTooltip => 'Clear';
+
+  @override
+  String get taskValidationEnterValue => 'Enter a value';
+
+  @override
+  String get taskValidationWholeNumber => 'Enter a whole number';
+
+  @override
+  String get taskValidationValidNumber => 'Enter a valid number';
+
+  @override
+  String get taskValidationNotZero => 'Must not be 0';
+
+  @override
+  String get taskValidationForwardTooFar => 'Cannot bring it forward by more than its interval';
+
+  @override
+  String get taskAssociationTitle => 'Link task to';
+
+  @override
+  String get taskAssociationHint => 'Tap a bike or a component to link this task to it.';
+
+  @override
+  String get taskAssociationSearchHint => 'Search bikes and parts…';
+
+  @override
+  String taskAssociationNoMatches(String query) {
+    return 'No matches for \"$query\"';
+  }
+
+  @override
+  String get taskAssociationGeneralTooltip => 'A task that is not linked to a bike or component';
+
+  @override
+  String get taskAssociationMissingTooltip => 'This entry no longer exists';
+
+  @override
+  String get taskAssociationBikeMissing => 'Bike not found';
+
+  @override
+  String setDurationMin(String value) {
+    return 'Min: $value';
+  }
+
+  @override
+  String setDurationMax(String value) {
+    return 'Max: $value';
+  }
+
+  @override
+  String get setDurationBelowMin => 'Selected duration is below the minimum';
+
+  @override
+  String get setDurationAboveMax => 'Selected duration exceeds the maximum';
+
+  @override
+  String get taskTriggerTypeNone => 'None';
+
+  @override
+  String get taskTriggerTypeDistance => 'Distance';
+
+  @override
+  String get taskTriggerTypeElevation => 'Elevation';
+
+  @override
+  String get taskTriggerTypeMovingTime => 'Moving Time';
+
+  @override
+  String get taskTriggerTypeElapsedTime => 'Elapsed Time';
+
+  @override
+  String get taskTriggerTypeDuration => 'Duration';
+
+  @override
+  String get taskTriggerTypeActivityCount => 'Activity Count';
+
+  @override
+  String get taskTriggerTypeKilojoules => 'Kilojoules (Accumulated Watts)';
+
+  @override
+  String get taskTriggerTypeDate => 'Date';
+
+  @override
+  String get taskTriggerSectionTimeBased => 'Time-based';
+
+  @override
+  String get taskTriggerSectionActivityBased => 'Activity-based (Strava)';
+
+  @override
+  String get taskTriggerStravaTitle => 'Activity-based triggers need Strava';
+
+  @override
+  String get taskTriggerStravaBody =>
+      'Distance, elevation, time and ride-count triggers update automatically from your Strava activities.';
+
+  @override
+  String get taskTriggerStravaConnect => 'Connect';
+
+  @override
+  String get taskFormAddTitle => 'Add Task Rule';
+
+  @override
+  String get taskFormEditTitle => 'Edit Task Rule';
+
+  @override
+  String get taskFormNameLabel => 'Task Rule Name';
+
+  @override
+  String get taskFormNameHint => 'Enter task name';
+
+  @override
+  String get taskFormNameRequired => 'Name required';
+
+  @override
+  String get taskFormNotesHint => 'Add additional details or instructions...';
+
+  @override
+  String get taskFormAddTags => 'Add Tags';
+
+  @override
+  String get taskFormLinkedTo => 'Linked To';
+
+  @override
+  String taskFormOnBike(String bike) {
+    return 'on $bike';
+  }
+
+  @override
+  String get taskFormArchivedWarning => 'WARNING: Tasks of archived components are hidden in the task list.';
+
+  @override
+  String get taskFormTriggerNeedsLink => 'The selected trigger needs a linked Bike or Component';
+
+  @override
+  String get taskFormTriggerTitle => 'Task Trigger';
+
+  @override
+  String get taskFormTriggerInfo =>
+      '(Optional) Set a trigger to display a progress bar that updates automatically based on activity stats or time.';
+
+  @override
+  String get taskFormTypeLabel => 'Type';
+
+  @override
+  String get taskFormValueLabel => 'Value';
+
+  @override
+  String get taskFormSelectDate => 'Select Date';
+
+  @override
+  String get taskFormSelectDateError => 'Select a date';
+
+  @override
+  String get taskFormChangeUnitTooltip => 'Change unit';
+
+  @override
+  String get taskFormRepeatTitle => 'Repeat Interval';
+
+  @override
+  String get taskFormRepeatSubtitle => 'Start the interval over after each entry';
+
+  @override
+  String get taskFormDelayLabel => 'Delay';
+
+  @override
+  String get taskFormDelaySubtitle => 'Postpone the next due date once';
+
+  @override
+  String get taskEntryFormAddTitle => 'Add Task Entry';
+
+  @override
+  String get taskEntryFormEditTitle => 'Edit Task Entry';
+
+  @override
+  String get taskEntryFormNameLabel => 'Task Entry Name';
+
+  @override
+  String get taskEntryFormNameHint => 'Enter task entry name';
+
+  @override
+  String get taskEntryFormNameRequired => 'Name is required';
+
+  @override
+  String get taskEntryFormNotesHint => 'Add additional details...';
+
+  @override
+  String get taskEntryPickDate => 'Select Task Entry Date';
+
+  @override
+  String get taskEntryPickTime => 'Select Task Entry Time';
+
+  @override
+  String get taskEntryDeletedComponent => 'a deleted component';
+
+  @override
+  String get taskEntryDeletedBike => 'a deleted bike';
+
+  @override
+  String get taskEntryGeneralTask => 'a general task';
+
+  @override
+  String taskEntryLinkMismatch(String target) {
+    return 'WARNING: Differs from the task rule, which is linked to $target.';
+  }
+
+  @override
+  String get taskDetailsTitle => 'Task';
+
+  @override
+  String get taskDetailsNotFoundTitle => 'Task not found';
+
+  @override
+  String get taskDetailsNotFoundSubtitle => 'This task was deleted or is no longer available.';
+
+  @override
+  String get taskDetailsEntriesTitle => 'Entries';
+
+  @override
+  String get taskDetailsEntriesInfo =>
+      'The card above is the Task — the rule defining what to do and when it\'s due. Each time you complete it, an entry is logged below. A recurring task collects multiple entries, one per completion.';
+
+  @override
+  String get taskDetailsEmptyTitle => 'No entries yet';
+
+  @override
+  String get taskDetailsEmptySubtitle => 'Complete this task to log your first entry.';
+
+  @override
+  String get taskDetailsEmptyAction => 'Add entry';
 }

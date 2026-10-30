@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 
 void showSetDurationSheet({
@@ -40,7 +41,7 @@ void showSetDurationSheet({
                               color: isBelowMin ? Theme.of(context).colorScheme.error : null,
                             ),
                             title: Text(
-                              "Min: ${DurationValue(adjustment.min!).display}",
+                              context.l10n.setDurationMin(DurationValue(adjustment.min!).display),
                               style: TextStyle(color: isBelowMin ? Theme.of(context).colorScheme.error : null),
                             ),
                             dense: true,
@@ -54,7 +55,7 @@ void showSetDurationSheet({
                               color: isAboveMax ? Theme.of(context).colorScheme.error : null,
                             ),
                             title: Text(
-                              "Max: ${DurationValue(adjustment.max!).display}",
+                              context.l10n.setDurationMax(DurationValue(adjustment.max!).display),
                               style: TextStyle(color: isAboveMax ? Theme.of(context).colorScheme.error : null),
                             ),
                             dense: true,
@@ -68,7 +69,7 @@ void showSetDurationSheet({
                       ? ListTile(
                           leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
                           title: SelectableText(
-                            isBelowMin ? "Selected duration is below the minimum" : "Selected duration exceeds the maximum",
+                            isBelowMin ? context.l10n.setDurationBelowMin : context.l10n.setDurationAboveMax,
                             style: TextStyle(color: Theme.of(context).colorScheme.error),
                           ),
                           dense: true,

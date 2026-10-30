@@ -5621,5 +5621,1008 @@
   "adjustmentPresetAllAdded": "All suggestions added",
   "@adjustmentPresetAllAdded": {
     "description": "Title shown when all suggested templates were added."
+  },
+  "taskGeneral": "General Task",
+  "@taskGeneral": {
+    "description": "Name of a task that is not linked to a bike or a component."
+  },
+  "taskNotFound": "TASK NOT FOUND",
+  "@taskNotFound": {
+    "description": "Shown instead of the task name when the task of an entry no longer exists."
+  },
+  "taskUnitDays": "{count, plural, =1{day} other{days}}",
+  "@taskUnitDays": {
+    "description": "Unit word after a number of days, without the number. {count} only selects singular or plural.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskUnitWeeks": "{count, plural, =1{week} other{weeks}}",
+  "@taskUnitWeeks": {
+    "description": "Unit word after a number of weeks, without the number. {count} only selects singular or plural.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskUnitMonths": "{count, plural, =1{month} other{months}}",
+  "@taskUnitMonths": {
+    "description": "Unit word after a number of months, without the number. {count} only selects singular or plural.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskUnitYears": "{count, plural, =1{year} other{years}}",
+  "@taskUnitYears": {
+    "description": "Unit word after a number of years, without the number. {count} only selects singular or plural.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskUnitRides": "{count, plural, =1{ride} other{rides}}",
+  "@taskUnitRides": {
+    "description": "Unit word after a number of rides, without the number. {count} only selects singular or plural.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskIntervalEveryDays": "{count, plural, =1{every day} other{every {count} days}}",
+  "@taskIntervalEveryDays": {
+    "description": "Recurring interval in days, inside a sentence. {count} is the number of days.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "taskIntervalEveryWeeks": "{count, plural, =1{every week} other{every {count} weeks}}",
+  "@taskIntervalEveryWeeks": {
+    "description": "Recurring interval in weeks, inside a sentence. {count} is the number of weeks.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "taskIntervalEveryMonths": "{count, plural, =1{every month} other{every {count} months}}",
+  "@taskIntervalEveryMonths": {
+    "description": "Recurring interval in months, inside a sentence. {count} is the number of months.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "taskIntervalEveryYears": "{count, plural, =1{every year} other{every {count} years}}",
+  "@taskIntervalEveryYears": {
+    "description": "Recurring interval in years, inside a sentence. {count} is the number of years.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "taskIntervalEvery": "every {value}",
+  "@taskIntervalEvery": {
+    "description": "Recurring interval, inside a sentence. {value} is the amount with its unit, like 2,000 km.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "taskIntervalPrefixEvery": "Every",
+  "@taskIntervalPrefixEvery": {
+    "description": "Start of the interval line of a repeating task. The amount follows, like Every 500 km."
+  },
+  "taskIntervalPrefixAfter": "After",
+  "@taskIntervalPrefixAfter": {
+    "description": "Start of the interval line of a task that does not repeat. The amount follows, like After 500 km. German avoids the case ending a literal translation would need."
+  },
+  "taskRecommendedInterval": "Recommended interval: {interval}",
+  "@taskRecommendedInterval": {
+    "description": "First line of the note of a task created from a recommendation. It is stored with the note. {interval} is the interval, like every 6 months.",
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "taskRecommendedTimeBased": " (time-based; {interval} with Strava)",
+  "@taskRecommendedTimeBased": {
+    "description": "Added to the recommended interval line when no Strava is connected. Keep the leading space. {interval} is the ride-based interval that applies with Strava.",
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSuggestionTimeBased": "Time-based · {interval} with Strava",
+  "@taskSuggestionTimeBased": {
+    "description": "Origin line of a recommended task when it falls back to a time-based interval. {interval} is the interval that applies with Strava.",
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSuggestionTypical": "Typical interval for {type}",
+  "@taskSuggestionTypical": {
+    "description": "Origin line of a recommended task. {type} is the component type.",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "taskForecastToday": "today",
+  "@taskForecastToday": {
+    "description": "Forecast of when a task becomes due."
+  },
+  "taskForecastTomorrow": "tomorrow",
+  "@taskForecastTomorrow": {
+    "description": "Forecast of when a task becomes due."
+  },
+  "taskForecastInDays": "{count, plural, =1{in 1 day} other{in {count} days}}",
+  "@taskForecastInDays": {
+    "description": "Forecast of when a task becomes due. {count} is the number of days.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskForecastInWeeks": "{count, plural, =1{in 1 week} other{in {count} weeks}}",
+  "@taskForecastInWeeks": {
+    "description": "Forecast of when a task becomes due. {count} is the number of weeks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskForecastTooltip": "Forecast for when this task will become due. Exact for date and duration intervals; for other intervals it is estimated from recent riding activity and needs a connected Strava subscription.",
+  "@taskForecastTooltip": {
+    "description": "Tooltip of the due forecast on a task card."
+  },
+  "taskRemaining": "{amount} remaining",
+  "@taskRemaining": {
+    "description": "Progress of a task toward its interval. {amount} is the amount left with its unit, like 12 km.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "taskExceeded": "{amount} exceeded",
+  "@taskExceeded": {
+    "description": "Progress of a task past its interval. {amount} is the amount over with its unit, like 12 km.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "taskActionRenamedEntries": "{count, plural, =1{Renamed 1 corresponding Task Entry.} other{Renamed {count} corresponding Task Entries.}}",
+  "@taskActionRenamedEntries": {
+    "description": "Snackbar after a task was renamed. {count} is the number of entries renamed with it.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskActionPrioritySet": "{count, plural, =1{Priority set to '{priority}' for 1 Task.} other{Priority set to '{priority}' for {count} Tasks.}}",
+  "@taskActionPrioritySet": {
+    "description": "Snackbar after changing the priority. {priority} is the new priority, {count} the number of tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "priority": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSetTagsTitle": "Set Tags",
+  "@taskSetTagsTitle": {
+    "description": "Title of the sheet that sets the tags of selected tasks."
+  },
+  "taskTagsSubtitle": "Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)",
+  "@taskTagsSubtitle": {
+    "description": "Explanation in the tags sheets of a task."
+  },
+  "taskApplyTags": "{count, plural, =1{Apply to 1 Task} other{Apply to {count} Tasks}}",
+  "@taskApplyTags": {
+    "description": "Apply button of the bulk tags sheet. {count} is the number of tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskTagsUpdated": "{count, plural, =1{Tags updated for 1 Task.} other{Tags updated for {count} Tasks.}}",
+  "@taskTagsUpdated": {
+    "description": "Snackbar after changing tags. {count} is the number of tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskRulesMovedToTrash": "{count, plural, =1{Task '{name}' and corresponding entries moved to trash.} other{{count} Tasks and corresponding entries moved to trash.}}",
+  "@taskRulesMovedToTrash": {
+    "description": "Snackbar after removing tasks. {name} is the task if there is one, {count} the number of tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskRestoredFromTrash": "Task '{name}' restored from trash.",
+  "@taskRestoredFromTrash": {
+    "description": "Snackbar after a task was restored.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskCompleted": "{count, plural, =1{Task '{name}' completed.} other{{count} Tasks completed.}}",
+  "@taskCompleted": {
+    "description": "Snackbar after completing tasks. {name} is the task if there is one, {count} the number of tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskEntriesMovedToTrash": "{count, plural, =1{Task Entry '{name}' moved to trash.} other{{count} Task Entries moved to trash.}}",
+  "@taskEntriesMovedToTrash": {
+    "description": "Snackbar after removing task entries. {name} is the entry if there is one, {count} the number of entries.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskEntryRestoredFromTrash": "Task Entry '{name}' restored from trash.",
+  "@taskEntryRestoredFromTrash": {
+    "description": "Snackbar after a task entry was restored.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskComponentTypeFallback": "component",
+  "@taskComponentTypeFallback": {
+    "description": "Used in a sentence when the component type is not known."
+  },
+  "taskPriorityTitle": "Task Priority",
+  "@taskPriorityTitle": {
+    "description": "Title of the priority sheet and of the priority section of the task filter."
+  },
+  "taskFilterTagsTitle": "Task Tags",
+  "@taskFilterTagsTitle": {
+    "description": "Title of the tags section of the task filter."
+  },
+  "taskFilterTagsEmptyTitle": "No task tags yet",
+  "@taskFilterTagsEmptyTitle": {
+    "description": "Shown in the task filter when no task has a tag."
+  },
+  "taskFilterTagsEmptyHint": "Add/Edit a Task Rule to add tags.",
+  "@taskFilterTagsEmptyHint": {
+    "description": "Hint below the empty tags title in the task filter."
+  },
+  "taskPresetUnlinkTooltip": "Unlink preset (keeps values)",
+  "@taskPresetUnlinkTooltip": {
+    "description": "Tooltip of the remove button on the chip of the applied task preset."
+  },
+  "taskDelayAdd": "Add Delay",
+  "@taskDelayAdd": {
+    "description": "Menu entry, swipe label and sheet title for a task that has no delay yet."
+  },
+  "taskDelayEdit": "Edit Delay",
+  "@taskDelayEdit": {
+    "description": "Menu entry, swipe label and sheet title for a task that already has a delay."
+  },
+  "taskEntryLinkedTo": "Linked to {name}",
+  "@taskEntryLinkedTo": {
+    "description": "Warning on a task entry whose link differs from its task. {name} is what the entry is linked to.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskAdd": "Add Task",
+  "@taskAdd": {
+    "description": "Button that adds a task."
+  },
+  "taskListDueNow": "Due now",
+  "@taskListDueNow": {
+    "description": "Header of the list section of due tasks."
+  },
+  "taskListUpcoming": "Upcoming",
+  "@taskListUpcoming": {
+    "description": "Header of the list section of tasks that are not due yet."
+  },
+  "taskListCompleted": "Completed",
+  "@taskListCompleted": {
+    "description": "Header of the list section of completed tasks."
+  },
+  "taskListEmptyTitle": "No tasks yet",
+  "@taskListEmptyTitle": {
+    "description": "Title of the empty task list."
+  },
+  "taskListEmptySubtitle": "Add a task to track service intervals or other bike related todos.",
+  "@taskListEmptySubtitle": {
+    "description": "Subtitle of the empty task list."
+  },
+  "taskListEmptyAction": "Add a task",
+  "@taskListEmptyAction": {
+    "description": "Button of the empty task list."
+  },
+  "taskListFilteredTitle": "Nothing due in this view",
+  "@taskListFilteredTitle": {
+    "description": "Title of the due section when filters hide the tasks that are due."
+  },
+  "taskListFilteredSubtitle": "Priority or tag filters are hiding tasks that need attention.",
+  "@taskListFilteredSubtitle": {
+    "description": "Subtitle of the due section when filters hide the tasks that are due."
+  },
+  "taskListShowFewerUpcoming": "Show fewer upcoming tasks",
+  "@taskListShowFewerUpcoming": {
+    "description": "Screen reader label of the button that collapses the upcoming section."
+  },
+  "taskListShowFewerCompleted": "Show fewer completed tasks",
+  "@taskListShowFewerCompleted": {
+    "description": "Screen reader label of the button that collapses the completed section."
+  },
+  "taskListShowAllUpcoming": "Show all {count} upcoming tasks",
+  "@taskListShowAllUpcoming": {
+    "description": "Screen reader label of the button that expands the upcoming section. {count} is the number of tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskListShowAllCompleted": "Show all {count} completed tasks",
+  "@taskListShowAllCompleted": {
+    "description": "Screen reader label of the button that expands the completed section. {count} is the number of tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskListShowLess": "Show less",
+  "@taskListShowLess": {
+    "description": "Button that collapses a task list section."
+  },
+  "taskListShowAllCount": "Show all ({count})",
+  "@taskListShowAllCount": {
+    "description": "Button that expands a task list section. {count} is the number of tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskListScrollToSection": "{label}. Scroll to section",
+  "@taskListScrollToSection": {
+    "description": "Screen reader label of a list section header. {label} is the header with its count.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "taskCaughtUpTitle": "All caught up",
+  "@taskCaughtUpTitle": {
+    "description": "Title shown when no task is due."
+  },
+  "taskCaughtUpScope": "There are no tasks due right now.",
+  "@taskCaughtUpScope": {
+    "description": "Subtitle shown when no task is due."
+  },
+  "taskCaughtUpScopeBike": "{name} has no tasks due right now.",
+  "@taskCaughtUpScopeBike": {
+    "description": "Subtitle shown when no task of a bike is due. {name} is the bike.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskCaughtUpNext": "Next up: {name}.",
+  "@taskCaughtUpNext": {
+    "description": "Screen reader addition naming the next task. {name} is the task.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskCaughtUpAction": "Add task",
+  "@taskCaughtUpAction": {
+    "description": "Button below the caught up message."
+  },
+  "taskOpenTasksTitle": "Open Tasks",
+  "@taskOpenTasksTitle": {
+    "description": "Title of the open tasks tile of a bike or component."
+  },
+  "taskOpenEmptyTitle": "No open tasks",
+  "@taskOpenEmptyTitle": {
+    "description": "Title of the open tasks tile when it is empty."
+  },
+  "taskOpenEmptySubtitle": "Add a task to keep track of maintenance",
+  "@taskOpenEmptySubtitle": {
+    "description": "Subtitle of the open tasks tile when it is empty."
+  },
+  "taskDeleteTitle": "Delete related tasks?",
+  "@taskDeleteTitle": {
+    "description": "Title of the sheet that asks which related tasks are deleted along with a bike or component."
+  },
+  "taskDeleteBody": "Deleting a task also deletes its corresponding task entries.",
+  "@taskDeleteBody": {
+    "description": "Explanation in the delete related tasks sheet."
+  },
+  "taskDeleteCount": "Tasks ({selected} / {total})",
+  "@taskDeleteCount": {
+    "description": "Header of the task list in the delete sheet. {selected} of {total} tasks are checked.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "taskDeleteContinue": "Continue without deleting tasks",
+  "@taskDeleteContinue": {
+    "description": "Button of the delete sheet while no task is checked."
+  },
+  "taskDeleteButton": "{count, plural, =1{Delete 1 task} other{Delete {count} tasks}}",
+  "@taskDeleteButton": {
+    "description": "Button of the delete sheet. {count} is the number of checked tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskGroupComponentNotFound": "Component not found",
+  "@taskGroupComponentNotFound": {
+    "description": "Group header in the delete sheet for tasks of a component that no longer exists."
+  },
+  "taskGroupThisComponent": "This component",
+  "@taskGroupThisComponent": {
+    "description": "Marker on the group header of the component itself in the delete sheet."
+  },
+  "taskGroupSubcomponent": "Subcomponent",
+  "@taskGroupSubcomponent": {
+    "description": "Marker on the group header of a subcomponent in the delete sheet."
+  },
+  "taskSheetCopyTitle": "Copy tasks?",
+  "@taskSheetCopyTitle": {
+    "description": "Title of the sheet that copies tasks."
+  },
+  "taskSheetRecommendTitle": "Recommended tasks for '{name}'",
+  "@taskSheetRecommendTitle": {
+    "description": "Title of the sheet that recommends tasks. {name} is the component.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetMergedTitle": "Tasks for '{name}'",
+  "@taskSheetMergedTitle": {
+    "description": "Title of the sheet that copies and recommends tasks. {name} is the component.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetCopyDescription": "Pick the tasks to copy to '{name}'. Copies start fresh — the completion history stays with the original component.",
+  "@taskSheetCopyDescription": {
+    "description": "Description of the copy sheet. {name} is the component the tasks go to.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetRecommendDescription": "Pick the tasks to add. Each one becomes a normal task you can edit later.",
+  "@taskSheetRecommendDescription": {
+    "description": "Description of the recommendation sheet."
+  },
+  "taskSheetMergedDescription": "Copies start fresh — the completion history stays with '{from}'. Recommended tasks become normal tasks you can edit later.",
+  "@taskSheetMergedDescription": {
+    "description": "Description of the sheet that copies and recommends. {from} is the source component.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetCopyDescriptionOptional": "Optional — pick the tasks to copy to '{name}'. Copies start fresh — the completion history stays with the original component.",
+  "@taskSheetCopyDescriptionOptional": {
+    "description": "Description of the copy sheet when it opens after adding a component. {name} is the component the tasks go to.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetRecommendDescriptionOptional": "Optional — pick the tasks to add. Each one becomes a normal task you can edit later.",
+  "@taskSheetRecommendDescriptionOptional": {
+    "description": "Description of the recommendation sheet when it opens after adding a component."
+  },
+  "taskSheetMergedDescriptionOptional": "Optional — copies start fresh — the completion history stays with '{from}'. Recommended tasks become normal tasks you can edit later.",
+  "@taskSheetMergedDescriptionOptional": {
+    "description": "Description of the sheet that copies and recommends when it opens after adding a component. {from} is the source component.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetAdded": "'{name}' added",
+  "@taskSheetAdded": {
+    "description": "Title of the task sheet after a component was added. {name} is the component.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetReplaced": "'{name}' replaced",
+  "@taskSheetReplaced": {
+    "description": "Title of the task sheet after a component was replaced. {name} is the component.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetPromptCopy": "Copy tasks from '{from}'?",
+  "@taskSheetPromptCopy": {
+    "description": "Question in the task sheet after adding a component. {from} is the source component.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetPromptRecommend": "Add tasks for this {type}?",
+  "@taskSheetPromptRecommend": {
+    "description": "Question in the task sheet after adding a component. {type} is the component type.",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetPromptMerged": "Set up tasks for this {type}?",
+  "@taskSheetPromptMerged": {
+    "description": "Question in the task sheet after adding a component. {type} is the component type.",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetRecommendationsOff": "Task recommendations turned off. Turn them back on in Settings › Features › Task Presets.",
+  "@taskSheetRecommendationsOff": {
+    "description": "Snackbar after the task recommendations were switched off."
+  },
+  "taskSheetCopyFrom": "Copy from '{from}'",
+  "@taskSheetCopyFrom": {
+    "description": "Header of the copied tasks when recommendations are shown too. {from} is the source component.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetTasks": "Tasks",
+  "@taskSheetTasks": {
+    "description": "Header of the copied tasks."
+  },
+  "taskSheetRecommendedFor": "Recommended for {name}",
+  "@taskSheetRecommendedFor": {
+    "description": "Header of the recommended tasks. {name} is the catalog model or the component type.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSheetTurnOff": "Turn off recommendations",
+  "@taskSheetTurnOff": {
+    "description": "Button that switches the task recommendations off."
+  },
+  "taskSheetCopyButton": "{count, plural, =1{Copy 1 task} other{Copy {count} tasks}}",
+  "@taskSheetCopyButton": {
+    "description": "Main button of the copy sheet. {count} is the number of checked tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskSheetAddButton": "{count, plural, =1{Add 1 task} other{Add {count} tasks}}",
+  "@taskSheetAddButton": {
+    "description": "Main button of the recommendation sheet. {count} is the number of checked tasks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskSheetContinueWithoutCopy": "Continue without copying tasks",
+  "@taskSheetContinueWithoutCopy": {
+    "description": "Secondary button of the copy sheet."
+  },
+  "taskSheetNotNow": "Not now",
+  "@taskSheetNotNow": {
+    "description": "Secondary button of the recommendation sheet."
+  },
+  "taskDelayValueLabel": "Delay Value",
+  "@taskDelayValueLabel": {
+    "description": "Label of the value field in the delay sheet."
+  },
+  "taskDelayMakeDueNow": "Make Due Now",
+  "@taskDelayMakeDueNow": {
+    "description": "Button in the delay sheet that sets a delay which makes the task due right away."
+  },
+  "taskDelayExplanation": "A delay postpones when this task becomes due, or brings it forward when negative, without changing its interval. It only applies once: completing the task clears the delay automatically.",
+  "@taskDelayExplanation": {
+    "description": "Explanation of the task delay, in the delay sheet and the tooltip of the task form."
+  },
+  "clearTooltip": "Clear",
+  "@clearTooltip": {
+    "description": "Tooltip of a button that empties a text field."
+  },
+  "taskValidationEnterValue": "Enter a value",
+  "@taskValidationEnterValue": {
+    "description": "Validation message of a task value field."
+  },
+  "taskValidationWholeNumber": "Enter a whole number",
+  "@taskValidationWholeNumber": {
+    "description": "Validation message of a task value field."
+  },
+  "taskValidationValidNumber": "Enter a valid number",
+  "@taskValidationValidNumber": {
+    "description": "Validation message of a task value field."
+  },
+  "taskValidationNotZero": "Must not be 0",
+  "@taskValidationNotZero": {
+    "description": "Validation message of a task delay field."
+  },
+  "taskValidationForwardTooFar": "Cannot bring it forward by more than its interval",
+  "@taskValidationForwardTooFar": {
+    "description": "Validation message of a task delay field when a negative delay exceeds the interval."
+  },
+  "taskAssociationTitle": "Link task to",
+  "@taskAssociationTitle": {
+    "description": "Title of the sheet that picks what a task is linked to."
+  },
+  "taskAssociationHint": "Tap a bike or a component to link this task to it.",
+  "@taskAssociationHint": {
+    "description": "Explanation in the link picker."
+  },
+  "taskAssociationSearchHint": "Search bikes and parts…",
+  "@taskAssociationSearchHint": {
+    "description": "Hint of the search field of the link picker."
+  },
+  "taskAssociationNoMatches": "No matches for \"{query}\"",
+  "@taskAssociationNoMatches": {
+    "description": "Shown in the link picker when the search finds nothing. {query} is the search text.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "taskAssociationGeneralTooltip": "A task that is not linked to a bike or component",
+  "@taskAssociationGeneralTooltip": {
+    "description": "Tooltip of the General Task chip in the link picker."
+  },
+  "taskAssociationMissingTooltip": "This entry no longer exists",
+  "@taskAssociationMissingTooltip": {
+    "description": "Tooltip of the chip of a deleted bike or component in the link picker."
+  },
+  "taskAssociationBikeMissing": "Bike not found",
+  "@taskAssociationBikeMissing": {
+    "description": "Group header in the link picker for components whose bike no longer exists."
+  },
+  "setDurationMin": "Min: {value}",
+  "@setDurationMin": {
+    "description": "Minimum shown in the duration sheet. {value} is the duration.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "setDurationMax": "Max: {value}",
+  "@setDurationMax": {
+    "description": "Maximum shown in the duration sheet. {value} is the duration.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "setDurationBelowMin": "Selected duration is below the minimum",
+  "@setDurationBelowMin": {
+    "description": "Error in the duration sheet."
+  },
+  "setDurationAboveMax": "Selected duration exceeds the maximum",
+  "@setDurationAboveMax": {
+    "description": "Error in the duration sheet."
+  },
+  "taskTriggerTypeNone": "None",
+  "@taskTriggerTypeNone": {
+    "description": "Trigger type: the task has no trigger."
+  },
+  "taskTriggerTypeDistance": "Distance",
+  "@taskTriggerTypeDistance": {
+    "description": "Trigger type of a task."
+  },
+  "taskTriggerTypeElevation": "Elevation",
+  "@taskTriggerTypeElevation": {
+    "description": "Trigger type of a task."
+  },
+  "taskTriggerTypeMovingTime": "Moving Time",
+  "@taskTriggerTypeMovingTime": {
+    "description": "Trigger type of a task."
+  },
+  "taskTriggerTypeElapsedTime": "Elapsed Time",
+  "@taskTriggerTypeElapsedTime": {
+    "description": "Trigger type of a task."
+  },
+  "taskTriggerTypeDuration": "Duration",
+  "@taskTriggerTypeDuration": {
+    "description": "Trigger type of a task: a time span."
+  },
+  "taskTriggerTypeActivityCount": "Activity Count",
+  "@taskTriggerTypeActivityCount": {
+    "description": "Trigger type of a task."
+  },
+  "taskTriggerTypeKilojoules": "Kilojoules (Accumulated Watts)",
+  "@taskTriggerTypeKilojoules": {
+    "description": "Trigger type of a task."
+  },
+  "taskTriggerTypeDate": "Date",
+  "@taskTriggerTypeDate": {
+    "description": "Trigger type of a task: a fixed date. Also the label of its date field."
+  },
+  "taskTriggerSectionTimeBased": "Time-based",
+  "@taskTriggerSectionTimeBased": {
+    "description": "Header of the time-based trigger types in the dropdown. It is shown in capitals."
+  },
+  "taskTriggerSectionActivityBased": "Activity-based (Strava)",
+  "@taskTriggerSectionActivityBased": {
+    "description": "Header of the Strava trigger types in the dropdown. It is shown in capitals."
+  },
+  "taskTriggerStravaTitle": "Activity-based triggers need Strava",
+  "@taskTriggerStravaTitle": {
+    "description": "Title of the banner shown without a Strava subscription."
+  },
+  "taskTriggerStravaBody": "Distance, elevation, time and ride-count triggers update automatically from your Strava activities.",
+  "@taskTriggerStravaBody": {
+    "description": "Body of the banner shown without a Strava subscription."
+  },
+  "taskTriggerStravaConnect": "Connect",
+  "@taskTriggerStravaConnect": {
+    "description": "Button of the Strava banner."
+  },
+  "taskFormAddTitle": "Add Task Rule",
+  "@taskFormAddTitle": {
+    "description": "App bar title of the task rule form when adding."
+  },
+  "taskFormEditTitle": "Edit Task Rule",
+  "@taskFormEditTitle": {
+    "description": "App bar title of the task rule form when editing."
+  },
+  "taskFormNameLabel": "Task Rule Name",
+  "@taskFormNameLabel": {
+    "description": "Label of the name field of the task rule form."
+  },
+  "taskFormNameHint": "Enter task name",
+  "@taskFormNameHint": {
+    "description": "Hint of the name field of the task rule form."
+  },
+  "taskFormNameRequired": "Name required",
+  "@taskFormNameRequired": {
+    "description": "Validation message of the name field of the task rule form."
+  },
+  "taskFormNotesHint": "Add additional details or instructions...",
+  "@taskFormNotesHint": {
+    "description": "Hint of the notes field of the task rule form."
+  },
+  "taskFormAddTags": "Add Tags",
+  "@taskFormAddTags": {
+    "description": "Tooltip of the add tags chip and title of its sheet."
+  },
+  "taskFormLinkedTo": "Linked To",
+  "@taskFormLinkedTo": {
+    "description": "Label of the link field of the task forms."
+  },
+  "taskFormOnBike": "on {bike}",
+  "@taskFormOnBike": {
+    "description": "Second line of the link field for a component. {bike} is the bike it is installed on.",
+    "placeholders": {
+      "bike": {
+        "type": "String"
+      }
+    }
+  },
+  "taskFormArchivedWarning": "WARNING: Tasks of archived components are hidden in the task list.",
+  "@taskFormArchivedWarning": {
+    "description": "Warning below the link field when the component is archived."
+  },
+  "taskFormTriggerNeedsLink": "The selected trigger needs a linked Bike or Component",
+  "@taskFormTriggerNeedsLink": {
+    "description": "Validation message of the link field when the trigger measures ride data."
+  },
+  "taskFormTriggerTitle": "Task Trigger",
+  "@taskFormTriggerTitle": {
+    "description": "Section title of the trigger part of the task rule form."
+  },
+  "taskFormTriggerInfo": "(Optional) Set a trigger to display a progress bar that updates automatically based on activity stats or time.",
+  "@taskFormTriggerInfo": {
+    "description": "Info text of the trigger section title."
+  },
+  "taskFormTypeLabel": "Type",
+  "@taskFormTypeLabel": {
+    "description": "Label of the trigger type dropdown."
+  },
+  "taskFormValueLabel": "Value",
+  "@taskFormValueLabel": {
+    "description": "Label of the value fields of the trigger and the delay."
+  },
+  "taskFormSelectDate": "Select Date",
+  "@taskFormSelectDate": {
+    "description": "Placeholder of the date field of a date trigger."
+  },
+  "taskFormSelectDateError": "Select a date",
+  "@taskFormSelectDateError": {
+    "description": "Validation message of the date field of a date trigger."
+  },
+  "taskFormChangeUnitTooltip": "Change unit",
+  "@taskFormChangeUnitTooltip": {
+    "description": "Tooltip of the unit button of a duration value."
+  },
+  "taskFormRepeatTitle": "Repeat Interval",
+  "@taskFormRepeatTitle": {
+    "description": "Title of the repeat switch of the task rule form."
+  },
+  "taskFormRepeatSubtitle": "Start the interval over after each entry",
+  "@taskFormRepeatSubtitle": {
+    "description": "Subtitle of the repeat switch of the task rule form."
+  },
+  "taskFormDelayLabel": "Delay",
+  "@taskFormDelayLabel": {
+    "description": "Title of the delay row of the task rule form."
+  },
+  "taskFormDelaySubtitle": "Postpone the next due date once",
+  "@taskFormDelaySubtitle": {
+    "description": "Subtitle of the delay row of the task rule form."
+  },
+  "taskEntryFormAddTitle": "Add Task Entry",
+  "@taskEntryFormAddTitle": {
+    "description": "App bar title of the task entry form when adding."
+  },
+  "taskEntryFormEditTitle": "Edit Task Entry",
+  "@taskEntryFormEditTitle": {
+    "description": "App bar title of the task entry form when editing."
+  },
+  "taskEntryFormNameLabel": "Task Entry Name",
+  "@taskEntryFormNameLabel": {
+    "description": "Label of the name field of the task entry form."
+  },
+  "taskEntryFormNameHint": "Enter task entry name",
+  "@taskEntryFormNameHint": {
+    "description": "Hint of the name field of the task entry form."
+  },
+  "taskEntryFormNameRequired": "Name is required",
+  "@taskEntryFormNameRequired": {
+    "description": "Validation message of the name field of the task entry form."
+  },
+  "taskEntryFormNotesHint": "Add additional details...",
+  "@taskEntryFormNotesHint": {
+    "description": "Hint of the notes field of the task entry form."
+  },
+  "taskEntryPickDate": "Select Task Entry Date",
+  "@taskEntryPickDate": {
+    "description": "Title of the date picker."
+  },
+  "taskEntryPickTime": "Select Task Entry Time",
+  "@taskEntryPickTime": {
+    "description": "Title of the time picker."
+  },
+  "taskEntryDeletedComponent": "a deleted component",
+  "@taskEntryDeletedComponent": {
+    "description": "Names what the task rule is linked to, after “linked to”."
+  },
+  "taskEntryDeletedBike": "a deleted bike",
+  "@taskEntryDeletedBike": {
+    "description": "Names what the task rule is linked to, after “linked to”."
+  },
+  "taskEntryGeneralTask": "a general task",
+  "@taskEntryGeneralTask": {
+    "description": "Names what the task rule is linked to, after “linked to”."
+  },
+  "taskEntryLinkMismatch": "WARNING: Differs from the task rule, which is linked to {target}.",
+  "@taskEntryLinkMismatch": {
+    "description": "Warning below the link field of an entry whose link differs from its task. {target} is what the task is linked to.",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "taskDetailsTitle": "Task",
+  "@taskDetailsTitle": {
+    "description": "App bar title of the task details page."
+  },
+  "taskDetailsNotFoundTitle": "Task not found",
+  "@taskDetailsNotFoundTitle": {
+    "description": "Title shown when the task no longer exists."
+  },
+  "taskDetailsNotFoundSubtitle": "This task was deleted or is no longer available.",
+  "@taskDetailsNotFoundSubtitle": {
+    "description": "Subtitle shown when the task no longer exists."
+  },
+  "taskDetailsEntriesTitle": "Entries",
+  "@taskDetailsEntriesTitle": {
+    "description": "Section title of the entries of a task."
+  },
+  "taskDetailsEntriesInfo": "The card above is the Task — the rule defining what to do and when it's due. Each time you complete it, an entry is logged below. A recurring task collects multiple entries, one per completion.",
+  "@taskDetailsEntriesInfo": {
+    "description": "Info text of the entries section title."
+  },
+  "taskDetailsEmptyTitle": "No entries yet",
+  "@taskDetailsEmptyTitle": {
+    "description": "Title shown when a task has no entries."
+  },
+  "taskDetailsEmptySubtitle": "Complete this task to log your first entry.",
+  "@taskDetailsEmptySubtitle": {
+    "description": "Subtitle shown when a task has no entries."
+  },
+  "taskDetailsEmptyAction": "Add entry",
+  "@taskDetailsEmptyAction": {
+    "description": "Button shown when a task has no entries."
   }
 }

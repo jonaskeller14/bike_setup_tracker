@@ -15,7 +15,7 @@ class ActivityCountThreshold extends AccumulatingThreshold {
 
   @override
   String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) =>
-      '${NumberFormat.decimalPattern().format(count)} ${count == 1 ? 'ride' : 'rides'}';
+      '${NumberFormat.decimalPattern().format(count)} ${currentL10n.taskUnitRides(count)}';
 
   @override
   Map<String, dynamic> toJson() => {

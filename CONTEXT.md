@@ -69,5 +69,13 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Run (of a test session) | Lauf | Erster Lauf, Nächster Lauf |
 | Weather code / Trail condition | Wettercode / Trailzustand | Weather descriptions follow the Open-Meteo (WMO) codes |
 | Sheet (bottom sheet) | Blatt | As in Filterblatt |
+| Task trigger / Interval / Delay | Auslöser / Intervall / Aufschub | The trigger is the whole setting (type and value). The interval is its recurring amount, the delay postpones it once |
+| Ride (unit of a count trigger) | Fahrt, Fahrten | The unit word after a number, like 5 Fahrten |
+| Link (a task to a bike or component) | Verknüpfen / Verknüpft mit | |
+| Recommended tasks | Empfohlene Aufgaben | The task presets. The templates themselves stay English, see the note below |
+| Due now / Upcoming / Completed | Jetzt fällig / Anstehend / Erledigt | Sections of the task list |
+| Remaining / Exceeded | Verbleibend / Überschritten | After the amount, like 12 km verbleibend |
 
 Unit symbols (`km`, `bar`, `°C`) are not translated.
+
+Preset templates are copied into the user's data when picked, so their names and notes stay English until issue #18 decides otherwise (Phase 14). That covers the adjustment templates of the Add Adjustment sheet and the task templates in `lib/utils/task_presets.dart`. The text the app generates around a template, like the `Empfohlenes Intervall: …` line in a task's notes, is written in the language of the moment it was created.

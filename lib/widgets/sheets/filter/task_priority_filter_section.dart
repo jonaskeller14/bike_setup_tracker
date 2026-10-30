@@ -19,7 +19,7 @@ class TaskPriorityFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SheetSectionTitle(title: "Task Priority"),
+        SheetSectionTitle(title: context.l10n.taskPriorityTitle),
         IsolatableChips(
           options: TaskPriority.values.map((tp) {
             return IsolatableChipOption(

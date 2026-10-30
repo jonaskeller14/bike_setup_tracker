@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/setup.dart';
@@ -31,12 +32,16 @@ class SlotLaneMember {
 class SlotLane {
   final ComponentSlot slot;
   final int index;
-  final String label;
+
+  /// Whether the slot has no other lane, so the label needs no number.
+  final bool isOnlyLane;
 
   /// Ordered by their first setup.
   final List<SlotLaneMember> members;
 
-  const SlotLane({required this.slot, required this.index, required this.label, required this.members});
+  const SlotLane({required this.slot, required this.index, required this.isOnlyLane, required this.members});
+
+  String label(AppLocalizations l10n) => isOnlyLane ? slot.label(l10n) : '${slot.label(l10n)} ${index + 1}';
 
   SlotLaneKey get key => (slot: slot, index: index);
 }
@@ -58,8 +63,8 @@ class BikeAdjustmentProjection {
   /// adjustments of a column share class and unit, so any of them describes it.
   Adjustment? adjustmentFor(BikeAdjustmentColumnKey column) => _representatives[column];
 
-  String columnLabel(BikeAdjustmentColumnKey column) =>
-      '${adjustmentFor(column)?.name ?? column.adjustment.name} · ${laneOf(column)?.label ?? column.lane.slot.label}';
+  String columnLabel(BikeAdjustmentColumnKey column, AppLocalizations l10n) =>
+      '${adjustmentFor(column)?.name ?? column.adjustment.name} · ${laneOf(column)?.label(l10n) ?? column.lane.slot.label(l10n)}';
 
   BikeAdjustmentCell? resolve(Setup setup, BikeAdjustmentColumnKey column) => _cellsBySetupId[setup.id]?[column];
 
@@ -118,7 +123,7 @@ class BikeAdjustmentColumnService {
         final lane = SlotLane(
           slot: slot,
           index: index,
-          label: slotLanes.length == 1 ? slot.label : '${slot.label} ${index + 1}',
+          isOnlyLane: slotLanes.length == 1,
           members: [
             for (final (component, setupIndices) in members)
               SlotLaneMember(

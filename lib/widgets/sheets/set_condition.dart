@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/context/context_weather.dart';
 import '../soil_moisture_legend_table.dart';
 import 'radio_group.dart';
@@ -24,7 +26,7 @@ Future<void> showSetConditionSheet({
           spacing: 8,
           children: [
             Icon(condition.iconData, color: condition.color),
-            Text(condition.value),
+            Text(condition.label(context.l10n)),
           ],
         ),
       );

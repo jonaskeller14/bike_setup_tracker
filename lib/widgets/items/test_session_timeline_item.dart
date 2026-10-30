@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
@@ -268,7 +269,7 @@ class _RunRow extends StatelessWidget {
                         ? '${DateFormat(appSettings.dateFormat).format(run.datetimeLocal)} • $time'
                         : time,
                     metadata: [
-                      ...SetupTileHeader.metadataOf(run, appSettings),
+                      ...SetupTileHeader.metadataOf(run, appSettings, context.l10n),
                       ?SetupTileHeader.rankOf(run, appSettings, appRepository),
                     ],
                     badge: appRepository.setupHistory.isCurrent(run.id) ? const CurrentSetupBadge() : null,

@@ -14,6 +14,10 @@ const appLocalizationsDelegates = <LocalizationsDelegate<dynamic>>[
   SfGlobalLocalizations.delegate,
 ];
 
+/// For text that must not follow the app language: catalog errors for the YAML
+/// authors, and search, which also matches the English names.
+final AppLocalizations englishL10n = lookupAppLocalizations(const Locale('en'));
+
 extension AppLocalizationsContext on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
 }

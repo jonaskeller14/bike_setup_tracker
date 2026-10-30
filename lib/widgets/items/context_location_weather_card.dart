@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../env/env.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
@@ -51,7 +53,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
     final sections = <Widget>[
       if (hasLocation) _locationSection(context, appSettings, isLast: !hasWeather && !hasCondition),
       if (hasWeather) _weatherSection(appSettings),
-      if (hasCondition) _conditionSection(),
+      if (hasCondition) _conditionSection(context),
     ];
 
     return Card.outlined(
@@ -263,10 +265,10 @@ class ContextLocationWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _conditionSection() {
+  Widget _conditionSection(BuildContext context) {
     return ListTile(
       leading: Icon(weather!.condition!.iconData, color: weather!.condition!.color),
-      title: SelectableText('Condition: ${weather!.condition!.value}'),
+      title: SelectableText('Condition: ${weather!.condition!.label(context.l10n)}'),
       dense: true,
     );
   }

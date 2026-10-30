@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/feedback/test_session.dart';
 import '../../models/feedback/test_session_method.dart';
 import '../../pages/details/setup_details_page.dart';
@@ -167,7 +168,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
       );
       final labels = [
         for (final column in TestSessionService.columnsOf(session.adjustmentIds, projection))
-          projection.columnLabel(column),
+          projection.columnLabel(column, context.l10n),
         for (final id in session.adjustmentIds)
           if (knobs[id]?.isRider ?? false) labelOf(id),
       ];

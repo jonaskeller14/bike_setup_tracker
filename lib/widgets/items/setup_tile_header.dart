@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
@@ -34,7 +36,7 @@ class SetupTileHeader extends StatelessWidget {
   });
 
   /// The [metadata] rows of a setup tile: place, weather, tags, attachments.
-  static List<Widget> metadataOf(Setup setup, AppSettings appSettings, {bool hidePlace = false}) => [
+  static List<Widget> metadataOf(Setup setup, AppSettings appSettings, AppLocalizations l10n, {bool hidePlace = false}) => [
     if (setup.place != null && !hidePlace)
       TileMetaRow(
         icon: Icons.location_pin,
@@ -51,7 +53,7 @@ class SetupTileHeader extends StatelessWidget {
     if (setup.weather?.condition != null)
       TileMetaRow(
         icon: setup.weather?.condition?.iconData ?? Icons.question_mark,
-        text: setup.weather?.condition?.value ?? "-",
+        text: setup.weather?.condition?.label(l10n) ?? "-",
         iconColor: setup.weather?.condition?.color,
         muted: true,
       ),

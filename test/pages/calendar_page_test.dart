@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -150,6 +151,7 @@ void main() {
       final source = CalendarTimelineDataSource(
         <Object>[CalendarAddSetupSlot(date)],
         const ColorScheme.light(),
+        englishL10n,
       );
 
       expect(source.getStartTime(0), date);
@@ -165,6 +167,7 @@ void main() {
           CalendarPredictedTask(taskRuleId: 'rule', name: 'Wax chain', date: date),
         ],
         cs,
+        englishL10n,
       );
 
       expect(source.getStartTime(0), date);
@@ -185,6 +188,7 @@ void main() {
       final source = CalendarTimelineDataSource(
         [SingleEntryRow(entry)],
         const ColorScheme.light(),
+        englishL10n,
       );
 
       expect(source.getStartTime(0), DateTime(2026, 7, 4, 4));
@@ -216,6 +220,7 @@ void main() {
       final source = CalendarTimelineDataSource(
         [row],
         const ColorScheme.light(),
+        englishL10n,
       );
 
       expect(source.getEndTime(0), DateTime(2026, 7, 4, 10, 30));

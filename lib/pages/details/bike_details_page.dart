@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
@@ -136,7 +137,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       ComponentAdjustmentColumn(:final adjustmentId) => adjustmentId,
-      BikeAdjustmentColumn(:final key) => _projection?.columnLabel(key) ?? key.adjustment.name,
+      BikeAdjustmentColumn(:final key) => _projection?.columnLabel(key, context.l10n) ?? key.adjustment.name,
       SetupRankColumn() => "Rank",
     };
   }
@@ -367,7 +368,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                     columnGroup: (TableColumn c) => switch (c) {
                       BikeAdjustmentColumn(:final key) => switch (projection.laneOf(key)) {
                         final lane? => (
-                          title: lane.label,
+                          title: lane.label(context.l10n),
                           info: _laneHistory(lane, appRepository, appSettings.dateFormat),
                         ),
                         null => null,

@@ -5,13 +5,10 @@ import 'package:units_converter/units_converter.dart';
 import '../../icons/weather_icons.dart';
 
 enum Condition {
-  dry('Dry'),
-  moist('Moist'),
-  wet('Wet'),
-  muddy('Muddy');
-
-  final String value;
-  const Condition(this.value);
+  dry,
+  moist,
+  wet,
+  muddy;
 
   IconData get iconData => switch (this) {
     dry => Icons.wb_sunny,

@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -107,7 +108,7 @@ void main() {
       expect(columns, hasLength(1));
       final column = columns.single;
       expect(projection.laneOf(column)!.members.map((m) => m.component.id), ['tire-a', 'tire-b']);
-      expect(projection.columnLabel(column), 'Pressure · Tire (Front Wheel)');
+      expect(projection.columnLabel(column, englishL10n), 'Pressure · Tire (Front Wheel)');
       expect(projection.valueFor(s1, column), const NumericalValue(25));
       expect(projection.valueFor(s2, column), const NumericalValue(22));
       expect(projection.previousValueFor(s2, column), isNull);
@@ -158,8 +159,11 @@ void main() {
 
       final projection = project([s1], [tireA, tireB]);
 
-      expect(projection.lanes.map((lane) => lane.label), ['Tire 1', 'Tire 2']);
-      expect(projection.columns.map(projection.columnLabel), ['Pressure · Tire 1', 'Pressure · Tire 2']);
+      expect(projection.lanes.map((lane) => lane.label(englishL10n)), ['Tire 1', 'Tire 2']);
+      expect(projection.columns.map((column) => projection.columnLabel(column, englishL10n)), [
+        'Pressure · Tire 1',
+        'Pressure · Tire 2',
+      ]);
       expect(projection.columns.map((c) => projection.valueFor(s1, c)), [
         const NumericalValue(20),
         const NumericalValue(25),
@@ -370,7 +374,7 @@ void main() {
       final projection = project([setup('s1', 2)], [fork, wheel, tire]);
 
       expect(projection.columns.single.lane.slot, frontTire);
-      expect(projection.columnLabel(projection.columns.single), 'Pressure · Tire (Front Wheel)');
+      expect(projection.columnLabel(projection.columns.single, englishL10n), 'Pressure · Tire (Front Wheel)');
     });
 
     test('orders columns by slot, lane, and the latest component adjustment order', () {
@@ -404,7 +408,7 @@ void main() {
 
       final projection = project(setups, components);
 
-      expect(projection.columns.map(projection.columnLabel), [
+      expect(projection.columns.map((column) => projection.columnLabel(column, englishL10n)), [
         'Pressure · Fork',
         'Width · Tire (Front Wheel)',
         'Pressure · Tire (Front Wheel)',

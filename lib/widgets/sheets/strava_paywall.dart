@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/strava/strava_plan.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/app_info.dart';
@@ -176,7 +178,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                     children: [
                                       Flexible(
                                         child: Text(
-                                          plan.label,
+                                          plan.label(context.l10n),
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                             fontWeight: FontWeight.bold,
@@ -204,7 +206,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                     ],
                                   ),
                                   subtitle: Text(
-                                    plan.tagline,
+                                    plan.tagline(context.l10n),
                                     overflow: TextOverflow.ellipsis,
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -227,7 +229,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                           ),
                                           const SizedBox(width: 3),
                                           Text(
-                                            plan.period.replaceAll('/ ', '/'),
+                                            plan.period(context.l10n).replaceAll('/ ', '/'),
                                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             ),
@@ -370,7 +372,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                 children: [
                   TextSpan(
                     text: selectedOffer?.isTrialEligible == true
-                        ? '7 days free, then ${selectedOffer!.localizedRecurringPrice}${_selectedPlan.period}. '
+                        ? '7 days free, then ${selectedOffer!.localizedRecurringPrice}${_selectedPlan.period(context.l10n)}. '
                               'Cancel before the trial ends to avoid a charge. Manage or cancel anytime in your '
                         : 'Auto-renewable subscription. Manage or cancel anytime in your ',
                   ),
@@ -449,7 +451,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                     ? 'Loading store price…'
                     : selectedOffer.isTrialEligible
                     ? 'Start 7-day free trial'
-                    : 'Subscribe — ${selectedOffer.localizedRecurringPrice}${_selectedPlan.period.replaceAll('/ ', '/')}',
+                    : 'Subscribe — ${selectedOffer.localizedRecurringPrice}${_selectedPlan.period(context.l10n).replaceAll('/ ', '/')}',
               ),
               onPressed: isBusy || !offersReady ? null : () => subscription.buy(_selectedPlan),
               style: FilledButton.styleFrom(

@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
@@ -273,7 +275,7 @@ class _SetupTableState extends State<SetupTable> {
             ),
           ),
           SetupColumn.condition => DataCell(
-            Center(child: Text(setup.weather?.condition?.value ?? "-")),
+            Center(child: Text(setup.weather?.condition?.label(context.l10n) ?? "-")),
           ),
           SetupColumn.testSession => _scrollableTextCell(widget.testSessions[setup.testSessionId]?.displayName ?? '-'),
         };

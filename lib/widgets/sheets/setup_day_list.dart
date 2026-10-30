@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/setup.dart';
@@ -99,7 +100,7 @@ class SetupPickTile extends StatelessWidget {
                 child: SetupTileHeader(
                   setup: setup,
                   dateTimeText: timeText,
-                  metadata: SetupTileHeader.metadataOf(setup, appSettings),
+                  metadata: SetupTileHeader.metadataOf(setup, appSettings, context.l10n),
                   badge: badges.isNotEmpty || isCurrent
                       ? Wrap(spacing: 4, children: [...badges, if (isCurrent) const CurrentSetupBadge()])
                       : null,

@@ -84,7 +84,7 @@ Comparator<Setup> setupColumnComparator(
     SetupColumn.humidity => _by((s) => s.weather?.currentHumidity ?? double.negativeInfinity),
     SetupColumn.windSpeed => _by((s) => s.weather?.currentWindSpeed ?? double.negativeInfinity),
     SetupColumn.soilMoisture => _by((s) => s.weather?.currentSoilMoisture0to7cm ?? double.negativeInfinity),
-    SetupColumn.condition => _by((s) => s.weather?.condition?.value ?? ''),
+    SetupColumn.condition => _by((s) => s.weather?.condition?.name ?? ''),
     SetupColumn.testSession => _by((s) => testSessions[s.testSessionId]?.displayName ?? ''),
   };
 }

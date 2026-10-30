@@ -5,6 +5,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../../env/env.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
@@ -46,7 +48,7 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
     final sections = <Widget>[
       if (hasLocation) _locationSection(),
       if (hasWeather) _weatherSection(context),
-      if (hasCondition) _conditionSection(),
+      if (hasCondition) _conditionSection(context),
     ];
 
     return Card.outlined(
@@ -172,12 +174,12 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
     );
   }
 
-  Widget _conditionSection() {
+  Widget _conditionSection(BuildContext context) {
     return ListTile(
       leading: _conditionDifferenceLeading(),
       title: _ComparisonTextRow(
-        valueA: weatherA?.condition?.value ?? '-',
-        valueB: weatherB?.condition?.value ?? '-',
+        valueA: weatherA?.condition?.label(context.l10n) ?? '-',
+        valueB: weatherB?.condition?.label(context.l10n) ?? '-',
       ),
       dense: true,
     );

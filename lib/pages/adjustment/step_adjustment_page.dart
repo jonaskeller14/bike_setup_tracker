@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
@@ -485,7 +487,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                                   const Icon(Icons.rotate_left),
                                                 ],
                                                 const SizedBox(width: 8),
-                                                Expanded(child: Text(v.value)),
+                                                Expanded(child: Text(v.label(context.l10n))),
                                               ],
                                             ),
                                           );

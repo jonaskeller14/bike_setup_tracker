@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
 import '../../models/feedback/feedback_summary.dart';
@@ -119,7 +121,8 @@ class SetupListSearch extends StatelessWidget {
                 .where(
                   (ci) => searchFieldsMatch([
                     ci.component.name,
-                    ci.component.componentType.label,
+                    ci.component.componentType.label(context.l10n),
+                    ci.component.componentType.label(englishL10n),
                   ], searchTokens),
                 )
                 .map((ci) => InstallationEntry(ci)),

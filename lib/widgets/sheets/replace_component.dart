@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
@@ -318,7 +320,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                       const SizedBox(height: 16),
                       SheetFilterEmptyHint(
                         icon: Icons.shelves,
-                        title: "No uninstalled ${widget.component.componentType.label} available",
+                        title: "No uninstalled ${widget.component.componentType.label(context.l10n)} available",
                         hint: "Create a new component instead.",
                         onTap: () {
                           setState(() => _mode = _ReplaceMode.create);

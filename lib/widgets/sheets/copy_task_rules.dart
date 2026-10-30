@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../../models/task/task_rule.dart';
@@ -170,7 +172,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
   };
 
   String get _prompt {
-    final type = widget.componentType?.label.toLowerCase() ?? 'component';
+    final type = widget.componentType?.label(context.l10n).toLowerCase() ?? 'component';
     return switch (_mode) {
       _Mode.copy => "Copy tasks from '${widget.copyFrom}'?",
       _Mode.recommend => 'Add tasks for this $type?',
@@ -235,7 +237,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
 
   Widget _suggestionSection(BuildContext context, List<TaskSuggestion> visible) {
     final appSettings = context.watch<AppSettings>();
-    final typeLabel = widget.componentType!.label;
+    final typeLabel = widget.componentType!.label(context.l10n);
     final selectedVisible = visible.where(_selectedSuggestions.contains).length;
 
     String origin(TaskSuggestion suggestion) {

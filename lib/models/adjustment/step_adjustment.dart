@@ -1,15 +1,12 @@
 part of 'adjustment.dart';
 
 enum StepAdjustmentVisualization {
-  minusButtonValuePlusButton('Plus/Minus Buttons'),
-  minusButtonValuePlusButtonClockwiseDial('Buttons with Clockwise Dial'),
-  minusButtonValuePlusButtonCounterclockwiseDial('Buttons with Counterclockwise Dial'),
-  slider('Slider'),
-  sliderWithClockwiseDial('Slider with Clockwise Dial'),
-  sliderWithCounterclockwiseDial('Slider with Counterclockwise Dial');
-  
-  final String value;
-  const StepAdjustmentVisualization(this.value);
+  minusButtonValuePlusButton,
+  minusButtonValuePlusButtonClockwiseDial,
+  minusButtonValuePlusButtonCounterclockwiseDial,
+  slider,
+  sliderWithClockwiseDial,
+  sliderWithCounterclockwiseDial;
 
   bool get hasDial =>
       this != StepAdjustmentVisualization.slider &&

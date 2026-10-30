@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/task/task_rule.dart';
 import '../theme.dart';
 
@@ -36,8 +38,8 @@ class TaskPriorityBadge extends StatelessWidget {
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(
-          priority.label.toUpperCase(),
-          semanticsLabel: '${priority.label} priority',
+          priority.label(context.l10n).toUpperCase(),
+          semanticsLabel: '${priority.label(context.l10n)} priority',
           style: theme.textTheme.labelSmall?.copyWith(
             color: foreground,
             fontSize: large ? 14 : 10,

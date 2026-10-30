@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_comparison.dart';
@@ -145,10 +146,10 @@ void main() {
       feedbacks: {feedback.id: feedback},
     );
 
-    expect(SpreadsheetExport.toCsv(data, settings), isNot(contains('"Feedback"')));
+    expect(SpreadsheetExport.toCsv(data, settings, englishL10n), isNot(contains('"Feedback"')));
 
     settings.enableRating = true;
-    final csv = SpreadsheetExport.toCsv(data, settings);
+    final csv = SpreadsheetExport.toCsv(data, settings, englishL10n);
     expect(csv, contains('"Feedback"'));
     expect(csv, contains('"Hightower","S2","S1","Better","Rear: Unsettled",""'));
   });

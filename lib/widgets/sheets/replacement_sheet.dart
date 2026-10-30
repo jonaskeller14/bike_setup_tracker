@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
@@ -128,7 +130,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SheetHeader(
-              title: "Replaced ${widget.removed.component.componentType.label}",
+              title: "Replaced ${widget.removed.component.componentType.label(context.l10n)}",
               leadingIcon: const Icon(Icons.swap_horiz),
             ),
             const SizedBox(height: 16),

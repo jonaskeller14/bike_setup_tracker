@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:yaml/yaml.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
@@ -988,7 +990,7 @@ class _CatalogParser {
       throw _error('Input "${input!.id}" of $where takes no "input_unit"');
     }
     if (quantity != null && (unit as KnownUnit?)?.quantity != quantity) {
-      throw _error('Input "${input!.id}" of $where needs an "input_unit" of ${quantity.label.toLowerCase()}');
+      throw _error('Input "${input!.id}" of $where needs an "input_unit" of ${_quantityName(quantity)}');
     }
     return unit as KnownUnit?;
   }
@@ -1407,7 +1409,7 @@ class _CatalogParser {
     }
     if (adjuster is KnownUnit) {
       if (authored is KnownUnit && authored.quantity == adjuster.quantity) return;
-      throw _error('$where needs a unit of ${adjuster.quantity.label.toLowerCase()}, like the adjuster\'s ${adjuster.label}');
+      throw _error('$where needs a unit of ${_quantityName(adjuster.quantity)}, like the adjuster\'s ${adjuster.label}');
     }
     if (authored is KnownUnit) throw _error('$where is ${authored.label}, but adjuster "$adjusterId" has no convertible unit');
   }
@@ -1421,6 +1423,10 @@ String _sizeId(_Size size) {
 
 String? _inheritText(YamlMap raw, String key, String? inherited) =>
     raw.containsKey(key) ? raw[key]?.toString() : inherited;
+
+/// Catalog errors are for the people writing the YAML, so they stay English.
+String _quantityName(UnitQuantity quantity) =>
+    quantity.label(englishL10n).toLowerCase();
 
 String _capitalize(String text) => text[0].toUpperCase() + text.substring(1);
 

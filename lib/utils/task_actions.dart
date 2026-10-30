@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/attachment.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
@@ -134,8 +136,8 @@ class TaskActions {
         context,
         Intl.plural(
           updatedRules.length,
-          one: "Priority set to '${selectedPriority.label}' for 1 Task.",
-          other: "Priority set to '${selectedPriority.label}' for ${updatedRules.length} Tasks.",
+          one: "Priority set to '${selectedPriority.label(context.l10n)}' for 1 Task.",
+          other: "Priority set to '${selectedPriority.label(context.l10n)}' for ${updatedRules.length} Tasks.",
         ),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(

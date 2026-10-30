@@ -8,6 +8,8 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
@@ -1148,7 +1150,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
                 ? const ChipLoadingIndicator()
-                : Text(_currentWeather.value?.condition?.value ?? "-"),
+                : Text(_currentWeather.value?.condition?.label(context.l10n) ?? "-"),
               backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.condition != widget.setup?.weather?.condition
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                   : null,

@@ -7,6 +7,8 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/context/context_place.dart';
@@ -891,7 +893,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               ),
               label: _weatherService.status is WeatherSearching
                   ? const ChipLoadingIndicator()
-                  : Text(_currentWeather.value?.condition?.value ?? "-"),
+                  : Text(_currentWeather.value?.condition?.label(context.l10n) ?? "-"),
               backgroundColor:
                   widget.mode == FeedbackPageMode.edit &&
                       _currentWeather.value?.condition != widget.feedback?.weather?.condition
@@ -961,7 +963,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       dateTimeText:
           '${DateFormat(appSettings.dateFormat).format(rated.datetimeLocal)} • '
           '${DateFormat(appSettings.timeFormat).format(rated.datetimeLocal)}',
-      metadata: SetupTileHeader.metadataOf(rated, appSettings),
+      metadata: SetupTileHeader.metadataOf(rated, appSettings, context.l10n),
       badge: appRepository.setupHistory.isCurrent(rated.id) ? const CurrentSetupBadge() : null,
       showSetupIcon: true,
       secondaryMetadata: TileMetaRow(icon: Bike.iconData, text: bike?.name ?? "BIKE NOT FOUND", isError: bike == null),

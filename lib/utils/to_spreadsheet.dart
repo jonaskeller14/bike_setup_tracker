@@ -1,6 +1,8 @@
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/enum_labels.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
@@ -15,7 +17,7 @@ import '../models/task/task_rule.dart';
 import '../services/component_hierarchy_resolver.dart';
 
 class SpreadsheetExport {
-  static List<int>? toExcel(SelectedData data, AppSettings settings) {
+  static List<int>? toExcel(SelectedData data, AppSettings settings, AppLocalizations l10n) {
     final excel = Excel.createExcel();
 
     final bikes = data.bikes.values.where((b) => !b.isDeleted).toList();
@@ -45,12 +47,12 @@ class SpreadsheetExport {
       setups.sort((a, b) => b.datetime.compareTo(a.datetime));
 
       for (final setup in setups) {
-        final row = _generateSetupCellValueRow(setup, headerData.columnMap, data, settings);
+        final row = _generateSetupCellValueRow(setup, headerData.columnMap, data, settings, l10n);
         sheet.appendRow(row);
       }
     }
 
-    _appendTaskLogSheet(excel, data, settings);
+    _appendTaskLogSheet(excel, data, settings, l10n);
     _appendFeedbackSheet(excel, data, settings);
 
     // Drop the default empty sheet once any real sheet has been added.
@@ -61,7 +63,7 @@ class SpreadsheetExport {
     return excel.encode();
   }
 
-  static String toCsv(SelectedData data, AppSettings settings) {
+  static String toCsv(SelectedData data, AppSettings settings, AppLocalizations l10n) {
     final headerData = _generateHeader(data, settings, includeBikeColumn: true);
     final row1 = headerData.row1;
     final row2 = headerData.row2;
@@ -75,11 +77,11 @@ class SpreadsheetExport {
     setups.sort((a, b) => b.datetime.compareTo(a.datetime));
 
     for (final setup in setups) {
-      final row = _generateSetupStringRow(setup, columnMap, data, settings, includeBikeColumn: true);
+      final row = _generateSetupStringRow(setup, columnMap, data, settings, l10n, includeBikeColumn: true);
       buffer.writeln(row.map((e) => '"${e.replaceAll('"', '""')}"').join(','));
     }
 
-    _appendTaskLogCsv(buffer, data, settings);
+    _appendTaskLogCsv(buffer, data, settings, l10n);
     _appendFeedbackCsv(buffer, data, settings);
 
     return buffer.toString();
@@ -87,7 +89,7 @@ class SpreadsheetExport {
 
   static String _csvCell(String value) => '"${value.replaceAll('"', '""')}"';
 
-  static void _appendTaskLogCsv(StringBuffer buffer, SelectedData data, AppSettings settings) {
+  static void _appendTaskLogCsv(StringBuffer buffer, SelectedData data, AppSettings settings, AppLocalizations l10n) {
     if (!settings.enableTask) return;
 
     final entries = _sortedTaskEntries(data);
@@ -98,7 +100,7 @@ class SpreadsheetExport {
     buffer.writeln(_taskLogHeaders(settings).map(_csvCell).join(','));
 
     for (final entry in entries) {
-      final row = _generateTaskEntryStringRow(entry, data, settings);
+      final row = _generateTaskEntryStringRow(entry, data, settings, l10n);
       buffer.writeln(row.map(_csvCell).join(','));
     }
   }
@@ -209,7 +211,7 @@ class SpreadsheetExport {
     return _HeaderData(row1, row2, columnMap, merges);
   }
 
-  static List<CellValue> _generateSetupCellValueRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings) {
+  static List<CellValue> _generateSetupCellValueRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings, AppLocalizations l10n) {
     final List<CellValue> row = List.filled(columnMap.length, TextCellValue(''));
 
     row[columnMap['name']!] = TextCellValue(setup.displayName);
@@ -256,7 +258,7 @@ class SpreadsheetExport {
       if (w.currentSoilMoisture0to7cm != null) {
         row[columnMap['w_soil']!] = DoubleCellValue(w.currentSoilMoisture0to7cm!);
       }
-      row[columnMap['w_cond']!] = TextCellValue(w.condition?.value ?? '');
+      row[columnMap['w_cond']!] = TextCellValue(w.condition?.label(l10n) ?? '');
     }
 
     // Person
@@ -282,7 +284,7 @@ class SpreadsheetExport {
     return row;
   }
 
-  static List<String> _generateSetupStringRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings, {bool includeBikeColumn = false}) {
+  static List<String> _generateSetupStringRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings, AppLocalizations l10n, {bool includeBikeColumn = false}) {
     final List<String> row = List.filled(columnMap.length, '');
 
     row[columnMap['name']!] = setup.displayName;
@@ -315,7 +317,7 @@ class SpreadsheetExport {
       row[columnMap['w_humid']!] = w.currentHumidity?.round().toString() ?? '';
       row[columnMap['w_wind']!] = ContextWeather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round().toString() ?? '';
       row[columnMap['w_soil']!] = w.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '';
-      row[columnMap['w_cond']!] = w.condition?.value ?? '';
+      row[columnMap['w_cond']!] = w.condition?.label(l10n) ?? '';
     }
 
     // Person
@@ -392,7 +394,7 @@ class SpreadsheetExport {
         '';
   }
 
-  static void _appendTaskLogSheet(Excel excel, SelectedData data, AppSettings settings) {
+  static void _appendTaskLogSheet(Excel excel, SelectedData data, AppSettings settings, AppLocalizations l10n) {
     if (!settings.enableTask) return;
 
     final entries = _sortedTaskEntries(data);
@@ -401,7 +403,7 @@ class SpreadsheetExport {
     final sheet = excel['Task Log'];
     sheet.appendRow(_taskLogHeaders(settings).map((e) => TextCellValue(e)).toList());
     for (final entry in entries) {
-      sheet.appendRow(_generateTaskEntryCellValueRow(entry, data, settings));
+      sheet.appendRow(_generateTaskEntryCellValueRow(entry, data, settings, l10n));
     }
   }
 
@@ -443,7 +445,7 @@ class SpreadsheetExport {
     ];
   }
 
-  static List<CellValue> _generateTaskEntryCellValueRow(TaskEntry entry, SelectedData data, AppSettings settings) {
+  static List<CellValue> _generateTaskEntryCellValueRow(TaskEntry entry, SelectedData data, AppSettings settings, AppLocalizations l10n) {
     final rule = data.taskRules[entry.taskRule];
     final dt = entry.dateTimeLocal;
 
@@ -457,7 +459,7 @@ class SpreadsheetExport {
       TextCellValue(rule != null ? _linkLabel(rule.association, data) : ''),
     ];
 
-    if (settings.enableTaskPriority) row.add(TextCellValue(rule?.priority.label ?? ''));
+    if (settings.enableTaskPriority) row.add(TextCellValue(rule?.priority.label(l10n) ?? ''));
     if (settings.enableTaskTags) row.add(TextCellValue(rule?.tags.join('; ') ?? ''));
     row.add(TextCellValue(_intervalDisplay(rule, settings)));
 
@@ -478,7 +480,7 @@ class SpreadsheetExport {
     return row;
   }
 
-  static List<String> _generateTaskEntryStringRow(TaskEntry taskEntry, SelectedData data, AppSettings appSettings) {
+  static List<String> _generateTaskEntryStringRow(TaskEntry taskEntry, SelectedData data, AppSettings appSettings, AppLocalizations l10n) {
     final taskRule = data.taskRules[taskEntry.taskRule];
 
     final row = <String>[
@@ -491,7 +493,7 @@ class SpreadsheetExport {
       taskRule != null ? _linkLabel(taskRule.association, data) : '',
     ];
 
-    if (appSettings.enableTaskPriority) row.add(taskRule?.priority.label ?? '');
+    if (appSettings.enableTaskPriority) row.add(taskRule?.priority.label(l10n) ?? '');
     if (appSettings.enableTaskTags) row.add(taskRule?.tags.join('; ') ?? '');
     row.add(_intervalDisplay(taskRule, appSettings));
 

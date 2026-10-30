@@ -3,6 +3,8 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/context/context_weather.dart';
@@ -111,7 +113,7 @@ class SetupGroupSection extends StatelessWidget {
       if (weather?.condition != null)
         TileMetaRow(
           icon: weather?.condition?.iconData ?? Icons.question_mark,
-          text: weather?.condition?.value ?? "-",
+          text: weather?.condition?.label(context.l10n) ?? "-",
           iconColor: weather?.condition?.color,
           muted: true,
         ),

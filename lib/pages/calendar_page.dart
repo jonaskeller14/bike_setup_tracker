@@ -8,6 +8,8 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../icons/simple_icons.dart';
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
@@ -178,9 +180,9 @@ Color calendarOnColorForRow(EntryRow row, ColorScheme cs) => switch (row) {
       SetupGroupRow() => cs.onPrimary,
     };
 
-String calendarSubjectForRow(EntryRow row) => switch (row) {
+String calendarSubjectForRow(EntryRow row, AppLocalizations l10n) => switch (row) {
       SingleEntryRow(:final entry) => calendarSubjectFor(entry),
-      ReplacementRow() => 'Replaced ${row.removed.component.componentType.label}',
+      ReplacementRow() => 'Replaced ${row.removed.component.componentType.label(l10n)}',
       SetupGroupRow() => '${row.setups.length} setups',
     };
 
@@ -562,6 +564,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final newUtc = newLocal.toUtc();
     final oldLocal = row.anchorDateLocal;
     final appRepository = context.read<AppRepository>();
+    final l10n = context.l10n;
 
     final removedComponent = row.removed.component;
     final installedComponent = row.installed.component;
@@ -586,7 +589,7 @@ class _CalendarPageState extends State<CalendarPage> {
       return;
     }
     _showMoveUndoSnackBar(
-      calendarSubjectForRow(row),
+      calendarSubjectForRow(row, l10n),
       oldLocal,
       newLocal,
       () => appRepository.editComponents([removedComponent, installedComponent]),
@@ -797,7 +800,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     firstDayOfWeek: appSettings.firstDayOfWeek,
                     maxDate: DateTime.now().add(kCalendarFutureWindow),
                     cellEndPadding: 0,
-                    dataSource: CalendarTimelineDataSource(calendarItems, cs),
+                    dataSource: CalendarTimelineDataSource(calendarItems, cs, context.l10n),
                     allowDragAndDrop: true,
                     dragAndDropSettings: DragAndDropSettings(
                       indicatorTimeFormat: appSettings.timeFormat,
@@ -927,7 +930,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final appointment = CalendarEntryAppointment(
       details: details,
       icon: calendarIconForRow(row, currentSetupIds: currentSetupIds, showSetupBookmark: showSetupBookmark),
-      subject: calendarSubjectForRow(row),
+      subject: calendarSubjectForRow(row, context.l10n),
       color: calendarColorForRow(row, cs),
       contentColor: calendarOnColorForRow(row, cs),
     );
@@ -937,11 +940,12 @@ class _CalendarPageState extends State<CalendarPage> {
 }
 
 class CalendarTimelineDataSource extends CalendarDataSource<Object> {
-  CalendarTimelineDataSource(List<Object> source, this._cs) {
+  CalendarTimelineDataSource(List<Object> source, this._cs, this._l10n) {
     appointments = source;
   }
 
   final ColorScheme _cs;
+  final AppLocalizations _l10n;
 
   Object _item(int index) => appointments![index] as Object;
 
@@ -998,7 +1002,7 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
 
   @override
   String getSubject(int index) => switch (_item(index)) {
-        final EntryRow row => calendarSubjectForRow(row),
+        final EntryRow row => calendarSubjectForRow(row, _l10n),
         CalendarAddSetupSlot() => 'Add setup',
         CalendarPredictedTask(:final name) => name,
         _ => '',

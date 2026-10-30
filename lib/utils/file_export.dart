@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../database/app_database.dart';
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/selected_data.dart';
 import '../services/attachment_storage_service.dart';
@@ -200,7 +201,7 @@ class FileExport {
     final settings = context.read<AppSettings>();
 
     try {
-      final bytes = SpreadsheetExport.toExcel(data, settings);
+      final bytes = SpreadsheetExport.toExcel(data, settings, context.l10n);
       if (bytes == null) throw Exception("Failed to encode Excel file");
 
       final Directory tempDir = await getTemporaryDirectory();
@@ -228,7 +229,7 @@ class FileExport {
     final settings = context.read<AppSettings>();
 
     try {
-      final csvString = SpreadsheetExport.toCsv(data, settings);
+      final csvString = SpreadsheetExport.toCsv(data, settings, context.l10n);
 
       final Directory tempDir = await getTemporaryDirectory();
       final String filePath = '${tempDir.path}/bike_setup_tracker.csv';

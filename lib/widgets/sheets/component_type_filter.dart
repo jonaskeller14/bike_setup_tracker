@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/component/component.dart';
 import '../text/sheet_section_title.dart';
 import 'sheet.dart';
@@ -67,7 +69,7 @@ Future<void> showComponentTypeFilterSheet({
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SheetSectionTitle(title: category.label),
+                              SheetSectionTitle(title: category.label(context.l10n)),
                               Wrap(
                                 spacing: 6,
                                 children: typesInCategory.map((type) {
@@ -75,7 +77,7 @@ Future<void> showComponentTypeFilterSheet({
                                   final bool selected = isAvailable && !hiddenComponentTypes.contains(type);
                                   return FilterChip(
                                     avatar: selected ? null : Icon(type.getIconData(), size: 18),
-                                    label: Text(type.label),
+                                    label: Text(type.label(context.l10n)),
                                     selected: selected,
                                     onSelected: isAvailable
                                         ? (bool newValue) {

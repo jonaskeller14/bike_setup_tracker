@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/task/task_association.dart';
@@ -93,7 +95,8 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
       _query.isEmpty || presetHaystackMatches(haystack, _query);
 
   String _componentHaystack(Component component, Bike? bike) =>
-      '${component.name} ${component.componentType.label} ${bike?.name ?? ''}'.toLowerCase();
+      '${component.name} ${component.componentType.label(context.l10n)} ${component.componentType.label(englishL10n)} ${bike?.name ?? ''}'
+          .toLowerCase();
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +283,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
                           association: ComponentTaskAssociation(component.id),
                           icon: component.componentType.getIconData(),
                           label: component.name,
-                          tooltip: '${component.name} · ${component.componentType.label}'
+                          tooltip: '${component.name} · ${component.componentType.label(context.l10n)}'
                               '${bike != null ? ' · ${bike.name}' : ' · ${group.label}'}',
                           maxWidth: chipMaxWidth,
                         ),

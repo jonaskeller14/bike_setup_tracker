@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/filters/activity_filter.dart';
@@ -196,7 +197,7 @@ class FeaturesPage extends StatelessWidget {
                   subtitle: Text(
                     appSettings.enablePressureAssistant
                         ? 'On · ${appSettings.pressureCheckThresholdPercent} % · '
-                              '${pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes)}'
+                              '${pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, context.l10n)}'
                         : 'Off',
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

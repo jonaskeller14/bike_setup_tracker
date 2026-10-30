@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment_unit.dart';
 import 'sheet_header.dart';
 
@@ -91,7 +93,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
             child: Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                quantity.label,
+                quantity.label(context.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
@@ -214,7 +216,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                             border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
                           ),
                           child: Text(
-                            'Did you mean "${suggestion.label}" (${suggestion.quantity.label})?',
+                            'Did you mean "${suggestion.label}" (${suggestion.quantity.label(context.l10n)})?',
                             style: TextStyle(color: colorScheme.primary, fontSize: 12),
                           ),
                         ),

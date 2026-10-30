@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
@@ -983,7 +985,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
           ActionChip(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             avatar: const Icon(TaskPriority.iconData),
-            label: Text(_priority.label),
+            label: Text(_priority.label(context.l10n)),
             backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
             onPressed: () => showSetTaskPrioritySheet(
               context: context,

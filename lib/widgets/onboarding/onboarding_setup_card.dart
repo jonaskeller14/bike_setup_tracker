@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
@@ -363,7 +365,7 @@ Widget onboardingSetupCardHeader({
                 TileMetaRow(icon: Icons.location_pin, text: snapshot.place, muted: true),
                 TileMetaRow(
                   icon: condition.iconData,
-                  text: condition.value,
+                  text: condition.label(context.l10n),
                   iconColor: condition.color,
                   muted: true,
                 ),

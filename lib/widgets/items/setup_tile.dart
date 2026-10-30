@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/setup.dart';
@@ -89,7 +90,7 @@ class _SetupTileState extends State<SetupTile> {
     final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
 
     final metadataRows = [
-      ...SetupTileHeader.metadataOf(setup, appSettings, hidePlace: widget.hidePlace),
+      ...SetupTileHeader.metadataOf(setup, appSettings, context.l10n, hidePlace: widget.hidePlace),
       ?SetupTileHeader.rankOf(setup, appSettings, appRepository),
     ];
     final Widget? badge = widget.showCurrentBadge

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
@@ -842,8 +844,8 @@ class _ComponentPageState extends State<ComponentPage> {
               helperText: isOverLimit
                   ? Intl.plural(
                       type.maxCount,
-                      one: "WARNING: There is already one ${type.label}-Component installed on this bike.",
-                      other: "WARNING: There are already ${type.maxCount} ${type.label}-Components installed on this bike.",
+                      one: "WARNING: There is already one ${type.label(context.l10n)}-Component installed on this bike.",
+                      other: "WARNING: There are already ${type.maxCount} ${type.label(context.l10n)}-Components installed on this bike.",
                     )
                   : null,
               helperMaxLines: 2,
@@ -866,7 +868,7 @@ class _ComponentPageState extends State<ComponentPage> {
                         Icon(type.getIconData(), color: isReplace ? Theme.of(context).disabledColor : null),
                         Expanded(
                           child: Text(
-                            type.label,
+                            type.label(context.l10n),
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(color: isReplace ? Theme.of(context).disabledColor : null),
                           ),

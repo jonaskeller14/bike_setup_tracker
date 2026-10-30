@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -7,7 +9,7 @@ import 'package:bike_setup_tracker/utils/task_preset_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Component component(ComponentType type, {String id = 'c1'}) =>
-    Component(id: id, name: type.label, installations: const [], componentType: type);
+    Component(id: id, name: type.label(englishL10n), installations: const [], componentType: type);
 
 TaskRule rule({required String name, String? presetKey, String componentId = 'c1', bool isDeleted = false}) => TaskRule(
   name: name,

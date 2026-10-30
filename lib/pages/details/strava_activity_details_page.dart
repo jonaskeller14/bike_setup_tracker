@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
@@ -194,7 +196,7 @@ class StravaActivityPageContent extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          stravaActivity.sportType.label,
+                          stravaActivity.sportType.label(context.l10n),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
@@ -213,7 +215,7 @@ class StravaActivityPageContent extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            stravaActivity.workout.label,
+                            stravaActivity.workout.label(context.l10n),
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w500,

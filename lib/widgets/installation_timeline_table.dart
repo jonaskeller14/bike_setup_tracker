@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
@@ -253,7 +255,7 @@ class _TypeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      message: type.label,
+      message: type.label(context.l10n),
       child: Padding(
         padding: const EdgeInsets.all(_InstallationTimelineTableState._cellPadding),
         child: Column(
@@ -261,7 +263,7 @@ class _TypeHeader extends StatelessWidget {
           children: [
             Icon(type.getIconData(), size: 20),
             const SizedBox(height: 4),
-            Text(type.label, style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(type.label(context.l10n), style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
           ],
         ),
       ),

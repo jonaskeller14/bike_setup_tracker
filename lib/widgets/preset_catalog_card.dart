@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
 import '../repositories/component_catalog_repository.dart';
@@ -134,7 +136,7 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
                   : isLinked
                   ? 'No longer in the catalog · Tap to choose another'
                   : [
-                      _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
+                      _teaser ?? 'Prefill from a ${widget.componentType.label(context.l10n).toLowerCase()} model',
                       if (widget.showGuideHint && _hasGuides) 'Link to a catalog product to get recommended values',
                     ].join('\n'),
               maxLines: isApplied ? 1 : null,

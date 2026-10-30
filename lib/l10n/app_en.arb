@@ -23,5 +23,513 @@
   "quickActionAddSetup": "Add New Setup",
   "@quickActionAddSetup": {
     "description": "Title of the home screen long-press shortcut that opens the new setup form."
+  },
+  "componentTypeCategoryFrame": "Frame",
+  "@componentTypeCategoryFrame": {
+    "description": "Name of the component category \"Frame\" in the component type pickers and filters."
+  },
+  "componentTypeCategorySuspension": "Suspension",
+  "@componentTypeCategorySuspension": {
+    "description": "Name of the component category \"Suspension\" in the component type pickers and filters."
+  },
+  "componentTypeCategoryCockpit": "Cockpit",
+  "@componentTypeCategoryCockpit": {
+    "description": "Name of the component category \"Cockpit\" in the component type pickers and filters."
+  },
+  "componentTypeCategoryDrivetrain": "Drivetrain",
+  "@componentTypeCategoryDrivetrain": {
+    "description": "Name of the component category \"Drivetrain\" in the component type pickers and filters."
+  },
+  "componentTypeCategoryBrakes": "Brakes",
+  "@componentTypeCategoryBrakes": {
+    "description": "Name of the component category \"Brakes\" in the component type pickers and filters."
+  },
+  "componentTypeCategoryWheels": "Wheels",
+  "@componentTypeCategoryWheels": {
+    "description": "Name of the component category \"Wheels\" in the component type pickers and filters."
+  },
+  "componentTypeCategorySeating": "Seating",
+  "@componentTypeCategorySeating": {
+    "description": "Name of the component category \"Seating\" in the component type pickers and filters."
+  },
+  "componentTypeCategoryElectronics": "Electronics",
+  "@componentTypeCategoryElectronics": {
+    "description": "Name of the component category \"Electronics\" in the component type pickers and filters."
+  },
+  "componentTypeCategoryOthers": "Others",
+  "@componentTypeCategoryOthers": {
+    "description": "Name of the component category \"Others\" in the component type pickers and filters."
+  },
+  "componentTypeFrame": "Frame",
+  "@componentTypeFrame": {
+    "description": "Name of the component type \"Frame\"."
+  },
+  "componentTypeFork": "Fork",
+  "@componentTypeFork": {
+    "description": "Name of the component type \"Fork\"."
+  },
+  "componentTypeShock": "Shock",
+  "@componentTypeShock": {
+    "description": "Name of the component type \"Shock\"."
+  },
+  "componentTypeCockpit": "Handlebar",
+  "@componentTypeCockpit": {
+    "description": "Name of the component type \"Handlebar\"."
+  },
+  "componentTypeStem": "Stem",
+  "@componentTypeStem": {
+    "description": "Name of the component type \"Stem\"."
+  },
+  "componentTypeGrip": "Grip",
+  "@componentTypeGrip": {
+    "description": "Name of the component type \"Grip\"."
+  },
+  "componentTypeHeadset": "Headset",
+  "@componentTypeHeadset": {
+    "description": "Name of the component type \"Headset\"."
+  },
+  "componentTypeShifter": "Shifter",
+  "@componentTypeShifter": {
+    "description": "Name of the component type \"Shifter\"."
+  },
+  "componentTypeBottomBracket": "Bottom Bracket",
+  "@componentTypeBottomBracket": {
+    "description": "Name of the component type \"Bottom Bracket\"."
+  },
+  "componentTypeCrank": "Crank",
+  "@componentTypeCrank": {
+    "description": "Name of the component type \"Crank\"."
+  },
+  "componentTypeDerailleur": "Derailleur",
+  "@componentTypeDerailleur": {
+    "description": "Name of the component type \"Derailleur\"."
+  },
+  "componentTypeChainring": "Chainring",
+  "@componentTypeChainring": {
+    "description": "Name of the component type \"Chainring\"."
+  },
+  "componentTypeCasette": "Cassette",
+  "@componentTypeCasette": {
+    "description": "Name of the component type \"Cassette\"."
+  },
+  "componentTypeChain": "Chain",
+  "@componentTypeChain": {
+    "description": "Name of the component type \"Chain\"."
+  },
+  "componentTypePedal": "Pedal",
+  "@componentTypePedal": {
+    "description": "Name of the component type \"Pedal\"."
+  },
+  "componentTypeShiftInnerCable": "Shift Inner Cable",
+  "@componentTypeShiftInnerCable": {
+    "description": "Name of the component type \"Shift Inner Cable\"."
+  },
+  "componentTypeBrakeCalliper": "Brake Calliper",
+  "@componentTypeBrakeCalliper": {
+    "description": "Name of the component type \"Brake Calliper\"."
+  },
+  "componentTypeBrakeLever": "Brake Lever",
+  "@componentTypeBrakeLever": {
+    "description": "Name of the component type \"Brake Lever\"."
+  },
+  "componentTypeBrakePad": "Brake Pad",
+  "@componentTypeBrakePad": {
+    "description": "Name of the component type \"Brake Pad\"."
+  },
+  "componentTypeBrakeDisc": "Brake Disc",
+  "@componentTypeBrakeDisc": {
+    "description": "Name of the component type \"Brake Disc\"."
+  },
+  "componentTypeWheelFront": "Front Wheel",
+  "@componentTypeWheelFront": {
+    "description": "Name of the component type \"Front Wheel\"."
+  },
+  "componentTypeWheelRear": "Rear Wheel",
+  "@componentTypeWheelRear": {
+    "description": "Name of the component type \"Rear Wheel\"."
+  },
+  "componentTypeTire": "Tire",
+  "@componentTypeTire": {
+    "description": "Name of the component type \"Tire\"."
+  },
+  "componentTypeSaddle": "Saddle",
+  "@componentTypeSaddle": {
+    "description": "Name of the component type \"Saddle\"."
+  },
+  "componentTypeSeatpost": "Seatpost",
+  "@componentTypeSeatpost": {
+    "description": "Name of the component type \"Seatpost\"."
+  },
+  "componentTypeBattery": "Battery",
+  "@componentTypeBattery": {
+    "description": "Name of the component type \"Battery\"."
+  },
+  "componentTypeMotor": "Motor",
+  "@componentTypeMotor": {
+    "description": "Name of the component type \"Motor\"."
+  },
+  "componentTypeBearing": "Bearing",
+  "@componentTypeBearing": {
+    "description": "Name of the component type \"Bearing\"."
+  },
+  "componentTypeEquipment": "Equipment",
+  "@componentTypeEquipment": {
+    "description": "Name of the component type \"Equipment\"."
+  },
+  "componentTypeOther": "Other",
+  "@componentTypeOther": {
+    "description": "Name of the component type \"Other\"."
+  },
+  "unitQuantityPressure": "Pressure",
+  "@unitQuantityPressure": {
+    "description": "Name of the measured quantity \"Pressure\" in the unit picker."
+  },
+  "unitQuantityLength": "Length",
+  "@unitQuantityLength": {
+    "description": "Name of the measured quantity \"Length\" in the unit picker."
+  },
+  "unitQuantityMass": "Mass",
+  "@unitQuantityMass": {
+    "description": "Name of the measured quantity \"Mass\" in the unit picker."
+  },
+  "unitQuantityTemperature": "Temperature",
+  "@unitQuantityTemperature": {
+    "description": "Name of the measured quantity \"Temperature\" in the unit picker."
+  },
+  "unitQuantitySpeed": "Speed",
+  "@unitQuantitySpeed": {
+    "description": "Name of the measured quantity \"Speed\" in the unit picker."
+  },
+  "unitQuantityAngle": "Angle",
+  "@unitQuantityAngle": {
+    "description": "Name of the measured quantity \"Angle\" in the unit picker."
+  },
+  "unitQuantityTorque": "Torque",
+  "@unitQuantityTorque": {
+    "description": "Name of the measured quantity \"Torque\" in the unit picker."
+  },
+  "unitQuantityVolume": "Volume",
+  "@unitQuantityVolume": {
+    "description": "Name of the measured quantity \"Volume\" in the unit picker."
+  },
+  "unitQuantitySpringRate": "Spring Rate",
+  "@unitQuantitySpringRate": {
+    "description": "Name of the measured quantity \"Spring Rate\" in the unit picker."
+  },
+  "taskPriorityLow": "Low",
+  "@taskPriorityLow": {
+    "description": "Task priority \"Low\"."
+  },
+  "taskPriorityMedium": "Medium",
+  "@taskPriorityMedium": {
+    "description": "Task priority \"Medium\"."
+  },
+  "taskPriorityHigh": "High",
+  "@taskPriorityHigh": {
+    "description": "Task priority \"High\"."
+  },
+  "taskPriorityCritical": "Critical",
+  "@taskPriorityCritical": {
+    "description": "Task priority \"Critical\"."
+  },
+  "stravaPlanMonthlyLabel": "Monthly",
+  "@stravaPlanMonthlyLabel": {
+    "description": "Name of the monthly Strava sync subscription plan."
+  },
+  "stravaPlanMonthlyTagline": "Try it month to month",
+  "@stravaPlanMonthlyTagline": {
+    "description": "Short pitch under the monthly Strava sync plan."
+  },
+  "stravaPlanMonthlyPeriod": "/ month",
+  "@stravaPlanMonthlyPeriod": {
+    "description": "Billing period shown after the price of the monthly Strava sync plan."
+  },
+  "stravaPlanYearlyLabel": "Yearly",
+  "@stravaPlanYearlyLabel": {
+    "description": "Name of the yearly Strava sync subscription plan."
+  },
+  "stravaPlanYearlyTagline": "Best for the full season",
+  "@stravaPlanYearlyTagline": {
+    "description": "Short pitch under the yearly Strava sync plan."
+  },
+  "stravaPlanYearlyPeriod": "/ year",
+  "@stravaPlanYearlyPeriod": {
+    "description": "Billing period shown after the price of the yearly Strava sync plan."
+  },
+  "stravaWorkoutTypeNone": "Activity",
+  "@stravaWorkoutTypeNone": {
+    "description": "Label of the Strava workout type \"Activity\"."
+  },
+  "stravaWorkoutTypeRace": "Race",
+  "@stravaWorkoutTypeRace": {
+    "description": "Label of the Strava workout type \"Race\"."
+  },
+  "stravaWorkoutTypeWorkout": "Workout",
+  "@stravaWorkoutTypeWorkout": {
+    "description": "Label of the Strava workout type \"Workout\"."
+  },
+  "sportTypeAlpineSki": "Alpine Ski",
+  "@sportTypeAlpineSki": {
+    "description": "Name of the Strava sport type \"Alpine Ski\"."
+  },
+  "sportTypeBackcountrySki": "Backcountry Ski",
+  "@sportTypeBackcountrySki": {
+    "description": "Name of the Strava sport type \"Backcountry Ski\"."
+  },
+  "sportTypeBadminton": "Badminton",
+  "@sportTypeBadminton": {
+    "description": "Name of the Strava sport type \"Badminton\"."
+  },
+  "sportTypeCanoeing": "Canoeing",
+  "@sportTypeCanoeing": {
+    "description": "Name of the Strava sport type \"Canoeing\"."
+  },
+  "sportTypeCrossfit": "Crossfit",
+  "@sportTypeCrossfit": {
+    "description": "Name of the Strava sport type \"Crossfit\"."
+  },
+  "sportTypeEBikeRide": "E-Bike Ride",
+  "@sportTypeEBikeRide": {
+    "description": "Name of the Strava sport type \"E-Bike Ride\"."
+  },
+  "sportTypeElliptical": "Elliptical",
+  "@sportTypeElliptical": {
+    "description": "Name of the Strava sport type \"Elliptical\"."
+  },
+  "sportTypeEMountainBikeRide": "E-Mountain Bike Ride",
+  "@sportTypeEMountainBikeRide": {
+    "description": "Name of the Strava sport type \"E-Mountain Bike Ride\"."
+  },
+  "sportTypeGolf": "Golf",
+  "@sportTypeGolf": {
+    "description": "Name of the Strava sport type \"Golf\"."
+  },
+  "sportTypeGravelRide": "Gravel Ride",
+  "@sportTypeGravelRide": {
+    "description": "Name of the Strava sport type \"Gravel Ride\"."
+  },
+  "sportTypeHandcycle": "Handcycle",
+  "@sportTypeHandcycle": {
+    "description": "Name of the Strava sport type \"Handcycle\"."
+  },
+  "sportTypeHighIntensityIntervalTraining": "HIIT",
+  "@sportTypeHighIntensityIntervalTraining": {
+    "description": "Name of the Strava sport type \"HIIT\"."
+  },
+  "sportTypeHike": "Hike",
+  "@sportTypeHike": {
+    "description": "Name of the Strava sport type \"Hike\"."
+  },
+  "sportTypeIceSkate": "Ice Skate",
+  "@sportTypeIceSkate": {
+    "description": "Name of the Strava sport type \"Ice Skate\"."
+  },
+  "sportTypeInlineSkate": "Inline Skate",
+  "@sportTypeInlineSkate": {
+    "description": "Name of the Strava sport type \"Inline Skate\"."
+  },
+  "sportTypeKayaking": "Kayaking",
+  "@sportTypeKayaking": {
+    "description": "Name of the Strava sport type \"Kayaking\"."
+  },
+  "sportTypeKitesurf": "Kitesurf",
+  "@sportTypeKitesurf": {
+    "description": "Name of the Strava sport type \"Kitesurf\"."
+  },
+  "sportTypeMountainBikeRide": "Mountain Bike Ride",
+  "@sportTypeMountainBikeRide": {
+    "description": "Name of the Strava sport type \"Mountain Bike Ride\"."
+  },
+  "sportTypeNordicSki": "Nordic Ski",
+  "@sportTypeNordicSki": {
+    "description": "Name of the Strava sport type \"Nordic Ski\"."
+  },
+  "sportTypePickleball": "Pickleball",
+  "@sportTypePickleball": {
+    "description": "Name of the Strava sport type \"Pickleball\"."
+  },
+  "sportTypePilates": "Pilates",
+  "@sportTypePilates": {
+    "description": "Name of the Strava sport type \"Pilates\"."
+  },
+  "sportTypeRacquetball": "Racquetball",
+  "@sportTypeRacquetball": {
+    "description": "Name of the Strava sport type \"Racquetball\"."
+  },
+  "sportTypeRide": "Ride",
+  "@sportTypeRide": {
+    "description": "Name of the Strava sport type \"Ride\"."
+  },
+  "sportTypeRockClimbing": "Rock Climbing",
+  "@sportTypeRockClimbing": {
+    "description": "Name of the Strava sport type \"Rock Climbing\"."
+  },
+  "sportTypeRollerSki": "Roller Ski",
+  "@sportTypeRollerSki": {
+    "description": "Name of the Strava sport type \"Roller Ski\"."
+  },
+  "sportTypeRowing": "Rowing",
+  "@sportTypeRowing": {
+    "description": "Name of the Strava sport type \"Rowing\"."
+  },
+  "sportTypeRun": "Run",
+  "@sportTypeRun": {
+    "description": "Name of the Strava sport type \"Run\"."
+  },
+  "sportTypeSail": "Sail",
+  "@sportTypeSail": {
+    "description": "Name of the Strava sport type \"Sail\"."
+  },
+  "sportTypeSkateboard": "Skateboard",
+  "@sportTypeSkateboard": {
+    "description": "Name of the Strava sport type \"Skateboard\"."
+  },
+  "sportTypeSnowboard": "Snowboard",
+  "@sportTypeSnowboard": {
+    "description": "Name of the Strava sport type \"Snowboard\"."
+  },
+  "sportTypeSnowshoe": "Snowshoe",
+  "@sportTypeSnowshoe": {
+    "description": "Name of the Strava sport type \"Snowshoe\"."
+  },
+  "sportTypeSoccer": "Soccer",
+  "@sportTypeSoccer": {
+    "description": "Name of the Strava sport type \"Soccer\"."
+  },
+  "sportTypeSquash": "Squash",
+  "@sportTypeSquash": {
+    "description": "Name of the Strava sport type \"Squash\"."
+  },
+  "sportTypeStairStepper": "Stair Stepper",
+  "@sportTypeStairStepper": {
+    "description": "Name of the Strava sport type \"Stair Stepper\"."
+  },
+  "sportTypeStandUpPaddling": "Stand Up Paddling",
+  "@sportTypeStandUpPaddling": {
+    "description": "Name of the Strava sport type \"Stand Up Paddling\"."
+  },
+  "sportTypeSurfing": "Surfing",
+  "@sportTypeSurfing": {
+    "description": "Name of the Strava sport type \"Surfing\"."
+  },
+  "sportTypeSwim": "Swim",
+  "@sportTypeSwim": {
+    "description": "Name of the Strava sport type \"Swim\"."
+  },
+  "sportTypeTableTennis": "Table Tennis",
+  "@sportTypeTableTennis": {
+    "description": "Name of the Strava sport type \"Table Tennis\"."
+  },
+  "sportTypeTennis": "Tennis",
+  "@sportTypeTennis": {
+    "description": "Name of the Strava sport type \"Tennis\"."
+  },
+  "sportTypeTrailRun": "Trail Run",
+  "@sportTypeTrailRun": {
+    "description": "Name of the Strava sport type \"Trail Run\"."
+  },
+  "sportTypeVelomobile": "Velomobile",
+  "@sportTypeVelomobile": {
+    "description": "Name of the Strava sport type \"Velomobile\"."
+  },
+  "sportTypeVirtualRide": "Virtual Ride",
+  "@sportTypeVirtualRide": {
+    "description": "Name of the Strava sport type \"Virtual Ride\"."
+  },
+  "sportTypeVirtualRow": "Virtual Row",
+  "@sportTypeVirtualRow": {
+    "description": "Name of the Strava sport type \"Virtual Row\"."
+  },
+  "sportTypeVirtualRun": "Virtual Run",
+  "@sportTypeVirtualRun": {
+    "description": "Name of the Strava sport type \"Virtual Run\"."
+  },
+  "sportTypeWalk": "Walk",
+  "@sportTypeWalk": {
+    "description": "Name of the Strava sport type \"Walk\"."
+  },
+  "sportTypeWeightTraining": "Weight Training",
+  "@sportTypeWeightTraining": {
+    "description": "Name of the Strava sport type \"Weight Training\"."
+  },
+  "sportTypeWheelchair": "Wheelchair",
+  "@sportTypeWheelchair": {
+    "description": "Name of the Strava sport type \"Wheelchair\"."
+  },
+  "sportTypeWindsurf": "Windsurf",
+  "@sportTypeWindsurf": {
+    "description": "Name of the Strava sport type \"Windsurf\"."
+  },
+  "sportTypeWorkout": "Workout",
+  "@sportTypeWorkout": {
+    "description": "Name of the Strava sport type \"Workout\"."
+  },
+  "sportTypeYoga": "Yoga",
+  "@sportTypeYoga": {
+    "description": "Name of the Strava sport type \"Yoga\"."
+  },
+  "sportTypeOther": "Other",
+  "@sportTypeOther": {
+    "description": "Name of the Strava sport type \"Other\"."
+  },
+  "weatherConditionDry": "Dry",
+  "@weatherConditionDry": {
+    "description": "Ground condition \"Dry\" of a setup."
+  },
+  "weatherConditionMoist": "Moist",
+  "@weatherConditionMoist": {
+    "description": "Ground condition \"Moist\" of a setup."
+  },
+  "weatherConditionWet": "Wet",
+  "@weatherConditionWet": {
+    "description": "Ground condition \"Wet\" of a setup."
+  },
+  "weatherConditionMuddy": "Muddy",
+  "@weatherConditionMuddy": {
+    "description": "Ground condition \"Muddy\" of a setup."
+  },
+  "stepVisualizationMinusButtonValuePlusButton": "Plus/Minus Buttons",
+  "@stepVisualizationMinusButtonValuePlusButton": {
+    "description": "How a step adjustment is drawn: \"Plus/Minus Buttons\"."
+  },
+  "stepVisualizationMinusButtonValuePlusButtonClockwiseDial": "Buttons with Clockwise Dial",
+  "@stepVisualizationMinusButtonValuePlusButtonClockwiseDial": {
+    "description": "How a step adjustment is drawn: \"Buttons with Clockwise Dial\"."
+  },
+  "stepVisualizationMinusButtonValuePlusButtonCounterclockwiseDial": "Buttons with Counterclockwise Dial",
+  "@stepVisualizationMinusButtonValuePlusButtonCounterclockwiseDial": {
+    "description": "How a step adjustment is drawn: \"Buttons with Counterclockwise Dial\"."
+  },
+  "stepVisualizationSlider": "Slider",
+  "@stepVisualizationSlider": {
+    "description": "How a step adjustment is drawn: \"Slider\"."
+  },
+  "stepVisualizationSliderWithClockwiseDial": "Slider with Clockwise Dial",
+  "@stepVisualizationSliderWithClockwiseDial": {
+    "description": "How a step adjustment is drawn: \"Slider with Clockwise Dial\"."
+  },
+  "stepVisualizationSliderWithCounterclockwiseDial": "Slider with Counterclockwise Dial",
+  "@stepVisualizationSliderWithCounterclockwiseDial": {
+    "description": "How a step adjustment is drawn: \"Slider with Counterclockwise Dial\"."
+  },
+  "tipProductSmall": "Buy me a coffee",
+  "@tipProductSmall": {
+    "description": "Label of the tip option \"Buy me a coffee\"."
+  },
+  "tipProductMedium": "Buy me a snack",
+  "@tipProductMedium": {
+    "description": "Label of the tip option \"Buy me a snack\"."
+  },
+  "tipProductLarge": "Buy me a meal",
+  "@tipProductLarge": {
+    "description": "Label of the tip option \"Buy me a meal\"."
+  },
+  "installationIssueMissingBike": "Bike not found",
+  "@installationIssueMissingBike": {
+    "description": "Warning that a component's installation target is gone: \"Bike not found\"."
+  },
+  "installationIssueMissingParent": "Parent component not found",
+  "@installationIssueMissingParent": {
+    "description": "Warning that a component's installation target is gone: \"Parent component not found\"."
   }
 }

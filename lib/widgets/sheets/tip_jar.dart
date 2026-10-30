@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/tip_product.dart';
 import '../../services/tip_service.dart';
 import 'sheet_header.dart';
@@ -112,7 +114,7 @@ class _TipBody extends StatelessWidget {
                   ),
                   child: Text(tip.emoji, style: const TextStyle(fontSize: 22)),
                 ),
-                title: Text(tip.label, style: textTheme.titleSmall),
+                title: Text(tip.label(context.l10n), style: textTheme.titleSmall),
                 trailing: Text(
                   tipService.localizedPrice(tip) ?? '—',
                   style: textTheme.titleMedium?.copyWith(

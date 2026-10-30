@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/app_hint.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
@@ -175,7 +177,7 @@ class InstallationParentField extends StatelessWidget {
         label: component?.name ?? 'COMPONENT NOT FOUND',
         subtitle: ancestors.isEmpty ? null : ancestors.map((a) => a.label(bikes)).join(' · '),
         subtitleColor: ancestors.any((a) => a.isMissing(bikes)) ? errorColor : null,
-        typeLabel: component?.componentType.label,
+        typeLabel: component?.componentType.label(context.l10n),
         color: component == null ? errorColor : null,
         ancestors: ancestors,
         isMissing: component == null,
@@ -319,7 +321,7 @@ class InstallationParentField extends StatelessWidget {
       depthCapHint: descendantCount == 0
           ? null
           : "Can't mount on a component while it carries $descendantCount ${descendantCount == 1 ? 'part' : 'parts'}",
-      componentTypeLabel: componentType?.label,
+      componentTypeLabel: componentType?.label(context.l10n),
     );
     if (picked == null || !context.mounted) return;
     onChanged(picked);

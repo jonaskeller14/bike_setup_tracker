@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
@@ -190,8 +192,8 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                       componentType == null
                           ? "Pre-filled Templates"
                           : consumedCount == 0
-                              ? "Suggested for ${componentType.label}"
-                              : "Suggested for ${componentType.label} · $consumedCount/${presets.length} added",
+                              ? "Suggested for ${componentType.label(context.l10n)}"
+                              : "Suggested for ${componentType.label(context.l10n)} · $consumedCount/${presets.length} added",
                     ),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,

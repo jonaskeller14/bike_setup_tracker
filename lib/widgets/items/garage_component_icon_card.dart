@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../../models/task/task_rule.dart';
@@ -113,9 +115,9 @@ class GarageComponentIconCard extends StatelessWidget {
             top: -3,
             left: -3,
             child: Semantics(
-              label: issue!.label,
+              label: issue!.label(context.l10n),
               child: Tooltip(
-                message: issue!.label,
+                message: issue!.label(context.l10n),
                 child: Container(
                   decoration: BoxDecoration(
                     color: isSelected ? colorScheme.tertiaryContainer : colorScheme.surface,

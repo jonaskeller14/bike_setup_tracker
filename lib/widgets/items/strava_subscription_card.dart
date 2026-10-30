@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/strava/strava_plan.dart';
 import '../../services/subscription_service.dart';
@@ -52,7 +54,7 @@ class StravaSubscriptionCard extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant, height: 1.4),
         ),
         const SizedBox(height: 10),
-        _priceRow(context, price: 'From $price', period: StravaPlan.monthly.period),
+        _priceRow(context, price: 'From $price', period: StravaPlan.monthly.period(context.l10n)),
         const SizedBox(height: 14),
         _viewPlansButton(context, 'View plans'),
       ],
@@ -85,7 +87,7 @@ class StravaSubscriptionCard extends StatelessWidget {
           bgColor: isActive ? activeBgColor : colors.errorContainer,
         ),
         const SizedBox(height: 6),
-        _priceRow(context, price: price, period: entitlement.plan.period),
+        _priceRow(context, price: price, period: entitlement.plan.period(context.l10n)),
         Divider(height: 24, color: colors.outlineVariant),
         _detailRow(context, label: renewLabel, value: renewDate),
         const SizedBox(height: 4),

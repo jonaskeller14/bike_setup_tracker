@@ -1,32 +1,34 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/context/context_weather.dart';
 
 class SoilMoistureLegendTable extends StatelessWidget {
   const SoilMoistureLegendTable({super.key});
 
-  static final List<Map<String, dynamic>> _conditionsData = [
+  static List<Map<String, dynamic>> _conditionsData(AppLocalizations l10n) => [
     {
       'range': '0.00 - 0.09',
-      'label': Condition.dry.value,
+      'label': Condition.dry.label(l10n),
       'icon': Condition.dry.iconData,
       'color': Condition.dry.color,
     },
     {
       'range': '0.10 - 0.19',
-      'label': Condition.moist.value,
+      'label': Condition.moist.label(l10n),
       'icon': Condition.moist.iconData,
       'color': Condition.moist.color,
     },
     {
       'range': '0.20 - 0.34',
-      'label': Condition.wet.value,
+      'label': Condition.wet.label(l10n),
       'icon': Condition.wet.iconData,
       'color': Condition.wet.color,
     },
     {
       'range': '0.35+',
-      'label': Condition.muddy.value,
+      'label': Condition.muddy.label(l10n),
       'icon': Condition.muddy.iconData,
       'color': Condition.muddy.color,
     },
@@ -58,7 +60,7 @@ class SoilMoistureLegendTable extends StatelessWidget {
           ),
         ],
 
-        rows: _conditionsData.map((data) {
+        rows: _conditionsData(context.l10n).map((data) {
           return DataRow(
             cells: [
               DataCell(

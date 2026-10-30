@@ -13,12 +13,6 @@ enum StravaWorkoutType {
 
   bool get isNotable => this != StravaWorkoutType.none;
 
-  String get label => switch (this) {
-        StravaWorkoutType.none => 'Activity',
-        StravaWorkoutType.race => 'Race',
-        StravaWorkoutType.workout => 'Workout',
-      };
-
   IconData get icon => switch (this) {
         StravaWorkoutType.none => Icons.circle_outlined,
         StravaWorkoutType.race => Icons.emoji_events,

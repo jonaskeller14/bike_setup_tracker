@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
@@ -130,7 +132,7 @@ class ReplacementListTile extends StatelessWidget {
               ),
             ),
             title: Text(
-              "Replaced ${componentType.label}",
+              "Replaced ${componentType.label(context.l10n)}",
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.bold),
               maxLines: 1,

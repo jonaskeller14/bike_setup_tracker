@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../text/sheet_section_title.dart';
@@ -20,11 +22,11 @@ Future<void> showPressureCheckSettingSheet(BuildContext context) {
 }
 
 /// "All", "All except Tire" or "28 of 30" for the component types not in [hidden].
-String pressureCheckComponentTypesSummary(Set<ComponentType> hidden) {
+String pressureCheckComponentTypesSummary(Set<ComponentType> hidden, AppLocalizations l10n) {
   final total = ComponentType.values.length;
   if (hidden.isEmpty) return 'All';
   if (hidden.length > 3) return '${total - hidden.length} of $total';
-  return 'All except ${ComponentType.values.where(hidden.contains).map((type) => type.label).join(', ')}';
+  return 'All except ${ComponentType.values.where(hidden.contains).map((type) => type.label(l10n)).join(', ')}';
 }
 
 class _PressureCheckSettingSheet extends StatelessWidget {
@@ -107,7 +109,7 @@ class _PressureCheckSettingSheet extends StatelessWidget {
                   ListTile(
                     enabled: enabled,
                     leading: const Icon(Icons.category_outlined),
-                    title: Text(pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes)),
+                    title: Text(pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, context.l10n)),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: () async {
                       final hidden = Set.of(appSettings.pressureCheckHiddenComponentTypes);

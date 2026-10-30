@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -134,7 +136,7 @@ void main() {
   });
 
   test('labels name the reason', () {
-    expect(InstallationIssue.missingBike.label, 'Bike not found');
-    expect(InstallationIssue.missingParent.label, 'Parent component not found');
+    expect(InstallationIssue.missingBike.label(englishL10n), 'Bike not found');
+    expect(InstallationIssue.missingParent.label(englishL10n), 'Parent component not found');
   });
 }

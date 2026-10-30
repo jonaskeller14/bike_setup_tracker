@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_catalog.dart';
@@ -481,7 +483,7 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
           isDense: true,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _query.isEmpty ? null : IconButton(icon: const Icon(Icons.clear), onPressed: _clearQuery),
-          hintText: 'Search ${widget.componentType.label.toLowerCase()}s…',
+          hintText: 'Search ${widget.componentType.label(context.l10n).toLowerCase()}s…',
           border: const OutlineInputBorder(),
         ),
       ),

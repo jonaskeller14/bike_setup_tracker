@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
@@ -21,6 +23,7 @@ String toText({
   required SelectedData selectedData,
 }) {
   final appSettings = context.read<AppSettings>();
+  final l10n = context.l10n;
   final buffer = StringBuffer();
 
   final persons = selectedData.persons.values;
@@ -53,7 +56,7 @@ String toText({
     buffer.writeln("SETUPS:");
     for (int i = 0; i < setups.length; i++) {
       final setup = setups[i];
-      _appendSetupText(buffer, setup, selectedData.bikes, selectedData.persons, selectedData.components, appSettings);
+      _appendSetupText(buffer, setup, selectedData.bikes, selectedData.persons, selectedData.components, appSettings, l10n);
       if (i < setups.length - 1) {
         buffer.writeln("\n-----------\n");
       }
@@ -67,7 +70,7 @@ String toText({
     if (buffer.isNotEmpty) buffer.writeln("\n-----------\n");
     buffer.writeln("TASK LOG:");
     for (int i = 0; i < taskEntries.length; i++) {
-      _appendTaskEntryText(buffer, taskEntries[i], selectedData, appSettings);
+      _appendTaskEntryText(buffer, taskEntries[i], selectedData, appSettings, l10n);
       if (i < taskEntries.length - 1) {
         buffer.writeln();
       }
@@ -105,7 +108,8 @@ String setupToText({
     appRepository.bikes, 
     appRepository.persons, 
     appRepository.components, 
-    appSettings
+    appSettings,
+    context.l10n
   );
 
   return buffer.toString();
@@ -117,7 +121,8 @@ void _appendSetupText(
   Map<String, Bike> bikes,
   Map<String, Person> persons,
   Map<String, Component> components,
-  AppSettings settings
+  AppSettings settings,
+  AppLocalizations l10n,
 ) {
   final dateString = DateFormat(settings.dateFormat).format(setup.datetimeLocal);
   final timeString = DateFormat(settings.timeFormat).format(setup.datetimeLocal);
@@ -134,7 +139,7 @@ void _appendSetupText(
   }
 
   // Location & Weather Context compact oneliner
-  final contextLine = _generateContextLine(setup, settings);
+  final contextLine = _generateContextLine(setup, settings, l10n);
   if (contextLine.isNotEmpty) {
     buffer.writeln(contextLine);
   }
@@ -196,6 +201,7 @@ void _appendTaskEntryText(
   TaskEntry entry,
   SelectedData data,
   AppSettings settings,
+  AppLocalizations l10n,
 ) {
   final dateString = DateFormat(settings.dateFormat).format(entry.dateTimeLocal);
   final timeString = DateFormat(settings.timeFormat).format(entry.dateTimeLocal);
@@ -211,7 +217,7 @@ void _appendTaskEntryText(
     buffer.writeln("📋 ${rule.name}${ruleLink != null ? ' ($ruleLink)' : ''}");
 
     final metaParts = [
-      if (settings.enableTaskPriority) rule.priority.label,
+      if (settings.enableTaskPriority) rule.priority.label(l10n),
       if (settings.enableTaskTags && rule.tags.isNotEmpty) '🏷️ ${rule.tags.join(', ')}',
     ];
     if (metaParts.isNotEmpty) {
@@ -248,7 +254,7 @@ String? _taskLinkLabel(TaskAssociation association, SelectedData data) {
   };
 }
 
-String _generateContextLine(Setup setup, AppSettings settings) {
+String _generateContextLine(Setup setup, AppSettings settings, AppLocalizations l10n) {
   final parts = <String>[];
 
   // Location
@@ -292,7 +298,7 @@ String _generateContextLine(Setup setup, AppSettings settings) {
     }
 
     if (w.condition != null) {
-      weatherParts.add(w.condition!.value);
+      weatherParts.add(w.condition!.label(l10n));
     }
 
     if (weatherParts.isNotEmpty) {

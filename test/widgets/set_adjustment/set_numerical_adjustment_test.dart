@@ -1,8 +1,10 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/number_input_formatters.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_numerical_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import '../../goldens/support/localized_test_app.dart';
 
 void main() {
@@ -226,6 +228,69 @@ void main() {
       expect(double.parse(field.controller!.text), closeTo(4.48, 0.01));
       // …while the reported storage value is the exact stored initial (psi).
       expect(reported!.value, closeTo(65, 0.0001));
+    });
+
+    group("in German", () {
+      setUp(() => Intl.defaultLocale = 'de');
+      tearDown(() => Intl.defaultLocale = null);
+
+      testWidgets("pre-fills the stored value with a decimal comma, digit for digit", (tester) async {
+        await tester.pumpWidget(buildPressure(
+          adjustment: pressureAdjustment(),
+          initialValue: null,
+          value: const NumericalValue(65.123456),
+          onChanged: (_) {},
+          formKey: GlobalKey<FormState>(),
+        ));
+
+        expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '65,123456');
+      });
+
+      testWidgets("the unit toggle keeps the decimal comma and reads it back", (tester) async {
+        await tester.pumpWidget(buildPressure(
+          adjustment: pressureAdjustment(),
+          initialValue: null,
+          value: const NumericalValue(72.5),
+          onChanged: (_) {},
+          formKey: GlobalKey<FormState>(),
+        ));
+
+        await tester.tap(find.text('psi'));
+        await tester.pumpAndSettle();
+
+        final text = tester.widget<TextField>(find.byType(TextField)).controller!.text;
+        expect(text, contains(','));
+        expect(text, isNot(contains('.')));
+        expect(find.text('= 72,5 psi'), findsOneWidget);
+
+        await tester.tap(find.text('bar'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('kPa'));
+        await tester.pumpAndSettle();
+
+        // Back in psi: each step parsed the comma text of the one before. The
+        // 5-decimal rounding of those steps adds up, so it is only close.
+        final roundTripped = tester.widget<TextField>(find.byType(TextField)).controller!.text;
+        expect(parseLocalizedDouble(roundTripped), closeTo(72.5, 0.001));
+      });
+
+      testWidgets("validation messages use a decimal comma", (tester) async {
+        final formKey = GlobalKey<FormState>();
+        await tester.pumpWidget(buildPressure(
+          adjustment: pressureAdjustment(min: 0, max: 72.5),
+          initialValue: null,
+          value: null,
+          onChanged: (_) {},
+          formKey: formKey,
+        ));
+
+        await tester.enterText(find.byType(TextField), '80');
+        await tester.pump();
+        formKey.currentState!.validate();
+        await tester.pump();
+
+        expect(find.textContaining('72,5'), findsOneWidget);
+      });
     });
   });
 

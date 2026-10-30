@@ -8,6 +8,7 @@ import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/utils/setup_guide_evaluator.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
 /// [evaluateSetupGuide] over small inline catalogs run through the real
@@ -213,6 +214,11 @@ void main() {
       // 183 lb = 83.0 kg
       expect(pressureAt(183, unit: _lb).value, const NumericalValue(78));
       expect(pressureAt(183, unit: _lb).inputText, '183 lb');
+    });
+
+    test('writes the rider weight in the app language', () {
+      expect(pressureAt(82.5).inputText, '82.5 kg');
+      expect(Intl.withLocale('de', () => pressureAt(82.5).inputText), '82,5 kg');
     });
 
     test('converts the output unit and rounds pressure to 0.1 bar', () {

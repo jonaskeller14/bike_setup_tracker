@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../utils/localized_number.dart';
 import '../utils/number_input_formatters.dart';
 
 class MetricWeightField extends StatefulWidget {
@@ -17,8 +18,7 @@ class MetricWeightField extends StatefulWidget {
   });
 
   /// Trims trailing ".0" so 1.0 → "1" / -1.0 → "-1" while keeping 1.5 etc.
-  static String formatWeight(double v) =>
-      v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
+  static String formatWeight(double v) => formatLocalizedDouble(v, fractionDigits: v == v.roundToDouble() ? 0 : 1);
 
   @override
   State<MetricWeightField> createState() => _MetricWeightFieldState();

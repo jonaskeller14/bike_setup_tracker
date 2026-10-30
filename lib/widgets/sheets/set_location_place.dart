@@ -12,6 +12,7 @@ import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
 import '../../services/location_service.dart';
 import '../../theme.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/number_input_formatters.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
@@ -101,11 +102,11 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   void _setFieldsFromLocationPlace() {
     final appSettings = context.read<AppSettings>();
 
-    _latitudeController.text = _currentLocation?.latitude?.toString() ?? "";
-    _longitudeController.text = _currentLocation?.longitude?.toString() ?? "";
-    _altitudeController.text =
-        ContextPosition.convertAltitudeFromMeters(_currentLocation?.altitude, appSettings.altitudeUnit)?.toString() ??
-        "";
+    _latitudeController.text = formatEditableDouble(_currentLocation?.latitude);
+    _longitudeController.text = formatEditableDouble(_currentLocation?.longitude);
+    _altitudeController.text = formatEditableDouble(
+      ContextPosition.convertAltitudeFromMeters(_currentLocation?.altitude, appSettings.altitudeUnit),
+    );
 
     _addressController.text = _formatAddress(_currentPlace);
   }

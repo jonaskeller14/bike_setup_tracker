@@ -9,6 +9,7 @@ import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/map_actions.dart';
 import '../map_pins.dart';
 
@@ -35,6 +36,8 @@ class ContextLocationWeatherCard extends StatelessWidget {
   bool get _hasWeather => weather?.hasWeatherData ?? false;
 
   bool get _hasCondition => weather?.condition != null;
+
+  static String _coordinate(double? value) => value == null ? '-' : formatLocalizedDouble(value, fractionDigits: 4);
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +87,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.my_location),
           title: SelectableText(
-            "Latitude/Longitude: ${position?.latitude?.toStringAsFixed(4) ?? '-'}°/${position?.longitude?.toStringAsFixed(4) ?? '-'}°",
+            "Latitude/Longitude: ${_coordinate(position?.latitude)}°/${_coordinate(position?.longitude)}°",
           ),
           dense: true,
           enabled: position?.latitude != null || position?.longitude != null,
@@ -251,7 +254,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
           title: SelectableText(
-            "Soil Moisture: ${weather!.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '-'} m³/m³",
+            "Soil Moisture: ${weather!.currentSoilMoisture0to7cm == null ? '-' : formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2)} m³/m³",
           ),
           dense: true,
           enabled: weather!.currentSoilMoisture0to7cm != null,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/setup_guide.dart';
 import '../theme.dart';
+import '../utils/localized_number.dart';
 
 /// How the rider's value relates to a recommendation.
 enum GuideStatusKind {
@@ -127,8 +128,7 @@ String guideValueText(Adjustment adjustment, AdjustmentValue value) => switch (v
 
 String guideSignedDelta(double delta) {
   final rounded = double.parse(delta.toStringAsFixed(1));
-  final text = rounded == rounded.roundToDouble() ? rounded.abs().round().toString() : rounded.abs().toString();
-  return "${rounded < 0 ? '-' : '+'}$text";
+  return "${rounded < 0 ? '-' : '+'}${formatLocalizedDouble(rounded.abs())}";
 }
 
 /// "72–80 psi": the values that count as on guide; null where only the
@@ -136,10 +136,7 @@ String guideSignedDelta(double delta) {
 String? guideBandText(GuideRecommendation recommendation) {
   final band = recommendation.band;
   if (band == null) return null;
-  String number(double value) {
-    final rounded = double.parse(value.toStringAsFixed(1));
-    return rounded == rounded.roundToDouble() ? rounded.round().toString() : rounded.toString();
-  }
+  String number(double value) => formatLocalizedDouble(double.parse(value.toStringAsFixed(1)));
 
   return "${number(band.min)}–${number(band.max)}${recommendation.adjustment.unitSuffix()}";
 }

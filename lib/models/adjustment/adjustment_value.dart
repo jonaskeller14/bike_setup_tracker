@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 
+import '../../utils/localized_number.dart';
 import 'adjustment.dart';
 
 @immutable
@@ -141,10 +141,8 @@ final class NumericalValue extends AdjustmentValue {
 
   static NumericalValue? orNull(double? value) => value == null ? null : NumericalValue(value);
 
-  static final NumberFormat _format = NumberFormat('0.#####', 'en_US');
-
   @override
-  String get display => _format.format(value);
+  String get display => formatLocalizedDouble(value);
 
   @override
   num? get asNum => value;

@@ -13,6 +13,7 @@ import '../pages/details/component_details_page.dart';
 import '../repositories/app_repository.dart';
 import '../services/file_save_service.dart';
 import '../services/share_service.dart';
+import '../utils/localized_number.dart';
 import 'app_snackbar.dart';
 import 'dialogs/rename_dialog.dart';
 import 'sheets/setup_details.dart';
@@ -154,8 +155,8 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
 
   String _formatSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024) return '${formatLocalizedDouble(bytes / 1024, fractionDigits: 1)} KB';
+    return '${formatLocalizedDouble(bytes / (1024 * 1024), fractionDigits: 1)} MB';
   }
 
   Widget _imagePage(Attachment attachment) {

@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/utils/value_migration_proposal.dart';
 import 'package:bike_setup_tracker/widgets/sheets/value_migration_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import '../../goldens/support/localized_test_app.dart';
 
 const _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
@@ -194,6 +195,21 @@ void main() {
 
     expect(find.text('83 psi'), findsOneWidget);
     expect(find.text('≈ 5.72 bar'), findsOneWidget);
+  });
+
+  testWidgets('shows the example values with a decimal comma in German', (tester) async {
+    Intl.defaultLocale = 'de';
+    addTearDown(() => Intl.defaultLocale = null);
+
+    final proposal = MigrationProposal.build(
+      before: _numerical(unit: _psi),
+      after: _numerical(unit: _bar),
+      recorded: [_record(const NumericalValue(83.5))],
+    );
+    await openSheet(tester, proposal);
+
+    expect(find.text('83,5 psi'), findsOneWidget);
+    expect(find.text('≈ 5,76 bar'), findsOneWidget);
   });
 
   testWidgets('the hint counts the records the selected choice changes', (tester) async {

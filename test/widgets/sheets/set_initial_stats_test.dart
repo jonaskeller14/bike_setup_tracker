@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/set_initial_stats.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../goldens/support/localized_test_app.dart';
@@ -15,7 +16,10 @@ void main() {
   tearDown(() => settings.dispose());
 
   /// Opens the sheet and returns a getter for what it saved.
-  Future<ComponentStats? Function()> openSheet(WidgetTester tester) async {
+  Future<ComponentStats? Function()> openSheet(
+    WidgetTester tester, {
+    ComponentStats initialStats = const ComponentStats(),
+  }) async {
     ComponentStats? saved;
     await tester.pumpWidget(
       ChangeNotifierProvider.value(
@@ -25,7 +29,7 @@ void main() {
           home: Builder(
             builder: (context) => TextButton(
               onPressed: () async =>
-                  saved = await showSetInitialStatsSheet(context: context, initialStats: const ComponentStats()),
+                  saved = await showSetInitialStatsSheet(context: context, initialStats: initialStats),
               child: const Text('open'),
             ),
           ),
@@ -54,6 +58,25 @@ void main() {
     expect(saved()?.distance, closeTo(12500, 0.001));
     expect(saved()?.elevationGain, closeTo(100.5, 0.001));
     expect(saved()?.kilojoules, 2.5);
+  });
+
+  testWidgets('German values are pre-filled with a decimal comma and survive a save', (tester) async {
+    Intl.defaultLocale = 'de';
+    addTearDown(() => Intl.defaultLocale = null);
+
+    const stats = ComponentStats(distance: 12500, elevationGain: 100.5, kilojoules: 2.5);
+    final saved = await openSheet(tester, initialStats: stats);
+
+    expect(find.widgetWithText(TextFormField, '12,5'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, '100,5'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, '2,5'), findsOneWidget);
+
+    // Save needs a change; the pre-filled fields stay untouched.
+    await enter(tester, 'Activities', '3');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(saved(), const ComponentStats(distance: 12500, elevationGain: 100.5, kilojoules: 2.5, activityCount: 3));
   });
 
   testWidgets('a stray key keeps the value instead of emptying the field', (tester) async {

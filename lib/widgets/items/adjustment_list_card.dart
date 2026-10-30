@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/value_migration_proposal.dart';
 import '../notes_text.dart';
 import '../sheets/value_migration_sheet.dart';
@@ -58,7 +59,7 @@ class AdjustmentListCard extends StatelessWidget {
     }
 
     final abs = weight.abs();
-    final w = abs == abs.roundToDouble() ? abs.toStringAsFixed(0) : abs.toStringAsFixed(1);
+    final w = formatLocalizedDouble(abs, fractionDigits: abs == abs.roundToDouble() ? 0 : 1);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),

@@ -15,6 +15,7 @@ import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
 import 'package:bike_setup_tracker/widgets/sheets/set_task_delay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../goldens/support/localized_test_app.dart';
@@ -261,6 +262,23 @@ void main() {
       await tester.pump();
       await tester.tap(find.widgetWithText(FilledButton, 'Save'));
       await waitForRepositoryUpdate(tester);
+
+      expect(appRepository.taskRules[rule.id]?.delay, const ElevationThreshold(12.5));
+    });
+
+    testWidgets('pre-fills a German delay with a decimal comma and keeps it on save', (tester) async {
+      Intl.defaultLocale = 'de';
+      addTearDown(() => Intl.defaultLocale = null);
+
+      final rule = ruleWith(interval: const ElevationThreshold(1000), delay: const ElevationThreshold(12.5));
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Edit Delay'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(TextFormField, '12,5'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
 
       expect(appRepository.taskRules[rule.id]?.delay, const ElevationThreshold(12.5));
     });
@@ -595,6 +613,26 @@ void main() {
       await tester.enterText(find.byKey(const Key('taskRuleIntervalValue')), '1250,5');
       await tester.enterText(delayValueField(), '-200,5');
       await tester.pump();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(popped, isNotNull);
+      expect(popped!.interval, const ElevationThreshold(1250.5));
+      expect(popped!.delay, const ElevationThreshold(-200.5));
+    });
+
+    testWidgets('pre-fills German values with a decimal comma and saves them unchanged', (tester) async {
+      Intl.defaultLocale = 'de';
+      addTearDown(() => Intl.defaultLocale = null);
+
+      await openEditPage(
+        tester,
+        ruleWith(interval: const ElevationThreshold(1250.5), delay: const ElevationThreshold(-200.5)),
+      );
+
+      expect(find.widgetWithText(TextFormField, '1250,5'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, '-200,5'), findsOneWidget);
+
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 

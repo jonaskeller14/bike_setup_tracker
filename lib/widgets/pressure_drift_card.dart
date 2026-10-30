@@ -7,6 +7,7 @@ import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../services/pressure_drift_service.dart';
 import '../theme.dart';
+import '../utils/localized_number.dart';
 import 'setup_guide_status.dart';
 import 'sheets/pressure_check_info_sheet.dart';
 
@@ -222,14 +223,14 @@ GuideStatus pressureDriftStatus(double relativeDelta, {required bool significant
 String formatPressure(double value) {
   final magnitude = value.abs();
   final decimals = magnitude >= 100 ? 0 : (magnitude >= 10 ? 1 : 2);
-  return value.toStringAsFixed(decimals);
+  return formatLocalizedDouble(value, fractionDigits: decimals);
 }
 
 String signedPressure(double value) => "${value < 0 ? '-' : '+'}${formatPressure(value.abs())}";
 
 String signedPercent(double fraction) {
   final percent = (fraction * 100).abs();
-  return "${fraction < 0 ? '-' : '+'}${percent.toStringAsFixed(percent >= 10 ? 0 : 1)} %";
+  return "${fraction < 0 ? '-' : '+'}${formatLocalizedDouble(percent, fractionDigits: percent >= 10 ? 0 : 1)} %";
 }
 
 /// "5 °C · 1800 m" in the rider's units.

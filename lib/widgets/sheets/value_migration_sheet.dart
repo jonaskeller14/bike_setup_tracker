@@ -184,7 +184,7 @@ String _valueText(AdjustmentValue value, String? unit) {
 /// significant digits below 1. The stored value stays exact.
 String _rounded(double value) {
   final magnitude = value == 0 ? 0 : (log(value.abs()) / ln10).floor();
-  final rounded = NumberFormat('0.${'#' * max(2, 2 - magnitude)}', 'en_US').format(value);
+  final rounded = NumberFormat('0.${'#' * max(2, 2 - magnitude)}').format(value);
   final exact = NumericalValue(value).display;
   return rounded == exact ? exact : '≈ $rounded';
 }

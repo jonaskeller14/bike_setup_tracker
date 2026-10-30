@@ -8,6 +8,7 @@ import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/map_actions.dart';
 import '../map_pins.dart';
 
@@ -125,7 +126,7 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
 
     String soilMoisture(ContextWeather? weather) => weather?.currentSoilMoisture0to7cm == null
         ? '-'
-        : '${weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)} m³/m³';
+        : '${formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2)} m³/m³';
 
     return ExpansionTile(
       key: const Key('compare-disclosure-conditions'),
@@ -212,8 +213,8 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
 
   static String _coordinates(ContextPosition? position) {
     if (position?.latitude == null && position?.longitude == null) return '-';
-    return '${position?.latitude?.toStringAsFixed(4) ?? '-'}°/'
-        '${position?.longitude?.toStringAsFixed(4) ?? '-'}°';
+    String coordinate(double? value) => value == null ? '-' : formatLocalizedDouble(value, fractionDigits: 4);
+    return '${coordinate(position?.latitude)}°/${coordinate(position?.longitude)}°';
   }
 }
 

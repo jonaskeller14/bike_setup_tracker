@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   group('AdjustmentValue.display', () {
@@ -26,6 +27,20 @@ void main() {
       test('1.123456 rounds to 5 decimals', () => expect(display(1.123456), '1.12346'));
       test('1.10 strips trailing zero', () => expect(display(1.10), '1.1'));
       test('0.00 strips trailing zeros', () => expect(display(0.00), '0'));
+    });
+
+    group('NumericalValue in German', () {
+      String display(double value) => Intl.withLocale('de', () => NumericalValue(value).display) as String;
+
+      test('1.5', () => expect(display(1.5), '1,5'));
+      test('-1.5', () => expect(display(-1.5), '-1,5'));
+      test('1.0', () => expect(display(1.0), '1'));
+      test('1000.5 has no thousands separator', () => expect(display(1000.5), '1000,5'));
+      test('1.123456 rounds to 5 decimals', () => expect(display(1.123456), '1,12346'));
+
+      test('does not change what is stored', () {
+        expect(Intl.withLocale('de', () => const NumericalValue(1.5).encode()), '1.5');
+      });
     });
 
     group('StepValue', () {

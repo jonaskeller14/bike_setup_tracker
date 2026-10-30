@@ -7,6 +7,7 @@ import '../models/component/preset_spec_keys.dart';
 import '../models/component/setup_guide.dart';
 import '../theme.dart';
 import '../utils/adjustment_role.dart';
+import '../utils/localized_number.dart';
 import '../utils/number_input_formatters.dart';
 import '../utils/setup_guide_actions.dart';
 import 'setup_guide_status.dart';
@@ -174,7 +175,7 @@ class _WeightField extends StatefulWidget {
 class _WeightFieldState extends State<_WeightField> {
   late final _controller = TextEditingController(text: _format(widget.input.weight));
 
-  static String _format(double? weight) => weight == null ? '' : formatSpecNumber(weight);
+  static String _format(double? weight) => weight == null ? '' : localizeDecimalSeparator(formatSpecNumber(weight));
 
   @override
   void didUpdateWidget(covariant _WeightField oldWidget) {

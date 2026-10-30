@@ -14,6 +14,7 @@ import '../../models/setup.dart';
 import '../../models/setup_history.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/table_column.dart';
 
 class SetupTable extends StatefulWidget {
@@ -267,7 +268,7 @@ class _SetupTableState extends State<SetupTable> {
               child: Text(
                 setup.weather?.currentSoilMoisture0to7cm == null
                     ? '-'
-                    : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2),
+                    : formatLocalizedDouble(setup.weather!.currentSoilMoisture0to7cm!, fractionDigits: 2),
               ),
             ),
           ),

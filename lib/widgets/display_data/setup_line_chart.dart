@@ -12,6 +12,7 @@ import '../../models/app_settings.dart';
 import '../../models/setup.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/table_column.dart';
 import '../empty_state_placeholder.dart';
 
@@ -175,7 +176,7 @@ class _SetupLineChartState extends State<SetupLineChart> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
-                          value.truncateToDouble() == value ? value.toInt().toString() : value.toStringAsFixed(1),
+                          value.truncateToDouble() == value ? value.toInt().toString() : formatLocalizedDouble(value, fractionDigits: 1),
                           style: Theme.of(context).textTheme.bodySmall,
                           textAlign: TextAlign.right,
                         ),

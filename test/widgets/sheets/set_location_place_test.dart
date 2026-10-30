@@ -11,6 +11,7 @@ import 'package:bike_setup_tracker/widgets/sheets/set_location_place.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../goldens/support/localized_test_app.dart';
 
@@ -83,6 +84,21 @@ void main() {
     await tester.enterText(latitude, '47,5');
     await tester.pump();
     expect(find.text(rangeError), findsNothing);
+    expect(find.text('Please enter a valid number'), findsNothing);
+  });
+
+  testWidgets('pre-fills German coordinates with a decimal comma, digit for digit', (tester) async {
+    Intl.defaultLocale = 'de';
+    addTearDown(() => Intl.defaultLocale = null);
+
+    const saved = ContextPosition(latitude: 47.376887123, longitude: 8.541694, altitude: 408.5);
+    await tester.pumpWidget(
+      buildSheet(service: LocationService(provider: FakeSheetLocationProvider()), currentLocation: saved),
+    );
+
+    expect(find.widgetWithText(TextFormField, '47,376887123'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, '8,541694'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, '408,5'), findsOneWidget);
     expect(find.text('Please enter a valid number'), findsNothing);
   });
 

@@ -7,6 +7,7 @@ import '../models/component/preset_spec_keys.dart';
 import '../models/component/setup_guide.dart';
 import 'adjustment_role.dart';
 import 'component_preset_resolver.dart';
+import 'localized_number.dart';
 import 'unit_conversion.dart';
 
 /// Targets whose values are parts you fit, so a value between two rows
@@ -392,13 +393,13 @@ class _RuleEvaluation {
       case RiderGuideInput(key: GuideInputKey.riderWeight):
         final weight = inputs.riderWeight;
         if (weight == null) throw const _Failure(GuideIssue.missingInput);
-        _inputText = '${formatSpecNumber(_round(weight, 1))} ${inputs.riderWeightUnit.label}';
+        _inputText = '${formatLocalizedDouble(_round(weight, 1))} ${inputs.riderWeightUnit.label}';
         return convertUnit(weight, inputs.riderWeightUnit, rule.inputUnit!);
       case PresetGuideInput(:final id):
         final spec = PresetSpecKeys.byId(id);
         final value = spec == null ? null : preset.effectiveSpecs.get(spec);
         if (spec == null || value is! num) throw const _Failure(GuideIssue.missingInput);
-        _inputText = spec.format(value);
+        _inputText = spec.display(value);
         return value.toDouble();
       case AdjusterGuideInput(:final adjusterId):
         final (input, value) = readAdjuster(adjusterId) ?? (throw const _Failure(GuideIssue.missingInput));

@@ -17,6 +17,7 @@ import '../../services/strava_service.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/feedback_actions.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/url.dart';
 import '../../widgets/empty_state_placeholder2.dart';
@@ -68,7 +69,7 @@ class StravaActivityPageContent extends StatelessWidget {
   String _formatDistance(double? meters, String distanceUnit) {
     if (meters == null) return "-";
     final value = AppSettings.convertDistanceFromMeters(meters, distanceUnit)!;
-    return "${value.toStringAsFixed(2)} $distanceUnit";
+    return "${formatLocalizedDouble(value, fractionDigits: 2)} $distanceUnit";
   }
 
   String _formatElevation(double? meters, String altitudeUnit) {
@@ -81,7 +82,7 @@ class StravaActivityPageContent extends StatelessWidget {
     if (meters == null || duration.inSeconds == 0) return "-";
     final dist = AppSettings.convertDistanceFromMeters(meters, distanceUnit)!;
     final hours = duration.inSeconds / 3600;
-    return "${(dist / hours).toStringAsFixed(1)} ${AppSettings.speedUnitForDistance(distanceUnit)}";
+    return "${formatLocalizedDouble(dist / hours, fractionDigits: 1)} ${AppSettings.speedUnitForDistance(distanceUnit)}";
   }
 
   String _formatDuration(Duration duration) {

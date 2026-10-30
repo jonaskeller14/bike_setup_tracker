@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/task/task_progress_context.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   const baselineStats = ComponentStats(
@@ -19,6 +20,31 @@ void main() {
         now: DateTime(2023, 1, 10),
         baselineDate: DateTime(2023, 1, 1),
       );
+
+  group('toDisplayValue follows the app language', () {
+    test('distance has thousands and decimal separators', () {
+      const threshold = DistanceThreshold(2500500);
+      expect(threshold.toDisplayValue(), '2,500.5 km');
+      expect(Intl.withLocale('de', () => threshold.toDisplayValue()), '2.500,5 km');
+    });
+
+    test('elevation has thousands separators', () {
+      const threshold = ElevationThreshold(12345);
+      expect(threshold.toDisplayValue(), '12,345 m');
+      expect(Intl.withLocale('de', () => threshold.toDisplayValue()), '12.345 m');
+    });
+
+    test('kilojoules have thousands separators', () {
+      const threshold = KilojoulesThreshold(12345);
+      expect(threshold.toDisplayValue(), '12,345 kJ');
+      expect(Intl.withLocale('de', () => threshold.toDisplayValue()), '12.345 kJ');
+    });
+
+    test('the stored threshold does not change', () {
+      const threshold = DistanceThreshold(2500.5);
+      expect(Intl.withLocale('de', () => threshold.toJson()), threshold.toJson());
+    });
+  });
 
   group('ElevationThreshold', () {
     final context = contextWith(const ComponentStats(

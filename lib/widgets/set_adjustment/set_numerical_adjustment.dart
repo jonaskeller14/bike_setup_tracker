@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../utils/unit_conversion.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
@@ -61,7 +62,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.value?.value.toString() ?? '');
+    _controller = TextEditingController(text: formatEditableDouble(widget.value?.value));
     _lastReported = widget.value;
   }
 
@@ -93,7 +94,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
 
   String _displayTextForStorage(NumericalValue? storageValue) {
     if (storageValue == null) return '';
-    if (!_isConverting) return storageValue.value.toString();
+    if (!_isConverting) return formatEditableDouble(storageValue.value);
     return formatConverted(_toDisplay(storageValue.value));
   }
 

@@ -1,7 +1,7 @@
-import 'package:intl/intl.dart';
 import 'package:units_converter/units_converter.dart';
 
 import '../models/adjustment/adjustment.dart';
+import 'localized_number.dart';
 
 final double _lbsInToNmm =
     1.0.convertFromTo(FORCE.poundForce, FORCE.newton)! /
@@ -124,4 +124,4 @@ List<UnitCycleEntry> sagUnitCycle(SagAdjustment adjustment) {
 
 double _identity(double value) => value;
 
-String formatConverted(double value) => NumberFormat('0.#####', 'en_US').format(value);
+String formatConverted(double value) => formatLocalizedDouble(value);

@@ -23,6 +23,7 @@ import '../../services/component_hierarchy_resolver.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../utils/task_preset_resolver.dart';
 import '../../utils/task_presets.dart';
@@ -284,13 +285,13 @@ class _TaskRulePageState extends State<TaskRulePage> {
   String _getThresholdValueString(TaskThreshold? threshold, _DurationUnit durationUnit) {
     switch (threshold) {
       case null: return "";
-      case DistanceThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.meters / 1000);
-      case ElevationThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.meters);
+      case DistanceThreshold(): return formatLocalizedDouble(threshold.meters / 1000);
+      case ElevationThreshold(): return formatLocalizedDouble(threshold.meters);
       case ActivityCountThreshold(): return threshold.count.toString();
       case MovingTimeThreshold(): return threshold.hours.inHours.toString();
       case ElapsedTimeThreshold(): return threshold.hours.inHours.toString();
-      case DurationThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.days.inDays / durationUnit.dayCount);
-      case KilojoulesThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.kilojoules);
+      case DurationThreshold(): return formatLocalizedDouble(threshold.days.inDays / durationUnit.dayCount);
+      case KilojoulesThreshold(): return formatLocalizedDouble(threshold.kilojoules);
       case DateTimeThreshold(): return '';
     }
   }

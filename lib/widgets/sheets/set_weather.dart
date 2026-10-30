@@ -7,6 +7,7 @@ import '../../models/context/context_weather.dart';
 import '../../services/location_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../utils/url.dart';
 import '../dialogs/discard_changes.dart';
@@ -77,11 +78,11 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
   void setFieldsFromWeather() {
     final appSettings = context.read<AppSettings>();
 
-    _currentTemperatureController.text = ContextWeather.convertTemperatureFromCelsius(_currentWeather?.currentTemperature, appSettings.temperatureUnit)?.toString() ?? '';
-    _dayAccumulatedPrecipitationController.text = ContextWeather.convertPrecipitationFromMm(_currentWeather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.toString() ?? '';
-    _currentHumidityController.text = _currentWeather?.currentHumidity?.toString() ?? '';
-    _currentWindSpeedController.text = ContextWeather.convertWindSpeedFromKmh(_currentWeather?.currentWindSpeed, appSettings.windSpeedUnit)?.toString() ?? '';
-    _currentSoilMoisture0to7cmController.text = _currentWeather?.currentSoilMoisture0to7cm?.toString() ?? '';
+    _currentTemperatureController.text = formatEditableDouble(ContextWeather.convertTemperatureFromCelsius(_currentWeather?.currentTemperature, appSettings.temperatureUnit));
+    _dayAccumulatedPrecipitationController.text = formatEditableDouble(ContextWeather.convertPrecipitationFromMm(_currentWeather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit));
+    _currentHumidityController.text = formatEditableDouble(_currentWeather?.currentHumidity);
+    _currentWindSpeedController.text = formatEditableDouble(ContextWeather.convertWindSpeedFromKmh(_currentWeather?.currentWindSpeed, appSettings.windSpeedUnit));
+    _currentSoilMoisture0to7cmController.text = formatEditableDouble(_currentWeather?.currentSoilMoisture0to7cm);
   }
 
   void updateWeather() async {

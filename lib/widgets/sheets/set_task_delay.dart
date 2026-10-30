@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
@@ -10,6 +9,7 @@ import '../../models/context/context_position.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../theme.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/number_input_formatters.dart';
 import '../items/task_rule_display_card.dart';
 import 'sheet_header.dart';
@@ -55,15 +55,13 @@ bool _acceptsDecimals(TaskThreshold interval) =>
 String _delayValueString(TaskThreshold? delay, AppSettings appSettings) {
   return switch (delay) {
     null => '',
-    DistanceThreshold() => NumberFormat('0.#####', 'en_US')
-        .format(AppSettings.convertDistanceFromMeters(delay.meters, appSettings.distanceUnit)!),
-    ElevationThreshold() => NumberFormat('0.#####', 'en_US')
-        .format(AppSettings.convertElevationFromMeters(delay.meters, appSettings.altitudeUnit)!),
+    DistanceThreshold() => formatLocalizedDouble(AppSettings.convertDistanceFromMeters(delay.meters, appSettings.distanceUnit)!),
+    ElevationThreshold() => formatLocalizedDouble(AppSettings.convertElevationFromMeters(delay.meters, appSettings.altitudeUnit)!),
     MovingTimeThreshold() => delay.hours.inHours.toString(),
     ElapsedTimeThreshold() => delay.hours.inHours.toString(),
     DurationThreshold() => delay.days.inDays.toString(),
     ActivityCountThreshold() => delay.count.toString(),
-    KilojoulesThreshold() => NumberFormat('0.#####', 'en_US').format(delay.kilojoules),
+    KilojoulesThreshold() => formatLocalizedDouble(delay.kilojoules),
     DateTimeThreshold() => '',
   };
 }

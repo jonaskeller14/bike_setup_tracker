@@ -7,6 +7,7 @@ import '../../models/app_settings.dart';
 import '../../models/component_stats.dart';
 import '../../models/context/context_position.dart';
 import '../../theme.dart';
+import '../../utils/number_input_formatters.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
 
@@ -108,15 +109,15 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
   }
 
   ComponentStats _readStats(AppSettings appSettings) {
-    final distanceInput = double.tryParse(_distanceController.text.trim()) ?? 0.0;
-    final elevationGainInput = double.tryParse(_elevationGainController.text.trim()) ?? 0.0;
+    final distanceInput = parseLocalizedDouble(_distanceController.text) ?? 0.0;
+    final elevationGainInput = parseLocalizedDouble(_elevationGainController.text) ?? 0.0;
     return ComponentStats(
       distance: AppSettings.convertDistanceToMeters(distanceInput, appSettings.distanceUnit) ?? 0.0,
       elevationGain: ContextPosition.convertAltitudeToMeters(elevationGainInput, appSettings.altitudeUnit) ?? 0.0,
       movingTime: Duration(hours: int.tryParse(_movingTimeController.text.trim()) ?? 0),
       elapsedTime: Duration(hours: int.tryParse(_elapsedTimeController.text.trim()) ?? 0),
       activityCount: int.tryParse(_activityCountController.text.trim()) ?? 0,
-      kilojoules: double.tryParse(_kilojoulesController.text.trim()) ?? 0.0,
+      kilojoules: parseLocalizedDouble(_kilojoulesController.text) ?? 0.0,
     );
   }
 
@@ -150,7 +151,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
   }) {
     return TextFormField(
       keyboardType: TextInputType.numberWithOptions(decimal: decimal, signed: false),
-      inputFormatters: [FilteringTextInputFormatter.allow(decimal ? RegExp(r'^\d*\.?\d*$') : RegExp(r'^\d*$'))],
+      inputFormatters: [decimal ? const UnsignedDecimalInputFormatter() : FilteringTextInputFormatter.digitsOnly],
       controller: controller,
       textInputAction: textInputAction,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -165,7 +166,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
         filled: isChanged,
       ),
       validator: (String? newValue) {
-        final parsed = decimal ? double.tryParse(newValue ?? '') : int.tryParse(newValue ?? '');
+        final parsed = decimal ? parseLocalizedDouble(newValue ?? '') : int.tryParse(newValue ?? '');
         if (parsed == null) return "Please enter a valid value";
         return null;
       },
@@ -217,7 +218,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                                 suffixText: appSettings.distanceUnit,
                                 isChanged:
                                     original != null &&
-                                    double.tryParse(_distanceController.text.trim()) !=
+                                    parseLocalizedDouble(_distanceController.text) !=
                                         AppSettings.convertDistanceFromMeters(
                                           original.distance,
                                           appSettings.distanceUnit,
@@ -232,7 +233,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                                 suffixText: appSettings.altitudeUnit,
                                 isChanged:
                                     original != null &&
-                                    double.tryParse(_elevationGainController.text.trim()) !=
+                                    parseLocalizedDouble(_elevationGainController.text) !=
                                         AppSettings.convertElevationFromMeters(
                                           original.elevationGain,
                                           appSettings.altitudeUnit,
@@ -290,7 +291,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                                 textInputAction: TextInputAction.done,
                                 isChanged:
                                     original != null &&
-                                    double.tryParse(_kilojoulesController.text.trim()) != original.kilojoules,
+                                    parseLocalizedDouble(_kilojoulesController.text) != original.kilojoules,
                               ),
                             ),
                           ],

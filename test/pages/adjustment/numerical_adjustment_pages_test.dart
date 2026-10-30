@@ -54,6 +54,35 @@ void main() {
     expect(result!.migrations, isEmpty);
   });
 
+  testWidgets('reads min and max typed with a decimal comma', (WidgetTester tester) async {
+    final saved = savedAdjustment(await pushAndSave(
+      tester,
+      NumericalAdjustmentPage.edit(adjustment: NumericalAdjustment(name: 'Volume', notes: null, unit: null, min: 0, max: 100)),
+      interact: () async {
+        await tester.enterText(find.widgetWithText(TextFormField, 'Min Value (optional)'), '-0,5');
+        await tester.enterText(find.widgetWithText(TextFormField, 'Max Value (optional)'), '2,5');
+        await tester.pumpAndSettle();
+      },
+    )) as NumericalAdjustment;
+
+    expect(saved.min, -0.5);
+    expect(saved.max, 2.5);
+  });
+
+  testWidgets('compares max and min typed with a decimal comma', (WidgetTester tester) async {
+    await pushAndSave(
+      tester,
+      NumericalAdjustmentPage.edit(adjustment: NumericalAdjustment(name: 'Volume', notes: null, unit: null, min: 0, max: 100)),
+      interact: () async {
+        await tester.enterText(find.widgetWithText(TextFormField, 'Min Value (optional)'), '2,5');
+        await tester.enterText(find.widgetWithText(TextFormField, 'Max Value (optional)'), '1,5');
+        await tester.pumpAndSettle();
+      },
+    );
+
+    expect(find.text('Max must be greater than min'), findsOneWidget);
+  });
+
   testWidgets('Can create numerical adjustment without bounds', (WidgetTester tester) async {
     NumericalAdjustment? result;
 

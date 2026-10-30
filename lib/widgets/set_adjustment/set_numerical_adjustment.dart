@@ -112,7 +112,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   }
 
   void _handleChanged(String displayText) {
-    final parsed = double.tryParse(displayText);
+    final parsed = parseLocalizedDouble(displayText);
     _report(parsed == null ? null : NumericalValue(_toStorage(parsed)));
   }
 
@@ -132,7 +132,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     final nextIndex = (_activeIndex + 1) % _cycle.length;
     final next = _cycle[nextIndex];
     unawaited(HapticFeedback.selectionClick());
-    final parsed = double.tryParse(_controller.text.trim());
+    final parsed = parseLocalizedDouble(_controller.text);
     setState(() {
       _index = nextIndex;
       if (parsed != null) _setText(formatConverted(next.fromStorage(active.toStorage(parsed))));
@@ -248,7 +248,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                         return 'Please enter a value';
                       }
                       if (newValue != null && newValue.trim().isNotEmpty) {
-                        final parsedValue = double.tryParse(newValue);
+                        final parsedValue = parseLocalizedDouble(newValue);
                         if (parsedValue == null) return "Please enter a valid number";
                         final unitLabel = _activeLabel;
                         final unitSuffix = unitLabel == null ? "" : " $unitLabel";

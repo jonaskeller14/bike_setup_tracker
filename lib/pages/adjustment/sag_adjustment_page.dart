@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../theme.dart';
+import '../../utils/number_input_formatters.dart';
 import '../../utils/value_migration_actions.dart';
 import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
@@ -108,11 +108,11 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
     super.dispose();
   }
 
-  double? _travel() => double.tryParse(_travelController.text.trim());
+  double? _travel() => parseLocalizedDouble(_travelController.text);
 
   String? _validateTravel(String? value) {
     if (value == null || value.trim().isEmpty) return null; // optional
-    final v = double.tryParse(value);
+    final v = parseLocalizedDouble(value);
     if (v == null) return 'Valid number required';
     if (v <= 0) return 'Must be greater than 0';
     return null;
@@ -275,9 +275,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                             controller: _travelController,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                            ],
+                            inputFormatters: const [UnsignedDecimalInputFormatter()],
                             decoration: InputDecoration(
                               labelText: '$_travelLabel (optional)',
                               hintText: _travelHint,

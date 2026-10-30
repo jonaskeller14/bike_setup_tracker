@@ -103,8 +103,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') ||
         _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
         _unit != widget.adjustment?.unit ||
-        (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != (widget.adjustment?.min ?? double.negativeInfinity) ||
-        (double.tryParse(_maxController.text.trim()) ?? double.infinity) != (widget.adjustment?.max ?? double.infinity);
+        (parseLocalizedDouble(_minController.text) ?? double.negativeInfinity) != (widget.adjustment?.min ?? double.negativeInfinity) ||
+        (parseLocalizedDouble(_maxController.text) ?? double.infinity) != (widget.adjustment?.max ?? double.infinity);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -227,8 +227,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final minText = _minController.text.trim();
     final maxText = _maxController.text.trim();
 
-    final min = double.tryParse(minText) ?? double.negativeInfinity;
-    final max = double.tryParse(maxText) ?? double.infinity;
+    final min = parseLocalizedDouble(minText) ?? double.negativeInfinity;
+    final max = parseLocalizedDouble(maxText) ?? double.infinity;
 
     final adjustment = NumericalAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
@@ -273,16 +273,16 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
 
   String? _validateMin(String? value) {
     if (value == null || value.trim().isEmpty) return null; // optional
-    final v = double.tryParse(value);
+    final v = parseLocalizedDouble(value);
     if (v == null) return 'Valid number required';
     return null;
   }
 
   String? _validateMax(String? value) {
     if (value == null || value.trim().isEmpty) return null; // optional
-    final v = double.tryParse(value);
+    final v = parseLocalizedDouble(value);
     final minText = _minController.text.trim();
-    final min = minText.isNotEmpty ? double.tryParse(minText) : null;
+    final min = minText.isNotEmpty ? parseLocalizedDouble(minText) : null;
     if (v == null) return 'Valid number required';
     if (min != null && v < min) return 'Max must be greater than min';
     return null;
@@ -315,10 +315,10 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
 
   NumericalAdjustment _composePreview() {
     final min = _validateMin(_minController.text) == null
-        ? double.tryParse(_minController.text.trim())
+        ? parseLocalizedDouble(_minController.text)
         : null;
     final max = _validateMax(_maxController.text) == null
-        ? double.tryParse(_maxController.text.trim())
+        ? parseLocalizedDouble(_maxController.text)
         : null;
 
     final notes = _notesController.text.trim();
@@ -460,7 +460,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                           )
                                         : null,
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                    filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != widget.adjustment?.min,
+                                    filled: widget.mode == AdjustmentPageMode.edit && (parseLocalizedDouble(_minController.text) ?? double.negativeInfinity) != widget.adjustment?.min,
                                   ),
                                   validator: _validateMin,
                                   onChanged: (_) => _updatePreview(resetValue: true),
@@ -487,7 +487,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                           )
                                         : null,
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                    filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != widget.adjustment?.max,
+                                    filled: widget.mode == AdjustmentPageMode.edit && (parseLocalizedDouble(_maxController.text) ?? double.infinity) != widget.adjustment?.max,
                                   ),
                                   validator: _validateMax,
                                   onChanged: (_) => _updatePreview(resetValue: true),

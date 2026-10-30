@@ -70,6 +70,22 @@ void main() {
     }
   });
 
+  testWidgets('reads coordinates typed with a decimal comma', (tester) async {
+    const rangeError = 'Latitude must be between -90..90°';
+    final service = LocationService(provider: FakeSheetLocationProvider());
+    await tester.pumpWidget(buildSheet(service: service));
+    final latitude = find.widgetWithText(TextFormField, 'Latitude');
+
+    await tester.enterText(latitude, '91,5');
+    await tester.pump();
+    expect(find.text(rangeError), findsOneWidget);
+
+    await tester.enterText(latitude, '47,5');
+    await tester.pump();
+    expect(find.text(rangeError), findsNothing);
+    expect(find.text('Please enter a valid number'), findsNothing);
+  });
+
   testWidgets('opens location settings for disabled services', (tester) async {
     final provider = FakeSheetLocationProvider();
     final service = LocationService(provider: provider)..setStatus(LocationStatus.noService);

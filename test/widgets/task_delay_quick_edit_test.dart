@@ -251,6 +251,20 @@ void main() {
       expect((saved as DurationThreshold).days, const Duration(days: 5));
     });
 
+    testWidgets('saves a delay typed with a decimal comma', (tester) async {
+      final rule = ruleWith(interval: const ElevationThreshold(1000));
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Add Delay'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField), '12,5');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await waitForRepositoryUpdate(tester);
+
+      expect(appRepository.taskRules[rule.id]?.delay, const ElevationThreshold(12.5));
+    });
+
     testWidgets('clears the delay when the value is emptied', (tester) async {
       final rule = ruleWith(
         interval: const DurationThreshold(Duration(days: 30)),
@@ -395,8 +409,22 @@ void main() {
       expect(appRepository.taskRules[rule.id]?.delay, const ActivityCountThreshold(-4));
     });
 
-    testWidgets('rejects a negative delay beyond the interval', (tester) async {
+    testWidgets('saves a negative delay typed with a keyboard minus variant', (tester) async {
       final rule = ruleWith(interval: const ActivityCountThreshold(10));
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Add Delay'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField), '−4');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await waitForRepositoryUpdate(tester);
+
+      expect(appRepository.taskRules[rule.id]?.delay, const ActivityCountThreshold(-4));
+    });
+
+    testWidgets('rejects a negative delay beyond the interval', (tester) async {
+      final rule =ruleWith(interval: const ActivityCountThreshold(10));
       await pumpCardMenu(tester, rule);
 
       await tester.tap(findMenuOption('Add Delay'));
@@ -561,6 +589,20 @@ void main() {
       expect((popped!.delay as ElevationThreshold).meters, 200);
     });
 
+    testWidgets('reads a trigger and a delay typed with a decimal comma', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const ElevationThreshold(1000)));
+
+      await tester.enterText(find.byKey(const Key('taskRuleIntervalValue')), '1250,5');
+      await tester.enterText(delayValueField(), '-200,5');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(popped, isNotNull);
+      expect(popped!.interval, const ElevationThreshold(1250.5));
+      expect(popped!.delay, const ElevationThreshold(-200.5));
+    });
+
     testWidgets('an empty delay value neither blocks saving nor becomes zero', (tester) async {
       await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
 
@@ -643,6 +685,18 @@ void main() {
       expect(popped, isNotNull);
       expect((popped!.interval as DurationThreshold).days, const Duration(days: 365));
       expect((popped!.delay as DurationThreshold).days, const Duration(days: 14));
+    });
+
+    testWidgets('accepts a negative delay typed with a keyboard minus variant', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
+
+      await tester.enterText(delayValueField(), '−7');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(popped, isNotNull);
+      expect((popped!.delay as DurationThreshold).days, const Duration(days: -7));
     });
 
     testWidgets('accepts a negative delay', (tester) async {

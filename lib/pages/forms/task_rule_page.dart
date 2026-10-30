@@ -23,13 +23,13 @@ import '../../services/component_hierarchy_resolver.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
+import '../../utils/number_input_formatters.dart';
 import '../../utils/task_preset_resolver.dart';
 import '../../utils/task_presets.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/component_ancestor_display.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/sheets/set_tags.dart';
-import '../../widgets/sheets/set_task_delay.dart';
 import '../../widgets/sheets/set_task_priority.dart';
 import '../../widgets/sheets/strava.dart';
 import '../../widgets/sheets/task_association_picker.dart';
@@ -96,7 +96,7 @@ enum _DurationUnit {
 
   _DurationUnit get next => _DurationUnit.values[(index + 1) % _DurationUnit.values.length];
 
-  String labelFor(String rawValue) => double.tryParse(rawValue.trim()) == 1 ? singular : plural;
+  String labelFor(String rawValue) => parseLocalizedDouble(rawValue) == 1 ? singular : plural;
 
   /// The largest unit [duration] divides into evenly, so a saved "30 days"
   /// reopens as "1 month" instead of a number the user has to convert.
@@ -260,7 +260,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
   bool get _hasDelayValue {
     final raw = _delayValueController.text.trim();
     if (raw.isEmpty) return false;
-    final parsed = double.tryParse(raw);
+    final parsed = parseLocalizedDouble(raw);
     return parsed != null && parsed != 0;
   }
 
@@ -296,7 +296,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
   }
 
   bool _valueChanged(TextEditingController controller, TaskThreshold? saved, _DurationUnit durationUnit) {
-    return double.tryParse(controller.text.trim()) != double.tryParse(_getThresholdValueString(saved, durationUnit));
+    return parseLocalizedDouble(controller.text) != parseLocalizedDouble(_getThresholdValueString(saved, durationUnit));
   }
 
   void _changeListener() {
@@ -466,7 +466,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     return switch (type) {
       _ThresholdType.distance ||
       _ThresholdType.elevation ||
-      _ThresholdType.kilojoules => [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
+      _ThresholdType.kilojoules => const [UnsignedDecimalInputFormatter()],
       _ThresholdType.movingTime ||
       _ThresholdType.elapsedTime ||
       _ThresholdType.duration ||
@@ -501,7 +501,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     }
 
     final requiresInteger = _thresholdRequiresInteger(type);
-    final num? parsed = requiresInteger ? int.tryParse(value) : double.tryParse(value);
+    final num? parsed = requiresInteger ? int.tryParse(value) : parseLocalizedDouble(value);
     if (parsed == null) {
       return requiresInteger ? 'Enter a whole number' : 'Enter a valid number';
     }
@@ -519,7 +519,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final raw = value?.trim() ?? '';
     if (raw.isEmpty) return null;
     final requiresInteger = _thresholdRequiresInteger(_delayType);
-    final num? parsed = requiresInteger ? int.tryParse(raw) : double.tryParse(raw);
+    final num? parsed = requiresInteger ? int.tryParse(raw) : parseLocalizedDouble(raw);
     if (parsed == null) {
       return requiresInteger ? 'Enter a whole number' : 'Enter a valid number';
     }
@@ -537,7 +537,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
   TaskThreshold? _createThreshold(_ThresholdType type, String value, DateTime? date, _DurationUnit durationUnit) {
     if (type == _ThresholdType.none) return null;
-    final doubleVal = double.tryParse(value) ?? 0;
+    final doubleVal = parseLocalizedDouble(value) ?? 0;
     final intVal = int.tryParse(value) ?? 0;
 
     switch (type) {
@@ -903,7 +903,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                 decimal: delayType == _ThresholdType.distance || delayType == _ThresholdType.elevation || delayType == _ThresholdType.kilojoules,
                 signed: true,
               ),
-              inputFormatters: [signedDelayInputFormatter(decimal: !_thresholdRequiresInteger(delayType))],
+              inputFormatters: [_thresholdRequiresInteger(delayType) ? const SignedIntegerInputFormatter() : const SignedDecimalInputFormatter()],
               validator: _validateDelayValue,
               onChanged: (value) => setState(() {}),
               decoration: InputDecoration(

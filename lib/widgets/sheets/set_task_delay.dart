@@ -10,6 +10,7 @@ import '../../models/context/context_position.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../theme.dart';
+import '../../utils/number_input_formatters.dart';
 import '../items/task_rule_display_card.dart';
 import 'sheet_header.dart';
 
@@ -51,15 +52,6 @@ String _delaySuffix(TaskThreshold interval, AppSettings appSettings) {
 bool _acceptsDecimals(TaskThreshold interval) =>
     interval is DistanceThreshold || interval is ElevationThreshold || interval is KilojoulesThreshold;
 
-/// Lets a delay value through only while it still reads as a (partly typed)
-/// number. A negative delay brings the due point forward.
-TextInputFormatter signedDelayInputFormatter({required bool decimal}) {
-  final pattern = decimal ? RegExp(r'^-?\d*\.?\d*$') : RegExp(r'^-?\d*$');
-  return TextInputFormatter.withFunction(
-    (oldValue, newValue) => pattern.hasMatch(newValue.text) ? newValue : oldValue,
-  );
-}
-
 String _delayValueString(TaskThreshold? delay, AppSettings appSettings) {
   return switch (delay) {
     null => '',
@@ -83,7 +75,7 @@ TaskThreshold? _buildDelay(TaskThreshold interval, String rawValue, AppSettings 
   if (value.isEmpty) return null;
 
   if (_acceptsDecimals(interval)) {
-    final parsed = double.tryParse(value);
+    final parsed = parseLocalizedDouble(value);
     if (parsed == null || parsed == 0) return null;
     return switch (interval) {
       DistanceThreshold() =>
@@ -161,9 +153,9 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
   bool get _hadDelay => widget.taskRule.delay != null;
 
   bool get _valueChanged =>
-      double.tryParse(_valueController.text.trim()) != double.tryParse(_initialValue);
+      parseLocalizedDouble(_valueController.text) != parseLocalizedDouble(_initialValue);
 
-  TaskThreshold? get _delay => double.tryParse(_valueController.text.trim()) == double.tryParse(_exactValue)
+  TaskThreshold? get _delay => parseLocalizedDouble(_valueController.text) == parseLocalizedDouble(_exactValue)
       ? _exactDelay
       : _buildDelay(_interval, _valueController.text, context.read<AppSettings>());
 
@@ -173,7 +165,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
     if (value.isEmpty) return null;
 
     final decimal = _acceptsDecimals(_interval);
-    final num? parsed = decimal ? double.tryParse(value) : int.tryParse(value);
+    final num? parsed = decimal ? parseLocalizedDouble(value) : int.tryParse(value);
     if (parsed == null) {
       return decimal ? 'Enter a valid number' : 'Enter a whole number';
     }
@@ -245,7 +237,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
                                   decimal: _acceptsDecimals(_interval),
                                   signed: true,
                                 ),
-                                inputFormatters: [signedDelayInputFormatter(decimal: _acceptsDecimals(_interval))],
+                                inputFormatters: [_acceptsDecimals(_interval) ? const SignedDecimalInputFormatter() : const SignedIntegerInputFormatter()],
                                 textInputAction: TextInputAction.done,
                                 onChanged: (_) => setState(() {}),
                                 onFieldSubmitted: (_) => _save(),

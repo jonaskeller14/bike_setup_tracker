@@ -41,7 +41,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
     super.dispose();
   }
 
-  double get _value => double.tryParse(widget.controller?.text.trim() ?? '') ?? 0;
+  double get _value => parseLocalizedDouble(widget.controller?.text ?? '') ?? 0;
 
   void _setValue(double v) {
     final text = MetricWeightField.formatWeight(v);
@@ -141,7 +141,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
         ListenableBuilder(
           listenable: widget.controller!,
           builder: (context, _) {
-            final v = double.tryParse(widget.controller!.text.trim());
+            final v = parseLocalizedDouble(widget.controller!.text);
             final (IconData icon, String text) = switch (v) {
               null => (Icons.help_outline, 'Set how this metric affects the score'),
               _ when v > 0 => (Icons.arrow_upward, 'Higher values improve the score'),

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/number_input_formatters.dart';
 import '../../utils/value_migration_actions.dart';
 import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
@@ -392,7 +393,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             textInputAction: TextInputAction.next,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
+                            inputFormatters: const [SignedIntegerInputFormatter()],
                             decoration: InputDecoration(
                               labelText: 'Min Value',
                               hintText: 'Enter minimum value',
@@ -410,7 +411,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             onFieldSubmitted: (_) => _saveStepAdjustment(),
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
+                            inputFormatters: const [SignedIntegerInputFormatter()],
                             decoration: InputDecoration(
                               labelText: 'Max Value',
                               hintText: 'Enter maximum value',

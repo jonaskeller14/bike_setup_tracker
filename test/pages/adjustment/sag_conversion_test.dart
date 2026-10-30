@@ -265,6 +265,19 @@ void main() {
     });
   });
 
+  testWidgets('SAG page reads a travel typed with a decimal comma', (tester) async {
+    final saved = savedAdjustment(await pushAndSave(
+      tester,
+      SagAdjustmentPage.edit(adjustment: SagAdjustment(name: 'SAG', notes: null), componentType: ComponentType.fork),
+      interact: () async {
+        await tester.enterText(find.widgetWithText(TextFormField, 'e.g. 160'), '160,5');
+        await tester.pumpAndSettle();
+      },
+    )) as SagAdjustment;
+
+    expect(saved.referenceTravelMm, 160.5);
+  });
+
   final sagPreset = SagAdjustment(name: 'Preset', notes: null, presetKey: testPresetKey);
   presetKeyTests(
     template: () => SagAdjustmentPage.template(adjustment: sagPreset),

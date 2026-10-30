@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../goldens/support/localized_test_app.dart';
 
 void main() {
-  const validValues = {"0.1", "-0.1", "-1", "1", ""};
-  const invalidValues = {"1..1", "-1.1", "1.1", "."};
+  const validValues = {"0.1", "-0.1", "0,1", "-0,1", "-1", "1", ""};
+  const invalidValues = {"1..1", "-1.1", "1.1", ".", "1,,1", "-1,1", "1,1", ",", "0,1,1", "0.1,1"};
 
   Widget buildWidget({required NumericalValue? initialValue, required NumericalValue? value, required Key formKey}) {
     return localizedTestApp(
@@ -158,6 +158,27 @@ void main() {
       await tester.enterText(find.byType(TextField), '5');
       await tester.pump();
       expect(reported!.value, closeTo(72.52, 0.05)); // 5 bar ≈ 72.5 psi
+    });
+
+    testWidgets("reports a value typed with a decimal comma and converts it on toggle", (tester) async {
+      NumericalValue? reported;
+      await tester.pumpWidget(buildPressure(
+        adjustment: pressureAdjustment(),
+        initialValue: null,
+        value: null,
+        onChanged: (v) => reported = v,
+        formKey: GlobalKey<FormState>(),
+      ));
+
+      await tester.enterText(find.byType(TextField), '72,5');
+      await tester.pump();
+      expect(reported, const NumericalValue(72.5));
+
+      await tester.tap(find.text('psi'));
+      await tester.pumpAndSettle();
+
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(double.parse(field.controller!.text), closeTo(5, 0.01)); // 72.5 psi ≈ 5 bar
     });
 
     testWidgets("validation messages use converted bounds after toggle", (tester) async {

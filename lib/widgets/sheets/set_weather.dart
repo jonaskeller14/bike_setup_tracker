@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
@@ -227,14 +226,14 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
+                                final parsedValue = parseLocalizedDouble(value);
                                 if (parsedValue == null) return "Please enter a valid number";
                                 return null;
                               },
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
-                                  _currentWeather = _currentWeather!.copyWith(currentTemperature: ContextWeather.convertTemperatureToCelsius(double.tryParse(_currentTemperatureController.text.trim()), appSettings.temperatureUnit));
+                                  _currentWeather = _currentWeather!.copyWith(currentTemperature: ContextWeather.convertTemperatureToCelsius(parseLocalizedDouble(_currentTemperatureController.text), appSettings.temperatureUnit));
                                 });
                               },
                               onFieldSubmitted: (_) => _save,
@@ -243,7 +242,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
+                              inputFormatters: const [UnsignedDecimalInputFormatter()],
                               controller: _dayAccumulatedPrecipitationController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -258,7 +257,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
+                                final parsedValue = parseLocalizedDouble(value);
                                 if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue < 0) return "Value cannot be negative";
                                 return null;
@@ -266,7 +265,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
-                                  _currentWeather = _currentWeather?.copyWith(dayAccumulatedPrecipitation: ContextWeather.convertPrecipitationToMm(double.tryParse(_dayAccumulatedPrecipitationController.text.trim()), appSettings.precipitationUnit));
+                                  _currentWeather = _currentWeather?.copyWith(dayAccumulatedPrecipitation: ContextWeather.convertPrecipitationToMm(parseLocalizedDouble(_dayAccumulatedPrecipitationController.text), appSettings.precipitationUnit));
                                 });
                               },
                               onFieldSubmitted: (_) => _save(),
@@ -275,7 +274,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
+                              inputFormatters: const [UnsignedDecimalInputFormatter()],
                               controller: _currentHumidityController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -290,7 +289,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
+                                final parsedValue = parseLocalizedDouble(value);
                                 if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue < 0 || parsedValue > 100) return "Enter a valid value in the range 0..100 %";
                                 return null;
@@ -298,7 +297,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
-                                  _currentWeather = _currentWeather?.copyWith(currentHumidity: double.tryParse(_currentHumidityController.text.trim()));
+                                  _currentWeather = _currentWeather?.copyWith(currentHumidity: parseLocalizedDouble(_currentHumidityController.text));
                                 });
                               },
                               onFieldSubmitted: (_) => _save(),
@@ -307,7 +306,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
+                              inputFormatters: const [UnsignedDecimalInputFormatter()],
                               controller: _currentWindSpeedController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -322,7 +321,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
+                                final parsedValue = parseLocalizedDouble(value);
                                 if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue < 0) return "Value cannot be negative";
                                 return null;
@@ -330,7 +329,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
-                                  _currentWeather = _currentWeather?.copyWith(currentWindSpeed: ContextWeather.convertWindSpeedToKmh(double.tryParse(_currentWindSpeedController.text.trim()), appSettings.windSpeedUnit));
+                                  _currentWeather = _currentWeather?.copyWith(currentWindSpeed: ContextWeather.convertWindSpeedToKmh(parseLocalizedDouble(_currentWindSpeedController.text), appSettings.windSpeedUnit));
                                 });
                               },
                               onFieldSubmitted: (_) => _save(),
@@ -339,7 +338,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
+                              inputFormatters: const [UnsignedDecimalInputFormatter()],
                               controller: _currentSoilMoisture0to7cmController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -354,7 +353,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
+                                final parsedValue = parseLocalizedDouble(value);
                                 if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue < 0) return "Value cannot be negative";
                                 return null;
@@ -362,7 +361,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
-                                  _currentWeather = _currentWeather?.copyWith(currentSoilMoisture0to7cm: double.tryParse(_currentSoilMoisture0to7cmController.text.trim()));
+                                  _currentWeather = _currentWeather?.copyWith(currentSoilMoisture0to7cm: parseLocalizedDouble(_currentSoilMoisture0to7cmController.text));
                                 });
                               },
                               onFieldSubmitted: (_) => _save(),

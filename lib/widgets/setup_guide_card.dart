@@ -7,6 +7,7 @@ import '../models/component/preset_spec_keys.dart';
 import '../models/component/setup_guide.dart';
 import '../theme.dart';
 import '../utils/adjustment_role.dart';
+import '../utils/number_input_formatters.dart';
 import '../utils/setup_guide_actions.dart';
 import 'setup_guide_status.dart';
 import 'sheets/setup_guide_info_sheet.dart';
@@ -175,13 +176,11 @@ class _WeightFieldState extends State<_WeightField> {
 
   static String _format(double? weight) => weight == null ? '' : formatSpecNumber(weight);
 
-  static double? _parse(String text) => double.tryParse(text.trim().replaceAll(',', '.'));
-
   @override
   void didUpdateWidget(covariant _WeightField oldWidget) {
     super.didUpdateWidget(oldWidget);
     // The weight may also change on the Rider tab.
-    if (_parse(_controller.text) != widget.input.weight) _controller.text = _format(widget.input.weight);
+    if (parseLocalizedDouble(_controller.text) != widget.input.weight) _controller.text = _format(widget.input.weight);
   }
 
   @override
@@ -231,7 +230,7 @@ class _WeightFieldState extends State<_WeightField> {
                   focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: hint.accent, width: 2)),
                 ),
                 onChanged: (text) {
-                  final weight = _parse(text);
+                  final weight = parseLocalizedDouble(text);
                   input.onChanged(weight != null && weight > 0 ? weight : null);
                 },
               ),

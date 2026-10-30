@@ -373,7 +373,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
+                                final parsedValue = parseLocalizedDouble(value);
                                 if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue.abs() > 90) return "Latitude must be between -90..90°";
                                 return null;
@@ -381,7 +381,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
-                                    latitude: double.tryParse(newValue),
+                                    latitude: parseLocalizedDouble(newValue),
                                   );
                                 });
                               },
@@ -405,7 +405,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
+                                final parsedValue = parseLocalizedDouble(value);
                                 if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue.abs() > 180) return "Longitude must be between -180..180°";
                                 return null;
@@ -413,7 +413,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
-                                    longitude: double.tryParse(newValue),
+                                    longitude: parseLocalizedDouble(newValue),
                                   );
                                 });
                               },
@@ -437,7 +437,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
+                                final parsedValue = parseLocalizedDouble(value);
                                 if (parsedValue == null) return "Please enter a valid number";
                                 return null;
                               },
@@ -445,7 +445,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                 setState(() {
                                   _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
                                     altitude: ContextPosition.convertAltitudeToMeters(
-                                      double.tryParse(newValue),
+                                      parseLocalizedDouble(newValue),
                                       appSettings.altitudeUnit,
                                     ),
                                   );

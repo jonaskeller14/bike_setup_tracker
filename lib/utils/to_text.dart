@@ -280,7 +280,7 @@ String _generateContextLine(Setup setup, AppSettings settings, AppLocalizations 
   final w = setup.weather;
   if (w != null) {
     final weatherParts = <String>[];
-    final label = w.getWeatherCodeLabel();
+    final label = w.getWeatherCodeLabel(l10n);
     if (label != null) weatherParts.add(label);
     
     if (w.currentTemperature != null) {

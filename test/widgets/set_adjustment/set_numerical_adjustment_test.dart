@@ -162,6 +162,26 @@ void main() {
       expect(reported!.value, closeTo(72.52, 0.05)); // 5 bar ≈ 72.5 psi
     });
 
+    testWidgets("a full unit cycle returns to the unrounded text", (tester) async {
+      final formKey = GlobalKey<FormState>();
+      await tester.pumpWidget(buildPressure(
+        adjustment: pressureAdjustment(),
+        initialValue: null,
+        value: const NumericalValue(72.5),
+        onChanged: (_) {},
+        formKey: formKey,
+      ));
+
+      for (final label in ['psi', 'bar', 'kPa']) {
+        await tester.tap(find.text(label));
+        await tester.pumpAndSettle();
+      }
+
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.controller!.text, '72.5');
+      expect(find.text('psi'), findsOneWidget);
+    });
+
     testWidgets("reports a value typed with a decimal comma and converts it on toggle", (tester) async {
       NumericalValue? reported;
       await tester.pumpWidget(buildPressure(

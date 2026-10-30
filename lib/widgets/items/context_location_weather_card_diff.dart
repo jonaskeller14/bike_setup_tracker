@@ -100,7 +100,7 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
 
   Widget _weatherSection(BuildContext context) {
     final settings = context.watch<AppSettings>();
-    final weatherCodeDiffer = weatherA?.getWeatherCodeLabel() != weatherB?.getWeatherCodeLabel();
+    final weatherCodeDiffer = weatherA?.getWeatherCodeLabel(context.l10n) != weatherB?.getWeatherCodeLabel(context.l10n);
 
     String temperature(ContextWeather? weather) {
       final value = ContextWeather.convertTemperatureFromCelsius(
@@ -141,8 +141,8 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
         different: weatherCodeDiffer,
       ),
       title: _ComparisonTextRow(
-        valueA: weatherA?.getWeatherCodeLabel() ?? '-',
-        valueB: weatherB?.getWeatherCodeLabel() ?? '-',
+        valueA: weatherA?.getWeatherCodeLabel(context.l10n) ?? '-',
+        valueB: weatherB?.getWeatherCodeLabel(context.l10n) ?? '-',
       ),
       children: [
         _WeatherRow(
@@ -410,7 +410,7 @@ class _ComparisonMapState extends State<_ComparisonMap> {
             externalTargets: [
               for (final point in points)
                 (
-                  label: 'Open ${point.label} in maps app',
+                  label: context.l10n.contextOpenPointInMaps(point.label),
                   latitude: point.point.latitude,
                   longitude: point.point.longitude,
                   displayName: point.displayName,

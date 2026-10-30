@@ -60,5 +60,14 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Strava Gear | Strava-Ausrüstung | Strava's own German term |
 | Line / Radial Chart | Liniendiagramm / Netzdiagramm | |
 | Test session | Testsitzung | |
+| Attribute (rider) | Attribut | An adjustment of a rider: Numerisches Attribut, Textattribut |
+| Template / Preset (adjustments) | Vorlage | Also Komponentenvorlagen, Aufgabenvorlagen |
+| Setup comparison | Setup-Vergleich | |
+| Context (place, weather) | Kontext | Ortskontext, Wetterkontext |
+| Dangling value | Verwaister Wert | A value whose adjustment, component or rider is no longer part of the setup |
+| Step size / Dial / Visualization | Schrittweite / Drehrad / Darstellung | |
+| Run (of a test session) | Lauf | Erster Lauf, Nächster Lauf |
+| Weather code / Trail condition | Wettercode / Trailzustand | Weather descriptions follow the Open-Meteo (WMO) codes |
+| Sheet (bottom sheet) | Blatt | As in Filterblatt |
 
 Unit symbols (`km`, `bar`, `°C`) are not translated.

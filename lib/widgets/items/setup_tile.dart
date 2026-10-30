@@ -136,7 +136,7 @@ class _SetupTileState extends State<SetupTile> {
                       : null,
                   secondaryMetadata: TileMetaRow(
                     icon: Bike.iconData,
-                    text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                    text: bikes[setup.bike]?.name ?? context.l10n.bikeNotFound,
                     isError: !bikes.containsKey(setup.bike),
                   ),
                 ),

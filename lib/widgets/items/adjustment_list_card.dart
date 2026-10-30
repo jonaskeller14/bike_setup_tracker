@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/localized_number.dart';
@@ -52,7 +53,7 @@ class AdjustmentListCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          "not scored",
+          context.l10n.adjustmentNotScored,
           style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w500),
         ),
       );
@@ -164,7 +165,7 @@ class AdjustmentListCard extends StatelessWidget {
                     spacing: 10,
                     children: [
                       Icon(option.iconData, size: 20),
-                      Text(option.label),
+                      Text(option.label(context.l10n)),
                     ],
                   ),
                 );
@@ -215,10 +216,15 @@ class _PendingMigrationLine extends StatelessWidget {
 }
 
 enum _AdjustmentOptions {
-  edit("Edit", Icons.edit),
-  duplicate("Duplicate", Icons.copy),
-  remove("Remove", Icons.delete);
-  final String label;
+  edit(Icons.edit),
+  duplicate(Icons.copy),
+  remove(Icons.delete);
   final IconData iconData;
-  const _AdjustmentOptions(this.label, this.iconData);
+  const _AdjustmentOptions(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    duplicate => l10n.duplicate,
+    remove => l10n.remove,
+  };
 }

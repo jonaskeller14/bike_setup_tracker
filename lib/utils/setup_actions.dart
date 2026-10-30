@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
 import '../pages/forms/setup_page.dart';
@@ -33,9 +33,9 @@ class SetupActions {
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(
           context,
-          'A bike is required to create a setup',
+          context.l10n.setupActionBikeRequired,
           action: AppSnackBarAction(
-            label: 'ADD',
+            label: context.l10n.snackbarAdd,
             onPressed: () => BikeActions.addBike(context),
           ),
         ),
@@ -46,9 +46,9 @@ class SetupActions {
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(
           context,
-          'A component is required to create a setup',
+          context.l10n.setupActionComponentRequired,
           action: AppSnackBarAction(
-            label: 'ADD',
+            label: context.l10n.snackbarAdd,
             onPressed: () => ComponentActions.addComponent(context),
           ),
         ),
@@ -151,16 +151,12 @@ class SetupActions {
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
-        Intl.plural(
-          originals.length,
-          one: bookmark ? '1 Setup bookmarked.' : 'Bookmark removed from 1 Setup.',
-          other: bookmark
-              ? '${originals.length} Setups bookmarked.'
-              : 'Bookmark removed from ${originals.length} Setups.',
-        ),
+        bookmark
+            ? context.l10n.setupsBookmarked(originals.length)
+            : context.l10n.setupsBookmarkRemoved(originals.length),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.editSetups(originals),
         ),
       ),
@@ -178,14 +174,9 @@ class SetupActions {
       context: context,
       itemTags: setups.map((setup) => setup.tags).toList(),
       availableTags: appRepository.setupTags,
-      title: 'Set Tags',
-      subtitle: 'Use tags to group and organize your setups. For example, to categorize by specific '
-          'test sessions, tracks, or terrains.',
-      applyLabel: Intl.plural(
-        setups.length,
-        one: 'Apply to 1 Setup',
-        other: 'Apply to ${setups.length} Setups',
-      ),
+      title: context.l10n.setupSetTagsTitle,
+      subtitle: context.l10n.setupTagsSubtitle,
+      applyLabel: context.l10n.setupApplyTags(setups.length),
     );
     if (changes == null) return false;
 
@@ -205,14 +196,10 @@ class SetupActions {
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
-        Intl.plural(
-          updated.length,
-          one: 'Tags updated for 1 Setup.',
-          other: 'Tags updated for ${updated.length} Setups.',
-        ),
+        context.l10n.setupTagsUpdated(updated.length),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.editSetups(originals),
         ),
       ),
@@ -230,10 +217,10 @@ class SetupActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Setup '${setup.displayName}' moved to trash.",
+        context.l10n.setupMovedToTrash(setup.displayName),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.restoreSetups([setup]),
         ),
       ),
@@ -250,10 +237,10 @@ class SetupActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Setup '${setup.displayName}' restored from trash.",
+        context.l10n.setupRestoredFromTrash(setup.displayName),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.removeSetups([setup]),
         ),
       ),

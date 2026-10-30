@@ -857,9 +857,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 WeatherError() => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
               },
               label: switch (_weatherService.status) {
-                WeatherIdle() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
+                WeatherIdle() => Text(_currentWeather.value?.getWeatherCodeLabel(context.l10n) ?? "-"),
                 WeatherSearching() => const ChipLoadingIndicator(),
-                WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
+                WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel(context.l10n) ?? "-"),
                 WeatherError() => const Text("Weather Error"),
               },
               backgroundColor:

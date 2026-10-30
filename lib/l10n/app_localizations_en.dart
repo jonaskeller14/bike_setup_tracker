@@ -2826,4 +2826,1522 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get garageReleaseToArchive => 'Release to archive';
+
+  @override
+  String get applyPresetTitle => 'Apply preset adjustments?';
+
+  @override
+  String applyPresetBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count adjustments',
+      one: '1 adjustment',
+    );
+    return 'This component already has $_temp0. Replace them with the preset, or keep both?';
+  }
+
+  @override
+  String get applyPresetKeepBoth => 'Keep both';
+
+  @override
+  String get confirmationTitle => 'Are you sure?';
+
+  @override
+  String get confirmationBody => 'This action cannot be undone.';
+
+  @override
+  String get discardChangesTitle => 'Discard Changes?';
+
+  @override
+  String get discardChangesBody => 'You have unsaved changes. Are you sure you want to exit without saving?';
+
+  @override
+  String get discardChangesConfirm => 'Discard Changes';
+
+  @override
+  String get renameNameHint => 'Name';
+
+  @override
+  String get renameConfirm => 'Rename';
+
+  @override
+  String get stravaDisconnectTitle => 'Disconnect Strava?';
+
+  @override
+  String get stravaDisconnectBody =>
+      'This will revoke the app\'s access and delete all your synced activities from our secure storage. Your Strava account itself will not be affected.';
+
+  @override
+  String get stravaDisconnectConfirm => 'Disconnect';
+
+  @override
+  String adjustmentNameLabel(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Attribute Name',
+        'other': 'Adjustment Name',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentNameHint(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Enter Attribute Name',
+        'other': 'Enter Adjustment Name',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adjustmentNameRequired => 'Name is required';
+
+  @override
+  String get adjustmentNameTooLong => 'Short names display better in other views.';
+
+  @override
+  String get adjustmentNotesHint => 'Enter measuring procedure/instrument/...';
+
+  @override
+  String get adjustmentNotesHelper => 'View these notes by tapping the ⓘ icon next to the name.';
+
+  @override
+  String get adjustmentPreviewTitle => 'Preview';
+
+  @override
+  String get adjustmentPreviewExpanded => 'Preview only — changes won’t be saved!';
+
+  @override
+  String adjustmentPageAddBoolean(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Add On/Off Attribute',
+        'other': 'Add On/Off Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageEditBoolean(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Edit On/Off Attribute',
+        'other': 'Edit On/Off Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageAddCategorical(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Add Categorical Attribute',
+        'other': 'Add Categorical Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageEditCategorical(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Edit Categorical Attribute',
+        'other': 'Edit Categorical Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageAddDuration(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Add Duration Attribute',
+        'other': 'Add Duration Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageEditDuration(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Edit Duration Attribute',
+        'other': 'Edit Duration Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageAddNumerical(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Add Numerical Attribute',
+        'other': 'Add Numerical Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageEditNumerical(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Edit Numerical Attribute',
+        'other': 'Edit Numerical Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageAddSag(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Add SAG Attribute',
+        'other': 'Add SAG Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageEditSag(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Edit SAG Attribute',
+        'other': 'Edit SAG Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageAddStep(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Add Step Attribute',
+        'other': 'Add Step Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageEditStep(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Edit Step Attribute',
+        'other': 'Edit Step Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageAddText(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Add Text Attribute',
+        'other': 'Add Text Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adjustmentPageEditText(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Edit Text Attribute',
+        'other': 'Edit Text Adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adjustmentOptionsAtLeastOne => 'At least one option is required.';
+
+  @override
+  String get adjustmentOptionsUniqueError => 'Options must be unique.';
+
+  @override
+  String get adjustmentOptionRequired => 'Option is required';
+
+  @override
+  String get adjustmentOptionUnique => 'Options must be unique';
+
+  @override
+  String get adjustmentOptionsTitle => 'Options';
+
+  @override
+  String get addLabel => 'Add';
+
+  @override
+  String adjustmentOptionLabel(int number) {
+    return 'Option $number';
+  }
+
+  @override
+  String get adjustmentOptionHint => 'Enter option value';
+
+  @override
+  String get adjustmentOptionRemoveTooltip => 'Remove option';
+
+  @override
+  String get adjustmentMultiSelectTitle => 'Multi Select';
+
+  @override
+  String get adjustmentMultiSelectSubtitle => 'Allow more than one selection';
+
+  @override
+  String get adjustmentCountTitle => 'Count Occurrences';
+
+  @override
+  String get adjustmentCountSubtitle => 'Allow the same option multiple times';
+
+  @override
+  String get labelMin => 'Min';
+
+  @override
+  String get labelMax => 'Max';
+
+  @override
+  String get adjustmentMinDurationLabel => 'Min Duration (optional)';
+
+  @override
+  String get adjustmentMinDurationHint => 'Select minimum duration';
+
+  @override
+  String get adjustmentMaxDurationLabel => 'Max Duration (optional)';
+
+  @override
+  String get adjustmentMaxDurationHint => 'Select maximum duration';
+
+  @override
+  String get adjustmentMinValueOptionalLabel => 'Min Value (optional)';
+
+  @override
+  String get adjustmentMaxValueOptionalLabel => 'Max Value (optional)';
+
+  @override
+  String get adjustmentMinValueLabel => 'Min Value';
+
+  @override
+  String get adjustmentMaxValueLabel => 'Max Value';
+
+  @override
+  String get adjustmentMinValueHint => 'Enter minimum value';
+
+  @override
+  String get adjustmentMaxValueHint => 'Enter maximum value';
+
+  @override
+  String get adjustmentConvertToSagTitle => 'Convert to SAG adjustment';
+
+  @override
+  String get adjustmentConvertToSagBody => 'Unlocks entering and reading sag in mm as well as %.';
+
+  @override
+  String get adjustmentValidNumberRequired => 'Valid number required';
+
+  @override
+  String get adjustmentMaxGreaterThanMin => 'Max must be greater than min';
+
+  @override
+  String adjustmentUnitConvertible(String oldUnit, String newUnit) {
+    return '$oldUnit can be converted to $newUnit.';
+  }
+
+  @override
+  String get adjustmentUnitLabel => 'Unit (optional)';
+
+  @override
+  String get adjustmentUnitHint => 'Choose a unit';
+
+  @override
+  String get adjustmentUnitNone => 'None';
+
+  @override
+  String get adjustmentConvertToNumerical => 'Convert to plain numerical';
+
+  @override
+  String get adjustmentTravelFork => 'Fork Travel';
+
+  @override
+  String get adjustmentTravelShock => 'Shock Stroke';
+
+  @override
+  String get adjustmentTravelGeneric => 'Travel / Stroke';
+
+  @override
+  String get adjustmentTravelHintFork => 'e.g. 160';
+
+  @override
+  String get adjustmentTravelHintShock => 'e.g. 65 (stroke, not rear travel)';
+
+  @override
+  String get adjustmentTravelHintGeneric => 'e.g. 160 fork, 65 shock stroke';
+
+  @override
+  String adjustmentTravelOptionalLabel(String label) {
+    return '$label (optional)';
+  }
+
+  @override
+  String get adjustmentTravelHelper => 'Add it to enter and read sag in mm as well as %.';
+
+  @override
+  String get adjustmentMustBePositive => 'Must be greater than 0';
+
+  @override
+  String get adjustmentStepLabel => 'Step';
+
+  @override
+  String get adjustmentStepHint => 'Enter step value';
+
+  @override
+  String get adjustmentStepRequired => 'Step is required';
+
+  @override
+  String get adjustmentStepInvalid => 'Valid step greater than zero is required';
+
+  @override
+  String get adjustmentMinRequired => 'Min is required';
+
+  @override
+  String get adjustmentMinInvalid => 'Valid min value is required';
+
+  @override
+  String get adjustmentMaxRequired => 'Max is required';
+
+  @override
+  String get adjustmentMaxInvalid => 'Valid max value is required';
+
+  @override
+  String get adjustmentMaxGreaterThanMinStep => 'Max must be greater than min+step';
+
+  @override
+  String get adjustmentDialTooltip => 'Change dial color and size';
+
+  @override
+  String get adjustmentDialLabel => 'Dial';
+
+  @override
+  String get adjustmentVisualizationLabel => 'Visualization';
+
+  @override
+  String adjustmentVisualizationHint(String term) {
+    String _temp0 = intl.Intl.selectLogic(
+      term,
+      {
+        'attribute': 'Choose a visualization for this attribute',
+        'other': 'Choose a visualization for this adjustment',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adjustmentVisualizationPlaceholder => 'Please select visualization';
+
+  @override
+  String get adjustmentVisualizationRequired => 'Visualization cannot be empty';
+
+  @override
+  String get setValueButton => 'Set value';
+
+  @override
+  String get setCategoricalMissingOptions => 'Contains options that no longer exist';
+
+  @override
+  String get setCategoricalSingleOnly => 'Only one option can be selected';
+
+  @override
+  String get setCategoricalNoDuplicates => 'An option cannot be selected more than once';
+
+  @override
+  String get setCategoricalSelectOption => 'Please select an option';
+
+  @override
+  String get setCategoricalPlaceholder => 'Please select';
+
+  @override
+  String get revertTooltip => 'Revert';
+
+  @override
+  String get setNumericalHint => 'Please enter';
+
+  @override
+  String get setValueRequired => 'Please enter a value';
+
+  @override
+  String get setNumberInvalid => 'Please enter a valid number';
+
+  @override
+  String setNumericalMax(String value) {
+    return 'Max $value';
+  }
+
+  @override
+  String setNumericalMin(String value) {
+    return 'Min $value';
+  }
+
+  @override
+  String get setTextHint => 'Enter Text';
+
+  @override
+  String get setTextPureDuration => 'Pure Duration Format not allowed. Add characters or use Duration Adjustment type.';
+
+  @override
+  String get outdatedValueOptions => 'Doesn\'t match the current options';
+
+  @override
+  String get outdatedValueRangeOrStep => 'Outside the current range or step';
+
+  @override
+  String get outdatedValueRange => 'Outside the current range';
+
+  @override
+  String adjustmentChangedFromTo(String name, String previous, String current) {
+    return '$name, changed from $previous to $current';
+  }
+
+  @override
+  String compareRowDifferent(String label) {
+    return 'Different $label';
+  }
+
+  @override
+  String get compareTitle => 'Setup comparison';
+
+  @override
+  String get compareSwapTooltip => 'Swap A and B';
+
+  @override
+  String compareChooseSetup(String side) {
+    return 'Choose setup $side';
+  }
+
+  @override
+  String get compareNoAdjustments => 'No adjustments';
+
+  @override
+  String compareValuesDiffer(int differenceCount, int totalCount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      differenceCount,
+      locale: localeName,
+      other: 'differ',
+      one: 'differs',
+    );
+    return '$differenceCount/$totalCount values $_temp0';
+  }
+
+  @override
+  String get compareChooseTwoDifferent => 'Choose two different setups to compare.';
+
+  @override
+  String get compareSetupUnavailableTitle => 'A setup is no longer available';
+
+  @override
+  String get compareSetupUnavailableHint => 'Close this sheet and choose two available setups to compare.';
+
+  @override
+  String get compareNoDifferencesTitle => 'These setups have no value differences';
+
+  @override
+  String get compareNoComparableTitle => 'No comparable values';
+
+  @override
+  String get compareShowAllHint => 'Show every recorded value instead.';
+
+  @override
+  String get compareNoValuesHint => 'No setup values are available to compare.';
+
+  @override
+  String get compareContextVaries => 'Context varies';
+
+  @override
+  String compareFilterDifferences(int count) {
+    return 'Differences ($count)';
+  }
+
+  @override
+  String get compareFilterAll => 'All';
+
+  @override
+  String get setupSectionContext => 'Context';
+
+  @override
+  String get setupSectionValues => 'Values';
+
+  @override
+  String get setupSectionFeedback => 'Feedback';
+
+  @override
+  String get setupUnnamed => 'Unnamed Setup';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get setupOptionRestore => 'Restore';
+
+  @override
+  String get setupOptionCompare => 'Compare';
+
+  @override
+  String get setupOptionAddFeedback => 'Add Feedback';
+
+  @override
+  String get setupOptionViewOnMap => 'View on map';
+
+  @override
+  String get setupOptionOpenInMaps => 'Open in maps app';
+
+  @override
+  String get setupTooltipBookmark => 'Bookmark';
+
+  @override
+  String get setupTooltipRemoveBookmark => 'Remove Bookmark';
+
+  @override
+  String setupGroupTitle(int count) {
+    return '$count Setups';
+  }
+
+  @override
+  String get setupTileNoChanges => 'No changes';
+
+  @override
+  String get setupTileNoValues => 'No values';
+
+  @override
+  String get setupListFilteredTitle => 'Nothing matches this filter';
+
+  @override
+  String get setupListFilteredSubtitle => 'Your filters are hiding all entries.';
+
+  @override
+  String get setupListEmptyTitle => 'No entries yet';
+
+  @override
+  String get setupListEmptySubtitle => 'Record your first setup to start tracking your adjustments.';
+
+  @override
+  String get setupListEmptyAction => 'Record a setup';
+
+  @override
+  String get setupTagsSubtitle =>
+      'Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.';
+
+  @override
+  String get setupActionBikeRequired => 'A bike is required to create a setup';
+
+  @override
+  String get setupActionComponentRequired => 'A component is required to create a setup';
+
+  @override
+  String setupsBookmarked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Setups bookmarked.',
+      one: '1 Setup bookmarked.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String setupsBookmarkRemoved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bookmark removed from $count Setups.',
+      one: 'Bookmark removed from 1 Setup.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get setupSetTagsTitle => 'Set Tags';
+
+  @override
+  String setupApplyTags(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Apply to $count Setups',
+      one: 'Apply to 1 Setup',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String setupTagsUpdated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tags updated for $count Setups.',
+      one: 'Tags updated for 1 Setup.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String setupMovedToTrash(String name) {
+    return 'Setup \'$name\' moved to trash.';
+  }
+
+  @override
+  String setupRestoredFromTrash(String name) {
+    return 'Setup \'$name\' restored from trash.';
+  }
+
+  @override
+  String get addAdjustmentTitle => 'Add Adjustment';
+
+  @override
+  String get addAdjustmentTemplates => 'Pre-filled Templates';
+
+  @override
+  String addAdjustmentSuggested(String type) {
+    return 'Suggested for $type';
+  }
+
+  @override
+  String addAdjustmentSuggestedProgress(String type, int added, int total) {
+    return 'Suggested for $type · $added/$total added';
+  }
+
+  @override
+  String get addAdjustmentSelectTypeTitle => 'Select a component type';
+
+  @override
+  String get addAdjustmentNoTemplatesTitle => 'No templates available';
+
+  @override
+  String get addAdjustmentTemplatesPerType => 'Templates are suggested per component type.';
+
+  @override
+  String get addAdjustmentSelectTypeFirst => 'Select a component type first.';
+
+  @override
+  String get addAdjustmentAllAdded => 'Add a custom adjustment below.';
+
+  @override
+  String get addAdjustmentNoTemplates => 'No templates available.';
+
+  @override
+  String get addAdjustmentCustom => 'Custom Adjustment';
+
+  @override
+  String get adjustmentTypeNumerical => 'Numerical Adjustment';
+
+  @override
+  String get adjustmentTypeNumericalHint => 'Pressure (psi/bar), Length, Angle, Weight';
+
+  @override
+  String get adjustmentTypeStep => 'Step Adjustment';
+
+  @override
+  String get adjustmentTypeStepHint => 'Rebound/Compression clicks, Spacers, Increments';
+
+  @override
+  String get adjustmentTypeCategorical => 'Categorical Adjustment';
+
+  @override
+  String get adjustmentTypeCategoricalHint => 'Tire Compound (soft/hard), Brand, Style, Mode';
+
+  @override
+  String get adjustmentTypeBoolean => 'On/Off Adjustment';
+
+  @override
+  String get adjustmentTypeBooleanHint => 'Lockout, Climb switch, Component installed? Yes/No';
+
+  @override
+  String get adjustmentTypeText => 'Text Adjustment';
+
+  @override
+  String get adjustmentTypeTextHint => 'Notes, advanced settings details';
+
+  @override
+  String get adjustmentTypeDuration => 'Duration Adjustment';
+
+  @override
+  String get adjustmentTypeDurationHint => 'Time Span';
+
+  @override
+  String get setCategoricalDuplicate => 'Already exists';
+
+  @override
+  String get setCategoricalDanglingError => 'Some selected options no longer exist.';
+
+  @override
+  String get setCategoricalMultipleError => 'Multiple options selected, but only one is allowed.';
+
+  @override
+  String get setCategoricalEmptyTitle => 'No options yet';
+
+  @override
+  String get setCategoricalEmptyEdit => 'Edit this adjustment to add options.';
+
+  @override
+  String get setCategoricalEmptyAdd => 'Tap + below to add the first option.';
+
+  @override
+  String get setCategoricalAddTooltip => 'Add option';
+
+  @override
+  String get setCategoricalNewHint => 'New option';
+
+  @override
+  String get setCategoricalDanglingTooltip => 'This option no longer exists';
+
+  @override
+  String get setConditionTitle => 'Select Trail Condition';
+
+  @override
+  String get setConditionInfo =>
+      'Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:';
+
+  @override
+  String get tagAlreadyExists => 'Tag already exists';
+
+  @override
+  String get tagsEmpty => 'No tags yet';
+
+  @override
+  String get tagsBulkOnAll => 'On all — tap to remove from all';
+
+  @override
+  String tagsBulkOnSome(int count, int total) {
+    return 'On $count of $total — tap to add to all';
+  }
+
+  @override
+  String get tagsBulkOnNone => 'On none — tap to add to all';
+
+  @override
+  String get tagsBulkHalfFilled =>
+      'Half-filled tags apply to only part of your selection — they stay that way unless you tap them.';
+
+  @override
+  String get unitPickerTitle => 'Choose Unit';
+
+  @override
+  String get unitPickerCustom => 'Custom';
+
+  @override
+  String get unitPickerOther => 'Other';
+
+  @override
+  String get unitPickerCustomLabel => 'Custom unit';
+
+  @override
+  String get unitPickerCustomHint => 'Enter a custom unit';
+
+  @override
+  String get weatherSheetTitle => 'Weather Context';
+
+  @override
+  String get weatherNeedsLocation => 'Update Weather is not possible without location.';
+
+  @override
+  String get weatherCodeLabel => 'Weather Code';
+
+  @override
+  String get weatherCodeHint => 'Choose Weather Code';
+
+  @override
+  String weatherTemperatureLabel(String unit) {
+    return 'Current Air Temperature in $unit.';
+  }
+
+  @override
+  String get weatherTemperatureHint => 'Temperature';
+
+  @override
+  String weatherPrecipitationLabel(String unit) {
+    return 'Accumulated Precipitation since midnight in $unit';
+  }
+
+  @override
+  String get weatherPrecipitationHint => 'Precipitation';
+
+  @override
+  String get weatherHumidityLabel => 'Current Relative Air Humidity as percentage value';
+
+  @override
+  String get weatherHumidityHint => 'Humidity';
+
+  @override
+  String weatherWindLabel(String unit) {
+    return 'Current Wind Speed in $unit';
+  }
+
+  @override
+  String get weatherWindHint => 'Wind Speed';
+
+  @override
+  String get weatherSoilLabel => 'Average Soil Moisture 0-7cm';
+
+  @override
+  String get weatherSoilHint => 'Soil Moisture';
+
+  @override
+  String get weatherValueNegative => 'Value cannot be negative';
+
+  @override
+  String get weatherHumidityRange => 'Enter a valid value in the range 0..100 %';
+
+  @override
+  String get weatherAttribution => 'Weather data by Open-Meteo.com';
+
+  @override
+  String get weatherUpdateByLocation => 'Update Weather by Location';
+
+  @override
+  String get weatherCode0 => 'Clear sky';
+
+  @override
+  String get weatherCode1 => 'Mainly clear';
+
+  @override
+  String get weatherCode2 => 'Partly cloudy';
+
+  @override
+  String get weatherCode3 => 'Overcast';
+
+  @override
+  String get weatherCode45 => 'Fog';
+
+  @override
+  String get weatherCode48 => 'Depositing rime fog';
+
+  @override
+  String get weatherCode51 => 'Light drizzle';
+
+  @override
+  String get weatherCode53 => 'Moderate drizzle';
+
+  @override
+  String get weatherCode55 => 'Dense drizzle';
+
+  @override
+  String get weatherCode56 => 'Light freezing drizzle';
+
+  @override
+  String get weatherCode57 => 'Dense freezing drizzle';
+
+  @override
+  String get weatherCode61 => 'Slight rain';
+
+  @override
+  String get weatherCode63 => 'Moderate rain';
+
+  @override
+  String get weatherCode65 => 'Heavy rain';
+
+  @override
+  String get weatherCode66 => 'Light freezing rain';
+
+  @override
+  String get weatherCode67 => 'Heavy freezing rain';
+
+  @override
+  String get weatherCode71 => 'Slight snow fall';
+
+  @override
+  String get weatherCode73 => 'Moderate snow fall';
+
+  @override
+  String get weatherCode75 => 'Heavy snow fall';
+
+  @override
+  String get weatherCode77 => 'Snow grains';
+
+  @override
+  String get weatherCode80 => 'Slight rain showers';
+
+  @override
+  String get weatherCode81 => 'Moderate rain showers';
+
+  @override
+  String get weatherCode82 => 'Violent rain showers';
+
+  @override
+  String get weatherCode85 => 'Slight snow showers';
+
+  @override
+  String get weatherCode86 => 'Heavy snow showers';
+
+  @override
+  String get weatherCode95 => 'Thunderstorm';
+
+  @override
+  String get weatherCode96 => 'Thunderstorm with slight hail';
+
+  @override
+  String get weatherCode99 => 'Thunderstorm with heavy hail';
+
+  @override
+  String get weatherCodeUnknown => 'Unknown';
+
+  @override
+  String get locationSheetTitle => 'Location Context';
+
+  @override
+  String get locationServicesDisabled => 'Location services are disabled';
+
+  @override
+  String get locationServicesDisabledHint => 'Enable location services, then try GPS again';
+
+  @override
+  String get locationOpenSettings => 'Open settings';
+
+  @override
+  String get locationPermissionDenied => 'Location permission denied';
+
+  @override
+  String get locationPermissionDeniedHint => 'Try GPS again to request permission';
+
+  @override
+  String get locationPermissionForever => 'Location permission permanently denied';
+
+  @override
+  String get locationPermissionForeverHint => 'Allow location access in app settings, then try again';
+
+  @override
+  String get locationTimeout => 'Location request timed out';
+
+  @override
+  String get locationTimeoutHint => 'Move to an open area and try GPS again';
+
+  @override
+  String get locationUndetermined => 'Could not determine location';
+
+  @override
+  String get locationUndeterminedHint => 'Check your connection and try GPS again';
+
+  @override
+  String get locationElevationFailed => 'Fetching Elevation failed';
+
+  @override
+  String get locationElevationFailedHint => 'Check your internet connection';
+
+  @override
+  String get locationAddressFailed => 'Fetching Address failed';
+
+  @override
+  String get locationAddressFailedHint => 'Check your internet connection and spelling';
+
+  @override
+  String get locationLatitude => 'Latitude';
+
+  @override
+  String get locationLongitude => 'Longitude';
+
+  @override
+  String get locationLatitudeRange => 'Latitude must be between -90..90°';
+
+  @override
+  String get locationLongitudeRange => 'Longitude must be between -180..180°';
+
+  @override
+  String locationAltitudeLabel(String unit) {
+    return 'Altitude in $unit';
+  }
+
+  @override
+  String get locationAltitudeHint => 'Altitude';
+
+  @override
+  String get locationUpdateAddress => 'Update Address from Latitude/Longitude';
+
+  @override
+  String get locationAddressSearchLabel => 'Enter street, city, or landmark and press Search Icon';
+
+  @override
+  String get locationAddressHint => 'Address';
+
+  @override
+  String get locationFindByGps => 'Find Location via GPS';
+
+  @override
+  String get locationNoCoordinatesForAddress => 'Could not find address without latitude and longitude';
+
+  @override
+  String get locationNoAddressFound => 'No Address found';
+
+  @override
+  String get locationNotFound => 'Could not find location.';
+
+  @override
+  String get locationSettingsOpenFailed => 'Could not open location settings.';
+
+  @override
+  String get locationAppSettingsOpenFailed => 'Could not open app settings.';
+
+  @override
+  String get setupTabNoBikeAdjustments => 'No bike adjustments to change';
+
+  @override
+  String get setupTabAddComponentSubtitle => 'Add a component to this bike to start tracking adjustments';
+
+  @override
+  String setupAdjustmentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count adjustments',
+      one: '1 adjustment',
+      zero: 'No adjustments yet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String setupAttributeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count attributes',
+      one: '1 attribute',
+      zero: 'No attributes yet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get setupDanglingAdjustmentsTitle => 'Dangling Adjustment Values';
+
+  @override
+  String get setupDanglingAdjustmentsCause => 'Component with adjustment was deleted';
+
+  @override
+  String get setupDanglingAttributesTitle => 'Dangling Attribute Values';
+
+  @override
+  String get setupDanglingAttributesCause => 'Attribute was deleted';
+
+  @override
+  String get setupComponentNotInstalled => 'Component was not installed at setup time';
+
+  @override
+  String get setupRiderNotLinked => 'Rider is not linked to this setup';
+
+  @override
+  String get setupTabNoRiderTitle => 'No rider linked';
+
+  @override
+  String get setupTabNoRiderSubtitle => 'Link a rider to this bike to track rider attributes';
+
+  @override
+  String setupTabLinkRider(String name) {
+    return 'Link \'$name\'';
+  }
+
+  @override
+  String get setupTabCreateRider => 'Create new rider';
+
+  @override
+  String get setupTabLinkRiderButton => 'Link rider';
+
+  @override
+  String get setupDetailsPrev => 'Prev';
+
+  @override
+  String get setupDetailsNext => 'Next';
+
+  @override
+  String get setupDetailsActionsTooltip => 'Setup actions';
+
+  @override
+  String get setupDetailsLocationUnavailable => 'Location not available';
+
+  @override
+  String get setupDetailsNoFeedbackTitle => 'No feedback yet';
+
+  @override
+  String get setupDetailsNoFeedbackSubtitle => 'Tap to note how this setup rode';
+
+  @override
+  String get setupDetailsNotFoundTitle => 'Setup not found';
+
+  @override
+  String get setupDetailsNotFoundSubtitle => 'This setup was deleted or is no longer available.';
+
+  @override
+  String get setupColumnName => 'Name';
+
+  @override
+  String get setupColumnNotes => 'Notes';
+
+  @override
+  String get setupColumnTags => 'Tags';
+
+  @override
+  String get setupColumnDate => 'Date';
+
+  @override
+  String get setupColumnTime => 'Time';
+
+  @override
+  String get setupColumnPlace => 'Place';
+
+  @override
+  String get setupColumnAltitude => 'Altitude';
+
+  @override
+  String get setupColumnBike => 'Bike';
+
+  @override
+  String get setupColumnBookmarked => 'Bookmarked';
+
+  @override
+  String get setupColumnActivities => 'Activities';
+
+  @override
+  String get setupColumnWeatherCode => 'Weather Code';
+
+  @override
+  String get setupColumnTemperature => 'Temperature';
+
+  @override
+  String get setupColumnPrecipitation => 'Precipitation';
+
+  @override
+  String get setupColumnHumidity => 'Humidity';
+
+  @override
+  String get setupColumnWindSpeed => 'Windspeed';
+
+  @override
+  String get setupColumnSoilMoisture => 'Soil Moisture';
+
+  @override
+  String get setupColumnCondition => 'Condition';
+
+  @override
+  String get setupColumnTestSession => 'Test session';
+
+  @override
+  String get tableSectionGeneralContext => 'General Context';
+
+  @override
+  String get tableSectionWeatherContext => 'Weather Context';
+
+  @override
+  String get tableSectionComponentAdjustments => 'Component Adjustments';
+
+  @override
+  String get tableSectionPersonAttributes => 'Rider Attributes';
+
+  @override
+  String get tableSectionFeedback => 'Feedback';
+
+  @override
+  String get setupFormEditTitle => 'Edit Setup';
+
+  @override
+  String get setupFormFirstRun => 'First Run';
+
+  @override
+  String get setupFormNextRun => 'Next Run';
+
+  @override
+  String get setupFormNameLabel => 'Setup Name';
+
+  @override
+  String get setupFormNameHint => 'Enter setup name';
+
+  @override
+  String get setupFormNotesHint => 'Add notes (optional)';
+
+  @override
+  String get setupFormAddTags => 'Add Tags';
+
+  @override
+  String get setupFormBikeLabel => 'Bike';
+
+  @override
+  String get setupFormBikeHint => 'Choose a bike for this setup';
+
+  @override
+  String get setupFormBikeEmpty => 'Bike cannot be empty.';
+
+  @override
+  String get setupFormBikeInvalid => 'Please select valid bike';
+
+  @override
+  String get setupFormSessionRunningEdit => 'A test session is running on this bike. End it before editing its setups.';
+
+  @override
+  String get setupFormSessionRunningRecord =>
+      'A test session is running on this bike. End it before recording a setup.';
+
+  @override
+  String get setupFormSessionRunning => 'Session running';
+
+  @override
+  String get setupFormRunOrder => 'A run must be after the previous run of its test session.';
+
+  @override
+  String get setupFormLocationDisabled => 'Location services are disabled.';
+
+  @override
+  String get setupFormLocationNoPermission => 'Location permission was not granted.';
+
+  @override
+  String get setupFormLocationDeniedForever => 'Location permission is permanently denied.';
+
+  @override
+  String get setupFormLocationTimeout => 'Location request timed out.';
+
+  @override
+  String get setupFormLocationError => 'Error fetching location.';
+
+  @override
+  String get setupFormAddressNeedsLocation => 'Cannot update address without location.';
+
+  @override
+  String get setupFormAddressError => 'Error fetching address.';
+
+  @override
+  String get setupFormWeatherNeedsLocation => 'Cannot update weather without location.';
+
+  @override
+  String get setupFormWeatherError => 'Error fetching weather.';
+
+  @override
+  String get setupFormChipAddressError => 'Address Error';
+
+  @override
+  String get setupFormChipNoGpsService => 'No GPS Service';
+
+  @override
+  String get setupFormChipNoGpsPermission => 'No GPS Permission';
+
+  @override
+  String get setupFormChipGpsTimeout => 'GPS Timeout';
+
+  @override
+  String get setupFormChipLocationError => 'Location Error';
+
+  @override
+  String get setupFormChipWeatherError => 'Weather Error';
+
+  @override
+  String get setupFormResetTitle => 'Previous Setup has changed. Reset Values?';
+
+  @override
+  String get setupFormResetBody =>
+      'Your current unsaved adjustments were based on the old setup. Resetting the values will discard these changes.';
+
+  @override
+  String get setupFormPickDate => 'Select Setup Date';
+
+  @override
+  String get setupFormDateInFuture => 'Date cannot be in the future';
+
+  @override
+  String get setupFormPickTime => 'Select Setup Time';
+
+  @override
+  String get setupFormDateTimeInFuture => 'Date and Time cannot be in the future.';
+
+  @override
+  String get updateWeatherTitle => 'Update Weather?';
+
+  @override
+  String get updateWeatherBody => 'Do you want to fetch the latest weather data for this location, date and time?';
+
+  @override
+  String get setupFormSessionFromFallback => 'the setup to compare';
+
+  @override
+  String setupFormSessionFromSetup(String name) {
+    return '\'$name\'';
+  }
+
+  @override
+  String setupFormSessionFirstTournament(String from) {
+    return 'The first run rides $from. Its adjustments are locked so the setups stay comparable. Set the date, weather and notes of this ride, then save to start the session.';
+  }
+
+  @override
+  String setupFormSessionNextTournament(String from) {
+    return 'This run rides $from. Its adjustments are locked so the setups stay comparable.';
+  }
+
+  @override
+  String get setupFormSessionFirstBase =>
+      'This is the base setup the session starts from. If your bike is set up like this, just save. Otherwise change the session\'s adjustments to match your bike.';
+
+  @override
+  String get setupFormSessionNextBase =>
+      'Only the adjustments of the session can change, locked ones stay as they are. Everything else is copied from the previous run.';
+
+  @override
+  String setupFormSessionFirstRunTitle(String name) {
+    return 'First run of \'$name\'';
+  }
+
+  @override
+  String setupFormSessionRunTitle(String name) {
+    return 'Run of \'$name\'';
+  }
+
+  @override
+  String setupFormGuideWeightSaved(String name) {
+    return 'Saved with this setup as $name\'s riding weight';
+  }
+
+  @override
+  String get setupFormGuideWeightLocal => 'Only used for these recommendations';
+
+  @override
+  String setupFormGuideAddWeight(String name) {
+    return 'Add riding weight to $name';
+  }
+
+  @override
+  String setupFormGuideWeightAdded(String name) {
+    return 'Added riding weight to $name';
+  }
+
+  @override
+  String setupFormGuideApplied(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Applied $count recommended values',
+      one: 'Applied 1 recommended value',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String guideNotesLine(String guides) {
+    return 'Started from recommended values ($guides)';
+  }
+
+  @override
+  String get contextNoAddress => 'No Address available';
+
+  @override
+  String contextLatLon(String latitude, String longitude) {
+    return 'Latitude/Longitude: $latitude°/$longitude°';
+  }
+
+  @override
+  String contextAltitude(String value) {
+    return 'Altitude: $value';
+  }
+
+  @override
+  String contextWeather(String label) {
+    return 'Weather: $label';
+  }
+
+  @override
+  String contextTemperature(String value) {
+    return 'Temperature: $value';
+  }
+
+  @override
+  String contextPrecipitation(String value) {
+    return 'Precipitation: $value';
+  }
+
+  @override
+  String contextHumidity(String value) {
+    return 'Humidity: $value';
+  }
+
+  @override
+  String contextWindSpeed(String value) {
+    return 'Windspeed: $value';
+  }
+
+  @override
+  String contextSoilMoisture(String value) {
+    return 'Soil Moisture: $value';
+  }
+
+  @override
+  String contextOpenPointInMaps(String label) {
+    return 'Open $label in maps app';
+  }
+
+  @override
+  String get contextNoRiderLinked => 'No rider linked to this setup.';
+
+  @override
+  String get testSessionNotFound => 'TEST SESSION NOT FOUND';
+
+  @override
+  String get adjustmentNotScored => 'not scored';
+
+  @override
+  String adjustmentChipStep(String step) {
+    return 'Step $step';
+  }
+
+  @override
+  String get adjustmentChipFreeText => 'Free text';
+
+  @override
+  String get adjustmentChipAnyValue => 'Any value';
+
+  @override
+  String get legendInitialValue => 'Initial Value';
+
+  @override
+  String get legendChangedValue => 'Changed Value';
+
+  @override
+  String get legendDanglingValue => 'Dangling Value';
+
+  @override
+  String adjustmentPresetAlreadyAdded(int count) {
+    return 'Already added ($count)';
+  }
+
+  @override
+  String get adjustmentPresetAllAdded => 'All suggestions added';
 }

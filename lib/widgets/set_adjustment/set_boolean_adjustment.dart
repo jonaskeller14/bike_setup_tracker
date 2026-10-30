@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
@@ -60,7 +61,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
                         visualDensity: VisualDensity.compact,
                       ),
                       onPressed: () => onChanged(const BooleanValue(false)),
-                      child: const Text("Set value"),
+                      child: Text(context.l10n.setValueButton),
                     )
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.center,

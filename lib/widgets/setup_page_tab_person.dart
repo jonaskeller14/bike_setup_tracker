@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/person.dart';
@@ -81,12 +81,7 @@ class SetupPersonTab extends StatelessWidget {
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   child: ListTile(
                     title: Text(person.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(Intl.plural(
-                      person.adjustments.length,
-                      zero: "No attributes yet.",
-                      one: "1 attribute",
-                      other: '${person.adjustments.length} attributes',
-                    )),
+                    subtitle: Text(context.l10n.setupAttributeCount(person.adjustments.length)),
                     leading: PersonTooltip(
                       person: person,
                       triggerMode: TooltipTriggerMode.tap,
@@ -134,8 +129,8 @@ class SetupPersonTab extends StatelessWidget {
             danglingValuesCard(
               context,
               values: personSplit.deletedValues,
-              title: "Dangling Attribute Values",
-              cause: "Attribute was deleted",
+              title: context.l10n.setupDanglingAttributesTitle,
+              cause: context.l10n.setupDanglingAttributesCause,
               onRemove: onDanglingRemove,
             ),
         ],
@@ -172,7 +167,7 @@ Widget _danglingPersonCard(BuildContext context, {
               ),
             ),
             title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-            subtitle: Text("Rider is not linked to this setup", style: TextStyle(color: scheme.error)),
+            subtitle: Text(context.l10n.setupRiderNotLinked, style: TextStyle(color: scheme.error)),
           ),
         ),
         AdjustmentDisplayList(
@@ -226,8 +221,8 @@ class _LinkPersonPlaceholderState extends State<_LinkPersonPlaceholder> {
       children: [
         EmptyStatePlaceholder2(
           iconData: Person.iconData,
-          title: "No rider linked",
-          subtitle: "Link a rider to this bike to track rider attributes",
+          title: context.l10n.setupTabNoRiderTitle,
+          subtitle: context.l10n.setupTabNoRiderSubtitle,
           onTap: _toggleMenu,
         ),
         const SizedBox(height: 8),
@@ -248,7 +243,7 @@ class _LinkPersonPlaceholderState extends State<_LinkPersonPlaceholder> {
                 onPressed: () => PersonActions.linkPersonToBike(context, bikeId: widget.bike, person: person),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 240),
-                  child: Text("Link '${person.name}'", overflow: TextOverflow.ellipsis),
+                  child: Text(context.l10n.setupTabLinkRider(person.name), overflow: TextOverflow.ellipsis),
                 ),
               );
             }),
@@ -257,14 +252,14 @@ class _LinkPersonPlaceholderState extends State<_LinkPersonPlaceholder> {
               MenuItemButton(
                 leadingIcon: const Icon(Icons.add),
                 onPressed: () => PersonActions.addPersonForBike(context, bikeId: widget.bike),
-                child: const Text("Create new rider"),
+                child: Text(context.l10n.setupTabCreateRider),
               ),
             ],
           ],
           builder: (context, controller, child) => FilledButton.icon(
             onPressed: _toggleMenu,
             icon: const Icon(Icons.person_add_alt),
-            label: const Text("Link rider"),
+            label: Text(context.l10n.setupTabLinkRiderButton),
           ),
         ),
       ],

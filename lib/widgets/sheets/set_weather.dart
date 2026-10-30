@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
@@ -144,7 +145,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SheetHeader(title: 'Weather Context'),
+                    SheetHeader(title: context.l10n.weatherSheetTitle),
                     const SizedBox(height: 16),
                     Flexible(
                       child: SingleChildScrollView(
@@ -156,7 +157,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                             if ( widget.currentLocation?.latitude == null || widget.currentLocation?.longitude == null)
                               ListTile(
                                 leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                                title: const Text("Update Weather is not possible without location."),
+                                title: Text(context.l10n.weatherNeedsLocation),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
@@ -173,9 +174,9 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               isExpanded: true,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: 'Weather Code',
+                                labelText: context.l10n.weatherCodeLabel,
                                 border: const OutlineInputBorder(),
-                                hintText: "Choose Weather Code",
+                                hintText: context.l10n.weatherCodeHint,
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.currentWeatherCode != _currentWeather?.currentWeatherCode,
                                 icon: const Icon(Icons.sunny, size: 16),
@@ -195,7 +196,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                         ),
                                       ),
                                       Expanded(
-                                        child: Text(ContextWeather.getStaticWeatherCodeLabel(code) ?? "?", overflow: TextOverflow.ellipsis),
+                                        child: Text(ContextWeather.getStaticWeatherCodeLabel(code, context.l10n) ?? "?", overflow: TextOverflow.ellipsis),
                                       ),
                                     ],
                                   ),
@@ -216,10 +217,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               controller: _currentTemperatureController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: "Current Air Temperature in ${appSettings.temperatureUnit}.",
+                                labelText: context.l10n.weatherTemperatureLabel(appSettings.temperatureUnit),
                                 border: const OutlineInputBorder(),
                                 isDense: true,
-                                hintText: 'Temperature',
+                                hintText: context.l10n.weatherTemperatureHint,
                                 suffixText: appSettings.temperatureUnit,
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: _currentWeather?.currentTemperature != widget.currentWeather?.currentTemperature,
@@ -228,7 +229,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = parseLocalizedDouble(value);
-                                if (parsedValue == null) return "Please enter a valid number";
+                                if (parsedValue == null) return context.l10n.setNumberInvalid;
                                 return null;
                               },
                               onChanged: (String newValue) {
@@ -247,10 +248,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               controller: _dayAccumulatedPrecipitationController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: 'Accumulated Precipitation since midnight in ${appSettings.precipitationUnit}',
+                                labelText: context.l10n.weatherPrecipitationLabel(appSettings.precipitationUnit),
                                 border: const OutlineInputBorder(),
                                 isDense: true,
-                                hintText: 'Precipitation',
+                                hintText: context.l10n.weatherPrecipitationHint,
                                 suffixText: appSettings.precipitationUnit,
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.dayAccumulatedPrecipitation != _currentWeather?.dayAccumulatedPrecipitation,
@@ -259,8 +260,8 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = parseLocalizedDouble(value);
-                                if (parsedValue == null) return "Please enter a valid number";
-                                if (parsedValue < 0) return "Value cannot be negative";
+                                if (parsedValue == null) return context.l10n.setNumberInvalid;
+                                if (parsedValue < 0) return context.l10n.weatherValueNegative;
                                 return null;
                               },
                               onChanged: (String newValue) {
@@ -279,10 +280,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               controller: _currentHumidityController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: "Current Relative Air Humidity as percentage value",
+                                labelText: context.l10n.weatherHumidityLabel,
                                 border: const OutlineInputBorder(),
                                 isDense: true,
-                                hintText: 'Humidity',
+                                hintText: context.l10n.weatherHumidityHint,
                                 suffixText: '%',
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.currentHumidity != _currentWeather?.currentHumidity,
@@ -291,8 +292,8 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = parseLocalizedDouble(value);
-                                if (parsedValue == null) return "Please enter a valid number";
-                                if (parsedValue < 0 || parsedValue > 100) return "Enter a valid value in the range 0..100 %";
+                                if (parsedValue == null) return context.l10n.setNumberInvalid;
+                                if (parsedValue < 0 || parsedValue > 100) return context.l10n.weatherHumidityRange;
                                 return null;
                               },
                               onChanged: (String newValue) {
@@ -311,10 +312,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               controller: _currentWindSpeedController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: "Current Wind Speed in ${appSettings.windSpeedUnit}",
+                                labelText: context.l10n.weatherWindLabel(appSettings.windSpeedUnit),
                                 border: const OutlineInputBorder(),
                                 isDense: true,
-                                hintText: 'Wind Speed',
+                                hintText: context.l10n.weatherWindHint,
                                 suffixText: appSettings.windSpeedUnit,
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.currentWindSpeed != _currentWeather?.currentWindSpeed,
@@ -323,8 +324,8 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = parseLocalizedDouble(value);
-                                if (parsedValue == null) return "Please enter a valid number";
-                                if (parsedValue < 0) return "Value cannot be negative";
+                                if (parsedValue == null) return context.l10n.setNumberInvalid;
+                                if (parsedValue < 0) return context.l10n.weatherValueNegative;
                                 return null;
                               },
                               onChanged: (String newValue) {
@@ -343,10 +344,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               controller: _currentSoilMoisture0to7cmController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: "Average Soil Moisture 0-7cm",
+                                labelText: context.l10n.weatherSoilLabel,
                                 border: const OutlineInputBorder(),
                                 isDense: true,
-                                hintText: 'Soil Moisture',
+                                hintText: context.l10n.weatherSoilHint,
                                 suffixText: 'm³/m³',
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.currentSoilMoisture0to7cm != _currentWeather?.currentSoilMoisture0to7cm,
@@ -355,8 +356,8 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = parseLocalizedDouble(value);
-                                if (parsedValue == null) return "Please enter a valid number";
-                                if (parsedValue < 0) return "Value cannot be negative";
+                                if (parsedValue == null) return context.l10n.setNumberInvalid;
+                                if (parsedValue < 0) return context.l10n.weatherValueNegative;
                                 return null;
                               },
                               onChanged: (String newValue) {
@@ -375,7 +376,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                                 child: Text(
-                                  "Weather data by Open-Meteo.com",
+                                  context.l10n.weatherAttribution,
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                                   ),
@@ -404,7 +405,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                       child: CircularProgressIndicator(strokeWidth: 2),
                                     )
                                   : const Icon(Icons.sync),
-                              label: const Text("Update Weather by Location"),
+                              label: Text(context.l10n.weatherUpdateByLocation),
                             ),
                           ),
                           Flexible(
@@ -412,7 +413,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                             fit: FlexFit.tight,
                             child: FilledButton(
                               onPressed: _currentWeather == widget.currentWeather ? null : _save,
-                              child: const Text("Save"),
+                              child: Text(context.l10n.save),
                             ),
                           ),
                         ],

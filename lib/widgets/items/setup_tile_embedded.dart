@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
@@ -137,7 +138,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
         12,
       ),
       child: Text(
-        _displayOnlyChanges ? 'No changes' : 'No values',
+        _displayOnlyChanges ? context.l10n.setupTileNoChanges : context.l10n.setupTileNoValues,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
           fontStyle: FontStyle.italic,

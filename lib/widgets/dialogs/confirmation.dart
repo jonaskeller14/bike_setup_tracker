@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'dialog_action.dart';
 
 Future<bool> showConfirmationDialog(
   BuildContext context, {
-  String title = "Are you sure?",
-  String? content = "This action cannot be undone.",
-  String falseText = "Cancel",
-  String trueText = "Continue",
+  String? title,
+  String? content,
+  String? falseText,
+  String? trueText,
   bool isDestructive = false,
 }) async {
   final result = await showDialog<bool>(
@@ -15,19 +16,19 @@ Future<bool> showConfirmationDialog(
     barrierDismissible: false,
     builder: (context) {
       return AlertDialog.adaptive(
-        title: Text(title),
-        content: content == null ? null : Text(content),
+        title: Text(title ?? context.l10n.confirmationTitle),
+        content: Text(content ?? context.l10n.confirmationBody),
         actions: [
           adaptiveAction(
             context: context,
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(falseText),
+            child: Text(falseText ?? context.l10n.cancel),
           ),
           adaptiveAction(
             context: context,
             isDestructive: isDestructive,
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(trueText),
+            child: Text(trueText ?? context.l10n.continueLabel),
           ),
         ],
       );

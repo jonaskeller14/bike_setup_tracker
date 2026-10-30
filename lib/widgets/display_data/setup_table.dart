@@ -230,7 +230,7 @@ class _SetupTableState extends State<SetupTable> {
               ),
             ),
           ),
-          SetupColumn.weatherCode => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel() ?? "-"))),
+          SetupColumn.weatherCode => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel(context.l10n) ?? "-"))),
           SetupColumn.temperature => DataCell(
             Center(
               child: Text(

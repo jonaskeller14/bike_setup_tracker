@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../l10n/l10n.dart';
 import '../../utils/localized_number.dart';
 import 'adjustment.dart';
 
@@ -85,7 +86,7 @@ final class BooleanValue extends AdjustmentValue {
   String encode() => jsonEncode(value);
 
   @override
-  String get display => value ? 'On' : 'Off';
+  String get display => value ? currentL10n.valueOn : currentL10n.valueOff;
 
   @override
   num? get asNum => value ? 1 : 0;

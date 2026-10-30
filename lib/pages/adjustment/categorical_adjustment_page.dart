@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../theme.dart';
@@ -173,20 +174,20 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
 
   String? _validateOptions() {
     final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList();
-    if (options.isEmpty) return 'At least one option is required.';
-    if (_hasDuplicateOptions(options)) return 'Options must be unique.';
+    if (options.isEmpty) return context.l10n.adjustmentOptionsAtLeastOne;
+    if (_hasDuplicateOptions(options)) return context.l10n.adjustmentOptionsUniqueError;
     return null;
   }
 
   String? _validateOption(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Option is required';
+      return context.l10n.adjustmentOptionRequired;
     }
     if (_hasDuplicateOptions(_optionControllers
         .map((c) => c.text.trim())
         .where((s) => s.isNotEmpty)
         .toList())) {
-      return 'Options must be unique';
+      return context.l10n.adjustmentOptionUnique;
     }
     return null;
   }
@@ -261,8 +262,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => Text('Add Categorical ${widget.term.label}'),
-            AdjustmentPageMode.edit => Text('Edit Categorical ${widget.term.label}'),
+            AdjustmentPageMode.template => Text(context.l10n.adjustmentPageAddCategorical(widget.term.name)),
+            AdjustmentPageMode.edit => Text(context.l10n.adjustmentPageEditCategorical(widget.term.name)),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveCategoricalAdjustment),
@@ -292,25 +293,25 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: '${widget.term.label} Name',
-                              hintText: 'Enter ${widget.term.label} Name',
+                              labelText: context.l10n.adjustmentNameLabel(widget.term.name),
+                              hintText: context.l10n.adjustmentNameHint(widget.term.name),
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
-                            validator: validateAdjustmentName,
+                            validator: (value) => validateAdjustmentName(context, value),
                           ),
                           const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Options',
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(context.l10n.adjustmentOptionsTitle,
+                                  style: const TextStyle(fontWeight: FontWeight.bold)),
                               TextButton.icon(
                                 onPressed: _addOptionField,
                                 icon: const Icon(Icons.add),
-                                label: const Text('Add'),
+                                label: Text(context.l10n.addLabel),
                               ),
                             ],
                           ),
@@ -329,8 +330,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                         focusNode: _optionFocusNodes[index],
                                         autovalidateMode: AutovalidateMode.onUserInteraction,
                                         decoration: InputDecoration(
-                                          labelText: 'Option ${index + 1}',
-                                          hintText: 'Enter option value',
+                                          labelText: context.l10n.adjustmentOptionLabel(index + 1),
+                                          hintText: context.l10n.adjustmentOptionHint,
                                           border: const OutlineInputBorder(),
                                           isDense: true,
                                           errorText: _validateOptions(),
@@ -352,7 +353,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                       height: 48,
                                       child: IconButton(
                                         icon: const Icon(Icons.delete_outline, size: 20),
-                                        tooltip: 'Remove option',
+                                        tooltip: context.l10n.adjustmentOptionRemoveTooltip,
                                         padding: EdgeInsets.zero,
                                         constraints: const BoxConstraints(),
                                         onPressed: _optionControllers.length > 1 ? () => _removeOptionField(index) : null,
@@ -371,8 +372,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                   : Icons.expand_more,
                               ),
                               label: Text(_expanded
-                                  ? "Hide Additional Fields"
-                                  : "Show Additional Fields"
+                                  ? context.l10n.hideAdditionalFields
+                                  : context.l10n.showAdditionalFields
                               ),
                             ),
                           ),
@@ -391,8 +392,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                       tileColor: widget.mode == AdjustmentPageMode.edit && _multiSelect != (widget.adjustment?.multiSelect ?? false)
                                           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                                           : null,
-                                      title: const Text('Multi Select'),
-                                      subtitle: const Text('Allow more than one selection'),
+                                      title: Text(context.l10n.adjustmentMultiSelectTitle),
+                                      subtitle: Text(context.l10n.adjustmentMultiSelectSubtitle),
                                       value: _multiSelect,
                                       onChanged: (bool? newValue) {
                                         if (newValue == null) return;
@@ -414,8 +415,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                       tileColor: widget.mode == AdjustmentPageMode.edit && _counted != (widget.adjustment?.counted ?? false)
                                           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                                           : null,
-                                      title: const Text('Count Occurrences'),
-                                      subtitle: const Text('Allow the same option multiple times'),
+                                      title: Text(context.l10n.adjustmentCountTitle),
+                                      subtitle: Text(context.l10n.adjustmentCountSubtitle),
                                       value: _counted,
                                       onChanged: (bool? newValue) {
                                         if (newValue == null) return;
@@ -439,9 +440,9 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                   },
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
-                                    labelText: 'Notes (optional)',
-                                    hintText: 'Enter measuring procedure/instrument/...',
-                                    helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                    labelText: context.l10n.notesOptionalLabel,
+                                    hintText: context.l10n.adjustmentNotesHint,
+                                    helperText: _notesController.text.trim().isEmpty ? null : context.l10n.adjustmentNotesHelper,
                                     helperMaxLines: 2,
                                     border: const OutlineInputBorder(),
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

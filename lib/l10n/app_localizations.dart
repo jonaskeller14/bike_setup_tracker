@@ -4963,6 +4963,2412 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Release to archive'**
   String get garageReleaseToArchive;
+
+  /// Title of the dialog shown when a component preset would add adjustments to a component that already has some.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply preset adjustments?'**
+  String get applyPresetTitle;
+
+  /// Body of the apply-preset dialog. {count} is the number of adjustments the component already has.
+  ///
+  /// In en, this message translates to:
+  /// **'This component already has {count, plural, =1{1 adjustment} other{{count} adjustments}}. Replace them with the preset, or keep both?'**
+  String applyPresetBody(int count);
+
+  /// Dialog button that keeps the existing adjustments and adds the preset ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep both'**
+  String get applyPresetKeepBoth;
+
+  /// Default title of the generic confirmation dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure?'**
+  String get confirmationTitle;
+
+  /// Default body of the generic confirmation dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone.'**
+  String get confirmationBody;
+
+  /// Title of the dialog shown when leaving a form with unsaved changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard Changes?'**
+  String get discardChangesTitle;
+
+  /// Body of the discard-changes dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes. Are you sure you want to exit without saving?'**
+  String get discardChangesBody;
+
+  /// Destructive button of the discard-changes dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard Changes'**
+  String get discardChangesConfirm;
+
+  /// Hint text of the text field in the rename dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get renameNameHint;
+
+  /// Confirm button of the rename dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get renameConfirm;
+
+  /// Title of the dialog that confirms disconnecting Strava.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect Strava?'**
+  String get stravaDisconnectTitle;
+
+  /// Body of the Strava disconnect dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'This will revoke the app\'s access and delete all your synced activities from our secure storage. Your Strava account itself will not be affected.'**
+  String get stravaDisconnectBody;
+
+  /// Destructive button of the Strava disconnect dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get stravaDisconnectConfirm;
+
+  /// Label of the name field on the adjustment forms. {term} is "adjustment" or "attribute" (a rider attribute).
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Attribute Name} other{Adjustment Name}}'**
+  String adjustmentNameLabel(String term);
+
+  /// Hint of the name field on the adjustment forms. {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Enter Attribute Name} other{Enter Adjustment Name}}'**
+  String adjustmentNameHint(String term);
+
+  /// Validation error when the adjustment name is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get adjustmentNameRequired;
+
+  /// Warning under the name field when the adjustment name is long.
+  ///
+  /// In en, this message translates to:
+  /// **'Short names display better in other views.'**
+  String get adjustmentNameTooLong;
+
+  /// Hint of the notes field on the adjustment forms.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter measuring procedure/instrument/...'**
+  String get adjustmentNotesHint;
+
+  /// Helper text under the notes field of an adjustment form once notes are entered.
+  ///
+  /// In en, this message translates to:
+  /// **'View these notes by tapping the ⓘ icon next to the name.'**
+  String get adjustmentNotesHelper;
+
+  /// Collapsed label of the preview bar at the bottom of the adjustment forms.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get adjustmentPreviewTitle;
+
+  /// Label of the expanded preview bar on the adjustment forms.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview only — changes won’t be saved!'**
+  String get adjustmentPreviewExpanded;
+
+  /// App bar title of the On/Off adjustment form (add mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Add On/Off Attribute} other{Add On/Off Adjustment}}'**
+  String adjustmentPageAddBoolean(String term);
+
+  /// App bar title of the On/Off adjustment form (edit mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Edit On/Off Attribute} other{Edit On/Off Adjustment}}'**
+  String adjustmentPageEditBoolean(String term);
+
+  /// App bar title of the Categorical adjustment form (add mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Add Categorical Attribute} other{Add Categorical Adjustment}}'**
+  String adjustmentPageAddCategorical(String term);
+
+  /// App bar title of the Categorical adjustment form (edit mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Edit Categorical Attribute} other{Edit Categorical Adjustment}}'**
+  String adjustmentPageEditCategorical(String term);
+
+  /// App bar title of the Duration adjustment form (add mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Add Duration Attribute} other{Add Duration Adjustment}}'**
+  String adjustmentPageAddDuration(String term);
+
+  /// App bar title of the Duration adjustment form (edit mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Edit Duration Attribute} other{Edit Duration Adjustment}}'**
+  String adjustmentPageEditDuration(String term);
+
+  /// App bar title of the Numerical adjustment form (add mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Add Numerical Attribute} other{Add Numerical Adjustment}}'**
+  String adjustmentPageAddNumerical(String term);
+
+  /// App bar title of the Numerical adjustment form (edit mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Edit Numerical Attribute} other{Edit Numerical Adjustment}}'**
+  String adjustmentPageEditNumerical(String term);
+
+  /// App bar title of the SAG adjustment form (add mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Add SAG Attribute} other{Add SAG Adjustment}}'**
+  String adjustmentPageAddSag(String term);
+
+  /// App bar title of the SAG adjustment form (edit mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Edit SAG Attribute} other{Edit SAG Adjustment}}'**
+  String adjustmentPageEditSag(String term);
+
+  /// App bar title of the Step adjustment form (add mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Add Step Attribute} other{Add Step Adjustment}}'**
+  String adjustmentPageAddStep(String term);
+
+  /// App bar title of the Step adjustment form (edit mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Edit Step Attribute} other{Edit Step Adjustment}}'**
+  String adjustmentPageEditStep(String term);
+
+  /// App bar title of the Text adjustment form (add mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Add Text Attribute} other{Add Text Adjustment}}'**
+  String adjustmentPageAddText(String term);
+
+  /// App bar title of the Text adjustment form (edit mode). {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Edit Text Attribute} other{Edit Text Adjustment}}'**
+  String adjustmentPageEditText(String term);
+
+  /// Validation error when a categorical adjustment has no options.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one option is required.'**
+  String get adjustmentOptionsAtLeastOne;
+
+  /// Validation error shown under the options when two options are equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Options must be unique.'**
+  String get adjustmentOptionsUniqueError;
+
+  /// Validation error on an empty option field.
+  ///
+  /// In en, this message translates to:
+  /// **'Option is required'**
+  String get adjustmentOptionRequired;
+
+  /// Validation error on an option field when two options are equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Options must be unique'**
+  String get adjustmentOptionUnique;
+
+  /// Heading above the option fields of a categorical adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get adjustmentOptionsTitle;
+
+  /// Generic text button that adds an item.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addLabel;
+
+  /// Label of one option field. {number} is its position, starting at 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Option {number}'**
+  String adjustmentOptionLabel(int number);
+
+  /// Hint of an option field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter option value'**
+  String get adjustmentOptionHint;
+
+  /// Tooltip of the button that removes an option field.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove option'**
+  String get adjustmentOptionRemoveTooltip;
+
+  /// Title of the switch that allows picking several options.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi Select'**
+  String get adjustmentMultiSelectTitle;
+
+  /// Subtitle of the multi select switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow more than one selection'**
+  String get adjustmentMultiSelectSubtitle;
+
+  /// Title of the switch that lets an option be picked several times.
+  ///
+  /// In en, this message translates to:
+  /// **'Count Occurrences'**
+  String get adjustmentCountTitle;
+
+  /// Subtitle of the count occurrences switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow the same option multiple times'**
+  String get adjustmentCountSubtitle;
+
+  /// Short name of the minimum of a range.
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get labelMin;
+
+  /// Short name of the maximum of a range.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get labelMax;
+
+  /// Label of the optional minimum duration field.
+  ///
+  /// In en, this message translates to:
+  /// **'Min Duration (optional)'**
+  String get adjustmentMinDurationLabel;
+
+  /// Hint of the minimum duration field.
+  ///
+  /// In en, this message translates to:
+  /// **'Select minimum duration'**
+  String get adjustmentMinDurationHint;
+
+  /// Label of the optional maximum duration field.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Duration (optional)'**
+  String get adjustmentMaxDurationLabel;
+
+  /// Hint of the maximum duration field.
+  ///
+  /// In en, this message translates to:
+  /// **'Select maximum duration'**
+  String get adjustmentMaxDurationHint;
+
+  /// Label of the optional minimum value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Min Value (optional)'**
+  String get adjustmentMinValueOptionalLabel;
+
+  /// Label of the optional maximum value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Value (optional)'**
+  String get adjustmentMaxValueOptionalLabel;
+
+  /// Label of the required minimum value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Min Value'**
+  String get adjustmentMinValueLabel;
+
+  /// Label of the required maximum value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Value'**
+  String get adjustmentMaxValueLabel;
+
+  /// Hint of the minimum value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter minimum value'**
+  String get adjustmentMinValueHint;
+
+  /// Hint of the maximum value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter maximum value'**
+  String get adjustmentMaxValueHint;
+
+  /// Title of the banner that offers converting a numerical adjustment to a SAG adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to SAG adjustment'**
+  String get adjustmentConvertToSagTitle;
+
+  /// Body of the convert-to-SAG banner.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocks entering and reading sag in mm as well as %.'**
+  String get adjustmentConvertToSagBody;
+
+  /// Validation error when a numeric field has no valid number.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid number required'**
+  String get adjustmentValidNumberRequired;
+
+  /// Validation error when the maximum is below the minimum.
+  ///
+  /// In en, this message translates to:
+  /// **'Max must be greater than min'**
+  String get adjustmentMaxGreaterThanMin;
+
+  /// Notice shown when the unit of an adjustment changes to a convertible unit.
+  ///
+  /// In en, this message translates to:
+  /// **'{oldUnit} can be converted to {newUnit}.'**
+  String adjustmentUnitConvertible(String oldUnit, String newUnit);
+
+  /// Label of the unit field.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit (optional)'**
+  String get adjustmentUnitLabel;
+
+  /// Hint of the unit field.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a unit'**
+  String get adjustmentUnitHint;
+
+  /// Shown in the unit field when no unit is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get adjustmentUnitNone;
+
+  /// Menu entry that converts a SAG adjustment to a plain numerical one.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to plain numerical'**
+  String get adjustmentConvertToNumerical;
+
+  /// Label of the reference travel field for a fork.
+  ///
+  /// In en, this message translates to:
+  /// **'Fork Travel'**
+  String get adjustmentTravelFork;
+
+  /// Label of the reference travel field for a shock.
+  ///
+  /// In en, this message translates to:
+  /// **'Shock Stroke'**
+  String get adjustmentTravelShock;
+
+  /// Label of the reference travel field for other component types.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel / Stroke'**
+  String get adjustmentTravelGeneric;
+
+  /// Hint of the reference travel field for a fork.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 160'**
+  String get adjustmentTravelHintFork;
+
+  /// Hint of the reference travel field for a shock.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 65 (stroke, not rear travel)'**
+  String get adjustmentTravelHintShock;
+
+  /// Hint of the reference travel field for other component types.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 160 fork, 65 shock stroke'**
+  String get adjustmentTravelHintGeneric;
+
+  /// Label of the optional travel field. {label} is the travel name.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} (optional)'**
+  String adjustmentTravelOptionalLabel(String label);
+
+  /// Helper text under the empty reference travel field.
+  ///
+  /// In en, this message translates to:
+  /// **'Add it to enter and read sag in mm as well as %.'**
+  String get adjustmentTravelHelper;
+
+  /// Validation error when a number is zero or negative.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be greater than 0'**
+  String get adjustmentMustBePositive;
+
+  /// Label of the step size field.
+  ///
+  /// In en, this message translates to:
+  /// **'Step'**
+  String get adjustmentStepLabel;
+
+  /// Hint of the step size field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter step value'**
+  String get adjustmentStepHint;
+
+  /// Validation error on an empty step size.
+  ///
+  /// In en, this message translates to:
+  /// **'Step is required'**
+  String get adjustmentStepRequired;
+
+  /// Validation error when the step size is not a positive number.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid step greater than zero is required'**
+  String get adjustmentStepInvalid;
+
+  /// Validation error on an empty minimum.
+  ///
+  /// In en, this message translates to:
+  /// **'Min is required'**
+  String get adjustmentMinRequired;
+
+  /// Validation error when the minimum is not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid min value is required'**
+  String get adjustmentMinInvalid;
+
+  /// Validation error on an empty maximum.
+  ///
+  /// In en, this message translates to:
+  /// **'Max is required'**
+  String get adjustmentMaxRequired;
+
+  /// Validation error when the maximum is not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid max value is required'**
+  String get adjustmentMaxInvalid;
+
+  /// Validation error when the range does not fit a single step.
+  ///
+  /// In en, this message translates to:
+  /// **'Max must be greater than min+step'**
+  String get adjustmentMaxGreaterThanMinStep;
+
+  /// Tooltip of the dial style button.
+  ///
+  /// In en, this message translates to:
+  /// **'Change dial color and size'**
+  String get adjustmentDialTooltip;
+
+  /// Label of the dial style field.
+  ///
+  /// In en, this message translates to:
+  /// **'Dial'**
+  String get adjustmentDialLabel;
+
+  /// Label of the visualization dropdown of a step adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Visualization'**
+  String get adjustmentVisualizationLabel;
+
+  /// Hint of the visualization dropdown. {term} is "adjustment" or "attribute".
+  ///
+  /// In en, this message translates to:
+  /// **'{term, select, attribute{Choose a visualization for this attribute} other{Choose a visualization for this adjustment}}'**
+  String adjustmentVisualizationHint(String term);
+
+  /// Placeholder of the visualization dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select visualization'**
+  String get adjustmentVisualizationPlaceholder;
+
+  /// Validation error when no visualization is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Visualization cannot be empty'**
+  String get adjustmentVisualizationRequired;
+
+  /// Button that sets a value for an optional adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Set value'**
+  String get setValueButton;
+
+  /// Validation error when a categorical value contains options the adjustment no longer has.
+  ///
+  /// In en, this message translates to:
+  /// **'Contains options that no longer exist'**
+  String get setCategoricalMissingOptions;
+
+  /// Validation error when several options are selected on a single-select adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Only one option can be selected'**
+  String get setCategoricalSingleOnly;
+
+  /// Validation error when an option is selected twice but counting is off.
+  ///
+  /// In en, this message translates to:
+  /// **'An option cannot be selected more than once'**
+  String get setCategoricalNoDuplicates;
+
+  /// Validation error when a single-select adjustment has no option.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select an option'**
+  String get setCategoricalSelectOption;
+
+  /// Placeholder of the categorical value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select'**
+  String get setCategoricalPlaceholder;
+
+  /// Tooltip of the button that reverts a value to its initial one.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert'**
+  String get revertTooltip;
+
+  /// Hint of the numerical value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter'**
+  String get setNumericalHint;
+
+  /// Validation error on an empty value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a value'**
+  String get setValueRequired;
+
+  /// Validation error when the value is not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number'**
+  String get setNumberInvalid;
+
+  /// Validation error when a value is above the maximum. {value} is the maximum with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Max {value}'**
+  String setNumericalMax(String value);
+
+  /// Validation error when a value is below the minimum. {value} is the minimum with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Min {value}'**
+  String setNumericalMin(String value);
+
+  /// Hint of the text value field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Text'**
+  String get setTextHint;
+
+  /// Validation error when a text value looks like a duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Pure Duration Format not allowed. Add characters or use Duration Adjustment type.'**
+  String get setTextPureDuration;
+
+  /// Note under a stored categorical value that is no longer one of the options.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t match the current options'**
+  String get outdatedValueOptions;
+
+  /// Note under a stored step value that no longer fits the range or step.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside the current range or step'**
+  String get outdatedValueRangeOrStep;
+
+  /// Note under a stored value that is outside the adjustment range.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside the current range'**
+  String get outdatedValueRange;
+
+  /// Screen reader label of an adjustment value that changed between setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, changed from {previous} to {current}'**
+  String adjustmentChangedFromTo(String name, String previous, String current);
+
+  /// Screen reader label of a comparison row whose values differ. {label} is the adjustment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Different {label}'**
+  String compareRowDifferent(String label);
+
+  /// Title of the setup comparison sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup comparison'**
+  String get compareTitle;
+
+  /// Tooltip of the button that swaps the two compared setups.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap A and B'**
+  String get compareSwapTooltip;
+
+  /// Title of the sheet that picks a setup to compare. {side} is A or B.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose setup {side}'**
+  String compareChooseSetup(String side);
+
+  /// Subtitle of a comparison card whose component has no adjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustments'**
+  String get compareNoAdjustments;
+
+  /// Subtitle of a comparison card. {differenceCount} of {totalCount} values differ between the two setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{differenceCount}/{totalCount} values {differenceCount, plural, =1{differs} other{differ}}'**
+  String compareValuesDiffer(int differenceCount, int totalCount);
+
+  /// Snackbar shown when both comparison sides are the same setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose two different setups to compare.'**
+  String get compareChooseTwoDifferent;
+
+  /// Title of the hint shown when a compared setup was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'A setup is no longer available'**
+  String get compareSetupUnavailableTitle;
+
+  /// Hint of the setup-unavailable message in the comparison sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Close this sheet and choose two available setups to compare.'**
+  String get compareSetupUnavailableHint;
+
+  /// Title shown when the two compared setups have identical values.
+  ///
+  /// In en, this message translates to:
+  /// **'These setups have no value differences'**
+  String get compareNoDifferencesTitle;
+
+  /// Title shown when there are no values to compare.
+  ///
+  /// In en, this message translates to:
+  /// **'No comparable values'**
+  String get compareNoComparableTitle;
+
+  /// Hint that switches the comparison from differences only to all values.
+  ///
+  /// In en, this message translates to:
+  /// **'Show every recorded value instead.'**
+  String get compareShowAllHint;
+
+  /// Hint shown when the setups have no values.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup values are available to compare.'**
+  String get compareNoValuesHint;
+
+  /// Badge shown when the context (place, weather) of the two setups differs.
+  ///
+  /// In en, this message translates to:
+  /// **'Context varies'**
+  String get compareContextVaries;
+
+  /// Segment of the comparison filter that shows only differing values. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'Differences ({count})'**
+  String compareFilterDifferences(int count);
+
+  /// Segment of the comparison filter that shows all values.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get compareFilterAll;
+
+  /// Section title for the context (place, weather) of a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Context'**
+  String get setupSectionContext;
+
+  /// Section title for the adjustment values of a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Values'**
+  String get setupSectionValues;
+
+  /// Section title for the feedback of a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get setupSectionFeedback;
+
+  /// Name shown for a setup without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed Setup'**
+  String get setupUnnamed;
+
+  /// Positive answer button of a yes/no dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// Negative answer button of a yes/no dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// Menu entry that shares an item.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// Setup menu entry that restores the values of this setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get setupOptionRestore;
+
+  /// Setup menu entry that opens the comparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get setupOptionCompare;
+
+  /// Setup menu entry that adds feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Feedback'**
+  String get setupOptionAddFeedback;
+
+  /// Setup menu entry that shows the setup on the map.
+  ///
+  /// In en, this message translates to:
+  /// **'View on map'**
+  String get setupOptionViewOnMap;
+
+  /// Setup menu entry that opens the place in the maps app.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in maps app'**
+  String get setupOptionOpenInMaps;
+
+  /// Tooltip of the bookmark button of a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get setupTooltipBookmark;
+
+  /// Tooltip of the bookmark button of a bookmarked setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Bookmark'**
+  String get setupTooltipRemoveBookmark;
+
+  /// Title of a group of setups. {count} is the number of setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Setups'**
+  String setupGroupTitle(int count);
+
+  /// Shown in an embedded setup tile that has no changed values.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes'**
+  String get setupTileNoChanges;
+
+  /// Shown in an embedded setup tile that has no values.
+  ///
+  /// In en, this message translates to:
+  /// **'No values'**
+  String get setupTileNoValues;
+
+  /// Title of the empty setup list when filters hide everything.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches this filter'**
+  String get setupListFilteredTitle;
+
+  /// Subtitle of the empty setup list when filters hide everything.
+  ///
+  /// In en, this message translates to:
+  /// **'Your filters are hiding all entries.'**
+  String get setupListFilteredSubtitle;
+
+  /// Title of the empty setup list.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries yet'**
+  String get setupListEmptyTitle;
+
+  /// Subtitle of the empty setup list.
+  ///
+  /// In en, this message translates to:
+  /// **'Record your first setup to start tracking your adjustments.'**
+  String get setupListEmptySubtitle;
+
+  /// Button of the empty setup list.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a setup'**
+  String get setupListEmptyAction;
+
+  /// Explanation in the tags sheet of a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.'**
+  String get setupTagsSubtitle;
+
+  /// Snackbar shown when a setup is started without any bike.
+  ///
+  /// In en, this message translates to:
+  /// **'A bike is required to create a setup'**
+  String get setupActionBikeRequired;
+
+  /// Snackbar shown when a setup is started without any component.
+  ///
+  /// In en, this message translates to:
+  /// **'A component is required to create a setup'**
+  String get setupActionComponentRequired;
+
+  /// Snackbar after bookmarking setups. {count} is the number of setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Setup bookmarked.} other{{count} Setups bookmarked.}}'**
+  String setupsBookmarked(int count);
+
+  /// Snackbar after removing bookmarks. {count} is the number of setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Bookmark removed from 1 Setup.} other{Bookmark removed from {count} Setups.}}'**
+  String setupsBookmarkRemoved(int count);
+
+  /// Title of the bulk tags sheet for setups.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Tags'**
+  String get setupSetTagsTitle;
+
+  /// Apply button of the bulk tags sheet. {count} is the number of setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Apply to 1 Setup} other{Apply to {count} Setups}}'**
+  String setupApplyTags(int count);
+
+  /// Snackbar after changing tags. {count} is the number of setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Tags updated for 1 Setup.} other{Tags updated for {count} Setups.}}'**
+  String setupTagsUpdated(int count);
+
+  /// Snackbar after a setup was removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup \'{name}\' moved to trash.'**
+  String setupMovedToTrash(String name);
+
+  /// Snackbar after a setup was restored.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup \'{name}\' restored from trash.'**
+  String setupRestoredFromTrash(String name);
+
+  /// Title of the sheet that adds an adjustment to a component.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Adjustment'**
+  String get addAdjustmentTitle;
+
+  /// Section header of the adjustment templates when no component type is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-filled Templates'**
+  String get addAdjustmentTemplates;
+
+  /// Section header of the adjustment templates. {type} is the component type.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for {type}'**
+  String addAdjustmentSuggested(String type);
+
+  /// Section header of the adjustment templates once some were added.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for {type} · {added}/{total} added'**
+  String addAdjustmentSuggestedProgress(String type, int added, int total);
+
+  /// Title of the hint that asks for a component type before templates show.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a component type'**
+  String get addAdjustmentSelectTypeTitle;
+
+  /// Title of the hint shown when no templates exist.
+  ///
+  /// In en, this message translates to:
+  /// **'No templates available'**
+  String get addAdjustmentNoTemplatesTitle;
+
+  /// Hint under the select-a-component-type title.
+  ///
+  /// In en, this message translates to:
+  /// **'Templates are suggested per component type.'**
+  String get addAdjustmentTemplatesPerType;
+
+  /// Hint under the no-templates title.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a component type first.'**
+  String get addAdjustmentSelectTypeFirst;
+
+  /// Shown when all templates of the component type were added.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a custom adjustment below.'**
+  String get addAdjustmentAllAdded;
+
+  /// Shown when the component type has no templates.
+  ///
+  /// In en, this message translates to:
+  /// **'No templates available.'**
+  String get addAdjustmentNoTemplates;
+
+  /// Section header of the custom adjustment types.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Adjustment'**
+  String get addAdjustmentCustom;
+
+  /// Name of the numerical adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Numerical Adjustment'**
+  String get adjustmentTypeNumerical;
+
+  /// Examples for the numerical adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Pressure (psi/bar), Length, Angle, Weight'**
+  String get adjustmentTypeNumericalHint;
+
+  /// Name of the step adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Step Adjustment'**
+  String get adjustmentTypeStep;
+
+  /// Examples for the step adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebound/Compression clicks, Spacers, Increments'**
+  String get adjustmentTypeStepHint;
+
+  /// Name of the categorical adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Categorical Adjustment'**
+  String get adjustmentTypeCategorical;
+
+  /// Examples for the categorical adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Tire Compound (soft/hard), Brand, Style, Mode'**
+  String get adjustmentTypeCategoricalHint;
+
+  /// Name of the on/off adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'On/Off Adjustment'**
+  String get adjustmentTypeBoolean;
+
+  /// Examples for the on/off adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Lockout, Climb switch, Component installed? Yes/No'**
+  String get adjustmentTypeBooleanHint;
+
+  /// Name of the text adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Adjustment'**
+  String get adjustmentTypeText;
+
+  /// Examples for the text adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes, advanced settings details'**
+  String get adjustmentTypeTextHint;
+
+  /// Name of the duration adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration Adjustment'**
+  String get adjustmentTypeDuration;
+
+  /// Examples for the duration adjustment type.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Span'**
+  String get adjustmentTypeDurationHint;
+
+  /// Error when a new option equals an existing option.
+  ///
+  /// In en, this message translates to:
+  /// **'Already exists'**
+  String get setCategoricalDuplicate;
+
+  /// Error shown when the value contains options the adjustment no longer has.
+  ///
+  /// In en, this message translates to:
+  /// **'Some selected options no longer exist.'**
+  String get setCategoricalDanglingError;
+
+  /// Error shown when several options are selected on a single-select adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple options selected, but only one is allowed.'**
+  String get setCategoricalMultipleError;
+
+  /// Title shown when an adjustment has no options.
+  ///
+  /// In en, this message translates to:
+  /// **'No options yet'**
+  String get setCategoricalEmptyTitle;
+
+  /// Hint shown when options can only be added by editing the adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit this adjustment to add options.'**
+  String get setCategoricalEmptyEdit;
+
+  /// Hint shown when options can be added in the sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + below to add the first option.'**
+  String get setCategoricalEmptyAdd;
+
+  /// Tooltip of the button that adds an option.
+  ///
+  /// In en, this message translates to:
+  /// **'Add option'**
+  String get setCategoricalAddTooltip;
+
+  /// Hint of the new option field.
+  ///
+  /// In en, this message translates to:
+  /// **'New option'**
+  String get setCategoricalNewHint;
+
+  /// Tooltip of a selected option that the adjustment no longer has.
+  ///
+  /// In en, this message translates to:
+  /// **'This option no longer exists'**
+  String get setCategoricalDanglingTooltip;
+
+  /// Title of the sheet that sets the trail condition.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Trail Condition'**
+  String get setConditionTitle;
+
+  /// Explanation in the trail condition sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:'**
+  String get setConditionInfo;
+
+  /// Error when a new tag equals an existing tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag already exists'**
+  String get tagAlreadyExists;
+
+  /// Shown in a tags sheet that has no tags.
+  ///
+  /// In en, this message translates to:
+  /// **'No tags yet'**
+  String get tagsEmpty;
+
+  /// Tooltip of a tag that all selected items carry.
+  ///
+  /// In en, this message translates to:
+  /// **'On all — tap to remove from all'**
+  String get tagsBulkOnAll;
+
+  /// Tooltip of a tag that some selected items carry.
+  ///
+  /// In en, this message translates to:
+  /// **'On {count} of {total} — tap to add to all'**
+  String tagsBulkOnSome(int count, int total);
+
+  /// Tooltip of a tag that no selected item carries.
+  ///
+  /// In en, this message translates to:
+  /// **'On none — tap to add to all'**
+  String get tagsBulkOnNone;
+
+  /// Explanation of half-filled tag chips in the bulk tags sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Half-filled tags apply to only part of your selection — they stay that way unless you tap them.'**
+  String get tagsBulkHalfFilled;
+
+  /// Title of the unit picker sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Unit'**
+  String get unitPickerTitle;
+
+  /// Heading of the custom unit chips.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get unitPickerCustom;
+
+  /// Chip that opens the custom unit field.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get unitPickerOther;
+
+  /// Label of the custom unit field.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom unit'**
+  String get unitPickerCustomLabel;
+
+  /// Hint of the custom unit field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a custom unit'**
+  String get unitPickerCustomHint;
+
+  /// Title of the weather sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Context'**
+  String get weatherSheetTitle;
+
+  /// Shown in the weather sheet when no location is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Weather is not possible without location.'**
+  String get weatherNeedsLocation;
+
+  /// Label of the weather code field.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Code'**
+  String get weatherCodeLabel;
+
+  /// Hint of the weather code field.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Weather Code'**
+  String get weatherCodeHint;
+
+  /// Label of the temperature field. {unit} is the temperature unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Air Temperature in {unit}.'**
+  String weatherTemperatureLabel(String unit);
+
+  /// Hint of the temperature field.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature'**
+  String get weatherTemperatureHint;
+
+  /// Label of the precipitation field. {unit} is the precipitation unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Accumulated Precipitation since midnight in {unit}'**
+  String weatherPrecipitationLabel(String unit);
+
+  /// Hint of the precipitation field.
+  ///
+  /// In en, this message translates to:
+  /// **'Precipitation'**
+  String get weatherPrecipitationHint;
+
+  /// Label of the humidity field.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Relative Air Humidity as percentage value'**
+  String get weatherHumidityLabel;
+
+  /// Hint of the humidity field.
+  ///
+  /// In en, this message translates to:
+  /// **'Humidity'**
+  String get weatherHumidityHint;
+
+  /// Label of the wind speed field. {unit} is the wind speed unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Wind Speed in {unit}'**
+  String weatherWindLabel(String unit);
+
+  /// Hint of the wind speed field.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind Speed'**
+  String get weatherWindHint;
+
+  /// Label of the soil moisture field.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Soil Moisture 0-7cm'**
+  String get weatherSoilLabel;
+
+  /// Hint of the soil moisture field.
+  ///
+  /// In en, this message translates to:
+  /// **'Soil Moisture'**
+  String get weatherSoilHint;
+
+  /// Validation error for a negative weather value.
+  ///
+  /// In en, this message translates to:
+  /// **'Value cannot be negative'**
+  String get weatherValueNegative;
+
+  /// Validation error for a humidity outside 0 to 100.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid value in the range 0..100 %'**
+  String get weatherHumidityRange;
+
+  /// Attribution link of the weather data.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather data by Open-Meteo.com'**
+  String get weatherAttribution;
+
+  /// Button that fetches the weather for the location.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Weather by Location'**
+  String get weatherUpdateByLocation;
+
+  /// Description of WMO weather code 0.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear sky'**
+  String get weatherCode0;
+
+  /// Description of WMO weather code 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Mainly clear'**
+  String get weatherCode1;
+
+  /// Description of WMO weather code 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly cloudy'**
+  String get weatherCode2;
+
+  /// Description of WMO weather code 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Overcast'**
+  String get weatherCode3;
+
+  /// Description of WMO weather code 45.
+  ///
+  /// In en, this message translates to:
+  /// **'Fog'**
+  String get weatherCode45;
+
+  /// Description of WMO weather code 48.
+  ///
+  /// In en, this message translates to:
+  /// **'Depositing rime fog'**
+  String get weatherCode48;
+
+  /// Description of WMO weather code 51.
+  ///
+  /// In en, this message translates to:
+  /// **'Light drizzle'**
+  String get weatherCode51;
+
+  /// Description of WMO weather code 53.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate drizzle'**
+  String get weatherCode53;
+
+  /// Description of WMO weather code 55.
+  ///
+  /// In en, this message translates to:
+  /// **'Dense drizzle'**
+  String get weatherCode55;
+
+  /// Description of WMO weather code 56.
+  ///
+  /// In en, this message translates to:
+  /// **'Light freezing drizzle'**
+  String get weatherCode56;
+
+  /// Description of WMO weather code 57.
+  ///
+  /// In en, this message translates to:
+  /// **'Dense freezing drizzle'**
+  String get weatherCode57;
+
+  /// Description of WMO weather code 61.
+  ///
+  /// In en, this message translates to:
+  /// **'Slight rain'**
+  String get weatherCode61;
+
+  /// Description of WMO weather code 63.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate rain'**
+  String get weatherCode63;
+
+  /// Description of WMO weather code 65.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy rain'**
+  String get weatherCode65;
+
+  /// Description of WMO weather code 66.
+  ///
+  /// In en, this message translates to:
+  /// **'Light freezing rain'**
+  String get weatherCode66;
+
+  /// Description of WMO weather code 67.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy freezing rain'**
+  String get weatherCode67;
+
+  /// Description of WMO weather code 71.
+  ///
+  /// In en, this message translates to:
+  /// **'Slight snow fall'**
+  String get weatherCode71;
+
+  /// Description of WMO weather code 73.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate snow fall'**
+  String get weatherCode73;
+
+  /// Description of WMO weather code 75.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy snow fall'**
+  String get weatherCode75;
+
+  /// Description of WMO weather code 77.
+  ///
+  /// In en, this message translates to:
+  /// **'Snow grains'**
+  String get weatherCode77;
+
+  /// Description of WMO weather code 80.
+  ///
+  /// In en, this message translates to:
+  /// **'Slight rain showers'**
+  String get weatherCode80;
+
+  /// Description of WMO weather code 81.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate rain showers'**
+  String get weatherCode81;
+
+  /// Description of WMO weather code 82.
+  ///
+  /// In en, this message translates to:
+  /// **'Violent rain showers'**
+  String get weatherCode82;
+
+  /// Description of WMO weather code 85.
+  ///
+  /// In en, this message translates to:
+  /// **'Slight snow showers'**
+  String get weatherCode85;
+
+  /// Description of WMO weather code 86.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy snow showers'**
+  String get weatherCode86;
+
+  /// Description of WMO weather code 95.
+  ///
+  /// In en, this message translates to:
+  /// **'Thunderstorm'**
+  String get weatherCode95;
+
+  /// Description of WMO weather code 96.
+  ///
+  /// In en, this message translates to:
+  /// **'Thunderstorm with slight hail'**
+  String get weatherCode96;
+
+  /// Description of WMO weather code 99.
+  ///
+  /// In en, this message translates to:
+  /// **'Thunderstorm with heavy hail'**
+  String get weatherCode99;
+
+  /// Description of an unknown weather code.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get weatherCodeUnknown;
+
+  /// Title of the location sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Context'**
+  String get locationSheetTitle;
+
+  /// Title of the notice shown when location services are off.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are disabled'**
+  String get locationServicesDisabled;
+
+  /// Hint of the location-services-off notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable location services, then try GPS again'**
+  String get locationServicesDisabledHint;
+
+  /// Button that opens the system settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get locationOpenSettings;
+
+  /// Title of the notice shown when location permission was denied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission denied'**
+  String get locationPermissionDenied;
+
+  /// Hint of the permission-denied notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Try GPS again to request permission'**
+  String get locationPermissionDeniedHint;
+
+  /// Title of the notice shown when location permission was denied for good.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission permanently denied'**
+  String get locationPermissionForever;
+
+  /// Hint of the permanently-denied notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow location access in app settings, then try again'**
+  String get locationPermissionForeverHint;
+
+  /// Title of the notice shown when the location request timed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Location request timed out'**
+  String get locationTimeout;
+
+  /// Hint of the timeout notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to an open area and try GPS again'**
+  String get locationTimeoutHint;
+
+  /// Title of the notice shown when the location failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not determine location'**
+  String get locationUndetermined;
+
+  /// Hint of the location-failed notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try GPS again'**
+  String get locationUndeterminedHint;
+
+  /// Title of the notice shown when the elevation lookup failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching Elevation failed'**
+  String get locationElevationFailed;
+
+  /// Hint of the elevation-failed notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your internet connection'**
+  String get locationElevationFailedHint;
+
+  /// Title of the notice shown when the address lookup failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching Address failed'**
+  String get locationAddressFailed;
+
+  /// Hint of the address-failed notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your internet connection and spelling'**
+  String get locationAddressFailedHint;
+
+  /// Label and hint of the latitude field.
+  ///
+  /// In en, this message translates to:
+  /// **'Latitude'**
+  String get locationLatitude;
+
+  /// Label and hint of the longitude field.
+  ///
+  /// In en, this message translates to:
+  /// **'Longitude'**
+  String get locationLongitude;
+
+  /// Validation error for a latitude out of range.
+  ///
+  /// In en, this message translates to:
+  /// **'Latitude must be between -90..90°'**
+  String get locationLatitudeRange;
+
+  /// Validation error for a longitude out of range.
+  ///
+  /// In en, this message translates to:
+  /// **'Longitude must be between -180..180°'**
+  String get locationLongitudeRange;
+
+  /// Label of the altitude field. {unit} is the altitude unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Altitude in {unit}'**
+  String locationAltitudeLabel(String unit);
+
+  /// Hint of the altitude field.
+  ///
+  /// In en, this message translates to:
+  /// **'Altitude'**
+  String get locationAltitudeHint;
+
+  /// Button that looks up the address of the coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Address from Latitude/Longitude'**
+  String get locationUpdateAddress;
+
+  /// Label of the address search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter street, city, or landmark and press Search Icon'**
+  String get locationAddressSearchLabel;
+
+  /// Hint of the address search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get locationAddressHint;
+
+  /// Button that fetches the GPS location.
+  ///
+  /// In en, this message translates to:
+  /// **'Find Location via GPS'**
+  String get locationFindByGps;
+
+  /// Error shown when an address lookup has no coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find address without latitude and longitude'**
+  String get locationNoCoordinatesForAddress;
+
+  /// Error shown when the address search has no result.
+  ///
+  /// In en, this message translates to:
+  /// **'No Address found'**
+  String get locationNoAddressFound;
+
+  /// Error shown when the address search found no location.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find location.'**
+  String get locationNotFound;
+
+  /// Error shown when the system location settings could not be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open location settings.'**
+  String get locationSettingsOpenFailed;
+
+  /// Error shown when the app settings could not be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open app settings.'**
+  String get locationAppSettingsOpenFailed;
+
+  /// Placeholder title of the bike tab when adding is not allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'No bike adjustments to change'**
+  String get setupTabNoBikeAdjustments;
+
+  /// Subtitle of the empty bike tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a component to this bike to start tracking adjustments'**
+  String get setupTabAddComponentSubtitle;
+
+  /// Subtitle of a component card in a setup. {count} is its number of adjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No adjustments yet.} =1{1 adjustment} other{{count} adjustments}}'**
+  String setupAdjustmentCount(int count);
+
+  /// Subtitle of a rider card in a setup. {count} is its number of attributes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No attributes yet.} =1{1 attribute} other{{count} attributes}}'**
+  String setupAttributeCount(int count);
+
+  /// Title of the card with values whose adjustment no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Dangling Adjustment Values'**
+  String get setupDanglingAdjustmentsTitle;
+
+  /// Cause shown on the dangling adjustment values card.
+  ///
+  /// In en, this message translates to:
+  /// **'Component with adjustment was deleted'**
+  String get setupDanglingAdjustmentsCause;
+
+  /// Title of the card with values whose attribute no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Dangling Attribute Values'**
+  String get setupDanglingAttributesTitle;
+
+  /// Cause shown on the dangling attribute values card.
+  ///
+  /// In en, this message translates to:
+  /// **'Attribute was deleted'**
+  String get setupDanglingAttributesCause;
+
+  /// Subtitle of a component card whose component was not installed at the setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Component was not installed at setup time'**
+  String get setupComponentNotInstalled;
+
+  /// Subtitle of a rider card whose rider is not linked to the setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider is not linked to this setup'**
+  String get setupRiderNotLinked;
+
+  /// Title of the empty rider tab.
+  ///
+  /// In en, this message translates to:
+  /// **'No rider linked'**
+  String get setupTabNoRiderTitle;
+
+  /// Subtitle of the empty rider tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a rider to this bike to track rider attributes'**
+  String get setupTabNoRiderSubtitle;
+
+  /// Menu entry that links an existing rider to the bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Link \'{name}\''**
+  String setupTabLinkRider(String name);
+
+  /// Menu entry that creates a rider for the bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new rider'**
+  String get setupTabCreateRider;
+
+  /// Button that opens the rider link menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Link rider'**
+  String get setupTabLinkRiderButton;
+
+  /// Button that opens the previous setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Prev'**
+  String get setupDetailsPrev;
+
+  /// Button that opens the next setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get setupDetailsNext;
+
+  /// Tooltip of the setup actions menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup actions'**
+  String get setupDetailsActionsTooltip;
+
+  /// Shown when a setup has no location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location not available'**
+  String get setupDetailsLocationUnavailable;
+
+  /// Title of the feedback placeholder of a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'No feedback yet'**
+  String get setupDetailsNoFeedbackTitle;
+
+  /// Subtitle of the feedback placeholder of a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to note how this setup rode'**
+  String get setupDetailsNoFeedbackSubtitle;
+
+  /// Title shown when the setup does not exist.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup not found'**
+  String get setupDetailsNotFoundTitle;
+
+  /// Subtitle shown when the setup does not exist.
+  ///
+  /// In en, this message translates to:
+  /// **'This setup was deleted or is no longer available.'**
+  String get setupDetailsNotFoundSubtitle;
+
+  /// Name of the name column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get setupColumnName;
+
+  /// Name of the notes column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get setupColumnNotes;
+
+  /// Name of the tags column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get setupColumnTags;
+
+  /// Name of the date column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get setupColumnDate;
+
+  /// Name of the time column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get setupColumnTime;
+
+  /// Name of the place column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Place'**
+  String get setupColumnPlace;
+
+  /// Name of the altitude column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Altitude'**
+  String get setupColumnAltitude;
+
+  /// Name of the bike column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike'**
+  String get setupColumnBike;
+
+  /// Name of the bookmarked column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarked'**
+  String get setupColumnBookmarked;
+
+  /// Name of the activities column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities'**
+  String get setupColumnActivities;
+
+  /// Name of the weather code column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Code'**
+  String get setupColumnWeatherCode;
+
+  /// Name of the temperature column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature'**
+  String get setupColumnTemperature;
+
+  /// Name of the precipitation column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Precipitation'**
+  String get setupColumnPrecipitation;
+
+  /// Name of the humidity column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Humidity'**
+  String get setupColumnHumidity;
+
+  /// Name of the windspeed column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Windspeed'**
+  String get setupColumnWindSpeed;
+
+  /// Name of the soil moisture column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Soil Moisture'**
+  String get setupColumnSoilMoisture;
+
+  /// Name of the condition column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get setupColumnCondition;
+
+  /// Name of the test session column of the setup table.
+  ///
+  /// In en, this message translates to:
+  /// **'Test session'**
+  String get setupColumnTestSession;
+
+  /// Heading of the general context columns in the column picker.
+  ///
+  /// In en, this message translates to:
+  /// **'General Context'**
+  String get tableSectionGeneralContext;
+
+  /// Heading of the weather context columns in the column picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Context'**
+  String get tableSectionWeatherContext;
+
+  /// Heading of the component adjustments columns in the column picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Component Adjustments'**
+  String get tableSectionComponentAdjustments;
+
+  /// Heading of the rider attributes columns in the column picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider Attributes'**
+  String get tableSectionPersonAttributes;
+
+  /// Heading of the feedback columns in the column picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get tableSectionFeedback;
+
+  /// App bar title of the setup form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Setup'**
+  String get setupFormEditTitle;
+
+  /// App bar title of the setup form for the first run of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'First Run'**
+  String get setupFormFirstRun;
+
+  /// App bar title of the setup form for a later run of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Run'**
+  String get setupFormNextRun;
+
+  /// Label of the setup name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup Name'**
+  String get setupFormNameLabel;
+
+  /// Hint of the setup name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter setup name'**
+  String get setupFormNameHint;
+
+  /// Hint of the setup notes field.
+  ///
+  /// In en, this message translates to:
+  /// **'Add notes (optional)'**
+  String get setupFormNotesHint;
+
+  /// Tooltip and sheet title of the tags button of the setup form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Tags'**
+  String get setupFormAddTags;
+
+  /// Label of the bike field of the setup form.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike'**
+  String get setupFormBikeLabel;
+
+  /// Hint of the bike field of the setup form.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a bike for this setup'**
+  String get setupFormBikeHint;
+
+  /// Validation error when no bike is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike cannot be empty.'**
+  String get setupFormBikeEmpty;
+
+  /// Validation error when the chosen bike does not exist.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select valid bike'**
+  String get setupFormBikeInvalid;
+
+  /// Error on the bike field when editing a setup of a bike with a running test session.
+  ///
+  /// In en, this message translates to:
+  /// **'A test session is running on this bike. End it before editing its setups.'**
+  String get setupFormSessionRunningEdit;
+
+  /// Error on the bike field when recording a setup on a bike with a running test session.
+  ///
+  /// In en, this message translates to:
+  /// **'A test session is running on this bike. End it before recording a setup.'**
+  String get setupFormSessionRunningRecord;
+
+  /// Label next to a bike in the bike dropdown that has a running test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Session running'**
+  String get setupFormSessionRunning;
+
+  /// Snackbar shown when a run is dated before the previous run.
+  ///
+  /// In en, this message translates to:
+  /// **'A run must be after the previous run of its test session.'**
+  String get setupFormRunOrder;
+
+  /// Snackbar shown when fetching the location failed because services are off.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are disabled.'**
+  String get setupFormLocationDisabled;
+
+  /// Snackbar shown when fetching the location failed because permission is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission was not granted.'**
+  String get setupFormLocationNoPermission;
+
+  /// Snackbar shown when fetching the location failed because permission is denied for good.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is permanently denied.'**
+  String get setupFormLocationDeniedForever;
+
+  /// Snackbar shown when the location request timed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Location request timed out.'**
+  String get setupFormLocationTimeout;
+
+  /// Snackbar shown when fetching the location failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Error fetching location.'**
+  String get setupFormLocationError;
+
+  /// Snackbar shown when updating the address without a location.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot update address without location.'**
+  String get setupFormAddressNeedsLocation;
+
+  /// Snackbar shown when fetching the address failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Error fetching address.'**
+  String get setupFormAddressError;
+
+  /// Snackbar shown when updating the weather without a location.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot update weather without location.'**
+  String get setupFormWeatherNeedsLocation;
+
+  /// Snackbar shown when fetching the weather failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Error fetching weather.'**
+  String get setupFormWeatherError;
+
+  /// Location chip text when the address lookup failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Address Error'**
+  String get setupFormChipAddressError;
+
+  /// Location chip text when location services are off.
+  ///
+  /// In en, this message translates to:
+  /// **'No GPS Service'**
+  String get setupFormChipNoGpsService;
+
+  /// Location chip text when permission is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'No GPS Permission'**
+  String get setupFormChipNoGpsPermission;
+
+  /// Location chip text when the location request timed out.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS Timeout'**
+  String get setupFormChipGpsTimeout;
+
+  /// Location chip text when the location failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Error'**
+  String get setupFormChipLocationError;
+
+  /// Weather chip text when the weather lookup failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Error'**
+  String get setupFormChipWeatherError;
+
+  /// Title of the dialog shown when the previous setup changed while editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Setup has changed. Reset Values?'**
+  String get setupFormResetTitle;
+
+  /// Body of the dialog shown when the previous setup changed while editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current unsaved adjustments were based on the old setup. Resetting the values will discard these changes.'**
+  String get setupFormResetBody;
+
+  /// Help text of the date picker of the setup form.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Setup Date'**
+  String get setupFormPickDate;
+
+  /// Error text of the date picker of the setup form.
+  ///
+  /// In en, this message translates to:
+  /// **'Date cannot be in the future'**
+  String get setupFormDateInFuture;
+
+  /// Help text of the time picker of the setup form.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Setup Time'**
+  String get setupFormPickTime;
+
+  /// Snackbar shown when the chosen time is in the future.
+  ///
+  /// In en, this message translates to:
+  /// **'Date and Time cannot be in the future.'**
+  String get setupFormDateTimeInFuture;
+
+  /// Title of the dialog that asks whether to fetch the weather again.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Weather?'**
+  String get updateWeatherTitle;
+
+  /// Body of the dialog that asks whether to fetch the weather again.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to fetch the latest weather data for this location, date and time?'**
+  String get updateWeatherBody;
+
+  /// Used in the test session notice when the source setup is unknown. Follows "rides" / "fährt mit".
+  ///
+  /// In en, this message translates to:
+  /// **'the setup to compare'**
+  String get setupFormSessionFromFallback;
+
+  /// The source setup in the test session notice. {name} is its name.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{name}\''**
+  String setupFormSessionFromSetup(String name);
+
+  /// Notice on the first run of a tournament test session. {from} is the source setup.
+  ///
+  /// In en, this message translates to:
+  /// **'The first run rides {from}. Its adjustments are locked so the setups stay comparable. Set the date, weather and notes of this ride, then save to start the session.'**
+  String setupFormSessionFirstTournament(String from);
+
+  /// Notice on a later run of a tournament test session. {from} is the source setup.
+  ///
+  /// In en, this message translates to:
+  /// **'This run rides {from}. Its adjustments are locked so the setups stay comparable.'**
+  String setupFormSessionNextTournament(String from);
+
+  /// Notice on the first run of a non-tournament test session.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the base setup the session starts from. If your bike is set up like this, just save. Otherwise change the session\'s adjustments to match your bike.'**
+  String get setupFormSessionFirstBase;
+
+  /// Notice on a later run of a non-tournament test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the adjustments of the session can change, locked ones stay as they are. Everything else is copied from the previous run.'**
+  String get setupFormSessionNextBase;
+
+  /// Title of the test session notice on the first run. {name} is the session name.
+  ///
+  /// In en, this message translates to:
+  /// **'First run of \'{name}\''**
+  String setupFormSessionFirstRunTitle(String name);
+
+  /// Title of the test session notice on a later run. {name} is the session name.
+  ///
+  /// In en, this message translates to:
+  /// **'Run of \'{name}\''**
+  String setupFormSessionRunTitle(String name);
+
+  /// Hint under the weight field of the setup guide card. {name} is the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved with this setup as {name}\'s riding weight'**
+  String setupFormGuideWeightSaved(String name);
+
+  /// Hint under the weight field of the setup guide card when no rider attribute is used.
+  ///
+  /// In en, this message translates to:
+  /// **'Only used for these recommendations'**
+  String get setupFormGuideWeightLocal;
+
+  /// Button of the setup guide card that adds a riding weight attribute to the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Add riding weight to {name}'**
+  String setupFormGuideAddWeight(String name);
+
+  /// Snackbar after a riding weight attribute was added to the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Added riding weight to {name}'**
+  String setupFormGuideWeightAdded(String name);
+
+  /// Snackbar after applying all recommended values. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Applied 1 recommended value} other{Applied {count} recommended values}}'**
+  String setupFormGuideApplied(int count);
+
+  /// Line added to the setup notes after applying all recommended values. {guides} lists the guide names.
+  ///
+  /// In en, this message translates to:
+  /// **'Started from recommended values ({guides})'**
+  String guideNotesLine(String guides);
+
+  /// Title of the location card when the setup has no address.
+  ///
+  /// In en, this message translates to:
+  /// **'No Address available'**
+  String get contextNoAddress;
+
+  /// Row of the location card. {latitude} and {longitude} are the formatted coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Latitude/Longitude: {latitude}°/{longitude}°'**
+  String contextLatLon(String latitude, String longitude);
+
+  /// Row of the location card. {value} is the altitude with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Altitude: {value}'**
+  String contextAltitude(String value);
+
+  /// Title of the weather card. {label} is the weather description.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather: {label}'**
+  String contextWeather(String label);
+
+  /// Row of the weather card. {value} is the temperature with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature: {value}'**
+  String contextTemperature(String value);
+
+  /// Row of the weather card. {value} is the precipitation with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Precipitation: {value}'**
+  String contextPrecipitation(String value);
+
+  /// Row of the weather card. {value} is the humidity with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Humidity: {value}'**
+  String contextHumidity(String value);
+
+  /// Row of the weather card. {value} is the wind speed with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Windspeed: {value}'**
+  String contextWindSpeed(String value);
+
+  /// Row of the weather card. {value} is the soil moisture with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Soil Moisture: {value}'**
+  String contextSoilMoisture(String value);
+
+  /// Entry of the map menu in the setup comparison. {label} is A or B.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {label} in maps app'**
+  String contextOpenPointInMaps(String label);
+
+  /// Row of the bike card when the setup has no rider.
+  ///
+  /// In en, this message translates to:
+  /// **'No rider linked to this setup.'**
+  String get contextNoRiderLinked;
+
+  /// Shown when the test session of a setup no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'TEST SESSION NOT FOUND'**
+  String get testSessionNotFound;
+
+  /// Badge of an adjustment that does not count toward the rating score.
+  ///
+  /// In en, this message translates to:
+  /// **'not scored'**
+  String get adjustmentNotScored;
+
+  /// Chip of an adjustment card. {step} is the step size.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step}'**
+  String adjustmentChipStep(String step);
+
+  /// Chip of a text adjustment card.
+  ///
+  /// In en, this message translates to:
+  /// **'Free text'**
+  String get adjustmentChipFreeText;
+
+  /// Shown on an adjustment card that has no constraints.
+  ///
+  /// In en, this message translates to:
+  /// **'Any value'**
+  String get adjustmentChipAnyValue;
+
+  /// Legend entry for a value recorded for the first time.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Value'**
+  String get legendInitialValue;
+
+  /// Legend entry for a value that changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed Value'**
+  String get legendChangedValue;
+
+  /// Legend entry for a value whose owner was not part of the setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Dangling Value'**
+  String get legendDanglingValue;
+
+  /// Header of the group of templates that were already added. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'Already added ({count})'**
+  String adjustmentPresetAlreadyAdded(int count);
+
+  /// Title shown when all suggested templates were added.
+  ///
+  /// In en, this message translates to:
+  /// **'All suggestions added'**
+  String get adjustmentPresetAllAdded;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

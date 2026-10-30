@@ -52,7 +52,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
 
     final sections = <Widget>[
       if (hasLocation) _locationSection(context, appSettings, isLast: !hasWeather && !hasCondition),
-      if (hasWeather) _weatherSection(appSettings),
+      if (hasWeather) _weatherSection(context, appSettings),
       if (hasCondition) _conditionSection(context),
     ];
 
@@ -78,7 +78,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
       collapsedShape: const Border(),
       leading: const Icon(Icons.location_city),
       title: place == null
-          ? const Text("No Address available")
+          ? Text(context.l10n.contextNoAddress)
           : SelectableText(
               "${place!.thoroughfare ?? ''} ${place!.subThoroughfare ?? ''}, "
               "${place!.locality ?? ''}, ${place!.isoCountryCode ?? ''}"
@@ -89,7 +89,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.my_location),
           title: SelectableText(
-            "Latitude/Longitude: ${_coordinate(position?.latitude)}°/${_coordinate(position?.longitude)}°",
+            context.l10n.contextLatLon(_coordinate(position?.latitude), _coordinate(position?.longitude)),
           ),
           dense: true,
           enabled: position?.latitude != null || position?.longitude != null,
@@ -97,7 +97,9 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.arrow_upward),
           title: SelectableText(
-            "Altitude: ${ContextPosition.convertAltitudeFromMeters(position?.altitude, appSettings.altitudeUnit)?.round() ?? "-"} ${appSettings.altitudeUnit}",
+            context.l10n.contextAltitude(
+              '${ContextPosition.convertAltitudeFromMeters(position?.altitude, appSettings.altitudeUnit)?.round() ?? "-"} ${appSettings.altitudeUnit}',
+            ),
           ),
           dense: true,
           enabled: position?.altitude != null,
@@ -121,7 +123,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
                     onViewOnMap: onViewOnMap,
                     externalTargets: [
                       (
-                        label: 'Open in maps app',
+                        label: context.l10n.setupOptionOpenInMaps,
                         latitude: position!.latitude!,
                         longitude: position!.longitude!,
                         displayName: displayName,
@@ -215,18 +217,20 @@ class ContextLocationWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _weatherSection(AppSettings appSettings) {
+  Widget _weatherSection(BuildContext context, AppSettings appSettings) {
     return ExpansionTile(
       dense: true,
       shape: const Border(),
       collapsedShape: const Border(),
       leading: Icon(weather!.getIconData()),
-      title: Text("Weather: ${weather!.getWeatherCodeLabel() ?? '-'}"),
+      title: Text(context.l10n.contextWeather(weather!.getWeatherCodeLabel(context.l10n) ?? '-')),
       children: [
         ListTile(
           leading: const Icon(ContextWeather.currentTemperatureIconData),
           title: SelectableText(
-            "Temperature: ${ContextWeather.convertTemperatureFromCelsius(weather!.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}",
+            context.l10n.contextTemperature(
+              '${ContextWeather.convertTemperatureFromCelsius(weather!.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}',
+            ),
           ),
           dense: true,
           enabled: weather!.currentTemperature != null,
@@ -234,21 +238,25 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
           title: SelectableText(
-            "Precipitation: ${ContextWeather.convertPrecipitationFromMm(weather!.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}",
+            context.l10n.contextPrecipitation(
+              '${ContextWeather.convertPrecipitationFromMm(weather!.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}',
+            ),
           ),
           dense: true,
           enabled: weather!.dayAccumulatedPrecipitation != null,
         ),
         ListTile(
           leading: const Icon(ContextWeather.currentHumidityIconData),
-          title: SelectableText("Humidity: ${weather!.currentHumidity?.round() ?? '-'} %"),
+          title: SelectableText(context.l10n.contextHumidity('${weather!.currentHumidity?.round() ?? '-'} %')),
           dense: true,
           enabled: weather!.currentHumidity != null,
         ),
         ListTile(
           leading: const Icon(ContextWeather.currentWindSpeedIconData),
           title: SelectableText(
-            "Windspeed: ${ContextWeather.convertWindSpeedFromKmh(weather!.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}",
+            context.l10n.contextWindSpeed(
+              '${ContextWeather.convertWindSpeedFromKmh(weather!.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}',
+            ),
           ),
           dense: true,
           enabled: weather!.currentWindSpeed != null,
@@ -256,7 +264,9 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
           title: SelectableText(
-            "Soil Moisture: ${weather!.currentSoilMoisture0to7cm == null ? '-' : formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2)} m³/m³",
+            context.l10n.contextSoilMoisture(
+              '${weather!.currentSoilMoisture0to7cm == null ? '-' : formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2)} m³/m³',
+            ),
           ),
           dense: true,
           enabled: weather!.currentSoilMoisture0to7cm != null,

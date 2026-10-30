@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../utils/table_column.dart';
 import '../text/sheet_section_title.dart';
 import 'sheet.dart';
@@ -65,7 +67,7 @@ Future<void> showColumnFilterSheet({
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SheetSectionTitle(title: tcs.label),
+                              SheetSectionTitle(title: tcs.label(context.l10n)),
                               for (final MapEntry(key: title, value: groupColumns) in groups.entries) ...[
                                 if (title != null) _ColumnGroupHeader(group: groupOf[groupColumns.first]!),
                                 Wrap(

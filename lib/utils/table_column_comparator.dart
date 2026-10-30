@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/feedback/test_session.dart';
@@ -78,7 +79,7 @@ Comparator<Setup> setupColumnComparator(
     SetupColumn.bike => _by((s) => bikes[s.bike]?.name ?? ''),
     SetupColumn.bookmarked => _by((s) => s.isBookmarked ? 1 : 0),
     SetupColumn.activities => _by((s) => setupActivityCounts[s.id] ?? 0),
-    SetupColumn.weatherCode => _by((s) => s.weather?.getWeatherCodeLabel() ?? ''),
+    SetupColumn.weatherCode => _by((s) => s.weather?.getWeatherCodeLabel(currentL10n) ?? ''),
     SetupColumn.temperature => _by((s) => s.weather?.currentTemperature ?? double.negativeInfinity),
     SetupColumn.precipitation => _by((s) => s.weather?.dayAccumulatedPrecipitation ?? double.negativeInfinity),
     SetupColumn.humidity => _by((s) => s.weather?.currentHumidity ?? double.negativeInfinity),

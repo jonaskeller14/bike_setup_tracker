@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
@@ -258,7 +259,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                           visualDensity: VisualDensity.compact,
                         ),
                         onPressed: () {onChanged(StepValue(adjustment.min)); onChangedEnd(StepValue(adjustment.min));},
-                        child: const Text("Set value"),
+                        child: Text(context.l10n.setValueButton),
                       ),
                     ),
                   ),

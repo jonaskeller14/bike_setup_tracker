@@ -15,8 +15,8 @@ Future<void> showSetConditionSheet({
 }) {
   return radioGroupSheet<Condition?>(
     context: context,
-    title: "Select Trail Condition",
-    infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
+    title: context.l10n.setConditionTitle,
+    infoText: context.l10n.setConditionInfo,
     contentWidget: const SoilMoistureLegendTable(),
     value: currentCondition,
     optionWidgets: Map.fromEntries(Condition.values.map((condition) {

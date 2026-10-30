@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
@@ -40,7 +41,7 @@ Future<void> showCompareSetupsSheet(
   if (resolution is! SetupComparisonTargets) {
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(AppSnackBar.info(context, 'Choose two different setups to compare.'));
+    messenger.showSnackBar(AppSnackBar.info(context, context.l10n.compareChooseTwoDifferent));
     return;
   }
 
@@ -138,8 +139,8 @@ class _CompareSetupsState extends State<CompareSetups> {
               sliver: SliverToBoxAdapter(
                 child: SheetFilterEmptyHint(
                   icon: Icons.error_outline,
-                  title: 'A setup is no longer available',
-                  hint: 'Close this sheet and choose two available setups to compare.',
+                  title: context.l10n.compareSetupUnavailableTitle,
+                  hint: context.l10n.compareSetupUnavailableHint,
                   onTap: () => Navigator.pop(context),
                 ),
               ),
@@ -201,7 +202,7 @@ class _CompareSetupsState extends State<CompareSetups> {
                 slivers: [
                   _sectionTitle(
                     context,
-                    'Context',
+                    context.l10n.setupSectionContext,
                     trailing: contextHasChanged ? const _ContextChangedBadge() : null,
                   ),
                   SliverPadding(
@@ -222,7 +223,7 @@ class _CompareSetupsState extends State<CompareSetups> {
                   const SliverToBoxAdapter(child: Divider(height: 8)),
                   _sectionTitle(
                     context,
-                    'Values',
+                    context.l10n.setupSectionValues,
                     trailing: _ValueFilter(
                       differenceCount: valueDifferenceCount,
                       differencesOnly: _differencesOnly,
@@ -235,10 +236,10 @@ class _CompareSetupsState extends State<CompareSetups> {
                       sliver: SliverToBoxAdapter(
                         child: SheetFilterEmptyHint(
                           icon: Icons.check_circle_outline,
-                          title: _differencesOnly ? 'These setups have no value differences' : 'No comparable values',
+                          title: _differencesOnly ? context.l10n.compareNoDifferencesTitle : context.l10n.compareNoComparableTitle,
                           hint: _differencesOnly
-                              ? 'Show every recorded value instead.'
-                              : 'No setup values are available to compare.',
+                              ? context.l10n.compareShowAllHint
+                              : context.l10n.compareNoValuesHint,
                           onTap: _differencesOnly ? () => setState(() => _differencesOnly = false) : null,
                         ),
                       ),
@@ -298,7 +299,7 @@ class _ContextChangedBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final changedColor = Theme.of(context).extension<ValueHighlightColors>()!.changed;
     return Semantics(
-      label: 'Context varies',
+      label: context.l10n.compareContextVaries,
       excludeSemantics: true,
       child: Container(
         key: const Key('compare-context-changed-badge'),
@@ -309,7 +310,7 @@ class _ContextChangedBadge extends StatelessWidget {
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
-          'Context varies',
+          context.l10n.compareContextVaries,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(color: changedColor),
         ),
       ),
@@ -337,9 +338,9 @@ class _ValueFilter extends StatelessWidget {
       segments: [
         ButtonSegment(
           value: true,
-          label: Text('Differences ($differenceCount)'),
+          label: Text(context.l10n.compareFilterDifferences(differenceCount)),
         ),
-        const ButtonSegment(value: false, label: Text('All')),
+        ButtonSegment(value: false, label: Text(context.l10n.compareFilterAll)),
       ],
       selected: {differencesOnly},
       onSelectionChanged: (selection) => onChanged(selection.single),

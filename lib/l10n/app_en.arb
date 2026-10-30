@@ -3663,5 +3663,1963 @@
   "garageReleaseToArchive": "Release to archive",
   "@garageReleaseToArchive": {
     "description": "Hint on the archive area while a component hovers over it."
+  },
+  "applyPresetTitle": "Apply preset adjustments?",
+  "@applyPresetTitle": {
+    "description": "Title of the dialog shown when a component preset would add adjustments to a component that already has some."
+  },
+  "applyPresetBody": "This component already has {count, plural, =1{1 adjustment} other{{count} adjustments}}. Replace them with the preset, or keep both?",
+  "@applyPresetBody": {
+    "description": "Body of the apply-preset dialog. {count} is the number of adjustments the component already has.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "applyPresetKeepBoth": "Keep both",
+  "@applyPresetKeepBoth": {
+    "description": "Dialog button that keeps the existing adjustments and adds the preset ones."
+  },
+  "confirmationTitle": "Are you sure?",
+  "@confirmationTitle": {
+    "description": "Default title of the generic confirmation dialog."
+  },
+  "confirmationBody": "This action cannot be undone.",
+  "@confirmationBody": {
+    "description": "Default body of the generic confirmation dialog."
+  },
+  "discardChangesTitle": "Discard Changes?",
+  "@discardChangesTitle": {
+    "description": "Title of the dialog shown when leaving a form with unsaved changes."
+  },
+  "discardChangesBody": "You have unsaved changes. Are you sure you want to exit without saving?",
+  "@discardChangesBody": {
+    "description": "Body of the discard-changes dialog."
+  },
+  "discardChangesConfirm": "Discard Changes",
+  "@discardChangesConfirm": {
+    "description": "Destructive button of the discard-changes dialog."
+  },
+  "renameNameHint": "Name",
+  "@renameNameHint": {
+    "description": "Hint text of the text field in the rename dialog."
+  },
+  "renameConfirm": "Rename",
+  "@renameConfirm": {
+    "description": "Confirm button of the rename dialog."
+  },
+  "stravaDisconnectTitle": "Disconnect Strava?",
+  "@stravaDisconnectTitle": {
+    "description": "Title of the dialog that confirms disconnecting Strava."
+  },
+  "stravaDisconnectBody": "This will revoke the app's access and delete all your synced activities from our secure storage. Your Strava account itself will not be affected.",
+  "@stravaDisconnectBody": {
+    "description": "Body of the Strava disconnect dialog."
+  },
+  "stravaDisconnectConfirm": "Disconnect",
+  "@stravaDisconnectConfirm": {
+    "description": "Destructive button of the Strava disconnect dialog."
+  },
+  "adjustmentNameLabel": "{term, select, attribute{Attribute Name} other{Adjustment Name}}",
+  "@adjustmentNameLabel": {
+    "description": "Label of the name field on the adjustment forms. {term} is \"adjustment\" or \"attribute\" (a rider attribute).",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentNameHint": "{term, select, attribute{Enter Attribute Name} other{Enter Adjustment Name}}",
+  "@adjustmentNameHint": {
+    "description": "Hint of the name field on the adjustment forms. {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentNameRequired": "Name is required",
+  "@adjustmentNameRequired": {
+    "description": "Validation error when the adjustment name is empty."
+  },
+  "adjustmentNameTooLong": "Short names display better in other views.",
+  "@adjustmentNameTooLong": {
+    "description": "Warning under the name field when the adjustment name is long."
+  },
+  "adjustmentNotesHint": "Enter measuring procedure/instrument/...",
+  "@adjustmentNotesHint": {
+    "description": "Hint of the notes field on the adjustment forms."
+  },
+  "adjustmentNotesHelper": "View these notes by tapping the ⓘ icon next to the name.",
+  "@adjustmentNotesHelper": {
+    "description": "Helper text under the notes field of an adjustment form once notes are entered."
+  },
+  "adjustmentPreviewTitle": "Preview",
+  "@adjustmentPreviewTitle": {
+    "description": "Collapsed label of the preview bar at the bottom of the adjustment forms."
+  },
+  "adjustmentPreviewExpanded": "Preview only — changes won’t be saved!",
+  "@adjustmentPreviewExpanded": {
+    "description": "Label of the expanded preview bar on the adjustment forms."
+  },
+  "adjustmentPageAddBoolean": "{term, select, attribute{Add On/Off Attribute} other{Add On/Off Adjustment}}",
+  "@adjustmentPageAddBoolean": {
+    "description": "App bar title of the On/Off adjustment form (add mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageEditBoolean": "{term, select, attribute{Edit On/Off Attribute} other{Edit On/Off Adjustment}}",
+  "@adjustmentPageEditBoolean": {
+    "description": "App bar title of the On/Off adjustment form (edit mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageAddCategorical": "{term, select, attribute{Add Categorical Attribute} other{Add Categorical Adjustment}}",
+  "@adjustmentPageAddCategorical": {
+    "description": "App bar title of the Categorical adjustment form (add mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageEditCategorical": "{term, select, attribute{Edit Categorical Attribute} other{Edit Categorical Adjustment}}",
+  "@adjustmentPageEditCategorical": {
+    "description": "App bar title of the Categorical adjustment form (edit mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageAddDuration": "{term, select, attribute{Add Duration Attribute} other{Add Duration Adjustment}}",
+  "@adjustmentPageAddDuration": {
+    "description": "App bar title of the Duration adjustment form (add mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageEditDuration": "{term, select, attribute{Edit Duration Attribute} other{Edit Duration Adjustment}}",
+  "@adjustmentPageEditDuration": {
+    "description": "App bar title of the Duration adjustment form (edit mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageAddNumerical": "{term, select, attribute{Add Numerical Attribute} other{Add Numerical Adjustment}}",
+  "@adjustmentPageAddNumerical": {
+    "description": "App bar title of the Numerical adjustment form (add mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageEditNumerical": "{term, select, attribute{Edit Numerical Attribute} other{Edit Numerical Adjustment}}",
+  "@adjustmentPageEditNumerical": {
+    "description": "App bar title of the Numerical adjustment form (edit mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageAddSag": "{term, select, attribute{Add SAG Attribute} other{Add SAG Adjustment}}",
+  "@adjustmentPageAddSag": {
+    "description": "App bar title of the SAG adjustment form (add mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageEditSag": "{term, select, attribute{Edit SAG Attribute} other{Edit SAG Adjustment}}",
+  "@adjustmentPageEditSag": {
+    "description": "App bar title of the SAG adjustment form (edit mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageAddStep": "{term, select, attribute{Add Step Attribute} other{Add Step Adjustment}}",
+  "@adjustmentPageAddStep": {
+    "description": "App bar title of the Step adjustment form (add mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageEditStep": "{term, select, attribute{Edit Step Attribute} other{Edit Step Adjustment}}",
+  "@adjustmentPageEditStep": {
+    "description": "App bar title of the Step adjustment form (edit mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageAddText": "{term, select, attribute{Add Text Attribute} other{Add Text Adjustment}}",
+  "@adjustmentPageAddText": {
+    "description": "App bar title of the Text adjustment form (add mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentPageEditText": "{term, select, attribute{Edit Text Attribute} other{Edit Text Adjustment}}",
+  "@adjustmentPageEditText": {
+    "description": "App bar title of the Text adjustment form (edit mode). {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentOptionsAtLeastOne": "At least one option is required.",
+  "@adjustmentOptionsAtLeastOne": {
+    "description": "Validation error when a categorical adjustment has no options."
+  },
+  "adjustmentOptionsUniqueError": "Options must be unique.",
+  "@adjustmentOptionsUniqueError": {
+    "description": "Validation error shown under the options when two options are equal."
+  },
+  "adjustmentOptionRequired": "Option is required",
+  "@adjustmentOptionRequired": {
+    "description": "Validation error on an empty option field."
+  },
+  "adjustmentOptionUnique": "Options must be unique",
+  "@adjustmentOptionUnique": {
+    "description": "Validation error on an option field when two options are equal."
+  },
+  "adjustmentOptionsTitle": "Options",
+  "@adjustmentOptionsTitle": {
+    "description": "Heading above the option fields of a categorical adjustment."
+  },
+  "addLabel": "Add",
+  "@addLabel": {
+    "description": "Generic text button that adds an item."
+  },
+  "adjustmentOptionLabel": "Option {number}",
+  "@adjustmentOptionLabel": {
+    "description": "Label of one option field. {number} is its position, starting at 1.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustmentOptionHint": "Enter option value",
+  "@adjustmentOptionHint": {
+    "description": "Hint of an option field."
+  },
+  "adjustmentOptionRemoveTooltip": "Remove option",
+  "@adjustmentOptionRemoveTooltip": {
+    "description": "Tooltip of the button that removes an option field."
+  },
+  "adjustmentMultiSelectTitle": "Multi Select",
+  "@adjustmentMultiSelectTitle": {
+    "description": "Title of the switch that allows picking several options."
+  },
+  "adjustmentMultiSelectSubtitle": "Allow more than one selection",
+  "@adjustmentMultiSelectSubtitle": {
+    "description": "Subtitle of the multi select switch."
+  },
+  "adjustmentCountTitle": "Count Occurrences",
+  "@adjustmentCountTitle": {
+    "description": "Title of the switch that lets an option be picked several times."
+  },
+  "adjustmentCountSubtitle": "Allow the same option multiple times",
+  "@adjustmentCountSubtitle": {
+    "description": "Subtitle of the count occurrences switch."
+  },
+  "labelMin": "Min",
+  "@labelMin": {
+    "description": "Short name of the minimum of a range."
+  },
+  "labelMax": "Max",
+  "@labelMax": {
+    "description": "Short name of the maximum of a range."
+  },
+  "adjustmentMinDurationLabel": "Min Duration (optional)",
+  "@adjustmentMinDurationLabel": {
+    "description": "Label of the optional minimum duration field."
+  },
+  "adjustmentMinDurationHint": "Select minimum duration",
+  "@adjustmentMinDurationHint": {
+    "description": "Hint of the minimum duration field."
+  },
+  "adjustmentMaxDurationLabel": "Max Duration (optional)",
+  "@adjustmentMaxDurationLabel": {
+    "description": "Label of the optional maximum duration field."
+  },
+  "adjustmentMaxDurationHint": "Select maximum duration",
+  "@adjustmentMaxDurationHint": {
+    "description": "Hint of the maximum duration field."
+  },
+  "adjustmentMinValueOptionalLabel": "Min Value (optional)",
+  "@adjustmentMinValueOptionalLabel": {
+    "description": "Label of the optional minimum value field."
+  },
+  "adjustmentMaxValueOptionalLabel": "Max Value (optional)",
+  "@adjustmentMaxValueOptionalLabel": {
+    "description": "Label of the optional maximum value field."
+  },
+  "adjustmentMinValueLabel": "Min Value",
+  "@adjustmentMinValueLabel": {
+    "description": "Label of the required minimum value field."
+  },
+  "adjustmentMaxValueLabel": "Max Value",
+  "@adjustmentMaxValueLabel": {
+    "description": "Label of the required maximum value field."
+  },
+  "adjustmentMinValueHint": "Enter minimum value",
+  "@adjustmentMinValueHint": {
+    "description": "Hint of the minimum value field."
+  },
+  "adjustmentMaxValueHint": "Enter maximum value",
+  "@adjustmentMaxValueHint": {
+    "description": "Hint of the maximum value field."
+  },
+  "adjustmentConvertToSagTitle": "Convert to SAG adjustment",
+  "@adjustmentConvertToSagTitle": {
+    "description": "Title of the banner that offers converting a numerical adjustment to a SAG adjustment."
+  },
+  "adjustmentConvertToSagBody": "Unlocks entering and reading sag in mm as well as %.",
+  "@adjustmentConvertToSagBody": {
+    "description": "Body of the convert-to-SAG banner."
+  },
+  "adjustmentValidNumberRequired": "Valid number required",
+  "@adjustmentValidNumberRequired": {
+    "description": "Validation error when a numeric field has no valid number."
+  },
+  "adjustmentMaxGreaterThanMin": "Max must be greater than min",
+  "@adjustmentMaxGreaterThanMin": {
+    "description": "Validation error when the maximum is below the minimum."
+  },
+  "adjustmentUnitConvertible": "{oldUnit} can be converted to {newUnit}.",
+  "@adjustmentUnitConvertible": {
+    "description": "Notice shown when the unit of an adjustment changes to a convertible unit.",
+    "placeholders": {
+      "oldUnit": {
+        "type": "String"
+      },
+      "newUnit": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentUnitLabel": "Unit (optional)",
+  "@adjustmentUnitLabel": {
+    "description": "Label of the unit field."
+  },
+  "adjustmentUnitHint": "Choose a unit",
+  "@adjustmentUnitHint": {
+    "description": "Hint of the unit field."
+  },
+  "adjustmentUnitNone": "None",
+  "@adjustmentUnitNone": {
+    "description": "Shown in the unit field when no unit is chosen."
+  },
+  "adjustmentConvertToNumerical": "Convert to plain numerical",
+  "@adjustmentConvertToNumerical": {
+    "description": "Menu entry that converts a SAG adjustment to a plain numerical one."
+  },
+  "adjustmentTravelFork": "Fork Travel",
+  "@adjustmentTravelFork": {
+    "description": "Label of the reference travel field for a fork."
+  },
+  "adjustmentTravelShock": "Shock Stroke",
+  "@adjustmentTravelShock": {
+    "description": "Label of the reference travel field for a shock."
+  },
+  "adjustmentTravelGeneric": "Travel / Stroke",
+  "@adjustmentTravelGeneric": {
+    "description": "Label of the reference travel field for other component types."
+  },
+  "adjustmentTravelHintFork": "e.g. 160",
+  "@adjustmentTravelHintFork": {
+    "description": "Hint of the reference travel field for a fork."
+  },
+  "adjustmentTravelHintShock": "e.g. 65 (stroke, not rear travel)",
+  "@adjustmentTravelHintShock": {
+    "description": "Hint of the reference travel field for a shock."
+  },
+  "adjustmentTravelHintGeneric": "e.g. 160 fork, 65 shock stroke",
+  "@adjustmentTravelHintGeneric": {
+    "description": "Hint of the reference travel field for other component types."
+  },
+  "adjustmentTravelOptionalLabel": "{label} (optional)",
+  "@adjustmentTravelOptionalLabel": {
+    "description": "Label of the optional travel field. {label} is the travel name.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentTravelHelper": "Add it to enter and read sag in mm as well as %.",
+  "@adjustmentTravelHelper": {
+    "description": "Helper text under the empty reference travel field."
+  },
+  "adjustmentMustBePositive": "Must be greater than 0",
+  "@adjustmentMustBePositive": {
+    "description": "Validation error when a number is zero or negative."
+  },
+  "adjustmentStepLabel": "Step",
+  "@adjustmentStepLabel": {
+    "description": "Label of the step size field."
+  },
+  "adjustmentStepHint": "Enter step value",
+  "@adjustmentStepHint": {
+    "description": "Hint of the step size field."
+  },
+  "adjustmentStepRequired": "Step is required",
+  "@adjustmentStepRequired": {
+    "description": "Validation error on an empty step size."
+  },
+  "adjustmentStepInvalid": "Valid step greater than zero is required",
+  "@adjustmentStepInvalid": {
+    "description": "Validation error when the step size is not a positive number."
+  },
+  "adjustmentMinRequired": "Min is required",
+  "@adjustmentMinRequired": {
+    "description": "Validation error on an empty minimum."
+  },
+  "adjustmentMinInvalid": "Valid min value is required",
+  "@adjustmentMinInvalid": {
+    "description": "Validation error when the minimum is not a number."
+  },
+  "adjustmentMaxRequired": "Max is required",
+  "@adjustmentMaxRequired": {
+    "description": "Validation error on an empty maximum."
+  },
+  "adjustmentMaxInvalid": "Valid max value is required",
+  "@adjustmentMaxInvalid": {
+    "description": "Validation error when the maximum is not a number."
+  },
+  "adjustmentMaxGreaterThanMinStep": "Max must be greater than min+step",
+  "@adjustmentMaxGreaterThanMinStep": {
+    "description": "Validation error when the range does not fit a single step."
+  },
+  "adjustmentDialTooltip": "Change dial color and size",
+  "@adjustmentDialTooltip": {
+    "description": "Tooltip of the dial style button."
+  },
+  "adjustmentDialLabel": "Dial",
+  "@adjustmentDialLabel": {
+    "description": "Label of the dial style field."
+  },
+  "adjustmentVisualizationLabel": "Visualization",
+  "@adjustmentVisualizationLabel": {
+    "description": "Label of the visualization dropdown of a step adjustment."
+  },
+  "adjustmentVisualizationHint": "{term, select, attribute{Choose a visualization for this attribute} other{Choose a visualization for this adjustment}}",
+  "@adjustmentVisualizationHint": {
+    "description": "Hint of the visualization dropdown. {term} is \"adjustment\" or \"attribute\".",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentVisualizationPlaceholder": "Please select visualization",
+  "@adjustmentVisualizationPlaceholder": {
+    "description": "Placeholder of the visualization dropdown."
+  },
+  "adjustmentVisualizationRequired": "Visualization cannot be empty",
+  "@adjustmentVisualizationRequired": {
+    "description": "Validation error when no visualization is chosen."
+  },
+  "setValueButton": "Set value",
+  "@setValueButton": {
+    "description": "Button that sets a value for an optional adjustment."
+  },
+  "setCategoricalMissingOptions": "Contains options that no longer exist",
+  "@setCategoricalMissingOptions": {
+    "description": "Validation error when a categorical value contains options the adjustment no longer has."
+  },
+  "setCategoricalSingleOnly": "Only one option can be selected",
+  "@setCategoricalSingleOnly": {
+    "description": "Validation error when several options are selected on a single-select adjustment."
+  },
+  "setCategoricalNoDuplicates": "An option cannot be selected more than once",
+  "@setCategoricalNoDuplicates": {
+    "description": "Validation error when an option is selected twice but counting is off."
+  },
+  "setCategoricalSelectOption": "Please select an option",
+  "@setCategoricalSelectOption": {
+    "description": "Validation error when a single-select adjustment has no option."
+  },
+  "setCategoricalPlaceholder": "Please select",
+  "@setCategoricalPlaceholder": {
+    "description": "Placeholder of the categorical value field."
+  },
+  "revertTooltip": "Revert",
+  "@revertTooltip": {
+    "description": "Tooltip of the button that reverts a value to its initial one."
+  },
+  "setNumericalHint": "Please enter",
+  "@setNumericalHint": {
+    "description": "Hint of the numerical value field."
+  },
+  "setValueRequired": "Please enter a value",
+  "@setValueRequired": {
+    "description": "Validation error on an empty value field."
+  },
+  "setNumberInvalid": "Please enter a valid number",
+  "@setNumberInvalid": {
+    "description": "Validation error when the value is not a number."
+  },
+  "setNumericalMax": "Max {value}",
+  "@setNumericalMax": {
+    "description": "Validation error when a value is above the maximum. {value} is the maximum with its unit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "setNumericalMin": "Min {value}",
+  "@setNumericalMin": {
+    "description": "Validation error when a value is below the minimum. {value} is the minimum with its unit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "setTextHint": "Enter Text",
+  "@setTextHint": {
+    "description": "Hint of the text value field."
+  },
+  "setTextPureDuration": "Pure Duration Format not allowed. Add characters or use Duration Adjustment type.",
+  "@setTextPureDuration": {
+    "description": "Validation error when a text value looks like a duration."
+  },
+  "outdatedValueOptions": "Doesn't match the current options",
+  "@outdatedValueOptions": {
+    "description": "Note under a stored categorical value that is no longer one of the options."
+  },
+  "outdatedValueRangeOrStep": "Outside the current range or step",
+  "@outdatedValueRangeOrStep": {
+    "description": "Note under a stored step value that no longer fits the range or step."
+  },
+  "outdatedValueRange": "Outside the current range",
+  "@outdatedValueRange": {
+    "description": "Note under a stored value that is outside the adjustment range."
+  },
+  "adjustmentChangedFromTo": "{name}, changed from {previous} to {current}",
+  "@adjustmentChangedFromTo": {
+    "description": "Screen reader label of an adjustment value that changed between setups.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "previous": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "compareRowDifferent": "Different {label}",
+  "@compareRowDifferent": {
+    "description": "Screen reader label of a comparison row whose values differ. {label} is the adjustment name.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "compareTitle": "Setup comparison",
+  "@compareTitle": {
+    "description": "Title of the setup comparison sheet."
+  },
+  "compareSwapTooltip": "Swap A and B",
+  "@compareSwapTooltip": {
+    "description": "Tooltip of the button that swaps the two compared setups."
+  },
+  "compareChooseSetup": "Choose setup {side}",
+  "@compareChooseSetup": {
+    "description": "Title of the sheet that picks a setup to compare. {side} is A or B.",
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "compareNoAdjustments": "No adjustments",
+  "@compareNoAdjustments": {
+    "description": "Subtitle of a comparison card whose component has no adjustments."
+  },
+  "compareValuesDiffer": "{differenceCount}/{totalCount} values {differenceCount, plural, =1{differs} other{differ}}",
+  "@compareValuesDiffer": {
+    "description": "Subtitle of a comparison card. {differenceCount} of {totalCount} values differ between the two setups.",
+    "placeholders": {
+      "differenceCount": {
+        "type": "int"
+      },
+      "totalCount": {
+        "type": "int"
+      }
+    }
+  },
+  "compareChooseTwoDifferent": "Choose two different setups to compare.",
+  "@compareChooseTwoDifferent": {
+    "description": "Snackbar shown when both comparison sides are the same setup."
+  },
+  "compareSetupUnavailableTitle": "A setup is no longer available",
+  "@compareSetupUnavailableTitle": {
+    "description": "Title of the hint shown when a compared setup was deleted."
+  },
+  "compareSetupUnavailableHint": "Close this sheet and choose two available setups to compare.",
+  "@compareSetupUnavailableHint": {
+    "description": "Hint of the setup-unavailable message in the comparison sheet."
+  },
+  "compareNoDifferencesTitle": "These setups have no value differences",
+  "@compareNoDifferencesTitle": {
+    "description": "Title shown when the two compared setups have identical values."
+  },
+  "compareNoComparableTitle": "No comparable values",
+  "@compareNoComparableTitle": {
+    "description": "Title shown when there are no values to compare."
+  },
+  "compareShowAllHint": "Show every recorded value instead.",
+  "@compareShowAllHint": {
+    "description": "Hint that switches the comparison from differences only to all values."
+  },
+  "compareNoValuesHint": "No setup values are available to compare.",
+  "@compareNoValuesHint": {
+    "description": "Hint shown when the setups have no values."
+  },
+  "compareContextVaries": "Context varies",
+  "@compareContextVaries": {
+    "description": "Badge shown when the context (place, weather) of the two setups differs."
+  },
+  "compareFilterDifferences": "Differences ({count})",
+  "@compareFilterDifferences": {
+    "description": "Segment of the comparison filter that shows only differing values. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "compareFilterAll": "All",
+  "@compareFilterAll": {
+    "description": "Segment of the comparison filter that shows all values."
+  },
+  "setupSectionContext": "Context",
+  "@setupSectionContext": {
+    "description": "Section title for the context (place, weather) of a setup."
+  },
+  "setupSectionValues": "Values",
+  "@setupSectionValues": {
+    "description": "Section title for the adjustment values of a setup."
+  },
+  "setupSectionFeedback": "Feedback",
+  "@setupSectionFeedback": {
+    "description": "Section title for the feedback of a setup."
+  },
+  "setupUnnamed": "Unnamed Setup",
+  "@setupUnnamed": {
+    "description": "Name shown for a setup without a name."
+  },
+  "yes": "Yes",
+  "@yes": {
+    "description": "Positive answer button of a yes/no dialog."
+  },
+  "no": "No",
+  "@no": {
+    "description": "Negative answer button of a yes/no dialog."
+  },
+  "share": "Share",
+  "@share": {
+    "description": "Menu entry that shares an item."
+  },
+  "setupOptionRestore": "Restore",
+  "@setupOptionRestore": {
+    "description": "Setup menu entry that restores the values of this setup."
+  },
+  "setupOptionCompare": "Compare",
+  "@setupOptionCompare": {
+    "description": "Setup menu entry that opens the comparison."
+  },
+  "setupOptionAddFeedback": "Add Feedback",
+  "@setupOptionAddFeedback": {
+    "description": "Setup menu entry that adds feedback."
+  },
+  "setupOptionViewOnMap": "View on map",
+  "@setupOptionViewOnMap": {
+    "description": "Setup menu entry that shows the setup on the map."
+  },
+  "setupOptionOpenInMaps": "Open in maps app",
+  "@setupOptionOpenInMaps": {
+    "description": "Setup menu entry that opens the place in the maps app."
+  },
+  "setupTooltipBookmark": "Bookmark",
+  "@setupTooltipBookmark": {
+    "description": "Tooltip of the bookmark button of a setup."
+  },
+  "setupTooltipRemoveBookmark": "Remove Bookmark",
+  "@setupTooltipRemoveBookmark": {
+    "description": "Tooltip of the bookmark button of a bookmarked setup."
+  },
+  "setupGroupTitle": "{count} Setups",
+  "@setupGroupTitle": {
+    "description": "Title of a group of setups. {count} is the number of setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setupTileNoChanges": "No changes",
+  "@setupTileNoChanges": {
+    "description": "Shown in an embedded setup tile that has no changed values."
+  },
+  "setupTileNoValues": "No values",
+  "@setupTileNoValues": {
+    "description": "Shown in an embedded setup tile that has no values."
+  },
+  "setupListFilteredTitle": "Nothing matches this filter",
+  "@setupListFilteredTitle": {
+    "description": "Title of the empty setup list when filters hide everything."
+  },
+  "setupListFilteredSubtitle": "Your filters are hiding all entries.",
+  "@setupListFilteredSubtitle": {
+    "description": "Subtitle of the empty setup list when filters hide everything."
+  },
+  "setupListEmptyTitle": "No entries yet",
+  "@setupListEmptyTitle": {
+    "description": "Title of the empty setup list."
+  },
+  "setupListEmptySubtitle": "Record your first setup to start tracking your adjustments.",
+  "@setupListEmptySubtitle": {
+    "description": "Subtitle of the empty setup list."
+  },
+  "setupListEmptyAction": "Record a setup",
+  "@setupListEmptyAction": {
+    "description": "Button of the empty setup list."
+  },
+  "setupTagsSubtitle": "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
+  "@setupTagsSubtitle": {
+    "description": "Explanation in the tags sheet of a setup."
+  },
+  "setupActionBikeRequired": "A bike is required to create a setup",
+  "@setupActionBikeRequired": {
+    "description": "Snackbar shown when a setup is started without any bike."
+  },
+  "setupActionComponentRequired": "A component is required to create a setup",
+  "@setupActionComponentRequired": {
+    "description": "Snackbar shown when a setup is started without any component."
+  },
+  "setupsBookmarked": "{count, plural, =1{1 Setup bookmarked.} other{{count} Setups bookmarked.}}",
+  "@setupsBookmarked": {
+    "description": "Snackbar after bookmarking setups. {count} is the number of setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setupsBookmarkRemoved": "{count, plural, =1{Bookmark removed from 1 Setup.} other{Bookmark removed from {count} Setups.}}",
+  "@setupsBookmarkRemoved": {
+    "description": "Snackbar after removing bookmarks. {count} is the number of setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setupSetTagsTitle": "Set Tags",
+  "@setupSetTagsTitle": {
+    "description": "Title of the bulk tags sheet for setups."
+  },
+  "setupApplyTags": "{count, plural, =1{Apply to 1 Setup} other{Apply to {count} Setups}}",
+  "@setupApplyTags": {
+    "description": "Apply button of the bulk tags sheet. {count} is the number of setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setupTagsUpdated": "{count, plural, =1{Tags updated for 1 Setup.} other{Tags updated for {count} Setups.}}",
+  "@setupTagsUpdated": {
+    "description": "Snackbar after changing tags. {count} is the number of setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setupMovedToTrash": "Setup '{name}' moved to trash.",
+  "@setupMovedToTrash": {
+    "description": "Snackbar after a setup was removed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupRestoredFromTrash": "Setup '{name}' restored from trash.",
+  "@setupRestoredFromTrash": {
+    "description": "Snackbar after a setup was restored.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addAdjustmentTitle": "Add Adjustment",
+  "@addAdjustmentTitle": {
+    "description": "Title of the sheet that adds an adjustment to a component."
+  },
+  "addAdjustmentTemplates": "Pre-filled Templates",
+  "@addAdjustmentTemplates": {
+    "description": "Section header of the adjustment templates when no component type is chosen."
+  },
+  "addAdjustmentSuggested": "Suggested for {type}",
+  "@addAdjustmentSuggested": {
+    "description": "Section header of the adjustment templates. {type} is the component type.",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "addAdjustmentSuggestedProgress": "Suggested for {type} · {added}/{total} added",
+  "@addAdjustmentSuggestedProgress": {
+    "description": "Section header of the adjustment templates once some were added.",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "added": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "addAdjustmentSelectTypeTitle": "Select a component type",
+  "@addAdjustmentSelectTypeTitle": {
+    "description": "Title of the hint that asks for a component type before templates show."
+  },
+  "addAdjustmentNoTemplatesTitle": "No templates available",
+  "@addAdjustmentNoTemplatesTitle": {
+    "description": "Title of the hint shown when no templates exist."
+  },
+  "addAdjustmentTemplatesPerType": "Templates are suggested per component type.",
+  "@addAdjustmentTemplatesPerType": {
+    "description": "Hint under the select-a-component-type title."
+  },
+  "addAdjustmentSelectTypeFirst": "Select a component type first.",
+  "@addAdjustmentSelectTypeFirst": {
+    "description": "Hint under the no-templates title."
+  },
+  "addAdjustmentAllAdded": "Add a custom adjustment below.",
+  "@addAdjustmentAllAdded": {
+    "description": "Shown when all templates of the component type were added."
+  },
+  "addAdjustmentNoTemplates": "No templates available.",
+  "@addAdjustmentNoTemplates": {
+    "description": "Shown when the component type has no templates."
+  },
+  "addAdjustmentCustom": "Custom Adjustment",
+  "@addAdjustmentCustom": {
+    "description": "Section header of the custom adjustment types."
+  },
+  "adjustmentTypeNumerical": "Numerical Adjustment",
+  "@adjustmentTypeNumerical": {
+    "description": "Name of the numerical adjustment type."
+  },
+  "adjustmentTypeNumericalHint": "Pressure (psi/bar), Length, Angle, Weight",
+  "@adjustmentTypeNumericalHint": {
+    "description": "Examples for the numerical adjustment type."
+  },
+  "adjustmentTypeStep": "Step Adjustment",
+  "@adjustmentTypeStep": {
+    "description": "Name of the step adjustment type."
+  },
+  "adjustmentTypeStepHint": "Rebound/Compression clicks, Spacers, Increments",
+  "@adjustmentTypeStepHint": {
+    "description": "Examples for the step adjustment type."
+  },
+  "adjustmentTypeCategorical": "Categorical Adjustment",
+  "@adjustmentTypeCategorical": {
+    "description": "Name of the categorical adjustment type."
+  },
+  "adjustmentTypeCategoricalHint": "Tire Compound (soft/hard), Brand, Style, Mode",
+  "@adjustmentTypeCategoricalHint": {
+    "description": "Examples for the categorical adjustment type."
+  },
+  "adjustmentTypeBoolean": "On/Off Adjustment",
+  "@adjustmentTypeBoolean": {
+    "description": "Name of the on/off adjustment type."
+  },
+  "adjustmentTypeBooleanHint": "Lockout, Climb switch, Component installed? Yes/No",
+  "@adjustmentTypeBooleanHint": {
+    "description": "Examples for the on/off adjustment type."
+  },
+  "adjustmentTypeText": "Text Adjustment",
+  "@adjustmentTypeText": {
+    "description": "Name of the text adjustment type."
+  },
+  "adjustmentTypeTextHint": "Notes, advanced settings details",
+  "@adjustmentTypeTextHint": {
+    "description": "Examples for the text adjustment type."
+  },
+  "adjustmentTypeDuration": "Duration Adjustment",
+  "@adjustmentTypeDuration": {
+    "description": "Name of the duration adjustment type."
+  },
+  "adjustmentTypeDurationHint": "Time Span",
+  "@adjustmentTypeDurationHint": {
+    "description": "Examples for the duration adjustment type."
+  },
+  "setCategoricalDuplicate": "Already exists",
+  "@setCategoricalDuplicate": {
+    "description": "Error when a new option equals an existing option."
+  },
+  "setCategoricalDanglingError": "Some selected options no longer exist.",
+  "@setCategoricalDanglingError": {
+    "description": "Error shown when the value contains options the adjustment no longer has."
+  },
+  "setCategoricalMultipleError": "Multiple options selected, but only one is allowed.",
+  "@setCategoricalMultipleError": {
+    "description": "Error shown when several options are selected on a single-select adjustment."
+  },
+  "setCategoricalEmptyTitle": "No options yet",
+  "@setCategoricalEmptyTitle": {
+    "description": "Title shown when an adjustment has no options."
+  },
+  "setCategoricalEmptyEdit": "Edit this adjustment to add options.",
+  "@setCategoricalEmptyEdit": {
+    "description": "Hint shown when options can only be added by editing the adjustment."
+  },
+  "setCategoricalEmptyAdd": "Tap + below to add the first option.",
+  "@setCategoricalEmptyAdd": {
+    "description": "Hint shown when options can be added in the sheet."
+  },
+  "setCategoricalAddTooltip": "Add option",
+  "@setCategoricalAddTooltip": {
+    "description": "Tooltip of the button that adds an option."
+  },
+  "setCategoricalNewHint": "New option",
+  "@setCategoricalNewHint": {
+    "description": "Hint of the new option field."
+  },
+  "setCategoricalDanglingTooltip": "This option no longer exists",
+  "@setCategoricalDanglingTooltip": {
+    "description": "Tooltip of a selected option that the adjustment no longer has."
+  },
+  "setConditionTitle": "Select Trail Condition",
+  "@setConditionTitle": {
+    "description": "Title of the sheet that sets the trail condition."
+  },
+  "setConditionInfo": "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
+  "@setConditionInfo": {
+    "description": "Explanation in the trail condition sheet."
+  },
+  "tagAlreadyExists": "Tag already exists",
+  "@tagAlreadyExists": {
+    "description": "Error when a new tag equals an existing tag."
+  },
+  "tagsEmpty": "No tags yet",
+  "@tagsEmpty": {
+    "description": "Shown in a tags sheet that has no tags."
+  },
+  "tagsBulkOnAll": "On all — tap to remove from all",
+  "@tagsBulkOnAll": {
+    "description": "Tooltip of a tag that all selected items carry."
+  },
+  "tagsBulkOnSome": "On {count} of {total} — tap to add to all",
+  "@tagsBulkOnSome": {
+    "description": "Tooltip of a tag that some selected items carry.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "tagsBulkOnNone": "On none — tap to add to all",
+  "@tagsBulkOnNone": {
+    "description": "Tooltip of a tag that no selected item carries."
+  },
+  "tagsBulkHalfFilled": "Half-filled tags apply to only part of your selection — they stay that way unless you tap them.",
+  "@tagsBulkHalfFilled": {
+    "description": "Explanation of half-filled tag chips in the bulk tags sheet."
+  },
+  "unitPickerTitle": "Choose Unit",
+  "@unitPickerTitle": {
+    "description": "Title of the unit picker sheet."
+  },
+  "unitPickerCustom": "Custom",
+  "@unitPickerCustom": {
+    "description": "Heading of the custom unit chips."
+  },
+  "unitPickerOther": "Other",
+  "@unitPickerOther": {
+    "description": "Chip that opens the custom unit field."
+  },
+  "unitPickerCustomLabel": "Custom unit",
+  "@unitPickerCustomLabel": {
+    "description": "Label of the custom unit field."
+  },
+  "unitPickerCustomHint": "Enter a custom unit",
+  "@unitPickerCustomHint": {
+    "description": "Hint of the custom unit field."
+  },
+  "weatherSheetTitle": "Weather Context",
+  "@weatherSheetTitle": {
+    "description": "Title of the weather sheet."
+  },
+  "weatherNeedsLocation": "Update Weather is not possible without location.",
+  "@weatherNeedsLocation": {
+    "description": "Shown in the weather sheet when no location is set."
+  },
+  "weatherCodeLabel": "Weather Code",
+  "@weatherCodeLabel": {
+    "description": "Label of the weather code field."
+  },
+  "weatherCodeHint": "Choose Weather Code",
+  "@weatherCodeHint": {
+    "description": "Hint of the weather code field."
+  },
+  "weatherTemperatureLabel": "Current Air Temperature in {unit}.",
+  "@weatherTemperatureLabel": {
+    "description": "Label of the temperature field. {unit} is the temperature unit.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherTemperatureHint": "Temperature",
+  "@weatherTemperatureHint": {
+    "description": "Hint of the temperature field."
+  },
+  "weatherPrecipitationLabel": "Accumulated Precipitation since midnight in {unit}",
+  "@weatherPrecipitationLabel": {
+    "description": "Label of the precipitation field. {unit} is the precipitation unit.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherPrecipitationHint": "Precipitation",
+  "@weatherPrecipitationHint": {
+    "description": "Hint of the precipitation field."
+  },
+  "weatherHumidityLabel": "Current Relative Air Humidity as percentage value",
+  "@weatherHumidityLabel": {
+    "description": "Label of the humidity field."
+  },
+  "weatherHumidityHint": "Humidity",
+  "@weatherHumidityHint": {
+    "description": "Hint of the humidity field."
+  },
+  "weatherWindLabel": "Current Wind Speed in {unit}",
+  "@weatherWindLabel": {
+    "description": "Label of the wind speed field. {unit} is the wind speed unit.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherWindHint": "Wind Speed",
+  "@weatherWindHint": {
+    "description": "Hint of the wind speed field."
+  },
+  "weatherSoilLabel": "Average Soil Moisture 0-7cm",
+  "@weatherSoilLabel": {
+    "description": "Label of the soil moisture field."
+  },
+  "weatherSoilHint": "Soil Moisture",
+  "@weatherSoilHint": {
+    "description": "Hint of the soil moisture field."
+  },
+  "weatherValueNegative": "Value cannot be negative",
+  "@weatherValueNegative": {
+    "description": "Validation error for a negative weather value."
+  },
+  "weatherHumidityRange": "Enter a valid value in the range 0..100 %",
+  "@weatherHumidityRange": {
+    "description": "Validation error for a humidity outside 0 to 100."
+  },
+  "weatherAttribution": "Weather data by Open-Meteo.com",
+  "@weatherAttribution": {
+    "description": "Attribution link of the weather data."
+  },
+  "weatherUpdateByLocation": "Update Weather by Location",
+  "@weatherUpdateByLocation": {
+    "description": "Button that fetches the weather for the location."
+  },
+  "weatherCode0": "Clear sky",
+  "@weatherCode0": {
+    "description": "Description of WMO weather code 0."
+  },
+  "weatherCode1": "Mainly clear",
+  "@weatherCode1": {
+    "description": "Description of WMO weather code 1."
+  },
+  "weatherCode2": "Partly cloudy",
+  "@weatherCode2": {
+    "description": "Description of WMO weather code 2."
+  },
+  "weatherCode3": "Overcast",
+  "@weatherCode3": {
+    "description": "Description of WMO weather code 3."
+  },
+  "weatherCode45": "Fog",
+  "@weatherCode45": {
+    "description": "Description of WMO weather code 45."
+  },
+  "weatherCode48": "Depositing rime fog",
+  "@weatherCode48": {
+    "description": "Description of WMO weather code 48."
+  },
+  "weatherCode51": "Light drizzle",
+  "@weatherCode51": {
+    "description": "Description of WMO weather code 51."
+  },
+  "weatherCode53": "Moderate drizzle",
+  "@weatherCode53": {
+    "description": "Description of WMO weather code 53."
+  },
+  "weatherCode55": "Dense drizzle",
+  "@weatherCode55": {
+    "description": "Description of WMO weather code 55."
+  },
+  "weatherCode56": "Light freezing drizzle",
+  "@weatherCode56": {
+    "description": "Description of WMO weather code 56."
+  },
+  "weatherCode57": "Dense freezing drizzle",
+  "@weatherCode57": {
+    "description": "Description of WMO weather code 57."
+  },
+  "weatherCode61": "Slight rain",
+  "@weatherCode61": {
+    "description": "Description of WMO weather code 61."
+  },
+  "weatherCode63": "Moderate rain",
+  "@weatherCode63": {
+    "description": "Description of WMO weather code 63."
+  },
+  "weatherCode65": "Heavy rain",
+  "@weatherCode65": {
+    "description": "Description of WMO weather code 65."
+  },
+  "weatherCode66": "Light freezing rain",
+  "@weatherCode66": {
+    "description": "Description of WMO weather code 66."
+  },
+  "weatherCode67": "Heavy freezing rain",
+  "@weatherCode67": {
+    "description": "Description of WMO weather code 67."
+  },
+  "weatherCode71": "Slight snow fall",
+  "@weatherCode71": {
+    "description": "Description of WMO weather code 71."
+  },
+  "weatherCode73": "Moderate snow fall",
+  "@weatherCode73": {
+    "description": "Description of WMO weather code 73."
+  },
+  "weatherCode75": "Heavy snow fall",
+  "@weatherCode75": {
+    "description": "Description of WMO weather code 75."
+  },
+  "weatherCode77": "Snow grains",
+  "@weatherCode77": {
+    "description": "Description of WMO weather code 77."
+  },
+  "weatherCode80": "Slight rain showers",
+  "@weatherCode80": {
+    "description": "Description of WMO weather code 80."
+  },
+  "weatherCode81": "Moderate rain showers",
+  "@weatherCode81": {
+    "description": "Description of WMO weather code 81."
+  },
+  "weatherCode82": "Violent rain showers",
+  "@weatherCode82": {
+    "description": "Description of WMO weather code 82."
+  },
+  "weatherCode85": "Slight snow showers",
+  "@weatherCode85": {
+    "description": "Description of WMO weather code 85."
+  },
+  "weatherCode86": "Heavy snow showers",
+  "@weatherCode86": {
+    "description": "Description of WMO weather code 86."
+  },
+  "weatherCode95": "Thunderstorm",
+  "@weatherCode95": {
+    "description": "Description of WMO weather code 95."
+  },
+  "weatherCode96": "Thunderstorm with slight hail",
+  "@weatherCode96": {
+    "description": "Description of WMO weather code 96."
+  },
+  "weatherCode99": "Thunderstorm with heavy hail",
+  "@weatherCode99": {
+    "description": "Description of WMO weather code 99."
+  },
+  "weatherCodeUnknown": "Unknown",
+  "@weatherCodeUnknown": {
+    "description": "Description of an unknown weather code."
+  },
+  "locationSheetTitle": "Location Context",
+  "@locationSheetTitle": {
+    "description": "Title of the location sheet."
+  },
+  "locationServicesDisabled": "Location services are disabled",
+  "@locationServicesDisabled": {
+    "description": "Title of the notice shown when location services are off."
+  },
+  "locationServicesDisabledHint": "Enable location services, then try GPS again",
+  "@locationServicesDisabledHint": {
+    "description": "Hint of the location-services-off notice."
+  },
+  "locationOpenSettings": "Open settings",
+  "@locationOpenSettings": {
+    "description": "Button that opens the system settings."
+  },
+  "locationPermissionDenied": "Location permission denied",
+  "@locationPermissionDenied": {
+    "description": "Title of the notice shown when location permission was denied."
+  },
+  "locationPermissionDeniedHint": "Try GPS again to request permission",
+  "@locationPermissionDeniedHint": {
+    "description": "Hint of the permission-denied notice."
+  },
+  "locationPermissionForever": "Location permission permanently denied",
+  "@locationPermissionForever": {
+    "description": "Title of the notice shown when location permission was denied for good."
+  },
+  "locationPermissionForeverHint": "Allow location access in app settings, then try again",
+  "@locationPermissionForeverHint": {
+    "description": "Hint of the permanently-denied notice."
+  },
+  "locationTimeout": "Location request timed out",
+  "@locationTimeout": {
+    "description": "Title of the notice shown when the location request timed out."
+  },
+  "locationTimeoutHint": "Move to an open area and try GPS again",
+  "@locationTimeoutHint": {
+    "description": "Hint of the timeout notice."
+  },
+  "locationUndetermined": "Could not determine location",
+  "@locationUndetermined": {
+    "description": "Title of the notice shown when the location failed."
+  },
+  "locationUndeterminedHint": "Check your connection and try GPS again",
+  "@locationUndeterminedHint": {
+    "description": "Hint of the location-failed notice."
+  },
+  "locationElevationFailed": "Fetching Elevation failed",
+  "@locationElevationFailed": {
+    "description": "Title of the notice shown when the elevation lookup failed."
+  },
+  "locationElevationFailedHint": "Check your internet connection",
+  "@locationElevationFailedHint": {
+    "description": "Hint of the elevation-failed notice."
+  },
+  "locationAddressFailed": "Fetching Address failed",
+  "@locationAddressFailed": {
+    "description": "Title of the notice shown when the address lookup failed."
+  },
+  "locationAddressFailedHint": "Check your internet connection and spelling",
+  "@locationAddressFailedHint": {
+    "description": "Hint of the address-failed notice."
+  },
+  "locationLatitude": "Latitude",
+  "@locationLatitude": {
+    "description": "Label and hint of the latitude field."
+  },
+  "locationLongitude": "Longitude",
+  "@locationLongitude": {
+    "description": "Label and hint of the longitude field."
+  },
+  "locationLatitudeRange": "Latitude must be between -90..90°",
+  "@locationLatitudeRange": {
+    "description": "Validation error for a latitude out of range."
+  },
+  "locationLongitudeRange": "Longitude must be between -180..180°",
+  "@locationLongitudeRange": {
+    "description": "Validation error for a longitude out of range."
+  },
+  "locationAltitudeLabel": "Altitude in {unit}",
+  "@locationAltitudeLabel": {
+    "description": "Label of the altitude field. {unit} is the altitude unit.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "locationAltitudeHint": "Altitude",
+  "@locationAltitudeHint": {
+    "description": "Hint of the altitude field."
+  },
+  "locationUpdateAddress": "Update Address from Latitude/Longitude",
+  "@locationUpdateAddress": {
+    "description": "Button that looks up the address of the coordinates."
+  },
+  "locationAddressSearchLabel": "Enter street, city, or landmark and press Search Icon",
+  "@locationAddressSearchLabel": {
+    "description": "Label of the address search field."
+  },
+  "locationAddressHint": "Address",
+  "@locationAddressHint": {
+    "description": "Hint of the address search field."
+  },
+  "locationFindByGps": "Find Location via GPS",
+  "@locationFindByGps": {
+    "description": "Button that fetches the GPS location."
+  },
+  "locationNoCoordinatesForAddress": "Could not find address without latitude and longitude",
+  "@locationNoCoordinatesForAddress": {
+    "description": "Error shown when an address lookup has no coordinates."
+  },
+  "locationNoAddressFound": "No Address found",
+  "@locationNoAddressFound": {
+    "description": "Error shown when the address search has no result."
+  },
+  "locationNotFound": "Could not find location.",
+  "@locationNotFound": {
+    "description": "Error shown when the address search found no location."
+  },
+  "locationSettingsOpenFailed": "Could not open location settings.",
+  "@locationSettingsOpenFailed": {
+    "description": "Error shown when the system location settings could not be opened."
+  },
+  "locationAppSettingsOpenFailed": "Could not open app settings.",
+  "@locationAppSettingsOpenFailed": {
+    "description": "Error shown when the app settings could not be opened."
+  },
+  "setupTabNoBikeAdjustments": "No bike adjustments to change",
+  "@setupTabNoBikeAdjustments": {
+    "description": "Placeholder title of the bike tab when adding is not allowed."
+  },
+  "setupTabAddComponentSubtitle": "Add a component to this bike to start tracking adjustments",
+  "@setupTabAddComponentSubtitle": {
+    "description": "Subtitle of the empty bike tab."
+  },
+  "setupAdjustmentCount": "{count, plural, =0{No adjustments yet.} =1{1 adjustment} other{{count} adjustments}}",
+  "@setupAdjustmentCount": {
+    "description": "Subtitle of a component card in a setup. {count} is its number of adjustments.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setupAttributeCount": "{count, plural, =0{No attributes yet.} =1{1 attribute} other{{count} attributes}}",
+  "@setupAttributeCount": {
+    "description": "Subtitle of a rider card in a setup. {count} is its number of attributes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setupDanglingAdjustmentsTitle": "Dangling Adjustment Values",
+  "@setupDanglingAdjustmentsTitle": {
+    "description": "Title of the card with values whose adjustment no longer exists."
+  },
+  "setupDanglingAdjustmentsCause": "Component with adjustment was deleted",
+  "@setupDanglingAdjustmentsCause": {
+    "description": "Cause shown on the dangling adjustment values card."
+  },
+  "setupDanglingAttributesTitle": "Dangling Attribute Values",
+  "@setupDanglingAttributesTitle": {
+    "description": "Title of the card with values whose attribute no longer exists."
+  },
+  "setupDanglingAttributesCause": "Attribute was deleted",
+  "@setupDanglingAttributesCause": {
+    "description": "Cause shown on the dangling attribute values card."
+  },
+  "setupComponentNotInstalled": "Component was not installed at setup time",
+  "@setupComponentNotInstalled": {
+    "description": "Subtitle of a component card whose component was not installed at the setup."
+  },
+  "setupRiderNotLinked": "Rider is not linked to this setup",
+  "@setupRiderNotLinked": {
+    "description": "Subtitle of a rider card whose rider is not linked to the setup."
+  },
+  "setupTabNoRiderTitle": "No rider linked",
+  "@setupTabNoRiderTitle": {
+    "description": "Title of the empty rider tab."
+  },
+  "setupTabNoRiderSubtitle": "Link a rider to this bike to track rider attributes",
+  "@setupTabNoRiderSubtitle": {
+    "description": "Subtitle of the empty rider tab."
+  },
+  "setupTabLinkRider": "Link '{name}'",
+  "@setupTabLinkRider": {
+    "description": "Menu entry that links an existing rider to the bike.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupTabCreateRider": "Create new rider",
+  "@setupTabCreateRider": {
+    "description": "Menu entry that creates a rider for the bike."
+  },
+  "setupTabLinkRiderButton": "Link rider",
+  "@setupTabLinkRiderButton": {
+    "description": "Button that opens the rider link menu."
+  },
+  "setupDetailsPrev": "Prev",
+  "@setupDetailsPrev": {
+    "description": "Button that opens the previous setup."
+  },
+  "setupDetailsNext": "Next",
+  "@setupDetailsNext": {
+    "description": "Button that opens the next setup."
+  },
+  "setupDetailsActionsTooltip": "Setup actions",
+  "@setupDetailsActionsTooltip": {
+    "description": "Tooltip of the setup actions menu."
+  },
+  "setupDetailsLocationUnavailable": "Location not available",
+  "@setupDetailsLocationUnavailable": {
+    "description": "Shown when a setup has no location."
+  },
+  "setupDetailsNoFeedbackTitle": "No feedback yet",
+  "@setupDetailsNoFeedbackTitle": {
+    "description": "Title of the feedback placeholder of a setup."
+  },
+  "setupDetailsNoFeedbackSubtitle": "Tap to note how this setup rode",
+  "@setupDetailsNoFeedbackSubtitle": {
+    "description": "Subtitle of the feedback placeholder of a setup."
+  },
+  "setupDetailsNotFoundTitle": "Setup not found",
+  "@setupDetailsNotFoundTitle": {
+    "description": "Title shown when the setup does not exist."
+  },
+  "setupDetailsNotFoundSubtitle": "This setup was deleted or is no longer available.",
+  "@setupDetailsNotFoundSubtitle": {
+    "description": "Subtitle shown when the setup does not exist."
+  },
+  "setupColumnName": "Name",
+  "@setupColumnName": {
+    "description": "Name of the name column of the setup table."
+  },
+  "setupColumnNotes": "Notes",
+  "@setupColumnNotes": {
+    "description": "Name of the notes column of the setup table."
+  },
+  "setupColumnTags": "Tags",
+  "@setupColumnTags": {
+    "description": "Name of the tags column of the setup table."
+  },
+  "setupColumnDate": "Date",
+  "@setupColumnDate": {
+    "description": "Name of the date column of the setup table."
+  },
+  "setupColumnTime": "Time",
+  "@setupColumnTime": {
+    "description": "Name of the time column of the setup table."
+  },
+  "setupColumnPlace": "Place",
+  "@setupColumnPlace": {
+    "description": "Name of the place column of the setup table."
+  },
+  "setupColumnAltitude": "Altitude",
+  "@setupColumnAltitude": {
+    "description": "Name of the altitude column of the setup table."
+  },
+  "setupColumnBike": "Bike",
+  "@setupColumnBike": {
+    "description": "Name of the bike column of the setup table."
+  },
+  "setupColumnBookmarked": "Bookmarked",
+  "@setupColumnBookmarked": {
+    "description": "Name of the bookmarked column of the setup table."
+  },
+  "setupColumnActivities": "Activities",
+  "@setupColumnActivities": {
+    "description": "Name of the activities column of the setup table."
+  },
+  "setupColumnWeatherCode": "Weather Code",
+  "@setupColumnWeatherCode": {
+    "description": "Name of the weather code column of the setup table."
+  },
+  "setupColumnTemperature": "Temperature",
+  "@setupColumnTemperature": {
+    "description": "Name of the temperature column of the setup table."
+  },
+  "setupColumnPrecipitation": "Precipitation",
+  "@setupColumnPrecipitation": {
+    "description": "Name of the precipitation column of the setup table."
+  },
+  "setupColumnHumidity": "Humidity",
+  "@setupColumnHumidity": {
+    "description": "Name of the humidity column of the setup table."
+  },
+  "setupColumnWindSpeed": "Windspeed",
+  "@setupColumnWindSpeed": {
+    "description": "Name of the windspeed column of the setup table."
+  },
+  "setupColumnSoilMoisture": "Soil Moisture",
+  "@setupColumnSoilMoisture": {
+    "description": "Name of the soil moisture column of the setup table."
+  },
+  "setupColumnCondition": "Condition",
+  "@setupColumnCondition": {
+    "description": "Name of the condition column of the setup table."
+  },
+  "setupColumnTestSession": "Test session",
+  "@setupColumnTestSession": {
+    "description": "Name of the test session column of the setup table."
+  },
+  "tableSectionGeneralContext": "General Context",
+  "@tableSectionGeneralContext": {
+    "description": "Heading of the general context columns in the column picker."
+  },
+  "tableSectionWeatherContext": "Weather Context",
+  "@tableSectionWeatherContext": {
+    "description": "Heading of the weather context columns in the column picker."
+  },
+  "tableSectionComponentAdjustments": "Component Adjustments",
+  "@tableSectionComponentAdjustments": {
+    "description": "Heading of the component adjustments columns in the column picker."
+  },
+  "tableSectionPersonAttributes": "Rider Attributes",
+  "@tableSectionPersonAttributes": {
+    "description": "Heading of the rider attributes columns in the column picker."
+  },
+  "tableSectionFeedback": "Feedback",
+  "@tableSectionFeedback": {
+    "description": "Heading of the feedback columns in the column picker."
+  },
+  "setupFormEditTitle": "Edit Setup",
+  "@setupFormEditTitle": {
+    "description": "App bar title of the setup form in edit mode."
+  },
+  "setupFormFirstRun": "First Run",
+  "@setupFormFirstRun": {
+    "description": "App bar title of the setup form for the first run of a test session."
+  },
+  "setupFormNextRun": "Next Run",
+  "@setupFormNextRun": {
+    "description": "App bar title of the setup form for a later run of a test session."
+  },
+  "setupFormNameLabel": "Setup Name",
+  "@setupFormNameLabel": {
+    "description": "Label of the setup name field."
+  },
+  "setupFormNameHint": "Enter setup name",
+  "@setupFormNameHint": {
+    "description": "Hint of the setup name field."
+  },
+  "setupFormNotesHint": "Add notes (optional)",
+  "@setupFormNotesHint": {
+    "description": "Hint of the setup notes field."
+  },
+  "setupFormAddTags": "Add Tags",
+  "@setupFormAddTags": {
+    "description": "Tooltip and sheet title of the tags button of the setup form."
+  },
+  "setupFormBikeLabel": "Bike",
+  "@setupFormBikeLabel": {
+    "description": "Label of the bike field of the setup form."
+  },
+  "setupFormBikeHint": "Choose a bike for this setup",
+  "@setupFormBikeHint": {
+    "description": "Hint of the bike field of the setup form."
+  },
+  "setupFormBikeEmpty": "Bike cannot be empty.",
+  "@setupFormBikeEmpty": {
+    "description": "Validation error when no bike is chosen."
+  },
+  "setupFormBikeInvalid": "Please select valid bike",
+  "@setupFormBikeInvalid": {
+    "description": "Validation error when the chosen bike does not exist."
+  },
+  "setupFormSessionRunningEdit": "A test session is running on this bike. End it before editing its setups.",
+  "@setupFormSessionRunningEdit": {
+    "description": "Error on the bike field when editing a setup of a bike with a running test session."
+  },
+  "setupFormSessionRunningRecord": "A test session is running on this bike. End it before recording a setup.",
+  "@setupFormSessionRunningRecord": {
+    "description": "Error on the bike field when recording a setup on a bike with a running test session."
+  },
+  "setupFormSessionRunning": "Session running",
+  "@setupFormSessionRunning": {
+    "description": "Label next to a bike in the bike dropdown that has a running test session."
+  },
+  "setupFormRunOrder": "A run must be after the previous run of its test session.",
+  "@setupFormRunOrder": {
+    "description": "Snackbar shown when a run is dated before the previous run."
+  },
+  "setupFormLocationDisabled": "Location services are disabled.",
+  "@setupFormLocationDisabled": {
+    "description": "Snackbar shown when fetching the location failed because services are off."
+  },
+  "setupFormLocationNoPermission": "Location permission was not granted.",
+  "@setupFormLocationNoPermission": {
+    "description": "Snackbar shown when fetching the location failed because permission is missing."
+  },
+  "setupFormLocationDeniedForever": "Location permission is permanently denied.",
+  "@setupFormLocationDeniedForever": {
+    "description": "Snackbar shown when fetching the location failed because permission is denied for good."
+  },
+  "setupFormLocationTimeout": "Location request timed out.",
+  "@setupFormLocationTimeout": {
+    "description": "Snackbar shown when the location request timed out."
+  },
+  "setupFormLocationError": "Error fetching location.",
+  "@setupFormLocationError": {
+    "description": "Snackbar shown when fetching the location failed."
+  },
+  "setupFormAddressNeedsLocation": "Cannot update address without location.",
+  "@setupFormAddressNeedsLocation": {
+    "description": "Snackbar shown when updating the address without a location."
+  },
+  "setupFormAddressError": "Error fetching address.",
+  "@setupFormAddressError": {
+    "description": "Snackbar shown when fetching the address failed."
+  },
+  "setupFormWeatherNeedsLocation": "Cannot update weather without location.",
+  "@setupFormWeatherNeedsLocation": {
+    "description": "Snackbar shown when updating the weather without a location."
+  },
+  "setupFormWeatherError": "Error fetching weather.",
+  "@setupFormWeatherError": {
+    "description": "Snackbar shown when fetching the weather failed."
+  },
+  "setupFormChipAddressError": "Address Error",
+  "@setupFormChipAddressError": {
+    "description": "Location chip text when the address lookup failed."
+  },
+  "setupFormChipNoGpsService": "No GPS Service",
+  "@setupFormChipNoGpsService": {
+    "description": "Location chip text when location services are off."
+  },
+  "setupFormChipNoGpsPermission": "No GPS Permission",
+  "@setupFormChipNoGpsPermission": {
+    "description": "Location chip text when permission is missing."
+  },
+  "setupFormChipGpsTimeout": "GPS Timeout",
+  "@setupFormChipGpsTimeout": {
+    "description": "Location chip text when the location request timed out."
+  },
+  "setupFormChipLocationError": "Location Error",
+  "@setupFormChipLocationError": {
+    "description": "Location chip text when the location failed."
+  },
+  "setupFormChipWeatherError": "Weather Error",
+  "@setupFormChipWeatherError": {
+    "description": "Weather chip text when the weather lookup failed."
+  },
+  "setupFormResetTitle": "Previous Setup has changed. Reset Values?",
+  "@setupFormResetTitle": {
+    "description": "Title of the dialog shown when the previous setup changed while editing."
+  },
+  "setupFormResetBody": "Your current unsaved adjustments were based on the old setup. Resetting the values will discard these changes.",
+  "@setupFormResetBody": {
+    "description": "Body of the dialog shown when the previous setup changed while editing."
+  },
+  "setupFormPickDate": "Select Setup Date",
+  "@setupFormPickDate": {
+    "description": "Help text of the date picker of the setup form."
+  },
+  "setupFormDateInFuture": "Date cannot be in the future",
+  "@setupFormDateInFuture": {
+    "description": "Error text of the date picker of the setup form."
+  },
+  "setupFormPickTime": "Select Setup Time",
+  "@setupFormPickTime": {
+    "description": "Help text of the time picker of the setup form."
+  },
+  "setupFormDateTimeInFuture": "Date and Time cannot be in the future.",
+  "@setupFormDateTimeInFuture": {
+    "description": "Snackbar shown when the chosen time is in the future."
+  },
+  "updateWeatherTitle": "Update Weather?",
+  "@updateWeatherTitle": {
+    "description": "Title of the dialog that asks whether to fetch the weather again."
+  },
+  "updateWeatherBody": "Do you want to fetch the latest weather data for this location, date and time?",
+  "@updateWeatherBody": {
+    "description": "Body of the dialog that asks whether to fetch the weather again."
+  },
+  "setupFormSessionFromFallback": "the setup to compare",
+  "@setupFormSessionFromFallback": {
+    "description": "Used in the test session notice when the source setup is unknown. Follows \"rides\" / \"fährt mit\"."
+  },
+  "setupFormSessionFromSetup": "'{name}'",
+  "@setupFormSessionFromSetup": {
+    "description": "The source setup in the test session notice. {name} is its name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupFormSessionFirstTournament": "The first run rides {from}. Its adjustments are locked so the setups stay comparable. Set the date, weather and notes of this ride, then save to start the session.",
+  "@setupFormSessionFirstTournament": {
+    "description": "Notice on the first run of a tournament test session. {from} is the source setup.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "setupFormSessionNextTournament": "This run rides {from}. Its adjustments are locked so the setups stay comparable.",
+  "@setupFormSessionNextTournament": {
+    "description": "Notice on a later run of a tournament test session. {from} is the source setup.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "setupFormSessionFirstBase": "This is the base setup the session starts from. If your bike is set up like this, just save. Otherwise change the session's adjustments to match your bike.",
+  "@setupFormSessionFirstBase": {
+    "description": "Notice on the first run of a non-tournament test session."
+  },
+  "setupFormSessionNextBase": "Only the adjustments of the session can change, locked ones stay as they are. Everything else is copied from the previous run.",
+  "@setupFormSessionNextBase": {
+    "description": "Notice on a later run of a non-tournament test session."
+  },
+  "setupFormSessionFirstRunTitle": "First run of '{name}'",
+  "@setupFormSessionFirstRunTitle": {
+    "description": "Title of the test session notice on the first run. {name} is the session name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupFormSessionRunTitle": "Run of '{name}'",
+  "@setupFormSessionRunTitle": {
+    "description": "Title of the test session notice on a later run. {name} is the session name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupFormGuideWeightSaved": "Saved with this setup as {name}'s riding weight",
+  "@setupFormGuideWeightSaved": {
+    "description": "Hint under the weight field of the setup guide card. {name} is the rider.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupFormGuideWeightLocal": "Only used for these recommendations",
+  "@setupFormGuideWeightLocal": {
+    "description": "Hint under the weight field of the setup guide card when no rider attribute is used."
+  },
+  "setupFormGuideAddWeight": "Add riding weight to {name}",
+  "@setupFormGuideAddWeight": {
+    "description": "Button of the setup guide card that adds a riding weight attribute to the rider.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupFormGuideWeightAdded": "Added riding weight to {name}",
+  "@setupFormGuideWeightAdded": {
+    "description": "Snackbar after a riding weight attribute was added to the rider.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupFormGuideApplied": "{count, plural, =1{Applied 1 recommended value} other{Applied {count} recommended values}}",
+  "@setupFormGuideApplied": {
+    "description": "Snackbar after applying all recommended values. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guideNotesLine": "Started from recommended values ({guides})",
+  "@guideNotesLine": {
+    "description": "Line added to the setup notes after applying all recommended values. {guides} lists the guide names.",
+    "placeholders": {
+      "guides": {
+        "type": "String"
+      }
+    }
+  },
+  "contextNoAddress": "No Address available",
+  "@contextNoAddress": {
+    "description": "Title of the location card when the setup has no address."
+  },
+  "contextLatLon": "Latitude/Longitude: {latitude}°/{longitude}°",
+  "@contextLatLon": {
+    "description": "Row of the location card. {latitude} and {longitude} are the formatted coordinates.",
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "contextAltitude": "Altitude: {value}",
+  "@contextAltitude": {
+    "description": "Row of the location card. {value} is the altitude with its unit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "contextWeather": "Weather: {label}",
+  "@contextWeather": {
+    "description": "Title of the weather card. {label} is the weather description.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "contextTemperature": "Temperature: {value}",
+  "@contextTemperature": {
+    "description": "Row of the weather card. {value} is the temperature with its unit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "contextPrecipitation": "Precipitation: {value}",
+  "@contextPrecipitation": {
+    "description": "Row of the weather card. {value} is the precipitation with its unit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "contextHumidity": "Humidity: {value}",
+  "@contextHumidity": {
+    "description": "Row of the weather card. {value} is the humidity with its unit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "contextWindSpeed": "Windspeed: {value}",
+  "@contextWindSpeed": {
+    "description": "Row of the weather card. {value} is the wind speed with its unit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "contextSoilMoisture": "Soil Moisture: {value}",
+  "@contextSoilMoisture": {
+    "description": "Row of the weather card. {value} is the soil moisture with its unit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "contextOpenPointInMaps": "Open {label} in maps app",
+  "@contextOpenPointInMaps": {
+    "description": "Entry of the map menu in the setup comparison. {label} is A or B.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "contextNoRiderLinked": "No rider linked to this setup.",
+  "@contextNoRiderLinked": {
+    "description": "Row of the bike card when the setup has no rider."
+  },
+  "testSessionNotFound": "TEST SESSION NOT FOUND",
+  "@testSessionNotFound": {
+    "description": "Shown when the test session of a setup no longer exists."
+  },
+  "adjustmentNotScored": "not scored",
+  "@adjustmentNotScored": {
+    "description": "Badge of an adjustment that does not count toward the rating score."
+  },
+  "adjustmentChipStep": "Step {step}",
+  "@adjustmentChipStep": {
+    "description": "Chip of an adjustment card. {step} is the step size.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustmentChipFreeText": "Free text",
+  "@adjustmentChipFreeText": {
+    "description": "Chip of a text adjustment card."
+  },
+  "adjustmentChipAnyValue": "Any value",
+  "@adjustmentChipAnyValue": {
+    "description": "Shown on an adjustment card that has no constraints."
+  },
+  "legendInitialValue": "Initial Value",
+  "@legendInitialValue": {
+    "description": "Legend entry for a value recorded for the first time."
+  },
+  "legendChangedValue": "Changed Value",
+  "@legendChangedValue": {
+    "description": "Legend entry for a value that changed."
+  },
+  "legendDanglingValue": "Dangling Value",
+  "@legendDanglingValue": {
+    "description": "Legend entry for a value whose owner was not part of the setup."
+  },
+  "adjustmentPresetAlreadyAdded": "Already added ({count})",
+  "@adjustmentPresetAlreadyAdded": {
+    "description": "Header of the group of templates that were already added. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustmentPresetAllAdded": "All suggestions added",
+  "@adjustmentPresetAllAdded": {
+    "description": "Title shown when all suggested templates were added."
   }
 }

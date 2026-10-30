@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../set_adjustment/set_step_adjustment_dial.dart';
 
@@ -68,10 +69,10 @@ class AdjustmentProperties extends StatelessWidget {
             fgColor: fgColor,
             borderColor: borderColor,
             icon: Icons.stairs_outlined,
-            text: 'Step ${p.step}',
+            text: context.l10n.adjustmentChipStep('${p.step}'),
           ));
         }
-        items.add(_boundsChip(fgColor: fgColor, borderColor: borderColor, p: p));
+        items.add(_boundsChip(context, fgColor: fgColor, borderColor: borderColor, p: p));
         if (adjustment case final StepAdjustment a when a.visualization.hasDial) {
           items.add(_dialChip(
             context,
@@ -87,14 +88,14 @@ class AdjustmentProperties extends StatelessWidget {
           label: option,
         )));
       case BooleanAdjustment _:
-        items.add(_optionChip(fgColor: fgColor, borderColor: borderColor, label: 'On'));
-        items.add(_optionChip(fgColor: fgColor, borderColor: borderColor, label: 'Off'));
+        items.add(_optionChip(fgColor: fgColor, borderColor: borderColor, label: context.l10n.valueOn));
+        items.add(_optionChip(fgColor: fgColor, borderColor: borderColor, label: context.l10n.valueOff));
       case TextAdjustment _:
         items.add(_iconChip(
           fgColor: fgColor,
           borderColor: borderColor,
           icon: Icons.text_fields,
-          text: 'Free text',
+          text: context.l10n.adjustmentChipFreeText,
         ));
     }
 
@@ -152,7 +153,7 @@ class AdjustmentProperties extends StatelessWidget {
 
   /// Single chip holding whichever bounds are set: "[⤓ 0  ⤒ 100]", "[⤓ 0]",
   /// "[⤒ 100]", or "[∞ Any value]" when fully unbounded.
-  Widget _boundsChip({required Color fgColor, required Color borderColor, required _RangeParts p}) {
+  Widget _boundsChip(BuildContext context, {required Color fgColor, required Color borderColor, required _RangeParts p}) {
     final children = <Widget>[];
     if (p.min != null) {
       children.addAll([
@@ -173,7 +174,7 @@ class AdjustmentProperties extends StatelessWidget {
       children.addAll([
         Icon(Icons.all_inclusive, size: _icon, color: fgColor),
         SizedBox(width: _iconGap),
-        Text('Any value', style: TextStyle(color: fgColor, fontSize: _font)),
+        Text(context.l10n.adjustmentChipAnyValue, style: TextStyle(color: fgColor, fontSize: _font)),
       ]);
     }
     return _chip(

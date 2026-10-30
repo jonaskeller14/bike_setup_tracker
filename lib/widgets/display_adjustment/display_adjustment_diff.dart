@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/setup_comparison.dart' as comparison;
 import '../../theme.dart';
@@ -61,7 +62,7 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
 
     return Semantics(
       container: true,
-      label: row.isDifferent ? 'Different ${row.label}' : row.label,
+      label: row.isDifferent ? context.l10n.compareRowDifferent(row.label) : row.label,
       child: Container(
         key: Key('compare-row-$id'),
         padding: const EdgeInsets.all(12),

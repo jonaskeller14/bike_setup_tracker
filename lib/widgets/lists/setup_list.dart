@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/filters/layer_filter.dart';
@@ -59,17 +60,17 @@ class SetupList extends StatelessWidget {
             child: filtered
                 ? EmptyStatePlaceholder(
                     icon: Icons.filter_alt_off,
-                    title: 'Nothing matches this filter',
-                    subtitle: 'Your filters are hiding all entries.',
-                    actionLabel: 'Clear filters',
+                    title: context.l10n.setupListFilteredTitle,
+                    subtitle: context.l10n.setupListFilteredSubtitle,
+                    actionLabel: context.l10n.clearFilters,
                     actionIcon: Icons.filter_alt_off,
                     onAction: () => FilterActions.clear(context, FilterSheetChip.setupList.sections),
                   )
                 : EmptyStatePlaceholder(
                     icon: Setup.iconData,
-                    title: 'No entries yet',
-                    subtitle: 'Record your first setup to start tracking your adjustments.',
-                    actionLabel: 'Record a setup',
+                    title: context.l10n.setupListEmptyTitle,
+                    subtitle: context.l10n.setupListEmptySubtitle,
+                    actionLabel: context.l10n.setupListEmptyAction,
                     onAction: () => SetupActions.addSetup(context),
                   ),
           ),

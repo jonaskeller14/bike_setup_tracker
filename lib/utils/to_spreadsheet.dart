@@ -242,7 +242,7 @@ class SpreadsheetExport {
     // Weather
     final w = setup.weather;
     if (w != null) {
-      row[columnMap['w_code']!] = TextCellValue(w.getWeatherCodeLabel() ?? '');
+      row[columnMap['w_code']!] = TextCellValue(w.getWeatherCodeLabel(l10n) ?? '');
       if (w.currentTemperature != null) {
         row[columnMap['w_temp']!] = DoubleCellValue(ContextWeather.convertTemperatureFromCelsius(w.currentTemperature, settings.temperatureUnit) ?? 0);
       }
@@ -311,7 +311,7 @@ class SpreadsheetExport {
     // Weather
     final w = setup.weather;
     if (w != null) {
-      row[columnMap['w_code']!] = w.getWeatherCodeLabel() ?? '';
+      row[columnMap['w_code']!] = w.getWeatherCodeLabel(l10n) ?? '';
       row[columnMap['w_temp']!] = ContextWeather.convertTemperatureFromCelsius(w.currentTemperature, settings.temperatureUnit)?.round().toString() ?? '';
       row[columnMap['w_precip']!] = ContextWeather.convertPrecipitationFromMm(w.dayAccumulatedPrecipitation, settings.precipitationUnit)?.round().toString() ?? '';
       row[columnMap['w_humid']!] = w.currentHumidity?.round().toString() ?? '';

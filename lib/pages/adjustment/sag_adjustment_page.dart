@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../theme.dart';
@@ -57,15 +58,15 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
   late SagAdjustment _previewAdjustment;
 
   String get _travelLabel => switch (widget.componentType) {
-        ComponentType.fork => 'Fork Travel',
-        ComponentType.shock => 'Shock Stroke',
-        _ => 'Travel / Stroke',
+        ComponentType.fork => context.l10n.adjustmentTravelFork,
+        ComponentType.shock => context.l10n.adjustmentTravelShock,
+        _ => context.l10n.adjustmentTravelGeneric,
       };
 
   String get _travelHint => switch (widget.componentType) {
-        ComponentType.fork => 'e.g. 160',
-        ComponentType.shock => 'e.g. 65 (stroke, not rear travel)',
-        _ => 'e.g. 160 fork, 65 shock stroke',
+        ComponentType.fork => context.l10n.adjustmentTravelHintFork,
+        ComponentType.shock => context.l10n.adjustmentTravelHintShock,
+        _ => context.l10n.adjustmentTravelHintGeneric,
       };
 
   @override
@@ -113,8 +114,8 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
   String? _validateTravel(String? value) {
     if (value == null || value.trim().isEmpty) return null; // optional
     final v = parseLocalizedDouble(value);
-    if (v == null) return 'Valid number required';
-    if (v <= 0) return 'Must be greater than 0';
+    if (v == null) return context.l10n.adjustmentValidNumberRequired;
+    if (v <= 0) return context.l10n.adjustmentMustBePositive;
     return null;
   }
 
@@ -220,8 +221,8 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => Text('Add SAG ${widget.term.label}'),
-            AdjustmentPageMode.edit => Text('Edit SAG ${widget.term.label}'),
+            AdjustmentPageMode.template => Text(context.l10n.adjustmentPageAddSag(widget.term.name)),
+            AdjustmentPageMode.edit => Text(context.l10n.adjustmentPageEditSag(widget.term.name)),
           },
           actions: [
             if (widget.mode == AdjustmentPageMode.edit)
@@ -230,9 +231,9 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                   PopupMenuItem<void>(
                     onTap: () => WidgetsBinding.instance
                         .addPostFrameCallback((_) => _convertToNumerical()),
-                    child: const ListTile(
-                      leading: Icon(NumericalAdjustment.iconData),
-                      title: Text('Convert to plain numerical'),
+                    child: ListTile(
+                      leading: const Icon(NumericalAdjustment.iconData),
+                      title: Text(context.l10n.adjustmentConvertToNumerical),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -261,14 +262,14 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: '${widget.term.label} Name',
-                              hintText: 'Enter ${widget.term.label} Name',
+                              labelText: context.l10n.adjustmentNameLabel(widget.term.name),
+                              hintText: context.l10n.adjustmentNameHint(widget.term.name),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               border: const OutlineInputBorder(),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
-                            validator: validateAdjustmentName,
+                            validator: (value) => validateAdjustmentName(context, value),
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
@@ -277,10 +278,10 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             inputFormatters: const [UnsignedDecimalInputFormatter()],
                             decoration: InputDecoration(
-                              labelText: '$_travelLabel (optional)',
+                              labelText: context.l10n.adjustmentTravelOptionalLabel(_travelLabel),
                               hintText: _travelHint,
                               helperText: _travel() == null
-                                  ? 'Add it to enter and read sag in mm as well as %.'
+                                  ? context.l10n.adjustmentTravelHelper
                                   : null,
                               helperMaxLines: 2,
                               suffixText: 'mm',
@@ -300,8 +301,8 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                                   : Icons.expand_more,
                               ),
                               label: Text(_expanded
-                                  ? "Hide Additional Fields"
-                                  : "Show Additional Fields"
+                                  ? context.l10n.hideAdditionalFields
+                                  : context.l10n.showAdditionalFields
                               ),
                             ),
                           ),
@@ -315,9 +316,9 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                               onChanged: (_) => _updatePreview(),
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: 'Notes (optional)',
-                                hintText: 'Enter measuring procedure/instrument/...',
-                                helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                labelText: context.l10n.notesOptionalLabel,
+                                hintText: context.l10n.adjustmentNotesHint,
+                                helperText: _notesController.text.trim().isEmpty ? null : context.l10n.adjustmentNotesHelper,
                                 helperMaxLines: 2,
                                 border: const OutlineInputBorder(),
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

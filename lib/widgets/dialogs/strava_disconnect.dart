@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'dialog_action.dart';
 
 Future<bool> showStravaDisconnectDialog(BuildContext context) async {
@@ -7,22 +8,19 @@ Future<bool> showStravaDisconnectDialog(BuildContext context) async {
     context: context,
     builder: (context) {
       return AlertDialog.adaptive(
-        title: const Text("Disconnect Strava?"),
-        content: const Text(
-          "This will revoke the app's access and delete all your synced activities from our secure storage. "
-          "Your Strava account itself will not be affected.",
-        ),
+        title: Text(context.l10n.stravaDisconnectTitle),
+        content: Text(context.l10n.stravaDisconnectBody),
         actions: [
           adaptiveAction(
             context: context,
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("Cancel"),
+            child: Text(context.l10n.cancel),
           ),
           adaptiveAction(
             context: context,
             isDestructive: true,
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text("Disconnect"),
+            child: Text(context.l10n.stravaDisconnectConfirm),
           ),
         ],
       );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../theme.dart';
@@ -182,11 +183,11 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Convert to SAG adjustment',
+                        context.l10n.adjustmentConvertToSagTitle,
                         style: TextStyle(color: scheme.primary, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        'Unlocks entering and reading sag in mm as well as %.',
+                        context.l10n.adjustmentConvertToSagBody,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
@@ -275,7 +276,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   String? _validateMin(String? value) {
     if (value == null || value.trim().isEmpty) return null; // optional
     final v = parseLocalizedDouble(value);
-    if (v == null) return 'Valid number required';
+    if (v == null) return context.l10n.adjustmentValidNumberRequired;
     return null;
   }
 
@@ -284,8 +285,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final v = parseLocalizedDouble(value);
     final minText = _minController.text.trim();
     final min = minText.isNotEmpty ? parseLocalizedDouble(minText) : null;
-    if (v == null) return 'Valid number required';
-    if (min != null && v < min) return 'Max must be greater than min';
+    if (v == null) return context.l10n.adjustmentValidNumberRequired;
+    if (min != null && v < min) return context.l10n.adjustmentMaxGreaterThanMin;
     return null;
   }
 
@@ -304,7 +305,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
       ListTile(
         leading: Icon(Icons.swap_horiz, color: scheme.primary),
         title: Text(
-          '${oldUnit.label} can be converted to ${newUnit.label}.',
+          context.l10n.adjustmentUnitConvertible(oldUnit.label, newUnit.label),
           style: TextStyle(color: scheme.primary),
         ),
         dense: true,
@@ -351,8 +352,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => Text('Add Numerical ${widget.term.label}'),
-            AdjustmentPageMode.edit => Text('Edit Numerical ${widget.term.label}'),
+            AdjustmentPageMode.template => Text(context.l10n.adjustmentPageAddNumerical(widget.term.name)),
+            AdjustmentPageMode.edit => Text(context.l10n.adjustmentPageEditNumerical(widget.term.name)),
           },
           actions: [
             Semantics(
@@ -383,14 +384,14 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: '${widget.term.label} Name',
-                              hintText: 'Enter ${widget.term.label} Name',
+                              labelText: context.l10n.adjustmentNameLabel(widget.term.name),
+                              hintText: context.l10n.adjustmentNameHint(widget.term.name),
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
-                            validator: validateAdjustmentName,
+                            validator: (value) => validateAdjustmentName(context, value),
                           ),
                           const SizedBox(height: 12),
                           ..._unitChangeNotice(),
@@ -399,8 +400,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             onTap: _pickUnit,
                             child: InputDecorator(
                               decoration: InputDecoration(
-                                labelText: 'Unit (optional)',
-                                hintText: 'Choose a unit',
+                                labelText: context.l10n.adjustmentUnitLabel,
+                                hintText: context.l10n.adjustmentUnitHint,
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.straighten),
                                 suffixIcon: _unit != null
@@ -418,7 +419,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.mode == AdjustmentPageMode.edit && _unit != widget.adjustment?.unit,
                               ),
-                              child: Text(_unit?.label ?? 'None'),
+                              child: Text(_unit?.label ?? context.l10n.adjustmentUnitNone),
                             ),
                           ),
                           if (_isSagCandidate) _buildSagConversionBanner(context),
@@ -430,8 +431,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                   : Icons.expand_more,
                               ),
                               label: Text(_expanded
-                                  ? "Hide Additional Fields"
-                                  : "Show Additional Fields"
+                                  ? context.l10n.hideAdditionalFields
+                                  : context.l10n.showAdditionalFields
                               ),
                             ),
                           ),
@@ -447,8 +448,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                   keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
                                   inputFormatters: const [SignedDecimalInputFormatter()],
                                   decoration: InputDecoration(
-                                    labelText: 'Min Value (optional)',
-                                    hintText: 'Enter minimum value',
+                                    labelText: context.l10n.adjustmentMinValueOptionalLabel,
+                                    hintText: context.l10n.adjustmentMinValueHint,
                                     border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.vertical_align_bottom),
                                     suffixIcon: _minController.text.isNotEmpty
@@ -474,8 +475,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                   keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
                                   inputFormatters: const [SignedDecimalInputFormatter()],
                                   decoration: InputDecoration(
-                                    labelText: 'Max Value (optional)',
-                                    hintText: 'Enter maximum value',
+                                    labelText: context.l10n.adjustmentMaxValueOptionalLabel,
+                                    hintText: context.l10n.adjustmentMaxValueHint,
                                     border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.vertical_align_top),
                                     suffixIcon: _maxController.text.isNotEmpty
@@ -501,9 +502,9 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                   onChanged: (_) => _updatePreview(),
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
-                                    labelText: 'Notes (optional)',
-                                    hintText: 'Enter measuring procedure/instrument/...',
-                                    helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                    labelText: context.l10n.notesOptionalLabel,
+                                    hintText: context.l10n.adjustmentNotesHint,
+                                    helperText: _notesController.text.trim().isEmpty ? null : context.l10n.adjustmentNotesHelper,
                                     helperMaxLines: 2,
                                     border: const OutlineInputBorder(),
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

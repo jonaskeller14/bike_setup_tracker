@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_ancestor.dart';
 import '../../models/component_stats.dart';
@@ -45,7 +46,7 @@ class ComponentTooltip extends StatelessWidget {
         ancestors: ancestors,
         notes: component.notes,
         stats: stats,
-        errorDescription: isError ? "Component was not installed at setup time" : null,
+        errorDescription: isError ? context.l10n.setupComponentNotInstalled : null,
       ),
       child: child,
     );

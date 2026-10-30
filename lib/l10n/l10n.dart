@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 import 'app_localizations.dart';
@@ -17,6 +18,14 @@ const appLocalizationsDelegates = <LocalizationsDelegate<dynamic>>[
 /// For text that must not follow the app language: catalog errors for the YAML
 /// authors, and search, which also matches the English names.
 final AppLocalizations englishL10n = lookupAppLocalizations(const Locale('en'));
+
+/// The localizations for the language `Intl.defaultLocale` currently names, for
+/// model code that formats a value without a `BuildContext`.
+AppLocalizations get currentL10n {
+  final language = Intl.shortLocale(Intl.getCurrentLocale());
+  final supported = AppLocalizations.supportedLocales.any((l) => l.languageCode == language);
+  return supported ? lookupAppLocalizations(Locale(language)) : englishL10n;
+}
 
 extension AppLocalizationsContext on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);

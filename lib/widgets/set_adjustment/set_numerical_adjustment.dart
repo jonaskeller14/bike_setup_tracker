@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
@@ -44,6 +45,11 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   late final TextEditingController _controller;
   int _index = 0;
   NumericalValue? _lastReported;
+
+  // The exact storage value behind the text a unit switch wrote, so cycling
+  // through the units again doesn't pile up the rounding of the shown text.
+  double? _cycledStorage;
+  String? _cycledText;
 
   // Recomputed, not cached: a cycle's conversions close over widget state (e.g.
   // a sag adjustment's travel), so a stale copy would convert with old inputs.
@@ -134,9 +140,17 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     final next = _cycle[nextIndex];
     unawaited(HapticFeedback.selectionClick());
     final parsed = parseLocalizedDouble(_controller.text);
+    final storage = _controller.text == _cycledText
+        ? _cycledStorage
+        : (parsed == null ? null : active.toStorage(parsed));
     setState(() {
       _index = nextIndex;
-      if (parsed != null) _setText(formatConverted(next.fromStorage(active.toStorage(parsed))));
+      if (storage != null) {
+        final text = formatConverted(next.fromStorage(storage));
+        _cycledStorage = storage;
+        _cycledText = text;
+        _setText(text);
+      }
     });
   }
 
@@ -237,7 +251,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       isDense: true,
-                      hintText: 'Please enter',
+                      hintText: context.l10n.setNumericalHint,
                       helperText: helperText,
                       helperMaxLines: 2,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -246,17 +260,17 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                     ),
                     validator: (String? newValue) {
                       if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
-                        return 'Please enter a value';
+                        return context.l10n.setValueRequired;
                       }
                       if (newValue != null && newValue.trim().isNotEmpty) {
                         final parsedValue = parseLocalizedDouble(newValue);
-                        if (parsedValue == null) return "Please enter a valid number";
+                        if (parsedValue == null) return context.l10n.setNumberInvalid;
                         final unitLabel = _activeLabel;
                         final unitSuffix = unitLabel == null ? "" : " $unitLabel";
                         final max = _boundInActiveUnit(widget.adjustment.max);
-                        if (parsedValue > max) return "Max ${formatConverted(max)}$unitSuffix";
+                        if (parsedValue > max) return context.l10n.setNumericalMax('${formatConverted(max)}$unitSuffix');
                         final min = _boundInActiveUnit(widget.adjustment.min);
-                        if (parsedValue < min) return "Min ${formatConverted(min)}$unitSuffix";
+                        if (parsedValue < min) return context.l10n.setNumericalMin('${formatConverted(min)}$unitSuffix');
                       }
                       return null;
                     },

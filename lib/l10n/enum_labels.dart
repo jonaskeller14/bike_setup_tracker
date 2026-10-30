@@ -9,6 +9,7 @@ import '../models/task/task_rule.dart';
 import '../models/tip_product.dart';
 import '../utils/installation_issue.dart';
 import '../utils/installation_timeline_validation.dart';
+import '../utils/table_column.dart';
 import 'app_localizations.dart';
 
 /// Display names of enums. The enums themselves are persisted by `name` (or
@@ -229,5 +230,38 @@ extension InstallationTimelineProblemLabel on InstallationTimelineProblem {
     InstallationTimelineProblem.bikeMissing => l10n.timelineProblemBikeMissing,
     InstallationTimelineProblem.installedOnItself => l10n.timelineProblemInstalledOnItself,
     InstallationTimelineProblem.componentLoop => l10n.timelineProblemComponentLoop,
+  };
+}
+
+extension TableColumnSectionLabel on TableColumnSection {
+  String label(AppLocalizations l10n) => switch (this) {
+    TableColumnSection.generalContext => l10n.tableSectionGeneralContext,
+    TableColumnSection.weatherContext => l10n.tableSectionWeatherContext,
+    TableColumnSection.componentAdjustments => l10n.tableSectionComponentAdjustments,
+    TableColumnSection.personAttributes => l10n.tableSectionPersonAttributes,
+    TableColumnSection.feedback => l10n.tableSectionFeedback,
+  };
+}
+
+extension SetupColumnLabel on SetupColumn {
+  String label(AppLocalizations l10n) => switch (this) {
+    SetupColumn.name => l10n.setupColumnName,
+    SetupColumn.notes => l10n.setupColumnNotes,
+    SetupColumn.tags => l10n.setupColumnTags,
+    SetupColumn.date => l10n.setupColumnDate,
+    SetupColumn.time => l10n.setupColumnTime,
+    SetupColumn.place => l10n.setupColumnPlace,
+    SetupColumn.altitude => l10n.setupColumnAltitude,
+    SetupColumn.bike => l10n.setupColumnBike,
+    SetupColumn.bookmarked => l10n.setupColumnBookmarked,
+    SetupColumn.activities => l10n.setupColumnActivities,
+    SetupColumn.weatherCode => l10n.setupColumnWeatherCode,
+    SetupColumn.temperature => l10n.setupColumnTemperature,
+    SetupColumn.precipitation => l10n.setupColumnPrecipitation,
+    SetupColumn.humidity => l10n.setupColumnHumidity,
+    SetupColumn.windSpeed => l10n.setupColumnWindSpeed,
+    SetupColumn.soilMoisture => l10n.setupColumnSoilMoisture,
+    SetupColumn.condition => l10n.setupColumnCondition,
+    SetupColumn.testSession => l10n.setupColumnTestSession,
   };
 }

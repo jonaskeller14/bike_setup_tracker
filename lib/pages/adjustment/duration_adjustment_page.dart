@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/value_migration_actions.dart';
@@ -176,8 +177,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => Text('Add Duration ${widget.term.label}'),
-            AdjustmentPageMode.edit => Text('Edit Duration ${widget.term.label}'),
+            AdjustmentPageMode.template => Text(context.l10n.adjustmentPageAddDuration(widget.term.name)),
+            AdjustmentPageMode.edit => Text(context.l10n.adjustmentPageEditDuration(widget.term.name)),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveDurationAdjustment),
@@ -207,14 +208,14 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: '${widget.term.label} Name',
-                              hintText: 'Enter ${widget.term.label} Name',
+                              labelText: context.l10n.adjustmentNameLabel(widget.term.name),
+                              hintText: context.l10n.adjustmentNameHint(widget.term.name),
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
-                            validator: validateAdjustmentName,
+                            validator: (value) => validateAdjustmentName(context, value),
                           ),
                           const SizedBox(height: 12),
                           Center(
@@ -225,8 +226,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                   : Icons.expand_more,
                               ),
                               label: Text(_expanded
-                                  ? "Hide Additional Fields"
-                                  : "Show Additional Fields"
+                                  ? context.l10n.hideAdditionalFields
+                                  : context.l10n.showAdditionalFields
                               ),
                             ),
                           ),
@@ -244,7 +245,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                     FocusScope.of(context).unfocus();
                                     showSetDurationSheet(
                                       context: context,
-                                      adjustment: DurationAdjustment(name: 'Min', notes: null, unit: null, max: _previewAdjustment.max),
+                                      adjustment: DurationAdjustment(name: context.l10n.labelMin, notes: null, unit: null, max: _previewAdjustment.max),
                                       value: _previewAdjustment.min,
                                       onChanged: (Duration newValue) {
                                         _minController.text = DurationValue(newValue).display;
@@ -253,8 +254,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    labelText: 'Min Duration (optional)',
-                                    hintText: 'Select minimum duration',
+                                    labelText: context.l10n.adjustmentMinDurationLabel,
+                                    hintText: context.l10n.adjustmentMinDurationHint,
                                     border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.vertical_align_bottom),
                                     suffixIcon: _minController.text.isNotEmpty
@@ -280,7 +281,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                     FocusScope.of(context).unfocus();
                                     showSetDurationSheet(
                                       context: context,
-                                      adjustment: DurationAdjustment(name: 'Max', notes: null, unit: null, min: _previewAdjustment.min),
+                                      adjustment: DurationAdjustment(name: context.l10n.labelMax, notes: null, unit: null, min: _previewAdjustment.min),
                                       value: _previewAdjustment.max,
                                       onChanged: (Duration newValue) {
                                         _maxController.text = DurationValue(newValue).display;
@@ -289,8 +290,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    labelText: 'Max Duration (optional)',
-                                    hintText: 'Select maximum duration',
+                                    labelText: context.l10n.adjustmentMaxDurationLabel,
+                                    hintText: context.l10n.adjustmentMaxDurationHint,
                                     border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.vertical_align_top),
                                     suffixIcon: _maxController.text.isNotEmpty
@@ -317,9 +318,9 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                   ),
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
-                                    labelText: 'Notes (optional)',
-                                    hintText: 'Enter measuring procedure/instrument/...',
-                                    helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                    labelText: context.l10n.notesOptionalLabel,
+                                    hintText: context.l10n.adjustmentNotesHint,
+                                    helperText: _notesController.text.trim().isEmpty ? null : context.l10n.adjustmentNotesHelper,
                                     helperMaxLines: 2,
                                     border: const OutlineInputBorder(),
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
@@ -117,8 +118,8 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => Text('Add Text ${widget.term.label}'),
-            AdjustmentPageMode.edit => Text('Edit Text ${widget.term.label}'),
+            AdjustmentPageMode.template => Text(context.l10n.adjustmentPageAddText(widget.term.name)),
+            AdjustmentPageMode.edit => Text(context.l10n.adjustmentPageEditText(widget.term.name)),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveTextAdjustment),
@@ -153,14 +154,14 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: '${widget.term.label} Name',
-                              hintText: 'Enter ${widget.term.label} Name',
+                              labelText: context.l10n.adjustmentNameLabel(widget.term.name),
+                              hintText: context.l10n.adjustmentNameHint(widget.term.name),
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
-                            validator: validateAdjustmentName,
+                            validator: (value) => validateAdjustmentName(context, value),
                           ),
                           Center(
                             child: TextButton.icon(
@@ -170,8 +171,8 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                                   : Icons.expand_more,
                               ),
                               label: Text(_expanded
-                                  ? "Hide Additional Fields"
-                                  : "Show Additional Fields"
+                                  ? context.l10n.hideAdditionalFields
+                                  : context.l10n.showAdditionalFields
                               ),
                             ),
                           ),
@@ -196,9 +197,9 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                                   },
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
-                                    labelText: 'Notes (optional)',
-                                    hintText: 'Enter measuring procedure/instrument/...',
-                                    helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                    labelText: context.l10n.notesOptionalLabel,
+                                    hintText: context.l10n.adjustmentNotesHint,
+                                    helperText: _notesController.text.trim().isEmpty ? null : context.l10n.adjustmentNotesHelper,
                                     helperMaxLines: 2,
                                     border: const OutlineInputBorder(),
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

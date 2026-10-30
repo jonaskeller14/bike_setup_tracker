@@ -137,7 +137,7 @@ class SetupGroupSection extends StatelessWidget {
           dateTimeText: dateTimeText,
           bikeMetadata: TileMetaRow(
             icon: Bike.iconData,
-            text: bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+            text: bikes[bikeId]?.name ?? context.l10n.bikeNotFound,
             isError: !bikeFound,
           ),
           contextMetadata: metadataRows,

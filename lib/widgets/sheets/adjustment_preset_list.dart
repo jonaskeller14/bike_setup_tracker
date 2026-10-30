@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../utils/adjustment_preset_consumption.dart';
 import '../../utils/automation_ids.dart';
@@ -54,7 +55,7 @@ class AdjustmentPresetList extends StatelessWidget {
       collapsedTextColor: mutedColor,
       iconColor: mutedColor,
       collapsedIconColor: mutedColor,
-      title: Text("Already added (${consumed.length})"),
+      title: Text(context.l10n.adjustmentPresetAlreadyAdded(consumed.length)),
       // Already-added presets stay tappable for a deliberate second copy.
       children: consumed.map((preset) => _presetTile(context, preset, consumed: true)).toList(),
     );
@@ -76,7 +77,7 @@ class AdjustmentPresetList extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
             child: SheetFilterEmptyHint(
               icon: Icons.check_circle_outline,
-              title: "All suggestions added",
+              title: context.l10n.adjustmentPresetAllAdded,
               hint: allAddedHint,
             ),
           ),

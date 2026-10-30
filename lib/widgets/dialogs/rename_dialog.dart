@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'dialog_action.dart';
 
 /// Returns the trimmed new name, or null when the dialog was cancelled or the
@@ -49,7 +50,7 @@ class _RenameDialogState extends State<_RenameDialog> {
           controller: _controller,
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(hintText: 'Name'),
+          decoration: InputDecoration(hintText: context.l10n.renameNameHint),
           onSubmitted: (value) => Navigator.of(context).pop(value),
         ),
       ),
@@ -57,12 +58,12 @@ class _RenameDialogState extends State<_RenameDialog> {
         adaptiveAction(
           context: context,
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.cancel),
         ),
         adaptiveAction(
           context: context,
           onPressed: () => Navigator.of(context).pop(_controller.text),
-          child: const Text('Rename'),
+          child: Text(context.l10n.renameConfirm),
         ),
       ],
     );

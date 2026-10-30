@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/tip_product.dart';
 import 'package:bike_setup_tracker/utils/installation_issue.dart';
 import 'package:bike_setup_tracker/utils/installation_timeline_validation.dart';
+import 'package:bike_setup_tracker/utils/table_column.dart';
 import 'package:drift/drift.dart' show EnumNameConverter;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,6 +51,13 @@ void main() {
       'InstallationTimelineProblem',
       () => expectLabeled(InstallationTimelineProblem.values, (v, l10n) => v.label(l10n)),
     );
+    test('SetupColumn', () => expectLabeled(SetupColumn.values, (v, l10n) => v.label(l10n)));
+    test('TableColumnSection', () => expectLabeled(TableColumnSection.values, (v, l10n) => v.label(l10n)));
+    test('weather codes', () {
+      const codes = [0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99];
+      expectLabeled(codes, (code, l10n) => ContextWeather.getStaticWeatherCodeLabel(code, l10n)!);
+      expect(ContextWeather.getStaticWeatherCodeLabel(null, locales['en']!), isNull);
+    });
   });
 
   test('English labels keep the wording the app had before translation', () {
@@ -61,6 +69,10 @@ void main() {
     expect(StravaWorkoutType.none.label(en), 'Activity');
     expect(SportType.HighIntensityIntervalTraining.label(en), 'HIIT');
     expect(StepAdjustmentVisualization.minusButtonValuePlusButton.label(en), 'Plus/Minus Buttons');
+    expect(SetupColumn.windSpeed.label(en), 'Windspeed');
+    expect(TableColumnSection.personAttributes.label(en), 'Rider Attributes');
+    expect(ContextWeather.getStaticWeatherCodeLabel(61, en), 'Slight rain');
+    expect(ContextWeather.getStaticWeatherCodeLabel(7, en), 'Unknown');
     expect(StravaPlan.monthly.period(en), '/ month');
     expect(TipProduct.small.label(en), 'Buy me a coffee');
   });

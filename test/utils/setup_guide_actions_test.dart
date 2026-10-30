@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
@@ -217,13 +220,30 @@ nodes:
 
     test('names the guides once and the weight used', () {
       expect(
-        guideNotesLine([guide, guide], const GuideInputs(riderWeight: 82.04)),
+        guideNotesLine([guide, guide], const GuideInputs(riderWeight: 82.04), englishL10n),
         "Started from recommended values (Acme owner's manual (2027)) · 82 kg",
       );
       expect(
-        guideNotesLine([guide], const GuideInputs()),
+        guideNotesLine([guide], const GuideInputs(), englishL10n),
         "Started from recommended values (Acme owner's manual (2027))",
       );
+    });
+
+    test('follows the language, with a decimal comma for the weight', () {
+      expect(
+        guideNotesLine([guide], const GuideInputs(riderWeight: 82.5), lookupAppLocalizations(const Locale('de'))),
+        "Ausgehend von empfohlenen Werten (Acme owner's manual (2027)) · 82,5 kg",
+      );
+    });
+
+    test('is not added again in another language', () {
+      final de = lookupAppLocalizations(const Locale('de'));
+      const inputs = GuideInputs(riderWeight: 82.5);
+      final english = guideNotesLine([guide], inputs, englishL10n);
+      final german = guideNotesLine([guide], inputs, de);
+      final notes = 'Dry\n$english';
+      expect(appendNotesLine(notes, german, equivalents: [english, german]), notes);
+      expect(appendNotesLine(notes, german), '$notes\n$german');
     });
 
     test('is appended on its own line, once', () {

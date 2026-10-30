@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/component/component.dart';
 import '../../models/person.dart';
 import '../../models/setup_comparison.dart' as comparison;
@@ -40,7 +41,7 @@ class SetupComparisonOwnerCard extends StatelessWidget {
         'compare-not-installed-${group.ownerId}-${visibleSide == DisplayAdjustmentDiffSide.a ? 'b' : 'a'}',
       ),
       icon: Icons.remove_circle_outline,
-      title: 'Not installed',
+      title: context.l10n.timelineNotInstalled,
       compact: true,
     );
 
@@ -64,7 +65,7 @@ class SetupComparisonOwnerCard extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                noAdjustments ? 'No adjustments' : _subtitle(differenceCount, totalCount),
+                noAdjustments ? context.l10n.compareNoAdjustments : _subtitle(context, differenceCount, totalCount),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: detailTextColor),
@@ -116,9 +117,8 @@ class SetupComparisonOwnerCard extends StatelessWidget {
     comparison.SetupComparisonGroupKind.person => Person.iconData,
   };
 
-  String _subtitle(int differenceCount, int totalCount) {
-    final verb = differenceCount == 1 ? 'differs' : 'differ';
-    return '$differenceCount/$totalCount values $verb';
+  String _subtitle(BuildContext context, int differenceCount, int totalCount) {
+    return context.l10n.compareValuesDiffer(differenceCount, totalCount);
   }
 }
 
@@ -197,8 +197,8 @@ class _IndependentComponentCard extends StatelessWidget {
                 ),
               ),
               subtitle: rows.isEmpty
-                  ? const Text(
-                      'No adjustments',
+                  ? Text(
+                      context.l10n.compareNoAdjustments,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     )

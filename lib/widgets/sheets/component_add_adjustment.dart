@@ -180,7 +180,7 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: "Add Adjustment", showClose: false),
+          SheetHeader(title: context.l10n.addAdjustmentTitle, showClose: false),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -190,10 +190,10 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                   StickySection(
                     header: sheetSectionHeader(context,
                       componentType == null
-                          ? "Pre-filled Templates"
+                          ? context.l10n.addAdjustmentTemplates
                           : consumedCount == 0
-                              ? "Suggested for ${componentType.label(context.l10n)}"
-                              : "Suggested for ${componentType.label(context.l10n)} · $consumedCount/${presets.length} added",
+                              ? context.l10n.addAdjustmentSuggested(componentType.label(context.l10n))
+                              : context.l10n.addAdjustmentSuggestedProgress(componentType.label(context.l10n), consumedCount, presets.length),
                     ),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -204,11 +204,11 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                             child: SheetFilterEmptyHint(
                               icon: widget.onComponentTypeSelected != null ? Icons.category_outlined : Icons.info_outline,
                               title: widget.onComponentTypeSelected != null
-                                  ? "Select a component type"
-                                  : "No templates available",
+                                  ? context.l10n.addAdjustmentSelectTypeTitle
+                                  : context.l10n.addAdjustmentNoTemplatesTitle,
                               hint: widget.onComponentTypeSelected != null
-                                  ? "Templates are suggested per component type."
-                                  : "Select a component type first.",
+                                  ? context.l10n.addAdjustmentTemplatesPerType
+                                  : context.l10n.addAdjustmentSelectTypeFirst,
                               onTap: widget.onComponentTypeSelected == null ? null : _pickComponentType,
                             ),
                           )
@@ -217,12 +217,12 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                             AdjustmentPresetList(
                               presets: presets,
                               existingAdjustments: widget.existingAdjustments,
-                              allAddedHint: "Add a custom adjustment below.",
+                              allAddedHint: context.l10n.addAdjustmentAllAdded,
                               onSelected: widget.addAdjustmentFromPreset,
                             )
                           else
                             Text(
-                              "No templates available.",
+                              context.l10n.addAdjustmentNoTemplates,
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
@@ -232,14 +232,14 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                     ),
                   ),
                   StickySection(
-                    header: sheetSectionHeader(context, "Custom Adjustment"),
+                    header: sheetSectionHeader(context, context.l10n.addAdjustmentCustom),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ListTile(
                           leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                          title: const Text("Numerical Adjustment"),
-                          subtitle: const Text("Pressure (psi/bar), Length, Angle, Weight", style: TextStyle(fontSize: 12)),
+                          title: Text(context.l10n.adjustmentTypeNumerical),
+                          subtitle: Text(context.l10n.adjustmentTypeNumericalHint, style: const TextStyle(fontSize: 12)),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                           onTap: () async {
                             Navigator.pop(context); // Close sheet first
@@ -248,8 +248,8 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                         ),
                         ListTile(
                           leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                          title: const Text("Step Adjustment"),
-                          subtitle: const Text("Rebound/Compression clicks, Spacers, Increments", style: TextStyle(fontSize: 12)),
+                          title: Text(context.l10n.adjustmentTypeStep),
+                          subtitle: Text(context.l10n.adjustmentTypeStepHint, style: const TextStyle(fontSize: 12)),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                           onTap: () async {
                             Navigator.pop(context); // Close sheet first
@@ -258,8 +258,8 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                         ),
                         ListTile(
                           leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                          title: const Text("Categorical Adjustment"),
-                          subtitle: const Text("Tire Compound (soft/hard), Brand, Style, Mode", style: TextStyle(fontSize: 12)),
+                          title: Text(context.l10n.adjustmentTypeCategorical),
+                          subtitle: Text(context.l10n.adjustmentTypeCategoricalHint, style: const TextStyle(fontSize: 12)),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                           onTap: () async {
                             Navigator.pop(context); // Close sheet first
@@ -268,8 +268,8 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                         ),
                         ListTile(
                           leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                          title: const Text("On/Off Adjustment"),
-                          subtitle: const Text("Lockout, Climb switch, Component installed? Yes/No", style: TextStyle(fontSize: 12)),
+                          title: Text(context.l10n.adjustmentTypeBoolean),
+                          subtitle: Text(context.l10n.adjustmentTypeBooleanHint, style: const TextStyle(fontSize: 12)),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                           onTap: () async {
                             Navigator.pop(context); // Close sheet first
@@ -279,8 +279,8 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                         if (context.read<AppSettings>().enableTextAdjustment)
                           ListTile(
                             leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                            title: const Text("Text Adjustment"),
-                            subtitle: const Text("Notes, advanced settings details", style: TextStyle(fontSize: 12)),
+                            title: Text(context.l10n.adjustmentTypeText),
+                            subtitle: Text(context.l10n.adjustmentTypeTextHint, style: const TextStyle(fontSize: 12)),
                             trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                             onTap: () async {
                               Navigator.pop(context); // Close sheet first
@@ -290,8 +290,8 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                         if (widget.enableDurationAdjustment)
                           ListTile(
                             leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                            title: const Text("Duration Adjustment"),
-                            subtitle: const Text("Time Span", style: TextStyle(fontSize: 12)),
+                            title: Text(context.l10n.adjustmentTypeDuration),
+                            subtitle: Text(context.l10n.adjustmentTypeDurationHint, style: const TextStyle(fontSize: 12)),
                             trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                             onTap: () async {
                               Navigator.pop(context); // Close sheet first

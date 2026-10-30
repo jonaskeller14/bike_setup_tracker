@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:uuid/uuid.dart';
 
+import '../l10n/l10n.dart';
 import 'adjustment/adjustment.dart';
 import 'attachment.dart';
 import 'context/context_place.dart';
@@ -42,7 +43,7 @@ class Setup {
 
   static const IconData iconData = Icons.tune;
 
-  static const String namePlaceholder = 'Unnamed Setup';
+  static String get namePlaceholder => currentL10n.setupUnnamed;
   String get displayName => name ?? namePlaceholder;
 
   Setup({

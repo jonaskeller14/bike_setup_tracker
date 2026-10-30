@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'add_tag_chip.dart';
 import 'partial_chip_fill.dart';
 import 'sheet_header.dart';
@@ -114,7 +115,7 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
   }
 
   String? _addTag(String newTag) {
-    if (_availableTags.contains(newTag)) return "Tag already exists";
+    if (_availableTags.contains(newTag)) return context.l10n.tagAlreadyExists;
 
     setState(() {
       _availableTags.add(newTag);
@@ -142,9 +143,9 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
       // so the fill behind it lines up with the chip outline.
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       tooltip: switch (state) {
-        _TagState.all => 'On all — tap to remove from all',
-        _TagState.some => 'On ${_counts[tag]} of ${widget.itemTags.length} — tap to add to all',
-        _TagState.none => 'On none — tap to add to all',
+        _TagState.all => context.l10n.tagsBulkOnAll,
+        _TagState.some => context.l10n.tagsBulkOnSome(_counts[tag] ?? 0, widget.itemTags.length),
+        _TagState.none => context.l10n.tagsBulkOnNone,
       },
       onSelected: (_) => _cycleTag(tag),
       onDeleted: state == _TagState.none ? null : () => setState(() => _states[tag] = _TagState.none),
@@ -173,12 +174,9 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
             dense: true,
           ),
           if (_hasPartialTags)
-            const ListTile(
-              leading: PartialChipSwatch(),
-              title: Text(
-                'Half-filled tags apply to only part of your selection — they stay that way '
-                'unless you tap them.',
-              ),
+            ListTile(
+              leading: const PartialChipSwatch(),
+              title: Text(context.l10n.tagsBulkHalfFilled),
               dense: true,
             ),
           const SizedBox(height: 12),
@@ -195,7 +193,7 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
                       padding: const EdgeInsets.symmetric(vertical: 32),
                       child: Center(
                         child: Text(
-                          "No tags yet",
+                          context.l10n.tagsEmpty,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                           ),

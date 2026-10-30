@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
@@ -89,22 +89,22 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
 
   Widget _buildEmptyComponentsPlaceholder(BuildContext context, String bike) {
     if (!widget.allowAdding) {
-      return const EmptyStatePlaceholder2(iconData: Component.iconData, title: "No bike adjustments to change");
+      return EmptyStatePlaceholder2(iconData: Component.iconData, title: context.l10n.setupTabNoBikeAdjustments);
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         EmptyStatePlaceholder2(
           iconData: Component.iconData,
-          title: "No components yet",
-          subtitle: "Add a component to this bike to start tracking adjustments",
+          title: context.l10n.noComponentsTitle,
+          subtitle: context.l10n.setupTabAddComponentSubtitle,
           onTap: () => ComponentActions.addComponent(context, initialBike: bike)
         ),
         const SizedBox(height: 8),
         FilledButton.icon(
           onPressed: () => ComponentActions.addComponent(context, initialBike: bike),
           icon: const Icon(Icons.add),
-          label: const Text("Add Component"),
+          label: Text(context.l10n.addComponent),
         ),
       ],
     );
@@ -151,12 +151,7 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                               spacing: 2,
                               textStyle: TextStyle(color: mutedColor, fontSize: 12),
                             ),
-                          Text(Intl.plural(
-                            bikeComponent.adjustments.length,
-                            zero: "No adjustments yet.",
-                            one: "1 adjustment",
-                            other: '${bikeComponent.adjustments.length} adjustments',
-                          )),
+                          Text(context.l10n.setupAdjustmentCount(bikeComponent.adjustments.length)),
                         ],
                       ),
                       leading: ComponentTooltip(
@@ -202,7 +197,7 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
               child: TextButton.icon(
                 onPressed: () => ComponentActions.addComponent(context, initialBike: widget.bike),
                 icon: const Icon(Icons.add),
-                label: const Text("Add Component"),
+                label: Text(context.l10n.addComponent),
               ),
             ),
         ],
@@ -219,8 +214,8 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
             danglingValuesCard(
               context,
               values: componentSplit.deletedValues,
-              title: "Dangling Adjustment Values",
-              cause: "Component with adjustment was deleted",
+              title: context.l10n.setupDanglingAdjustmentsTitle,
+              cause: context.l10n.setupDanglingAdjustmentsCause,
               onRemove: widget.onDanglingRemove,
             ),
         ],
@@ -257,7 +252,7 @@ Widget _danglingComponentCard(BuildContext context, {
               ),
             ),
             title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-            subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
+            subtitle: Text(context.l10n.setupComponentNotInstalled, style: TextStyle(color: scheme.error)),
           ),
         ),
         AdjustmentDisplayList(

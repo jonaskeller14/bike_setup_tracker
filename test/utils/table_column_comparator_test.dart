@@ -156,7 +156,7 @@ void main() {
       SetupColumn.precipitation,
       SetupColumn.soilMoisture,
     ]) {
-      test('${column.label} sorts by its own field', () {
+      test('${column.name} sorts by its own field', () {
         final low = setupWithOnly('low', column);
         final high = buildSetup(
           id: 'high',
@@ -171,7 +171,7 @@ void main() {
         expect(sortedIds(column, [high, low]), ['low', 'high']);
       });
 
-      test('${column.label} sorts setups without weather first', () {
+      test('${column.name} sorts setups without weather first', () {
         final setups = [setupWithOnly('weather', column), buildSetup(id: 'none')];
         expect(sortedIds(column, setups), ['none', 'weather']);
       });

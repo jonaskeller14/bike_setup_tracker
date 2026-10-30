@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/widgets/sheets/set_tags_bulk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   late BulkTagChanges? result;
@@ -17,7 +18,7 @@ void main() {
   });
 
   Widget harness(List<Set<String>> itemTags, {Set<String> availableTags = const {}}) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: materialAppTheme,
       home: Scaffold(
         body: Builder(
@@ -121,7 +122,7 @@ void main() {
 
   testWidgets('paints the partial fill over half the chip', (tester) async {
     final boundaryKey = GlobalKey();
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(localizedTestApp(
       theme: materialAppTheme,
       home: RepaintBoundary(
         key: boundaryKey,

@@ -2,9 +2,10 @@ import 'package:bike_setup_tracker/widgets/hints/setup_calendar_hint.dart';
 import 'package:bike_setup_tracker/widgets/hints/setup_task_hint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
-  Widget wrap(Widget hint) => MaterialApp(home: Scaffold(body: hint));
+  Widget wrap(Widget hint) => localizedTestApp(home: Scaffold(body: hint));
 
   testWidgets('Task hint delegates activation and dismissal', (tester) async {
     var activated = false;

@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/widgets/preset_catalog_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import '../goldens/support/localized_test_app.dart';
 
 /// One product per supplied brand, in the exact order given. The real
 /// repository loads brands alphabetically, so ordering here mimics that to
@@ -34,7 +35,7 @@ Future<void> _pumpCard(
   await tester.pumpWidget(
     Provider<ComponentCatalogRepository>.value(
       value: _repository(brands, type),
-      child: MaterialApp(
+      child: localizedTestApp(
         home: Scaffold(
           body: PresetCatalogCard(componentType: type, onTap: () {}, onUnlink: () {}),
         ),
@@ -133,7 +134,7 @@ nodes:
       await tester.pumpWidget(
         Provider<ComponentCatalogRepository>.value(
           value: ComponentCatalogRepository.withCatalogs([catalog]),
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: theme,
             home: Scaffold(
               body: PresetCatalogCard(

@@ -10,6 +10,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../goldens/support/localized_test_app.dart';
 import '../overflow_data_generator.dart' show loremIpsum;
 
 void main() {
@@ -33,7 +34,7 @@ void main() {
     ThemeData? theme,
   }) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: AttachmentViewer(
           attachments: attachments,

@@ -2,12 +2,13 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   testWidgets('error action uses the error snackbar foreground color', (tester) async {
     late BuildContext context;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: Builder(

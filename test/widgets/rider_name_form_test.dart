@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   late AppDatabase database;
@@ -30,7 +31,7 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<AppRepository>.value(
         value: repository,
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
           home: const Scaffold(body: SingleChildScrollView(child: RiderNameForm())),
         ),

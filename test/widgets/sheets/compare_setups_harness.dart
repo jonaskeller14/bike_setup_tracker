@@ -14,6 +14,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 Future<void> settle(WidgetTester tester) async {
   await tester.pump();
@@ -149,7 +150,7 @@ class CompareSetupsHarness {
         ChangeNotifierProvider<AppHintService>.value(value: hintService),
         ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: materialAppTheme,
         darkTheme: materialAppDarkTheme,
         themeMode: dark ? ThemeMode.dark : ThemeMode.light,

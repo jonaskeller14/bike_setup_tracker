@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +66,7 @@ void main() {
     await database.close();
   });
 
-  Widget buildSubject([AppHintPlacement placement = AppHintPlacement.garageHeader]) => MaterialApp(
+  Widget buildSubject([AppHintPlacement placement = AppHintPlacement.garageHeader]) => localizedTestApp(
     theme: materialAppTheme,
     home: Scaffold(
       body: MultiProvider(

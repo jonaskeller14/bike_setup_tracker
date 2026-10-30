@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 /// A delay supersedes the interval for one cycle, so the interval is struck
 /// through and the combined target — the number the progress bar measures
@@ -30,7 +31,7 @@ void main() {
   }) {
     return ChangeNotifierProvider.value(
       value: appSettings,
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: Scaffold(
           body: Align(

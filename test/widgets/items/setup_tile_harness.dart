@@ -12,6 +12,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 /// `pumpAndSettle` never returns here: the repository keeps scheduling frames
 /// while its drift streams churn, so — like `setup_list_perf_test` — these
@@ -148,7 +149,7 @@ class SetupTileHarness {
 
   Widget wrap(Widget child, {double width = 400}) {
     return _providers(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: Center(
@@ -166,7 +167,7 @@ class SetupTileHarness {
   /// that build their own viewport.
   Widget wrapFullScreen(Widget child) {
     return _providers(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(body: child),
       ),

@@ -6,13 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   const validValue = 5.0;
   const invalidValue = 0.0;
 
   Widget buildWidget({required double? initialValue, required double? value, required Key formKey}) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: materialAppTheme,
       home: Scaffold(
         body: Form(
@@ -66,7 +67,7 @@ void main() {
       required StepAdjustmentVisualization visualization,
       required StepAdjustmentDialColor dialColor,
     }) {
-      return MaterialApp(
+      return localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: SetStepAdjustmentWidget(

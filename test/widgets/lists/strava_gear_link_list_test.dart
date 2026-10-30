@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/widgets/items/strava_gear_link_tile.dart';
 import 'package:bike_setup_tracker/widgets/lists/strava_gear_link_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   StravaGear gear(int index) => StravaGear(id: "g$index", name: "Gear $index");
@@ -12,7 +13,7 @@ void main() {
   Bike bikeFor(StravaGear g) => Bike(name: "Bike ${g.name}", person: null, stravaGear: g.id);
 
   Widget buildList({required List<StravaGear> gears, required List<Bike> bikes}) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: materialAppTheme,
       home: Scaffold(
         body: SingleChildScrollView(

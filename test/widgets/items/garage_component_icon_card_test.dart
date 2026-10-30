@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 class _MockAppRepository extends Mock implements AppRepository {}
 
@@ -63,7 +64,7 @@ void main() {
         await tester.pumpWidget(
           ChangeNotifierProvider<AppSettings>.value(
             value: settings,
-            child: MaterialApp(
+            child: localizedTestApp(
               home: Scaffold(
                 body: Align(
                   alignment: Alignment.topLeft,
@@ -99,8 +100,8 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<AppSettings>.value(
         value: settings,
-        child: const MaterialApp(
-          home: Scaffold(
+        child: localizedTestApp(
+          home: const Scaffold(
             body: Align(
               alignment: Alignment.topLeft,
               child: SizedBox(
@@ -154,7 +155,7 @@ void main() {
             ChangeNotifierProvider<AppSettings>.value(value: settings),
             ChangeNotifierProvider<AppRepository>.value(value: repository),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Scaffold(
               body: Align(

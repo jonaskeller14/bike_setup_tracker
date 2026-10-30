@@ -13,6 +13,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../goldens/support/localized_test_app.dart';
 import '../../overflow_data_generator.dart' show loremIpsum;
 
 class MockSubscriptionService extends Mock implements SubscriptionService {
@@ -55,7 +56,7 @@ void main() {
             ChangeNotifierProvider.value(value: appRepository),
             ChangeNotifierProvider<SubscriptionService>(create: (_) => MockSubscriptionService()),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: theme ?? materialAppTheme,
             home: Scaffold(body: TaskRuleDisplayCard(taskRule: taskRule, showStatus: true)),
           ),

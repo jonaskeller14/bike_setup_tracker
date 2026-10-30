@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/carry_over_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 StepAdjustment _rebound(String id) => StepAdjustment(
   id: id,
@@ -58,7 +59,7 @@ void main() {
   /// Opens the sheet; [results] collects what it returns once closed.
   Future<void> open(WidgetTester tester, SetupCarryOver carryOver, List<bool?> results) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => TextButton(

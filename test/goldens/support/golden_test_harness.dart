@@ -18,6 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'localized_test_app.dart';
 
 const goldenViewport = Size(390, 844);
 const goldenScenarioConstraints = BoxConstraints.tightFor(
@@ -284,7 +285,7 @@ class GoldenTestHarness {
       child: SizedBox(
         width: viewport.width,
         height: viewport.height,
-        child: MaterialApp(
+        child: localizedTestApp(
           debugShowCheckedModeBanner: false,
           theme: brightness == Brightness.light ? materialAppTheme : materialAppDarkTheme,
           builder: (context, child) => MediaQuery(

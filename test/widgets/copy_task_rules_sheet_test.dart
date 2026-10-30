@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class _MockAppRepository extends Mock implements AppRepository {}
 
@@ -70,7 +71,7 @@ void main() {
         ChangeNotifierProvider<AppRepository>.value(value: repository),
         ChangeNotifierProvider<AppSettings>.value(value: appSettings),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: Builder(

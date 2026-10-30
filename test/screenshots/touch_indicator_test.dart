@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/screenshots/touch_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   group('TouchIndicator', () {
@@ -11,7 +12,7 @@ void main() {
       await tester.pumpWidget(
         TouchIndicator(
           jitter: jitter,
-          child: MaterialApp(
+          child: localizedTestApp(
             home: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => taps++,

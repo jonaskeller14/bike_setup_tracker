@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../goldens/support/localized_test_app.dart';
 import '../value_migration_test_utils.dart';
 import 'preset_key_test_utils.dart';
 
@@ -24,7 +25,7 @@ void main() {
     AdjustmentEditResult<Adjustment>? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -57,7 +58,7 @@ void main() {
     NumericalAdjustment? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -94,7 +95,7 @@ void main() {
     NumericalAdjustment? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -143,7 +144,7 @@ void main() {
     AdjustmentEditResult<Adjustment>? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -183,7 +184,7 @@ void main() {
     NumericalAdjustment? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -224,7 +225,7 @@ void main() {
     NumericalAdjustment? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(

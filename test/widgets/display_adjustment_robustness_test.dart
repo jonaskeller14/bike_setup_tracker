@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/widgets/display_adjustment/display_numerical_
 import 'package:bike_setup_tracker/widgets/display_adjustment/display_step_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 /// These widgets render the value and its unit as separate widgets (see
 /// ToggleableUnitValue, whose unit label is tappable when convertible), so the
@@ -23,7 +24,7 @@ void main() {
         visualization: StepAdjustmentVisualization.slider,
       );
 
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: DisplayStepAdjustmentWidget(
@@ -48,7 +49,7 @@ void main() {
         max: 100,
       );
 
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: DisplayNumericalAdjustmentWidget(

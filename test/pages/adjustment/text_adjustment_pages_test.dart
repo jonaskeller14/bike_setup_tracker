@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../goldens/support/localized_test_app.dart';
 import 'preset_key_test_utils.dart';
 
 void main() {
@@ -18,7 +19,7 @@ void main() {
     TextAdjustment? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(

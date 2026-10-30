@@ -29,6 +29,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   late MockAppRepository repository;
@@ -105,7 +106,7 @@ void main() {
         ListenableProvider<AppRepository>.value(value: repository),
         ListenableProvider<SubscriptionService>.value(value: subscriptionService),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         home: MapPage(
           locationService: service,
           headingStream: headingStream,
@@ -332,7 +333,7 @@ void main() {
     await tester.pumpWidget(buildPage(service));
     await tester.pump();
 
-    await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+    await tester.pumpWidget(localizedTestApp(home: const SizedBox()));
     completer.complete(const ContextPosition(latitude: 47.1, longitude: 8.2));
     await tester.pump();
 

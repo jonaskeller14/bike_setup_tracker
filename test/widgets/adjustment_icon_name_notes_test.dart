@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class MockSetupActivityAnalysisService extends Mock implements SetupActivityAnalysisService {}
 
@@ -40,7 +41,7 @@ void main() {
   );
 
   Widget harness({SetupActivityAnalysisService? service}) {
-    final child = MaterialApp(
+    final child = localizedTestApp(
       home: Scaffold(
         body: SizedBox(
           width: 400,
@@ -170,7 +171,7 @@ void main() {
       GuideInputs inputs = const GuideInputs(riderWeight: 82),
       SetupActivityAnalysisService? service,
     }) {
-      final child = MaterialApp(
+      final child = localizedTestApp(
         home: Scaffold(
           body: SetupGuideScope(
             sections: [
@@ -236,7 +237,7 @@ void main() {
 
     testWidgets('an adjuster without a guide rule shows no line', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        localizedTestApp(
           home: Scaffold(
             body: SetupGuideScope(
               sections: [SetupGuideSection(guided, guided.evaluate(const GuideInputs(riderWeight: 82), const {}))],

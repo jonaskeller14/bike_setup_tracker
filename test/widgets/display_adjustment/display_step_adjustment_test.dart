@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/widgets/display_adjustment/step_pips.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_step_adjustment_dial.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   StepAdjustment rebound(StepAdjustmentVisualization visualization) => StepAdjustment(
@@ -20,7 +21,7 @@ void main() {
 
   Future<void> pump(WidgetTester tester, StepAdjustment adjustment, {StepValue? previous, StepValue? value}) {
     return tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: DisplayStepAdjustmentWidget(

@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/widgets/set_adjustment/set_boolean_adjustment
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_numerical_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   final highlights = materialAppTheme.extension<ValueHighlightColors>()!;
@@ -30,7 +31,7 @@ void main() {
     required Key formKey,
     bool prefillFromInitial = false,
   }) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: materialAppTheme,
       home: Scaffold(
         body: Form(

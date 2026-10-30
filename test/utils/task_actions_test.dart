@@ -19,6 +19,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class MockSubscriptionService extends Mock implements SubscriptionService {
   @override
@@ -118,7 +119,7 @@ void main() {
           ChangeNotifierProvider.value(value: appRepository),
           ChangeNotifierProvider<SubscriptionService>(create: (_) => MockSubscriptionService()),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
           home: Scaffold(
             body: Builder(

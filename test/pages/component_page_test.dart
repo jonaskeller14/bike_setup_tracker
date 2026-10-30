@@ -29,6 +29,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class _StravaSubscriptionService extends Mock implements SubscriptionService {
   @override
@@ -111,7 +112,7 @@ nodes:
           ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
         Provider<ComponentCatalogRepository>.value(value: presetRepository),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: Builder(
           builder: (context) {
@@ -616,7 +617,7 @@ nodes:
             ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Builder(
               builder: (context) => TextButton(
@@ -726,7 +727,7 @@ nodes:
             ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Builder(
               builder: (context) => TextButton(
@@ -829,7 +830,7 @@ nodes:
             ChangeNotifierProvider<SubscriptionService>.value(value: _StravaSubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Builder(
               builder: (context) => TextButton(
@@ -1090,7 +1091,7 @@ nodes:
             ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Builder(
               builder: (context) => TextButton(

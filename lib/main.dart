@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'database/app_database.dart';
+import 'l10n/l10n.dart';
 import 'models/app_settings.dart';
 import 'pages/home_page.dart';
 import 'pages/loading_error_page.dart';
@@ -221,6 +222,9 @@ class _LoadingGateState extends State<LoadingGate> {
         if (snapshot.hasError) {
           return MaterialApp(
             theme: materialAppTheme,
+            locale: const Locale('en'),
+            localizationsDelegates: appLocalizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: const LoadingErrorPage(),
           );
         }
@@ -302,6 +306,9 @@ class _LoadingGateState extends State<LoadingGate> {
             theme: materialAppTheme,
             darkTheme: materialAppDarkTheme,
             themeMode: ThemeMode.system,
+            locale: const Locale('en'),
+            localizationsDelegates: appLocalizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: const Scaffold(body: Center(child: CircularProgressIndicator())),
             debugShowCheckedModeBanner: false,
           );
@@ -323,6 +330,9 @@ class BikeSetupTrackerApp extends StatelessWidget {
       theme: materialAppTheme,
       darkTheme: materialAppDarkTheme,
       themeMode: appSettings.themeMode,
+      locale: const Locale('en'),
+      localizationsDelegates: appLocalizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       navigatorKey: NavigationService.navigatorKey,
       home: appSettings.showOnboarding ? const OnboardingPage() : const HomePage(),
       debugShowCheckedModeBanner: false,

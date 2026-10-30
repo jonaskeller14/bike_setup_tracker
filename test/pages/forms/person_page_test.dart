@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 class _MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -48,7 +49,7 @@ void main() {
           ChangeNotifierProvider<AppRepository>.value(value: repository),
           ChangeNotifierProvider<SubscriptionService>.value(value: subscriptionService),
         ],
-        child: MaterialApp(theme: materialAppTheme, home: page),
+        child: localizedTestApp(theme: materialAppTheme, home: page),
       ),
     );
     await tester.pumpAndSettle();

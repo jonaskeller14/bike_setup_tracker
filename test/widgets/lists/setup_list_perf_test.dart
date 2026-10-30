@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 /// Guards the SetupList build-cost fix (2026-07-26): with day headers enabled
 /// the timeline must stay lazy — one `SliverList` of `StickySection` day
@@ -152,7 +153,7 @@ Future<void> _runDeepWindowLazinessTest(WidgetTester tester) async {
           create: (_) => _EntitledSubscriptionService(),
         ),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         home: Scaffold(
           body: SafeArea(
             child: ValueListenableBuilder<bool>(

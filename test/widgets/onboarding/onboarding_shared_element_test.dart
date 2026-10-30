@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   late AppDatabase database;
@@ -41,7 +42,7 @@ void main() {
         ChangeNotifierProvider<AppSettings>.value(value: appSettings),
         ChangeNotifierProvider<AppRepository>.value(value: appRepository),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: materialAppTheme,
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(disableAnimations: disableAnimations),

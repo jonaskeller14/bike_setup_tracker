@@ -17,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 const _bikeId = 'bike';
 const _wheelId = 'wheel';
@@ -129,7 +130,7 @@ void main() {
           ChangeNotifierProvider<AppRepository>.value(value: repository),
           ChangeNotifierProvider<SubscriptionService>.value(value: subscriptionService),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: brightness == Brightness.light ? materialAppTheme : materialAppDarkTheme,
           home: Scaffold(
             body: SingleChildScrollView(

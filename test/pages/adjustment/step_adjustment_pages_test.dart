@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
+import '../../goldens/support/localized_test_app.dart';
 import '../value_migration_test_utils.dart';
 import 'preset_key_test_utils.dart';
 
@@ -31,7 +32,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -64,7 +65,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -107,7 +108,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -159,7 +160,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -200,7 +201,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -254,7 +255,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -313,7 +314,7 @@ void main() {
     );
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: StepAdjustmentPage.edit(adjustment: initial),
       ),

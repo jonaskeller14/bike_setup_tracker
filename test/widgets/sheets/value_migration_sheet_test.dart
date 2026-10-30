@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/utils/value_migration_proposal.dart';
 import 'package:bike_setup_tracker/widgets/sheets/value_migration_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 const _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
 const _bar = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'bar');
@@ -64,7 +65,7 @@ void main() {
     resultReported = false;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: theme,
         home: Builder(
           builder: (context) => Scaffold(

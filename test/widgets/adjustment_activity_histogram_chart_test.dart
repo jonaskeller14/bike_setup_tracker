@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/widgets/display_data/adjustment_activity_hist
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   AdjustmentActivityHistogram histogram({bool binned = false}) => AdjustmentActivityHistogram(
@@ -37,7 +38,7 @@ void main() {
     AdjustmentValue? currentValue,
     AdjustmentValue? guideValue,
   }) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: theme ?? materialAppTheme,
       home: Scaffold(
         body: MediaQuery(

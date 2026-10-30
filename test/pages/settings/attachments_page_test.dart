@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 
+import '../../goldens/support/localized_test_app.dart';
 import '../../overflow_data_generator.dart' show loremIpsum;
 
 void main() {
@@ -68,7 +69,7 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider.value(
         value: appRepository,
-        child: MaterialApp(theme: theme ?? materialAppTheme, home: const AttachmentsPage()),
+        child: localizedTestApp(theme: theme ?? materialAppTheme, home: const AttachmentsPage()),
       ),
     );
     // Listing a folder takes several real I/O round trips, and each one only
@@ -98,7 +99,7 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: appRepository,
-          child: MaterialApp(theme: materialAppTheme, home: const AttachmentsPage()),
+          child: localizedTestApp(theme: materialAppTheme, home: const AttachmentsPage()),
         ),
       );
 

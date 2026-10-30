@@ -3,13 +3,14 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_numerical_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   const validValues = {"0.1", "-0.1", "-1", "1", ""};
   const invalidValues = {"1..1", "-1.1", "1.1", "."};
 
   Widget buildWidget({required NumericalValue? initialValue, required NumericalValue? value, required Key formKey}) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: materialAppTheme,
       home: Scaffold(
         body: Form(
@@ -75,7 +76,7 @@ void main() {
       required ValueChanged<NumericalValue?> onChanged,
       required Key formKey,
     }) {
-      return MaterialApp(
+      return localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: Form(
@@ -95,7 +96,7 @@ void main() {
     testWidgets("custom-unit adjustment does not toggle", (tester) async {
       final formKey = GlobalKey<FormState>();
       await tester.pumpWidget(
-        MaterialApp(
+        localizedTestApp(
           theme: materialAppTheme,
           home: Scaffold(
             body: Form(
@@ -209,7 +210,7 @@ void main() {
 
   group("SetNumericalAdjustmentWidget reset button visibility", () {
     Widget buildWidget({required NumericalValue? initialValue, required NumericalValue? value, bool optional = false}) {
-      return MaterialApp(
+      return localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: SetNumericalAdjustmentWidget(

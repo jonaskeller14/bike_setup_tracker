@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:provider/provider.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   late AppSettings settings;
@@ -39,7 +40,7 @@ void main() {
         ),
       ),
     );
-    return MaterialApp(
+    return localizedTestApp(
       theme: materialAppTheme,
       home: mediaQueryData == null ? child : MediaQuery(data: mediaQueryData, child: child),
     );

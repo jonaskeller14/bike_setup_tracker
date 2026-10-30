@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/utils/value_migration_proposal.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   int counter = 0;
@@ -43,7 +44,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: Scaffold(
           body: SingleChildScrollView(

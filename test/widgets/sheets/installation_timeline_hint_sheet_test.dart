@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/widgets/sheets/installation_timeline_hint_she
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   late AppSettings appSettings;
@@ -27,7 +28,7 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider.value(
         value: appSettings,
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
           home: const Scaffold(body: SizedBox.expand()),
         ),

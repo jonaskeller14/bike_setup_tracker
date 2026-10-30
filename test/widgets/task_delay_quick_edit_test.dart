@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 /// Covers the quick delay editor reachable from TaskRuleListCard and the
 /// "delay follows the trigger type" behaviour on TaskRulePage.
@@ -56,7 +57,7 @@ void main() {
         ChangeNotifierProvider.value(value: appRepository),
         ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
       ],
-      child: MaterialApp(theme: materialAppTheme, home: home),
+      child: localizedTestApp(theme: materialAppTheme, home: home),
     );
   }
 

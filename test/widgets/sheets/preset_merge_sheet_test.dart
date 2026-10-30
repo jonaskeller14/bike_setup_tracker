@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/utils/preset_merge.dart';
 import 'package:bike_setup_tracker/widgets/sheets/preset_merge_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 const _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
 
@@ -47,7 +48,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: theme,
         home: Builder(
           builder: (context) => TextButton(

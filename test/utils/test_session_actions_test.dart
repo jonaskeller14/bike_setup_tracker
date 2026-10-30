@@ -32,6 +32,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class _MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -202,7 +203,7 @@ void main() {
           ChangeNotifierProvider.value(value: appRepository),
           ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
           home: Scaffold(
             body: Builder(
@@ -319,7 +320,7 @@ void main() {
             ChangeNotifierProvider.value(value: appSettings),
             ChangeNotifierProvider.value(value: appRepository),
           ],
-          child: MaterialApp(theme: theme, home: const TestSessionPage()),
+          child: localizedTestApp(theme: theme, home: const TestSessionPage()),
         ),
       );
       await tester.enterText(find.widgetWithText(TextField, 'Name (optional)'), 'A very long session name ' * 8);
@@ -451,7 +452,7 @@ void main() {
             ChangeNotifierProvider.value(value: appRepository),
             ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: SetupPage.nextRun(run: early, session: appRepository.testSessions['ts']!),
           ),
@@ -646,7 +647,7 @@ void main() {
             ChangeNotifierProvider.value(value: appRepository),
             ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
           ],
-          child: MaterialApp(theme: materialAppTheme, home: SetupPage.add(initialBike: appRepository.bikes[_bikeId])),
+          child: localizedTestApp(theme: materialAppTheme, home: SetupPage.add(initialBike: appRepository.bikes[_bikeId])),
         ),
       );
       await settle(tester);
@@ -668,7 +669,7 @@ void main() {
             ChangeNotifierProvider.value(value: appRepository),
             ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
           ],
-          child: MaterialApp(theme: materialAppTheme, home: SetupPage.edit(setup: appRepository.setups[setupId]!)),
+          child: localizedTestApp(theme: materialAppTheme, home: SetupPage.edit(setup: appRepository.setups[setupId]!)),
         ),
       );
       await settle(tester);

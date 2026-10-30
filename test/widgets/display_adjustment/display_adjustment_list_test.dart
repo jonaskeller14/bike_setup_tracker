@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/widgets/display_adjustment/display_sag_adjust
 import 'package:bike_setup_tracker/widgets/display_adjustment/display_step_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   final rebound = StepAdjustment(
@@ -20,7 +21,7 @@ void main() {
   );
   final sag = SagAdjustment(id: 'sag', name: 'SAG', notes: null, referenceTravelMm: 160);
 
-  Widget harness(List<Adjustment> adjustments, Map<String, AdjustmentValue> values) => MaterialApp(
+  Widget harness(List<Adjustment> adjustments, Map<String, AdjustmentValue> values) => localizedTestApp(
     theme: materialAppTheme,
     home: Scaffold(
       body: AdjustmentDisplayList(

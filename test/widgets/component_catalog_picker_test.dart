@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/widgets/year_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import '../goldens/support/localized_test_app.dart';
 
 /// The picker drills into brand trees of any depth, asks for required axes one
 /// at a time and for optional axes in one skippable step. Fixtures are inline
@@ -174,7 +175,7 @@ Future<_Outcome> _open(
   await tester.pumpWidget(
     Provider<ComponentCatalogRepository>.value(
       value: repository ?? _repository(),
-      child: MaterialApp(
+      child: localizedTestApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(

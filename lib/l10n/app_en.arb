@@ -1,0 +1,23 @@
+{
+  "@@locale": "en",
+  "appTitle": "Bike Setup Tracker",
+  "@appTitle": {
+    "description": "Name of the app, shown in the task switcher."
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Button that dismisses a dialog or sheet without making changes."
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Button that stores the changes made in a form, dialog or sheet."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Button that deletes an item."
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "Button that acknowledges a message."
+  }
+}

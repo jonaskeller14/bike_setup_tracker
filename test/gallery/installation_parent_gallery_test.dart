@@ -32,6 +32,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../goldens/support/localized_test_app.dart';
 import 'gallery_harness.dart';
 
 class _MockAppRepository extends Mock implements AppRepository {}
@@ -401,7 +402,7 @@ Widget _providers({
 
 Widget _app(ThemeData theme, Widget home, {Key? key}) => RepaintBoundary(
       key: key,
-      child: MaterialApp(
+      child: localizedTestApp(
         debugShowCheckedModeBanner: false,
         theme: theme,
         home: Scaffold(body: home),

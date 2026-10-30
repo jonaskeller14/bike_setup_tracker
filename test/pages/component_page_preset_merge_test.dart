@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 /// Linking a hand-built component with recorded setups to a catalog product
 /// merges the catalog adjusters into the rider's own instead of duplicating them.
@@ -143,7 +144,7 @@ void main() {
           ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
           Provider<ComponentCatalogRepository>.value(value: catalog),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
           home: Builder(
             builder: (context) => TextButton(

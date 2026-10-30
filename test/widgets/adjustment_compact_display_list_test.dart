@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+import '../goldens/support/localized_test_app.dart';
 
 /// The component tooltips read Strava usage stats off the repository; this test
 /// only cares about the rendered values, so the stats stay at zero.
@@ -78,7 +79,7 @@ void main() {
   // --- Helpers -------------------------------------------------------------
   Widget harness(Widget child) => ChangeNotifierProvider<AppRepository>.value(
         value: repository,
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: ThemeData(
             useMaterial3: true,
             colorScheme: _scheme,

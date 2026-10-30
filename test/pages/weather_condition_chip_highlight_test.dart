@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 /// End-to-end coverage for the Weather/Condition chip highlighting split on
 /// SetupPage: manually overriding the trail condition
@@ -61,7 +62,7 @@ void main() {
         ChangeNotifierProvider.value(value: appRepository),
         ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
       ],
-      child: MaterialApp(theme: materialAppTheme, home: home),
+      child: localizedTestApp(theme: materialAppTheme, home: home),
     );
   }
 

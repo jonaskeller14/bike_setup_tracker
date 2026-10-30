@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/utils/setup_guide_actions.dart';
 import 'package:bike_setup_tracker/widgets/setup_guide_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 const _catalog = '''
 brand: Acme
@@ -63,7 +64,7 @@ void main() {
     ThemeData? theme,
   }) {
     return tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: Scaffold(
           body: SingleChildScrollView(

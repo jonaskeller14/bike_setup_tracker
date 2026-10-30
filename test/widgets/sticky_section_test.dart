@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/widgets/sticky_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   // 3 sections, each: 40px header + 20 rows x 30px = 640px per section.
@@ -9,7 +10,7 @@ void main() {
   const sectionHeight = headerHeight + 20 * 30.0;
 
   Widget buildList(ScrollController controller) {
-    return MaterialApp(
+    return localizedTestApp(
       home: Scaffold(
         body: CustomScrollView(
           controller: controller,

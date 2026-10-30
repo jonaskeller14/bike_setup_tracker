@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class _MockAppRepository extends Mock implements AppRepository {}
 
@@ -37,7 +38,7 @@ void main() {
   Widget harness(ValueChanged<List<TaskRule>?> onResult) {
     return ChangeNotifierProvider<AppRepository>.value(
       value: repository,
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: Builder(

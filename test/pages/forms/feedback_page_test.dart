@@ -964,6 +964,9 @@ void main() {
 
       await tapChip(tester, find.text('Something else changed'));
       expect(find.byType(FeedbackAspectRow), findsNWidgets(EndAspect.values.length));
+      // The card grows in an AnimatedSize; until it is done, the button below it
+      // sits over the new rows and takes the tap.
+      await tester.pump(const Duration(milliseconds: 500));
 
       // The rows and the card around them animate their size one after the other.
       await tester.pump(const Duration(milliseconds: 500));

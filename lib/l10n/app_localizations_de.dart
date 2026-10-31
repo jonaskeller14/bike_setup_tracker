@@ -5346,7 +5346,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get riderNameFormTitle => 'Wie heißt du?';
+  String get riderNameFormTitle => 'Wie ist dein Name?';
 
   @override
   String get riderNameFormBody => 'Dein Rider-Profil hält Werte wie dein Fahrergewicht bei jedem Setup fest.';

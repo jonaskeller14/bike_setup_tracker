@@ -1443,7 +1443,7 @@
   "riderNameFormRequired": "Gib einen Namen ein, um fortzufahren.",
   "riderCreated": "Rider „{name}“ angelegt.",
   "riderCreatedLinked": "Rider „{name}“ angelegt und mit diesem Bike verknüpft.",
-  "riderNameFormTitle": "Wie heißt du?",
+  "riderNameFormTitle": "Wie ist dein Name?",
   "riderNameFormBody": "Dein Rider-Profil hält Werte wie dein Fahrergewicht bei jedem Setup fest.",
   "riderNameFormCreate": "Rider anlegen",
   "riderSheetTitle": "Rider",

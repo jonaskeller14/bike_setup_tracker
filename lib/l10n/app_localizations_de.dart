@@ -4869,7 +4869,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get taskSheetRecommendationsOff =>
-      'Aufgabenempfehlungen ausgeschaltet. Du kannst sie unter Einstellungen › Funktionen wieder einschalten.';
+      'Aufgabenempfehlungen ausgeschaltet. Du kannst sie unter Einstellungen › Funktionen › Aufgabenvorlagen wieder einschalten.';
 
   @override
   String taskSheetCopyFrom(String from) {

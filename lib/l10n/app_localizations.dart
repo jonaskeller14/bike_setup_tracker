@@ -7913,7 +7913,7 @@ abstract class AppLocalizations {
   /// Snackbar after the task recommendations were switched off.
   ///
   /// In en, this message translates to:
-  /// **'Task recommendations turned off. Turn them back on in Settings › Features.'**
+  /// **'Task recommendations turned off. Turn them back on in Settings › Features › Task Presets.'**
   String get taskSheetRecommendationsOff;
 
   /// Header of the copied tasks when recommendations are shown too. {from} is the source component.

@@ -4841,7 +4841,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskSheetRecommendationsOff =>
-      'Task recommendations turned off. Turn them back on in Settings › Features.';
+      'Task recommendations turned off. Turn them back on in Settings › Features › Task Presets.';
 
   @override
   String taskSheetCopyFrom(String from) {

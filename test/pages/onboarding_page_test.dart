@@ -222,6 +222,48 @@ void main() {
     expect(appSettings.showOnboarding, isFalse);
   });
 
+  group('Language button', () {
+    final languageButton = find.widgetWithText(TextButton, 'EN');
+
+    testWidgets('only exists behind the language flag', (WidgetTester tester) async {
+      await tester.pumpWidget(buildTestApp());
+      await tester.pumpAndSettle();
+      expect(languageButton, findsNothing);
+
+      appSettings.enableLanguageSelection = true;
+      await tester.pumpAndSettle();
+      expect(languageButton, findsOneWidget);
+    });
+
+    testWidgets('gives way to the back arrow after the first slide', (WidgetTester tester) async {
+      appSettings.enableLanguageSelection = true;
+      await tester.pumpWidget(buildTestApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text("Next"));
+      await tester.pumpAndSettle();
+
+      expect(languageButton, findsNothing);
+      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+    });
+
+    testWidgets('opens the language sheet and stores the choice', (WidgetTester tester) async {
+      appSettings.enableLanguageSelection = true;
+      await tester.pumpWidget(buildTestApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(languageButton);
+      await tester.pumpAndSettle();
+      expect(find.text('Language'), findsOneWidget);
+
+      await tester.tap(find.text('Deutsch'));
+      await tester.pumpAndSettle();
+
+      expect(appSettings.localeCode, 'de');
+      expect(find.text('Deutsch'), findsNothing);
+    });
+  });
+
   group('Rider slide', () {
     /// The rider slide sits right after the promise slide.
     Future<void> goToRiderSlide(WidgetTester tester) async {

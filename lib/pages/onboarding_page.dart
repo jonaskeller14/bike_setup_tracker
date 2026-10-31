@@ -14,6 +14,7 @@ import '../widgets/onboarding/onboarding_slide_3.dart';
 import '../widgets/onboarding/onboarding_slide_4.dart';
 import '../widgets/onboarding/onboarding_slide_5.dart';
 import '../widgets/onboarding/onboarding_slide_6.dart';
+import '../widgets/sheets/language_sheet.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -185,10 +186,35 @@ class _OnboardingPageState extends State<OnboardingPage> {
     super.dispose();
   }
 
+  Widget _buildLanguageButton() {
+    final appSettings = context.read<AppSettings>();
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: TextButton.icon(
+            onPressed: () => languageSheet(
+              context: context,
+              localeCode: appSettings.localeCode,
+              onSelected: (newValue) => appSettings.localeCode = newValue,
+            ),
+            icon: const Icon(Icons.language),
+            label: Text(Localizations.localeOf(context).languageCode.toUpperCase()),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final showLanguageButton = _currentPage == 0 && context.select<AppSettings, bool>((s) => s.enableLanguageSelection);
+
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: showLanguageButton ? 96 : null,
         leading: _currentPage > 0
             ? IconButton(
                 onPressed: () async {
@@ -200,6 +226,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
                 tooltip: MaterialLocalizations.of(context).backButtonTooltip,
               )
+            : showLanguageButton
+            ? _buildLanguageButton()
             : const SizedBox.shrink(),
         centerTitle: true,
         title: Semantics(

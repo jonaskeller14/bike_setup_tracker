@@ -79,7 +79,7 @@ void main() {
 
     await tester.tap(find.text('Language'));
     await tester.pumpAndSettle();
-    expect(find.text('English'), findsOneWidget);
+    expect(find.text('English'), findsWidgets);
     expect(find.text('Deutsch'), findsOneWidget);
   });
 }

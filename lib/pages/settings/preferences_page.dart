@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_weather.dart';
+import '../../widgets/sheets/language_sheet.dart';
 import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -24,15 +25,6 @@ class PreferencesPage extends StatelessWidget {
       spacing: 8,
       children: [const Icon(Icons.dark_mode), Text(l10n.preferencesThemeDark)],
     ),
-  };
-
-  static const _systemLanguage = 'system';
-
-  /// Each language is shown in its own name.
-  static Map<String, Text> _languageOptionWidgets(AppLocalizations l10n) => {
-    _systemLanguage: Text(l10n.preferencesLanguageSystem),
-    'en': const Text('English'),
-    'de': const Text('Deutsch'),
   };
 
   /// The samples are formatted, so month names follow the app language.
@@ -123,18 +115,12 @@ class PreferencesPage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.language),
                   title: Text(l10n.preferencesLanguage),
-                  subtitle: _languageOptionWidgets(l10n)[appSettings.localeCode ?? _systemLanguage] ?? const Text("-"),
+                  subtitle: Text(languageName(l10n, appSettings.localeCode)),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => radioGroupSheet<String>(
+                  onTap: () => languageSheet(
                     context: context,
-                    title: l10n.preferencesLanguage,
-                    value: appSettings.localeCode ?? _systemLanguage,
-                    optionWidgets: _languageOptionWidgets(l10n),
-                    onChanged: (String? newValue) {
-                      if (newValue == null) return;
-                      appSettings.localeCode = newValue == _systemLanguage ? null : newValue;
-                      Navigator.pop(context);
-                    },
+                    localeCode: appSettings.localeCode,
+                    onSelected: (newValue) => appSettings.localeCode = newValue,
                   ),
                 ),
               const Divider(),

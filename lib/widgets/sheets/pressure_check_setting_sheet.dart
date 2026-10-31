@@ -24,9 +24,11 @@ Future<void> showPressureCheckSettingSheet(BuildContext context) {
 /// "All", "All except Tire" or "28 of 30" for the component types not in [hidden].
 String pressureCheckComponentTypesSummary(Set<ComponentType> hidden, AppLocalizations l10n) {
   final total = ComponentType.values.length;
-  if (hidden.isEmpty) return 'All';
-  if (hidden.length > 3) return '${total - hidden.length} of $total';
-  return 'All except ${ComponentType.values.where(hidden.contains).map((type) => type.label(l10n)).join(', ')}';
+  if (hidden.isEmpty) return l10n.pressureCheckTypesAll;
+  if (hidden.length > 3) return l10n.pressureCheckTypesCount(total - hidden.length, total);
+  return l10n.pressureCheckTypesAllExcept(
+    ComponentType.values.where(hidden.contains).map((type) => type.label(l10n)).join(', '),
+  );
 }
 
 class _PressureCheckSettingSheet extends StatelessWidget {
@@ -44,7 +46,7 @@ class _PressureCheckSettingSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Pressure Check', leadingIcon: Icon(Icons.compress)),
+          SheetHeader(title: context.l10n.featuresPressureCheck, leadingIcon: const Icon(Icons.compress)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -55,14 +57,13 @@ class _PressureCheckSettingSheet extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      'When adding a setup, checks whether your pump would still read the pressures you '
-                      'last set. Colder or thinner air makes the same sealed chamber read differently.',
+                      context.l10n.pressureCheckSettingIntro,
                       style: muted,
                     ),
                   ),
                   const SizedBox(height: 8),
                   SwitchListTile(
-                    title: const Text('Enabled'),
+                    title: Text(context.l10n.pressureCheckEnabled),
                     value: enabled,
                     onChanged: (v) => appSettings.enablePressureAssistant = v,
                   ),
@@ -71,10 +72,9 @@ class _PressureCheckSettingSheet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SheetSectionTitle(title: 'Threshold'),
+                        SheetSectionTitle(title: context.l10n.pressureCheckThresholdTitle),
                         Text(
-                          'Flag a pressure once the pump would read this much more or less than the value '
-                          'you last set.',
+                          context.l10n.pressureCheckThresholdHint,
                           style: muted,
                         ),
                       ],
@@ -101,8 +101,8 @@ class _PressureCheckSettingSheet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SheetSectionTitle(title: 'Component Types'),
-                        Text('Skip types you check before every ride anyway, like tires.', style: muted),
+                        SheetSectionTitle(title: context.l10n.pressureCheckTypesTitle),
+                        Text(context.l10n.pressureCheckTypesHint, style: muted),
                       ],
                     ),
                   ),

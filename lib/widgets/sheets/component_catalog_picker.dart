@@ -372,10 +372,13 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   // --- build ----------------------------------------------------------------
 
   String get _title => switch (_stage) {
-    _Brands() => 'Choose from catalog',
-    _Nodes(:final catalog, :final parents) => _nodesTitle(_catalog?.childrenOf(catalog, parents) ?? const []),
-    final _RequiredAxis stage => 'Select ${stage.axis.key.label.toLowerCase()}',
-    _OptionalAxes() => 'Optional details',
+    _Brands() => context.l10n.catalogPickerTitle,
+    _Nodes(:final catalog, :final parents) => _nodesTitle(
+      _catalog?.childrenOf(catalog, parents) ?? const [],
+      context.l10n,
+    ),
+    final _RequiredAxis stage => context.l10n.catalogPickerSelect(stage.axis.key.label.toLowerCase()),
+    _OptionalAxes() => context.l10n.catalogPickerOptionalDetails,
   };
 
   /// Identity of the body on screen; the switcher animates whenever it changes.
@@ -483,7 +486,7 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
           isDense: true,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _query.isEmpty ? null : IconButton(icon: const Icon(Icons.clear), onPressed: _clearQuery),
-          hintText: 'Search ${widget.componentType.label(context.l10n).toLowerCase()}s…',
+          hintText: context.l10n.catalogPickerSearchHint(widget.componentType.labelInSentence(context.l10n)),
           border: const OutlineInputBorder(),
         ),
       ),
@@ -492,9 +495,9 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
 }
 
 /// `Select trim`, from the level the listed nodes sit on.
-String _nodesTitle(List<_NodeEntry> children) {
+String _nodesTitle(List<_NodeEntry> children, AppLocalizations l10n) {
   final levels = {for (final child in children) _levelLabel(child.node.level)};
-  return levels.isEmpty ? 'Select' : 'Select ${levels.join(' / ')}';
+  return levels.isEmpty ? l10n.catalogPickerSelectGeneric : l10n.catalogPickerSelect(levels.join(' / '));
 }
 
 String _levelLabel(String level) => level.replaceAll('_', ' ');
@@ -741,7 +744,7 @@ class _BrandList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (brands.isEmpty) {
-      return const _EmptyHint(text: 'No catalog entries available.');
+      return _EmptyHint(text: context.l10n.catalogPickerNoEntries);
     }
     return _TileList(
       itemCount: brands.length,
@@ -914,7 +917,7 @@ class _RequiredValueList extends StatelessWidget {
       itemCount: values.length,
       itemBuilder: (context, index) {
         final value = values[index];
-        final lines = _valueSubtitleLines(value);
+        final lines = _valueSubtitleLines(value, context.l10n);
         final selected = value.id == currentId;
         return ListTile(
           title: _TileTitle(value.label, selected: selected),
@@ -936,13 +939,13 @@ class _RequiredValueList extends StatelessWidget {
 
 /// Description above a summary of the value's click ranges, one line each, so
 /// each is cut short on its own rather than wrapping into the next.
-List<String> _valueSubtitleLines(OptionValue value) {
+List<String> _valueSubtitleLines(OptionValue value, AppLocalizations l10n) {
   final lines = <String>[];
   final description = value.description?.trim();
   if (description != null && description.isNotEmpty) lines.add(description);
   final adjustments = _adjustmentSummary(value);
   if (adjustments.isNotEmpty) lines.add(adjustments);
-  if (value.missingAdjustments.isNotEmpty) lines.add('Add by hand: ${value.missingAdjustments.join(', ')}');
+  if (value.missingAdjustments.isNotEmpty) lines.add(l10n.catalogPickerAddByHand(value.missingAdjustments.join(', ')));
   return lines;
 }
 
@@ -1033,7 +1036,7 @@ class _OptionalAxesStepState extends State<_OptionalAxesStep> {
             icon: Icon(_hasChoice ? Icons.check : Icons.arrow_forward),
             // Unset axes stay unset: nothing is guessed for what is skipped.
             onPressed: () => widget.onDone(_preset),
-            label: Text(_hasChoice ? 'Apply' : 'Skip'),
+            label: Text(_hasChoice ? context.l10n.catalogPickerApply : context.l10n.catalogPickerSkip),
           ),
         ),
       ],
@@ -1096,7 +1099,7 @@ class _YearChips extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SheetGroupTitle(title: 'Model year'),
+        SheetGroupTitle(title: context.l10n.catalogPickerModelYear),
         Wrap(
           spacing: 8,
           runSpacing: 4,
@@ -1238,8 +1241,8 @@ class _NoMatches extends StatelessWidget {
         children: [
           SheetFilterEmptyHint(
             icon: Icons.search_off,
-            title: 'No matches for "$query".',
-            hint: 'Check the spelling, or search for the model name only.',
+            title: context.l10n.catalogPickerNoMatches(query),
+            hint: context.l10n.catalogPickerNoMatchesHint,
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -1250,12 +1253,12 @@ class _NoMatches extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onEnterManually,
                   icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Enter manually'),
+                  label: Text(context.l10n.catalogPickerEnterManually),
                 ),
               TextButton.icon(
                 onPressed: onRequest,
                 icon: Icon(requested ? Icons.check : Icons.playlist_add),
-                label: Text(requested ? 'Requested, thanks' : 'Request this product'),
+                label: Text(requested ? context.l10n.catalogPickerRequested : context.l10n.catalogPickerRequest),
               ),
             ],
           ),
@@ -1282,9 +1285,9 @@ class _LoadFailure extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(24),
-      child: Text('Could not load the catalog.'),
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Text(context.l10n.catalogPickerLoadError),
     );
   }
 }

@@ -10,9 +10,12 @@ import 'package:bike_setup_tracker/models/strava/strava_plan.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/tip_product.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
+import 'package:bike_setup_tracker/services/test_session/suggestion_result.dart';
+import 'package:bike_setup_tracker/services/weather_service.dart';
 import 'package:bike_setup_tracker/utils/installation_issue.dart';
 import 'package:bike_setup_tracker/utils/installation_timeline_validation.dart';
 import 'package:bike_setup_tracker/utils/table_column.dart';
+import 'package:bike_setup_tracker/widgets/setup_guide_status.dart';
 import 'package:drift/drift.dart' show EnumNameConverter;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +69,22 @@ void main() {
       expectLabeled(SubscriptionErrorKind.values, (v, l10n) => SubscriptionFailure(v, 'detail').message(l10n));
       expectLabeled(TipErrorKind.values, (v, l10n) => TipFailure(v, 'detail').message(l10n));
     });
+    test('weather errors', () {
+      expectLabeled(WeatherErrorKind.values, (v, l10n) => WeatherError(v, '14:05').message(l10n));
+    });
+    test('test session suggestion notes', () {
+      expectLabeled(
+        SuggestionNoteKind.values,
+        (v, l10n) => SuggestionNote(v, const ['a', 'b', 'c', 'd']).text(l10n),
+      );
+    });
+    test('setup guide statuses', () {
+      expectLabeled(GuideStatusKind.values, (v, l10n) => GuideStatus(v).label(l10n));
+    });
+    test('dial colors and sizes', () {
+      expectLabeled(StepAdjustmentDialColor.values, (v, l10n) => v.label(l10n));
+      expectLabeled(StepAdjustmentDialSize.values, (v, l10n) => v.label(l10n));
+    });
     test('Condition', () => expectLabeled(Condition.values, (v, l10n) => v.label(l10n)));
     test(
       'StepAdjustmentVisualization',
@@ -101,6 +120,26 @@ void main() {
     expect(ContextWeather.getStaticWeatherCodeLabel(7, en), 'Unknown');
     expect(StravaPlan.monthly.period(en), '/ month');
     expect(TipProduct.small.label(en), 'Buy me a coffee');
+  });
+
+  test('strategy texts, weather errors and guide statuses read in English as before and in German', () {
+    final (en, de) = (locales['en']!, locales['de']!);
+    const note = SuggestionNote(SuggestionNoteKind.levelRideAgain, ['Run 2', 'Run 3']);
+    expect(note.text(en), 'Run 2 and Run 3 are level. Ride Run 2 again to decide.');
+    expect(note.text(de), 'Run 2 und Run 3 sind gleichauf. Fahre Run 2 noch einmal, um zu entscheiden.');
+    expect(
+      const SuggestionNote(SuggestionNoteKind.patternStep, ['1', '4', 'Rebound +2', 'Run 1']).text(en),
+      'Pattern 1 of 4: Rebound +2 from Run 1. Every adjustment moves, so their effects can be told apart.',
+    );
+    const rateLimit = WeatherError(WeatherErrorKind.rateLimit, '14:05');
+    expect(rateLimit.message(en), 'Rate limit exceeded (12/h). Try again after 14:05');
+    expect(rateLimit.message(de), contains('14:05'));
+    expect(const WeatherError(WeatherErrorKind.noInternet).message(en), 'Network Error (No Internet).');
+    expect(const GuideStatus(GuideStatusKind.matches).label(en), 'Matches');
+    expect(const GuideStatus(GuideStatusKind.unavailable).label(en), "Can't apply");
+    expect(const GuideStatus(GuideStatusKind.off, text: '+6 psi').label(de), '+6 psi');
+    expect(const GuideStatus(GuideStatusKind.off, band: '72–80 psi').detail(en), 'In range: 72–80 psi');
+    expect(const GuideStatus(GuideStatusKind.off).detail(en), isNull);
   });
 
   test('a component type inside a sentence is lowercase in English and keeps its capital in German', () {

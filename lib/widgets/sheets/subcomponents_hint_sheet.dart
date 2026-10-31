@@ -68,9 +68,9 @@ class _SubcomponentsHintSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SheetHeader(
-            title: 'Subcomponents',
-            leadingIcon: Icon(Icons.account_tree_outlined),
+          SheetHeader(
+            title: context.l10n.featuresSubcomponents,
+            leadingIcon: const Icon(Icons.account_tree_outlined),
           ),
           const SizedBox(height: 16),
           Flexible(
@@ -80,22 +80,20 @@ class _SubcomponentsHintSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Install components on other components, e.g. a tire and a brake disc on a wheel. '
-                    'In the Garage, they are grouped with their parent.',
+                    context.l10n.subcomponentsSheetIntro,
                     style: theme.textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 20),
-                  const _ExampleLabel('Without subcomponents'),
+                  _ExampleLabel(context.l10n.subcomponentsSheetWithout),
                   const SizedBox(height: 8),
                   _ExampleBikeCard(groups: _flatGroups(context.l10n)),
                   const SizedBox(height: 16),
-                  const _ExampleLabel('With subcomponents'),
+                  _ExampleLabel(context.l10n.subcomponentsSheetWith),
                   const SizedBox(height: 8),
                   _ExampleBikeCard(groups: _nestedGroups(context.l10n)),
                   const SizedBox(height: 12),
                   Text(
-                    'Move a wheel and its tire and brake disc come along. '
-                    'They are credited with the same rides.',
+                    context.l10n.subcomponentsSheetCaption,
                     style: captionStyle,
                   ),
                   const SizedBox(height: 8),
@@ -106,10 +104,10 @@ class _SubcomponentsHintSheet extends StatelessWidget {
           RadioGroup<bool>(
             groupValue: value,
             onChanged: (selected) => Navigator.pop(context, selected),
-            child: const Column(
+            child: Column(
               children: [
-                RadioListTile(value: false, title: Text('Off')),
-                RadioListTile(value: true, title: Text('On')),
+                RadioListTile(value: false, title: Text(context.l10n.valueOff)),
+                RadioListTile(value: true, title: Text(context.l10n.valueOn)),
               ],
             ),
           ),
@@ -153,7 +151,7 @@ class _ExampleBikeCard extends StatelessWidget {
             dense: true,
             leading: const Icon(Bike.iconData),
             title: Text(
-              'Trail bike',
+              context.l10n.subcomponentsExampleBike,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),

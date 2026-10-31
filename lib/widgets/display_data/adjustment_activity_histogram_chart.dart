@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
 import '../../utils/adjustment_activity_histogram_grouping.dart';
@@ -21,6 +22,7 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
     final bars = histogram.bars;
     if (bars.isEmpty) return const SizedBox.shrink();
 
+    final l10n = context.l10n;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final maxCount = bars.fold<int>(0, (maximum, bar) => math.max(maximum, bar.activityCount));
@@ -31,13 +33,17 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
     final labelStyle = textTheme.labelSmall?.copyWith(color: colorScheme.onSecondary);
     final summary = [
       for (var index = 0; index < bars.length; index++)
-        '${bars[index].label}: ${bars[index].activityCount} activities${highlighted.contains(index) ? ' (current)' : ''}'
-            '${recommended.contains(index) ? ' (recommended)' : ''}',
+        l10n.chartHistogramBarSemantics(
+          bars[index].label,
+          bars[index].activityCount,
+          '${highlighted.contains(index)}',
+          '${recommended.contains(index)}',
+        ),
     ].join(', ');
 
     return Semantics(
       container: true,
-      label: 'Activity distribution. $summary',
+      label: l10n.chartActivityDistribution(summary),
       child: ExcludeSemantics(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -82,7 +88,7 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                       axisNameWidget: SizedBox(
                         key: const ValueKey('histogram-activity-count-axis-label'),
                         child: Text(
-                          'Activity count',
+                          l10n.chartHistogramCountAxis,
                           style: textTheme.labelSmall?.copyWith(color: colorScheme.onSecondary),
                         ),
                       ),
@@ -128,8 +134,12 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         final bar = bars[group.x];
                         return BarTooltipItem(
-                          '${bar.label}\n${bar.activityCount} activities${highlighted.contains(group.x) ? '\nCurrent value' : ''}'
-                          '${recommended.contains(group.x) ? '\nRecommended value' : ''}',
+                          l10n.chartHistogramBarTooltip(
+                            bar.label,
+                            bar.activityCount,
+                            '${highlighted.contains(group.x)}',
+                            '${recommended.contains(group.x)}',
+                          ),
                           textTheme.labelSmall?.copyWith(color: colorScheme.onSecondaryContainer) ??
                               TextStyle(color: colorScheme.onSecondaryContainer),
                         );

@@ -30,10 +30,10 @@ class TournamentStrategy extends TestSessionStrategy {
   SuggestionResult propose(TestSessionHistory history) {
     if (TestSessionStrategy.waiting(history) case final result?) return result;
     final method = history.session.method;
-    if (method is! Tournament) return const InvalidData('This session does not compare setups.');
+    if (method is! Tournament) return const InvalidData(SuggestionNote(SuggestionNoteKind.notCompare));
     final candidates = [for (final id in method.candidateSetupIds) history.setups[id]];
     if (candidates.contains(null) || candidates.length < 2) {
-      return const InvalidData('A setup to compare was removed. End the session or compare the rest in a new one.');
+      return const InvalidData(SuggestionNote(SuggestionNoteKind.setupRemoved));
     }
     final field = candidates.cast<Setup>();
 
@@ -86,7 +86,12 @@ class TournamentStrategy extends TestSessionStrategy {
         final byCount = count(a.id).compareTo(count(b.id));
         return byCount != 0 ? byCount : field.indexOf(a).compareTo(field.indexOf(b));
       }).first;
-      return _ride(next, ids, last, 'Ride ${next.displayName} and compare it with ${last.displayName}.');
+      return _ride(
+        next,
+        ids,
+        last,
+        SuggestionNote(SuggestionNoteKind.rideAndCompare, [next.displayName, last.displayName]),
+      );
     }
 
     Setup candidate(String id) => field.firstWhere((c) => c.id == id);
@@ -104,13 +109,13 @@ class TournamentStrategy extends TestSessionStrategy {
         next,
         ids,
         last,
-        '${next.displayName} and ${other.displayName} are level. Ride ${next.displayName} again to decide.',
+        SuggestionNote(SuggestionNoteKind.levelRideAgain, [next.displayName, other.displayName]),
       );
     }
     return Converged(bestSetupId: top.setupId);
   }
 
-  static Proposal _ride(Setup next, List<String> ids, Setup last, String rationale) => Proposal(
+  static Proposal _ride(Setup next, List<String> ids, Setup last, SuggestionNote rationale) => Proposal(
     baseSetupId: next.id,
     values: {for (final id in ids) id: ?TestSessionHistory.valueOf(next, id)},
     referenceSetupId: last.id,

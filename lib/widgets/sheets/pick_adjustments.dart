@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component_ancestor.dart';
 import '../../repositories/app_repository.dart';
@@ -41,7 +42,7 @@ Future<void> showPickAdjustmentsSheet(
   required List<String> selectedIds,
   required ValueChanged<List<String>> onChanged,
   String? Function(int selectedCount)? warningFor,
-  String emptyTitle = 'No adjustments yet',
+  String? emptyTitle,
   String? emptyHint,
 }) {
   return showModalBottomSheet<void>(
@@ -54,7 +55,7 @@ Future<void> showPickAdjustmentsSheet(
       selectedIds: selectedIds,
       onChanged: onChanged,
       warningFor: warningFor,
-      emptyTitle: emptyTitle,
+      emptyTitle: emptyTitle ?? context.l10n.pickAdjustmentsEmptyTitle,
       emptyHint: emptyHint,
     ),
   );

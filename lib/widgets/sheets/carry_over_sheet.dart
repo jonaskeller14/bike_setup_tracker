@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/setup.dart';
 import '../../services/setup_carry_over.dart';
 import 'sheet.dart';
@@ -34,10 +34,10 @@ class _CarryOverSheet extends StatelessWidget {
 
   static String _valueText(CarryOverEntry entry) => '${entry.value.display}${entry.from.unitSuffix()}';
 
-  static String _reason(CarryOverEntry entry) => switch (entry.issue) {
-    CarryOverIssue.componentGone => "'${entry.fromComponent.name}' is no longer on the bike.",
-    CarryOverIssue.noMatchingAdjustment => "'${entry.toComponent?.name}' has no matching adjustment.",
-    CarryOverIssue.valueNotAllowed => "Not allowed by '${entry.to?.name}' on '${entry.toComponent?.name}'.",
+  static String _reason(CarryOverEntry entry, AppLocalizations l10n) => switch (entry.issue) {
+    CarryOverIssue.componentGone => l10n.carryOverReasonGone(entry.fromComponent.name),
+    CarryOverIssue.noMatchingAdjustment => l10n.carryOverReasonNoMatch('${entry.toComponent?.name}'),
+    CarryOverIssue.valueNotAllowed => l10n.carryOverReasonNotAllowed('${entry.to?.name}', '${entry.toComponent?.name}'),
     null => '',
   };
 
@@ -52,15 +52,13 @@ class _CarryOverSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SheetHeader(title: canApply ? 'Apply values to current components?' : "Values can't be applied"),
+          SheetHeader(title: canApply ? context.l10n.carryOverTitleApply : context.l10n.carryOverTitleCant),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Text(
               canApply
-                  ? "'${setup.displayName}' was recorded with components that are no longer on the bike. "
-                        'Their values can go to the components in the same position now.'
-                  : "'${setup.displayName}' was recorded with components that are no longer on the bike, "
-                        "and their values don't fit the components in the same position now.",
+                  ? context.l10n.carryOverBodyApply(setup.displayName)
+                  : context.l10n.carryOverBodyCant(setup.displayName),
               style: theme.textTheme.bodyMedium,
             ),
           ),
@@ -69,7 +67,7 @@ class _CarryOverSheet extends StatelessWidget {
               shrinkWrap: true,
               padding: const EdgeInsets.only(bottom: 8),
               children: [
-                if (canApply) sheetSectionHeader(context, 'WILL BE APPLIED'),
+                if (canApply) sheetSectionHeader(context, context.l10n.carryOverWillApply.toUpperCase()),
                 for (final entry in applicable)
                   ListTile(
                     dense: true,
@@ -80,12 +78,12 @@ class _CarryOverSheet extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
-                      "From '${entry.fromComponent.name}' to '${entry.toComponent!.name}'",
+                      context.l10n.carryOverFromTo(entry.fromComponent.name, entry.toComponent!.name),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                if (skipped.isNotEmpty) sheetSectionHeader(context, "CAN'T BE APPLIED"),
+                if (skipped.isNotEmpty) sheetSectionHeader(context, context.l10n.carryOverCantApply.toUpperCase()),
                 for (final entry in skipped)
                   ListTile(
                     dense: true,
@@ -95,7 +93,7 @@ class _CarryOverSheet extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    subtitle: Text(_reason(entry), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    subtitle: Text(_reason(entry, context.l10n), maxLines: 2, overflow: TextOverflow.ellipsis),
                   ),
               ],
             ),
@@ -103,7 +101,7 @@ class _CarryOverSheet extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
             child: Text(
-              'Values that are not applied stay in the setup, but belong to components that are no longer on the bike.',
+              context.l10n.carryOverNote,
               style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
@@ -116,11 +114,11 @@ class _CarryOverSheet extends StatelessWidget {
                   child: canApply
                       ? OutlinedButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text("Don't apply"),
+                          child: Text(context.l10n.carryOverDontApply),
                         )
                       : FilledButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Continue'),
+                          child: Text(context.l10n.continueLabel),
                         ),
                 ),
                 if (canApply)
@@ -130,7 +128,7 @@ class _CarryOverSheet extends StatelessWidget {
                         unawaited(HapticFeedback.selectionClick());
                         Navigator.pop(context, true);
                       },
-                      child: Text(Intl.plural(applicable.length, one: 'Apply 1 value', other: 'Apply ${applicable.length} values')),
+                      child: Text(context.l10n.carryOverApplyCount(applicable.length)),
                     ),
                   ),
               ],

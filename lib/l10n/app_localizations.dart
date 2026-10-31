@@ -116,12 +116,6 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get delete;
 
-  /// Button that acknowledges a message.
-  ///
-  /// In en, this message translates to:
-  /// **'OK'**
-  String get ok;
-
   /// Title of the home screen long-press shortcut that opens the new setup form.
   ///
   /// In en, this message translates to:
@@ -12445,6 +12439,1782 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{speed} {unit} Wind'**
   String exportWeatherWind(int speed, String unit);
+
+  /// Title of the confirmation before attachments are deleted. {count} is the number of attachments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete attachment?} other{Delete {count} attachments?}}'**
+  String attachmentDeleteTitle(int count);
+
+  /// Body of the confirmation before attachments are deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'The attachments are permanently deleted and removed from their setups, bikes, components and tasks. This action cannot be undone.'**
+  String get attachmentDeleteBody;
+
+  /// Snackbar after attachments were deleted. {count} is the number of attachments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Attachment deleted.} other{{count} attachments deleted.}}'**
+  String attachmentDeletedSnack(int count);
+
+  /// Snackbar when picking attachments failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not pick attachments: {error}'**
+  String attachmentPickError(String error);
+
+  /// Title of the dialog that renames an attachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Attachment'**
+  String get attachmentViewerRenameTitle;
+
+  /// Shown in the attachment viewer when the image file is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Image not found'**
+  String get attachmentViewerImageNotFound;
+
+  /// Shown in the attachment viewer instead of the file size when the file is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'File not found'**
+  String get attachmentViewerFileNotFound;
+
+  /// Button and menu entry that saves an attachment to the device's files.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to Files'**
+  String get attachmentViewerSaveToFiles;
+
+  /// Menu entry that shares an attachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Share…'**
+  String get attachmentViewerShareMenu;
+
+  /// Snackbar after an attachment was saved to the device's files.
+  ///
+  /// In en, this message translates to:
+  /// **'File saved'**
+  String get attachmentViewerFileSaved;
+
+  /// Snackbar when saving an attachment failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save file: {error}'**
+  String attachmentViewerSaveError(String error);
+
+  /// Tooltip of the button that opens the setup an attachment belongs to.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Setup'**
+  String get attachmentViewerShowSetup;
+
+  /// Tooltip of the button that opens the bike an attachment belongs to.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Bike'**
+  String get attachmentViewerShowBike;
+
+  /// Tooltip of the button that opens the component an attachment belongs to.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Component'**
+  String get attachmentViewerShowComponent;
+
+  /// Tooltip of the button that opens the task an attachment belongs to.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Task'**
+  String get attachmentViewerShowTask;
+
+  /// Option that picks an image from the photo gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get attachmentSourceGallery;
+
+  /// Option that takes a photo with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get attachmentSourcePhoto;
+
+  /// Option that picks any file from the device.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose File'**
+  String get attachmentSourceFile;
+
+  /// Screen reader label of the activity histogram. {summary} lists the bars.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity distribution. {summary}'**
+  String chartActivityDistribution(String summary);
+
+  /// Screen reader text of one histogram bar. {label} is the value range, {count} the number of activities, {current} and {recommended} are 'true' or 'false'.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {count, plural, =1{1 activity} other{{count} activities}}{current, select, true{ (current)} other{}}{recommended, select, true{ (recommended)} other{}}'**
+  String chartHistogramBarSemantics(String label, int count, String current, String recommended);
+
+  /// Tooltip of one histogram bar. {label} is the value range, {count} the number of activities, {current} and {recommended} are 'true' or 'false'.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}\n{count, plural, =1{1 activity} other{{count} activities}}{current, select, true{\nCurrent value} other{}}{recommended, select, true{\nRecommended value} other{}}'**
+  String chartHistogramBarTooltip(String label, int count, String current, String recommended);
+
+  /// Label of the vertical axis of the activity histogram.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity count'**
+  String get chartHistogramCountAxis;
+
+  /// Empty state of the activity histogram when no adjustment column is shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Select adjustment columns to visualize the activity distribution'**
+  String get chartHistogramNoColumnsSubtitle;
+
+  /// Empty state title of the activity histogram when no Strava activity exists.
+  ///
+  /// In en, this message translates to:
+  /// **'No activities'**
+  String get chartHistogramNoActivitiesTitle;
+
+  /// Empty state subtitle of the activity histogram when no Strava activity exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Strava activities to see which values you rode most'**
+  String get chartHistogramNoActivitiesSubtitle;
+
+  /// Error state title of the activity histogram.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load activities'**
+  String get chartHistogramLoadErrorTitle;
+
+  /// Error state subtitle of the activity histogram.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong while linking activities to setups'**
+  String get chartHistogramLoadErrorSubtitle;
+
+  /// Empty state title of the activity histogram when the chosen column has no linked activity.
+  ///
+  /// In en, this message translates to:
+  /// **'No activities linked'**
+  String get chartHistogramNoLinkedTitle;
+
+  /// Empty state subtitle of the activity histogram. {column} is the name of the chosen column.
+  ///
+  /// In en, this message translates to:
+  /// **'None of the setups with a \'{column}\' value were used on an activity'**
+  String chartHistogramNoLinkedSubtitle(String column);
+
+  /// Empty state title of a chart when no adjustment column is shown.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustments selected'**
+  String get chartNoAdjustmentsTitle;
+
+  /// Empty state subtitle of the line and radial chart when no suitable column is shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Select numerical or step adjustment columns to visualize trends'**
+  String get chartTrendNoColumnsSubtitle;
+
+  /// Empty state title of a chart without setups.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get chartNoDataTitle;
+
+  /// Empty state subtitle of a chart without setups.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup data available'**
+  String get chartNoDataSubtitle;
+
+  /// Empty state title of a chart when no setup row is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'No setups selected'**
+  String get chartNoSetupsSelectedTitle;
+
+  /// Empty state subtitle of a chart when no setup row is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select setups in the table above to visualize the chart'**
+  String get chartNoSetupsSelectedSubtitle;
+
+  /// Empty state title of a chart when the chosen columns hold no numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'No numerical data'**
+  String get chartNoNumericalTitle;
+
+  /// Empty state subtitle of a chart when the chosen columns hold no numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected columns do not contain numerical data to plot'**
+  String get chartNoNumericalSubtitle;
+
+  /// Empty state title of the line chart with fewer than two setups.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough setups'**
+  String get chartLineNotEnoughTitle;
+
+  /// Empty state subtitle of the line chart with fewer than two setups.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least two setups in the table to visualize a trend'**
+  String get chartLineNotEnoughSubtitle;
+
+  /// Empty state title of the radial chart with fewer than three columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough columns'**
+  String get chartRadialNotEnoughTitle;
+
+  /// Empty state subtitle of the radial chart with fewer than three columns.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 3 numerical columns are required to generate a radar chart'**
+  String get chartRadialNotEnoughSubtitle;
+
+  /// Label of the energy figure in the component stats card.
+  ///
+  /// In en, this message translates to:
+  /// **'Kilojoules'**
+  String get componentStatsKilojoules;
+
+  /// Snackbar when a link could not be opened. {url} is the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to open link: {url}'**
+  String urlOpenFailed(String url);
+
+  /// Snackbar when no app can open a link.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find a program to launch the link.'**
+  String get urlNoProgram;
+
+  /// Snackbar when the email app could not be opened. {email} is the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to open email client for: {email}'**
+  String urlEmailFailed(String email);
+
+  /// Snackbar when no email app is installed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find an email app on your device.'**
+  String get urlNoEmailApp;
+
+  /// Snackbar when no maps app is installed.
+  ///
+  /// In en, this message translates to:
+  /// **'No maps app found. Please install Apple Maps, Google Maps, or another maps application.'**
+  String get urlNoMapsApp;
+
+  /// Snackbar when a picked file exceeds the size limit. {name} is the file name, {size} the limit in megabytes.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" is larger than {size} MB and was not attached.'**
+  String attachmentTooLarge(String name, int size);
+
+  /// Snackbar when a picked file could not be attached. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" could not be attached.'**
+  String attachmentImportFailed(String name);
+
+  /// Link that expands a long note.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get notesShowMore;
+
+  /// Shown by the metric weight field when the metric does not count.
+  ///
+  /// In en, this message translates to:
+  /// **'Not included in the score'**
+  String get metricWeightNotScored;
+
+  /// Label of the metric weight field.
+  ///
+  /// In en, this message translates to:
+  /// **'Scoring weight'**
+  String get metricWeightTitle;
+
+  /// Tooltip of the button that lowers the metric weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease weight'**
+  String get metricWeightDecrease;
+
+  /// Tooltip of the button that raises the metric weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase weight'**
+  String get metricWeightIncrease;
+
+  /// Hint under the metric weight field while it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Set how this metric affects the score'**
+  String get metricWeightHintUnset;
+
+  /// Hint under the metric weight field for a positive weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher values improve the score'**
+  String get metricWeightHintPositive;
+
+  /// Hint under the metric weight field for a negative weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower values improve the score'**
+  String get metricWeightHintNegative;
+
+  /// Hint under the metric weight field for a weight of zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Not counted in the score'**
+  String get metricWeightHintZero;
+
+  /// Column heading of the soil moisture legend table. The unit stays as is.
+  ///
+  /// In en, this message translates to:
+  /// **'Soil Moisture [m³/m³]'**
+  String get soilMoistureLegendColumn;
+
+  /// Screen reader label of a task priority badge. {priority} is the priority name.
+  ///
+  /// In en, this message translates to:
+  /// **'{priority} priority'**
+  String taskPrioritySemantics(String priority);
+
+  /// Heading of the value migration preview with one example.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get valueTransitionExample;
+
+  /// Heading of the value migration preview with several examples.
+  ///
+  /// In en, this message translates to:
+  /// **'Examples'**
+  String get valueTransitionExamples;
+
+  /// Shown in the value migration preview for a value that is cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'No value'**
+  String get valueTransitionCleared;
+
+  /// Badge on the suggested setup in the setup picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested'**
+  String get pickSetupSuggested;
+
+  /// Title of the sheet that chooses how a dial adjuster is drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Dial style'**
+  String get dialStyleTitle;
+
+  /// Hint under a progress message in a sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'This can take a moment for large datasets.'**
+  String get sheetProgressHint;
+
+  /// Suggestion above the custom unit field. {unit} is the suggested unit, {quantity} its quantity such as pressure.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you mean \"{unit}\" ({quantity})?'**
+  String unitPickerDidYouMean(String unit, String quantity);
+
+  /// Line in the weather card with the trail condition. {condition} is the condition name.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition: {condition}'**
+  String contextCondition(String condition);
+
+  /// Bike name in the setup day list when the bike no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown bike'**
+  String get setupDayUnknownBike;
+
+  /// Default empty state title of the adjustment picker.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustments yet'**
+  String get pickAdjustmentsEmptyTitle;
+
+  /// Name of the example bike in the subcomponents hint sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Trail bike'**
+  String get subcomponentsExampleBike;
+
+  /// Screen reader label of a page dot in a hint deck. {label} names the deck, {index} is the page, {total} the number of pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} {index} of {total}'**
+  String hintPageDot(String label, int index, int total);
+
+  /// Tooltip of a button that collapses a card.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse'**
+  String get collapse;
+
+  /// Tooltip of a button that expands a card.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand'**
+  String get expand;
+
+  /// Headline of the pressure check card when at least one pressure is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth getting the pump out'**
+  String get pressureCheckWorthPump;
+
+  /// Headline of the pressure check card when every pressure is fine.
+  ///
+  /// In en, this message translates to:
+  /// **'No need to get the pump out'**
+  String get pressureCheckNoPump;
+
+  /// Current conditions in the pressure check card. {conditions} is the temperature and altitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Now {conditions}'**
+  String pressureCheckNow(String conditions);
+
+  /// Footer of the pressure check card when at least one pressure is off.
+  ///
+  /// In en, this message translates to:
+  /// **'On the right is what your pump would read now. Pump back to the value you last set for the same feel.'**
+  String get pressureCheckFooterDrifted;
+
+  /// Footer of the pressure check card when every pressure is fine. {threshold} is the threshold, such as 3 %.
+  ///
+  /// In en, this message translates to:
+  /// **'Every pressure stays within {threshold} of the value you last set.'**
+  String pressureCheckFooterOk(String threshold);
+
+  /// Tooltip of the info button on the pressure check card.
+  ///
+  /// In en, this message translates to:
+  /// **'How this is calculated'**
+  String get pressureCheckInfoTooltip;
+
+  /// Row of the pressure check card: the value that was last set. {value} is the pressure, {unit} its unit, {date} the setup date, {conditions} the temperature and altitude then.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {value} {unit} on {date} · {conditions}'**
+  String pressureCheckSetOn(String value, String unit, String date, String conditions);
+
+  /// A pressure in psi in the pressure check explanation. {value} is the formatted number.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} psi'**
+  String pressureCheckPsi(String value);
+
+  /// Introduction of the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A pressure you set at home doesn\'t read the same on the trail, even if no air escaped. This card shows what your pump would read right now.'**
+  String get pressureCheckInfoIntro;
+
+  /// Heading in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Why the reading changes'**
+  String get pressureCheckInfoWhyHeading;
+
+  /// Explanation of the temperature effect in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Colder air shrinks the air in the chamber: the reading drops.'**
+  String get pressureCheckInfoCold;
+
+  /// Explanation of the altitude effect in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinner air higher up pushes back less: the same chamber reads higher.'**
+  String get pressureCheckInfoThin;
+
+  /// Remark after the temperature and altitude effects in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The two often partly cancel each other out.'**
+  String get pressureCheckInfoCancel;
+
+  /// Heading of the example card in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get pressureCheckInfoExampleHeading;
+
+  /// Heading in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'What to do'**
+  String get pressureCheckInfoWhatToDoHeading;
+
+  /// Advice in the pressure check info sheet. {value} is the example pressure.
+  ///
+  /// In en, this message translates to:
+  /// **'The feel follows what your pump reads. So the value you last set is still the right target: pump the fork back to {value} psi and it feels the same as at home.'**
+  String pressureCheckInfoWhatToDo(String value);
+
+  /// Heading of the status legend in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get pressureCheckInfoStatusHeading;
+
+  /// Legend entry for a pressure within the threshold. {threshold} is the threshold, such as 3 %.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than {threshold} off. Fine to ride as is.'**
+  String pressureCheckInfoStatusOk(String threshold);
+
+  /// Legend entry for a pressure beyond the threshold. {threshold} is the threshold, such as 3 %.
+  ///
+  /// In en, this message translates to:
+  /// **'{threshold} or more off. Worth getting the pump out.'**
+  String pressureCheckInfoStatusDrift(String threshold);
+
+  /// Pointer to the pressure check settings. The menu names must match the app's own labels.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the threshold or skip component types in Settings › Features › Pressure Check.'**
+  String get pressureCheckInfoSettingsHint;
+
+  /// Heading in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Good to know'**
+  String get pressureCheckInfoGoodToKnowHeading;
+
+  /// Note in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Each value is compared with the setup that last changed it, which is not always your previous setup.'**
+  String get pressureCheckInfoCompared;
+
+  /// Note in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Both setups need a temperature and an altitude; pressures without them are left out.'**
+  String get pressureCheckInfoNeedsConditions;
+
+  /// Note in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it.'**
+  String get pressureCheckInfoNotIncluded;
+
+  /// Example card of the pressure check info sheet: the first place.
+  ///
+  /// In en, this message translates to:
+  /// **'At home'**
+  String get pressureCheckExampleHome;
+
+  /// Example card: the pressure that was set at home.
+  ///
+  /// In en, this message translates to:
+  /// **'You set'**
+  String get pressureCheckExampleYouSet;
+
+  /// Example card: the second place.
+  ///
+  /// In en, this message translates to:
+  /// **'At the trailhead'**
+  String get pressureCheckExampleTrailhead;
+
+  /// Example card: the pressure the pump would read at the trailhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Pump reads'**
+  String get pressureCheckExamplePumpReads;
+
+  /// Example card: the share of the drift that comes from the temperature.
+  ///
+  /// In en, this message translates to:
+  /// **'Colder'**
+  String get pressureCheckExampleColder;
+
+  /// Example card: the share of the drift that comes from the altitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher up'**
+  String get pressureCheckExampleHigherUp;
+
+  /// Example card: the total drift. {value} is the signed pressure.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {value} psi'**
+  String pressureCheckExampleTotal(String value);
+
+  /// Summary of the component types the pressure check covers, when none is skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get pressureCheckTypesAll;
+
+  /// Summary of the component types the pressure check covers when many are skipped. {count} is the number covered, {total} the number of types.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total}'**
+  String pressureCheckTypesCount(int count, int total);
+
+  /// Summary of the component types the pressure check covers when a few are skipped. {types} is a comma separated list.
+  ///
+  /// In en, this message translates to:
+  /// **'All except {types}'**
+  String pressureCheckTypesAllExcept(String types);
+
+  /// Introduction of the pressure check settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently.'**
+  String get pressureCheckSettingIntro;
+
+  /// Switch in the pressure check settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
+  String get pressureCheckEnabled;
+
+  /// Section title in the pressure check settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Threshold'**
+  String get pressureCheckThresholdTitle;
+
+  /// Explanation of the threshold in the pressure check settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Flag a pressure once the pump would read this much more or less than the value you last set.'**
+  String get pressureCheckThresholdHint;
+
+  /// Section title in the pressure check settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Component Types'**
+  String get pressureCheckTypesTitle;
+
+  /// Explanation of the component type list in the pressure check settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip types you check before every ride anyway, like tires.'**
+  String get pressureCheckTypesHint;
+
+  /// Title of the setup guide card, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup guide'**
+  String get guideCardTitle;
+
+  /// Tooltip of the info button on the setup guide card.
+  ///
+  /// In en, this message translates to:
+  /// **'About recommended values'**
+  String get guideCardInfoTooltip;
+
+  /// Headline of the setup guide card.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended first values'**
+  String get guideCardHeadline;
+
+  /// Footnote of the setup guide card.
+  ///
+  /// In en, this message translates to:
+  /// **'A starting point, check your manual.'**
+  String get guideCardStartingPoint;
+
+  /// Button that applies every recommended value of the setup guide card.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply all'**
+  String get guideCardApplyAll;
+
+  /// Label of the riding weight field of the setup guide card.
+  ///
+  /// In en, this message translates to:
+  /// **'Riding weight'**
+  String get guideCardRidingWeight;
+
+  /// Button that stores the typed riding weight with the rider, used when no rider name is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Add riding weight to rider'**
+  String get guideCardAddWeightDefault;
+
+  /// Line under a component name in the setup guide card. {guide} is the name of the guide.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on: {guide}'**
+  String guideCardBasedOn(String guide);
+
+  /// Current value of an adjustment in the setup guide card. {value} is the formatted value.
+  ///
+  /// In en, this message translates to:
+  /// **'Now {value}'**
+  String guideCardNow(String value);
+
+  /// Part of the status line of a setup guide row. {band} is the range such as 72–80 psi.
+  ///
+  /// In en, this message translates to:
+  /// **'in range {band}'**
+  String guideCardInRange(String band);
+
+  /// Hint of the setup guide card when no riding weight is known. The tab name must match the app's own label.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a riding weight on the Rider tab for weight-based values'**
+  String get guideCardEnterWeight;
+
+  /// Line of the setup guide card with the riding weight in use. {weight} is the number, {unit} its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended values for {weight} {unit}'**
+  String guideCardValuesFor(String weight, String unit);
+
+  /// Part of the detail line of a setup guide row: the value was worked out between two weight steps.
+  ///
+  /// In en, this message translates to:
+  /// **'interpolated'**
+  String get guideDetailInterpolated;
+
+  /// Part of the detail line of a setup guide row: the clicks were counted from the other end.
+  ///
+  /// In en, this message translates to:
+  /// **'converted to your dial'**
+  String get guideDetailConverted;
+
+  /// Detail line of a setup guide row whose value does not depend on any input.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed value'**
+  String get guideDetailFixed;
+
+  /// Reason a setup guide row has no value.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs your riding weight'**
+  String get guideIssueNeedsWeight;
+
+  /// Reason a setup guide row has no value.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs your riding style'**
+  String get guideIssueNeedsStyle;
+
+  /// Reason a setup guide row has no value. {name} is the name of the adjustment it depends on.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs a value for {name}'**
+  String guideIssueNeedsAdjuster(String name);
+
+  /// Reason a setup guide row has no value. {spec} is the name of a catalog property such as wheel size.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the component\'s {spec}'**
+  String guideIssueNeedsSpec(String spec);
+
+  /// Reason a setup guide row has no value.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs more information'**
+  String get guideIssueNeedsMore;
+
+  /// Reason a setup guide row has no value.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside the published range'**
+  String get guideIssueOutsideRange;
+
+  /// Reason a setup guide row can't be applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your dial\'s click count (max) first'**
+  String get guideIssuePlaceholderMax;
+
+  /// Reason a setup guide row can't be applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Above this adjuster\'s maximum'**
+  String get guideIssueAboveMax;
+
+  /// Reason a setup guide row can't be applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Below this adjuster\'s minimum'**
+  String get guideIssueBelowMin;
+
+  /// Reason a setup guide row can't be applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t fit this adjuster\'s type or unit'**
+  String get guideIssueIncompatible;
+
+  /// Reason a setup guide row can't be applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted on the catalog\'s dial; set this adjuster\'s dial direction to apply'**
+  String get guideIssueDirectionUnknown;
+
+  /// Upper end of a rider weight range, without unit. {value} is the weight.
+  ///
+  /// In en, this message translates to:
+  /// **'up to {value}'**
+  String guideWeightUpTo(String value);
+
+  /// Tooltip line with the recommended value of an adjustment. {value} is the formatted value.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended: {value}'**
+  String guideRecommended(String value);
+
+  /// Tooltip line with a recommended value that can't be applied. {value} is the formatted value or a dash, {reason} says why.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended: {value} · {reason}'**
+  String guideRecommendedWithIssue(String value, String reason);
+
+  /// Status pill: the value is the recommended value.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches'**
+  String get guideStatusMatches;
+
+  /// Status pill: the value is close to the recommendation.
+  ///
+  /// In en, this message translates to:
+  /// **'In range'**
+  String get guideStatusInRange;
+
+  /// Status pill: no value entered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get guideStatusNotSet;
+
+  /// Status pill: the recommendation doesn't fit the adjuster.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t apply'**
+  String get guideStatusCantApply;
+
+  /// Status pill: the value is off and no distance can be shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Differs'**
+  String get guideStatusDiffers;
+
+  /// Detail under a status pill that is off. {band} is the range such as 72–80 psi.
+  ///
+  /// In en, this message translates to:
+  /// **'In range: {band}'**
+  String guideStatusInRangeDetail(String band);
+
+  /// Title of the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended values'**
+  String get guideInfoTitle;
+
+  /// Introduction of the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Each value comes from the manufacturer\'s setup guide for your exact model and riding weight. It is a starting point, check your manual.'**
+  String get guideInfoIntro;
+
+  /// Heading in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'How values are found'**
+  String get guideInfoHowHeading;
+
+  /// Explanation in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Manuals list settings per weight step, for example 70–80 kg and 80–90 kg. If your weight falls between two steps, the value is worked out in between. Outside the weights a manual covers, there is no recommendation.'**
+  String get guideInfoHowSteps;
+
+  /// Explanation in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Clicks are counted from the end the manual counts from. If your adjuster counts the other way, the value is converted to your dial.'**
+  String get guideInfoClicks;
+
+  /// Heading of the status legend in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get guideInfoStatusHeading;
+
+  /// Legend entry for the Matches status.
+  ///
+  /// In en, this message translates to:
+  /// **'Your value is the recommended value.'**
+  String get guideLegendMatches;
+
+  /// Legend entry for the In range status.
+  ///
+  /// In en, this message translates to:
+  /// **'Close to the recommendation: inside the range the manual gives, or less than halfway to the next weight step.'**
+  String get guideLegendInRange;
+
+  /// Legend entry for a status that shows a distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Further off. Shows how far your value is from the recommendation.'**
+  String get guideLegendOff;
+
+  /// Legend entry for the Not set status.
+  ///
+  /// In en, this message translates to:
+  /// **'No value entered yet. Tap the row to use the recommendation.'**
+  String get guideLegendNotSet;
+
+  /// Legend entry for the Can't apply status.
+  ///
+  /// In en, this message translates to:
+  /// **'The recommendation doesn\'t fit your adjuster, e.g. it is beyond its range. Edit the adjuster first.'**
+  String get guideLegendUnavailable;
+
+  /// Heading above the one guide behind the recommendations.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get guideInfoSource;
+
+  /// Heading above the guides behind the recommendations.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get guideInfoSources;
+
+  /// Subtitle of a guide in the info sheet. {components} is a comma separated list of component names.
+  ///
+  /// In en, this message translates to:
+  /// **'For {components}'**
+  String guideInfoFor(String components);
+
+  /// Title of the component tree preview. {count} is the number of subcomponents.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 subcomponent} other{{count} subcomponents}}'**
+  String subcomponentCount(int count);
+
+  /// Title of the carry over sheet when some values can move.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply values to current components?'**
+  String get carryOverTitleApply;
+
+  /// Title of the carry over sheet when no value can move.
+  ///
+  /// In en, this message translates to:
+  /// **'Values can\'t be applied'**
+  String get carryOverTitleCant;
+
+  /// Body of the carry over sheet when some values can move. {setup} is the setup name.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{setup}\' was recorded with components that are no longer on the bike. Their values can go to the components in the same position now.'**
+  String carryOverBodyApply(String setup);
+
+  /// Body of the carry over sheet when no value can move. {setup} is the setup name.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{setup}\' was recorded with components that are no longer on the bike, and their values don\'t fit the components in the same position now.'**
+  String carryOverBodyCant(String setup);
+
+  /// Section title in the carry over sheet, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be applied'**
+  String get carryOverWillApply;
+
+  /// Section title in the carry over sheet, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t be applied'**
+  String get carryOverCantApply;
+
+  /// Subtitle of a value that moves. {source} is the replaced component, {target} the component it moves to.
+  ///
+  /// In en, this message translates to:
+  /// **'From \'{source}\' to \'{target}\''**
+  String carryOverFromTo(String source, String target);
+
+  /// Reason a value can't move. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{name}\' is no longer on the bike.'**
+  String carryOverReasonGone(String name);
+
+  /// Reason a value can't move. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{name}\' has no matching adjustment.'**
+  String carryOverReasonNoMatch(String name);
+
+  /// Reason a value can't move. {adjustment} is the adjustment name, {component} the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed by \'{adjustment}\' on \'{component}\'.'**
+  String carryOverReasonNotAllowed(String adjustment, String component);
+
+  /// Note at the bottom of the carry over sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Values that are not applied stay in the setup, but belong to components that are no longer on the bike.'**
+  String get carryOverNote;
+
+  /// Button that leaves the values where they are.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t apply'**
+  String get carryOverDontApply;
+
+  /// Button that moves the values. {count} is the number of values.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Apply 1 value} other{Apply {count} values}}'**
+  String carryOverApplyCount(int count);
+
+  /// Title of the value migration sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Update recorded values'**
+  String get valueMigrationTitle;
+
+  /// Intro of the value migration sheet. {name} is the adjustment name, {records} the affected setups, {decide} and {replaces} are 'true' or 'false'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your change to \'{name}\' affects {records}.{decide, select, true{ Choose what happens to their values.} other{}}{replaces, select, true{ This replaces the change you confirmed earlier.} other{}}'**
+  String valueMigrationIntro(String name, String records, String decide, String replaces);
+
+  /// Hint under the choices of the value migration sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Need different values in different setups? Cancel, change those setups first, then make this edit.'**
+  String get valueMigrationNeedDifferent;
+
+  /// Confirm button of the value migration sheet. {count} is the number of setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Update 1 setup} other{Update {count} setups}}'**
+  String valueMigrationUpdate(int count);
+
+  /// Confirm button of the value migration sheet when only deleted setups are affected. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Update 1 deleted setup} other{Update {count} deleted setups}}'**
+  String valueMigrationUpdateDeleted(int count);
+
+  /// Number of affected setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 setup} other{{count} setups}}'**
+  String affectedSetups(int count);
+
+  /// Number of affected setups that are all deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 deleted setup} other{{count} deleted setups}}'**
+  String affectedDeletedSetups(int count);
+
+  /// Number of affected setups, with the number of deleted ones in addition.
+  ///
+  /// In en, this message translates to:
+  /// **'{live, plural, =1{1 setup} other{{live} setups}} (+{deleted} deleted)'**
+  String affectedSetupsWithDeleted(int live, int deleted);
+
+  /// Name of the missing unit in the value migration sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'no unit'**
+  String get valueMigrationNoUnit;
+
+  /// Title of a unit change in the value migration sheet. {before} and {after} are unit names.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit changed from {before} to {after}'**
+  String valueMigrationUnitChanged(String before, String after);
+
+  /// Title of renamed options in the value migration sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Renamed options'**
+  String get valueMigrationRenamedOptions;
+
+  /// Title of a deleted option in the value migration sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{option}\' was deleted'**
+  String valueMigrationDeletedOption(String option);
+
+  /// Title when options became unique in the value migration sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Each option can be picked only once now'**
+  String get valueMigrationDuplicateOptions;
+
+  /// Title when a combination of options is no longer allowed. {combination} lists the options.
+  ///
+  /// In en, this message translates to:
+  /// **'Only one option can be picked now: {combination}'**
+  String valueMigrationCombination(String combination);
+
+  /// Title when values do not fit a step adjustment any more.
+  ///
+  /// In en, this message translates to:
+  /// **'Values off the new steps or range'**
+  String get valueMigrationOutOfStep;
+
+  /// Title when values do not fit a numerical adjustment any more.
+  ///
+  /// In en, this message translates to:
+  /// **'Values outside the new range'**
+  String get valueMigrationOutOfRange;
+
+  /// Label of the dropdown that picks the replacement of a deleted option.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace \'{option}\' with'**
+  String valueMigrationReplaceDeleted(String option);
+
+  /// Label of the dropdown that picks the replacement of an option combination.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace {combination} with'**
+  String valueMigrationReplaceCombination(String combination);
+
+  /// Dropdown entry that removes a deleted option from a multi-selection.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \'{option}\' from the selection'**
+  String valueMigrationRemoveFromSelection(String option);
+
+  /// Choice that converts values to the new unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert'**
+  String get valueMigrationConvert;
+
+  /// Choice that keeps the numbers and only changes the unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep numbers'**
+  String get valueMigrationKeepNumbers;
+
+  /// Choice that moves values to the nearest step.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap'**
+  String get valueMigrationSnap;
+
+  /// Choice that moves values to the nearest limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Clamp'**
+  String get valueMigrationClamp;
+
+  /// Choice that clears the values.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get valueMigrationClear;
+
+  /// Hint under the Convert choice. {records} names the affected setups, {one} is 'true' for a single setup, {unit} the new unit.
+  ///
+  /// In en, this message translates to:
+  /// **'{records} {one, select, true{is} other{are}} converted to {unit}.'**
+  String valueMigrationHintConvert(String records, String one, String unit);
+
+  /// Hint under the Keep numbers choice when the new unit is empty. {records} names the affected setups, {one} is 'true' for a single setup.
+  ///
+  /// In en, this message translates to:
+  /// **'{records} {one, select, true{keeps its} other{keep their}} numbers, now without a unit.'**
+  String valueMigrationHintKeepNoUnit(String records, String one);
+
+  /// Hint under the Keep numbers choice. {records} names the affected setups, {one} is 'true' for a single setup, {unit} the new unit.
+  ///
+  /// In en, this message translates to:
+  /// **'{records} {one, select, true{keeps its} other{keep their}} numbers, now read in {unit}.'**
+  String valueMigrationHintKeepUnit(String records, String one, String unit);
+
+  /// Hint under the Snap choice. {records} names the affected setups, {one} is 'true' for a single setup.
+  ///
+  /// In en, this message translates to:
+  /// **'{records} {one, select, true{snaps} other{snap}} to the nearest step.'**
+  String valueMigrationHintSnap(String records, String one);
+
+  /// Hint under the Clamp choice. {records} names the affected setups, {one} is 'true' for a single setup.
+  ///
+  /// In en, this message translates to:
+  /// **'{records} {one, select, true{moves} other{move}} to the nearest limit.'**
+  String valueMigrationHintClamp(String records, String one);
+
+  /// Hint when a deleted option's text is taken by a renamed option. {records} names the affected setups, {one} is 'true' for a single setup.
+  ///
+  /// In en, this message translates to:
+  /// **'{records} {one, select, true{keeps} other{keep}} \'{option}\', now the option renamed from \'{origin}\'.'**
+  String valueMigrationHintKeepRenamed(String records, String one, String option, String origin);
+
+  /// Hint when a deleted option is removed from a multi-selection. {records} names the affected setups.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{option}\' is removed from {records}.'**
+  String valueMigrationHintRemoveOption(String option, String records);
+
+  /// Hint under the Clear choice. {records} names the affected setups, {one} is 'true' for a single setup.
+  ///
+  /// In en, this message translates to:
+  /// **'{records} {one, select, true{loses its} other{lose their}} value.'**
+  String valueMigrationHintClear(String records, String one);
+
+  /// Hint when a deleted option is replaced. {records} names the affected setups.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{option}\' becomes \'{replacement}\' in {records}.'**
+  String valueMigrationHintBecomes(String option, String replacement, String records);
+
+  /// Hint when an option is replaced. {records} names the affected setups, {one} is 'true' for a single setup.
+  ///
+  /// In en, this message translates to:
+  /// **'{records} {one, select, true{changes} other{change}} to \'{replacement}\'.'**
+  String valueMigrationHintChanges(String records, String one, String replacement);
+
+  /// Line under an adjustment with a confirmed value migration. {records} names the affected setups.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates {records} on save'**
+  String valueMigrationPendingUpdates(String records);
+
+  /// Line under an adjustment whose confirmed migration clears values. {records} names the affected setups, {one} is 'true' for a single setup.
+  ///
+  /// In en, this message translates to:
+  /// **'{records} {one, select, true{loses its} other{lose their}} value'**
+  String valueMigrationPendingClears(String records, String one);
+
+  /// Badge on a result card of the preset merge sheet: the adjustment was merged with a preset adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Merged'**
+  String get presetMergeStatusMerged;
+
+  /// Badge on a result card of the preset merge sheet: the adjustment stays as it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Unchanged'**
+  String get presetMergeStatusUnchanged;
+
+  /// Badge on a result card of the preset merge sheet: the preset adjustment is added.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get presetMergeStatusNew;
+
+  /// Badge and heading in the preset merge sheet for preset adjustments that are left out.
+  ///
+  /// In en, this message translates to:
+  /// **'Not added'**
+  String get presetMergeStatusNotAdded;
+
+  /// Title of the preset merge sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge adjustments'**
+  String get presetMergeTitle;
+
+  /// Introduction of the preset merge sheet. {product} is the catalog product name.
+  ///
+  /// In en, this message translates to:
+  /// **'Your component already has adjustments. Choose how the ones of {product} combine with them.'**
+  String presetMergeIntro(String product);
+
+  /// Mode and button that merge the preset adjustments into the existing ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge'**
+  String get presetMergeModeMerge;
+
+  /// Explanation of the merge mode in the preset merge sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Merged adjustments keep their name and recorded values and get linked to the preset. Tap a badge to change it.'**
+  String get presetMergeMergedHint;
+
+  /// Heading above the result cards of the preset merge sheet. {summary} counts the outcomes.
+  ///
+  /// In en, this message translates to:
+  /// **'Result · {summary}'**
+  String presetMergeResult(String summary);
+
+  /// Summary in replace mode. {preset} is the number of preset adjustments, {removed} the number of existing ones that are removed.
+  ///
+  /// In en, this message translates to:
+  /// **'{preset} from the preset · {removed} of yours removed'**
+  String presetMergeSummaryReplace(int preset, int removed);
+
+  /// Part of the merge summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} merged'**
+  String presetMergeSummaryMerged(int count);
+
+  /// Part of the merge summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} new'**
+  String presetMergeSummaryNew(int count);
+
+  /// Part of the merge summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} unchanged'**
+  String presetMergeSummaryUnchanged(int count);
+
+  /// Notice in replace mode when no recorded values are at stake.
+  ///
+  /// In en, this message translates to:
+  /// **'Your adjustments are removed and the preset\'s are used instead. None of yours has recorded values yet, so nothing is lost.'**
+  String get presetReplaceNoValues;
+
+  /// Warning in replace mode when recorded values are at stake. {withValues} is the number of adjustments with values, {valueCount} the number of values.
+  ///
+  /// In en, this message translates to:
+  /// **'{withValues, plural, =1{1 of your adjustments has} other{{withValues} of your adjustments have}} {valueCount, plural, =1{1 recorded value} other{{valueCount} recorded values}}. Replacing removes them from this component: the values stay in your setups, but no longer belong to an adjustment. Merge keeps them.'**
+  String presetReplaceWarning(int withValues, int valueCount);
+
+  /// Line on a merged result card. {own} is the existing adjustment, {catalog} the preset adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'{own} + {catalog} (preset)'**
+  String presetMergeLine(String own, String catalog);
+
+  /// Line on a merged result card whose range was not replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps your range: recorded values lie outside the preset\'s'**
+  String get presetMergeKeptRange;
+
+  /// Menu entry that merges a preset adjustment into an existing one. {name} is the existing adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge into \"{name}\"'**
+  String presetMergeChoiceMergeInto(String name);
+
+  /// Menu entry that merges an existing adjustment with a preset one. {name} is the preset adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge with \"{name}\" (preset)'**
+  String presetMergeChoiceMergeWith(String name);
+
+  /// Menu entry that leaves a preset adjustment out.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t add'**
+  String get presetMergeChoiceDontAdd;
+
+  /// Menu entry that adds a left out preset adjustment as a new one.
+  ///
+  /// In en, this message translates to:
+  /// **'Add as new'**
+  String get presetMergeChoiceAddNew;
+
+  /// Menu entry that undoes a merge and keeps both adjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate again'**
+  String get presetMergeChoiceSeparate;
+
+  /// Menu entry that undoes a merge and drops the preset adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate, drop preset\'s'**
+  String get presetMergeChoiceSeparateDrop;
+
+  /// Title of the catalog picker at the brand level, and the call to action of the catalog card.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from catalog'**
+  String get catalogPickerTitle;
+
+  /// Title of the catalog picker for a level. {thing} is the lowercase level name from the catalog, such as trim.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {thing}'**
+  String catalogPickerSelect(String thing);
+
+  /// Title of the catalog picker when the level has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get catalogPickerSelectGeneric;
+
+  /// Title of the catalog picker for the optional axes.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional details'**
+  String get catalogPickerOptionalDetails;
+
+  /// Hint of the catalog search field. {type} is the component type, lowercase in English.
+  ///
+  /// In en, this message translates to:
+  /// **'Search {type}s…'**
+  String catalogPickerSearchHint(String type);
+
+  /// Empty state of the catalog picker.
+  ///
+  /// In en, this message translates to:
+  /// **'No catalog entries available.'**
+  String get catalogPickerNoEntries;
+
+  /// Line under a catalog option for adjustments the catalog lacks. {adjustments} is a comma separated list.
+  ///
+  /// In en, this message translates to:
+  /// **'Add by hand: {adjustments}'**
+  String catalogPickerAddByHand(String adjustments);
+
+  /// Button of the optional details step when something is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get catalogPickerApply;
+
+  /// Button of the optional details step when nothing is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get catalogPickerSkip;
+
+  /// Group title of the model year chips.
+  ///
+  /// In en, this message translates to:
+  /// **'Model year'**
+  String get catalogPickerModelYear;
+
+  /// Empty search result in the catalog picker. {query} is the search text.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches for \"{query}\".'**
+  String catalogPickerNoMatches(String query);
+
+  /// Hint under an empty search result in the catalog picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the spelling, or search for the model name only.'**
+  String get catalogPickerNoMatchesHint;
+
+  /// Button that leaves the catalog picker without a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter manually'**
+  String get catalogPickerEnterManually;
+
+  /// Button text after a product was requested.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested, thanks'**
+  String get catalogPickerRequested;
+
+  /// Button that asks for a product to be added to the catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Request this product'**
+  String get catalogPickerRequest;
+
+  /// Error state of the catalog picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the catalog.'**
+  String get catalogPickerLoadError;
+
+  /// Title of the catalog card when the linked entry no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog entry not found'**
+  String get catalogCardNotFound;
+
+  /// Subtitle of the catalog card when the linked entry no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer in the catalog · Tap to choose another'**
+  String get catalogCardNotFoundHint;
+
+  /// Last part of the subtitle of a linked catalog card.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to change'**
+  String get catalogCardTapToChange;
+
+  /// Teaser of the catalog card. {type} is the component type, lowercase in English.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefill from a {type} model'**
+  String catalogCardPrefill(String type);
+
+  /// Second line of the catalog card teaser.
+  ///
+  /// In en, this message translates to:
+  /// **'Link to a catalog product to get recommended values'**
+  String get catalogCardGuideHint;
+
+  /// Tooltip of the button that unlinks a component from its catalog entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink preset (keeps values)'**
+  String get catalogCardUnlinkTooltip;
+
+  /// Heading of the catalog update notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get catalogCardUpdateAvailable;
+
+  /// Button that dismisses a catalog update.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get catalogCardDismiss;
+
+  /// Button that reviews a catalog update.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get catalogCardReview;
+
+  /// Introduction of the subcomponents sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Install components on other components, e.g. a tire and a brake disc on a wheel. In the Garage, they are grouped with their parent.'**
+  String get subcomponentsSheetIntro;
+
+  /// Label above the first example bike of the subcomponents sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Without subcomponents'**
+  String get subcomponentsSheetWithout;
+
+  /// Label above the second example bike of the subcomponents sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'With subcomponents'**
+  String get subcomponentsSheetWith;
+
+  /// Caption under the example bikes of the subcomponents sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Move a wheel and its tire and brake disc come along. They are credited with the same rides.'**
+  String get subcomponentsSheetCaption;
+
+  /// Weather fetch failed because the device is offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Network Error (No Internet).'**
+  String get weatherErrorNoInternet;
+
+  /// Weather fetch failed because the request timed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Network Error (Timeout).'**
+  String get weatherErrorTimeout;
+
+  /// Weather fetch refused because of too many requests. {limit} is the number of requests per hour, {time} the time of day the limit lifts.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate limit exceeded ({limit}/h). Try again after {time}'**
+  String weatherErrorRateLimit(int limit, String time);
+
+  /// Weather fetch failed for another reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Error occurred during weather update.'**
+  String get weatherErrorFailed;
+
+  /// Why a test session strategy has nothing to propose yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a run first.'**
+  String get suggestionRecordRunFirst;
+
+  /// Why a test session strategy has nothing to propose yet. {run} is the name of the latest run.
+  ///
+  /// In en, this message translates to:
+  /// **'Add feedback on {run} first.'**
+  String suggestionAddFeedbackFirst(String run);
+
+  /// Problem with the data of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'An adjustment of this session is no longer on the bike. Lock it to go on.'**
+  String get suggestionAdjustmentGone;
+
+  /// Problem with the data of a test session. {run} is the run name, {adjustment} the adjustment name.
+  ///
+  /// In en, this message translates to:
+  /// **'{run} has no value for \'{adjustment}\'.'**
+  String suggestionNoValue(String run, String adjustment);
+
+  /// Problem with the data of a test session. {adjustment} is the adjustment name, {run} the run name.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{adjustment}\' in {run} is outside its range.'**
+  String suggestionOutOfRange(String adjustment, String run);
+
+  /// Why a test session strategy has nothing to propose.
+  ///
+  /// In en, this message translates to:
+  /// **'Every adjustment is locked.'**
+  String get suggestionAllLocked;
+
+  /// Problem with the data of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'This session does not compare setups.'**
+  String get suggestionNotCompare;
+
+  /// Problem with the data of a Compare test session.
+  ///
+  /// In en, this message translates to:
+  /// **'A setup to compare was removed. End the session or compare the rest in a new one.'**
+  String get suggestionSetupRemoved;
+
+  /// Rationale of an Explore run. {number} and {total} count the pattern runs, {move} lists the changes like 'Rebound +2, Lockout On', {base} is the run it starts from.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern {number} of {total}: {move} from {base}. Every adjustment moves, so their effects can be told apart.'**
+  String suggestionPatternStep(String number, String total, String move, String base);
+
+  /// Rationale of an Explore run. {move} lists the changes, {base} is the run it starts from.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride the estimated best: {move} from {base}.'**
+  String suggestionEstimatedBest(String move, String base);
+
+  /// Rationale of a confirmation run. {run} is the run to ride again.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride {run} again to confirm the result.'**
+  String suggestionRideAgainConfirm(String run);
+
+  /// Rationale of a Fine-tune run. {best} is the best run, {move} lists the next changes.
+  ///
+  /// In en, this message translates to:
+  /// **'{best} was better. Keep going: {move}.'**
+  String suggestionKeepGoing(String best, String move);
+
+  /// Rationale of a Fine-tune run. {move} lists the changes, {best} is the best run.
+  ///
+  /// In en, this message translates to:
+  /// **'Try {move} from {best}, the best run so far.'**
+  String suggestionTryFromBest(String move, String best);
+
+  /// Rationale of a Fine-tune confirmation run. {best} is the best run.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride {best} again to check that nothing else changed.'**
+  String suggestionRideAgainCheck(String best);
+
+  /// Rationale of a Compare run. {next} is the setup to ride, {last} the latest run.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride {next} and compare it with {last}.'**
+  String suggestionRideAndCompare(String next, String last);
+
+  /// Rationale of a Compare run. {next} and {other} are the two setups that tie.
+  ///
+  /// In en, this message translates to:
+  /// **'{next} and {other} are level. Ride {next} again to decide.'**
+  String suggestionLevelRideAgain(String next, String other);
+
+  /// Section title of the dial colors in the dial style sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get dialStyleColor;
+
+  /// Section title of the dial sizes in the dial style sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get dialStyleSize;
+
+  /// Screen reader label of the blue dial color.
+  ///
+  /// In en, this message translates to:
+  /// **'blue'**
+  String get dialColorBlue;
+
+  /// Screen reader label of the red dial color.
+  ///
+  /// In en, this message translates to:
+  /// **'red'**
+  String get dialColorRed;
+
+  /// Screen reader label of the green dial color.
+  ///
+  /// In en, this message translates to:
+  /// **'green'**
+  String get dialColorGreen;
+
+  /// Screen reader label of the brown dial color.
+  ///
+  /// In en, this message translates to:
+  /// **'brown'**
+  String get dialColorBrown;
+
+  /// Screen reader label of the orange dial color.
+  ///
+  /// In en, this message translates to:
+  /// **'orange'**
+  String get dialColorOrange;
+
+  /// Screen reader label of the purple dial color.
+  ///
+  /// In en, this message translates to:
+  /// **'purple'**
+  String get dialColorPurple;
+
+  /// Screen reader label of the grey dial color.
+  ///
+  /// In en, this message translates to:
+  /// **'grey'**
+  String get dialColorGrey;
+
+  /// Screen reader label of the normal dial size.
+  ///
+  /// In en, this message translates to:
+  /// **'normal'**
+  String get dialSizeNormal;
+
+  /// Screen reader label of the small dial size.
+  ///
+  /// In en, this message translates to:
+  /// **'small'**
+  String get dialSizeSmall;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

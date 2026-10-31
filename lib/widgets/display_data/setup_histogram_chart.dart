@@ -5,8 +5,8 @@ import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
 import '../../models/setup.dart';
@@ -74,30 +74,30 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
     }).toList();
 
     if (chartColumns.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.bar_chart_rounded,
-        title: "No adjustments selected",
-        subtitle: "Select adjustment columns to visualize the activity distribution",
+        title: context.l10n.chartNoAdjustmentsTitle,
+        subtitle: context.l10n.chartHistogramNoColumnsSubtitle,
       );
     }
     if (widget.setups.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.bar_chart_rounded,
-        title: "No data",
-        subtitle: "No setup data available",
+        title: context.l10n.chartNoDataTitle,
+        subtitle: context.l10n.chartNoDataSubtitle,
       );
     }
     if (!widget.hasAnyActivity) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.bar_chart_rounded,
-        title: "No activities",
-        subtitle: "Sync Strava activities to see which values you rode most",
+        title: context.l10n.chartHistogramNoActivitiesTitle,
+        subtitle: context.l10n.chartHistogramNoActivitiesSubtitle,
       );
     }
     if (widget.activityCountsFailed) {
-      return const EmptyStatePlaceholder.error(
-        title: "Could not load activities",
-        subtitle: "Something went wrong while linking activities to setups",
+      return EmptyStatePlaceholder.error(
+        title: context.l10n.chartHistogramLoadErrorTitle,
+        subtitle: context.l10n.chartHistogramLoadErrorSubtitle,
       );
     }
     if (!widget.activityCountsLoaded) {
@@ -120,9 +120,8 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
         if (histogram.isEmpty)
           EmptyStatePlaceholder(
             icon: Icons.bar_chart_rounded,
-            title: "No activities linked",
-            subtitle:
-                "None of the setups with a '${widget.columnLabel(selectedColumn)}' value were used on an activity",
+            title: context.l10n.chartHistogramNoLinkedTitle,
+            subtitle: context.l10n.chartHistogramNoLinkedSubtitle(widget.columnLabel(selectedColumn)),
           )
         else
           _buildChart(context, histogram, color),
@@ -145,7 +144,11 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
 
     return Semantics(
       container: true,
-      label: 'Activity distribution. ${bars.map((bar) => '${bar.label}: ${bar.activityCount} activities').join(', ')}',
+      label: context.l10n.chartActivityDistribution(
+        bars
+            .map((bar) => context.l10n.chartHistogramBarSemantics(bar.label, bar.activityCount, 'false', 'false'))
+            .join(', '),
+      ),
       child: ExcludeSemantics(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -249,11 +252,7 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
                           style,
                           children: [
                             TextSpan(
-                              text: Intl.plural(
-                                bar.activityCount,
-                                one: '1 activity',
-                                other: '${bar.activityCount} activities',
-                              ),
+                              text: context.l10n.initialStatsActivities(bar.activityCount),
                               style: style.copyWith(color: color),
                             ),
                           ],

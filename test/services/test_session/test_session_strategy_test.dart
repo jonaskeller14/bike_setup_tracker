@@ -91,7 +91,7 @@ void main() {
     const strategy = PatternSearchStrategy();
 
     test('no feedback on the latest run yet', () {
-      expect(strategy.propose(history(rated: false)), const NoSuggestion('Add feedback on Run 1 first.'));
+      expect(strategy.propose(history(rated: false)), const NoSuggestion(SuggestionNote(SuggestionNoteKind.addFeedbackFirst, ['Run 1'])));
     });
 
     test('every knob locked', () {
@@ -101,7 +101,7 @@ void main() {
             session: testSession(method: const PatternSearch(), knobs: ['a'], locks: {'a': const StepValue(10)}),
           ),
         ),
-        const NoSuggestion('Every adjustment is locked.'),
+        const NoSuggestion(SuggestionNote(SuggestionNoteKind.allLocked)),
       );
     });
 

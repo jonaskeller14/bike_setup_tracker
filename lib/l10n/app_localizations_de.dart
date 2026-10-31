@@ -21,9 +21,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get delete => 'Löschen';
 
   @override
-  String get ok => 'OK';
-
-  @override
   String get quickActionAddSetup => 'Neues Setup hinzufügen';
 
   @override
@@ -7577,4 +7574,1294 @@ class AppLocalizationsDe extends AppLocalizations {
   String exportWeatherWind(int speed, String unit) {
     return '$speed $unit Wind';
   }
+
+  @override
+  String attachmentDeleteTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Anhänge löschen?',
+      one: 'Anhang löschen?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get attachmentDeleteBody =>
+      'Die Anhänge werden endgültig gelöscht und aus ihren Setups, Bikes, Komponenten und Aufgaben entfernt. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String attachmentDeletedSnack(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Anhänge gelöscht.',
+      one: 'Anhang gelöscht.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String attachmentPickError(String error) {
+    return 'Anhänge konnten nicht ausgewählt werden: $error';
+  }
+
+  @override
+  String get attachmentViewerRenameTitle => 'Anhang umbenennen';
+
+  @override
+  String get attachmentViewerImageNotFound => 'Bild nicht gefunden';
+
+  @override
+  String get attachmentViewerFileNotFound => 'Datei nicht gefunden';
+
+  @override
+  String get attachmentViewerSaveToFiles => 'In Dateien speichern';
+
+  @override
+  String get attachmentViewerShareMenu => 'Teilen…';
+
+  @override
+  String get attachmentViewerFileSaved => 'Datei gespeichert';
+
+  @override
+  String attachmentViewerSaveError(String error) {
+    return 'Datei konnte nicht gespeichert werden: $error';
+  }
+
+  @override
+  String get attachmentViewerShowSetup => 'Setup anzeigen';
+
+  @override
+  String get attachmentViewerShowBike => 'Bike anzeigen';
+
+  @override
+  String get attachmentViewerShowComponent => 'Komponente anzeigen';
+
+  @override
+  String get attachmentViewerShowTask => 'Aufgabe anzeigen';
+
+  @override
+  String get attachmentSourceGallery => 'Aus Galerie wählen';
+
+  @override
+  String get attachmentSourcePhoto => 'Foto aufnehmen';
+
+  @override
+  String get attachmentSourceFile => 'Datei auswählen';
+
+  @override
+  String chartActivityDistribution(String summary) {
+    return 'Aktivitätsverteilung. $summary';
+  }
+
+  @override
+  String chartHistogramBarSemantics(String label, int count, String current, String recommended) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aktivitäten',
+      one: '1 Aktivität',
+    );
+    String _temp1 = intl.Intl.selectLogic(
+      current,
+      {
+        'true': ' (aktuell)',
+        'other': '',
+      },
+    );
+    String _temp2 = intl.Intl.selectLogic(
+      recommended,
+      {
+        'true': ' (empfohlen)',
+        'other': '',
+      },
+    );
+    return '$label: $_temp0$_temp1$_temp2';
+  }
+
+  @override
+  String chartHistogramBarTooltip(String label, int count, String current, String recommended) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aktivitäten',
+      one: '1 Aktivität',
+    );
+    String _temp1 = intl.Intl.selectLogic(
+      current,
+      {
+        'true': '\nAktueller Wert',
+        'other': '',
+      },
+    );
+    String _temp2 = intl.Intl.selectLogic(
+      recommended,
+      {
+        'true': '\nEmpfohlener Wert',
+        'other': '',
+      },
+    );
+    return '$label\n$_temp0$_temp1$_temp2';
+  }
+
+  @override
+  String get chartHistogramCountAxis => 'Anzahl Aktivitäten';
+
+  @override
+  String get chartHistogramNoColumnsSubtitle => 'Wähle Einstellungsspalten aus, um die Aktivitätsverteilung anzuzeigen';
+
+  @override
+  String get chartHistogramNoActivitiesTitle => 'Keine Aktivitäten';
+
+  @override
+  String get chartHistogramNoActivitiesSubtitle =>
+      'Synchronisiere Strava-Aktivitäten, um zu sehen, welche Werte du am meisten gefahren bist';
+
+  @override
+  String get chartHistogramLoadErrorTitle => 'Aktivitäten konnten nicht geladen werden';
+
+  @override
+  String get chartHistogramLoadErrorSubtitle => 'Beim Zuordnen der Aktivitäten zu Setups ist etwas schiefgelaufen';
+
+  @override
+  String get chartHistogramNoLinkedTitle => 'Keine Aktivitäten verknüpft';
+
+  @override
+  String chartHistogramNoLinkedSubtitle(String column) {
+    return 'Keines der Setups mit einem Wert für „$column“ wurde bei einer Aktivität verwendet';
+  }
+
+  @override
+  String get chartNoAdjustmentsTitle => 'Keine Einstellungen ausgewählt';
+
+  @override
+  String get chartTrendNoColumnsSubtitle =>
+      'Wähle numerische oder schrittweise Einstellungsspalten aus, um Trends anzuzeigen';
+
+  @override
+  String get chartNoDataTitle => 'Keine Daten';
+
+  @override
+  String get chartNoDataSubtitle => 'Keine Setup-Daten vorhanden';
+
+  @override
+  String get chartNoSetupsSelectedTitle => 'Keine Setups ausgewählt';
+
+  @override
+  String get chartNoSetupsSelectedSubtitle => 'Wähle in der Tabelle oben Setups aus, um das Diagramm anzuzeigen';
+
+  @override
+  String get chartNoNumericalTitle => 'Keine numerischen Daten';
+
+  @override
+  String get chartNoNumericalSubtitle => 'Die gewählten Spalten enthalten keine numerischen Daten zum Darstellen';
+
+  @override
+  String get chartLineNotEnoughTitle => 'Zu wenige Setups';
+
+  @override
+  String get chartLineNotEnoughSubtitle => 'Wähle mindestens zwei Setups in der Tabelle aus, um einen Trend anzuzeigen';
+
+  @override
+  String get chartRadialNotEnoughTitle => 'Zu wenige Spalten';
+
+  @override
+  String get chartRadialNotEnoughSubtitle => 'Für ein Netzdiagramm sind mindestens 3 numerische Spalten nötig';
+
+  @override
+  String get componentStatsKilojoules => 'Kilojoule';
+
+  @override
+  String urlOpenFailed(String url) {
+    return 'Link konnte nicht geöffnet werden: $url';
+  }
+
+  @override
+  String get urlNoProgram => 'Es wurde kein Programm zum Öffnen des Links gefunden.';
+
+  @override
+  String urlEmailFailed(String email) {
+    return 'E-Mail-App konnte nicht geöffnet werden für: $email';
+  }
+
+  @override
+  String get urlNoEmailApp => 'Auf deinem Gerät wurde keine E-Mail-App gefunden.';
+
+  @override
+  String get urlNoMapsApp =>
+      'Keine Karten-App gefunden. Bitte installiere Apple Karten, Google Maps oder eine andere Karten-App.';
+
+  @override
+  String attachmentTooLarge(String name, int size) {
+    return '„$name“ ist größer als $size MB und wurde nicht angehängt.';
+  }
+
+  @override
+  String attachmentImportFailed(String name) {
+    return '„$name“ konnte nicht angehängt werden.';
+  }
+
+  @override
+  String get notesShowMore => 'Mehr anzeigen';
+
+  @override
+  String get metricWeightNotScored => 'Nicht in der Wertung berücksichtigt';
+
+  @override
+  String get metricWeightTitle => 'Gewichtung';
+
+  @override
+  String get metricWeightDecrease => 'Gewichtung verringern';
+
+  @override
+  String get metricWeightIncrease => 'Gewichtung erhöhen';
+
+  @override
+  String get metricWeightHintUnset => 'Lege fest, wie diese Kennzahl die Wertung beeinflusst';
+
+  @override
+  String get metricWeightHintPositive => 'Höhere Werte verbessern die Wertung';
+
+  @override
+  String get metricWeightHintNegative => 'Niedrigere Werte verbessern die Wertung';
+
+  @override
+  String get metricWeightHintZero => 'Zählt nicht für die Wertung';
+
+  @override
+  String get soilMoistureLegendColumn => 'Bodenfeuchte [m³/m³]';
+
+  @override
+  String taskPrioritySemantics(String priority) {
+    return 'Priorität: $priority';
+  }
+
+  @override
+  String get valueTransitionExample => 'Beispiel';
+
+  @override
+  String get valueTransitionExamples => 'Beispiele';
+
+  @override
+  String get valueTransitionCleared => 'Kein Wert';
+
+  @override
+  String get pickSetupSuggested => 'Vorgeschlagen';
+
+  @override
+  String get dialStyleTitle => 'Drehrad-Darstellung';
+
+  @override
+  String get sheetProgressHint => 'Bei großen Datenmengen kann das einen Moment dauern.';
+
+  @override
+  String unitPickerDidYouMean(String unit, String quantity) {
+    return 'Meintest du „$unit“ ($quantity)?';
+  }
+
+  @override
+  String contextCondition(String condition) {
+    return 'Trailzustand: $condition';
+  }
+
+  @override
+  String get setupDayUnknownBike => 'Unbekanntes Bike';
+
+  @override
+  String get pickAdjustmentsEmptyTitle => 'Noch keine Einstellungen';
+
+  @override
+  String get subcomponentsExampleBike => 'Trailbike';
+
+  @override
+  String hintPageDot(String label, int index, int total) {
+    return '$label $index von $total';
+  }
+
+  @override
+  String get collapse => 'Einklappen';
+
+  @override
+  String get expand => 'Ausklappen';
+
+  @override
+  String get pressureCheckWorthPump => 'Pumpe rausholen lohnt sich';
+
+  @override
+  String get pressureCheckNoPump => 'Pumpe muss nicht raus';
+
+  @override
+  String pressureCheckNow(String conditions) {
+    return 'Jetzt: $conditions';
+  }
+
+  @override
+  String get pressureCheckFooterDrifted =>
+      'Rechts steht, was deine Pumpe jetzt anzeigen würde. Pumpe auf den zuletzt eingestellten Wert zurück, damit sich alles gleich anfühlt.';
+
+  @override
+  String pressureCheckFooterOk(String threshold) {
+    return 'Jeder Druck liegt innerhalb von $threshold des zuletzt eingestellten Werts.';
+  }
+
+  @override
+  String get pressureCheckInfoTooltip => 'So wird das berechnet';
+
+  @override
+  String pressureCheckSetOn(String value, String unit, String date, String conditions) {
+    return 'Eingestellt: $value $unit am $date · $conditions';
+  }
+
+  @override
+  String pressureCheckPsi(String value) {
+    return '$value psi';
+  }
+
+  @override
+  String get pressureCheckInfoIntro =>
+      'Ein Druck, den du zu Hause eingestellt hast, zeigt sich auf dem Trail nicht gleich an, selbst wenn keine Luft entwichen ist. Diese Karte zeigt, was deine Pumpe jetzt anzeigen würde.';
+
+  @override
+  String get pressureCheckInfoWhyHeading => 'Warum sich die Anzeige ändert';
+
+  @override
+  String get pressureCheckInfoCold => 'Kältere Luft zieht sich in der Kammer zusammen: Die Anzeige sinkt.';
+
+  @override
+  String get pressureCheckInfoThin => 'Dünnere Luft in der Höhe drückt weniger dagegen: Dieselbe Kammer zeigt mehr an.';
+
+  @override
+  String get pressureCheckInfoCancel => 'Beides gleicht sich oft teilweise aus.';
+
+  @override
+  String get pressureCheckInfoExampleHeading => 'Beispiel';
+
+  @override
+  String get pressureCheckInfoWhatToDoHeading => 'Was tun';
+
+  @override
+  String pressureCheckInfoWhatToDo(String value) {
+    return 'Das Fahrgefühl folgt dem, was deine Pumpe anzeigt. Der zuletzt eingestellte Wert bleibt also das richtige Ziel: Pumpe die Gabel wieder auf $value psi, dann fühlt sie sich an wie zu Hause.';
+  }
+
+  @override
+  String get pressureCheckInfoStatusHeading => 'Status';
+
+  @override
+  String pressureCheckInfoStatusOk(String threshold) {
+    return 'Weniger als $threshold Abweichung. Du kannst so fahren.';
+  }
+
+  @override
+  String pressureCheckInfoStatusDrift(String threshold) {
+    return '$threshold oder mehr Abweichung. Pumpe rausholen lohnt sich.';
+  }
+
+  @override
+  String get pressureCheckInfoSettingsHint =>
+      'Ändere den Schwellenwert oder überspringe Komponententypen unter Einstellungen › Funktionen › Druckprüfung.';
+
+  @override
+  String get pressureCheckInfoGoodToKnowHeading => 'Gut zu wissen';
+
+  @override
+  String get pressureCheckInfoCompared =>
+      'Jeder Wert wird mit dem Setup verglichen, das ihn zuletzt geändert hat. Das ist nicht immer dein vorheriges Setup.';
+
+  @override
+  String get pressureCheckInfoNeedsConditions =>
+      'Beide Setups brauchen Temperatur und Höhe; Drücke ohne diese Angaben werden ausgelassen.';
+
+  @override
+  String get pressureCheckInfoNotIncluded =>
+      'Nicht berücksichtigt: wie sich die Federkennlinie bei anderem Druck ändert, die Ölviskosität und die Luft, die der Pumpenschlauch beim Anschließen aufnimmt.';
+
+  @override
+  String get pressureCheckExampleHome => 'Zu Hause';
+
+  @override
+  String get pressureCheckExampleYouSet => 'Du hast eingestellt';
+
+  @override
+  String get pressureCheckExampleTrailhead => 'Am Trailhead';
+
+  @override
+  String get pressureCheckExamplePumpReads => 'Pumpe zeigt';
+
+  @override
+  String get pressureCheckExampleColder => 'Kälter';
+
+  @override
+  String get pressureCheckExampleHigherUp => 'Weiter oben';
+
+  @override
+  String pressureCheckExampleTotal(String value) {
+    return 'Gesamt $value psi';
+  }
+
+  @override
+  String get pressureCheckTypesAll => 'Alle';
+
+  @override
+  String pressureCheckTypesCount(int count, int total) {
+    return '$count von $total';
+  }
+
+  @override
+  String pressureCheckTypesAllExcept(String types) {
+    return 'Alle außer $types';
+  }
+
+  @override
+  String get pressureCheckSettingIntro =>
+      'Prüft beim Hinzufügen eines Setups, ob deine Pumpe die zuletzt eingestellten Drücke noch anzeigen würde. Kältere oder dünnere Luft lässt dieselbe geschlossene Kammer anders anzeigen.';
+
+  @override
+  String get pressureCheckEnabled => 'Aktiviert';
+
+  @override
+  String get pressureCheckThresholdTitle => 'Schwellenwert';
+
+  @override
+  String get pressureCheckThresholdHint =>
+      'Markiere einen Druck, sobald die Pumpe um so viel mehr oder weniger anzeigen würde als der zuletzt eingestellte Wert.';
+
+  @override
+  String get pressureCheckTypesTitle => 'Komponententypen';
+
+  @override
+  String get pressureCheckTypesHint => 'Überspringe Typen, die du ohnehin vor jeder Fahrt prüfst, etwa Reifen.';
+
+  @override
+  String get guideCardTitle => 'Setup-Guide';
+
+  @override
+  String get guideCardInfoTooltip => 'Zu den empfohlenen Werten';
+
+  @override
+  String get guideCardHeadline => 'Empfohlene Startwerte';
+
+  @override
+  String get guideCardStartingPoint => 'Ein Ausgangspunkt, prüfe die Anleitung des Herstellers.';
+
+  @override
+  String get guideCardApplyAll => 'Alle anwenden';
+
+  @override
+  String get guideCardRidingWeight => 'Fahrergewicht';
+
+  @override
+  String get guideCardAddWeightDefault => 'Fahrergewicht zum Rider hinzufügen';
+
+  @override
+  String guideCardBasedOn(String guide) {
+    return 'Basierend auf: $guide';
+  }
+
+  @override
+  String guideCardNow(String value) {
+    return 'Aktuell: $value';
+  }
+
+  @override
+  String guideCardInRange(String band) {
+    return 'im Bereich $band';
+  }
+
+  @override
+  String get guideCardEnterWeight =>
+      'Gib auf dem Tab „Rider“ ein Fahrergewicht ein, um gewichtsabhängige Werte zu erhalten';
+
+  @override
+  String guideCardValuesFor(String weight, String unit) {
+    return 'Empfohlene Werte für $weight $unit';
+  }
+
+  @override
+  String get guideDetailInterpolated => 'interpoliert';
+
+  @override
+  String get guideDetailConverted => 'auf dein Drehrad umgerechnet';
+
+  @override
+  String get guideDetailFixed => 'Fester Wert';
+
+  @override
+  String get guideIssueNeedsWeight => 'Braucht dein Fahrergewicht';
+
+  @override
+  String get guideIssueNeedsStyle => 'Braucht deinen Fahrstil';
+
+  @override
+  String guideIssueNeedsAdjuster(String name) {
+    return 'Braucht einen Wert für $name';
+  }
+
+  @override
+  String guideIssueNeedsSpec(String spec) {
+    return 'Braucht die Angabe „$spec“ der Komponente';
+  }
+
+  @override
+  String get guideIssueNeedsMore => 'Braucht weitere Angaben';
+
+  @override
+  String get guideIssueOutsideRange => 'Außerhalb des veröffentlichten Bereichs';
+
+  @override
+  String get guideIssuePlaceholderMax => 'Gib zuerst die Klickanzahl (Max) deines Drehrads ein';
+
+  @override
+  String get guideIssueAboveMax => 'Über dem Maximum dieser Einstellung';
+
+  @override
+  String get guideIssueBelowMin => 'Unter dem Minimum dieser Einstellung';
+
+  @override
+  String get guideIssueIncompatible => 'Passt nicht zu Typ oder Einheit dieser Einstellung';
+
+  @override
+  String get guideIssueDirectionUnknown =>
+      'Auf dem Drehrad des Katalogs gezählt; lege die Zählrichtung dieser Einstellung fest, um den Wert anzuwenden';
+
+  @override
+  String guideWeightUpTo(String value) {
+    return 'bis $value';
+  }
+
+  @override
+  String guideRecommended(String value) {
+    return 'Empfohlen: $value';
+  }
+
+  @override
+  String guideRecommendedWithIssue(String value, String reason) {
+    return 'Empfohlen: $value · $reason';
+  }
+
+  @override
+  String get guideStatusMatches => 'Stimmt überein';
+
+  @override
+  String get guideStatusInRange => 'Im Bereich';
+
+  @override
+  String get guideStatusNotSet => 'Nicht gesetzt';
+
+  @override
+  String get guideStatusCantApply => 'Nicht anwendbar';
+
+  @override
+  String get guideStatusDiffers => 'Weicht ab';
+
+  @override
+  String guideStatusInRangeDetail(String band) {
+    return 'Im Bereich: $band';
+  }
+
+  @override
+  String get guideInfoTitle => 'Empfohlene Werte';
+
+  @override
+  String get guideInfoIntro =>
+      'Jeder Wert stammt aus der Setup-Anleitung des Herstellers für dein genaues Modell und Fahrergewicht. Er ist ein Ausgangspunkt, prüfe die Anleitung des Herstellers.';
+
+  @override
+  String get guideInfoHowHeading => 'Wie die Werte ermittelt werden';
+
+  @override
+  String get guideInfoHowSteps =>
+      'Anleitungen nennen Einstellungen je Gewichtsstufe, zum Beispiel 70–80 kg und 80–90 kg. Liegt dein Gewicht zwischen zwei Stufen, wird der Wert dazwischen berechnet. Außerhalb der Gewichte, die eine Anleitung abdeckt, gibt es keine Empfehlung.';
+
+  @override
+  String get guideInfoClicks =>
+      'Klicks werden von dem Ende gezählt, von dem die Anleitung zählt. Zählt dein Drehrad andersherum, wird der Wert auf dein Drehrad umgerechnet.';
+
+  @override
+  String get guideInfoStatusHeading => 'Status';
+
+  @override
+  String get guideLegendMatches => 'Dein Wert ist der empfohlene Wert.';
+
+  @override
+  String get guideLegendInRange =>
+      'Nah an der Empfehlung: innerhalb des Bereichs der Anleitung oder weniger als halb bis zur nächsten Gewichtsstufe.';
+
+  @override
+  String get guideLegendOff => 'Weiter entfernt. Zeigt, wie weit dein Wert von der Empfehlung abweicht.';
+
+  @override
+  String get guideLegendNotSet => 'Noch kein Wert eingegeben. Tippe auf die Zeile, um die Empfehlung zu übernehmen.';
+
+  @override
+  String get guideLegendUnavailable =>
+      'Die Empfehlung passt nicht zu deiner Einstellung, z. B. weil sie außerhalb des Bereichs liegt. Bearbeite zuerst die Einstellung.';
+
+  @override
+  String get guideInfoSource => 'Quelle';
+
+  @override
+  String get guideInfoSources => 'Quellen';
+
+  @override
+  String guideInfoFor(String components) {
+    return 'Für $components';
+  }
+
+  @override
+  String subcomponentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Unterkomponenten',
+      one: '1 Unterkomponente',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get carryOverTitleApply => 'Werte auf aktuelle Komponenten anwenden?';
+
+  @override
+  String get carryOverTitleCant => 'Werte können nicht angewendet werden';
+
+  @override
+  String carryOverBodyApply(String setup) {
+    return '„$setup“ wurde mit Komponenten aufgezeichnet, die nicht mehr am Bike sind. Ihre Werte können jetzt auf die Komponenten an derselben Position übertragen werden.';
+  }
+
+  @override
+  String carryOverBodyCant(String setup) {
+    return '„$setup“ wurde mit Komponenten aufgezeichnet, die nicht mehr am Bike sind, und ihre Werte passen nicht zu den Komponenten an derselben Position.';
+  }
+
+  @override
+  String get carryOverWillApply => 'Wird angewendet';
+
+  @override
+  String get carryOverCantApply => 'Kann nicht angewendet werden';
+
+  @override
+  String carryOverFromTo(String source, String target) {
+    return 'Von „$source“ nach „$target“';
+  }
+
+  @override
+  String carryOverReasonGone(String name) {
+    return '„$name“ ist nicht mehr am Bike.';
+  }
+
+  @override
+  String carryOverReasonNoMatch(String name) {
+    return '„$name“ hat keine passende Einstellung.';
+  }
+
+  @override
+  String carryOverReasonNotAllowed(String adjustment, String component) {
+    return 'Von „$adjustment“ an „$component“ nicht erlaubt.';
+  }
+
+  @override
+  String get carryOverNote =>
+      'Werte, die nicht angewendet werden, bleiben im Setup, gehören aber zu Komponenten, die nicht mehr am Bike sind.';
+
+  @override
+  String get carryOverDontApply => 'Nicht anwenden';
+
+  @override
+  String carryOverApplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Werte anwenden',
+      one: '1 Wert anwenden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get valueMigrationTitle => 'Aufgezeichnete Werte aktualisieren';
+
+  @override
+  String valueMigrationIntro(String name, String records, String decide, String replaces) {
+    String _temp0 = intl.Intl.selectLogic(
+      decide,
+      {
+        'true': ' Wähle, was mit ihren Werten passiert.',
+        'other': '',
+      },
+    );
+    String _temp1 = intl.Intl.selectLogic(
+      replaces,
+      {
+        'true': ' Das ersetzt die Änderung, die du zuvor bestätigt hast.',
+        'other': '',
+      },
+    );
+    return 'Deine Änderung an „$name“ betrifft $records.$_temp0$_temp1';
+  }
+
+  @override
+  String get valueMigrationNeedDifferent =>
+      'Brauchst du in verschiedenen Setups unterschiedliche Werte? Brich ab, ändere zuerst diese Setups und nimm dann diese Änderung vor.';
+
+  @override
+  String valueMigrationUpdate(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Setups aktualisieren',
+      one: '1 Setup aktualisieren',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String valueMigrationUpdateDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gelöschte Setups aktualisieren',
+      one: '1 gelöschtes Setup aktualisieren',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String affectedSetups(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Setups',
+      one: '1 Setup',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String affectedDeletedSetups(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gelöschte Setups',
+      one: '1 gelöschtes Setup',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String affectedSetupsWithDeleted(int live, int deleted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      live,
+      locale: localeName,
+      other: '$live Setups',
+      one: '1 Setup',
+    );
+    return '$_temp0 (+$deleted gelöscht)';
+  }
+
+  @override
+  String get valueMigrationNoUnit => 'keine Einheit';
+
+  @override
+  String valueMigrationUnitChanged(String before, String after) {
+    return 'Einheit von $before zu $after geändert';
+  }
+
+  @override
+  String get valueMigrationRenamedOptions => 'Umbenannte Optionen';
+
+  @override
+  String valueMigrationDeletedOption(String option) {
+    return '„$option“ wurde gelöscht';
+  }
+
+  @override
+  String get valueMigrationDuplicateOptions => 'Jede Option kann jetzt nur einmal gewählt werden';
+
+  @override
+  String valueMigrationCombination(String combination) {
+    return 'Es kann jetzt nur noch eine Option gewählt werden: $combination';
+  }
+
+  @override
+  String get valueMigrationOutOfStep => 'Werte außerhalb der neuen Schritte oder des Bereichs';
+
+  @override
+  String get valueMigrationOutOfRange => 'Werte außerhalb des neuen Bereichs';
+
+  @override
+  String valueMigrationReplaceDeleted(String option) {
+    return '„$option“ ersetzen durch';
+  }
+
+  @override
+  String valueMigrationReplaceCombination(String combination) {
+    return '$combination ersetzen durch';
+  }
+
+  @override
+  String valueMigrationRemoveFromSelection(String option) {
+    return '„$option“ aus der Auswahl entfernen';
+  }
+
+  @override
+  String get valueMigrationConvert => 'Umrechnen';
+
+  @override
+  String get valueMigrationKeepNumbers => 'Zahlen behalten';
+
+  @override
+  String get valueMigrationSnap => 'Einrasten';
+
+  @override
+  String get valueMigrationClamp => 'Begrenzen';
+
+  @override
+  String get valueMigrationClear => 'Leeren';
+
+  @override
+  String valueMigrationHintConvert(String records, String one, String unit) {
+    String _temp0 = intl.Intl.selectLogic(
+      one,
+      {
+        'true': 'wird',
+        'other': 'werden',
+      },
+    );
+    return '$records $_temp0 in $unit umgerechnet.';
+  }
+
+  @override
+  String valueMigrationHintKeepNoUnit(String records, String one) {
+    String _temp0 = intl.Intl.selectLogic(
+      one,
+      {
+        'true': 'bleibt die Zahl',
+        'other': 'bleiben die Zahlen',
+      },
+    );
+    return 'Bei $records $_temp0 erhalten, jetzt ohne Einheit.';
+  }
+
+  @override
+  String valueMigrationHintKeepUnit(String records, String one, String unit) {
+    String _temp0 = intl.Intl.selectLogic(
+      one,
+      {
+        'true': 'bleibt die Zahl',
+        'other': 'bleiben die Zahlen',
+      },
+    );
+    return 'Bei $records $_temp0 erhalten, jetzt gelesen in $unit.';
+  }
+
+  @override
+  String valueMigrationHintSnap(String records, String one) {
+    String _temp0 = intl.Intl.selectLogic(
+      one,
+      {
+        'true': 'rastet',
+        'other': 'rasten',
+      },
+    );
+    return '$records $_temp0 auf den nächsten Schritt ein.';
+  }
+
+  @override
+  String valueMigrationHintClamp(String records, String one) {
+    String _temp0 = intl.Intl.selectLogic(
+      one,
+      {
+        'true': 'wird',
+        'other': 'werden',
+      },
+    );
+    return '$records $_temp0 auf den nächsten Grenzwert gesetzt.';
+  }
+
+  @override
+  String valueMigrationHintKeepRenamed(String records, String one, String option, String origin) {
+    String _temp0 = intl.Intl.selectLogic(
+      one,
+      {
+        'true': 'behält',
+        'other': 'behalten',
+      },
+    );
+    return '$records $_temp0 „$option“, jetzt die Option, die aus „$origin“ umbenannt wurde.';
+  }
+
+  @override
+  String valueMigrationHintRemoveOption(String option, String records) {
+    return '„$option“ wird aus $records entfernt.';
+  }
+
+  @override
+  String valueMigrationHintClear(String records, String one) {
+    String _temp0 = intl.Intl.selectLogic(
+      one,
+      {
+        'true': 'verliert seinen',
+        'other': 'verlieren ihren',
+      },
+    );
+    return '$records $_temp0 Wert.';
+  }
+
+  @override
+  String valueMigrationHintBecomes(String option, String replacement, String records) {
+    return '„$option“ wird in $records zu „$replacement“.';
+  }
+
+  @override
+  String valueMigrationHintChanges(String records, String one, String replacement) {
+    String _temp0 = intl.Intl.selectLogic(
+      one,
+      {
+        'true': 'ändert sich',
+        'other': 'ändern sich',
+      },
+    );
+    return '$records $_temp0 auf „$replacement“.';
+  }
+
+  @override
+  String valueMigrationPendingUpdates(String records) {
+    return 'Aktualisiert $records beim Speichern';
+  }
+
+  @override
+  String valueMigrationPendingClears(String records, String one) {
+    String _temp0 = intl.Intl.selectLogic(
+      one,
+      {
+        'true': 'verliert seinen',
+        'other': 'verlieren ihren',
+      },
+    );
+    return '$records $_temp0 Wert';
+  }
+
+  @override
+  String get presetMergeStatusMerged => 'Zusammengeführt';
+
+  @override
+  String get presetMergeStatusUnchanged => 'Unverändert';
+
+  @override
+  String get presetMergeStatusNew => 'Neu';
+
+  @override
+  String get presetMergeStatusNotAdded => 'Nicht hinzugefügt';
+
+  @override
+  String get presetMergeTitle => 'Einstellungen zusammenführen';
+
+  @override
+  String presetMergeIntro(String product) {
+    return 'Deine Komponente hat bereits Einstellungen. Wähle, wie sich die von $product damit verbinden.';
+  }
+
+  @override
+  String get presetMergeModeMerge => 'Zusammenführen';
+
+  @override
+  String get presetMergeMergedHint =>
+      'Zusammengeführte Einstellungen behalten Namen und aufgezeichnete Werte und werden mit der Vorlage verknüpft. Tippe auf ein Badge, um es zu ändern.';
+
+  @override
+  String presetMergeResult(String summary) {
+    return 'Ergebnis · $summary';
+  }
+
+  @override
+  String presetMergeSummaryReplace(int preset, int removed) {
+    return '$preset aus der Vorlage · $removed von dir entfernt';
+  }
+
+  @override
+  String presetMergeSummaryMerged(int count) {
+    return '$count zusammengeführt';
+  }
+
+  @override
+  String presetMergeSummaryNew(int count) {
+    return '$count neu';
+  }
+
+  @override
+  String presetMergeSummaryUnchanged(int count) {
+    return '$count unverändert';
+  }
+
+  @override
+  String get presetReplaceNoValues =>
+      'Deine Einstellungen werden entfernt und stattdessen die der Vorlage verwendet. Keine deiner Einstellungen hat bisher aufgezeichnete Werte, es geht also nichts verloren.';
+
+  @override
+  String presetReplaceWarning(int withValues, int valueCount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      withValues,
+      locale: localeName,
+      other: '$withValues deiner Einstellungen haben',
+      one: '1 deiner Einstellungen hat',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      valueCount,
+      locale: localeName,
+      other: '$valueCount aufgezeichnete Werte',
+      one: '1 aufgezeichneten Wert',
+    );
+    return '$_temp0 $_temp1. Beim Ersetzen werden sie von dieser Komponente entfernt: Die Werte bleiben in deinen Setups, gehören aber zu keiner Einstellung mehr. Beim Zusammenführen bleiben sie erhalten.';
+  }
+
+  @override
+  String presetMergeLine(String own, String catalog) {
+    return '$own + $catalog (Vorlage)';
+  }
+
+  @override
+  String get presetMergeKeptRange => 'Behält deinen Bereich: aufgezeichnete Werte liegen außerhalb dessen der Vorlage';
+
+  @override
+  String presetMergeChoiceMergeInto(String name) {
+    return 'In „$name“ zusammenführen';
+  }
+
+  @override
+  String presetMergeChoiceMergeWith(String name) {
+    return 'Mit „$name“ (Vorlage) zusammenführen';
+  }
+
+  @override
+  String get presetMergeChoiceDontAdd => 'Nicht hinzufügen';
+
+  @override
+  String get presetMergeChoiceAddNew => 'Als neu hinzufügen';
+
+  @override
+  String get presetMergeChoiceSeparate => 'Wieder trennen';
+
+  @override
+  String get presetMergeChoiceSeparateDrop => 'Trennen, die der Vorlage verwerfen';
+
+  @override
+  String get catalogPickerTitle => 'Aus Katalog wählen';
+
+  @override
+  String catalogPickerSelect(String thing) {
+    return '$thing auswählen';
+  }
+
+  @override
+  String get catalogPickerSelectGeneric => 'Auswählen';
+
+  @override
+  String get catalogPickerOptionalDetails => 'Optionale Angaben';
+
+  @override
+  String catalogPickerSearchHint(String type) {
+    return '$type suchen…';
+  }
+
+  @override
+  String get catalogPickerNoEntries => 'Keine Katalogeinträge verfügbar.';
+
+  @override
+  String catalogPickerAddByHand(String adjustments) {
+    return 'Von Hand hinzufügen: $adjustments';
+  }
+
+  @override
+  String get catalogPickerApply => 'Anwenden';
+
+  @override
+  String get catalogPickerSkip => 'Überspringen';
+
+  @override
+  String get catalogPickerModelYear => 'Modelljahr';
+
+  @override
+  String catalogPickerNoMatches(String query) {
+    return 'Keine Treffer für „$query“.';
+  }
+
+  @override
+  String get catalogPickerNoMatchesHint => 'Prüfe die Schreibweise oder suche nur nach dem Modellnamen.';
+
+  @override
+  String get catalogPickerEnterManually => 'Manuell eingeben';
+
+  @override
+  String get catalogPickerRequested => 'Angefragt, danke';
+
+  @override
+  String get catalogPickerRequest => 'Dieses Produkt anfragen';
+
+  @override
+  String get catalogPickerLoadError => 'Der Katalog konnte nicht geladen werden.';
+
+  @override
+  String get catalogCardNotFound => 'Katalogeintrag nicht gefunden';
+
+  @override
+  String get catalogCardNotFoundHint => 'Nicht mehr im Katalog · Tippen, um einen anderen zu wählen';
+
+  @override
+  String get catalogCardTapToChange => 'Tippen zum Ändern';
+
+  @override
+  String catalogCardPrefill(String type) {
+    return 'Aus einem $type-Modell vorbelegen';
+  }
+
+  @override
+  String get catalogCardGuideHint => 'Mit einem Katalogprodukt verknüpfen, um empfohlene Werte zu erhalten';
+
+  @override
+  String get catalogCardUnlinkTooltip => 'Verknüpfung mit Vorlage aufheben (Werte bleiben)';
+
+  @override
+  String get catalogCardUpdateAvailable => 'Aktualisierung verfügbar';
+
+  @override
+  String get catalogCardDismiss => 'Verwerfen';
+
+  @override
+  String get catalogCardReview => 'Prüfen';
+
+  @override
+  String get subcomponentsSheetIntro =>
+      'Verbaue Komponenten an anderen Komponenten, z. B. einen Reifen und eine Bremsscheibe an einem Laufrad. In der Garage werden sie mit ihrer übergeordneten Komponente gruppiert.';
+
+  @override
+  String get subcomponentsSheetWithout => 'Ohne Unterkomponenten';
+
+  @override
+  String get subcomponentsSheetWith => 'Mit Unterkomponenten';
+
+  @override
+  String get subcomponentsSheetCaption =>
+      'Wenn du ein Laufrad umbaust, kommen Reifen und Bremsscheibe mit. Ihnen werden dieselben Fahrten gutgeschrieben.';
+
+  @override
+  String get weatherErrorNoInternet => 'Netzwerkfehler (kein Internet).';
+
+  @override
+  String get weatherErrorTimeout => 'Netzwerkfehler (Zeitüberschreitung).';
+
+  @override
+  String weatherErrorRateLimit(int limit, String time) {
+    return 'Anfragelimit überschritten ($limit/h). Versuche es nach $time erneut.';
+  }
+
+  @override
+  String get weatherErrorFailed => 'Beim Aktualisieren des Wetters ist ein Fehler aufgetreten.';
+
+  @override
+  String get suggestionRecordRunFirst => 'Zeichne zuerst einen Lauf auf.';
+
+  @override
+  String suggestionAddFeedbackFirst(String run) {
+    return 'Gib zuerst Feedback zu $run ein.';
+  }
+
+  @override
+  String get suggestionAdjustmentGone =>
+      'Eine Einstellung dieser Sitzung ist nicht mehr am Bike. Setze sie fest, um fortzufahren.';
+
+  @override
+  String suggestionNoValue(String run, String adjustment) {
+    return '$run hat keinen Wert für „$adjustment“.';
+  }
+
+  @override
+  String suggestionOutOfRange(String adjustment, String run) {
+    return '„$adjustment“ in $run liegt außerhalb des Bereichs.';
+  }
+
+  @override
+  String get suggestionAllLocked => 'Alle Einstellungen sind festgesetzt.';
+
+  @override
+  String get suggestionNotCompare => 'Diese Sitzung vergleicht keine Setups.';
+
+  @override
+  String get suggestionSetupRemoved =>
+      'Ein zu vergleichendes Setup wurde entfernt. Beende die Sitzung oder vergleiche die übrigen in einer neuen.';
+
+  @override
+  String suggestionPatternStep(String number, String total, String move, String base) {
+    return 'Muster $number von $total: $move ausgehend von $base. Jede Einstellung wird verändert, damit sich ihre Wirkungen trennen lassen.';
+  }
+
+  @override
+  String suggestionEstimatedBest(String move, String base) {
+    return 'Fahre die geschätzt beste Kombination: $move ausgehend von $base.';
+  }
+
+  @override
+  String suggestionRideAgainConfirm(String run) {
+    return 'Fahre $run noch einmal, um das Ergebnis zu bestätigen.';
+  }
+
+  @override
+  String suggestionKeepGoing(String best, String move) {
+    return '$best war besser. Weiter so: $move.';
+  }
+
+  @override
+  String suggestionTryFromBest(String move, String best) {
+    return 'Probiere $move ausgehend von $best, dem bisher besten Lauf.';
+  }
+
+  @override
+  String suggestionRideAgainCheck(String best) {
+    return 'Fahre $best noch einmal, um zu prüfen, dass sich sonst nichts geändert hat.';
+  }
+
+  @override
+  String suggestionRideAndCompare(String next, String last) {
+    return 'Fahre $next und vergleiche es mit $last.';
+  }
+
+  @override
+  String suggestionLevelRideAgain(String next, String other) {
+    return '$next und $other sind gleichauf. Fahre $next noch einmal, um zu entscheiden.';
+  }
+
+  @override
+  String get dialStyleColor => 'Farbe';
+
+  @override
+  String get dialStyleSize => 'Größe';
+
+  @override
+  String get dialColorBlue => 'blau';
+
+  @override
+  String get dialColorRed => 'rot';
+
+  @override
+  String get dialColorGreen => 'grün';
+
+  @override
+  String get dialColorBrown => 'braun';
+
+  @override
+  String get dialColorOrange => 'orange';
+
+  @override
+  String get dialColorPurple => 'lila';
+
+  @override
+  String get dialColorGrey => 'grau';
+
+  @override
+  String get dialSizeNormal => 'normal';
+
+  @override
+  String get dialSizeSmall => 'klein';
 }

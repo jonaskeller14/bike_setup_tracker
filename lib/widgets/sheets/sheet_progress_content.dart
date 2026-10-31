@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'sheet_header.dart';
 
 /// Sheet body shown while a long-running step runs; the sheet must not be closed meanwhile.
@@ -30,7 +31,7 @@ class SheetProgressContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "This can take a moment for large datasets.",
+                  context.l10n.sheetProgressHint,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,

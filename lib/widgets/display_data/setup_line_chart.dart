@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
@@ -66,24 +67,24 @@ class _SetupLineChartState extends State<SetupLineChart> {
     }).toList();
 
     if (activeChartColumns.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No adjustments selected",
-        subtitle: "Select numerical or step adjustment columns to visualize trends",
+        title: context.l10n.chartNoAdjustmentsTitle,
+        subtitle: context.l10n.chartTrendNoColumnsSubtitle,
       );
     }
     if (widget.setups.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No data",
-        subtitle: "No setup data available",
+        title: context.l10n.chartNoDataTitle,
+        subtitle: context.l10n.chartNoDataSubtitle,
       );
     }
     if (widget.selectedSetups.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No setups selected",
-        subtitle: "Select setups in the table above to visualize the chart",
+        title: context.l10n.chartNoSetupsSelectedTitle,
+        subtitle: context.l10n.chartNoSetupsSelectedSubtitle,
       );
     }
 
@@ -92,20 +93,20 @@ class _SetupLineChartState extends State<SetupLineChart> {
     }).toList();
 
     if (validColumns.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No numerical data",
-        subtitle: "The selected columns do not contain numerical data to plot",
+        title: context.l10n.chartNoNumericalTitle,
+        subtitle: context.l10n.chartNoNumericalSubtitle,
       );
     }
 
     final chartSetups = widget.selectedSetups;
 
     if (chartSetups.length < 2) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "Not enough setups",
-        subtitle: "Select at least two setups in the table to visualize a trend",
+        title: context.l10n.chartLineNotEnoughTitle,
+        subtitle: context.l10n.chartLineNotEnoughSubtitle,
       );
     }
 

@@ -3,6 +3,46 @@ import 'package:flutter/foundation.dart';
 
 import '../../models/adjustment/adjustment.dart';
 
+enum SuggestionNoteKind {
+  recordRunFirst,
+  addFeedbackFirst,
+  adjustmentGone,
+  noValue,
+  outOfRange,
+  allLocked,
+  notCompare,
+  setupRemoved,
+  patternStep,
+  estimatedBest,
+  rideAgainConfirm,
+  keepGoing,
+  tryFromBest,
+  rideAgainCheck,
+  rideAndCompare,
+  levelRideAgain,
+}
+
+/// What a strategy has to say, without wording: [kind] names the sentence and
+/// [args] fill it (run names, adjustment names, a move like "Rebound +2"). The
+/// UI turns it into text in the app language (`enum_labels.dart`).
+@immutable
+class SuggestionNote {
+  final SuggestionNoteKind kind;
+  final List<String> args;
+
+  const SuggestionNote(this.kind, [this.args = const []]);
+
+  @override
+  bool operator ==(Object other) =>
+      other is SuggestionNote && other.kind == kind && const ListEquality<String>().equals(other.args, args);
+
+  @override
+  int get hashCode => Object.hash(kind, const ListEquality<String>().hash(args));
+
+  @override
+  String toString() => 'SuggestionNote(${kind.name}, $args)';
+}
+
 /// What a test session strategy says about the next run.
 @immutable
 sealed class SuggestionResult {
@@ -21,7 +61,7 @@ final class Proposal extends SuggestionResult {
   /// The run the debrief should compare the next run with.
   final String? referenceSetupId;
 
-  final String rationale;
+  final SuggestionNote rationale;
 
   const Proposal({
     required this.baseSetupId,
@@ -72,7 +112,7 @@ final class Converged extends SuggestionResult {
 
 /// The strategy waits for the rider, e.g. feedback on the latest run.
 final class NoSuggestion extends SuggestionResult {
-  final String reason;
+  final SuggestionNote reason;
 
   const NoSuggestion(this.reason);
 
@@ -89,7 +129,7 @@ final class NoSuggestion extends SuggestionResult {
 /// The session's data can't be used until the rider fixes it, e.g. an
 /// adjustment that is no longer installed.
 final class InvalidData extends SuggestionResult {
-  final String error;
+  final SuggestionNote error;
 
   const InvalidData(this.error);
 

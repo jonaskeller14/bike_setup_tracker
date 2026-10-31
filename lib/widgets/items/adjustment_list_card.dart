@@ -190,9 +190,9 @@ class _PendingMigrationLine extends StatelessWidget {
     final color = pending.clearsValues ? scheme.error : scheme.primary;
     final cleared = pending.cleared;
     final text = [
-      'Updates ${affectedRecordsLabel(pending.affected)} on save',
+      context.l10n.valueMigrationPendingUpdates(affectedRecordsLabel(pending.affected, context.l10n)),
       if (cleared.live + cleared.deleted > 0)
-        '${affectedRecordsLabel(cleared)} ${cleared.isSingular ? 'loses its' : 'lose their'} value',
+        context.l10n.valueMigrationPendingClears(affectedRecordsLabel(cleared, context.l10n), '${cleared.isSingular}'),
     ].join(' · ');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

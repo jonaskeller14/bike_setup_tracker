@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
@@ -39,8 +40,8 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
     final driftedCount = entries.where((e) => e.isSignificant).length;
     final expanded = _expanded ?? driftedCount > 0;
     final summary = driftedCount > 0
-        ? const GuideStatus(GuideStatusKind.off, "Drifted")
-        : const GuideStatus(GuideStatusKind.inRange, "OK");
+        ? const GuideStatus(GuideStatusKind.off)
+        : const GuideStatus(GuideStatusKind.inRange);
     final threshold = "${appSettings.pressureCheckThresholdPercent} %";
     final divider = Divider(height: 1, indent: 16, endIndent: 16, color: hint.onContainer.withValues(alpha: 0.15));
 
@@ -67,7 +68,7 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                       Icon(Icons.compress, size: 16, color: hint.accent),
                       Expanded(
                         child: Text(
-                          "PRESSURE CHECK",
+                          context.l10n.featuresPressureCheck.toUpperCase(),
                           style: textTheme.labelSmall?.copyWith(
                             color: hint.accent,
                             fontWeight: FontWeight.bold,
@@ -82,7 +83,7 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                         onPressed: () => setState(() => _expanded = !expanded),
                         icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
                         color: hint.accent,
-                        tooltip: expanded ? "Collapse" : "Expand",
+                        tooltip: expanded ? context.l10n.collapse : context.l10n.expand,
                       ),
                     ],
                   ),
@@ -95,11 +96,17 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        driftedCount > 0 ? "Worth getting the pump out" : "No need to get the pump out",
+                        driftedCount > 0 ? context.l10n.pressureCheckWorthPump : context.l10n.pressureCheckNoPump,
                         style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
                       ),
                       Text(
-                        "Now ${pressureConditionsText(appSettings, entries.first.currentTemperatureC, entries.first.currentAltitudeM)}",
+                        context.l10n.pressureCheckNow(
+                          pressureConditionsText(
+                            appSettings,
+                            entries.first.currentTemperatureC,
+                            entries.first.currentAltitudeM,
+                          ),
+                        ),
                         style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
                       ),
                     ],
@@ -121,9 +128,8 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                       Expanded(
                         child: Text(
                           driftedCount > 0
-                              ? "On the right is what your pump would read now. Pump back to the value you last set "
-                                    "for the same feel."
-                              : "Every pressure stays within $threshold of the value you last set.",
+                              ? context.l10n.pressureCheckFooterDrifted
+                              : context.l10n.pressureCheckFooterOk(threshold),
                           style: textTheme.bodySmall?.copyWith(color: hint.onContainer),
                         ),
                       ),
@@ -132,7 +138,7 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                         icon: const Icon(Icons.info_outline_rounded),
                         iconSize: 18,
                         color: hint.accent,
-                        tooltip: "How this is calculated",
+                        tooltip: context.l10n.pressureCheckInfoTooltip,
                       ),
                     ],
                   ),
@@ -177,9 +183,12 @@ class _PressureDriftRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  "Set ${formatPressure(entry.referenceValue)} $unit on "
-                  "${DateFormat(appSettings.dateFormat).format(entry.referenceSetup.datetimeLocal)} · "
-                  "${pressureConditionsText(appSettings, entry.referenceTemperatureC, entry.referenceAltitudeM)}",
+                  context.l10n.pressureCheckSetOn(
+                    formatPressure(entry.referenceValue),
+                    unit,
+                    DateFormat(appSettings.dateFormat).format(entry.referenceSetup.datetimeLocal),
+                    pressureConditionsText(appSettings, entry.referenceTemperatureC, entry.referenceAltitudeM),
+                  ),
                   style: mutedStyle,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -218,7 +227,7 @@ class _PressureDriftRow extends StatelessWidget {
 
 /// Green within the threshold, orange from it on, labelled with the drift.
 GuideStatus pressureDriftStatus(double relativeDelta, {required bool significant}) =>
-    GuideStatus(significant ? GuideStatusKind.off : GuideStatusKind.inRange, signedPercent(relativeDelta));
+    GuideStatus(significant ? GuideStatusKind.off : GuideStatusKind.inRange, text: signedPercent(relativeDelta));
 
 String formatPressure(double value) {
   final magnitude = value.abs();

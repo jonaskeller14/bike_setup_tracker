@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/component_stats.dart';
 
@@ -63,19 +64,19 @@ class _ComponentStatsCardState extends State<ComponentStatsCard> {
                     _buildStatItem(
                       context,
                       icon: Icons.route,
-                      label: "Distance",
+                      label: context.l10n.initialStatsDistance,
                       value: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(widget.componentStats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
                     ),
                     _buildStatItem(
                       context,
                       icon: Icons.terrain_outlined,
-                      label: "Elevation",
+                      label: context.l10n.taskTriggerTypeElevation,
                       value: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(widget.componentStats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
                     ),
                     _buildStatItem(
                       context,
                       icon: Icons.timer_outlined,
-                      label: "Moving Time",
+                      label: context.l10n.initialStatsMovingTime,
                       value: '${NumberFormat.decimalPattern().format(widget.componentStats.movingTime.inHours)}h ${widget.componentStats.movingTime.inMinutes.remainder(60)}m',
                     ),
                   ],
@@ -86,19 +87,19 @@ class _ComponentStatsCardState extends State<ComponentStatsCard> {
                     _buildStatItem(
                       context,
                       icon: Icons.timer_outlined,
-                      label: "Elapsed Time",
+                      label: context.l10n.initialStatsElapsedTime,
                       value: '${NumberFormat.decimalPattern().format(widget.componentStats.elapsedTime.inHours)}h ${widget.componentStats.elapsedTime.inMinutes.remainder(60)}m',
                     ),
                     _buildStatItem(
                       context,
                       icon: Icons.repeat,
-                      label: "Activities",
+                      label: context.l10n.initialStatsActivityCount,
                       value: '${widget.componentStats.activityCount}',
                     ),
                     _buildStatItem(
                       context,
                       icon: Icons.bolt,
-                      label: "Kilojoules",
+                      label: context.l10n.componentStatsKilojoules,
                       value: NumberFormat.decimalPattern().format(widget.componentStats.kilojoules.round()),
                     ),
                   ],

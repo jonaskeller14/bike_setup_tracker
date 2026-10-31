@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/l10n.dart';
 import '../models/attachment.dart';
 import '../utils/attachment_actions.dart';
 import 'attachment_viewer.dart';
@@ -360,7 +361,9 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
                       children: [
                         Icon(Icons.attach_file, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         Text(
-                          'Add',
+                          context.l10n.addLabel,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11,
                             color: Theme.of(context).colorScheme.onSurfaceVariant,

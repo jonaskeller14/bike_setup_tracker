@@ -48,13 +48,13 @@ class SoilMoistureLegendTable extends StatelessWidget {
         columns: [
           DataColumn(
             label: Text(
-              'Soil Moisture [m³/m³]',
+              context.l10n.soilMoistureLegendColumn,
               style: Theme.of(context).textTheme.labelMedium,
             ),
           ),
           DataColumn(
             label: Text(
-              'Condition',
+              context.l10n.setupColumnCondition,
               style: Theme.of(context).textTheme.labelMedium,
             ),
           ),

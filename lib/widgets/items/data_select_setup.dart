@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/setup.dart';
 
@@ -42,7 +43,7 @@ class DataSelectSetup extends StatelessWidget {
             ),
             Flexible(
               child: Text(
-                bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                bikes[setup.bike]?.name ?? context.l10n.bikeNotFound,
                 style: TextStyle(
                   color: bikes.containsKey(setup.bike)
                       ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)

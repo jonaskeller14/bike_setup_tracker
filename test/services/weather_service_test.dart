@@ -24,6 +24,6 @@ void main() {
 
     expect(weather, isNull);
     expect(service.status, isA<WeatherError>());
-    expect(service.errorMessage, contains("Rate limit exceeded"));
+    expect((service.status as WeatherError).kind, WeatherErrorKind.rateLimit);
   });
 }

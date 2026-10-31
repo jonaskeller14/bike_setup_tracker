@@ -81,7 +81,7 @@ void main() {
       final result = simulation.play();
 
       expect(result, isA<Converged>());
-      expect(simulation.results.whereType<Proposal>().last.rationale, contains('level'));
+      expect(simulation.results.whereType<Proposal>().last.rationale.kind, SuggestionNoteKind.levelRideAgain);
       final direct = simulation.comparisons.where((c) {
         final pair = {stepOf(simulation.valuesOf(c.ratedId), 'a'), stepOf(simulation.valuesOf(c.referenceId), 'a')};
         return pair.length == 2 && pair.containsAll([0, 1]);

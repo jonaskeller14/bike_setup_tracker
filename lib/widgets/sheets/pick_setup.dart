@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/setup.dart';
 import 'setup_day_list.dart';
 import 'sheet_header.dart';
@@ -97,7 +98,7 @@ class _SuggestedBadge extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       child: Text(
-        'Suggested',
+        context.l10n.pickSetupSuggested,
         style: TextStyle(
           color: scheme.onPrimaryContainer,
           fontWeight: FontWeight.w600,

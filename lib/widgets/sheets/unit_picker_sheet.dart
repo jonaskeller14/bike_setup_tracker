@@ -216,7 +216,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                             border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
                           ),
                           child: Text(
-                            'Did you mean "${suggestion.label}" (${suggestion.quantity.label(context.l10n)})?',
+                            context.l10n.unitPickerDidYouMean(suggestion.label, suggestion.quantity.label(context.l10n)),
                             style: TextStyle(color: colorScheme.primary, fontSize: 12),
                           ),
                         ),

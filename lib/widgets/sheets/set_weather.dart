@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
@@ -161,10 +162,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
-                            if (widget.weatherService.status case WeatherError(:final message) when message.isNotEmpty)
+                            if (widget.weatherService.status case final WeatherError error)
                               ListTile(
                                 leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                                title: Text(message),
+                                title: Text(error.message(context.l10n)),
                                 dense: true,
                                 contentPadding: const EdgeInsets.only(bottom: 16),
                               ),

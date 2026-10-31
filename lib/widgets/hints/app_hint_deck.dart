@@ -420,7 +420,7 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
           Semantics(
             button: true,
             selected: d == index,
-            label: '${widget.label} ${d + 1} of $_count',
+            label: context.l10n.hintPageDot(widget.label, d + 1, _count),
             child: GestureDetector(
               onTap: () => _jumpTo(d),
               behavior: HitTestBehavior.opaque,

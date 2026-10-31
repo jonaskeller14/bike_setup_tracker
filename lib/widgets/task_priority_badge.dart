@@ -39,7 +39,7 @@ class TaskPriorityBadge extends StatelessWidget {
         fit: BoxFit.scaleDown,
         child: Text(
           priority.label(context.l10n).toUpperCase(),
-          semanticsLabel: '${priority.label(context.l10n)} priority',
+          semanticsLabel: context.l10n.taskPrioritySemantics(priority.label(context.l10n)),
           style: theme.textTheme.labelSmall?.copyWith(
             color: foreground,
             fontSize: large ? 14 : 10,

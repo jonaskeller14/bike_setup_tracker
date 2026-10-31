@@ -107,7 +107,7 @@ class SetupPickTile extends StatelessWidget {
                   showSetupIcon: true,
                   selected: selected,
                   secondaryMetadata: showBikeName
-                      ? TileMetaRow(icon: Bike.iconData, text: bike?.name ?? 'Unknown bike', isError: bike == null)
+                      ? TileMetaRow(icon: Bike.iconData, text: bike?.name ?? context.l10n.setupDayUnknownBike, isError: bike == null)
                       : null,
                 ),
               ),

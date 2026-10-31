@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/preset_spec_keys.dart';
@@ -94,7 +95,7 @@ class SetupGuideCard extends StatelessWidget {
                 Icon(Icons.tips_and_updates_outlined, size: 16, color: hint.accent),
                 Expanded(
                   child: Text(
-                    "SETUP GUIDE",
+                    context.l10n.guideCardTitle.toUpperCase(),
                     style: textTheme.labelSmall?.copyWith(
                       color: hint.accent,
                       fontWeight: FontWeight.bold,
@@ -107,7 +108,7 @@ class SetupGuideCard extends StatelessWidget {
                   icon: const Icon(Icons.info_outline_rounded),
                   iconSize: 18,
                   color: hint.accent,
-                  tooltip: "About recommended values",
+                  tooltip: context.l10n.guideCardInfoTooltip,
                 ),
               ],
             ),
@@ -118,11 +119,11 @@ class SetupGuideCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Recommended first values",
+                  context.l10n.guideCardHeadline,
                   style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
                 ),
                 if (weightInput == null)
-                  Text(_inputsText(inputs), style: textTheme.bodyMedium?.merge(onContainer))
+                  Text(_inputsText(inputs, context.l10n), style: textTheme.bodyMedium?.merge(onContainer))
                 else
                   _WeightField(input: weightInput, ridingStyle: inputs.ridingStyle),
               ],
@@ -145,13 +146,13 @@ class SetupGuideCard extends StatelessWidget {
               spacing: 12,
               children: [
                 Expanded(
-                  child: Text("A starting point, check your manual.", style: textTheme.bodySmall?.merge(onContainer)),
+                  child: Text(context.l10n.guideCardStartingPoint, style: textTheme.bodySmall?.merge(onContainer)),
                 ),
                 FilledButton.icon(
                   style: FilledButton.styleFrom(backgroundColor: hint.accent, foregroundColor: hint.onAccent),
                   onPressed: onApplyAll,
                   icon: const Icon(Icons.done_all),
-                  label: const Text("Apply all"),
+                  label: Text(context.l10n.guideCardApplyAll),
                 ),
               ],
             ),
@@ -205,7 +206,7 @@ class _WeightFieldState extends State<_WeightField> {
             Flexible(
               child: Text(
                 [
-                  "Riding weight",
+                  context.l10n.guideCardRidingWeight,
                   if (widget.ridingStyle case final style?) style.label,
                 ].join(" · "),
                 style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
@@ -245,7 +246,7 @@ class _WeightFieldState extends State<_WeightField> {
             style: TextButton.styleFrom(foregroundColor: hint.accent, padding: EdgeInsets.zero),
             onPressed: onAddToRider,
             icon: const Icon(Icons.person_add_alt_outlined, size: 18),
-            label: Text(input.addToRiderLabel ?? "Add riding weight to rider"),
+            label: Text(input.addToRiderLabel ?? context.l10n.guideCardAddWeightDefault),
           ),
       ],
     );
@@ -283,7 +284,7 @@ class _SectionHeader extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  "Based on: ${section.guided.guide.label}",
+                  context.l10n.guideCardBasedOn(section.guided.guide.label),
                   style: textTheme.bodySmall?.copyWith(color: hint.onContainer.withValues(alpha: 0.75)),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -322,14 +323,14 @@ class _RecommendationRow extends StatelessWidget {
     final shown = value ?? recommendation.unappliedValue;
     final canApply = value != null && recommendation.current != value;
     final note = recommendation.rule.note;
-    final reverseLookup = hasRiderWeight ? null : _reverseLookupText(recommendation, riderWeightUnit);
+    final reverseLookup = hasRiderWeight ? null : _reverseLookupText(recommendation, riderWeightUnit, context.l10n);
     final status = GuideStatus.of(recommendation);
     final current = recommendation.current;
     final band = guideBandText(recommendation);
     final statusDetail = switch (status?.kind) {
       GuideStatusKind.inRange || GuideStatusKind.off when current != null => [
-        "Now ${guideValueText(adjustment, current)}",
-        if (band != null) "in range $band",
+        context.l10n.guideCardNow(guideValueText(adjustment, current)),
+        if (band != null) context.l10n.guideCardInRange(band),
       ].join(" · "),
       _ => null,
     };
@@ -354,7 +355,7 @@ class _RecommendationRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    guideDetailText(recommendation, component),
+                    guideDetailText(recommendation, component, context.l10n),
                     style: mutedStyle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -399,53 +400,54 @@ class _RecommendationRow extends StatelessWidget {
   }
 }
 
-String _inputsText(GuideInputs inputs) {
+String _inputsText(GuideInputs inputs, AppLocalizations l10n) {
   final weight = inputs.riderWeight;
-  if (weight == null) return "Enter a riding weight on the Rider tab for weight-based values";
+  if (weight == null) return l10n.guideCardEnterWeight;
   return [
-    "Recommended values for ${_number(weight)} ${inputs.riderWeightUnit.label}",
+    l10n.guideCardValuesFor(_number(weight), inputs.riderWeightUnit.label),
     ?inputs.ridingStyle?.label,
   ].join(" · ");
 }
 
 /// The input the value was looked up for, or why there is none.
-String guideDetailText(GuideRecommendation recommendation, Component component) {
+String guideDetailText(GuideRecommendation recommendation, Component component, AppLocalizations l10n) {
   final issue = recommendation.issue;
   if (issue == null) {
     final basis = [
       ?recommendation.inputText,
-      if (recommendation.interpolated) "interpolated",
-      if (recommendation.converted) "converted to your dial",
+      if (recommendation.interpolated) l10n.guideDetailInterpolated,
+      if (recommendation.converted) l10n.guideDetailConverted,
     ];
-    return basis.isEmpty ? "Fixed value" : basis.join(" · ");
+    return basis.isEmpty ? l10n.guideDetailFixed : basis.join(" · ");
   }
   return switch (issue) {
     GuideIssue.missingInput => switch (recommendation.rule.input) {
-      RiderGuideInput(key: GuideInputKey.riderWeight) => "Needs your riding weight",
-      RiderGuideInput(key: GuideInputKey.ridingStyle) => "Needs your riding style",
-      AdjusterGuideInput(:final adjusterId) =>
-        "Needs a value for ${component.adjustments.firstWhereOrNull((a) => adjustmentRole(a) == adjusterId)?.name ?? adjusterId}",
-      PresetGuideInput(:final id) => "Needs the component's ${id.replaceAll('_', ' ')}",
-      null => "Needs more information",
+      RiderGuideInput(key: GuideInputKey.riderWeight) => l10n.guideIssueNeedsWeight,
+      RiderGuideInput(key: GuideInputKey.ridingStyle) => l10n.guideIssueNeedsStyle,
+      AdjusterGuideInput(:final adjusterId) => l10n.guideIssueNeedsAdjuster(
+        component.adjustments.firstWhereOrNull((a) => adjustmentRole(a) == adjusterId)?.name ?? adjusterId,
+      ),
+      PresetGuideInput(:final id) => l10n.guideIssueNeedsSpec(id.replaceAll('_', ' ')),
+      null => l10n.guideIssueNeedsMore,
     },
-    GuideIssue.outsideRange => "Outside the published range",
-    GuideIssue.placeholderMax => "Enter your dial's click count (max) first",
-    GuideIssue.aboveMax => "Above this adjuster's maximum",
-    GuideIssue.belowMin => "Below this adjuster's minimum",
-    GuideIssue.incompatible => "Doesn't fit this adjuster's type or unit",
-    GuideIssue.directionUnknown => "Counted on the catalog's dial; set this adjuster's dial direction to apply",
+    GuideIssue.outsideRange => l10n.guideIssueOutsideRange,
+    GuideIssue.placeholderMax => l10n.guideIssuePlaceholderMax,
+    GuideIssue.aboveMax => l10n.guideIssueAboveMax,
+    GuideIssue.belowMin => l10n.guideIssueBelowMin,
+    GuideIssue.incompatible => l10n.guideIssueIncompatible,
+    GuideIssue.directionUnknown => l10n.guideIssueDirectionUnknown,
   };
 }
 
 /// "84 psi ≈ 86–91 kg": the rider weights the current value suits.
-String? _reverseLookupText(GuideRecommendation recommendation, KnownUnit unit) {
+String? _reverseLookupText(GuideRecommendation recommendation, KnownUnit unit, AppLocalizations l10n) {
   final (range, current) = (recommendation.riderWeightRange, recommendation.current);
   if (range == null || current == null) return null;
   final weights = switch ((range.min.isFinite, range.max.isFinite)) {
     (true, true) when range.min.round() == range.max.round() => _number(range.min),
     (true, true) => "${_number(range.min)}–${_number(range.max)}",
     (true, false) => "${_number(range.min)}+",
-    (false, true) => "up to ${_number(range.max)}",
+    (false, true) => l10n.guideWeightUpTo(_number(range.max)),
     (false, false) => null,
   };
   if (weights == null) return null;

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/setup.dart';
 import 'setup_day_list.dart';
 import 'sheet.dart';
@@ -17,7 +18,7 @@ Future<List<String>> showPickSetupsSheet(
   required List<Setup> options,
   required List<String> selectedIds,
   String? Function(int selectedCount)? warningFor,
-  String emptyTitle = 'No setups yet',
+  String? emptyTitle,
   bool showBikeNames = false,
 }) async {
   var selected = List.of(selectedIds);
@@ -31,7 +32,7 @@ Future<List<String>> showPickSetupsSheet(
       selectedIds: selectedIds,
       onChanged: (ids) => selected = ids,
       warningFor: warningFor,
-      emptyTitle: emptyTitle,
+      emptyTitle: emptyTitle ?? context.l10n.noSetupsTitle,
       showBikeNames: showBikeNames,
     ),
   );

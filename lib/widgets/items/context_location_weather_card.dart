@@ -198,7 +198,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
                         ),
                         TextSourceAttribution(
                           prependCopyright: false,
-                          'Improve this map',
+                          context.l10n.mapAttributionImprove,
                           onTap: () => launchUrlString('https://www.mapbox.com/map-feedback/'),
                         ),
                       ] else ...[
@@ -278,7 +278,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
   Widget _conditionSection(BuildContext context) {
     return ListTile(
       leading: Icon(weather!.condition!.iconData, color: weather!.condition!.color),
-      title: SelectableText('Condition: ${weather!.condition!.label(context.l10n)}'),
+      title: SelectableText(context.l10n.contextCondition(weather!.condition!.label(context.l10n))),
       dense: true,
     );
   }

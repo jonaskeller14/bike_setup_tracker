@@ -122,7 +122,7 @@ void main() {
 
       expect(proposal.values, {'b': const StepValue(13), 'a': const StepValue(10)});
       expect(proposal.referenceSetupId, 'r0');
-      expect(proposal.rationale, contains('b +3'));
+      expect(proposal.rationale.args, contains(contains('b +3')));
     });
 
     test('never moves a locked knob', () {

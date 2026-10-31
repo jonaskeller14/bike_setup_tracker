@@ -261,7 +261,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                     if (widget.bike.person != null)
                                       Flexible(
                                         child: Text(
-                                          persons[widget.bike.person]?.name ?? "RIDER NOT FOUND",
+                                          persons[widget.bike.person]?.name ?? context.l10n.riderNotFound,
                                           style: TextStyle(
                                             color: widget.bike.person == null || persons.containsKey(widget.bike.person)
                                                 ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
@@ -347,7 +347,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                             spacing: 10,
                             children: [
                               Icon(option.iconData, size: 20),
-                              Text(option.label),
+                              Text(option.label(context.l10n)),
                             ],
                           ),
                         );
@@ -438,7 +438,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                               Icon(Icons.add, size: 24, color: Theme.of(context).colorScheme.primary),
                                               if (bikeComponents.isEmpty)
                                                 Text(
-                                                  "Add Component",
+                                                  context.l10n.addComponent,
                                                   style: TextStyle(
                                                     color: Theme.of(context).colorScheme.primary,
                                                     fontWeight: FontWeight.w600,
@@ -562,10 +562,15 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
 }
 
 enum _BikeOptions {
-  edit("Edit", Icons.edit),
-  duplicate("Duplicate", Icons.copy),
-  remove("Remove", Icons.delete);
-  final String label;
+  edit(Icons.edit),
+  duplicate(Icons.copy),
+  remove(Icons.delete);
   final IconData iconData;
-  const _BikeOptions(this.label, this.iconData);
+  const _BikeOptions(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    duplicate => l10n.duplicate,
+    remove => l10n.remove,
+  };
 }

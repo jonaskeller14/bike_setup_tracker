@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../utils/value_migration_proposal.dart';
 import '../value_transition_preview.dart';
@@ -65,7 +66,7 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Update recorded values'),
+          SheetHeader(title: context.l10n.valueMigrationTitle),
           const SizedBox(height: 8),
           Flexible(
             child: SingleChildScrollView(
@@ -75,12 +76,15 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                 spacing: 16,
                 children: [
                   Text(
-                    "Your change to '${widget.adjustmentName}' affects ${affectedRecordsLabel(_proposal.affected)}."
-                    '${decisions.isEmpty ? '' : ' Choose what happens to their values.'}'
-                    '${widget.replacesEarlier ? ' This replaces the change you confirmed earlier.' : ''}',
+                    context.l10n.valueMigrationIntro(
+                      widget.adjustmentName,
+                      affectedRecordsLabel(_proposal.affected, context.l10n),
+                      '${decisions.isNotEmpty}',
+                      '${widget.replacesEarlier}',
+                    ),
                     style: theme.textTheme.bodyMedium,
                   ),
-                  ValueTransitionPreview(rows: _rows(_proposal)),
+                  ValueTransitionPreview(rows: _rows(_proposal, context.l10n)),
                   for (final (index, issue) in decisions.indexed)
                     _ChoiceSection(
                       key: ValueKey(issue.key),
@@ -91,8 +95,7 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                     ),
                   if (decisions.isNotEmpty)
                     Text(
-                      'Need different values in different ${_nounFor(2)}? '
-                      'Cancel, change those ${_nounFor(2)} first, then make this edit.',
+                      context.l10n.valueMigrationNeedDifferent,
                       style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                 ],
@@ -105,7 +108,7 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
               spacing: 12,
               children: [
                 Expanded(
-                  child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                  child: OutlinedButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.cancel)),
                 ),
                 Expanded(
                   child: FilledButton(
@@ -120,7 +123,7 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
                         : null,
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text(_confirmLabel(_proposal.affected)),
+                      child: Text(_confirmLabel(_proposal.affected, context.l10n)),
                     ),
                   ),
                 ),
@@ -133,27 +136,25 @@ class _ValueMigrationSheetState extends State<_ValueMigrationSheet> {
   }
 }
 
-String _nounFor(int count) => count == 1 ? 'setup' : 'setups';
-
 /// "Update 4 setups"; deleted records count only when there are no live ones.
-String _confirmLabel(AffectedRecords records) => records.live == 0
-    ? 'Update ${records.deleted} deleted ${_nounFor(records.deleted)}'
-    : 'Update ${records.live} ${_nounFor(records.live)}';
+String _confirmLabel(AffectedRecords records, AppLocalizations l10n) =>
+    records.live == 0 ? l10n.valueMigrationUpdateDeleted(records.deleted) : l10n.valueMigrationUpdate(records.live);
 
 /// "4 setups (+3 deleted)", or "3 deleted setups" without live ones.
-String affectedRecordsLabel(AffectedRecords records) {
-  if (records.live == 0) return '${records.deleted} deleted ${_nounFor(records.deleted)}';
-  final base = '${records.live} ${_nounFor(records.live)}';
-  return records.deleted == 0 ? base : '$base (+${records.deleted} deleted)';
+String affectedRecordsLabel(AffectedRecords records, AppLocalizations l10n) {
+  if (records.live == 0) return l10n.affectedDeletedSetups(records.deleted);
+  return records.deleted == 0
+      ? l10n.affectedSetups(records.live)
+      : l10n.affectedSetupsWithDeleted(records.live, records.deleted);
 }
 
-List<ValueTransitionRow> _rows(MigrationProposal proposal) {
+List<ValueTransitionRow> _rows(MigrationProposal proposal, AppLocalizations l10n) {
   final byKey = {for (final issue in proposal.issues) issue.key: issue};
   final isCategorical = proposal.after is CategoricalAdjustment;
   return [
     for (final preview in proposal.previews)
       ValueTransitionRow(
-        caption: isCategorical ? _issueTitle(byKey[preview.issueKeys.single]!, proposal) : null,
+        caption: isCategorical ? _issueTitle(byKey[preview.issueKeys.single]!, proposal, l10n) : null,
         stages: _stages(preview, proposal),
       ),
   ];
@@ -189,18 +190,19 @@ String _rounded(double value) {
   return rounded == exact ? exact : '≈ $rounded';
 }
 
-String _unitName(AdjustmentUnit? unit) => unit?.label ?? 'no unit';
+String _unitName(AdjustmentUnit? unit, AppLocalizations l10n) => unit?.label ?? l10n.valueMigrationNoUnit;
 
-String _issueTitle(MigrationIssue issue, MigrationProposal proposal) => switch (issue.kind) {
-  MigrationIssueKind.unitConversion ||
-  MigrationIssueKind.incompatibleUnit =>
-    'Unit changed from ${_unitName(proposal.before.unit)} to ${_unitName(proposal.after.unit)}',
-  MigrationIssueKind.renamedOptions => 'Renamed options',
-  MigrationIssueKind.deletedOption => "'${proposal.optionLabel(issue.options.first)}' was deleted",
-  MigrationIssueKind.duplicateOptions => 'Each option can be picked only once now',
-  MigrationIssueKind.combination => "Only one option can be picked now: ${_combination(issue)}",
+String _issueTitle(MigrationIssue issue, MigrationProposal proposal, AppLocalizations l10n) => switch (issue.kind) {
+  MigrationIssueKind.unitConversion || MigrationIssueKind.incompatibleUnit => l10n.valueMigrationUnitChanged(
+    _unitName(proposal.before.unit, l10n),
+    _unitName(proposal.after.unit, l10n),
+  ),
+  MigrationIssueKind.renamedOptions => l10n.valueMigrationRenamedOptions,
+  MigrationIssueKind.deletedOption => l10n.valueMigrationDeletedOption(proposal.optionLabel(issue.options.first)),
+  MigrationIssueKind.duplicateOptions => l10n.valueMigrationDuplicateOptions,
+  MigrationIssueKind.combination => l10n.valueMigrationCombination(_combination(issue)),
   MigrationIssueKind.outOfRange =>
-    proposal.after is StepAdjustment ? 'Values off the new steps or range' : 'Values outside the new range',
+    proposal.after is StepAdjustment ? l10n.valueMigrationOutOfStep : l10n.valueMigrationOutOfRange,
 };
 
 /// "'Soft' + 'Firm'".
@@ -216,30 +218,32 @@ bool _removesFromSelection(MigrationIssue issue, MigrationProposal proposal) =>
     };
 
 /// The dropdown label: what the picked option replaces.
-String _replaceLabel(MigrationIssue issue, MigrationProposal proposal) => switch (issue.kind) {
-  MigrationIssueKind.deletedOption => "Replace '${proposal.optionLabel(issue.options.first)}' with",
-  _ => 'Replace ${_combination(issue)} with',
-};
+String _replaceLabel(MigrationIssue issue, MigrationProposal proposal, AppLocalizations l10n) =>
+    switch (issue.kind) {
+      MigrationIssueKind.deletedOption => l10n.valueMigrationReplaceDeleted(proposal.optionLabel(issue.options.first)),
+      _ => l10n.valueMigrationReplaceCombination(_combination(issue)),
+    };
 
 /// The dropdown entry for clearing, worded like the "No value" of the example.
-String _clearEntry(MigrationIssue issue, MigrationProposal proposal) => _removesFromSelection(issue, proposal)
-    ? "Remove '${proposal.optionLabel(issue.options.first)}' from the selection"
-    : 'No value';
+String _clearEntry(MigrationIssue issue, MigrationProposal proposal, AppLocalizations l10n) =>
+    _removesFromSelection(issue, proposal)
+    ? l10n.valueMigrationRemoveFromSelection(proposal.optionLabel(issue.options.first))
+    : l10n.valueTransitionCleared;
 
-String _choiceLabel(MigrationChoice choice, MigrationProposal proposal) => switch (choice.kind) {
-  MigrationChoiceKind.convert => 'Convert',
-  MigrationChoiceKind.keep => 'Keep numbers',
-  MigrationChoiceKind.clamp => proposal.after is StepAdjustment ? 'Snap' : 'Clamp',
-  MigrationChoiceKind.clear => 'Clear',
+String _choiceLabel(MigrationChoice choice, MigrationProposal proposal, AppLocalizations l10n) => switch (choice.kind) {
+  MigrationChoiceKind.convert => l10n.valueMigrationConvert,
+  MigrationChoiceKind.keep => l10n.valueMigrationKeepNumbers,
+  MigrationChoiceKind.clamp => proposal.after is StepAdjustment ? l10n.valueMigrationSnap : l10n.valueMigrationClamp,
+  MigrationChoiceKind.clear => l10n.valueMigrationClear,
   MigrationChoiceKind.mapTo => choice.option!,
   MigrationChoiceKind.automatic => '',
 };
 
 /// What the selected choice does to the records [issue] touches.
-String _choiceHint(MigrationIssue issue, MigrationProposal proposal) {
+String _choiceHint(MigrationIssue issue, MigrationProposal proposal, AppLocalizations l10n) {
   final records = issue.affected;
-  final count = affectedRecordsLabel(records);
-  final one = records.isSingular;
+  final count = affectedRecordsLabel(records, l10n);
+  final one = '${records.isSingular}';
   final unit = proposal.after.unit;
   final deletedOption = issue.kind == MigrationIssueKind.deletedOption ? proposal.optionLabel(issue.options.first) : null;
   // Another row was renamed to the deleted option's text.
@@ -247,22 +251,23 @@ String _choiceHint(MigrationIssue issue, MigrationProposal proposal) {
       ? proposal.optionOrigins[issue.options.first]
       : null;
   return switch (issue.choice.kind) {
-    MigrationChoiceKind.convert => '$count ${one ? 'is' : 'are'} converted to ${_unitName(unit)}.',
+    MigrationChoiceKind.convert => l10n.valueMigrationHintConvert(count, one, _unitName(unit, l10n)),
     MigrationChoiceKind.keep =>
-      '$count ${one ? 'keeps its' : 'keep their'} numbers, '
-          '${unit == null ? 'now without a unit' : 'now read in ${unit.label}'}.',
+      unit == null
+          ? l10n.valueMigrationHintKeepNoUnit(count, one)
+          : l10n.valueMigrationHintKeepUnit(count, one, unit.label),
     MigrationChoiceKind.clamp =>
       proposal.after is StepAdjustment
-          ? '$count ${one ? 'snaps' : 'snap'} to the nearest step.'
-          : '$count ${one ? 'moves' : 'move'} to the nearest limit.',
+          ? l10n.valueMigrationHintSnap(count, one)
+          : l10n.valueMigrationHintClamp(count, one),
     MigrationChoiceKind.mapTo when renamedFrom != null =>
-      "$count ${one ? 'keeps' : 'keep'} '$deletedOption', now the option renamed from '$renamedFrom'.",
+      l10n.valueMigrationHintKeepRenamed(count, one, '$deletedOption', renamedFrom),
     MigrationChoiceKind.clear when deletedOption != null && _removesFromSelection(issue, proposal) =>
-      "'$deletedOption' is removed from $count.",
-    MigrationChoiceKind.clear => '$count ${one ? 'loses its' : 'lose their'} value.',
+      l10n.valueMigrationHintRemoveOption(deletedOption, count),
+    MigrationChoiceKind.clear => l10n.valueMigrationHintClear(count, one),
     MigrationChoiceKind.mapTo when deletedOption != null =>
-      "'$deletedOption' becomes '${issue.choice.option}' in $count.",
-    MigrationChoiceKind.mapTo => "$count ${one ? 'changes' : 'change'} to '${issue.choice.option}'.",
+      l10n.valueMigrationHintBecomes(deletedOption, '${issue.choice.option}', count),
+    MigrationChoiceKind.mapTo => l10n.valueMigrationHintChanges(count, one, '${issue.choice.option}'),
     MigrationChoiceKind.automatic => '',
   };
 }
@@ -280,8 +285,8 @@ class _ChoiceSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final hint = _choiceHint(issue, proposal);
-    final title = _issueTitle(issue, proposal);
+    final hint = _choiceHint(issue, proposal, context.l10n);
+    final title = _issueTitle(issue, proposal, context.l10n);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
@@ -298,7 +303,7 @@ class _ChoiceSection extends StatelessWidget {
             initialValue: issue.choice,
             isExpanded: true,
             decoration: InputDecoration(
-              labelText: _replaceLabel(issue, proposal),
+              labelText: _replaceLabel(issue, proposal, context.l10n),
               border: const OutlineInputBorder(),
               isDense: true,
             ),
@@ -307,7 +312,7 @@ class _ChoiceSection extends StatelessWidget {
                 DropdownMenuItem(
                   value: choice,
                   child: Text(
-                    choice.kind == MigrationChoiceKind.clear ? _clearEntry(issue, proposal) : choice.option!,
+                    choice.kind == MigrationChoiceKind.clear ? _clearEntry(issue, proposal, context.l10n) : choice.option!,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -325,7 +330,7 @@ class _ChoiceSection extends StatelessWidget {
                 for (final choice in issue.choices)
                   ButtonSegment(
                     value: choice,
-                    label: Text(_choiceLabel(choice, proposal), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    label: Text(_choiceLabel(choice, proposal, context.l10n), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ),
               ],
               selected: {issue.choice},

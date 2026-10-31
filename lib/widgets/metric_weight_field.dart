@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/l10n.dart';
 import '../utils/localized_number.dart';
 import '../utils/number_input_formatters.dart';
 
@@ -68,7 +69,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "Not included in the score",
+              context.l10n.metricWeightNotScored,
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
           ),
@@ -80,7 +81,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Scoring weight",
+          context.l10n.metricWeightTitle,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(color: scheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
@@ -89,7 +90,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
             IconButton.outlined(
               onPressed: () => _bump(-widget.step),
               icon: const Icon(Icons.remove),
-              tooltip: 'Decrease weight',
+              tooltip: context.l10n.metricWeightDecrease,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -133,7 +134,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
             IconButton.outlined(
               onPressed: () => _bump(widget.step),
               icon: const Icon(Icons.add),
-              tooltip: 'Increase weight',
+              tooltip: context.l10n.metricWeightIncrease,
             ),
           ],
         ),
@@ -143,10 +144,10 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
           builder: (context, _) {
             final v = parseLocalizedDouble(widget.controller!.text);
             final (IconData icon, String text) = switch (v) {
-              null => (Icons.help_outline, 'Set how this metric affects the score'),
-              _ when v > 0 => (Icons.arrow_upward, 'Higher values improve the score'),
-              _ when v < 0 => (Icons.arrow_downward, 'Lower values improve the score'),
-              _ => (Icons.block, 'Not counted in the score'),
+              null => (Icons.help_outline, context.l10n.metricWeightHintUnset),
+              _ when v > 0 => (Icons.arrow_upward, context.l10n.metricWeightHintPositive),
+              _ when v < 0 => (Icons.arrow_downward, context.l10n.metricWeightHintNegative),
+              _ => (Icons.block, context.l10n.metricWeightHintZero),
             };
             return Row(
               children: [

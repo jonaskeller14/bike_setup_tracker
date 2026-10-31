@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../l10n/l10n.dart';
 import '../models/component/component.dart';
 
 /// What an action does to one component, shown as a badge next to its row.
@@ -76,11 +76,7 @@ class ComponentTreePreview extends StatelessWidget {
               Icon(Icons.account_tree_outlined, size: 20, color: cs.onSurfaceVariant),
               Expanded(
                 child: Text(
-                  Intl.plural(
-                    subcomponentCount,
-                    one: "1 subcomponent",
-                    other: "$subcomponentCount subcomponents",
-                  ),
+                  context.l10n.subcomponentCount(subcomponentCount),
                   style: textTheme.titleSmall,
                   overflow: TextOverflow.ellipsis,
                 ),

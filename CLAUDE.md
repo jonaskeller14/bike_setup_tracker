@@ -156,6 +156,7 @@ idioms. Consistency with existing code outranks personal preference.
 - **Feedback is consistent.** Confirm completed actions and surface errors via `SnackBar`;
   fire `HapticFeedback` on primary/destructive interactions; gate destructive/irreversible
   actions behind a confirmation dialog (see the `lib/utils/*_actions.dart` pattern).
+- **User-facing text goes through `context.l10n`** (`lib/l10n/`), never a string literal
 
 ### Code quality
 - **Maintainable over clever.** Small, single-purpose widgets and functions. Keep

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../utils/preset_merge.dart';
 import '../items/adjustment_properties.dart';
@@ -39,13 +40,17 @@ Future<PresetMergeResult?> showPresetMergeSheet(
 enum _Mode { merge, replace }
 
 enum _Status {
-  merged('Merged'),
-  unchanged('Unchanged'),
-  newAdjustment('New'),
-  notAdded('Not added');
+  merged,
+  unchanged,
+  newAdjustment,
+  notAdded;
 
-  final String label;
-  const _Status(this.label);
+  String label(AppLocalizations l10n) => switch (this) {
+    merged => l10n.presetMergeStatusMerged,
+    unchanged => l10n.presetMergeStatusUnchanged,
+    newAdjustment => l10n.presetMergeStatusNew,
+    notAdded => l10n.presetMergeStatusNotAdded,
+  };
 }
 
 /// One card of the preview: an adjustment as it will be after confirming, and
@@ -94,7 +99,7 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
   List<(String, PresetMergeRow)> _mergeChoices(Adjustment catalog) => [
     for (final own in widget.existing)
       if (canMergeAdjustment(own, catalog) && _rows.every((row) => row.existing != own))
-        ('Merge into "${own.name}"', PresetMergeRow.merged(catalog, own)),
+        (context.l10n.presetMergeChoiceMergeInto(own.name), PresetMergeRow.merged(catalog, own)),
   ];
 
   List<_Entry> _mergeEntries() {
@@ -111,7 +116,10 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
             choices: [
               for (final row in _rows)
                 if (row.action != PresetMergeAction.merged && canMergeAdjustment(own, row.catalog))
-                  ('Merge with "${row.catalog.name}" (preset)', PresetMergeRow.merged(row.catalog, own)),
+                  (
+                    context.l10n.presetMergeChoiceMergeWith(row.catalog.name),
+                    PresetMergeRow.merged(row.catalog, own),
+                  ),
             ],
           ),
       for (final row in _rows)
@@ -122,7 +130,7 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
             catalog: row.catalog,
             choices: [
               ..._mergeChoices(row.catalog),
-              ("Don't add", PresetMergeRow.notAdded(row.catalog)),
+              (context.l10n.presetMergeChoiceDontAdd, PresetMergeRow.notAdded(row.catalog)),
             ],
           ),
       for (final row in _rows)
@@ -132,7 +140,7 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
             _Status.notAdded,
             catalog: row.catalog,
             choices: [
-              ('Add as new', PresetMergeRow.newAdjustment(row.catalog)),
+              (context.l10n.presetMergeChoiceAddNew, PresetMergeRow.newAdjustment(row.catalog)),
               ..._mergeChoices(row.catalog),
             ],
           ),
@@ -153,21 +161,21 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
       catalog: catalog,
       keptOwnRange: merged.keptOwnRange,
       choices: [
-        ('Separate again', PresetMergeRow.newAdjustment(catalog)),
-        ("Separate, drop preset's", PresetMergeRow.notAdded(catalog)),
+        (context.l10n.presetMergeChoiceSeparate, PresetMergeRow.newAdjustment(catalog)),
+        (context.l10n.presetMergeChoiceSeparateDrop, PresetMergeRow.notAdded(catalog)),
       ],
     );
   }
 
   String _summary(List<_Entry> entries) {
     if (_mode == _Mode.replace) {
-      return '${_catalog.length} from the preset · ${widget.existing.length} of yours removed';
+      return context.l10n.presetMergeSummaryReplace(_catalog.length, widget.existing.length);
     }
     int count(_Status status) => entries.where((entry) => entry.status == status).length;
     return [
-      '${count(_Status.merged)} merged',
-      if (count(_Status.newAdjustment) > 0) '${count(_Status.newAdjustment)} new',
-      if (count(_Status.unchanged) > 0) '${count(_Status.unchanged)} unchanged',
+      context.l10n.presetMergeSummaryMerged(count(_Status.merged)),
+      if (count(_Status.newAdjustment) > 0) context.l10n.presetMergeSummaryNew(count(_Status.newAdjustment)),
+      if (count(_Status.unchanged) > 0) context.l10n.presetMergeSummaryUnchanged(count(_Status.unchanged)),
     ].join(' · ');
   }
 
@@ -197,7 +205,7 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Merge adjustments'),
+          SheetHeader(title: context.l10n.presetMergeTitle),
           const SizedBox(height: 16),
           Flexible(
             child: ListView(
@@ -205,16 +213,24 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 Text(
-                  'Your component already has adjustments. Choose how the ones of ${widget.productName} combine with them.',
+                  context.l10n.presetMergeIntro(widget.productName),
                   style: muted,
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   child: SegmentedButton<_Mode>(
-                    segments: const [
-                      ButtonSegment(value: _Mode.merge, label: Text('Merge'), icon: Icon(Icons.merge)),
-                      ButtonSegment(value: _Mode.replace, label: Text('Replace'), icon: Icon(Icons.swap_horiz)),
+                    segments: [
+                      ButtonSegment(
+                        value: _Mode.merge,
+                        label: Text(context.l10n.presetMergeModeMerge),
+                        icon: const Icon(Icons.merge),
+                      ),
+                      ButtonSegment(
+                        value: _Mode.replace,
+                        label: Text(context.l10n.replace),
+                        icon: const Icon(Icons.swap_horiz),
+                      ),
                     ],
                     selected: {_mode},
                     onSelectionChanged: (selection) {
@@ -226,15 +242,14 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
                 const SizedBox(height: 12),
                 if (_mode == _Mode.merge)
                   Text(
-                    'Merged adjustments keep their name and recorded values and get linked to the preset. '
-                    'Tap a badge to change it.',
+                    context.l10n.presetMergeMergedHint,
                     style: muted,
                   )
                 else
                   _ReplaceNotice(existing: widget.existing, recordedValues: widget.recordedValues),
                 const SizedBox(height: 16),
                 Text(
-                  'Result · ${_summary(entries)}',
+                  context.l10n.presetMergeResult(_summary(entries)),
                   style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
@@ -242,7 +257,7 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
                 if (notAdded.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Text(
-                    'Not added',
+                    context.l10n.presetMergeStatusNotAdded,
                     style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 4),
@@ -260,7 +275,7 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
                 unawaited(HapticFeedback.mediumImpact());
                 Navigator.pop(context, _result());
               },
-              label: Text(_mode == _Mode.merge ? 'Merge' : 'Replace'),
+              label: Text(_mode == _Mode.merge ? context.l10n.presetMergeModeMerge : context.l10n.replace),
             ),
           ),
         ],
@@ -284,8 +299,7 @@ class _ReplaceNotice extends StatelessWidget {
     final valueCount = existing.fold(0, (sum, a) => sum + (recordedValues[a.id]?.length ?? 0));
     if (withValues == 0) {
       return Text(
-        "Your adjustments are removed and the preset's are used instead. "
-        'None of yours has recorded values yet, so nothing is lost.',
+        context.l10n.presetReplaceNoValues,
         style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
       );
     }
@@ -300,10 +314,7 @@ class _ReplaceNotice extends StatelessWidget {
           Icon(Icons.warning_amber, color: colors.onErrorContainer, size: 20),
           Expanded(
             child: Text(
-              '$withValues of your adjustments ${withValues == 1 ? 'has' : 'have'} '
-              '$valueCount recorded ${valueCount == 1 ? 'value' : 'values'}. '
-              'Replacing removes them from this component: the values stay in your setups, '
-              'but no longer belong to an adjustment. Merge keeps them.',
+              context.l10n.presetReplaceWarning(withValues, valueCount),
               style: theme.textTheme.bodySmall?.copyWith(color: colors.onErrorContainer),
             ),
           ),
@@ -341,7 +352,7 @@ class _EntryCardState extends State<_EntryCard> {
     };
     final changeable = entry.choices.isNotEmpty;
     final label = Text(
-      entry.status.label,
+      entry.status.label(context.l10n),
       style: TextStyle(color: foreground, fontSize: 12, fontWeight: FontWeight.w500),
     );
     if (!changeable) {
@@ -449,14 +460,14 @@ class _EntryCardState extends State<_EntryCard> {
               _line(
                 context,
                 Icons.merge,
-                '${own.name} + ${catalog.name} (preset)',
+                context.l10n.presetMergeLine(own.name, catalog.name),
                 colors.onSurfaceVariant,
               ),
             if (entry.keptOwnRange)
               _line(
                 context,
                 Icons.info_outline,
-                "Keeps your range: recorded values lie outside the preset's",
+                context.l10n.presetMergeKeptRange,
                 colors.tertiary,
               ),
           ],

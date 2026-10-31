@@ -187,8 +187,10 @@ abstract class TestSessionStrategy {
   /// Why nothing can be proposed for any method yet, or null.
   static SuggestionResult? waiting(TestSessionHistory history) {
     final latest = history.runs.lastOrNull;
-    if (latest == null) return const NoSuggestion('Record a run first.');
-    if (!history.ratedRunIds.contains(latest.id)) return NoSuggestion('Add feedback on ${latest.displayName} first.');
+    if (latest == null) return const NoSuggestion(SuggestionNote(SuggestionNoteKind.recordRunFirst));
+    if (!history.ratedRunIds.contains(latest.id)) {
+      return NoSuggestion(SuggestionNote(SuggestionNoteKind.addFeedbackFirst, [latest.displayName]));
+    }
     return null;
   }
 
@@ -204,22 +206,25 @@ abstract class TestSessionStrategy {
       if (adjustment == null) {
         return (
           knobs: const [],
-          result: const InvalidData('An adjustment of this session is no longer on the bike. Lock it to go on.'),
+          result: const InvalidData(SuggestionNote(SuggestionNoteKind.adjustmentGone)),
         );
       }
       final value = TestSessionHistory.valueOf(latest, id);
       if (value == null) {
-        return (knobs: const [], result: InvalidData("${latest.displayName} has no value for '${adjustment.name}'."));
+        return (
+          knobs: const [],
+          result: InvalidData(SuggestionNote(SuggestionNoteKind.noValue, [latest.displayName, adjustment.name])),
+        );
       }
       if (!adjustment.isValidValue(value)) {
         return (
           knobs: const [],
-          result: InvalidData("'${adjustment.name}' in ${latest.displayName} is outside its range."),
+          result: InvalidData(SuggestionNote(SuggestionNoteKind.outOfRange, [adjustment.name, latest.displayName])),
         );
       }
       if (StrategyKnob.of(adjustment, reference: value) case final knob?) knobs.add(knob);
     }
-    if (knobs.isEmpty) return (knobs: knobs, result: const NoSuggestion('Every adjustment is locked.'));
+    if (knobs.isEmpty) return (knobs: knobs, result: const NoSuggestion(SuggestionNote(SuggestionNoteKind.allLocked)));
     return (knobs: knobs, result: null);
   }
 

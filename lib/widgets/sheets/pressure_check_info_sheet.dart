@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:units_converter/units_converter.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../services/pressure_drift_service.dart';
@@ -72,7 +73,7 @@ class _PressureCheckInfoSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: "Pressure Check", leadingIcon: Icon(Icons.compress)),
+          SheetHeader(title: context.l10n.featuresPressureCheck, leadingIcon: const Icon(Icons.compress)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -82,59 +83,54 @@ class _PressureCheckInfoSheet extends StatelessWidget {
                 spacing: 8,
                 children: [
                   Text(
-                    "A pressure you set at home doesn't read the same on the trail, even if no air "
-                    "escaped. This card shows what your pump would read right now.",
+                    context.l10n.pressureCheckInfoIntro,
                     style: muted,
                   ),
-                  _heading(context, "Why the reading changes"),
-                  _bullet(context, Icons.ac_unit, "Colder air shrinks the air in the chamber: the reading drops."),
+                  _heading(context, context.l10n.pressureCheckInfoWhyHeading),
+                  _bullet(context, Icons.ac_unit, context.l10n.pressureCheckInfoCold),
                   _bullet(
                     context,
                     Icons.landscape_outlined,
-                    "Thinner air higher up pushes back less: the same chamber reads higher.",
+                    context.l10n.pressureCheckInfoThin,
                   ),
-                  Text("The two often partly cancel each other out.", style: muted),
-                  _heading(context, "Example"),
+                  Text(context.l10n.pressureCheckInfoCancel, style: muted),
+                  _heading(context, context.l10n.pressureCheckInfoExampleHeading),
                   _ExampleCard(appSettings: appSettings, significant: exampleSignificant),
-                  _heading(context, "What to do"),
+                  _heading(context, context.l10n.pressureCheckInfoWhatToDoHeading),
                   Text(
-                    "The feel follows what your pump reads. So the value you last set is still the right "
-                    "target: pump the fork back to ${formatPressure(_Example.setPsi)} psi and it feels "
-                    "the same as at home.",
+                    context.l10n.pressureCheckInfoWhatToDo(formatPressure(_Example.setPsi)),
                     style: muted,
                   ),
-                  _heading(context, "Status"),
+                  _heading(context, context.l10n.pressureCheckInfoStatusHeading),
                   _legendRow(
                     context,
                     pressureDriftStatus(0.012, significant: false),
-                    "Less than $thresholdText off. Fine to ride as is.",
+                    context.l10n.pressureCheckInfoStatusOk(thresholdText),
                   ),
                   _legendRow(
                     context,
                     pressureDriftStatus(-0.035, significant: true),
-                    "$thresholdText or more off. Worth getting the pump out.",
+                    context.l10n.pressureCheckInfoStatusDrift(thresholdText),
                   ),
                   Text(
-                    "Change the threshold or skip component types in Settings › Features › Pressure Check.",
+                    context.l10n.pressureCheckInfoSettingsHint,
                     style: muted,
                   ),
-                  _heading(context, "Good to know"),
+                  _heading(context, context.l10n.pressureCheckInfoGoodToKnowHeading),
                   _bullet(
                     context,
                     Icons.history,
-                    "Each value is compared with the setup that last changed it, which is not always your "
-                    "previous setup.",
+                    context.l10n.pressureCheckInfoCompared,
                   ),
                   _bullet(
                     context,
                     Icons.location_off_outlined,
-                    "Both setups need a temperature and an altitude; pressures without them are left out.",
+                    context.l10n.pressureCheckInfoNeedsConditions,
                   ),
                   _bullet(
                     context,
                     Icons.science_outlined,
-                    "Not included: how the spring curve changes at a different pressure, oil viscosity, and "
-                    "the air the pump hose takes when you connect it.",
+                    context.l10n.pressureCheckInfoNotIncluded,
                   ),
                 ],
               ),
@@ -221,7 +217,7 @@ class _ExampleCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(label, style: muted),
               Text(
-                "${formatPressure(psi)} psi",
+                context.l10n.pressureCheckPsi(formatPressure(psi)),
                 style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -237,7 +233,7 @@ class _ExampleCard extends StatelessWidget {
         Expanded(
           child: Text(label, style: textTheme.bodyMedium, overflow: TextOverflow.ellipsis),
         ),
-        Text("${signedPressure(psi)} psi", style: textTheme.bodyMedium),
+        Text(context.l10n.pressureCheckPsi(signedPressure(psi)), style: textTheme.bodyMedium),
       ],
     );
 
@@ -253,31 +249,31 @@ class _ExampleCard extends StatelessWidget {
             children: [
               place(
                 Icons.home_outlined,
-                "At home",
+                context.l10n.pressureCheckExampleHome,
                 pressureConditionsText(appSettings, _Example.homeTemperatureC, _Example.homeAltitudeM),
-                "You set",
+                context.l10n.pressureCheckExampleYouSet,
                 _Example.setPsi,
               ),
               Icon(Icons.arrow_forward, color: scheme.onSurfaceVariant),
               place(
                 Icons.terrain_outlined,
-                "At the trailhead",
+                context.l10n.pressureCheckExampleTrailhead,
                 pressureConditionsText(appSettings, _Example.trailTemperatureC, _Example.trailAltitudeM),
-                "Pump reads",
+                context.l10n.pressureCheckExamplePumpReads,
                 _Example.readingPsi,
                 end: true,
               ),
             ],
           ),
           const Divider(height: 8),
-          share(Icons.ac_unit, "Colder", _Example.temperatureSharePsi),
-          share(Icons.landscape_outlined, "Higher up", _Example.altitudeSharePsi),
+          share(Icons.ac_unit, context.l10n.pressureCheckExampleColder, _Example.temperatureSharePsi),
+          share(Icons.landscape_outlined, context.l10n.pressureCheckExampleHigherUp, _Example.altitudeSharePsi),
           Row(
             spacing: 8,
             children: [
               Expanded(
                 child: Text(
-                  "Total ${signedPressure(_Example.deltaPsi)} psi",
+                  context.l10n.pressureCheckExampleTotal(signedPressure(_Example.deltaPsi)),
                   style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),

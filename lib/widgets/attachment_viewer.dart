@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/attachment.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
@@ -84,7 +85,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
 
   Future<void> _rename() async {
     final index = _currentIndex;
-    final name = await showRenameDialog(context, title: 'Rename Attachment', name: _attachments[index].name);
+    final name = await showRenameDialog(context, title: context.l10n.attachmentViewerRenameTitle, name: _attachments[index].name);
     if (name == null || !mounted) return;
     widget.onRename?.call(_attachments[index], name);
     setState(() => _attachments[index] = _attachments[index].copyWith(name: name));
@@ -106,10 +107,10 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
         extension: attachment.extension.replaceFirst('.', ''),
       );
       if (outcome != FileSaveOutcome.saved || !mounted) return;
-      messenger.showSnackBar(AppSnackBar.success(context, 'File saved'));
+      messenger.showSnackBar(AppSnackBar.success(context, context.l10n.attachmentViewerFileSaved));
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, 'Could not save file: $e'));
+      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.attachmentViewerSaveError('$e')));
     }
   }
 
@@ -140,11 +141,13 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
   }
 
   Widget _ownerButton(AttachmentOwner owner) {
+    final l10n = context.l10n;
     final (tooltip, icon) = switch (owner.type) {
-      AttachmentOwnerType.setup => ('Show Setup', Setup.iconData),
-      AttachmentOwnerType.bike => ('Show Bike', Bike.iconData),
-      AttachmentOwnerType.component => ('Show Component', Component.iconData),
-      AttachmentOwnerType.taskRule || AttachmentOwnerType.taskEntry => ('Show Task', Icons.check_box_outlined),
+      AttachmentOwnerType.setup => (l10n.attachmentViewerShowSetup, Setup.iconData),
+      AttachmentOwnerType.bike => (l10n.attachmentViewerShowBike, Bike.iconData),
+      AttachmentOwnerType.component => (l10n.attachmentViewerShowComponent, Component.iconData),
+      AttachmentOwnerType.taskRule ||
+      AttachmentOwnerType.taskEntry => (l10n.attachmentViewerShowTask, Icons.check_box_outlined),
     };
     return IconButton(
       tooltip: tooltip,
@@ -169,13 +172,13 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
           child: Image.file(
             _file(attachment),
             fit: BoxFit.contain,
-            errorBuilder: (_, _, _) => const Center(
+            errorBuilder: (_, _, _) => Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.broken_image_outlined, size: 64, color: Colors.white54),
-                  SizedBox(height: 8),
-                  Text('Image not found', style: TextStyle(color: Colors.white54)),
+                  const Icon(Icons.broken_image_outlined, size: 64, color: Colors.white54),
+                  const SizedBox(height: 8),
+                  Text(context.l10n.attachmentViewerImageNotFound, style: const TextStyle(color: Colors.white54)),
                 ],
               ),
             ),
@@ -215,7 +218,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      exists ? _formatSize(file.lengthSync()) : 'File not found',
+                      exists ? _formatSize(file.lengthSync()) : context.l10n.attachmentViewerFileNotFound,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: exists ? colorScheme.onSurfaceVariant : colorScheme.error,
                       ),
@@ -229,12 +232,12 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
                         FilledButton.tonalIcon(
                           onPressed: exists ? () => _share(attachment) : null,
                           icon: const Icon(Icons.share),
-                          label: const Text('Share'),
+                          label: Text(context.l10n.share),
                         ),
                         OutlinedButton.icon(
                           onPressed: exists ? () => _saveToFiles(attachment) : null,
                           icon: const Icon(Icons.save_alt),
-                          label: const Text('Save to Files'),
+                          label: Text(context.l10n.attachmentViewerSaveToFiles),
                         ),
                       ],
                     ),
@@ -275,18 +278,18 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
           if (owner != null) _ownerButton(owner),
           if (widget.onRename != null)
             IconButton(
-              tooltip: 'Rename',
+              tooltip: context.l10n.renameConfirm,
               icon: const Icon(Icons.drive_file_rename_outline),
               onPressed: _rename,
             ),
           if (widget.onDelete != null)
             IconButton(
-              tooltip: 'Delete',
+              tooltip: context.l10n.delete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
           PopupMenuButton<_AttachmentAction>(
-            tooltip: 'Share',
+            tooltip: context.l10n.share,
             icon: const Icon(Icons.share),
             enabled: exists,
             onSelected: (action) => switch (action) {
@@ -303,7 +306,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
                     spacing: 10,
                     children: [
                       Icon(Icons.share, color: iconColor),
-                      const Text('Share…'),
+                      Text(context.l10n.attachmentViewerShareMenu),
                     ],
                   ),
                 ),
@@ -313,7 +316,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
                     spacing: 10,
                     children: [
                       Icon(Icons.save_alt, color: iconColor),
-                      const Text('Save to Files'),
+                      Text(context.l10n.attachmentViewerSaveToFiles),
                     ],
                   ),
                 ),

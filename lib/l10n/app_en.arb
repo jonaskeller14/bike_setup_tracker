@@ -16,10 +16,6 @@
   "@delete": {
     "description": "Button that deletes an item."
   },
-  "ok": "OK",
-  "@ok": {
-    "description": "Button that acknowledges a message."
-  },
   "quickActionAddSetup": "Add New Setup",
   "@quickActionAddSetup": {
     "description": "Title of the home screen long-press shortcut that opens the new setup form."
@@ -10090,5 +10086,1831 @@
         "type": "String"
       }
     }
+  },
+  "attachmentDeleteTitle": "{count, plural, =1{Delete attachment?} other{Delete {count} attachments?}}",
+  "@attachmentDeleteTitle": {
+    "description": "Title of the confirmation before attachments are deleted. {count} is the number of attachments.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attachmentDeleteBody": "The attachments are permanently deleted and removed from their setups, bikes, components and tasks. This action cannot be undone.",
+  "@attachmentDeleteBody": {
+    "description": "Body of the confirmation before attachments are deleted."
+  },
+  "attachmentDeletedSnack": "{count, plural, =1{Attachment deleted.} other{{count} attachments deleted.}}",
+  "@attachmentDeletedSnack": {
+    "description": "Snackbar after attachments were deleted. {count} is the number of attachments.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attachmentPickError": "Could not pick attachments: {error}",
+  "@attachmentPickError": {
+    "description": "Snackbar when picking attachments failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "attachmentViewerRenameTitle": "Rename Attachment",
+  "@attachmentViewerRenameTitle": {
+    "description": "Title of the dialog that renames an attachment."
+  },
+  "attachmentViewerImageNotFound": "Image not found",
+  "@attachmentViewerImageNotFound": {
+    "description": "Shown in the attachment viewer when the image file is missing."
+  },
+  "attachmentViewerFileNotFound": "File not found",
+  "@attachmentViewerFileNotFound": {
+    "description": "Shown in the attachment viewer instead of the file size when the file is missing."
+  },
+  "attachmentViewerSaveToFiles": "Save to Files",
+  "@attachmentViewerSaveToFiles": {
+    "description": "Button and menu entry that saves an attachment to the device's files."
+  },
+  "attachmentViewerShareMenu": "Share…",
+  "@attachmentViewerShareMenu": {
+    "description": "Menu entry that shares an attachment."
+  },
+  "attachmentViewerFileSaved": "File saved",
+  "@attachmentViewerFileSaved": {
+    "description": "Snackbar after an attachment was saved to the device's files."
+  },
+  "attachmentViewerSaveError": "Could not save file: {error}",
+  "@attachmentViewerSaveError": {
+    "description": "Snackbar when saving an attachment failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "attachmentViewerShowSetup": "Show Setup",
+  "@attachmentViewerShowSetup": {
+    "description": "Tooltip of the button that opens the setup an attachment belongs to."
+  },
+  "attachmentViewerShowBike": "Show Bike",
+  "@attachmentViewerShowBike": {
+    "description": "Tooltip of the button that opens the bike an attachment belongs to."
+  },
+  "attachmentViewerShowComponent": "Show Component",
+  "@attachmentViewerShowComponent": {
+    "description": "Tooltip of the button that opens the component an attachment belongs to."
+  },
+  "attachmentViewerShowTask": "Show Task",
+  "@attachmentViewerShowTask": {
+    "description": "Tooltip of the button that opens the task an attachment belongs to."
+  },
+  "attachmentSourceGallery": "Choose from Gallery",
+  "@attachmentSourceGallery": {
+    "description": "Option that picks an image from the photo gallery."
+  },
+  "attachmentSourcePhoto": "Take Photo",
+  "@attachmentSourcePhoto": {
+    "description": "Option that takes a photo with the camera."
+  },
+  "attachmentSourceFile": "Choose File",
+  "@attachmentSourceFile": {
+    "description": "Option that picks any file from the device."
+  },
+  "chartActivityDistribution": "Activity distribution. {summary}",
+  "@chartActivityDistribution": {
+    "description": "Screen reader label of the activity histogram. {summary} lists the bars.",
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "chartHistogramBarSemantics": "{label}: {count, plural, =1{1 activity} other{{count} activities}}{current, select, true{ (current)} other{}}{recommended, select, true{ (recommended)} other{}}",
+  "@chartHistogramBarSemantics": {
+    "description": "Screen reader text of one histogram bar. {label} is the value range, {count} the number of activities, {current} and {recommended} are 'true' or 'false'.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "current": {
+        "type": "String"
+      },
+      "recommended": {
+        "type": "String"
+      }
+    }
+  },
+  "chartHistogramBarTooltip": "{label}\n{count, plural, =1{1 activity} other{{count} activities}}{current, select, true{\nCurrent value} other{}}{recommended, select, true{\nRecommended value} other{}}",
+  "@chartHistogramBarTooltip": {
+    "description": "Tooltip of one histogram bar. {label} is the value range, {count} the number of activities, {current} and {recommended} are 'true' or 'false'.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "current": {
+        "type": "String"
+      },
+      "recommended": {
+        "type": "String"
+      }
+    }
+  },
+  "chartHistogramCountAxis": "Activity count",
+  "@chartHistogramCountAxis": {
+    "description": "Label of the vertical axis of the activity histogram."
+  },
+  "chartHistogramNoColumnsSubtitle": "Select adjustment columns to visualize the activity distribution",
+  "@chartHistogramNoColumnsSubtitle": {
+    "description": "Empty state of the activity histogram when no adjustment column is shown."
+  },
+  "chartHistogramNoActivitiesTitle": "No activities",
+  "@chartHistogramNoActivitiesTitle": {
+    "description": "Empty state title of the activity histogram when no Strava activity exists."
+  },
+  "chartHistogramNoActivitiesSubtitle": "Sync Strava activities to see which values you rode most",
+  "@chartHistogramNoActivitiesSubtitle": {
+    "description": "Empty state subtitle of the activity histogram when no Strava activity exists."
+  },
+  "chartHistogramLoadErrorTitle": "Could not load activities",
+  "@chartHistogramLoadErrorTitle": {
+    "description": "Error state title of the activity histogram."
+  },
+  "chartHistogramLoadErrorSubtitle": "Something went wrong while linking activities to setups",
+  "@chartHistogramLoadErrorSubtitle": {
+    "description": "Error state subtitle of the activity histogram."
+  },
+  "chartHistogramNoLinkedTitle": "No activities linked",
+  "@chartHistogramNoLinkedTitle": {
+    "description": "Empty state title of the activity histogram when the chosen column has no linked activity."
+  },
+  "chartHistogramNoLinkedSubtitle": "None of the setups with a '{column}' value were used on an activity",
+  "@chartHistogramNoLinkedSubtitle": {
+    "description": "Empty state subtitle of the activity histogram. {column} is the name of the chosen column.",
+    "placeholders": {
+      "column": {
+        "type": "String"
+      }
+    }
+  },
+  "chartNoAdjustmentsTitle": "No adjustments selected",
+  "@chartNoAdjustmentsTitle": {
+    "description": "Empty state title of a chart when no adjustment column is shown."
+  },
+  "chartTrendNoColumnsSubtitle": "Select numerical or step adjustment columns to visualize trends",
+  "@chartTrendNoColumnsSubtitle": {
+    "description": "Empty state subtitle of the line and radial chart when no suitable column is shown."
+  },
+  "chartNoDataTitle": "No data",
+  "@chartNoDataTitle": {
+    "description": "Empty state title of a chart without setups."
+  },
+  "chartNoDataSubtitle": "No setup data available",
+  "@chartNoDataSubtitle": {
+    "description": "Empty state subtitle of a chart without setups."
+  },
+  "chartNoSetupsSelectedTitle": "No setups selected",
+  "@chartNoSetupsSelectedTitle": {
+    "description": "Empty state title of a chart when no setup row is selected."
+  },
+  "chartNoSetupsSelectedSubtitle": "Select setups in the table above to visualize the chart",
+  "@chartNoSetupsSelectedSubtitle": {
+    "description": "Empty state subtitle of a chart when no setup row is selected."
+  },
+  "chartNoNumericalTitle": "No numerical data",
+  "@chartNoNumericalTitle": {
+    "description": "Empty state title of a chart when the chosen columns hold no numbers."
+  },
+  "chartNoNumericalSubtitle": "The selected columns do not contain numerical data to plot",
+  "@chartNoNumericalSubtitle": {
+    "description": "Empty state subtitle of a chart when the chosen columns hold no numbers."
+  },
+  "chartLineNotEnoughTitle": "Not enough setups",
+  "@chartLineNotEnoughTitle": {
+    "description": "Empty state title of the line chart with fewer than two setups."
+  },
+  "chartLineNotEnoughSubtitle": "Select at least two setups in the table to visualize a trend",
+  "@chartLineNotEnoughSubtitle": {
+    "description": "Empty state subtitle of the line chart with fewer than two setups."
+  },
+  "chartRadialNotEnoughTitle": "Not enough columns",
+  "@chartRadialNotEnoughTitle": {
+    "description": "Empty state title of the radial chart with fewer than three columns."
+  },
+  "chartRadialNotEnoughSubtitle": "At least 3 numerical columns are required to generate a radar chart",
+  "@chartRadialNotEnoughSubtitle": {
+    "description": "Empty state subtitle of the radial chart with fewer than three columns."
+  },
+  "componentStatsKilojoules": "Kilojoules",
+  "@componentStatsKilojoules": {
+    "description": "Label of the energy figure in the component stats card."
+  },
+  "urlOpenFailed": "Failed to open link: {url}",
+  "@urlOpenFailed": {
+    "description": "Snackbar when a link could not be opened. {url} is the link.",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "urlNoProgram": "Could not find a program to launch the link.",
+  "@urlNoProgram": {
+    "description": "Snackbar when no app can open a link."
+  },
+  "urlEmailFailed": "Failed to open email client for: {email}",
+  "@urlEmailFailed": {
+    "description": "Snackbar when the email app could not be opened. {email} is the address.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "urlNoEmailApp": "Could not find an email app on your device.",
+  "@urlNoEmailApp": {
+    "description": "Snackbar when no email app is installed."
+  },
+  "urlNoMapsApp": "No maps app found. Please install Apple Maps, Google Maps, or another maps application.",
+  "@urlNoMapsApp": {
+    "description": "Snackbar when no maps app is installed."
+  },
+  "attachmentTooLarge": "\"{name}\" is larger than {size} MB and was not attached.",
+  "@attachmentTooLarge": {
+    "description": "Snackbar when a picked file exceeds the size limit. {name} is the file name, {size} the limit in megabytes.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "attachmentImportFailed": "\"{name}\" could not be attached.",
+  "@attachmentImportFailed": {
+    "description": "Snackbar when a picked file could not be attached. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notesShowMore": "Show more",
+  "@notesShowMore": {
+    "description": "Link that expands a long note."
+  },
+  "metricWeightNotScored": "Not included in the score",
+  "@metricWeightNotScored": {
+    "description": "Shown by the metric weight field when the metric does not count."
+  },
+  "metricWeightTitle": "Scoring weight",
+  "@metricWeightTitle": {
+    "description": "Label of the metric weight field."
+  },
+  "metricWeightDecrease": "Decrease weight",
+  "@metricWeightDecrease": {
+    "description": "Tooltip of the button that lowers the metric weight."
+  },
+  "metricWeightIncrease": "Increase weight",
+  "@metricWeightIncrease": {
+    "description": "Tooltip of the button that raises the metric weight."
+  },
+  "metricWeightHintUnset": "Set how this metric affects the score",
+  "@metricWeightHintUnset": {
+    "description": "Hint under the metric weight field while it is empty."
+  },
+  "metricWeightHintPositive": "Higher values improve the score",
+  "@metricWeightHintPositive": {
+    "description": "Hint under the metric weight field for a positive weight."
+  },
+  "metricWeightHintNegative": "Lower values improve the score",
+  "@metricWeightHintNegative": {
+    "description": "Hint under the metric weight field for a negative weight."
+  },
+  "metricWeightHintZero": "Not counted in the score",
+  "@metricWeightHintZero": {
+    "description": "Hint under the metric weight field for a weight of zero."
+  },
+  "soilMoistureLegendColumn": "Soil Moisture [m³/m³]",
+  "@soilMoistureLegendColumn": {
+    "description": "Column heading of the soil moisture legend table. The unit stays as is."
+  },
+  "taskPrioritySemantics": "{priority} priority",
+  "@taskPrioritySemantics": {
+    "description": "Screen reader label of a task priority badge. {priority} is the priority name.",
+    "placeholders": {
+      "priority": {
+        "type": "String"
+      }
+    }
+  },
+  "valueTransitionExample": "Example",
+  "@valueTransitionExample": {
+    "description": "Heading of the value migration preview with one example."
+  },
+  "valueTransitionExamples": "Examples",
+  "@valueTransitionExamples": {
+    "description": "Heading of the value migration preview with several examples."
+  },
+  "valueTransitionCleared": "No value",
+  "@valueTransitionCleared": {
+    "description": "Shown in the value migration preview for a value that is cleared."
+  },
+  "pickSetupSuggested": "Suggested",
+  "@pickSetupSuggested": {
+    "description": "Badge on the suggested setup in the setup picker."
+  },
+  "dialStyleTitle": "Dial style",
+  "@dialStyleTitle": {
+    "description": "Title of the sheet that chooses how a dial adjuster is drawn."
+  },
+  "sheetProgressHint": "This can take a moment for large datasets.",
+  "@sheetProgressHint": {
+    "description": "Hint under a progress message in a sheet."
+  },
+  "unitPickerDidYouMean": "Did you mean \"{unit}\" ({quantity})?",
+  "@unitPickerDidYouMean": {
+    "description": "Suggestion above the custom unit field. {unit} is the suggested unit, {quantity} its quantity such as pressure.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "contextCondition": "Condition: {condition}",
+  "@contextCondition": {
+    "description": "Line in the weather card with the trail condition. {condition} is the condition name.",
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "setupDayUnknownBike": "Unknown bike",
+  "@setupDayUnknownBike": {
+    "description": "Bike name in the setup day list when the bike no longer exists."
+  },
+  "pickAdjustmentsEmptyTitle": "No adjustments yet",
+  "@pickAdjustmentsEmptyTitle": {
+    "description": "Default empty state title of the adjustment picker."
+  },
+  "subcomponentsExampleBike": "Trail bike",
+  "@subcomponentsExampleBike": {
+    "description": "Name of the example bike in the subcomponents hint sheet."
+  },
+  "hintPageDot": "{label} {index} of {total}",
+  "@hintPageDot": {
+    "description": "Screen reader label of a page dot in a hint deck. {label} names the deck, {index} is the page, {total} the number of pages.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "collapse": "Collapse",
+  "@collapse": {
+    "description": "Tooltip of a button that collapses a card."
+  },
+  "expand": "Expand",
+  "@expand": {
+    "description": "Tooltip of a button that expands a card."
+  },
+  "pressureCheckWorthPump": "Worth getting the pump out",
+  "@pressureCheckWorthPump": {
+    "description": "Headline of the pressure check card when at least one pressure is off."
+  },
+  "pressureCheckNoPump": "No need to get the pump out",
+  "@pressureCheckNoPump": {
+    "description": "Headline of the pressure check card when every pressure is fine."
+  },
+  "pressureCheckNow": "Now {conditions}",
+  "@pressureCheckNow": {
+    "description": "Current conditions in the pressure check card. {conditions} is the temperature and altitude.",
+    "placeholders": {
+      "conditions": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckFooterDrifted": "On the right is what your pump would read now. Pump back to the value you last set for the same feel.",
+  "@pressureCheckFooterDrifted": {
+    "description": "Footer of the pressure check card when at least one pressure is off."
+  },
+  "pressureCheckFooterOk": "Every pressure stays within {threshold} of the value you last set.",
+  "@pressureCheckFooterOk": {
+    "description": "Footer of the pressure check card when every pressure is fine. {threshold} is the threshold, such as 3 %.",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckInfoTooltip": "How this is calculated",
+  "@pressureCheckInfoTooltip": {
+    "description": "Tooltip of the info button on the pressure check card."
+  },
+  "pressureCheckSetOn": "Set {value} {unit} on {date} · {conditions}",
+  "@pressureCheckSetOn": {
+    "description": "Row of the pressure check card: the value that was last set. {value} is the pressure, {unit} its unit, {date} the setup date, {conditions} the temperature and altitude then.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "conditions": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckPsi": "{value} psi",
+  "@pressureCheckPsi": {
+    "description": "A pressure in psi in the pressure check explanation. {value} is the formatted number.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckInfoIntro": "A pressure you set at home doesn't read the same on the trail, even if no air escaped. This card shows what your pump would read right now.",
+  "@pressureCheckInfoIntro": {
+    "description": "Introduction of the pressure check info sheet."
+  },
+  "pressureCheckInfoWhyHeading": "Why the reading changes",
+  "@pressureCheckInfoWhyHeading": {
+    "description": "Heading in the pressure check info sheet."
+  },
+  "pressureCheckInfoCold": "Colder air shrinks the air in the chamber: the reading drops.",
+  "@pressureCheckInfoCold": {
+    "description": "Explanation of the temperature effect in the pressure check info sheet."
+  },
+  "pressureCheckInfoThin": "Thinner air higher up pushes back less: the same chamber reads higher.",
+  "@pressureCheckInfoThin": {
+    "description": "Explanation of the altitude effect in the pressure check info sheet."
+  },
+  "pressureCheckInfoCancel": "The two often partly cancel each other out.",
+  "@pressureCheckInfoCancel": {
+    "description": "Remark after the temperature and altitude effects in the pressure check info sheet."
+  },
+  "pressureCheckInfoExampleHeading": "Example",
+  "@pressureCheckInfoExampleHeading": {
+    "description": "Heading of the example card in the pressure check info sheet."
+  },
+  "pressureCheckInfoWhatToDoHeading": "What to do",
+  "@pressureCheckInfoWhatToDoHeading": {
+    "description": "Heading in the pressure check info sheet."
+  },
+  "pressureCheckInfoWhatToDo": "The feel follows what your pump reads. So the value you last set is still the right target: pump the fork back to {value} psi and it feels the same as at home.",
+  "@pressureCheckInfoWhatToDo": {
+    "description": "Advice in the pressure check info sheet. {value} is the example pressure.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckInfoStatusHeading": "Status",
+  "@pressureCheckInfoStatusHeading": {
+    "description": "Heading of the status legend in the pressure check info sheet."
+  },
+  "pressureCheckInfoStatusOk": "Less than {threshold} off. Fine to ride as is.",
+  "@pressureCheckInfoStatusOk": {
+    "description": "Legend entry for a pressure within the threshold. {threshold} is the threshold, such as 3 %.",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckInfoStatusDrift": "{threshold} or more off. Worth getting the pump out.",
+  "@pressureCheckInfoStatusDrift": {
+    "description": "Legend entry for a pressure beyond the threshold. {threshold} is the threshold, such as 3 %.",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckInfoSettingsHint": "Change the threshold or skip component types in Settings › Features › Pressure Check.",
+  "@pressureCheckInfoSettingsHint": {
+    "description": "Pointer to the pressure check settings. The menu names must match the app's own labels."
+  },
+  "pressureCheckInfoGoodToKnowHeading": "Good to know",
+  "@pressureCheckInfoGoodToKnowHeading": {
+    "description": "Heading in the pressure check info sheet."
+  },
+  "pressureCheckInfoCompared": "Each value is compared with the setup that last changed it, which is not always your previous setup.",
+  "@pressureCheckInfoCompared": {
+    "description": "Note in the pressure check info sheet."
+  },
+  "pressureCheckInfoNeedsConditions": "Both setups need a temperature and an altitude; pressures without them are left out.",
+  "@pressureCheckInfoNeedsConditions": {
+    "description": "Note in the pressure check info sheet."
+  },
+  "pressureCheckInfoNotIncluded": "Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it.",
+  "@pressureCheckInfoNotIncluded": {
+    "description": "Note in the pressure check info sheet."
+  },
+  "pressureCheckExampleHome": "At home",
+  "@pressureCheckExampleHome": {
+    "description": "Example card of the pressure check info sheet: the first place."
+  },
+  "pressureCheckExampleYouSet": "You set",
+  "@pressureCheckExampleYouSet": {
+    "description": "Example card: the pressure that was set at home."
+  },
+  "pressureCheckExampleTrailhead": "At the trailhead",
+  "@pressureCheckExampleTrailhead": {
+    "description": "Example card: the second place."
+  },
+  "pressureCheckExamplePumpReads": "Pump reads",
+  "@pressureCheckExamplePumpReads": {
+    "description": "Example card: the pressure the pump would read at the trailhead."
+  },
+  "pressureCheckExampleColder": "Colder",
+  "@pressureCheckExampleColder": {
+    "description": "Example card: the share of the drift that comes from the temperature."
+  },
+  "pressureCheckExampleHigherUp": "Higher up",
+  "@pressureCheckExampleHigherUp": {
+    "description": "Example card: the share of the drift that comes from the altitude."
+  },
+  "pressureCheckExampleTotal": "Total {value} psi",
+  "@pressureCheckExampleTotal": {
+    "description": "Example card: the total drift. {value} is the signed pressure.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckTypesAll": "All",
+  "@pressureCheckTypesAll": {
+    "description": "Summary of the component types the pressure check covers, when none is skipped."
+  },
+  "pressureCheckTypesCount": "{count} of {total}",
+  "@pressureCheckTypesCount": {
+    "description": "Summary of the component types the pressure check covers when many are skipped. {count} is the number covered, {total} the number of types.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pressureCheckTypesAllExcept": "All except {types}",
+  "@pressureCheckTypesAllExcept": {
+    "description": "Summary of the component types the pressure check covers when a few are skipped. {types} is a comma separated list.",
+    "placeholders": {
+      "types": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckSettingIntro": "When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently.",
+  "@pressureCheckSettingIntro": {
+    "description": "Introduction of the pressure check settings sheet."
+  },
+  "pressureCheckEnabled": "Enabled",
+  "@pressureCheckEnabled": {
+    "description": "Switch in the pressure check settings sheet."
+  },
+  "pressureCheckThresholdTitle": "Threshold",
+  "@pressureCheckThresholdTitle": {
+    "description": "Section title in the pressure check settings sheet."
+  },
+  "pressureCheckThresholdHint": "Flag a pressure once the pump would read this much more or less than the value you last set.",
+  "@pressureCheckThresholdHint": {
+    "description": "Explanation of the threshold in the pressure check settings sheet."
+  },
+  "pressureCheckTypesTitle": "Component Types",
+  "@pressureCheckTypesTitle": {
+    "description": "Section title in the pressure check settings sheet."
+  },
+  "pressureCheckTypesHint": "Skip types you check before every ride anyway, like tires.",
+  "@pressureCheckTypesHint": {
+    "description": "Explanation of the component type list in the pressure check settings sheet."
+  },
+  "guideCardTitle": "Setup guide",
+  "@guideCardTitle": {
+    "description": "Title of the setup guide card, shown in capitals."
+  },
+  "guideCardInfoTooltip": "About recommended values",
+  "@guideCardInfoTooltip": {
+    "description": "Tooltip of the info button on the setup guide card."
+  },
+  "guideCardHeadline": "Recommended first values",
+  "@guideCardHeadline": {
+    "description": "Headline of the setup guide card."
+  },
+  "guideCardStartingPoint": "A starting point, check your manual.",
+  "@guideCardStartingPoint": {
+    "description": "Footnote of the setup guide card."
+  },
+  "guideCardApplyAll": "Apply all",
+  "@guideCardApplyAll": {
+    "description": "Button that applies every recommended value of the setup guide card."
+  },
+  "guideCardRidingWeight": "Riding weight",
+  "@guideCardRidingWeight": {
+    "description": "Label of the riding weight field of the setup guide card."
+  },
+  "guideCardAddWeightDefault": "Add riding weight to rider",
+  "@guideCardAddWeightDefault": {
+    "description": "Button that stores the typed riding weight with the rider, used when no rider name is known."
+  },
+  "guideCardBasedOn": "Based on: {guide}",
+  "@guideCardBasedOn": {
+    "description": "Line under a component name in the setup guide card. {guide} is the name of the guide.",
+    "placeholders": {
+      "guide": {
+        "type": "String"
+      }
+    }
+  },
+  "guideCardNow": "Now {value}",
+  "@guideCardNow": {
+    "description": "Current value of an adjustment in the setup guide card. {value} is the formatted value.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "guideCardInRange": "in range {band}",
+  "@guideCardInRange": {
+    "description": "Part of the status line of a setup guide row. {band} is the range such as 72–80 psi.",
+    "placeholders": {
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "guideCardEnterWeight": "Enter a riding weight on the Rider tab for weight-based values",
+  "@guideCardEnterWeight": {
+    "description": "Hint of the setup guide card when no riding weight is known. The tab name must match the app's own label."
+  },
+  "guideCardValuesFor": "Recommended values for {weight} {unit}",
+  "@guideCardValuesFor": {
+    "description": "Line of the setup guide card with the riding weight in use. {weight} is the number, {unit} its unit.",
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "guideDetailInterpolated": "interpolated",
+  "@guideDetailInterpolated": {
+    "description": "Part of the detail line of a setup guide row: the value was worked out between two weight steps."
+  },
+  "guideDetailConverted": "converted to your dial",
+  "@guideDetailConverted": {
+    "description": "Part of the detail line of a setup guide row: the clicks were counted from the other end."
+  },
+  "guideDetailFixed": "Fixed value",
+  "@guideDetailFixed": {
+    "description": "Detail line of a setup guide row whose value does not depend on any input."
+  },
+  "guideIssueNeedsWeight": "Needs your riding weight",
+  "@guideIssueNeedsWeight": {
+    "description": "Reason a setup guide row has no value."
+  },
+  "guideIssueNeedsStyle": "Needs your riding style",
+  "@guideIssueNeedsStyle": {
+    "description": "Reason a setup guide row has no value."
+  },
+  "guideIssueNeedsAdjuster": "Needs a value for {name}",
+  "@guideIssueNeedsAdjuster": {
+    "description": "Reason a setup guide row has no value. {name} is the name of the adjustment it depends on.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "guideIssueNeedsSpec": "Needs the component's {spec}",
+  "@guideIssueNeedsSpec": {
+    "description": "Reason a setup guide row has no value. {spec} is the name of a catalog property such as wheel size.",
+    "placeholders": {
+      "spec": {
+        "type": "String"
+      }
+    }
+  },
+  "guideIssueNeedsMore": "Needs more information",
+  "@guideIssueNeedsMore": {
+    "description": "Reason a setup guide row has no value."
+  },
+  "guideIssueOutsideRange": "Outside the published range",
+  "@guideIssueOutsideRange": {
+    "description": "Reason a setup guide row has no value."
+  },
+  "guideIssuePlaceholderMax": "Enter your dial's click count (max) first",
+  "@guideIssuePlaceholderMax": {
+    "description": "Reason a setup guide row can't be applied."
+  },
+  "guideIssueAboveMax": "Above this adjuster's maximum",
+  "@guideIssueAboveMax": {
+    "description": "Reason a setup guide row can't be applied."
+  },
+  "guideIssueBelowMin": "Below this adjuster's minimum",
+  "@guideIssueBelowMin": {
+    "description": "Reason a setup guide row can't be applied."
+  },
+  "guideIssueIncompatible": "Doesn't fit this adjuster's type or unit",
+  "@guideIssueIncompatible": {
+    "description": "Reason a setup guide row can't be applied."
+  },
+  "guideIssueDirectionUnknown": "Counted on the catalog's dial; set this adjuster's dial direction to apply",
+  "@guideIssueDirectionUnknown": {
+    "description": "Reason a setup guide row can't be applied."
+  },
+  "guideWeightUpTo": "up to {value}",
+  "@guideWeightUpTo": {
+    "description": "Upper end of a rider weight range, without unit. {value} is the weight.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "guideRecommended": "Recommended: {value}",
+  "@guideRecommended": {
+    "description": "Tooltip line with the recommended value of an adjustment. {value} is the formatted value.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "guideRecommendedWithIssue": "Recommended: {value} · {reason}",
+  "@guideRecommendedWithIssue": {
+    "description": "Tooltip line with a recommended value that can't be applied. {value} is the formatted value or a dash, {reason} says why.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "guideStatusMatches": "Matches",
+  "@guideStatusMatches": {
+    "description": "Status pill: the value is the recommended value."
+  },
+  "guideStatusInRange": "In range",
+  "@guideStatusInRange": {
+    "description": "Status pill: the value is close to the recommendation."
+  },
+  "guideStatusNotSet": "Not set",
+  "@guideStatusNotSet": {
+    "description": "Status pill: no value entered yet."
+  },
+  "guideStatusCantApply": "Can't apply",
+  "@guideStatusCantApply": {
+    "description": "Status pill: the recommendation doesn't fit the adjuster."
+  },
+  "guideStatusDiffers": "Differs",
+  "@guideStatusDiffers": {
+    "description": "Status pill: the value is off and no distance can be shown."
+  },
+  "guideStatusInRangeDetail": "In range: {band}",
+  "@guideStatusInRangeDetail": {
+    "description": "Detail under a status pill that is off. {band} is the range such as 72–80 psi.",
+    "placeholders": {
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "guideInfoTitle": "Recommended values",
+  "@guideInfoTitle": {
+    "description": "Title of the setup guide info sheet."
+  },
+  "guideInfoIntro": "Each value comes from the manufacturer's setup guide for your exact model and riding weight. It is a starting point, check your manual.",
+  "@guideInfoIntro": {
+    "description": "Introduction of the setup guide info sheet."
+  },
+  "guideInfoHowHeading": "How values are found",
+  "@guideInfoHowHeading": {
+    "description": "Heading in the setup guide info sheet."
+  },
+  "guideInfoHowSteps": "Manuals list settings per weight step, for example 70–80 kg and 80–90 kg. If your weight falls between two steps, the value is worked out in between. Outside the weights a manual covers, there is no recommendation.",
+  "@guideInfoHowSteps": {
+    "description": "Explanation in the setup guide info sheet."
+  },
+  "guideInfoClicks": "Clicks are counted from the end the manual counts from. If your adjuster counts the other way, the value is converted to your dial.",
+  "@guideInfoClicks": {
+    "description": "Explanation in the setup guide info sheet."
+  },
+  "guideInfoStatusHeading": "Status",
+  "@guideInfoStatusHeading": {
+    "description": "Heading of the status legend in the setup guide info sheet."
+  },
+  "guideLegendMatches": "Your value is the recommended value.",
+  "@guideLegendMatches": {
+    "description": "Legend entry for the Matches status."
+  },
+  "guideLegendInRange": "Close to the recommendation: inside the range the manual gives, or less than halfway to the next weight step.",
+  "@guideLegendInRange": {
+    "description": "Legend entry for the In range status."
+  },
+  "guideLegendOff": "Further off. Shows how far your value is from the recommendation.",
+  "@guideLegendOff": {
+    "description": "Legend entry for a status that shows a distance."
+  },
+  "guideLegendNotSet": "No value entered yet. Tap the row to use the recommendation.",
+  "@guideLegendNotSet": {
+    "description": "Legend entry for the Not set status."
+  },
+  "guideLegendUnavailable": "The recommendation doesn't fit your adjuster, e.g. it is beyond its range. Edit the adjuster first.",
+  "@guideLegendUnavailable": {
+    "description": "Legend entry for the Can't apply status."
+  },
+  "guideInfoSource": "Source",
+  "@guideInfoSource": {
+    "description": "Heading above the one guide behind the recommendations."
+  },
+  "guideInfoSources": "Sources",
+  "@guideInfoSources": {
+    "description": "Heading above the guides behind the recommendations."
+  },
+  "guideInfoFor": "For {components}",
+  "@guideInfoFor": {
+    "description": "Subtitle of a guide in the info sheet. {components} is a comma separated list of component names.",
+    "placeholders": {
+      "components": {
+        "type": "String"
+      }
+    }
+  },
+  "subcomponentCount": "{count, plural, =1{1 subcomponent} other{{count} subcomponents}}",
+  "@subcomponentCount": {
+    "description": "Title of the component tree preview. {count} is the number of subcomponents.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "carryOverTitleApply": "Apply values to current components?",
+  "@carryOverTitleApply": {
+    "description": "Title of the carry over sheet when some values can move."
+  },
+  "carryOverTitleCant": "Values can't be applied",
+  "@carryOverTitleCant": {
+    "description": "Title of the carry over sheet when no value can move."
+  },
+  "carryOverBodyApply": "'{setup}' was recorded with components that are no longer on the bike. Their values can go to the components in the same position now.",
+  "@carryOverBodyApply": {
+    "description": "Body of the carry over sheet when some values can move. {setup} is the setup name.",
+    "placeholders": {
+      "setup": {
+        "type": "String"
+      }
+    }
+  },
+  "carryOverBodyCant": "'{setup}' was recorded with components that are no longer on the bike, and their values don't fit the components in the same position now.",
+  "@carryOverBodyCant": {
+    "description": "Body of the carry over sheet when no value can move. {setup} is the setup name.",
+    "placeholders": {
+      "setup": {
+        "type": "String"
+      }
+    }
+  },
+  "carryOverWillApply": "Will be applied",
+  "@carryOverWillApply": {
+    "description": "Section title in the carry over sheet, shown in capitals."
+  },
+  "carryOverCantApply": "Can't be applied",
+  "@carryOverCantApply": {
+    "description": "Section title in the carry over sheet, shown in capitals."
+  },
+  "carryOverFromTo": "From '{source}' to '{target}'",
+  "@carryOverFromTo": {
+    "description": "Subtitle of a value that moves. {source} is the replaced component, {target} the component it moves to.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "carryOverReasonGone": "'{name}' is no longer on the bike.",
+  "@carryOverReasonGone": {
+    "description": "Reason a value can't move. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "carryOverReasonNoMatch": "'{name}' has no matching adjustment.",
+  "@carryOverReasonNoMatch": {
+    "description": "Reason a value can't move. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "carryOverReasonNotAllowed": "Not allowed by '{adjustment}' on '{component}'.",
+  "@carryOverReasonNotAllowed": {
+    "description": "Reason a value can't move. {adjustment} is the adjustment name, {component} the component name.",
+    "placeholders": {
+      "adjustment": {
+        "type": "String"
+      },
+      "component": {
+        "type": "String"
+      }
+    }
+  },
+  "carryOverNote": "Values that are not applied stay in the setup, but belong to components that are no longer on the bike.",
+  "@carryOverNote": {
+    "description": "Note at the bottom of the carry over sheet."
+  },
+  "carryOverDontApply": "Don't apply",
+  "@carryOverDontApply": {
+    "description": "Button that leaves the values where they are."
+  },
+  "carryOverApplyCount": "{count, plural, =1{Apply 1 value} other{Apply {count} values}}",
+  "@carryOverApplyCount": {
+    "description": "Button that moves the values. {count} is the number of values.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "valueMigrationTitle": "Update recorded values",
+  "@valueMigrationTitle": {
+    "description": "Title of the value migration sheet."
+  },
+  "valueMigrationIntro": "Your change to '{name}' affects {records}.{decide, select, true{ Choose what happens to their values.} other{}}{replaces, select, true{ This replaces the change you confirmed earlier.} other{}}",
+  "@valueMigrationIntro": {
+    "description": "Intro of the value migration sheet. {name} is the adjustment name, {records} the affected setups, {decide} and {replaces} are 'true' or 'false'.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "records": {
+        "type": "String"
+      },
+      "decide": {
+        "type": "String"
+      },
+      "replaces": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationNeedDifferent": "Need different values in different setups? Cancel, change those setups first, then make this edit.",
+  "@valueMigrationNeedDifferent": {
+    "description": "Hint under the choices of the value migration sheet."
+  },
+  "valueMigrationUpdate": "{count, plural, =1{Update 1 setup} other{Update {count} setups}}",
+  "@valueMigrationUpdate": {
+    "description": "Confirm button of the value migration sheet. {count} is the number of setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "valueMigrationUpdateDeleted": "{count, plural, =1{Update 1 deleted setup} other{Update {count} deleted setups}}",
+  "@valueMigrationUpdateDeleted": {
+    "description": "Confirm button of the value migration sheet when only deleted setups are affected. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "affectedSetups": "{count, plural, =1{1 setup} other{{count} setups}}",
+  "@affectedSetups": {
+    "description": "Number of affected setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "affectedDeletedSetups": "{count, plural, =1{1 deleted setup} other{{count} deleted setups}}",
+  "@affectedDeletedSetups": {
+    "description": "Number of affected setups that are all deleted.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "affectedSetupsWithDeleted": "{live, plural, =1{1 setup} other{{live} setups}} (+{deleted} deleted)",
+  "@affectedSetupsWithDeleted": {
+    "description": "Number of affected setups, with the number of deleted ones in addition.",
+    "placeholders": {
+      "live": {
+        "type": "int"
+      },
+      "deleted": {
+        "type": "int"
+      }
+    }
+  },
+  "valueMigrationNoUnit": "no unit",
+  "@valueMigrationNoUnit": {
+    "description": "Name of the missing unit in the value migration sheet."
+  },
+  "valueMigrationUnitChanged": "Unit changed from {before} to {after}",
+  "@valueMigrationUnitChanged": {
+    "description": "Title of a unit change in the value migration sheet. {before} and {after} are unit names.",
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationRenamedOptions": "Renamed options",
+  "@valueMigrationRenamedOptions": {
+    "description": "Title of renamed options in the value migration sheet."
+  },
+  "valueMigrationDeletedOption": "'{option}' was deleted",
+  "@valueMigrationDeletedOption": {
+    "description": "Title of a deleted option in the value migration sheet.",
+    "placeholders": {
+      "option": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationDuplicateOptions": "Each option can be picked only once now",
+  "@valueMigrationDuplicateOptions": {
+    "description": "Title when options became unique in the value migration sheet."
+  },
+  "valueMigrationCombination": "Only one option can be picked now: {combination}",
+  "@valueMigrationCombination": {
+    "description": "Title when a combination of options is no longer allowed. {combination} lists the options.",
+    "placeholders": {
+      "combination": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationOutOfStep": "Values off the new steps or range",
+  "@valueMigrationOutOfStep": {
+    "description": "Title when values do not fit a step adjustment any more."
+  },
+  "valueMigrationOutOfRange": "Values outside the new range",
+  "@valueMigrationOutOfRange": {
+    "description": "Title when values do not fit a numerical adjustment any more."
+  },
+  "valueMigrationReplaceDeleted": "Replace '{option}' with",
+  "@valueMigrationReplaceDeleted": {
+    "description": "Label of the dropdown that picks the replacement of a deleted option.",
+    "placeholders": {
+      "option": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationReplaceCombination": "Replace {combination} with",
+  "@valueMigrationReplaceCombination": {
+    "description": "Label of the dropdown that picks the replacement of an option combination.",
+    "placeholders": {
+      "combination": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationRemoveFromSelection": "Remove '{option}' from the selection",
+  "@valueMigrationRemoveFromSelection": {
+    "description": "Dropdown entry that removes a deleted option from a multi-selection.",
+    "placeholders": {
+      "option": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationConvert": "Convert",
+  "@valueMigrationConvert": {
+    "description": "Choice that converts values to the new unit."
+  },
+  "valueMigrationKeepNumbers": "Keep numbers",
+  "@valueMigrationKeepNumbers": {
+    "description": "Choice that keeps the numbers and only changes the unit."
+  },
+  "valueMigrationSnap": "Snap",
+  "@valueMigrationSnap": {
+    "description": "Choice that moves values to the nearest step."
+  },
+  "valueMigrationClamp": "Clamp",
+  "@valueMigrationClamp": {
+    "description": "Choice that moves values to the nearest limit."
+  },
+  "valueMigrationClear": "Clear",
+  "@valueMigrationClear": {
+    "description": "Choice that clears the values."
+  },
+  "valueMigrationHintConvert": "{records} {one, select, true{is} other{are}} converted to {unit}.",
+  "@valueMigrationHintConvert": {
+    "description": "Hint under the Convert choice. {records} names the affected setups, {one} is 'true' for a single setup, {unit} the new unit.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      },
+      "one": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationHintKeepNoUnit": "{records} {one, select, true{keeps its} other{keep their}} numbers, now without a unit.",
+  "@valueMigrationHintKeepNoUnit": {
+    "description": "Hint under the Keep numbers choice when the new unit is empty. {records} names the affected setups, {one} is 'true' for a single setup.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      },
+      "one": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationHintKeepUnit": "{records} {one, select, true{keeps its} other{keep their}} numbers, now read in {unit}.",
+  "@valueMigrationHintKeepUnit": {
+    "description": "Hint under the Keep numbers choice. {records} names the affected setups, {one} is 'true' for a single setup, {unit} the new unit.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      },
+      "one": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationHintSnap": "{records} {one, select, true{snaps} other{snap}} to the nearest step.",
+  "@valueMigrationHintSnap": {
+    "description": "Hint under the Snap choice. {records} names the affected setups, {one} is 'true' for a single setup.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      },
+      "one": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationHintClamp": "{records} {one, select, true{moves} other{move}} to the nearest limit.",
+  "@valueMigrationHintClamp": {
+    "description": "Hint under the Clamp choice. {records} names the affected setups, {one} is 'true' for a single setup.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      },
+      "one": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationHintKeepRenamed": "{records} {one, select, true{keeps} other{keep}} '{option}', now the option renamed from '{origin}'.",
+  "@valueMigrationHintKeepRenamed": {
+    "description": "Hint when a deleted option's text is taken by a renamed option. {records} names the affected setups, {one} is 'true' for a single setup.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      },
+      "one": {
+        "type": "String"
+      },
+      "option": {
+        "type": "String"
+      },
+      "origin": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationHintRemoveOption": "'{option}' is removed from {records}.",
+  "@valueMigrationHintRemoveOption": {
+    "description": "Hint when a deleted option is removed from a multi-selection. {records} names the affected setups.",
+    "placeholders": {
+      "option": {
+        "type": "String"
+      },
+      "records": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationHintClear": "{records} {one, select, true{loses its} other{lose their}} value.",
+  "@valueMigrationHintClear": {
+    "description": "Hint under the Clear choice. {records} names the affected setups, {one} is 'true' for a single setup.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      },
+      "one": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationHintBecomes": "'{option}' becomes '{replacement}' in {records}.",
+  "@valueMigrationHintBecomes": {
+    "description": "Hint when a deleted option is replaced. {records} names the affected setups.",
+    "placeholders": {
+      "option": {
+        "type": "String"
+      },
+      "replacement": {
+        "type": "String"
+      },
+      "records": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationHintChanges": "{records} {one, select, true{changes} other{change}} to '{replacement}'.",
+  "@valueMigrationHintChanges": {
+    "description": "Hint when an option is replaced. {records} names the affected setups, {one} is 'true' for a single setup.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      },
+      "one": {
+        "type": "String"
+      },
+      "replacement": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationPendingUpdates": "Updates {records} on save",
+  "@valueMigrationPendingUpdates": {
+    "description": "Line under an adjustment with a confirmed value migration. {records} names the affected setups.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      }
+    }
+  },
+  "valueMigrationPendingClears": "{records} {one, select, true{loses its} other{lose their}} value",
+  "@valueMigrationPendingClears": {
+    "description": "Line under an adjustment whose confirmed migration clears values. {records} names the affected setups, {one} is 'true' for a single setup.",
+    "placeholders": {
+      "records": {
+        "type": "String"
+      },
+      "one": {
+        "type": "String"
+      }
+    }
+  },
+  "presetMergeStatusMerged": "Merged",
+  "@presetMergeStatusMerged": {
+    "description": "Badge on a result card of the preset merge sheet: the adjustment was merged with a preset adjustment."
+  },
+  "presetMergeStatusUnchanged": "Unchanged",
+  "@presetMergeStatusUnchanged": {
+    "description": "Badge on a result card of the preset merge sheet: the adjustment stays as it is."
+  },
+  "presetMergeStatusNew": "New",
+  "@presetMergeStatusNew": {
+    "description": "Badge on a result card of the preset merge sheet: the preset adjustment is added."
+  },
+  "presetMergeStatusNotAdded": "Not added",
+  "@presetMergeStatusNotAdded": {
+    "description": "Badge and heading in the preset merge sheet for preset adjustments that are left out."
+  },
+  "presetMergeTitle": "Merge adjustments",
+  "@presetMergeTitle": {
+    "description": "Title of the preset merge sheet."
+  },
+  "presetMergeIntro": "Your component already has adjustments. Choose how the ones of {product} combine with them.",
+  "@presetMergeIntro": {
+    "description": "Introduction of the preset merge sheet. {product} is the catalog product name.",
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "presetMergeModeMerge": "Merge",
+  "@presetMergeModeMerge": {
+    "description": "Mode and button that merge the preset adjustments into the existing ones."
+  },
+  "presetMergeMergedHint": "Merged adjustments keep their name and recorded values and get linked to the preset. Tap a badge to change it.",
+  "@presetMergeMergedHint": {
+    "description": "Explanation of the merge mode in the preset merge sheet."
+  },
+  "presetMergeResult": "Result · {summary}",
+  "@presetMergeResult": {
+    "description": "Heading above the result cards of the preset merge sheet. {summary} counts the outcomes.",
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "presetMergeSummaryReplace": "{preset} from the preset · {removed} of yours removed",
+  "@presetMergeSummaryReplace": {
+    "description": "Summary in replace mode. {preset} is the number of preset adjustments, {removed} the number of existing ones that are removed.",
+    "placeholders": {
+      "preset": {
+        "type": "int"
+      },
+      "removed": {
+        "type": "int"
+      }
+    }
+  },
+  "presetMergeSummaryMerged": "{count} merged",
+  "@presetMergeSummaryMerged": {
+    "description": "Part of the merge summary.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "presetMergeSummaryNew": "{count} new",
+  "@presetMergeSummaryNew": {
+    "description": "Part of the merge summary.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "presetMergeSummaryUnchanged": "{count} unchanged",
+  "@presetMergeSummaryUnchanged": {
+    "description": "Part of the merge summary.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "presetReplaceNoValues": "Your adjustments are removed and the preset's are used instead. None of yours has recorded values yet, so nothing is lost.",
+  "@presetReplaceNoValues": {
+    "description": "Notice in replace mode when no recorded values are at stake."
+  },
+  "presetReplaceWarning": "{withValues, plural, =1{1 of your adjustments has} other{{withValues} of your adjustments have}} {valueCount, plural, =1{1 recorded value} other{{valueCount} recorded values}}. Replacing removes them from this component: the values stay in your setups, but no longer belong to an adjustment. Merge keeps them.",
+  "@presetReplaceWarning": {
+    "description": "Warning in replace mode when recorded values are at stake. {withValues} is the number of adjustments with values, {valueCount} the number of values.",
+    "placeholders": {
+      "withValues": {
+        "type": "int"
+      },
+      "valueCount": {
+        "type": "int"
+      }
+    }
+  },
+  "presetMergeLine": "{own} + {catalog} (preset)",
+  "@presetMergeLine": {
+    "description": "Line on a merged result card. {own} is the existing adjustment, {catalog} the preset adjustment.",
+    "placeholders": {
+      "own": {
+        "type": "String"
+      },
+      "catalog": {
+        "type": "String"
+      }
+    }
+  },
+  "presetMergeKeptRange": "Keeps your range: recorded values lie outside the preset's",
+  "@presetMergeKeptRange": {
+    "description": "Line on a merged result card whose range was not replaced."
+  },
+  "presetMergeChoiceMergeInto": "Merge into \"{name}\"",
+  "@presetMergeChoiceMergeInto": {
+    "description": "Menu entry that merges a preset adjustment into an existing one. {name} is the existing adjustment.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "presetMergeChoiceMergeWith": "Merge with \"{name}\" (preset)",
+  "@presetMergeChoiceMergeWith": {
+    "description": "Menu entry that merges an existing adjustment with a preset one. {name} is the preset adjustment.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "presetMergeChoiceDontAdd": "Don't add",
+  "@presetMergeChoiceDontAdd": {
+    "description": "Menu entry that leaves a preset adjustment out."
+  },
+  "presetMergeChoiceAddNew": "Add as new",
+  "@presetMergeChoiceAddNew": {
+    "description": "Menu entry that adds a left out preset adjustment as a new one."
+  },
+  "presetMergeChoiceSeparate": "Separate again",
+  "@presetMergeChoiceSeparate": {
+    "description": "Menu entry that undoes a merge and keeps both adjustments."
+  },
+  "presetMergeChoiceSeparateDrop": "Separate, drop preset's",
+  "@presetMergeChoiceSeparateDrop": {
+    "description": "Menu entry that undoes a merge and drops the preset adjustment."
+  },
+  "catalogPickerTitle": "Choose from catalog",
+  "@catalogPickerTitle": {
+    "description": "Title of the catalog picker at the brand level, and the call to action of the catalog card."
+  },
+  "catalogPickerSelect": "Select {thing}",
+  "@catalogPickerSelect": {
+    "description": "Title of the catalog picker for a level. {thing} is the lowercase level name from the catalog, such as trim.",
+    "placeholders": {
+      "thing": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogPickerSelectGeneric": "Select",
+  "@catalogPickerSelectGeneric": {
+    "description": "Title of the catalog picker when the level has no name."
+  },
+  "catalogPickerOptionalDetails": "Optional details",
+  "@catalogPickerOptionalDetails": {
+    "description": "Title of the catalog picker for the optional axes."
+  },
+  "catalogPickerSearchHint": "Search {type}s…",
+  "@catalogPickerSearchHint": {
+    "description": "Hint of the catalog search field. {type} is the component type, lowercase in English.",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogPickerNoEntries": "No catalog entries available.",
+  "@catalogPickerNoEntries": {
+    "description": "Empty state of the catalog picker."
+  },
+  "catalogPickerAddByHand": "Add by hand: {adjustments}",
+  "@catalogPickerAddByHand": {
+    "description": "Line under a catalog option for adjustments the catalog lacks. {adjustments} is a comma separated list.",
+    "placeholders": {
+      "adjustments": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogPickerApply": "Apply",
+  "@catalogPickerApply": {
+    "description": "Button of the optional details step when something is chosen."
+  },
+  "catalogPickerSkip": "Skip",
+  "@catalogPickerSkip": {
+    "description": "Button of the optional details step when nothing is chosen."
+  },
+  "catalogPickerModelYear": "Model year",
+  "@catalogPickerModelYear": {
+    "description": "Group title of the model year chips."
+  },
+  "catalogPickerNoMatches": "No matches for \"{query}\".",
+  "@catalogPickerNoMatches": {
+    "description": "Empty search result in the catalog picker. {query} is the search text.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogPickerNoMatchesHint": "Check the spelling, or search for the model name only.",
+  "@catalogPickerNoMatchesHint": {
+    "description": "Hint under an empty search result in the catalog picker."
+  },
+  "catalogPickerEnterManually": "Enter manually",
+  "@catalogPickerEnterManually": {
+    "description": "Button that leaves the catalog picker without a choice."
+  },
+  "catalogPickerRequested": "Requested, thanks",
+  "@catalogPickerRequested": {
+    "description": "Button text after a product was requested."
+  },
+  "catalogPickerRequest": "Request this product",
+  "@catalogPickerRequest": {
+    "description": "Button that asks for a product to be added to the catalog."
+  },
+  "catalogPickerLoadError": "Could not load the catalog.",
+  "@catalogPickerLoadError": {
+    "description": "Error state of the catalog picker."
+  },
+  "catalogCardNotFound": "Catalog entry not found",
+  "@catalogCardNotFound": {
+    "description": "Title of the catalog card when the linked entry no longer exists."
+  },
+  "catalogCardNotFoundHint": "No longer in the catalog · Tap to choose another",
+  "@catalogCardNotFoundHint": {
+    "description": "Subtitle of the catalog card when the linked entry no longer exists."
+  },
+  "catalogCardTapToChange": "Tap to change",
+  "@catalogCardTapToChange": {
+    "description": "Last part of the subtitle of a linked catalog card."
+  },
+  "catalogCardPrefill": "Prefill from a {type} model",
+  "@catalogCardPrefill": {
+    "description": "Teaser of the catalog card. {type} is the component type, lowercase in English.",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogCardGuideHint": "Link to a catalog product to get recommended values",
+  "@catalogCardGuideHint": {
+    "description": "Second line of the catalog card teaser."
+  },
+  "catalogCardUnlinkTooltip": "Unlink preset (keeps values)",
+  "@catalogCardUnlinkTooltip": {
+    "description": "Tooltip of the button that unlinks a component from its catalog entry."
+  },
+  "catalogCardUpdateAvailable": "Update available",
+  "@catalogCardUpdateAvailable": {
+    "description": "Heading of the catalog update notice."
+  },
+  "catalogCardDismiss": "Dismiss",
+  "@catalogCardDismiss": {
+    "description": "Button that dismisses a catalog update."
+  },
+  "catalogCardReview": "Review",
+  "@catalogCardReview": {
+    "description": "Button that reviews a catalog update."
+  },
+  "subcomponentsSheetIntro": "Install components on other components, e.g. a tire and a brake disc on a wheel. In the Garage, they are grouped with their parent.",
+  "@subcomponentsSheetIntro": {
+    "description": "Introduction of the subcomponents sheet."
+  },
+  "subcomponentsSheetWithout": "Without subcomponents",
+  "@subcomponentsSheetWithout": {
+    "description": "Label above the first example bike of the subcomponents sheet."
+  },
+  "subcomponentsSheetWith": "With subcomponents",
+  "@subcomponentsSheetWith": {
+    "description": "Label above the second example bike of the subcomponents sheet."
+  },
+  "subcomponentsSheetCaption": "Move a wheel and its tire and brake disc come along. They are credited with the same rides.",
+  "@subcomponentsSheetCaption": {
+    "description": "Caption under the example bikes of the subcomponents sheet."
+  },
+  "weatherErrorNoInternet": "Network Error (No Internet).",
+  "@weatherErrorNoInternet": {
+    "description": "Weather fetch failed because the device is offline."
+  },
+  "weatherErrorTimeout": "Network Error (Timeout).",
+  "@weatherErrorTimeout": {
+    "description": "Weather fetch failed because the request timed out."
+  },
+  "weatherErrorRateLimit": "Rate limit exceeded ({limit}/h). Try again after {time}",
+  "@weatherErrorRateLimit": {
+    "description": "Weather fetch refused because of too many requests. {limit} is the number of requests per hour, {time} the time of day the limit lifts.",
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherErrorFailed": "Error occurred during weather update.",
+  "@weatherErrorFailed": {
+    "description": "Weather fetch failed for another reason."
+  },
+  "suggestionRecordRunFirst": "Record a run first.",
+  "@suggestionRecordRunFirst": {
+    "description": "Why a test session strategy has nothing to propose yet."
+  },
+  "suggestionAddFeedbackFirst": "Add feedback on {run} first.",
+  "@suggestionAddFeedbackFirst": {
+    "description": "Why a test session strategy has nothing to propose yet. {run} is the name of the latest run.",
+    "placeholders": {
+      "run": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionAdjustmentGone": "An adjustment of this session is no longer on the bike. Lock it to go on.",
+  "@suggestionAdjustmentGone": {
+    "description": "Problem with the data of a test session."
+  },
+  "suggestionNoValue": "{run} has no value for '{adjustment}'.",
+  "@suggestionNoValue": {
+    "description": "Problem with the data of a test session. {run} is the run name, {adjustment} the adjustment name.",
+    "placeholders": {
+      "run": {
+        "type": "String"
+      },
+      "adjustment": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionOutOfRange": "'{adjustment}' in {run} is outside its range.",
+  "@suggestionOutOfRange": {
+    "description": "Problem with the data of a test session. {adjustment} is the adjustment name, {run} the run name.",
+    "placeholders": {
+      "adjustment": {
+        "type": "String"
+      },
+      "run": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionAllLocked": "Every adjustment is locked.",
+  "@suggestionAllLocked": {
+    "description": "Why a test session strategy has nothing to propose."
+  },
+  "suggestionNotCompare": "This session does not compare setups.",
+  "@suggestionNotCompare": {
+    "description": "Problem with the data of a test session."
+  },
+  "suggestionSetupRemoved": "A setup to compare was removed. End the session or compare the rest in a new one.",
+  "@suggestionSetupRemoved": {
+    "description": "Problem with the data of a Compare test session."
+  },
+  "suggestionPatternStep": "Pattern {number} of {total}: {move} from {base}. Every adjustment moves, so their effects can be told apart.",
+  "@suggestionPatternStep": {
+    "description": "Rationale of an Explore run. {number} and {total} count the pattern runs, {move} lists the changes like 'Rebound +2, Lockout On', {base} is the run it starts from.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "move": {
+        "type": "String"
+      },
+      "base": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionEstimatedBest": "Ride the estimated best: {move} from {base}.",
+  "@suggestionEstimatedBest": {
+    "description": "Rationale of an Explore run. {move} lists the changes, {base} is the run it starts from.",
+    "placeholders": {
+      "move": {
+        "type": "String"
+      },
+      "base": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionRideAgainConfirm": "Ride {run} again to confirm the result.",
+  "@suggestionRideAgainConfirm": {
+    "description": "Rationale of a confirmation run. {run} is the run to ride again.",
+    "placeholders": {
+      "run": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionKeepGoing": "{best} was better. Keep going: {move}.",
+  "@suggestionKeepGoing": {
+    "description": "Rationale of a Fine-tune run. {best} is the best run, {move} lists the next changes.",
+    "placeholders": {
+      "best": {
+        "type": "String"
+      },
+      "move": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionTryFromBest": "Try {move} from {best}, the best run so far.",
+  "@suggestionTryFromBest": {
+    "description": "Rationale of a Fine-tune run. {move} lists the changes, {best} is the best run.",
+    "placeholders": {
+      "move": {
+        "type": "String"
+      },
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionRideAgainCheck": "Ride {best} again to check that nothing else changed.",
+  "@suggestionRideAgainCheck": {
+    "description": "Rationale of a Fine-tune confirmation run. {best} is the best run.",
+    "placeholders": {
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionRideAndCompare": "Ride {next} and compare it with {last}.",
+  "@suggestionRideAndCompare": {
+    "description": "Rationale of a Compare run. {next} is the setup to ride, {last} the latest run.",
+    "placeholders": {
+      "next": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionLevelRideAgain": "{next} and {other} are level. Ride {next} again to decide.",
+  "@suggestionLevelRideAgain": {
+    "description": "Rationale of a Compare run. {next} and {other} are the two setups that tie.",
+    "placeholders": {
+      "next": {
+        "type": "String"
+      },
+      "other": {
+        "type": "String"
+      }
+    }
+  },
+  "dialStyleColor": "Color",
+  "@dialStyleColor": {
+    "description": "Section title of the dial colors in the dial style sheet."
+  },
+  "dialStyleSize": "Size",
+  "@dialStyleSize": {
+    "description": "Section title of the dial sizes in the dial style sheet."
+  },
+  "dialColorBlue": "blue",
+  "@dialColorBlue": {
+    "description": "Screen reader label of the blue dial color."
+  },
+  "dialColorRed": "red",
+  "@dialColorRed": {
+    "description": "Screen reader label of the red dial color."
+  },
+  "dialColorGreen": "green",
+  "@dialColorGreen": {
+    "description": "Screen reader label of the green dial color."
+  },
+  "dialColorBrown": "brown",
+  "@dialColorBrown": {
+    "description": "Screen reader label of the brown dial color."
+  },
+  "dialColorOrange": "orange",
+  "@dialColorOrange": {
+    "description": "Screen reader label of the orange dial color."
+  },
+  "dialColorPurple": "purple",
+  "@dialColorPurple": {
+    "description": "Screen reader label of the purple dial color."
+  },
+  "dialColorGrey": "grey",
+  "@dialColorGrey": {
+    "description": "Screen reader label of the grey dial color."
+  },
+  "dialSizeNormal": "normal",
+  "@dialSizeNormal": {
+    "description": "Screen reader label of the normal dial size."
+  },
+  "dialSizeSmall": "small",
+  "@dialSizeSmall": {
+    "description": "Screen reader label of the small dial size."
   }
 }

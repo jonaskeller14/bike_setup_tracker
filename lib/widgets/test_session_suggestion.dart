@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/feedback/test_session.dart';
@@ -51,7 +52,7 @@ class TestSessionSuggestion extends StatelessWidget {
         context,
         icon: Icons.error_outline,
         color: theme.colorScheme.error,
-        text: error,
+        text: error.text(context.l10n),
       ),
       _ => const SizedBox.shrink(),
     };
@@ -113,7 +114,7 @@ class TestSessionSuggestion extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(proposal.rationale, style: mutedStyle),
+                  child: Text(proposal.rationale.text(context.l10n), style: mutedStyle),
                 ),
                 AdjustmentCompactDisplayList(
                   components: breakdown.components,

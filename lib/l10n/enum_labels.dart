@@ -10,6 +10,8 @@ import '../models/strava/strava_plan.dart';
 import '../models/task/task_rule.dart';
 import '../models/tip_product.dart';
 import '../services/location_service.dart';
+import '../services/test_session/suggestion_result.dart';
+import '../services/weather_service.dart';
 import '../utils/installation_issue.dart';
 import '../utils/installation_timeline_validation.dart';
 import '../utils/table_column.dart';
@@ -348,6 +350,55 @@ extension DataErrorMessage on DataError {
     DataErrorKind.driveApi => l10n.dataErrorDriveApi(detail ?? ''),
     DataErrorKind.driveUnexpected => l10n.dataErrorDriveUnexpected,
     DataErrorKind.readDriveBackup => l10n.dataErrorReadDriveBackup(detail ?? ''),
+  };
+}
+
+extension StepAdjustmentDialColorLabel on StepAdjustmentDialColor {
+  String label(AppLocalizations l10n) => switch (this) {
+    StepAdjustmentDialColor.blue => l10n.dialColorBlue,
+    StepAdjustmentDialColor.red => l10n.dialColorRed,
+    StepAdjustmentDialColor.green => l10n.dialColorGreen,
+    StepAdjustmentDialColor.brown => l10n.dialColorBrown,
+    StepAdjustmentDialColor.orange => l10n.dialColorOrange,
+    StepAdjustmentDialColor.purple => l10n.dialColorPurple,
+    StepAdjustmentDialColor.grey => l10n.dialColorGrey,
+  };
+}
+
+extension StepAdjustmentDialSizeLabel on StepAdjustmentDialSize {
+  String label(AppLocalizations l10n) => switch (this) {
+    StepAdjustmentDialSize.normal => l10n.dialSizeNormal,
+    StepAdjustmentDialSize.small => l10n.dialSizeSmall,
+  };
+}
+
+extension SuggestionNoteText on SuggestionNote {
+  String text(AppLocalizations l10n) => switch (kind) {
+    SuggestionNoteKind.recordRunFirst => l10n.suggestionRecordRunFirst,
+    SuggestionNoteKind.addFeedbackFirst => l10n.suggestionAddFeedbackFirst(args[0]),
+    SuggestionNoteKind.adjustmentGone => l10n.suggestionAdjustmentGone,
+    SuggestionNoteKind.noValue => l10n.suggestionNoValue(args[0], args[1]),
+    SuggestionNoteKind.outOfRange => l10n.suggestionOutOfRange(args[0], args[1]),
+    SuggestionNoteKind.allLocked => l10n.suggestionAllLocked,
+    SuggestionNoteKind.notCompare => l10n.suggestionNotCompare,
+    SuggestionNoteKind.setupRemoved => l10n.suggestionSetupRemoved,
+    SuggestionNoteKind.patternStep => l10n.suggestionPatternStep(args[0], args[1], args[2], args[3]),
+    SuggestionNoteKind.estimatedBest => l10n.suggestionEstimatedBest(args[0], args[1]),
+    SuggestionNoteKind.rideAgainConfirm => l10n.suggestionRideAgainConfirm(args[0]),
+    SuggestionNoteKind.keepGoing => l10n.suggestionKeepGoing(args[0], args[1]),
+    SuggestionNoteKind.tryFromBest => l10n.suggestionTryFromBest(args[0], args[1]),
+    SuggestionNoteKind.rideAgainCheck => l10n.suggestionRideAgainCheck(args[0]),
+    SuggestionNoteKind.rideAndCompare => l10n.suggestionRideAndCompare(args[0], args[1]),
+    SuggestionNoteKind.levelRideAgain => l10n.suggestionLevelRideAgain(args[0], args[1]),
+  };
+}
+
+extension WeatherErrorMessage on WeatherError {
+  String message(AppLocalizations l10n) => switch (kind) {
+    WeatherErrorKind.noInternet => l10n.weatherErrorNoInternet,
+    WeatherErrorKind.timeout => l10n.weatherErrorTimeout,
+    WeatherErrorKind.rateLimit => l10n.weatherErrorRateLimit(WeatherService.maxRequestsPerHour, resetTime ?? ''),
+    WeatherErrorKind.failed => l10n.weatherErrorFailed,
   };
 }
 

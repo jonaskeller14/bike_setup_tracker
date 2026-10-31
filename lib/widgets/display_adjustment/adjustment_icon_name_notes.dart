@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
 import '../../services/setup_activity_analysis_service.dart';
@@ -174,7 +175,7 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
                           const SizedBox(width: 2),
                           Flexible(
                             child: Text(
-                              recommendedValueLine(recommendation, component),
+                              recommendedValueLine(recommendation, component, context.l10n),
                               style: TextStyle(color: colorScheme.onSecondary, fontSize: 13),
                             ),
                           ),
@@ -191,7 +192,7 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
                           ],
                         ],
                       ),
-                    if (guideStatus?.detail case final detail?)
+                    if (guideStatus?.detail(context.l10n) case final detail?)
                       Padding(
                         padding: const EdgeInsets.only(left: 15),
                         child: Text(detail, style: TextStyle(color: colorScheme.onSecondary, fontSize: 12)),

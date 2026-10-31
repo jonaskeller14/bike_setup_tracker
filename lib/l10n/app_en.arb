@@ -9869,5 +9869,226 @@
         "type": "int"
       }
     }
+  },
+  "exportNoDataSheet": "No Data",
+  "@exportNoDataSheet": {
+    "description": "Sheet name of the Excel export when there is nothing to export."
+  },
+  "exportNoBikes": "No bikes found or data is empty.",
+  "@exportNoBikes": {
+    "description": "Message in the only sheet of the Excel export when there are no bikes."
+  },
+  "exportGroupGeneral": "General",
+  "@exportGroupGeneral": {
+    "description": "Spreadsheet export: heading above the general setup columns."
+  },
+  "exportGroupWeather": "Weather",
+  "@exportGroupWeather": {
+    "description": "Spreadsheet export: heading above the weather columns."
+  },
+  "exportGroupRider": "Rider",
+  "@exportGroupRider": {
+    "description": "Spreadsheet export: label of the merged heading above the rider columns."
+  },
+  "exportGroupRiderName": "Rider: {name}",
+  "@exportGroupRiderName": {
+    "description": "Spreadsheet export: heading above the rider columns. {name} is the rider name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "exportColName": "Name",
+  "@exportColName": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColDateTime": "DateTime",
+  "@exportColDateTime": {
+    "description": "Spreadsheet export: column header for date and time."
+  },
+  "exportColTags": "Tags",
+  "@exportColTags": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColNotes": "Notes",
+  "@exportColNotes": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColPlace": "Place",
+  "@exportColPlace": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColAltitude": "Altitude",
+  "@exportColAltitude": {
+    "description": "Spreadsheet export: column header. The unit is appended in brackets."
+  },
+  "exportColBookmarked": "Bookmarked",
+  "@exportColBookmarked": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColBike": "Bike",
+  "@exportColBike": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColWeatherCode": "Weather Code",
+  "@exportColWeatherCode": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColTemperature": "Temperature",
+  "@exportColTemperature": {
+    "description": "Spreadsheet export: column header. The unit is appended in brackets."
+  },
+  "exportColPrecipitation": "Precipitation",
+  "@exportColPrecipitation": {
+    "description": "Spreadsheet export: column header. The unit is appended in brackets."
+  },
+  "exportColHumidity": "Humidity",
+  "@exportColHumidity": {
+    "description": "Spreadsheet export: column header. The unit is appended in brackets."
+  },
+  "exportColWindspeed": "Windspeed",
+  "@exportColWindspeed": {
+    "description": "Spreadsheet export: column header. The unit is appended in brackets."
+  },
+  "exportColSoilMoisture": "Soil Moisture",
+  "@exportColSoilMoisture": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColCondition": "Condition",
+  "@exportColCondition": {
+    "description": "Spreadsheet export: column header for the ground condition."
+  },
+  "exportColLink": "Link",
+  "@exportColLink": {
+    "description": "Spreadsheet export: column header for what a task entry is linked to."
+  },
+  "exportColTaskRule": "Task Rule",
+  "@exportColTaskRule": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColTaskRuleNotes": "Task Rule Notes",
+  "@exportColTaskRuleNotes": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColTaskRuleLink": "Task Rule Link",
+  "@exportColTaskRuleLink": {
+    "description": "Spreadsheet export: column header for what the task rule is linked to."
+  },
+  "exportColPriority": "Priority",
+  "@exportColPriority": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColInterval": "Interval",
+  "@exportColInterval": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColDistance": "Distance",
+  "@exportColDistance": {
+    "description": "Spreadsheet export: column header. The unit is appended in brackets."
+  },
+  "exportColElevation": "Elevation",
+  "@exportColElevation": {
+    "description": "Spreadsheet export: column header. The unit is appended in brackets."
+  },
+  "exportColMovingTime": "Moving Time",
+  "@exportColMovingTime": {
+    "description": "Spreadsheet export: column header. The unit is appended in brackets."
+  },
+  "exportColActivities": "Activities",
+  "@exportColActivities": {
+    "description": "Spreadsheet export: column header for the number of activities."
+  },
+  "exportColSetup": "Setup",
+  "@exportColSetup": {
+    "description": "Spreadsheet export: column header."
+  },
+  "exportColComparedTo": "Compared to",
+  "@exportColComparedTo": {
+    "description": "Spreadsheet export: column header for the reference setup of a feedback."
+  },
+  "exportColOutcome": "Outcome",
+  "@exportColOutcome": {
+    "description": "Spreadsheet export: column header for the overall outcome of a feedback."
+  },
+  "exportColIssues": "Issues",
+  "@exportColIssues": {
+    "description": "Spreadsheet export: column header for the flagged problems of a feedback."
+  },
+  "exportLinkComponent": "Component: {name}",
+  "@exportLinkComponent": {
+    "description": "Spreadsheet and text export: what a task is linked to. {name} is the component name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "exportLinkBike": "Bike: {name}",
+  "@exportLinkBike": {
+    "description": "Spreadsheet and text export: what a task is linked to. {name} is the bike name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "exportLinkGeneral": "General",
+  "@exportLinkGeneral": {
+    "description": "Spreadsheet export: a task that is linked to neither a component nor a bike."
+  },
+  "exportSectionRiders": "Riders",
+  "@exportSectionRiders": {
+    "description": "Text export: section heading. Shown in capitals, followed by a colon."
+  },
+  "exportSectionBikes": "Bikes",
+  "@exportSectionBikes": {
+    "description": "Text export: section heading. Shown in capitals, followed by a colon."
+  },
+  "exportSectionSetups": "Setups",
+  "@exportSectionSetups": {
+    "description": "Text export: section heading. Shown in capitals, followed by a colon."
+  },
+  "exportSectionTaskLog": "Task Log",
+  "@exportSectionTaskLog": {
+    "description": "Name of the task log: sheet name and CSV title of the spreadsheet export, and the section heading of the text export (shown in capitals, followed by a colon)."
+  },
+  "exportSectionFeedback": "Feedback",
+  "@exportSectionFeedback": {
+    "description": "Name of the feedback list: sheet name and CSV title of the spreadsheet export, and the section heading of the text export (shown in capitals, followed by a colon)."
+  },
+  "exportDeleted": "[DELETED]",
+  "@exportDeleted": {
+    "description": "Text export: marker after the name of a deleted item."
+  },
+  "exportRiderAttributes": "{name} Attributes:",
+  "@exportRiderAttributes": {
+    "description": "Text export: heading above the rider attributes of a setup. {name} is the rider name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "exportWeatherHumidity": "{value} % Humidity",
+  "@exportWeatherHumidity": {
+    "description": "Text export: humidity in the weather line of a setup. {value} is a whole number.",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "exportWeatherWind": "{speed} {unit} Wind",
+  "@exportWeatherWind": {
+    "description": "Text export: wind speed in the weather line of a setup. {speed} is a whole number, {unit} the wind speed unit.",
+    "placeholders": {
+      "speed": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
   }
 }

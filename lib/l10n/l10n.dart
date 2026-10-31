@@ -27,6 +27,10 @@ AppLocalizations get currentL10n {
   return supported ? lookupAppLocalizations(Locale(language)) : englishL10n;
 }
 
+/// Runs [body] with `Intl.defaultLocale` set to [l10n]'s language, for exports
+/// whose model text (values, verdicts, interval units) reads the default locale.
+T withLocaleOf<T>(AppLocalizations l10n, T Function() body) => Intl.withLocale(l10n.localeName, body) as T;
+
 extension AppLocalizationsContext on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
 }

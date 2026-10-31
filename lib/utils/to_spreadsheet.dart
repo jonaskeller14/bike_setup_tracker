@@ -1,8 +1,8 @@
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
-import '../l10n/app_localizations.dart';
 import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
@@ -14,19 +14,26 @@ import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../services/component_hierarchy_resolver.dart';
+import 'localized_number.dart';
 
 class SpreadsheetExport {
-  static List<int>? toExcel(SelectedData data, AppSettings settings, AppLocalizations l10n) {
+  static List<int>? toExcel(SelectedData data, AppSettings settings, AppLocalizations l10n) =>
+      withLocaleOf(l10n, () => _toExcel(data, settings, l10n));
+
+  static String toCsv(SelectedData data, AppSettings settings, AppLocalizations l10n) =>
+      withLocaleOf(l10n, () => _toCsv(data, settings, l10n));
+
+  static List<int>? _toExcel(SelectedData data, AppSettings settings, AppLocalizations l10n) {
     final excel = Excel.createExcel();
 
     final bikes = data.bikes.values.where((b) => !b.isDeleted).toList();
     if (bikes.isEmpty) {
-      excel['No Data'].appendRow([TextCellValue('No bikes found or data is empty.')]);
+      excel[l10n.exportNoDataSheet].appendRow([TextCellValue(l10n.exportNoBikes)]);
     }
 
     for (final bike in bikes) {
       final sheet = excel[bike.name];
-      final headerData = _generateHeader(data, settings, bikeId: bike.id);
+      final headerData = _generateHeader(data, settings, l10n, bikeId: bike.id);
       
       // Row 1: Merged Group Headers
       sheet.appendRow(headerData.row1.map((e) => TextCellValue(e)).toList());
@@ -62,8 +69,8 @@ class SpreadsheetExport {
     return excel.encode();
   }
 
-  static String toCsv(SelectedData data, AppSettings settings, AppLocalizations l10n) {
-    final headerData = _generateHeader(data, settings, includeBikeColumn: true);
+  static String _toCsv(SelectedData data, AppSettings settings, AppLocalizations l10n) {
+    final headerData = _generateHeader(data, settings, l10n, includeBikeColumn: true);
     final row1 = headerData.row1;
     final row2 = headerData.row2;
     final columnMap = headerData.columnMap;
@@ -95,8 +102,8 @@ class SpreadsheetExport {
     if (entries.isEmpty) return;
 
     buffer.writeln();
-    buffer.writeln(_csvCell('Task Log'));
-    buffer.writeln(_taskLogHeaders(settings).map(_csvCell).join(','));
+    buffer.writeln(_csvCell(l10n.exportSectionTaskLog));
+    buffer.writeln(_taskLogHeaders(settings, l10n).map(_csvCell).join(','));
 
     for (final entry in entries) {
       final row = _generateTaskEntryStringRow(entry, data, settings, l10n);
@@ -111,8 +118,8 @@ class SpreadsheetExport {
     if (feedbacks.isEmpty) return;
 
     buffer.writeln();
-    buffer.writeln(_csvCell('Feedback'));
-    buffer.writeln(_feedbackHeaders.map(_csvCell).join(','));
+    buffer.writeln(_csvCell(l10n.exportSectionFeedback));
+    buffer.writeln(_feedbackHeaders(l10n).map(_csvCell).join(','));
 
     for (final feedback in feedbacks) {
       final row = [DateFormat('yyyy-MM-dd HH:mm').format(feedback.dateTimeLocal), ..._feedbackColumns(feedback, data, l10n)];
@@ -120,9 +127,17 @@ class SpreadsheetExport {
     }
   }
 
-  static _HeaderData _generateHeader(SelectedData data, AppSettings settings, {String? bikeId, bool includeBikeColumn = false}) {
-    final List<String> row1 = ['General', '', '', '', '', '', ''];
-    final List<String> row2 = ['Name', 'DateTime', 'Tags', 'Notes', 'Place', 'Altitude [${settings.altitudeUnit}]', 'Bookmarked'];
+  static _HeaderData _generateHeader(SelectedData data, AppSettings settings, AppLocalizations l10n, {String? bikeId, bool includeBikeColumn = false}) {
+    final List<String> row1 = [l10n.exportGroupGeneral, '', '', '', '', '', ''];
+    final List<String> row2 = [
+      l10n.exportColName,
+      l10n.exportColDateTime,
+      l10n.exportColTags,
+      l10n.exportColNotes,
+      l10n.exportColPlace,
+      '${l10n.exportColAltitude} [${settings.altitudeUnit}]',
+      l10n.exportColBookmarked,
+    ];
     final Map<String, int> columnMap = {
       'name': 0,
       'datetime': 1,
@@ -135,26 +150,26 @@ class SpreadsheetExport {
 
     if (includeBikeColumn) {
       row1.add('');
-      row2.add('Bike');
+      row2.add(l10n.exportColBike);
       columnMap['bike'] = 7;
     }
 
     int colIndex = includeBikeColumn ? 8 : 7;
     final List<_MergeInfo> merges = [
-      _MergeInfo(0, colIndex - 1, 'General'),
+      _MergeInfo(0, colIndex - 1, l10n.exportGroupGeneral),
     ];
 
     // Weather Section
     final int weatherStart = colIndex;
-    row1.addAll(['Weather', '', '', '', '', '', '']);
+    row1.addAll([l10n.exportGroupWeather, '', '', '', '', '', '']);
     row2.addAll([
-      'Weather Code',
-      'Temperature [${settings.temperatureUnit}]',
-      'Precipitation [${settings.precipitationUnit}]',
-      'Humidity [%]',
-      'Windspeed [${settings.windSpeedUnit}]',
-      'Soil Moisture',
-      'Condition'
+      l10n.exportColWeatherCode,
+      '${l10n.exportColTemperature} [${settings.temperatureUnit}]',
+      '${l10n.exportColPrecipitation} [${settings.precipitationUnit}]',
+      '${l10n.exportColHumidity} [%]',
+      '${l10n.exportColWindspeed} [${settings.windSpeedUnit}]',
+      l10n.exportColSoilMoisture,
+      l10n.exportColCondition,
     ]);
     columnMap['w_code'] = colIndex++;
     columnMap['w_temp'] = colIndex++;
@@ -163,7 +178,7 @@ class SpreadsheetExport {
     columnMap['w_wind'] = colIndex++;
     columnMap['w_soil'] = colIndex++;
     columnMap['w_cond'] = colIndex++;
-    merges.add(_MergeInfo(weatherStart, colIndex - 1, 'Weather'));
+    merges.add(_MergeInfo(weatherStart, colIndex - 1, l10n.exportGroupWeather));
 
     // Person Section
     final bike = bikeId != null ? data.bikes[bikeId] : null;
@@ -171,8 +186,8 @@ class SpreadsheetExport {
     final person = personId != null ? data.persons[personId] : null;
     if (person != null) {
       final int personStart = colIndex;
-      row1.add('Rider: ${person.name}');
-      row2.add('Name');
+      row1.add(l10n.exportGroupRiderName(person.name));
+      row2.add(l10n.exportColName);
       columnMap['p_name'] = colIndex++;
 
       for (final adj in person.adjustments) {
@@ -180,7 +195,7 @@ class SpreadsheetExport {
         row2.add('${adj.name}${adj.unit != null ? ' [${adj.unit!.label}]' : ''}');
         columnMap['p_adj_${adj.id}'] = colIndex++;
       }
-      merges.add(_MergeInfo(personStart, colIndex - 1, 'Rider'));
+      merges.add(_MergeInfo(personStart, colIndex - 1, l10n.exportGroupRider));
     }
 
     // Component Adjustments
@@ -300,7 +315,7 @@ class SpreadsheetExport {
       row[columnMap['altitude']!] = (ContextPosition.convertAltitudeFromMeters(alt, settings.altitudeUnit) ?? alt).round().toString();
     }
 
-    row[columnMap['bookmarked']!] = setup.isBookmarked ? 'Yes' : '';
+    row[columnMap['bookmarked']!] = setup.isBookmarked ? l10n.yes : '';
 
     if (includeBikeColumn) {
       final bike = data.bikes[setup.bike];
@@ -315,7 +330,8 @@ class SpreadsheetExport {
       row[columnMap['w_precip']!] = ContextWeather.convertPrecipitationFromMm(w.dayAccumulatedPrecipitation, settings.precipitationUnit)?.round().toString() ?? '';
       row[columnMap['w_humid']!] = w.currentHumidity?.round().toString() ?? '';
       row[columnMap['w_wind']!] = ContextWeather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round().toString() ?? '';
-      row[columnMap['w_soil']!] = w.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '';
+      final soilMoisture = w.currentSoilMoisture0to7cm;
+      row[columnMap['w_soil']!] = soilMoisture == null ? '' : formatLocalizedDouble(soilMoisture, fractionDigits: 2);
       row[columnMap['w_cond']!] = w.condition?.label(l10n) ?? '';
     }
 
@@ -348,26 +364,26 @@ class SpreadsheetExport {
     return entries;
   }
 
-  static List<String> _taskLogHeaders(AppSettings settings) {
+  static List<String> _taskLogHeaders(AppSettings settings, AppLocalizations l10n) {
     final headers = <String>[
-      'Name',
-      'Notes',
-      'DateTime',
-      'Link',
-      'Task Rule',
-      'Task Rule Notes',
-      'Task Rule Link',
+      l10n.exportColName,
+      l10n.exportColNotes,
+      l10n.exportColDateTime,
+      l10n.exportColLink,
+      l10n.exportColTaskRule,
+      l10n.exportColTaskRuleNotes,
+      l10n.exportColTaskRuleLink,
     ];
-    if (settings.enableTaskPriority) headers.add('Priority');
-    if (settings.enableTaskTags) headers.add('Tags');
-    headers.add('Interval');
+    if (settings.enableTaskPriority) headers.add(l10n.exportColPriority);
+    if (settings.enableTaskTags) headers.add(l10n.exportColTags);
+    headers.add(l10n.exportColInterval);
     // Snapshot stats only carry meaning when Strava tracking is enabled.
     if (settings.enableStrava) {
       headers.addAll([
-        'Distance [${settings.distanceUnit}]',
-        'Elevation [${settings.altitudeUnit}]',
-        'Moving Time [h]',
-        'Activities',
+        '${l10n.exportColDistance} [${settings.distanceUnit}]',
+        '${l10n.exportColElevation} [${settings.altitudeUnit}]',
+        '${l10n.exportColMovingTime} [h]',
+        l10n.exportColActivities,
       ]);
     }
     return headers;
@@ -376,11 +392,11 @@ class SpreadsheetExport {
   /// Describes what a component/bike pair points at: a component, a bike, or
   /// neither ("General"). Shared by task entries and their rules, which each
   /// link to at most one of a component or a bike.
-  static String _linkLabel(TaskAssociation association, SelectedData data) {
+  static String _linkLabel(TaskAssociation association, SelectedData data, AppLocalizations l10n) {
     return switch (association) {
-      ComponentTaskAssociation(:final id) => 'Component: ${data.components[id]?.name ?? '?'}',
-      BikeTaskAssociation(:final id) => 'Bike: ${data.bikes[id]?.name ?? '?'}',
-      GeneralTaskAssociation() => 'General',
+      ComponentTaskAssociation(:final id) => l10n.exportLinkComponent(data.components[id]?.name ?? '?'),
+      BikeTaskAssociation(:final id) => l10n.exportLinkBike(data.bikes[id]?.name ?? '?'),
+      GeneralTaskAssociation() => l10n.exportLinkGeneral,
     };
   }
 
@@ -399,8 +415,8 @@ class SpreadsheetExport {
     final entries = _sortedTaskEntries(data);
     if (entries.isEmpty) return;
 
-    final sheet = excel['Task Log'];
-    sheet.appendRow(_taskLogHeaders(settings).map((e) => TextCellValue(e)).toList());
+    final sheet = excel[l10n.exportSectionTaskLog];
+    sheet.appendRow(_taskLogHeaders(settings, l10n).map((e) => TextCellValue(e)).toList());
     for (final entry in entries) {
       sheet.appendRow(_generateTaskEntryCellValueRow(entry, data, settings, l10n));
     }
@@ -412,8 +428,8 @@ class SpreadsheetExport {
     final feedbacks = _sortedFeedbacks(data);
     if (feedbacks.isEmpty) return;
 
-    final sheet = excel['Feedback'];
-    sheet.appendRow(_feedbackHeaders.map((e) => TextCellValue(e)).toList());
+    final sheet = excel[l10n.exportSectionFeedback];
+    sheet.appendRow(_feedbackHeaders(l10n).map((e) => TextCellValue(e)).toList());
     for (final feedback in feedbacks) {
       final dt = feedback.dateTimeLocal;
       sheet.appendRow([
@@ -429,7 +445,15 @@ class SpreadsheetExport {
     return feedbacks;
   }
 
-  static const List<String> _feedbackHeaders = ['DateTime', 'Bike', 'Setup', 'Compared to', 'Outcome', 'Issues', 'Notes'];
+  static List<String> _feedbackHeaders(AppLocalizations l10n) => [
+    l10n.exportColDateTime,
+    l10n.exportColBike,
+    l10n.exportColSetup,
+    l10n.exportColComparedTo,
+    l10n.exportColOutcome,
+    l10n.exportColIssues,
+    l10n.exportColNotes,
+  ];
 
   /// Every column of [_feedbackHeaders] after the date.
   static List<String> _feedbackColumns(RideFeedback feedback, SelectedData data, AppLocalizations l10n) {
@@ -452,10 +476,10 @@ class SpreadsheetExport {
       TextCellValue(entry.name),
       TextCellValue(entry.notes ?? ''),
       DateTimeCellValue(year: dt.year, month: dt.month, day: dt.day, hour: dt.hour, minute: dt.minute),
-      TextCellValue(_linkLabel(entry.association, data)),
+      TextCellValue(_linkLabel(entry.association, data, l10n)),
       TextCellValue(rule?.name ?? ''),
       TextCellValue(rule?.notes ?? ''),
-      TextCellValue(rule != null ? _linkLabel(rule.association, data) : ''),
+      TextCellValue(rule != null ? _linkLabel(rule.association, data, l10n) : ''),
     ];
 
     if (settings.enableTaskPriority) row.add(TextCellValue(rule?.priority.label(l10n) ?? ''));
@@ -486,10 +510,10 @@ class SpreadsheetExport {
       taskEntry.name,
       taskEntry.notes ?? '',
       DateFormat('yyyy-MM-dd HH:mm').format(taskEntry.dateTimeLocal),
-      _linkLabel(taskEntry.association, data),
+      _linkLabel(taskEntry.association, data, l10n),
       taskRule?.name ?? '',
       taskRule?.notes ?? '',
-      taskRule != null ? _linkLabel(taskRule.association, data) : '',
+      taskRule != null ? _linkLabel(taskRule.association, data, l10n) : '',
     ];
 
     if (appSettings.enableTaskPriority) row.add(taskRule?.priority.label(l10n) ?? '');
@@ -500,9 +524,9 @@ class SpreadsheetExport {
       final snapshot = taskEntry.snapshot;
       if (snapshot != null) {
         row.addAll([
-          (AppSettings.convertDistanceFromMeters(snapshot.distance, appSettings.distanceUnit) ?? snapshot.distance).toStringAsFixed(1),
+          formatLocalizedDouble(AppSettings.convertDistanceFromMeters(snapshot.distance, appSettings.distanceUnit) ?? snapshot.distance, fractionDigits: 1),
           (AppSettings.convertElevationFromMeters(snapshot.elevationGain, appSettings.altitudeUnit) ?? snapshot.elevationGain).round().toString(),
-          (snapshot.movingTime.inMinutes / 60).toStringAsFixed(1),
+          formatLocalizedDouble(snapshot.movingTime.inMinutes / 60, fractionDigits: 1),
           snapshot.activityCount.toString(),
         ]);
       } else {

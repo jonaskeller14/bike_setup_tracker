@@ -11,6 +11,7 @@ import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/utils/to_spreadsheet.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,6 +48,8 @@ FeedbackComparison _overall(String reference, int outcome) =>
     FeedbackComparison(referenceSetupId: reference, aspect: const OverallAspect(), outcome: outcome);
 
 void main() {
+  setUpAll(() => initializeDateFormatting('en'));
+
   final setups = {
     's1': _setup('s1', DateTime(2026, 5, 1, 10)),
     's2': _setup('s2', DateTime(2026, 5, 2, 10)),

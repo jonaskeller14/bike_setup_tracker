@@ -7424,4 +7424,157 @@ class AppLocalizationsDe extends AppLocalizations {
   String stravaGearLinkedCount(int linked, int total) {
     return '$linked von $total verknüpft';
   }
+
+  @override
+  String get exportNoDataSheet => 'Keine Daten';
+
+  @override
+  String get exportNoBikes => 'Keine Bikes gefunden oder keine Daten vorhanden.';
+
+  @override
+  String get exportGroupGeneral => 'Allgemein';
+
+  @override
+  String get exportGroupWeather => 'Wetter';
+
+  @override
+  String get exportGroupRider => 'Rider';
+
+  @override
+  String exportGroupRiderName(String name) {
+    return 'Rider: $name';
+  }
+
+  @override
+  String get exportColName => 'Name';
+
+  @override
+  String get exportColDateTime => 'Datum/Uhrzeit';
+
+  @override
+  String get exportColTags => 'Tags';
+
+  @override
+  String get exportColNotes => 'Notizen';
+
+  @override
+  String get exportColPlace => 'Ort';
+
+  @override
+  String get exportColAltitude => 'Höhe';
+
+  @override
+  String get exportColBookmarked => 'Mit Lesezeichen';
+
+  @override
+  String get exportColBike => 'Bike';
+
+  @override
+  String get exportColWeatherCode => 'Wettercode';
+
+  @override
+  String get exportColTemperature => 'Temperatur';
+
+  @override
+  String get exportColPrecipitation => 'Niederschlag';
+
+  @override
+  String get exportColHumidity => 'Luftfeuchtigkeit';
+
+  @override
+  String get exportColWindspeed => 'Windgeschwindigkeit';
+
+  @override
+  String get exportColSoilMoisture => 'Bodenfeuchtigkeit';
+
+  @override
+  String get exportColCondition => 'Trailzustand';
+
+  @override
+  String get exportColLink => 'Verknüpfung';
+
+  @override
+  String get exportColTaskRule => 'Aufgabenregel';
+
+  @override
+  String get exportColTaskRuleNotes => 'Notizen der Aufgabenregel';
+
+  @override
+  String get exportColTaskRuleLink => 'Verknüpfung der Aufgabenregel';
+
+  @override
+  String get exportColPriority => 'Priorität';
+
+  @override
+  String get exportColInterval => 'Intervall';
+
+  @override
+  String get exportColDistance => 'Distanz';
+
+  @override
+  String get exportColElevation => 'Höhenmeter';
+
+  @override
+  String get exportColMovingTime => 'Bewegungszeit';
+
+  @override
+  String get exportColActivities => 'Aktivitäten';
+
+  @override
+  String get exportColSetup => 'Setup';
+
+  @override
+  String get exportColComparedTo => 'Verglichen mit';
+
+  @override
+  String get exportColOutcome => 'Ergebnis';
+
+  @override
+  String get exportColIssues => 'Probleme';
+
+  @override
+  String exportLinkComponent(String name) {
+    return 'Komponente: $name';
+  }
+
+  @override
+  String exportLinkBike(String name) {
+    return 'Bike: $name';
+  }
+
+  @override
+  String get exportLinkGeneral => 'Allgemein';
+
+  @override
+  String get exportSectionRiders => 'Rider';
+
+  @override
+  String get exportSectionBikes => 'Bikes';
+
+  @override
+  String get exportSectionSetups => 'Setups';
+
+  @override
+  String get exportSectionTaskLog => 'Aufgabenprotokoll';
+
+  @override
+  String get exportSectionFeedback => 'Feedback';
+
+  @override
+  String get exportDeleted => '[GELÖSCHT]';
+
+  @override
+  String exportRiderAttributes(String name) {
+    return 'Attribute von $name:';
+  }
+
+  @override
+  String exportWeatherHumidity(int value) {
+    return '$value % Luftfeuchtigkeit';
+  }
+
+  @override
+  String exportWeatherWind(int speed, String unit) {
+    return '$speed $unit Wind';
+  }
 }

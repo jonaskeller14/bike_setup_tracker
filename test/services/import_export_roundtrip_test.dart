@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/services/data_export_service.dart';
 import 'package:bike_setup_tracker/services/database_migration_service.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 /// General guard against import/export serialization asymmetries, across every
 /// model in a backup (persons, bikes, components, setups, task rules, task
@@ -362,6 +363,23 @@ void main() {
       expect(rule['attachments'], ruleAttachments);
       expect(entry['version'], 3);
       expect(entry['attachments'], entryAttachments);
+    });
+
+    test('the JSON export is byte-identical in every language', () async {
+      final db = AppDatabase.memory();
+      addTearDown(() {
+        Intl.defaultLocale = null;
+        return db.close();
+      });
+      await DatabaseMigrationService(db).migrateFromSelectedData(SelectedData.fromJson(sampleData()));
+
+      Future<String> exportIn(String locale) async {
+        Intl.defaultLocale = locale;
+        return jsonEncode(await DataExportService.backupDatabaseToJson(db, includeStrava: true));
+      }
+
+      final english = await exportIn('en');
+      expect(await exportIn('de'), english);
     });
   });
 }

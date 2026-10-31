@@ -24,25 +24,29 @@ String toText({
 }) {
   final appSettings = context.read<AppSettings>();
   final l10n = context.l10n;
+  return withLocaleOf(l10n, () => _toText(selectedData, appSettings, l10n));
+}
+
+String _toText(SelectedData selectedData, AppSettings appSettings, AppLocalizations l10n) {
   final buffer = StringBuffer();
 
   final persons = selectedData.persons.values;
   if (appSettings.enablePerson && persons.isNotEmpty) {
-    buffer.writeln("RIDERS:");
+    buffer.writeln("${l10n.exportSectionRiders.toUpperCase()}:");
     for (final p in persons) {
-      buffer.writeln("👤 ${p.name}${p.isDeleted ? ' [DELETED]' : ''}");
+      buffer.writeln("👤 ${p.name}${p.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
     }
     buffer.writeln("\n-----------\n");
   }
 
   final bikes = selectedData.bikes.values;
   if (bikes.isNotEmpty) {
-    buffer.writeln("BIKES:");
+    buffer.writeln("${l10n.exportSectionBikes.toUpperCase()}:");
     for (final b in bikes) {
       if (appSettings.enablePerson) {
-        buffer.writeln("🚲 ${b.name} (${selectedData.persons[b.person]?.name ?? '-'})${b.isDeleted ? ' [DELETED]' : ''}");
+        buffer.writeln("🚲 ${b.name} (${selectedData.persons[b.person]?.name ?? '-'})${b.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
       } else {
-        buffer.writeln("🚲 ${b.name}${b.isDeleted ? ' [DELETED]' : ''}");
+        buffer.writeln("🚲 ${b.name}${b.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
       }
       if (b.notes != null && b.notes!.isNotEmpty) buffer.writeln(b.notes!);
     }
@@ -53,7 +57,7 @@ String toText({
   setups.sort((a, b) => b.datetime.compareTo(a.datetime)); // Sort newest first
 
   if (setups.isNotEmpty) {
-    buffer.writeln("SETUPS:");
+    buffer.writeln("${l10n.exportSectionSetups.toUpperCase()}:");
     for (int i = 0; i < setups.length; i++) {
       final setup = setups[i];
       _appendSetupText(buffer, setup, selectedData.bikes, selectedData.persons, selectedData.components, appSettings, l10n);
@@ -68,7 +72,7 @@ String toText({
 
   if (appSettings.enableTask && taskEntries.isNotEmpty) {
     if (buffer.isNotEmpty) buffer.writeln("\n-----------\n");
-    buffer.writeln("TASK LOG:");
+    buffer.writeln("${l10n.exportSectionTaskLog.toUpperCase()}:");
     for (int i = 0; i < taskEntries.length; i++) {
       _appendTaskEntryText(buffer, taskEntries[i], selectedData, appSettings, l10n);
       if (i < taskEntries.length - 1) {
@@ -82,7 +86,7 @@ String toText({
 
   if (appSettings.enableRating && feedbacks.isNotEmpty) {
     if (buffer.isNotEmpty) buffer.writeln("\n-----------\n");
-    buffer.writeln("FEEDBACK:");
+    buffer.writeln("${l10n.exportSectionFeedback.toUpperCase()}:");
     for (int i = 0; i < feedbacks.length; i++) {
       _appendFeedbackText(buffer, feedbacks[i], selectedData, appSettings);
       if (i < feedbacks.length - 1) {
@@ -100,17 +104,18 @@ String setupToText({
 }) {
   final appSettings = context.read<AppSettings>();
   final appRepository = context.read<AppRepository>();
+  final l10n = context.l10n;
   final buffer = StringBuffer();
 
-  _appendSetupText(
+  withLocaleOf(l10n, () => _appendSetupText(
     buffer, 
     setup, 
     appRepository.bikes, 
     appRepository.persons, 
     appRepository.components, 
     appSettings,
-    context.l10n
-  );
+    l10n
+  ));
 
   return buffer.toString();
 }
@@ -133,9 +138,9 @@ void _appendSetupText(
   final bookmark = settings.enableSetupBookmark && setup.isBookmarked ? ' 🔖' : '';
 
   if (settings.enablePerson) {
-    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName}$bookmark ($bikeName | $personName)${setup.isDeleted ? ' [DELETED]' : ''}");
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName}$bookmark ($bikeName | $personName)${setup.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
   } else {
-    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName}$bookmark ($bikeName)${setup.isDeleted ? ' [DELETED]' : ''}");
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName}$bookmark ($bikeName)${setup.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
   }
 
   // Location & Weather Context compact oneliner
@@ -156,7 +161,7 @@ void _appendSetupText(
   if (settings.enablePerson && setup.personAdjustmentValues.isNotEmpty) {
     final person = persons[setup.person];
     if (person != null) {
-      buffer.writeln("\n👤 ${person.name} Attributes:");
+      buffer.writeln("\n👤 ${l10n.exportRiderAttributes(person.name)}");
       for (final adj in person.adjustments) {
         if (setup.personAdjustmentValues[adj.id] case final value?) {
           buffer.writeln("- ${adj.name}: ${value.display}${adj.unitSuffix()}");
@@ -206,14 +211,14 @@ void _appendTaskEntryText(
   final dateString = DateFormat(settings.dateFormat).format(entry.dateTimeLocal);
   final timeString = DateFormat(settings.timeFormat).format(entry.dateTimeLocal);
 
-  final entryLink = _taskLinkLabel(entry.association, data);
+  final entryLink = _taskLinkLabel(entry.association, data, l10n);
   final contextString = entryLink != null ? ' ($entryLink)' : '';
 
-  buffer.writeln("✅ $dateString $timeString - ${entry.name}$contextString${entry.isDeleted ? ' [DELETED]' : ''}");
+  buffer.writeln("✅ $dateString $timeString - ${entry.name}$contextString${entry.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
 
   final rule = data.taskRules[entry.taskRule];
   if (rule != null) {
-    final ruleLink = _taskLinkLabel(rule.association, data);
+    final ruleLink = _taskLinkLabel(rule.association, data, l10n);
     buffer.writeln("📋 ${rule.name}${ruleLink != null ? ' ($ruleLink)' : ''}");
 
     final metaParts = [
@@ -241,15 +246,15 @@ void _appendTaskEntryText(
       "📈 $distance ${settings.distanceUnit}, "
       "$elevation ${settings.altitudeUnit}, "
       "${snapshot.movingTime.inHours}h ${snapshot.movingTime.inMinutes.remainder(60)}m, "
-      "${snapshot.activityCount} rides",
+      "${snapshot.activityCount} ${l10n.taskUnitRides(snapshot.activityCount)}",
     );
   }
 }
 
-String? _taskLinkLabel(TaskAssociation association, SelectedData data) {
+String? _taskLinkLabel(TaskAssociation association, SelectedData data, AppLocalizations l10n) {
   return switch (association) {
-    ComponentTaskAssociation(:final id) => 'Component: ${data.components[id]?.name ?? '?'}',
-    BikeTaskAssociation(:final id) => 'Bike: ${data.bikes[id]?.name ?? '?'}',
+    ComponentTaskAssociation(:final id) => l10n.exportLinkComponent(data.components[id]?.name ?? '?'),
+    BikeTaskAssociation(:final id) => l10n.exportLinkBike(data.bikes[id]?.name ?? '?'),
     GeneralTaskAssociation() => null,
   };
 }
@@ -289,12 +294,12 @@ String _generateContextLine(Setup setup, AppSettings settings, AppLocalizations 
     }
 
     if (w.currentHumidity != null) {
-      weatherParts.add('${w.currentHumidity!.round()} % Humidity');
+      weatherParts.add(l10n.exportWeatherHumidity(w.currentHumidity!.round()));
     }
 
     if (w.currentWindSpeed != null) {
       final speed = ContextWeather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round() ?? w.currentWindSpeed!.round();
-      weatherParts.add('$speed ${settings.windSpeedUnit} Wind');
+      weatherParts.add(l10n.exportWeatherWind(speed, settings.windSpeedUnit));
     }
 
     if (w.condition != null) {

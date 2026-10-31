@@ -12163,6 +12163,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{linked} of {total} linked'**
   String stravaGearLinkedCount(int linked, int total);
+
+  /// Sheet name of the Excel export when there is nothing to export.
+  ///
+  /// In en, this message translates to:
+  /// **'No Data'**
+  String get exportNoDataSheet;
+
+  /// Message in the only sheet of the Excel export when there are no bikes.
+  ///
+  /// In en, this message translates to:
+  /// **'No bikes found or data is empty.'**
+  String get exportNoBikes;
+
+  /// Spreadsheet export: heading above the general setup columns.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get exportGroupGeneral;
+
+  /// Spreadsheet export: heading above the weather columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather'**
+  String get exportGroupWeather;
+
+  /// Spreadsheet export: label of the merged heading above the rider columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider'**
+  String get exportGroupRider;
+
+  /// Spreadsheet export: heading above the rider columns. {name} is the rider name.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider: {name}'**
+  String exportGroupRiderName(String name);
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get exportColName;
+
+  /// Spreadsheet export: column header for date and time.
+  ///
+  /// In en, this message translates to:
+  /// **'DateTime'**
+  String get exportColDateTime;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get exportColTags;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get exportColNotes;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Place'**
+  String get exportColPlace;
+
+  /// Spreadsheet export: column header. The unit is appended in brackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Altitude'**
+  String get exportColAltitude;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarked'**
+  String get exportColBookmarked;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike'**
+  String get exportColBike;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Code'**
+  String get exportColWeatherCode;
+
+  /// Spreadsheet export: column header. The unit is appended in brackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature'**
+  String get exportColTemperature;
+
+  /// Spreadsheet export: column header. The unit is appended in brackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Precipitation'**
+  String get exportColPrecipitation;
+
+  /// Spreadsheet export: column header. The unit is appended in brackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Humidity'**
+  String get exportColHumidity;
+
+  /// Spreadsheet export: column header. The unit is appended in brackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Windspeed'**
+  String get exportColWindspeed;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Soil Moisture'**
+  String get exportColSoilMoisture;
+
+  /// Spreadsheet export: column header for the ground condition.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get exportColCondition;
+
+  /// Spreadsheet export: column header for what a task entry is linked to.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get exportColLink;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Rule'**
+  String get exportColTaskRule;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Rule Notes'**
+  String get exportColTaskRuleNotes;
+
+  /// Spreadsheet export: column header for what the task rule is linked to.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Rule Link'**
+  String get exportColTaskRuleLink;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get exportColPriority;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Interval'**
+  String get exportColInterval;
+
+  /// Spreadsheet export: column header. The unit is appended in brackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get exportColDistance;
+
+  /// Spreadsheet export: column header. The unit is appended in brackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation'**
+  String get exportColElevation;
+
+  /// Spreadsheet export: column header. The unit is appended in brackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving Time'**
+  String get exportColMovingTime;
+
+  /// Spreadsheet export: column header for the number of activities.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities'**
+  String get exportColActivities;
+
+  /// Spreadsheet export: column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup'**
+  String get exportColSetup;
+
+  /// Spreadsheet export: column header for the reference setup of a feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared to'**
+  String get exportColComparedTo;
+
+  /// Spreadsheet export: column header for the overall outcome of a feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Outcome'**
+  String get exportColOutcome;
+
+  /// Spreadsheet export: column header for the flagged problems of a feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Issues'**
+  String get exportColIssues;
+
+  /// Spreadsheet and text export: what a task is linked to. {name} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'Component: {name}'**
+  String exportLinkComponent(String name);
+
+  /// Spreadsheet and text export: what a task is linked to. {name} is the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike: {name}'**
+  String exportLinkBike(String name);
+
+  /// Spreadsheet export: a task that is linked to neither a component nor a bike.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get exportLinkGeneral;
+
+  /// Text export: section heading. Shown in capitals, followed by a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Riders'**
+  String get exportSectionRiders;
+
+  /// Text export: section heading. Shown in capitals, followed by a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Bikes'**
+  String get exportSectionBikes;
+
+  /// Text export: section heading. Shown in capitals, followed by a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups'**
+  String get exportSectionSetups;
+
+  /// Name of the task log: sheet name and CSV title of the spreadsheet export, and the section heading of the text export (shown in capitals, followed by a colon).
+  ///
+  /// In en, this message translates to:
+  /// **'Task Log'**
+  String get exportSectionTaskLog;
+
+  /// Name of the feedback list: sheet name and CSV title of the spreadsheet export, and the section heading of the text export (shown in capitals, followed by a colon).
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get exportSectionFeedback;
+
+  /// Text export: marker after the name of a deleted item.
+  ///
+  /// In en, this message translates to:
+  /// **'[DELETED]'**
+  String get exportDeleted;
+
+  /// Text export: heading above the rider attributes of a setup. {name} is the rider name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} Attributes:'**
+  String exportRiderAttributes(String name);
+
+  /// Text export: humidity in the weather line of a setup. {value} is a whole number.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} % Humidity'**
+  String exportWeatherHumidity(int value);
+
+  /// Text export: wind speed in the weather line of a setup. {speed} is a whole number, {unit} the wind speed unit.
+  ///
+  /// In en, this message translates to:
+  /// **'{speed} {unit} Wind'**
+  String exportWeatherWind(int speed, String unit);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

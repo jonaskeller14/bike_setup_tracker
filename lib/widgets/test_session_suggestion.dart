@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/feedback/test_session.dart';
 import '../models/feedback/test_session_method.dart';
@@ -40,9 +41,9 @@ class TestSessionSuggestion extends StatelessWidget {
             ? runs.reversed.where((run) => run.sourceSetupId == bestSetupId).firstOrNull
             : null,
         summary: switch (session.method) {
-          PatternSearch() => 'Fine-tuning converged. Nothing left to try.',
-          OrthogonalArray() => 'Exploring converged. Nothing left to try.',
-          _ => 'Comparing converged. Nothing left to try.',
+          PatternSearch() => context.l10n.testSessionConvergedFineTune,
+          OrthogonalArray() => context.l10n.testSessionConvergedExplore,
+          _ => context.l10n.testSessionConvergedCompare,
         },
         drift: drift,
       ),
@@ -100,7 +101,7 @@ class TestSessionSuggestion extends StatelessWidget {
                       Icon(Icons.tips_and_updates_outlined, size: 18, color: theme.colorScheme.onSurfaceVariant),
                       Expanded(
                         child: Text(
-                          '${next.displayName} · Suggested',
+                          context.l10n.testSessionSuggestedName(next.displayName),
                           style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -140,8 +141,8 @@ class TestSessionSuggestion extends StatelessWidget {
     required bool drift,
   }) {
     final theme = Theme.of(context);
-    final name = best?.displayName ?? 'The best run';
-    final label = session.method is Tournament ? 'Best setup' : 'Best run';
+    final name = best?.displayName ?? context.l10n.testSessionBestRunName;
+    final label = session.method is Tournament ? context.l10n.testSessionBestSetup : context.l10n.testSessionBestRun;
     final onContainer = theme.colorScheme.onPrimaryContainer;
     final animate = !MediaQuery.disableAnimationsOf(context);
 
@@ -207,7 +208,7 @@ class TestSessionSuggestion extends StatelessWidget {
                     Icon(Icons.warning_amber_outlined, size: 18, color: onContainer),
                     Expanded(
                       child: Text(
-                        'Ridden again, it lost against a run it had beaten: the trail or you may have changed.',
+                        context.l10n.testSessionDrift,
                         style: theme.textTheme.bodySmall?.copyWith(color: onContainer),
                       ),
                     ),

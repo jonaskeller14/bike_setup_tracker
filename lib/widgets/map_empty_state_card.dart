@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
+import '../l10n/list_text.dart';
 import '../models/app_settings.dart';
 import '../repositories/app_repository.dart';
 import '../utils/filter_actions.dart';
@@ -114,7 +116,7 @@ class MapEmptyStateCard extends StatelessWidget {
                 minimumSize: const Size(40, 40),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              tooltip: 'Collapse',
+              tooltip: context.l10n.mapEmptyCollapse,
             ),
           ),
         ],
@@ -146,10 +148,10 @@ class MapEmptyStateCard extends StatelessWidget {
     MapPinState.error => _MapEmptyCopy(
       key: const Key('map-empty-error'),
       icon: Icons.cloud_off,
-      title: "Couldn't load activities",
-      subtitle: 'Setups and feedback are still shown.',
-      pillLabel: 'Activities failed',
-      actionLabel: 'Retry',
+      title: context.l10n.mapEmptyErrorTitle,
+      subtitle: context.l10n.mapEmptyErrorSubtitle,
+      pillLabel: context.l10n.mapEmptyErrorPill,
+      actionLabel: context.l10n.mapEmptyRetry,
       actionIcon: Icons.refresh,
       isError: true,
       onAction: (_) => onRetry(),
@@ -157,10 +159,10 @@ class MapEmptyStateCard extends StatelessWidget {
     MapPinState.filtered => _MapEmptyCopy(
       key: const Key('map-empty-filtered'),
       icon: Icons.filter_alt_off,
-      title: 'Nothing on the map in this view',
-      subtitle: 'Your current filters hide every pin.',
-      pillLabel: 'No pins',
-      actionLabel: 'Clear filters',
+      title: context.l10n.mapEmptyFilteredTitle,
+      subtitle: context.l10n.mapEmptyFilteredSubtitle,
+      pillLabel: context.l10n.mapEmptyNoPins,
+      actionLabel: context.l10n.clearFilters,
       actionIcon: Icons.filter_alt_off,
       onAction: (context) {
         unawaited(HapticFeedback.selectionClick());
@@ -172,14 +174,14 @@ class MapEmptyStateCard extends StatelessWidget {
   };
 
   _MapEmptyCopy _noneCopy(BuildContext context) {
-    final step = TestSessionActions.nextStepFor(context.watch<AppRepository>());
+    final step = TestSessionActions.nextStepFor(context.watch<AppRepository>(), context.l10n);
     return _MapEmptyCopy(
       key: const Key('map-empty-none'),
       icon: Icons.place_outlined,
-      title: 'No locations yet',
+      title: context.l10n.mapEmptyNoneTitle,
       subtitle: _noneSubtitle(context),
-      pillLabel: 'No pins',
-      actionLabel: step?.label ?? 'Add setup',
+      pillLabel: context.l10n.mapEmptyNoPins,
+      actionLabel: step?.label ?? context.l10n.mapEmptyAddSetup,
       actionIcon: step?.icon ?? Icons.add,
       onAction: (context) => unawaited(step?.run(context) ?? SetupActions.addSetup(context)),
     );
@@ -187,12 +189,13 @@ class MapEmptyStateCard extends StatelessWidget {
 
   /// Names the other pin sources only while they can actually produce a pin.
   static String _noneSubtitle(BuildContext context) {
-    const setups = 'Setups appear here once one is saved with a location.';
+    final l10n = context.l10n;
+    final setups = l10n.mapEmptySetupsHint;
     final others = [
-      if (MapActions.stravaActive(context)) 'Strava activities',
-      if (context.read<AppSettings>().enableRating) 'feedback',
+      if (MapActions.stravaActive(context)) l10n.mapEmptySourceStrava,
+      if (context.read<AppSettings>().enableRating) l10n.mapEmptySourceFeedback,
     ];
-    return others.isEmpty ? setups : '$setups\nSame for ${others.join(' and ')}.';
+    return others.isEmpty ? setups : '$setups\n${l10n.mapEmptySameFor(joinItems(l10n, others))}';
   }
 }
 

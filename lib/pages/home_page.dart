@@ -130,7 +130,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _addSetupFab(AppRepository appRepository) {
-    final step = TestSessionActions.nextStepFor(appRepository);
+    final step = TestSessionActions.nextStepFor(appRepository, context.l10n);
     final label = step?.label ?? context.l10n.homeAddSetup;
 
     return FloatingActionButton.extended(

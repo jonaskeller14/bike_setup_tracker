@@ -11,6 +11,7 @@ import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/utils/to_spreadsheet.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Setup _setup(String id, DateTime local, {String bike = 'b1', bool isDeleted = false}) => Setup(
@@ -55,6 +56,14 @@ void main() {
     test('names the reference with the outcome', () {
       expect(_feedback(comparisons: {_overall('s1', 1)}).verdict(setups), 'Slightly better than S1');
       expect(_feedback(comparisons: {_overall('s1', 0)}).verdict(setups), 'Same as S1');
+    });
+
+    test('reads in German, with the comparison in the German word order', () {
+      Intl.withLocale('de', () {
+        expect(_feedback(comparisons: {_overall('s1', 1)}).verdict(setups), 'Etwas besser als S1');
+        expect(_feedback(comparisons: {_overall('s1', 0)}).verdict(setups), 'Gleich wie S1');
+        expect(_feedback(comparisons: {_overall('gone', -2)}).verdict(setups), 'Schlechter als ein gelöschtes Setup');
+      });
     });
 
     test('falls back for a reference that is gone', () {
@@ -107,6 +116,22 @@ void main() {
         },
       );
       expect(feedback.issuesSummary, 'Front: Harsh · Front: Bottoms out · Rear: Low grip');
+    });
+
+    test('reads in German', () {
+      final feedback = _feedback(
+        observations: {
+          const FeedbackObservation.flag(IssueKey(FeedbackEnd.rear, FeedbackAttribute.grip)),
+          const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.comfort)),
+        },
+      );
+      Intl.withLocale('de', () {
+        expect(feedback.issuesSummary, 'Vorne: Hart · Hinten: Wenig Grip');
+        expect(
+          _feedback(observations: {const FeedbackObservation.flag(NoIssueKey())}).issuesSummary,
+          'Perfekt eingestellt',
+        );
+      });
     });
 
     test('is "Dialled in" for nothing stood out, and null without answers', () {

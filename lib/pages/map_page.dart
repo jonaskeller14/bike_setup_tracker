@@ -9,6 +9,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../env/env.dart';
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/feedback/ride_feedback.dart';
@@ -254,18 +256,18 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final status = _locationService.status;
     final AppSnackBarAction? action = switch (status) {
       LocationStatus.noService => AppSnackBarAction(
-        label: 'Settings',
+        label: context.l10n.settingsTitle,
         onPressed: _locationService.openLocationSettings,
       ),
       LocationStatus.permissionDeniedForever => AppSnackBarAction(
-        label: 'Settings',
+        label: context.l10n.settingsTitle,
         onPressed: _locationService.openAppSettings,
       ),
       _ => null,
     };
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(AppSnackBar.error(context, status.errorMessage, action: action));
+      ..showSnackBar(AppSnackBar.error(context, status.errorMessage(context.l10n), action: action));
   }
 
   Future<void> _zoomBy(double delta) =>

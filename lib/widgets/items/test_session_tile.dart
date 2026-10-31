@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/feedback/test_session.dart';
 import '../../repositories/app_repository.dart';
@@ -53,7 +54,7 @@ class TestSessionTile extends StatelessWidget {
             style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
           ),
           TileMetaRow(icon: Icons.psychology, text: TestSessionService.methodLabel(session.method)),
-          TileMetaRow(icon: Icons.repeat, text: Intl.plural(runs, one: '1 run', other: '$runs runs')),
+          TileMetaRow(icon: Icons.repeat, text: context.l10n.testSessionRunsCount(runs)),
         ],
       ),
       trailing: TestSessionOptionsMenu(session: session),

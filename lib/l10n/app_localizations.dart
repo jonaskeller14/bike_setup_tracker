@@ -8425,6 +8425,2040 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add entry'**
   String get taskDetailsEmptyAction;
+
+  /// App bar title of the trash page.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash'**
+  String get trashTitle;
+
+  /// Info line at the top of the trash page.
+  ///
+  /// In en, this message translates to:
+  /// **'Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.'**
+  String get trashInfo;
+
+  /// Title of the empty state of the trash page.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash is empty'**
+  String get trashEmptyTitle;
+
+  /// Subtitle of the empty state of the trash page.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted items will appear here.'**
+  String get trashEmptySubtitle;
+
+  /// Subtitle of a trash entry. {time} is the formatted time of deletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted at: {time}'**
+  String trashDeletedAt(String time);
+
+  /// Tooltip of the app bar button that restores all selected trash entries.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore selected'**
+  String get trashRestoreSelectedTooltip;
+
+  /// Snackbar after restoring one item from the trash. {name} is the item name.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{name}\' restored from trash.'**
+  String trashRestoredOne(String name);
+
+  /// Snackbar after restoring several items from the trash. {count} is the number of items.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items restored from trash.'**
+  String trashRestoredMany(int count);
+
+  /// Name of a feedback entry where it has no title of its own, e.g. in the trash and the calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get feedbackName;
+
+  /// App bar title of the rider form when adding a rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Rider'**
+  String get riderFormAddTitle;
+
+  /// App bar title of the rider form when editing a rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Rider'**
+  String get riderFormEditTitle;
+
+  /// Label of the name field of the rider form.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider Name'**
+  String get riderFormNameLabel;
+
+  /// Hint of the name field of the rider form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter rider name'**
+  String get riderFormNameHint;
+
+  /// Validation error of the rider name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get riderFormNameRequired;
+
+  /// Hint of the notes field of the rider form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter notes about the rider...'**
+  String get riderFormNotesHint;
+
+  /// Label of the Strava athlete dropdown of the rider form.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Athlete'**
+  String get riderFormStravaLabel;
+
+  /// Hint of the Strava athlete dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Strava Athlete'**
+  String get riderFormStravaHint;
+
+  /// Helper text when the chosen Strava athlete belongs to another rider.
+  ///
+  /// In en, this message translates to:
+  /// **'WARNING: Strava Athlete already assigned to another rider'**
+  String get riderFormStravaTaken;
+
+  /// Validation error of the Strava athlete dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select valid Athlete'**
+  String get riderFormStravaInvalid;
+
+  /// Shown in red when a rider points to a Strava athlete that no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'ATHLETE NOT FOUND'**
+  String get riderStravaAthleteNotFound;
+
+  /// Section title of the rider attributes in the rider form.
+  ///
+  /// In en, this message translates to:
+  /// **'Attributes'**
+  String get riderFormAttributesTitle;
+
+  /// Title of the empty state of the rider attributes.
+  ///
+  /// In en, this message translates to:
+  /// **'No attributes yet'**
+  String get riderFormAttributesEmptyTitle;
+
+  /// Subtitle of the empty state of the rider attributes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \'Add Attribute\' to define parameters for this rider'**
+  String get riderFormAttributesEmptySubtitle;
+
+  /// Subtitle of the empty state of the rider attributes when validation failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here to add the first attribute'**
+  String get riderFormAttributesEmptyError;
+
+  /// Button and sheet title that adds an attribute to a rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Attribute'**
+  String get riderFormAddAttribute;
+
+  /// Section header of the rider attribute templates once some are added.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-filled Templates · {added}/{total} added'**
+  String riderAttributeTemplatesProgress(int added, int total);
+
+  /// Hint when every rider attribute template is already added.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a custom attribute below.'**
+  String get riderAttributeAllAdded;
+
+  /// Section header of the custom rider attribute types.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Attribute'**
+  String get riderAttributeCustom;
+
+  /// Rider attribute type with a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Numerical Attribute'**
+  String get riderAttributeTypeNumerical;
+
+  /// Examples of numerical rider attributes.
+  ///
+  /// In en, this message translates to:
+  /// **'Body Weight, Height, Age'**
+  String get riderAttributeTypeNumericalHint;
+
+  /// Rider attribute type with steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Step Attribute'**
+  String get riderAttributeTypeStep;
+
+  /// Examples of step rider attributes.
+  ///
+  /// In en, this message translates to:
+  /// **'Increments'**
+  String get riderAttributeTypeStepHint;
+
+  /// Rider attribute type with a list of options.
+  ///
+  /// In en, this message translates to:
+  /// **'Categorical Attribute'**
+  String get riderAttributeTypeCategorical;
+
+  /// Examples of categorical rider attributes.
+  ///
+  /// In en, this message translates to:
+  /// **'Training status, Riding Gear, Riding style'**
+  String get riderAttributeTypeCategoricalHint;
+
+  /// Rider attribute type that is on or off.
+  ///
+  /// In en, this message translates to:
+  /// **'On/Off Attribute'**
+  String get riderAttributeTypeBoolean;
+
+  /// Example of an on/off rider attribute.
+  ///
+  /// In en, this message translates to:
+  /// **'Wearing a backpack?'**
+  String get riderAttributeTypeBooleanHint;
+
+  /// Rider attribute type with free text.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Attribute'**
+  String get riderAttributeTypeText;
+
+  /// Description of the text rider attribute.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexible field for any other attribute'**
+  String get riderAttributeTypeTextHint;
+
+  /// Title shown when the rider of the details page no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider not found'**
+  String get riderDetailsNotFoundTitle;
+
+  /// Subtitle shown when the rider of the details page no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This rider was deleted or is no longer available.'**
+  String get riderDetailsNotFoundSubtitle;
+
+  /// Shown on the rider details when no Strava athlete is linked.
+  ///
+  /// In en, this message translates to:
+  /// **'No Strava Athlete linked to this rider.'**
+  String get riderDetailsNoStrava;
+
+  /// Shown in red when the linked Strava athlete no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'STRAVA ATHLETE NOT FOUND'**
+  String get riderDetailsStravaNotFound;
+
+  /// Shown on the rider details when no bike is linked.
+  ///
+  /// In en, this message translates to:
+  /// **'No bikes linked to this rider.'**
+  String get riderDetailsNoBikes;
+
+  /// Title of the empty state of the rider list.
+  ///
+  /// In en, this message translates to:
+  /// **'No rider yet'**
+  String get riderListEmptyTitle;
+
+  /// Subtitle of the empty state of the rider list.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a rider to link to your bikes and setups.'**
+  String get riderListEmptySubtitle;
+
+  /// Button of the empty state of the rider list.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a rider'**
+  String get riderListEmptyAction;
+
+  /// Menu item of a rider card that opens the bike link sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Link bikes'**
+  String get riderOptionLinkBikes;
+
+  /// Snackbar when the bike of an action no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike not found.'**
+  String get riderBikeNotFoundMessage;
+
+  /// Snackbar after a rider was created and linked to a bike.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{rider}\' is now the rider of \'{bike}\'.'**
+  String riderSetForBike(String rider, String bike);
+
+  /// Snackbar after deleting a rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider \'{name}\' moved to trash.'**
+  String riderMovedToTrash(String name);
+
+  /// Snackbar after restoring a rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider \'{name}\' restored from trash.'**
+  String riderRestoredFromTrash(String name);
+
+  /// Hint of the name field of the rider creation form.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get riderNameFormHint;
+
+  /// Validation error of the rider creation form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name to continue.'**
+  String get riderNameFormRequired;
+
+  /// Snackbar after creating a rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider \'{name}\' created.'**
+  String riderCreated(String name);
+
+  /// Snackbar after creating a rider from a bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider \'{name}\' created and linked to this bike.'**
+  String riderCreatedLinked(String name);
+
+  /// Headline of the rider creation form.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s your name?'**
+  String get riderNameFormTitle;
+
+  /// Explanation under the headline of the rider creation form.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rider profile tracks values like your riding weight with each setup.'**
+  String get riderNameFormBody;
+
+  /// Button of the rider creation form.
+  ///
+  /// In en, this message translates to:
+  /// **'Create rider'**
+  String get riderNameFormCreate;
+
+  /// Title of the rider sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider'**
+  String get riderSheetTitle;
+
+  /// Explanation at the top of the rider sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspension, sag and tire pressure depend on your weight. Recording rider values with each setup keeps your setups comparable when your weight changes.'**
+  String get riderSheetIntro;
+
+  /// Button of the rider sheet that links a bike to the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Link bike'**
+  String get riderSheetLinkBike;
+
+  /// Hint under the link bike button.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a bike to record rider values with its setups.'**
+  String get riderSheetLinkBikeHint;
+
+  /// Hint when there is no bike to link to a rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a bike to link it to this rider.'**
+  String get riderAddBikeHint;
+
+  /// Button of the rider sheet that starts a new setup with rider values.
+  ///
+  /// In en, this message translates to:
+  /// **'Record rider values'**
+  String get riderSheetRecordValues;
+
+  /// Hint under the record rider values button.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider values are saved with a new setup.'**
+  String get riderSheetRecordValuesHint;
+
+  /// Hint when no component exists to record a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a component to record setups.'**
+  String get riderSheetAddComponentHint;
+
+  /// Title of the sheet that links bikes to a rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Link bikes'**
+  String get bikeLinkSheetTitle;
+
+  /// Save button of the bike link sheet when only links are added.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Link 1 bike} other{Link {count} bikes}}'**
+  String bikeLinkSaveLink(int count);
+
+  /// Save button of the bike link sheet when only links are removed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Unlink 1 bike} other{Unlink {count} bikes}}'**
+  String bikeLinkSaveUnlink(int count);
+
+  /// Save button of the bike link sheet when links are added and removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Link {link} · Unlink {unlink}'**
+  String bikeLinkSaveBoth(int link, int unlink);
+
+  /// Explanation at the top of the bike link sheet. {name} is the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider values of \'{name}\' are recorded with the setups of linked bikes.'**
+  String bikeLinkIntro(String name);
+
+  /// Title shown in the bike link sheet when there is no bike.
+  ///
+  /// In en, this message translates to:
+  /// **'No bikes yet'**
+  String get bikeLinkEmptyTitle;
+
+  /// Subtitle of a bike that already has another rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Ridden by \'{name}\''**
+  String bikeLinkRiddenBy(String name);
+
+  /// Button that links a bike to the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get bikeLinkLink;
+
+  /// Button that removes the link between a bike and the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink'**
+  String get bikeLinkUnlink;
+
+  /// Tooltip of the link button. {name} is the bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Link \'{name}\''**
+  String bikeLinkLinkTooltip(String name);
+
+  /// Tooltip of the unlink button. {name} is the bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink \'{name}\''**
+  String bikeLinkUnlinkTooltip(String name);
+
+  /// Title of the sheet that sets the rider of the selected bikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Rider'**
+  String get setBikePersonTitle;
+
+  /// Chip that removes the rider from the selected bikes.
+  ///
+  /// In en, this message translates to:
+  /// **'No rider'**
+  String get setBikePersonNoRider;
+
+  /// Tooltip of a rider chip that was just picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Set for all — tap to undo'**
+  String get setBikePersonAllUndo;
+
+  /// Tooltip of a rider chip that every selected bike already has.
+  ///
+  /// In en, this message translates to:
+  /// **'On all'**
+  String get setBikePersonOnAll;
+
+  /// Tooltip of a rider chip that only some selected bikes have.
+  ///
+  /// In en, this message translates to:
+  /// **'On {count} of {total} — tap to set for all'**
+  String setBikePersonOnSome(int count, int total);
+
+  /// Tooltip of a rider chip that no selected bike has.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to set for all'**
+  String get setBikePersonTapToSet;
+
+  /// Info line of the set rider sheet when no rider exists.
+  ///
+  /// In en, this message translates to:
+  /// **'You can assign a rider as soon as you\'ve created one.'**
+  String get setBikePersonNoRidersInfo;
+
+  /// Info line of the set rider sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Each bike has one rider. Pick the rider for all selected bikes.'**
+  String get setBikePersonInfo;
+
+  /// Legend line explaining half-filled chips.
+  ///
+  /// In en, this message translates to:
+  /// **'Half-filled chips apply to only part of your selection.'**
+  String get setBikePersonHalfFilled;
+
+  /// Button of the set rider sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Apply to 1 Bike} other{Apply to {count} Bikes}}'**
+  String setBikePersonApply(int count);
+
+  /// Calendar view that lists the entries by day.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get calendarViewSchedule;
+
+  /// Calendar view that shows a month.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get calendarViewMonth;
+
+  /// Calendar view that shows a week.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get calendarViewWeek;
+
+  /// Calendar view that shows three days.
+  ///
+  /// In en, this message translates to:
+  /// **'3 Day'**
+  String get calendarViewThreeDay;
+
+  /// Calendar view that shows one day.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get calendarViewDay;
+
+  /// Chip of the calendar that jumps to today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get calendarToday;
+
+  /// Label of a calendar cell that has more entries than fit. {count} is the number of hidden entries.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String calendarMore(int count);
+
+  /// Calendar entry title of a component replacement. {type} is the component type.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaced {type}'**
+  String calendarReplacedSubject(String type);
+
+  /// Calendar entry title of a group of setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 setup} other{{count} setups}}'**
+  String calendarSetupGroupSubject(int count);
+
+  /// Label of the empty calendar slot that adds a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add setup'**
+  String get calendarAddSetup;
+
+  /// Snackbar when a setup is dropped on a future day.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t add a setup in the future.'**
+  String get calendarNoSetupInFuture;
+
+  /// Snackbar when an entry is dragged to a future day.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t move this into the future.'**
+  String get calendarNoMoveFuture;
+
+  /// Snackbar when a replacement is dragged to an invalid time.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t move this replacement there.'**
+  String get calendarNoMoveReplacement;
+
+  /// Snackbar when a replacement move would create a component loop.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t move this replacement there: it would create a loop of components.'**
+  String get calendarNoMoveReplacementLoop;
+
+  /// Snackbar when an installation is dragged to an invalid time.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t move this installation there.'**
+  String get calendarNoMoveInstallation;
+
+  /// Snackbar when an installation move would create a component loop.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t move this installation there: it would create a loop of components.'**
+  String get calendarNoMoveInstallationLoop;
+
+  /// Snackbar when feedback is dragged before the first setup of its bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t move this feedback before the bike\'s first setup.'**
+  String get calendarNoMoveFeedback;
+
+  /// Snackbar when a Strava activity is dragged.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava activities can\'t be edited.'**
+  String get calendarStravaReadOnly;
+
+  /// Snackbar when a test session is dragged.
+  ///
+  /// In en, this message translates to:
+  /// **'A test session can\'t be moved. Change the times of its runs instead.'**
+  String get calendarTestSessionNoMove;
+
+  /// Snackbar after moving a calendar entry. {from} and {to} are the old and new date and time.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{subject}\' moved\n{from}  →  {to}'**
+  String calendarMoved(String subject, String from, String to);
+
+  /// Snackbar of the map when finding the user's location timed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Location request timed out. Try again.'**
+  String get mapLocationTimeout;
+
+  /// Snackbar of the map when the user's location could not be found.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to determine your location.'**
+  String get mapLocationError;
+
+  /// Snackbar of the map when the location service returned no usable position.
+  ///
+  /// In en, this message translates to:
+  /// **'No valid location was returned.'**
+  String get mapLocationNone;
+
+  /// Title of the map card shown when Strava activities failed to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load activities'**
+  String get mapEmptyErrorTitle;
+
+  /// Subtitle of the map card shown when Strava activities failed to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups and feedback are still shown.'**
+  String get mapEmptyErrorSubtitle;
+
+  /// Collapsed label of the map card shown when Strava activities failed to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities failed'**
+  String get mapEmptyErrorPill;
+
+  /// Button that reloads the Strava activities for the map.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get mapEmptyRetry;
+
+  /// Title of the map card shown when filters hide every pin.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on the map in this view'**
+  String get mapEmptyFilteredTitle;
+
+  /// Subtitle of the map card shown when filters hide every pin.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current filters hide every pin.'**
+  String get mapEmptyFilteredSubtitle;
+
+  /// Collapsed label of the map card shown when there is nothing to show.
+  ///
+  /// In en, this message translates to:
+  /// **'No pins'**
+  String get mapEmptyNoPins;
+
+  /// Title of the map card shown when nothing has a location yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No locations yet'**
+  String get mapEmptyNoneTitle;
+
+  /// Button of the empty map card that adds a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add setup'**
+  String get mapEmptyAddSetup;
+
+  /// First line of the subtitle of the empty map card.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups appear here once one is saved with a location.'**
+  String get mapEmptySetupsHint;
+
+  /// Second line of the subtitle of the empty map card. {sources} lists the other pin sources.
+  ///
+  /// In en, this message translates to:
+  /// **'Same for {sources}.'**
+  String mapEmptySameFor(String sources);
+
+  /// Pin source named in the subtitle of the empty map card.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava activities'**
+  String get mapEmptySourceStrava;
+
+  /// Pin source named in the subtitle of the empty map card.
+  ///
+  /// In en, this message translates to:
+  /// **'feedback'**
+  String get mapEmptySourceFeedback;
+
+  /// Link of the map attribution that opens Mapbox's map feedback page.
+  ///
+  /// In en, this message translates to:
+  /// **'Improve this map'**
+  String get mapAttributionImprove;
+
+  /// Tooltip of the button that collapses the empty map card.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse'**
+  String get mapEmptyCollapse;
+
+  /// Title of the filter sheet and label of the filter chip while nothing is filtered.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filterTitle;
+
+  /// Tooltip of the button of the filter sheet that clears all filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset filters'**
+  String get filterResetTooltip;
+
+  /// Label of the bike filter chip while no bike is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'All Bikes'**
+  String get filterAllBikes;
+
+  /// Filter chip text for the number of selected tags.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Tag} other{{count} Tags}}'**
+  String filterCountTags(int count);
+
+  /// Filter chip text for the number of selected test sessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Test session} other{{count} Test sessions}}'**
+  String filterCountTestSessions(int count);
+
+  /// Filter chip text for the number of selected task priorities.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Priority} other{{count} Priorities}}'**
+  String filterCountPriorities(int count);
+
+  /// Filter chip text while the visibility filter hides something.
+  ///
+  /// In en, this message translates to:
+  /// **'1 Filter'**
+  String get filterLayersActive;
+
+  /// Title of the component type filter sheet with the number of shown types.
+  ///
+  /// In en, this message translates to:
+  /// **'Component Types ({selected}/{total})'**
+  String componentTypeFilterTitle(int selected, int total);
+
+  /// Tooltip of the button that selects every option of a sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get selectAll;
+
+  /// Tooltip of the button that deselects every option of a sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get deselectAll;
+
+  /// Title of the sheet that chooses the visible table columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Column Select'**
+  String get columnFilterTitle;
+
+  /// Section title of the setup filters when bookmarks or test sessions are filterable.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups'**
+  String get filterSetupsTitle;
+
+  /// Section title of the setup filters when only tags are filterable.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup Tags'**
+  String get filterSetupTagsTitle;
+
+  /// Title shown when no setup has a tag.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup tags yet'**
+  String get filterNoSetupTagsTitle;
+
+  /// Hint shown when no setup has a tag and test sessions can be filtered.
+  ///
+  /// In en, this message translates to:
+  /// **'Add/Edit a Setup to add tags, or start a test session to filter its runs.'**
+  String get filterNoSetupTagsHintSessions;
+
+  /// Hint shown when no setup has a tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Add/Edit a Setup to add tags.'**
+  String get filterNoSetupTagsHint;
+
+  /// Title shown when no test session exists.
+  ///
+  /// In en, this message translates to:
+  /// **'No test sessions yet'**
+  String get filterNoTestSessionsTitle;
+
+  /// Hint shown when no test session exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a test session to filter its runs.'**
+  String get filterNoTestSessionsHint;
+
+  /// Section title of the date range filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get filterDateTitle;
+
+  /// Help text of the date range picker of the filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date Range'**
+  String get filterDateRangeHelp;
+
+  /// Value of the date range filter while no range is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Any date'**
+  String get filterAnyDate;
+
+  /// Tooltip of the button that opens the date range picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick exact dates'**
+  String get filterPickDatesTooltip;
+
+  /// Section title of the activity distance and elevation filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities'**
+  String get filterActivitiesTitle;
+
+  /// Title of the activity distance range filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get filterDistance;
+
+  /// Title of the activity elevation gain range filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation Gain'**
+  String get filterElevationGain;
+
+  /// Value of a range filter while no limit is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Any'**
+  String get filterAnyValue;
+
+  /// Section title of the filter that shows or hides entry kinds.
+  ///
+  /// In en, this message translates to:
+  /// **'Visibility'**
+  String get filterVisibilityTitle;
+
+  /// Entry kind setups in the visibility filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups'**
+  String get filterLayerSetups;
+
+  /// Entry kind Strava activities in the map visibility filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Activities'**
+  String get filterLayerStravaActivities;
+
+  /// Entry kind Strava activities in the calendar visibility filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities'**
+  String get filterLayerActivities;
+
+  /// Entry kind tasks in the visibility filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get filterLayerTasks;
+
+  /// Entry kind installations in the visibility filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Installations'**
+  String get filterLayerInstallations;
+
+  /// Entry kind feedback in the visibility filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get filterLayerFeedback;
+
+  /// Section title of the bike filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike'**
+  String get filterBikeTitle;
+
+  /// Title shown in the bike filter when no bike exists.
+  ///
+  /// In en, this message translates to:
+  /// **'No bikes yet'**
+  String get filterNoBikesTitle;
+
+  /// Hint shown in the bike filter when no bike exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a bike to filter this list by bike.'**
+  String get filterNoBikesHint;
+
+  /// The front end of the bike in feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Front'**
+  String get feedbackEndFront;
+
+  /// The rear end of the bike in feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Rear'**
+  String get feedbackEndRear;
+
+  /// Feedback attribute grip, as a quality for goals and comparisons.
+  ///
+  /// In en, this message translates to:
+  /// **'Grip'**
+  String get feedbackAttributeGripQuality;
+
+  /// Feedback problem chip for too little grip.
+  ///
+  /// In en, this message translates to:
+  /// **'Low grip'**
+  String get feedbackAttributeGripProblem;
+
+  /// Explanation of the low grip problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Wheel slides or lets go'**
+  String get feedbackAttributeGripHint;
+
+  /// Feedback attribute comfort, as a quality for goals and comparisons.
+  ///
+  /// In en, this message translates to:
+  /// **'Comfort'**
+  String get feedbackAttributeComfortQuality;
+
+  /// Feedback problem chip for a harsh ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Harsh'**
+  String get feedbackAttributeComfortProblem;
+
+  /// Explanation of the harsh problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Hits come through to hands or feet'**
+  String get feedbackAttributeComfortHint;
+
+  /// Feedback attribute support, as a quality for goals and comparisons.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get feedbackAttributeSupportQuality;
+
+  /// Feedback problem chip for too little support.
+  ///
+  /// In en, this message translates to:
+  /// **'Sinks / dives'**
+  String get feedbackAttributeSupportProblem;
+
+  /// Explanation of the sinks / dives problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Sits low, dives under braking, wallows in berms'**
+  String get feedbackAttributeSupportHint;
+
+  /// Feedback attribute calm, as a quality for goals and comparisons.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm'**
+  String get feedbackAttributeCalmQuality;
+
+  /// Feedback problem chip for an unsettled ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsettled'**
+  String get feedbackAttributeCalmProblem;
+
+  /// Explanation of the unsettled problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Bouncy, kicks, doesn\'t settle after hits'**
+  String get feedbackAttributeCalmHint;
+
+  /// Feedback attribute bottoming, as a quality for goals and comparisons.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottoming'**
+  String get feedbackAttributeBottomingQuality;
+
+  /// Feedback problem chip for bottoming out.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottoms out'**
+  String get feedbackAttributeBottomingProblem;
+
+  /// Explanation of the bottoms out problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Hits the end of travel hard or often'**
+  String get feedbackAttributeBottomingHint;
+
+  /// Comparison answer: clearly worse.
+  ///
+  /// In en, this message translates to:
+  /// **'Worse'**
+  String get feedbackOutcomeWorse;
+
+  /// Comparison answer: slightly worse.
+  ///
+  /// In en, this message translates to:
+  /// **'Slightly worse'**
+  String get feedbackOutcomeSlightlyWorse;
+
+  /// Comparison answer: no difference.
+  ///
+  /// In en, this message translates to:
+  /// **'Same'**
+  String get feedbackOutcomeSame;
+
+  /// Comparison answer: slightly better.
+  ///
+  /// In en, this message translates to:
+  /// **'Slightly better'**
+  String get feedbackOutcomeSlightlyBetter;
+
+  /// Comparison answer: clearly better.
+  ///
+  /// In en, this message translates to:
+  /// **'Better'**
+  String get feedbackOutcomeBetter;
+
+  /// Verdict of a feedback. {reference} is the name of the reference setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Worse than {reference}'**
+  String feedbackVerdictWorse(String reference);
+
+  /// Verdict of a feedback. {reference} is the name of the reference setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Slightly worse than {reference}'**
+  String feedbackVerdictSlightlyWorse(String reference);
+
+  /// Verdict of a feedback. {reference} is the name of the reference setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as {reference}'**
+  String feedbackVerdictSame(String reference);
+
+  /// Verdict of a feedback. {reference} is the name of the reference setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Slightly better than {reference}'**
+  String feedbackVerdictSlightlyBetter(String reference);
+
+  /// Verdict of a feedback. {reference} is the name of the reference setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Better than {reference}'**
+  String feedbackVerdictBetter(String reference);
+
+  /// Chip that says no problem was felt.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing stood out'**
+  String get feedbackNothingStoodOut;
+
+  /// Summary of a feedback where nothing stood out.
+  ///
+  /// In en, this message translates to:
+  /// **'Dialled in'**
+  String get feedbackDialledIn;
+
+  /// Helper text of the feedback notes field.
+  ///
+  /// In en, this message translates to:
+  /// **'Not used for ranking or proposals.'**
+  String get feedbackNotesHelper;
+
+  /// Stands in for the name of a setup that no longer exists, inside a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'a deleted setup'**
+  String get feedbackDeletedSetup;
+
+  /// Prompt under the outcome faces while no answer is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a face'**
+  String get feedbackTapAFace;
+
+  /// Heading of the rider-defined problems in the feedback form.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get feedbackIssueOther;
+
+  /// Chip that adds a rider-defined problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add issue'**
+  String get feedbackAddIssue;
+
+  /// Chip that opens the list of all rider-defined problems.
+  ///
+  /// In en, this message translates to:
+  /// **'All issues'**
+  String get feedbackAllIssues;
+
+  /// Heading of the values that changed between the reference and the rated setup.
+  ///
+  /// In en, this message translates to:
+  /// **'What changed'**
+  String get feedbackWhatChanged;
+
+  /// Left part of the line "reference → rated setup".
+  ///
+  /// In en, this message translates to:
+  /// **'reference'**
+  String get feedbackReferenceShort;
+
+  /// Right part of the line "reference → rated setup".
+  ///
+  /// In en, this message translates to:
+  /// **'rated setup'**
+  String get feedbackRatedSetupShort;
+
+  /// Tooltip of the button that opens the setup comparison.
+  ///
+  /// In en, this message translates to:
+  /// **'View comparison'**
+  String get feedbackViewComparison;
+
+  /// Question above the overall comparison answer.
+  ///
+  /// In en, this message translates to:
+  /// **'How did it ride?'**
+  String get feedbackHowDidItRide;
+
+  /// Tooltip of the dropdown arrow of the reference setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Change reference setup'**
+  String get feedbackChangeReference;
+
+  /// Tooltip of the button that removes a comparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove comparison'**
+  String get feedbackRemoveComparison;
+
+  /// Title of the sheet that picks the reference setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference setup'**
+  String get feedbackReferenceSetupTitle;
+
+  /// Side label of the rated setup in the reference picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Rated'**
+  String get feedbackRatedSideLabel;
+
+  /// Shown when the reference setup no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Values of the reference are unavailable'**
+  String get feedbackReferenceUnavailable;
+
+  /// Shown when the reference and the rated setup have the same values.
+  ///
+  /// In en, this message translates to:
+  /// **'No values changed'**
+  String get feedbackNoValuesChanged;
+
+  /// Button that adds feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Add feedback'**
+  String get feedbackAddButton;
+
+  /// Button that adds feedback for a Strava ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Add feedback for this ride'**
+  String get feedbackAddForRide;
+
+  /// Rank of a setup among the compared setups.
+  ///
+  /// In en, this message translates to:
+  /// **'{rank}/{total} compared'**
+  String feedbackRankLabel(int rank, int total);
+
+  /// Tooltip of the rank badge. {count} is the number of compared setups.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated rank among the {count} setups of this bike you compared in feedback'**
+  String feedbackRankTooltip(int count);
+
+  /// Shown in red when an item points to a setup that no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'SETUP NOT FOUND'**
+  String get setupNotFound;
+
+  /// App bar title of the feedback form when adding feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Feedback'**
+  String get feedbackFormAddTitle;
+
+  /// App bar title of the feedback form when editing feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Feedback'**
+  String get feedbackFormEditTitle;
+
+  /// Help text of the date picker of the feedback form.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Feedback Date'**
+  String get feedbackFormPickDate;
+
+  /// Help text of the time picker of the feedback form.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Feedback Time'**
+  String get feedbackFormPickTime;
+
+  /// Snackbar when a changed date moves the feedback to another setup. {name} is the setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Now rating \'{name}\'.'**
+  String feedbackFormNowRating(String name);
+
+  /// Snackbar when a changed date leaves the feedback without a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup was active at this time.'**
+  String get feedbackFormNoSetupActive;
+
+  /// Snackbar when the feedback form fails validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check all fields for missing or invalid input.'**
+  String get feedbackFormInvalid;
+
+  /// Snackbar when saving feedback that no setup can be rated for.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup exists before this date/time for the selected bike. Create a setup first.'**
+  String get feedbackFormNoSetupBefore;
+
+  /// Subtitle of the empty state when the bike has no setup. {bike} is the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback rates the setup you rode. Record {bike}\'s setup first.'**
+  String feedbackFormNoSetupsSubtitle(String bike);
+
+  /// Subtitle of the empty state when the bike has no setup and its name is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback rates the setup you rode. Record this bike\'s setup first.'**
+  String get feedbackFormNoSetupsSubtitleGeneric;
+
+  /// Title of the card shown when no setup was active at the chosen time.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup at this time'**
+  String get feedbackFormNoSetupNowTitle;
+
+  /// Body of the card shown when no setup was active at the chosen time.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback rates the setup that was active when you rode. Pick a later date or add a setup first.'**
+  String get feedbackFormNoSetupNowBody;
+
+  /// Title of the warning when the rated setup is no longer the stored one.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup link changed'**
+  String get feedbackFormDriftTitle;
+
+  /// Body of the setup link warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Originally \'{stored}\', now resolves to \'{current}\'. Ranking follows the current resolution.'**
+  String feedbackFormDriftBody(String stored, String current);
+
+  /// Button of the setup link warning that links the feedback to the current setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Relink'**
+  String get feedbackFormRelink;
+
+  /// Section title of the comparisons in the feedback form and overline of a comparison card.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared to'**
+  String get feedbackFormComparedTo;
+
+  /// Button that adds another comparison card.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with another run'**
+  String get feedbackFormCompareAnother;
+
+  /// Heading above the follow-up rows for the open issues of the reference.
+  ///
+  /// In en, this message translates to:
+  /// **'Did its open issues change?'**
+  String get feedbackFormOpenIssuesChanged;
+
+  /// Heading above the follow-up rows for the goal of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Did your goal improve?'**
+  String get feedbackFormGoalImproved;
+
+  /// Button that shows the follow-up rows of the other aspects.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else changed'**
+  String get feedbackFormSomethingElse;
+
+  /// Section title of the problem chips and title of the problems card.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything stand out?'**
+  String get feedbackFormAnythingTitle;
+
+  /// Info text of the problems section.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Flagged problems show on the setup as open issues until a later ride says otherwise.'**
+  String get feedbackFormAnythingInfo;
+
+  /// Section title of the notes, place and weather of the feedback form.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get feedbackFormDetailsTitle;
+
+  /// Title shown when the feedback of the details sheet no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback not found'**
+  String get feedbackDetailsNotFoundTitle;
+
+  /// Subtitle shown when the feedback of the details sheet no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This feedback was deleted or is no longer available.'**
+  String get feedbackDetailsNotFoundSubtitle;
+
+  /// Subtitle of the setup row when the rated setup differs from the stored one.
+  ///
+  /// In en, this message translates to:
+  /// **'Originally \'{name}\''**
+  String feedbackDetailsOriginally(String name);
+
+  /// Shown when the Strava ride of a feedback is not on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava ride not synced'**
+  String get feedbackDetailsStravaNotSynced;
+
+  /// Shown on the problems card when the question was skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answered'**
+  String get feedbackDetailsNotAnswered;
+
+  /// Stands in for the name of a setup that no longer exists, as a title.
+  ///
+  /// In en, this message translates to:
+  /// **'A deleted setup'**
+  String get feedbackDeletedSetupTitle;
+
+  /// Line on a feedback tile when the rated setup differs from the stored one.
+  ///
+  /// In en, this message translates to:
+  /// **'Originally \'{stored}\', now \'{current}\''**
+  String feedbackOriginallyNow(String stored, String current);
+
+  /// Tooltip of the menu button of a feedback tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback actions'**
+  String get feedbackActionsTooltip;
+
+  /// Count of the hidden lines of a list. {count} is the number of hidden lines.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String plusMore(int count);
+
+  /// Snackbar after deleting feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback moved to trash.'**
+  String get feedbackMovedToTrash;
+
+  /// Snackbar after restoring feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback restored from trash.'**
+  String get feedbackRestoredFromTrash;
+
+  /// Title of the dialog that renames a rider-defined problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename issue'**
+  String get customIssueRenameTitle;
+
+  /// Snackbar after renaming a problem to the name of another one.
+  ///
+  /// In en, this message translates to:
+  /// **'Merged into \"{label}\".'**
+  String customIssueMerged(String label);
+
+  /// Snackbar after renaming a rider-defined problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue renamed.'**
+  String get customIssueRenamed;
+
+  /// Title of the dialog that confirms removing a rider-defined problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{label}\"?'**
+  String customIssueRemoveTitle(String label);
+
+  /// Body of the dialog that confirms removing a rider-defined problem.
+  ///
+  /// In en, this message translates to:
+  /// **'It is removed from every feedback and test session goal, including the trash. This cannot be undone.'**
+  String get customIssueRemoveBody;
+
+  /// Snackbar after removing a rider-defined problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue removed.'**
+  String get customIssueRemoved;
+
+  /// Title of the sheet with the rider-defined problems.
+  ///
+  /// In en, this message translates to:
+  /// **'Issues'**
+  String get customIssuesTitle;
+
+  /// Info line of the sheet with the rider-defined problems.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own problems, beside the built-in ones. Long-press an issue to rename or remove it.'**
+  String get customIssuesInfo;
+
+  /// Validation error when adding a problem without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get customIssueEnterName;
+
+  /// Tooltip of the plus button that starts adding a tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tag'**
+  String get addTagTooltip;
+
+  /// Hint of the inline field that adds a tag.
+  ///
+  /// In en, this message translates to:
+  /// **'New tag'**
+  String get addTagHint;
+
+  /// Hint of the inline field that adds a rider-defined problem.
+  ///
+  /// In en, this message translates to:
+  /// **'New issue'**
+  String get addIssueHint;
+
+  /// Tooltip of the check button of the inline add field.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addTagConfirm;
+
+  /// Name shown for a test session without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Test session'**
+  String get testSessionUnnamed;
+
+  /// Name given to a run of a test session. {number} counts the runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Run {number}'**
+  String testSessionRunName(int number);
+
+  /// Line added to the notes of a run that was copied from another run.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy of \'{name}\' ({date})'**
+  String testSessionCopyLine(String name, String date);
+
+  /// Name of a session goal: the end of the bike and the quality, e.g. Front · Calm.
+  ///
+  /// In en, this message translates to:
+  /// **'{end} · {attribute}'**
+  String testSessionGoalLabel(String end, String attribute);
+
+  /// Test session method that polls one adjustment at a time.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine-tune'**
+  String get testSessionMethodFineTune;
+
+  /// Test session method that changes all adjustments in a pattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get testSessionMethodExplore;
+
+  /// Test session method that rides existing setups against each other.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get testSessionMethodCompare;
+
+  /// Test session method without proposals.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get testSessionMethodFree;
+
+  /// Description of the fine-tune method.
+  ///
+  /// In en, this message translates to:
+  /// **'Move one knob at a time around your best run, in smaller and smaller steps.'**
+  String get testSessionMethodFineTuneInfo;
+
+  /// Description of the explore method.
+  ///
+  /// In en, this message translates to:
+  /// **'Change all knobs together in a planned pattern to learn what each one does.'**
+  String get testSessionMethodExploreInfo;
+
+  /// Description of the compare method.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride 2–4 setups you already have against each other to find the best.'**
+  String get testSessionMethodCompareInfo;
+
+  /// Description of the free method.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the runs and compare them yourself. Nothing is proposed.'**
+  String get testSessionMethodFreeInfo;
+
+  /// Rough number of runs a session takes.
+  ///
+  /// In en, this message translates to:
+  /// **'about {count} runs'**
+  String testSessionExpectedRuns(int count);
+
+  /// Sentence that names the expected number of runs. {runs} is e.g. "about 8 runs".
+  ///
+  /// In en, this message translates to:
+  /// **'Expect {runs}.'**
+  String testSessionExpect(String runs);
+
+  /// Number of runs of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 run} other{{count} runs}}'**
+  String testSessionRunsCount(int count);
+
+  /// App bar title of the form that edits a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Test Session'**
+  String get testSessionEditTitle;
+
+  /// Tooltip of the check button of the form that starts a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get testSessionStartTooltip;
+
+  /// Snackbar when starting a session on a bike that has a running one.
+  ///
+  /// In en, this message translates to:
+  /// **'A test session is already running on this bike.'**
+  String get testSessionErrAlreadyRunning;
+
+  /// Snackbar when starting a session on a bike without a setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a setup first. The first run starts from the bike’s current setup.'**
+  String get testSessionErrRecordSetup;
+
+  /// Title of the sheet that picks the adjustments of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustments to test'**
+  String get testSessionPickAdjustmentsTitle;
+
+  /// Shown in the adjustment picker when the bike has none.
+  ///
+  /// In en, this message translates to:
+  /// **'This bike has no adjustments.'**
+  String get testSessionNoAdjustments;
+
+  /// Warning when many adjustments are picked.
+  ///
+  /// In en, this message translates to:
+  /// **'More than {max} adjustments make it hard to tell which one helped. 1–3 work best.'**
+  String testSessionTooManyAdjustments(int max);
+
+  /// Warning when many setups are picked to compare.
+  ///
+  /// In en, this message translates to:
+  /// **'Every setup is compared with every other one, so {count} setups take about {comparisons} comparisons. {max} or fewer work best.'**
+  String testSessionTooManySetups(int count, int comparisons, int max);
+
+  /// Title of the sheet that picks the setups of a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups to compare'**
+  String get testSessionPickSetupsTitle;
+
+  /// Shown in the setup picker when the bike has none.
+  ///
+  /// In en, this message translates to:
+  /// **'This bike has no setups yet'**
+  String get testSessionNoSetups;
+
+  /// Shown for an adjustment of a session that no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment not found'**
+  String get testSessionAdjustmentNotFound;
+
+  /// Shown in red for an adjustment of a session that no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'ADJUSTMENT NOT FOUND'**
+  String get testSessionAdjustmentNotFoundCaps;
+
+  /// Shown when a session has no goal.
+  ///
+  /// In en, this message translates to:
+  /// **'No goal'**
+  String get testSessionNoGoal;
+
+  /// Validation error of the adjustments of a session.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one adjustment to test.'**
+  String get testSessionPickAtLeastOne;
+
+  /// Subtitle of the empty adjustments of a session.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \'Add Adjustment\' to pick what you want to test'**
+  String get testSessionAdjustmentsEmptySubtitle;
+
+  /// Tooltip of the button that removes an adjustment from a session.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove adjustment'**
+  String get testSessionRemoveAdjustment;
+
+  /// Validation error of the setups of a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least {count} setups to compare.'**
+  String testSessionPickAtLeastSetups(int count);
+
+  /// Validation error when the picked setups do not differ.
+  ///
+  /// In en, this message translates to:
+  /// **'These setups have the same values. Pick setups that differ.'**
+  String get testSessionSameValues;
+
+  /// Subtitle of the empty setups of a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \'Add Setups\' to pick at least {count} setups to compare'**
+  String testSessionSetupsEmptySubtitle(int count);
+
+  /// Subtitle of the empty setups of a compare session when validation failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here to add the setups'**
+  String get testSessionSetupsEmptyError;
+
+  /// Tooltip of the button that removes a setup from a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove setup'**
+  String get testSessionRemoveSetup;
+
+  /// Line under the picked setups of a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 adjustment differs between them.} other{{count} adjustments differ between them.}}'**
+  String testSessionDifferingCount(int count);
+
+  /// Button that picks the setups of a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Setups'**
+  String get testSessionAddSetups;
+
+  /// Button that changes the picked setups of a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Setups'**
+  String get testSessionChangeSetups;
+
+  /// Section title of the method of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get testSessionSectionMethod;
+
+  /// Info text of the method section.
+  ///
+  /// In en, this message translates to:
+  /// **'How the app helps you choose the next run. You can always change values by hand.'**
+  String get testSessionSectionMethodInfo;
+
+  /// Section title of the setups of a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups'**
+  String get testSessionSectionSetups;
+
+  /// Info text of the adjustments section of a session.
+  ///
+  /// In en, this message translates to:
+  /// **'The adjustments you want to test, in the order to try them. Every other value stays as it is. Fewer is better: 1–3 tell you most.'**
+  String get testSessionSectionAdjustmentsInfo;
+
+  /// Section title of the goal of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal (optional)'**
+  String get testSessionSectionGoal;
+
+  /// Explanation under the goal section title.
+  ///
+  /// In en, this message translates to:
+  /// **'What should get better? Each run asks if it did.'**
+  String get testSessionGoalPrompt;
+
+  /// Label of the name field of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get testSessionNameLabel;
+
+  /// Shown in the session sheet when the session was removed.
+  ///
+  /// In en, this message translates to:
+  /// **'This test session no longer exists.'**
+  String get testSessionGone;
+
+  /// Meta line of a test session that has ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get testSessionEnded;
+
+  /// Info text of the adjustments of a running session.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap an adjustment to lock it at its value in the latest run. The next runs keep that value.'**
+  String get testSessionLockInfo;
+
+  /// Section title of the runs of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs'**
+  String get testSessionRunsTitle;
+
+  /// Heading above the adjustments in which the compared setups differ.
+  ///
+  /// In en, this message translates to:
+  /// **'The adjustments your setups differ in:'**
+  String get testSessionDiffering;
+
+  /// Tooltip of a locked adjustment chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked at its value. Tap to unlock.'**
+  String get testSessionLockedTooltip;
+
+  /// Tooltip of an unlocked adjustment chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to lock it at its value in the latest run.'**
+  String get testSessionLockTooltip;
+
+  /// Shown when a test session has no run.
+  ///
+  /// In en, this message translates to:
+  /// **'No runs yet.'**
+  String get testSessionNoRuns;
+
+  /// Button of the timeline that reveals earlier runs.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Show 1 earlier} other{Show {count} earlier}}'**
+  String testSessionShowEarlier(int count);
+
+  /// Next step text of a session without runs.
+  ///
+  /// In en, this message translates to:
+  /// **'This session has no runs. Record one to go on.'**
+  String get testSessionStepNoRuns;
+
+  /// Next step text when the latest run has feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is rated. Ready for the next run.'**
+  String testSessionStepRated(String name);
+
+  /// Next step text when the latest run waits for feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride {name}, then tell how it went.'**
+  String testSessionStepRide(String name);
+
+  /// Button that records the next run of a session.
+  ///
+  /// In en, this message translates to:
+  /// **'Next run'**
+  String get testSessionNextRun;
+
+  /// Button that ends a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'End session'**
+  String get testSessionEndSession;
+
+  /// Tooltip of the menu button of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Test session actions'**
+  String get testSessionActionsTooltip;
+
+  /// Snackbar when starting a session without a bike.
+  ///
+  /// In en, this message translates to:
+  /// **'A bike is required to start a test session'**
+  String get testSessionBikeRequired;
+
+  /// Snackbar when starting a session without any adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an adjustment to a component first'**
+  String get testSessionAdjustmentRequired;
+
+  /// Title of the sheet that picks the setup of the next run of a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Which setup for the next run?'**
+  String get testSessionPickNextSetup;
+
+  /// Snackbar when locking an adjustment that has no value.
+  ///
+  /// In en, this message translates to:
+  /// **'The latest run has no value to lock for this adjustment.'**
+  String get testSessionNoValueToLock;
+
+  /// Snackbar after ending a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Test session \'{name}\' ended.'**
+  String testSessionEndedSnack(String name);
+
+  /// Snackbar after deleting a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Test session \'{name}\' moved to trash.'**
+  String testSessionMovedToTrash(String name);
+
+  /// Snackbar after restoring a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Test session \'{name}\' restored from trash.'**
+  String testSessionRestoredFromTrash(String name);
+
+  /// Title of the dialog shown when recording a setup during a running session.
+  ///
+  /// In en, this message translates to:
+  /// **'End the session first?'**
+  String get testSessionEndFirstTitle;
+
+  /// Body of the dialog shown when recording a setup during a running session.
+  ///
+  /// In en, this message translates to:
+  /// **'\'{name}\' is running on this bike. A setup recorded now would confuse its runs. Use Next run to continue the session.'**
+  String testSessionEndFirstBody(String name);
+
+  /// Summary of a finished fine-tune session.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine-tuning converged. Nothing left to try.'**
+  String get testSessionConvergedFineTune;
+
+  /// Summary of a finished explore session.
+  ///
+  /// In en, this message translates to:
+  /// **'Exploring converged. Nothing left to try.'**
+  String get testSessionConvergedExplore;
+
+  /// Summary of a finished compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparing converged. Nothing left to try.'**
+  String get testSessionConvergedCompare;
+
+  /// Title of the proposed next run.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · Suggested'**
+  String testSessionSuggestedName(String name);
+
+  /// Name shown when the best run no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'The best run'**
+  String get testSessionBestRunName;
+
+  /// Label of the winner card of a compare session.
+  ///
+  /// In en, this message translates to:
+  /// **'Best setup'**
+  String get testSessionBestSetup;
+
+  /// Label of the winner card of a session.
+  ///
+  /// In en, this message translates to:
+  /// **'Best run'**
+  String get testSessionBestRun;
+
+  /// Warning on the winner card when a repeat run lost.
+  ///
+  /// In en, this message translates to:
+  /// **'Ridden again, it lost against a run it had beaten: the trail or you may have changed.'**
+  String get testSessionDrift;
+
+  /// Badge of a test session that is running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get badgeRunning;
+
+  /// Badge of the setup that is currently active on its bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get badgeCurrentSetup;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

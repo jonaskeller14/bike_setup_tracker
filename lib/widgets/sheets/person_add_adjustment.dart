@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../utils/adjustment_preset_consumption.dart';
@@ -39,7 +40,7 @@ void showPersonAddAdjustmentBottomSheet({
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SheetHeader(title: "Add Attribute", showClose: false),
+            SheetHeader(title: context.l10n.riderFormAddAttribute, showClose: false),
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(
@@ -50,8 +51,8 @@ void showPersonAddAdjustmentBottomSheet({
                       StickySection(
                         header: sheetSectionHeader(context,
                           consumedCount == 0
-                              ? "Pre-filled Templates"
-                              : "Pre-filled Templates · $consumedCount/${_adjustmentPresets.length} added",
+                              ? context.l10n.addAdjustmentTemplates
+                              : context.l10n.riderAttributeTemplatesProgress(consumedCount, _adjustmentPresets.length),
                         ),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -59,7 +60,7 @@ void showPersonAddAdjustmentBottomSheet({
                             AdjustmentPresetList(
                               presets: _adjustmentPresets,
                               existingAdjustments: existingAdjustments,
-                              allAddedHint: "Add a custom attribute below.",
+                              allAddedHint: context.l10n.riderAttributeAllAdded,
                               onSelected: addAdjustmentFromPreset,
                             ),
                             const Divider(height: 16),
@@ -67,14 +68,14 @@ void showPersonAddAdjustmentBottomSheet({
                         ),
                       ),
                     StickySection(
-                      header: sheetSectionHeader(context, "Custom Attribute"),
+                      header: sheetSectionHeader(context, context.l10n.riderAttributeCustom),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ListTile(
                             leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                            title: const Text("Numerical Attribute"),
-                            subtitle: const Text("Body Weight, Height, Age", style: TextStyle(fontSize: 12)),
+                            title: Text(context.l10n.riderAttributeTypeNumerical),
+                            subtitle: Text(context.l10n.riderAttributeTypeNumericalHint, style: const TextStyle(fontSize: 12)),
                             trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                             onTap: () async {
                               Navigator.pop(context); // Close sheet first
@@ -83,8 +84,8 @@ void showPersonAddAdjustmentBottomSheet({
                           ),
                           ListTile(
                             leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                            title: const Text("Step Attribute"),
-                            subtitle: const Text("Increments", style: TextStyle(fontSize: 12)),
+                            title: Text(context.l10n.riderAttributeTypeStep),
+                            subtitle: Text(context.l10n.riderAttributeTypeStepHint, style: const TextStyle(fontSize: 12)),
                             trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                             onTap: () async {
                               Navigator.pop(context); // Close sheet first
@@ -93,8 +94,8 @@ void showPersonAddAdjustmentBottomSheet({
                           ),
                           ListTile(
                             leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                            title: const Text("Categorical Attribute"),
-                            subtitle: const Text("Training status, Riding Gear, Riding style", style: TextStyle(fontSize: 12)),
+                            title: Text(context.l10n.riderAttributeTypeCategorical),
+                            subtitle: Text(context.l10n.riderAttributeTypeCategoricalHint, style: const TextStyle(fontSize: 12)),
                             trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                             onTap: () async {
                               Navigator.pop(context); // Close sheet first
@@ -103,8 +104,8 @@ void showPersonAddAdjustmentBottomSheet({
                           ),
                           ListTile(
                             leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                            title: const Text("On/Off Attribute"),
-                            subtitle: const Text("Wearing a backpack?", style: TextStyle(fontSize: 12)),
+                            title: Text(context.l10n.riderAttributeTypeBoolean),
+                            subtitle: Text(context.l10n.riderAttributeTypeBooleanHint, style: const TextStyle(fontSize: 12)),
                             trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                             onTap: () async {
                               Navigator.pop(context); // Close sheet first
@@ -114,8 +115,8 @@ void showPersonAddAdjustmentBottomSheet({
                           if (context.read<AppSettings>().enableTextAdjustment)
                             ListTile(
                               leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                              title: const Text("Text Attribute"),
-                              subtitle: const Text("Flexible field for any other attribute", style: TextStyle(fontSize: 12)),
+                              title: Text(context.l10n.riderAttributeTypeText),
+                              subtitle: Text(context.l10n.riderAttributeTypeTextHint, style: const TextStyle(fontSize: 12)),
                               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                               onTap: () async {
                                 Navigator.pop(context); // Close sheet first

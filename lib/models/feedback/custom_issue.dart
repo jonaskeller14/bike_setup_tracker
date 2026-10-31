@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import 'feedback_key.dart';
 import 'feedback_observation.dart';
 
@@ -62,7 +64,11 @@ class FeedbackIssue {
 
   /// "Front: Harsh".
   FeedbackIssue.end(EndAspect aspect)
-    : this._(aspect, '${aspect.end.label}: ${aspect.attribute.problemLabel}', aspect.attribute.hint);
+    : this._(
+        aspect,
+        '${aspect.end.label(currentL10n)}: ${aspect.attribute.problemLabel(currentL10n)}',
+        aspect.attribute.hint(currentL10n),
+      );
 
   FeedbackIssue.custom(CustomIssue issue) : this._(issue.aspect, issue.label, null);
 

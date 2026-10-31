@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/feedback/custom_issue.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
@@ -72,7 +74,7 @@ void main() {
       });
       expect(f.issuesSummary, 'Front: Harsh · Rear: Low grip · Wet roots');
       expect(f.orderedIssues.last.hint, isNull);
-      expect(f.orderedIssues.first.hint, FeedbackAttribute.comfort.hint);
+      expect(f.orderedIssues.first.hint, FeedbackAttribute.comfort.hint(englishL10n));
     });
 
     test('survive a JSON round trip', () {

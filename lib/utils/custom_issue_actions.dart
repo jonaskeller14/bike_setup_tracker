@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/feedback/custom_issue.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
@@ -16,8 +17,9 @@ class CustomIssueActions {
   static Future<CustomIssue?> rename(BuildContext context, {required CustomIssue issue}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
-    final label = await showRenameDialog(context, title: 'Rename issue', name: issue.label);
+    final label = await showRenameDialog(context, title: l10n.customIssueRenameTitle, name: issue.label);
     final renamed = label == null ? null : CustomIssue.fromLabel(label);
     if (renamed == null) return null;
 
@@ -27,7 +29,7 @@ class CustomIssueActions {
     unawaited(HapticFeedback.mediumImpact());
     if (!context.mounted) return renamed;
     messenger.showSnackBar(
-      AppSnackBar.success(context, merges ? 'Merged into "${renamed.label}".' : 'Issue renamed.'),
+      AppSnackBar.success(context, merges ? l10n.customIssueMerged(renamed.label) : l10n.customIssueRenamed),
     );
     return renamed;
   }
@@ -37,12 +39,13 @@ class CustomIssueActions {
   static Future<bool> remove(BuildContext context, {required CustomIssue issue}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     final confirmed = await showConfirmationDialog(
       context,
-      title: 'Remove "${issue.label}"?',
-      content: 'It is removed from every feedback and test session goal, including the trash. This cannot be undone.',
-      trueText: 'Remove',
+      title: l10n.customIssueRemoveTitle(issue.label),
+      content: l10n.customIssueRemoveBody,
+      trueText: l10n.remove,
       isDestructive: true,
     );
     if (!confirmed) return false;
@@ -51,7 +54,7 @@ class CustomIssueActions {
 
     unawaited(HapticFeedback.heavyImpact());
     if (!context.mounted) return true;
-    messenger.showSnackBar(AppSnackBar.success(context, 'Issue removed.'));
+    messenger.showSnackBar(AppSnackBar.success(context, l10n.customIssueRemoved));
     return true;
   }
 }

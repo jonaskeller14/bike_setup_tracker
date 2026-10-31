@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../l10n/l10n.dart';
 import '../../../models/bike.dart';
 import '../../../repositories/app_repository.dart';
 import '../../text/sheet_section_title.dart';
@@ -18,12 +19,12 @@ class BikeFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SheetSectionTitle(title: "Bike"),
+        SheetSectionTitle(title: context.l10n.filterBikeTitle),
         appRepository.bikes.isEmpty
-            ? const SheetFilterEmptyHint(
+            ? SheetFilterEmptyHint(
                 icon: Bike.iconData,
-                title: "No bikes yet",
-                hint: "Add a bike to filter this list by bike.",
+                title: context.l10n.filterNoBikesTitle,
+                hint: context.l10n.filterNoBikesHint,
               )
             : Wrap(
                 spacing: 6,

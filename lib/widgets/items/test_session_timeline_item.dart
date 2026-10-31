@@ -92,7 +92,7 @@ class TestSessionTimelineItem extends StatelessWidget {
       TileMetaRow(icon: Icons.psychology, text: TestSessionService.methodLabel(session.method), muted: true),
       TileMetaRow(
         icon: Icons.repeat,
-        text: Intl.plural(entry.runs.length, one: '1 run', other: '${entry.runs.length} runs'),
+        text: context.l10n.testSessionRunsCount(entry.runs.length),
         muted: true,
       ),
       for (final aspect in session.goal)
@@ -129,7 +129,7 @@ class TestSessionTimelineItem extends StatelessWidget {
       child: TextButton.icon(
         onPressed: selectionMode ? onSelectionChanged : () => _openSheet(context),
         icon: const Icon(Icons.unfold_more),
-        label: Text(Intl.plural(hidden, one: 'Show 1 earlier', other: 'Show $hidden earlier')),
+        label: Text(context.l10n.testSessionShowEarlier(hidden)),
       ),
     );
 
@@ -148,7 +148,7 @@ class TestSessionTimelineItem extends StatelessWidget {
               dateTimeText: _timeRange(appSettings),
               bikeMetadata: TileMetaRow(
                 icon: Bike.iconData,
-                text: bike?.name ?? 'BIKE NOT FOUND',
+                text: bike?.name ?? context.l10n.bikeNotFound,
                 isError: bike == null,
               ),
               contextMetadata: metadata,

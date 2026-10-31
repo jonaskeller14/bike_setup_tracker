@@ -18,7 +18,6 @@ import '../../models/feedback/custom_issue.dart';
 import '../../models/feedback/feedback_comparison.dart';
 import '../../models/feedback/feedback_key.dart';
 import '../../models/feedback/feedback_observation.dart';
-import '../../models/feedback/feedback_vocabulary.dart';
 import '../../models/feedback/ride_feedback.dart';
 import '../../models/feedback/test_session.dart';
 import '../../models/setup.dart';
@@ -495,11 +494,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
     if (!mounted) return false;
     if (newLocation == null) {
       final message = switch (_locationService.status) {
-        LocationStatus.noService => 'Location services are disabled.',
-        LocationStatus.noPermission => 'Location permission was not granted.',
-        LocationStatus.permissionDeniedForever => 'Location permission is permanently denied.',
-        LocationStatus.timeout => 'Location request timed out.',
-        _ => 'Error fetching location.',
+        LocationStatus.noService => context.l10n.setupFormLocationDisabled,
+        LocationStatus.noPermission => context.l10n.setupFormLocationNoPermission,
+        LocationStatus.permissionDeniedForever => context.l10n.setupFormLocationDeniedForever,
+        LocationStatus.timeout => context.l10n.setupFormLocationTimeout,
+        _ => context.l10n.setupFormLocationError,
       };
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
@@ -514,7 +513,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   Future<void> updateAddress() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Cannot update address without location.'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormAddressNeedsLocation));
       return;
     }
 
@@ -526,7 +525,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     if (!mounted) return;
     if (newAddress == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.error(context, 'Error fetching address.', duration: const Duration(seconds: 2)),
+        AppSnackBar.error(context, context.l10n.setupFormAddressError, duration: const Duration(seconds: 2)),
       );
       return;
     }
@@ -556,8 +555,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
   Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
       context: context,
-      helpText: "Select Feedback Date",
-      errorInvalidText: "Date cannot be in the future",
+      helpText: context.l10n.feedbackFormPickDate,
+      errorInvalidText: context.l10n.setupFormDateInFuture,
       selectableDayPredicate: (DateTime pickedDate) => !_selectedDateTimeLocal
           .copyWith(day: pickedDate.day, month: pickedDate.month, year: pickedDate.year)
           .isAfter(DateTime.now()),
@@ -580,7 +579,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   Future<void> _pickTime() async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      helpText: "Select Feedback Time",
+      helpText: context.l10n.feedbackFormPickTime,
       initialTime: TimeOfDay.fromDateTime(_selectedDateTimeLocal),
     );
 
@@ -589,7 +588,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Date and Time cannot be in the future.'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormDateTimeInFuture));
       return;
     }
 
@@ -611,8 +610,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           rated == null
-              ? AppSnackBar.error(context, 'No setup was active at this time.')
-              : AppSnackBar.info(context, "Now rating '${rated.displayName}'."),
+              ? AppSnackBar.error(context, context.l10n.feedbackFormNoSetupActive)
+              : AppSnackBar.info(context, context.l10n.feedbackFormNowRating(rated.displayName)),
         );
     }
     unawaited(askAndUpdateWeather());
@@ -623,10 +622,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
     if (_currentWeather.value != null) {
       final result = await showConfirmationDialog(
         context,
-        title: 'Update Weather?',
-        content: 'Do you want to fetch the latest weather data for this location, date and time?',
-        trueText: "Yes",
-        falseText: "No",
+        title: context.l10n.updateWeatherTitle,
+        content: context.l10n.updateWeatherBody,
+        trueText: context.l10n.yes,
+        falseText: context.l10n.no,
       );
       if (!result) return;
     }
@@ -636,7 +635,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   Future<void> updateWeather() async {
     if (_currentLocation.value == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.error(context, 'Cannot update weather without location.', duration: const Duration(seconds: 2)),
+        AppSnackBar.error(context, context.l10n.setupFormWeatherNeedsLocation, duration: const Duration(seconds: 2)),
       );
       return;
     }
@@ -650,7 +649,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     if (!mounted) return;
     if (currentWeather == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.error(context, 'Error fetching weather.', duration: const Duration(seconds: 2)),
+        AppSnackBar.error(context, context.l10n.setupFormWeatherError, duration: const Duration(seconds: 2)),
       );
       return;
     }
@@ -664,7 +663,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(
           context,
-          'Please check all fields for missing or invalid input.',
+          context.l10n.feedbackFormInvalid,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -677,7 +676,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(
           context,
-          'No setup exists before this date/time for the selected bike. Create a setup first.',
+          context.l10n.feedbackFormNoSetupBefore,
           duration: const Duration(seconds: 3),
         ),
       );
@@ -725,10 +724,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
       onChanged: (text) => setState(() {}),
       maxLines: null,
       decoration: InputDecoration(
-        labelText: 'Notes (optional)',
+        labelText: context.l10n.notesOptionalLabel,
         border: const OutlineInputBorder(),
-        hintText: 'Add notes (optional)',
-        helperText: FeedbackVocabulary.notesHelper,
+        hintText: context.l10n.setupFormNotesHint,
+        helperText: context.l10n.feedbackNotesHelper,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == FeedbackPageMode.edit && _notesController.text.trim() != (widget.feedback?.notes ?? ''),
       ),
@@ -840,12 +839,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   "${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}",
                 ),
                 LocationStatus.idle || LocationStatus.success =>
-                  _addressService.status == AddressStatus.error ? const Text("Address Error") : const Text("-"),
-                LocationStatus.noService => const Text("No GPS Service"),
+                  _addressService.status == AddressStatus.error ? Text(context.l10n.setupFormChipAddressError) : const Text("-"),
+                LocationStatus.noService => Text(context.l10n.setupFormChipNoGpsService),
                 LocationStatus.noPermission ||
-                LocationStatus.permissionDeniedForever => const Text("No GPS Permission"),
-                LocationStatus.timeout => const Text("GPS Timeout"),
-                LocationStatus.error => const Text("Location Error"),
+                LocationStatus.permissionDeniedForever => Text(context.l10n.setupFormChipNoGpsPermission),
+                LocationStatus.timeout => Text(context.l10n.setupFormChipGpsTimeout),
+                LocationStatus.error => Text(context.l10n.setupFormChipLocationError),
               },
             ),
             ActionChip(
@@ -860,7 +859,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 WeatherIdle() => Text(_currentWeather.value?.getWeatherCodeLabel(context.l10n) ?? "-"),
                 WeatherSearching() => const ChipLoadingIndicator(),
                 WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel(context.l10n) ?? "-"),
-                WeatherError() => const Text("Weather Error"),
+                WeatherError() => Text(context.l10n.setupFormChipWeatherError),
               },
               backgroundColor:
                   widget.mode == FeedbackPageMode.edit &&
@@ -935,8 +934,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
     if (rated == null && !appRepository.setups.values.any((setup) => setup.bike == _bike)) {
       return EmptyStatePlaceholder2(
         iconData: Setup.iconData,
-        title: 'No setups yet',
-        subtitle: "Feedback rates the setup you rode. Record ${bike?.name ?? 'this bike'}'s setup first.",
+        title: context.l10n.noSetupsTitle,
+        subtitle: bike == null
+            ? context.l10n.feedbackFormNoSetupsSubtitleGeneric
+            : context.l10n.feedbackFormNoSetupsSubtitle(bike.name),
       );
     }
 
@@ -949,9 +950,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
           minTileHeight: 0,
           titleAlignment: ListTileTitleAlignment.top,
           leading: Icon(Setup.iconData, color: errorColor),
-          title: Text('No setup at this time', style: theme.textTheme.titleMedium?.copyWith(color: errorColor)),
+          title: Text(context.l10n.feedbackFormNoSetupNowTitle, style: theme.textTheme.titleMedium?.copyWith(color: errorColor)),
           subtitle: Text(
-            'Feedback rates the setup that was active when you rode. Pick a later date or add a setup first.',
+            context.l10n.feedbackFormNoSetupNowBody,
             style: TextStyle(color: errorColor),
           ),
         ),
@@ -966,7 +967,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       metadata: SetupTileHeader.metadataOf(rated, appSettings, context.l10n),
       badge: appRepository.setupHistory.isCurrent(rated.id) ? const CurrentSetupBadge() : null,
       showSetupIcon: true,
-      secondaryMetadata: TileMetaRow(icon: Bike.iconData, text: bike?.name ?? "BIKE NOT FOUND", isError: bike == null),
+      secondaryMetadata: TileMetaRow(icon: Bike.iconData, text: bike?.name ?? context.l10n.bikeNotFound, isError: bike == null),
     );
 
     return Card.outlined(
@@ -1000,7 +1001,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final stored = _setupId;
     if (stored == null || rated == null || rated.id == stored) return null;
 
-    final storedName = context.read<AppRepository>().setups[stored]?.displayName ?? "a deleted setup";
+    final storedName = context.read<AppRepository>().setups[stored]?.displayName ?? context.l10n.feedbackDeletedSetup;
     final scheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -1011,11 +1012,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
         titleAlignment: ListTileTitleAlignment.titleHeight,
         leading: Icon(Icons.link_off, color: scheme.onErrorContainer, size: 20),
         title: Text(
-          "Setup link changed",
+          context.l10n.feedbackFormDriftTitle,
           style: TextStyle(color: scheme.onErrorContainer, fontWeight: FontWeight.bold, fontSize: 13),
         ),
         subtitle: Text(
-          "Originally '$storedName', now resolves to '${rated.displayName}'. Ranking follows the current resolution.",
+          context.l10n.feedbackFormDriftBody(storedName, rated.displayName),
           style: TextStyle(color: scheme.onErrorContainer.withValues(alpha: 0.9), fontSize: 12),
         ),
         trailing: TextButton(
@@ -1024,7 +1025,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             _changeListener();
           },
           style: TextButton.styleFrom(foregroundColor: scheme.onErrorContainer),
-          child: const Text("Relink"),
+          child: Text(context.l10n.feedbackFormRelink),
         ),
       ),
     );
@@ -1041,7 +1042,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     return [
       const SizedBox(height: 8),
-      const SectionTitle(title: "Compared to"),
+      SectionTitle(title: context.l10n.feedbackFormComparedTo),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: AnimatedSize(
@@ -1097,7 +1098,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 _changeListener();
               },
               icon: const Icon(Icons.add),
-              label: const Text("Compare with another run"),
+              label: Text(context.l10n.feedbackFormCompareAnother),
             ),
           ),
         ),
@@ -1108,7 +1109,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final followUps = _followUpIssues(draft, referenceId);
     if (followUps.isEmpty) return const [];
     return [
-      _subheading("Did its open issues change?"),
+      _subheading(context.l10n.feedbackFormOpenIssuesChanged),
       for (final issue in followUps) _aspectRow(draft, issue),
     ];
   }
@@ -1143,7 +1144,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     return [
       if (goal.isNotEmpty) ...[
-        _subheading("Did your goal improve?"),
+        _subheading(context.l10n.feedbackFormGoalImproved),
         for (final issue in goal) _aspectRow(draft, issue),
       ],
       Padding(
@@ -1154,7 +1155,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
             onPressed: () => setState(() => draft.showAllAspects = !draft.showAllAspects),
             icon: Icon(draft.showAllAspects ? Icons.expand_less : Icons.expand_more),
-            label: const Text("Something else changed"),
+            label: Text(context.l10n.feedbackFormSomethingElse),
           ),
         ),
       ),
@@ -1173,8 +1174,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            FeedbackPageMode.add => const Text('Add Feedback'),
-            FeedbackPageMode.edit => const Text('Edit Feedback'),
+            FeedbackPageMode.add => Text(context.l10n.feedbackFormAddTitle),
+            FeedbackPageMode.edit => Text(context.l10n.feedbackFormEditTitle),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveFeedback),
@@ -1200,10 +1201,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   ),
                   ..._comparisonSection(rated),
                   const SizedBox(height: 8),
-                  const SectionTitle(
-                    title: "Anything stand out?",
-                    infoText:
-                        "Optional. Flagged problems show on the setup as open issues until a later ride says otherwise.",
+                  SectionTitle(
+                    title: context.l10n.feedbackFormAnythingTitle,
+                    infoText: context.l10n.feedbackFormAnythingInfo,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1217,7 +1217,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const SectionTitle(title: "Details"),
+                  SectionTitle(title: context.l10n.feedbackFormDetailsTitle),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(

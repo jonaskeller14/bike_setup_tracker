@@ -29,12 +29,12 @@ Future<void> showColumnFilterSheet({
               mainAxisSize: MainAxisSize.min,
               children: [
                 SheetHeader(
-                  title: 'Column Select',
+                  title: context.l10n.columnFilterTitle,
                   actions: [
                     sheetActionButton(
                       context,
                       icon: Icons.deselect,
-                      tooltip: 'Deselect all',
+                      tooltip: context.l10n.deselectAll,
                       onPressed: columnsCopy.any((c) => c.active)
                           ? () {
                               setSheetState(() {

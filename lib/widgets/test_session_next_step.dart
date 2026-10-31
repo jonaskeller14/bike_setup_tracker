@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/feedback/test_session.dart';
 import '../repositories/app_repository.dart';
@@ -36,9 +37,9 @@ class TestSessionNextStep extends StatelessWidget {
             Expanded(
               child: Text(
                 switch (latest) {
-                  null => 'This session has no runs. Record one to go on.',
-                  _ when rated => "${latest.displayName} is rated. Ready for the next run.",
-                  _ => "Ride ${latest.displayName}, then tell how it went.",
+                  null => context.l10n.testSessionStepNoRuns,
+                  _ when rated => context.l10n.testSessionStepRated(latest.displayName),
+                  _ => context.l10n.testSessionStepRide(latest.displayName),
                 },
                 style: theme.textTheme.bodyMedium,
               ),
@@ -53,17 +54,17 @@ class TestSessionNextStep extends StatelessWidget {
               FilledButton.icon(
                 onPressed: () => unawaited(TestSessionActions.addRun(context, session: session)),
                 icon: const Icon(Icons.add),
-                label: const Text('Next run'),
+                label: Text(context.l10n.testSessionNextRun),
               )
             else
               FilledButton.icon(
                 onPressed: () => unawaited(TestSessionActions.addRunFeedback(context, session: session)),
                 icon: const Icon(RideFeedback.iconData),
-                label: const Text('Add feedback'),
+                label: Text(context.l10n.feedbackAddButton),
               ),
             TextButton(
               onPressed: () => unawaited(TestSessionActions.endSession(context, session: session)),
-              child: const Text('End session'),
+              child: Text(context.l10n.testSessionEndSession),
             ),
           ],
         ),

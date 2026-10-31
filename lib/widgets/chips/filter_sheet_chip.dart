@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../repositories/app_repository.dart';
@@ -59,6 +60,7 @@ class FilterSheetChip extends StatelessWidget {
       appRepository: appRepository,
       appSettings: appSettings,
       stravaActive: stravaActive,
+      l10n: context.l10n,
     );
     final selected = labels.isNotEmpty;
 
@@ -66,7 +68,7 @@ class FilterSheetChip extends StatelessWidget {
     if (selected) {
       labelText = labels.join(" + ");
     } else {
-      labelText = showBikeOnly ? "All Bikes" : "Filter";
+      labelText = showBikeOnly ? context.l10n.filterAllBikes : context.l10n.filterTitle;
     }
 
     return FilterChip(

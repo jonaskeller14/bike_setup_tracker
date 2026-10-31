@@ -145,12 +145,12 @@ Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) 
       TestSessionTimelineEntry() => cs.onPrimary,
     };
 
-String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
+String calendarSubjectFor(TimelineEntry entry, AppLocalizations l10n) => switch (entry) {
       SetupEntry() => entry.setup.displayName,
       StravaEntry() => entry.activity.name,
       TaskTimeLineEntry() => entry.taskEntry.name,
       InstallationEntry() => entry.componentInstallation.shortLabel,
-      FeedbackTimelineEntry() => 'Feedback',
+      FeedbackTimelineEntry() => l10n.feedbackName,
       TestSessionTimelineEntry() => entry.session.displayName,
     };
 
@@ -181,9 +181,9 @@ Color calendarOnColorForRow(EntryRow row, ColorScheme cs) => switch (row) {
     };
 
 String calendarSubjectForRow(EntryRow row, AppLocalizations l10n) => switch (row) {
-      SingleEntryRow(:final entry) => calendarSubjectFor(entry),
-      ReplacementRow() => 'Replaced ${row.removed.component.componentType.label(l10n)}',
-      SetupGroupRow() => '${row.setups.length} setups',
+      SingleEntryRow(:final entry) => calendarSubjectFor(entry, l10n),
+      ReplacementRow() => l10n.calendarReplacedSubject(row.removed.component.componentType.label(l10n)),
+      SetupGroupRow() => l10n.calendarSetupGroupSubject(row.setups.length),
     };
 
 class CalendarPage extends StatefulWidget {
@@ -241,7 +241,7 @@ class _CalendarPageState extends State<CalendarPage> {
         backgroundColor: selected ? cs.primary.withValues(alpha: 0.10) : null,
       ),
       child: Text(
-        option.label,
+        option.label(context.l10n),
         style: TextStyle(
           fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
         ),
@@ -522,8 +522,8 @@ class _CalendarPageState extends State<CalendarPage> {
     // drops out of it. Now that it is navigable, the guard has to be explicit.
     if (newLocal.isAfter(DateTime.now())) {
       _rejectMove(row is CalendarAddSetupSlot
-          ? "Can't add a setup in the future."
-          : "Can't move this into the future.");
+          ? context.l10n.calendarNoSetupInFuture
+          : context.l10n.calendarNoMoveFuture);
       return;
     }
     if (row is CalendarAddSetupSlot) {
@@ -575,7 +575,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
     if (!isValidInstallationTimeline(updatedRemoved) ||
         !isValidInstallationTimeline(updatedInstalled)) {
-      _rejectMove("Can't move this replacement there.");
+      _rejectMove(l10n.calendarNoMoveReplacement);
       return;
     }
 
@@ -585,7 +585,7 @@ class _CalendarPageState extends State<CalendarPage> {
         installedComponent.copyWith(installations: updatedInstalled),
       ]);
     } on ComponentHierarchyValidationException {
-      _rejectMove("Can't move this replacement there: it would create a loop of components.");
+      _rejectMove(l10n.calendarNoMoveReplacementLoop);
       return;
     }
     _showMoveUndoSnackBar(
@@ -600,13 +600,14 @@ class _CalendarPageState extends State<CalendarPage> {
     final newUtc = newLocal.toUtc();
     final oldLocal = entry.dateUTC.toLocal();
     final appRepository = context.read<AppRepository>();
+    final l10n = context.l10n;
 
     switch (entry) {
       case SetupEntry():
         final original = entry.setup;
         await appRepository.editSetups([original.copyWith(datetime: newUtc, datetimeLocal: newLocal)]);
         _showMoveUndoSnackBar(
-          calendarSubjectFor(entry),
+          calendarSubjectFor(entry, l10n),
           oldLocal,
           newLocal,
           () => appRepository.editSetups([original]),
@@ -617,7 +618,7 @@ class _CalendarPageState extends State<CalendarPage> {
           [original.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal)],
         );
         _showMoveUndoSnackBar(
-          calendarSubjectFor(entry),
+          calendarSubjectFor(entry, l10n),
           oldLocal,
           newLocal,
           () => appRepository.editTaskEntry([original]),
@@ -628,17 +629,17 @@ class _CalendarPageState extends State<CalendarPage> {
         final updatedInstallations =
             _reDated(originalComponent, ci.installation, newUtc, newLocal);
         if (!isValidInstallationTimeline(updatedInstallations)) {
-          _rejectMove("Can't move this installation there.");
+          _rejectMove(l10n.calendarNoMoveInstallation);
           return;
         }
         try {
           await appRepository.editComponents([originalComponent.copyWith(installations: updatedInstallations)]);
         } on ComponentHierarchyValidationException {
-          _rejectMove("Can't move this installation there: it would create a loop of components.");
+          _rejectMove(l10n.calendarNoMoveInstallationLoop);
           return;
         }
         _showMoveUndoSnackBar(
-          calendarSubjectFor(entry),
+          calendarSubjectFor(entry, l10n),
           oldLocal,
           newLocal,
           () => appRepository.editComponents([originalComponent]),
@@ -647,21 +648,21 @@ class _CalendarPageState extends State<CalendarPage> {
         final original = entry.feedback;
         // A feedback needs a setup to rate, as on save.
         if (appRepository.resolveSetupId(bikeId: original.bike, atUtc: newUtc) == null) {
-          _rejectMove("Can't move this feedback before the bike's first setup.");
+          _rejectMove(l10n.calendarNoMoveFeedback);
           return;
         }
         await appRepository.editFeedback(original.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal));
         _showMoveUndoSnackBar(
-          calendarSubjectFor(entry),
+          calendarSubjectFor(entry, l10n),
           oldLocal,
           newLocal,
           () => appRepository.editFeedback(original),
         );
       case StravaEntry():
         // Strava activities are synced and read-only.
-        _rejectMove("Strava activities can't be edited.");
+        _rejectMove(l10n.calendarStravaReadOnly);
       case TestSessionTimelineEntry():
-        _rejectMove("A test session can't be moved. Change the times of its runs instead.");
+        _rejectMove(l10n.calendarTestSessionNoMove);
     }
   }
 
@@ -688,10 +689,10 @@ class _CalendarPageState extends State<CalendarPage> {
       ..hideCurrentSnackBar()
       ..showSnackBar(AppSnackBar.info(
         context,
-        "'$subject' moved\n${format.format(from)}  →  ${format.format(to)}",
+        context.l10n.calendarMoved(subject, format.format(from), format.format(to)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => restore(),
         ),
       ));
@@ -737,7 +738,7 @@ class _CalendarPageState extends State<CalendarPage> {
               identifier: AutomationIds.calendarToday,
               child: ActionChip(
                 avatar: const Icon(Icons.today, size: 18),
-                label: const Text('Today'),
+                label: Text(context.l10n.calendarToday),
                 onPressed: _todayShown
                     ? null
                     : () => _controller.displayDate = DateTime.now(),
@@ -760,7 +761,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 label: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(_selectedView.label),
+                    Text(_selectedView.label(context.l10n)),
                     const Icon(Icons.arrow_drop_down, size: 18),
                   ],
                 ),
@@ -897,7 +898,7 @@ class _CalendarPageState extends State<CalendarPage> {
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Text(
-          '+${details.appointments.length} more',
+          context.l10n.calendarMore(details.appointments.length),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -1003,7 +1004,7 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
   @override
   String getSubject(int index) => switch (_item(index)) {
         final EntryRow row => calendarSubjectForRow(row, _l10n),
-        CalendarAddSetupSlot() => 'Add setup',
+        CalendarAddSetupSlot() => _l10n.calendarAddSetup,
         CalendarPredictedTask(:final name) => name,
         _ => '',
       };
@@ -1028,14 +1029,21 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
 }
 
 enum _CalendarView {
-  schedule(CalendarView.schedule, 'Schedule', -1, Icons.view_agenda_outlined),
-  month(CalendarView.month, 'Month', -1, Icons.calendar_view_month),
-  week(CalendarView.week, 'Week', -1, Icons.calendar_view_week),
-  threeDay(CalendarView.day, '3 Day', 3, Icons.view_column_outlined),
-  day(CalendarView.day, 'Day', -1, Icons.calendar_view_day);
+  schedule(CalendarView.schedule, -1, Icons.view_agenda_outlined),
+  month(CalendarView.month, -1, Icons.calendar_view_month),
+  week(CalendarView.week, -1, Icons.calendar_view_week),
+  threeDay(CalendarView.day, 3, Icons.view_column_outlined),
+  day(CalendarView.day, -1, Icons.calendar_view_day);
   final CalendarView view;
-  final String label;
   final int days;
   final IconData icon;
-  const _CalendarView(this.view, this.label, this.days, this.icon);
+  const _CalendarView(this.view, this.days, this.icon);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    schedule => l10n.calendarViewSchedule,
+    month => l10n.calendarViewMonth,
+    week => l10n.calendarViewWeek,
+    threeDay => l10n.calendarViewThreeDay,
+    day => l10n.calendarViewDay,
+  };
 }

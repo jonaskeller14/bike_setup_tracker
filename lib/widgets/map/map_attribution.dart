@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../../l10n/l10n.dart';
+
 /// Tile source attribution, plus the "Powered by Strava" logo whenever
 /// Strava activities are on the map.
 class MapAttribution extends StatelessWidget {
@@ -35,7 +37,7 @@ class MapAttribution extends StatelessWidget {
           ),
           TextSourceAttribution(
             prependCopyright: false,
-            'Improve this map',
+            context.l10n.mapAttributionImprove,
             onTap: () => launchUrlString('https://www.mapbox.com/map-feedback/'),
           ),
         ] else ...[

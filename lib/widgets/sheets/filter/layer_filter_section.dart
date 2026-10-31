@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../icons/simple_icons.dart';
+import '../../../l10n/l10n.dart';
 import '../../../models/app_settings.dart';
 import '../../../models/feedback/ride_feedback.dart';
 import '../../../models/filters/layer_filter.dart';
@@ -27,12 +28,13 @@ class LayerFilterSection extends StatelessWidget {
     TimelineLayer.feedback => RideFeedback.iconData,
   };
 
-  String _label(TimelineLayer layer) => switch (layer) {
-    TimelineLayer.setups => "Setups",
-    TimelineLayer.activities => section == FilterSection.mapLayers ? "Strava Activities" : "Activities",
-    TimelineLayer.tasks => "Tasks",
-    TimelineLayer.installations => "Installations",
-    TimelineLayer.feedback => "Feedback",
+  String _label(AppLocalizations l10n, TimelineLayer layer) => switch (layer) {
+    TimelineLayer.setups => l10n.filterLayerSetups,
+    TimelineLayer.activities =>
+      section == FilterSection.mapLayers ? l10n.filterLayerStravaActivities : l10n.filterLayerActivities,
+    TimelineLayer.tasks => l10n.filterLayerTasks,
+    TimelineLayer.installations => l10n.filterLayerInstallations,
+    TimelineLayer.feedback => l10n.filterLayerFeedback,
   };
 
   @override
@@ -46,13 +48,13 @@ class LayerFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SheetSectionTitle(title: "Visibility"),
+        SheetSectionTitle(title: context.l10n.filterVisibilityTitle),
         IsolatableChips(
           options: [
             for (final layer in layers)
               IsolatableChipOption(
                 icon: _icon(layer),
-                label: _label(layer),
+                label: _label(context.l10n, layer),
                 selected: filters.layers.shows(layer),
                 onChanged: (selected) => filters.layers = filters.layers.copyWith(
                   hidden: toggled(filters.layers.hidden, layer, selected: !selected),

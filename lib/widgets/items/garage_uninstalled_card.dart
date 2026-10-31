@@ -577,7 +577,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                           vertical: 8,
                         ),
                         title: Text(
-                          "Archive",
+                          "Archive",//TODO: l10n 
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ),

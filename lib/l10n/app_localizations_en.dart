@@ -5131,4 +5131,1220 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskDetailsEmptyAction => 'Add entry';
+
+  @override
+  String get trashTitle => 'Trash';
+
+  @override
+  String get trashInfo =>
+      'Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.';
+
+  @override
+  String get trashEmptyTitle => 'Trash is empty';
+
+  @override
+  String get trashEmptySubtitle => 'Deleted items will appear here.';
+
+  @override
+  String trashDeletedAt(String time) {
+    return 'Deleted at: $time';
+  }
+
+  @override
+  String get trashRestoreSelectedTooltip => 'Restore selected';
+
+  @override
+  String trashRestoredOne(String name) {
+    return '\'$name\' restored from trash.';
+  }
+
+  @override
+  String trashRestoredMany(int count) {
+    return '$count items restored from trash.';
+  }
+
+  @override
+  String get feedbackName => 'Feedback';
+
+  @override
+  String get riderFormAddTitle => 'Add Rider';
+
+  @override
+  String get riderFormEditTitle => 'Edit Rider';
+
+  @override
+  String get riderFormNameLabel => 'Rider Name';
+
+  @override
+  String get riderFormNameHint => 'Enter rider name';
+
+  @override
+  String get riderFormNameRequired => 'Name is required';
+
+  @override
+  String get riderFormNotesHint => 'Enter notes about the rider...';
+
+  @override
+  String get riderFormStravaLabel => 'Strava Athlete';
+
+  @override
+  String get riderFormStravaHint => 'Link Strava Athlete';
+
+  @override
+  String get riderFormStravaTaken => 'WARNING: Strava Athlete already assigned to another rider';
+
+  @override
+  String get riderFormStravaInvalid => 'Please select valid Athlete';
+
+  @override
+  String get riderStravaAthleteNotFound => 'ATHLETE NOT FOUND';
+
+  @override
+  String get riderFormAttributesTitle => 'Attributes';
+
+  @override
+  String get riderFormAttributesEmptyTitle => 'No attributes yet';
+
+  @override
+  String get riderFormAttributesEmptySubtitle => 'Tap \'Add Attribute\' to define parameters for this rider';
+
+  @override
+  String get riderFormAttributesEmptyError => 'Tap here to add the first attribute';
+
+  @override
+  String get riderFormAddAttribute => 'Add Attribute';
+
+  @override
+  String riderAttributeTemplatesProgress(int added, int total) {
+    return 'Pre-filled Templates · $added/$total added';
+  }
+
+  @override
+  String get riderAttributeAllAdded => 'Add a custom attribute below.';
+
+  @override
+  String get riderAttributeCustom => 'Custom Attribute';
+
+  @override
+  String get riderAttributeTypeNumerical => 'Numerical Attribute';
+
+  @override
+  String get riderAttributeTypeNumericalHint => 'Body Weight, Height, Age';
+
+  @override
+  String get riderAttributeTypeStep => 'Step Attribute';
+
+  @override
+  String get riderAttributeTypeStepHint => 'Increments';
+
+  @override
+  String get riderAttributeTypeCategorical => 'Categorical Attribute';
+
+  @override
+  String get riderAttributeTypeCategoricalHint => 'Training status, Riding Gear, Riding style';
+
+  @override
+  String get riderAttributeTypeBoolean => 'On/Off Attribute';
+
+  @override
+  String get riderAttributeTypeBooleanHint => 'Wearing a backpack?';
+
+  @override
+  String get riderAttributeTypeText => 'Text Attribute';
+
+  @override
+  String get riderAttributeTypeTextHint => 'Flexible field for any other attribute';
+
+  @override
+  String get riderDetailsNotFoundTitle => 'Rider not found';
+
+  @override
+  String get riderDetailsNotFoundSubtitle => 'This rider was deleted or is no longer available.';
+
+  @override
+  String get riderDetailsNoStrava => 'No Strava Athlete linked to this rider.';
+
+  @override
+  String get riderDetailsStravaNotFound => 'STRAVA ATHLETE NOT FOUND';
+
+  @override
+  String get riderDetailsNoBikes => 'No bikes linked to this rider.';
+
+  @override
+  String get riderListEmptyTitle => 'No rider yet';
+
+  @override
+  String get riderListEmptySubtitle => 'Add a rider to link to your bikes and setups.';
+
+  @override
+  String get riderListEmptyAction => 'Add a rider';
+
+  @override
+  String get riderOptionLinkBikes => 'Link bikes';
+
+  @override
+  String get riderBikeNotFoundMessage => 'Bike not found.';
+
+  @override
+  String riderSetForBike(String rider, String bike) {
+    return '\'$rider\' is now the rider of \'$bike\'.';
+  }
+
+  @override
+  String riderMovedToTrash(String name) {
+    return 'Rider \'$name\' moved to trash.';
+  }
+
+  @override
+  String riderRestoredFromTrash(String name) {
+    return 'Rider \'$name\' restored from trash.';
+  }
+
+  @override
+  String get riderNameFormHint => 'Your name';
+
+  @override
+  String get riderNameFormRequired => 'Enter a name to continue.';
+
+  @override
+  String riderCreated(String name) {
+    return 'Rider \'$name\' created.';
+  }
+
+  @override
+  String riderCreatedLinked(String name) {
+    return 'Rider \'$name\' created and linked to this bike.';
+  }
+
+  @override
+  String get riderNameFormTitle => 'What\'s your name?';
+
+  @override
+  String get riderNameFormBody => 'Your rider profile tracks values like your riding weight with each setup.';
+
+  @override
+  String get riderNameFormCreate => 'Create rider';
+
+  @override
+  String get riderSheetTitle => 'Rider';
+
+  @override
+  String get riderSheetIntro =>
+      'Suspension, sag and tire pressure depend on your weight. Recording rider values with each setup keeps your setups comparable when your weight changes.';
+
+  @override
+  String get riderSheetLinkBike => 'Link bike';
+
+  @override
+  String get riderSheetLinkBikeHint => 'Link a bike to record rider values with its setups.';
+
+  @override
+  String get riderAddBikeHint => 'Add a bike to link it to this rider.';
+
+  @override
+  String get riderSheetRecordValues => 'Record rider values';
+
+  @override
+  String get riderSheetRecordValuesHint => 'Rider values are saved with a new setup.';
+
+  @override
+  String get riderSheetAddComponentHint => 'Add a component to record setups.';
+
+  @override
+  String get bikeLinkSheetTitle => 'Link bikes';
+
+  @override
+  String bikeLinkSaveLink(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Link $count bikes',
+      one: 'Link 1 bike',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bikeLinkSaveUnlink(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Unlink $count bikes',
+      one: 'Unlink 1 bike',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bikeLinkSaveBoth(int link, int unlink) {
+    return 'Link $link · Unlink $unlink';
+  }
+
+  @override
+  String bikeLinkIntro(String name) {
+    return 'Rider values of \'$name\' are recorded with the setups of linked bikes.';
+  }
+
+  @override
+  String get bikeLinkEmptyTitle => 'No bikes yet';
+
+  @override
+  String bikeLinkRiddenBy(String name) {
+    return 'Ridden by \'$name\'';
+  }
+
+  @override
+  String get bikeLinkLink => 'Link';
+
+  @override
+  String get bikeLinkUnlink => 'Unlink';
+
+  @override
+  String bikeLinkLinkTooltip(String name) {
+    return 'Link \'$name\'';
+  }
+
+  @override
+  String bikeLinkUnlinkTooltip(String name) {
+    return 'Unlink \'$name\'';
+  }
+
+  @override
+  String get setBikePersonTitle => 'Set Rider';
+
+  @override
+  String get setBikePersonNoRider => 'No rider';
+
+  @override
+  String get setBikePersonAllUndo => 'Set for all — tap to undo';
+
+  @override
+  String get setBikePersonOnAll => 'On all';
+
+  @override
+  String setBikePersonOnSome(int count, int total) {
+    return 'On $count of $total — tap to set for all';
+  }
+
+  @override
+  String get setBikePersonTapToSet => 'Tap to set for all';
+
+  @override
+  String get setBikePersonNoRidersInfo => 'You can assign a rider as soon as you\'ve created one.';
+
+  @override
+  String get setBikePersonInfo => 'Each bike has one rider. Pick the rider for all selected bikes.';
+
+  @override
+  String get setBikePersonHalfFilled => 'Half-filled chips apply to only part of your selection.';
+
+  @override
+  String setBikePersonApply(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Apply to $count Bikes',
+      one: 'Apply to 1 Bike',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarViewSchedule => 'Schedule';
+
+  @override
+  String get calendarViewMonth => 'Month';
+
+  @override
+  String get calendarViewWeek => 'Week';
+
+  @override
+  String get calendarViewThreeDay => '3 Day';
+
+  @override
+  String get calendarViewDay => 'Day';
+
+  @override
+  String get calendarToday => 'Today';
+
+  @override
+  String calendarMore(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String calendarReplacedSubject(String type) {
+    return 'Replaced $type';
+  }
+
+  @override
+  String calendarSetupGroupSubject(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count setups',
+      one: '1 setup',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarAddSetup => 'Add setup';
+
+  @override
+  String get calendarNoSetupInFuture => 'Can\'t add a setup in the future.';
+
+  @override
+  String get calendarNoMoveFuture => 'Can\'t move this into the future.';
+
+  @override
+  String get calendarNoMoveReplacement => 'Can\'t move this replacement there.';
+
+  @override
+  String get calendarNoMoveReplacementLoop =>
+      'Can\'t move this replacement there: it would create a loop of components.';
+
+  @override
+  String get calendarNoMoveInstallation => 'Can\'t move this installation there.';
+
+  @override
+  String get calendarNoMoveInstallationLoop =>
+      'Can\'t move this installation there: it would create a loop of components.';
+
+  @override
+  String get calendarNoMoveFeedback => 'Can\'t move this feedback before the bike\'s first setup.';
+
+  @override
+  String get calendarStravaReadOnly => 'Strava activities can\'t be edited.';
+
+  @override
+  String get calendarTestSessionNoMove => 'A test session can\'t be moved. Change the times of its runs instead.';
+
+  @override
+  String calendarMoved(String subject, String from, String to) {
+    return '\'$subject\' moved\n$from  →  $to';
+  }
+
+  @override
+  String get mapLocationTimeout => 'Location request timed out. Try again.';
+
+  @override
+  String get mapLocationError => 'Unable to determine your location.';
+
+  @override
+  String get mapLocationNone => 'No valid location was returned.';
+
+  @override
+  String get mapEmptyErrorTitle => 'Couldn\'t load activities';
+
+  @override
+  String get mapEmptyErrorSubtitle => 'Setups and feedback are still shown.';
+
+  @override
+  String get mapEmptyErrorPill => 'Activities failed';
+
+  @override
+  String get mapEmptyRetry => 'Retry';
+
+  @override
+  String get mapEmptyFilteredTitle => 'Nothing on the map in this view';
+
+  @override
+  String get mapEmptyFilteredSubtitle => 'Your current filters hide every pin.';
+
+  @override
+  String get mapEmptyNoPins => 'No pins';
+
+  @override
+  String get mapEmptyNoneTitle => 'No locations yet';
+
+  @override
+  String get mapEmptyAddSetup => 'Add setup';
+
+  @override
+  String get mapEmptySetupsHint => 'Setups appear here once one is saved with a location.';
+
+  @override
+  String mapEmptySameFor(String sources) {
+    return 'Same for $sources.';
+  }
+
+  @override
+  String get mapEmptySourceStrava => 'Strava activities';
+
+  @override
+  String get mapEmptySourceFeedback => 'feedback';
+
+  @override
+  String get mapAttributionImprove => 'Improve this map';
+
+  @override
+  String get mapEmptyCollapse => 'Collapse';
+
+  @override
+  String get filterTitle => 'Filter';
+
+  @override
+  String get filterResetTooltip => 'Reset filters';
+
+  @override
+  String get filterAllBikes => 'All Bikes';
+
+  @override
+  String filterCountTags(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Tags',
+      one: '1 Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String filterCountTestSessions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Test sessions',
+      one: '1 Test session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String filterCountPriorities(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Priorities',
+      one: '1 Priority',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get filterLayersActive => '1 Filter';
+
+  @override
+  String componentTypeFilterTitle(int selected, int total) {
+    return 'Component Types ($selected/$total)';
+  }
+
+  @override
+  String get selectAll => 'Select all';
+
+  @override
+  String get deselectAll => 'Deselect all';
+
+  @override
+  String get columnFilterTitle => 'Column Select';
+
+  @override
+  String get filterSetupsTitle => 'Setups';
+
+  @override
+  String get filterSetupTagsTitle => 'Setup Tags';
+
+  @override
+  String get filterNoSetupTagsTitle => 'No setup tags yet';
+
+  @override
+  String get filterNoSetupTagsHintSessions =>
+      'Add/Edit a Setup to add tags, or start a test session to filter its runs.';
+
+  @override
+  String get filterNoSetupTagsHint => 'Add/Edit a Setup to add tags.';
+
+  @override
+  String get filterNoTestSessionsTitle => 'No test sessions yet';
+
+  @override
+  String get filterNoTestSessionsHint => 'Start a test session to filter its runs.';
+
+  @override
+  String get filterDateTitle => 'Date';
+
+  @override
+  String get filterDateRangeHelp => 'Select Date Range';
+
+  @override
+  String get filterAnyDate => 'Any date';
+
+  @override
+  String get filterPickDatesTooltip => 'Pick exact dates';
+
+  @override
+  String get filterActivitiesTitle => 'Activities';
+
+  @override
+  String get filterDistance => 'Distance';
+
+  @override
+  String get filterElevationGain => 'Elevation Gain';
+
+  @override
+  String get filterAnyValue => 'Any';
+
+  @override
+  String get filterVisibilityTitle => 'Visibility';
+
+  @override
+  String get filterLayerSetups => 'Setups';
+
+  @override
+  String get filterLayerStravaActivities => 'Strava Activities';
+
+  @override
+  String get filterLayerActivities => 'Activities';
+
+  @override
+  String get filterLayerTasks => 'Tasks';
+
+  @override
+  String get filterLayerInstallations => 'Installations';
+
+  @override
+  String get filterLayerFeedback => 'Feedback';
+
+  @override
+  String get filterBikeTitle => 'Bike';
+
+  @override
+  String get filterNoBikesTitle => 'No bikes yet';
+
+  @override
+  String get filterNoBikesHint => 'Add a bike to filter this list by bike.';
+
+  @override
+  String get feedbackEndFront => 'Front';
+
+  @override
+  String get feedbackEndRear => 'Rear';
+
+  @override
+  String get feedbackAttributeGripQuality => 'Grip';
+
+  @override
+  String get feedbackAttributeGripProblem => 'Low grip';
+
+  @override
+  String get feedbackAttributeGripHint => 'Wheel slides or lets go';
+
+  @override
+  String get feedbackAttributeComfortQuality => 'Comfort';
+
+  @override
+  String get feedbackAttributeComfortProblem => 'Harsh';
+
+  @override
+  String get feedbackAttributeComfortHint => 'Hits come through to hands or feet';
+
+  @override
+  String get feedbackAttributeSupportQuality => 'Support';
+
+  @override
+  String get feedbackAttributeSupportProblem => 'Sinks / dives';
+
+  @override
+  String get feedbackAttributeSupportHint => 'Sits low, dives under braking, wallows in berms';
+
+  @override
+  String get feedbackAttributeCalmQuality => 'Calm';
+
+  @override
+  String get feedbackAttributeCalmProblem => 'Unsettled';
+
+  @override
+  String get feedbackAttributeCalmHint => 'Bouncy, kicks, doesn\'t settle after hits';
+
+  @override
+  String get feedbackAttributeBottomingQuality => 'Bottoming';
+
+  @override
+  String get feedbackAttributeBottomingProblem => 'Bottoms out';
+
+  @override
+  String get feedbackAttributeBottomingHint => 'Hits the end of travel hard or often';
+
+  @override
+  String get feedbackOutcomeWorse => 'Worse';
+
+  @override
+  String get feedbackOutcomeSlightlyWorse => 'Slightly worse';
+
+  @override
+  String get feedbackOutcomeSame => 'Same';
+
+  @override
+  String get feedbackOutcomeSlightlyBetter => 'Slightly better';
+
+  @override
+  String get feedbackOutcomeBetter => 'Better';
+
+  @override
+  String feedbackVerdictWorse(String reference) {
+    return 'Worse than $reference';
+  }
+
+  @override
+  String feedbackVerdictSlightlyWorse(String reference) {
+    return 'Slightly worse than $reference';
+  }
+
+  @override
+  String feedbackVerdictSame(String reference) {
+    return 'Same as $reference';
+  }
+
+  @override
+  String feedbackVerdictSlightlyBetter(String reference) {
+    return 'Slightly better than $reference';
+  }
+
+  @override
+  String feedbackVerdictBetter(String reference) {
+    return 'Better than $reference';
+  }
+
+  @override
+  String get feedbackNothingStoodOut => 'Nothing stood out';
+
+  @override
+  String get feedbackDialledIn => 'Dialled in';
+
+  @override
+  String get feedbackNotesHelper => 'Not used for ranking or proposals.';
+
+  @override
+  String get feedbackDeletedSetup => 'a deleted setup';
+
+  @override
+  String get feedbackTapAFace => 'Tap a face';
+
+  @override
+  String get feedbackIssueOther => 'Other';
+
+  @override
+  String get feedbackAddIssue => 'Add issue';
+
+  @override
+  String get feedbackAllIssues => 'All issues';
+
+  @override
+  String get feedbackWhatChanged => 'What changed';
+
+  @override
+  String get feedbackReferenceShort => 'reference';
+
+  @override
+  String get feedbackRatedSetupShort => 'rated setup';
+
+  @override
+  String get feedbackViewComparison => 'View comparison';
+
+  @override
+  String get feedbackHowDidItRide => 'How did it ride?';
+
+  @override
+  String get feedbackChangeReference => 'Change reference setup';
+
+  @override
+  String get feedbackRemoveComparison => 'Remove comparison';
+
+  @override
+  String get feedbackReferenceSetupTitle => 'Reference setup';
+
+  @override
+  String get feedbackRatedSideLabel => 'Rated';
+
+  @override
+  String get feedbackReferenceUnavailable => 'Values of the reference are unavailable';
+
+  @override
+  String get feedbackNoValuesChanged => 'No values changed';
+
+  @override
+  String get feedbackAddButton => 'Add feedback';
+
+  @override
+  String get feedbackAddForRide => 'Add feedback for this ride';
+
+  @override
+  String feedbackRankLabel(int rank, int total) {
+    return '$rank/$total compared';
+  }
+
+  @override
+  String feedbackRankTooltip(int count) {
+    return 'Estimated rank among the $count setups of this bike you compared in feedback';
+  }
+
+  @override
+  String get setupNotFound => 'SETUP NOT FOUND';
+
+  @override
+  String get feedbackFormAddTitle => 'Add Feedback';
+
+  @override
+  String get feedbackFormEditTitle => 'Edit Feedback';
+
+  @override
+  String get feedbackFormPickDate => 'Select Feedback Date';
+
+  @override
+  String get feedbackFormPickTime => 'Select Feedback Time';
+
+  @override
+  String feedbackFormNowRating(String name) {
+    return 'Now rating \'$name\'.';
+  }
+
+  @override
+  String get feedbackFormNoSetupActive => 'No setup was active at this time.';
+
+  @override
+  String get feedbackFormInvalid => 'Please check all fields for missing or invalid input.';
+
+  @override
+  String get feedbackFormNoSetupBefore =>
+      'No setup exists before this date/time for the selected bike. Create a setup first.';
+
+  @override
+  String feedbackFormNoSetupsSubtitle(String bike) {
+    return 'Feedback rates the setup you rode. Record $bike\'s setup first.';
+  }
+
+  @override
+  String get feedbackFormNoSetupsSubtitleGeneric =>
+      'Feedback rates the setup you rode. Record this bike\'s setup first.';
+
+  @override
+  String get feedbackFormNoSetupNowTitle => 'No setup at this time';
+
+  @override
+  String get feedbackFormNoSetupNowBody =>
+      'Feedback rates the setup that was active when you rode. Pick a later date or add a setup first.';
+
+  @override
+  String get feedbackFormDriftTitle => 'Setup link changed';
+
+  @override
+  String feedbackFormDriftBody(String stored, String current) {
+    return 'Originally \'$stored\', now resolves to \'$current\'. Ranking follows the current resolution.';
+  }
+
+  @override
+  String get feedbackFormRelink => 'Relink';
+
+  @override
+  String get feedbackFormComparedTo => 'Compared to';
+
+  @override
+  String get feedbackFormCompareAnother => 'Compare with another run';
+
+  @override
+  String get feedbackFormOpenIssuesChanged => 'Did its open issues change?';
+
+  @override
+  String get feedbackFormGoalImproved => 'Did your goal improve?';
+
+  @override
+  String get feedbackFormSomethingElse => 'Something else changed';
+
+  @override
+  String get feedbackFormAnythingTitle => 'Anything stand out?';
+
+  @override
+  String get feedbackFormAnythingInfo =>
+      'Optional. Flagged problems show on the setup as open issues until a later ride says otherwise.';
+
+  @override
+  String get feedbackFormDetailsTitle => 'Details';
+
+  @override
+  String get feedbackDetailsNotFoundTitle => 'Feedback not found';
+
+  @override
+  String get feedbackDetailsNotFoundSubtitle => 'This feedback was deleted or is no longer available.';
+
+  @override
+  String feedbackDetailsOriginally(String name) {
+    return 'Originally \'$name\'';
+  }
+
+  @override
+  String get feedbackDetailsStravaNotSynced => 'Strava ride not synced';
+
+  @override
+  String get feedbackDetailsNotAnswered => 'Not answered';
+
+  @override
+  String get feedbackDeletedSetupTitle => 'A deleted setup';
+
+  @override
+  String feedbackOriginallyNow(String stored, String current) {
+    return 'Originally \'$stored\', now \'$current\'';
+  }
+
+  @override
+  String get feedbackActionsTooltip => 'Feedback actions';
+
+  @override
+  String plusMore(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String get feedbackMovedToTrash => 'Feedback moved to trash.';
+
+  @override
+  String get feedbackRestoredFromTrash => 'Feedback restored from trash.';
+
+  @override
+  String get customIssueRenameTitle => 'Rename issue';
+
+  @override
+  String customIssueMerged(String label) {
+    return 'Merged into \"$label\".';
+  }
+
+  @override
+  String get customIssueRenamed => 'Issue renamed.';
+
+  @override
+  String customIssueRemoveTitle(String label) {
+    return 'Remove \"$label\"?';
+  }
+
+  @override
+  String get customIssueRemoveBody =>
+      'It is removed from every feedback and test session goal, including the trash. This cannot be undone.';
+
+  @override
+  String get customIssueRemoved => 'Issue removed.';
+
+  @override
+  String get customIssuesTitle => 'Issues';
+
+  @override
+  String get customIssuesInfo =>
+      'Your own problems, beside the built-in ones. Long-press an issue to rename or remove it.';
+
+  @override
+  String get customIssueEnterName => 'Enter a name';
+
+  @override
+  String get addTagTooltip => 'Add tag';
+
+  @override
+  String get addTagHint => 'New tag';
+
+  @override
+  String get addIssueHint => 'New issue';
+
+  @override
+  String get addTagConfirm => 'Add';
+
+  @override
+  String get testSessionUnnamed => 'Test session';
+
+  @override
+  String testSessionRunName(int number) {
+    return 'Run $number';
+  }
+
+  @override
+  String testSessionCopyLine(String name, String date) {
+    return 'Copy of \'$name\' ($date)';
+  }
+
+  @override
+  String testSessionGoalLabel(String end, String attribute) {
+    return '$end · $attribute';
+  }
+
+  @override
+  String get testSessionMethodFineTune => 'Fine-tune';
+
+  @override
+  String get testSessionMethodExplore => 'Explore';
+
+  @override
+  String get testSessionMethodCompare => 'Compare';
+
+  @override
+  String get testSessionMethodFree => 'Free';
+
+  @override
+  String get testSessionMethodFineTuneInfo =>
+      'Move one knob at a time around your best run, in smaller and smaller steps.';
+
+  @override
+  String get testSessionMethodExploreInfo =>
+      'Change all knobs together in a planned pattern to learn what each one does.';
+
+  @override
+  String get testSessionMethodCompareInfo => 'Ride 2–4 setups you already have against each other to find the best.';
+
+  @override
+  String get testSessionMethodFreeInfo => 'Record the runs and compare them yourself. Nothing is proposed.';
+
+  @override
+  String testSessionExpectedRuns(int count) {
+    return 'about $count runs';
+  }
+
+  @override
+  String testSessionExpect(String runs) {
+    return 'Expect $runs.';
+  }
+
+  @override
+  String testSessionRunsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count runs',
+      one: '1 run',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get testSessionEditTitle => 'Edit Test Session';
+
+  @override
+  String get testSessionStartTooltip => 'Start';
+
+  @override
+  String get testSessionErrAlreadyRunning => 'A test session is already running on this bike.';
+
+  @override
+  String get testSessionErrRecordSetup => 'Record a setup first. The first run starts from the bike’s current setup.';
+
+  @override
+  String get testSessionPickAdjustmentsTitle => 'Adjustments to test';
+
+  @override
+  String get testSessionNoAdjustments => 'This bike has no adjustments.';
+
+  @override
+  String testSessionTooManyAdjustments(int max) {
+    return 'More than $max adjustments make it hard to tell which one helped. 1–3 work best.';
+  }
+
+  @override
+  String testSessionTooManySetups(int count, int comparisons, int max) {
+    return 'Every setup is compared with every other one, so $count setups take about $comparisons comparisons. $max or fewer work best.';
+  }
+
+  @override
+  String get testSessionPickSetupsTitle => 'Setups to compare';
+
+  @override
+  String get testSessionNoSetups => 'This bike has no setups yet';
+
+  @override
+  String get testSessionAdjustmentNotFound => 'Adjustment not found';
+
+  @override
+  String get testSessionAdjustmentNotFoundCaps => 'ADJUSTMENT NOT FOUND';
+
+  @override
+  String get testSessionNoGoal => 'No goal';
+
+  @override
+  String get testSessionPickAtLeastOne => 'Pick at least one adjustment to test.';
+
+  @override
+  String get testSessionAdjustmentsEmptySubtitle => 'Tap \'Add Adjustment\' to pick what you want to test';
+
+  @override
+  String get testSessionRemoveAdjustment => 'Remove adjustment';
+
+  @override
+  String testSessionPickAtLeastSetups(int count) {
+    return 'Pick at least $count setups to compare.';
+  }
+
+  @override
+  String get testSessionSameValues => 'These setups have the same values. Pick setups that differ.';
+
+  @override
+  String testSessionSetupsEmptySubtitle(int count) {
+    return 'Tap \'Add Setups\' to pick at least $count setups to compare';
+  }
+
+  @override
+  String get testSessionSetupsEmptyError => 'Tap here to add the setups';
+
+  @override
+  String get testSessionRemoveSetup => 'Remove setup';
+
+  @override
+  String testSessionDifferingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count adjustments differ between them.',
+      one: '1 adjustment differs between them.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get testSessionAddSetups => 'Add Setups';
+
+  @override
+  String get testSessionChangeSetups => 'Change Setups';
+
+  @override
+  String get testSessionSectionMethod => 'Method';
+
+  @override
+  String get testSessionSectionMethodInfo =>
+      'How the app helps you choose the next run. You can always change values by hand.';
+
+  @override
+  String get testSessionSectionSetups => 'Setups';
+
+  @override
+  String get testSessionSectionAdjustmentsInfo =>
+      'The adjustments you want to test, in the order to try them. Every other value stays as it is. Fewer is better: 1–3 tell you most.';
+
+  @override
+  String get testSessionSectionGoal => 'Goal (optional)';
+
+  @override
+  String get testSessionGoalPrompt => 'What should get better? Each run asks if it did.';
+
+  @override
+  String get testSessionNameLabel => 'Name (optional)';
+
+  @override
+  String get testSessionGone => 'This test session no longer exists.';
+
+  @override
+  String get testSessionEnded => 'Ended';
+
+  @override
+  String get testSessionLockInfo =>
+      'Tap an adjustment to lock it at its value in the latest run. The next runs keep that value.';
+
+  @override
+  String get testSessionRunsTitle => 'Runs';
+
+  @override
+  String get testSessionDiffering => 'The adjustments your setups differ in:';
+
+  @override
+  String get testSessionLockedTooltip => 'Locked at its value. Tap to unlock.';
+
+  @override
+  String get testSessionLockTooltip => 'Tap to lock it at its value in the latest run.';
+
+  @override
+  String get testSessionNoRuns => 'No runs yet.';
+
+  @override
+  String testSessionShowEarlier(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count earlier',
+      one: 'Show 1 earlier',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get testSessionStepNoRuns => 'This session has no runs. Record one to go on.';
+
+  @override
+  String testSessionStepRated(String name) {
+    return '$name is rated. Ready for the next run.';
+  }
+
+  @override
+  String testSessionStepRide(String name) {
+    return 'Ride $name, then tell how it went.';
+  }
+
+  @override
+  String get testSessionNextRun => 'Next run';
+
+  @override
+  String get testSessionEndSession => 'End session';
+
+  @override
+  String get testSessionActionsTooltip => 'Test session actions';
+
+  @override
+  String get testSessionBikeRequired => 'A bike is required to start a test session';
+
+  @override
+  String get testSessionAdjustmentRequired => 'Add an adjustment to a component first';
+
+  @override
+  String get testSessionPickNextSetup => 'Which setup for the next run?';
+
+  @override
+  String get testSessionNoValueToLock => 'The latest run has no value to lock for this adjustment.';
+
+  @override
+  String testSessionEndedSnack(String name) {
+    return 'Test session \'$name\' ended.';
+  }
+
+  @override
+  String testSessionMovedToTrash(String name) {
+    return 'Test session \'$name\' moved to trash.';
+  }
+
+  @override
+  String testSessionRestoredFromTrash(String name) {
+    return 'Test session \'$name\' restored from trash.';
+  }
+
+  @override
+  String get testSessionEndFirstTitle => 'End the session first?';
+
+  @override
+  String testSessionEndFirstBody(String name) {
+    return '\'$name\' is running on this bike. A setup recorded now would confuse its runs. Use Next run to continue the session.';
+  }
+
+  @override
+  String get testSessionConvergedFineTune => 'Fine-tuning converged. Nothing left to try.';
+
+  @override
+  String get testSessionConvergedExplore => 'Exploring converged. Nothing left to try.';
+
+  @override
+  String get testSessionConvergedCompare => 'Comparing converged. Nothing left to try.';
+
+  @override
+  String testSessionSuggestedName(String name) {
+    return '$name · Suggested';
+  }
+
+  @override
+  String get testSessionBestRunName => 'The best run';
+
+  @override
+  String get testSessionBestSetup => 'Best setup';
+
+  @override
+  String get testSessionBestRun => 'Best run';
+
+  @override
+  String get testSessionDrift =>
+      'Ridden again, it lost against a run it had beaten: the trail or you may have changed.';
+
+  @override
+  String get badgeRunning => 'Running';
+
+  @override
+  String get badgeCurrentSetup => 'Current';
 }

@@ -13,6 +13,7 @@ import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/setup_carry_over.dart';
 import 'package:bike_setup_tracker/services/test_session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 StepAdjustment step(String id) => StepAdjustment(
   id: id,
@@ -302,6 +303,18 @@ void main() {
       'Front · Calm',
     );
     expect(TestSessionService.goalLabel(const CustomAspect('arm-pump'), (slug) => 'Arm pump'), 'Arm pump');
+  });
+
+  test('labels follow the language', () {
+    Intl.withLocale('de', () {
+      expect(TestSessionService.methodLabel(const PatternSearch()), 'Feinjustieren');
+      expect(
+        TestSessionService.goalLabel(const EndAspect(FeedbackEnd.rear, FeedbackAttribute.calm), (slug) => slug),
+        'Hinten · Ruhe',
+      );
+      expect(TestSessionService.expectedRuns(const PatternSearch(), 2), 'etwa 8 Läufe');
+      expect(TestSession.namePlaceholder, 'Testsitzung');
+    });
   });
 
   group('expectedRuns', () {

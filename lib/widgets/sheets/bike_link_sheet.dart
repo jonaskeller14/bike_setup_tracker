@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
@@ -53,11 +54,11 @@ class _BikeLinkSheetContentState extends State<BikeLinkSheetContent> {
 
   /// Says what Save will do, e.g. "Link 2 bikes" or "Link 1 · Unlink 1".
   String _saveLabel() {
-    String bikes(int count) => count == 1 ? '1 bike' : '$count bikes';
-    if (_toLink > 0 && _toUnlink > 0) return 'Link $_toLink · Unlink $_toUnlink';
-    if (_toLink > 0) return 'Link ${bikes(_toLink)}';
-    if (_toUnlink > 0) return 'Unlink ${bikes(_toUnlink)}';
-    return 'Save';
+    final l10n = context.l10n;
+    if (_toLink > 0 && _toUnlink > 0) return l10n.bikeLinkSaveBoth(_toLink, _toUnlink);
+    if (_toLink > 0) return l10n.bikeLinkSaveLink(_toLink);
+    if (_toUnlink > 0) return l10n.bikeLinkSaveUnlink(_toUnlink);
+    return l10n.save;
   }
 
   @override
@@ -72,12 +73,12 @@ class _BikeLinkSheetContentState extends State<BikeLinkSheetContent> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Link bikes', leadingIcon: Icon(Icons.link)),
+          SheetHeader(title: context.l10n.bikeLinkSheetTitle, leadingIcon: const Icon(Icons.link)),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              "Rider values of '${widget.person.name}' are recorded with the setups of linked bikes.",
+              context.l10n.bikeLinkIntro(widget.person.name),
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
@@ -86,12 +87,12 @@ class _BikeLinkSheetContentState extends State<BikeLinkSheetContent> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: bikes.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.all(8),
+                  ? Padding(
+                      padding: const EdgeInsets.all(8),
                       child: SheetFilterEmptyHint(
                         icon: Bike.iconData,
-                        title: 'No bikes yet',
-                        hint: 'Add a bike to link it to this rider.',
+                        title: context.l10n.bikeLinkEmptyTitle,
+                        hint: context.l10n.riderAddBikeHint,
                       ),
                     )
                   : Column(
@@ -119,7 +120,7 @@ class _BikeLinkSheetContentState extends State<BikeLinkSheetContent> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+                    child: Text(context.l10n.cancel),
                   ),
                 ),
                 Expanded(
@@ -199,15 +200,15 @@ class _BikeLinkRow extends StatelessWidget {
       subtitle: otherRider == null
           ? null
           : Text(
-              "Ridden by '${otherRider!.name}'",
+              context.l10n.bikeLinkRiddenBy(otherRider!.name),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: changed ? highlights.changed : colorScheme.onSurfaceVariant),
             ),
       trailing: _PillButton(
-        label: linked ? 'Unlink' : 'Link',
+        label: linked ? context.l10n.bikeLinkUnlink : context.l10n.bikeLinkLink,
         icon: linked ? Icons.link_off : Icons.add_link,
-        tooltip: linked ? "Unlink '${bike.name}'" : "Link '${bike.name}'",
+        tooltip: linked ? context.l10n.bikeLinkUnlinkTooltip(bike.name) : context.l10n.bikeLinkLinkTooltip(bike.name),
         filled: !linked,
         onPressed: onToggle,
       ),

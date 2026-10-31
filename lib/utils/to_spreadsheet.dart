@@ -7,7 +7,6 @@ import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/feedback/feedback_summary.dart';
-import '../models/feedback/feedback_vocabulary.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
@@ -53,7 +52,7 @@ class SpreadsheetExport {
     }
 
     _appendTaskLogSheet(excel, data, settings, l10n);
-    _appendFeedbackSheet(excel, data, settings);
+    _appendFeedbackSheet(excel, data, settings, l10n);
 
     // Drop the default empty sheet once any real sheet has been added.
     if (excel.sheets.length > 1 && excel.sheets.containsKey('Sheet1')) {
@@ -82,7 +81,7 @@ class SpreadsheetExport {
     }
 
     _appendTaskLogCsv(buffer, data, settings, l10n);
-    _appendFeedbackCsv(buffer, data, settings);
+    _appendFeedbackCsv(buffer, data, settings, l10n);
 
     return buffer.toString();
   }
@@ -105,7 +104,7 @@ class SpreadsheetExport {
     }
   }
 
-  static void _appendFeedbackCsv(StringBuffer buffer, SelectedData data, AppSettings settings) {
+  static void _appendFeedbackCsv(StringBuffer buffer, SelectedData data, AppSettings settings, AppLocalizations l10n) {
     if (!settings.enableRating) return;
 
     final feedbacks = _sortedFeedbacks(data);
@@ -116,7 +115,7 @@ class SpreadsheetExport {
     buffer.writeln(_feedbackHeaders.map(_csvCell).join(','));
 
     for (final feedback in feedbacks) {
-      final row = [DateFormat('yyyy-MM-dd HH:mm').format(feedback.dateTimeLocal), ..._feedbackColumns(feedback, data)];
+      final row = [DateFormat('yyyy-MM-dd HH:mm').format(feedback.dateTimeLocal), ..._feedbackColumns(feedback, data, l10n)];
       buffer.writeln(row.map(_csvCell).join(','));
     }
   }
@@ -407,7 +406,7 @@ class SpreadsheetExport {
     }
   }
 
-  static void _appendFeedbackSheet(Excel excel, SelectedData data, AppSettings settings) {
+  static void _appendFeedbackSheet(Excel excel, SelectedData data, AppSettings settings, AppLocalizations l10n) {
     if (!settings.enableRating) return;
 
     final feedbacks = _sortedFeedbacks(data);
@@ -419,7 +418,7 @@ class SpreadsheetExport {
       final dt = feedback.dateTimeLocal;
       sheet.appendRow([
         DateTimeCellValue(year: dt.year, month: dt.month, day: dt.day, hour: dt.hour, minute: dt.minute),
-        ..._feedbackColumns(feedback, data).map((e) => TextCellValue(e)),
+        ..._feedbackColumns(feedback, data, l10n).map((e) => TextCellValue(e)),
       ]);
     }
   }
@@ -433,13 +432,13 @@ class SpreadsheetExport {
   static const List<String> _feedbackHeaders = ['DateTime', 'Bike', 'Setup', 'Compared to', 'Outcome', 'Issues', 'Notes'];
 
   /// Every column of [_feedbackHeaders] after the date.
-  static List<String> _feedbackColumns(RideFeedback feedback, SelectedData data) {
+  static List<String> _feedbackColumns(RideFeedback feedback, SelectedData data, AppLocalizations l10n) {
     final overall = feedback.overallComparison;
     return [
       data.bikes[feedback.bike]?.name ?? '',
       (feedback.ratedSetupIn(data.setups) ?? data.setups[feedback.setupId])?.displayName ?? '',
       overall == null ? '' : data.setups[overall.referenceSetupId]?.displayName ?? '',
-      overall == null ? '' : FeedbackVocabulary.overallOutcomeLabels[overall.outcome]!,
+      overall == null ? '' : FeedbackOutcomeLabels.overall(l10n)[overall.outcome]!,
       feedback.issuesSummary ?? '',
       feedback.notes ?? '',
     ];

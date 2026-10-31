@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -565,7 +566,7 @@ void main() {
     testWidgets('the next step is the next run once the latest run is rated', (tester) async {
       await seed(tester, session: session(), runs: [run(1)]);
 
-      final step = TestSessionActions.nextStepFor(appRepository)!;
+      final step = TestSessionActions.nextStepFor(appRepository, englishL10n)!;
       expect(step.label, 'Next run');
 
       await pumpButton(tester, step.run);
@@ -575,7 +576,7 @@ void main() {
     testWidgets('the next step is feedback while the latest run is unrated', (tester) async {
       await seed(tester, session: session(), runs: [run(1)], rated: false);
 
-      final step = TestSessionActions.nextStepFor(appRepository)!;
+      final step = TestSessionActions.nextStepFor(appRepository, englishL10n)!;
       expect(step.label, 'Add Feedback');
 
       await pumpButton(tester, step.run);
@@ -585,7 +586,7 @@ void main() {
     testWidgets('there is no next step without a running session', (tester) async {
       await seed(tester, session: session(ended: true), runs: [run(1)]);
 
-      expect(TestSessionActions.nextStepFor(appRepository), isNull);
+      expect(TestSessionActions.nextStepFor(appRepository, englishL10n), isNull);
     });
 
     testWidgets('an unrated latest run is rated first, even with an empty feedback', (tester) async {

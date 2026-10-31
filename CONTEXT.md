@@ -75,6 +75,16 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Recommended tasks | Empfohlene Aufgaben | The task presets. The templates themselves stay English, see the note below |
 | Due now / Upcoming / Completed | Jetzt fällig / Anstehend / Erledigt | Sections of the task list |
 | Remaining / Exceeded | Verbleibend / Überschritten | After the amount, like 12 km verbleibend |
+| Feedback | Feedback | Stays an English loanword. A comparison against another setup is a Vergleich |
+| Issue (flagged problem) | Problem | A rider-defined one is a eigenes Problem |
+| Front / Rear (end of the bike) | Vorne / Hinten | |
+| Grip / Comfort / Support / Calm / Bottoming | Grip / Komfort / Gegenhalt / Ruhe / Durchschlag | The qualities of a goal. The problem chips read Wenig Grip, Hart, Sackt ein / taucht ab, Unruhig, Schlägt durch |
+| Reference setup | Referenz-Setup | The setup a feedback compares against |
+| Fine-tune / Explore / Compare / Free (test session method) | Feinjustieren / Erkunden / Vergleichen / Frei | |
+| Dialled in | Perfekt eingestellt | Feedback where nothing stood out |
+| Calendar views Schedule / Month / Week / Day | Agenda / Monat / Woche / Tag | |
+| Pin (on the map) | Markierung | |
+| Visibility (filter) | Sichtbarkeit | Shows or hides entry kinds such as setups and tasks |
 
 Unit symbols (`km`, `bar`, `°C`) are not translated.
 

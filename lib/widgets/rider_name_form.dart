@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/l10n.dart';
 import '../models/person.dart';
 import '../utils/person_actions.dart';
 import 'app_snackbar.dart';
@@ -47,7 +48,7 @@ class RiderNameField extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       scrollPadding: scrollPadding,
       decoration: InputDecoration(
-        hintText: "Your name",
+        hintText: context.l10n.riderNameFormHint,
         hintStyle: style?.copyWith(color: scheme.onSurfaceVariant.withValues(alpha: 0.4)),
         errorStyle: TextStyle(color: scheme.error),
         errorMaxLines: 2,
@@ -59,7 +60,7 @@ class RiderNameField extends StatelessWidget {
           borderSide: BorderSide(color: scheme.primary, width: 2),
         ),
       ),
-      validator: (value) => (value ?? "").trim().isEmpty ? "Enter a name to continue." : null,
+      validator: (value) => (value ?? "").trim().isEmpty ? context.l10n.riderNameFormRequired : null,
       onFieldSubmitted: (_) => onSubmitted(),
     );
   }
@@ -106,7 +107,7 @@ class _RiderNameFormState extends State<RiderNameForm> {
     final messenger = ScaffoldMessenger.of(context);
     final confirmation = AppSnackBar.success(
       context,
-      bikeId == null ? "Rider '$name' created." : "Rider '$name' created and linked to this bike.",
+      bikeId == null ? context.l10n.riderCreated(name) : context.l10n.riderCreatedLinked(name),
     );
 
     setState(() => _saving = true);
@@ -132,13 +133,13 @@ class _RiderNameFormState extends State<RiderNameForm> {
             Icon(Person.iconData, size: 48, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
-              "What's your name?",
+              context.l10n.riderNameFormTitle,
               style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.primary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Text(
-              "Your rider profile tracks values like your riding weight with each setup.",
+              context.l10n.riderNameFormBody,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
@@ -156,7 +157,7 @@ class _RiderNameFormState extends State<RiderNameForm> {
               child: FilledButton.icon(
                 onPressed: _saving ? null : _create,
                 icon: const Icon(Icons.person_add_alt),
-                label: const Text("Create rider"),
+                label: Text(context.l10n.riderNameFormCreate),
               ),
             ),
           ],

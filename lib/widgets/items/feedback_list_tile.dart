@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/feedback_summary.dart';
@@ -90,13 +91,13 @@ class FeedbackListTile extends StatelessWidget {
                       style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 12),
                     ),
                     if (showBike)
-                      TileMetaRow(icon: Bike.iconData, text: bike?.name ?? "BIKE NOT FOUND", isError: bike == null),
+                      TileMetaRow(icon: Bike.iconData, text: bike?.name ?? context.l10n.bikeNotFound, isError: bike == null),
                     if (activity != null) TileMetaRow(icon: SimpleIcons.strava, text: activity.name),
                   ],
                 ),
                 trailing: PopupMenuButton<_FeedbackOption>(
                   enabled: !selectionMode,
-                  tooltip: 'Feedback actions',
+                  tooltip: context.l10n.feedbackActionsTooltip,
                   onSelected: (option) => switch (option) {
                     _FeedbackOption.edit => FeedbackActions.editFeedback(context, feedback: feedback),
                     _FeedbackOption.remove => FeedbackActions.removeFeedback(context, feedback: feedback),
@@ -109,7 +110,7 @@ class FeedbackListTile extends StatelessWidget {
                           spacing: 10,
                           children: [
                             Icon(option.iconData, size: 20),
-                            Text(option.label),
+                            Text(option.label(context.l10n)),
                           ],
                         ),
                       ),
@@ -126,9 +127,10 @@ class FeedbackListTile extends StatelessWidget {
                       if (hasDrift)
                         TileMetaRow(
                           icon: Icons.warning_amber_rounded,
-                          text:
-                              "Originally '${appRepository.setups[feedback.setupId]?.displayName ?? 'a deleted setup'}', "
-                              "now '${resolved?.displayName}'",
+                          text: context.l10n.feedbackOriginallyNow(
+                            appRepository.setups[feedback.setupId]?.displayName ?? context.l10n.feedbackDeletedSetup,
+                            resolved?.displayName ?? '',
+                          ),
                           isError: true,
                         ),
                       if (showIssues) OpenIssuesChips(issues: issues),
@@ -167,7 +169,7 @@ class _Verdicts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const style = TextStyle(fontWeight: FontWeight.bold);
-    if (verdicts.isEmpty) return const Text('Feedback', style: style);
+    if (verdicts.isEmpty) return Text(context.l10n.feedbackName, style: style);
     final hidden = verdicts.length - _maxLines;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +179,7 @@ class _Verdicts extends StatelessWidget {
           Text(verdict, style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
         if (hidden > 0)
           Text(
-            '+$hidden more',
+            context.l10n.plusMore(hidden),
             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
           ),
       ],
@@ -186,11 +188,15 @@ class _Verdicts extends StatelessWidget {
 }
 
 enum _FeedbackOption {
-  edit('Edit', Icons.edit),
-  remove('Remove', Icons.delete);
+  edit(Icons.edit),
+  remove(Icons.delete);
 
-  final String label;
   final IconData iconData;
 
-  const _FeedbackOption(this.label, this.iconData);
+  const _FeedbackOption(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    remove => l10n.remove,
+  };
 }

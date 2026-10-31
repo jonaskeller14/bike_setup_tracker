@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/bike.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/setup.dart';
@@ -105,6 +106,8 @@ class FeedbackActions {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
+    final l10n = context.l10n;
+
     unawaited(HapticFeedback.mediumImpact());
     await appRepository.removeFeedbacks([feedback]);
 
@@ -112,10 +115,10 @@ class FeedbackActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        'Feedback moved to trash.',
+        l10n.feedbackMovedToTrash,
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async => appRepository.restoreFeedbacks([feedback]),
         ),
       ),
@@ -125,16 +128,17 @@ class FeedbackActions {
   static Future<void> restoreFeedback(BuildContext context, {required RideFeedback feedback}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     await appRepository.restoreFeedbacks([feedback]);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        'Feedback restored from trash.',
+        l10n.feedbackRestoredFromTrash,
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async => appRepository.removeFeedbacks([feedback]),
         ),
       ),

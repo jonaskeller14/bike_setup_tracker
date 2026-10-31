@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/feedback/test_session.dart';
 import '../../utils/test_session_actions.dart';
 
@@ -15,7 +16,7 @@ class TestSessionOptionsMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<_TestSessionOption>(
       enabled: enabled,
-      tooltip: 'Test session actions',
+      tooltip: context.l10n.testSessionActionsTooltip,
       onSelected: (option) => switch (option) {
         _TestSessionOption.edit => TestSessionActions.editSession(context, session: session),
         _TestSessionOption.remove => TestSessionActions.removeSession(context, session: session),
@@ -28,7 +29,7 @@ class TestSessionOptionsMenu extends StatelessWidget {
               spacing: 10,
               children: [
                 Icon(option.iconData, size: 20),
-                Text(option.label),
+                Text(option.label(context.l10n)),
               ],
             ),
           ),
@@ -38,11 +39,15 @@ class TestSessionOptionsMenu extends StatelessWidget {
 }
 
 enum _TestSessionOption {
-  edit('Edit', Icons.edit),
-  remove('Remove', Icons.delete);
+  edit(Icons.edit),
+  remove(Icons.delete);
 
-  final String label;
   final IconData iconData;
 
-  const _TestSessionOption(this.label, this.iconData);
+  const _TestSessionOption(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    remove => l10n.remove,
+  };
 }

@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/feedback/custom_issue.dart';
-import '../../models/feedback/feedback_vocabulary.dart';
 import '../../theme.dart';
 
 /// Follow-up on an open issue of the reference setup:
@@ -38,7 +39,7 @@ class FeedbackAspectRow extends StatelessWidget {
         Expanded(
           flex: 3,
           child: FeedbackOutcomeSelector(
-            labels: FeedbackVocabulary.aspectOutcomeLabels,
+            labels: FeedbackOutcomeLabels.aspect(context.l10n),
             outcome: outcome,
             onChanged: onChanged,
             dense: true,
@@ -154,7 +155,7 @@ class FeedbackOutcomeSelector extends StatelessWidget {
           AnimatedSwitcher(
             duration: duration,
             child: Text(
-              outcome == null ? 'Tap a face' : labels[outcome]!,
+              outcome == null ? context.l10n.feedbackTapAFace : labels[outcome]!,
               key: ValueKey(outcome),
               textAlign: TextAlign.center,
               maxLines: 1,

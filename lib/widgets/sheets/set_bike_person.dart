@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/person.dart';
 import 'partial_chip_fill.dart';
 import 'sheet_header.dart';
@@ -93,7 +93,7 @@ class _SetBikePersonSheetContentState extends State<SetBikePersonSheetContent> {
       label: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxLabelWidth),
         child: Text(
-          person == null ? 'No rider' : widget.persons[person]!.name,
+          person == null ? context.l10n.setBikePersonNoRider : widget.persons[person]!.name,
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -103,9 +103,9 @@ class _SetBikePersonSheetContentState extends State<SetBikePersonSheetContent> {
       backgroundColor: state == _PersonState.some ? Colors.transparent : null,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       tooltip: switch (state) {
-        _PersonState.all => _picked ? 'Set for all — tap to undo' : 'On all',
-        _PersonState.some => 'On ${_counts[person]} of ${widget.bikePersons.length} — tap to set for all',
-        _PersonState.none => 'Tap to set for all',
+        _PersonState.all => _picked ? context.l10n.setBikePersonAllUndo : context.l10n.setBikePersonOnAll,
+        _PersonState.some => context.l10n.setBikePersonOnSome(_counts[person]!, widget.bikePersons.length),
+        _PersonState.none => context.l10n.setBikePersonTapToSet,
       },
       onSelected: (_) => _pick(person),
     );
@@ -124,20 +124,20 @@ class _SetBikePersonSheetContentState extends State<SetBikePersonSheetContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Set Rider', leadingIcon: Icon(Person.iconData)),
+          SheetHeader(title: context.l10n.setBikePersonTitle, leadingIcon: const Icon(Person.iconData)),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: Text(
               widget.persons.isEmpty
-                  ? "You can assign a rider as soon as you've created one."
-                  : 'Each bike has one rider. Pick the rider for all selected bikes.',
+                  ? context.l10n.setBikePersonNoRidersInfo
+                  : context.l10n.setBikePersonInfo,
             ),
             dense: true,
           ),
           if (_hasPartialPersons)
-            const ListTile(
-              leading: PartialChipSwatch(),
-              title: Text('Half-filled chips apply to only part of your selection.'),
+            ListTile(
+              leading: const PartialChipSwatch(),
+              title: Text(context.l10n.setBikePersonHalfFilled),
               dense: true,
             ),
           const SizedBox(height: 12),
@@ -159,7 +159,7 @@ class _SetBikePersonSheetContentState extends State<SetBikePersonSheetContent> {
               icon: const Icon(Icons.check),
               onPressed: _hasChanges ? _apply : null,
               label: Text(
-                Intl.plural(bikeCount, one: 'Apply to 1 Bike', other: 'Apply to $bikeCount Bikes'),
+                context.l10n.setBikePersonApply(bikeCount),
                 overflow: TextOverflow.ellipsis,
               ),
             ),

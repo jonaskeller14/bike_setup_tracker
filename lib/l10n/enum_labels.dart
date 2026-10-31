@@ -3,10 +3,12 @@ import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/component/resolved_installation.dart';
 import '../models/context/context_weather.dart';
+import '../models/feedback/feedback_vocabulary.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_plan.dart';
 import '../models/task/task_rule.dart';
 import '../models/tip_product.dart';
+import '../services/location_service.dart';
 import '../utils/installation_issue.dart';
 import '../utils/installation_timeline_validation.dart';
 import '../utils/table_column.dart';
@@ -267,5 +269,67 @@ extension SetupColumnLabel on SetupColumn {
     SetupColumn.soilMoisture => l10n.setupColumnSoilMoisture,
     SetupColumn.condition => l10n.setupColumnCondition,
     SetupColumn.testSession => l10n.setupColumnTestSession,
+  };
+}
+
+extension LocationStatusMessage on LocationStatus {
+  String errorMessage(AppLocalizations l10n) => switch (this) {
+    LocationStatus.noService => l10n.setupFormLocationDisabled,
+    LocationStatus.noPermission => l10n.setupFormLocationNoPermission,
+    LocationStatus.permissionDeniedForever => l10n.setupFormLocationDeniedForever,
+    LocationStatus.timeout => l10n.mapLocationTimeout,
+    LocationStatus.error => l10n.mapLocationError,
+    _ => l10n.mapLocationNone,
+  };
+}
+
+extension FeedbackEndLabel on FeedbackEnd {
+  String label(AppLocalizations l10n) => switch (this) {
+    FeedbackEnd.front => l10n.feedbackEndFront,
+    FeedbackEnd.rear => l10n.feedbackEndRear,
+  };
+}
+
+extension FeedbackAttributeLabel on FeedbackAttribute {
+  String qualityLabel(AppLocalizations l10n) => switch (this) {
+    FeedbackAttribute.grip => l10n.feedbackAttributeGripQuality,
+    FeedbackAttribute.comfort => l10n.feedbackAttributeComfortQuality,
+    FeedbackAttribute.support => l10n.feedbackAttributeSupportQuality,
+    FeedbackAttribute.calm => l10n.feedbackAttributeCalmQuality,
+    FeedbackAttribute.bottoming => l10n.feedbackAttributeBottomingQuality,
+  };
+
+  String problemLabel(AppLocalizations l10n) => switch (this) {
+    FeedbackAttribute.grip => l10n.feedbackAttributeGripProblem,
+    FeedbackAttribute.comfort => l10n.feedbackAttributeComfortProblem,
+    FeedbackAttribute.support => l10n.feedbackAttributeSupportProblem,
+    FeedbackAttribute.calm => l10n.feedbackAttributeCalmProblem,
+    FeedbackAttribute.bottoming => l10n.feedbackAttributeBottomingProblem,
+  };
+
+  String hint(AppLocalizations l10n) => switch (this) {
+    FeedbackAttribute.grip => l10n.feedbackAttributeGripHint,
+    FeedbackAttribute.comfort => l10n.feedbackAttributeComfortHint,
+    FeedbackAttribute.support => l10n.feedbackAttributeSupportHint,
+    FeedbackAttribute.calm => l10n.feedbackAttributeCalmHint,
+    FeedbackAttribute.bottoming => l10n.feedbackAttributeBottomingHint,
+  };
+}
+
+/// Comparison answers by outcome, ordered worse to better.
+abstract final class FeedbackOutcomeLabels {
+  static Map<int, String> overall(AppLocalizations l10n) => {
+    -2: l10n.feedbackOutcomeWorse,
+    -1: l10n.feedbackOutcomeSlightlyWorse,
+    0: l10n.feedbackOutcomeSame,
+    1: l10n.feedbackOutcomeSlightlyBetter,
+    2: l10n.feedbackOutcomeBetter,
+  };
+
+  /// +1 means the aspect improved (a problem got smaller).
+  static Map<int, String> aspect(AppLocalizations l10n) => {
+    -1: l10n.feedbackOutcomeWorse,
+    0: l10n.feedbackOutcomeSame,
+    1: l10n.feedbackOutcomeBetter,
   };
 }

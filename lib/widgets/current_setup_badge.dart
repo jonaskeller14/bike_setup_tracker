@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 /// Marks the setup that is currently mounted on its bike.
 class CurrentSetupBadge extends StatelessWidget {
   final bool compact;
@@ -21,7 +23,7 @@ class CurrentSetupBadge extends StatelessWidget {
           Icon(Icons.flag, size: compact ? 10 : 12, color: scheme.onPrimary),
           SizedBox(width: compact ? 3 : 4),
           Text(
-            'Current',
+            context.l10n.badgeCurrentSetup,
             style: TextStyle(
               color: scheme.onPrimary,
               fontWeight: FontWeight.w600,

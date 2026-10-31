@@ -1,8 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/feedback_key.dart';
@@ -190,10 +191,10 @@ class _TestSessionPageState extends State<TestSessionPage> {
     String? error;
     final knobIds = _sessionKnobIds();
     if (appRepository.runningSessionFor(_bike) != null) {
-      error = 'A test session is already running on this bike.';
+      error = context.l10n.testSessionErrAlreadyRunning;
     } else if (_choice != _MethodChoice.compare &&
         appRepository.setups[appRepository.resolveSetupId(bikeId: _bike, atUtc: DateTime.now().toUtc())] == null) {
-      error = 'Record a setup first. The first run starts from the bike’s current setup.';
+      error = context.l10n.testSessionErrRecordSetup;
     }
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, error));
@@ -233,7 +234,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
     final now = DateTime.now().toUtc();
     return showPickAdjustmentsSheet(
       context,
-      title: 'Adjustments to test',
+      title: context.l10n.testSessionPickAdjustmentsTitle,
       groups: [
         for (final group in groups)
           PickAdjustmentsGroup(
@@ -253,32 +254,33 @@ class _TestSessionPageState extends State<TestSessionPage> {
         _knobsChanged();
       },
       warningFor: _tooManyAdjustmentsMessage,
-      emptyHint: 'This bike has no adjustments.',
+      emptyHint: context.l10n.testSessionNoAdjustments,
     );
   }
 
   /// Soft: more than a few adjustments still work, they just tell less.
   String? _tooManyAdjustmentsMessage(int count) => count > TestSessionService.recommendedMaxAdjustments
-      ? 'More than ${TestSessionService.recommendedMaxAdjustments} adjustments make it hard to tell which one '
-            'helped. 1–3 work best.'
+      ? context.l10n.testSessionTooManyAdjustments(TestSessionService.recommendedMaxAdjustments)
       : null;
 
   /// Soft, like the adjustments: more setups just take many more runs.
   String? _tooManySetupsMessage(int count) => count > TestSessionService.recommendedMaxCompareSetups
-      ? 'Every setup is compared with every other one, so $count setups take about '
-            '${count * (count - 1) ~/ 2} comparisons. ${TestSessionService.recommendedMaxCompareSetups} or fewer '
-            'work best.'
+      ? context.l10n.testSessionTooManySetups(
+          count,
+          count * (count - 1) ~/ 2,
+          TestSessionService.recommendedMaxCompareSetups,
+        )
       : null;
 
   /// Closing the sheet keeps the selection.
   Future<void> _pickCandidates() async {
     final selected = await showPickSetupsSheet(
       context,
-      title: 'Setups to compare',
+      title: context.l10n.testSessionPickSetupsTitle,
       options: _bikeSetups(),
       selectedIds: _candidateIds,
       warningFor: _tooManySetupsMessage,
-      emptyTitle: 'This bike has no setups yet',
+      emptyTitle: context.l10n.testSessionNoSetups,
     );
     if (!mounted) return;
     setState(
@@ -295,18 +297,18 @@ class _TestSessionPageState extends State<TestSessionPage> {
     final disabled = Theme.of(context).disabledColor;
     return InputDecorator(
       isEmpty: false,
-      decoration: const InputDecoration(
-        labelText: 'Bike',
+      decoration: InputDecoration(
+        labelText: context.l10n.setupFormBikeLabel,
         enabled: false,
-        border: OutlineInputBorder(),
-        suffixIcon: Icon(Icons.lock_outline),
+        border: const OutlineInputBorder(),
+        suffixIcon: const Icon(Icons.lock_outline),
       ),
       child: Row(
         spacing: 8,
         children: [
           Icon(Bike.iconData, color: disabled),
           Expanded(
-            child: Text(bike?.name ?? 'BIKE NOT FOUND', overflow: TextOverflow.ellipsis, style: TextStyle(color: disabled)),
+            child: Text(bike?.name ?? context.l10n.bikeNotFound, overflow: TextOverflow.ellipsis, style: TextStyle(color: disabled)),
           ),
         ],
       ),
@@ -337,7 +339,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
         Text(
           [
             TestSessionService.methodDescription(_choice.method),
-            if (expected != null) 'Expect $expected.',
+            if (expected != null) context.l10n.testSessionExpect(expected),
           ].join(' '),
           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
@@ -368,7 +370,11 @@ class _TestSessionPageState extends State<TestSessionPage> {
               foregroundColor: Theme.of(context).disabledColor,
               child: Text('${index + 1}'),
             ),
-            title: Text(knobs[id]?.adjustment.name ?? 'Adjustment not found', maxLines: 1, overflow: TextOverflow.ellipsis),
+            title: Text(
+              knobs[id]?.adjustment.name ?? context.l10n.testSessionAdjustmentNotFound,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             subtitle: Text(knobs[id]?.ownerName ?? '', maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
       ],
@@ -385,7 +391,11 @@ class _TestSessionPageState extends State<TestSessionPage> {
             enabled: false,
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Setup.iconData),
-            title: Text(setups[id]?.displayName ?? 'Setup not found', maxLines: 1, overflow: TextOverflow.ellipsis),
+            title: Text(
+              setups[id]?.displayName ?? context.l10n.setupDetailsNotFoundTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
       ],
     );
@@ -396,7 +406,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
   Widget _lockedGoal() {
     final theme = Theme.of(context);
     if (_goal.isEmpty) {
-      return Text('No goal', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant));
+      return Text(context.l10n.testSessionNoGoal, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant));
     }
     final labelOf = context.read<AppRepository>().customIssues.labelOf;
     return Wrap(
@@ -420,16 +430,16 @@ class _TestSessionPageState extends State<TestSessionPage> {
       key: _knobFieldKey,
       initialValue: _knobIds,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: (_) => _knobIds.isEmpty ? 'Pick at least one adjustment to test.' : null,
+      validator: (_) => _knobIds.isEmpty ? context.l10n.testSessionPickAtLeastOne : null,
       builder: (field) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (_knobIds.isEmpty)
             EmptyStatePlaceholder2(
-              title: 'No adjustments yet',
+              title: context.l10n.componentFormAdjustmentsEmptyTitle,
               errorTitle: field.errorText,
-              subtitle: "Tap 'Add Adjustment' to pick what you want to test",
-              errorSubtitle: 'Tap here to add the first adjustment',
+              subtitle: context.l10n.testSessionAdjustmentsEmptySubtitle,
+              errorSubtitle: context.l10n.componentFormAdjustmentsEmptyError,
               onTap: _pickKnobs,
             )
           else ...[
@@ -445,14 +455,14 @@ class _TestSessionPageState extends State<TestSessionPage> {
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(radius: 14, child: Text('${index + 1}')),
                     title: Text(
-                      knobs[id]?.adjustment.name ?? 'Adjustment not found',
+                      knobs[id]?.adjustment.name ?? context.l10n.testSessionAdjustmentNotFound,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(knobs[id]?.ownerName ?? '', maxLines: 1, overflow: TextOverflow.ellipsis),
                     trailing: IconButton(
                       icon: const Icon(Icons.close),
-                      tooltip: 'Remove adjustment',
+                      tooltip: context.l10n.testSessionRemoveAdjustment,
                       onPressed: () {
                         setState(() => _knobIds.remove(id));
                         _knobsChanged();
@@ -464,7 +474,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
             if (_tooManyAdjustmentsMessage(_knobIds.length) case final message?) SheetWarning(message: message),
           ],
           const SizedBox(height: 8),
-          _addButton(label: 'Add Adjustment', onPressed: _pickKnobs),
+          _addButton(label: context.l10n.componentFormAddAdjustment, onPressed: _pickKnobs),
         ],
       ),
     );
@@ -480,9 +490,9 @@ class _TestSessionPageState extends State<TestSessionPage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (_) {
         if (_candidateIds.length < TestSessionService.minCompareSetups) {
-          return 'Pick at least ${TestSessionService.minCompareSetups} setups to compare.';
+          return context.l10n.testSessionPickAtLeastSetups(TestSessionService.minCompareSetups);
         }
-        return _knobCount == 0 ? 'These setups have the same values. Pick setups that differ.' : null;
+        return _knobCount == 0 ? context.l10n.testSessionSameValues : null;
       },
       builder: (field) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -490,10 +500,10 @@ class _TestSessionPageState extends State<TestSessionPage> {
           if (_candidateIds.isEmpty)
             EmptyStatePlaceholder2(
               iconData: Setup.iconData,
-              title: 'No setups yet',
+              title: context.l10n.noSetupsTitle,
               errorTitle: field.errorText,
-              subtitle: "Tap 'Add Setups' to pick at least ${TestSessionService.minCompareSetups} setups to compare",
-              errorSubtitle: 'Tap here to add the setups',
+              subtitle: context.l10n.testSessionSetupsEmptySubtitle(TestSessionService.minCompareSetups),
+              errorSubtitle: context.l10n.testSessionSetupsEmptyError,
               onTap: _pickCandidates,
             )
           else ...[
@@ -501,10 +511,14 @@ class _TestSessionPageState extends State<TestSessionPage> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Setup.iconData),
-                title: Text(setups[id]?.displayName ?? 'Setup not found', maxLines: 1, overflow: TextOverflow.ellipsis),
+                title: Text(
+                  setups[id]?.displayName ?? context.l10n.setupDetailsNotFoundTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 trailing: IconButton(
                   icon: const Icon(Icons.close),
-                  tooltip: 'Remove setup',
+                  tooltip: context.l10n.testSessionRemoveSetup,
                   onPressed: () {
                     setState(() => _candidateIds.remove(id));
                     _candidatesChanged();
@@ -516,16 +530,15 @@ class _TestSessionPageState extends State<TestSessionPage> {
               Text(field.errorText!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error))
             else if (_candidateIds.length >= TestSessionService.minCompareSetups)
               Text(
-                Intl.plural(
-                  differing,
-                  one: '1 adjustment differs between them.',
-                  other: '$differing adjustments differ between them.',
-                ),
+                context.l10n.testSessionDifferingCount(differing),
                 style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
           ],
           const SizedBox(height: 8),
-          _addButton(label: _candidateIds.isEmpty ? 'Add Setups' : 'Change Setups', onPressed: _pickCandidates),
+          _addButton(
+            label: _candidateIds.isEmpty ? context.l10n.testSessionAddSetups : context.l10n.testSessionChangeSetups,
+            onPressed: _pickCandidates,
+          ),
         ],
       ),
     );
@@ -569,12 +582,16 @@ class _TestSessionPageState extends State<TestSessionPage> {
     final custom = context.read<AppRepository>().customIssues;
     final groups = [
       for (final end in FeedbackEnd.values)
-        _goalGroup(end.label, [
+        _goalGroup(end.label(context.l10n), [
           for (final attribute in FeedbackAttribute.values)
-            _goalChip(EndAspect(end, attribute), attribute.qualityLabel, tooltip: attribute.hint),
+            _goalChip(
+              EndAspect(end, attribute),
+              attribute.qualityLabel(context.l10n),
+              tooltip: attribute.hint(context.l10n),
+            ),
         ]),
       if (custom.usages.isNotEmpty)
-        _goalGroup('Other', [
+        _goalGroup(context.l10n.feedbackIssueOther, [
           for (final usage in custom.usages) _goalChip(usage.issue.aspect, usage.label),
         ]),
     ];
@@ -604,8 +621,14 @@ class _TestSessionPageState extends State<TestSessionPage> {
       onPopInvokedWithResult: _handlePop,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_isEdit ? 'Edit Test Session' : 'Start Test Session'),
-          actions: [IconButton(icon: const Icon(Icons.check), tooltip: _isEdit ? 'Save' : 'Start', onPressed: _save)],
+          title: Text(_isEdit ? context.l10n.testSessionEditTitle : context.l10n.startTestSession),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.check),
+              tooltip: _isEdit ? context.l10n.save : context.l10n.testSessionStartTooltip,
+              onPressed: _save,
+            ),
+          ],
         ),
         body: SafeArea(
           child: Form(
@@ -627,7 +650,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
                           DropdownButtonFormField<String>(
                             initialValue: bikes.containsKey(_bike) ? _bike : null,
                             isExpanded: true,
-                            decoration: const InputDecoration(labelText: 'Bike', border: OutlineInputBorder()),
+                            decoration: InputDecoration(labelText: context.l10n.setupFormBikeLabel, border: const OutlineInputBorder()),
                             items: [
                               for (final bike in bikes.values)
                                 DropdownMenuItem(
@@ -646,7 +669,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
                         TextField(
                           controller: _nameController,
                           decoration: InputDecoration(
-                            labelText: 'Name (optional)',
+                            labelText: context.l10n.testSessionNameLabel,
                             hintText: TestSession.namePlaceholder,
                             border: const OutlineInputBorder(),
                             fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -657,26 +680,24 @@ class _TestSessionPageState extends State<TestSessionPage> {
                     ),
                   ),
                   SectionTitle(
-                    title: 'Method',
-                    infoText: 'How the app helps you choose the next run. You can always change values by hand.',
+                    title: context.l10n.testSessionSectionMethod,
+                    infoText: context.l10n.testSessionSectionMethodInfo,
                     trailing: locked,
                   ),
                   Padding(padding: padding, child: _methodSection()),
                   if (_choice == _MethodChoice.compare) ...[
-                    SectionTitle(title: 'Setups', trailing: locked),
+                    SectionTitle(title: context.l10n.testSessionSectionSetups, trailing: locked),
                     Padding(padding: padding, child: _isEdit ? _lockedCandidates() : _candidateSection()),
                   ] else ...[
                     SectionTitle(
-                      title: 'Adjustments',
-                      infoText:
-                          'The adjustments you want to test, in the order to try them. Every other value stays as it is. '
-                          'Fewer is better: 1–3 tell you most.',
+                      title: context.l10n.componentFormAdjustmentsTitle,
+                      infoText: context.l10n.testSessionSectionAdjustmentsInfo,
                       trailing: locked,
                     ),
                     Padding(padding: padding, child: _isEdit ? _lockedKnobs() : _knobSection()),
                   ],
                   SectionTitle(
-                    title: 'Goal (optional)',
+                    title: context.l10n.testSessionSectionGoal,
                     trailing:
                         locked ??
                         Text(
@@ -687,7 +708,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
                   Padding(
                     padding: padding,
                     child: Text(
-                      'What should get better? Each run asks if it did.',
+                      context.l10n.testSessionGoalPrompt,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),

@@ -3,10 +3,12 @@ import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/context/context_weather.dart';
+import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/strava/strava_plan.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/tip_product.dart';
+import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/utils/installation_issue.dart';
 import 'package:bike_setup_tracker/utils/installation_timeline_validation.dart';
 import 'package:bike_setup_tracker/utils/table_column.dart';
@@ -40,6 +42,22 @@ void main() {
     });
     test('StravaWorkoutType', () => expectLabeled(StravaWorkoutType.values, (v, l10n) => v.label(l10n)));
     test('SportType', () => expectLabeled(SportType.values, (v, l10n) => v.label(l10n)));
+    test('FeedbackEnd', () => expectLabeled(FeedbackEnd.values, (v, l10n) => v.label(l10n)));
+    test('FeedbackAttribute', () {
+      expectLabeled(FeedbackAttribute.values, (v, l10n) => v.qualityLabel(l10n));
+      expectLabeled(FeedbackAttribute.values, (v, l10n) => v.problemLabel(l10n));
+      expectLabeled(FeedbackAttribute.values, (v, l10n) => v.hint(l10n));
+    });
+    test('feedback outcomes', () {
+      for (final l10n in locales.values) {
+        expect(FeedbackOutcomeLabels.overall(l10n).keys, [-2, -1, 0, 1, 2]);
+        expect(FeedbackOutcomeLabels.aspect(l10n).keys, [-1, 0, 1]);
+        expect(FeedbackOutcomeLabels.overall(l10n).values, everyElement(isNotEmpty));
+      }
+    });
+    test('LocationStatus', () {
+      expectLabeled(LocationStatus.values, (v, l10n) => v.errorMessage(l10n));
+    });
     test('Condition', () => expectLabeled(Condition.values, (v, l10n) => v.label(l10n)));
     test(
       'StepAdjustmentVisualization',
@@ -88,6 +106,18 @@ void main() {
     expect(ComponentType.fork.label(de), 'Gabel');
     expect(ComponentType.shock.label(de), 'Dämpfer');
     expect(ComponentTypeCategory.suspension.label(de), 'Federung');
+  });
+
+  test('feedback labels read in English as before and in German', () {
+    final en = locales['en']!;
+    final de = locales['de']!;
+    expect(FeedbackEnd.front.label(en), 'Front');
+    expect(FeedbackAttribute.calm.problemLabel(en), 'Unsettled');
+    expect(FeedbackOutcomeLabels.overall(en)[1], 'Slightly better');
+    expect(FeedbackEnd.front.label(de), 'Vorne');
+    expect(FeedbackAttribute.calm.problemLabel(de), 'Unruhig');
+    expect(FeedbackOutcomeLabels.overall(de)[1], 'Etwas besser');
+    expect(LocationStatus.timeout.errorMessage(en), 'Location request timed out. Try again.');
   });
 
   group('enums are persisted by name, never by label', () {

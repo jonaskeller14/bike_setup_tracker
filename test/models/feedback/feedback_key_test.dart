@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -135,12 +137,12 @@ void main() {
     test('has five attributes on two ends', () {
       expect(FeedbackEnd.values.map((e) => e.name), ['front', 'rear']);
       expect(FeedbackAttribute.values.map((a) => a.name), ['grip', 'comfort', 'support', 'calm', 'bottoming']);
-      expect(FeedbackAttribute.calm.problemLabel, 'Unsettled');
+      expect(FeedbackAttribute.calm.problemLabel(englishL10n), 'Unsettled');
     });
 
     test('outcome labels cover each aspect range', () {
-      expect(FeedbackVocabulary.overallOutcomeLabels.keys, [-2, -1, 0, 1, 2]);
-      expect(FeedbackVocabulary.aspectOutcomeLabels.keys, [-1, 0, 1]);
+      expect(FeedbackOutcomeLabels.overall(englishL10n).keys, [-2, -1, 0, 1, 2]);
+      expect(FeedbackOutcomeLabels.aspect(englishL10n).keys, [-1, 0, 1]);
     });
   });
 }

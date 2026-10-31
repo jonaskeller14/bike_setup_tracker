@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/person.dart';
@@ -267,14 +268,14 @@ class _PersonPageState extends State<PersonPage> {
       autofocus: widget.mode == PersonPageMode.add,
       onChanged: (value) => setState(() {}), // see filled/fillColor
       decoration: InputDecoration(
-        labelText: 'Rider Name',
+        labelText: context.l10n.riderFormNameLabel,
         border: const OutlineInputBorder(),
-        hintText: 'Enter rider name',
+        hintText: context.l10n.riderFormNameHint,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == PersonPageMode.edit && _nameController.text.trim() != widget.person?.name,
       ),
       validator: (String? value) {
-        if (value == null || value.trim().isEmpty) return 'Name is required';
+        if (value == null || value.trim().isEmpty) return context.l10n.riderFormNameRequired;
         return null;
       },
     );
@@ -288,8 +289,8 @@ class _PersonPageState extends State<PersonPage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (value) => setState(() {}), // see filled/fillColor
       decoration: InputDecoration(
-        labelText: 'Notes (optional)',
-        hintText: 'Enter notes about the rider...',
+        labelText: context.l10n.notesOptionalLabel,
+        hintText: context.l10n.riderFormNotesHint,
         border: const OutlineInputBorder(),
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
@@ -303,11 +304,11 @@ class _PersonPageState extends State<PersonPage> {
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: 'Strava Athlete',
+        labelText: context.l10n.riderFormStravaLabel,
         border: const OutlineInputBorder(),
-        hintText: "Link Strava Athlete",
+        hintText: context.l10n.riderFormStravaHint,
         helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
-          ? "WARNING: Strava Athlete already assigned to another rider"
+          ? context.l10n.riderFormStravaTaken
           : null,
         helperMaxLines: 2,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -315,17 +316,17 @@ class _PersonPageState extends State<PersonPage> {
       ),
       validator: (int? newStravaAthlete) {
         if (newStravaAthlete == null) return null;
-        if (!stravaAthletes.containsKey(newStravaAthlete)) return "Please select valid Athlete";
+        if (!stravaAthletes.containsKey(newStravaAthlete)) return context.l10n.riderFormStravaInvalid;
         return null;
       },
       items: [
-        const DropdownMenuItem<int?>(
+        DropdownMenuItem<int?>(
           value: null,
           child: Row(
             spacing: 8,
             children: [
-              Icon(Icons.link_off),
-              Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
+              const Icon(Icons.link_off),
+              Expanded(child: Text(context.l10n.bikeFormStravaGearNotLinked, overflow: TextOverflow.ellipsis))
             ],
           ),
         ),
@@ -348,7 +349,7 @@ class _PersonPageState extends State<PersonPage> {
             spacing: 8,
             children: [
               Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
-              Expanded(child: Text("ATHLETE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+              Expanded(child: Text(context.l10n.riderStravaAthleteNotFound, overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
             ],
           ),
         ),
@@ -374,8 +375,8 @@ class _PersonPageState extends State<PersonPage> {
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            PersonPageMode.add || PersonPageMode.duplicate => const Text('Add Rider'),
-            PersonPageMode.edit => const Text('Edit Rider'),
+            PersonPageMode.add || PersonPageMode.duplicate => Text(context.l10n.riderFormAddTitle),
+            PersonPageMode.edit => Text(context.l10n.riderFormEditTitle),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _savePerson),
@@ -404,8 +405,8 @@ class _PersonPageState extends State<PersonPage> {
                                 : Icons.expand_more,
                             ),
                             label: Text(_expanded
-                                ? "Hide Additional Fields"
-                                : "Show Additional Fields"
+                                ? context.l10n.hideAdditionalFields
+                                : context.l10n.showAdditionalFields
                             ),
                           ),
                         ),
@@ -427,7 +428,7 @@ class _PersonPageState extends State<PersonPage> {
                       ],
                     ),
                   ),
-                  const SectionTitle(title: "Attributes"),
+                  SectionTitle(title: context.l10n.riderFormAttributesTitle),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                     child: FormField<List<Adjustment>>(
@@ -458,10 +459,10 @@ class _PersonPageState extends State<PersonPage> {
                                     onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
                                   )
                                 : EmptyStatePlaceholder2(
-                                    title: "No attributes yet",
+                                    title: context.l10n.riderFormAttributesEmptyTitle,
                                     errorTitle: field.errorText,
-                                    subtitle: "Tap 'Add Attribute' to define parameters for this rider",
-                                    errorSubtitle: "Tap here to add the first attribute",
+                                    subtitle: context.l10n.riderFormAttributesEmptySubtitle,
+                                    errorSubtitle: context.l10n.riderFormAttributesEmptyError,
                                     onTap: showAddBottomSheet,
                                   ),
                             const SizedBox(height: 8),
@@ -470,7 +471,7 @@ class _PersonPageState extends State<PersonPage> {
                               child: FilledButton.icon(
                                 onPressed: showAddBottomSheet,
                                 icon: const Icon(Icons.add),
-                                label: const Text("Add Attribute"),
+                                label: Text(context.l10n.riderFormAddAttribute),
                               ),
                             ),
                             if (field.hasError && _adjustments.isNotEmpty)

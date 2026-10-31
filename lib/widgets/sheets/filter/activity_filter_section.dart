@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../l10n/l10n.dart';
 import '../../../models/app_settings.dart';
 import '../../../models/filters/numeric_range.dart';
 import '../../../models/strava/activity_bounds.dart';
@@ -24,9 +25,9 @@ class ActivityFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SheetSectionTitle(title: "Activities"),
+        SheetSectionTitle(title: context.l10n.filterActivitiesTitle),
         _RangeFilter(
-          label: "Distance",
+          label: context.l10n.filterDistance,
           range: filters.activity.distance,
           unit: distanceUnit,
           track: sliderBounds(
@@ -38,7 +39,7 @@ class ActivityFilterSection extends StatelessWidget {
           onChanged: (range) => filters.activity = filters.activity.copyWith(distance: range),
         ),
         _RangeFilter(
-          label: "Elevation Gain",
+          label: context.l10n.filterElevationGain,
           range: filters.activity.elevationGain,
           unit: altitudeUnit,
           track: sliderBounds(
@@ -95,7 +96,7 @@ class _RangeFilter extends StatelessWidget {
       divisions: (track.max / track.step).round(),
       valueLabel: (dragging) =>
           FilterActions.rangeLabel(dragging == null ? range : _toRange(dragging), unit: unit, fromMeters: fromMeters) ??
-          "Any",
+          context.l10n.filterAnyValue,
       onChangeEnd: (values) => onChanged(_toRange(values)),
     );
   }

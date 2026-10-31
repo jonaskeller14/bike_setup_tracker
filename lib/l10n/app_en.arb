@@ -6624,5 +6624,1708 @@
   "taskDetailsEmptyAction": "Add entry",
   "@taskDetailsEmptyAction": {
     "description": "Button shown when a task has no entries."
+  },
+  "trashTitle": "Trash",
+  "@trashTitle": {
+    "description": "App bar title of the trash page."
+  },
+  "trashInfo": "Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.",
+  "@trashInfo": {
+    "description": "Info line at the top of the trash page."
+  },
+  "trashEmptyTitle": "Trash is empty",
+  "@trashEmptyTitle": {
+    "description": "Title of the empty state of the trash page."
+  },
+  "trashEmptySubtitle": "Deleted items will appear here.",
+  "@trashEmptySubtitle": {
+    "description": "Subtitle of the empty state of the trash page."
+  },
+  "trashDeletedAt": "Deleted at: {time}",
+  "@trashDeletedAt": {
+    "description": "Subtitle of a trash entry. {time} is the formatted time of deletion.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trashRestoreSelectedTooltip": "Restore selected",
+  "@trashRestoreSelectedTooltip": {
+    "description": "Tooltip of the app bar button that restores all selected trash entries."
+  },
+  "trashRestoredOne": "'{name}' restored from trash.",
+  "@trashRestoredOne": {
+    "description": "Snackbar after restoring one item from the trash. {name} is the item name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trashRestoredMany": "{count} items restored from trash.",
+  "@trashRestoredMany": {
+    "description": "Snackbar after restoring several items from the trash. {count} is the number of items.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedbackName": "Feedback",
+  "@feedbackName": {
+    "description": "Name of a feedback entry where it has no title of its own, e.g. in the trash and the calendar."
+  },
+  "riderFormAddTitle": "Add Rider",
+  "@riderFormAddTitle": {
+    "description": "App bar title of the rider form when adding a rider."
+  },
+  "riderFormEditTitle": "Edit Rider",
+  "@riderFormEditTitle": {
+    "description": "App bar title of the rider form when editing a rider."
+  },
+  "riderFormNameLabel": "Rider Name",
+  "@riderFormNameLabel": {
+    "description": "Label of the name field of the rider form."
+  },
+  "riderFormNameHint": "Enter rider name",
+  "@riderFormNameHint": {
+    "description": "Hint of the name field of the rider form."
+  },
+  "riderFormNameRequired": "Name is required",
+  "@riderFormNameRequired": {
+    "description": "Validation error of the rider name field."
+  },
+  "riderFormNotesHint": "Enter notes about the rider...",
+  "@riderFormNotesHint": {
+    "description": "Hint of the notes field of the rider form."
+  },
+  "riderFormStravaLabel": "Strava Athlete",
+  "@riderFormStravaLabel": {
+    "description": "Label of the Strava athlete dropdown of the rider form."
+  },
+  "riderFormStravaHint": "Link Strava Athlete",
+  "@riderFormStravaHint": {
+    "description": "Hint of the Strava athlete dropdown."
+  },
+  "riderFormStravaTaken": "WARNING: Strava Athlete already assigned to another rider",
+  "@riderFormStravaTaken": {
+    "description": "Helper text when the chosen Strava athlete belongs to another rider."
+  },
+  "riderFormStravaInvalid": "Please select valid Athlete",
+  "@riderFormStravaInvalid": {
+    "description": "Validation error of the Strava athlete dropdown."
+  },
+  "riderStravaAthleteNotFound": "ATHLETE NOT FOUND",
+  "@riderStravaAthleteNotFound": {
+    "description": "Shown in red when a rider points to a Strava athlete that no longer exists."
+  },
+  "riderFormAttributesTitle": "Attributes",
+  "@riderFormAttributesTitle": {
+    "description": "Section title of the rider attributes in the rider form."
+  },
+  "riderFormAttributesEmptyTitle": "No attributes yet",
+  "@riderFormAttributesEmptyTitle": {
+    "description": "Title of the empty state of the rider attributes."
+  },
+  "riderFormAttributesEmptySubtitle": "Tap 'Add Attribute' to define parameters for this rider",
+  "@riderFormAttributesEmptySubtitle": {
+    "description": "Subtitle of the empty state of the rider attributes."
+  },
+  "riderFormAttributesEmptyError": "Tap here to add the first attribute",
+  "@riderFormAttributesEmptyError": {
+    "description": "Subtitle of the empty state of the rider attributes when validation failed."
+  },
+  "riderFormAddAttribute": "Add Attribute",
+  "@riderFormAddAttribute": {
+    "description": "Button and sheet title that adds an attribute to a rider."
+  },
+  "riderAttributeTemplatesProgress": "Pre-filled Templates · {added}/{total} added",
+  "@riderAttributeTemplatesProgress": {
+    "description": "Section header of the rider attribute templates once some are added.",
+    "placeholders": {
+      "added": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "riderAttributeAllAdded": "Add a custom attribute below.",
+  "@riderAttributeAllAdded": {
+    "description": "Hint when every rider attribute template is already added."
+  },
+  "riderAttributeCustom": "Custom Attribute",
+  "@riderAttributeCustom": {
+    "description": "Section header of the custom rider attribute types."
+  },
+  "riderAttributeTypeNumerical": "Numerical Attribute",
+  "@riderAttributeTypeNumerical": {
+    "description": "Rider attribute type with a number."
+  },
+  "riderAttributeTypeNumericalHint": "Body Weight, Height, Age",
+  "@riderAttributeTypeNumericalHint": {
+    "description": "Examples of numerical rider attributes."
+  },
+  "riderAttributeTypeStep": "Step Attribute",
+  "@riderAttributeTypeStep": {
+    "description": "Rider attribute type with steps."
+  },
+  "riderAttributeTypeStepHint": "Increments",
+  "@riderAttributeTypeStepHint": {
+    "description": "Examples of step rider attributes."
+  },
+  "riderAttributeTypeCategorical": "Categorical Attribute",
+  "@riderAttributeTypeCategorical": {
+    "description": "Rider attribute type with a list of options."
+  },
+  "riderAttributeTypeCategoricalHint": "Training status, Riding Gear, Riding style",
+  "@riderAttributeTypeCategoricalHint": {
+    "description": "Examples of categorical rider attributes."
+  },
+  "riderAttributeTypeBoolean": "On/Off Attribute",
+  "@riderAttributeTypeBoolean": {
+    "description": "Rider attribute type that is on or off."
+  },
+  "riderAttributeTypeBooleanHint": "Wearing a backpack?",
+  "@riderAttributeTypeBooleanHint": {
+    "description": "Example of an on/off rider attribute."
+  },
+  "riderAttributeTypeText": "Text Attribute",
+  "@riderAttributeTypeText": {
+    "description": "Rider attribute type with free text."
+  },
+  "riderAttributeTypeTextHint": "Flexible field for any other attribute",
+  "@riderAttributeTypeTextHint": {
+    "description": "Description of the text rider attribute."
+  },
+  "riderDetailsNotFoundTitle": "Rider not found",
+  "@riderDetailsNotFoundTitle": {
+    "description": "Title shown when the rider of the details page no longer exists."
+  },
+  "riderDetailsNotFoundSubtitle": "This rider was deleted or is no longer available.",
+  "@riderDetailsNotFoundSubtitle": {
+    "description": "Subtitle shown when the rider of the details page no longer exists."
+  },
+  "riderDetailsNoStrava": "No Strava Athlete linked to this rider.",
+  "@riderDetailsNoStrava": {
+    "description": "Shown on the rider details when no Strava athlete is linked."
+  },
+  "riderDetailsStravaNotFound": "STRAVA ATHLETE NOT FOUND",
+  "@riderDetailsStravaNotFound": {
+    "description": "Shown in red when the linked Strava athlete no longer exists."
+  },
+  "riderDetailsNoBikes": "No bikes linked to this rider.",
+  "@riderDetailsNoBikes": {
+    "description": "Shown on the rider details when no bike is linked."
+  },
+  "riderListEmptyTitle": "No rider yet",
+  "@riderListEmptyTitle": {
+    "description": "Title of the empty state of the rider list."
+  },
+  "riderListEmptySubtitle": "Add a rider to link to your bikes and setups.",
+  "@riderListEmptySubtitle": {
+    "description": "Subtitle of the empty state of the rider list."
+  },
+  "riderListEmptyAction": "Add a rider",
+  "@riderListEmptyAction": {
+    "description": "Button of the empty state of the rider list."
+  },
+  "riderOptionLinkBikes": "Link bikes",
+  "@riderOptionLinkBikes": {
+    "description": "Menu item of a rider card that opens the bike link sheet."
+  },
+  "riderBikeNotFoundMessage": "Bike not found.",
+  "@riderBikeNotFoundMessage": {
+    "description": "Snackbar when the bike of an action no longer exists."
+  },
+  "riderSetForBike": "'{rider}' is now the rider of '{bike}'.",
+  "@riderSetForBike": {
+    "description": "Snackbar after a rider was created and linked to a bike.",
+    "placeholders": {
+      "rider": {
+        "type": "String"
+      },
+      "bike": {
+        "type": "String"
+      }
+    }
+  },
+  "riderMovedToTrash": "Rider '{name}' moved to trash.",
+  "@riderMovedToTrash": {
+    "description": "Snackbar after deleting a rider.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "riderRestoredFromTrash": "Rider '{name}' restored from trash.",
+  "@riderRestoredFromTrash": {
+    "description": "Snackbar after restoring a rider.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "riderNameFormHint": "Your name",
+  "@riderNameFormHint": {
+    "description": "Hint of the name field of the rider creation form."
+  },
+  "riderNameFormRequired": "Enter a name to continue.",
+  "@riderNameFormRequired": {
+    "description": "Validation error of the rider creation form."
+  },
+  "riderCreated": "Rider '{name}' created.",
+  "@riderCreated": {
+    "description": "Snackbar after creating a rider.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "riderCreatedLinked": "Rider '{name}' created and linked to this bike.",
+  "@riderCreatedLinked": {
+    "description": "Snackbar after creating a rider from a bike.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "riderNameFormTitle": "What's your name?",
+  "@riderNameFormTitle": {
+    "description": "Headline of the rider creation form."
+  },
+  "riderNameFormBody": "Your rider profile tracks values like your riding weight with each setup.",
+  "@riderNameFormBody": {
+    "description": "Explanation under the headline of the rider creation form."
+  },
+  "riderNameFormCreate": "Create rider",
+  "@riderNameFormCreate": {
+    "description": "Button of the rider creation form."
+  },
+  "riderSheetTitle": "Rider",
+  "@riderSheetTitle": {
+    "description": "Title of the rider sheet."
+  },
+  "riderSheetIntro": "Suspension, sag and tire pressure depend on your weight. Recording rider values with each setup keeps your setups comparable when your weight changes.",
+  "@riderSheetIntro": {
+    "description": "Explanation at the top of the rider sheet."
+  },
+  "riderSheetLinkBike": "Link bike",
+  "@riderSheetLinkBike": {
+    "description": "Button of the rider sheet that links a bike to the rider."
+  },
+  "riderSheetLinkBikeHint": "Link a bike to record rider values with its setups.",
+  "@riderSheetLinkBikeHint": {
+    "description": "Hint under the link bike button."
+  },
+  "riderAddBikeHint": "Add a bike to link it to this rider.",
+  "@riderAddBikeHint": {
+    "description": "Hint when there is no bike to link to a rider."
+  },
+  "riderSheetRecordValues": "Record rider values",
+  "@riderSheetRecordValues": {
+    "description": "Button of the rider sheet that starts a new setup with rider values."
+  },
+  "riderSheetRecordValuesHint": "Rider values are saved with a new setup.",
+  "@riderSheetRecordValuesHint": {
+    "description": "Hint under the record rider values button."
+  },
+  "riderSheetAddComponentHint": "Add a component to record setups.",
+  "@riderSheetAddComponentHint": {
+    "description": "Hint when no component exists to record a setup."
+  },
+  "bikeLinkSheetTitle": "Link bikes",
+  "@bikeLinkSheetTitle": {
+    "description": "Title of the sheet that links bikes to a rider."
+  },
+  "bikeLinkSaveLink": "{count, plural, =1{Link 1 bike} other{Link {count} bikes}}",
+  "@bikeLinkSaveLink": {
+    "description": "Save button of the bike link sheet when only links are added.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bikeLinkSaveUnlink": "{count, plural, =1{Unlink 1 bike} other{Unlink {count} bikes}}",
+  "@bikeLinkSaveUnlink": {
+    "description": "Save button of the bike link sheet when only links are removed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bikeLinkSaveBoth": "Link {link} · Unlink {unlink}",
+  "@bikeLinkSaveBoth": {
+    "description": "Save button of the bike link sheet when links are added and removed.",
+    "placeholders": {
+      "link": {
+        "type": "int"
+      },
+      "unlink": {
+        "type": "int"
+      }
+    }
+  },
+  "bikeLinkIntro": "Rider values of '{name}' are recorded with the setups of linked bikes.",
+  "@bikeLinkIntro": {
+    "description": "Explanation at the top of the bike link sheet. {name} is the rider.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bikeLinkEmptyTitle": "No bikes yet",
+  "@bikeLinkEmptyTitle": {
+    "description": "Title shown in the bike link sheet when there is no bike."
+  },
+  "bikeLinkRiddenBy": "Ridden by '{name}'",
+  "@bikeLinkRiddenBy": {
+    "description": "Subtitle of a bike that already has another rider.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bikeLinkLink": "Link",
+  "@bikeLinkLink": {
+    "description": "Button that links a bike to the rider."
+  },
+  "bikeLinkUnlink": "Unlink",
+  "@bikeLinkUnlink": {
+    "description": "Button that removes the link between a bike and the rider."
+  },
+  "bikeLinkLinkTooltip": "Link '{name}'",
+  "@bikeLinkLinkTooltip": {
+    "description": "Tooltip of the link button. {name} is the bike.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bikeLinkUnlinkTooltip": "Unlink '{name}'",
+  "@bikeLinkUnlinkTooltip": {
+    "description": "Tooltip of the unlink button. {name} is the bike.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setBikePersonTitle": "Set Rider",
+  "@setBikePersonTitle": {
+    "description": "Title of the sheet that sets the rider of the selected bikes."
+  },
+  "setBikePersonNoRider": "No rider",
+  "@setBikePersonNoRider": {
+    "description": "Chip that removes the rider from the selected bikes."
+  },
+  "setBikePersonAllUndo": "Set for all — tap to undo",
+  "@setBikePersonAllUndo": {
+    "description": "Tooltip of a rider chip that was just picked."
+  },
+  "setBikePersonOnAll": "On all",
+  "@setBikePersonOnAll": {
+    "description": "Tooltip of a rider chip that every selected bike already has."
+  },
+  "setBikePersonOnSome": "On {count} of {total} — tap to set for all",
+  "@setBikePersonOnSome": {
+    "description": "Tooltip of a rider chip that only some selected bikes have.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "setBikePersonTapToSet": "Tap to set for all",
+  "@setBikePersonTapToSet": {
+    "description": "Tooltip of a rider chip that no selected bike has."
+  },
+  "setBikePersonNoRidersInfo": "You can assign a rider as soon as you've created one.",
+  "@setBikePersonNoRidersInfo": {
+    "description": "Info line of the set rider sheet when no rider exists."
+  },
+  "setBikePersonInfo": "Each bike has one rider. Pick the rider for all selected bikes.",
+  "@setBikePersonInfo": {
+    "description": "Info line of the set rider sheet."
+  },
+  "setBikePersonHalfFilled": "Half-filled chips apply to only part of your selection.",
+  "@setBikePersonHalfFilled": {
+    "description": "Legend line explaining half-filled chips."
+  },
+  "setBikePersonApply": "{count, plural, =1{Apply to 1 Bike} other{Apply to {count} Bikes}}",
+  "@setBikePersonApply": {
+    "description": "Button of the set rider sheet.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarViewSchedule": "Schedule",
+  "@calendarViewSchedule": {
+    "description": "Calendar view that lists the entries by day."
+  },
+  "calendarViewMonth": "Month",
+  "@calendarViewMonth": {
+    "description": "Calendar view that shows a month."
+  },
+  "calendarViewWeek": "Week",
+  "@calendarViewWeek": {
+    "description": "Calendar view that shows a week."
+  },
+  "calendarViewThreeDay": "3 Day",
+  "@calendarViewThreeDay": {
+    "description": "Calendar view that shows three days."
+  },
+  "calendarViewDay": "Day",
+  "@calendarViewDay": {
+    "description": "Calendar view that shows one day."
+  },
+  "calendarToday": "Today",
+  "@calendarToday": {
+    "description": "Chip of the calendar that jumps to today."
+  },
+  "calendarMore": "+{count} more",
+  "@calendarMore": {
+    "description": "Label of a calendar cell that has more entries than fit. {count} is the number of hidden entries.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarReplacedSubject": "Replaced {type}",
+  "@calendarReplacedSubject": {
+    "description": "Calendar entry title of a component replacement. {type} is the component type.",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarSetupGroupSubject": "{count, plural, =1{1 setup} other{{count} setups}}",
+  "@calendarSetupGroupSubject": {
+    "description": "Calendar entry title of a group of setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarAddSetup": "Add setup",
+  "@calendarAddSetup": {
+    "description": "Label of the empty calendar slot that adds a setup."
+  },
+  "calendarNoSetupInFuture": "Can't add a setup in the future.",
+  "@calendarNoSetupInFuture": {
+    "description": "Snackbar when a setup is dropped on a future day."
+  },
+  "calendarNoMoveFuture": "Can't move this into the future.",
+  "@calendarNoMoveFuture": {
+    "description": "Snackbar when an entry is dragged to a future day."
+  },
+  "calendarNoMoveReplacement": "Can't move this replacement there.",
+  "@calendarNoMoveReplacement": {
+    "description": "Snackbar when a replacement is dragged to an invalid time."
+  },
+  "calendarNoMoveReplacementLoop": "Can't move this replacement there: it would create a loop of components.",
+  "@calendarNoMoveReplacementLoop": {
+    "description": "Snackbar when a replacement move would create a component loop."
+  },
+  "calendarNoMoveInstallation": "Can't move this installation there.",
+  "@calendarNoMoveInstallation": {
+    "description": "Snackbar when an installation is dragged to an invalid time."
+  },
+  "calendarNoMoveInstallationLoop": "Can't move this installation there: it would create a loop of components.",
+  "@calendarNoMoveInstallationLoop": {
+    "description": "Snackbar when an installation move would create a component loop."
+  },
+  "calendarNoMoveFeedback": "Can't move this feedback before the bike's first setup.",
+  "@calendarNoMoveFeedback": {
+    "description": "Snackbar when feedback is dragged before the first setup of its bike."
+  },
+  "calendarStravaReadOnly": "Strava activities can't be edited.",
+  "@calendarStravaReadOnly": {
+    "description": "Snackbar when a Strava activity is dragged."
+  },
+  "calendarTestSessionNoMove": "A test session can't be moved. Change the times of its runs instead.",
+  "@calendarTestSessionNoMove": {
+    "description": "Snackbar when a test session is dragged."
+  },
+  "calendarMoved": "'{subject}' moved\n{from}  →  {to}",
+  "@calendarMoved": {
+    "description": "Snackbar after moving a calendar entry. {from} and {to} are the old and new date and time.",
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "mapLocationTimeout": "Location request timed out. Try again.",
+  "@mapLocationTimeout": {
+    "description": "Snackbar of the map when finding the user's location timed out."
+  },
+  "mapLocationError": "Unable to determine your location.",
+  "@mapLocationError": {
+    "description": "Snackbar of the map when the user's location could not be found."
+  },
+  "mapLocationNone": "No valid location was returned.",
+  "@mapLocationNone": {
+    "description": "Snackbar of the map when the location service returned no usable position."
+  },
+  "mapEmptyErrorTitle": "Couldn't load activities",
+  "@mapEmptyErrorTitle": {
+    "description": "Title of the map card shown when Strava activities failed to load."
+  },
+  "mapEmptyErrorSubtitle": "Setups and feedback are still shown.",
+  "@mapEmptyErrorSubtitle": {
+    "description": "Subtitle of the map card shown when Strava activities failed to load."
+  },
+  "mapEmptyErrorPill": "Activities failed",
+  "@mapEmptyErrorPill": {
+    "description": "Collapsed label of the map card shown when Strava activities failed to load."
+  },
+  "mapEmptyRetry": "Retry",
+  "@mapEmptyRetry": {
+    "description": "Button that reloads the Strava activities for the map."
+  },
+  "mapEmptyFilteredTitle": "Nothing on the map in this view",
+  "@mapEmptyFilteredTitle": {
+    "description": "Title of the map card shown when filters hide every pin."
+  },
+  "mapEmptyFilteredSubtitle": "Your current filters hide every pin.",
+  "@mapEmptyFilteredSubtitle": {
+    "description": "Subtitle of the map card shown when filters hide every pin."
+  },
+  "mapEmptyNoPins": "No pins",
+  "@mapEmptyNoPins": {
+    "description": "Collapsed label of the map card shown when there is nothing to show."
+  },
+  "mapEmptyNoneTitle": "No locations yet",
+  "@mapEmptyNoneTitle": {
+    "description": "Title of the map card shown when nothing has a location yet."
+  },
+  "mapEmptyAddSetup": "Add setup",
+  "@mapEmptyAddSetup": {
+    "description": "Button of the empty map card that adds a setup."
+  },
+  "mapEmptySetupsHint": "Setups appear here once one is saved with a location.",
+  "@mapEmptySetupsHint": {
+    "description": "First line of the subtitle of the empty map card."
+  },
+  "mapEmptySameFor": "Same for {sources}.",
+  "@mapEmptySameFor": {
+    "description": "Second line of the subtitle of the empty map card. {sources} lists the other pin sources.",
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      }
+    }
+  },
+  "mapEmptySourceStrava": "Strava activities",
+  "@mapEmptySourceStrava": {
+    "description": "Pin source named in the subtitle of the empty map card."
+  },
+  "mapEmptySourceFeedback": "feedback",
+  "@mapEmptySourceFeedback": {
+    "description": "Pin source named in the subtitle of the empty map card."
+  },
+  "mapAttributionImprove": "Improve this map",
+  "@mapAttributionImprove": {
+    "description": "Link of the map attribution that opens Mapbox's map feedback page."
+  },
+  "mapEmptyCollapse": "Collapse",
+  "@mapEmptyCollapse": {
+    "description": "Tooltip of the button that collapses the empty map card."
+  },
+  "filterTitle": "Filter",
+  "@filterTitle": {
+    "description": "Title of the filter sheet and label of the filter chip while nothing is filtered."
+  },
+  "filterResetTooltip": "Reset filters",
+  "@filterResetTooltip": {
+    "description": "Tooltip of the button of the filter sheet that clears all filters."
+  },
+  "filterAllBikes": "All Bikes",
+  "@filterAllBikes": {
+    "description": "Label of the bike filter chip while no bike is selected."
+  },
+  "filterCountTags": "{count, plural, =1{1 Tag} other{{count} Tags}}",
+  "@filterCountTags": {
+    "description": "Filter chip text for the number of selected tags.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterCountTestSessions": "{count, plural, =1{1 Test session} other{{count} Test sessions}}",
+  "@filterCountTestSessions": {
+    "description": "Filter chip text for the number of selected test sessions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterCountPriorities": "{count, plural, =1{1 Priority} other{{count} Priorities}}",
+  "@filterCountPriorities": {
+    "description": "Filter chip text for the number of selected task priorities.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterLayersActive": "1 Filter",
+  "@filterLayersActive": {
+    "description": "Filter chip text while the visibility filter hides something."
+  },
+  "componentTypeFilterTitle": "Component Types ({selected}/{total})",
+  "@componentTypeFilterTitle": {
+    "description": "Title of the component type filter sheet with the number of shown types.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "selectAll": "Select all",
+  "@selectAll": {
+    "description": "Tooltip of the button that selects every option of a sheet."
+  },
+  "deselectAll": "Deselect all",
+  "@deselectAll": {
+    "description": "Tooltip of the button that deselects every option of a sheet."
+  },
+  "columnFilterTitle": "Column Select",
+  "@columnFilterTitle": {
+    "description": "Title of the sheet that chooses the visible table columns."
+  },
+  "filterSetupsTitle": "Setups",
+  "@filterSetupsTitle": {
+    "description": "Section title of the setup filters when bookmarks or test sessions are filterable."
+  },
+  "filterSetupTagsTitle": "Setup Tags",
+  "@filterSetupTagsTitle": {
+    "description": "Section title of the setup filters when only tags are filterable."
+  },
+  "filterNoSetupTagsTitle": "No setup tags yet",
+  "@filterNoSetupTagsTitle": {
+    "description": "Title shown when no setup has a tag."
+  },
+  "filterNoSetupTagsHintSessions": "Add/Edit a Setup to add tags, or start a test session to filter its runs.",
+  "@filterNoSetupTagsHintSessions": {
+    "description": "Hint shown when no setup has a tag and test sessions can be filtered."
+  },
+  "filterNoSetupTagsHint": "Add/Edit a Setup to add tags.",
+  "@filterNoSetupTagsHint": {
+    "description": "Hint shown when no setup has a tag."
+  },
+  "filterNoTestSessionsTitle": "No test sessions yet",
+  "@filterNoTestSessionsTitle": {
+    "description": "Title shown when no test session exists."
+  },
+  "filterNoTestSessionsHint": "Start a test session to filter its runs.",
+  "@filterNoTestSessionsHint": {
+    "description": "Hint shown when no test session exists."
+  },
+  "filterDateTitle": "Date",
+  "@filterDateTitle": {
+    "description": "Section title of the date range filter."
+  },
+  "filterDateRangeHelp": "Select Date Range",
+  "@filterDateRangeHelp": {
+    "description": "Help text of the date range picker of the filter sheet."
+  },
+  "filterAnyDate": "Any date",
+  "@filterAnyDate": {
+    "description": "Value of the date range filter while no range is set."
+  },
+  "filterPickDatesTooltip": "Pick exact dates",
+  "@filterPickDatesTooltip": {
+    "description": "Tooltip of the button that opens the date range picker."
+  },
+  "filterActivitiesTitle": "Activities",
+  "@filterActivitiesTitle": {
+    "description": "Section title of the activity distance and elevation filters."
+  },
+  "filterDistance": "Distance",
+  "@filterDistance": {
+    "description": "Title of the activity distance range filter."
+  },
+  "filterElevationGain": "Elevation Gain",
+  "@filterElevationGain": {
+    "description": "Title of the activity elevation gain range filter."
+  },
+  "filterAnyValue": "Any",
+  "@filterAnyValue": {
+    "description": "Value of a range filter while no limit is set."
+  },
+  "filterVisibilityTitle": "Visibility",
+  "@filterVisibilityTitle": {
+    "description": "Section title of the filter that shows or hides entry kinds."
+  },
+  "filterLayerSetups": "Setups",
+  "@filterLayerSetups": {
+    "description": "Entry kind setups in the visibility filter."
+  },
+  "filterLayerStravaActivities": "Strava Activities",
+  "@filterLayerStravaActivities": {
+    "description": "Entry kind Strava activities in the map visibility filter."
+  },
+  "filterLayerActivities": "Activities",
+  "@filterLayerActivities": {
+    "description": "Entry kind Strava activities in the calendar visibility filter."
+  },
+  "filterLayerTasks": "Tasks",
+  "@filterLayerTasks": {
+    "description": "Entry kind tasks in the visibility filter."
+  },
+  "filterLayerInstallations": "Installations",
+  "@filterLayerInstallations": {
+    "description": "Entry kind installations in the visibility filter."
+  },
+  "filterLayerFeedback": "Feedback",
+  "@filterLayerFeedback": {
+    "description": "Entry kind feedback in the visibility filter."
+  },
+  "filterBikeTitle": "Bike",
+  "@filterBikeTitle": {
+    "description": "Section title of the bike filter."
+  },
+  "filterNoBikesTitle": "No bikes yet",
+  "@filterNoBikesTitle": {
+    "description": "Title shown in the bike filter when no bike exists."
+  },
+  "filterNoBikesHint": "Add a bike to filter this list by bike.",
+  "@filterNoBikesHint": {
+    "description": "Hint shown in the bike filter when no bike exists."
+  },
+  "feedbackEndFront": "Front",
+  "@feedbackEndFront": {
+    "description": "The front end of the bike in feedback."
+  },
+  "feedbackEndRear": "Rear",
+  "@feedbackEndRear": {
+    "description": "The rear end of the bike in feedback."
+  },
+  "feedbackAttributeGripQuality": "Grip",
+  "@feedbackAttributeGripQuality": {
+    "description": "Feedback attribute grip, as a quality for goals and comparisons."
+  },
+  "feedbackAttributeGripProblem": "Low grip",
+  "@feedbackAttributeGripProblem": {
+    "description": "Feedback problem chip for too little grip."
+  },
+  "feedbackAttributeGripHint": "Wheel slides or lets go",
+  "@feedbackAttributeGripHint": {
+    "description": "Explanation of the low grip problem."
+  },
+  "feedbackAttributeComfortQuality": "Comfort",
+  "@feedbackAttributeComfortQuality": {
+    "description": "Feedback attribute comfort, as a quality for goals and comparisons."
+  },
+  "feedbackAttributeComfortProblem": "Harsh",
+  "@feedbackAttributeComfortProblem": {
+    "description": "Feedback problem chip for a harsh ride."
+  },
+  "feedbackAttributeComfortHint": "Hits come through to hands or feet",
+  "@feedbackAttributeComfortHint": {
+    "description": "Explanation of the harsh problem."
+  },
+  "feedbackAttributeSupportQuality": "Support",
+  "@feedbackAttributeSupportQuality": {
+    "description": "Feedback attribute support, as a quality for goals and comparisons."
+  },
+  "feedbackAttributeSupportProblem": "Sinks / dives",
+  "@feedbackAttributeSupportProblem": {
+    "description": "Feedback problem chip for too little support."
+  },
+  "feedbackAttributeSupportHint": "Sits low, dives under braking, wallows in berms",
+  "@feedbackAttributeSupportHint": {
+    "description": "Explanation of the sinks / dives problem."
+  },
+  "feedbackAttributeCalmQuality": "Calm",
+  "@feedbackAttributeCalmQuality": {
+    "description": "Feedback attribute calm, as a quality for goals and comparisons."
+  },
+  "feedbackAttributeCalmProblem": "Unsettled",
+  "@feedbackAttributeCalmProblem": {
+    "description": "Feedback problem chip for an unsettled ride."
+  },
+  "feedbackAttributeCalmHint": "Bouncy, kicks, doesn't settle after hits",
+  "@feedbackAttributeCalmHint": {
+    "description": "Explanation of the unsettled problem."
+  },
+  "feedbackAttributeBottomingQuality": "Bottoming",
+  "@feedbackAttributeBottomingQuality": {
+    "description": "Feedback attribute bottoming, as a quality for goals and comparisons."
+  },
+  "feedbackAttributeBottomingProblem": "Bottoms out",
+  "@feedbackAttributeBottomingProblem": {
+    "description": "Feedback problem chip for bottoming out."
+  },
+  "feedbackAttributeBottomingHint": "Hits the end of travel hard or often",
+  "@feedbackAttributeBottomingHint": {
+    "description": "Explanation of the bottoms out problem."
+  },
+  "feedbackOutcomeWorse": "Worse",
+  "@feedbackOutcomeWorse": {
+    "description": "Comparison answer: clearly worse."
+  },
+  "feedbackOutcomeSlightlyWorse": "Slightly worse",
+  "@feedbackOutcomeSlightlyWorse": {
+    "description": "Comparison answer: slightly worse."
+  },
+  "feedbackOutcomeSame": "Same",
+  "@feedbackOutcomeSame": {
+    "description": "Comparison answer: no difference."
+  },
+  "feedbackOutcomeSlightlyBetter": "Slightly better",
+  "@feedbackOutcomeSlightlyBetter": {
+    "description": "Comparison answer: slightly better."
+  },
+  "feedbackOutcomeBetter": "Better",
+  "@feedbackOutcomeBetter": {
+    "description": "Comparison answer: clearly better."
+  },
+  "feedbackVerdictWorse": "Worse than {reference}",
+  "@feedbackVerdictWorse": {
+    "description": "Verdict of a feedback. {reference} is the name of the reference setup.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackVerdictSlightlyWorse": "Slightly worse than {reference}",
+  "@feedbackVerdictSlightlyWorse": {
+    "description": "Verdict of a feedback. {reference} is the name of the reference setup.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackVerdictSame": "Same as {reference}",
+  "@feedbackVerdictSame": {
+    "description": "Verdict of a feedback. {reference} is the name of the reference setup.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackVerdictSlightlyBetter": "Slightly better than {reference}",
+  "@feedbackVerdictSlightlyBetter": {
+    "description": "Verdict of a feedback. {reference} is the name of the reference setup.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackVerdictBetter": "Better than {reference}",
+  "@feedbackVerdictBetter": {
+    "description": "Verdict of a feedback. {reference} is the name of the reference setup.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackNothingStoodOut": "Nothing stood out",
+  "@feedbackNothingStoodOut": {
+    "description": "Chip that says no problem was felt."
+  },
+  "feedbackDialledIn": "Dialled in",
+  "@feedbackDialledIn": {
+    "description": "Summary of a feedback where nothing stood out."
+  },
+  "feedbackNotesHelper": "Not used for ranking or proposals.",
+  "@feedbackNotesHelper": {
+    "description": "Helper text of the feedback notes field."
+  },
+  "feedbackDeletedSetup": "a deleted setup",
+  "@feedbackDeletedSetup": {
+    "description": "Stands in for the name of a setup that no longer exists, inside a sentence."
+  },
+  "feedbackTapAFace": "Tap a face",
+  "@feedbackTapAFace": {
+    "description": "Prompt under the outcome faces while no answer is chosen."
+  },
+  "feedbackIssueOther": "Other",
+  "@feedbackIssueOther": {
+    "description": "Heading of the rider-defined problems in the feedback form."
+  },
+  "feedbackAddIssue": "Add issue",
+  "@feedbackAddIssue": {
+    "description": "Chip that adds a rider-defined problem."
+  },
+  "feedbackAllIssues": "All issues",
+  "@feedbackAllIssues": {
+    "description": "Chip that opens the list of all rider-defined problems."
+  },
+  "feedbackWhatChanged": "What changed",
+  "@feedbackWhatChanged": {
+    "description": "Heading of the values that changed between the reference and the rated setup."
+  },
+  "feedbackReferenceShort": "reference",
+  "@feedbackReferenceShort": {
+    "description": "Left part of the line \"reference → rated setup\"."
+  },
+  "feedbackRatedSetupShort": "rated setup",
+  "@feedbackRatedSetupShort": {
+    "description": "Right part of the line \"reference → rated setup\"."
+  },
+  "feedbackViewComparison": "View comparison",
+  "@feedbackViewComparison": {
+    "description": "Tooltip of the button that opens the setup comparison."
+  },
+  "feedbackHowDidItRide": "How did it ride?",
+  "@feedbackHowDidItRide": {
+    "description": "Question above the overall comparison answer."
+  },
+  "feedbackChangeReference": "Change reference setup",
+  "@feedbackChangeReference": {
+    "description": "Tooltip of the dropdown arrow of the reference setup."
+  },
+  "feedbackRemoveComparison": "Remove comparison",
+  "@feedbackRemoveComparison": {
+    "description": "Tooltip of the button that removes a comparison."
+  },
+  "feedbackReferenceSetupTitle": "Reference setup",
+  "@feedbackReferenceSetupTitle": {
+    "description": "Title of the sheet that picks the reference setup."
+  },
+  "feedbackRatedSideLabel": "Rated",
+  "@feedbackRatedSideLabel": {
+    "description": "Side label of the rated setup in the reference picker."
+  },
+  "feedbackReferenceUnavailable": "Values of the reference are unavailable",
+  "@feedbackReferenceUnavailable": {
+    "description": "Shown when the reference setup no longer exists."
+  },
+  "feedbackNoValuesChanged": "No values changed",
+  "@feedbackNoValuesChanged": {
+    "description": "Shown when the reference and the rated setup have the same values."
+  },
+  "feedbackAddButton": "Add feedback",
+  "@feedbackAddButton": {
+    "description": "Button that adds feedback."
+  },
+  "feedbackAddForRide": "Add feedback for this ride",
+  "@feedbackAddForRide": {
+    "description": "Button that adds feedback for a Strava ride."
+  },
+  "feedbackRankLabel": "{rank}/{total} compared",
+  "@feedbackRankLabel": {
+    "description": "Rank of a setup among the compared setups.",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "feedbackRankTooltip": "Estimated rank among the {count} setups of this bike you compared in feedback",
+  "@feedbackRankTooltip": {
+    "description": "Tooltip of the rank badge. {count} is the number of compared setups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setupNotFound": "SETUP NOT FOUND",
+  "@setupNotFound": {
+    "description": "Shown in red when an item points to a setup that no longer exists."
+  },
+  "feedbackFormAddTitle": "Add Feedback",
+  "@feedbackFormAddTitle": {
+    "description": "App bar title of the feedback form when adding feedback."
+  },
+  "feedbackFormEditTitle": "Edit Feedback",
+  "@feedbackFormEditTitle": {
+    "description": "App bar title of the feedback form when editing feedback."
+  },
+  "feedbackFormPickDate": "Select Feedback Date",
+  "@feedbackFormPickDate": {
+    "description": "Help text of the date picker of the feedback form."
+  },
+  "feedbackFormPickTime": "Select Feedback Time",
+  "@feedbackFormPickTime": {
+    "description": "Help text of the time picker of the feedback form."
+  },
+  "feedbackFormNowRating": "Now rating '{name}'.",
+  "@feedbackFormNowRating": {
+    "description": "Snackbar when a changed date moves the feedback to another setup. {name} is the setup.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackFormNoSetupActive": "No setup was active at this time.",
+  "@feedbackFormNoSetupActive": {
+    "description": "Snackbar when a changed date leaves the feedback without a setup."
+  },
+  "feedbackFormInvalid": "Please check all fields for missing or invalid input.",
+  "@feedbackFormInvalid": {
+    "description": "Snackbar when the feedback form fails validation."
+  },
+  "feedbackFormNoSetupBefore": "No setup exists before this date/time for the selected bike. Create a setup first.",
+  "@feedbackFormNoSetupBefore": {
+    "description": "Snackbar when saving feedback that no setup can be rated for."
+  },
+  "feedbackFormNoSetupsSubtitle": "Feedback rates the setup you rode. Record {bike}'s setup first.",
+  "@feedbackFormNoSetupsSubtitle": {
+    "description": "Subtitle of the empty state when the bike has no setup. {bike} is the bike name.",
+    "placeholders": {
+      "bike": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackFormNoSetupsSubtitleGeneric": "Feedback rates the setup you rode. Record this bike's setup first.",
+  "@feedbackFormNoSetupsSubtitleGeneric": {
+    "description": "Subtitle of the empty state when the bike has no setup and its name is unknown."
+  },
+  "feedbackFormNoSetupNowTitle": "No setup at this time",
+  "@feedbackFormNoSetupNowTitle": {
+    "description": "Title of the card shown when no setup was active at the chosen time."
+  },
+  "feedbackFormNoSetupNowBody": "Feedback rates the setup that was active when you rode. Pick a later date or add a setup first.",
+  "@feedbackFormNoSetupNowBody": {
+    "description": "Body of the card shown when no setup was active at the chosen time."
+  },
+  "feedbackFormDriftTitle": "Setup link changed",
+  "@feedbackFormDriftTitle": {
+    "description": "Title of the warning when the rated setup is no longer the stored one."
+  },
+  "feedbackFormDriftBody": "Originally '{stored}', now resolves to '{current}'. Ranking follows the current resolution.",
+  "@feedbackFormDriftBody": {
+    "description": "Body of the setup link warning.",
+    "placeholders": {
+      "stored": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackFormRelink": "Relink",
+  "@feedbackFormRelink": {
+    "description": "Button of the setup link warning that links the feedback to the current setup."
+  },
+  "feedbackFormComparedTo": "Compared to",
+  "@feedbackFormComparedTo": {
+    "description": "Section title of the comparisons in the feedback form and overline of a comparison card."
+  },
+  "feedbackFormCompareAnother": "Compare with another run",
+  "@feedbackFormCompareAnother": {
+    "description": "Button that adds another comparison card."
+  },
+  "feedbackFormOpenIssuesChanged": "Did its open issues change?",
+  "@feedbackFormOpenIssuesChanged": {
+    "description": "Heading above the follow-up rows for the open issues of the reference."
+  },
+  "feedbackFormGoalImproved": "Did your goal improve?",
+  "@feedbackFormGoalImproved": {
+    "description": "Heading above the follow-up rows for the goal of a test session."
+  },
+  "feedbackFormSomethingElse": "Something else changed",
+  "@feedbackFormSomethingElse": {
+    "description": "Button that shows the follow-up rows of the other aspects."
+  },
+  "feedbackFormAnythingTitle": "Anything stand out?",
+  "@feedbackFormAnythingTitle": {
+    "description": "Section title of the problem chips and title of the problems card."
+  },
+  "feedbackFormAnythingInfo": "Optional. Flagged problems show on the setup as open issues until a later ride says otherwise.",
+  "@feedbackFormAnythingInfo": {
+    "description": "Info text of the problems section."
+  },
+  "feedbackFormDetailsTitle": "Details",
+  "@feedbackFormDetailsTitle": {
+    "description": "Section title of the notes, place and weather of the feedback form."
+  },
+  "feedbackDetailsNotFoundTitle": "Feedback not found",
+  "@feedbackDetailsNotFoundTitle": {
+    "description": "Title shown when the feedback of the details sheet no longer exists."
+  },
+  "feedbackDetailsNotFoundSubtitle": "This feedback was deleted or is no longer available.",
+  "@feedbackDetailsNotFoundSubtitle": {
+    "description": "Subtitle shown when the feedback of the details sheet no longer exists."
+  },
+  "feedbackDetailsOriginally": "Originally '{name}'",
+  "@feedbackDetailsOriginally": {
+    "description": "Subtitle of the setup row when the rated setup differs from the stored one.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackDetailsStravaNotSynced": "Strava ride not synced",
+  "@feedbackDetailsStravaNotSynced": {
+    "description": "Shown when the Strava ride of a feedback is not on this device."
+  },
+  "feedbackDetailsNotAnswered": "Not answered",
+  "@feedbackDetailsNotAnswered": {
+    "description": "Shown on the problems card when the question was skipped."
+  },
+  "feedbackDeletedSetupTitle": "A deleted setup",
+  "@feedbackDeletedSetupTitle": {
+    "description": "Stands in for the name of a setup that no longer exists, as a title."
+  },
+  "feedbackOriginallyNow": "Originally '{stored}', now '{current}'",
+  "@feedbackOriginallyNow": {
+    "description": "Line on a feedback tile when the rated setup differs from the stored one.",
+    "placeholders": {
+      "stored": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackActionsTooltip": "Feedback actions",
+  "@feedbackActionsTooltip": {
+    "description": "Tooltip of the menu button of a feedback tile."
+  },
+  "plusMore": "+{count} more",
+  "@plusMore": {
+    "description": "Count of the hidden lines of a list. {count} is the number of hidden lines.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedbackMovedToTrash": "Feedback moved to trash.",
+  "@feedbackMovedToTrash": {
+    "description": "Snackbar after deleting feedback."
+  },
+  "feedbackRestoredFromTrash": "Feedback restored from trash.",
+  "@feedbackRestoredFromTrash": {
+    "description": "Snackbar after restoring feedback."
+  },
+  "customIssueRenameTitle": "Rename issue",
+  "@customIssueRenameTitle": {
+    "description": "Title of the dialog that renames a rider-defined problem."
+  },
+  "customIssueMerged": "Merged into \"{label}\".",
+  "@customIssueMerged": {
+    "description": "Snackbar after renaming a problem to the name of another one.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "customIssueRenamed": "Issue renamed.",
+  "@customIssueRenamed": {
+    "description": "Snackbar after renaming a rider-defined problem."
+  },
+  "customIssueRemoveTitle": "Remove \"{label}\"?",
+  "@customIssueRemoveTitle": {
+    "description": "Title of the dialog that confirms removing a rider-defined problem.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "customIssueRemoveBody": "It is removed from every feedback and test session goal, including the trash. This cannot be undone.",
+  "@customIssueRemoveBody": {
+    "description": "Body of the dialog that confirms removing a rider-defined problem."
+  },
+  "customIssueRemoved": "Issue removed.",
+  "@customIssueRemoved": {
+    "description": "Snackbar after removing a rider-defined problem."
+  },
+  "customIssuesTitle": "Issues",
+  "@customIssuesTitle": {
+    "description": "Title of the sheet with the rider-defined problems."
+  },
+  "customIssuesInfo": "Your own problems, beside the built-in ones. Long-press an issue to rename or remove it.",
+  "@customIssuesInfo": {
+    "description": "Info line of the sheet with the rider-defined problems."
+  },
+  "customIssueEnterName": "Enter a name",
+  "@customIssueEnterName": {
+    "description": "Validation error when adding a problem without a name."
+  },
+  "addTagTooltip": "Add tag",
+  "@addTagTooltip": {
+    "description": "Tooltip of the plus button that starts adding a tag."
+  },
+  "addTagHint": "New tag",
+  "@addTagHint": {
+    "description": "Hint of the inline field that adds a tag."
+  },
+  "addIssueHint": "New issue",
+  "@addIssueHint": {
+    "description": "Hint of the inline field that adds a rider-defined problem."
+  },
+  "addTagConfirm": "Add",
+  "@addTagConfirm": {
+    "description": "Tooltip of the check button of the inline add field."
+  },
+  "testSessionUnnamed": "Test session",
+  "@testSessionUnnamed": {
+    "description": "Name shown for a test session without a name."
+  },
+  "testSessionRunName": "Run {number}",
+  "@testSessionRunName": {
+    "description": "Name given to a run of a test session. {number} counts the runs.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionCopyLine": "Copy of '{name}' ({date})",
+  "@testSessionCopyLine": {
+    "description": "Line added to the notes of a run that was copied from another run.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionGoalLabel": "{end} · {attribute}",
+  "@testSessionGoalLabel": {
+    "description": "Name of a session goal: the end of the bike and the quality, e.g. Front · Calm.",
+    "placeholders": {
+      "end": {
+        "type": "String"
+      },
+      "attribute": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionMethodFineTune": "Fine-tune",
+  "@testSessionMethodFineTune": {
+    "description": "Test session method that polls one adjustment at a time."
+  },
+  "testSessionMethodExplore": "Explore",
+  "@testSessionMethodExplore": {
+    "description": "Test session method that changes all adjustments in a pattern."
+  },
+  "testSessionMethodCompare": "Compare",
+  "@testSessionMethodCompare": {
+    "description": "Test session method that rides existing setups against each other."
+  },
+  "testSessionMethodFree": "Free",
+  "@testSessionMethodFree": {
+    "description": "Test session method without proposals."
+  },
+  "testSessionMethodFineTuneInfo": "Move one knob at a time around your best run, in smaller and smaller steps.",
+  "@testSessionMethodFineTuneInfo": {
+    "description": "Description of the fine-tune method."
+  },
+  "testSessionMethodExploreInfo": "Change all knobs together in a planned pattern to learn what each one does.",
+  "@testSessionMethodExploreInfo": {
+    "description": "Description of the explore method."
+  },
+  "testSessionMethodCompareInfo": "Ride 2–4 setups you already have against each other to find the best.",
+  "@testSessionMethodCompareInfo": {
+    "description": "Description of the compare method."
+  },
+  "testSessionMethodFreeInfo": "Record the runs and compare them yourself. Nothing is proposed.",
+  "@testSessionMethodFreeInfo": {
+    "description": "Description of the free method."
+  },
+  "testSessionExpectedRuns": "about {count} runs",
+  "@testSessionExpectedRuns": {
+    "description": "Rough number of runs a session takes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionExpect": "Expect {runs}.",
+  "@testSessionExpect": {
+    "description": "Sentence that names the expected number of runs. {runs} is e.g. \"about 8 runs\".",
+    "placeholders": {
+      "runs": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionRunsCount": "{count, plural, =1{1 run} other{{count} runs}}",
+  "@testSessionRunsCount": {
+    "description": "Number of runs of a test session.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionEditTitle": "Edit Test Session",
+  "@testSessionEditTitle": {
+    "description": "App bar title of the form that edits a test session."
+  },
+  "testSessionStartTooltip": "Start",
+  "@testSessionStartTooltip": {
+    "description": "Tooltip of the check button of the form that starts a test session."
+  },
+  "testSessionErrAlreadyRunning": "A test session is already running on this bike.",
+  "@testSessionErrAlreadyRunning": {
+    "description": "Snackbar when starting a session on a bike that has a running one."
+  },
+  "testSessionErrRecordSetup": "Record a setup first. The first run starts from the bike’s current setup.",
+  "@testSessionErrRecordSetup": {
+    "description": "Snackbar when starting a session on a bike without a setup."
+  },
+  "testSessionPickAdjustmentsTitle": "Adjustments to test",
+  "@testSessionPickAdjustmentsTitle": {
+    "description": "Title of the sheet that picks the adjustments of a test session."
+  },
+  "testSessionNoAdjustments": "This bike has no adjustments.",
+  "@testSessionNoAdjustments": {
+    "description": "Shown in the adjustment picker when the bike has none."
+  },
+  "testSessionTooManyAdjustments": "More than {max} adjustments make it hard to tell which one helped. 1–3 work best.",
+  "@testSessionTooManyAdjustments": {
+    "description": "Warning when many adjustments are picked.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionTooManySetups": "Every setup is compared with every other one, so {count} setups take about {comparisons} comparisons. {max} or fewer work best.",
+  "@testSessionTooManySetups": {
+    "description": "Warning when many setups are picked to compare.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "comparisons": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionPickSetupsTitle": "Setups to compare",
+  "@testSessionPickSetupsTitle": {
+    "description": "Title of the sheet that picks the setups of a compare session."
+  },
+  "testSessionNoSetups": "This bike has no setups yet",
+  "@testSessionNoSetups": {
+    "description": "Shown in the setup picker when the bike has none."
+  },
+  "testSessionAdjustmentNotFound": "Adjustment not found",
+  "@testSessionAdjustmentNotFound": {
+    "description": "Shown for an adjustment of a session that no longer exists."
+  },
+  "testSessionAdjustmentNotFoundCaps": "ADJUSTMENT NOT FOUND",
+  "@testSessionAdjustmentNotFoundCaps": {
+    "description": "Shown in red for an adjustment of a session that no longer exists."
+  },
+  "testSessionNoGoal": "No goal",
+  "@testSessionNoGoal": {
+    "description": "Shown when a session has no goal."
+  },
+  "testSessionPickAtLeastOne": "Pick at least one adjustment to test.",
+  "@testSessionPickAtLeastOne": {
+    "description": "Validation error of the adjustments of a session."
+  },
+  "testSessionAdjustmentsEmptySubtitle": "Tap 'Add Adjustment' to pick what you want to test",
+  "@testSessionAdjustmentsEmptySubtitle": {
+    "description": "Subtitle of the empty adjustments of a session."
+  },
+  "testSessionRemoveAdjustment": "Remove adjustment",
+  "@testSessionRemoveAdjustment": {
+    "description": "Tooltip of the button that removes an adjustment from a session."
+  },
+  "testSessionPickAtLeastSetups": "Pick at least {count} setups to compare.",
+  "@testSessionPickAtLeastSetups": {
+    "description": "Validation error of the setups of a compare session.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionSameValues": "These setups have the same values. Pick setups that differ.",
+  "@testSessionSameValues": {
+    "description": "Validation error when the picked setups do not differ."
+  },
+  "testSessionSetupsEmptySubtitle": "Tap 'Add Setups' to pick at least {count} setups to compare",
+  "@testSessionSetupsEmptySubtitle": {
+    "description": "Subtitle of the empty setups of a compare session.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionSetupsEmptyError": "Tap here to add the setups",
+  "@testSessionSetupsEmptyError": {
+    "description": "Subtitle of the empty setups of a compare session when validation failed."
+  },
+  "testSessionRemoveSetup": "Remove setup",
+  "@testSessionRemoveSetup": {
+    "description": "Tooltip of the button that removes a setup from a compare session."
+  },
+  "testSessionDifferingCount": "{count, plural, =1{1 adjustment differs between them.} other{{count} adjustments differ between them.}}",
+  "@testSessionDifferingCount": {
+    "description": "Line under the picked setups of a compare session.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionAddSetups": "Add Setups",
+  "@testSessionAddSetups": {
+    "description": "Button that picks the setups of a compare session."
+  },
+  "testSessionChangeSetups": "Change Setups",
+  "@testSessionChangeSetups": {
+    "description": "Button that changes the picked setups of a compare session."
+  },
+  "testSessionSectionMethod": "Method",
+  "@testSessionSectionMethod": {
+    "description": "Section title of the method of a test session."
+  },
+  "testSessionSectionMethodInfo": "How the app helps you choose the next run. You can always change values by hand.",
+  "@testSessionSectionMethodInfo": {
+    "description": "Info text of the method section."
+  },
+  "testSessionSectionSetups": "Setups",
+  "@testSessionSectionSetups": {
+    "description": "Section title of the setups of a compare session."
+  },
+  "testSessionSectionAdjustmentsInfo": "The adjustments you want to test, in the order to try them. Every other value stays as it is. Fewer is better: 1–3 tell you most.",
+  "@testSessionSectionAdjustmentsInfo": {
+    "description": "Info text of the adjustments section of a session."
+  },
+  "testSessionSectionGoal": "Goal (optional)",
+  "@testSessionSectionGoal": {
+    "description": "Section title of the goal of a test session."
+  },
+  "testSessionGoalPrompt": "What should get better? Each run asks if it did.",
+  "@testSessionGoalPrompt": {
+    "description": "Explanation under the goal section title."
+  },
+  "testSessionNameLabel": "Name (optional)",
+  "@testSessionNameLabel": {
+    "description": "Label of the name field of a test session."
+  },
+  "testSessionGone": "This test session no longer exists.",
+  "@testSessionGone": {
+    "description": "Shown in the session sheet when the session was removed."
+  },
+  "testSessionEnded": "Ended",
+  "@testSessionEnded": {
+    "description": "Meta line of a test session that has ended."
+  },
+  "testSessionLockInfo": "Tap an adjustment to lock it at its value in the latest run. The next runs keep that value.",
+  "@testSessionLockInfo": {
+    "description": "Info text of the adjustments of a running session."
+  },
+  "testSessionRunsTitle": "Runs",
+  "@testSessionRunsTitle": {
+    "description": "Section title of the runs of a test session."
+  },
+  "testSessionDiffering": "The adjustments your setups differ in:",
+  "@testSessionDiffering": {
+    "description": "Heading above the adjustments in which the compared setups differ."
+  },
+  "testSessionLockedTooltip": "Locked at its value. Tap to unlock.",
+  "@testSessionLockedTooltip": {
+    "description": "Tooltip of a locked adjustment chip."
+  },
+  "testSessionLockTooltip": "Tap to lock it at its value in the latest run.",
+  "@testSessionLockTooltip": {
+    "description": "Tooltip of an unlocked adjustment chip."
+  },
+  "testSessionNoRuns": "No runs yet.",
+  "@testSessionNoRuns": {
+    "description": "Shown when a test session has no run."
+  },
+  "testSessionShowEarlier": "{count, plural, =1{Show 1 earlier} other{Show {count} earlier}}",
+  "@testSessionShowEarlier": {
+    "description": "Button of the timeline that reveals earlier runs.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionStepNoRuns": "This session has no runs. Record one to go on.",
+  "@testSessionStepNoRuns": {
+    "description": "Next step text of a session without runs."
+  },
+  "testSessionStepRated": "{name} is rated. Ready for the next run.",
+  "@testSessionStepRated": {
+    "description": "Next step text when the latest run has feedback.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionStepRide": "Ride {name}, then tell how it went.",
+  "@testSessionStepRide": {
+    "description": "Next step text when the latest run waits for feedback.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionNextRun": "Next run",
+  "@testSessionNextRun": {
+    "description": "Button that records the next run of a session."
+  },
+  "testSessionEndSession": "End session",
+  "@testSessionEndSession": {
+    "description": "Button that ends a test session."
+  },
+  "testSessionActionsTooltip": "Test session actions",
+  "@testSessionActionsTooltip": {
+    "description": "Tooltip of the menu button of a test session."
+  },
+  "testSessionBikeRequired": "A bike is required to start a test session",
+  "@testSessionBikeRequired": {
+    "description": "Snackbar when starting a session without a bike."
+  },
+  "testSessionAdjustmentRequired": "Add an adjustment to a component first",
+  "@testSessionAdjustmentRequired": {
+    "description": "Snackbar when starting a session without any adjustment."
+  },
+  "testSessionPickNextSetup": "Which setup for the next run?",
+  "@testSessionPickNextSetup": {
+    "description": "Title of the sheet that picks the setup of the next run of a compare session."
+  },
+  "testSessionNoValueToLock": "The latest run has no value to lock for this adjustment.",
+  "@testSessionNoValueToLock": {
+    "description": "Snackbar when locking an adjustment that has no value."
+  },
+  "testSessionEndedSnack": "Test session '{name}' ended.",
+  "@testSessionEndedSnack": {
+    "description": "Snackbar after ending a test session.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionMovedToTrash": "Test session '{name}' moved to trash.",
+  "@testSessionMovedToTrash": {
+    "description": "Snackbar after deleting a test session.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionRestoredFromTrash": "Test session '{name}' restored from trash.",
+  "@testSessionRestoredFromTrash": {
+    "description": "Snackbar after restoring a test session.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionEndFirstTitle": "End the session first?",
+  "@testSessionEndFirstTitle": {
+    "description": "Title of the dialog shown when recording a setup during a running session."
+  },
+  "testSessionEndFirstBody": "'{name}' is running on this bike. A setup recorded now would confuse its runs. Use Next run to continue the session.",
+  "@testSessionEndFirstBody": {
+    "description": "Body of the dialog shown when recording a setup during a running session.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionConvergedFineTune": "Fine-tuning converged. Nothing left to try.",
+  "@testSessionConvergedFineTune": {
+    "description": "Summary of a finished fine-tune session."
+  },
+  "testSessionConvergedExplore": "Exploring converged. Nothing left to try.",
+  "@testSessionConvergedExplore": {
+    "description": "Summary of a finished explore session."
+  },
+  "testSessionConvergedCompare": "Comparing converged. Nothing left to try.",
+  "@testSessionConvergedCompare": {
+    "description": "Summary of a finished compare session."
+  },
+  "testSessionSuggestedName": "{name} · Suggested",
+  "@testSessionSuggestedName": {
+    "description": "Title of the proposed next run.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "testSessionBestRunName": "The best run",
+  "@testSessionBestRunName": {
+    "description": "Name shown when the best run no longer exists."
+  },
+  "testSessionBestSetup": "Best setup",
+  "@testSessionBestSetup": {
+    "description": "Label of the winner card of a compare session."
+  },
+  "testSessionBestRun": "Best run",
+  "@testSessionBestRun": {
+    "description": "Label of the winner card of a session."
+  },
+  "testSessionDrift": "Ridden again, it lost against a run it had beaten: the trail or you may have changed.",
+  "@testSessionDrift": {
+    "description": "Warning on the winner card when a repeat run lost."
+  },
+  "badgeRunning": "Running",
+  "@badgeRunning": {
+    "description": "Badge of a test session that is running."
+  },
+  "badgeCurrentSetup": "Current",
+  "@badgeCurrentSetup": {
+    "description": "Badge of the setup that is currently active on its bike."
   }
 }

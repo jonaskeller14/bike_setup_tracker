@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
@@ -57,12 +58,12 @@ Future<void> showFilterSheet({
           mainAxisSize: MainAxisSize.min,
           children: [
             SheetHeader(
-              title: 'Filter',
+              title: context.l10n.filterTitle,
               actions: [
                 sheetActionButton(
                   context,
                   icon: Icons.filter_alt_off,
-                  tooltip: 'Reset filters',
+                  tooltip: context.l10n.filterResetTooltip,
                   onPressed: isFiltered
                       ? () {
                           unawaited(HapticFeedback.selectionClick());

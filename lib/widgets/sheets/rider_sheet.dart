@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/person_actions.dart';
@@ -42,7 +43,7 @@ class RiderSheetContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SheetHeader(title: 'Rider', leadingIcon: Icon(Person.iconData)),
+            SheetHeader(title: context.l10n.riderSheetTitle, leadingIcon: const Icon(Person.iconData)),
             const SizedBox(height: 8),
             Flexible(
               child: SingleChildScrollView(
@@ -55,8 +56,7 @@ class RiderSheetContent extends StatelessWidget {
                         spacing: 24,
                         children: [
                           Text(
-                            'Suspension, sag and tire pressure depend on your weight. Recording rider '
-                            'values with each setup keeps your setups comparable when your weight changes.',
+                            context.l10n.riderSheetIntro,
                             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                           ),
                           for (final person in persons)
@@ -118,10 +118,10 @@ class _LinkBikeButton extends StatelessWidget {
         FilledButton.icon(
           onPressed: hasBikes ? () => PersonActions.editBikeLinks(context, person: person) : null,
           icon: const Icon(Icons.add_link),
-          label: const Text('Link bike'),
+          label: Text(context.l10n.riderSheetLinkBike),
         ),
         Text(
-          hasBikes ? 'Link a bike to record rider values with its setups.' : 'Add a bike to link it to this rider.',
+          hasBikes ? context.l10n.riderSheetLinkBikeHint : context.l10n.riderAddBikeHint,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
@@ -150,10 +150,10 @@ class _RecordRiderValuesButton extends StatelessWidget {
         FilledButton.tonalIcon(
           onPressed: hasComponents ? () => PersonActions.recordRiderValues(context, person: person) : null,
           icon: const Icon(Icons.add),
-          label: const Text('Record rider values'),
+          label: Text(context.l10n.riderSheetRecordValues),
         ),
         Text(
-          hasComponents ? 'Rider values are saved with a new setup.' : 'Add a component to record setups.',
+          hasComponents ? context.l10n.riderSheetRecordValuesHint : context.l10n.riderSheetAddComponentHint,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),

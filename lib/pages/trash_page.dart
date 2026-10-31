@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
@@ -41,7 +42,7 @@ class _TrashPageState extends State<TrashPage> {
 
   bool get _isSelectionMode => _selectedItems.isNotEmpty;
 
-  List<_TrashItem> _deletedItems(AppRepository appRepository) {
+  List<_TrashItem> _deletedItems(AppRepository appRepository, AppLocalizations l10n) {
     final deletedCombined = <_TrashItem>[
       ...appRepository.deletedPersons.map((p) => _PersonTrashItem(p)),
       ...appRepository.deletedBikes.map((b) => _BikeTrashItem(b)),
@@ -49,7 +50,7 @@ class _TrashPageState extends State<TrashPage> {
       ...appRepository.deletedSetups.map((s) => _SetupTrashItem(s)),
       ...appRepository.deletedTaskRules.map((tr) => _TaskRuleTrashItem(tr)),
       ...appRepository.deletedTaskEntries.map((te) => _TaskEntryTrashItem(te)),
-      ...appRepository.deletedFeedbacks.map((f) => _FeedbackTrashItem(f)),
+      ...appRepository.deletedFeedbacks.map((f) => _FeedbackTrashItem(f, l10n.feedbackName)),
       ...appRepository.deletedTestSessions.map((ts) => _TestSessionTrashItem(ts)),
     ];
 
@@ -76,9 +77,10 @@ class _TrashPageState extends State<TrashPage> {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
     final selection = _TrashSelection(_selectedItems);
+    final l10n = context.l10n;
     final message = _selectedItems.length == 1
-        ? "'${_selectedItems.first.name}' restored from trash."
-        : '${_selectedItems.length} items restored from trash.';
+        ? l10n.trashRestoredOne(_selectedItems.first.name)
+        : l10n.trashRestoredMany(_selectedItems.length);
     unawaited(HapticFeedback.lightImpact());
     setState(() => _isRestoring = true);
 
@@ -93,7 +95,7 @@ class _TrashPageState extends State<TrashPage> {
           message,
           duration: const Duration(seconds: 5),
           action: AppSnackBarAction(
-            label: 'UNDO',
+            label: l10n.undo,
             onPressed: () async => selection.remove(appRepository),
           ),
         ),
@@ -110,7 +112,7 @@ class _TrashPageState extends State<TrashPage> {
     return ListTile(
       leading: Icon(deletedItem.iconData),
       title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text('Deleted at: ${timeFormat.format(deletedItem.lastModified.toLocal())}'),
+      subtitle: Text(context.l10n.trashDeletedAt(timeFormat.format(deletedItem.lastModified.toLocal()))),
       onTap: _isSelectionMode ? () => _toggleSelection(deletedItem) : null,
       onLongPress: _isRestoring ? null : () => _toggleSelection(deletedItem),
       trailing: _isSelectionMode
@@ -172,7 +174,7 @@ class _TrashPageState extends State<TrashPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Keeps the freshest snapshot of each still-deleted item and drops the rest.
-    final visibleItems = _deletedItems(context.read<AppRepository>()).toSet();
+    final visibleItems = _deletedItems(context.read<AppRepository>(), context.l10n).toSet();
     _selectedItems = visibleItems.intersection(_selectedItems);
   }
 
@@ -180,7 +182,7 @@ class _TrashPageState extends State<TrashPage> {
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
 
-    final deletedCombined = _deletedItems(appRepository);
+    final deletedCombined = _deletedItems(appRepository, context.l10n);
     final sections = <({DateTime day, List<_TrashItem> items})>[];
     for (final item in deletedCombined) {
       final local = item.lastModified.toLocal();
@@ -205,22 +207,22 @@ class _TrashPageState extends State<TrashPage> {
                     icon: const Icon(Icons.close),
                     onPressed: _isRestoring ? null : _clearSelection,
                   ),
-                  title: Text('${_selectedItems.length} selected'),
+                  title: Text(context.l10n.selectionCount(_selectedItems.length)),
                   actions: [
                     IconButton(
                       onPressed: _isRestoring ? null : _restoreSelectedItems,
                       icon: const Icon(Icons.restore_from_trash),
-                      tooltip: 'Restore selected',
+                      tooltip: context.l10n.trashRestoreSelectedTooltip,
                     ),
                   ],
                 )
               : AppBar(
                   key: const ValueKey('trash-app-bar'),
-                  title: const Row(
+                  title: Row(
                     spacing: 8,
                     children: [
-                      Icon(Icons.delete),
-                      Expanded(child: Text('Trash')),
+                      const Icon(Icons.delete),
+                      Expanded(child: Text(context.l10n.trashTitle)),
                     ],
                   ),
                 ),
@@ -230,23 +232,23 @@ class _TrashPageState extends State<TrashPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const ListTile(
-                leading: Icon(Icons.info_outline),
-                title: Text('Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.'),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: Text(context.l10n.trashInfo),
                 dense: true,
               ),
               Expanded(
                 child: deletedCombined.isEmpty
-                    ? const CustomScrollView(
+                    ? CustomScrollView(
                         slivers: [
                           SliverFillRemaining(
                             hasScrollBody: false,
                             child: Padding(
-                              padding: EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(16),
                               child: EmptyStatePlaceholder(
                                 icon: Icons.delete_outline,
-                                title: 'Trash is empty',
-                                subtitle: 'Deleted items will appear here.',
+                                title: context.l10n.trashEmptyTitle,
+                                subtitle: context.l10n.trashEmptySubtitle,
                               ),
                             ),
                           ),
@@ -429,15 +431,15 @@ class _TaskEntryTrashItem extends _TrashItem {
 
 class _FeedbackTrashItem extends _TrashItem {
   final RideFeedback feedback;
+  @override final String name;
   @override String get id => 'feedback-${feedback.id}';
   @override DateTime get lastModified => feedback.lastModified;
   @override IconData get iconData => RideFeedback.iconData;
-  @override String get name => 'Feedback';
   @override
   void restore(BuildContext context) async {
     await FeedbackActions.restoreFeedback(context, feedback: feedback);
   }
-  const _FeedbackTrashItem(this.feedback);
+  const _FeedbackTrashItem(this.feedback, this.name);
 }
 
 class _TestSessionTrashItem extends _TrashItem {

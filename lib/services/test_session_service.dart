@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show IconData;
 import 'package:intl/intl.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/feedback/feedback_key.dart';
@@ -136,7 +138,10 @@ class TestSessionService {
   /// earlier run describe that ride, so only a source from outside the session
   /// passes its notes on, and the copy lines don't pile up run after run.
   static String runNotes({required Setup source, required TestSession session, required String dateFormat}) {
-    final copyLine = "Copy of '${source.displayName}' (${DateFormat(dateFormat).format(source.datetimeLocal)})";
+    final copyLine = currentL10n.testSessionCopyLine(
+      source.displayName,
+      DateFormat(dateFormat).format(source.datetimeLocal),
+    );
     final notes = source.testSessionId == session.id ? null : source.notes?.trim();
     return notes == null || notes.isEmpty ? copyLine : '$notes\n\n$copyLine';
   }
@@ -165,7 +170,7 @@ class TestSessionService {
         if (current.containsKey(key)) key: value,
     };
     return Setup(
-      name: 'Run $number',
+      name: currentL10n.testSessionRunName(number),
       notes: notes,
       datetime: stamp.toUtc(),
       datetimeLocal: stamp,
@@ -199,23 +204,26 @@ class TestSessionService {
 
   /// "Front · Calm".
   static String goalLabel(FeedbackAspect aspect, String Function(String slug) customLabel) => switch (aspect) {
-    EndAspect(:final end, :final attribute) => '${end.label} · ${attribute.qualityLabel}',
+    EndAspect(:final end, :final attribute) => currentL10n.testSessionGoalLabel(
+      end.label(currentL10n),
+      attribute.qualityLabel(currentL10n),
+    ),
     CustomAspect(:final slug) => customLabel(slug),
     _ => aspect.raw,
   };
 
   static String methodLabel(TestSessionMethod? method) => switch (method) {
-    PatternSearch() => 'Fine-tune',
-    OrthogonalArray() => 'Explore',
-    Tournament() => 'Compare',
-    null => 'Free',
+    PatternSearch() => currentL10n.testSessionMethodFineTune,
+    OrthogonalArray() => currentL10n.testSessionMethodExplore,
+    Tournament() => currentL10n.testSessionMethodCompare,
+    null => currentL10n.testSessionMethodFree,
   };
 
   static String methodDescription(TestSessionMethod? method) => switch (method) {
-    PatternSearch() => 'Move one knob at a time around your best run, in smaller and smaller steps.',
-    OrthogonalArray() => 'Change all knobs together in a planned pattern to learn what each one does.',
-    Tournament() => 'Ride 2–4 setups you already have against each other to find the best.',
-    null => 'Record the runs and compare them yourself. Nothing is proposed.',
+    PatternSearch() => currentL10n.testSessionMethodFineTuneInfo,
+    OrthogonalArray() => currentL10n.testSessionMethodExploreInfo,
+    Tournament() => currentL10n.testSessionMethodCompareInfo,
+    null => currentL10n.testSessionMethodFreeInfo,
   };
 
   /// A rough run count for [knobCount] knobs, or the number of candidates for a
@@ -223,9 +231,9 @@ class TestSessionService {
   static String? expectedRuns(TestSessionMethod? method, int knobCount) {
     return switch (method) {
       _ when knobCount <= 0 => null,
-      PatternSearch() => 'about ${knobCount * 4} runs',
-      OrthogonalArray() => 'about ${knobCount + 2} runs',
-      Tournament(:final candidateSetupIds) => 'about ${candidateSetupIds.length + 1} runs',
+      PatternSearch() => currentL10n.testSessionExpectedRuns(knobCount * 4),
+      OrthogonalArray() => currentL10n.testSessionExpectedRuns(knobCount + 2),
+      Tournament(:final candidateSetupIds) => currentL10n.testSessionExpectedRuns(candidateSetupIds.length + 1),
       null => null,
     };
   }

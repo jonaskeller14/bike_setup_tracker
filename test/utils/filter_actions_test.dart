@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 class MockAppRepository extends Mock implements AppRepository {}
 
@@ -64,6 +66,7 @@ void main() {
     appRepository: repository,
     appSettings: settings,
     stravaActive: stravaActive,
+    l10n: englishL10n,
   );
 
   group('enabledSections', () {

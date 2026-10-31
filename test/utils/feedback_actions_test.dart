@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
@@ -185,7 +186,7 @@ void main() {
     await settle(tester);
     expect(find.byType(FeedbackPage), findsOneWidget);
 
-    final chip = find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut);
+    final chip = find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut);
     await tester.ensureVisible(chip);
     await tester.tap(chip);
     await settle(tester);

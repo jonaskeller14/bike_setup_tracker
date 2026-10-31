@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/l10n.dart';
@@ -60,7 +59,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
     final appRepository = context.watch<AppRepository>();
     final session = appRepository.testSessions[widget.sessionId];
     if (session == null) {
-      return const Padding(padding: EdgeInsets.all(24), child: Text('This test session no longer exists.'));
+      return Padding(padding: const EdgeInsets.all(24), child: Text(context.l10n.testSessionGone));
     }
     final theme = Theme.of(context);
     final runs = appRepository.setupsInSession(session.id);
@@ -87,11 +86,11 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
                   if (session.isRunning)
                     const RunningBadge()
                   else
-                    const TileMetaRow(icon: Icons.stop_circle_outlined, text: 'Ended'),
+                    TileMetaRow(icon: Icons.stop_circle_outlined, text: context.l10n.testSessionEnded),
                   TileMetaRow(icon: Icons.tune, text: TestSessionService.methodLabel(session.method)),
                   TileMetaRow(
                     icon: Icons.directions_bike,
-                    text: Intl.plural(runs.length, one: '1 run', other: '${runs.length} runs'),
+                    text: context.l10n.testSessionRunsCount(runs.length),
                   ),
                   for (final aspect in session.goal)
                     TileMetaRow(
@@ -109,16 +108,14 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
               ),
             ),
             SectionTitle(
-              title: 'Adjustments',
-              infoText: session.isRunning && session.method is! Tournament
-                  ? 'Tap an adjustment to lock it at its value in the latest run. The next runs keep that value.'
-                  : null,
+              title: context.l10n.componentFormAdjustmentsTitle,
+              infoText: session.isRunning && session.method is! Tournament ? context.l10n.testSessionLockInfo : null,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _knobs(context, appRepository, session),
             ),
-            const SectionTitle(title: 'Runs'),
+            SectionTitle(title: context.l10n.testSessionRunsTitle),
             ..._runs(context, appRepository, session),
             TestSessionSuggestion(session: session),
             if (session.isRunning)
@@ -149,7 +146,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
     final names = session.adjustmentIds.map((id) => knobs[id]?.adjustment.name).nonNulls.toList();
     String labelOf(String id) {
       final knob = knobs[id];
-      if (knob == null) return 'ADJUSTMENT NOT FOUND';
+      if (knob == null) return context.l10n.testSessionAdjustmentNotFoundCaps;
       final name = knob.adjustment.name;
       return names.where((other) => other == name).length > 1 ? '${knob.ownerName} · $name' : name;
     }
@@ -175,7 +172,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('The adjustments your setups differ in:', style: style),
+          Text(context.l10n.testSessionDiffering, style: style),
           for (final label in labels) Text('•  $label', style: style),
         ],
       );
@@ -194,8 +191,8 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
             tooltip: !session.isRunning
                 ? null
                 : session.locks.containsKey(id)
-                ? 'Locked at its value. Tap to unlock.'
-                : 'Tap to lock it at its value in the latest run.',
+                ? context.l10n.testSessionLockedTooltip
+                : context.l10n.testSessionLockTooltip,
             selected: session.locks.containsKey(id),
             onSelected: session.isRunning
                 ? (_) => unawaited(TestSessionActions.toggleLock(context, session: session, adjustmentId: id))
@@ -209,7 +206,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
   /// Collapsed, a run shows the session's adjustments so the runs compare.
   List<Widget> _runs(BuildContext context, AppRepository appRepository, TestSession session) {
     final runs = appRepository.setupsInSession(session.id);
-    if (runs.isEmpty) return const [ListTile(title: Text('No runs yet.'))];
+    if (runs.isEmpty) return [ListTile(title: Text(context.l10n.testSessionNoRuns))];
 
     final adjustmentIds = session.adjustmentIds.toSet();
     return [

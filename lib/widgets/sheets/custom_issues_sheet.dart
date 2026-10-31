@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/feedback/custom_issue.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/custom_issue_service.dart';
@@ -85,7 +86,7 @@ class _CustomIssuesSheetContentState extends State<CustomIssuesSheetContent> {
   /// A typed label that matches an existing issue picks it and keeps its spelling.
   String? _addIssue(String value, CustomIssueIndex index) {
     final typed = CustomIssue.fromLabel(value);
-    if (typed == null) return 'Enter a name';
+    if (typed == null) return context.l10n.customIssueEnterName;
     final issue = index.contains(typed.slug) ? CustomIssue(typed.slug, index.labelOf(typed.slug)) : typed;
     setState(() {
       _added[issue.slug] ??= issue;
@@ -104,14 +105,22 @@ class _CustomIssuesSheetContentState extends State<CustomIssuesSheetContent> {
         box.localToGlobal(Offset.zero, ancestor: overlay) & box.size,
         Offset.zero & overlay.size,
       ),
-      items: const [
+      items: [
         PopupMenuItem(
           value: _IssueMenuAction.rename,
-          child: ListTile(leading: Icon(Icons.edit), title: Text('Rename'), contentPadding: EdgeInsets.zero),
+          child: ListTile(
+            leading: const Icon(Icons.edit),
+            title: Text(context.l10n.renameConfirm),
+            contentPadding: EdgeInsets.zero,
+          ),
         ),
         PopupMenuItem(
           value: _IssueMenuAction.remove,
-          child: ListTile(leading: Icon(Icons.delete), title: Text('Remove'), contentPadding: EdgeInsets.zero),
+          child: ListTile(
+            leading: const Icon(Icons.delete),
+            title: Text(context.l10n.remove),
+            contentPadding: EdgeInsets.zero,
+          ),
         ),
       ],
     );
@@ -148,10 +157,10 @@ class _CustomIssuesSheetContentState extends State<CustomIssuesSheetContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Issues'),
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('Your own problems, beside the built-in ones. Long-press an issue to rename or remove it.'),
+          SheetHeader(title: context.l10n.customIssuesTitle),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: Text(context.l10n.customIssuesInfo),
             dense: true,
           ),
           const SizedBox(height: 12),
@@ -181,7 +190,8 @@ class _CustomIssuesSheetContentState extends State<CustomIssuesSheetContent> {
                     AddTagChip(
                       autofocus: widget.addIssue || available.isEmpty,
                       prominent: available.isEmpty,
-                      noun: 'issue',
+                      tooltip: context.l10n.feedbackAddIssue,
+                      hint: context.l10n.addIssueHint,
                       icon: Icons.flag_outlined,
                       onSubmit: (value) => _addIssue(value, index),
                     ),

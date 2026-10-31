@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../services/feedback_ranking_service.dart';
 import '../items/tile_meta_row.dart';
 
@@ -14,15 +15,15 @@ class SetupRankBadge extends StatelessWidget {
 
   const SetupRankBadge({super.key, required this.rank});
 
-  static String label(SetupRank rank) => '${rank.rank}/${rank.of} compared';
+  static String label(SetupRank rank, AppLocalizations l10n) => l10n.feedbackRankLabel(rank.rank, rank.of);
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      message: 'Estimated rank among the ${rank.of} setups of this bike you compared in feedback',
+      message: context.l10n.feedbackRankTooltip(rank.of),
       child: TileMetaRow(
         icon: Icons.leaderboard,
-        text: label(rank),
+        text: label(rank, context.l10n),
         muted: true,
         bold: rank.rank <= highlightedRanks,
       ),

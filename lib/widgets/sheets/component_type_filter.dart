@@ -31,12 +31,12 @@ Future<void> showComponentTypeFilterSheet({
               mainAxisSize: MainAxisSize.min,
               children: [
                 SheetHeader(
-                  title: 'Component Types ($selectedCount/$totalCount)',
+                  title: context.l10n.componentTypeFilterTitle(selectedCount, totalCount),
                   actions: [
                     sheetActionButton(
                       context,
                       icon: allSelected ? Icons.deselect : Icons.select_all,
-                      tooltip: allSelected ? 'Deselect all' : 'Select all',
+                      tooltip: allSelected ? context.l10n.deselectAll : context.l10n.selectAll,
                       onPressed: totalCount == 0
                           ? null
                           : () {

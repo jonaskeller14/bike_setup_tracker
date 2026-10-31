@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/setup.dart';
@@ -42,7 +43,7 @@ class MapActions {
       context: context,
       position: RelativeRect.fromRect(globalPosition & Size.zero, Offset.zero & overlay.size),
       items: [
-        if (onViewOnMap != null) _openMapMenuItem(icon: Icons.map, label: 'View on map', value: onViewOnMap),
+        if (onViewOnMap != null) _openMapMenuItem(icon: Icons.map, label: context.l10n.setupOptionViewOnMap, value: onViewOnMap),
         for (final target in externalTargets)
           _openMapMenuItem(
             icon: Icons.directions,

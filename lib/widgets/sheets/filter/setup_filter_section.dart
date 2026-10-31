@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../l10n/l10n.dart';
 import '../../../models/app_settings.dart';
 import '../../../models/feedback/test_session.dart';
 import '../../../repositories/app_repository.dart';
@@ -28,7 +29,9 @@ class SetupFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        SheetSectionTitle(title: showBookmark || showTestSessions ? "Setups" : "Setup Tags"),
+        SheetSectionTitle(
+          title: showBookmark || showTestSessions ? context.l10n.filterSetupsTitle : context.l10n.filterSetupTagsTitle,
+        ),
         if (hasChips)
           Wrap(
             spacing: 6,
@@ -36,7 +39,7 @@ class SetupFilterSection extends StatelessWidget {
               if (showBookmark)
                 FilterChip(
                   avatar: Icon(filters.setup.bookmarkedOnly ? Icons.bookmark : Icons.bookmark_border),
-                  label: const Text("Bookmarked"),
+                  label: Text(context.l10n.setupColumnBookmarked),
                   selected: filters.setup.bookmarkedOnly,
                   showCheckmark: false,
                   onSelected: (bool newValue) => filters.setup = filters.setup.copyWith(bookmarkedOnly: newValue),
@@ -77,16 +80,14 @@ class SetupFilterSection extends StatelessWidget {
         if (!hasChips && showTags)
           SheetFilterEmptyHint(
             icon: Icons.tag,
-            title: "No setup tags yet",
-            hint: showTestSessions
-                ? "Add/Edit a Setup to add tags, or start a test session to filter its runs."
-                : "Add/Edit a Setup to add tags.",
+            title: context.l10n.filterNoSetupTagsTitle,
+            hint: showTestSessions ? context.l10n.filterNoSetupTagsHintSessions : context.l10n.filterNoSetupTagsHint,
           )
         else if (!hasChips && showTestSessions)
-          const SheetFilterEmptyHint(
+          SheetFilterEmptyHint(
             icon: TestSession.iconData,
-            title: "No test sessions yet",
-            hint: "Start a test session to filter its runs.",
+            title: context.l10n.filterNoTestSessionsTitle,
+            hint: context.l10n.filterNoTestSessionsHint,
           ),
       ],
     );

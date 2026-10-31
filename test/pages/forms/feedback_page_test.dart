@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -314,16 +316,16 @@ void main() {
 
       await tapChip(tester, issueChip('Harsh', FeedbackEnd.front));
       await tapChip(tester, issueChip('Low grip', FeedbackEnd.rear));
-      await tapChip(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut));
+      await tapChip(tester, find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut));
 
       expect(isSelected(tester, issueChip('Harsh', FeedbackEnd.front)), isFalse);
       expect(isSelected(tester, issueChip('Low grip', FeedbackEnd.rear)), isFalse);
-      expect(isSelected(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut)), isTrue);
-      expect(find.textContaining(FeedbackAttribute.comfort.hint, findRichText: true), findsNothing);
+      expect(isSelected(tester, find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut)), isTrue);
+      expect(find.textContaining(FeedbackAttribute.comfort.hint(englishL10n), findRichText: true), findsNothing);
 
       await tapChip(tester, issueChip('Unsettled', FeedbackEnd.front));
 
-      expect(isSelected(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut)), isFalse);
+      expect(isSelected(tester, find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut)), isFalse);
       expect((await save(tester))!.observations, {
         const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.calm)),
       });
@@ -333,9 +335,9 @@ void main() {
       await seed(tester);
       await openForm(tester, () => addOnMay(3));
 
-      expect(find.textContaining(FeedbackAttribute.comfort.hint, findRichText: true), findsNothing);
+      expect(find.textContaining(FeedbackAttribute.comfort.hint(englishL10n), findRichText: true), findsNothing);
       await tapChip(tester, issueChip('Harsh', FeedbackEnd.front));
-      expect(find.textContaining(FeedbackAttribute.comfort.hint, findRichText: true), findsOneWidget);
+      expect(find.textContaining(FeedbackAttribute.comfort.hint(englishL10n), findRichText: true), findsOneWidget);
     });
 
     testWidgets('says when a new time rates another setup', (tester) async {
@@ -594,7 +596,7 @@ void main() {
       await openForm(tester, () => FeedbackPage.edit(feedback: appRepository.feedbacks['f3']!));
 
       await tapChip(tester, overallChip('Slightly worse'));
-      await tapChip(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut));
+      await tapChip(tester, find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut));
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse);
 
       final saved = (await save(tester))!;
@@ -694,7 +696,7 @@ void main() {
     testWidgets('adds a new issue in the sheet and saves it flagged with its label', (tester) async {
       await seed(tester);
       await openForm(tester, () => addOnMay(3));
-      await tapChip(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut));
+      await tapChip(tester, find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut));
 
       await addInSheet(tester, '  Wet roots ');
       expect(sheetField, findsNothing, reason: 'the field collapses once the issue is added');
@@ -702,7 +704,7 @@ void main() {
       await closeSheet(tester);
 
       expect(isSelected(tester, customChip('Wet roots')), isTrue);
-      expect(isSelected(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut)), isFalse);
+      expect(isSelected(tester, find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut)), isFalse);
       expect((await save(tester))!.observations, {wetRoots.toObservation()});
     });
 
@@ -742,11 +744,11 @@ void main() {
       await tapChip(tester, customChip('Wet roots'));
       expect(isSelected(tester, customChip('Wet roots')), isTrue);
 
-      await tapChip(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut));
+      await tapChip(tester, find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut));
       expect(isSelected(tester, customChip('Wet roots')), isFalse);
 
       await tapChip(tester, customChip('Wet roots'));
-      expect(isSelected(tester, find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut)), isFalse);
+      expect(isSelected(tester, find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut)), isFalse);
       expect((await save(tester))!.observations, {wetRoots.toObservation()});
     });
 

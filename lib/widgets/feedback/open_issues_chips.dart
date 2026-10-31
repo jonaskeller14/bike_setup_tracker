@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/feedback/custom_issue.dart';
-import '../../models/feedback/feedback_vocabulary.dart';
 import '../../services/feedback_open_issues_service.dart';
 import '../../theme.dart';
 
@@ -21,7 +21,7 @@ class OpenIssuesChips extends StatelessWidget {
       spacing: 4,
       runSpacing: 4,
       children: issues.isEmpty
-          ? [_pill(color: colors.better, icon: Icons.check_circle, label: FeedbackVocabulary.dialledIn)]
+          ? [_pill(color: colors.better, icon: Icons.check_circle, label: context.l10n.feedbackDialledIn)]
           : [
               for (final issue in issues)
                 if (issue.hint case final hint?)

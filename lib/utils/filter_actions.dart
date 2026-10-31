@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/filters/activity_filter.dart';
 import '../models/filters/layer_filter.dart';
@@ -68,6 +69,7 @@ class FilterActions {
     appRepository: appRepository,
     appSettings: appSettings,
     stravaActive: stravaActive,
+    l10n: englishL10n, // only whether a label exists matters
   ).isNotEmpty;
 
   /// One label per active criterion of the [sections], in chip order. A
@@ -77,6 +79,7 @@ class FilterActions {
     required AppRepository appRepository,
     required AppSettings appSettings,
     required bool stravaActive,
+    required AppLocalizations l10n,
   }) {
     final filters = appRepository.filters;
     final enabled = enabledSections(sections, appSettings: appSettings, stravaActive: stravaActive);
@@ -108,14 +111,14 @@ class FilterActions {
       if (enabled.contains(FilterSection.bike) && filters.bikeId != null)
         appRepository.bikes[filters.bikeId]?.name ?? '',
       ?dateLabel,
-      if (setups && appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) "Bookmarked",
-      if (tagCount > 0) "$tagCount ${tagCount != 1 ? 'Tags' : 'Tag'}",
-      if (testSessionCount > 0) "$testSessionCount ${testSessionCount != 1 ? 'Test sessions' : 'Test session'}",
+      if (setups && appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) l10n.setupColumnBookmarked,
+      if (tagCount > 0) l10n.filterCountTags(tagCount),
+      if (testSessionCount > 0) l10n.filterCountTestSessions(testSessionCount),
       if (enabled.contains(FilterSection.taskPriority) && filters.taskRule.hasActivePriorities)
-        "$priorityCount ${priorityCount != 1 ? 'Priorities' : 'Priority'}",
+        l10n.filterCountPriorities(priorityCount),
       ?distanceLabel,
       ?elevationGainLabel,
-      if (filters.layers.isActiveFor(layers)) "1 Filter",
+      if (filters.layers.isActiveFor(layers)) l10n.filterLayersActive,
     ];
   }
 

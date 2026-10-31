@@ -4,6 +4,7 @@ import '../models/component/installation.dart';
 import '../models/component/resolved_installation.dart';
 import '../models/context/context_weather.dart';
 import '../models/feedback/feedback_vocabulary.dart';
+import '../models/service_error.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_plan.dart';
 import '../models/task/task_rule.dart';
@@ -331,5 +332,91 @@ abstract final class FeedbackOutcomeLabels {
     -1: l10n.feedbackOutcomeWorse,
     0: l10n.feedbackOutcomeSame,
     1: l10n.feedbackOutcomeBetter,
+  };
+}
+
+/// Error texts of the services, which report a kind and an optional technical
+/// detail instead of a sentence. The detail is shown as is.
+extension DataErrorMessage on DataError {
+  String message(AppLocalizations l10n) => switch (kind) {
+    DataErrorKind.getLocalBackups => l10n.dataErrorGetLocalBackups(detail ?? ''),
+    DataErrorKind.readLocalBackup => l10n.dataErrorReadLocalBackup(detail ?? ''),
+    DataErrorKind.importFile => l10n.dataErrorImportFile(detail ?? ''),
+    DataErrorKind.noFileSelected => l10n.dataErrorNoFileSelected,
+    DataErrorKind.bundleWithoutData => l10n.dataErrorBundleWithoutData,
+    DataErrorKind.driveNoInternet => l10n.dataErrorDriveNoInternet,
+    DataErrorKind.driveApi => l10n.dataErrorDriveApi(detail ?? ''),
+    DataErrorKind.driveUnexpected => l10n.dataErrorDriveUnexpected,
+    DataErrorKind.readDriveBackup => l10n.dataErrorReadDriveBackup(detail ?? ''),
+  };
+}
+
+extension GoogleDriveErrorMessage on GoogleDriveError {
+  String message(AppLocalizations l10n) => switch (kind) {
+    GoogleDriveErrorKind.setupFailed => l10n.driveErrorSetupFailed(detail ?? ''),
+    GoogleDriveErrorKind.unknown => l10n.driveErrorUnknown(detail ?? ''),
+    GoogleDriveErrorKind.signInCanceled => l10n.driveErrorSignInCanceled,
+    GoogleDriveErrorKind.signInInterrupted => l10n.driveErrorSignInInterrupted,
+    GoogleDriveErrorKind.signInFailed => l10n.driveErrorSignInFailed(detail ?? ''),
+    GoogleDriveErrorKind.platformUnsupported => l10n.driveErrorPlatformUnsupported,
+    GoogleDriveErrorKind.reauthRequired => l10n.driveErrorReauthRequired,
+    GoogleDriveErrorKind.reauthFailed => l10n.driveErrorReauthFailed(detail ?? ''),
+    GoogleDriveErrorKind.api => l10n.driveErrorApi(detail ?? ''),
+    GoogleDriveErrorKind.noInternet => l10n.driveErrorNoInternet,
+    GoogleDriveErrorKind.syncFailed => l10n.driveErrorSyncFailed(detail ?? ''),
+    GoogleDriveErrorKind.authExpired => l10n.driveErrorAuthExpired,
+    GoogleDriveErrorKind.backupFailed => l10n.driveErrorBackupFailed(detail ?? ''),
+  };
+}
+
+extension StravaFailureMessage on StravaFailure {
+  String message(AppLocalizations l10n) => switch (kind) {
+    StravaErrorKind.serverMessage => detail ?? l10n.stravaErrorSyncFailed,
+    StravaErrorKind.syncFailed => detail == null ? l10n.stravaErrorSyncFailed : l10n.stravaErrorSyncFailedDetail(detail!),
+    StravaErrorKind.connectionVerifyFailed => l10n.stravaErrorConnectionVerifyFailed,
+    StravaErrorKind.backgroundSyncFailed => l10n.stravaErrorBackgroundSyncFailed,
+    StravaErrorKind.serverUnreachable => l10n.stravaErrorServerUnreachable,
+    StravaErrorKind.noBrowser => l10n.stravaErrorNoBrowser,
+    StravaErrorKind.loginFailed => l10n.stravaErrorLoginFailed(detail ?? ''),
+    StravaErrorKind.subscriptionRequired => l10n.stravaErrorSubscriptionRequired,
+    StravaErrorKind.signInFailed => l10n.stravaErrorSignInFailed(detail ?? ''),
+    StravaErrorKind.signInFailedGeneric => l10n.stravaErrorSignInFailedGeneric,
+    StravaErrorKind.disconnectFailed => l10n.stravaErrorDisconnectFailed(detail ?? ''),
+    StravaErrorKind.fullSyncFailed => l10n.stravaErrorFullSyncFailed(detail ?? ''),
+    StravaErrorKind.noInternet => l10n.errorNoInternetRetry,
+    StravaErrorKind.authentication => l10n.stravaErrorAuthentication,
+    StravaErrorKind.rateLimited => l10n.stravaErrorRateLimited,
+  };
+}
+
+extension SubscriptionFailureMessage on SubscriptionFailure {
+  String message(AppLocalizations l10n) => switch (kind) {
+    SubscriptionErrorKind.noPreviousPurchase => l10n.subscriptionErrorNoPreviousPurchase,
+    SubscriptionErrorKind.streamFailed => l10n.storeErrorStreamFailed(detail ?? ''),
+    SubscriptionErrorKind.initFailed => l10n.subscriptionErrorInitFailed(detail ?? ''),
+    SubscriptionErrorKind.entitlementStreamFailed => l10n.subscriptionErrorEntitlementStreamFailed(detail ?? ''),
+    SubscriptionErrorKind.plansLoadFailed => l10n.subscriptionErrorPlansLoadFailed(detail ?? ''),
+    SubscriptionErrorKind.plansUnavailable => l10n.subscriptionErrorPlansUnavailable,
+    SubscriptionErrorKind.storeUnavailable => l10n.storeErrorUnavailable,
+    SubscriptionErrorKind.planNotLoaded => l10n.subscriptionErrorPlanNotLoaded,
+    SubscriptionErrorKind.purchaseFailed => l10n.subscriptionErrorPurchaseFailed(detail ?? ''),
+    SubscriptionErrorKind.restoreFailed => l10n.subscriptionErrorRestoreFailed(detail ?? ''),
+    SubscriptionErrorKind.missingTransactionId => l10n.subscriptionErrorMissingTransactionId,
+    SubscriptionErrorKind.subscriptionInactive => l10n.subscriptionErrorInactive,
+    SubscriptionErrorKind.verifyFailed => l10n.subscriptionErrorVerifyFailed(detail ?? ''),
+    SubscriptionErrorKind.noInternet => l10n.errorNoInternetRetry,
+    SubscriptionErrorKind.authentication => l10n.subscriptionErrorAuthentication,
+  };
+}
+
+extension TipFailureMessage on TipFailure {
+  String message(AppLocalizations l10n) => switch (kind) {
+    TipErrorKind.streamFailed => l10n.storeErrorStreamFailed(detail ?? ''),
+    TipErrorKind.storeUnavailable => l10n.storeErrorUnavailable,
+    TipErrorKind.initFailed => l10n.tipErrorInitFailed(detail ?? ''),
+    TipErrorKind.loadFailed => l10n.tipErrorLoadFailed(detail ?? ''),
+    TipErrorKind.tipsUnavailable => l10n.tipErrorTipsUnavailable,
+    TipErrorKind.tipNotLoaded => l10n.tipErrorTipNotLoaded,
+    TipErrorKind.purchaseFailed => l10n.tipErrorPurchaseFailed(detail ?? ''),
   };
 }

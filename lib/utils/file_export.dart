@@ -74,7 +74,7 @@ class FileExport {
         final latestBackup = await _latestBackupFile();
         if (latestBackup == null) {
           if (!context.mounted) return FileSaveOutcome.cancelled;
-          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'No backup found yet.'));
+          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.exportNoBackup));
           return FileSaveOutcome.cancelled;
         }
 
@@ -100,7 +100,7 @@ class FileExport {
         final latestBackup = await _latestBackupFile();
         if (latestBackup == null) {
           if (!context.mounted) return FileSaveOutcome.cancelled;
-          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'No backup found yet.'));
+          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.exportNoBackup));
           return FileSaveOutcome.cancelled;
         }
 
@@ -158,12 +158,12 @@ class FileExport {
       final result = await save();
       if (result == FileSaveOutcome.saved) {
         if (!context.mounted) return;
-        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, 'File saved'));
+        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, context.l10n.exportFileSaved));
       }
     } catch (e, st) {
       debugPrint('Export failed: $e\n$st');
       if (!context.mounted) return;
-      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'Export failed: $e'));
+      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.exportFailed(e.toString())));
     }
   }
 
@@ -185,12 +185,12 @@ class FileExport {
       await ShareService.shareFile(
         context: context,
         filePath: filePath,
-        text: 'Here is my bike setup data!',
-        errorMessage: 'Error sharing file',
+        text: context.l10n.shareMessageJson,
+        errorMessage: context.l10n.shareErrorFile,
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Error preparing JSON: $e'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareJsonFailed(e.toString())));
     }
   }
 
@@ -213,12 +213,12 @@ class FileExport {
       await ShareService.shareFile(
         context: context,
         filePath: filePath,
-        text: 'Here is my bike setup data in Excel format!',
-        errorMessage: 'Error sharing Excel file',
+        text: context.l10n.shareMessageExcel,
+        errorMessage: context.l10n.shareErrorExcel,
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Error preparing Excel: $e'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareExcelFailed(e.toString())));
     }
   }
 
@@ -240,12 +240,12 @@ class FileExport {
       await ShareService.shareFile(
         context: context,
         filePath: filePath,
-        text: 'Here is my bike setup data in CSV format!',
-        errorMessage: 'Error sharing CSV file',
+        text: context.l10n.shareMessageCsv,
+        errorMessage: context.l10n.shareErrorCsv,
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Error preparing CSV: $e'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareCsvFailed(e.toString())));
     }
   }
 
@@ -253,7 +253,7 @@ class FileExport {
     await ShareService.shareText(
       context: context,
       text: content,
-      errorMessage: 'Error sharing text',
+      errorMessage: context.l10n.shareErrorText,
     );
   }
 }

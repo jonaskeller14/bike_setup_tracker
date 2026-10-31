@@ -7,7 +7,9 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../database/app_database.dart';
+import '../l10n/l10n.dart';
 import '../models/selected_data.dart';
+import '../models/service_error.dart';
 import '../services/attachment_storage_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/data_export_service.dart';
@@ -32,7 +34,7 @@ class FileImport {
       }
       return GetLocalBackupsResult.success(backups);
     } catch (e) {
-      return GetLocalBackupsResult.failure("Getting local backups failed: $e");
+      return GetLocalBackupsResult.failure(DataError(DataErrorKind.getLocalBackups, e.toString()));
     }
   }
 
@@ -47,7 +49,7 @@ class FileImport {
       return ReadLocalBackupResult.success(SelectedData.fromJson(jsonData));
     } catch (e, st) {
       debugPrint("Reading backup failed: $e\n$st");
-      return ReadLocalBackupResult.failure("Reading backup failed: $e");
+      return ReadLocalBackupResult.failure(DataError(DataErrorKind.readLocalBackup, e.toString()));
     }
   }
 
@@ -58,7 +60,7 @@ class FileImport {
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      if (pickedFile == null) return ReadJsonFileResult.failure("No file was selected.");  // no error message
+      if (pickedFile == null) return ReadJsonFileResult.failure(const DataError(DataErrorKind.noFileSelected));
       onPicked?.call();
 
       final fileBytes = await pickedFile.readAsBytes();
@@ -69,7 +71,7 @@ class FileImport {
       return ReadJsonFileResult.success(SelectedData.fromJson(jsonData));
     } catch (e) {
       debugPrint("Import failed: $e");
-      return ReadJsonFileResult.failure("Import failed: $e");
+      return ReadJsonFileResult.failure(DataError(DataErrorKind.importFile, e.toString()));
     }
   }
 
@@ -83,7 +85,7 @@ class FileImport {
 
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.success(context, 'Debug file saved to: ${file.path}'),
+        AppSnackBar.success(context, context.l10n.debugFileSaved(file.path)),
       );
       debugPrint("Saved error file: ${file.path}");
     } catch (saveError) {
@@ -339,27 +341,27 @@ class FileImport {
 
 class GetLocalBackupsResult {
   final List<LocalBackup> backups;
-  final String? errorMessage;
+  final DataError? error;
   final bool isError;
 
-  GetLocalBackupsResult.success(this.backups) : errorMessage = null, isError = false;
-  GetLocalBackupsResult.failure(this.errorMessage) : backups = [], isError = true;
+  GetLocalBackupsResult.success(this.backups) : error = null, isError = false;
+  GetLocalBackupsResult.failure(this.error) : backups = [], isError = true;
 }
 
 class ReadLocalBackupResult {
   final SelectedData? appData;
-  final String? errorMessage;
+  final DataError? error;
   final bool isError;
 
-  ReadLocalBackupResult.success(this.appData) : errorMessage = null, isError = false;
-  ReadLocalBackupResult.failure(this.errorMessage) : appData = null, isError = true;
+  ReadLocalBackupResult.success(this.appData) : error = null, isError = false;
+  ReadLocalBackupResult.failure(this.error) : appData = null, isError = true;
 }
 
 class ReadJsonFileResult {
   final SelectedData? appData;
-  final String? errorMessage;
+  final DataError? error;
   final bool isError;
 
-  ReadJsonFileResult.success(this.appData) : errorMessage = null, isError = false;
-  ReadJsonFileResult.failure(this.errorMessage) : appData = null, isError = true;
+  ReadJsonFileResult.success(this.appData) : error = null, isError = false;
+  ReadJsonFileResult.failure(this.error) : appData = null, isError = true;
 }

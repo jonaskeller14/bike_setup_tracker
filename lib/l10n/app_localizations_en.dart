@@ -6347,4 +6347,1032 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get badgeCurrentSetup => 'Current';
+
+  @override
+  String dataErrorGetLocalBackups(String detail) {
+    return 'Getting local backups failed: $detail';
+  }
+
+  @override
+  String dataErrorReadLocalBackup(String detail) {
+    return 'Reading backup failed: $detail';
+  }
+
+  @override
+  String dataErrorImportFile(String detail) {
+    return 'Import failed: $detail';
+  }
+
+  @override
+  String get dataErrorNoFileSelected => 'No file was selected.';
+
+  @override
+  String get dataErrorBundleWithoutData => 'No data.json found in bundle.';
+
+  @override
+  String get dataErrorDriveNoInternet =>
+      'Getting Google Drive backups failed: No internet connection. Please connect to a network.';
+
+  @override
+  String dataErrorDriveApi(String detail) {
+    return 'Google Drive error: $detail';
+  }
+
+  @override
+  String get dataErrorDriveUnexpected => 'An unexpected error occurred.';
+
+  @override
+  String dataErrorReadDriveBackup(String detail) {
+    return 'Reading Google Drive backup failed: $detail';
+  }
+
+  @override
+  String debugFileSaved(String path) {
+    return 'Debug file saved to: $path';
+  }
+
+  @override
+  String driveErrorSetupFailed(String detail) {
+    return 'Google sign-in setup failed: $detail';
+  }
+
+  @override
+  String driveErrorUnknown(String detail) {
+    return 'Unknown error: $detail';
+  }
+
+  @override
+  String get driveErrorSignInCanceled => 'Sign in canceled by user';
+
+  @override
+  String get driveErrorSignInInterrupted => 'Sign in interrupted';
+
+  @override
+  String driveErrorSignInFailed(String detail) {
+    return 'Sign in error: $detail';
+  }
+
+  @override
+  String get driveErrorPlatformUnsupported => 'This platform does not support sign-in.';
+
+  @override
+  String get driveErrorReauthRequired => 'Drive access requires re-authorization.';
+
+  @override
+  String driveErrorReauthFailed(String detail) {
+    return 'Error after re-authorization: $detail';
+  }
+
+  @override
+  String driveErrorApi(String detail) {
+    return 'API error: $detail';
+  }
+
+  @override
+  String get driveErrorNoInternet => 'No internet connection. Please connect to a network.';
+
+  @override
+  String driveErrorSyncFailed(String detail) {
+    return 'Sync error: $detail';
+  }
+
+  @override
+  String get driveErrorAuthExpired => 'Sync failed: Authorization expired. Please tap \'Sync\' to re-authorize.';
+
+  @override
+  String driveErrorBackupFailed(String detail) {
+    return 'Error backing up to Google Drive: $detail';
+  }
+
+  @override
+  String get driveBackupCreated => 'Successfully created Google Drive Backup';
+
+  @override
+  String get driveSheetTitle => 'Google Drive Sync';
+
+  @override
+  String get driveSheetSignOut => 'Sign out';
+
+  @override
+  String get driveSheetSync => 'Sync';
+
+  @override
+  String get driveSheetSignIn => 'Sign in to Google Drive';
+
+  @override
+  String get driveSheetUnknownUser => 'Unknown User';
+
+  @override
+  String get driveSheetNotSignedIn => 'Not signed in';
+
+  @override
+  String get driveSheetSignInHint => 'Sign in to sync your data';
+
+  @override
+  String get driveSheetAutoSyncTitle => 'Auto-sync is active';
+
+  @override
+  String get driveSheetAutoSyncSubtitle => 'Changes automatically sync with Google Drive.';
+
+  @override
+  String get driveSheetInfo =>
+      'Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. Additionally daily backups are created which can be restored via \'Import Data -> Backup\'. Backups are permanently deleted after 30 days. You can also trigger a manual sync.';
+
+  @override
+  String driveSheetLastSync(String date, String time) {
+    return 'Last sync: $date $time';
+  }
+
+  @override
+  String get driveSheetNoSyncHistory => 'No sync history found.';
+
+  @override
+  String get driveButtonSyncNow => 'Sync Now';
+
+  @override
+  String get driveButtonConnect => 'Connect Google Drive';
+
+  @override
+  String tipErrorInitFailed(String detail) {
+    return 'Tip purchase initialization failed: $detail';
+  }
+
+  @override
+  String tipErrorLoadFailed(String detail) {
+    return 'Could not load tips: $detail';
+  }
+
+  @override
+  String get tipErrorTipsUnavailable => 'Tips are not fully available. Please try again later.';
+
+  @override
+  String get tipErrorTipNotLoaded => 'Tip not loaded yet — try again in a moment.';
+
+  @override
+  String tipErrorPurchaseFailed(String detail) {
+    return 'Tip purchase failed: $detail';
+  }
+
+  @override
+  String get tipJarTitle => 'Buy me a coffee';
+
+  @override
+  String get tipJarHeadline => 'Bike Setup Tracker is free — and stays that way.';
+
+  @override
+  String get tipJarCosts =>
+      'Building and maintaining it takes a lot of work, and the costs add up — store fees, servers, and more total over €100 a year. I\'m grateful for any support, big or small.';
+
+  @override
+  String get tipJarFeedback =>
+      'Feedback and feature wishes are very welcome too — I try to implement them as soon as I can.';
+
+  @override
+  String get tipJarOneTime => 'A one-time tip — no subscription.';
+
+  @override
+  String get tipJarThanksTitle => 'Thank you so much! ❤️';
+
+  @override
+  String get tipJarThanksBody => 'Your support genuinely helps keep Bike Setup Tracker going.';
+
+  @override
+  String get dataResetSettingsTitle => 'Reset settings?';
+
+  @override
+  String get dataResetSettingsBody =>
+      'All preferences, features and filters are restored to their defaults. Your data is not affected.';
+
+  @override
+  String get dataResetSettingsConfirm => 'Reset';
+
+  @override
+  String get dataResetSettingsDone => 'Settings reset to defaults.';
+
+  @override
+  String dataResetSettingsFailed(String error) {
+    return 'Resetting settings failed: $error';
+  }
+
+  @override
+  String get dataDeleteBackupsTitle => 'Delete all backups?';
+
+  @override
+  String get dataDeleteBackupsBody =>
+      'All automatic backups stored on this device are deleted. This action cannot be undone.';
+
+  @override
+  String get dataDeleteBackupsConfirm => 'Delete';
+
+  @override
+  String dataDeleteBackupsDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Deleted $count backups.',
+      one: 'Deleted 1 backup.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dataDeleteBackupsFailed(String error) {
+    return 'Deleting backups failed: $error';
+  }
+
+  @override
+  String get dataClearDatabaseTitle => 'Clear database?';
+
+  @override
+  String get dataClearDatabaseBody =>
+      'All bikes, components, setups, riders, tasks and attachments are deleted. A backup is saved first. This action cannot be undone.';
+
+  @override
+  String get dataClearDatabaseConfirm => 'Clear';
+
+  @override
+  String get dataClearDatabaseNoBackup => 'Could not save a backup. Database was not cleared.';
+
+  @override
+  String get dataClearDatabaseDone => 'Database cleared.';
+
+  @override
+  String dataClearDatabaseFailed(String error) {
+    return 'Clearing database failed: $error';
+  }
+
+  @override
+  String get errorNoInternetRetry => 'No internet connection. Please check your connection and try again.';
+
+  @override
+  String get stravaErrorSyncFailed => 'Sync failed';
+
+  @override
+  String stravaErrorSyncFailedDetail(String detail) {
+    return 'Sync failed: $detail';
+  }
+
+  @override
+  String get stravaErrorConnectionVerifyFailed => 'Connection verify failed';
+
+  @override
+  String get stravaErrorBackgroundSyncFailed => 'Background sync error';
+
+  @override
+  String get stravaErrorServerUnreachable => 'Couldn\'t reach our servers. Check your connection and try again.';
+
+  @override
+  String get stravaErrorNoBrowser => 'Could not find a program to launch the link.';
+
+  @override
+  String stravaErrorLoginFailed(String detail) {
+    return 'Login failed: $detail';
+  }
+
+  @override
+  String get stravaErrorSubscriptionRequired => 'An active Strava Sync subscription is required.';
+
+  @override
+  String stravaErrorSignInFailed(String detail) {
+    return 'Strava sign-in failed: $detail';
+  }
+
+  @override
+  String get stravaErrorSignInFailedGeneric => 'Strava sign-in failed. Please try again.';
+
+  @override
+  String stravaErrorDisconnectFailed(String detail) {
+    return 'Disconnection failed: $detail';
+  }
+
+  @override
+  String stravaErrorFullSyncFailed(String detail) {
+    return 'Full history sync failed: $detail';
+  }
+
+  @override
+  String get stravaErrorAuthentication => 'Authentication error. Please try again or reconnect to Strava.';
+
+  @override
+  String get stravaErrorRateLimited => 'Too many requests. Please try again later.';
+
+  @override
+  String storeErrorStreamFailed(String detail) {
+    return 'Purchase stream error: $detail';
+  }
+
+  @override
+  String get storeErrorUnavailable => 'Store is not available on this device.';
+
+  @override
+  String get subscriptionErrorNoPreviousPurchase =>
+      'No previous purchase found for this account. Make sure you are signed in to the same Google/Apple account that bought the subscription.';
+
+  @override
+  String subscriptionErrorInitFailed(String detail) {
+    return 'Subscription init failed: $detail';
+  }
+
+  @override
+  String subscriptionErrorEntitlementStreamFailed(String detail) {
+    return 'Entitlement stream error: $detail';
+  }
+
+  @override
+  String subscriptionErrorPlansLoadFailed(String detail) {
+    return 'Could not load plans: $detail';
+  }
+
+  @override
+  String get subscriptionErrorPlansUnavailable => 'Subscription plans are not fully available. Please try again later.';
+
+  @override
+  String get subscriptionErrorPlanNotLoaded => 'Plan not loaded yet — try again in a moment.';
+
+  @override
+  String subscriptionErrorPurchaseFailed(String detail) {
+    return 'Purchase failed: $detail';
+  }
+
+  @override
+  String subscriptionErrorRestoreFailed(String detail) {
+    return 'Restore failed: $detail';
+  }
+
+  @override
+  String get subscriptionErrorMissingTransactionId => 'Missing transaction id for iOS purchase.';
+
+  @override
+  String get subscriptionErrorInactive =>
+      'This subscription is no longer active on your store account. If you renewed recently, try again in a moment.';
+
+  @override
+  String subscriptionErrorVerifyFailed(String detail) {
+    return 'Could not verify purchase: $detail';
+  }
+
+  @override
+  String get subscriptionErrorAuthentication => 'Authentication error. Please try again.';
+
+  @override
+  String get stravaSheetTitle => 'Strava Sync';
+
+  @override
+  String get stravaOfflineTitle => 'You\'re offline';
+
+  @override
+  String get stravaOfflineBody =>
+      'We can\'t reach our servers to check Strava availability. Connect to the internet and try again.';
+
+  @override
+  String get stravaTryAgain => 'Try again';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get stravaWaitlistTitle => 'Strava Sync is at capacity';
+
+  @override
+  String get stravaWaitlistBody =>
+      'Strava\'s API limits how many active users we can sync at once. We\'re temporarily not accepting new subscriptions to keep sync reliable for current users. We\'ll open new spots as soon as we can.';
+
+  @override
+  String get stravaSuccessTrialTitle => 'Your trial has started.';
+
+  @override
+  String get stravaSuccessTitle => 'You\'re in.';
+
+  @override
+  String get stravaSuccessTrialBody =>
+      'Strava Sync is fully active for 7 days. Connect your Strava login next to import your history. Cancel in your store settings before the trial ends to avoid a charge.';
+
+  @override
+  String get stravaSuccessBody =>
+      'Strava Sync is active on this account. Connect your Strava login next so we can start importing activities.';
+
+  @override
+  String get stravaConnectTitle => 'Connect to Strava';
+
+  @override
+  String get stravaConnectBody => 'Sign in with your Strava account to sync activities.';
+
+  @override
+  String get stravaSignIn => 'Sign in to Strava';
+
+  @override
+  String get stravaConnectLater => 'Connect later';
+
+  @override
+  String get paywallHeroTitle => 'Pair every setup with the ride you actually rode.';
+
+  @override
+  String get paywallHeroSubtitle => 'Connect Strava and your activities flow in automatically.';
+
+  @override
+  String get paywallChoosePlan => 'Choose a plan';
+
+  @override
+  String paywallSavePercent(int percent) {
+    return 'SAVE $percent%';
+  }
+
+  @override
+  String get paywallTrialBadge => '7 days free';
+
+  @override
+  String get paywallFeature1Title => 'Activities as context';
+
+  @override
+  String get paywallFeature1Body => 'See which setup you ran on every ride — automatically linked by date and gear.';
+
+  @override
+  String get paywallFeature2Title => 'Setups on the map';
+
+  @override
+  String get paywallFeature2Body =>
+      'Activity start points and saved setups together, so you can revisit what worked at a spot.';
+
+  @override
+  String get paywallFeature3Title => 'Real-time auto-sync';
+
+  @override
+  String get paywallFeature3Body => 'New, updated and deleted Strava activities import within seconds.';
+
+  @override
+  String get paywallHowItWorks => 'How this works';
+
+  @override
+  String get paywallNoteAffiliation =>
+      'Strava is a third-party service. Strava and the Strava logo are registered trademarks of Strava, Inc. — Bike Setup Tracker is not affiliated with or endorsed by Strava.';
+
+  @override
+  String get paywallNoteCosts =>
+      'Your subscription covers the server costs of syncing activities between Strava and your device.';
+
+  @override
+  String get paywallNoteData =>
+      'We only store the activity fields needed to match a ride to a setup (date, name, location, gear). You can disconnect Strava at any time.';
+
+  @override
+  String get paywallStoreSettingsIos => 'App Store settings';
+
+  @override
+  String get paywallStoreSettingsAndroid => 'Google Play settings';
+
+  @override
+  String paywallLegalTrial(String price, String period, String store) {
+    return '7 days free, then $price$period. Cancel before the trial ends to avoid a charge. Manage or cancel anytime in your <store>$store</store>. By subscribing you agree to <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.';
+  }
+
+  @override
+  String paywallLegalAuto(String store) {
+    return 'Auto-renewable subscription. Manage or cancel anytime in your <store>$store</store>. By subscribing you agree to <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.';
+  }
+
+  @override
+  String get paywallLoadingPrice => 'Loading store price…';
+
+  @override
+  String get paywallStartTrial => 'Start 7-day free trial';
+
+  @override
+  String paywallSubscribe(String price, String period) {
+    return 'Subscribe — $price$period';
+  }
+
+  @override
+  String get paywallRestore => 'Restore previous purchase';
+
+  @override
+  String get stravaSyncing => 'Syncing...';
+
+  @override
+  String get stravaDisconnecting => 'Disconnecting...';
+
+  @override
+  String get stravaNotConnected => 'Not connected';
+
+  @override
+  String get stravaNotConnectedHint => 'Connect to sync your rides';
+
+  @override
+  String stravaAthleteId(int id) {
+    return 'Athlete ID: $id';
+  }
+
+  @override
+  String get stravaAutoSyncTitle => 'Auto-sync is active';
+
+  @override
+  String get stravaAutoSyncSubtitle => 'Activities import automatically after your ride.';
+
+  @override
+  String get stravaSyncInfo =>
+      'Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. While most updates are instant, a full background sync also runs weekly to catch any missed changes. You can also trigger a manual sync once per hour.';
+
+  @override
+  String stravaLastFullSync(String date, String time) {
+    return 'Last full sync: $date $time';
+  }
+
+  @override
+  String get stravaNoFullSync => 'No full sync yet';
+
+  @override
+  String stravaNextScheduledSync(String date, String time) {
+    return 'Next scheduled sync: $date $time';
+  }
+
+  @override
+  String stravaNextManualSync(String date, String time) {
+    return 'Next manual sync available: $date $time';
+  }
+
+  @override
+  String get stravaSyncButtonSyncing => 'Syncing';
+
+  @override
+  String get stravaSyncButtonSync => 'Sync';
+
+  @override
+  String stravaSyncButtonIn(String time) {
+    return 'In $time';
+  }
+
+  @override
+  String get stravaFullSync => 'Full Sync';
+
+  @override
+  String get stravaLatestActivities => 'Latest Activities:';
+
+  @override
+  String get stravaNoActivitiesTitle => 'No activities synced yet.';
+
+  @override
+  String get stravaNoActivitiesHint => 'Connect Strava and sync your rides to see activities here.';
+
+  @override
+  String get stravaGearSectionTitle => 'Strava Gear:';
+
+  @override
+  String stravaGearShowAll(int count) {
+    return 'Show all ($count)';
+  }
+
+  @override
+  String get stravaGearShowLess => 'Show less';
+
+  @override
+  String get stravaGearNotLinked => 'Not linked to a bike';
+
+  @override
+  String stravaGearOptionsTooltip(String name) {
+    return 'Options for \'$name\'';
+  }
+
+  @override
+  String stravaGearLinkTooltip(String name) {
+    return 'Link \'$name\' to a bike';
+  }
+
+  @override
+  String get stravaGearLink => 'Link';
+
+  @override
+  String stravaGearUnlinkBike(String name) {
+    return 'Unlink Bike \'$name\'';
+  }
+
+  @override
+  String stravaGearLinkToBike(String name) {
+    return 'Link to \'$name\'';
+  }
+
+  @override
+  String get stravaGearAddAsBike => 'Add as new Bike';
+
+  @override
+  String get stravaCardTitle => 'Strava Sync';
+
+  @override
+  String get stravaCardNotSubscribed => 'Not subscribed';
+
+  @override
+  String get stravaCardTrial => 'Trial';
+
+  @override
+  String get stravaCardActive => 'Active';
+
+  @override
+  String get stravaCardExpired => 'Expired';
+
+  @override
+  String get stravaCardPitch => 'Automatically link your Strava rides to your setups and see them on the map.';
+
+  @override
+  String stravaCardFromPrice(String price) {
+    return 'From $price';
+  }
+
+  @override
+  String get stravaCardFirstCharge => 'First charge';
+
+  @override
+  String get stravaCardTrialEnds => 'Trial ends';
+
+  @override
+  String get stravaCardRenews => 'Renews';
+
+  @override
+  String get stravaCardExpires => 'Expires';
+
+  @override
+  String get stravaCardBilling => 'Billing';
+
+  @override
+  String get stravaActivityTitle => 'Activity';
+
+  @override
+  String get stravaActivityAthleteFallback => 'Strava Athlete';
+
+  @override
+  String get stravaActivityElevGain => 'Elev Gain';
+
+  @override
+  String get stravaActivityAvgSpeed => 'Avg Speed';
+
+  @override
+  String get stravaActivityAvgPower => 'Avg Power';
+
+  @override
+  String get stravaActivityEnergy => 'Energy';
+
+  @override
+  String get stravaActivityNoBikeLinked => 'No Bike linked to this Strava gear';
+
+  @override
+  String get stravaActivityAddBikeHint => 'Add a new bike to link this gear automatically';
+
+  @override
+  String get stravaActivityLinkBikeHint => 'Link an existing bike or add a new bike for this gear';
+
+  @override
+  String get stravaActivityLinkBike => 'Link Bike';
+
+  @override
+  String get stravaActivityAddNew => 'Add New';
+
+  @override
+  String stravaActivitySetupsTitle(int count) {
+    return 'Setups ($count)';
+  }
+
+  @override
+  String stravaActivityFeedbackCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count feedbacks',
+      one: '1 feedback',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get stravaActivityNoSetupsTitle => 'No setups for this activity';
+
+  @override
+  String get stravaActivityNoSetupsSubtitle => 'Add a setup to record your bike configuration';
+
+  @override
+  String stravaActivitySessionRunning(String name) {
+    return 'Test session \'$name\' is running on this bike. End it to add a setup.';
+  }
+
+  @override
+  String get stravaActivityActionsTooltip => 'Activity actions';
+
+  @override
+  String get stravaActivityNoStartLocation => 'Start location not available';
+
+  @override
+  String get exportFileSaved => 'File saved';
+
+  @override
+  String exportFailed(String error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get exportNoBackup => 'No backup found yet.';
+
+  @override
+  String get shareMessageJson => 'Here is my bike setup data!';
+
+  @override
+  String get shareMessageExcel => 'Here is my bike setup data in Excel format!';
+
+  @override
+  String get shareMessageCsv => 'Here is my bike setup data in CSV format!';
+
+  @override
+  String get shareErrorFile => 'Error sharing file';
+
+  @override
+  String get shareErrorExcel => 'Error sharing Excel file';
+
+  @override
+  String get shareErrorCsv => 'Error sharing CSV file';
+
+  @override
+  String get shareErrorText => 'Error sharing text';
+
+  @override
+  String sharePrepareJsonFailed(String error) {
+    return 'Error preparing JSON: $error';
+  }
+
+  @override
+  String sharePrepareExcelFailed(String error) {
+    return 'Error preparing Excel: $error';
+  }
+
+  @override
+  String sharePrepareCsvFailed(String error) {
+    return 'Error preparing CSV: $error';
+  }
+
+  @override
+  String backupSaved(String path) {
+    return 'Saved backup at $path';
+  }
+
+  @override
+  String backupSaveFailed(String error) {
+    return 'Error saving backup: $error';
+  }
+
+  @override
+  String get exportSheetTitle => 'Export Data';
+
+  @override
+  String get exportSaveFile => 'Save File';
+
+  @override
+  String get exportSaveFileSubtitle => 'Choose where to save the JSON file';
+
+  @override
+  String get exportSaveBackup => 'Save Backup';
+
+  @override
+  String get exportSaveBackupSubtitle => 'Save current state as a local backup';
+
+  @override
+  String get exportSaveDriveBackup => 'Save Google Drive Backup';
+
+  @override
+  String get exportSaveDriveBackupSubtitle => 'Save current state as Backup in Google Drive';
+
+  @override
+  String get exportAttachmentBundle => 'Export Attachment Bundle';
+
+  @override
+  String get exportAttachmentBundleSubtitle => 'Export data and attachments as a ZIP bundle';
+
+  @override
+  String get exportProgressFile => 'Preparing JSON file…';
+
+  @override
+  String get exportProgressBackup => 'Saving backup…';
+
+  @override
+  String get exportProgressDrive => 'Uploading backup to Google Drive…';
+
+  @override
+  String get exportProgressBundle => 'Packing data and attachments…';
+
+  @override
+  String get shareSheetTitle => 'Share Data';
+
+  @override
+  String get shareFormatTitle => 'Share Format';
+
+  @override
+  String get shareFormatJson => 'JSON File';
+
+  @override
+  String get shareFormatJsonSubtitle => 'Best for moving data to another device or saving a full backup.';
+
+  @override
+  String get shareFormatExcel => 'Excel Spreadsheet';
+
+  @override
+  String get shareFormatExcelSubtitle => 'Best for analysis in Excel or Google Sheets (XLSX).';
+
+  @override
+  String get shareFormatCsv => 'CSV File';
+
+  @override
+  String get shareFormatCsvSubtitle => 'Simple tabular format (Comma Separated Values).';
+
+  @override
+  String get shareFormatText => 'Plain Text';
+
+  @override
+  String get shareFormatTextSubtitle => 'Best for sharing setup details in chats or notes.';
+
+  @override
+  String get shareProgressText => 'Preparing text…';
+
+  @override
+  String get shareProgressCsv => 'Preparing CSV file…';
+
+  @override
+  String get shareProgressExcel => 'Preparing Excel file…';
+
+  @override
+  String get importSheetTitle => 'Import Data';
+
+  @override
+  String get importFile => 'Import File';
+
+  @override
+  String get importFileSubtitle => 'Select json file which contains data to import';
+
+  @override
+  String get importRestoreBackup => 'Restore Backup';
+
+  @override
+  String get importRestoreBackupSubtitle => 'Restore local or cloud Backup';
+
+  @override
+  String get importAttachmentBundle => 'Import Attachment Bundle';
+
+  @override
+  String get importAttachmentBundleSubtitle => 'Restore data and attachments from a ZIP bundle';
+
+  @override
+  String get importReadingFile => 'Reading file…';
+
+  @override
+  String get importUnpackingBundle => 'Unpacking data and attachments…';
+
+  @override
+  String get importMethodOverwrite => 'Overwrite data';
+
+  @override
+  String get importMethodOverwriteSubtitle =>
+      'Overwrite your local data with the imported data. Unique local data will remain.';
+
+  @override
+  String get importMethodMerge => 'Merge data';
+
+  @override
+  String get importMethodMergeSubtitle =>
+      'Add new items and update existing items when the imported version is newer (based on modification date).';
+
+  @override
+  String get importMethodReplace => 'Replace data';
+
+  @override
+  String get importMethodReplaceSubtitle =>
+      'Replace your local data with the imported data. This will permanently delete all existing data and cannot be undone.';
+
+  @override
+  String get importProgressMerge => 'Merging data…';
+
+  @override
+  String get importProgressOverwrite => 'Overwriting data…';
+
+  @override
+  String get importProgressReplace => 'Replacing data…';
+
+  @override
+  String get importDoneMerge => 'Data merged successfully';
+
+  @override
+  String get importDoneOverwrite => 'Data overwritten successfully';
+
+  @override
+  String get importDoneReplace => 'Data replaced successfully';
+
+  @override
+  String importFailedMerge(String error) {
+    return 'Merge failed: $error';
+  }
+
+  @override
+  String importFailedOverwrite(String error) {
+    return 'Overwriting failed: $error';
+  }
+
+  @override
+  String importFailedReplace(String error) {
+    return 'Replacing failed: $error';
+  }
+
+  @override
+  String get backupSheetTitle => 'Import Backup';
+
+  @override
+  String get backupInfoDaily =>
+      'Backups are created once per day. To restore a backup, you can choose to overwrite current data or merge backup data into existing data.';
+
+  @override
+  String get backupInfoRetention => 'Backups older than 30 days are permanently deleted and cannot be restored.';
+
+  @override
+  String get backupLocal => 'Local Backup';
+
+  @override
+  String get backupGoogleDrive => 'Google Drive Backup';
+
+  @override
+  String get backupReading => 'Reading backup…';
+
+  @override
+  String get backupDownloading => 'Downloading backup…';
+
+  @override
+  String backupCreatedAt(String time) {
+    return 'Created at: $time';
+  }
+
+  @override
+  String get backupRestoreTooltip => 'Restore backup';
+
+  @override
+  String get backupLoadError => 'Error loading backups';
+
+  @override
+  String get backupNone => 'No backups found.';
+
+  @override
+  String get dataSelectTitle => 'Select Data';
+
+  @override
+  String get dataSelectAll => 'Entire dataset';
+
+  @override
+  String get dataSelectAllSubtitle => 'Use all items from the provided data';
+
+  @override
+  String get dataSelectChoose => 'Choose specific items';
+
+  @override
+  String get dataSelectChooseSubtitle => 'Pick which items to include';
+
+  @override
+  String get dataSelectItemsTitle => 'Select Data Items';
+
+  @override
+  String dataSelectBikes(int selected, int total) {
+    return 'Bikes ($selected / $total)';
+  }
+
+  @override
+  String dataSelectComponents(int selected, int total) {
+    return 'Components ($selected / $total)';
+  }
+
+  @override
+  String dataSelectSetups(int selected, int total) {
+    return 'Setups ($selected / $total)';
+  }
+
+  @override
+  String dataSelectRiders(int selected, int total) {
+    return 'Riders ($selected / $total)';
+  }
+
+  @override
+  String dataSelectTasks(int selected, int total) {
+    return 'Tasks ($selected / $total)';
+  }
+
+  @override
+  String dataSelectTaskEntries(int selected, int total) {
+    return 'Task Entries ($selected / $total)';
+  }
+
+  @override
+  String dataSelectFeedback(int selected, int total) {
+    return 'Feedback ($selected / $total)';
+  }
+
+  @override
+  String dataSelectTestSessions(int selected, int total) {
+    return 'Test Sessions ($selected / $total)';
+  }
+
+  @override
+  String dataSelectConfirm(int selected, int total) {
+    return 'Confirm Selection ($selected / $total)';
+  }
+
+  @override
+  String stravaGearLinkedCount(int linked, int total) {
+    return '$linked of $total linked';
+  }
 }

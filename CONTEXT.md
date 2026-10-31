@@ -85,7 +85,18 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Calendar views Schedule / Month / Week / Day | Agenda / Monat / Woche / Tag | |
 | Pin (on the map) | Markierung | |
 | Visibility (filter) | Sichtbarkeit | Shows or hides entry kinds such as setups and tasks |
+| Subscription / Trial | Abo / Testphase | The Strava Sync plans. The paywall note says Abo, the store settings are the Store-Einstellungen |
+| Sync / Synchronize | Synchronisierung / Synchronisieren | The button label is the verb. The Strava sync is also called an Import in the status text |
+| Backup | Backup | Stays an English loanword. Local Backup, Google-Drive-Backup |
+| Import / Export / Share (data) | Importieren / Exportieren / Teilen | The three menu entries of the home screen |
+| Overwrite / Merge / Replace (import method) | Überschreiben / Zusammenführen / Ersetzen | Replace deletes the local data first |
+| Attachment bundle | Anhangspaket | The ZIP file with data and attachments |
+| Tip (jar) | Trinkgeld | One-time support. The sheet title is Spendier mir einen Kaffee |
+| Activity (Strava) | Aktivität | |
+| Athlete (Strava) | Athlet | Athleten-ID. A Strava account, not a rider |
 
 Unit symbols (`km`, `bar`, `°C`) are not translated.
 
 Preset templates are copied into the user's data when picked, so their names and notes stay English until issue #18 decides otherwise (Phase 14). That covers the adjustment templates of the Add Adjustment sheet and the task templates in `lib/utils/task_presets.dart`. The text the app generates around a template, like the `Empfohlenes Intervall: …` line in a task's notes, is written in the language of the moment it was created.
+
+The Strava link text `View on Strava` stays English in every language, because Strava's brand guidelines word it that way. The same goes for `Powered by Strava`.

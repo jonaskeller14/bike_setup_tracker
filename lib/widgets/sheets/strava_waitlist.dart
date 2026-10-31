@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import 'sheet_header.dart';
 
 class StravaWaitlist extends StatelessWidget {
@@ -13,9 +14,9 @@ class StravaWaitlist extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SheetHeader(
-            title: 'Strava Sync',
-            leadingIcon: Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
+          SheetHeader(
+            title: context.l10n.stravaSheetTitle,
+            leadingIcon: const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
           ),
           const SizedBox(height: 16),
           Flexible(
@@ -39,14 +40,12 @@ class StravaWaitlist extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "Strava Sync is at capacity",
+                    context.l10n.stravaWaitlistTitle,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Strava's API limits how many active users we can sync at once. "
-                    "We're temporarily not accepting new subscriptions to keep sync "
-                    "reliable for current users. We'll open new spots as soon as we can.",
+                    context.l10n.stravaWaitlistBody,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       height: 1.4,
@@ -63,7 +62,7 @@ class StravaWaitlist extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
+              child: Text(context.l10n.close),
             ),
           ),
         ],

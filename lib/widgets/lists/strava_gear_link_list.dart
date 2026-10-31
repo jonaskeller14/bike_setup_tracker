@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/strava/strava_gear.dart';
 import '../items/strava_gear_link_tile.dart';
@@ -96,12 +97,12 @@ class _StravaGearLinkListState extends State<StravaGearLinkList> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const Expanded(child: SheetSectionTitle(title: "Strava Gear:")),
+            Expanded(child: SheetSectionTitle(title: context.l10n.stravaGearSectionTitle)),
             if (linkedCount < links.length)
               Padding(
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Text(
-                  "$linkedCount of ${links.length} linked",
+                  context.l10n.stravaGearLinkedCount(linkedCount, links.length),
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -133,7 +134,7 @@ class _StravaGearLinkListState extends State<StravaGearLinkList> {
             child: TextButton.icon(
               onPressed: () => setState(() => _expanded = !_expanded),
               icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more, size: 18),
-              label: Text(_expanded ? "Show less" : "Show all (${links.length})"),
+              label: Text(_expanded ? context.l10n.stravaGearShowLess : context.l10n.stravaGearShowAll(links.length)),
             ),
           ),
       ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'sheet_header.dart';
 
 class SelectShareFormatSheetContent extends StatelessWidget {
@@ -26,7 +27,7 @@ class SelectShareFormatSheetContent extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SheetHeader(
-            title: 'Share Format',
+            title: context.l10n.shareFormatTitle,
             onBack: onBack,
           ),
           const SizedBox(height: 16),
@@ -37,29 +38,29 @@ class SelectShareFormatSheetContent extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: Icon(Icons.code, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("JSON File"),
-                    subtitle: const Text("Best for moving data to another device or saving a full backup."),
+                    title: Text(context.l10n.shareFormatJson),
+                    subtitle: Text(context.l10n.shareFormatJsonSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onJson,
                   ),
                   ListTile(
                     leading: Icon(Icons.table_view, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Excel Spreadsheet"),
-                    subtitle: const Text("Best for analysis in Excel or Google Sheets (XLSX)."),
+                    title: Text(context.l10n.shareFormatExcel),
+                    subtitle: Text(context.l10n.shareFormatExcelSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onXlsx,
                   ),
                   ListTile(
                     leading: Icon(Icons.grid_on, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("CSV File"),
-                    subtitle: const Text("Simple tabular format (Comma Separated Values)."),
+                    title: Text(context.l10n.shareFormatCsv),
+                    subtitle: Text(context.l10n.shareFormatCsvSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onCsv,
                   ),
                   ListTile(
                     leading: Icon(Icons.text_snippet, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Plain Text"),
-                    subtitle: const Text("Best for sharing setup details in chats or notes."),
+                    title: Text(context.l10n.shareFormatText),
+                    subtitle: Text(context.l10n.shareFormatTextSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onText,
                   ),

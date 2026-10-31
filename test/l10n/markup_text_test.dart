@@ -33,5 +33,22 @@ void main() {
     test('keeps line breaks', () {
       expect(markupTextSpan('One\nTwo <i>three</i>').toPlainText(), 'One\nTwo three');
     });
+
+    test('builds the spans of custom tags', () {
+      final span = markupTextSpan(
+        'Read the <terms>Terms</terms> and the <b>Policy</b>.',
+        tags: {'terms': (text) => TextSpan(text: text, style: const TextStyle(color: Color(0xFF0000FF)))},
+      );
+      final children = span.children!.cast<TextSpan>();
+
+      expect(span.toPlainText(), 'Read the Terms and the Policy.');
+      expect(children.map((s) => s.text), ['Read the ', 'Terms', ' and the ', 'Policy', '.']);
+      expect(children[1].style?.color, const Color(0xFF0000FF));
+      expect(children[3].style?.fontWeight, FontWeight.bold);
+    });
+
+    test('leaves an unregistered tag as text', () {
+      expect(markupTextSpan('A <terms>B</terms>').toPlainText(), 'A <terms>B</terms>');
+    });
   });
 }

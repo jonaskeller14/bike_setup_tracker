@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/context/context_weather.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
+import 'package:bike_setup_tracker/models/service_error.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/strava/strava_plan.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -57,6 +58,13 @@ void main() {
     });
     test('LocationStatus', () {
       expectLabeled(LocationStatus.values, (v, l10n) => v.errorMessage(l10n));
+    });
+    test('service errors', () {
+      expectLabeled(DataErrorKind.values, (v, l10n) => DataError(v, 'detail').message(l10n));
+      expectLabeled(GoogleDriveErrorKind.values, (v, l10n) => GoogleDriveError(v, 'detail').message(l10n));
+      expectLabeled(StravaErrorKind.values, (v, l10n) => StravaFailure(v, 'detail').message(l10n));
+      expectLabeled(SubscriptionErrorKind.values, (v, l10n) => SubscriptionFailure(v, 'detail').message(l10n));
+      expectLabeled(TipErrorKind.values, (v, l10n) => TipFailure(v, 'detail').message(l10n));
     });
     test('Condition', () => expectLabeled(Condition.values, (v, l10n) => v.label(l10n)));
     test(
@@ -118,6 +126,15 @@ void main() {
     expect(FeedbackAttribute.calm.problemLabel(de), 'Unruhig');
     expect(FeedbackOutcomeLabels.overall(de)[1], 'Etwas besser');
     expect(LocationStatus.timeout.errorMessage(en), 'Location request timed out. Try again.');
+    expect(const DataError(DataErrorKind.readLocalBackup, 'boom').message(en), 'Reading backup failed: boom');
+    expect(const DataError(DataErrorKind.readLocalBackup, 'boom').message(de), 'Backup konnte nicht gelesen werden: boom');
+    expect(const GoogleDriveError(GoogleDriveErrorKind.noInternet).message(en), 'No internet connection. Please connect to a network.');
+    expect(const StravaFailure(StravaErrorKind.syncFailed).message(en), 'Sync failed');
+    expect(const StravaFailure(StravaErrorKind.syncFailed, '[internal] boom').message(en), 'Sync failed: [internal] boom');
+    expect(const StravaFailure(StravaErrorKind.serverMessage, 'Quota used up').message(de), 'Quota used up');
+    expect(const StravaFailure(StravaErrorKind.noInternet).message(de), const SubscriptionFailure(SubscriptionErrorKind.noInternet).message(de));
+    expect(const SubscriptionFailure(SubscriptionErrorKind.purchaseFailed, 'declined').message(en), 'Purchase failed: declined');
+    expect(const TipFailure(TipErrorKind.storeUnavailable).message(de), 'Der Store ist auf diesem Gerät nicht verfügbar.');
   });
 
   group('enums are persisted by name, never by label', () {

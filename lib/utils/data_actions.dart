@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../repositories/app_repository.dart';
 import '../services/attachment_storage_service.dart';
@@ -22,9 +23,9 @@ class DataActions {
 
     final confirmed = await showConfirmationDialog(
       context,
-      title: 'Reset settings?',
-      content: 'All preferences, features and filters are restored to their defaults. Your data is not affected.',
-      trueText: 'Reset',
+      title: context.l10n.dataResetSettingsTitle,
+      content: context.l10n.dataResetSettingsBody,
+      trueText: context.l10n.dataResetSettingsConfirm,
       isDestructive: true,
     );
     if (!confirmed || !context.mounted) return;
@@ -37,10 +38,10 @@ class DataActions {
         unawaited(strava.setStravaNotificationsEnabled(appSettings.enableStravaNotifications));
       }
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.success(context, 'Settings reset to defaults.'));
+      messenger.showSnackBar(AppSnackBar.success(context, context.l10n.dataResetSettingsDone));
     } catch (e) {
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, 'Resetting settings failed: $e'));
+      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.dataResetSettingsFailed(e.toString())));
     }
   }
 
@@ -49,9 +50,9 @@ class DataActions {
 
     final confirmed = await showConfirmationDialog(
       context,
-      title: 'Delete all backups?',
-      content: 'All automatic backups stored on this device are deleted. This action cannot be undone.',
-      trueText: 'Delete',
+      title: context.l10n.dataDeleteBackupsTitle,
+      content: context.l10n.dataDeleteBackupsBody,
+      trueText: context.l10n.dataDeleteBackupsConfirm,
       isDestructive: true,
     );
     if (!confirmed || !context.mounted) return;
@@ -60,12 +61,10 @@ class DataActions {
     try {
       final count = await BackupService.deleteAllBackups();
       if (!context.mounted) return;
-      messenger.showSnackBar(
-        AppSnackBar.success(context, count == 1 ? 'Deleted 1 backup.' : 'Deleted $count backups.'),
-      );
+      messenger.showSnackBar(AppSnackBar.success(context, context.l10n.dataDeleteBackupsDone(count)));
     } catch (e) {
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, 'Deleting backups failed: $e'));
+      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.dataDeleteBackupsFailed(e.toString())));
     }
   }
 
@@ -75,11 +74,9 @@ class DataActions {
 
     final confirmed = await showConfirmationDialog(
       context,
-      title: 'Clear database?',
-      content:
-          'All bikes, components, setups, riders, tasks and attachments are deleted. '
-          'A backup is saved first. This action cannot be undone.',
-      trueText: 'Clear',
+      title: context.l10n.dataClearDatabaseTitle,
+      content: context.l10n.dataClearDatabaseBody,
+      trueText: context.l10n.dataClearDatabaseConfirm,
       isDestructive: true,
     );
     if (!confirmed || !context.mounted) return;
@@ -88,7 +85,7 @@ class DataActions {
     final backup = await BackupService.saveBackup(database: database, force: true);
     if (backup == null) {
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, 'Could not save a backup. Database was not cleared.'));
+      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.dataClearDatabaseNoBackup));
       return;
     }
 
@@ -96,10 +93,10 @@ class DataActions {
       await database.deleteAllUserData();
       await AttachmentStorageService().deleteAll();
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.success(context, 'Database cleared.'));
+      messenger.showSnackBar(AppSnackBar.success(context, context.l10n.dataClearDatabaseDone));
     } catch (e) {
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, 'Clearing database failed: $e'));
+      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.dataClearDatabaseFailed(e.toString())));
     }
   }
 }

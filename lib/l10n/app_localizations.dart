@@ -10459,6 +10459,1710 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current'**
   String get badgeCurrentSetup;
+
+  /// Error under the backup list when the local backups could not be listed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting local backups failed: {detail}'**
+  String dataErrorGetLocalBackups(String detail);
+
+  /// Error when a local backup file could not be read. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading backup failed: {detail}'**
+  String dataErrorReadLocalBackup(String detail);
+
+  /// Error when a file picked for import could not be read. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed: {detail}'**
+  String dataErrorImportFile(String detail);
+
+  /// Message when the file picker was closed without choosing a file.
+  ///
+  /// In en, this message translates to:
+  /// **'No file was selected.'**
+  String get dataErrorNoFileSelected;
+
+  /// Error when an attachment bundle (ZIP) has no data.json. Keep the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'No data.json found in bundle.'**
+  String get dataErrorBundleWithoutData;
+
+  /// Error under the backup list when Google Drive can not be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting Google Drive backups failed: No internet connection. Please connect to a network.'**
+  String get dataErrorDriveNoInternet;
+
+  /// Error under the backup list when the Google Drive API refused the request. {detail} is the reason Google gave.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive error: {detail}'**
+  String dataErrorDriveApi(String detail);
+
+  /// Error under the backup list when loading the Google Drive backups failed for an unknown reason.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred.'**
+  String get dataErrorDriveUnexpected;
+
+  /// Error when a Google Drive backup could not be downloaded or read. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Google Drive backup failed: {detail}'**
+  String dataErrorReadDriveBackup(String detail);
+
+  /// Snackbar after the error report file was written. {path} is the file path.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug file saved to: {path}'**
+  String debugFileSaved(String path);
+
+  /// Google Drive sheet error when the Google sign-in could not be set up. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in setup failed: {detail}'**
+  String driveErrorSetupFailed(String detail);
+
+  /// Google Drive sheet error for an unexpected failure. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error: {detail}'**
+  String driveErrorUnknown(String detail);
+
+  /// Google Drive sheet message when the person closed the Google sign-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in canceled by user'**
+  String get driveErrorSignInCanceled;
+
+  /// Google Drive sheet error when the Google sign-in was interrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in interrupted'**
+  String get driveErrorSignInInterrupted;
+
+  /// Google Drive sheet error when the Google sign-in failed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in error: {detail}'**
+  String driveErrorSignInFailed(String detail);
+
+  /// Google Drive sheet error on a platform without Google sign-in.
+  ///
+  /// In en, this message translates to:
+  /// **'This platform does not support sign-in.'**
+  String get driveErrorPlatformUnsupported;
+
+  /// Google Drive sheet error when Google needs the person to allow access again.
+  ///
+  /// In en, this message translates to:
+  /// **'Drive access requires re-authorization.'**
+  String get driveErrorReauthRequired;
+
+  /// Google Drive sheet error when the sync failed again after the person allowed access again. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Error after re-authorization: {detail}'**
+  String driveErrorReauthFailed(String detail);
+
+  /// Google Drive sheet error when the Drive API refused the request. {detail} is the reason Google gave.
+  ///
+  /// In en, this message translates to:
+  /// **'API error: {detail}'**
+  String driveErrorApi(String detail);
+
+  /// Google Drive sheet error when the sync can not reach Google.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please connect to a network.'**
+  String get driveErrorNoInternet;
+
+  /// Google Drive sheet error for a failed sync. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync error: {detail}'**
+  String driveErrorSyncFailed(String detail);
+
+  /// Google Drive sheet error when the saved access expired. 'Sync' is the label of the sync button (driveSheetSync).
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed: Authorization expired. Please tap \'Sync\' to re-authorize.'**
+  String get driveErrorAuthExpired;
+
+  /// Error when the backup could not be uploaded to Google Drive. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Error backing up to Google Drive: {detail}'**
+  String driveErrorBackupFailed(String detail);
+
+  /// Snackbar after a backup was uploaded to Google Drive.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully created Google Drive Backup'**
+  String get driveBackupCreated;
+
+  /// Title of the Google Drive sync sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive Sync'**
+  String get driveSheetTitle;
+
+  /// Button that signs out of Google Drive.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get driveSheetSignOut;
+
+  /// Button that syncs with Google Drive now.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get driveSheetSync;
+
+  /// Button that starts the Google sign-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Google Drive'**
+  String get driveSheetSignIn;
+
+  /// Name shown when the Google account has no display name.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown User'**
+  String get driveSheetUnknownUser;
+
+  /// Title of the account row while signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Not signed in'**
+  String get driveSheetNotSignedIn;
+
+  /// Subtitle of the account row while signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to sync your data'**
+  String get driveSheetSignInHint;
+
+  /// Title of the row that explains the automatic sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-sync is active'**
+  String get driveSheetAutoSyncTitle;
+
+  /// Subtitle of the row that explains the automatic sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes automatically sync with Google Drive.'**
+  String get driveSheetAutoSyncSubtitle;
+
+  /// Tooltip that explains the Google Drive sync. 'Import Data -> Backup' names the import menu entry and its backup step (homeMenuImport, importRestoreBackup).
+  ///
+  /// In en, this message translates to:
+  /// **'Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. Additionally daily backups are created which can be restored via \'Import Data -> Backup\'. Backups are permanently deleted after 30 days. You can also trigger a manual sync.'**
+  String get driveSheetInfo;
+
+  /// Date and time of the last Google Drive sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sync: {date} {time}'**
+  String driveSheetLastSync(String date, String time);
+
+  /// Shown when no Google Drive sync has happened yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No sync history found.'**
+  String get driveSheetNoSyncHistory;
+
+  /// Tooltip of the app bar Google Drive button while connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Now'**
+  String get driveButtonSyncNow;
+
+  /// Tooltip of the app bar Google Drive button while not connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Google Drive'**
+  String get driveButtonConnect;
+
+  /// Tip jar error when the store connection could not be set up. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip purchase initialization failed: {detail}'**
+  String tipErrorInitFailed(String detail);
+
+  /// Tip jar error when the tip amounts could not be loaded. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load tips: {detail}'**
+  String tipErrorLoadFailed(String detail);
+
+  /// Tip jar error when some tip amounts are missing in the store.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips are not fully available. Please try again later.'**
+  String get tipErrorTipsUnavailable;
+
+  /// Tip jar error when a tip is tapped before the store answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip not loaded yet — try again in a moment.'**
+  String get tipErrorTipNotLoaded;
+
+  /// Tip jar error when the purchase failed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip purchase failed: {detail}'**
+  String tipErrorPurchaseFailed(String detail);
+
+  /// Title of the tip jar sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy me a coffee'**
+  String get tipJarTitle;
+
+  /// Headline of the tip jar sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike Setup Tracker is free — and stays that way.'**
+  String get tipJarHeadline;
+
+  /// Paragraph of the tip jar sheet written by the developer in the first person.
+  ///
+  /// In en, this message translates to:
+  /// **'Building and maintaining it takes a lot of work, and the costs add up — store fees, servers, and more total over €100 a year. I\'m grateful for any support, big or small.'**
+  String get tipJarCosts;
+
+  /// Paragraph of the tip jar sheet written by the developer in the first person.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback and feature wishes are very welcome too — I try to implement them as soon as I can.'**
+  String get tipJarFeedback;
+
+  /// Note under the tip amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'A one-time tip — no subscription.'**
+  String get tipJarOneTime;
+
+  /// Title shown after a tip was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you so much! ❤️'**
+  String get tipJarThanksTitle;
+
+  /// Text shown after a tip was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Your support genuinely helps keep Bike Setup Tracker going.'**
+  String get tipJarThanksBody;
+
+  /// Title of the confirmation dialog before the settings are reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset settings?'**
+  String get dataResetSettingsTitle;
+
+  /// Body of the confirmation dialog before the settings are reset.
+  ///
+  /// In en, this message translates to:
+  /// **'All preferences, features and filters are restored to their defaults. Your data is not affected.'**
+  String get dataResetSettingsBody;
+
+  /// Confirm button of the reset settings dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get dataResetSettingsConfirm;
+
+  /// Snackbar after the settings were reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings reset to defaults.'**
+  String get dataResetSettingsDone;
+
+  /// Snackbar when resetting the settings failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Resetting settings failed: {error}'**
+  String dataResetSettingsFailed(String error);
+
+  /// Title of the confirmation dialog before all local backups are deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all backups?'**
+  String get dataDeleteBackupsTitle;
+
+  /// Body of the confirmation dialog before all local backups are deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'All automatic backups stored on this device are deleted. This action cannot be undone.'**
+  String get dataDeleteBackupsBody;
+
+  /// Confirm button of the delete all backups dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get dataDeleteBackupsConfirm;
+
+  /// Snackbar after local backups were deleted. {count} is the number of deleted backups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Deleted 1 backup.} other{Deleted {count} backups.}}'**
+  String dataDeleteBackupsDone(int count);
+
+  /// Snackbar when deleting the backups failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting backups failed: {error}'**
+  String dataDeleteBackupsFailed(String error);
+
+  /// Title of the confirmation dialog before all data is deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear database?'**
+  String get dataClearDatabaseTitle;
+
+  /// Body of the confirmation dialog before all data is deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'All bikes, components, setups, riders, tasks and attachments are deleted. A backup is saved first. This action cannot be undone.'**
+  String get dataClearDatabaseBody;
+
+  /// Confirm button of the clear database dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get dataClearDatabaseConfirm;
+
+  /// Snackbar when the safety backup failed, so nothing was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save a backup. Database was not cleared.'**
+  String get dataClearDatabaseNoBackup;
+
+  /// Snackbar after all data was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Database cleared.'**
+  String get dataClearDatabaseDone;
+
+  /// Snackbar when clearing the database failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Clearing database failed: {error}'**
+  String dataClearDatabaseFailed(String error);
+
+  /// Error text when a request failed because the device is offline. Used by the Strava and subscription errors.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please check your connection and try again.'**
+  String get errorNoInternetRetry;
+
+  /// Strava sheet error when a sync failed without a known reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed'**
+  String get stravaErrorSyncFailed;
+
+  /// Strava sheet error when a sync failed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed: {detail}'**
+  String stravaErrorSyncFailedDetail(String detail);
+
+  /// Strava sheet error when the connection to the Strava account could not be verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection verify failed'**
+  String get stravaErrorConnectionVerifyFailed;
+
+  /// Strava sheet error when the live import of activities stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Background sync error'**
+  String get stravaErrorBackgroundSyncFailed;
+
+  /// Strava sheet error when the app server can not be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach our servers. Check your connection and try again.'**
+  String get stravaErrorServerUnreachable;
+
+  /// Strava sheet error when no browser can open the Strava sign-in link.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find a program to launch the link.'**
+  String get stravaErrorNoBrowser;
+
+  /// Strava sheet error when starting the sign-in failed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed: {detail}'**
+  String stravaErrorLoginFailed(String detail);
+
+  /// Strava sheet error when the person has no active Strava Sync subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'An active Strava Sync subscription is required.'**
+  String get stravaErrorSubscriptionRequired;
+
+  /// Strava sheet error when the Strava sign-in failed. {detail} is the error code Strava returned.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava sign-in failed: {detail}'**
+  String stravaErrorSignInFailed(String detail);
+
+  /// Strava sheet error when the Strava sign-in failed without a reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava sign-in failed. Please try again.'**
+  String get stravaErrorSignInFailedGeneric;
+
+  /// Strava sheet error when disconnecting Strava failed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnection failed: {detail}'**
+  String stravaErrorDisconnectFailed(String detail);
+
+  /// Strava sheet error when the full history sync failed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Full history sync failed: {detail}'**
+  String stravaErrorFullSyncFailed(String detail);
+
+  /// Strava sheet error when the app could not authenticate with the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication error. Please try again or reconnect to Strava.'**
+  String get stravaErrorAuthentication;
+
+  /// Strava sheet error when the server limits the requests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Please try again later.'**
+  String get stravaErrorRateLimited;
+
+  /// Error when the app store reports a failure while listening for purchases. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase stream error: {detail}'**
+  String storeErrorStreamFailed(String detail);
+
+  /// Error when the app store can not be used on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Store is not available on this device.'**
+  String get storeErrorUnavailable;
+
+  /// Paywall error after restoring purchases found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No previous purchase found for this account. Make sure you are signed in to the same Google/Apple account that bought the subscription.'**
+  String get subscriptionErrorNoPreviousPurchase;
+
+  /// Paywall error when the subscription could not be set up. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription init failed: {detail}'**
+  String subscriptionErrorInitFailed(String detail);
+
+  /// Paywall error when the subscription status could not be read. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Entitlement stream error: {detail}'**
+  String subscriptionErrorEntitlementStreamFailed(String detail);
+
+  /// Paywall error when the plans could not be loaded from the store. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load plans: {detail}'**
+  String subscriptionErrorPlansLoadFailed(String detail);
+
+  /// Paywall error when a plan is missing in the store.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription plans are not fully available. Please try again later.'**
+  String get subscriptionErrorPlansUnavailable;
+
+  /// Paywall error when a plan is chosen before the store answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan not loaded yet — try again in a moment.'**
+  String get subscriptionErrorPlanNotLoaded;
+
+  /// Paywall error when the purchase failed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase failed: {detail}'**
+  String subscriptionErrorPurchaseFailed(String detail);
+
+  /// Paywall error when restoring a purchase failed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore failed: {detail}'**
+  String subscriptionErrorRestoreFailed(String detail);
+
+  /// Paywall error when the App Store did not return a transaction id.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing transaction id for iOS purchase.'**
+  String get subscriptionErrorMissingTransactionId;
+
+  /// Paywall error when the store reports the subscription as ended.
+  ///
+  /// In en, this message translates to:
+  /// **'This subscription is no longer active on your store account. If you renewed recently, try again in a moment.'**
+  String get subscriptionErrorInactive;
+
+  /// Paywall error when the server could not confirm the purchase. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not verify purchase: {detail}'**
+  String subscriptionErrorVerifyFailed(String detail);
+
+  /// Paywall error when the app could not authenticate with the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication error. Please try again.'**
+  String get subscriptionErrorAuthentication;
+
+  /// Title of the Strava sheets. Strava Sync is the name of the feature.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Sync'**
+  String get stravaSheetTitle;
+
+  /// Title of the Strava sheet shown when the app server can not be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get stravaOfflineTitle;
+
+  /// Text of the Strava sheet shown when the app server can not be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'We can\'t reach our servers to check Strava availability. Connect to the internet and try again.'**
+  String get stravaOfflineBody;
+
+  /// Button that checks the Strava availability again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get stravaTryAgain;
+
+  /// Button that closes a sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// Title of the Strava sheet shown when no new subscriptions are accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Sync is at capacity'**
+  String get stravaWaitlistTitle;
+
+  /// Text of the Strava sheet shown when no new subscriptions are accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava\'s API limits how many active users we can sync at once. We\'re temporarily not accepting new subscriptions to keep sync reliable for current users. We\'ll open new spots as soon as we can.'**
+  String get stravaWaitlistBody;
+
+  /// Title after a free trial of Strava Sync was started.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trial has started.'**
+  String get stravaSuccessTrialTitle;
+
+  /// Title after Strava Sync was subscribed.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re in.'**
+  String get stravaSuccessTitle;
+
+  /// Text after a free trial of Strava Sync was started.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Sync is fully active for 7 days. Connect your Strava login next to import your history. Cancel in your store settings before the trial ends to avoid a charge.'**
+  String get stravaSuccessTrialBody;
+
+  /// Text after Strava Sync was subscribed.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Sync is active on this account. Connect your Strava login next so we can start importing activities.'**
+  String get stravaSuccessBody;
+
+  /// Title of the Strava sheet that asks to sign in to Strava.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Strava'**
+  String get stravaConnectTitle;
+
+  /// Text of the Strava sheet that asks to sign in to Strava.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your Strava account to sync activities.'**
+  String get stravaConnectBody;
+
+  /// Button that starts the Strava sign-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Strava'**
+  String get stravaSignIn;
+
+  /// Button that closes the Strava sign-in prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect later'**
+  String get stravaConnectLater;
+
+  /// Headline of the Strava Sync paywall.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair every setup with the ride you actually rode.'**
+  String get paywallHeroTitle;
+
+  /// Subline of the Strava Sync paywall headline.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Strava and your activities flow in automatically.'**
+  String get paywallHeroSubtitle;
+
+  /// Section title above the plans of the paywall. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a plan'**
+  String get paywallChoosePlan;
+
+  /// Badge of the yearly plan. {percent} is the saving against the monthly plan.
+  ///
+  /// In en, this message translates to:
+  /// **'SAVE {percent}%'**
+  String paywallSavePercent(int percent);
+
+  /// Note under the price of a plan that has a free trial.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days free'**
+  String get paywallTrialBadge;
+
+  /// Title of the first benefit of Strava Sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities as context'**
+  String get paywallFeature1Title;
+
+  /// Text of the first benefit of Strava Sync.
+  ///
+  /// In en, this message translates to:
+  /// **'See which setup you ran on every ride — automatically linked by date and gear.'**
+  String get paywallFeature1Body;
+
+  /// Title of the second benefit of Strava Sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups on the map'**
+  String get paywallFeature2Title;
+
+  /// Text of the second benefit of Strava Sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity start points and saved setups together, so you can revisit what worked at a spot.'**
+  String get paywallFeature2Body;
+
+  /// Title of the third benefit of Strava Sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Real-time auto-sync'**
+  String get paywallFeature3Title;
+
+  /// Text of the third benefit of Strava Sync.
+  ///
+  /// In en, this message translates to:
+  /// **'New, updated and deleted Strava activities import within seconds.'**
+  String get paywallFeature3Body;
+
+  /// Section title of the notes card of the paywall. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'How this works'**
+  String get paywallHowItWorks;
+
+  /// First note of the paywall about the trademark. Keep the company name.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava is a third-party service. Strava and the Strava logo are registered trademarks of Strava, Inc. — Bike Setup Tracker is not affiliated with or endorsed by Strava.'**
+  String get paywallNoteAffiliation;
+
+  /// Second note of the paywall.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription covers the server costs of syncing activities between Strava and your device.'**
+  String get paywallNoteCosts;
+
+  /// Third note of the paywall.
+  ///
+  /// In en, this message translates to:
+  /// **'We only store the activity fields needed to match a ride to a setup (date, name, location, gear). You can disconnect Strava at any time.'**
+  String get paywallNoteData;
+
+  /// Link text to the subscription settings on iOS. Used inside paywallLegalTrial and paywallLegalAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'App Store settings'**
+  String get paywallStoreSettingsIos;
+
+  /// Link text to the subscription settings on Android. Used inside paywallLegalTrial and paywallLegalAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play settings'**
+  String get paywallStoreSettingsAndroid;
+
+  /// Legal note under the plans when a free trial is available. The tags <store>, <terms> and <privacy> mark the links and must stay around the same words. {price} is the store price and {period} the billing period, e.g. "/ year".
+  ///
+  /// In en, this message translates to:
+  /// **'7 days free, then {price}{period}. Cancel before the trial ends to avoid a charge. Manage or cancel anytime in your <store>{store}</store>. By subscribing you agree to <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.'**
+  String paywallLegalTrial(String price, String period, String store);
+
+  /// Legal note under the plans when no free trial is available. The tags <store>, <terms> and <privacy> mark the links and must stay around the same words.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-renewable subscription. Manage or cancel anytime in your <store>{store}</store>. By subscribing you agree to <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.'**
+  String paywallLegalAuto(String store);
+
+  /// Label of the subscribe button while the store price is loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading store price…'**
+  String get paywallLoadingPrice;
+
+  /// Label of the subscribe button when a free trial is available.
+  ///
+  /// In en, this message translates to:
+  /// **'Start 7-day free trial'**
+  String get paywallStartTrial;
+
+  /// Label of the subscribe button. {price} is the store price and {period} the billing period, e.g. "/year".
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe — {price}{period}'**
+  String paywallSubscribe(String price, String period);
+
+  /// Button that restores a purchase made earlier with the same store account.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore previous purchase'**
+  String get paywallRestore;
+
+  /// Row shown while Strava is syncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get stravaSyncing;
+
+  /// Row shown while Strava is being disconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnecting...'**
+  String get stravaDisconnecting;
+
+  /// Title of the account row while Strava is not connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get stravaNotConnected;
+
+  /// Subtitle of the account row while Strava is not connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to sync your rides'**
+  String get stravaNotConnectedHint;
+
+  /// Subtitle of the account row with the Strava athlete number.
+  ///
+  /// In en, this message translates to:
+  /// **'Athlete ID: {id}'**
+  String stravaAthleteId(int id);
+
+  /// Title of the row that explains the automatic Strava import.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-sync is active'**
+  String get stravaAutoSyncTitle;
+
+  /// Subtitle of the row that explains the automatic Strava import.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities import automatically after your ride.'**
+  String get stravaAutoSyncSubtitle;
+
+  /// Tooltip that explains the Strava sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. While most updates are instant, a full background sync also runs weekly to catch any missed changes. You can also trigger a manual sync once per hour.'**
+  String get stravaSyncInfo;
+
+  /// Date and time of the last full Strava sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Last full sync: {date} {time}'**
+  String stravaLastFullSync(String date, String time);
+
+  /// Shown when no full Strava sync has happened yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No full sync yet'**
+  String get stravaNoFullSync;
+
+  /// Date and time of the next automatic full Strava sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Next scheduled sync: {date} {time}'**
+  String stravaNextScheduledSync(String date, String time);
+
+  /// Date and time from which a manual Strava sync is possible again.
+  ///
+  /// In en, this message translates to:
+  /// **'Next manual sync available: {date} {time}'**
+  String stravaNextManualSync(String date, String time);
+
+  /// Label of the sync button while a sync runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get stravaSyncButtonSyncing;
+
+  /// Label of the button that starts a manual Strava sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get stravaSyncButtonSync;
+
+  /// Label of the sync button while the next manual sync is not available yet. {time} is the remaining time, e.g. 12 min.
+  ///
+  /// In en, this message translates to:
+  /// **'In {time}'**
+  String stravaSyncButtonIn(String time);
+
+  /// Developer button that syncs the full Strava history.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Sync'**
+  String get stravaFullSync;
+
+  /// Section title above the latest Strava activities.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Activities:'**
+  String get stravaLatestActivities;
+
+  /// Title of the empty state of the latest Strava activities.
+  ///
+  /// In en, this message translates to:
+  /// **'No activities synced yet.'**
+  String get stravaNoActivitiesTitle;
+
+  /// Text of the empty state of the latest Strava activities.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Strava and sync your rides to see activities here.'**
+  String get stravaNoActivitiesHint;
+
+  /// Section title above the Strava gear that can be linked to bikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Gear:'**
+  String get stravaGearSectionTitle;
+
+  /// Button that expands the list of Strava gear.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all ({count})'**
+  String stravaGearShowAll(int count);
+
+  /// Button that collapses the list of Strava gear.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get stravaGearShowLess;
+
+  /// Subtitle of a Strava gear that no bike uses.
+  ///
+  /// In en, this message translates to:
+  /// **'Not linked to a bike'**
+  String get stravaGearNotLinked;
+
+  /// Tooltip of the menu of a linked Strava gear. {name} is the gear name.
+  ///
+  /// In en, this message translates to:
+  /// **'Options for \'{name}\''**
+  String stravaGearOptionsTooltip(String name);
+
+  /// Tooltip of the link button of an unlinked Strava gear. {name} is the gear name.
+  ///
+  /// In en, this message translates to:
+  /// **'Link \'{name}\' to a bike'**
+  String stravaGearLinkTooltip(String name);
+
+  /// Button that links a Strava gear to a bike.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get stravaGearLink;
+
+  /// Menu entry that removes the link between a Strava gear and a bike. {name} is the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink Bike \'{name}\''**
+  String stravaGearUnlinkBike(String name);
+
+  /// Menu entry that links a Strava gear to a bike. {name} is the bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Link to \'{name}\''**
+  String stravaGearLinkToBike(String name);
+
+  /// Menu entry that creates a bike from a Strava gear.
+  ///
+  /// In en, this message translates to:
+  /// **'Add as new Bike'**
+  String get stravaGearAddAsBike;
+
+  /// Title of the subscription card. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Sync'**
+  String get stravaCardTitle;
+
+  /// Badge of the subscription card without a subscription. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Not subscribed'**
+  String get stravaCardNotSubscribed;
+
+  /// Badge of the subscription card during the free trial. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial'**
+  String get stravaCardTrial;
+
+  /// Badge of the subscription card with an active subscription. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get stravaCardActive;
+
+  /// Badge of the subscription card after the subscription ended. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get stravaCardExpired;
+
+  /// Text of the subscription card without a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically link your Strava rides to your setups and see them on the map.'**
+  String get stravaCardPitch;
+
+  /// Price line of the subscription card without a subscription. {price} is the monthly store price.
+  ///
+  /// In en, this message translates to:
+  /// **'From {price}'**
+  String stravaCardFromPrice(String price);
+
+  /// Label of the date of the first payment after a free trial.
+  ///
+  /// In en, this message translates to:
+  /// **'First charge'**
+  String get stravaCardFirstCharge;
+
+  /// Label of the date a free trial ends without renewal.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial ends'**
+  String get stravaCardTrialEnds;
+
+  /// Label of the date a subscription renews.
+  ///
+  /// In en, this message translates to:
+  /// **'Renews'**
+  String get stravaCardRenews;
+
+  /// Label of the date a subscription ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires'**
+  String get stravaCardExpires;
+
+  /// Label of the row that names the store that bills the subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing'**
+  String get stravaCardBilling;
+
+  /// Title of the Strava activity page.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get stravaActivityTitle;
+
+  /// Name shown when the athlete of an activity is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Athlete'**
+  String get stravaActivityAthleteFallback;
+
+  /// Short label of the elevation gain figure of an activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Elev Gain'**
+  String get stravaActivityElevGain;
+
+  /// Short label of the average speed figure of an activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Speed'**
+  String get stravaActivityAvgSpeed;
+
+  /// Short label of the average power figure of an activity. Tapping switches to Energy.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Power'**
+  String get stravaActivityAvgPower;
+
+  /// Short label of the energy figure (kilojoules) of an activity. Tapping switches to Avg Power.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy'**
+  String get stravaActivityEnergy;
+
+  /// Title when no bike uses the Strava gear of an activity.
+  ///
+  /// In en, this message translates to:
+  /// **'No Bike linked to this Strava gear'**
+  String get stravaActivityNoBikeLinked;
+
+  /// Hint when no bike uses the Strava gear and no bike is free to link.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a new bike to link this gear automatically'**
+  String get stravaActivityAddBikeHint;
+
+  /// Hint when no bike uses the Strava gear and bikes are free to link.
+  ///
+  /// In en, this message translates to:
+  /// **'Link an existing bike or add a new bike for this gear'**
+  String get stravaActivityLinkBikeHint;
+
+  /// Button that opens the list of bikes to link to the Strava gear.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Bike'**
+  String get stravaActivityLinkBike;
+
+  /// Button that creates a bike for the Strava gear.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New'**
+  String get stravaActivityAddNew;
+
+  /// Title of the section with the setups of an activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups ({count})'**
+  String stravaActivitySetupsTitle(int count);
+
+  /// Subtitle of the setups section with the number of feedbacks of the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 feedback} other{{count} feedbacks}}'**
+  String stravaActivityFeedbackCount(int count);
+
+  /// Title when no setup belongs to an activity.
+  ///
+  /// In en, this message translates to:
+  /// **'No setups for this activity'**
+  String get stravaActivityNoSetupsTitle;
+
+  /// Hint when no setup belongs to an activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a setup to record your bike configuration'**
+  String get stravaActivityNoSetupsSubtitle;
+
+  /// Hint that no setup can be added while a test session runs. {name} is the session name.
+  ///
+  /// In en, this message translates to:
+  /// **'Test session \'{name}\' is running on this bike. End it to add a setup.'**
+  String stravaActivitySessionRunning(String name);
+
+  /// Tooltip of the menu button of the Strava activity page.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity actions'**
+  String get stravaActivityActionsTooltip;
+
+  /// Note under a disabled map entry of the activity menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Start location not available'**
+  String get stravaActivityNoStartLocation;
+
+  /// Snackbar after an exported file was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'File saved'**
+  String get exportFileSaved;
+
+  /// Snackbar when saving an export failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed: {error}'**
+  String exportFailed(String error);
+
+  /// Snackbar when the latest backup was requested but none exists.
+  ///
+  /// In en, this message translates to:
+  /// **'No backup found yet.'**
+  String get exportNoBackup;
+
+  /// Message that is sent along with the shared JSON file.
+  ///
+  /// In en, this message translates to:
+  /// **'Here is my bike setup data!'**
+  String get shareMessageJson;
+
+  /// Message that is sent along with the shared Excel file.
+  ///
+  /// In en, this message translates to:
+  /// **'Here is my bike setup data in Excel format!'**
+  String get shareMessageExcel;
+
+  /// Message that is sent along with the shared CSV file.
+  ///
+  /// In en, this message translates to:
+  /// **'Here is my bike setup data in CSV format!'**
+  String get shareMessageCsv;
+
+  /// Start of the snackbar when sharing a file failed. The technical reason follows after a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sharing file'**
+  String get shareErrorFile;
+
+  /// Start of the snackbar when sharing the Excel file failed. The technical reason follows after a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sharing Excel file'**
+  String get shareErrorExcel;
+
+  /// Start of the snackbar when sharing the CSV file failed. The technical reason follows after a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sharing CSV file'**
+  String get shareErrorCsv;
+
+  /// Start of the snackbar when sharing text failed. The technical reason follows after a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sharing text'**
+  String get shareErrorText;
+
+  /// Snackbar when the JSON file for sharing could not be created. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Error preparing JSON: {error}'**
+  String sharePrepareJsonFailed(String error);
+
+  /// Snackbar when the Excel file for sharing could not be created. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Error preparing Excel: {error}'**
+  String sharePrepareExcelFailed(String error);
+
+  /// Snackbar when the CSV file for sharing could not be created. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Error preparing CSV: {error}'**
+  String sharePrepareCsvFailed(String error);
+
+  /// Snackbar after a local backup was written. {path} is the file path.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved backup at {path}'**
+  String backupSaved(String path);
+
+  /// Snackbar when writing a local backup failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving backup: {error}'**
+  String backupSaveFailed(String error);
+
+  /// Title of the export sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data'**
+  String get exportSheetTitle;
+
+  /// Entry of the export sheet that saves a JSON file.
+  ///
+  /// In en, this message translates to:
+  /// **'Save File'**
+  String get exportSaveFile;
+
+  /// Subtitle of the entry that saves a JSON file.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where to save the JSON file'**
+  String get exportSaveFileSubtitle;
+
+  /// Entry of the export sheet that saves a local backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Backup'**
+  String get exportSaveBackup;
+
+  /// Subtitle of the entry that saves a local backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Save current state as a local backup'**
+  String get exportSaveBackupSubtitle;
+
+  /// Entry of the export sheet that saves a backup to Google Drive.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Google Drive Backup'**
+  String get exportSaveDriveBackup;
+
+  /// Subtitle of the entry that saves a backup to Google Drive.
+  ///
+  /// In en, this message translates to:
+  /// **'Save current state as Backup in Google Drive'**
+  String get exportSaveDriveBackupSubtitle;
+
+  /// Entry of the export sheet that saves data and attachments as a ZIP file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Attachment Bundle'**
+  String get exportAttachmentBundle;
+
+  /// Subtitle of the entry that saves data and attachments as a ZIP file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data and attachments as a ZIP bundle'**
+  String get exportAttachmentBundleSubtitle;
+
+  /// Progress text while a JSON file is created, in the export and share sheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing JSON file…'**
+  String get exportProgressFile;
+
+  /// Progress text while a local backup is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving backup…'**
+  String get exportProgressBackup;
+
+  /// Progress text while a backup is uploaded to Google Drive.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading backup to Google Drive…'**
+  String get exportProgressDrive;
+
+  /// Progress text while a ZIP bundle is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Packing data and attachments…'**
+  String get exportProgressBundle;
+
+  /// Title of the share sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Data'**
+  String get shareSheetTitle;
+
+  /// Title of the step that chooses the format to share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Format'**
+  String get shareFormatTitle;
+
+  /// Share format JSON.
+  ///
+  /// In en, this message translates to:
+  /// **'JSON File'**
+  String get shareFormatJson;
+
+  /// Explanation of the JSON share format.
+  ///
+  /// In en, this message translates to:
+  /// **'Best for moving data to another device or saving a full backup.'**
+  String get shareFormatJsonSubtitle;
+
+  /// Share format Excel.
+  ///
+  /// In en, this message translates to:
+  /// **'Excel Spreadsheet'**
+  String get shareFormatExcel;
+
+  /// Explanation of the Excel share format.
+  ///
+  /// In en, this message translates to:
+  /// **'Best for analysis in Excel or Google Sheets (XLSX).'**
+  String get shareFormatExcelSubtitle;
+
+  /// Share format CSV.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV File'**
+  String get shareFormatCsv;
+
+  /// Explanation of the CSV share format.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple tabular format (Comma Separated Values).'**
+  String get shareFormatCsvSubtitle;
+
+  /// Share format plain text.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain Text'**
+  String get shareFormatText;
+
+  /// Explanation of the plain text share format.
+  ///
+  /// In en, this message translates to:
+  /// **'Best for sharing setup details in chats or notes.'**
+  String get shareFormatTextSubtitle;
+
+  /// Progress text while the text to share is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing text…'**
+  String get shareProgressText;
+
+  /// Progress text while the CSV file to share is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing CSV file…'**
+  String get shareProgressCsv;
+
+  /// Progress text while the Excel file to share is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing Excel file…'**
+  String get shareProgressExcel;
+
+  /// Title of the import sheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Data'**
+  String get importSheetTitle;
+
+  /// Entry of the import sheet that reads a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Import File'**
+  String get importFile;
+
+  /// Subtitle of the entry that reads a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Select json file which contains data to import'**
+  String get importFileSubtitle;
+
+  /// Entry of the import sheet that restores a backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Backup'**
+  String get importRestoreBackup;
+
+  /// Subtitle of the entry that restores a backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore local or cloud Backup'**
+  String get importRestoreBackupSubtitle;
+
+  /// Entry of the import sheet that reads a ZIP bundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Attachment Bundle'**
+  String get importAttachmentBundle;
+
+  /// Subtitle of the entry that reads a ZIP bundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore data and attachments from a ZIP bundle'**
+  String get importAttachmentBundleSubtitle;
+
+  /// Progress text while the picked file is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading file…'**
+  String get importReadingFile;
+
+  /// Progress text while a ZIP bundle is unpacked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpacking data and attachments…'**
+  String get importUnpackingBundle;
+
+  /// Import method that overwrites local items with the imported ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwrite data'**
+  String get importMethodOverwrite;
+
+  /// Explanation of the overwrite import method.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwrite your local data with the imported data. Unique local data will remain.'**
+  String get importMethodOverwriteSubtitle;
+
+  /// Import method that adds new items and updates newer ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge data'**
+  String get importMethodMerge;
+
+  /// Explanation of the merge import method.
+  ///
+  /// In en, this message translates to:
+  /// **'Add new items and update existing items when the imported version is newer (based on modification date).'**
+  String get importMethodMergeSubtitle;
+
+  /// Import method that deletes the local data first.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace data'**
+  String get importMethodReplace;
+
+  /// Explanation of the replace import method.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace your local data with the imported data. This will permanently delete all existing data and cannot be undone.'**
+  String get importMethodReplaceSubtitle;
+
+  /// Progress text while data is merged.
+  ///
+  /// In en, this message translates to:
+  /// **'Merging data…'**
+  String get importProgressMerge;
+
+  /// Progress text while data is overwritten.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwriting data…'**
+  String get importProgressOverwrite;
+
+  /// Progress text while data is replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Replacing data…'**
+  String get importProgressReplace;
+
+  /// Snackbar after data was merged.
+  ///
+  /// In en, this message translates to:
+  /// **'Data merged successfully'**
+  String get importDoneMerge;
+
+  /// Snackbar after data was overwritten.
+  ///
+  /// In en, this message translates to:
+  /// **'Data overwritten successfully'**
+  String get importDoneOverwrite;
+
+  /// Snackbar after data was replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Data replaced successfully'**
+  String get importDoneReplace;
+
+  /// Snackbar when merging failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge failed: {error}'**
+  String importFailedMerge(String error);
+
+  /// Snackbar when overwriting failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwriting failed: {error}'**
+  String importFailedOverwrite(String error);
+
+  /// Snackbar when replacing failed. {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Replacing failed: {error}'**
+  String importFailedReplace(String error);
+
+  /// Title of the sheet that lists the backups.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Backup'**
+  String get backupSheetTitle;
+
+  /// Note at the top of the backup list.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups are created once per day. To restore a backup, you can choose to overwrite current data or merge backup data into existing data.'**
+  String get backupInfoDaily;
+
+  /// Note at the top of the backup list.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups older than 30 days are permanently deleted and cannot be restored.'**
+  String get backupInfoRetention;
+
+  /// Name of a backup stored on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Local Backup'**
+  String get backupLocal;
+
+  /// Name of a backup stored in Google Drive.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive Backup'**
+  String get backupGoogleDrive;
+
+  /// Subtitle of a local backup while it is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading backup…'**
+  String get backupReading;
+
+  /// Subtitle of a Google Drive backup while it is downloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading backup…'**
+  String get backupDownloading;
+
+  /// Subtitle of a backup. {time} is the date and time of the backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at: {time}'**
+  String backupCreatedAt(String time);
+
+  /// Tooltip of the button that restores a backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore backup'**
+  String get backupRestoreTooltip;
+
+  /// Shown when the backup list could not be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading backups'**
+  String get backupLoadError;
+
+  /// Shown when there are no backups.
+  ///
+  /// In en, this message translates to:
+  /// **'No backups found.'**
+  String get backupNone;
+
+  /// Title of the step that chooses between all data and specific items.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Data'**
+  String get dataSelectTitle;
+
+  /// Entry that uses all items.
+  ///
+  /// In en, this message translates to:
+  /// **'Entire dataset'**
+  String get dataSelectAll;
+
+  /// Subtitle of the entry that uses all items.
+  ///
+  /// In en, this message translates to:
+  /// **'Use all items from the provided data'**
+  String get dataSelectAllSubtitle;
+
+  /// Entry that opens the item selection.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose specific items'**
+  String get dataSelectChoose;
+
+  /// Subtitle of the entry that opens the item selection.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick which items to include'**
+  String get dataSelectChooseSubtitle;
+
+  /// Title of the step that picks single items.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Data Items'**
+  String get dataSelectItemsTitle;
+
+  /// Section title with the number of selected bikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Bikes ({selected} / {total})'**
+  String dataSelectBikes(int selected, int total);
+
+  /// Section title with the number of selected components.
+  ///
+  /// In en, this message translates to:
+  /// **'Components ({selected} / {total})'**
+  String dataSelectComponents(int selected, int total);
+
+  /// Section title with the number of selected setups.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups ({selected} / {total})'**
+  String dataSelectSetups(int selected, int total);
+
+  /// Section title with the number of selected riders.
+  ///
+  /// In en, this message translates to:
+  /// **'Riders ({selected} / {total})'**
+  String dataSelectRiders(int selected, int total);
+
+  /// Section title with the number of selected tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks ({selected} / {total})'**
+  String dataSelectTasks(int selected, int total);
+
+  /// Section title with the number of selected task entries.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Entries ({selected} / {total})'**
+  String dataSelectTaskEntries(int selected, int total);
+
+  /// Section title with the number of selected feedbacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback ({selected} / {total})'**
+  String dataSelectFeedback(int selected, int total);
+
+  /// Section title with the number of selected test sessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Sessions ({selected} / {total})'**
+  String dataSelectTestSessions(int selected, int total);
+
+  /// Button that confirms the selection. Shows how many items are selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Selection ({selected} / {total})'**
+  String dataSelectConfirm(int selected, int total);
+
+  /// Note next to the Strava gear title with how many gear items are linked to a bike.
+  ///
+  /// In en, this message translates to:
+  /// **'{linked} of {total} linked'**
+  String stravaGearLinkedCount(int linked, int total);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

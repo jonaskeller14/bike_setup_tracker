@@ -30,7 +30,7 @@ class TipJarSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SheetHeader(
-            title: 'Buy me a coffee',
+            title: context.l10n.tipJarTitle,
             leadingIcon: Icon(
               Icons.local_cafe_outlined,
               color: Theme.of(context).colorScheme.primary,
@@ -63,7 +63,7 @@ class _TipBody extends StatelessWidget {
     final isBusy = tipService.isBusy;
     final productsReady = tipService.productsReady;
     final errorMessage = switch (tipService.state) {
-      TipError(:final message) => message,
+      TipError(:final failure) => failure.message(context.l10n),
       _ => null,
     };
 
@@ -71,14 +71,12 @@ class _TipBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Bike Setup Tracker is free — and stays that way.',
+          context.l10n.tipJarHeadline,
           style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Text(
-          'Building and maintaining it takes a lot of work, and the costs add up '
-          '— store fees, servers, and more total over €100 a year. I\'m '
-          'grateful for any support, big or small.',
+          context.l10n.tipJarCosts,
           style: textTheme.bodyMedium?.copyWith(
             color: colors.onSurfaceVariant,
             height: 1.45,
@@ -86,8 +84,7 @@ class _TipBody extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'Feedback and feature wishes are very welcome too — I try to implement '
-          'them as soon as I can.',
+          context.l10n.tipJarFeedback,
           style: textTheme.bodyMedium?.copyWith(
             color: colors.onSurfaceVariant,
             height: 1.45,
@@ -148,7 +145,7 @@ class _TipBody extends StatelessWidget {
         const SizedBox(height: 4),
         Center(
           child: Text(
-            'A one-time tip — no subscription.',
+            context.l10n.tipJarOneTime,
             style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
           ),
         ),
@@ -188,13 +185,13 @@ class _ThankYou extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Thank you so much! ❤️',
+            context.l10n.tipJarThanksTitle,
             style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'Your support genuinely helps keep Bike Setup Tracker going.',
+            context.l10n.tipJarThanksBody,
             style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
@@ -207,7 +204,7 @@ class _ThankYou extends StatelessWidget {
                 context.read<TipService>().acknowledgeThanks();
                 Navigator.pop(context);
               },
-              child: const Text('Close'),
+              child: Text(context.l10n.close),
             ),
           ),
         ],

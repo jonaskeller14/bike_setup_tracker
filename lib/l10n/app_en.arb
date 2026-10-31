@@ -8327,5 +8327,1547 @@
   "badgeCurrentSetup": "Current",
   "@badgeCurrentSetup": {
     "description": "Badge of the setup that is currently active on its bike."
+  },
+  "dataErrorGetLocalBackups": "Getting local backups failed: {detail}",
+  "@dataErrorGetLocalBackups": {
+    "description": "Error under the backup list when the local backups could not be listed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "dataErrorReadLocalBackup": "Reading backup failed: {detail}",
+  "@dataErrorReadLocalBackup": {
+    "description": "Error when a local backup file could not be read. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "dataErrorImportFile": "Import failed: {detail}",
+  "@dataErrorImportFile": {
+    "description": "Error when a file picked for import could not be read. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "dataErrorNoFileSelected": "No file was selected.",
+  "@dataErrorNoFileSelected": {
+    "description": "Message when the file picker was closed without choosing a file."
+  },
+  "dataErrorBundleWithoutData": "No data.json found in bundle.",
+  "@dataErrorBundleWithoutData": {
+    "description": "Error when an attachment bundle (ZIP) has no data.json. Keep the file name."
+  },
+  "dataErrorDriveNoInternet": "Getting Google Drive backups failed: No internet connection. Please connect to a network.",
+  "@dataErrorDriveNoInternet": {
+    "description": "Error under the backup list when Google Drive can not be reached."
+  },
+  "dataErrorDriveApi": "Google Drive error: {detail}",
+  "@dataErrorDriveApi": {
+    "description": "Error under the backup list when the Google Drive API refused the request. {detail} is the reason Google gave.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "dataErrorDriveUnexpected": "An unexpected error occurred.",
+  "@dataErrorDriveUnexpected": {
+    "description": "Error under the backup list when loading the Google Drive backups failed for an unknown reason."
+  },
+  "dataErrorReadDriveBackup": "Reading Google Drive backup failed: {detail}",
+  "@dataErrorReadDriveBackup": {
+    "description": "Error when a Google Drive backup could not be downloaded or read. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "debugFileSaved": "Debug file saved to: {path}",
+  "@debugFileSaved": {
+    "description": "Snackbar after the error report file was written. {path} is the file path.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "driveErrorSetupFailed": "Google sign-in setup failed: {detail}",
+  "@driveErrorSetupFailed": {
+    "description": "Google Drive sheet error when the Google sign-in could not be set up. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "driveErrorUnknown": "Unknown error: {detail}",
+  "@driveErrorUnknown": {
+    "description": "Google Drive sheet error for an unexpected failure. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "driveErrorSignInCanceled": "Sign in canceled by user",
+  "@driveErrorSignInCanceled": {
+    "description": "Google Drive sheet message when the person closed the Google sign-in."
+  },
+  "driveErrorSignInInterrupted": "Sign in interrupted",
+  "@driveErrorSignInInterrupted": {
+    "description": "Google Drive sheet error when the Google sign-in was interrupted."
+  },
+  "driveErrorSignInFailed": "Sign in error: {detail}",
+  "@driveErrorSignInFailed": {
+    "description": "Google Drive sheet error when the Google sign-in failed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "driveErrorPlatformUnsupported": "This platform does not support sign-in.",
+  "@driveErrorPlatformUnsupported": {
+    "description": "Google Drive sheet error on a platform without Google sign-in."
+  },
+  "driveErrorReauthRequired": "Drive access requires re-authorization.",
+  "@driveErrorReauthRequired": {
+    "description": "Google Drive sheet error when Google needs the person to allow access again."
+  },
+  "driveErrorReauthFailed": "Error after re-authorization: {detail}",
+  "@driveErrorReauthFailed": {
+    "description": "Google Drive sheet error when the sync failed again after the person allowed access again. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "driveErrorApi": "API error: {detail}",
+  "@driveErrorApi": {
+    "description": "Google Drive sheet error when the Drive API refused the request. {detail} is the reason Google gave.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "driveErrorNoInternet": "No internet connection. Please connect to a network.",
+  "@driveErrorNoInternet": {
+    "description": "Google Drive sheet error when the sync can not reach Google."
+  },
+  "driveErrorSyncFailed": "Sync error: {detail}",
+  "@driveErrorSyncFailed": {
+    "description": "Google Drive sheet error for a failed sync. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "driveErrorAuthExpired": "Sync failed: Authorization expired. Please tap 'Sync' to re-authorize.",
+  "@driveErrorAuthExpired": {
+    "description": "Google Drive sheet error when the saved access expired. 'Sync' is the label of the sync button (driveSheetSync)."
+  },
+  "driveErrorBackupFailed": "Error backing up to Google Drive: {detail}",
+  "@driveErrorBackupFailed": {
+    "description": "Error when the backup could not be uploaded to Google Drive. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "driveBackupCreated": "Successfully created Google Drive Backup",
+  "@driveBackupCreated": {
+    "description": "Snackbar after a backup was uploaded to Google Drive."
+  },
+  "driveSheetTitle": "Google Drive Sync",
+  "@driveSheetTitle": {
+    "description": "Title of the Google Drive sync sheet."
+  },
+  "driveSheetSignOut": "Sign out",
+  "@driveSheetSignOut": {
+    "description": "Button that signs out of Google Drive."
+  },
+  "driveSheetSync": "Sync",
+  "@driveSheetSync": {
+    "description": "Button that syncs with Google Drive now."
+  },
+  "driveSheetSignIn": "Sign in to Google Drive",
+  "@driveSheetSignIn": {
+    "description": "Button that starts the Google sign-in."
+  },
+  "driveSheetUnknownUser": "Unknown User",
+  "@driveSheetUnknownUser": {
+    "description": "Name shown when the Google account has no display name."
+  },
+  "driveSheetNotSignedIn": "Not signed in",
+  "@driveSheetNotSignedIn": {
+    "description": "Title of the account row while signed out."
+  },
+  "driveSheetSignInHint": "Sign in to sync your data",
+  "@driveSheetSignInHint": {
+    "description": "Subtitle of the account row while signed out."
+  },
+  "driveSheetAutoSyncTitle": "Auto-sync is active",
+  "@driveSheetAutoSyncTitle": {
+    "description": "Title of the row that explains the automatic sync."
+  },
+  "driveSheetAutoSyncSubtitle": "Changes automatically sync with Google Drive.",
+  "@driveSheetAutoSyncSubtitle": {
+    "description": "Subtitle of the row that explains the automatic sync."
+  },
+  "driveSheetInfo": "Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. Additionally daily backups are created which can be restored via 'Import Data -> Backup'. Backups are permanently deleted after 30 days. You can also trigger a manual sync.",
+  "@driveSheetInfo": {
+    "description": "Tooltip that explains the Google Drive sync. 'Import Data -> Backup' names the import menu entry and its backup step (homeMenuImport, importRestoreBackup)."
+  },
+  "driveSheetLastSync": "Last sync: {date} {time}",
+  "@driveSheetLastSync": {
+    "description": "Date and time of the last Google Drive sync.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "driveSheetNoSyncHistory": "No sync history found.",
+  "@driveSheetNoSyncHistory": {
+    "description": "Shown when no Google Drive sync has happened yet."
+  },
+  "driveButtonSyncNow": "Sync Now",
+  "@driveButtonSyncNow": {
+    "description": "Tooltip of the app bar Google Drive button while connected."
+  },
+  "driveButtonConnect": "Connect Google Drive",
+  "@driveButtonConnect": {
+    "description": "Tooltip of the app bar Google Drive button while not connected."
+  },
+  "tipErrorInitFailed": "Tip purchase initialization failed: {detail}",
+  "@tipErrorInitFailed": {
+    "description": "Tip jar error when the store connection could not be set up. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "tipErrorLoadFailed": "Could not load tips: {detail}",
+  "@tipErrorLoadFailed": {
+    "description": "Tip jar error when the tip amounts could not be loaded. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "tipErrorTipsUnavailable": "Tips are not fully available. Please try again later.",
+  "@tipErrorTipsUnavailable": {
+    "description": "Tip jar error when some tip amounts are missing in the store."
+  },
+  "tipErrorTipNotLoaded": "Tip not loaded yet — try again in a moment.",
+  "@tipErrorTipNotLoaded": {
+    "description": "Tip jar error when a tip is tapped before the store answered."
+  },
+  "tipErrorPurchaseFailed": "Tip purchase failed: {detail}",
+  "@tipErrorPurchaseFailed": {
+    "description": "Tip jar error when the purchase failed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "tipJarTitle": "Buy me a coffee",
+  "@tipJarTitle": {
+    "description": "Title of the tip jar sheet."
+  },
+  "tipJarHeadline": "Bike Setup Tracker is free — and stays that way.",
+  "@tipJarHeadline": {
+    "description": "Headline of the tip jar sheet."
+  },
+  "tipJarCosts": "Building and maintaining it takes a lot of work, and the costs add up — store fees, servers, and more total over €100 a year. I'm grateful for any support, big or small.",
+  "@tipJarCosts": {
+    "description": "Paragraph of the tip jar sheet written by the developer in the first person."
+  },
+  "tipJarFeedback": "Feedback and feature wishes are very welcome too — I try to implement them as soon as I can.",
+  "@tipJarFeedback": {
+    "description": "Paragraph of the tip jar sheet written by the developer in the first person."
+  },
+  "tipJarOneTime": "A one-time tip — no subscription.",
+  "@tipJarOneTime": {
+    "description": "Note under the tip amounts."
+  },
+  "tipJarThanksTitle": "Thank you so much! ❤️",
+  "@tipJarThanksTitle": {
+    "description": "Title shown after a tip was sent."
+  },
+  "tipJarThanksBody": "Your support genuinely helps keep Bike Setup Tracker going.",
+  "@tipJarThanksBody": {
+    "description": "Text shown after a tip was sent."
+  },
+  "dataResetSettingsTitle": "Reset settings?",
+  "@dataResetSettingsTitle": {
+    "description": "Title of the confirmation dialog before the settings are reset."
+  },
+  "dataResetSettingsBody": "All preferences, features and filters are restored to their defaults. Your data is not affected.",
+  "@dataResetSettingsBody": {
+    "description": "Body of the confirmation dialog before the settings are reset."
+  },
+  "dataResetSettingsConfirm": "Reset",
+  "@dataResetSettingsConfirm": {
+    "description": "Confirm button of the reset settings dialog."
+  },
+  "dataResetSettingsDone": "Settings reset to defaults.",
+  "@dataResetSettingsDone": {
+    "description": "Snackbar after the settings were reset."
+  },
+  "dataResetSettingsFailed": "Resetting settings failed: {error}",
+  "@dataResetSettingsFailed": {
+    "description": "Snackbar when resetting the settings failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dataDeleteBackupsTitle": "Delete all backups?",
+  "@dataDeleteBackupsTitle": {
+    "description": "Title of the confirmation dialog before all local backups are deleted."
+  },
+  "dataDeleteBackupsBody": "All automatic backups stored on this device are deleted. This action cannot be undone.",
+  "@dataDeleteBackupsBody": {
+    "description": "Body of the confirmation dialog before all local backups are deleted."
+  },
+  "dataDeleteBackupsConfirm": "Delete",
+  "@dataDeleteBackupsConfirm": {
+    "description": "Confirm button of the delete all backups dialog."
+  },
+  "dataDeleteBackupsDone": "{count, plural, =1{Deleted 1 backup.} other{Deleted {count} backups.}}",
+  "@dataDeleteBackupsDone": {
+    "description": "Snackbar after local backups were deleted. {count} is the number of deleted backups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dataDeleteBackupsFailed": "Deleting backups failed: {error}",
+  "@dataDeleteBackupsFailed": {
+    "description": "Snackbar when deleting the backups failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dataClearDatabaseTitle": "Clear database?",
+  "@dataClearDatabaseTitle": {
+    "description": "Title of the confirmation dialog before all data is deleted."
+  },
+  "dataClearDatabaseBody": "All bikes, components, setups, riders, tasks and attachments are deleted. A backup is saved first. This action cannot be undone.",
+  "@dataClearDatabaseBody": {
+    "description": "Body of the confirmation dialog before all data is deleted."
+  },
+  "dataClearDatabaseConfirm": "Clear",
+  "@dataClearDatabaseConfirm": {
+    "description": "Confirm button of the clear database dialog."
+  },
+  "dataClearDatabaseNoBackup": "Could not save a backup. Database was not cleared.",
+  "@dataClearDatabaseNoBackup": {
+    "description": "Snackbar when the safety backup failed, so nothing was deleted."
+  },
+  "dataClearDatabaseDone": "Database cleared.",
+  "@dataClearDatabaseDone": {
+    "description": "Snackbar after all data was deleted."
+  },
+  "dataClearDatabaseFailed": "Clearing database failed: {error}",
+  "@dataClearDatabaseFailed": {
+    "description": "Snackbar when clearing the database failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorNoInternetRetry": "No internet connection. Please check your connection and try again.",
+  "@errorNoInternetRetry": {
+    "description": "Error text when a request failed because the device is offline. Used by the Strava and subscription errors."
+  },
+  "stravaErrorSyncFailed": "Sync failed",
+  "@stravaErrorSyncFailed": {
+    "description": "Strava sheet error when a sync failed without a known reason."
+  },
+  "stravaErrorSyncFailedDetail": "Sync failed: {detail}",
+  "@stravaErrorSyncFailedDetail": {
+    "description": "Strava sheet error when a sync failed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaErrorConnectionVerifyFailed": "Connection verify failed",
+  "@stravaErrorConnectionVerifyFailed": {
+    "description": "Strava sheet error when the connection to the Strava account could not be verified."
+  },
+  "stravaErrorBackgroundSyncFailed": "Background sync error",
+  "@stravaErrorBackgroundSyncFailed": {
+    "description": "Strava sheet error when the live import of activities stopped."
+  },
+  "stravaErrorServerUnreachable": "Couldn't reach our servers. Check your connection and try again.",
+  "@stravaErrorServerUnreachable": {
+    "description": "Strava sheet error when the app server can not be reached."
+  },
+  "stravaErrorNoBrowser": "Could not find a program to launch the link.",
+  "@stravaErrorNoBrowser": {
+    "description": "Strava sheet error when no browser can open the Strava sign-in link."
+  },
+  "stravaErrorLoginFailed": "Login failed: {detail}",
+  "@stravaErrorLoginFailed": {
+    "description": "Strava sheet error when starting the sign-in failed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaErrorSubscriptionRequired": "An active Strava Sync subscription is required.",
+  "@stravaErrorSubscriptionRequired": {
+    "description": "Strava sheet error when the person has no active Strava Sync subscription."
+  },
+  "stravaErrorSignInFailed": "Strava sign-in failed: {detail}",
+  "@stravaErrorSignInFailed": {
+    "description": "Strava sheet error when the Strava sign-in failed. {detail} is the error code Strava returned.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaErrorSignInFailedGeneric": "Strava sign-in failed. Please try again.",
+  "@stravaErrorSignInFailedGeneric": {
+    "description": "Strava sheet error when the Strava sign-in failed without a reason."
+  },
+  "stravaErrorDisconnectFailed": "Disconnection failed: {detail}",
+  "@stravaErrorDisconnectFailed": {
+    "description": "Strava sheet error when disconnecting Strava failed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaErrorFullSyncFailed": "Full history sync failed: {detail}",
+  "@stravaErrorFullSyncFailed": {
+    "description": "Strava sheet error when the full history sync failed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaErrorAuthentication": "Authentication error. Please try again or reconnect to Strava.",
+  "@stravaErrorAuthentication": {
+    "description": "Strava sheet error when the app could not authenticate with the server."
+  },
+  "stravaErrorRateLimited": "Too many requests. Please try again later.",
+  "@stravaErrorRateLimited": {
+    "description": "Strava sheet error when the server limits the requests."
+  },
+  "storeErrorStreamFailed": "Purchase stream error: {detail}",
+  "@storeErrorStreamFailed": {
+    "description": "Error when the app store reports a failure while listening for purchases. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "storeErrorUnavailable": "Store is not available on this device.",
+  "@storeErrorUnavailable": {
+    "description": "Error when the app store can not be used on this device."
+  },
+  "subscriptionErrorNoPreviousPurchase": "No previous purchase found for this account. Make sure you are signed in to the same Google/Apple account that bought the subscription.",
+  "@subscriptionErrorNoPreviousPurchase": {
+    "description": "Paywall error after restoring purchases found nothing."
+  },
+  "subscriptionErrorInitFailed": "Subscription init failed: {detail}",
+  "@subscriptionErrorInitFailed": {
+    "description": "Paywall error when the subscription could not be set up. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionErrorEntitlementStreamFailed": "Entitlement stream error: {detail}",
+  "@subscriptionErrorEntitlementStreamFailed": {
+    "description": "Paywall error when the subscription status could not be read. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionErrorPlansLoadFailed": "Could not load plans: {detail}",
+  "@subscriptionErrorPlansLoadFailed": {
+    "description": "Paywall error when the plans could not be loaded from the store. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionErrorPlansUnavailable": "Subscription plans are not fully available. Please try again later.",
+  "@subscriptionErrorPlansUnavailable": {
+    "description": "Paywall error when a plan is missing in the store."
+  },
+  "subscriptionErrorPlanNotLoaded": "Plan not loaded yet — try again in a moment.",
+  "@subscriptionErrorPlanNotLoaded": {
+    "description": "Paywall error when a plan is chosen before the store answered."
+  },
+  "subscriptionErrorPurchaseFailed": "Purchase failed: {detail}",
+  "@subscriptionErrorPurchaseFailed": {
+    "description": "Paywall error when the purchase failed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionErrorRestoreFailed": "Restore failed: {detail}",
+  "@subscriptionErrorRestoreFailed": {
+    "description": "Paywall error when restoring a purchase failed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionErrorMissingTransactionId": "Missing transaction id for iOS purchase.",
+  "@subscriptionErrorMissingTransactionId": {
+    "description": "Paywall error when the App Store did not return a transaction id."
+  },
+  "subscriptionErrorInactive": "This subscription is no longer active on your store account. If you renewed recently, try again in a moment.",
+  "@subscriptionErrorInactive": {
+    "description": "Paywall error when the store reports the subscription as ended."
+  },
+  "subscriptionErrorVerifyFailed": "Could not verify purchase: {detail}",
+  "@subscriptionErrorVerifyFailed": {
+    "description": "Paywall error when the server could not confirm the purchase. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionErrorAuthentication": "Authentication error. Please try again.",
+  "@subscriptionErrorAuthentication": {
+    "description": "Paywall error when the app could not authenticate with the server."
+  },
+  "stravaSheetTitle": "Strava Sync",
+  "@stravaSheetTitle": {
+    "description": "Title of the Strava sheets. Strava Sync is the name of the feature."
+  },
+  "stravaOfflineTitle": "You're offline",
+  "@stravaOfflineTitle": {
+    "description": "Title of the Strava sheet shown when the app server can not be reached."
+  },
+  "stravaOfflineBody": "We can't reach our servers to check Strava availability. Connect to the internet and try again.",
+  "@stravaOfflineBody": {
+    "description": "Text of the Strava sheet shown when the app server can not be reached."
+  },
+  "stravaTryAgain": "Try again",
+  "@stravaTryAgain": {
+    "description": "Button that checks the Strava availability again."
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Button that closes a sheet."
+  },
+  "stravaWaitlistTitle": "Strava Sync is at capacity",
+  "@stravaWaitlistTitle": {
+    "description": "Title of the Strava sheet shown when no new subscriptions are accepted."
+  },
+  "stravaWaitlistBody": "Strava's API limits how many active users we can sync at once. We're temporarily not accepting new subscriptions to keep sync reliable for current users. We'll open new spots as soon as we can.",
+  "@stravaWaitlistBody": {
+    "description": "Text of the Strava sheet shown when no new subscriptions are accepted."
+  },
+  "stravaSuccessTrialTitle": "Your trial has started.",
+  "@stravaSuccessTrialTitle": {
+    "description": "Title after a free trial of Strava Sync was started."
+  },
+  "stravaSuccessTitle": "You're in.",
+  "@stravaSuccessTitle": {
+    "description": "Title after Strava Sync was subscribed."
+  },
+  "stravaSuccessTrialBody": "Strava Sync is fully active for 7 days. Connect your Strava login next to import your history. Cancel in your store settings before the trial ends to avoid a charge.",
+  "@stravaSuccessTrialBody": {
+    "description": "Text after a free trial of Strava Sync was started."
+  },
+  "stravaSuccessBody": "Strava Sync is active on this account. Connect your Strava login next so we can start importing activities.",
+  "@stravaSuccessBody": {
+    "description": "Text after Strava Sync was subscribed."
+  },
+  "stravaConnectTitle": "Connect to Strava",
+  "@stravaConnectTitle": {
+    "description": "Title of the Strava sheet that asks to sign in to Strava."
+  },
+  "stravaConnectBody": "Sign in with your Strava account to sync activities.",
+  "@stravaConnectBody": {
+    "description": "Text of the Strava sheet that asks to sign in to Strava."
+  },
+  "stravaSignIn": "Sign in to Strava",
+  "@stravaSignIn": {
+    "description": "Button that starts the Strava sign-in."
+  },
+  "stravaConnectLater": "Connect later",
+  "@stravaConnectLater": {
+    "description": "Button that closes the Strava sign-in prompt."
+  },
+  "paywallHeroTitle": "Pair every setup with the ride you actually rode.",
+  "@paywallHeroTitle": {
+    "description": "Headline of the Strava Sync paywall."
+  },
+  "paywallHeroSubtitle": "Connect Strava and your activities flow in automatically.",
+  "@paywallHeroSubtitle": {
+    "description": "Subline of the Strava Sync paywall headline."
+  },
+  "paywallChoosePlan": "Choose a plan",
+  "@paywallChoosePlan": {
+    "description": "Section title above the plans of the paywall. Shown in capitals."
+  },
+  "paywallSavePercent": "SAVE {percent}%",
+  "@paywallSavePercent": {
+    "description": "Badge of the yearly plan. {percent} is the saving against the monthly plan.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallTrialBadge": "7 days free",
+  "@paywallTrialBadge": {
+    "description": "Note under the price of a plan that has a free trial."
+  },
+  "paywallFeature1Title": "Activities as context",
+  "@paywallFeature1Title": {
+    "description": "Title of the first benefit of Strava Sync."
+  },
+  "paywallFeature1Body": "See which setup you ran on every ride — automatically linked by date and gear.",
+  "@paywallFeature1Body": {
+    "description": "Text of the first benefit of Strava Sync."
+  },
+  "paywallFeature2Title": "Setups on the map",
+  "@paywallFeature2Title": {
+    "description": "Title of the second benefit of Strava Sync."
+  },
+  "paywallFeature2Body": "Activity start points and saved setups together, so you can revisit what worked at a spot.",
+  "@paywallFeature2Body": {
+    "description": "Text of the second benefit of Strava Sync."
+  },
+  "paywallFeature3Title": "Real-time auto-sync",
+  "@paywallFeature3Title": {
+    "description": "Title of the third benefit of Strava Sync."
+  },
+  "paywallFeature3Body": "New, updated and deleted Strava activities import within seconds.",
+  "@paywallFeature3Body": {
+    "description": "Text of the third benefit of Strava Sync."
+  },
+  "paywallHowItWorks": "How this works",
+  "@paywallHowItWorks": {
+    "description": "Section title of the notes card of the paywall. Shown in capitals."
+  },
+  "paywallNoteAffiliation": "Strava is a third-party service. Strava and the Strava logo are registered trademarks of Strava, Inc. — Bike Setup Tracker is not affiliated with or endorsed by Strava.",
+  "@paywallNoteAffiliation": {
+    "description": "First note of the paywall about the trademark. Keep the company name."
+  },
+  "paywallNoteCosts": "Your subscription covers the server costs of syncing activities between Strava and your device.",
+  "@paywallNoteCosts": {
+    "description": "Second note of the paywall."
+  },
+  "paywallNoteData": "We only store the activity fields needed to match a ride to a setup (date, name, location, gear). You can disconnect Strava at any time.",
+  "@paywallNoteData": {
+    "description": "Third note of the paywall."
+  },
+  "paywallStoreSettingsIos": "App Store settings",
+  "@paywallStoreSettingsIos": {
+    "description": "Link text to the subscription settings on iOS. Used inside paywallLegalTrial and paywallLegalAuto."
+  },
+  "paywallStoreSettingsAndroid": "Google Play settings",
+  "@paywallStoreSettingsAndroid": {
+    "description": "Link text to the subscription settings on Android. Used inside paywallLegalTrial and paywallLegalAuto."
+  },
+  "paywallLegalTrial": "7 days free, then {price}{period}. Cancel before the trial ends to avoid a charge. Manage or cancel anytime in your <store>{store}</store>. By subscribing you agree to <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.",
+  "@paywallLegalTrial": {
+    "description": "Legal note under the plans when a free trial is available. The tags <store>, <terms> and <privacy> mark the links and must stay around the same words. {price} is the store price and {period} the billing period, e.g. \"/ year\".",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      },
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallLegalAuto": "Auto-renewable subscription. Manage or cancel anytime in your <store>{store}</store>. By subscribing you agree to <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.",
+  "@paywallLegalAuto": {
+    "description": "Legal note under the plans when no free trial is available. The tags <store>, <terms> and <privacy> mark the links and must stay around the same words.",
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallLoadingPrice": "Loading store price…",
+  "@paywallLoadingPrice": {
+    "description": "Label of the subscribe button while the store price is loading."
+  },
+  "paywallStartTrial": "Start 7-day free trial",
+  "@paywallStartTrial": {
+    "description": "Label of the subscribe button when a free trial is available."
+  },
+  "paywallSubscribe": "Subscribe — {price}{period}",
+  "@paywallSubscribe": {
+    "description": "Label of the subscribe button. {price} is the store price and {period} the billing period, e.g. \"/year\".",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallRestore": "Restore previous purchase",
+  "@paywallRestore": {
+    "description": "Button that restores a purchase made earlier with the same store account."
+  },
+  "stravaSyncing": "Syncing...",
+  "@stravaSyncing": {
+    "description": "Row shown while Strava is syncing."
+  },
+  "stravaDisconnecting": "Disconnecting...",
+  "@stravaDisconnecting": {
+    "description": "Row shown while Strava is being disconnected."
+  },
+  "stravaNotConnected": "Not connected",
+  "@stravaNotConnected": {
+    "description": "Title of the account row while Strava is not connected."
+  },
+  "stravaNotConnectedHint": "Connect to sync your rides",
+  "@stravaNotConnectedHint": {
+    "description": "Subtitle of the account row while Strava is not connected."
+  },
+  "stravaAthleteId": "Athlete ID: {id}",
+  "@stravaAthleteId": {
+    "description": "Subtitle of the account row with the Strava athlete number.",
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "stravaAutoSyncTitle": "Auto-sync is active",
+  "@stravaAutoSyncTitle": {
+    "description": "Title of the row that explains the automatic Strava import."
+  },
+  "stravaAutoSyncSubtitle": "Activities import automatically after your ride.",
+  "@stravaAutoSyncSubtitle": {
+    "description": "Subtitle of the row that explains the automatic Strava import."
+  },
+  "stravaSyncInfo": "Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. While most updates are instant, a full background sync also runs weekly to catch any missed changes. You can also trigger a manual sync once per hour.",
+  "@stravaSyncInfo": {
+    "description": "Tooltip that explains the Strava sync."
+  },
+  "stravaLastFullSync": "Last full sync: {date} {time}",
+  "@stravaLastFullSync": {
+    "description": "Date and time of the last full Strava sync.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaNoFullSync": "No full sync yet",
+  "@stravaNoFullSync": {
+    "description": "Shown when no full Strava sync has happened yet."
+  },
+  "stravaNextScheduledSync": "Next scheduled sync: {date} {time}",
+  "@stravaNextScheduledSync": {
+    "description": "Date and time of the next automatic full Strava sync.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaNextManualSync": "Next manual sync available: {date} {time}",
+  "@stravaNextManualSync": {
+    "description": "Date and time from which a manual Strava sync is possible again.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaSyncButtonSyncing": "Syncing",
+  "@stravaSyncButtonSyncing": {
+    "description": "Label of the sync button while a sync runs."
+  },
+  "stravaSyncButtonSync": "Sync",
+  "@stravaSyncButtonSync": {
+    "description": "Label of the button that starts a manual Strava sync."
+  },
+  "stravaSyncButtonIn": "In {time}",
+  "@stravaSyncButtonIn": {
+    "description": "Label of the sync button while the next manual sync is not available yet. {time} is the remaining time, e.g. 12 min.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaFullSync": "Full Sync",
+  "@stravaFullSync": {
+    "description": "Developer button that syncs the full Strava history."
+  },
+  "stravaLatestActivities": "Latest Activities:",
+  "@stravaLatestActivities": {
+    "description": "Section title above the latest Strava activities."
+  },
+  "stravaNoActivitiesTitle": "No activities synced yet.",
+  "@stravaNoActivitiesTitle": {
+    "description": "Title of the empty state of the latest Strava activities."
+  },
+  "stravaNoActivitiesHint": "Connect Strava and sync your rides to see activities here.",
+  "@stravaNoActivitiesHint": {
+    "description": "Text of the empty state of the latest Strava activities."
+  },
+  "stravaGearSectionTitle": "Strava Gear:",
+  "@stravaGearSectionTitle": {
+    "description": "Section title above the Strava gear that can be linked to bikes."
+  },
+  "stravaGearShowAll": "Show all ({count})",
+  "@stravaGearShowAll": {
+    "description": "Button that expands the list of Strava gear.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stravaGearShowLess": "Show less",
+  "@stravaGearShowLess": {
+    "description": "Button that collapses the list of Strava gear."
+  },
+  "stravaGearNotLinked": "Not linked to a bike",
+  "@stravaGearNotLinked": {
+    "description": "Subtitle of a Strava gear that no bike uses."
+  },
+  "stravaGearOptionsTooltip": "Options for '{name}'",
+  "@stravaGearOptionsTooltip": {
+    "description": "Tooltip of the menu of a linked Strava gear. {name} is the gear name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaGearLinkTooltip": "Link '{name}' to a bike",
+  "@stravaGearLinkTooltip": {
+    "description": "Tooltip of the link button of an unlinked Strava gear. {name} is the gear name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaGearLink": "Link",
+  "@stravaGearLink": {
+    "description": "Button that links a Strava gear to a bike."
+  },
+  "stravaGearUnlinkBike": "Unlink Bike '{name}'",
+  "@stravaGearUnlinkBike": {
+    "description": "Menu entry that removes the link between a Strava gear and a bike. {name} is the bike name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaGearLinkToBike": "Link to '{name}'",
+  "@stravaGearLinkToBike": {
+    "description": "Menu entry that links a Strava gear to a bike. {name} is the bike name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaGearAddAsBike": "Add as new Bike",
+  "@stravaGearAddAsBike": {
+    "description": "Menu entry that creates a bike from a Strava gear."
+  },
+  "stravaCardTitle": "Strava Sync",
+  "@stravaCardTitle": {
+    "description": "Title of the subscription card. Shown in capitals."
+  },
+  "stravaCardNotSubscribed": "Not subscribed",
+  "@stravaCardNotSubscribed": {
+    "description": "Badge of the subscription card without a subscription. Shown in capitals."
+  },
+  "stravaCardTrial": "Trial",
+  "@stravaCardTrial": {
+    "description": "Badge of the subscription card during the free trial. Shown in capitals."
+  },
+  "stravaCardActive": "Active",
+  "@stravaCardActive": {
+    "description": "Badge of the subscription card with an active subscription. Shown in capitals."
+  },
+  "stravaCardExpired": "Expired",
+  "@stravaCardExpired": {
+    "description": "Badge of the subscription card after the subscription ended. Shown in capitals."
+  },
+  "stravaCardPitch": "Automatically link your Strava rides to your setups and see them on the map.",
+  "@stravaCardPitch": {
+    "description": "Text of the subscription card without a subscription."
+  },
+  "stravaCardFromPrice": "From {price}",
+  "@stravaCardFromPrice": {
+    "description": "Price line of the subscription card without a subscription. {price} is the monthly store price.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaCardFirstCharge": "First charge",
+  "@stravaCardFirstCharge": {
+    "description": "Label of the date of the first payment after a free trial."
+  },
+  "stravaCardTrialEnds": "Trial ends",
+  "@stravaCardTrialEnds": {
+    "description": "Label of the date a free trial ends without renewal."
+  },
+  "stravaCardRenews": "Renews",
+  "@stravaCardRenews": {
+    "description": "Label of the date a subscription renews."
+  },
+  "stravaCardExpires": "Expires",
+  "@stravaCardExpires": {
+    "description": "Label of the date a subscription ends."
+  },
+  "stravaCardBilling": "Billing",
+  "@stravaCardBilling": {
+    "description": "Label of the row that names the store that bills the subscription."
+  },
+  "stravaActivityTitle": "Activity",
+  "@stravaActivityTitle": {
+    "description": "Title of the Strava activity page."
+  },
+  "stravaActivityAthleteFallback": "Strava Athlete",
+  "@stravaActivityAthleteFallback": {
+    "description": "Name shown when the athlete of an activity is unknown."
+  },
+  "stravaActivityElevGain": "Elev Gain",
+  "@stravaActivityElevGain": {
+    "description": "Short label of the elevation gain figure of an activity."
+  },
+  "stravaActivityAvgSpeed": "Avg Speed",
+  "@stravaActivityAvgSpeed": {
+    "description": "Short label of the average speed figure of an activity."
+  },
+  "stravaActivityAvgPower": "Avg Power",
+  "@stravaActivityAvgPower": {
+    "description": "Short label of the average power figure of an activity. Tapping switches to Energy."
+  },
+  "stravaActivityEnergy": "Energy",
+  "@stravaActivityEnergy": {
+    "description": "Short label of the energy figure (kilojoules) of an activity. Tapping switches to Avg Power."
+  },
+  "stravaActivityNoBikeLinked": "No Bike linked to this Strava gear",
+  "@stravaActivityNoBikeLinked": {
+    "description": "Title when no bike uses the Strava gear of an activity."
+  },
+  "stravaActivityAddBikeHint": "Add a new bike to link this gear automatically",
+  "@stravaActivityAddBikeHint": {
+    "description": "Hint when no bike uses the Strava gear and no bike is free to link."
+  },
+  "stravaActivityLinkBikeHint": "Link an existing bike or add a new bike for this gear",
+  "@stravaActivityLinkBikeHint": {
+    "description": "Hint when no bike uses the Strava gear and bikes are free to link."
+  },
+  "stravaActivityLinkBike": "Link Bike",
+  "@stravaActivityLinkBike": {
+    "description": "Button that opens the list of bikes to link to the Strava gear."
+  },
+  "stravaActivityAddNew": "Add New",
+  "@stravaActivityAddNew": {
+    "description": "Button that creates a bike for the Strava gear."
+  },
+  "stravaActivitySetupsTitle": "Setups ({count})",
+  "@stravaActivitySetupsTitle": {
+    "description": "Title of the section with the setups of an activity.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stravaActivityFeedbackCount": "{count, plural, =1{1 feedback} other{{count} feedbacks}}",
+  "@stravaActivityFeedbackCount": {
+    "description": "Subtitle of the setups section with the number of feedbacks of the ride.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stravaActivityNoSetupsTitle": "No setups for this activity",
+  "@stravaActivityNoSetupsTitle": {
+    "description": "Title when no setup belongs to an activity."
+  },
+  "stravaActivityNoSetupsSubtitle": "Add a setup to record your bike configuration",
+  "@stravaActivityNoSetupsSubtitle": {
+    "description": "Hint when no setup belongs to an activity."
+  },
+  "stravaActivitySessionRunning": "Test session '{name}' is running on this bike. End it to add a setup.",
+  "@stravaActivitySessionRunning": {
+    "description": "Hint that no setup can be added while a test session runs. {name} is the session name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stravaActivityActionsTooltip": "Activity actions",
+  "@stravaActivityActionsTooltip": {
+    "description": "Tooltip of the menu button of the Strava activity page."
+  },
+  "stravaActivityNoStartLocation": "Start location not available",
+  "@stravaActivityNoStartLocation": {
+    "description": "Note under a disabled map entry of the activity menu."
+  },
+  "exportFileSaved": "File saved",
+  "@exportFileSaved": {
+    "description": "Snackbar after an exported file was saved."
+  },
+  "exportFailed": "Export failed: {error}",
+  "@exportFailed": {
+    "description": "Snackbar when saving an export failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exportNoBackup": "No backup found yet.",
+  "@exportNoBackup": {
+    "description": "Snackbar when the latest backup was requested but none exists."
+  },
+  "shareMessageJson": "Here is my bike setup data!",
+  "@shareMessageJson": {
+    "description": "Message that is sent along with the shared JSON file."
+  },
+  "shareMessageExcel": "Here is my bike setup data in Excel format!",
+  "@shareMessageExcel": {
+    "description": "Message that is sent along with the shared Excel file."
+  },
+  "shareMessageCsv": "Here is my bike setup data in CSV format!",
+  "@shareMessageCsv": {
+    "description": "Message that is sent along with the shared CSV file."
+  },
+  "shareErrorFile": "Error sharing file",
+  "@shareErrorFile": {
+    "description": "Start of the snackbar when sharing a file failed. The technical reason follows after a colon."
+  },
+  "shareErrorExcel": "Error sharing Excel file",
+  "@shareErrorExcel": {
+    "description": "Start of the snackbar when sharing the Excel file failed. The technical reason follows after a colon."
+  },
+  "shareErrorCsv": "Error sharing CSV file",
+  "@shareErrorCsv": {
+    "description": "Start of the snackbar when sharing the CSV file failed. The technical reason follows after a colon."
+  },
+  "shareErrorText": "Error sharing text",
+  "@shareErrorText": {
+    "description": "Start of the snackbar when sharing text failed. The technical reason follows after a colon."
+  },
+  "sharePrepareJsonFailed": "Error preparing JSON: {error}",
+  "@sharePrepareJsonFailed": {
+    "description": "Snackbar when the JSON file for sharing could not be created. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sharePrepareExcelFailed": "Error preparing Excel: {error}",
+  "@sharePrepareExcelFailed": {
+    "description": "Snackbar when the Excel file for sharing could not be created. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sharePrepareCsvFailed": "Error preparing CSV: {error}",
+  "@sharePrepareCsvFailed": {
+    "description": "Snackbar when the CSV file for sharing could not be created. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "backupSaved": "Saved backup at {path}",
+  "@backupSaved": {
+    "description": "Snackbar after a local backup was written. {path} is the file path.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "backupSaveFailed": "Error saving backup: {error}",
+  "@backupSaveFailed": {
+    "description": "Snackbar when writing a local backup failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exportSheetTitle": "Export Data",
+  "@exportSheetTitle": {
+    "description": "Title of the export sheet."
+  },
+  "exportSaveFile": "Save File",
+  "@exportSaveFile": {
+    "description": "Entry of the export sheet that saves a JSON file."
+  },
+  "exportSaveFileSubtitle": "Choose where to save the JSON file",
+  "@exportSaveFileSubtitle": {
+    "description": "Subtitle of the entry that saves a JSON file."
+  },
+  "exportSaveBackup": "Save Backup",
+  "@exportSaveBackup": {
+    "description": "Entry of the export sheet that saves a local backup."
+  },
+  "exportSaveBackupSubtitle": "Save current state as a local backup",
+  "@exportSaveBackupSubtitle": {
+    "description": "Subtitle of the entry that saves a local backup."
+  },
+  "exportSaveDriveBackup": "Save Google Drive Backup",
+  "@exportSaveDriveBackup": {
+    "description": "Entry of the export sheet that saves a backup to Google Drive."
+  },
+  "exportSaveDriveBackupSubtitle": "Save current state as Backup in Google Drive",
+  "@exportSaveDriveBackupSubtitle": {
+    "description": "Subtitle of the entry that saves a backup to Google Drive."
+  },
+  "exportAttachmentBundle": "Export Attachment Bundle",
+  "@exportAttachmentBundle": {
+    "description": "Entry of the export sheet that saves data and attachments as a ZIP file."
+  },
+  "exportAttachmentBundleSubtitle": "Export data and attachments as a ZIP bundle",
+  "@exportAttachmentBundleSubtitle": {
+    "description": "Subtitle of the entry that saves data and attachments as a ZIP file."
+  },
+  "exportProgressFile": "Preparing JSON file…",
+  "@exportProgressFile": {
+    "description": "Progress text while a JSON file is created, in the export and share sheets."
+  },
+  "exportProgressBackup": "Saving backup…",
+  "@exportProgressBackup": {
+    "description": "Progress text while a local backup is saved."
+  },
+  "exportProgressDrive": "Uploading backup to Google Drive…",
+  "@exportProgressDrive": {
+    "description": "Progress text while a backup is uploaded to Google Drive."
+  },
+  "exportProgressBundle": "Packing data and attachments…",
+  "@exportProgressBundle": {
+    "description": "Progress text while a ZIP bundle is created."
+  },
+  "shareSheetTitle": "Share Data",
+  "@shareSheetTitle": {
+    "description": "Title of the share sheet."
+  },
+  "shareFormatTitle": "Share Format",
+  "@shareFormatTitle": {
+    "description": "Title of the step that chooses the format to share."
+  },
+  "shareFormatJson": "JSON File",
+  "@shareFormatJson": {
+    "description": "Share format JSON."
+  },
+  "shareFormatJsonSubtitle": "Best for moving data to another device or saving a full backup.",
+  "@shareFormatJsonSubtitle": {
+    "description": "Explanation of the JSON share format."
+  },
+  "shareFormatExcel": "Excel Spreadsheet",
+  "@shareFormatExcel": {
+    "description": "Share format Excel."
+  },
+  "shareFormatExcelSubtitle": "Best for analysis in Excel or Google Sheets (XLSX).",
+  "@shareFormatExcelSubtitle": {
+    "description": "Explanation of the Excel share format."
+  },
+  "shareFormatCsv": "CSV File",
+  "@shareFormatCsv": {
+    "description": "Share format CSV."
+  },
+  "shareFormatCsvSubtitle": "Simple tabular format (Comma Separated Values).",
+  "@shareFormatCsvSubtitle": {
+    "description": "Explanation of the CSV share format."
+  },
+  "shareFormatText": "Plain Text",
+  "@shareFormatText": {
+    "description": "Share format plain text."
+  },
+  "shareFormatTextSubtitle": "Best for sharing setup details in chats or notes.",
+  "@shareFormatTextSubtitle": {
+    "description": "Explanation of the plain text share format."
+  },
+  "shareProgressText": "Preparing text…",
+  "@shareProgressText": {
+    "description": "Progress text while the text to share is created."
+  },
+  "shareProgressCsv": "Preparing CSV file…",
+  "@shareProgressCsv": {
+    "description": "Progress text while the CSV file to share is created."
+  },
+  "shareProgressExcel": "Preparing Excel file…",
+  "@shareProgressExcel": {
+    "description": "Progress text while the Excel file to share is created."
+  },
+  "importSheetTitle": "Import Data",
+  "@importSheetTitle": {
+    "description": "Title of the import sheets."
+  },
+  "importFile": "Import File",
+  "@importFile": {
+    "description": "Entry of the import sheet that reads a file."
+  },
+  "importFileSubtitle": "Select json file which contains data to import",
+  "@importFileSubtitle": {
+    "description": "Subtitle of the entry that reads a file."
+  },
+  "importRestoreBackup": "Restore Backup",
+  "@importRestoreBackup": {
+    "description": "Entry of the import sheet that restores a backup."
+  },
+  "importRestoreBackupSubtitle": "Restore local or cloud Backup",
+  "@importRestoreBackupSubtitle": {
+    "description": "Subtitle of the entry that restores a backup."
+  },
+  "importAttachmentBundle": "Import Attachment Bundle",
+  "@importAttachmentBundle": {
+    "description": "Entry of the import sheet that reads a ZIP bundle."
+  },
+  "importAttachmentBundleSubtitle": "Restore data and attachments from a ZIP bundle",
+  "@importAttachmentBundleSubtitle": {
+    "description": "Subtitle of the entry that reads a ZIP bundle."
+  },
+  "importReadingFile": "Reading file…",
+  "@importReadingFile": {
+    "description": "Progress text while the picked file is read."
+  },
+  "importUnpackingBundle": "Unpacking data and attachments…",
+  "@importUnpackingBundle": {
+    "description": "Progress text while a ZIP bundle is unpacked."
+  },
+  "importMethodOverwrite": "Overwrite data",
+  "@importMethodOverwrite": {
+    "description": "Import method that overwrites local items with the imported ones."
+  },
+  "importMethodOverwriteSubtitle": "Overwrite your local data with the imported data. Unique local data will remain.",
+  "@importMethodOverwriteSubtitle": {
+    "description": "Explanation of the overwrite import method."
+  },
+  "importMethodMerge": "Merge data",
+  "@importMethodMerge": {
+    "description": "Import method that adds new items and updates newer ones."
+  },
+  "importMethodMergeSubtitle": "Add new items and update existing items when the imported version is newer (based on modification date).",
+  "@importMethodMergeSubtitle": {
+    "description": "Explanation of the merge import method."
+  },
+  "importMethodReplace": "Replace data",
+  "@importMethodReplace": {
+    "description": "Import method that deletes the local data first."
+  },
+  "importMethodReplaceSubtitle": "Replace your local data with the imported data. This will permanently delete all existing data and cannot be undone.",
+  "@importMethodReplaceSubtitle": {
+    "description": "Explanation of the replace import method."
+  },
+  "importProgressMerge": "Merging data…",
+  "@importProgressMerge": {
+    "description": "Progress text while data is merged."
+  },
+  "importProgressOverwrite": "Overwriting data…",
+  "@importProgressOverwrite": {
+    "description": "Progress text while data is overwritten."
+  },
+  "importProgressReplace": "Replacing data…",
+  "@importProgressReplace": {
+    "description": "Progress text while data is replaced."
+  },
+  "importDoneMerge": "Data merged successfully",
+  "@importDoneMerge": {
+    "description": "Snackbar after data was merged."
+  },
+  "importDoneOverwrite": "Data overwritten successfully",
+  "@importDoneOverwrite": {
+    "description": "Snackbar after data was overwritten."
+  },
+  "importDoneReplace": "Data replaced successfully",
+  "@importDoneReplace": {
+    "description": "Snackbar after data was replaced."
+  },
+  "importFailedMerge": "Merge failed: {error}",
+  "@importFailedMerge": {
+    "description": "Snackbar when merging failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "importFailedOverwrite": "Overwriting failed: {error}",
+  "@importFailedOverwrite": {
+    "description": "Snackbar when overwriting failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "importFailedReplace": "Replacing failed: {error}",
+  "@importFailedReplace": {
+    "description": "Snackbar when replacing failed. {error} is the technical reason.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "backupSheetTitle": "Import Backup",
+  "@backupSheetTitle": {
+    "description": "Title of the sheet that lists the backups."
+  },
+  "backupInfoDaily": "Backups are created once per day. To restore a backup, you can choose to overwrite current data or merge backup data into existing data.",
+  "@backupInfoDaily": {
+    "description": "Note at the top of the backup list."
+  },
+  "backupInfoRetention": "Backups older than 30 days are permanently deleted and cannot be restored.",
+  "@backupInfoRetention": {
+    "description": "Note at the top of the backup list."
+  },
+  "backupLocal": "Local Backup",
+  "@backupLocal": {
+    "description": "Name of a backup stored on this device."
+  },
+  "backupGoogleDrive": "Google Drive Backup",
+  "@backupGoogleDrive": {
+    "description": "Name of a backup stored in Google Drive."
+  },
+  "backupReading": "Reading backup…",
+  "@backupReading": {
+    "description": "Subtitle of a local backup while it is read."
+  },
+  "backupDownloading": "Downloading backup…",
+  "@backupDownloading": {
+    "description": "Subtitle of a Google Drive backup while it is downloaded."
+  },
+  "backupCreatedAt": "Created at: {time}",
+  "@backupCreatedAt": {
+    "description": "Subtitle of a backup. {time} is the date and time of the backup.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "backupRestoreTooltip": "Restore backup",
+  "@backupRestoreTooltip": {
+    "description": "Tooltip of the button that restores a backup."
+  },
+  "backupLoadError": "Error loading backups",
+  "@backupLoadError": {
+    "description": "Shown when the backup list could not be loaded."
+  },
+  "backupNone": "No backups found.",
+  "@backupNone": {
+    "description": "Shown when there are no backups."
+  },
+  "dataSelectTitle": "Select Data",
+  "@dataSelectTitle": {
+    "description": "Title of the step that chooses between all data and specific items."
+  },
+  "dataSelectAll": "Entire dataset",
+  "@dataSelectAll": {
+    "description": "Entry that uses all items."
+  },
+  "dataSelectAllSubtitle": "Use all items from the provided data",
+  "@dataSelectAllSubtitle": {
+    "description": "Subtitle of the entry that uses all items."
+  },
+  "dataSelectChoose": "Choose specific items",
+  "@dataSelectChoose": {
+    "description": "Entry that opens the item selection."
+  },
+  "dataSelectChooseSubtitle": "Pick which items to include",
+  "@dataSelectChooseSubtitle": {
+    "description": "Subtitle of the entry that opens the item selection."
+  },
+  "dataSelectItemsTitle": "Select Data Items",
+  "@dataSelectItemsTitle": {
+    "description": "Title of the step that picks single items."
+  },
+  "dataSelectBikes": "Bikes ({selected} / {total})",
+  "@dataSelectBikes": {
+    "description": "Section title with the number of selected bikes.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSelectComponents": "Components ({selected} / {total})",
+  "@dataSelectComponents": {
+    "description": "Section title with the number of selected components.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSelectSetups": "Setups ({selected} / {total})",
+  "@dataSelectSetups": {
+    "description": "Section title with the number of selected setups.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSelectRiders": "Riders ({selected} / {total})",
+  "@dataSelectRiders": {
+    "description": "Section title with the number of selected riders.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSelectTasks": "Tasks ({selected} / {total})",
+  "@dataSelectTasks": {
+    "description": "Section title with the number of selected tasks.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSelectTaskEntries": "Task Entries ({selected} / {total})",
+  "@dataSelectTaskEntries": {
+    "description": "Section title with the number of selected task entries.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSelectFeedback": "Feedback ({selected} / {total})",
+  "@dataSelectFeedback": {
+    "description": "Section title with the number of selected feedbacks.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSelectTestSessions": "Test Sessions ({selected} / {total})",
+  "@dataSelectTestSessions": {
+    "description": "Section title with the number of selected test sessions.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSelectConfirm": "Confirm Selection ({selected} / {total})",
+  "@dataSelectConfirm": {
+    "description": "Button that confirms the selection. Shows how many items are selected.",
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "stravaGearLinkedCount": "{linked} of {total} linked",
+  "@stravaGearLinkedCount": {
+    "description": "Note next to the Strava gear title with how many gear items are linked to a bike.",
+    "placeholders": {
+      "linked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   }
 }

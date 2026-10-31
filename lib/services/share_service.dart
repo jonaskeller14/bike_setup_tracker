@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
+import '../l10n/l10n.dart';
 import '../widgets/app_snackbar.dart';
 
 class ShareService {
@@ -31,7 +32,7 @@ class ShareService {
       );
     } catch (e) {
       if (!context.mounted) return;
-      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, '${errorMessage ?? 'Error sharing file'}: $e'));
+      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, '${errorMessage ?? context.l10n.shareErrorFile}: $e'));
     }
   }
 
@@ -53,7 +54,7 @@ class ShareService {
       );
     } catch (e) {
       if (!context.mounted) return;
-      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, '${errorMessage ?? 'Error sharing text'}: $e'));
+      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, '${errorMessage ?? context.l10n.shareErrorText}: $e'));
     }
   }
 }

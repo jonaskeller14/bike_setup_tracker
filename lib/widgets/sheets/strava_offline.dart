@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../services/strava_service.dart';
 import 'sheet_header.dart';
 
@@ -31,9 +32,9 @@ class _StravaOfflineNoticeState extends State<StravaOfflineNotice> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(
-            title: 'Strava Sync',
-            leadingIcon: Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
+          SheetHeader(
+            title: context.l10n.stravaSheetTitle,
+            leadingIcon: const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
           ),
           const SizedBox(height: 16),
           Flexible(
@@ -58,13 +59,12 @@ class _StravaOfflineNoticeState extends State<StravaOfflineNotice> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "You're offline",
+                    context.l10n.stravaOfflineTitle,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "We can't reach our servers to check Strava availability. "
-                    "Connect to the internet and try again.",
+                    context.l10n.stravaOfflineBody,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       height: 1.4,
@@ -89,14 +89,14 @@ class _StravaOfflineNoticeState extends State<StravaOfflineNotice> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.refresh),
-              label: const Text("Try again"),
+              label: Text(context.l10n.stravaTryAgain),
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
+              child: Text(context.l10n.close),
             ),
           ),
         ],

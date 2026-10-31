@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../services/google_drive_service.dart';
 import 'sheets/google_drive_sync.dart';
 
@@ -24,7 +25,7 @@ class GoogleDriveSyncButton extends StatelessWidget {
                   : Icons.cloud_done_outlined)
               : Icons.cloud_off),
           onPressed: () => showGoogleDriveSheet(context: context),
-          tooltip: isLinked ? "Sync Now" : "Connect Google Drive",
+          tooltip: isLinked ? context.l10n.driveButtonSyncNow : context.l10n.driveButtonConnect,
         ),
         
         // The "Badge" with loading circle (only shown if isSyncing is true)

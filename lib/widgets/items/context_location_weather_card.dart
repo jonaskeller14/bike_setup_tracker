@@ -39,7 +39,8 @@ class ContextLocationWeatherCard extends StatelessWidget {
 
   bool get _hasCondition => weather?.condition != null;
 
-  static String _coordinate(double? value) => value == null ? '-' : formatLocalizedDouble(value, fractionDigits: 4);
+  static String _coordinate(double? value, String locale) =>
+      value == null ? '-' : formatLocalizedDouble(value, fractionDigits: 4, locale: locale);
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +90,10 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.my_location),
           title: SelectableText(
-            context.l10n.contextLatLon(_coordinate(position?.latitude), _coordinate(position?.longitude)),
+            context.l10n.contextLatLon(
+              _coordinate(position?.latitude, context.l10n.localeName),
+              _coordinate(position?.longitude, context.l10n.localeName),
+            ),
           ),
           dense: true,
           enabled: position?.latitude != null || position?.longitude != null,
@@ -265,7 +269,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
           leading: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
           title: SelectableText(
             context.l10n.contextSoilMoisture(
-              '${weather!.currentSoilMoisture0to7cm == null ? '-' : formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2)} m³/m³',
+              '${weather!.currentSoilMoisture0to7cm == null ? '-' : formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2, locale: context.l10n.localeName)} m³/m³',
             ),
           ),
           dense: true,

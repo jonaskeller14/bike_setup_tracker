@@ -4,7 +4,6 @@ import 'package:bike_setup_tracker/utils/number_input_formatters.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_numerical_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import '../../goldens/support/localized_test_app.dart';
 
 void main() {
@@ -77,8 +76,10 @@ void main() {
       required NumericalValue? value,
       required ValueChanged<NumericalValue?> onChanged,
       required Key formKey,
+      Locale locale = const Locale('en'),
     }) {
       return localizedTestApp(
+        locale: locale,
         theme: materialAppTheme,
         home: Scaffold(
           body: Form(
@@ -251,8 +252,7 @@ void main() {
     });
 
     group("in German", () {
-      setUp(() => Intl.defaultLocale = 'de');
-      tearDown(() => Intl.defaultLocale = null);
+      const german = Locale('de');
 
       testWidgets("pre-fills the stored value with a decimal comma, digit for digit", (tester) async {
         await tester.pumpWidget(buildPressure(
@@ -261,6 +261,7 @@ void main() {
           value: const NumericalValue(65.123456),
           onChanged: (_) {},
           formKey: GlobalKey<FormState>(),
+          locale: german,
         ));
 
         expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '65,123456');
@@ -273,6 +274,7 @@ void main() {
           value: const NumericalValue(72.5),
           onChanged: (_) {},
           formKey: GlobalKey<FormState>(),
+          locale: german,
         ));
 
         await tester.tap(find.text('psi'));
@@ -302,6 +304,7 @@ void main() {
           value: null,
           onChanged: (_) {},
           formKey: formKey,
+          locale: german,
         ));
 
         await tester.enterText(find.byType(TextField), '80');

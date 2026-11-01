@@ -307,12 +307,12 @@ class _RowLabel extends StatelessWidget {
                 ? FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
-                    child: Text(DateFormat(appSettings.dateFormat).format(row.start), style: dateStyle),
+                    child: Text(DateFormat(appSettings.dateFormat, context.l10n.localeName).format(row.start), style: dateStyle),
                   )
                 : const SizedBox.shrink(),
           ),
           const SizedBox(width: 2 * padding),
-          Text(DateFormat(appSettings.timeFormat).format(row.start), style: timeStyle, maxLines: 1),
+          Text(DateFormat(appSettings.timeFormat, context.l10n.localeName).format(row.start), style: timeStyle, maxLines: 1),
         ],
       ),
     );

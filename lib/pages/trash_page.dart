@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/entity_names.dart';
 import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
@@ -47,11 +48,11 @@ class _TrashPageState extends State<TrashPage> {
       ...appRepository.deletedPersons.map((p) => _PersonTrashItem(p)),
       ...appRepository.deletedBikes.map((b) => _BikeTrashItem(b)),
       ...appRepository.deletedComponents.map((c) => _ComponentTrashItem(c)),
-      ...appRepository.deletedSetups.map((s) => _SetupTrashItem(s)),
+      ...appRepository.deletedSetups.map((s) => _SetupTrashItem(s, s.label(l10n))),
       ...appRepository.deletedTaskRules.map((tr) => _TaskRuleTrashItem(tr)),
       ...appRepository.deletedTaskEntries.map((te) => _TaskEntryTrashItem(te)),
       ...appRepository.deletedFeedbacks.map((f) => _FeedbackTrashItem(f, l10n.feedbackName)),
-      ...appRepository.deletedTestSessions.map((ts) => _TestSessionTrashItem(ts)),
+      ...appRepository.deletedTestSessions.map((ts) => _TestSessionTrashItem(ts, ts.label(l10n))),
     ];
 
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
@@ -106,7 +107,7 @@ class _TrashPageState extends State<TrashPage> {
   }
 
   Widget _trashItem({required BuildContext context, required _TrashItem deletedItem}) {
-    final timeFormat = DateFormat(context.read<AppSettings>().timeFormat);
+    final timeFormat = DateFormat(context.read<AppSettings>().timeFormat, context.l10n.localeName);
     final selected = _selectedItems.contains(deletedItem);
 
     return ListTile(
@@ -395,12 +396,13 @@ class _SetupTrashItem extends _TrashItem {
   @override String get id => 'setup-${setup.id}';
   @override DateTime get lastModified => setup.lastModified;
   @override IconData get iconData => Setup.iconData;
-  @override String get name => setup.displayName;
+  @override
+  final String name;
   @override
   void restore(BuildContext context) async {
     await SetupActions.restoreSetup(context, setup: setup);
   }
-  const _SetupTrashItem(this.setup);
+  const _SetupTrashItem(this.setup, this.name);
 }
 
 class _TaskRuleTrashItem extends _TrashItem {
@@ -447,10 +449,11 @@ class _TestSessionTrashItem extends _TrashItem {
   @override String get id => 'test-session-${session.id}';
   @override DateTime get lastModified => session.lastModified;
   @override IconData get iconData => TestSession.iconData;
-  @override String get name => session.displayName;
+  @override
+  final String name;
   @override
   void restore(BuildContext context) async {
     await TestSessionActions.restoreTestSession(context, session: session);
   }
-  const _TestSessionTrashItem(this.session);
+  const _TestSessionTrashItem(this.session, this.name);
 }

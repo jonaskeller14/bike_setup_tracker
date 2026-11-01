@@ -31,7 +31,7 @@ RecordedValue recordedValue(
   final id = 'record-${_recordCounter++}';
   return RecordedValue(
     recordId: id,
-    label: label ?? 'Record $id',
+    name: label ?? 'Record $id',
     dateTimeLocal: day ?? DateTime(2024, 3, 1),
     value: value,
     isDeleted: deleted,

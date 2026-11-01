@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
@@ -8,8 +9,9 @@ import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/utils/setup_guide_evaluator.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
+
+import '../support/german_l10n.dart';
 
 /// [evaluateSetupGuide] over small inline catalogs run through the real
 /// parser, so every rule shape is exercised as authored.
@@ -154,11 +156,12 @@ List<GuideRecommendation> _evaluate(
   GuideInputs inputs = const GuideInputs(),
   Map<String, AdjustmentValue> current = const {},
   List<Adjustment>? adjustments,
+  AppLocalizations? l10n,
 }) {
-  final built = adjustments ?? buildCatalogApplication(preset).adjustments;
+  final built = adjustments ?? buildCatalogApplication(preset, englishL10n).adjustments;
   return evaluateSetupGuide(preset, built, inputs, {
     for (final adjustment in built) adjustment.id: ?current[adjustment.name],
-  });
+  }, l10n ?? englishL10n);
 }
 
 GuideRecommendation _of(List<GuideRecommendation> results, String target) =>
@@ -175,10 +178,11 @@ void main() {
   });
 
   group('lookup', () {
-    GuideRecommendation pressureAt(double weight, {KnownUnit unit = _kg}) => _of(
+    GuideRecommendation pressureAt(double weight, {KnownUnit unit = _kg, AppLocalizations? l10n}) => _of(
       _evaluate(
         factoryX2,
         inputs: GuideInputs(riderWeight: weight, riderWeightUnit: unit),
+        l10n: l10n,
       ),
       'pressure',
     );
@@ -218,7 +222,7 @@ void main() {
 
     test('writes the rider weight in the app language', () {
       expect(pressureAt(82.5).inputText, '82.5 kg');
-      expect(Intl.withLocale('de', () => pressureAt(82.5).inputText), '82,5 kg');
+      expect(pressureAt(82.5, l10n: germanL10n).inputText, '82,5 kg');
     });
 
     test('converts the output unit and rounds pressure to 0.1 bar', () {
@@ -406,7 +410,7 @@ void main() {
     });
 
     test('results follow the adjustment order', () {
-      final adjustments = buildCatalogApplication(factoryX2).adjustments;
+      final adjustments = buildCatalogApplication(factoryX2, englishL10n).adjustments;
       final results = _evaluate(factoryX2, inputs: const GuideInputs(riderWeight: 80));
       final order = [for (final result in results) adjustments.indexOf(result.adjustment)];
       expect(order, [...order]..sort());
@@ -440,14 +444,14 @@ void main() {
 
     test('follow an edited max', () {
       final adjustments = [
-        for (final adjustment in buildCatalogApplication(factoryX2).adjustments)
+        for (final adjustment in buildCatalogApplication(factoryX2, englishL10n).adjustments)
           adjustment is StepAdjustment && adjustment.name == 'HSC' ? adjustment.copyWith(max: 12) : adjustment,
       ];
       expect(_of(_evaluate(factoryX2, adjustments: adjustments), 'hsc').value, const StepValue(7));
     });
 
     test('a placeholder max gives no value until the rider enters the real one', () {
-      final adjustments = buildCatalogApplication(factoryX2).adjustments;
+      final adjustments = buildCatalogApplication(factoryX2, englishL10n).adjustments;
       expect(_of(_evaluate(factoryX2, adjustments: adjustments), 'lsc').issue, GuideIssue.placeholderMax);
 
       final edited = [
@@ -491,7 +495,7 @@ void main() {
       expect(_of(_evaluate(factoryX2, adjustments: narrow), 'hsc').value, const StepValue(4));
 
       final short = [
-        for (final adjustment in buildCatalogApplication(factoryX2).adjustments)
+        for (final adjustment in buildCatalogApplication(factoryX2, englishL10n).adjustments)
           adjustment is StepAdjustment && adjustment.name == 'LSR' ? adjustment.copyWith(max: 10) : adjustment,
       ];
       final lsr = _of(_evaluate(factoryX2, adjustments: short, current: {'Pressure': const NumericalValue(40)}), 'lsr');
@@ -502,7 +506,7 @@ void main() {
 
     test('a numerical value above the adjuster max is not applied', () {
       final low = [
-        for (final adjustment in buildCatalogApplication(factoryX2).adjustments)
+        for (final adjustment in buildCatalogApplication(factoryX2, englishL10n).adjustments)
           adjustment is NumericalAdjustment && adjustment.name == 'Pressure'
               ? adjustment.copyWith(max: 75.0)
               : adjustment,
@@ -520,7 +524,7 @@ void main() {
   group('dial counting', () {
     /// The catalog adjustments with [name]'s step adjuster edited.
     List<Adjustment> withStep(String name, StepAdjustment Function(StepAdjustment) edit) => [
-      for (final adjustment in buildCatalogApplication(factoryX2).adjustments)
+      for (final adjustment in buildCatalogApplication(factoryX2, englishL10n).adjustments)
         adjustment is StepAdjustment && adjustment.name == name ? edit(adjustment) : adjustment,
     ];
 
@@ -552,7 +556,7 @@ void main() {
     });
 
     test('the catalog\'s own dial is not converted', () {
-      final lsr = lsrAt(75, buildCatalogApplication(factoryX2).adjustments);
+      final lsr = lsrAt(75, buildCatalogApplication(factoryX2, englishL10n).adjustments);
       expect(lsr.value, const StepValue(12));
       expect(lsr.converted, isFalse);
     });
@@ -742,7 +746,7 @@ nodes:
     expect(group.node.guide, isNotNull);
 
     expect(
-      _evaluate(group, adjustments: buildCatalogApplication(factoryX2).adjustments, inputs: const GuideInputs(riderWeight: 82)),
+      _evaluate(group, adjustments: buildCatalogApplication(factoryX2, englishL10n).adjustments, inputs: const GuideInputs(riderWeight: 82)),
       isEmpty,
     );
   });

@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/entity_names.dart';
+import '../../l10n/feedback_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
@@ -50,8 +52,8 @@ class FeedbackListTile extends StatelessWidget {
     final hasNotes = feedback.notes?.isNotEmpty ?? false;
     final hasBottomBlock = hasDrift || showIssues || hasNotes;
 
-    final dateText = DateFormat(appSettings.dateFormat).format(feedback.dateTimeLocal);
-    final timeText = DateFormat(appSettings.timeFormat).format(feedback.dateTimeLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(feedback.dateTimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(feedback.dateTimeLocal);
     final notesColor = colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
 
     return TimelineSelectionFill(
@@ -81,7 +83,7 @@ class FeedbackListTile extends StatelessWidget {
                   padding: EdgeInsets.only(top: 1),
                   child: Icon(RideFeedback.iconData),
                 ),
-                title: _Verdicts(feedback.verdicts(appRepository.setups)),
+                title: _Verdicts(feedback.verdicts(appRepository.setups, context.l10n)),
                 subtitle: Wrap(
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 8,
@@ -128,8 +130,8 @@ class FeedbackListTile extends StatelessWidget {
                         TileMetaRow(
                           icon: Icons.warning_amber_rounded,
                           text: context.l10n.feedbackOriginallyNow(
-                            appRepository.setups[feedback.setupId]?.displayName ?? context.l10n.feedbackDeletedSetup,
-                            resolved?.displayName ?? '',
+                            appRepository.setups[feedback.setupId]?.label(context.l10n) ?? context.l10n.feedbackDeletedSetup,
+                            resolved?.label(context.l10n) ?? '',
                           ),
                           isError: true,
                         ),

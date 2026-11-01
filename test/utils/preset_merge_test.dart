@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/utils/preset_merge.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -132,7 +133,7 @@ void main() {
 
     test('the placeholder warning in notes alone does not mark a max as unknown', () {
       final own = _step('LSR', max: 12);
-      final catalog = _step('LSR', presetKey: 'fork:lsr', max: 16, notes: StepAdjustment.unknownMaxWarning);
+      final catalog = _step('LSR', presetKey: 'fork:lsr', max: 16, notes: englishL10n.stepUnknownMaxWarning);
 
       final merged = mergeAdjustment(own, catalog, const []);
 

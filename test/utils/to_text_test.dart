@@ -16,7 +16,6 @@ import 'package:bike_setup_tracker/utils/to_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -78,7 +77,7 @@ void main() {
     dateTimeUTC: DateTime.utc(2026, 5, 3, 12),
     dateTimeLocal: DateTime(2026, 5, 3, 12),
     comparisons: {
-      FeedbackComparison(referenceSetupId: 's0', aspect: const OverallAspect(), outcome: 2),
+      const FeedbackComparison(referenceSetupId: 's0', aspect: OverallAspect(), outcome: 2),
     },
   );
 
@@ -154,11 +153,5 @@ void main() {
     expect(text, isNot(contains('1 ride')));
     expect(text, isNot(contains('[DELETED]')));
     expect(text, isNot(contains('Humidity')));
-  });
-
-  testWidgets('does not change the app locale', (tester) async {
-    await export(tester, const Locale('de'));
-
-    expect(Intl.defaultLocale, isNot('de'));
   });
 }

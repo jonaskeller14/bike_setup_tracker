@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/entity_names.dart';
 import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
@@ -154,7 +155,7 @@ class _HomePageState extends State<HomePage> {
       return FloatingActionButton.small(
         heroTag: "testSession",
         onPressed: () => TestSessionActions.endSession(context, session: running),
-        tooltip: context.l10n.homeTooltipEndTestSession(running.displayName),
+        tooltip: context.l10n.homeTooltipEndTestSession(running.label(context.l10n)),
         backgroundColor: scheme.errorContainer,
         foregroundColor: scheme.onErrorContainer,
         child: const Icon(Icons.stop),

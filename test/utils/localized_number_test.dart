@@ -1,7 +1,9 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/utils/localized_number.dart';
 import 'package:bike_setup_tracker/utils/number_input_formatters.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
+
+import '../support/german_l10n.dart';
 
 void main() {
   group('formatLocalizedDouble', () {
@@ -37,19 +39,19 @@ void main() {
     });
 
     test('defaults to the current locale and follows a language switch', () {
-      expect(formatLocalizedDouble(2.5), '2.5');
-      expect(Intl.withLocale('de', () => formatLocalizedDouble(2.5)), '2,5');
-      expect(Intl.withLocale('de', () => formatLocalizedDouble(2.5, fractionDigits: 2)), '2,50');
-      expect(formatLocalizedDouble(2.5), '2.5');
+      expect(formatLocalizedDouble(2.5, locale: englishL10n.localeName), '2.5');
+      expect(formatLocalizedDouble(2.5, locale: germanL10n.localeName), '2,5');
+      expect(formatLocalizedDouble(2.5, fractionDigits: 2, locale: germanL10n.localeName), '2,50');
+      expect(formatLocalizedDouble(2.5, locale: englishL10n.localeName), '2.5');
     });
 
     test('an explicit locale wins over the current one', () {
-      expect(Intl.withLocale('de', () => formatLocalizedDouble(2.5, locale: 'en')), '2.5');
+      expect(formatLocalizedDouble(2.5, locale: 'en'), '2.5');
     });
   });
 
   group('formatEditableDouble', () {
-    test('is empty for no value', () => expect(formatEditableDouble(null), ''));
+    test('is empty for no value', () => expect(formatEditableDouble(null, locale: englishL10n.localeName), ''));
 
     test('has the same shape as toString', () {
       expect(formatEditableDouble(2.0, locale: 'en'), '2.0');

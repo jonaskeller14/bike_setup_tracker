@@ -148,7 +148,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.release45);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, 'Tasks enabled — recommended tasks are offered when you add a component'),
+      AppSnackBar.success(context, context.l10n.hintTaskPresetsEnabled),
     );
   }
 }

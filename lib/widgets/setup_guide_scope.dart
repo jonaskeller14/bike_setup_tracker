@@ -37,8 +37,8 @@ class SetupGuideScope extends InheritedWidget {
 String recommendedValueLine(GuideRecommendation recommendation, Component component, AppLocalizations l10n) {
   final adjustment = recommendation.adjustment;
   final value = recommendation.value;
-  if (value != null) return l10n.guideRecommended(guideValueText(adjustment, value));
+  if (value != null) return l10n.guideRecommended(guideValueText(adjustment, value, l10n));
   final unapplied = recommendation.unappliedValue;
-  final shown = unapplied == null ? "–" : guideValueText(adjustment, unapplied);
+  final shown = unapplied == null ? "–" : guideValueText(adjustment, unapplied, l10n);
   return l10n.guideRecommendedWithIssue(shown, guideDetailText(recommendation, component, l10n));
 }

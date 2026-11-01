@@ -79,9 +79,11 @@ class SoilMoistureLegendTable extends StatelessWidget {
                       size: 14,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      data['label']! as String,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: data['color'] as Color),
+                    Flexible(
+                      child: Text(
+                        data['label']! as String,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: data['color'] as Color),
+                      ),
                     ),
                   ],
                 ),

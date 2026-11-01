@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/l10n.dart';
+import '../../l10n/task_threshold_text.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
@@ -215,9 +216,11 @@ class TaskRuleListCard extends StatelessWidget {
       spacing: 2,
       children: [
         Icon(Icons.attach_file, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-        Text(
-          '$count',
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+        Flexible(
+          child: Text(
+            '$count',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+          ),
         ),
       ],
     );
@@ -241,9 +244,11 @@ class TaskRuleListCard extends StatelessWidget {
           spacing: 6,
           children: [
             Icon(Icons.history, size: 20, color: color),
-            Text(
-              taskRule.delay == null ? context.l10n.taskDelayAdd : context.l10n.taskDelayEdit,
-              style: TextStyle(color: color, fontWeight: FontWeight.w500),
+            Flexible(
+              child: Text(
+                taskRule.delay == null ? context.l10n.taskDelayAdd : context.l10n.taskDelayEdit,
+                style: TextStyle(color: color, fontWeight: FontWeight.w500),
+              ),
             ),
           ],
         ),
@@ -400,7 +405,7 @@ class TaskRuleListCard extends StatelessWidget {
                     value: _TaskRuleOptions.edit,
                     child: Row(
                       spacing: 10,
-                      children: [const Icon(Icons.edit, size: 20), Text(context.l10n.edit)],
+                      children: [const Icon(Icons.edit, size: 20), Flexible(child: Text(context.l10n.edit))],
                     ),
                   ),
                   if (canSetDelay)
@@ -410,8 +415,11 @@ class TaskRuleListCard extends StatelessWidget {
                         spacing: 10,
                         children: [
                           const Icon(Icons.history, size: 20),
-                          Text(
-                            taskRule.delay == null ? context.l10n.taskDelayAdd : context.l10n.taskDelayEdit,
+                          Flexible(
+                            child: Text(
+                              taskRule.delay == null ? context.l10n.taskDelayAdd : context.l10n.taskDelayEdit,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -420,14 +428,14 @@ class TaskRuleListCard extends StatelessWidget {
                     value: _TaskRuleOptions.duplicate,
                     child: Row(
                       spacing: 10,
-                      children: [const Icon(Icons.copy, size: 20), Text(context.l10n.duplicate)],
+                      children: [const Icon(Icons.copy, size: 20), Flexible(child: Text(context.l10n.duplicate))],
                     ),
                   ),
                   PopupMenuItem<_TaskRuleOptions>(
                     value: _TaskRuleOptions.remove,
                     child: Row(
                       spacing: 10,
-                      children: [const Icon(Icons.delete, size: 20), Text(context.l10n.remove)],
+                      children: [const Icon(Icons.delete, size: 20), Flexible(child: Text(context.l10n.remove))],
                     ),
                   ),
                 ],
@@ -508,10 +516,10 @@ TaskThreshold? _combined(TaskThreshold interval, TaskThreshold delay) => switch 
   AppSettings appSettings,
   AppLocalizations l10n,
 ) {
-  final fmt = NumberFormat.decimalPattern();
+  final fmt = NumberFormat.decimalPattern(l10n.localeName);
   return switch (threshold) {
     DistanceThreshold(:final meters) => (
-      number: NumberFormat('#,##0.#')
+      number: NumberFormat('#,##0.#', l10n.localeName)
           .format(AppSettings.convertDistanceFromMeters(meters, appSettings.distanceUnit)!),
       unit: appSettings.distanceUnit,
     ),
@@ -618,7 +626,7 @@ class TaskIntervalText extends StatelessWidget {
       iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
       label: Text(
         (repeat ? _everyOne(l10n) : null) ??
-            '$prefix ${interval.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+            '$prefix ${interval.toDisplayValue(l10n, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
         style: TextStyle(color: mutedColor, fontSize: 13),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -637,7 +645,7 @@ class TaskIntervalText extends StatelessWidget {
             icon: Icons.history,
             iconColor: delayColor,
             label: Text(
-              '+${activeDelay.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+              '+${activeDelay.toDisplayValue(l10n, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
               style: TextStyle(color: delayColor, fontSize: 13),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

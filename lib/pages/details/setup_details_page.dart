@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
@@ -211,7 +212,7 @@ class SetupDetailsPageContent extends StatelessWidget {
       case _SetupDetailsAction.viewOnMap:
         await MapActions.openSetupsOnMap(context, [setup]);
       case _SetupDetailsAction.openInMapsApp:
-        await launchLocationOnMap(context, setup.position!.latitude!, setup.position!.longitude!, setup.displayName);
+        await launchLocationOnMap(context, setup.position!.latitude!, setup.position!.longitude!, setup.label(context.l10n));
     }
   }
 
@@ -305,7 +306,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                   children: [
                     Flexible(
                       child: SelectableText(
-                        setup.displayName,
+                        setup.label(context.l10n),
                         style: Theme.of(context).textTheme.titleLarge,
                         maxLines: 1,
                       ),
@@ -317,7 +318,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  "${DateFormat(appSettings.dateFormat).format(setup.datetimeLocal)} • ${DateFormat(appSettings.timeFormat).format(setup.datetimeLocal)}",
+                  "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(setup.datetimeLocal)}",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
@@ -368,7 +369,7 @@ class SetupDetailsPageContent extends StatelessWidget {
             ContextLocationWeatherCard(
               position: setup.position,
               place: setup.place,
-              displayName: setup.displayName,
+              displayName: setup.label(context.l10n),
               mapPin: SetupMapPin.icon(
                 isCurrent: context.watch<AppRepository>().setupHistory.isCurrent(setup.id),
                 isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,

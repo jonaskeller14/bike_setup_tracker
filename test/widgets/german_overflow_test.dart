@@ -7,7 +7,6 @@ import 'package:bike_setup_tracker/widgets/lists/setup_list.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 
 import '../goldens/support/golden_test_harness.dart';
 
@@ -24,7 +23,6 @@ void main() {
   late GoldenTestHarness harness;
 
   setUp(() async {
-    Intl.defaultLocale = 'de';
     harness = await GoldenTestHarness.create();
     await harness.repository.addTaskRules([
       TaskRule(
@@ -53,7 +51,6 @@ void main() {
   });
 
   tearDown(() async {
-    Intl.defaultLocale = null;
     await harness.dispose();
   });
 

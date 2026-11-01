@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 import '../models/component/preset_spec_keys.dart';
+import '../utils/localized_number.dart';
 import 'app_localizations.dart';
 
 /// Display names of the catalog's registered properties, choices and levels.
@@ -21,6 +22,10 @@ extension SpecKeyName<T extends Object> on SpecKey<T> {
 
   /// For a heading or the start of a note line.
   String name(AppLocalizations l10n) => _capitalised(inSentence(l10n), l10n);
+
+  /// [SpecKey.format] in the language of [l10n], for text built while it is shown.
+  String display(T value, AppLocalizations l10n) =>
+      withUnit(value is num ? formatLocalizedDouble(value.toDouble(), locale: l10n.localeName) : value.toString());
 }
 
 extension OptionAxisKeyName on OptionAxisKey {

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/adjustment_activity_histogram.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
@@ -35,7 +36,7 @@ void main() {
   final populated = AdjustmentActivityHistogram(
     adjustmentId: adjustment.id,
     bars: const [
-      AdjustmentActivityHistogramBar.exact(label: '4 clicks', activityCount: 3, exactValue: StepValue(4)),
+      AdjustmentActivityHistogramBar.exact(activityCount: 3, exactValue: StepValue(4)),
     ],
     isBinned: false,
   );
@@ -153,7 +154,7 @@ void main() {
 
   group('with a setup guide scope', () {
     final preset = catalogProducts(parseCatalogFile(_guideCatalog)).single;
-    final application = buildCatalogApplication(preset);
+    final application = buildCatalogApplication(preset, englishL10n);
     final guided = GuidedComponent(
       Component(
         name: application.name,
@@ -175,7 +176,7 @@ void main() {
         home: Scaffold(
           body: SetupGuideScope(
             sections: [
-              SetupGuideSection(guided, guided.evaluate(inputs, {pressure.id: ?current})),
+              SetupGuideSection(guided, guided.evaluate(inputs, {pressure.id: ?current}, englishL10n)),
             ],
             child: SizedBox(
               width: 400,
@@ -221,7 +222,7 @@ void main() {
       final histogram = AdjustmentActivityHistogram(
         adjustmentId: pressure.id,
         bars: const [
-          AdjustmentActivityHistogramBar.exact(label: '77 psi', activityCount: 2, exactValue: NumericalValue(77)),
+          AdjustmentActivityHistogramBar.exact(activityCount: 2, exactValue: NumericalValue(77)),
         ],
         isBinned: false,
       );
@@ -240,7 +241,7 @@ void main() {
         localizedTestApp(
           home: Scaffold(
             body: SetupGuideScope(
-              sections: [SetupGuideSection(guided, guided.evaluate(const GuideInputs(riderWeight: 82), const {}))],
+              sections: [SetupGuideSection(guided, guided.evaluate(const GuideInputs(riderWeight: 82), const {}, englishL10n))],
               child: SizedBox(width: 400, child: AdjustmentIconNameNotes(adjustment: adjustment)),
             ),
           ),

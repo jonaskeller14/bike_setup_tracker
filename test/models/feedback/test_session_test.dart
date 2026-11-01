@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/entity_names.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
@@ -63,7 +65,7 @@ void main() {
       expect(session.locks, isEmpty);
       expect(session.proposals, isEmpty);
       expect(session.isRunning, isTrue);
-      expect(session.displayName, TestSession.namePlaceholder);
+      expect(session.label(englishL10n), englishL10n.testSessionUnnamed);
     });
 
     test('stores a free session without a method', () {

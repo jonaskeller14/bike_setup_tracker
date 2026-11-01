@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/adjustment_value_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../set_adjustment/set_step_adjustment_dial.dart';
@@ -63,7 +64,7 @@ class AdjustmentProperties extends StatelessWidget {
 
     switch (adjustment) {
       case NumericalAdjustment _ || StepAdjustment _ || DurationAdjustment _:
-        final p = _rangeParts();
+        final p = _rangeParts(context.l10n);
         if (p.step != null) {
           items.add(_iconChip(
             fgColor: fgColor,
@@ -115,7 +116,7 @@ class AdjustmentProperties extends StatelessWidget {
         fgColor: fgColor,
         borderColor: borderColor,
         icon: SagAdjustment.travelIconData,
-        text: '${NumericalValue(travel).display} mm',
+        text: '${NumericalValue(travel).displayText(context.l10n)} mm',
       ));
     }
 
@@ -123,12 +124,12 @@ class AdjustmentProperties extends StatelessWidget {
   }
 
   /// Extracts formatted min/max/step/unit for the range-style types.
-  _RangeParts _rangeParts() {
+  _RangeParts _rangeParts(AppLocalizations l10n) {
     switch (adjustment) {
       case final NumericalAdjustment a:
         return (
-          min: a.min == double.negativeInfinity ? null : NumericalValue(a.min).display,
-          max: a.max == double.infinity ? null : NumericalValue(a.max).display,
+          min: a.min == double.negativeInfinity ? null : NumericalValue(a.min).displayText(l10n),
+          max: a.max == double.infinity ? null : NumericalValue(a.max).displayText(l10n),
           step: null,
           unit: a.unit,
         );
@@ -141,8 +142,8 @@ class AdjustmentProperties extends StatelessWidget {
         );
       case final DurationAdjustment a:
         return (
-          min: a.min == null ? null : DurationValue(a.min!).display,
-          max: a.max == null ? null : DurationValue(a.max!).display,
+          min: a.min == null ? null : formatDuration(a.min!),
+          max: a.max == null ? null : formatDuration(a.max!),
           step: null,
           unit: a.unit,
         );

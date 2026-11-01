@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/test_session.dart';
@@ -28,7 +29,7 @@ class DataSelectTestSession extends StatelessWidget {
       child: CheckboxListTile(
         secondary: const Icon(TestSession.iconData),
         title: Text(
-          item.displayName,
+          item.label(context.l10n),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             decoration: item.isDeleted ? TextDecoration.lineThrough : null,
           ),

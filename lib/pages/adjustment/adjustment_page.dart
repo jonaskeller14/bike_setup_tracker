@@ -74,16 +74,20 @@ class _CollapsibleAdjustmentPreviewState extends State<CollapsibleAdjustmentPrev
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, _expanded ? 8 : 8 + bottomInset),
               child: Row(
+                spacing: 8,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   chevron,
-                  Text(
-                    _expanded ? context.l10n.adjustmentPreviewExpanded : context.l10n.adjustmentPreviewTitle,
-                    style: TextStyle(
-                      color: theme.colorScheme.onInverseSurface,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                      letterSpacing: 0.5,
+                  Flexible(
+                    child: Text(
+                      _expanded ? context.l10n.adjustmentPreviewExpanded : context.l10n.adjustmentPreviewTitle,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: theme.colorScheme.onInverseSurface,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
                   chevron,

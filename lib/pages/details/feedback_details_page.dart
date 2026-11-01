@@ -4,7 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/entity_names.dart';
 import '../../l10n/enum_labels.dart';
+import '../../l10n/feedback_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
@@ -105,13 +107,13 @@ class FeedbackDetailsContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  feedback.verdict(setups) ?? context.l10n.feedbackName,
+                  feedback.verdict(setups, context.l10n) ?? context.l10n.feedbackName,
                   style: Theme.of(context).textTheme.titleLarge,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  "${DateFormat(appSettings.dateFormat).format(feedback.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(feedback.dateTimeLocal)}",
+                  "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(feedback.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(feedback.dateTimeLocal)}",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
@@ -154,7 +156,7 @@ class FeedbackDetailsContent extends StatelessWidget {
 
     final bike = appRepository.bikes[feedback.bike];
     final resolved = appRepository.resolvedSetupFor(feedback);
-    final storedName = appRepository.setups[feedback.setupId]?.displayName ?? context.l10n.feedbackDeletedSetup;
+    final storedName = appRepository.setups[feedback.setupId]?.label(context.l10n) ?? context.l10n.feedbackDeletedSetup;
     final activityId = feedback.stravaActivityId;
     final activity = activityId == null ? null : appRepository.stravaActivities[activityId];
 
@@ -176,7 +178,7 @@ class FeedbackDetailsContent extends StatelessWidget {
           ListTile(
             leading: Icon(Setup.iconData, color: resolved == null ? colorScheme.error : null),
             title: Text(
-              resolved?.displayName ?? context.l10n.setupNotFound,
+              resolved?.label(context.l10n) ?? context.l10n.setupNotFound,
               style: resolved == null ? TextStyle(color: colorScheme.error) : null,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -225,7 +227,7 @@ class FeedbackDetailsContent extends StatelessWidget {
           context,
           icon: Icons.compare_arrows,
           overline: context.l10n.feedbackFormComparedTo,
-          title: setups[referenceId]?.displayName ?? context.l10n.feedbackDeletedSetupTitle,
+          title: setups[referenceId]?.label(context.l10n) ?? context.l10n.feedbackDeletedSetupTitle,
           trailing: switch (byReference[referenceId]!.firstWhereOrNull((c) => c.aspect is OverallAspect)) {
             final overall? => _outcomePill(
               context,
@@ -237,9 +239,9 @@ class FeedbackDetailsContent extends StatelessWidget {
           },
           children: [
             for (final comparison in byReference[referenceId]!.sorted(
-              (a, b) => _compareAspects(a.aspect, b.aspect, customIssues),
+              (a, b) => _compareAspects(a.aspect, b.aspect, customIssues, context.l10n),
             ))
-              if (_issueLabel(comparison.aspect, customIssues) case final label?)
+              if (_issueLabel(comparison.aspect, customIssues, context.l10n) case final label?)
                 _row(
                   context,
                   label: label,
@@ -255,14 +257,14 @@ class FeedbackDetailsContent extends StatelessWidget {
   }
 
   /// The label of an issue aspect, null for the others.
-  static String? _issueLabel(FeedbackAspect aspect, CustomIssueIndex customIssues) => switch (aspect) {
-    final EndAspect aspect => FeedbackIssue.end(aspect).label,
+  static String? _issueLabel(FeedbackAspect aspect, CustomIssueIndex customIssues, AppLocalizations l10n) => switch (aspect) {
+    final EndAspect aspect => FeedbackIssue.end(aspect).labelText(l10n),
     CustomAspect(:final slug) => customIssues.labelOf(slug),
     _ => null,
   };
 
   /// Built-in issues in vocabulary order, then custom ones by label.
-  static int _compareAspects(FeedbackAspect a, FeedbackAspect b, CustomIssueIndex customIssues) {
+  static int _compareAspects(FeedbackAspect a, FeedbackAspect b, CustomIssueIndex customIssues, AppLocalizations l10n) {
     int order(FeedbackAspect aspect) => switch (aspect) {
       OverallAspect() => -1,
       final EndAspect aspect => EndAspect.values.indexOf(aspect),
@@ -271,7 +273,7 @@ class FeedbackDetailsContent extends StatelessWidget {
     };
     final byOrder = order(a).compareTo(order(b));
     if (byOrder != 0) return byOrder;
-    return (_issueLabel(a, customIssues) ?? '').toLowerCase().compareTo((_issueLabel(b, customIssues) ?? '').toLowerCase());
+    return (_issueLabel(a, customIssues, l10n) ?? '').toLowerCase().compareTo((_issueLabel(b, customIssues, l10n) ?? '').toLowerCase());
   }
 
   /// [large] for the overall answer, so it stands out from the follow-ups.

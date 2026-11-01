@@ -14,10 +14,6 @@ class MovingTimeThreshold extends AccumulatingThreshold {
   IconData get iconData => Icons.timer;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) =>
-      '${NumberFormat.decimalPattern().format(hours.inHours)} h';
-
-  @override
   Map<String, dynamic> toJson() => {
         'type': 'time',
         'microseconds': hours.inMicroseconds,

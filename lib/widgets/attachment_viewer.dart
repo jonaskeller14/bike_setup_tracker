@@ -158,8 +158,8 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
 
   String _formatSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${formatLocalizedDouble(bytes / 1024, fractionDigits: 1)} KB';
-    return '${formatLocalizedDouble(bytes / (1024 * 1024), fractionDigits: 1)} MB';
+    if (bytes < 1024 * 1024) return '${formatLocalizedDouble(bytes / 1024, fractionDigits: 1, locale: context.l10n.localeName)} KB';
+    return '${formatLocalizedDouble(bytes / (1024 * 1024), fractionDigits: 1, locale: context.l10n.localeName)} MB';
   }
 
   Widget _imagePage(Attachment attachment) {

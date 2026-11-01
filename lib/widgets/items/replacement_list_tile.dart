@@ -104,7 +104,7 @@ class ReplacementListTile extends StatelessWidget {
       InstallationParentType.none || InstallationParentType.archived => false,
     };
 
-    final timeFormat = DateFormat(appSettings.timeFormat);
+    final timeFormat = DateFormat(appSettings.timeFormat, context.l10n.localeName);
     final removedTime = timeFormat.format(row.removed.installation.dateTimeLocal);
     final installedTime = timeFormat.format(row.installed.installation.dateTimeLocal);
     final earlierTime = row.anchorInstallation == row.removed.installation
@@ -112,7 +112,7 @@ class ReplacementListTile extends StatelessWidget {
         : installedTime;
     final laterTime = earlierTime == removedTime ? installedTime : removedTime;
     final timeText = earlierTime == laterTime ? earlierTime : "$earlierTime – $laterTime";
-    final dateText = DateFormat(appSettings.dateFormat).format(row.anchorDateLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(row.anchorDateLocal);
 
     final componentType = row.removed.component.componentType;
 

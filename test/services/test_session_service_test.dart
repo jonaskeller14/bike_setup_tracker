@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
+import 'package:bike_setup_tracker/l10n/test_session_text.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -13,7 +15,8 @@ import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/setup_carry_over.dart';
 import 'package:bike_setup_tracker/services/test_session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
+
+import '../support/german_l10n.dart';
 
 StepAdjustment step(String id) => StepAdjustment(
   id: id,
@@ -195,7 +198,7 @@ void main() {
     test('copies the values, stamps now and joins the session', () {
       final source = setup('s1', bike: {'a': const StepValue(1), 'x': const StepValue(9)}, person: {'p': const StepValue(4)});
 
-      final run = TestSessionService.run(source: source, session: session(), number: 2, now: now);
+      final run = TestSessionService.run(englishL10n, source: source, session: session(), number: 2, now: now);
 
       expect(run.id, isNot(source.id));
       expect(run.name, 'Run 2');
@@ -215,7 +218,7 @@ void main() {
     test('puts the locked values on top, also when copying an older run', () {
       final source = setup('s1', bike: {'a': const StepValue(1), 'x': const StepValue(9)}, person: {'p': const StepValue(4)});
 
-      final run = TestSessionService.run(
+      final run = TestSessionService.run(englishL10n, 
         source: source,
         session: session(locks: {'a': const StepValue(7), 'p': const StepValue(6), 'unknown': const StepValue(1)}),
         number: 3,
@@ -238,7 +241,7 @@ void main() {
         startedAtLocal: DateTime(2026, 5, 2, 9),
       );
 
-      final run = TestSessionService.run(source: candidate, session: compare, number: 2, now: now);
+      final run = TestSessionService.run(englishL10n, source: candidate, session: compare, number: 2, now: now);
 
       expect(run.bikeAdjustmentValues, {'a': const StepValue(1)});
     });
@@ -264,7 +267,7 @@ void main() {
         ),
       ]);
 
-      final run = TestSessionService.run(
+      final run = TestSessionService.run(englishL10n, 
         source: candidate,
         session: session(),
         number: 2,
@@ -282,7 +285,7 @@ void main() {
       final source = setup('s1').copyWith(name: 'Base');
 
       expect(
-        TestSessionService.runNotes(source: source, session: session(), dateFormat: 'yyyy-MM-dd'),
+        TestSessionService.runNotes(englishL10n, source: source, session: session(), dateFormat: 'yyyy-MM-dd'),
         "notes\n\nCopy of 'Base' (2026-05-01)",
       );
     });
@@ -291,7 +294,7 @@ void main() {
       final earlier = setup('r1').copyWith(name: 'Run 1', notes: "Felt harsh\n\nCopy of 'Base' (2026-05-01)", testSessionId: 'ts');
 
       expect(
-        TestSessionService.runNotes(source: earlier, session: session(), dateFormat: 'dd.MM.yyyy'),
+        TestSessionService.runNotes(englishL10n, source: earlier, session: session(), dateFormat: 'dd.MM.yyyy'),
         "Copy of 'Run 1' (01.05.2026)",
       );
     });
@@ -299,34 +302,32 @@ void main() {
 
   test('goalLabel names the end and the quality, and falls back to the slug for custom issues', () {
     expect(
-      TestSessionService.goalLabel(const EndAspect(FeedbackEnd.front, FeedbackAttribute.calm), (slug) => slug),
+      testSessionGoalLabel(const EndAspect(FeedbackEnd.front, FeedbackAttribute.calm), (slug) => slug, englishL10n),
       'Front · Calm',
     );
-    expect(TestSessionService.goalLabel(const CustomAspect('arm-pump'), (slug) => 'Arm pump'), 'Arm pump');
+    expect(testSessionGoalLabel(const CustomAspect('arm-pump'), (slug) => 'Arm pump', englishL10n), 'Arm pump');
   });
 
   test('labels follow the language', () {
-    Intl.withLocale('de', () {
-      expect(TestSessionService.methodLabel(const PatternSearch()), 'Feinjustieren');
-      expect(
-        TestSessionService.goalLabel(const EndAspect(FeedbackEnd.rear, FeedbackAttribute.calm), (slug) => slug),
-        'Hinten · Ruhe',
-      );
-      expect(TestSessionService.expectedRuns(const PatternSearch(), 2), 'etwa 8 Läufe');
-      expect(TestSession.namePlaceholder, 'Testsitzung');
-    });
+    expect(testSessionMethodLabel(const PatternSearch(), germanL10n), 'Feinjustieren');
+    expect(
+      testSessionGoalLabel(const EndAspect(FeedbackEnd.rear, FeedbackAttribute.calm), (slug) => slug, germanL10n),
+      'Hinten · Ruhe',
+    );
+    expect(testSessionExpectedRuns(const PatternSearch(), 2, germanL10n), 'etwa 8 Läufe');
+    expect(germanL10n.testSessionUnnamed, 'Testsitzung');
   });
 
   group('expectedRuns', () {
     test('scales with the knobs for Fine-tune and Explore', () {
-      expect(TestSessionService.expectedRuns(const PatternSearch(), 2), 'about 8 runs');
-      expect(TestSessionService.expectedRuns(const OrthogonalArray(), 4), 'about 6 runs');
+      expect(testSessionExpectedRuns(const PatternSearch(), 2, englishL10n), 'about 8 runs');
+      expect(testSessionExpectedRuns(const OrthogonalArray(), 4, englishL10n), 'about 6 runs');
     });
 
     test('follows the candidates for Compare, and says nothing for Free or without knobs', () {
-      expect(TestSessionService.expectedRuns(const Tournament(candidateSetupIds: ['a', 'b', 'c']), 2), 'about 4 runs');
-      expect(TestSessionService.expectedRuns(null, 3), isNull);
-      expect(TestSessionService.expectedRuns(const PatternSearch(), 0), isNull);
+      expect(testSessionExpectedRuns(const Tournament(candidateSetupIds: ['a', 'b', 'c']), 2, englishL10n), 'about 4 runs');
+      expect(testSessionExpectedRuns(null, 3, englishL10n), isNull);
+      expect(testSessionExpectedRuns(const PatternSearch(), 0, englishL10n), isNull);
     });
   });
 }

@@ -76,7 +76,7 @@ class StravaSubscriptionCard extends StatelessWidget {
     final renewLabel = isTrial
         ? entitlement.autoRenewing ? context.l10n.stravaCardFirstCharge : context.l10n.stravaCardTrialEnds
         : entitlement.autoRenewing ? context.l10n.stravaCardRenews : context.l10n.stravaCardExpires;
-    final renewDate = DateFormat(context.read<AppSettings>().developerMode ? '$dateFormat HH:mm:ss' : dateFormat).format(entitlement.expiresAt);
+    final renewDate = DateFormat(context.read<AppSettings>().developerMode ? '$dateFormat HH:mm:ss' : dateFormat, context.l10n.localeName).format(entitlement.expiresAt);
 
     return Column(
       children: [
@@ -108,9 +108,11 @@ class StravaSubscriptionCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          context.l10n.stravaCardTitle.toUpperCase(),
-          style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
+        Flexible(
+          child: Text(
+            context.l10n.stravaCardTitle.toUpperCase(),
+            style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
+          ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),

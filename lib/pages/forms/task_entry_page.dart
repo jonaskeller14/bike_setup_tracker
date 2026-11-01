@@ -497,7 +497,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               avatar: const Icon(Icons.calendar_month),
                               label: Text(
-                                DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
+                                DateFormat(appSettings.dateFormat, context.l10n.localeName).format(_selectedDateTimeLocal),
                               ),
                               backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
                               onPressed: _pickDate,
@@ -506,7 +506,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               avatar: const Icon(Icons.access_time),
                               label: Text(
-                                DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
+                                DateFormat(appSettings.timeFormat, context.l10n.localeName).format(_selectedDateTimeLocal),
                               ),
                               backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
                               onPressed: _pickTime,

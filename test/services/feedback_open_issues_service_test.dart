@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/feedback_text.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/feedback/custom_issue.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
@@ -81,7 +83,7 @@ void main() {
       ]);
 
       expect(aspects(result), [rearCalm.aspect, const CustomAspect('a'), const CustomAspect('b'), wetRoots.aspect]);
-      expect(result?.issues.map((i) => i.label), ['Rear: Unsettled', 'apex', 'Bumpy', 'Wet roots']);
+      expect(result?.issues.map((i) => i.labelText(englishL10n)), ['Rear: Unsettled', 'apex', 'Bumpy', 'Wet roots']);
     });
 
     test('a feedback with only a custom issue answers the question', () {

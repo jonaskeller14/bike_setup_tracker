@@ -96,7 +96,7 @@ class SetupGroupSection extends StatelessWidget {
     final localTimes = setups.map((s) => s.datetimeLocal).toList();
     final earliest = localTimes.reduce((a, b) => a.isBefore(b) ? a : b);
     final latest = localTimes.reduce((a, b) => a.isAfter(b) ? a : b);
-    final timeFormat = DateFormat(appSettings.timeFormat);
+    final timeFormat = DateFormat(appSettings.timeFormat, context.l10n.localeName);
     final startText = timeFormat.format(earliest);
     final endText = timeFormat.format(latest);
     final dateTimeText = startText == endText ? startText : "$startText – $endText";

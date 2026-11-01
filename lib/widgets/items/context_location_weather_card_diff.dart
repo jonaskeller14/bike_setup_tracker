@@ -46,7 +46,7 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
     if (!hasLocation && !hasWeather && !hasCondition) return const SizedBox.shrink();
 
     final sections = <Widget>[
-      if (hasLocation) _locationSection(),
+      if (hasLocation) _locationSection(context.l10n),
       if (hasWeather) _weatherSection(context),
       if (hasCondition) _conditionSection(context),
     ];
@@ -66,7 +66,7 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
     );
   }
 
-  Widget _locationSection() {
+  Widget _locationSection(AppLocalizations l10n) {
     return ExpansionTile(
       key: const Key('compare-disclosure-location'),
       dense: true,
@@ -81,8 +81,8 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.my_location),
           title: _ComparisonTextRow(
-            valueA: _coordinates(positionA),
-            valueB: _coordinates(positionB),
+            valueA: _coordinates(positionA, l10n.localeName),
+            valueB: _coordinates(positionB, l10n.localeName),
           ),
           dense: true,
         ),
@@ -128,7 +128,7 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
 
     String soilMoisture(ContextWeather? weather) => weather?.currentSoilMoisture0to7cm == null
         ? '-'
-        : '${formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2)} m³/m³';
+        : '${formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2, locale: context.l10n.localeName)} m³/m³';
 
     return ExpansionTile(
       key: const Key('compare-disclosure-conditions'),
@@ -213,9 +213,9 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
     return address.isEmpty ? '-' : address;
   }
 
-  static String _coordinates(ContextPosition? position) {
+  static String _coordinates(ContextPosition? position, String locale) {
     if (position?.latitude == null && position?.longitude == null) return '-';
-    String coordinate(double? value) => value == null ? '-' : formatLocalizedDouble(value, fractionDigits: 4);
+    String coordinate(double? value) => value == null ? '-' : formatLocalizedDouble(value, fractionDigits: 4, locale: locale);
     return '${coordinate(position?.latitude)}°/${coordinate(position?.longitude)}°';
   }
 }

@@ -74,8 +74,8 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
 
     final taskRule = taskRules[taskEntry.taskRule];
 
-    final dateText = DateFormat(appSettings.dateFormat).format(taskEntry.dateTimeLocal);
-    final timeText = DateFormat(appSettings.timeFormat).format(taskEntry.dateTimeLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(taskEntry.dateTimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(taskEntry.dateTimeLocal);
 
     final showLinkWarning =
         taskRules.containsKey(taskEntry.taskRule) &&
@@ -175,11 +175,13 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                                 size: 12,
                                 color: colorScheme.onSurfaceVariant,
                               ),
-                              Text(
-                                '${attachments.length}',
-                                style: TextStyle(
-                                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                  fontSize: 12,
+                              Flexible(
+                                child: Text(
+                                  '${attachments.length}',
+                                  style: TextStyle(
+                                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                             ],
@@ -217,7 +219,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                             spacing: 10,
                             children: [
                               Icon(option.iconData, size: 20),
-                              Text(option.label(context.l10n)),
+                              Flexible(child: Text(option.label(context.l10n))),
                             ],
                           ),
                         ),

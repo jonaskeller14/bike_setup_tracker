@@ -15,10 +15,6 @@ lib/widgets/items/context_location_weather_card.dart|OpenStreetMap | Cyclosm|Bra
 lib/widgets/items/context_location_weather_card_diff.dart|Mapbox|Brand name
 lib/widgets/items/context_location_weather_card_diff.dart|OpenStreetMap | Cyclosm|Brand names
 
-# Language names, shown in their own language
-lib/pages/settings/preferences_page.dart|English|Language name in its own language
-lib/pages/settings/preferences_page.dart|Deutsch|Language name in its own language
-
 # Unit symbols
 lib/pages/adjustment/sag_adjustment_page.dart|mm|Unit symbol
 lib/widgets/items/adjustment_properties.dart|$… mm|Unit symbol

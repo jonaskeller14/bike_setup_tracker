@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -178,7 +179,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
           contentPadding: EdgeInsets.only(left: 16, right: widget.onRemove == null ? 16 : 4),
           leading: Icon(Setup.iconData, color: errorColor),
           title: Text(
-            reference?.displayName ?? context.l10n.setupNotFound,
+            reference?.label(context.l10n) ?? context.l10n.setupNotFound,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontWeight: FontWeight.bold, color: errorColor),
@@ -186,8 +187,8 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
           subtitle: reference == null
               ? null
               : Text(
-                  '${DateFormat(appSettings.dateFormat).format(reference.datetimeLocal)} • '
-                  '${DateFormat(appSettings.timeFormat).format(reference.datetimeLocal)}',
+                  '${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(reference.datetimeLocal)} • '
+                  '${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(reference.datetimeLocal)}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

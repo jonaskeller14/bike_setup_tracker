@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/adjustment_value_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
@@ -62,9 +63,9 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: widget.adjustment?.notes);
     _notesController.addListener(_changeListener);
-    _minController = TextEditingController(text: widget.adjustment?.min == null ? null : DurationValue(widget.adjustment!.min!).display);
+    _minController = TextEditingController(text: widget.adjustment?.min == null ? null : formatDuration(widget.adjustment!.min!));
     _minController.addListener(_changeListener);
-    _maxController = TextEditingController(text: widget.adjustment?.max == null ? null : DurationValue(widget.adjustment!.max!).display);
+    _maxController = TextEditingController(text: widget.adjustment?.max == null ? null : formatDuration(widget.adjustment!.max!));
     _maxController.addListener(_changeListener);
 
     _previewAdjustment = widget.adjustment ?? DurationAdjustment(
@@ -248,7 +249,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       adjustment: DurationAdjustment(name: context.l10n.labelMin, notes: null, unit: null, max: _previewAdjustment.max),
                                       value: _previewAdjustment.min,
                                       onChanged: (Duration newValue) {
-                                        _minController.text = DurationValue(newValue).display;
+                                        _minController.text = formatDuration(newValue);
                                         _updatePreview(min: newValue, max: _previewAdjustment.max);
                                       }
                                     );
@@ -284,7 +285,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       adjustment: DurationAdjustment(name: context.l10n.labelMax, notes: null, unit: null, min: _previewAdjustment.min),
                                       value: _previewAdjustment.max,
                                       onChanged: (Duration newValue) {
-                                        _maxController.text = DurationValue(newValue).display;
+                                        _maxController.text = formatDuration(newValue);
                                         _updatePreview(min: _previewAdjustment.min, max: newValue);
                                       }
                                     );

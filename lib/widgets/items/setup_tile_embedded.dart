@@ -83,8 +83,8 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
 
-    final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
-    final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(setup.datetimeLocal);
 
     final metadataRows = <Widget>[
       if (setup.place != null && !widget.hidePlace)

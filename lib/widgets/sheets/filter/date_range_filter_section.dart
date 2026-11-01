@@ -36,7 +36,7 @@ class DateRangeFilterSection extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final filters = appRepository.filters;
     final dateFormat = context.select<AppSettings, String>((s) => s.dateFormat);
-    final label = FilterActions.dateRangeLabel(filters.dateRange, dateFormat: dateFormat);
+    final label = FilterActions.dateRangeLabel(filters.dateRange, context.l10n, dateFormat: dateFormat);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final firstDay = appRepository.firstEntryDay;
@@ -121,7 +121,7 @@ class _DateRangeSlider extends StatelessWidget {
       // Day ticks only while they stay apart; a longer track is rounded to days on release.
       divisions: max <= 60 ? max.round() : null,
       valueLabel: (dragging) =>
-          FilterActions.dateRangeLabel(dragging == null ? range : _toRange(dragging, max), dateFormat: dateFormat) ??
+          FilterActions.dateRangeLabel(dragging == null ? range : _toRange(dragging, max), context.l10n, dateFormat: dateFormat) ??
           context.l10n.filterAnyDate,
       trailing: IconButton(
         icon: const Icon(Icons.calendar_month),

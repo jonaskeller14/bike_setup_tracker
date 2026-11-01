@@ -305,13 +305,13 @@ class _TaskRulePageState extends State<TaskRulePage> {
   String _getThresholdValueString(TaskThreshold? threshold, _DurationUnit durationUnit) {
     switch (threshold) {
       case null: return "";
-      case DistanceThreshold(): return formatLocalizedDouble(threshold.meters / 1000);
-      case ElevationThreshold(): return formatLocalizedDouble(threshold.meters);
+      case DistanceThreshold(): return formatLocalizedDouble(threshold.meters / 1000, locale: context.untrackedLocaleName);
+      case ElevationThreshold(): return formatLocalizedDouble(threshold.meters, locale: context.untrackedLocaleName);
       case ActivityCountThreshold(): return threshold.count.toString();
       case MovingTimeThreshold(): return threshold.hours.inHours.toString();
       case ElapsedTimeThreshold(): return threshold.hours.inHours.toString();
-      case DurationThreshold(): return formatLocalizedDouble(threshold.days.inDays / durationUnit.dayCount);
-      case KilojoulesThreshold(): return formatLocalizedDouble(threshold.kilojoules);
+      case DurationThreshold(): return formatLocalizedDouble(threshold.days.inDays / durationUnit.dayCount, locale: context.untrackedLocaleName);
+      case KilojoulesThreshold(): return formatLocalizedDouble(threshold.kilojoules, locale: context.untrackedLocaleName);
       case DateTimeThreshold(): return '';
     }
   }
@@ -640,6 +640,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         ? const <TaskSuggestion>[]
         : taskSuggestionsFor(
             component,
+            context.l10n,
             existingRules: rules,
             hasStravaEntitlement: hasStravaEntitlement,
             overrides: _loadedOverrides(component),
@@ -671,11 +672,12 @@ class _TaskRulePageState extends State<TaskRulePage> {
         ? null
         : taskSuggestionsFor(
             component,
+            context.l10n,
             existingRules: const [],
             hasStravaEntitlement: hasStravaEntitlement,
             overrides: _loadedOverrides(component),
           ).where((suggestion) => suggestion.key == key).firstOrNull;
-    return offered?.name ?? taskPresets.values.expand((templates) => templates).where((template) => template.key == key).firstOrNull?.name;
+    return offered?.name ?? taskPresetsFor(context.l10n).values.expand((templates) => templates).where((template) => template.key == key).firstOrNull?.name;
   }
 
   Map<String, TaskTemplateOverride> _loadedOverrides(Component component) {
@@ -702,6 +704,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final appSettings = context.read<AppSettings>();
     final rule = suggestion.toTaskRule(
       component.id,
+      context.l10n,
       distanceUnit: appSettings.distanceUnit,
       altitudeUnit: appSettings.altitudeUnit,
     );
@@ -726,7 +729,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     if (presetType == null) return true;
     final type = context.read<AppRepository>().components[association.componentId]?.componentType;
     if (type == null) return false;
-    return type == presetType || (taskPresets[type]?.any((template) => template.key == _presetKey) ?? false);
+    return type == presetType || (taskPresetsFor(context.l10n)[type]?.any((template) => template.key == _presetKey) ?? false);
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -1264,7 +1267,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                           child: Text(
                                             _intervalDate == null
                                                 ? context.l10n.taskFormSelectDate
-                                                : DateFormat(appSettings.dateFormat).format(_intervalDate!.toLocal()),
+                                                : DateFormat(appSettings.dateFormat, context.l10n.localeName).format(_intervalDate!.toLocal()),
                                             style: Theme.of(context).textTheme.bodyLarge,
                                           ),
                                         ),

@@ -5,7 +5,6 @@ import 'package:bike_setup_tracker/utils/value_migration_proposal.dart';
 import 'package:bike_setup_tracker/widgets/sheets/value_migration_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import '../../goldens/support/localized_test_app.dart';
 
 const _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
@@ -22,7 +21,7 @@ RecordedValue _record(
   final id = 'r${_counter++}';
   return RecordedValue(
     recordId: id,
-    label: label ?? 'Record $id',
+    name: label ?? 'Record $id',
     dateTimeLocal: day ?? DateTime(2024, 3, 1),
     value: value,
     isDeleted: deleted,
@@ -58,6 +57,7 @@ void main() {
     String adjustmentName = 'Pressure',
     Size size = const Size(400, 900),
     bool replacesEarlier = false,
+    Locale locale = const Locale('en'),
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -67,6 +67,7 @@ void main() {
 
     await tester.pumpWidget(
       localizedTestApp(
+        locale: locale,
         theme: theme,
         home: Builder(
           builder: (context) => Scaffold(
@@ -198,15 +199,12 @@ void main() {
   });
 
   testWidgets('shows the example values with a decimal comma in German', (tester) async {
-    Intl.defaultLocale = 'de';
-    addTearDown(() => Intl.defaultLocale = null);
-
     final proposal = MigrationProposal.build(
       before: _numerical(unit: _psi),
       after: _numerical(unit: _bar),
       recorded: [_record(const NumericalValue(83.5))],
     );
-    await openSheet(tester, proposal);
+    await openSheet(tester, proposal, locale: const Locale('de'));
 
     expect(find.text('83,5 psi'), findsOneWidget);
     expect(find.text('≈ 5,76 bar'), findsOneWidget);

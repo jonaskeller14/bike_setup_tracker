@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
@@ -156,7 +158,7 @@ class _SetupLineChartState extends State<SetupLineChart> {
                               child: FractionalTranslation(
                                 translation: Offset(index == 0 ? 0.5 : -0.5, 0),
                                 child: Text(
-                                  DateFormat(appSettings.dateFormat).format(chartSetups[index].datetimeLocal),
+                                  DateFormat(appSettings.dateFormat, context.l10n.localeName).format(chartSetups[index].datetimeLocal),
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ),
@@ -177,7 +179,7 @@ class _SetupLineChartState extends State<SetupLineChart> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
-                          value.truncateToDouble() == value ? value.toInt().toString() : formatLocalizedDouble(value, fractionDigits: 1),
+                          value.truncateToDouble() == value ? value.toInt().toString() : formatLocalizedDouble(value, fractionDigits: 1, locale: context.l10n.localeName),
                           style: Theme.of(context).textTheme.bodySmall,
                           textAlign: TextAlign.right,
                         ),
@@ -243,7 +245,7 @@ class _SetupLineChartState extends State<SetupLineChart> {
                       final adjustment = widget.adjustmentFor(column);
                       final columnName = widget.columnLabel(column);
                       final unit = adjustment?.unit?.label ?? "";
-                      final formattedY = NumericalValue(barSpot.y).display;
+                      final formattedY = NumericalValue(barSpot.y).displayText(context.l10n);
 
                       final tooltipStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
                         color: barSpot.bar.color ?? Theme.of(context).colorScheme.onSurface,
@@ -252,9 +254,9 @@ class _SetupLineChartState extends State<SetupLineChart> {
 
                       if (barSpot.barIndex == 0) {
                         final setup = chartSetups[barSpot.x.toInt()];
-                        final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+                        final dateStr = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal);
                         return LineTooltipItem(
-                          '${setup.displayName}\n',
+                          '${setup.label(context.l10n)}\n',
                           tooltipStyle.copyWith(color: Theme.of(context).colorScheme.onSurface),
                           children: [
                             TextSpan(

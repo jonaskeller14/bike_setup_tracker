@@ -49,7 +49,7 @@ void main() {
   final products = catalogProducts(parseCatalogFile(_catalog)).toList();
 
   Component component(String model) {
-    final application = buildCatalogApplication(products.firstWhere((p) => p.node.id == model));
+    final application = buildCatalogApplication(products.firstWhere((p) => p.node.id == model), englishL10n);
     return Component(
       name: application.name,
       componentType: application.componentType,
@@ -194,10 +194,10 @@ nodes:
 
       // With 92 psi entered, rebound alone would be looked up for 92 psi.
       final current = {pressure.id: const NumericalValue(92)};
-      final shown = guided.evaluate(inputs, current).firstWhere((r) => r.adjustment.name == 'Rebound');
+      final shown = guided.evaluate(inputs, current, englishL10n).firstWhere((r) => r.adjustment.name == 'Rebound');
       expect(shown.value, const StepValue(6));
 
-      final applied = guideValuesToApply(guided, inputs, current);
+      final applied = guideValuesToApply(guided, inputs, current, englishL10n);
       final byName = {for (final entry in applied.entries) entry.key.name: entry.value};
       expect(byName, {
         'Pressure': const NumericalValue(70),
@@ -209,7 +209,7 @@ nodes:
     test('leaves out values that cannot be applied', () {
       final guided = GuidedComponent(component('guided'), resolve(component('guided'))!);
 
-      final applied = guideValuesToApply(guided, const GuideInputs(), {});
+      final applied = guideValuesToApply(guided, const GuideInputs(), {}, englishL10n);
 
       expect(applied.keys.map((a) => a.name), ['LSC']);
     });
@@ -256,7 +256,7 @@ nodes:
   test('a guided component without the catalog adjusters yields nothing to apply', () {
     final handBuilt = component('guided').copyWith(adjustments: <Adjustment>[]);
     final guided = GuidedComponent(handBuilt, resolve(handBuilt)!);
-    expect(guideValuesToApply(guided, const GuideInputs(riderWeight: 82), {}), isEmpty);
-    expect(guided.evaluate(const GuideInputs(riderWeight: 82), {}), isEmpty);
+    expect(guideValuesToApply(guided, const GuideInputs(riderWeight: 82), {}, englishL10n), isEmpty);
+    expect(guided.evaluate(const GuideInputs(riderWeight: 82), {}, englishL10n), isEmpty);
   });
 }

@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/feedback_text.dart';
 import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/feedback/custom_issue.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
@@ -72,9 +73,9 @@ void main() {
         const FeedbackObservation.flag(IssueKey(FeedbackEnd.rear, FeedbackAttribute.grip)),
         const FeedbackObservation.flag(IssueKey(FeedbackEnd.front, FeedbackAttribute.comfort)),
       });
-      expect(f.issuesSummary, 'Front: Harsh · Rear: Low grip · Wet roots');
-      expect(f.orderedIssues.last.hint, isNull);
-      expect(f.orderedIssues.first.hint, FeedbackAttribute.comfort.hint(englishL10n));
+      expect(f.issuesSummaryText(englishL10n), 'Front: Harsh · Rear: Low grip · Wet roots');
+      expect(f.orderedIssues.last.hintText(englishL10n), isNull);
+      expect(f.orderedIssues.first.hintText(englishL10n), FeedbackAttribute.comfort.hint(englishL10n));
     });
 
     test('survive a JSON round trip', () {

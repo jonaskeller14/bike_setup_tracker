@@ -6,6 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/histogram_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
@@ -146,7 +147,7 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
       container: true,
       label: context.l10n.chartActivityDistribution(
         bars
-            .map((bar) => context.l10n.chartHistogramBarSemantics(bar.label, bar.activityCount, 'false', 'false'))
+            .map((bar) => context.l10n.chartHistogramBarSemantics(histogram.barLabel(bar, context.l10n), bar.activityCount, 'false', 'false'))
             .join(', '),
       ),
       child: ExcludeSemantics(
@@ -201,7 +202,7 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
                             space: 8,
                             angle: -math.pi / 4,
                             child: Text(
-                              _abbreviate(bars[index].label),
+                              _abbreviate(histogram.barLabel(bars[index], context.l10n)),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: labelStyle,
@@ -248,7 +249,7 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
                         final bar = bars[group.x];
                         final style = labelStyle!.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.bold);
                         return BarTooltipItem(
-                          '${bar.label}\n',
+                          '${histogram.barLabel(bar, context.l10n)}\n',
                           style,
                           children: [
                             TextSpan(

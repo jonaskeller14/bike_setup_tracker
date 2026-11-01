@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/entity_names.dart';
 import '../l10n/l10n.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
@@ -217,7 +218,7 @@ class SetupActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        context.l10n.setupMovedToTrash(setup.displayName),
+        context.l10n.setupMovedToTrash(setup.label(context.l10n)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: context.l10n.undo,
@@ -237,7 +238,7 @@ class SetupActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        context.l10n.setupRestoredFromTrash(setup.displayName),
+        context.l10n.setupRestoredFromTrash(setup.label(context.l10n)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: context.l10n.undo,

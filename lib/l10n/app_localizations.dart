@@ -1790,11 +1790,83 @@ abstract class AppLocalizations {
   /// **'Requires Component Presets'**
   String get featuresRequiresComponentPresets;
 
+  /// Subtitle of a disabled feature that depends on tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires Tasks'**
+  String get featuresRequiresTasks;
+
+  /// Subtitle of a disabled feature that depends on the task interval feature.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires Task Interval'**
+  String get featuresRequiresTaskInterval;
+
   /// Title of the task presets feature (developer builds).
   ///
   /// In en, this message translates to:
   /// **'Task Presets'**
   String get featuresTaskPresets;
+
+  /// Intro of the component presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up a fork or shock in seconds: pick the model from the built-in catalog instead of entering every adjustment by hand.'**
+  String get presetsComponentIntro;
+
+  /// First step of the component presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a fork or shock and search for its model and year, e.g. \"Fox 36\".'**
+  String get presetsComponentStepSearch;
+
+  /// Second step of the component presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, notes and adjustments are filled in: rebound and compression with their click ranges, air pressure and SAG.'**
+  String get presetsComponentStepFilled;
+
+  /// Third step of the component presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have the component? Link the model on its edit page and choose whether its adjustments merge with yours or replace them.'**
+  String get presetsComponentStepLink;
+
+  /// Footnote of the component presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers forks and shocks from FOX, RockShox, Öhlins and other brands. Everything stays editable. Turning this off hides the catalog; your components keep their adjustments.'**
+  String get presetsComponentCaption;
+
+  /// Intro of the task presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Get recommended maintenance tasks for your components, like a chain wear check or a fork service.'**
+  String get presetsTaskIntro;
+
+  /// First step of the task presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Whenever you add, duplicate or replace a component, its recommended tasks are offered. Pick the ones you want.'**
+  String get presetsTaskStepOffered;
+
+  /// Second step of the task presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding a task for a component? Tap a suggestion to fill in its name, notes and interval.'**
+  String get presetsTaskStepSuggestion;
+
+  /// Third step of the task presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'With Strava connected, intervals follow your rides, like distance or riding time. Without it, they are time-based. Catalog forks and shocks use the manufacturer’s service intervals.'**
+  String get presetsTaskStepStrava;
+
+  /// Footnote of the task presets settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers chains, cassettes, forks, shocks, brakes, tires, headsets, bottom brackets, seatposts, frames and shift cables. Added tasks are normal tasks you can edit or delete.'**
+  String get presetsTaskCaption;
 
   /// Title of the setup guides feature (developer builds).
   ///
@@ -3091,6 +3163,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attachments enabled — add photos and files to bikes, components, setups and tasks'**
   String get hintAttachmentsEnabled;
+
+  /// Snackbar after tasks were turned on from the what's new hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks enabled — recommended tasks are offered when you add a component'**
+  String get hintTaskPresetsEnabled;
+
+  /// Button of the what's new hint that turns on tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Tasks'**
+  String get hintTurnOnTasks;
+
+  /// Title of the first page of the what's new hint about the component catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Fork & shock catalog'**
+  String get hintRelease45CatalogTitle;
+
+  /// Body of the first page of the what's new hint about the component catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding a fork or shock? Pick the model from the built-in catalog and its adjustments, like click ranges, air pressure and SAG, are filled in for you. Everything stays editable.'**
+  String get hintRelease45CatalogBody;
+
+  /// Title of the second page of the what's new hint about recommended tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended tasks'**
+  String get hintRelease45TasksTitle;
+
+  /// Body of the second page of the what's new hint when tasks are already on.
+  ///
+  /// In en, this message translates to:
+  /// **'Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals.'**
+  String get hintRelease45TasksBody;
+
+  /// Body of the second page of the what's new hint when tasks are still off.
+  ///
+  /// In en, this message translates to:
+  /// **'Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals. Turn on Tasks to get them.'**
+  String get hintRelease45TasksBodyOfferTasks;
 
   /// Title of the garage gestures hint.
   ///

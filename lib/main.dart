@@ -39,7 +39,6 @@ import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
 import 'services/tip_service.dart';
 import 'theme.dart';
-import 'utils/mark_tree_needs_build.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -341,23 +340,9 @@ class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsB
     super.dispose();
   }
 
-  Locale? _shownLocale;
-
   // The device language is an input to resolveAppLocale, so a system change has to rebuild.
   @override
   void didChangeLocales(List<Locale>? locales) => setState(() {});
-
-  // A page that reads neither AppSettings nor Localizations (a number or month
-  // name formatted from Intl.defaultLocale) would keep the old language until
-  // its next rebuild.
-  void _rebuildPagesOnLanguageChange(BuildContext context, Locale loaded) {
-    final previous = _shownLocale;
-    _shownLocale = loaded;
-    if (previous == null || previous == loaded) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) markTreeNeedsBuild(context as Element);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -376,12 +361,12 @@ class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsB
       locale: locale,
       localizationsDelegates: appLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      // Runs inside Localizations, so the date symbols for the new language are
-      // loaded before DateFormat starts using it as the default.
+      // For packages that format with the default locale, such as the calendar.
+      // Our own text takes the language from context.l10n, which rebuilds on a
+      // switch. Runs inside Localizations, so the date symbols are loaded first.
       builder: (context, child) {
         final loadedLocale = Localizations.localeOf(context);
         Intl.defaultLocale = loadedLocale.toString();
-        _rebuildPagesOnLanguageChange(context, loadedLocale);
         unawaited(QuickActionsService().updateLocale(loadedLocale));
         return child!;
       },

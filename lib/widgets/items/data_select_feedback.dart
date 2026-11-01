@@ -32,8 +32,8 @@ class DataSelectFeedback extends StatelessWidget {
       child: CheckboxListTile(
         secondary: const Icon(RideFeedback.iconData),
         title: Text(
-          '${DateFormat(appSettings.dateFormat).format(item.dateTimeLocal)} • '
-          '${DateFormat(appSettings.timeFormat).format(item.dateTimeLocal)}',
+          '${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(item.dateTimeLocal)} • '
+          '${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(item.dateTimeLocal)}',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             decoration: item.isDeleted ? TextDecoration.lineThrough : null,
           ),

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/entity_names.dart';
 import '../l10n/l10n.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/feedback/test_session.dart';
@@ -38,8 +39,8 @@ class TestSessionNextStep extends StatelessWidget {
               child: Text(
                 switch (latest) {
                   null => context.l10n.testSessionStepNoRuns,
-                  _ when rated => context.l10n.testSessionStepRated(latest.displayName),
-                  _ => context.l10n.testSessionStepRide(latest.displayName),
+                  _ when rated => context.l10n.testSessionStepRated(latest.label(context.l10n)),
+                  _ => context.l10n.testSessionStepRide(latest.label(context.l10n)),
                 },
                 style: theme.textTheme.bodyMedium,
               ),

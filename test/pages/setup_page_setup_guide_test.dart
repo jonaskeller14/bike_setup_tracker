@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -281,7 +282,7 @@ class _Harness {
     required bool preloadCatalog,
   }) async {
     final brand = parseCatalogFile(_catalog);
-    final application = buildCatalogApplication(catalogProducts(brand).single);
+    final application = buildCatalogApplication(catalogProducts(brand).single, englishL10n);
     final fork = Component(
       name: application.name,
       componentType: application.componentType,

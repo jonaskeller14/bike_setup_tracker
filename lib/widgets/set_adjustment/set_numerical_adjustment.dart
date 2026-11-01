@@ -68,7 +68,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: formatEditableDouble(widget.value?.value));
+    _controller = TextEditingController(text: formatEditableDouble(widget.value?.value, locale: context.untrackedLocaleName));
     _lastReported = widget.value;
   }
 
@@ -100,8 +100,8 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
 
   String _displayTextForStorage(NumericalValue? storageValue) {
     if (storageValue == null) return '';
-    if (!_isConverting) return formatEditableDouble(storageValue.value);
-    return formatConverted(_toDisplay(storageValue.value));
+    if (!_isConverting) return formatEditableDouble(storageValue.value, locale: context.l10n.localeName);
+    return formatConverted(_toDisplay(storageValue.value), locale: context.l10n.localeName);
   }
 
   double _boundInActiveUnit(double bound) => bound.isFinite ? _toDisplay(bound) : bound;
@@ -146,7 +146,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     setState(() {
       _index = nextIndex;
       if (storage != null) {
-        final text = formatConverted(next.fromStorage(storage));
+        final text = formatConverted(next.fromStorage(storage), locale: context.l10n.localeName);
         _cycledStorage = storage;
         _cycledText = text;
         _setText(text);
@@ -172,7 +172,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                       mainAxisSize: MainAxisSize.min,
                       spacing: 2,
                       children: [
-                        Text(label, style: TextStyle(color: suffixColor)),
+                        Flexible(child: Text(label, style: TextStyle(color: suffixColor))),
                         // Icon(Icons.unfold_more, size: 16, color: suffixColor),
                       ],
                     ),
@@ -213,7 +213,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     if (_isConverting) {
       final storageVal = widget.value?.value;
       if (storageVal != null) {
-        helperText = '= ${formatConverted(storageVal)} $_storageLabel';
+        helperText = '= ${formatConverted(storageVal, locale: context.l10n.localeName)} $_storageLabel';
       }
     }
 
@@ -268,9 +268,9 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                         final unitLabel = _activeLabel;
                         final unitSuffix = unitLabel == null ? "" : " $unitLabel";
                         final max = _boundInActiveUnit(widget.adjustment.max);
-                        if (parsedValue > max) return context.l10n.setNumericalMax('${formatConverted(max)}$unitSuffix');
+                        if (parsedValue > max) return context.l10n.setNumericalMax('${formatConverted(max, locale: context.l10n.localeName)}$unitSuffix');
                         final min = _boundInActiveUnit(widget.adjustment.min);
-                        if (parsedValue < min) return context.l10n.setNumericalMin('${formatConverted(min)}$unitSuffix');
+                        if (parsedValue < min) return context.l10n.setNumericalMin('${formatConverted(min, locale: context.l10n.localeName)}$unitSuffix');
                       }
                       return null;
                     },

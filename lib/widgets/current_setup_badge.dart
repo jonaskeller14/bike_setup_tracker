@@ -22,12 +22,14 @@ class CurrentSetupBadge extends StatelessWidget {
         children: [
           Icon(Icons.flag, size: compact ? 10 : 12, color: scheme.onPrimary),
           SizedBox(width: compact ? 3 : 4),
-          Text(
-            context.l10n.badgeCurrentSetup,
-            style: TextStyle(
-              color: scheme.onPrimary,
-              fontWeight: FontWeight.w600,
-              fontSize: compact ? 10 : 12,
+          Flexible(
+            child: Text(
+              context.l10n.badgeCurrentSetup,
+              style: TextStyle(
+                color: scheme.onPrimary,
+                fontWeight: FontWeight.w600,
+                fontSize: compact ? 10 : 12,
+              ),
             ),
           ),
         ],

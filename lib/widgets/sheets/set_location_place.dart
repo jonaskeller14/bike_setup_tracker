@@ -103,10 +103,11 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   void _setFieldsFromLocationPlace() {
     final appSettings = context.read<AppSettings>();
 
-    _latitudeController.text = formatEditableDouble(_currentLocation?.latitude);
-    _longitudeController.text = formatEditableDouble(_currentLocation?.longitude);
+    _latitudeController.text = formatEditableDouble(_currentLocation?.latitude, locale: context.untrackedLocaleName);
+    _longitudeController.text = formatEditableDouble(_currentLocation?.longitude, locale: context.untrackedLocaleName);
     _altitudeController.text = formatEditableDouble(
       ContextPosition.convertAltitudeFromMeters(_currentLocation?.altitude, appSettings.altitudeUnit),
+      locale: context.untrackedLocaleName,
     );
 
     _addressController.text = _formatAddress(_currentPlace);

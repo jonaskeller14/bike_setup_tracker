@@ -877,7 +877,53 @@ class AppLocalizationsDe extends AppLocalizations {
   String get featuresRequiresComponentPresets => 'Benötigt Komponentenvorlagen';
 
   @override
+  String get featuresRequiresTasks => 'Benötigt Aufgaben';
+
+  @override
+  String get featuresRequiresTaskInterval => 'Benötigt Intervall';
+
+  @override
   String get featuresTaskPresets => 'Aufgabenvorlagen';
+
+  @override
+  String get presetsComponentIntro =>
+      'Richte Gabel oder Dämpfer in Sekunden ein: Wähle das Modell aus dem integrierten Katalog, statt jede Einstellung von Hand einzugeben.';
+
+  @override
+  String get presetsComponentStepSearch =>
+      'Füge eine Gabel oder einen Dämpfer hinzu und suche nach Modell und Jahr, z. B. „Fox 36“.';
+
+  @override
+  String get presetsComponentStepFilled =>
+      'Name, Notizen und Einstellungen werden ausgefüllt: Zugstufe und Druckstufe mit ihren Klickbereichen, Luftdruck und SAG.';
+
+  @override
+  String get presetsComponentStepLink =>
+      'Du hast die Komponente schon? Verknüpfe das Modell auf ihrer Bearbeitungsseite und wähle, ob seine Einstellungen mit deinen zusammengeführt werden oder sie ersetzen.';
+
+  @override
+  String get presetsComponentCaption =>
+      'Umfasst Gabeln und Dämpfer von FOX, RockShox, Öhlins und weiteren Marken. Alles bleibt bearbeitbar. Wenn du das ausschaltest, wird der Katalog ausgeblendet; deine Komponenten behalten ihre Einstellungen.';
+
+  @override
+  String get presetsTaskIntro =>
+      'Erhalte empfohlene Wartungsaufgaben für deine Komponenten, etwa eine Kettenverschleißprüfung oder einen Gabelservice.';
+
+  @override
+  String get presetsTaskStepOffered =>
+      'Immer wenn du eine Komponente hinzufügst, duplizierst oder ersetzt, werden dir ihre empfohlenen Aufgaben angeboten. Wähle die, die du möchtest.';
+
+  @override
+  String get presetsTaskStepSuggestion =>
+      'Du legst eine Aufgabe für eine Komponente an? Tippe auf einen Vorschlag, um Name, Notizen und Intervall auszufüllen.';
+
+  @override
+  String get presetsTaskStepStrava =>
+      'Mit verbundenem Strava richten sich die Intervalle nach deinen Fahrten, etwa Distanz oder Fahrzeit. Ohne Strava sind sie zeitbasiert. Katalog-Gabeln und -Dämpfer nutzen die Serviceintervalle des Herstellers.';
+
+  @override
+  String get presetsTaskCaption =>
+      'Umfasst Ketten, Kassetten, Gabeln, Dämpfer, Bremsen, Reifen, Steuersätze, Tretlager, Sattelstützen, Rahmen und Schaltzüge. Hinzugefügte Aufgaben sind normale Aufgaben, die du bearbeiten oder löschen kannst.';
 
   @override
   String get featuresSetupGuides => 'Setup-Anleitungen';
@@ -1613,6 +1659,31 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get hintAttachmentsEnabled =>
       'Anhänge aktiviert – füge Bikes, Komponenten, Setups und Aufgaben Fotos und Dateien hinzu';
+
+  @override
+  String get hintTaskPresetsEnabled =>
+      'Aufgaben aktiviert – empfohlene Aufgaben werden dir beim Hinzufügen einer Komponente angeboten';
+
+  @override
+  String get hintTurnOnTasks => 'Aufgaben aktivieren';
+
+  @override
+  String get hintRelease45CatalogTitle => 'Gabel- & Dämpferkatalog';
+
+  @override
+  String get hintRelease45CatalogBody =>
+      'Du fügst eine Gabel oder einen Dämpfer hinzu? Wähle das Modell aus dem integrierten Katalog, und seine Einstellungen, etwa Klickbereiche, Luftdruck und SAG, werden für dich ausgefüllt. Alles bleibt bearbeitbar.';
+
+  @override
+  String get hintRelease45TasksTitle => 'Empfohlene Aufgaben';
+
+  @override
+  String get hintRelease45TasksBody =>
+      'Sobald du eine Komponente hinzufügst, werden passende Wartungsaufgaben wie eine Kettenverschleißprüfung oder ein Gabelservice vorgeschlagen. Katalog-Gabeln und -Dämpfer nutzen die Serviceintervalle des Herstellers.';
+
+  @override
+  String get hintRelease45TasksBodyOfferTasks =>
+      'Sobald du eine Komponente hinzufügst, werden passende Wartungsaufgaben wie eine Kettenverschleißprüfung oder ein Gabelservice vorgeschlagen. Katalog-Gabeln und -Dämpfer nutzen die Serviceintervalle des Herstellers. Aktiviere Aufgaben, um sie zu erhalten.';
 
   @override
   String get hintGarageTitle => 'Gesten in der Garage';

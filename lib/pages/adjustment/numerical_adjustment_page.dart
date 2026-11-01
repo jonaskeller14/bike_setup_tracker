@@ -86,9 +86,9 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: widget.adjustment?.notes);
     _notesController.addListener(_changeListener);
-    _minController = TextEditingController(text: widget.adjustment?.min == double.infinity || widget.adjustment?.min == double.negativeInfinity ? null : formatEditableDouble(widget.adjustment?.min));
+    _minController = TextEditingController(text: widget.adjustment?.min == double.infinity || widget.adjustment?.min == double.negativeInfinity ? null : formatEditableDouble(widget.adjustment?.min, locale: context.untrackedLocaleName));
     _minController.addListener(_changeListener);
-    _maxController = TextEditingController(text: widget.adjustment?.max == double.infinity || widget.adjustment?.max == double.negativeInfinity ? null : formatEditableDouble(widget.adjustment?.max));
+    _maxController = TextEditingController(text: widget.adjustment?.max == double.infinity || widget.adjustment?.max == double.negativeInfinity ? null : formatEditableDouble(widget.adjustment?.max, locale: context.untrackedLocaleName));
     _maxController.addListener(_changeListener);
     _unit = widget.adjustment?.unit;
     _initialUnit = widget.adjustment?.unit;

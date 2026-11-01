@@ -13,7 +13,6 @@ class AdjustmentActivityValue {
 }
 
 class AdjustmentActivityHistogramBar {
-  final String label;
   final int activityCount;
   final AdjustmentValue? exactValue;
   final num? lowerBound;
@@ -21,7 +20,6 @@ class AdjustmentActivityHistogramBar {
   final bool includesUpperBound;
 
   const AdjustmentActivityHistogramBar.exact({
-    required this.label,
     required this.activityCount,
     required this.exactValue,
   }) : lowerBound = null,
@@ -29,7 +27,6 @@ class AdjustmentActivityHistogramBar {
        includesUpperBound = false;
 
   const AdjustmentActivityHistogramBar.range({
-    required this.label,
     required this.activityCount,
     required this.lowerBound,
     required this.upperBound,
@@ -44,10 +41,18 @@ class AdjustmentActivityHistogram {
   final List<AdjustmentActivityHistogramBar> bars;
   final bool isBinned;
 
+  /// The adjustment's unit, shown with every bar.
+  final String? unitLabel;
+
+  /// Whether range bounds are seconds of a duration.
+  final bool hasDurationBounds;
+
   const AdjustmentActivityHistogram({
     required this.adjustmentId,
     required this.bars,
     required this.isBinned,
+    this.unitLabel,
+    this.hasDurationBounds = false,
   });
 
   factory AdjustmentActivityHistogram.empty(String adjustmentId) {

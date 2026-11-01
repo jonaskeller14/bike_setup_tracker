@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
+import '../../l10n/test_session_text.dart';
 import '../../models/feedback/test_session.dart';
 import '../../models/feedback/test_session_method.dart';
 import '../../pages/details/setup_details_page.dart';
@@ -71,7 +73,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SheetHeader(
-              title: session.displayName,
+              title: session.label(context.l10n),
               leadingIcon: const Icon(TestSession.iconData),
               titleMaxLines: 2,
               onEdit: () => unawaited(TestSessionActions.editSession(context, session: session)),
@@ -87,7 +89,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
                     const RunningBadge()
                   else
                     TileMetaRow(icon: Icons.stop_circle_outlined, text: context.l10n.testSessionEnded),
-                  TileMetaRow(icon: Icons.tune, text: TestSessionService.methodLabel(session.method)),
+                  TileMetaRow(icon: Icons.tune, text: testSessionMethodLabel(session.method, context.l10n)),
                   TileMetaRow(
                     icon: Icons.directions_bike,
                     text: context.l10n.testSessionRunsCount(runs.length),
@@ -95,7 +97,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
                   for (final aspect in session.goal)
                     TileMetaRow(
                       icon: Icons.track_changes,
-                      text: TestSessionService.goalLabel(aspect, appRepository.customIssues.labelOf),
+                      text: testSessionGoalLabel(aspect, appRepository.customIssues.labelOf, context.l10n),
                     ),
                 ],
               ),
@@ -103,7 +105,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Text(
-                TestSessionService.methodDescription(session.method),
+                testSessionMethodDescription(session.method, context.l10n),
                 style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ),

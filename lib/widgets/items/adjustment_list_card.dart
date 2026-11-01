@@ -61,7 +61,7 @@ class AdjustmentListCard extends StatelessWidget {
     }
 
     final abs = weight.abs();
-    final w = formatLocalizedDouble(abs, fractionDigits: abs == abs.roundToDouble() ? 0 : 1);
+    final w = formatLocalizedDouble(abs, fractionDigits: abs == abs.roundToDouble() ? 0 : 1, locale: context.l10n.localeName);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),

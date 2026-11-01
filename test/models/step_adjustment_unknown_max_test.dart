@@ -2,11 +2,11 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// A catalog step adjuster whose range the manufacturer does not publish is
-/// authored as `max: ~`. `fromYaml` substitutes a placeholder and says so in
-/// the notes, so a guessed number never looks like a sourced one.
+/// authored as `max: ~`. `fromYaml` substitutes a placeholder; the catalog
+/// application adds the warning for the rider.
 void main() {
   group('StepAdjustment.fromYaml with an unknown max', () {
-    test('a null max becomes the placeholder with a warning as notes', () {
+    test('a null max becomes the placeholder', () {
       final adjustment = StepAdjustment.fromYaml(const {
         'name': 'HSC',
         'type': 'step',
@@ -15,10 +15,10 @@ void main() {
 
       expect(adjustment.min, 0);
       expect(adjustment.max, StepAdjustment.unknownMaxPlaceholder);
-      expect(adjustment.notes, StepAdjustment.unknownMaxWarning);
+      expect(adjustment.notes, isNull);
     });
 
-    test('the warning is appended to authored notes', () {
+    test('authored notes stay as they are', () {
       final adjustment = StepAdjustment.fromYaml(const {
         'name': 'HSC',
         'type': 'step',
@@ -26,10 +26,7 @@ void main() {
         'notes': 'High-Speed Compression',
       });
 
-      expect(
-        adjustment.notes,
-        'High-Speed Compression; ${StepAdjustment.unknownMaxWarning}',
-      );
+      expect(adjustment.notes, 'High-Speed Compression');
     });
 
     test('an explicit min of 0 is accepted', () {

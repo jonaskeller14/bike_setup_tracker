@@ -22,7 +22,7 @@ String taskForecastDueLabel(AppLocalizations l10n, DateTime dueLocal, DateTime n
   if (days == 1) return l10n.taskForecastTomorrow;
   if (days < 14) return l10n.taskForecastInDays(days);
   if (days < 56) return l10n.taskForecastInWeeks(days ~/ 7);
-  return DateFormat(dateFormat).format(dueLocal);
+  return DateFormat(dateFormat, l10n.localeName).format(dueLocal);
 }
 
 class TaskRuleDisplayCard extends StatelessWidget {
@@ -55,7 +55,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
     final now = DateTime.now();
     final due = forecast.dueDate.toLocal();
     if (!due.isAfter(now)) return null;
-    if (forecast.sample == null) return DateFormat(dateFormat).format(due);
+    if (forecast.sample == null) return DateFormat(dateFormat, context.l10n.localeName).format(due);
     if (!context.select<SubscriptionService, bool>((s) => s.hasStravaEntitlement)) return null;
     return taskForecastDueLabel(context.l10n, due, now, dateFormat);
   }
@@ -219,7 +219,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
         if (totalM <= 0) return null;
         final diffM = (totalM - progress * totalM).abs();
         final converted = AppSettings.convertDistanceFromMeters(diffM, distanceUnit)!;
-        return amountLeft('${NumberFormat.decimalPattern().format(converted.round())} $distanceUnit');
+        return amountLeft('${NumberFormat.decimalPattern(l10n.localeName).format(converted.round())} $distanceUnit');
 
       case ElevationThreshold(:final meters):
         final totalM = meters + (delay is ElevationThreshold ? delay.meters : 0.0);
@@ -227,7 +227,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
         final accumulatedM = progress * totalM;
         final diffM = (totalM - accumulatedM).abs();
         final converted = AppSettings.convertElevationFromMeters(diffM, altitudeUnit)!;
-        return amountLeft('${NumberFormat.decimalPattern().format(converted.round())} $altitudeUnit');
+        return amountLeft('${NumberFormat.decimalPattern(l10n.localeName).format(converted.round())} $altitudeUnit');
 
       case MovingTimeThreshold(:final hours):
         final totalMicros = hours.inMicroseconds + (delay is MovingTimeThreshold ? delay.hours.inMicroseconds : 0);
@@ -263,7 +263,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
         final total = kilojoules + (delay is KilojoulesThreshold ? delay.kilojoules : 0.0);
         if (total <= 0) return null;
         final diff = (total - progress * total).abs();
-        return amountLeft('${NumberFormat.decimalPattern().format(diff.round())} kJ');
+        return amountLeft('${NumberFormat.decimalPattern(l10n.localeName).format(diff.round())} kJ');
 
       case DateTimeThreshold(:final deadline):
         final effectiveDeadline = deadline.add(delay is DurationThreshold ? delay.days : Duration.zero);

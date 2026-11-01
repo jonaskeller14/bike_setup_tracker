@@ -858,7 +858,7 @@ class _ProductTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subtitle = _productSubtitle(product);
+    final subtitle = _productSubtitle(product, context.l10n);
     return ListTile(
       title: _TileTitle(title, selected: selected),
       subtitle: subtitle == null ? null : _SubtitleText(subtitle),
@@ -889,10 +889,10 @@ class _Trailing extends StatelessWidget {
 
 /// `GRIP X2 / GRIP X · 150 / 160 mm · Kashima`: what the product can be had
 /// with, so siblings can be told apart before opening one.
-String? _productSubtitle(ResolvedPreset product) {
+String? _productSubtitle(ResolvedPreset product, AppLocalizations l10n) {
   final stanchion = product.effectiveSpecs.get(PresetSpecKeys.stanchion);
   final parts = [
-    for (final axis in product.axes) optionAxisSummary(axis),
+    for (final axis in product.axes) optionAxisSummary(axis, l10n),
     ?stanchion,
   ];
   return parts.isEmpty ? null : parts.join(' · ');

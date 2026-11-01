@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 import '../../models/setup.dart';
 import '../../services/setup_carry_over.dart';
@@ -32,7 +34,8 @@ class _CarryOverSheet extends StatelessWidget {
 
   const _CarryOverSheet({required this.setup, required this.carryOver});
 
-  static String _valueText(CarryOverEntry entry) => '${entry.value.display}${entry.from.unitSuffix()}';
+  static String _valueText(CarryOverEntry entry, AppLocalizations l10n) =>
+      '${entry.value.displayText(l10n)}${entry.from.unitSuffix()}';
 
   static String _reason(CarryOverEntry entry, AppLocalizations l10n) => switch (entry.issue) {
     CarryOverIssue.componentGone => l10n.carryOverReasonGone(entry.fromComponent.name),
@@ -57,8 +60,8 @@ class _CarryOverSheet extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Text(
               canApply
-                  ? context.l10n.carryOverBodyApply(setup.displayName)
-                  : context.l10n.carryOverBodyCant(setup.displayName),
+                  ? context.l10n.carryOverBodyApply(setup.label(context.l10n))
+                  : context.l10n.carryOverBodyCant(setup.label(context.l10n)),
               style: theme.textTheme.bodyMedium,
             ),
           ),
@@ -73,7 +76,7 @@ class _CarryOverSheet extends StatelessWidget {
                     dense: true,
                     leading: const Icon(Icons.arrow_forward),
                     title: Text(
-                      '${entry.to!.name}: ${_valueText(entry)}',
+                      '${entry.to!.name}: ${_valueText(entry, context.l10n)}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -89,7 +92,7 @@ class _CarryOverSheet extends StatelessWidget {
                     dense: true,
                     leading: Icon(Icons.block, color: theme.colorScheme.error),
                     title: Text(
-                      '${entry.from.name}: ${_valueText(entry)}',
+                      '${entry.from.name}: ${_valueText(entry, context.l10n)}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

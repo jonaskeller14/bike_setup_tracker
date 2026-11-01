@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
@@ -120,7 +121,7 @@ class SetupTileHeader extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          setup.displayName,
+                          setup.label(context.l10n),
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: selectedColor,

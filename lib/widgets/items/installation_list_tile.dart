@@ -72,8 +72,8 @@ class InstallationListTile extends StatelessWidget {
       InstallationParentType.none || InstallationParentType.archived => false,
     };
 
-    final timeText = DateFormat(appSettings.timeFormat).format(componentInstallation.installation.dateTimeLocal);
-    final dateText = DateFormat(appSettings.dateFormat).format(componentInstallation.installation.dateTimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(componentInstallation.installation.dateTimeLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(componentInstallation.installation.dateTimeLocal);
 
     return ListTile(
       onTap: onTap,

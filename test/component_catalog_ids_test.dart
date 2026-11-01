@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
@@ -68,7 +69,7 @@ List<String> _collectIds(Directory catalogDir, Map<String, BrandCatalog> catalog
     final catalog = parseCatalogFile(file.readAsStringSync());
     final brandPath = '${catalog.componentType.name}/${catalog.id}';
     catalogs[brandPath] = catalog;
-    final genericTaskKeys = {for (final template in taskPresets[catalog.componentType] ?? const []) template.key};
+    final genericTaskKeys = {for (final template in taskPresetsFor(englishL10n)[catalog.componentType] ?? const []) template.key};
 
     void addTaskKeys(Iterable<String> keys) {
       for (final key in keys) {

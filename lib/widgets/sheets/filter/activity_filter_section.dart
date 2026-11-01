@@ -95,7 +95,7 @@ class _RangeFilter extends StatelessWidget {
       max: track.max,
       divisions: (track.max / track.step).round(),
       valueLabel: (dragging) =>
-          FilterActions.rangeLabel(dragging == null ? range : _toRange(dragging), unit: unit, fromMeters: fromMeters) ??
+          FilterActions.rangeLabel(dragging == null ? range : _toRange(dragging), context.l10n, unit: unit, fromMeters: fromMeters) ??
           context.l10n.filterAnyValue,
       onChangeEnd: (values) => onChanged(_toRange(values)),
     );

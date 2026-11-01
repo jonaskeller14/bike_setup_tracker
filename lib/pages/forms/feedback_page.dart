@@ -7,6 +7,7 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
@@ -350,7 +351,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     }
     return [
       for (final aspect in EndAspect.values) ?issues[aspect],
-      ...issues.values.where((issue) => issue.aspect is CustomAspect).sortedBy((issue) => issue.label.toLowerCase()),
+      ...issues.values.where((issue) => issue.aspect is CustomAspect).sortedBy((issue) => issue.customLabel!.toLowerCase()),
     ];
   }
 
@@ -611,7 +612,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         ..showSnackBar(
           rated == null
               ? AppSnackBar.error(context, context.l10n.feedbackFormNoSetupActive)
-              : AppSnackBar.info(context, context.l10n.feedbackFormNowRating(rated.displayName)),
+              : AppSnackBar.info(context, context.l10n.feedbackFormNowRating(rated.label(context.l10n))),
         );
     }
     unawaited(askAndUpdateWeather());
@@ -754,7 +755,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             ActionChip(
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.calendar_month),
-              label: Text(DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal)),
+              label: Text(DateFormat(appSettings.dateFormat, context.l10n.localeName).format(_selectedDateTimeLocal)),
               backgroundColor:
                   widget.mode == FeedbackPageMode.edit &&
                       (_selectedDateTimeUtc.year != _initialDateTimeUtc.year ||
@@ -767,7 +768,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             ActionChip(
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.access_time),
-              label: Text(DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal)),
+              label: Text(DateFormat(appSettings.timeFormat, context.l10n.localeName).format(_selectedDateTimeLocal)),
               backgroundColor:
                   widget.mode == FeedbackPageMode.edit &&
                       (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour ||
@@ -962,8 +963,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final header = SetupTileHeader(
       setup: rated,
       dateTimeText:
-          '${DateFormat(appSettings.dateFormat).format(rated.datetimeLocal)} • '
-          '${DateFormat(appSettings.timeFormat).format(rated.datetimeLocal)}',
+          '${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(rated.datetimeLocal)} • '
+          '${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(rated.datetimeLocal)}',
       metadata: SetupTileHeader.metadataOf(rated, appSettings, context.l10n),
       badge: appRepository.setupHistory.isCurrent(rated.id) ? const CurrentSetupBadge() : null,
       showSetupIcon: true,
@@ -1001,7 +1002,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final stored = _setupId;
     if (stored == null || rated == null || rated.id == stored) return null;
 
-    final storedName = context.read<AppRepository>().setups[stored]?.displayName ?? context.l10n.feedbackDeletedSetup;
+    final storedName = context.read<AppRepository>().setups[stored]?.label(context.l10n) ?? context.l10n.feedbackDeletedSetup;
     final scheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -1016,7 +1017,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
           style: TextStyle(color: scheme.onErrorContainer, fontWeight: FontWeight.bold, fontSize: 13),
         ),
         subtitle: Text(
-          context.l10n.feedbackFormDriftBody(storedName, rated.displayName),
+          context.l10n.feedbackFormDriftBody(storedName, rated.label(context.l10n)),
           style: TextStyle(color: scheme.onErrorContainer.withValues(alpha: 0.9), fontSize: 12),
         ),
         trailing: TextButton(

@@ -57,10 +57,10 @@ class OrthogonalArrayStrategy extends TestSessionStrategy {
         values: TestSessionStrategy.valuesAt(knobs, target),
         referenceSetupId: runs.last.id,
         rationale: SuggestionNote(SuggestionNoteKind.patternStep, [
-          '${done + 1}',
-          '${design.length}',
+          TextArg('${done + 1}'),
+          TextArg('${design.length}'),
           TestSessionStrategy.describeMove(knobs, base, target),
-          baseline.displayName,
+          SetupArg(baseline.name),
         ]),
       );
     }
@@ -92,7 +92,7 @@ class OrthogonalArrayStrategy extends TestSessionStrategy {
           referenceSetupId: runs.last.id,
           rationale: SuggestionNote(SuggestionNoteKind.estimatedBest, [
             TestSessionStrategy.describeMove(knobs, base, estimate),
-            baseline.displayName,
+            SetupArg(baseline.name),
           ]),
         );
       }
@@ -130,7 +130,7 @@ class OrthogonalArrayStrategy extends TestSessionStrategy {
       baseSetupId: repeat.id,
       values: TestSessionStrategy.valuesAt(knobs, positions[repeat.id] ?? base),
       referenceSetupId: runs.last.id,
-      rationale: SuggestionNote(SuggestionNoteKind.rideAgainConfirm, [repeat.displayName]),
+      rationale: SuggestionNote(SuggestionNoteKind.rideAgainConfirm, [SetupArg(repeat.name)]),
     );
   }
 

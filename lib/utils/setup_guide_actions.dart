@@ -19,8 +19,8 @@ class GuidedComponent {
 
   SetupGuide get guide => preset.product!.guide!;
 
-  List<GuideRecommendation> evaluate(GuideInputs inputs, Map<String, AdjustmentValue> currentValues) =>
-      evaluateSetupGuide(preset, component.adjustments, inputs, currentValues);
+  List<GuideRecommendation> evaluate(GuideInputs inputs, Map<String, AdjustmentValue> currentValues, AppLocalizations l10n) =>
+      evaluateSetupGuide(preset, component.adjustments, inputs, currentValues, l10n);
 }
 
 /// The components of [components] linked to a catalog product with a guide;
@@ -89,14 +89,15 @@ Map<Adjustment, AdjustmentValue> guideValuesToApply(
   GuidedComponent guided,
   GuideInputs inputs,
   Map<String, AdjustmentValue> currentValues,
+  AppLocalizations l10n,
 ) {
-  final targets = guided.evaluate(inputs, currentValues).map((r) => r.adjustment.id).toSet();
+  final targets = guided.evaluate(inputs, currentValues, l10n).map((r) => r.adjustment.id).toSet();
   final untouched = {
     for (final entry in currentValues.entries)
       if (!targets.contains(entry.key)) entry.key: entry.value,
   };
   return {
-    for (final recommendation in guided.evaluate(inputs, untouched)) recommendation.adjustment: ?recommendation.value,
+    for (final recommendation in guided.evaluate(inputs, untouched, l10n)) recommendation.adjustment: ?recommendation.value,
   };
 }
 

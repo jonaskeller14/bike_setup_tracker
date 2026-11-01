@@ -25,7 +25,7 @@ const _allowlistPath = 'tool/hardcoded_strings_allowlist.txt';
 /// Named arguments whose string value is shown to the user: `title:`,
 /// `labelText:`, `trueText:`, `tooltip:`, `semanticsLabel:` and the like.
 final _textArgument = RegExp(
-  r'^(text|title|subtitle|content|message|description|placeholder|tooltip|hint|caption|heading|body|'
+  r'^(text|title|subtitle|content|message|description|placeholder|tooltip|hint|caption|heading|body|label|'
   r'.*(Text|Label|Title|Tooltip|Message|Subtitle|Caption|Hint|Description))$',
 );
 

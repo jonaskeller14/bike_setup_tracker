@@ -11,9 +11,9 @@ import 'package:bike_setup_tracker/widgets/sheets/set_location_place.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../goldens/support/localized_test_app.dart';
+import '../../support/german_l10n.dart';
 
 void main() {
   late AppSettings settings;
@@ -26,6 +26,7 @@ void main() {
     ContextPosition? currentLocation,
     geo.Placemark? currentPlace,
     MediaQueryData? mediaQueryData,
+    Locale locale = const Locale('en'),
   }) {
     final child = MultiProvider(
       providers: [
@@ -42,6 +43,7 @@ void main() {
       ),
     );
     return localizedTestApp(
+      locale: locale,
       theme: materialAppTheme,
       home: mediaQueryData == null ? child : MediaQuery(data: mediaQueryData, child: child),
     );
@@ -88,18 +90,19 @@ void main() {
   });
 
   testWidgets('pre-fills German coordinates with a decimal comma, digit for digit', (tester) async {
-    Intl.defaultLocale = 'de';
-    addTearDown(() => Intl.defaultLocale = null);
-
     const saved = ContextPosition(latitude: 47.376887123, longitude: 8.541694, altitude: 408.5);
     await tester.pumpWidget(
-      buildSheet(service: LocationService(provider: FakeSheetLocationProvider()), currentLocation: saved),
+      buildSheet(
+        service: LocationService(provider: FakeSheetLocationProvider()),
+        currentLocation: saved,
+        locale: const Locale('de'),
+      ),
     );
 
     expect(find.widgetWithText(TextFormField, '47,376887123'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, '8,541694'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, '408,5'), findsOneWidget);
-    expect(find.text('Please enter a valid number'), findsNothing);
+    expect(find.text(germanL10n.setNumberInvalid), findsNothing);
   });
 
   testWidgets('opens location settings for disabled services', (tester) async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
@@ -216,7 +217,7 @@ class _SetupIdentity extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final dateTime =
-        '${DateFormat(dateFormat).format(setup.datetimeLocal)} • ${DateFormat(timeFormat).format(setup.datetimeLocal)}';
+        '${DateFormat(dateFormat, context.l10n.localeName).format(setup.datetimeLocal)} • ${DateFormat(timeFormat, context.l10n.localeName).format(setup.datetimeLocal)}';
     // The swap button straddles the seam, so each side keeps its inner edge clear.
     final content = Padding(
       padding: _isLeading ? const EdgeInsets.fromLTRB(8, 8, 16, 8) : const EdgeInsets.fromLTRB(16, 8, 8, 8),
@@ -235,7 +236,7 @@ class _SetupIdentity extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  setup.displayName,
+                  setup.label(context.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleSmall,

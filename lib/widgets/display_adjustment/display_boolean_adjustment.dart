@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import 'adjustment_icon_name_notes.dart';
@@ -55,7 +57,7 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: value?.display ?? '-',
+                        text: value?.displayText(context.l10n) ?? '-',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: highlightColor,
@@ -73,7 +75,7 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
                   Opacity(
                     opacity: 0.7,
                     child: Text(
-                      (initialValue?.display ?? '-') + adjustment.unitSuffix(),
+                      (initialValue?.displayText(context.l10n) ?? '-') + adjustment.unitSuffix(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.lineThrough,

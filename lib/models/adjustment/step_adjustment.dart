@@ -42,11 +42,6 @@ class StepAdjustment extends Adjustment {
   /// Stand-in for a catalog range authored as `max: ~` (see [StepAdjustment.fromYaml]).
   static const int unknownMaxPlaceholder = 20;
 
-  /// For the rider only; notes are theirs to edit, so code asks
-  /// [PresetAdjustmentSpec.hasUnknownMax] instead. In the app language of the
-  /// moment, stored as written with the notes.
-  static String get unknownMaxWarning => currentL10n.stepUnknownMaxWarning;
-
   StepAdjustment({
     super.id,
     required super.name,
@@ -196,7 +191,6 @@ class StepAdjustment extends Adjustment {
     });
     final min = (map['min'] as num?)?.toInt() ?? 0;
     var max = (map['max'] as num?)?.toInt();
-    var notes = map['notes'] as String?;
     if (max == null) {
       // `max: ~` declares a range the manufacturer does not publish; a missing
       // key is still a data bug.
@@ -207,11 +201,10 @@ class StepAdjustment extends Adjustment {
         throw ArgumentError('Step adjustment "${map['name']}" has an unknown "max", which needs a range counted from 0');
       }
       max = unknownMaxPlaceholder;
-      notes = notes == null ? unknownMaxWarning : '$notes; $unknownMaxWarning';
     }
     return StepAdjustment(
       name: _requirePresetName(map),
-      notes: notes,
+      notes: map['notes'] as String?,
       unit: AdjustmentUnit.fromLegacy(map['unit'] as String?),
       min: min,
       max: max,

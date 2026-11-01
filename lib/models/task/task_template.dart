@@ -1,15 +1,11 @@
 import 'package:flutter/foundation.dart';
 
-import '../../l10n/l10n.dart';
-import 'task_association.dart';
 import 'task_rule.dart';
 import 'task_threshold/task_threshold.dart';
 
-/// A ready-made task rule for a component type. Its [key] ends up in
-/// [TaskRule.presetKey] of every rule created from it.
 @immutable
 class TaskTemplate {
-  final String key;
+  final String key; // =TaskRule.presetKey
   final String name;
   final String? notes;
   final TaskThreshold interval;
@@ -92,49 +88,4 @@ class TaskSuggestion {
   });
 
   bool get isFallback => stravaInterval != null;
-
-  TaskRule toTaskRule(String componentId, {String distanceUnit = 'km', String altitudeUnit = 'm'}) {
-    final line = _recommendationLine(distanceUnit: distanceUnit, altitudeUnit: altitudeUnit);
-    return TaskRule(
-      name: name,
-      notes: line == null ? notes : (notes == null ? line : '$notes\n\n$line'),
-      priority: priority,
-      tags: const <String>{},
-      association: ComponentTaskAssociation(componentId),
-      interval: interval,
-      repeat: repeat,
-      presetKey: key,
-    );
-  }
-
-  /// `null` for a generic interval: the rule's own trigger already says it.
-  String? _recommendationLine({required String distanceUnit, required String altitudeUnit}) {
-    final strava = stravaInterval;
-    if (strava == null && source == null) return null;
-    final l10n = currentL10n;
-    final effective = taskIntervalLabel(interval, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit);
-    final origin = strava != null
-        ? l10n.taskRecommendedTimeBased(taskIntervalLabel(strava, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit))
-        : '';
-    final sourceSuffix = source == null ? '' : ' — $source';
-    return '${l10n.taskRecommendedInterval(effective)}$origin$sourceSuffix';
-  }
-}
-
-/// "every 2,000 km", "every 6 months", "every year", in the app language.
-String taskIntervalLabel(TaskThreshold interval, {String distanceUnit = 'km', String altitudeUnit = 'm'}) {
-  final l10n = currentL10n;
-  if (interval is DurationThreshold) {
-    final days = interval.days.inDays;
-    for (final (dayCount, label) in [
-      (365, l10n.taskIntervalEveryYears),
-      (30, l10n.taskIntervalEveryMonths),
-      (7, l10n.taskIntervalEveryWeeks),
-      (1, l10n.taskIntervalEveryDays),
-    ]) {
-      if (days < dayCount || days % dayCount != 0) continue;
-      return label(days ~/ dayCount);
-    }
-  }
-  return l10n.taskIntervalEvery(interval.toDisplayValue(distanceUnit: distanceUnit, altitudeUnit: altitudeUnit));
 }

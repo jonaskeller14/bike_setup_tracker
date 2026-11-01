@@ -91,7 +91,7 @@ void main() {
     const strategy = PatternSearchStrategy();
 
     test('no feedback on the latest run yet', () {
-      expect(strategy.propose(history(rated: false)), const NoSuggestion(SuggestionNote(SuggestionNoteKind.addFeedbackFirst, ['Run 1'])));
+      expect(strategy.propose(history(rated: false)), const NoSuggestion(SuggestionNote(SuggestionNoteKind.addFeedbackFirst, [SetupArg('Run 1')])));
     });
 
     test('every knob locked', () {
@@ -248,7 +248,7 @@ void main() {
       final clicks = StrategyKnob.of(stepKnob('a', min: 1, max: 10, step: 3))!;
       expect(clicks.valueAt(5.6), const StepValue(7));
       expect(clicks.valueAt(99), const StepValue(10));
-      expect(clicks.describe(4, 7), 'a +3');
+      expect(clicks.change(4, 7), (adjustment: clicks.adjustment, from: const StepValue(4), to: const StepValue(7)));
     });
   });
 }

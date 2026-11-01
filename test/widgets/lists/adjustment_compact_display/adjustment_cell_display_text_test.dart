@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/adjustment_value_text.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_cell.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -90,7 +92,7 @@ void main() {
     value: c.value,
     previousValue: previousValue,
     isError: isError,
-  ).displayText;
+  ).displayText(englishL10n);
 
   group('AdjustmentCell.displayText', () {
     for (final c in cases) {
@@ -107,7 +109,7 @@ void main() {
             displayOf(c, previousValue: c.value),
             displayOf(c, previousValue: c.previousValue, isError: true),
           ]) {
-            expect(display.value, c.value.display);
+            expect(display.value, c.value.displayText(englishL10n));
             expect(display.previous, isNull);
             expect(display.hasPrevious, isFalse);
           }
@@ -136,7 +138,7 @@ void main() {
         adjustment: text.adjustment,
         value: TextValue.orNull('front\nrear'),
         previousValue: TextValue.orNull('left\nright'),
-      ).displayText;
+      ).displayText(englishL10n);
       expect(display.value, 'front rear');
       expect(display.previous, 'left right');
     });
@@ -158,7 +160,7 @@ void main() {
       adjustment: adjustment,
       value: value,
       previousValue: previousValue,
-    ).displayText;
+    ).displayText(englishL10n);
 
     test('a previous value within the budget counts whole', () {
       expect(displayOf(text, TextValue.orNull('Fox 38')!, TextValue.orNull('Fox 36')!).previousForWidth, 'Fox 36');
@@ -193,7 +195,7 @@ void main() {
       adjustment: duration,
       value: DurationValue(value),
       previousValue: previousValue == null ? null : DurationValue(previousValue),
-    ).displayText;
+    ).displayText(englishL10n);
 
     test('zero seconds on both sides drops the seconds', () {
       final display = displayOf(const Duration(hours: 1, minutes: 35), const Duration(hours: 1, minutes: 20));

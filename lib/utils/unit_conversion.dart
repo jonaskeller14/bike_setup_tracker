@@ -124,4 +124,4 @@ List<UnitCycleEntry> sagUnitCycle(SagAdjustment adjustment) {
 
 double _identity(double value) => value;
 
-String formatConverted(double value) => formatLocalizedDouble(value);
+String formatConverted(double value, {required String locale}) => formatLocalizedDouble(value, locale: locale);

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
@@ -377,11 +378,11 @@ class _ContextSection extends StatelessWidget {
           positionA: setupA.position,
           placeA: setupA.place,
           weatherA: setupA.weather,
-          displayNameA: setupA.displayName,
+          displayNameA: setupA.label(context.l10n),
           positionB: setupB.position,
           placeB: setupB.place,
           weatherB: setupB.weather,
-          displayNameB: setupB.displayName,
+          displayNameB: setupB.label(context.l10n),
           onViewOnMap: showViewOnMap ? () => MapActions.openSetupsOnMap(context, [setupA, setupB]) : null,
         ),
         ContextBikePersonCardDiff(

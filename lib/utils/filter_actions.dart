@@ -87,6 +87,7 @@ class FilterActions {
 
     final dateLabel = dateRangeLabel(
       enabled.contains(FilterSection.dateRange) ? filters.dateRange : null,
+      l10n,
       dateFormat: appSettings.dateFormat,
     );
     final setupTagCount = setups && appSettings.enableSetupTags ? filters.setup.tags.length : 0;
@@ -97,11 +98,13 @@ class FilterActions {
     final activity = enabled.contains(FilterSection.activity) ? filters.activity : const ActivityFilter();
     final distanceLabel = rangeLabel(
       activity.distance,
+      l10n,
       unit: appSettings.distanceUnit,
       fromMeters: AppSettings.convertDistanceFromMeters,
     );
     final elevationGainLabel = rangeLabel(
       activity.elevationGain,
+      l10n,
       unit: appSettings.altitudeUnit,
       fromMeters: AppSettings.convertElevationFromMeters,
     );
@@ -125,11 +128,12 @@ class FilterActions {
   /// [range] (in metres) in the user's [unit]: "10–50 km", "≥ 10 km" or
   /// "≤ 50 km". `null` while the range is open at both ends.
   static String? rangeLabel(
-    NumericRange range, {
+    NumericRange range,
+    AppLocalizations l10n, {
     required String unit,
     required double? Function(double? meters, String unit) fromMeters,
   }) {
-    final format = NumberFormat.decimalPattern()..maximumFractionDigits = 1;
+    final format = NumberFormat.decimalPattern(l10n.localeName)..maximumFractionDigits = 1;
     final min = range.min == null ? null : format.format(fromMeters(range.min, unit));
     final max = range.max == null ? null : format.format(fromMeters(range.max, unit));
 
@@ -141,9 +145,9 @@ class FilterActions {
 
   /// [range] with its days in the user's [dateFormat]: "2024-05-01 – 2024-05-31",
   /// or the one date of a single day. `null` without a range.
-  static String? dateRangeLabel(LocalDateRange? range, {required String dateFormat}) {
+  static String? dateRangeLabel(LocalDateRange? range, AppLocalizations l10n, {required String dateFormat}) {
     if (range == null) return null;
-    final format = DateFormat(dateFormat);
+    final format = DateFormat(dateFormat, l10n.localeName);
     final start = format.format(range.start);
     return range.start == range.end ? start : "$start – ${format.format(range.end)}";
   }

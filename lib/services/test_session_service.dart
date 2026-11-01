@@ -2,11 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show IconData;
 import 'package:intl/intl.dart';
 
-import '../l10n/enum_labels.dart';
+import '../l10n/entity_names.dart';
 import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
-import '../models/feedback/feedback_key.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/feedback/test_session.dart';
 import '../models/feedback/test_session_method.dart';
@@ -137,10 +136,15 @@ class TestSessionService {
   /// "Copy of 'Run 2' (1.10.2026)" below the notes of [source]. The notes of an
   /// earlier run describe that ride, so only a source from outside the session
   /// passes its notes on, and the copy lines don't pile up run after run.
-  static String runNotes({required Setup source, required TestSession session, required String dateFormat}) {
-    final copyLine = currentL10n.testSessionCopyLine(
-      source.displayName,
-      DateFormat(dateFormat).format(source.datetimeLocal),
+  static String runNotes(
+    AppLocalizations l10n, {
+    required Setup source,
+    required TestSession session,
+    required String dateFormat,
+  }) {
+    final copyLine = l10n.testSessionCopyLine(
+      source.label(l10n),
+      DateFormat(dateFormat, l10n.localeName).format(source.datetimeLocal),
     );
     final notes = source.testSessionId == session.id ? null : source.notes?.trim();
     return notes == null || notes.isEmpty ? copyLine : '$notes\n\n$copyLine';
@@ -151,7 +155,8 @@ class TestSessionService {
   /// even when [source] is an older run. A Compare run ignores locks: a locked
   /// value would turn the candidate into a different setup. A [carryOver]
   /// moves the values of replaced components to their successors first.
-  static Setup run({
+  static Setup run(
+    AppLocalizations l10n, {
     required Setup source,
     required TestSession session,
     required int number,
@@ -170,7 +175,7 @@ class TestSessionService {
         if (current.containsKey(key)) key: value,
     };
     return Setup(
-      name: currentL10n.testSessionRunName(number),
+      name: l10n.testSessionRunName(number),
       notes: notes,
       datetime: stamp.toUtc(),
       datetimeLocal: stamp,
@@ -200,41 +205,5 @@ class TestSessionService {
       ],
     ];
     return ascending ? ordered : ordered.reversed.toList();
-  }
-
-  /// "Front · Calm".
-  static String goalLabel(FeedbackAspect aspect, String Function(String slug) customLabel) => switch (aspect) {
-    EndAspect(:final end, :final attribute) => currentL10n.testSessionGoalLabel(
-      end.label(currentL10n),
-      attribute.qualityLabel(currentL10n),
-    ),
-    CustomAspect(:final slug) => customLabel(slug),
-    _ => aspect.raw,
-  };
-
-  static String methodLabel(TestSessionMethod? method) => switch (method) {
-    PatternSearch() => currentL10n.testSessionMethodFineTune,
-    OrthogonalArray() => currentL10n.testSessionMethodExplore,
-    Tournament() => currentL10n.testSessionMethodCompare,
-    null => currentL10n.testSessionMethodFree,
-  };
-
-  static String methodDescription(TestSessionMethod? method) => switch (method) {
-    PatternSearch() => currentL10n.testSessionMethodFineTuneInfo,
-    OrthogonalArray() => currentL10n.testSessionMethodExploreInfo,
-    Tournament() => currentL10n.testSessionMethodCompareInfo,
-    null => currentL10n.testSessionMethodFreeInfo,
-  };
-
-  /// A rough run count for [knobCount] knobs, or the number of candidates for a
-  /// Compare session.
-  static String? expectedRuns(TestSessionMethod? method, int knobCount) {
-    return switch (method) {
-      _ when knobCount <= 0 => null,
-      PatternSearch() => currentL10n.testSessionExpectedRuns(knobCount * 4),
-      OrthogonalArray() => currentL10n.testSessionExpectedRuns(knobCount + 2),
-      Tournament(:final candidateSetupIds) => currentL10n.testSessionExpectedRuns(candidateSetupIds.length + 1),
-      null => null,
-    };
   }
 }

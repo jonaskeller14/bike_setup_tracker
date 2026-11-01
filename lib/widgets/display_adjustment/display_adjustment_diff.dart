@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/adjustment_value_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/setup_comparison.dart' as comparison;
@@ -128,16 +129,16 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
         );
         final converted = selected.label != cycle.first.label;
         return _DisplayedValue(
-          text: converted ? formatConverted(selected.fromStorage(value.asNum!.toDouble())) : value.display,
+          text: converted ? formatConverted(selected.fromStorage(value.asNum!.toDouble()), locale: context.l10n.localeName) : value.displayText(context.l10n),
           unit: selected.label,
-          storageEquivalent: converted ? '= ${value.display} ${cycle.first.label}' : null,
+          storageEquivalent: converted ? '= ${value.displayText(context.l10n)} ${cycle.first.label}' : null,
           usesMonospace: true,
         );
       }
     }
 
     return _DisplayedValue(
-      text: value.display,
+      text: value.displayText(context.l10n),
       unit: definition.unit?.label,
       usesMonospace: _usesMonospaceValue(definition),
     );
@@ -212,7 +213,7 @@ class _DiffValue extends StatelessWidget {
                             child: Text(value.unit!, style: unitStyle),
                           ),
                         )
-                      : Text(' ${value.unit}', style: unitStyle),
+                      : Flexible(child: Text(' ${value.unit}', style: unitStyle)),
               ],
             ),
             if (value.storageEquivalent != null)

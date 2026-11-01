@@ -5,7 +5,6 @@ import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:bike_setup_tracker/utils/value_migration_proposal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../goldens/support/localized_test_app.dart';
@@ -56,13 +55,11 @@ void main() {
   });
 
   testWidgets('pre-fills German bounds with a decimal comma and saves them unchanged', (WidgetTester tester) async {
-    Intl.defaultLocale = 'de';
-    addTearDown(() => Intl.defaultLocale = null);
-
     final initial = NumericalAdjustment(name: 'Volume', notes: null, unit: null, min: 0.5, max: 99.123456);
     final saved = savedAdjustment(await pushAndSave(
       tester,
       NumericalAdjustmentPage.edit(adjustment: initial),
+      locale: const Locale('de'),
       interact: () async {
         expect(find.widgetWithText(TextFormField, '0,5'), findsOneWidget);
         expect(find.widgetWithText(TextFormField, '99,123456'), findsOneWidget);

@@ -14,7 +14,7 @@ import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
 
 String? initialStatsSummary(ComponentStats stats, AppSettings appSettings, AppLocalizations l10n) {
-  final number = NumberFormat('#,##0.#');
+  final number = NumberFormat('#,##0.#', l10n.localeName);
   final parts = [
     if (stats.distance > 0)
       "${number.format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit))} ${appSettings.distanceUnit}",
@@ -85,13 +85,13 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
     final appSettings = context.read<AppSettings>();
     final stats = widget.initialStats;
     final distance = AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit) ?? 0.0;
-    _distanceController = TextEditingController(text: formatEditableDouble(distance));
+    _distanceController = TextEditingController(text: formatEditableDouble(distance, locale: context.untrackedLocaleName));
     final elevationGain = AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit) ?? 0.0;
-    _elevationGainController = TextEditingController(text: formatEditableDouble(elevationGain));
+    _elevationGainController = TextEditingController(text: formatEditableDouble(elevationGain, locale: context.untrackedLocaleName));
     _movingTimeController = TextEditingController(text: stats.movingTime.inHours.toString());
     _elapsedTimeController = TextEditingController(text: stats.elapsedTime.inHours.toString());
     _activityCountController = TextEditingController(text: stats.activityCount.toString());
-    _kilojoulesController = TextEditingController(text: formatEditableDouble(stats.kilojoules));
+    _kilojoulesController = TextEditingController(text: formatEditableDouble(stats.kilojoules, locale: context.untrackedLocaleName));
     _initialParsedStats = _readStats(appSettings);
   }
 

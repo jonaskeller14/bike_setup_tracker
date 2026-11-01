@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/test_session.dart';
@@ -60,7 +61,7 @@ class ContextBikePersonCard extends StatelessWidget {
                 children: [
                   Flexible(
                     child: Text(
-                      testSession?.displayName ?? context.l10n.testSessionNotFound,
+                      testSession?.label(context.l10n) ?? context.l10n.testSessionNotFound,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: testSession == null ? errorColor : null),

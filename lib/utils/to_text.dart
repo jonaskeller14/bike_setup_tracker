@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/adjustment_value_text.dart';
+import '../l10n/entity_names.dart';
 import '../l10n/enum_labels.dart';
+import '../l10n/feedback_text.dart';
 import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
@@ -24,7 +27,7 @@ String toText({
 }) {
   final appSettings = context.read<AppSettings>();
   final l10n = context.l10n;
-  return withLocaleOf(l10n, () => _toText(selectedData, appSettings, l10n));
+  return _toText(selectedData, appSettings, l10n);
 }
 
 String _toText(SelectedData selectedData, AppSettings appSettings, AppLocalizations l10n) {
@@ -88,7 +91,7 @@ String _toText(SelectedData selectedData, AppSettings appSettings, AppLocalizati
     if (buffer.isNotEmpty) buffer.writeln("\n-----------\n");
     buffer.writeln("${l10n.exportSectionFeedback.toUpperCase()}:");
     for (int i = 0; i < feedbacks.length; i++) {
-      _appendFeedbackText(buffer, feedbacks[i], selectedData, appSettings);
+      _appendFeedbackText(buffer, feedbacks[i], selectedData, appSettings, l10n);
       if (i < feedbacks.length - 1) {
         buffer.writeln();
       }
@@ -107,7 +110,7 @@ String setupToText({
   final l10n = context.l10n;
   final buffer = StringBuffer();
 
-  withLocaleOf(l10n, () => _appendSetupText(
+  _appendSetupText(
     buffer, 
     setup, 
     appRepository.bikes, 
@@ -115,7 +118,7 @@ String setupToText({
     appRepository.components, 
     appSettings,
     l10n
-  ));
+  );
 
   return buffer.toString();
 }
@@ -129,8 +132,8 @@ void _appendSetupText(
   AppSettings settings,
   AppLocalizations l10n,
 ) {
-  final dateString = DateFormat(settings.dateFormat).format(setup.datetimeLocal);
-  final timeString = DateFormat(settings.timeFormat).format(setup.datetimeLocal);
+  final dateString = DateFormat(settings.dateFormat, l10n.localeName).format(setup.datetimeLocal);
+  final timeString = DateFormat(settings.timeFormat, l10n.localeName).format(setup.datetimeLocal);
 
   final bikeName = bikes[setup.bike]?.name ?? '-';
   final personName = persons[setup.person]?.name ?? '-';
@@ -138,9 +141,9 @@ void _appendSetupText(
   final bookmark = settings.enableSetupBookmark && setup.isBookmarked ? ' 🔖' : '';
 
   if (settings.enablePerson) {
-    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName}$bookmark ($bikeName | $personName)${setup.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.label(l10n)}$bookmark ($bikeName | $personName)${setup.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
   } else {
-    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName}$bookmark ($bikeName)${setup.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.label(l10n)}$bookmark ($bikeName)${setup.isDeleted ? ' ${l10n.exportDeleted}' : ''}");
   }
 
   // Location & Weather Context compact oneliner
@@ -164,7 +167,7 @@ void _appendSetupText(
       buffer.writeln("\n👤 ${l10n.exportRiderAttributes(person.name)}");
       for (final adj in person.adjustments) {
         if (setup.personAdjustmentValues[adj.id] case final value?) {
-          buffer.writeln("- ${adj.name}: ${value.display}${adj.unitSuffix()}");
+          buffer.writeln("- ${adj.name}: ${value.displayText(l10n)}${adj.unitSuffix()}");
         }
       }
     }
@@ -177,7 +180,7 @@ void _appendSetupText(
     buffer.writeln("\n- ${component.name}");
     for (final adjustment in component.adjustments) {
       if (setup.bikeAdjustmentValues[adjustment.id] case final value?) {
-        buffer.writeln("\t- ${adjustment.name}: ${value.display}${adjustment.unitSuffix()}");
+        buffer.writeln("\t- ${adjustment.name}: ${value.displayText(l10n)}${adjustment.unitSuffix()}");
       }
     }
   }
@@ -189,14 +192,15 @@ void _appendFeedbackText(
   RideFeedback feedback,
   SelectedData data,
   AppSettings settings,
+  AppLocalizations l10n,
 ) {
-  final dateString = DateFormat(settings.dateFormat).format(feedback.dateTimeLocal);
-  final timeString = DateFormat(settings.timeFormat).format(feedback.dateTimeLocal);
+  final dateString = DateFormat(settings.dateFormat, l10n.localeName).format(feedback.dateTimeLocal);
+  final timeString = DateFormat(settings.timeFormat, l10n.localeName).format(feedback.dateTimeLocal);
   final setup = feedback.ratedSetupIn(data.setups) ?? data.setups[feedback.setupId];
-  final context = [?setup?.displayName, ?data.bikes[feedback.bike]?.name].join(', ');
+  final context = [?setup?.label(l10n), ?data.bikes[feedback.bike]?.name].join(', ');
 
   buffer.writeln("💬 $dateString $timeString${context.isEmpty ? '' : ' ($context)'}");
-  for (final line in [?feedback.verdict(data.setups), ?feedback.issuesSummary, ?feedback.notes]) {
+  for (final line in [?feedback.verdict(data.setups, l10n), ?feedback.issuesSummaryText(l10n), ?feedback.notes]) {
     if (line.isNotEmpty) buffer.writeln(line);
   }
 }
@@ -208,8 +212,8 @@ void _appendTaskEntryText(
   AppSettings settings,
   AppLocalizations l10n,
 ) {
-  final dateString = DateFormat(settings.dateFormat).format(entry.dateTimeLocal);
-  final timeString = DateFormat(settings.timeFormat).format(entry.dateTimeLocal);
+  final dateString = DateFormat(settings.dateFormat, l10n.localeName).format(entry.dateTimeLocal);
+  final timeString = DateFormat(settings.timeFormat, l10n.localeName).format(entry.dateTimeLocal);
 
   final entryLink = _taskLinkLabel(entry.association, data, l10n);
   final contextString = entryLink != null ? ' ($entryLink)' : '';

@@ -358,8 +358,8 @@ Widget onboardingSetupCardHeader({
 }) {
   final appSettings = context.watch<AppSettings>();
   final condition = snapshot.condition;
-  final dateText = DateFormat(appSettings.dateFormat).format(snapshot.setup.datetimeLocal);
-  final timeText = DateFormat(appSettings.timeFormat).format(snapshot.setup.datetimeLocal);
+  final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(snapshot.setup.datetimeLocal);
+  final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(snapshot.setup.datetimeLocal);
 
   return Padding(
     padding: _headerPadding,

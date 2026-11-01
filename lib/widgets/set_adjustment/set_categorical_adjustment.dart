@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/adjustment_value_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
@@ -147,8 +148,8 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                         ),
                         child: Text(
                           isOutdated
-                              ? value!.display
-                              : hasValidValue ? CategoricalValue(validSelected).display : context.l10n.setCategoricalPlaceholder,
+                              ? value!.displayText(context.l10n)
+                              : hasValidValue ? CategoricalValue(validSelected).displayText(context.l10n) : context.l10n.setCategoricalPlaceholder,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: isOutdated

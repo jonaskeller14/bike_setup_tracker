@@ -192,9 +192,11 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                   spacing: 2,
                   children: [
                     Icon(Icons.route, size: 11, color: cs.onSurfaceVariant),
-                    Text(
-                      '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
-                      style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                    Flexible(
+                      child: Text(
+                        '${NumberFormat.decimalPattern(context.l10n.localeName).format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+                        style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                      ),
                     ),
                   ],
                 ),
@@ -202,9 +204,11 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                   spacing: 2,
                   children: [
                     Icon(Icons.timer_outlined, size: 11, color: cs.onSurfaceVariant),
-                    Text(
-                      '${stats.movingTime.inHours}h ${stats.movingTime.inMinutes.remainder(60)}m',
-                      style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                    Flexible(
+                      child: Text(
+                        '${stats.movingTime.inHours}h ${stats.movingTime.inMinutes.remainder(60)}m',
+                        style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                      ),
                     ),
                   ],
                 ),
@@ -374,7 +378,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                           }
                         }
                         if (lastInstall != null && !value.toUtc().isAfter(lastInstall)) {
-                          final formatted = DateFormat("${appSettings.dateFormat} ${appSettings.timeFormat}")
+                          final formatted = DateFormat("${appSettings.dateFormat} ${appSettings.timeFormat}", context.l10n.localeName)
                               .format(lastInstall.toLocal());
                           return l10n.replaceDateAfterLast(formatted);
                         }
@@ -401,7 +405,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  DateFormat(appSettings.dateFormat).format(state.value ?? _replaceDate),
+                                  DateFormat(appSettings.dateFormat, context.l10n.localeName).format(state.value ?? _replaceDate),
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     height: 1.1,
                                   ),
@@ -409,7 +413,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  DateFormat(appSettings.timeFormat).format(state.value ?? _replaceDate),
+                                  DateFormat(appSettings.timeFormat, context.l10n.localeName).format(state.value ?? _replaceDate),
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Theme.of(context).hintColor,
                                     height: 1.1,

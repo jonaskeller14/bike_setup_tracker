@@ -17,7 +17,7 @@ void main() {
     final id = 'r${counter++}';
     return RecordedValue(
       recordId: id,
-      label: id,
+      name: id,
       dateTimeLocal: DateTime(2024),
       value: value,
       isDeleted: deleted,

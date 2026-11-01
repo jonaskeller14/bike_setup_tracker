@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/entity_names.dart';
 import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
@@ -63,6 +64,7 @@ class TestSessionSuggestion extends StatelessWidget {
     final runs = appRepository.setupsInSession(session.id);
     final last = runs.last;
     final next = TestSessionService.run(
+      context.l10n,
       source: last,
       session: session,
       number: runs.length + 1,
@@ -102,7 +104,7 @@ class TestSessionSuggestion extends StatelessWidget {
                       Icon(Icons.tips_and_updates_outlined, size: 18, color: theme.colorScheme.onSurfaceVariant),
                       Expanded(
                         child: Text(
-                          context.l10n.testSessionSuggestedName(next.displayName),
+                          context.l10n.testSessionSuggestedName(next.label(context.l10n)),
                           style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -142,7 +144,7 @@ class TestSessionSuggestion extends StatelessWidget {
     required bool drift,
   }) {
     final theme = Theme.of(context);
-    final name = best?.displayName ?? context.l10n.testSessionBestRunName;
+    final name = best?.label(context.l10n) ?? context.l10n.testSessionBestRunName;
     final label = session.method is Tournament ? context.l10n.testSessionBestSetup : context.l10n.testSessionBestRun;
     final onContainer = theme.colorScheme.onPrimaryContainer;
     final animate = !MediaQuery.disableAnimationsOf(context);
@@ -190,7 +192,7 @@ class TestSessionSuggestion extends StatelessWidget {
                         ),
                         if (run != null)
                           Text(
-                            '(${run.displayName})',
+                            '(${run.label(context.l10n)})',
                             style: theme.textTheme.bodyMedium?.copyWith(color: onContainer),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 
-import '../../utils/localized_number.dart';
 import 'component.dart';
 
 /// Registry of every key the component catalog (`data/component_presets/`) may
@@ -33,12 +32,9 @@ class SpecKey<T extends Object> {
   }
 
   /// Language-neutral: catalog labels are cached.
-  String format(T value) => _withUnit(value is num ? formatSpecNumber(value) : value.toString());
+  String format(T value) => withUnit(value is num ? formatSpecNumber(value) : value.toString());
 
-  /// [format] in the app language, for text built while it is shown.
-  String display(T value) => _withUnit(value is num ? formatLocalizedDouble(value.toDouble()) : value.toString());
-
-  String _withUnit(String text) => unit == null ? text : '$text $unit';
+  String withUnit(String text) => unit == null ? text : '$text $unit';
 }
 
 /// A registered `options:` axis.

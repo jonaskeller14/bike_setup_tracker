@@ -105,6 +105,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
 
     final comparator = tableColumnComparator(
       sortColumn,
+      context.l10n,
       valueFor: _rawValue,
       componentAdjustments: componentAdjustments,
       personAdjustments: personAdjustments,

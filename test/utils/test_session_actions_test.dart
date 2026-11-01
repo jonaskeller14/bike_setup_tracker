@@ -440,7 +440,7 @@ void main() {
 
     testWidgets('refuses a run that is not after the previous run', (tester) async {
       await seed(tester, session: session(), runs: [run(1)]);
-      final early = TestSessionService.run(
+      final early = TestSessionService.run(englishL10n, 
         source: run(1),
         session: appRepository.testSessions['ts']!,
         number: 2,

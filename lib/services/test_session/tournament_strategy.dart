@@ -90,7 +90,7 @@ class TournamentStrategy extends TestSessionStrategy {
         next,
         ids,
         last,
-        SuggestionNote(SuggestionNoteKind.rideAndCompare, [next.displayName, last.displayName]),
+        SuggestionNote(SuggestionNoteKind.rideAndCompare, [SetupArg(next.name), SetupArg(last.name)]),
       );
     }
 
@@ -109,7 +109,7 @@ class TournamentStrategy extends TestSessionStrategy {
         next,
         ids,
         last,
-        SuggestionNote(SuggestionNoteKind.levelRideAgain, [next.displayName, other.displayName]),
+        SuggestionNote(SuggestionNoteKind.levelRideAgain, [SetupArg(next.name), SetupArg(other.name)]),
       );
     }
     return Converged(bestSetupId: top.setupId);

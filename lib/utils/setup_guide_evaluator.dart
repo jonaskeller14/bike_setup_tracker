@@ -1,6 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:units_converter/units_converter.dart';
 
+import '../l10n/adjustment_value_text.dart';
+import '../l10n/catalog_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/preset_spec_keys.dart';
@@ -32,6 +35,7 @@ List<GuideRecommendation> evaluateSetupGuide(
   List<Adjustment> adjustments,
   GuideInputs inputs,
   Map<String, AdjustmentValue> currentValues,
+  AppLocalizations l10n,
 ) {
   final guide = preset.product?.guide;
   if (guide == null) return const [];
@@ -57,6 +61,7 @@ List<GuideRecommendation> evaluateSetupGuide(
       adjustment: adjustment,
       preset: preset,
       inputs: inputs,
+      l10n: l10n,
       current: currentValues[adjustment.id],
       readAdjuster: (id) {
         final input = adjustmentFor(id);
@@ -150,6 +155,7 @@ class _RuleEvaluation {
   final Adjustment adjustment;
   final ResolvedPreset preset;
   final GuideInputs inputs;
+  final AppLocalizations l10n;
   final AdjustmentValue? current;
   final (Adjustment, AdjustmentValue)? Function(String adjusterId) readAdjuster;
 
@@ -159,6 +165,7 @@ class _RuleEvaluation {
     required this.adjustment,
     required this.preset,
     required this.inputs,
+    required this.l10n,
     required this.current,
     required this.readAdjuster,
   });
@@ -393,18 +400,18 @@ class _RuleEvaluation {
       case RiderGuideInput(key: GuideInputKey.riderWeight):
         final weight = inputs.riderWeight;
         if (weight == null) throw const _Failure(GuideIssue.missingInput);
-        _inputText = '${formatLocalizedDouble(_round(weight, 1))} ${inputs.riderWeightUnit.label}';
+        _inputText = '${formatLocalizedDouble(_round(weight, 1), locale: l10n.localeName)} ${inputs.riderWeightUnit.label}';
         return convertUnit(weight, inputs.riderWeightUnit, rule.inputUnit!);
       case PresetGuideInput(:final id):
         final spec = PresetSpecKeys.byId(id);
         final value = spec == null ? null : preset.effectiveSpecs.get(spec);
         if (spec == null || value is! num) throw const _Failure(GuideIssue.missingInput);
-        _inputText = spec.display(value);
+        _inputText = spec.display(value, l10n);
         return value.toDouble();
       case AdjusterGuideInput(:final adjusterId):
         final (input, value) = readAdjuster(adjusterId) ?? (throw const _Failure(GuideIssue.missingInput));
         final number = value.asNum?.toDouble() ?? (throw const _Failure(GuideIssue.missingInput));
-        _inputText = '${input.name} ${value.display}${input.unitSuffix()}';
+        _inputText = '${input.name} ${value.displayText(l10n)}${input.unitSuffix()}';
         return switch ((input.unit, rule.inputUnit)) {
           (final KnownUnit from, final KnownUnit to) when from.quantity == to.quantity => convertUnit(number, from, to),
           (_, KnownUnit()) => throw const _Failure(GuideIssue.incompatible),

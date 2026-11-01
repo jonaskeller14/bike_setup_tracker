@@ -19,7 +19,8 @@ class MetricWeightField extends StatefulWidget {
   });
 
   /// Trims trailing ".0" so 1.0 → "1" / -1.0 → "-1" while keeping 1.5 etc.
-  static String formatWeight(double v) => formatLocalizedDouble(v, fractionDigits: v == v.roundToDouble() ? 0 : 1);
+  static String formatWeight(double v, String locale) =>
+      formatLocalizedDouble(v, fractionDigits: v == v.roundToDouble() ? 0 : 1, locale: locale);
 
   @override
   State<MetricWeightField> createState() => _MetricWeightFieldState();
@@ -45,7 +46,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
   double get _value => parseLocalizedDouble(widget.controller?.text ?? '') ?? 0;
 
   void _setValue(double v) {
-    final text = MetricWeightField.formatWeight(v);
+    final text = MetricWeightField.formatWeight(v, context.l10n.localeName);
     widget.controller?.value = TextEditingValue(
       text: text,
       selection: TextSelection.collapsed(offset: text.length),

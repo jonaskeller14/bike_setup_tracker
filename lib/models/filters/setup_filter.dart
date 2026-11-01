@@ -9,16 +9,21 @@ import '../setup.dart';
 class SetupFilter {
   final Set<String> tags;
   final bool bookmarkedOnly;
+  /// Test sessions by name, so sessions sharing one are picked together; an
+  /// unnamed session is [unnamedTestSession].
   final Set<String> testSessionNames;
+
+  static const String unnamedTestSession = '';
 
   const SetupFilter({this.tags = const {}, this.bookmarkedOnly = false, this.testSessionNames = const {}});
 
   bool get isActive => tags.isNotEmpty || bookmarkedOnly || testSessionNames.isNotEmpty;
 
   bool matches(Setup setup, {Map<String, TestSession> testSessions = const {}}) =>
-      setup.tags.containsAll(tags) &&
-      (!bookmarkedOnly || setup.isBookmarked) &&
-      (testSessionNames.isEmpty || testSessionNames.contains(testSessions[setup.testSessionId]?.displayName));
+      setup.tags.containsAll(tags) && (!bookmarkedOnly || setup.isBookmarked) && _matchesTestSession(testSessions[setup.testSessionId]);
+
+  bool _matchesTestSession(TestSession? session) =>
+      testSessionNames.isEmpty || (session != null && testSessionNames.contains(session.name ?? unnamedTestSession));
 
   Map<String, Object?> toJson() => {
     'tags': tags.toList(),

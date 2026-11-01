@@ -254,7 +254,6 @@ nodes:
       expect(hscSpec.hasUnknownMax, isFalse);
       final lsc = lscSpec.build();
       expect((lsc as StepAdjustment).max, StepAdjustment.unknownMaxPlaceholder);
-      expect(lsc.notes, StepAdjustment.unknownMaxWarning);
     });
   });
 

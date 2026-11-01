@@ -86,8 +86,8 @@ class _SetupTileState extends State<SetupTile> {
     final bikes = appRepository.bikes;
     final bool showInlineExpandIcon = summary.collapsedHidesSomething;
 
-    final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
-    final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(setup.datetimeLocal);
 
     final metadataRows = [
       ...SetupTileHeader.metadataOf(setup, appSettings, context.l10n, hidePlace: widget.hidePlace),

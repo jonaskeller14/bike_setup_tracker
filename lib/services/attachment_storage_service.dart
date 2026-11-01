@@ -73,7 +73,7 @@ class AttachmentStorageService {
     await ensureDir();
     final ext = p.extension(picked.path).isNotEmpty ? p.extension(picked.path) : '.jpg';
     final name = _generatedPickerName.hasMatch(picked.name)
-        ? 'Photo ${DateFormat('yyyy-MM-dd HH.mm').format(now ?? DateTime.now())}'
+        ? 'Photo ${DateFormat('yyyy-MM-dd HH.mm', 'en_US').format(now ?? DateTime.now())}'
         : picked.name;
     final attachment = Attachment(extension: ext, name: name);
     final dest = await resolve(attachment.filename);

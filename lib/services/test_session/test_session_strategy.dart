@@ -189,7 +189,7 @@ abstract class TestSessionStrategy {
     final latest = history.runs.lastOrNull;
     if (latest == null) return const NoSuggestion(SuggestionNote(SuggestionNoteKind.recordRunFirst));
     if (!history.ratedRunIds.contains(latest.id)) {
-      return NoSuggestion(SuggestionNote(SuggestionNoteKind.addFeedbackFirst, [latest.displayName]));
+      return NoSuggestion(SuggestionNote(SuggestionNoteKind.addFeedbackFirst, [SetupArg(latest.name)]));
     }
     return null;
   }
@@ -213,13 +213,13 @@ abstract class TestSessionStrategy {
       if (value == null) {
         return (
           knobs: const [],
-          result: InvalidData(SuggestionNote(SuggestionNoteKind.noValue, [latest.displayName, adjustment.name])),
+          result: InvalidData(SuggestionNote(SuggestionNoteKind.noValue, [SetupArg(latest.name), TextArg(adjustment.name)])),
         );
       }
       if (!adjustment.isValidValue(value)) {
         return (
           knobs: const [],
-          result: InvalidData(SuggestionNote(SuggestionNoteKind.outOfRange, [adjustment.name, latest.displayName])),
+          result: InvalidData(SuggestionNote(SuggestionNoteKind.outOfRange, [TextArg(adjustment.name), SetupArg(latest.name)])),
         );
       }
       if (StrategyKnob.of(adjustment, reference: value) case final knob?) knobs.add(knob);
@@ -252,10 +252,10 @@ abstract class TestSessionStrategy {
   };
 
   /// "Rebound +2, Lockout On": what changes from [from] to [to].
-  static String describeMove(List<StrategyKnob> knobs, List<double> from, List<double> to) => [
+  static MoveArg describeMove(List<StrategyKnob> knobs, List<double> from, List<double> to) => MoveArg([
     for (var i = 0; i < knobs.length; i++)
-      if (!knobs[i].isSame(from[i], to[i])) knobs[i].describe(from[i], to[i]),
-  ].join(', ');
+      if (!knobs[i].isSame(from[i], to[i])) knobs[i].change(from[i], to[i]),
+  ]);
 
   /// The A-B-A check: [repeatId] (a re-ride of [originalId]) lost against
   /// [previousId], which [originalId] had beaten.

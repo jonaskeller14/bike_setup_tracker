@@ -8,6 +8,7 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../icons/simple_icons.dart';
+import '../l10n/entity_names.dart';
 import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
@@ -146,12 +147,12 @@ Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) 
     };
 
 String calendarSubjectFor(TimelineEntry entry, AppLocalizations l10n) => switch (entry) {
-      SetupEntry() => entry.setup.displayName,
+      SetupEntry() => entry.setup.label(l10n),
       StravaEntry() => entry.activity.name,
       TaskTimeLineEntry() => entry.taskEntry.name,
       InstallationEntry() => entry.componentInstallation.shortLabel,
       FeedbackTimelineEntry() => l10n.feedbackName,
-      TestSessionTimelineEntry() => entry.session.displayName,
+      TestSessionTimelineEntry() => entry.session.label(l10n),
     };
 
 IconData calendarIconForRow(
@@ -684,7 +685,7 @@ class _CalendarPageState extends State<CalendarPage> {
   ) {
     if (!mounted) return;
     final appSettings = context.read<AppSettings>();
-    final format = DateFormat('${appSettings.dateFormat} ${appSettings.timeFormat}');
+    final format = DateFormat('${appSettings.dateFormat} ${appSettings.timeFormat}', context.l10n.localeName);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(AppSnackBar.info(
@@ -761,7 +762,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 label: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(_selectedView.label(context.l10n)),
+                    Flexible(child: Text(_selectedView.label(context.l10n))),
                     const Icon(Icons.arrow_drop_down, size: 18),
                   ],
                 ),

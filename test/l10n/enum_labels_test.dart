@@ -75,7 +75,7 @@ void main() {
     test('test session suggestion notes', () {
       expectLabeled(
         SuggestionNoteKind.values,
-        (v, l10n) => SuggestionNote(v, const ['a', 'b', 'c', 'd']).text(l10n),
+        (v, l10n) => SuggestionNote(v, const [TextArg('a'), TextArg('b'), TextArg('c'), TextArg('d')]).text(l10n),
       );
     });
     test('setup guide statuses', () {
@@ -100,8 +100,8 @@ void main() {
     test('TableColumnSection', () => expectLabeled(TableColumnSection.values, (v, l10n) => v.label(l10n)));
     test('weather codes', () {
       const codes = [0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99];
-      expectLabeled(codes, (code, l10n) => ContextWeather.getStaticWeatherCodeLabel(code, l10n)!);
-      expect(ContextWeather.getStaticWeatherCodeLabel(null, locales['en']!), isNull);
+      expectLabeled(codes, (code, l10n) => weatherCodeLabel(code, l10n)!);
+      expect(weatherCodeLabel(null, locales['en']!), isNull);
     });
   });
 
@@ -116,19 +116,25 @@ void main() {
     expect(StepAdjustmentVisualization.minusButtonValuePlusButton.label(en), 'Plus/Minus Buttons');
     expect(SetupColumn.windSpeed.label(en), 'Windspeed');
     expect(TableColumnSection.personAttributes.label(en), 'Rider Attributes');
-    expect(ContextWeather.getStaticWeatherCodeLabel(61, en), 'Slight rain');
-    expect(ContextWeather.getStaticWeatherCodeLabel(7, en), 'Unknown');
+    expect(weatherCodeLabel(61, en), 'Slight rain');
+    expect(weatherCodeLabel(7, en), 'Unknown');
     expect(StravaPlan.monthly.period(en), '/ month');
     expect(TipProduct.small.label(en), 'Buy me a coffee');
   });
 
   test('strategy texts, weather errors and guide statuses read in English as before and in German', () {
     final (en, de) = (locales['en']!, locales['de']!);
-    const note = SuggestionNote(SuggestionNoteKind.levelRideAgain, ['Run 2', 'Run 3']);
+    final rebound = StepAdjustment(name: 'Rebound', notes: null, unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.slider);
+    const note = SuggestionNote(SuggestionNoteKind.levelRideAgain, [SetupArg('Run 2'), SetupArg('Run 3')]);
     expect(note.text(en), 'Run 2 and Run 3 are level. Ride Run 2 again to decide.');
     expect(note.text(de), 'Run 2 und Run 3 sind gleichauf. Fahre Run 2 noch einmal, um zu entscheiden.');
     expect(
-      const SuggestionNote(SuggestionNoteKind.patternStep, ['1', '4', 'Rebound +2', 'Run 1']).text(en),
+      SuggestionNote(SuggestionNoteKind.patternStep, [
+        const TextArg('1'),
+        const TextArg('4'),
+        MoveArg([(adjustment: rebound, from: const StepValue(3), to: const StepValue(5))]),
+        const SetupArg('Run 1'),
+      ]).text(en),
       'Pattern 1 of 4: Rebound +2 from Run 1. Every adjustment moves, so their effects can be told apart.',
     );
     const rateLimit = WeatherError(WeatherErrorKind.rateLimit, '14:05');

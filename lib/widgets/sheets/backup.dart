@@ -154,7 +154,7 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
-    final timeFormat = DateFormat(appSettings.timeFormat);
+    final timeFormat = DateFormat(appSettings.timeFormat, context.l10n.localeName);
 
     return SafeArea(
       child: Column(

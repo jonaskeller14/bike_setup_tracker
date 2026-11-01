@@ -98,7 +98,7 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
         : textTheme.bodyLarge?.copyWith(color: widget.color);
     final colorScheme = Theme.of(context).colorScheme;
     final guide = SetupGuideScope.recommendationFor(context, widget.adjustment.id);
-    final guideStatus = guide == null ? null : GuideStatus.of(guide.$1);
+    final guideStatus = guide == null ? null : GuideStatus.of(guide.$1, context.l10n);
 
     return Row(
       mainAxisSize: MainAxisSize.max,

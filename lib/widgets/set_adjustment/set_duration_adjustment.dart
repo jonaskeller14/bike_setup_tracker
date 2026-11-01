@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/adjustment_value_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
@@ -84,13 +85,15 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            value!.display,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontFamily: 'monospace',
-                              fontWeight: FontWeight.bold,
-                              color: highlightColor,
-                              fontFeatures: [const FontFeature.tabularFigures()],
+                          Flexible(
+                            child: Text(
+                              value!.displayText(context.l10n),
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                fontFamily: 'monospace',
+                                fontWeight: FontWeight.bold,
+                                color: highlightColor,
+                                fontFeatures: [const FontFeature.tabularFigures()],
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),

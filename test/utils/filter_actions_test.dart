@@ -380,7 +380,7 @@ void main() {
 
   group('rangeLabel', () {
     String? label(NumericRange range) =>
-        FilterActions.rangeLabel(range, unit: 'km', fromMeters: AppSettings.convertDistanceFromMeters);
+        FilterActions.rangeLabel(range, englishL10n, unit: 'km', fromMeters: AppSettings.convertDistanceFromMeters);
 
     test('is null while the range is open at both ends', () {
       expect(label(const NumericRange()), null);
@@ -398,7 +398,7 @@ void main() {
   });
 
   group('dateRangeLabel', () {
-    String? label(LocalDateRange? range) => FilterActions.dateRangeLabel(range, dateFormat: 'yyyy-MM-dd');
+    String? label(LocalDateRange? range) => FilterActions.dateRangeLabel(range, englishL10n, dateFormat: 'yyyy-MM-dd');
 
     test('is null without a range', () {
       expect(label(null), null);

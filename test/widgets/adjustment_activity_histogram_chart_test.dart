@@ -12,22 +12,21 @@ void main() {
     adjustmentId: 'pressure',
     bars: [
       AdjustmentActivityHistogramBar.exact(
-        label: 'An exceptionally long category name',
         activityCount: 12345,
-        exactValue: CategoricalValue(const ['long']),
+        exactValue: CategoricalValue(const ['An exceptionally long category name']),
       ),
       if (binned)
         const AdjustmentActivityHistogramBar.range(
-          label: '20–30 psi',
           activityCount: 7,
           lowerBound: 20,
           upperBound: 30,
           includesUpperBound: true,
         )
       else
-        const AdjustmentActivityHistogramBar.exact(label: '30 psi', activityCount: 7, exactValue: NumericalValue(30)),
+        const AdjustmentActivityHistogramBar.exact(activityCount: 7, exactValue: NumericalValue(30)),
     ],
     isBinned: binned,
+    unitLabel: 'psi',
   );
 
   Widget harness(
@@ -77,7 +76,7 @@ void main() {
 
     expect(
       find.bySemanticsLabel(
-        'Activity distribution. An exceptionally long category name: 12345 activities, 20–30 psi: 7 activities',
+        'Activity distribution. An exceptionally long category name psi: 12345 activities, 20 psi–30 psi: 7 activities',
       ),
       findsOneWidget,
     );
@@ -103,7 +102,7 @@ void main() {
       0,
     );
 
-    expect(tooltipItem?.text, 'An exceptionally long category name\n12345 activities');
+    expect(tooltipItem?.text, 'An exceptionally long category name psi\n12345 activities');
   });
 
   testWidgets('highlights only the bar of the current value', (tester) async {
@@ -126,7 +125,7 @@ void main() {
     expect(rodColors(), [full.withValues(alpha: 0.4), full]);
     expect(
       find.bySemanticsLabel(
-        'Activity distribution. An exceptionally long category name: 12345 activities, 30 psi: 7 activities (current)',
+        'Activity distribution. An exceptionally long category name psi: 12345 activities, 30 psi: 7 activities (current)',
       ),
       findsOneWidget,
     );
@@ -153,7 +152,7 @@ void main() {
         harness(
           histogram(),
           theme: theme,
-          currentValue: CategoricalValue(const ['long']),
+          currentValue: CategoricalValue(const ['An exceptionally long category name']),
           guideValue: const NumericalValue(30),
         ),
       );
@@ -162,7 +161,7 @@ void main() {
     }
     expect(
       find.bySemanticsLabel(
-        'Activity distribution. An exceptionally long category name: 12345 activities (current), '
+        'Activity distribution. An exceptionally long category name psi: 12345 activities (current), '
         '30 psi: 7 activities (recommended)',
       ),
       findsOneWidget,

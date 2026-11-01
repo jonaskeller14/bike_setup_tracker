@@ -13,7 +13,6 @@ import 'package:bike_setup_tracker/widgets/items/context_location_weather_card_d
 import 'package:bike_setup_tracker/widgets/sheets/set_weather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,11 +27,9 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     settings = AppSettings();
-    Intl.defaultLocale = 'de';
   });
 
   tearDown(() {
-    Intl.defaultLocale = null;
     settings.dispose();
   });
 

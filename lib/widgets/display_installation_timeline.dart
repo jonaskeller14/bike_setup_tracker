@@ -184,7 +184,7 @@ class _InstallationContents extends StatelessWidget {
     };
     final dateStr = installation.dateTimeUTC.millisecondsSinceEpoch == 0
         ? l10n.timelineFromBeginning
-        : "${DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal)}";
+        : "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(installation.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(installation.dateTimeLocal)}";
     final titleColor = switch (installation) {
       BikeInstallation() => bikes[installation.parent]?.name == null
           ? colorScheme.error
@@ -255,7 +255,7 @@ class _DerivedPlacementContents extends StatelessWidget {
     final parentName = components[change.viaParentId]?.name ?? context.l10n.componentNotFound;
     final dateTimeLocal = change.cause.dateTimeLocal;
     final dateStr =
-        "${DateFormat(appSettings.dateFormat).format(dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(dateTimeLocal)}";
+        "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(dateTimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(dateTimeLocal)}";
 
     return Container(
       padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
@@ -303,7 +303,7 @@ class _TaskEntryContents extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     final dateStr =
-        "${DateFormat(appSettings.dateFormat).format(entry.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(entry.dateTimeLocal)}";
+        "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(entry.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(entry.dateTimeLocal)}";
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

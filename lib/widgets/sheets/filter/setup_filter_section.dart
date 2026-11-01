@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../l10n/l10n.dart';
 import '../../../models/app_settings.dart';
 import '../../../models/feedback/test_session.dart';
+import '../../../models/filters/setup_filter.dart';
 import '../../../repositories/app_repository.dart';
 import '../../text/sheet_section_title.dart';
 import '../sheet.dart';
@@ -68,7 +69,7 @@ class SetupFilterSection extends StatelessWidget {
                   );
                   return FilterChip(
                     avatar: const Icon(TestSession.iconData),
-                    label: Text(name),
+                    label: Text(name == SetupFilter.unnamedTestSession ? context.l10n.testSessionUnnamed : name),
                     selected: filters.setup.testSessionNames.contains(name),
                     showCheckmark: false,
                     onSelected: select,

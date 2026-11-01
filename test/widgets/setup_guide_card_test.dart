@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
@@ -38,7 +39,7 @@ void main() {
   final preset = catalogProducts(parseCatalogFile(_catalog)).single;
 
   GuidedComponent guided({String? name}) {
-    final application = buildCatalogApplication(preset);
+    final application = buildCatalogApplication(preset, englishL10n);
     return GuidedComponent(
       Component(
         name: name ?? application.name,
@@ -69,7 +70,7 @@ void main() {
         home: Scaffold(
           body: SingleChildScrollView(
             child: SetupGuideCard(
-              sections: [SetupGuideSection(guided, guided.evaluate(inputs, current))],
+              sections: [SetupGuideSection(guided, guided.evaluate(inputs, current, englishL10n))],
               inputs: inputs,
               onApply: onApply ?? (_) {},
               onApplyAll: onApplyAll,

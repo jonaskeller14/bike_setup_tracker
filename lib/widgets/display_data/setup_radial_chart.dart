@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
@@ -250,8 +252,8 @@ class _SetupRadialChartState extends State<SetupRadialChart> {
                         );
                         if (setup == null || def == null) return const SizedBox.shrink();
                         final rawValue = widget.valueFor(setup, def.column);
-                        final formattedVal = rawValue?.display ?? '-';
-                        final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+                        final formattedVal = rawValue?.displayText(context.l10n) ?? '-';
+                        final dateStr = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal);
                         return Positioned(
                           left: _touchedRadarValue!.offset.dx > constraints.maxWidth / 2
                               ? null
@@ -271,7 +273,7 @@ class _SetupRadialChartState extends State<SetupRadialChart> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    setup.displayName,
+                                    setup.label(context.l10n),
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
@@ -359,7 +361,7 @@ class _SetupRadialChartState extends State<SetupRadialChart> {
                                 child: Opacity(
                                   opacity: isDimmed ? 0.3 : 1.0,
                                   child: Text(
-                                    setup.displayName,
+                                    setup.label(context.l10n),
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                       color: isSelected ? color : null,

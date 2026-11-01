@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import 'adjustment_icon_name_notes.dart';
 
@@ -41,7 +43,7 @@ class DisplayDanglingAdjustmentWidget extends StatelessWidget {
             child: Column(
               children: [
                 SelectableText(
-                  value?.display ?? '-',
+                  value?.displayText(context.l10n) ?? '-',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: highlightColor,

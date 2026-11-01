@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../../utils/value_delta.dart';
+import 'suggestion_result.dart';
 
 /// An adjustment as the strategies see it: a coordinate on an ordered grid
 /// with bounds and a smallest step, nothing about what the knob does.
@@ -144,10 +144,6 @@ class StrategyKnob {
 
   bool isSame(double a, double b) => (a - b).abs() < unit / 2;
 
-  /// "Rebound +2", "Lockout On", "Mode Firm".
-  String describe(double from, double to) {
-    final value = valueAt(to);
-    final delta = formatValueDelta(valueAt(from), value);
-    return '${adjustment.name} ${delta ?? value.display}${delta != null ? adjustment.unitSuffix() : ''}';
-  }
+  /// "Rebound +2", "Lockout On", "Mode Firm", once worded.
+  KnobChange change(double from, double to) => (adjustment: adjustment, from: valueAt(from), to: valueAt(to));
 }

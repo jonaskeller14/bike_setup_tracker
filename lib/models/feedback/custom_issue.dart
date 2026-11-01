@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import '../../l10n/enum_labels.dart';
-import '../../l10n/l10n.dart';
 import 'feedback_key.dart';
 import 'feedback_observation.dart';
 
@@ -57,28 +55,23 @@ int compareCustomIssues(CustomIssue a, CustomIssue b) {
 class FeedbackIssue {
   /// [EndAspect] or [CustomAspect].
   final FeedbackAspect aspect;
-  final String label;
-  final String? hint;
 
-  const FeedbackIssue._(this.aspect, this.label, this.hint);
+  /// The rider's label of a custom issue; a built-in one is worded when shown.
+  final String? customLabel;
+
+  const FeedbackIssue._(this.aspect, this.customLabel);
 
   /// "Front: Harsh".
-  FeedbackIssue.end(EndAspect aspect)
-    : this._(
-        aspect,
-        '${aspect.end.label(currentL10n)}: ${aspect.attribute.problemLabel(currentL10n)}',
-        aspect.attribute.hint(currentL10n),
-      );
+  const FeedbackIssue.end(EndAspect aspect) : this._(aspect, null);
 
-  FeedbackIssue.custom(CustomIssue issue) : this._(issue.aspect, issue.label, null);
+  FeedbackIssue.custom(CustomIssue issue) : this._(issue.aspect, issue.label);
 
   @override
-  bool operator ==(Object other) =>
-      other is FeedbackIssue && other.aspect == aspect && other.label == label && other.hint == hint;
+  bool operator ==(Object other) => other is FeedbackIssue && other.aspect == aspect && other.customLabel == customLabel;
 
   @override
-  int get hashCode => Object.hash(aspect, label, hint);
+  int get hashCode => Object.hash(aspect, customLabel);
 
   @override
-  String toString() => 'FeedbackIssue($aspect, $label)';
+  String toString() => 'FeedbackIssue($aspect, $customLabel)';
 }

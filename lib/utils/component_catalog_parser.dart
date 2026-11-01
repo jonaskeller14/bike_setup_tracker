@@ -147,7 +147,7 @@ class _CatalogParser {
 
   /// A `tasks:` key outside these is brand-only.
   late final Set<String> _genericTaskKeys = {
-    for (final template in taskPresets[componentType] ?? const <TaskTemplate>[]) template.key,
+    for (final template in taskPresetsFor(englishL10n)[componentType] ?? const <TaskTemplate>[]) template.key,
   };
 
   /// The `<type>` part of an adjuster preset key, e.g. `fork` in `fork:hsc`.

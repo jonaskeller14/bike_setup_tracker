@@ -15,6 +15,8 @@ import '../services/weather_service.dart';
 import '../utils/installation_issue.dart';
 import '../utils/installation_timeline_validation.dart';
 import '../utils/table_column.dart';
+import '../utils/value_delta.dart';
+import 'adjustment_value_text.dart';
 import 'app_localizations.dart';
 
 /// Display names of enums. The enums themselves are persisted by `name` (or
@@ -185,6 +187,60 @@ extension ConditionLabel on Condition {
     Condition.wet => l10n.weatherConditionWet,
     Condition.muddy => l10n.weatherConditionMuddy,
   };
+}
+
+extension ContextWeatherLabel on ContextWeather {
+  String? getWeatherCodeLabel(AppLocalizations l10n) => weatherCodeLabel(currentWeatherCode, l10n);
+}
+
+/// The WMO weather [code] as text, `null` without a code.
+String? weatherCodeLabel(int? code, AppLocalizations l10n) {
+  if (code == null) return null;
+  switch (code) {
+    // Clear and Cloudy
+    case 0: return l10n.weatherCode0;
+    case 1: return l10n.weatherCode1;
+    case 2: return l10n.weatherCode2;
+    case 3: return l10n.weatherCode3;
+
+    // Fog
+    case 45: return l10n.weatherCode45;
+    case 48: return l10n.weatherCode48;
+
+    // Drizzle
+    case 51: return l10n.weatherCode51;
+    case 53: return l10n.weatherCode53;
+    case 55: return l10n.weatherCode55;
+    case 56: return l10n.weatherCode56;
+    case 57: return l10n.weatherCode57;
+
+    // Rain
+    case 61: return l10n.weatherCode61;
+    case 63: return l10n.weatherCode63;
+    case 65: return l10n.weatherCode65;
+    case 66: return l10n.weatherCode66;
+    case 67: return l10n.weatherCode67;
+
+    // Snow
+    case 71: return l10n.weatherCode71;
+    case 73: return l10n.weatherCode73;
+    case 75: return l10n.weatherCode75;
+    case 77: return l10n.weatherCode77;
+
+    // Showers
+    case 80: return l10n.weatherCode80;
+    case 81: return l10n.weatherCode81;
+    case 82: return l10n.weatherCode82;
+    case 85: return l10n.weatherCode85;
+    case 86: return l10n.weatherCode86;
+
+    // Thunderstorms
+    case 95: return l10n.weatherCode95;
+    case 96: return l10n.weatherCode96;
+    case 99: return l10n.weatherCode99;
+
+    default: return l10n.weatherCodeUnknown;
+  }
 }
 
 extension StepAdjustmentVisualizationLabel on StepAdjustmentVisualization {
@@ -373,24 +429,40 @@ extension StepAdjustmentDialSizeLabel on StepAdjustmentDialSize {
 }
 
 extension SuggestionNoteText on SuggestionNote {
-  String text(AppLocalizations l10n) => switch (kind) {
-    SuggestionNoteKind.recordRunFirst => l10n.suggestionRecordRunFirst,
-    SuggestionNoteKind.addFeedbackFirst => l10n.suggestionAddFeedbackFirst(args[0]),
-    SuggestionNoteKind.adjustmentGone => l10n.suggestionAdjustmentGone,
-    SuggestionNoteKind.noValue => l10n.suggestionNoValue(args[0], args[1]),
-    SuggestionNoteKind.outOfRange => l10n.suggestionOutOfRange(args[0], args[1]),
-    SuggestionNoteKind.allLocked => l10n.suggestionAllLocked,
-    SuggestionNoteKind.notCompare => l10n.suggestionNotCompare,
-    SuggestionNoteKind.setupRemoved => l10n.suggestionSetupRemoved,
-    SuggestionNoteKind.patternStep => l10n.suggestionPatternStep(args[0], args[1], args[2], args[3]),
-    SuggestionNoteKind.estimatedBest => l10n.suggestionEstimatedBest(args[0], args[1]),
-    SuggestionNoteKind.rideAgainConfirm => l10n.suggestionRideAgainConfirm(args[0]),
-    SuggestionNoteKind.keepGoing => l10n.suggestionKeepGoing(args[0], args[1]),
-    SuggestionNoteKind.tryFromBest => l10n.suggestionTryFromBest(args[0], args[1]),
-    SuggestionNoteKind.rideAgainCheck => l10n.suggestionRideAgainCheck(args[0]),
-    SuggestionNoteKind.rideAndCompare => l10n.suggestionRideAndCompare(args[0], args[1]),
-    SuggestionNoteKind.levelRideAgain => l10n.suggestionLevelRideAgain(args[0], args[1]),
-  };
+  String text(AppLocalizations l10n) {
+    final filled = [for (final arg in args) _argText(arg, l10n)];
+    return switch (kind) {
+      SuggestionNoteKind.recordRunFirst => l10n.suggestionRecordRunFirst,
+      SuggestionNoteKind.addFeedbackFirst => l10n.suggestionAddFeedbackFirst(filled[0]),
+      SuggestionNoteKind.adjustmentGone => l10n.suggestionAdjustmentGone,
+      SuggestionNoteKind.noValue => l10n.suggestionNoValue(filled[0], filled[1]),
+      SuggestionNoteKind.outOfRange => l10n.suggestionOutOfRange(filled[0], filled[1]),
+      SuggestionNoteKind.allLocked => l10n.suggestionAllLocked,
+      SuggestionNoteKind.notCompare => l10n.suggestionNotCompare,
+      SuggestionNoteKind.setupRemoved => l10n.suggestionSetupRemoved,
+      SuggestionNoteKind.patternStep => l10n.suggestionPatternStep(filled[0], filled[1], filled[2], filled[3]),
+      SuggestionNoteKind.estimatedBest => l10n.suggestionEstimatedBest(filled[0], filled[1]),
+      SuggestionNoteKind.rideAgainConfirm => l10n.suggestionRideAgainConfirm(filled[0]),
+      SuggestionNoteKind.keepGoing => l10n.suggestionKeepGoing(filled[0], filled[1]),
+      SuggestionNoteKind.tryFromBest => l10n.suggestionTryFromBest(filled[0], filled[1]),
+      SuggestionNoteKind.rideAgainCheck => l10n.suggestionRideAgainCheck(filled[0]),
+      SuggestionNoteKind.rideAndCompare => l10n.suggestionRideAndCompare(filled[0], filled[1]),
+      SuggestionNoteKind.levelRideAgain => l10n.suggestionLevelRideAgain(filled[0], filled[1]),
+    };
+  }
+}
+
+String _argText(NoteArg arg, AppLocalizations l10n) => switch (arg) {
+  TextArg(:final text) => text,
+  SetupArg(:final name) => name ?? l10n.setupUnnamed,
+  MoveArg(:final changes) => changes.map((change) => _changeText(change, l10n)).join(', '),
+};
+
+/// "Rebound +2", "Lockout On", "Mode Firm".
+String _changeText(KnobChange change, AppLocalizations l10n) {
+  final (:adjustment, :from, :to) = change;
+  final delta = formatValueDelta(from, to, l10n);
+  return '${adjustment.name} ${delta ?? to.displayText(l10n)}${delta != null ? adjustment.unitSuffix() : ''}';
 }
 
 extension WeatherErrorMessage on WeatherError {

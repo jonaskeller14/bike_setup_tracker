@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/entity_names.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -199,11 +201,11 @@ class _SetupTableState extends State<SetupTable> {
     switch (column) {
       case SetupTableColumn(column: final setupColumn):
         return switch (setupColumn) {
-          SetupColumn.name => _scrollableTextCell(setup.displayName),
+          SetupColumn.name => _scrollableTextCell(setup.label(context.l10n)),
           SetupColumn.notes => _scrollableTextCell(setup.notes ?? '-', maxWidth: 300),
           SetupColumn.tags => _scrollableTextCell(setup.tags.isEmpty ? '-' : setup.tags.join('; '), maxWidth: 300),
-          SetupColumn.date => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),
-          SetupColumn.time => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
+          SetupColumn.date => DataCell(Text(DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal))),
+          SetupColumn.time => DataCell(Text(DateFormat(appSettings.timeFormat, context.l10n.localeName).format(setup.datetimeLocal))),
           SetupColumn.place => _scrollableTextCell(setup.place?.locality ?? '-'),
           SetupColumn.altitude => DataCell(
             Center(
@@ -270,14 +272,14 @@ class _SetupTableState extends State<SetupTable> {
               child: Text(
                 setup.weather?.currentSoilMoisture0to7cm == null
                     ? '-'
-                    : formatLocalizedDouble(setup.weather!.currentSoilMoisture0to7cm!, fractionDigits: 2),
+                    : formatLocalizedDouble(setup.weather!.currentSoilMoisture0to7cm!, fractionDigits: 2, locale: context.l10n.localeName),
               ),
             ),
           ),
           SetupColumn.condition => DataCell(
             Center(child: Text(setup.weather?.condition?.label(context.l10n) ?? "-")),
           ),
-          SetupColumn.testSession => _scrollableTextCell(widget.testSessions[setup.testSessionId]?.displayName ?? '-'),
+          SetupColumn.testSession => _scrollableTextCell(widget.testSessions[setup.testSessionId]?.label(context.l10n) ?? '-'),
         };
       case ComponentAdjustmentColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, widget.setupHistory.previousBikeValuesOf(setup.id)[adjustmentId]);
@@ -306,7 +308,7 @@ class _SetupTableState extends State<SetupTable> {
     return DataCell(
       Center(
         child: Text(
-          value?.display ?? '-',
+          value?.displayText(context.l10n) ?? '-',
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: highlightColor,

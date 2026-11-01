@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
+import '../../l10n/task_threshold_text.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../../models/task/task_rule.dart';
@@ -254,7 +255,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
       final parts = [
         if (strava != null)
           context.l10n.taskSuggestionTimeBased(
-            taskIntervalLabel(strava, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit),
+            taskIntervalLabel(strava, context.l10n, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit),
           ),
         ?suggestion.source,
       ];

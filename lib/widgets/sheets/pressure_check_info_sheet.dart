@@ -98,18 +98,18 @@ class _PressureCheckInfoSheet extends StatelessWidget {
                   _ExampleCard(appSettings: appSettings, significant: exampleSignificant),
                   _heading(context, context.l10n.pressureCheckInfoWhatToDoHeading),
                   Text(
-                    context.l10n.pressureCheckInfoWhatToDo(formatPressure(_Example.setPsi)),
+                    context.l10n.pressureCheckInfoWhatToDo(formatPressure(_Example.setPsi, context.l10n)),
                     style: muted,
                   ),
                   _heading(context, context.l10n.pressureCheckInfoStatusHeading),
                   _legendRow(
                     context,
-                    pressureDriftStatus(0.012, significant: false),
+                    pressureDriftStatus(0.012, context.l10n, significant: false),
                     context.l10n.pressureCheckInfoStatusOk(thresholdText),
                   ),
                   _legendRow(
                     context,
-                    pressureDriftStatus(-0.035, significant: true),
+                    pressureDriftStatus(-0.035, context.l10n, significant: true),
                     context.l10n.pressureCheckInfoStatusDrift(thresholdText),
                   ),
                   Text(
@@ -217,7 +217,7 @@ class _ExampleCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(label, style: muted),
               Text(
-                context.l10n.pressureCheckPsi(formatPressure(psi)),
+                context.l10n.pressureCheckPsi(formatPressure(psi, context.l10n)),
                 style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -233,7 +233,7 @@ class _ExampleCard extends StatelessWidget {
         Expanded(
           child: Text(label, style: textTheme.bodyMedium, overflow: TextOverflow.ellipsis),
         ),
-        Text(context.l10n.pressureCheckPsi(signedPressure(psi)), style: textTheme.bodyMedium),
+        Text(context.l10n.pressureCheckPsi(signedPressure(psi, context.l10n)), style: textTheme.bodyMedium),
       ],
     );
 
@@ -273,12 +273,12 @@ class _ExampleCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  context.l10n.pressureCheckExampleTotal(signedPressure(_Example.deltaPsi)),
+                  context.l10n.pressureCheckExampleTotal(signedPressure(_Example.deltaPsi, context.l10n)),
                   style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              GuideStatusPill(pressureDriftStatus(_Example.relativeDelta, significant: significant)),
+              GuideStatusPill(pressureDriftStatus(_Example.relativeDelta, context.l10n, significant: significant)),
             ],
           ),
         ],

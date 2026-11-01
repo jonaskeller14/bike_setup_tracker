@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/adjustment_value_text.dart';
+import 'package:bike_setup_tracker/l10n/entity_names.dart';
 import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
@@ -9,9 +11,9 @@ import 'package:bike_setup_tracker/widgets/dialogs/discard_changes.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_numerical_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 
 import '../goldens/support/localized_test_app.dart';
+import '../support/german_l10n.dart';
 
 void main() {
   const de = Locale('de');
@@ -46,8 +48,6 @@ void main() {
   });
 
   testWidgets('a value above the maximum is reported in German, with the unit', (tester) async {
-    Intl.defaultLocale = 'de';
-    addTearDown(() => Intl.defaultLocale = null);
     final formKey = GlobalKey<FormState>();
     final adjustment = NumericalAdjustment(
       name: 'Pressure',
@@ -116,22 +116,25 @@ void main() {
     });
   });
 
-  group('model text follows Intl.defaultLocale', () {
+  group('model text follows the language passed in', () {
     test('boolean values', () {
-      expect(const BooleanValue(true).display, 'On');
-      Intl.withLocale('de', () {
-        expect(const BooleanValue(true).display, 'An');
-        expect(const BooleanValue(false).display, 'Aus');
-      });
+      expect(const BooleanValue(true).displayText(englishL10n), 'On');
+      expect(const BooleanValue(true).displayText(germanL10n), 'An');
+      expect(const BooleanValue(false).displayText(germanL10n), 'Aus');
     });
 
     test('the unnamed setup', () {
-      expect(Setup.namePlaceholder, 'Unnamed Setup');
-      Intl.withLocale('de', () => expect(Setup.namePlaceholder, 'Unbenanntes Setup'));
-    });
-
-    test('a language the app does not support falls back to English', () {
-      Intl.withLocale('fr', () => expect(const BooleanValue(true).display, 'On'));
+      final setup = Setup(
+        datetime: DateTime.utc(2026),
+        datetimeLocal: DateTime(2026),
+        tags: const {},
+        bike: 'b',
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+      );
+      expect(setup.label(englishL10n), 'Unnamed Setup');
+      expect(setup.label(germanL10n), 'Unbenanntes Setup');
     });
   });
 

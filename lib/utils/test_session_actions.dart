@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/entity_names.dart';
 import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
@@ -108,13 +109,15 @@ class TestSessionActions {
     SetupCarryOver? carryOver,
   }) {
     final dateFormat = context.read<AppSettings>().dateFormat;
+    final l10n = context.l10n;
     return TestSessionService.run(
+      l10n,
       source: source,
       session: session,
       number: number,
       values: values,
       carryOver: carryOver,
-      notes: TestSessionService.runNotes(source: source, session: session, dateFormat: dateFormat),
+      notes: TestSessionService.runNotes(l10n, source: source, session: session, dateFormat: dateFormat),
     );
   }
 
@@ -238,7 +241,7 @@ class TestSessionActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        l10n.testSessionEndedSnack(session.displayName),
+        l10n.testSessionEndedSnack(session.label(l10n)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: l10n.undo,
@@ -274,7 +277,7 @@ class TestSessionActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        l10n.testSessionMovedToTrash(session.displayName),
+        l10n.testSessionMovedToTrash(session.label(l10n)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: l10n.undo,
@@ -295,7 +298,7 @@ class TestSessionActions {
     final end = await showConfirmationDialog(
       context,
       title: context.l10n.testSessionEndFirstTitle,
-      content: context.l10n.testSessionEndFirstBody(session.displayName),
+      content: context.l10n.testSessionEndFirstBody(session.label(context.l10n)),
       trueText: context.l10n.testSessionEndSession,
     );
     if (!end) return false;
@@ -314,7 +317,7 @@ class TestSessionActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        l10n.testSessionRestoredFromTrash(session.displayName),
+        l10n.testSessionRestoredFromTrash(session.label(l10n)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: l10n.undo,

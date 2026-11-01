@@ -28,18 +28,18 @@ class PreferencesPage extends StatelessWidget {
   };
 
   /// The samples are formatted, so month names follow the app language.
-  static Map<String, Text> _dateFormatOptionWidgets() {
+  static Map<String, Text> _dateFormatOptionWidgets(AppLocalizations l10n) {
     final sample = DateTime(2025, 12, 9);
     return {
       for (final pattern in const ['dd.MM.yyyy', 'dd/MM/yyyy', 'MM/dd/yyyy', 'yyyy-MM-dd', 'dd MMM yyyy'])
-        pattern: Text('$pattern (${DateFormat(pattern).format(sample)})'),
+        pattern: Text('$pattern (${DateFormat(pattern, l10n.localeName).format(sample)})'),
     };
   }
 
-  static Map<String, Text> _timeFormatOptionWidgets() {
+  static Map<String, Text> _timeFormatOptionWidgets(AppLocalizations l10n) {
     final sample = DateTime(2025, 12, 9, 20, 7);
     return {
-      for (final pattern in const ['HH:mm', 'h:mm a']) pattern: Text('$pattern (${DateFormat(pattern).format(sample)})'),
+      for (final pattern in const ['HH:mm', 'h:mm a']) pattern: Text('$pattern (${DateFormat(pattern, l10n.localeName).format(sample)})'),
     };
   }
 
@@ -148,13 +148,13 @@ class PreferencesPage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.calendar_month),
                 title: Text(l10n.preferencesDateFormat),
-                subtitle: _dateFormatOptionWidgets()[appSettings.dateFormat] ?? const Text("-"),
+                subtitle: _dateFormatOptionWidgets(l10n)[appSettings.dateFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<String>(
                   context: context,
                   title: l10n.preferencesDateFormat,
                   value: appSettings.dateFormat,
-                  optionWidgets: _dateFormatOptionWidgets(),
+                  optionWidgets: _dateFormatOptionWidgets(l10n),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
                     appSettings.dateFormat = newValue;
@@ -165,13 +165,13 @@ class PreferencesPage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.access_time),
                 title: Text(l10n.preferencesTimeFormat),
-                subtitle: _timeFormatOptionWidgets()[appSettings.timeFormat] ?? const Text("-"),
+                subtitle: _timeFormatOptionWidgets(l10n)[appSettings.timeFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => radioGroupSheet<String>(
                   context: context,
                   title: l10n.preferencesTimeFormat,
                   value: appSettings.timeFormat,
-                  optionWidgets: _timeFormatOptionWidgets(),
+                  optionWidgets: _timeFormatOptionWidgets(l10n),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
                     appSettings.timeFormat = newValue;

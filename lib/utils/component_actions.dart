@@ -258,6 +258,7 @@ class ComponentActions {
         ? const <TaskSuggestion>[]
         : taskSuggestionsFor(
             target,
+            l10n,
             existingRules: appRepository.taskRules.values,
             hasStravaEntitlement: context.read<SubscriptionService>().hasStravaEntitlement,
             overrides: resolvedPreset?.taskOverrides ?? const {},
@@ -280,7 +281,7 @@ class ComponentActions {
     final created = [
       ...await taskRuleCopies(result.copied, componentId: target.id),
       for (final suggestion in result.suggested)
-        suggestion.toTaskRule(target.id, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit),
+        suggestion.toTaskRule(target.id, l10n, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit),
     ];
     await targetSaved;
     await appRepository.addTaskRules(created);

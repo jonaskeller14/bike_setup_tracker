@@ -1160,9 +1160,57 @@
   "@featuresRequiresComponentPresets": {
     "description": "Subtitle of a disabled feature that depends on component presets."
   },
+  "featuresRequiresTasks": "Requires Tasks",
+  "@featuresRequiresTasks": {
+    "description": "Subtitle of a disabled feature that depends on tasks."
+  },
+  "featuresRequiresTaskInterval": "Requires Task Interval",
+  "@featuresRequiresTaskInterval": {
+    "description": "Subtitle of a disabled feature that depends on the task interval feature."
+  },
   "featuresTaskPresets": "Task Presets",
   "@featuresTaskPresets": {
     "description": "Title of the task presets feature (developer builds)."
+  },
+  "presetsComponentIntro": "Set up a fork or shock in seconds: pick the model from the built-in catalog instead of entering every adjustment by hand.",
+  "@presetsComponentIntro": {
+    "description": "Intro of the component presets settings sheet."
+  },
+  "presetsComponentStepSearch": "Add a fork or shock and search for its model and year, e.g. \"Fox 36\".",
+  "@presetsComponentStepSearch": {
+    "description": "First step of the component presets settings sheet."
+  },
+  "presetsComponentStepFilled": "Name, notes and adjustments are filled in: rebound and compression with their click ranges, air pressure and SAG.",
+  "@presetsComponentStepFilled": {
+    "description": "Second step of the component presets settings sheet."
+  },
+  "presetsComponentStepLink": "Already have the component? Link the model on its edit page and choose whether its adjustments merge with yours or replace them.",
+  "@presetsComponentStepLink": {
+    "description": "Third step of the component presets settings sheet."
+  },
+  "presetsComponentCaption": "Covers forks and shocks from FOX, RockShox, Öhlins and other brands. Everything stays editable. Turning this off hides the catalog; your components keep their adjustments.",
+  "@presetsComponentCaption": {
+    "description": "Footnote of the component presets settings sheet."
+  },
+  "presetsTaskIntro": "Get recommended maintenance tasks for your components, like a chain wear check or a fork service.",
+  "@presetsTaskIntro": {
+    "description": "Intro of the task presets settings sheet."
+  },
+  "presetsTaskStepOffered": "Whenever you add, duplicate or replace a component, its recommended tasks are offered. Pick the ones you want.",
+  "@presetsTaskStepOffered": {
+    "description": "First step of the task presets settings sheet."
+  },
+  "presetsTaskStepSuggestion": "Adding a task for a component? Tap a suggestion to fill in its name, notes and interval.",
+  "@presetsTaskStepSuggestion": {
+    "description": "Second step of the task presets settings sheet."
+  },
+  "presetsTaskStepStrava": "With Strava connected, intervals follow your rides, like distance or riding time. Without it, they are time-based. Catalog forks and shocks use the manufacturer’s service intervals.",
+  "@presetsTaskStepStrava": {
+    "description": "Third step of the task presets settings sheet."
+  },
+  "presetsTaskCaption": "Covers chains, cassettes, forks, shocks, brakes, tires, headsets, bottom brackets, seatposts, frames and shift cables. Added tasks are normal tasks you can edit or delete.",
+  "@presetsTaskCaption": {
+    "description": "Footnote of the task presets settings sheet."
   },
   "featuresSetupGuides": "Setup Guides",
   "@featuresSetupGuides": {
@@ -2040,6 +2088,34 @@
   "hintAttachmentsEnabled": "Attachments enabled — add photos and files to bikes, components, setups and tasks",
   "@hintAttachmentsEnabled": {
     "description": "Snackbar after attachments were turned on from a hint."
+  },
+  "hintTaskPresetsEnabled": "Tasks enabled — recommended tasks are offered when you add a component",
+  "@hintTaskPresetsEnabled": {
+    "description": "Snackbar after tasks were turned on from the what's new hint."
+  },
+  "hintTurnOnTasks": "Turn on Tasks",
+  "@hintTurnOnTasks": {
+    "description": "Button of the what's new hint that turns on tasks."
+  },
+  "hintRelease45CatalogTitle": "Fork & shock catalog",
+  "@hintRelease45CatalogTitle": {
+    "description": "Title of the first page of the what's new hint about the component catalog."
+  },
+  "hintRelease45CatalogBody": "Adding a fork or shock? Pick the model from the built-in catalog and its adjustments, like click ranges, air pressure and SAG, are filled in for you. Everything stays editable.",
+  "@hintRelease45CatalogBody": {
+    "description": "Body of the first page of the what's new hint about the component catalog."
+  },
+  "hintRelease45TasksTitle": "Recommended tasks",
+  "@hintRelease45TasksTitle": {
+    "description": "Title of the second page of the what's new hint about recommended tasks."
+  },
+  "hintRelease45TasksBody": "Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals.",
+  "@hintRelease45TasksBody": {
+    "description": "Body of the second page of the what's new hint when tasks are already on."
+  },
+  "hintRelease45TasksBodyOfferTasks": "Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals. Turn on Tasks to get them.",
+  "@hintRelease45TasksBodyOfferTasks": {
+    "description": "Body of the second page of the what's new hint when tasks are still off."
   },
   "hintGarageTitle": "Gestures in Garage",
   "@hintGarageTitle": {

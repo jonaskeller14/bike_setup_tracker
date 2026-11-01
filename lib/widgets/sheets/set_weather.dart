@@ -80,11 +80,11 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
   void setFieldsFromWeather() {
     final appSettings = context.read<AppSettings>();
 
-    _currentTemperatureController.text = formatEditableDouble(ContextWeather.convertTemperatureFromCelsius(_currentWeather?.currentTemperature, appSettings.temperatureUnit));
-    _dayAccumulatedPrecipitationController.text = formatEditableDouble(ContextWeather.convertPrecipitationFromMm(_currentWeather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit));
-    _currentHumidityController.text = formatEditableDouble(_currentWeather?.currentHumidity);
-    _currentWindSpeedController.text = formatEditableDouble(ContextWeather.convertWindSpeedFromKmh(_currentWeather?.currentWindSpeed, appSettings.windSpeedUnit));
-    _currentSoilMoisture0to7cmController.text = formatEditableDouble(_currentWeather?.currentSoilMoisture0to7cm);
+    _currentTemperatureController.text = formatEditableDouble(ContextWeather.convertTemperatureFromCelsius(_currentWeather?.currentTemperature, appSettings.temperatureUnit), locale: context.untrackedLocaleName);
+    _dayAccumulatedPrecipitationController.text = formatEditableDouble(ContextWeather.convertPrecipitationFromMm(_currentWeather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit), locale: context.untrackedLocaleName);
+    _currentHumidityController.text = formatEditableDouble(_currentWeather?.currentHumidity, locale: context.untrackedLocaleName);
+    _currentWindSpeedController.text = formatEditableDouble(ContextWeather.convertWindSpeedFromKmh(_currentWeather?.currentWindSpeed, appSettings.windSpeedUnit), locale: context.untrackedLocaleName);
+    _currentSoilMoisture0to7cmController.text = formatEditableDouble(_currentWeather?.currentSoilMoisture0to7cm, locale: context.untrackedLocaleName);
   }
 
   void updateWeather() async {
@@ -197,7 +197,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                         ),
                                       ),
                                       Expanded(
-                                        child: Text(ContextWeather.getStaticWeatherCodeLabel(code, context.l10n) ?? "?", overflow: TextOverflow.ellipsis),
+                                        child: Text(weatherCodeLabel(code, context.l10n) ?? "?", overflow: TextOverflow.ellipsis),
                                       ),
                                     ],
                                   ),

@@ -54,16 +54,16 @@ String _delaySuffix(TaskThreshold interval, AppSettings appSettings, AppLocaliza
 bool _acceptsDecimals(TaskThreshold interval) =>
     interval is DistanceThreshold || interval is ElevationThreshold || interval is KilojoulesThreshold;
 
-String _delayValueString(TaskThreshold? delay, AppSettings appSettings) {
+String _delayValueString(TaskThreshold? delay, AppSettings appSettings, String locale) {
   return switch (delay) {
     null => '',
-    DistanceThreshold() => formatLocalizedDouble(AppSettings.convertDistanceFromMeters(delay.meters, appSettings.distanceUnit)!),
-    ElevationThreshold() => formatLocalizedDouble(AppSettings.convertElevationFromMeters(delay.meters, appSettings.altitudeUnit)!),
+    DistanceThreshold() => formatLocalizedDouble(AppSettings.convertDistanceFromMeters(delay.meters, appSettings.distanceUnit)!, locale: locale),
+    ElevationThreshold() => formatLocalizedDouble(AppSettings.convertElevationFromMeters(delay.meters, appSettings.altitudeUnit)!, locale: locale),
     MovingTimeThreshold() => delay.hours.inHours.toString(),
     ElapsedTimeThreshold() => delay.hours.inHours.toString(),
     DurationThreshold() => delay.days.inDays.toString(),
     ActivityCountThreshold() => delay.count.toString(),
-    KilojoulesThreshold() => formatLocalizedDouble(delay.kilojoules),
+    KilojoulesThreshold() => formatLocalizedDouble(delay.kilojoules, locale: locale),
     DateTimeThreshold() => '',
   };
 }
@@ -136,7 +136,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
   void initState() {
     super.initState();
     _interval = widget.taskRule.interval!;
-    _initialValue = _delayValueString(widget.taskRule.delay, context.read<AppSettings>());
+    _initialValue = _delayValueString(widget.taskRule.delay, context.read<AppSettings>(), context.untrackedLocaleName);
     _exactDelay = widget.taskRule.delay;
     _exactValue = _initialValue;
     _valueController = TextEditingController(text: _initialValue)
@@ -188,7 +188,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
   void _makeDueNow() {
     unawaited(HapticFeedback.selectionClick());
     final delay = widget.dueNowDelay!();
-    final value = _delayValueString(delay, context.read<AppSettings>());
+    final value = _delayValueString(delay, context.read<AppSettings>(), context.l10n.localeName);
     setState(() {
       _exactDelay = delay;
       _exactValue = value;

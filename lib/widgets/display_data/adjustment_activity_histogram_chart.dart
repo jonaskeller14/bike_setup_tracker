@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../l10n/histogram_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
@@ -34,7 +35,7 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
     final summary = [
       for (var index = 0; index < bars.length; index++)
         l10n.chartHistogramBarSemantics(
-          bars[index].label,
+          histogram.barLabel(bars[index], l10n),
           bars[index].activityCount,
           '${highlighted.contains(index)}',
           '${recommended.contains(index)}',
@@ -109,7 +110,7 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                         getTitlesWidget: (value, meta) {
                           final index = value.toInt();
                           if (index < 0 || index >= bars.length) return const SizedBox.shrink();
-                          final label = _abbreviate(bars[index].label);
+                          final label = _abbreviate(histogram.barLabel(bars[index], l10n));
                           return SideTitleWidget(
                             meta: meta,
                             space: 8,
@@ -135,7 +136,7 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                         final bar = bars[group.x];
                         return BarTooltipItem(
                           l10n.chartHistogramBarTooltip(
-                            bar.label,
+                            histogram.barLabel(bar, l10n),
                             bar.activityCount,
                             '${highlighted.contains(group.x)}',
                             '${recommended.contains(group.x)}',

@@ -108,7 +108,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   /// One row per lane component: name, first setup, dash, last setup it was present at.
   /// Components still on this bike end with "now".
   List<List<String>> _laneHistory(SlotLane lane, AppRepository appRepository, String dateFormat) {
-    final format = DateFormat(dateFormat);
+    final format = DateFormat(dateFormat, context.l10n.localeName);
     return lane.members.map((member) {
       final name = member.component.name;
       final dates = member.setupIds.map((id) => appRepository.setups[id]?.datetimeLocal).nonNulls.sorted();
@@ -151,6 +151,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
     final comparator = tableColumnComparator(
       sortColumn,
+      context.l10n,
       valueFor: _rawValue,
       componentAdjustments: const [],
       personAdjustments: personAdjustments,

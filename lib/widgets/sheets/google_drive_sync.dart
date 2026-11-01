@@ -183,8 +183,8 @@ class GoogleDriveSheet extends StatelessWidget {
               Text(
                 lastSync != null
                     ? context.l10n.driveSheetLastSync(
-                        DateFormat(appSettings.dateFormat).format(lastSync),
-                        DateFormat(appSettings.timeFormat).format(lastSync),
+                        DateFormat(appSettings.dateFormat, context.l10n.localeName).format(lastSync),
+                        DateFormat(appSettings.timeFormat, context.l10n.localeName).format(lastSync),
                       )
                     : context.l10n.driveSheetNoSyncHistory,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(

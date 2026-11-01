@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component_ancestor.dart';
 import '../../models/component_stats.dart';
@@ -100,18 +101,18 @@ class EntityTooltipContent extends StatelessWidget {
                 context,
                 icon: Icons.route,
                 label:
-                    '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+                    '${NumberFormat.decimalPattern(context.l10n.localeName).format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
               ),
               _statItem(
                 context,
                 icon: Icons.terrain,
                 label:
-                    '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
+                    '${NumberFormat.decimalPattern(context.l10n.localeName).format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
               ),
               _statItem(
                 context,
                 icon: Icons.timer_outlined,
-                label: '${NumberFormat.decimalPattern().format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m',
+                label: '${NumberFormat.decimalPattern(context.l10n.localeName).format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m',
               ),
               _statItem(context, icon: Icons.repeat, label: '${stats.activityCount}'),
             ],

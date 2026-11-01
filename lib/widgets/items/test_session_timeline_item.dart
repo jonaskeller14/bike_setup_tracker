@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
+import '../../l10n/test_session_text.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
@@ -50,16 +52,16 @@ class TestSessionTimelineItem extends StatelessWidget {
   });
 
   /// "09:00 – 10:30", or with the end's date when the session spans days.
-  String _timeRange(AppSettings appSettings) {
+  String _timeRange(AppSettings appSettings, AppLocalizations l10n) {
     final start = entry.dateLocal;
     final end = entry.endLocal;
-    final time = DateFormat(appSettings.timeFormat);
+    final time = DateFormat(appSettings.timeFormat, l10n.localeName);
     final startText = time.format(start);
     if (!end.isAfter(start)) return startText;
     final sameDay = DateUtils.isSameDay(start, end);
     final endText = sameDay
         ? time.format(end)
-        : '${DateFormat(appSettings.dateFormat).format(end)} • ${time.format(end)}';
+        : '${DateFormat(appSettings.dateFormat, l10n.localeName).format(end)} • ${time.format(end)}';
     return startText == endText ? startText : '$startText – $endText';
   }
 
@@ -89,7 +91,7 @@ class TestSessionTimelineItem extends StatelessWidget {
         : items.sublist(0, visibleItems);
 
     final metadata = <Widget>[
-      TileMetaRow(icon: Icons.psychology, text: TestSessionService.methodLabel(session.method), muted: true),
+      TileMetaRow(icon: Icons.psychology, text: testSessionMethodLabel(session.method, context.l10n), muted: true),
       TileMetaRow(
         icon: Icons.repeat,
         text: context.l10n.testSessionRunsCount(entry.runs.length),
@@ -98,7 +100,7 @@ class TestSessionTimelineItem extends StatelessWidget {
       for (final aspect in session.goal)
         TileMetaRow(
           icon: Icons.track_changes,
-          text: TestSessionService.goalLabel(aspect, appRepository.customIssues.labelOf),
+          text: testSessionGoalLabel(aspect, appRepository.customIssues.labelOf, context.l10n),
           muted: true,
         ),
     ];
@@ -143,9 +145,9 @@ class TestSessionTimelineItem extends StatelessWidget {
           children: [
             SetupGroupHeader(
               setupCount: entry.runs.length,
-              title: session.displayName,
+              title: session.label(context.l10n),
               iconData: TestSession.iconData,
-              dateTimeText: _timeRange(appSettings),
+              dateTimeText: _timeRange(appSettings, context.l10n),
               bikeMetadata: TileMetaRow(
                 icon: Bike.iconData,
                 text: bike?.name ?? context.l10n.bikeNotFound,
@@ -247,7 +249,7 @@ class _RunRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final time = DateFormat(appSettings.timeFormat).format(run.datetimeLocal);
+    final time = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(run.datetimeLocal);
     final knobValues = _knobValues(appSettings, appRepository);
 
     return InkWell(
@@ -266,7 +268,7 @@ class _RunRow extends StatelessWidget {
                   child: SetupTileHeader(
                     setup: run,
                     dateTimeText: showDate
-                        ? '${DateFormat(appSettings.dateFormat).format(run.datetimeLocal)} • $time'
+                        ? '${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(run.datetimeLocal)} • $time'
                         : time,
                     metadata: [
                       ...SetupTileHeader.metadataOf(run, appSettings, context.l10n),

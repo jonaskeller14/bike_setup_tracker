@@ -24,23 +24,81 @@ enum SuggestionNoteKind {
 
 /// What a strategy has to say, without wording: [kind] names the sentence and
 /// [args] fill it (run names, adjustment names, a move like "Rebound +2"). The
-/// UI turns it into text in the app language (`enum_labels.dart`).
+/// UI turns it into text in the app language (`enum_labels.dart`), so a
+/// suggestion cached by the repository follows a language switch.
 @immutable
 class SuggestionNote {
   final SuggestionNoteKind kind;
-  final List<String> args;
+  final List<NoteArg> args;
 
   const SuggestionNote(this.kind, [this.args = const []]);
 
   @override
   bool operator ==(Object other) =>
-      other is SuggestionNote && other.kind == kind && const ListEquality<String>().equals(other.args, args);
+      other is SuggestionNote && other.kind == kind && const ListEquality<NoteArg>().equals(other.args, args);
 
   @override
-  int get hashCode => Object.hash(kind, const ListEquality<String>().hash(args));
+  int get hashCode => Object.hash(kind, const ListEquality<NoteArg>().hash(args));
 
   @override
   String toString() => 'SuggestionNote(${kind.name}, $args)';
+}
+
+/// One blank of a [SuggestionNote].
+@immutable
+sealed class NoteArg {
+  const NoteArg();
+}
+
+/// Shown as is: a count or an adjustment name.
+final class TextArg extends NoteArg {
+  final String text;
+
+  const TextArg(this.text);
+
+  @override
+  bool operator ==(Object other) => other is TextArg && other.text == text;
+
+  @override
+  int get hashCode => Object.hash(TextArg, text);
+
+  @override
+  String toString() => text;
+}
+
+/// A setup by its name, `null` for an unnamed one.
+final class SetupArg extends NoteArg {
+  final String? name;
+
+  const SetupArg(this.name);
+
+  @override
+  bool operator ==(Object other) => other is SetupArg && other.name == name;
+
+  @override
+  int get hashCode => Object.hash(SetupArg, name);
+
+  @override
+  String toString() => 'SetupArg($name)';
+}
+
+/// One knob of a [MoveArg], from the value it has to the one it gets.
+typedef KnobChange = ({Adjustment adjustment, AdjustmentValue from, AdjustmentValue to});
+
+/// What changes from one knob position to another: "Rebound +2, Lockout On".
+final class MoveArg extends NoteArg {
+  final List<KnobChange> changes;
+
+  const MoveArg(this.changes);
+
+  @override
+  bool operator ==(Object other) => other is MoveArg && const ListEquality<KnobChange>().equals(other.changes, changes);
+
+  @override
+  int get hashCode => Object.hash(MoveArg, const ListEquality<KnobChange>().hash(changes));
+
+  @override
+  String toString() => 'MoveArg($changes)';
 }
 
 /// What a test session strategy says about the next run.

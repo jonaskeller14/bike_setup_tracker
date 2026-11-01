@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
@@ -68,10 +69,10 @@ class StravaActivityPageContent extends StatelessWidget {
     this.showViewOnMap = true,
   });
 
-  String _formatDistance(double? meters, String distanceUnit) {
+  String _formatDistance(double? meters, String distanceUnit, String locale) {
     if (meters == null) return "-";
     final value = AppSettings.convertDistanceFromMeters(meters, distanceUnit)!;
-    return "${formatLocalizedDouble(value, fractionDigits: 2)} $distanceUnit";
+    return "${formatLocalizedDouble(value, fractionDigits: 2, locale: locale)} $distanceUnit";
   }
 
   String _formatElevation(double? meters, String altitudeUnit) {
@@ -80,11 +81,11 @@ class StravaActivityPageContent extends StatelessWidget {
     return "${value.round()} $altitudeUnit";
   }
 
-  String _formatSpeed(double? meters, Duration duration, String distanceUnit) {
+  String _formatSpeed(double? meters, Duration duration, String distanceUnit, String locale) {
     if (meters == null || duration.inSeconds == 0) return "-";
     final dist = AppSettings.convertDistanceFromMeters(meters, distanceUnit)!;
     final hours = duration.inSeconds / 3600;
-    return "${formatLocalizedDouble(dist / hours, fractionDigits: 1)} ${AppSettings.speedUnitForDistance(distanceUnit)}";
+    return "${formatLocalizedDouble(dist / hours, fractionDigits: 1, locale: locale)} ${AppSettings.speedUnitForDistance(distanceUnit)}";
   }
 
   String _formatDuration(Duration duration) {
@@ -150,7 +151,7 @@ class StravaActivityPageContent extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    "${DateFormat(appSettings.dateFormat).format(stravaActivity.startDateLocal)} • ${DateFormat(appSettings.timeFormat).format(stravaActivity.startDateLocal)}",
+                    "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(stravaActivity.startDateLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(stravaActivity.startDateLocal)}",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -233,9 +234,9 @@ class StravaActivityPageContent extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                _statWidget(context, context.l10n.initialStatsDistance, _formatDistance(stravaActivity.distance, appSettings.distanceUnit)),
+                _statWidget(context, context.l10n.initialStatsDistance, _formatDistance(stravaActivity.distance, appSettings.distanceUnit, context.l10n.localeName)),
                 _statWidget(context, context.l10n.stravaActivityElevGain, _formatElevation(stravaActivity.totalElevationGain, appSettings.altitudeUnit)),
-                _statWidget(context, context.l10n.stravaActivityAvgSpeed, _formatSpeed(stravaActivity.distance, stravaActivity.movingTime, appSettings.distanceUnit)),
+                _statWidget(context, context.l10n.stravaActivityAvgSpeed, _formatSpeed(stravaActivity.distance, stravaActivity.movingTime, appSettings.distanceUnit, context.l10n.localeName)),
               ],
             ),
           ),
@@ -412,7 +413,7 @@ class StravaActivityPageContent extends StatelessWidget {
                 final VoidCallback? addSetup = running == null ? () => _addSetup(context, appRepository) : null;
                 final runningHint = running == null
                     ? null
-                    : context.l10n.stravaActivitySessionRunning(running.displayName);
+                    : context.l10n.stravaActivitySessionRunning(running.label(context.l10n));
 
                 return ExpansionTile(
                   leading: const Icon(Setup.iconData),

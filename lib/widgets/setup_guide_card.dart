@@ -176,7 +176,8 @@ class _WeightField extends StatefulWidget {
 class _WeightFieldState extends State<_WeightField> {
   late final _controller = TextEditingController(text: _format(widget.input.weight));
 
-  static String _format(double? weight) => weight == null ? '' : localizeDecimalSeparator(formatSpecNumber(weight));
+  String _format(double? weight) =>
+      weight == null ? '' : localizeDecimalSeparator(formatSpecNumber(weight), locale: context.l10n.localeName);
 
   @override
   void didUpdateWidget(covariant _WeightField oldWidget) {
@@ -324,12 +325,12 @@ class _RecommendationRow extends StatelessWidget {
     final canApply = value != null && recommendation.current != value;
     final note = recommendation.rule.note;
     final reverseLookup = hasRiderWeight ? null : _reverseLookupText(recommendation, riderWeightUnit, context.l10n);
-    final status = GuideStatus.of(recommendation);
+    final status = GuideStatus.of(recommendation, context.l10n);
     final current = recommendation.current;
-    final band = guideBandText(recommendation);
+    final band = guideBandText(recommendation, context.l10n);
     final statusDetail = switch (status?.kind) {
       GuideStatusKind.inRange || GuideStatusKind.off when current != null => [
-        context.l10n.guideCardNow(guideValueText(adjustment, current)),
+        context.l10n.guideCardNow(guideValueText(adjustment, current, context.l10n)),
         if (band != null) context.l10n.guideCardInRange(band),
       ].join(" · "),
       _ => null,
@@ -373,7 +374,7 @@ class _RecommendationRow extends StatelessWidget {
                 spacing: 2,
                 children: [
                   Text(
-                    shown == null ? "–" : guideValueText(adjustment, shown),
+                    shown == null ? "–" : guideValueText(adjustment, shown, context.l10n),
                     style: textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: value == null ? hint.onContainer.withValues(alpha: 0.6) : hint.onContainer,
@@ -451,7 +452,7 @@ String? _reverseLookupText(GuideRecommendation recommendation, KnownUnit unit, A
     (false, false) => null,
   };
   if (weights == null) return null;
-  return "${guideValueText(recommendation.adjustment, current)} ≈ $weights ${unit.label}";
+  return "${guideValueText(recommendation.adjustment, current, l10n)} ≈ $weights ${unit.label}";
 }
 
 String _number(double value) => value.round().toString();

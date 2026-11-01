@@ -4,10 +4,10 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/set_initial_stats.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../goldens/support/localized_test_app.dart';
+import '../../support/german_l10n.dart';
 
 void main() {
   late AppSettings settings;
@@ -19,12 +19,14 @@ void main() {
   Future<ComponentStats? Function()> openSheet(
     WidgetTester tester, {
     ComponentStats initialStats = const ComponentStats(),
+    Locale locale = const Locale('en'),
   }) async {
     ComponentStats? saved;
     await tester.pumpWidget(
       ChangeNotifierProvider.value(
         value: settings,
         child: localizedTestApp(
+          locale: locale,
           theme: materialAppTheme,
           home: Builder(
             builder: (context) => TextButton(
@@ -61,19 +63,16 @@ void main() {
   });
 
   testWidgets('German values are pre-filled with a decimal comma and survive a save', (tester) async {
-    Intl.defaultLocale = 'de';
-    addTearDown(() => Intl.defaultLocale = null);
-
     const stats = ComponentStats(distance: 12500, elevationGain: 100.5, kilojoules: 2.5);
-    final saved = await openSheet(tester, initialStats: stats);
+    final saved = await openSheet(tester, initialStats: stats, locale: const Locale('de'));
 
     expect(find.widgetWithText(TextFormField, '12,5'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, '100,5'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, '2,5'), findsOneWidget);
 
     // Save needs a change; the pre-filled fields stay untouched.
-    await enter(tester, 'Activities', '3');
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await enter(tester, germanL10n.initialStatsActivityCount, '3');
+    await tester.tap(find.widgetWithText(FilledButton, germanL10n.save));
     await tester.pumpAndSettle();
 
     expect(saved(), const ComponentStats(distance: 12500, elevationGain: 100.5, kilojoules: 2.5, activityCount: 3));

@@ -15,10 +15,10 @@ import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
 import 'package:bike_setup_tracker/widgets/sheets/set_task_delay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../goldens/support/localized_test_app.dart';
+import '../support/german_l10n.dart';
 
 /// Covers the quick delay editor reachable from TaskRuleListCard and the
 /// "delay follows the trigger type" behaviour on TaskRulePage.
@@ -51,14 +51,14 @@ void main() {
     await database.close();
   });
 
-  Widget wrap(Widget home) {
+  Widget wrap(Widget home, {Locale locale = const Locale('en')}) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
         ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
       ],
-      child: localizedTestApp(theme: materialAppTheme, home: home),
+      child: localizedTestApp(locale: locale, theme: materialAppTheme, home: home),
     );
   }
 
@@ -95,7 +95,7 @@ void main() {
 
   TaskRule? popped;
 
-  Future<void> openEditPage(WidgetTester tester, TaskRule rule) async {
+  Future<void> openEditPage(WidgetTester tester, TaskRule rule, {Locale locale = const Locale('en')}) async {
     popped = null;
     await tester.runAsync(() async {
       await appRepository.addBikes([bike]);
@@ -118,6 +118,7 @@ void main() {
           ),
         ),
       ),
+      locale: locale,
     ));
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
@@ -179,13 +180,13 @@ void main() {
           matching: find.text(text),
         );
 
-    Future<void> pumpCardMenu(WidgetTester tester, TaskRule rule) async {
+    Future<void> pumpCardMenu(WidgetTester tester, TaskRule rule, {Locale locale = const Locale('en')}) async {
       await tester.runAsync(() async {
         await appRepository.addBikes([bike]);
         await appRepository.addTaskRules([rule]);
         await pumpEventQueue();
       });
-      await tester.pumpWidget(wrap(Scaffold(body: TaskRuleListCard(taskRuleId: rule.id))));
+      await tester.pumpWidget(wrap(Scaffold(body: TaskRuleListCard(taskRuleId: rule.id)), locale: locale));
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.more_vert));
       await tester.pumpAndSettle();
@@ -267,17 +268,14 @@ void main() {
     });
 
     testWidgets('pre-fills a German delay with a decimal comma and keeps it on save', (tester) async {
-      Intl.defaultLocale = 'de';
-      addTearDown(() => Intl.defaultLocale = null);
-
       final rule = ruleWith(interval: const ElevationThreshold(1000), delay: const ElevationThreshold(12.5));
-      await pumpCardMenu(tester, rule);
+      await pumpCardMenu(tester, rule, locale: const Locale('de'));
 
-      await tester.tap(findMenuOption('Edit Delay'));
+      await tester.tap(findMenuOption(germanL10n.taskDelayEdit));
       await tester.pumpAndSettle();
       expect(find.widgetWithText(TextFormField, '12,5'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.tap(find.widgetWithText(FilledButton, germanL10n.save));
       await tester.pumpAndSettle();
 
       expect(appRepository.taskRules[rule.id]?.delay, const ElevationThreshold(12.5));
@@ -622,12 +620,10 @@ void main() {
     });
 
     testWidgets('pre-fills German values with a decimal comma and saves them unchanged', (tester) async {
-      Intl.defaultLocale = 'de';
-      addTearDown(() => Intl.defaultLocale = null);
-
       await openEditPage(
         tester,
         ruleWith(interval: const ElevationThreshold(1250.5), delay: const ElevationThreshold(-200.5)),
+        locale: const Locale('de'),
       );
 
       expect(find.widgetWithText(TextFormField, '1250,5'), findsOneWidget);

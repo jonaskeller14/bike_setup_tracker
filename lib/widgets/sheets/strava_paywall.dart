@@ -217,17 +217,21 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                         crossAxisAlignment: CrossAxisAlignment.baseline,
                                         textBaseline: TextBaseline.alphabetic,
                                         children: [
-                                          Text(
-                                            subscription.localizedPrice(plan) ?? '—',
-                                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                              letterSpacing: -0.3,
+                                          Flexible(
+                                            child: Text(
+                                              subscription.localizedPrice(plan) ?? '—',
+                                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                                letterSpacing: -0.3,
+                                              ),
                                             ),
                                           ),
                                           const SizedBox(width: 3),
-                                          Text(
-                                            plan.period(context.l10n).replaceAll('/ ', '/'),
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          Flexible(
+                                            child: Text(
+                                              plan.period(context.l10n).replaceAll('/ ', '/'),
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                              ),
                                             ),
                                           ),
                                         ],

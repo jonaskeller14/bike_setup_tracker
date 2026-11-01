@@ -211,10 +211,10 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                         final isFromBeginning = installation.dateTimeUTC.millisecondsSinceEpoch == 0;
                         final dateStr = isFromBeginning
                             ? l10n.timelineFromBeginning
-                            : DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal);
+                            : DateFormat(appSettings.dateFormat, context.l10n.localeName).format(installation.dateTimeLocal);
                         final timeStr = isFromBeginning
                             ? null
-                            : DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal);
+                            : DateFormat(appSettings.timeFormat, context.l10n.localeName).format(installation.dateTimeLocal);
 
                         final originalInstallation = (_originalInstallations != null && index < _originalInstallations!.length)
                             ? _originalInstallations![index]

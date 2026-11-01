@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
 import 'package:bike_setup_tracker/utils/catalog_revisions.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:crypto/crypto.dart';
@@ -166,7 +168,7 @@ String _signature(ResolvedPreset resolved) {
       ...resolved.product!.adjustments,
       for (final value in resolved.selections.values) ...value.adjustments,
     ])
-      spec.build().toJson()..remove('id'),
+      buildCatalogAdjustment(spec, englishL10n).toJson()..remove('id'),
   ];
   return sha1.convert(utf8.encode(jsonEncode(adjustments))).toString().substring(0, 12);
 }

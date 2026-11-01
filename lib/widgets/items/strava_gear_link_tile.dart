@@ -113,12 +113,14 @@ class StravaGearLinkTile extends StatelessWidget {
             spacing: 4,
             children: [
               Icon(Icons.add_link, size: 16, color: colorScheme.onSecondaryContainer),
-              Text(
-                context.l10n.stravaGearLink,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSecondaryContainer,
+              Flexible(
+                child: Text(
+                  context.l10n.stravaGearLink,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSecondaryContainer,
+                  ),
                 ),
               ),
             ],
@@ -188,7 +190,7 @@ class StravaGearLinkTile extends StatelessWidget {
                 spacing: 8,
                 children: [
                   const Icon(Icons.add),
-                  Text(context.l10n.stravaGearAddAsBike),
+                  Flexible(child: Text(context.l10n.stravaGearAddAsBike)),
                 ],
               ),
             ),

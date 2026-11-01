@@ -214,7 +214,7 @@ void main() {
         setups: setups,
         feedbacks: ratings,
         testSessions: testSessions,
-        setupFilter: SetupFilter(testSessionNames: {testSessions["t1"]!.displayName}),
+        setupFilter: const SetupFilter(testSessionNames: {SetupFilter.unnamedTestSession}),
       );
       expect(filtered.setups.keys, ["r1"]);
       expect(filtered.feedbacks.keys, ["onRun"]);

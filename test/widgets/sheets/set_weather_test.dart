@@ -6,7 +6,6 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/set_weather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../goldens/support/localized_test_app.dart';
@@ -18,14 +17,12 @@ void main() {
   tearDown(() => settings.dispose());
 
   testWidgets('pre-fills German values with a decimal comma', (tester) async {
-    Intl.defaultLocale = 'de';
-    addTearDown(() => Intl.defaultLocale = null);
-
     final selectedDateTime = DateTime(2026, 10, 30);
     await tester.pumpWidget(
       ChangeNotifierProvider.value(
         value: settings,
         child: localizedTestApp(
+          locale: const Locale('de'),
           theme: materialAppTheme,
           home: Scaffold(
             body: SetWeatherSheetContent(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../../l10n/adjustment_value_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../utils/value_migration_proposal.dart';
@@ -155,14 +156,14 @@ List<ValueTransitionRow> _rows(MigrationProposal proposal, AppLocalizations l10n
     for (final preview in proposal.previews)
       ValueTransitionRow(
         caption: isCategorical ? _issueTitle(byKey[preview.issueKeys.single]!, proposal, l10n) : null,
-        stages: _stages(preview, proposal),
+        stages: _stages(preview, proposal, l10n),
       ),
   ];
 }
 
 /// The preview's values as text, without repeating a stage that did not
 /// change; a cleared value ends the chain.
-List<String?> _stages(MigrationPreview preview, MigrationProposal proposal) {
+List<String?> _stages(MigrationPreview preview, MigrationProposal proposal, AppLocalizations l10n) {
   final stages = <String?>[];
   for (final (i, value) in preview.values.indexed) {
     if (value == null) {
@@ -170,23 +171,23 @@ List<String?> _stages(MigrationPreview preview, MigrationProposal proposal) {
       break;
     }
     // Only the first stage is still in the unit the adjustment had.
-    final text = _valueText(value, (i == 0 ? proposal.before.unit : proposal.after.unit)?.label);
+    final text = _valueText(value, (i == 0 ? proposal.before.unit : proposal.after.unit)?.label, l10n);
     if (stages.isEmpty || stages.last != text) stages.add(text);
   }
   return stages;
 }
 
-String _valueText(AdjustmentValue value, String? unit) {
-  final text = value is NumericalValue ? _rounded(value.value) : value.display;
+String _valueText(AdjustmentValue value, String? unit, AppLocalizations l10n) {
+  final text = value is NumericalValue ? _rounded(value.value, l10n) : value.displayText(l10n);
   return unit != null && (value is NumericalValue || value is StepValue) ? '$text $unit' : text;
 }
 
 /// A converted number like 5.72265 shows as "≈ 5.72": two decimals, or three
 /// significant digits below 1. The stored value stays exact.
-String _rounded(double value) {
+String _rounded(double value, AppLocalizations l10n) {
   final magnitude = value == 0 ? 0 : (log(value.abs()) / ln10).floor();
-  final rounded = NumberFormat('0.${'#' * max(2, 2 - magnitude)}').format(value);
-  final exact = NumericalValue(value).display;
+  final rounded = NumberFormat('0.${'#' * max(2, 2 - magnitude)}', l10n.localeName).format(value);
+  final exact = NumericalValue(value).displayText(l10n);
   return rounded == exact ? exact : '≈ $rounded';
 }
 

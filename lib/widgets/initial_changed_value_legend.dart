@@ -20,9 +20,11 @@ class InitialChangedValueLegend extends StatelessWidget {
           height: 12,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        Text(
-          text,
-          style: Theme.of(context).textTheme.bodySmall,
+        Flexible(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ),
       ],
     );

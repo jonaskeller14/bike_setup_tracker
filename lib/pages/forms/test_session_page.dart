@@ -2,8 +2,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
+import '../../l10n/test_session_text.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/feedback_key.dart';
@@ -317,9 +319,10 @@ class _TestSessionPageState extends State<TestSessionPage> {
 
   Widget _methodSection() {
     final theme = Theme.of(context);
-    final expected = TestSessionService.expectedRuns(
+    final expected = testSessionExpectedRuns(
       _choice == _MethodChoice.compare ? Tournament(candidateSetupIds: _candidateIds) : _choice.method,
       _knobCount,
+      context.l10n,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,7 +333,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
           children: [
             for (final choice in _MethodChoice.values)
               ChoiceChip(
-                label: Text(TestSessionService.methodLabel(choice.method)),
+                label: Text(testSessionMethodLabel(choice.method, context.l10n)),
                 selected: _choice == choice,
                 onSelected: _isEdit ? null : (_) => setState(() => _choice = choice),
               ),
@@ -338,7 +341,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
         ),
         Text(
           [
-            TestSessionService.methodDescription(_choice.method),
+            testSessionMethodDescription(_choice.method, context.l10n),
             if (expected != null) context.l10n.testSessionExpect(expected),
           ].join(' '),
           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
@@ -392,7 +395,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Setup.iconData),
             title: Text(
-              setups[id]?.displayName ?? context.l10n.setupDetailsNotFoundTitle,
+              setups[id]?.label(context.l10n) ?? context.l10n.setupDetailsNotFoundTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -416,7 +419,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
         for (final aspect in _goal)
           FilterChip(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            label: Text(TestSessionService.goalLabel(aspect, labelOf), maxLines: 1, overflow: TextOverflow.ellipsis),
+            label: Text(testSessionGoalLabel(aspect, labelOf, context.l10n), maxLines: 1, overflow: TextOverflow.ellipsis),
             selected: true,
             onSelected: null,
           ),
@@ -512,7 +515,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Setup.iconData),
                 title: Text(
-                  setups[id]?.displayName ?? context.l10n.setupDetailsNotFoundTitle,
+                  setups[id]?.label(context.l10n) ?? context.l10n.setupDetailsNotFoundTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -670,7 +673,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
                           controller: _nameController,
                           decoration: InputDecoration(
                             labelText: context.l10n.testSessionNameLabel,
-                            hintText: TestSession.namePlaceholder,
+                            hintText: context.l10n.testSessionUnnamed,
                             border: const OutlineInputBorder(),
                             fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                             filled: _isEdit && _hasChanges,

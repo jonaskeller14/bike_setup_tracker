@@ -875,7 +875,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get featuresRequiresComponentPresets => 'Requires Component Presets';
 
   @override
+  String get featuresRequiresTasks => 'Requires Tasks';
+
+  @override
+  String get featuresRequiresTaskInterval => 'Requires Task Interval';
+
+  @override
   String get featuresTaskPresets => 'Task Presets';
+
+  @override
+  String get presetsComponentIntro =>
+      'Set up a fork or shock in seconds: pick the model from the built-in catalog instead of entering every adjustment by hand.';
+
+  @override
+  String get presetsComponentStepSearch => 'Add a fork or shock and search for its model and year, e.g. \"Fox 36\".';
+
+  @override
+  String get presetsComponentStepFilled =>
+      'Name, notes and adjustments are filled in: rebound and compression with their click ranges, air pressure and SAG.';
+
+  @override
+  String get presetsComponentStepLink =>
+      'Already have the component? Link the model on its edit page and choose whether its adjustments merge with yours or replace them.';
+
+  @override
+  String get presetsComponentCaption =>
+      'Covers forks and shocks from FOX, RockShox, Öhlins and other brands. Everything stays editable. Turning this off hides the catalog; your components keep their adjustments.';
+
+  @override
+  String get presetsTaskIntro =>
+      'Get recommended maintenance tasks for your components, like a chain wear check or a fork service.';
+
+  @override
+  String get presetsTaskStepOffered =>
+      'Whenever you add, duplicate or replace a component, its recommended tasks are offered. Pick the ones you want.';
+
+  @override
+  String get presetsTaskStepSuggestion =>
+      'Adding a task for a component? Tap a suggestion to fill in its name, notes and interval.';
+
+  @override
+  String get presetsTaskStepStrava =>
+      'With Strava connected, intervals follow your rides, like distance or riding time. Without it, they are time-based. Catalog forks and shocks use the manufacturer’s service intervals.';
+
+  @override
+  String get presetsTaskCaption =>
+      'Covers chains, cassettes, forks, shocks, brakes, tires, headsets, bottom brackets, seatposts, frames and shift cables. Added tasks are normal tasks you can edit or delete.';
 
   @override
   String get featuresSetupGuides => 'Setup Guides';
@@ -1599,6 +1644,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hintAttachmentsEnabled =>
       'Attachments enabled — add photos and files to bikes, components, setups and tasks';
+
+  @override
+  String get hintTaskPresetsEnabled => 'Tasks enabled — recommended tasks are offered when you add a component';
+
+  @override
+  String get hintTurnOnTasks => 'Turn on Tasks';
+
+  @override
+  String get hintRelease45CatalogTitle => 'Fork & shock catalog';
+
+  @override
+  String get hintRelease45CatalogBody =>
+      'Adding a fork or shock? Pick the model from the built-in catalog and its adjustments, like click ranges, air pressure and SAG, are filled in for you. Everything stays editable.';
+
+  @override
+  String get hintRelease45TasksTitle => 'Recommended tasks';
+
+  @override
+  String get hintRelease45TasksBody =>
+      'Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals.';
+
+  @override
+  String get hintRelease45TasksBodyOfferTasks =>
+      'Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals. Turn on Tasks to get them.';
 
   @override
   String get hintGarageTitle => 'Gestures in Garage';

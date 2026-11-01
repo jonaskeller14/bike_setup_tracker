@@ -1,3 +1,5 @@
+import '../l10n/adjustment_value_text.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import 'unit_conversion.dart';
 
@@ -12,16 +14,17 @@ String formatSignedDelta(num difference, String magnitude) => difference > 0
 /// The signed difference from [previous] to [current], for the value types that
 /// have an order (step, numerical including sag, duration). Null for boolean,
 /// categorical and text values, and when either side is missing.
-String? formatValueDelta(AdjustmentValue? previous, AdjustmentValue? current) => switch ((previous, current)) {
+String? formatValueDelta(AdjustmentValue? previous, AdjustmentValue? current, AppLocalizations l10n) =>
+    switch ((previous, current)) {
   (StepValue(value: final p), StepValue(value: final c)) => formatSignedDelta(c - p, '${(c - p).abs()}'),
   (NumericalValue(value: final p), NumericalValue(value: final c)) => formatSignedDelta(
     c - p,
-    formatConverted((c - p).abs()),
+    formatConverted((c - p).abs(), locale: l10n.localeName),
   ),
   // Hours are dropped while they are zero: `+00:05` reads better than `+00:00:05`.
   (DurationValue(value: final p), DurationValue(value: final c)) => formatSignedDelta(
     (c - p).inMicroseconds,
-    DurationValue((c - p).abs()).display.replaceFirst(RegExp('^00:'), ''),
+    DurationValue((c - p).abs()).displayText(l10n).replaceFirst(RegExp('^00:'), ''),
   ),
   _ => null,
 };

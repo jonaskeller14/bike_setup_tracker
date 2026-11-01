@@ -301,8 +301,8 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
               Text(
                 lastFull != null
                     ? context.l10n.stravaLastFullSync(
-                        DateFormat(appSettings.dateFormat).format(lastFull),
-                        DateFormat(appSettings.timeFormat).format(lastFull),
+                        DateFormat(appSettings.dateFormat, context.l10n.localeName).format(lastFull),
+                        DateFormat(appSettings.timeFormat, context.l10n.localeName).format(lastFull),
                       )
                     : context.l10n.stravaNoFullSync,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -312,8 +312,8 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
               if (nextFull != null)
                 Text(
                   context.l10n.stravaNextScheduledSync(
-                    DateFormat(appSettings.dateFormat).format(nextFull),
-                    DateFormat(appSettings.timeFormat).format(nextFull),
+                    DateFormat(appSettings.dateFormat, context.l10n.localeName).format(nextFull),
+                    DateFormat(appSettings.timeFormat, context.l10n.localeName).format(nextFull),
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondary,
@@ -322,8 +322,8 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
               if (manualAvailableAt != null)
                 Text(
                   context.l10n.stravaNextManualSync(
-                    DateFormat(appSettings.dateFormat).format(manualAvailableAt),
-                    DateFormat(appSettings.timeFormat).format(manualAvailableAt),
+                    DateFormat(appSettings.dateFormat, context.l10n.localeName).format(manualAvailableAt),
+                    DateFormat(appSettings.timeFormat, context.l10n.localeName).format(manualAvailableAt),
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondary,

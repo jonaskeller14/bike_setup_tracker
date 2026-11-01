@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -192,7 +193,7 @@ void main() {
       await tester.pump();
       final start = DateTime(firstDay.year, firstDay.month, firstDay.day + 10);
       final end = DateTime(firstDay.year, firstDay.month, firstDay.day + 21);
-      final label = FilterActions.dateRangeLabel(LocalDateRange(start: start, end: end), dateFormat: 'yyyy-MM-dd')!;
+      final label = FilterActions.dateRangeLabel(LocalDateRange(start: start, end: end), englishL10n, dateFormat: 'yyyy-MM-dd')!;
       expect(find.text(label), findsOneWidget);
       expect(filters.dateRange, null);
 

@@ -82,7 +82,7 @@ class SetupPickTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(setup.datetimeLocal);
     final isCurrent = appRepository.setupHistory.isCurrent(setup.id);
     final bike = appRepository.bikes[setup.bike];
 

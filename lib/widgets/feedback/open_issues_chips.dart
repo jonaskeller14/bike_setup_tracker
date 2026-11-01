@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/feedback_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/feedback/custom_issue.dart';
 import '../../services/feedback_open_issues_service.dart';
@@ -24,10 +25,10 @@ class OpenIssuesChips extends StatelessWidget {
           ? [_pill(color: colors.better, icon: Icons.check_circle, label: context.l10n.feedbackDialledIn)]
           : [
               for (final issue in issues)
-                if (issue.hint case final hint?)
-                  Tooltip(message: hint, child: _pill(color: colors.worse, label: issue.label))
+                if (issue.hintText(context.l10n) case final hint?)
+                  Tooltip(message: hint, child: _pill(color: colors.worse, label: issue.labelText(context.l10n)))
                 else
-                  _pill(color: colors.worse, label: issue.label),
+                  _pill(color: colors.worse, label: issue.labelText(context.l10n)),
             ],
     );
   }

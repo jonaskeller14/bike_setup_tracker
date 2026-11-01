@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/adjustment_value_text.dart';
 import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/setup_guide.dart';
@@ -53,7 +54,7 @@ class GuideStatus {
 
   /// Null for a recommendation without any value, whose reason the detail text
   /// already gives.
-  static GuideStatus? of(GuideRecommendation recommendation) {
+  static GuideStatus? of(GuideRecommendation recommendation, AppLocalizations l10n) {
     final adjustment = recommendation.adjustment;
     if (recommendation.value == null) {
       return recommendation.unappliedValue == null ? null : const GuideStatus(GuideStatusKind.unavailable);
@@ -62,8 +63,8 @@ class GuideStatus {
     if (deviation == null) return const GuideStatus(GuideStatusKind.notSet);
     if (deviation.exact) return const GuideStatus(GuideStatusKind.matches);
 
-    final delta = deviation.delta == null ? null : "${guideSignedDelta(deviation.delta!)}${adjustment.unitSuffix()}";
-    final band = guideBandText(recommendation);
+    final delta = deviation.delta == null ? null : "${guideSignedDelta(deviation.delta!, l10n)}${adjustment.unitSuffix()}";
+    final band = guideBandText(recommendation, l10n);
     if (deviation.onGuide) return const GuideStatus(GuideStatusKind.inRange);
     return GuideStatus(GuideStatusKind.off, text: delta, band: band);
   }
@@ -137,22 +138,22 @@ class GuideStatusPill extends StatelessWidget {
   }
 }
 
-String guideValueText(Adjustment adjustment, AdjustmentValue value) => switch (value) {
-  NumericalValue() || StepValue() => "${value.display}${adjustment.unitSuffix()}",
-  _ => value.display,
+String guideValueText(Adjustment adjustment, AdjustmentValue value, AppLocalizations l10n) => switch (value) {
+  NumericalValue() || StepValue() => "${value.displayText(l10n)}${adjustment.unitSuffix()}",
+  _ => value.displayText(l10n),
 };
 
-String guideSignedDelta(double delta) {
+String guideSignedDelta(double delta, AppLocalizations l10n) {
   final rounded = double.parse(delta.toStringAsFixed(1));
-  return "${rounded < 0 ? '-' : '+'}${formatLocalizedDouble(rounded.abs())}";
+  return "${rounded < 0 ? '-' : '+'}${formatLocalizedDouble(rounded.abs(), locale: l10n.localeName)}";
 }
 
 /// "72–80 psi": the values that count as on guide; null where only the
 /// recommended value does.
-String? guideBandText(GuideRecommendation recommendation) {
+String? guideBandText(GuideRecommendation recommendation, AppLocalizations l10n) {
   final band = recommendation.band;
   if (band == null) return null;
-  String number(double value) => formatLocalizedDouble(double.parse(value.toStringAsFixed(1)));
+  String number(double value) => formatLocalizedDouble(double.parse(value.toStringAsFixed(1)), locale: l10n.localeName);
 
   return "${number(band.min)}–${number(band.max)}${recommendation.adjustment.unitSuffix()}";
 }

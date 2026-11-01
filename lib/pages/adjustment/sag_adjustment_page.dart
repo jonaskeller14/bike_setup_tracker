@@ -4,6 +4,7 @@ import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../theme.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../utils/value_migration_actions.dart';
 import '../../utils/value_migration_proposal.dart';
@@ -79,7 +80,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
     _travelController = TextEditingController(
       text: widget.adjustment?.referenceTravelMm == null
           ? null
-          : NumericalValue(widget.adjustment!.referenceTravelMm!).display,
+          : formatLocalizedDouble(widget.adjustment!.referenceTravelMm!, locale: context.untrackedLocaleName),
     );
     _travelController.addListener(_changeListener);
 

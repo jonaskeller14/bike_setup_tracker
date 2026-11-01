@@ -13,6 +13,7 @@ import '../../utils/garage_component_grouping.dart';
 import '../../utils/installation_issue.dart';
 import '../dashed_border_painter.dart';
 import 'component_list_card.dart';
+import 'garage_add_component_button.dart';
 import 'garage_component_cell.dart';
 import 'garage_component_group.dart';
 import 'garage_component_icon_card.dart';
@@ -276,12 +277,14 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                 context,
               ).colorScheme.tertiary.withValues(alpha: 0.6),
             ),
-            Text(
-              context.l10n.garageDragToArchive,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.tertiary.withValues(alpha: 0.7),
+            Flexible(
+              child: Text(
+                context.l10n.garageDragToArchive,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.tertiary.withValues(alpha: 0.7),
+                ),
               ),
             ),
           ],
@@ -411,27 +414,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                             widget.setDraggedComponent(uninstalledRoots[index]),
                                         onNoReorder: (index) => widget.setDraggedComponent(null),
                                         buildDraggableFeedback: buildGarageDraggableFeedback,
-                                        footer: Container(
+                                        footer: GarageAddComponentButton(
                                           width: itemWidth,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(
-                                              color: Theme.of(context).colorScheme.outlineVariant,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          child: InkWell(
-                                            onTap: () => ComponentActions.addComponent(context, initialBike: null),
-                                            borderRadius: BorderRadius.circular(12),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Icon(
-                                                Icons.add,
-                                                size: 24,
-                                                color: Theme.of(context).colorScheme.primary,
-                                              ),
-                                            ),
-                                          ),
+                                          onTap: () => ComponentActions.addComponent(context, initialBike: null),
                                         ),
                                         spacing: spacing,
                                         runSpacing: spacing,

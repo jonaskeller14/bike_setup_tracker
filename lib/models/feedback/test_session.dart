@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:uuid/uuid.dart';
 
-import '../../l10n/l10n.dart';
 import '../adjustment/adjustment.dart';
 import '../context/context_place.dart';
 import '../setup.dart';
@@ -34,8 +33,6 @@ class TestSession {
 
   static const IconData iconData = Icons.science;
   static const int maxGoalAspects = 3;
-  static String get namePlaceholder => currentL10n.testSessionUnnamed;
-  String get displayName => name ?? namePlaceholder;
   bool get isRunning => endedAtUTC == null;
 
   TestSession({

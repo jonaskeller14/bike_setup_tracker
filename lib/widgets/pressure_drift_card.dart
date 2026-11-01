@@ -184,9 +184,9 @@ class _PressureDriftRow extends StatelessWidget {
                 ),
                 Text(
                   context.l10n.pressureCheckSetOn(
-                    formatPressure(entry.referenceValue),
+                    formatPressure(entry.referenceValue, context.l10n),
                     unit,
-                    DateFormat(appSettings.dateFormat).format(entry.referenceSetup.datetimeLocal),
+                    DateFormat(appSettings.dateFormat, context.l10n.localeName).format(entry.referenceSetup.datetimeLocal),
                     pressureConditionsText(appSettings, entry.referenceTemperatureC, entry.referenceAltitudeM),
                   ),
                   style: mutedStyle,
@@ -203,14 +203,14 @@ class _PressureDriftRow extends StatelessWidget {
               spacing: 2,
               children: [
                 Text(
-                  "${formatPressure(entry.predictedReading)} $unit",
+                  "${formatPressure(entry.predictedReading, context.l10n)} $unit",
                   style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                GuideStatusPill(pressureDriftStatus(entry.relativeDelta, significant: entry.isSignificant)),
+                GuideStatusPill(pressureDriftStatus(entry.relativeDelta, context.l10n, significant: entry.isSignificant)),
                 Text(
-                  "${signedPressure(entry.delta)} $unit",
+                  "${signedPressure(entry.delta, context.l10n)} $unit",
                   style: mutedStyle,
                   maxLines: 1,
                   textAlign: TextAlign.end,
@@ -226,20 +226,20 @@ class _PressureDriftRow extends StatelessWidget {
 }
 
 /// Green within the threshold, orange from it on, labelled with the drift.
-GuideStatus pressureDriftStatus(double relativeDelta, {required bool significant}) =>
-    GuideStatus(significant ? GuideStatusKind.off : GuideStatusKind.inRange, text: signedPercent(relativeDelta));
+GuideStatus pressureDriftStatus(double relativeDelta, AppLocalizations l10n, {required bool significant}) =>
+    GuideStatus(significant ? GuideStatusKind.off : GuideStatusKind.inRange, text: signedPercent(relativeDelta, l10n));
 
-String formatPressure(double value) {
+String formatPressure(double value, AppLocalizations l10n) {
   final magnitude = value.abs();
   final decimals = magnitude >= 100 ? 0 : (magnitude >= 10 ? 1 : 2);
-  return formatLocalizedDouble(value, fractionDigits: decimals);
+  return formatLocalizedDouble(value, fractionDigits: decimals, locale: l10n.localeName);
 }
 
-String signedPressure(double value) => "${value < 0 ? '-' : '+'}${formatPressure(value.abs())}";
+String signedPressure(double value, AppLocalizations l10n) => "${value < 0 ? '-' : '+'}${formatPressure(value.abs(), l10n)}";
 
-String signedPercent(double fraction) {
+String signedPercent(double fraction, AppLocalizations l10n) {
   final percent = (fraction * 100).abs();
-  return "${fraction < 0 ? '-' : '+'}${formatLocalizedDouble(percent, fractionDigits: percent >= 10 ? 0 : 1)} %";
+  return "${fraction < 0 ? '-' : '+'}${formatLocalizedDouble(percent, fractionDigits: percent >= 10 ? 0 : 1, locale: l10n.localeName)} %";
 }
 
 /// "5 °C · 1800 m" in the rider's units.

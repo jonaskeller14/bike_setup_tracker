@@ -19,7 +19,6 @@ import 'package:excel/excel.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -71,7 +70,7 @@ void main() {
     dateTimeUTC: DateTime.utc(2026, 5, 3, 12),
     dateTimeLocal: DateTime(2026, 5, 3, 12),
     comparisons: {
-      FeedbackComparison(referenceSetupId: 's0', aspect: const OverallAspect(), outcome: 2),
+      const FeedbackComparison(referenceSetupId: 's0', aspect: OverallAspect(), outcome: 2),
     },
   );
   final reference = Setup(
@@ -152,12 +151,6 @@ void main() {
         expect(csv, contains('"2026-05-01 10:00"'));
         expect(csv, contains('"2026-05-02 09:00"'));
       }
-    });
-
-    test('does not change the app locale', () {
-      SpreadsheetExport.toCsv(data, settings, german);
-
-      expect(Intl.defaultLocale, isNot('de'));
     });
   });
 

@@ -8,6 +8,7 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -1005,7 +1006,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.calendar_month),
               label: Text(
-                DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
+                DateFormat(appSettings.dateFormat, context.l10n.localeName).format(_selectedDateTimeLocal),
               ),
               backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day)
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
@@ -1016,7 +1017,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.access_time),
               label: Text(
-                DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
+                DateFormat(appSettings.timeFormat, context.l10n.localeName).format(_selectedDateTimeLocal),
               ),
               backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute)
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
@@ -1357,7 +1358,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final l10n = context.l10n;
     final from = source == null
         ? l10n.setupFormSessionFromFallback
-        : l10n.setupFormSessionFromSetup(source.displayName);
+        : l10n.setupFormSessionFromSetup(source.label(context.l10n));
     // Starting a session lands here unexpectedly, so the first run says what to do.
     final explanation = switch ((session.method, _isFirstRun)) {
       (Tournament(), true) => l10n.setupFormSessionFirstTournament(from),
@@ -1373,8 +1374,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         leading: Icon(TestSession.iconData, color: scheme.onSecondaryContainer),
         title: Text(
           _isFirstRun
-              ? l10n.setupFormSessionFirstRunTitle(session.displayName)
-              : l10n.setupFormSessionRunTitle(session.displayName),
+              ? l10n.setupFormSessionFirstRunTitle(session.label(context.l10n))
+              : l10n.setupFormSessionRunTitle(session.label(context.l10n)),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(color: scheme.onSecondaryContainer, fontWeight: FontWeight.bold),
@@ -1436,7 +1437,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         final inputs = _guideInputs();
         final sections = [
           for (final component in guided)
-            if (component.evaluate(inputs, _bikeAdjustmentValues) case final recommendations
+            if (component.evaluate(inputs, _bikeAdjustmentValues, context.l10n) case final recommendations
                 when recommendations.isNotEmpty)
               SetupGuideSection(component, recommendations),
         ];
@@ -1472,7 +1473,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         return SetupGuideScope(
           sections: [
             for (final component in guided)
-              SetupGuideSection(component, component.evaluate(inputs, _bikeAdjustmentValues)),
+              SetupGuideSection(component, component.evaluate(inputs, _bikeAdjustmentValues, context.l10n)),
           ],
           child: child!,
         );
@@ -1555,7 +1556,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _applyAllGuideValues(List<SetupGuideSection> sections, GuideInputs inputs) {
     final values = {
-      for (final section in sections) ...guideValuesToApply(section.guided, inputs, _bikeAdjustmentValues),
+      for (final section in sections) ...guideValuesToApply(section.guided, inputs, _bikeAdjustmentValues, context.l10n),
     };
     if (values.isEmpty) return;
     unawaited(HapticFeedback.mediumImpact());

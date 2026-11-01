@@ -20,7 +20,6 @@ import 'package:bike_setup_tracker/widgets/sheets/copy_task_rules.dart';
 import 'package:bike_setup_tracker/widgets/sheets/delete_task_rules.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -149,8 +148,6 @@ void main() {
 
     testWidgets('names the interval and what is left in German', (tester) async {
       // The app keeps this in step with its locale; the interval text reads it.
-      Intl.defaultLocale = 'de';
-      addTearDown(() => Intl.defaultLocale = null);
       await seed(tester, [
         TaskRule(
           name: 'Bremsen entlüften',
@@ -169,8 +166,6 @@ void main() {
     });
 
     testWidgets('a task card says in German how far it is past due', (tester) async {
-      Intl.defaultLocale = 'de';
-      addTearDown(() => Intl.defaultLocale = null);
       final rule = TaskRule(
         name: 'Kette schmieren',
         tags: const {},

@@ -1,8 +1,12 @@
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
+import '../l10n/adjustment_value_text.dart';
+import '../l10n/entity_names.dart';
 import '../l10n/enum_labels.dart';
+import '../l10n/feedback_text.dart';
 import '../l10n/l10n.dart';
+import '../l10n/task_threshold_text.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
@@ -17,13 +21,7 @@ import '../services/component_hierarchy_resolver.dart';
 import 'localized_number.dart';
 
 class SpreadsheetExport {
-  static List<int>? toExcel(SelectedData data, AppSettings settings, AppLocalizations l10n) =>
-      withLocaleOf(l10n, () => _toExcel(data, settings, l10n));
-
-  static String toCsv(SelectedData data, AppSettings settings, AppLocalizations l10n) =>
-      withLocaleOf(l10n, () => _toCsv(data, settings, l10n));
-
-  static List<int>? _toExcel(SelectedData data, AppSettings settings, AppLocalizations l10n) {
+  static List<int>? toExcel(SelectedData data, AppSettings settings, AppLocalizations l10n) {
     final excel = Excel.createExcel();
 
     final bikes = data.bikes.values.where((b) => !b.isDeleted).toList();
@@ -69,7 +67,7 @@ class SpreadsheetExport {
     return excel.encode();
   }
 
-  static String _toCsv(SelectedData data, AppSettings settings, AppLocalizations l10n) {
+  static String toCsv(SelectedData data, AppSettings settings, AppLocalizations l10n) {
     final headerData = _generateHeader(data, settings, l10n, includeBikeColumn: true);
     final row1 = headerData.row1;
     final row2 = headerData.row2;
@@ -122,7 +120,7 @@ class SpreadsheetExport {
     buffer.writeln(_feedbackHeaders(l10n).map(_csvCell).join(','));
 
     for (final feedback in feedbacks) {
-      final row = [DateFormat('yyyy-MM-dd HH:mm').format(feedback.dateTimeLocal), ..._feedbackColumns(feedback, data, l10n)];
+      final row = [DateFormat('yyyy-MM-dd HH:mm', l10n.localeName).format(feedback.dateTimeLocal), ..._feedbackColumns(feedback, data, l10n)];
       buffer.writeln(row.map(_csvCell).join(','));
     }
   }
@@ -228,7 +226,7 @@ class SpreadsheetExport {
   static List<CellValue> _generateSetupCellValueRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings, AppLocalizations l10n) {
     final List<CellValue> row = List.filled(columnMap.length, TextCellValue(''));
 
-    row[columnMap['name']!] = TextCellValue(setup.displayName);
+    row[columnMap['name']!] = TextCellValue(setup.label(l10n));
     
     final localDt = setup.datetimeLocal;
     row[columnMap['datetime']!] = DateTimeCellValue(
@@ -283,7 +281,7 @@ class SpreadsheetExport {
       for (final entry in setup.personAdjustmentValues.entries) {
         final key = 'p_adj_${entry.key}';
         if (columnMap.containsKey(key)) {
-          row[columnMap[key]!] = TextCellValue(entry.value.display);
+          row[columnMap[key]!] = TextCellValue(entry.value.displayText(l10n));
         }
       }
     }
@@ -291,7 +289,7 @@ class SpreadsheetExport {
     for (final entry in setup.bikeAdjustmentValues.entries) {
       final key = 'comp_${entry.key}';
       if (columnMap.containsKey(key)) {
-        row[columnMap[key]!]= TextCellValue(entry.value.display);
+        row[columnMap[key]!]= TextCellValue(entry.value.displayText(l10n));
       }
     }
 
@@ -301,8 +299,8 @@ class SpreadsheetExport {
   static List<String> _generateSetupStringRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings, AppLocalizations l10n, {bool includeBikeColumn = false}) {
     final List<String> row = List.filled(columnMap.length, '');
 
-    row[columnMap['name']!] = setup.displayName;
-    row[columnMap['datetime']!] = DateFormat('yyyy-MM-dd HH:mm').format(setup.datetimeLocal);
+    row[columnMap['name']!] = setup.label(l10n);
+    row[columnMap['datetime']!] = DateFormat('yyyy-MM-dd HH:mm', l10n.localeName).format(setup.datetimeLocal);
     row[columnMap['tags']!] = setup.tags.join('; ');
     row[columnMap['notes']!] = setup.notes ?? '';
     
@@ -331,7 +329,7 @@ class SpreadsheetExport {
       row[columnMap['w_humid']!] = w.currentHumidity?.round().toString() ?? '';
       row[columnMap['w_wind']!] = ContextWeather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round().toString() ?? '';
       final soilMoisture = w.currentSoilMoisture0to7cm;
-      row[columnMap['w_soil']!] = soilMoisture == null ? '' : formatLocalizedDouble(soilMoisture, fractionDigits: 2);
+      row[columnMap['w_soil']!] = soilMoisture == null ? '' : formatLocalizedDouble(soilMoisture, fractionDigits: 2, locale: l10n.localeName);
       row[columnMap['w_cond']!] = w.condition?.label(l10n) ?? '';
     }
 
@@ -343,7 +341,7 @@ class SpreadsheetExport {
       for (final entry in setup.personAdjustmentValues.entries) {
         final key = 'p_adj_${entry.key}';
         if (columnMap.containsKey(key)) {
-          row[columnMap[key]!] = entry.value.display;
+          row[columnMap[key]!] = entry.value.displayText(l10n);
         }
       }
     }
@@ -351,7 +349,7 @@ class SpreadsheetExport {
     for (final entry in setup.bikeAdjustmentValues.entries) {
       final key = 'comp_${entry.key}';
       if (columnMap.containsKey(key)) {
-        row[columnMap[key]!] = entry.value.display;
+        row[columnMap[key]!] = entry.value.displayText(l10n);
       }
     }
 
@@ -400,8 +398,9 @@ class SpreadsheetExport {
     };
   }
 
-  static String _intervalDisplay(TaskRule? taskRule, AppSettings appSettings) {
+  static String _intervalDisplay(TaskRule? taskRule, AppSettings appSettings, AppLocalizations l10n) {
     return taskRule?.interval?.toDisplayValue(
+          l10n,
           distanceUnit: appSettings.distanceUnit,
           altitudeUnit: appSettings.altitudeUnit,
           dateFormat: appSettings.dateFormat,
@@ -460,10 +459,10 @@ class SpreadsheetExport {
     final overall = feedback.overallComparison;
     return [
       data.bikes[feedback.bike]?.name ?? '',
-      (feedback.ratedSetupIn(data.setups) ?? data.setups[feedback.setupId])?.displayName ?? '',
-      overall == null ? '' : data.setups[overall.referenceSetupId]?.displayName ?? '',
+      (feedback.ratedSetupIn(data.setups) ?? data.setups[feedback.setupId])?.label(l10n) ?? '',
+      overall == null ? '' : data.setups[overall.referenceSetupId]?.label(l10n) ?? '',
       overall == null ? '' : FeedbackOutcomeLabels.overall(l10n)[overall.outcome]!,
-      feedback.issuesSummary ?? '',
+      feedback.issuesSummaryText(l10n) ?? '',
       feedback.notes ?? '',
     ];
   }
@@ -484,7 +483,7 @@ class SpreadsheetExport {
 
     if (settings.enableTaskPriority) row.add(TextCellValue(rule?.priority.label(l10n) ?? ''));
     if (settings.enableTaskTags) row.add(TextCellValue(rule?.tags.join('; ') ?? ''));
-    row.add(TextCellValue(_intervalDisplay(rule, settings)));
+    row.add(TextCellValue(_intervalDisplay(rule, settings, l10n)));
 
     if (settings.enableStrava) {
       final snapshot = entry.snapshot;
@@ -509,7 +508,7 @@ class SpreadsheetExport {
     final row = <String>[
       taskEntry.name,
       taskEntry.notes ?? '',
-      DateFormat('yyyy-MM-dd HH:mm').format(taskEntry.dateTimeLocal),
+      DateFormat('yyyy-MM-dd HH:mm', l10n.localeName).format(taskEntry.dateTimeLocal),
       _linkLabel(taskEntry.association, data, l10n),
       taskRule?.name ?? '',
       taskRule?.notes ?? '',
@@ -518,15 +517,15 @@ class SpreadsheetExport {
 
     if (appSettings.enableTaskPriority) row.add(taskRule?.priority.label(l10n) ?? '');
     if (appSettings.enableTaskTags) row.add(taskRule?.tags.join('; ') ?? '');
-    row.add(_intervalDisplay(taskRule, appSettings));
+    row.add(_intervalDisplay(taskRule, appSettings, l10n));
 
     if (appSettings.enableStrava) {
       final snapshot = taskEntry.snapshot;
       if (snapshot != null) {
         row.addAll([
-          formatLocalizedDouble(AppSettings.convertDistanceFromMeters(snapshot.distance, appSettings.distanceUnit) ?? snapshot.distance, fractionDigits: 1),
+          formatLocalizedDouble(AppSettings.convertDistanceFromMeters(snapshot.distance, appSettings.distanceUnit) ?? snapshot.distance, fractionDigits: 1, locale: l10n.localeName),
           (AppSettings.convertElevationFromMeters(snapshot.elevationGain, appSettings.altitudeUnit) ?? snapshot.elevationGain).round().toString(),
-          formatLocalizedDouble(snapshot.movingTime.inMinutes / 60, fractionDigits: 1),
+          formatLocalizedDouble(snapshot.movingTime.inMinutes / 60, fractionDigits: 1, locale: l10n.localeName),
           snapshot.activityCount.toString(),
         ]);
       } else {

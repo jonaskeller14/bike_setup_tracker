@@ -20,6 +20,7 @@ Future<Object?> pushAndSave(
   Future<void> Function()? afterSave,
   AppRepository? repository,
   AppSettings? settings,
+  Locale locale = const Locale('en'),
 }) async {
   Object? result;
   await tester.pumpWidget(
@@ -32,6 +33,7 @@ Future<Object?> pushAndSave(
         if (repository != null) ChangeNotifierProvider<AppRepository>.value(value: repository),
       ],
       child: localizedTestApp(
+        locale: locale,
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(

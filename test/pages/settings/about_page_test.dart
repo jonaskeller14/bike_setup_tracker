@@ -2,7 +2,6 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/pages/settings/about_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,12 +16,10 @@ void main() {
   });
 
   tearDown(() {
-    Intl.defaultLocale = null;
     appSettings.dispose();
   });
 
   Future<void> pumpPage(WidgetTester tester, Locale locale) async {
-    Intl.defaultLocale = locale.languageCode;
     await tester.pumpWidget(
       ChangeNotifierProvider<AppSettings>.value(
         value: appSettings,

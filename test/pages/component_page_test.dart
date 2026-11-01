@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
@@ -707,7 +708,7 @@ nodes:
       appSettings.enableComponentPresets = true;
       presetRepository = ComponentCatalogRepository.withCatalogs([parseCatalogFile(revision2)]);
       await tester.runAsync(() => presetRepository.all());
-      final app = buildCatalogApplication(catalogProducts(parseCatalogFile(revision1)).single);
+      final app = buildCatalogApplication(catalogProducts(parseCatalogFile(revision1)).single, englishL10n);
       final component = Component(
         id: 'c1',
         name: app.name,

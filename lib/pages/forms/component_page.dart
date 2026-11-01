@@ -421,7 +421,7 @@ class _ComponentPageState extends State<ComponentPage> {
   /// [typedName] overrides the name UNDO restores: the autocomplete has already
   /// replaced the typed query with the suggestion by the time it calls back.
   Future<void> _applyPreset(ResolvedPreset resolved, {String? typedName}) async {
-    final app = buildCatalogApplication(resolved);
+    final app = buildCatalogApplication(resolved, context.l10n);
     if (widget.mode == ComponentPageMode.edit) return _extendFromPreset(resolved, app);
     final untouched = _adjustments.isEmpty ||
         (_lastPresetAdjustments != null && listEquals(_adjustments, _lastPresetAdjustments));
@@ -554,7 +554,7 @@ class _ComponentPageState extends State<ComponentPage> {
     if (preset == null || resolved == null) return;
     await _extendFromPreset(
       resolved,
-      buildCatalogApplication(resolved),
+      buildCatalogApplication(resolved, context.l10n),
       adjustments: _withCatalogFixes(resolved, preset),
     );
   }
@@ -781,7 +781,7 @@ class _ComponentPageState extends State<ComponentPage> {
               itemCount: options.length,
               itemBuilder: (context, i) {
                 final suggestion = options[i];
-                final subtitle = presetSuggestionSubtitle(suggestion);
+                final subtitle = presetSuggestionSubtitle(suggestion, context.l10n);
                 final yearRange = suggestion.node.years;
                 final current = _resolvedPreset;
                 final selected = current != null && suggestionMatches(suggestion, current);

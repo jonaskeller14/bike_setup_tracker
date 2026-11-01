@@ -251,9 +251,11 @@ class _PillButton extends StatelessWidget {
               spacing: 4,
               children: [
                 Icon(icon, size: 16, color: foreground),
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: foreground),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: foreground),
+                  ),
                 ),
               ],
             ),

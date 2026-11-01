@@ -57,7 +57,9 @@ class _RunningBadgeState extends State<RunningBadge> with SingleTickerProviderSt
               child: Icon(Icons.circle, size: 9, color: scheme.error),
             ),
           ),
-          Text(context.l10n.badgeRunning, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant)),
+          Flexible(
+            child: Text(context.l10n.badgeRunning, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant)),
+          ),
         ],
       ),
     );

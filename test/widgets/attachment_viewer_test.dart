@@ -9,7 +9,6 @@ import 'package:bike_setup_tracker/widgets/attachment_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 
 import '../goldens/support/localized_test_app.dart';
 import '../overflow_data_generator.dart' show loremIpsum;
@@ -59,9 +58,6 @@ void main() {
 
   group('AttachmentViewer', () {
     testWidgets('writes the file size with a decimal comma in German', (tester) async {
-      Intl.defaultLocale = 'de';
-      addTearDown(() => Intl.defaultLocale = null);
-
       await pumpViewer(
         tester,
         locale: const Locale('de'),

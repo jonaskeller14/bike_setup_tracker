@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../l10n/enum_labels.dart';
+import '../../l10n/feedback_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/feedback/custom_issue.dart';
 import '../../theme.dart';
@@ -30,7 +31,7 @@ class FeedbackAspectRow extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            issue.label,
+            issue.labelText(context.l10n),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodyMedium,

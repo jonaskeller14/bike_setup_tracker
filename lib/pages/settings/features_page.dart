@@ -339,7 +339,7 @@ class FeaturesPage extends StatelessWidget {
               ),
               _FeatureToggleTile(
                 enabled: appSettings.enableTask && appSettings.enableTaskInterval,
-                disabledSubtitle: appSettings.enableTask ? 'Requires Task Interval' : 'Requires Tasks',
+                disabledSubtitle: appSettings.enableTask ? l10n.featuresRequiresTaskInterval : l10n.featuresRequiresTasks,
                 icon: Icons.auto_awesome_outlined,
                 title: l10n.featuresTaskPresets,
                 value: appSettings.enableTaskPresets,

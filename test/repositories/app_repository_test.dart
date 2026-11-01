@@ -464,7 +464,7 @@ void main() {
 
       final recorded = await repository.recordedValues(adj.id);
 
-      expect(recorded.map((r) => r.label), ["Recent", "Gone", "Old"]);
+      expect(recorded.map((r) => r.name), ["Recent", "Gone", "Old"]);
       expect(recorded.map((r) => r.isDeleted), [false, true, false]);
       expect(recorded.map((r) => r.value), const [NumericalValue(3), NumericalValue(2), NumericalValue(1)]);
       expect(recorded.map((r) => r.recordId), [recent.id, gone.id, old.id]);
@@ -500,7 +500,7 @@ void main() {
 
       final recorded = await repository.recordedValues(adj.id);
 
-      expect(recorded.map((r) => r.label), [Setup.namePlaceholder, Setup.namePlaceholder]);
+      expect(recorded.map((r) => r.name), [null, null]);
     });
 
     test("an unknown id returns an empty list", () async {

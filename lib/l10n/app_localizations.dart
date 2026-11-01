@@ -1784,12 +1784,6 @@ abstract class AppLocalizations {
   /// **'Component Presets'**
   String get featuresComponentPresets;
 
-  /// Explanation of the component presets feature.
-  ///
-  /// In en, this message translates to:
-  /// **'When adding a fork or shock, pick the model from a built-in catalog to prefill its name, notes and adjustments (click ranges, air pressure, SAG) automatically. You can still edit everything afterwards.'**
-  String get featuresComponentPresetsInfo;
-
   /// Subtitle of a disabled feature that depends on component presets.
   ///
   /// In en, this message translates to:
@@ -1801,12 +1795,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Task Presets'**
   String get featuresTaskPresets;
-
-  /// Explanation of the task presets feature.
-  ///
-  /// In en, this message translates to:
-  /// **'Suggests recommended tasks for a component, like a chain wear check or a fork service, based on its type and catalog model. You pick each suggestion individually and can edit the created tasks freely. Requires Component Presets, Tasks and Task Intervals.'**
-  String get featuresTaskPresetsInfo;
 
   /// Title of the setup guides feature (developer builds).
   ///
@@ -7447,6 +7435,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'After'**
   String get taskIntervalPrefixAfter;
+
+  /// Interval line of a task that repeats daily, instead of the prefix and an amount. German needs the case ending a literal Every 1 day would miss.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get taskIntervalCardEveryDay;
+
+  /// Interval line of a task that repeats after every ride, instead of the prefix and an amount. German needs the gender a literal Every 1 ride would miss.
+  ///
+  /// In en, this message translates to:
+  /// **'Every ride'**
+  String get taskIntervalCardEveryRide;
 
   /// First line of the note of a task created from a recommendation. It is stored with the note. {interval} is the interval, like every 6 months.
   ///
@@ -14215,6 +14215,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'small'**
   String get dialSizeSmall;
+
+  /// Name of the catalog property travel, in the sentence form (lowercase in English). It is capitalised where it stands alone, and it starts the note line Travel: 150 mm of a component created from the catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'travel'**
+  String get catalogTermTravel;
+
+  /// Name of the catalog property wheel size, in the sentence form.
+  ///
+  /// In en, this message translates to:
+  /// **'wheel size'**
+  String get catalogTermWheelSize;
+
+  /// Name of the catalog property stanchion (the fork leg diameter), in the sentence form.
+  ///
+  /// In en, this message translates to:
+  /// **'stanchion'**
+  String get catalogTermStanchion;
+
+  /// Name of the catalog property spring (air or coil), in the sentence form.
+  ///
+  /// In en, this message translates to:
+  /// **'spring'**
+  String get catalogTermSpring;
+
+  /// Name of the catalog property eye-to-eye, the mounting length of a shock, in the sentence form.
+  ///
+  /// In en, this message translates to:
+  /// **'eye-to-eye'**
+  String get catalogTermEyeToEye;
+
+  /// Name of the catalog property stroke of a shock, in the sentence form.
+  ///
+  /// In en, this message translates to:
+  /// **'stroke'**
+  String get catalogTermStroke;
+
+  /// Name of the catalog property mount of a shock, and of the catalog level that offers mount variants, in the sentence form.
+  ///
+  /// In en, this message translates to:
+  /// **'mount'**
+  String get catalogTermMount;
+
+  /// Name of the catalog choice damper (the cartridge of a fork or shock), in the sentence form.
+  ///
+  /// In en, this message translates to:
+  /// **'damper'**
+  String get catalogTermDamper;
+
+  /// Name of the catalog choice size of a shock, in the sentence form.
+  ///
+  /// In en, this message translates to:
+  /// **'size'**
+  String get catalogTermSize;
+
+  /// Name of the catalog level generation, in the sentence form. It completes the picker title Select generation.
+  ///
+  /// In en, this message translates to:
+  /// **'generation'**
+  String get catalogTermGeneration;
+
+  /// Name of the catalog level model, in the sentence form. It completes the picker title Select model.
+  ///
+  /// In en, this message translates to:
+  /// **'model'**
+  String get catalogTermModel;
+
+  /// Name of the catalog level trim (the equipment variant of a model), in the sentence form. It completes the picker title Select trim.
+  ///
+  /// In en, this message translates to:
+  /// **'trim'**
+  String get catalogTermTrim;
+
+  /// Name of the catalog level version, in the sentence form. It completes the picker title Select version.
+  ///
+  /// In en, this message translates to:
+  /// **'version'**
+  String get catalogTermVersion;
+
+  /// Heading of the catalog models that have no category, and of the shock sizes that have no eye-to-eye length.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get catalogPickerCategoryOther;
+
+  /// Line of the note of a component created from the catalog. It is stored with the note. {year} is a year.
+  ///
+  /// In en, this message translates to:
+  /// **'Model year: {year}'**
+  String catalogNoteModelYear(String year);
+
+  /// Line of the note of a component created from the catalog when the model year is open. It is stored with the note. {years} is a span like 2025-2026.
+  ///
+  /// In en, this message translates to:
+  /// **'Model years: {years}'**
+  String catalogNoteModelYears(String years);
+
+  /// Line of the note of a component created from the catalog that lists adjustments the catalog does not have. It is stored with the note. {adjustments} is a comma-separated list of names.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the catalog yet, add by hand: {adjustments}'**
+  String catalogNoteMissing(String adjustments);
+
+  /// Last paragraph of the note of a component created from the catalog. It is stored with the note. {guide} is a link.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup guide: {guide}'**
+  String catalogNoteSetupGuide(String guide);
+
+  /// Note of a step adjustment created from the catalog whose maximum the manufacturer does not publish. It is stored with the note.
+  ///
+  /// In en, this message translates to:
+  /// **'Click count not published. Max is a placeholder, edit it to match your component.'**
+  String get stepUnknownMaxWarning;
+
+  /// Summary of a shock that comes in several sizes, where listing them all would not fit a row. {count} is the number of sizes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 size} other{{count} sizes}}'**
+  String catalogSizesCount(int count);
+
+  /// Name of the recommended task wheel:spoke_tension. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Spoke tension check'**
+  String get taskTemplateWheelSpokeTensionName;
+
+  /// Note of the recommended task wheel:spoke_tension. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Squeeze spoke pairs and check the rim for wobble; new wheels settle during the first rides.'**
+  String get taskTemplateWheelSpokeTensionNotes;
+
+  /// Name of the recommended task wheel:hub_bearing. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Hub bearing check'**
+  String get taskTemplateWheelHubBearingName;
+
+  /// Note of the recommended task wheel:hub_bearing. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the hub for play and rough or notchy rotation.'**
+  String get taskTemplateWheelHubBearingNotes;
+
+  /// Name of the recommended task chain:wear_check. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check chain wear'**
+  String get taskTemplateChainWearCheckName;
+
+  /// Note of the recommended task chain:wear_check. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Measure chain stretch with a wear gauge and replace the chain once it reaches the wear limit.'**
+  String get taskTemplateChainWearCheckNotes;
+
+  /// Name of the recommended task chain:replace. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace chain'**
+  String get taskTemplateChainReplaceName;
+
+  /// Name of the recommended task chain:lube. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean & lube chain'**
+  String get taskTemplateChainLubeName;
+
+  /// Name of the recommended task cassette:wear_check. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check cassette wear'**
+  String get taskTemplateCassetteWearCheckName;
+
+  /// Note of the recommended task cassette:wear_check. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Look for hooked or shark-fin teeth and chain skipping under load.'**
+  String get taskTemplateCassetteWearCheckNotes;
+
+  /// Name of the recommended task fork:lower_leg_service. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower leg service'**
+  String get taskTemplateForkLowerLegServiceName;
+
+  /// Note of the recommended task fork:lower_leg_service. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean the stanchions and seals, replace the foam rings and refresh the bath oil.'**
+  String get taskTemplateForkLowerLegServiceNotes;
+
+  /// Name of the recommended task fork:full_service. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Full service'**
+  String get taskTemplateForkFullServiceName;
+
+  /// Note of the recommended task fork:full_service. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower leg service plus a damper and air spring rebuild, including seals and oil.'**
+  String get taskTemplateForkFullServiceNotes;
+
+  /// Name of the recommended task shock:air_can_service. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Air can service'**
+  String get taskTemplateShockAirCanServiceName;
+
+  /// Note of the recommended task shock:air_can_service. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean and re-grease the air can and replace its seals.'**
+  String get taskTemplateShockAirCanServiceNotes;
+
+  /// Name of the recommended task shock:full_service. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Full service'**
+  String get taskTemplateShockFullServiceName;
+
+  /// Note of the recommended task shock:full_service. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Damper rebuild including seals, oil and nitrogen charge, plus the air can service on air shocks.'**
+  String get taskTemplateShockFullServiceNotes;
+
+  /// Name of the recommended task brake_pad:wear_check. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check pad wear'**
+  String get taskTemplateBrakePadWearCheckName;
+
+  /// Note of the recommended task brake_pad:wear_check. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace the pads before the friction material is worn down to the backing plate.'**
+  String get taskTemplateBrakePadWearCheckNotes;
+
+  /// Name of the recommended task brake:bleed. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Bleed brakes'**
+  String get taskTemplateBrakeBleedName;
+
+  /// Note of the recommended task brake:bleed. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace the brake fluid and remove air from the system.'**
+  String get taskTemplateBrakeBleedNotes;
+
+  /// Name of the recommended task tire:sealant. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh tubeless sealant'**
+  String get taskTemplateTireSealantName;
+
+  /// Note of the recommended task tire:sealant. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up or replace the sealant before it dries out.'**
+  String get taskTemplateTireSealantNotes;
+
+  /// Name of the recommended task headset:service. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean & grease headset'**
+  String get taskTemplateHeadsetServiceName;
+
+  /// Name of the recommended task bb:play_check. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check bottom bracket play'**
+  String get taskTemplateBbPlayCheckName;
+
+  /// Note of the recommended task bb:play_check. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the cranks for side play and the bearings for rough rotation.'**
+  String get taskTemplateBbPlayCheckNotes;
+
+  /// Name of the recommended task seatpost:service. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropper post service'**
+  String get taskTemplateSeatpostServiceName;
+
+  /// Name of the recommended task frame:pivot_bearings. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check pivot bearings'**
+  String get taskTemplateFramePivotBearingsName;
+
+  /// Note of the recommended task frame:pivot_bearings. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the suspension linkage for play and rough bearings.'**
+  String get taskTemplateFramePivotBearingsNotes;
+
+  /// Name of the recommended task frame:bolt_torque. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check bolt torque'**
+  String get taskTemplateFrameBoltTorqueName;
+
+  /// Note of the recommended task frame:bolt_torque. It is stored with the task rule as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Check all bolts against the torque values printed on the parts or in the manual.'**
+  String get taskTemplateFrameBoltTorqueNotes;
+
+  /// Name of the recommended task shift_cable:replace. It becomes the name of the task rule, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace shift cable'**
+  String get taskTemplateShiftCableReplaceName;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

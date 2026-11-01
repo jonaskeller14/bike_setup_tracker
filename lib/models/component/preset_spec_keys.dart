@@ -32,7 +32,7 @@ class SpecKey<T extends Object> {
     return value;
   }
 
-  /// Language-neutral: catalog labels are cached and component notes are stored.
+  /// Language-neutral: catalog labels are cached.
   String format(T value) => _withUnit(value is num ? formatSpecNumber(value) : value.toString());
 
   /// [format] in the app language, for text built while it is shown.

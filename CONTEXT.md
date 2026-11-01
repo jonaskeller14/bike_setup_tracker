@@ -94,9 +94,21 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Tip (jar) | Trinkgeld | One-time support. The sheet title is Spendier mir einen Kaffee |
 | Activity (Strava) | Aktivität | |
 | Athlete (Strava) | Athlet | Athleten-ID. A Strava account, not a rider |
+| Travel / Stroke / Eye-to-eye (catalog properties) | Federweg / Hub / Einbaulänge | Einbaulänge is the mounting length of a shock |
+| Stanchion / Spring / Mount (catalog properties) | Standrohr / Feder / Aufnahme | |
+| Trim / Model / Generation (catalog levels) | Ausstattung / Modell / Generation | The levels of the catalog picker |
+| Setup guide (link of a catalog entry) | Setup-Anleitung | |
+| Lower leg service / Air can service / Full service | Tauchrohr-Service / Luftkammer-Service / Komplett-Service | Task templates of forks and shocks |
+| Dropper post | Vario-Stütze | In the task template `Vario-Stütze warten` |
 
 Unit symbols (`km`, `bar`, `°C`) are not translated.
 
-Preset templates are copied into the user's data when picked, so their names and notes stay English until issue #18 decides otherwise (Phase 14). That covers the adjustment templates of the Add Adjustment sheet and the task templates in `lib/utils/task_presets.dart`. The text the app generates around a template, like the `Empfohlenes Intervall: …` line in a task's notes, is written in the language of the moment it was created.
+Address is **du** everywhere. A Sie addressing the reader is a bug; `Sie`/`Ihre` meaning "they" is fine.
+
+Preset templates are copied into the user's data when picked, so their text is written in the language of the moment it was picked and stays as written after a language switch (Phase 14). The generic **task templates** (`lib/utils/task_presets.dart`) are translated: `lib/l10n/task_template_texts.dart` looks the name and note up by template key, and a brand-only template or a catalog override keeps its YAML text. The **adjustment templates** of the Add Adjustment sheet and the **rider attribute templates** stay English: their names are mostly established terms (`LSC`, `HSR`, `SAG`, `Flipchip`), and the setup guide and the catalog merge match them by `presetKey` and by the riding style options (`Comfort`, `Balanced`, `Race`), so `GuideRidingStyle.label` echoes the option the rider has stored. The text the app generates around a template, like the `Empfohlenes Intervall: …` line in a task's notes or the note lines of a component created from the catalog (`Modelljahr: …`, `Setup-Anleitung: …`), is written in the language of the moment it was created.
+
+Catalog prose that the YAML authors write (`note:`, `description:`, `review:` summaries, brand and model names) stays English: there is one text per entry, not one per language.
+
+Catalog numbers keep a dot in every language where they are part of a name: size labels (`210x52.5`), option chips, the eye-to-eye headers and the option summary of a suggestion (`52.5 / 55 mm`). They are model nomenclature, the labels are parsed once and cached, and the same number would otherwise read `52,5` in one place and `52.5` in the next. Numbers in the note of a component created from the catalog (`Hub: 52,5 mm`) are plain text for the rider and follow the language.
 
 The Strava link text `View on Strava` stays English in every language, because Strava's brand guidelines word it that way. The same goes for `Powered by Strava`.

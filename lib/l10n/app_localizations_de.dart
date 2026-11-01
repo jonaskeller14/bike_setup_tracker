@@ -874,18 +874,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get featuresComponentPresets => 'Komponentenvorlagen';
 
   @override
-  String get featuresComponentPresetsInfo =>
-      'Wähle beim Hinzufügen einer Gabel oder eines Dämpfers das Modell aus einem integrierten Katalog, um Name, Notizen und Einstellungen (Klickbereiche, Luftdruck, Negativfederweg) automatisch auszufüllen. Du kannst danach weiterhin alles bearbeiten.';
-
-  @override
   String get featuresRequiresComponentPresets => 'Benötigt Komponentenvorlagen';
 
   @override
   String get featuresTaskPresets => 'Aufgabenvorlagen';
-
-  @override
-  String get featuresTaskPresetsInfo =>
-      'Schlägt empfohlene Aufgaben für eine Komponente vor, etwa eine Kettenverschleißprüfung oder ein Gabelservice, basierend auf Typ und Katalogmodell. Du wählst jeden Vorschlag einzeln aus und kannst die erstellten Aufgaben frei bearbeiten. Benötigt Komponentenvorlagen, Aufgaben und Aufgabenintervalle.';
 
   @override
   String get featuresSetupGuides => 'Setup-Anleitungen';
@@ -4495,6 +4487,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get taskIntervalPrefixAfter => 'Einmalig:';
+
+  @override
+  String get taskIntervalCardEveryDay => 'Jeden Tag';
+
+  @override
+  String get taskIntervalCardEveryRide => 'Jede Fahrt';
 
   @override
   String taskRecommendedInterval(String interval) {
@@ -8864,4 +8862,188 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get dialSizeSmall => 'klein';
+
+  @override
+  String get catalogTermTravel => 'Federweg';
+
+  @override
+  String get catalogTermWheelSize => 'Laufradgröße';
+
+  @override
+  String get catalogTermStanchion => 'Standrohr';
+
+  @override
+  String get catalogTermSpring => 'Feder';
+
+  @override
+  String get catalogTermEyeToEye => 'Einbaulänge';
+
+  @override
+  String get catalogTermStroke => 'Hub';
+
+  @override
+  String get catalogTermMount => 'Aufnahme';
+
+  @override
+  String get catalogTermDamper => 'Dämpfer';
+
+  @override
+  String get catalogTermSize => 'Größe';
+
+  @override
+  String get catalogTermGeneration => 'Generation';
+
+  @override
+  String get catalogTermModel => 'Modell';
+
+  @override
+  String get catalogTermTrim => 'Ausstattung';
+
+  @override
+  String get catalogTermVersion => 'Version';
+
+  @override
+  String get catalogPickerCategoryOther => 'Sonstige';
+
+  @override
+  String catalogNoteModelYear(String year) {
+    return 'Modelljahr: $year';
+  }
+
+  @override
+  String catalogNoteModelYears(String years) {
+    return 'Modelljahre: $years';
+  }
+
+  @override
+  String catalogNoteMissing(String adjustments) {
+    return 'Noch nicht im Katalog, von Hand ergänzen: $adjustments';
+  }
+
+  @override
+  String catalogNoteSetupGuide(String guide) {
+    return 'Setup-Anleitung: $guide';
+  }
+
+  @override
+  String get stepUnknownMaxWarning =>
+      'Klickzahl nicht veröffentlicht. Das Maximum ist ein Platzhalter, passe es an deine Komponente an.';
+
+  @override
+  String catalogSizesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Größen',
+      one: '1 Größe',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskTemplateWheelSpokeTensionName => 'Speichenspannung prüfen';
+
+  @override
+  String get taskTemplateWheelSpokeTensionNotes =>
+      'Speichenpaare zusammendrücken und die Felge auf Seiten- und Höhenschlag prüfen; neue Laufräder setzen sich in den ersten Fahrten.';
+
+  @override
+  String get taskTemplateWheelHubBearingName => 'Nabenlager prüfen';
+
+  @override
+  String get taskTemplateWheelHubBearingNotes => 'Die Nabe auf Spiel sowie raues oder rastendes Drehen prüfen.';
+
+  @override
+  String get taskTemplateChainWearCheckName => 'Kettenverschleiß prüfen';
+
+  @override
+  String get taskTemplateChainWearCheckNotes =>
+      'Die Kettenlängung mit einer Kettenlehre messen und die Kette bei Erreichen der Verschleißgrenze ersetzen.';
+
+  @override
+  String get taskTemplateChainReplaceName => 'Kette ersetzen';
+
+  @override
+  String get taskTemplateChainLubeName => 'Kette reinigen & schmieren';
+
+  @override
+  String get taskTemplateCassetteWearCheckName => 'Kassettenverschleiß prüfen';
+
+  @override
+  String get taskTemplateCassetteWearCheckNotes =>
+      'Auf hakenförmige oder haifischflossenartige Zähne und Kettenspringen unter Last achten.';
+
+  @override
+  String get taskTemplateForkLowerLegServiceName => 'Tauchrohr-Service';
+
+  @override
+  String get taskTemplateForkLowerLegServiceNotes =>
+      'Standrohre und Dichtungen reinigen, die Schaumstoffringe ersetzen und das Ölbad erneuern.';
+
+  @override
+  String get taskTemplateForkFullServiceName => 'Komplett-Service';
+
+  @override
+  String get taskTemplateForkFullServiceNotes =>
+      'Tauchrohr-Service plus Überholung von Dämpfer und Luftfeder samt Dichtungen und Öl.';
+
+  @override
+  String get taskTemplateShockAirCanServiceName => 'Luftkammer-Service';
+
+  @override
+  String get taskTemplateShockAirCanServiceNotes => 'Die Luftkammer reinigen, neu fetten und ihre Dichtungen ersetzen.';
+
+  @override
+  String get taskTemplateShockFullServiceName => 'Komplett-Service';
+
+  @override
+  String get taskTemplateShockFullServiceNotes =>
+      'Überholung des Dämpfers samt Dichtungen, Öl und Stickstofffüllung, bei Luftdämpfern zusätzlich der Luftkammer-Service.';
+
+  @override
+  String get taskTemplateBrakePadWearCheckName => 'Belagverschleiß prüfen';
+
+  @override
+  String get taskTemplateBrakePadWearCheckNotes =>
+      'Die Beläge ersetzen, bevor der Reibbelag bis zur Trägerplatte abgefahren ist.';
+
+  @override
+  String get taskTemplateBrakeBleedName => 'Bremsen entlüften';
+
+  @override
+  String get taskTemplateBrakeBleedNotes => 'Die Bremsflüssigkeit wechseln und die Luft aus dem System entfernen.';
+
+  @override
+  String get taskTemplateTireSealantName => 'Tubeless-Dichtmilch erneuern';
+
+  @override
+  String get taskTemplateTireSealantNotes => 'Die Dichtmilch auffüllen oder ersetzen, bevor sie austrocknet.';
+
+  @override
+  String get taskTemplateHeadsetServiceName => 'Steuersatz reinigen & fetten';
+
+  @override
+  String get taskTemplateBbPlayCheckName => 'Innenlagerspiel prüfen';
+
+  @override
+  String get taskTemplateBbPlayCheckNotes => 'Die Kurbeln auf seitliches Spiel und die Lager auf raues Drehen prüfen.';
+
+  @override
+  String get taskTemplateSeatpostServiceName => 'Vario-Stütze warten';
+
+  @override
+  String get taskTemplateFramePivotBearingsName => 'Hinterbaulager prüfen';
+
+  @override
+  String get taskTemplateFramePivotBearingsNotes => 'Die Hinterbau-Kinematik auf Spiel und raue Lager prüfen.';
+
+  @override
+  String get taskTemplateFrameBoltTorqueName => 'Schraubenanzugsmoment prüfen';
+
+  @override
+  String get taskTemplateFrameBoltTorqueNotes =>
+      'Alle Schrauben anhand der auf den Teilen oder in der Anleitung angegebenen Drehmomente prüfen.';
+
+  @override
+  String get taskTemplateShiftCableReplaceName => 'Schaltzug ersetzen';
 }

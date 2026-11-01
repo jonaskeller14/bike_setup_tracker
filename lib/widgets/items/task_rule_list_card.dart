@@ -559,6 +559,13 @@ class TaskIntervalText extends StatelessWidget {
     );
   }
 
+  /// A prefix and "1 day" read wrong in German (`Alle 1 Tag`), so a single unit has its own text.
+  String? _everyOne(AppLocalizations l10n) => switch (interval) {
+    DurationThreshold(:final days) when days.inDays == 1 => l10n.taskIntervalCardEveryDay,
+    ActivityCountThreshold(count: 1) => l10n.taskIntervalCardEveryRide,
+    _ => null,
+  };
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -610,7 +617,8 @@ class TaskIntervalText extends StatelessWidget {
       icon: interval.iconData,
       iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
       label: Text(
-        '$prefix ${interval.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+        (repeat ? _everyOne(l10n) : null) ??
+            '$prefix ${interval.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
         style: TextStyle(color: mutedColor, fontSize: 13),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

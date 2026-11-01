@@ -1,3 +1,5 @@
+import '../l10n/catalog_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
@@ -52,7 +54,8 @@ String presetDisplayName(ResolvedPreset resolved) {
 /// A short dash list of what the rider would otherwise look up: the chosen
 /// configuration, the spring, the model years, the product note and any
 /// adjuster to add by hand, then the setup guide link. Options the rider skipped
-/// and the damper's internals are left out.
+/// and the damper's internals are left out. The text is in the app language of
+/// the moment and stored as written, so a language switch leaves it alone.
 String _buildNotes(ResolvedPreset resolved) {
   final node = resolved.node;
   final chosen = [
@@ -64,45 +67,46 @@ String _buildNotes(ResolvedPreset resolved) {
     for (final value in chosen) ...value.missingAdjustments,
   ];
   final setupGuide = node.setupGuide;
+  final l10n = currentL10n;
   final bullets = [
-    if (damper != null) 'Damper: ${damper.label}',
+    if (damper != null) '${PresetOptionAxes.damper.name(l10n)}: ${damper.label}',
     _joined([
       for (final axis in resolved.axes)
-        if (axis.id != PresetOptionAxes.damper.id) ?_chosenText(axis, resolved.selections[axis.id]),
+        if (axis.id != PresetOptionAxes.damper.id) ?_chosenText(axis, resolved.selections[axis.id], l10n),
     ]),
-    _joined(_specTexts(resolved, chosen)),
+    _joined(_specTexts(resolved, chosen, l10n)),
     if (resolved.year case final year?)
-      'Model year: $year'
+      l10n.catalogNoteModelYear('$year')
     else if (node.years case final years?)
-      'Model years: $years',
+      l10n.catalogNoteModelYears('$years'),
     ..._noteLines(node.note),
-    if (missing.isNotEmpty) 'Not in the catalog yet, add by hand: ${missing.join(', ')}',
+    if (missing.isNotEmpty) l10n.catalogNoteMissing(missing.join(', ')),
   ].where(_isNotBlank).map((line) => line!.startsWith('- ') ? line : '- $line');
   return [
     bullets.join('\n'),
-    if (_isNotBlank(setupGuide)) 'Setup guide: $setupGuide',
+    if (_isNotBlank(setupGuide)) l10n.catalogNoteSetupGuide(setupGuide!),
   ].where(_isNotBlank).join('\n\n');
 }
 
-String? _chosenText(OptionAxis axis, OptionValue? selected) =>
-    selected == null ? null : '${axis.key.label}: ${selected.label}';
+String? _chosenText(OptionAxis axis, OptionValue? selected, AppLocalizations l10n) =>
+    selected == null ? null : '${axis.key.name(l10n)}: ${selected.label}';
 
 /// Spec facts the chosen values do not already name. A size's label carries
 /// its lengths but not its mount, so the mount stays.
-List<String> _specTexts(ResolvedPreset resolved, List<OptionValue> chosen) {
+List<String> _specTexts(ResolvedPreset resolved, List<OptionValue> chosen, AppLocalizations l10n) {
   final covered = {
     for (final value in chosen) ...value.specs.keys,
   }..remove(PresetSpecKeys.mount.id);
   final specs = resolved.effectiveSpecs;
   return [
     for (final key in PresetSpecKeys.values)
-      if (!covered.contains(key.id)) ?_specText(key, specs),
+      if (!covered.contains(key.id)) ?_specText(key, specs, l10n),
   ];
 }
 
-String? _specText(SpecKey<Object> key, Specs specs) {
+String? _specText(SpecKey<Object> key, Specs specs, AppLocalizations l10n) {
   final value = specs.get(key);
-  return value == null ? null : '${key.label}: ${key.format(value)}';
+  return value == null ? null : '${key.name(l10n)}: ${key.display(value)}';
 }
 
 /// A note authored as a dash list keeps its lines; prose becomes one bullet.

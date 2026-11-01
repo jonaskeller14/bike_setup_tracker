@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/catalog_labels.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -378,7 +379,7 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
       _catalog?.childrenOf(catalog, parents) ?? const [],
       context.l10n,
     ),
-    final _RequiredAxis stage => context.l10n.catalogPickerSelect(stage.axis.key.label.toLowerCase()),
+    final _RequiredAxis stage => context.l10n.catalogPickerSelect(stage.axis.key.inSentence(context.l10n)),
     _OptionalAxes() => context.l10n.catalogPickerOptionalDetails,
   };
 
@@ -501,11 +502,9 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
 
 /// `Select trim`, from the level the listed nodes sit on.
 String _nodesTitle(List<_NodeEntry> children, AppLocalizations l10n) {
-  final levels = {for (final child in children) _levelLabel(child.node.level)};
+  final levels = {for (final child in children) catalogLevelInSentence(child.node.level, l10n)};
   return levels.isEmpty ? l10n.catalogPickerSelectGeneric : l10n.catalogPickerSelect(levels.join(' / '));
 }
-
-String _levelLabel(String level) => level.replaceAll('_', ' ');
 
 // --- breadcrumb --------------------------------------------------------------
 
@@ -1062,11 +1061,11 @@ class _AxisChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final groups = _chipGroups(axis);
+    final groups = _chipGroups(axis, context.l10n);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SheetGroupTitle(title: axis.key.label),
+        SheetGroupTitle(title: axis.key.name(context.l10n)),
         for (final MapEntry(key: heading, value: values) in groups.entries) ...[
           if (heading != null)
             Padding(
@@ -1129,15 +1128,15 @@ class _YearChips extends StatelessWidget {
 /// Shock sizes are grouped by eye-to-eye length, since that is what a frame
 /// fixes and the stroke is chosen within it. Every other axis is one group
 /// without a heading, as is a size axis that lists strokes only.
-Map<String?, List<OptionValue>> _chipGroups(OptionAxis axis) {
+Map<String?, List<OptionValue>> _chipGroups(OptionAxis axis, AppLocalizations l10n) {
   if (axis.id != PresetOptionAxes.size.id) return {null: axis.values};
   final byLength = groupBy(axis.values, (value) => value.specs.get(PresetSpecKeys.eyeToEyeMm));
   if (byLength.keys.every((length) => length == null)) return {null: axis.values};
   return {
     for (final MapEntry(key: length, value: values) in byLength.entries)
       length == null
-              ? _uncategorised
-              : '${PresetSpecKeys.eyeToEyeMm.label} ${PresetSpecKeys.eyeToEyeMm.format(length)}':
+              ? l10n.catalogPickerCategoryOther
+              : '${PresetSpecKeys.eyeToEyeMm.name(l10n)} ${PresetSpecKeys.eyeToEyeMm.format(length)}':
           values,
   };
 }
@@ -1203,7 +1202,7 @@ class _CategoryHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Text(
-        label.toUpperCase(),
+        (label == _uncategorised ? context.l10n.catalogPickerCategoryOther : label).toUpperCase(),
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,

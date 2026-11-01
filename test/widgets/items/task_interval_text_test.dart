@@ -89,6 +89,21 @@ void main() {
     expect(find.text('Einmalig: 30 Tage'), findsOneWidget);
   });
 
+  testWidgets('says Jeden Tag and Jede Fahrt for a single unit in German', (tester) async {
+    Intl.defaultLocale = 'de';
+    addTearDown(() => Intl.defaultLocale = null);
+    const de = Locale('de');
+
+    await tester.pumpWidget(wrap(const DurationThreshold(Duration(days: 1)), locale: de));
+    expect(find.text('Jeden Tag'), findsOneWidget);
+
+    await tester.pumpWidget(wrap(const ActivityCountThreshold(1), locale: de));
+    expect(find.text('Jede Fahrt'), findsOneWidget);
+
+    await tester.pumpWidget(wrap(const DurationThreshold(Duration(days: 1)), repeat: false, locale: de));
+    expect(find.text('Einmalig: 1 Tag'), findsOneWidget);
+  });
+
   testWidgets('strikes the interval for a negative delay too', (tester) async {
     // "Make Due Now" with nothing ridden yet: the cycle now runs to 0.
     await tester.pumpWidget(wrap(const ActivityCountThreshold(25), delay: const ActivityCountThreshold(-25)));
@@ -104,7 +119,7 @@ void main() {
     expect(find.text('Every 1 2 rides', findRichText: true), findsOneWidget);
 
     await tester.pumpWidget(wrap(const ActivityCountThreshold(1)));
-    expect(find.text('Every 1 ride'), findsOneWidget);
+    expect(find.text('Every ride'), findsOneWidget);
   });
 
   testWidgets('keeps the "After" prefix for a one-off rule', (tester) async {

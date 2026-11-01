@@ -1,11 +1,14 @@
 import 'package:bike_setup_tracker/l10n/enum_labels.dart';
 import 'package:bike_setup_tracker/l10n/l10n.dart';
+import 'package:bike_setup_tracker/l10n/task_template_texts.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_template.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/utils/task_preset_resolver.dart';
+import 'package:bike_setup_tracker/utils/task_presets.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 
@@ -43,6 +46,30 @@ void main() {
 
   group('taskSuggestionsFor', () {
     final chain = component(ComponentType.chain);
+
+    test('names and notes follow the app language, and stay English otherwise', () {
+      final german = Intl.withLocale(
+        'de',
+        () => taskSuggestionsFor(chain, existingRules: const [], hasStravaEntitlement: true),
+      ) as List<TaskSuggestion>;
+      final english = taskSuggestionsFor(chain, existingRules: const [], hasStravaEntitlement: true);
+
+      expect([for (final s in german) s.name], ['Kettenverschleiß prüfen', 'Kette ersetzen', 'Kette reinigen & schmieren']);
+      expect(german.first.notes, startsWith('Die Kettenlängung'));
+      expect(german[1].notes, isNull);
+      expect(english.first.name, 'Check chain wear');
+    });
+
+    test('every generic template has a translation', () {
+      final lookup = lookupAppLocalizations(const Locale('de'));
+      for (final MapEntry(:key, :value) in taskPresets.entries) {
+        for (final template in value) {
+          final texts = taskTemplateTexts(template.key, lookup);
+          expect(texts, isNotNull, reason: '${template.key} of $key');
+          expect(texts!.notes == null, template.notes == null, reason: template.key);
+        }
+      }
+    });
 
     test('with Strava, activity intervals are used', () {
       final suggestions = taskSuggestionsFor(chain, existingRules: const [], hasStravaEntitlement: true);

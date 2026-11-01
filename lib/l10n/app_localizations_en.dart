@@ -872,18 +872,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get featuresComponentPresets => 'Component Presets';
 
   @override
-  String get featuresComponentPresetsInfo =>
-      'When adding a fork or shock, pick the model from a built-in catalog to prefill its name, notes and adjustments (click ranges, air pressure, SAG) automatically. You can still edit everything afterwards.';
-
-  @override
   String get featuresRequiresComponentPresets => 'Requires Component Presets';
 
   @override
   String get featuresTaskPresets => 'Task Presets';
-
-  @override
-  String get featuresTaskPresetsInfo =>
-      'Suggests recommended tasks for a component, like a chain wear check or a fork service, based on its type and catalog model. You pick each suggestion individually and can edit the created tasks freely. Requires Component Presets, Tasks and Task Intervals.';
 
   @override
   String get featuresSetupGuides => 'Setup Guides';
@@ -4469,6 +4461,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskIntervalPrefixAfter => 'After';
+
+  @override
+  String get taskIntervalCardEveryDay => 'Every day';
+
+  @override
+  String get taskIntervalCardEveryRide => 'Every ride';
 
   @override
   String taskRecommendedInterval(String interval) {
@@ -8810,4 +8808,187 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dialSizeSmall => 'small';
+
+  @override
+  String get catalogTermTravel => 'travel';
+
+  @override
+  String get catalogTermWheelSize => 'wheel size';
+
+  @override
+  String get catalogTermStanchion => 'stanchion';
+
+  @override
+  String get catalogTermSpring => 'spring';
+
+  @override
+  String get catalogTermEyeToEye => 'eye-to-eye';
+
+  @override
+  String get catalogTermStroke => 'stroke';
+
+  @override
+  String get catalogTermMount => 'mount';
+
+  @override
+  String get catalogTermDamper => 'damper';
+
+  @override
+  String get catalogTermSize => 'size';
+
+  @override
+  String get catalogTermGeneration => 'generation';
+
+  @override
+  String get catalogTermModel => 'model';
+
+  @override
+  String get catalogTermTrim => 'trim';
+
+  @override
+  String get catalogTermVersion => 'version';
+
+  @override
+  String get catalogPickerCategoryOther => 'Other';
+
+  @override
+  String catalogNoteModelYear(String year) {
+    return 'Model year: $year';
+  }
+
+  @override
+  String catalogNoteModelYears(String years) {
+    return 'Model years: $years';
+  }
+
+  @override
+  String catalogNoteMissing(String adjustments) {
+    return 'Not in the catalog yet, add by hand: $adjustments';
+  }
+
+  @override
+  String catalogNoteSetupGuide(String guide) {
+    return 'Setup guide: $guide';
+  }
+
+  @override
+  String get stepUnknownMaxWarning =>
+      'Click count not published. Max is a placeholder, edit it to match your component.';
+
+  @override
+  String catalogSizesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sizes',
+      one: '1 size',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskTemplateWheelSpokeTensionName => 'Spoke tension check';
+
+  @override
+  String get taskTemplateWheelSpokeTensionNotes =>
+      'Squeeze spoke pairs and check the rim for wobble; new wheels settle during the first rides.';
+
+  @override
+  String get taskTemplateWheelHubBearingName => 'Hub bearing check';
+
+  @override
+  String get taskTemplateWheelHubBearingNotes => 'Check the hub for play and rough or notchy rotation.';
+
+  @override
+  String get taskTemplateChainWearCheckName => 'Check chain wear';
+
+  @override
+  String get taskTemplateChainWearCheckNotes =>
+      'Measure chain stretch with a wear gauge and replace the chain once it reaches the wear limit.';
+
+  @override
+  String get taskTemplateChainReplaceName => 'Replace chain';
+
+  @override
+  String get taskTemplateChainLubeName => 'Clean & lube chain';
+
+  @override
+  String get taskTemplateCassetteWearCheckName => 'Check cassette wear';
+
+  @override
+  String get taskTemplateCassetteWearCheckNotes => 'Look for hooked or shark-fin teeth and chain skipping under load.';
+
+  @override
+  String get taskTemplateForkLowerLegServiceName => 'Lower leg service';
+
+  @override
+  String get taskTemplateForkLowerLegServiceNotes =>
+      'Clean the stanchions and seals, replace the foam rings and refresh the bath oil.';
+
+  @override
+  String get taskTemplateForkFullServiceName => 'Full service';
+
+  @override
+  String get taskTemplateForkFullServiceNotes =>
+      'Lower leg service plus a damper and air spring rebuild, including seals and oil.';
+
+  @override
+  String get taskTemplateShockAirCanServiceName => 'Air can service';
+
+  @override
+  String get taskTemplateShockAirCanServiceNotes => 'Clean and re-grease the air can and replace its seals.';
+
+  @override
+  String get taskTemplateShockFullServiceName => 'Full service';
+
+  @override
+  String get taskTemplateShockFullServiceNotes =>
+      'Damper rebuild including seals, oil and nitrogen charge, plus the air can service on air shocks.';
+
+  @override
+  String get taskTemplateBrakePadWearCheckName => 'Check pad wear';
+
+  @override
+  String get taskTemplateBrakePadWearCheckNotes =>
+      'Replace the pads before the friction material is worn down to the backing plate.';
+
+  @override
+  String get taskTemplateBrakeBleedName => 'Bleed brakes';
+
+  @override
+  String get taskTemplateBrakeBleedNotes => 'Replace the brake fluid and remove air from the system.';
+
+  @override
+  String get taskTemplateTireSealantName => 'Refresh tubeless sealant';
+
+  @override
+  String get taskTemplateTireSealantNotes => 'Top up or replace the sealant before it dries out.';
+
+  @override
+  String get taskTemplateHeadsetServiceName => 'Clean & grease headset';
+
+  @override
+  String get taskTemplateBbPlayCheckName => 'Check bottom bracket play';
+
+  @override
+  String get taskTemplateBbPlayCheckNotes => 'Check the cranks for side play and the bearings for rough rotation.';
+
+  @override
+  String get taskTemplateSeatpostServiceName => 'Dropper post service';
+
+  @override
+  String get taskTemplateFramePivotBearingsName => 'Check pivot bearings';
+
+  @override
+  String get taskTemplateFramePivotBearingsNotes => 'Check the suspension linkage for play and rough bearings.';
+
+  @override
+  String get taskTemplateFrameBoltTorqueName => 'Check bolt torque';
+
+  @override
+  String get taskTemplateFrameBoltTorqueNotes =>
+      'Check all bolts against the torque values printed on the parts or in the manual.';
+
+  @override
+  String get taskTemplateShiftCableReplaceName => 'Replace shift cable';
 }

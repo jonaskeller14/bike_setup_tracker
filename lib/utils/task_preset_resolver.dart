@@ -1,3 +1,5 @@
+import '../l10n/l10n.dart';
+import '../l10n/task_template_texts.dart';
 import '../models/component/component.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_template.dart';
@@ -52,10 +54,11 @@ TaskSuggestion? _resolve(TaskTemplate template, TaskTemplateOverride? catalogOve
   final useFallback = interval.requiresActivityData && !hasStravaEntitlement;
   if (useFallback && fallback == null) return null;
 
+  final texts = taskTemplateTexts(template.key, currentL10n);
   return TaskSuggestion(
     key: template.key,
-    name: override?.name ?? template.name,
-    notes: override?.notes ?? template.notes,
+    name: override?.name ?? texts?.name ?? template.name,
+    notes: override?.notes ?? (texts == null ? template.notes : texts.notes),
     priority: override?.priority ?? template.priority,
     repeat: template.repeat,
     preselected: override?.preselected ?? template.preselected,

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../l10n/l10n.dart';
 import 'adjustment_unit.dart';
 import 'adjustment_value.dart';
 import 'value_range.dart';

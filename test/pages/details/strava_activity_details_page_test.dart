@@ -7,6 +7,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/strava_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../goldens/support/localized_test_app.dart';
@@ -29,7 +30,8 @@ void main() {
     await database.close();
   });
 
-  StravaActivity activity({double? startLat = 44.16, double? startLon = 8.34}) => StravaActivity(
+  StravaActivity activity({double? startLat = 44.16, double? startLon = 8.34, double? distance, Duration? movingTime}) =>
+      StravaActivity(
     id: 1,
     name: 'Ride',
     athlete: 1,
@@ -39,19 +41,19 @@ void main() {
     gearId: null,
     startLat: startLat,
     startLon: startLon,
-    distance: null,
+    distance: distance,
     totalElevationGain: null,
-    movingTime: Duration.zero,
+    movingTime: movingTime ?? Duration.zero,
     elapsedTime: Duration.zero,
   );
 
-  Widget wrap(Widget home) {
+  Widget wrap(Widget home, {Locale locale = const Locale('en')}) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
       ],
-      child: localizedTestApp(theme: materialAppTheme, home: home),
+      child: localizedTestApp(theme: materialAppTheme, locale: locale, home: home),
     );
   }
 
@@ -65,6 +67,23 @@ void main() {
   }
 
   group('Details page', () {
+    testWidgets('shows distance and speed with a decimal comma in German', (tester) async {
+      Intl.defaultLocale = 'de';
+      addTearDown(() => Intl.defaultLocale = null);
+
+      await tester.pumpWidget(
+        wrap(
+          StravaActivityDetailsPage(stravaActivity: activity(distance: 12345.6, movingTime: const Duration(hours: 1))),
+          locale: const Locale('de'),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.textContaining('12,35 km'), findsWidgets);
+      expect(find.textContaining('12,3 km/h'), findsWidgets);
+      expect(find.textContaining('12.35'), findsNothing);
+    });
+
     testWidgets('offers all actions from the app bar menu', (tester) async {
       await tester.pumpWidget(wrap(StravaActivityDetailsPage(stravaActivity: activity())));
       await tester.pump();

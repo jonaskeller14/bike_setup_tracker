@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/utils/adjustment_preset_consumption.dart';
 import 'package:bike_setup_tracker/utils/adjustment_role.dart';
@@ -7,6 +8,7 @@ import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 /// [buildCatalogApplication] turns a resolved catalog selection into form-fill
 /// data. Fixtures are small inline YAML files run through the real
@@ -159,6 +161,22 @@ void main() {
         '',
         'Setup guide: https://tech.ridefox.com/36',
       ]);
+    });
+
+    test('notes are written in the app language of the moment', () {
+      final app = Intl.withLocale('de', () => buildCatalogApplication(resolved)) as CatalogApplication;
+
+      expect(app.notes.split('\n'), [
+        '- Dämpfer: GRIP X2',
+        '- Federweg: 160 mm',
+        '- Standrohr: Kashima · Feder: Air',
+        '- Modelljahre: 2025-2026',
+        '- Trim note',
+        '',
+        'Setup-Anleitung: https://tech.ridefox.com/36',
+      ]);
+      final lsc = app.adjustments.firstWhere((a) => a.name == 'LSC') as StepAdjustment;
+      expect(lsc.notes, startsWith('Low-Speed Compression; Klickzahl nicht veröffentlicht.'));
     });
 
     test('a chosen model year replaces the years in the notes', () {

@@ -20,6 +20,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		FF0000012A00000100000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FF0000022A00000200000002 /* GoogleService-Info.plist */; };
 		FF0000032A00000300000003 /* client_473188600318-q3uf3l53eo2bp4rtmvp29sdehtn5tp5l.apps.googleusercontent.com.plist in Resources */ = {isa = PBXBuildFile; fileRef = FF0000042A00000400000004 /* client_473188600318-q3uf3l53eo2bp4rtmvp29sdehtn5tp5l.apps.googleusercontent.com.plist */; };
+		FF0000082A00000800000008 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FF0000052A00000500000005 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,8 @@
 		C57448CBC411B7F8AF29019B /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		FF0000022A00000200000002 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FF0000042A00000400000004 /* client_473188600318-q3uf3l53eo2bp4rtmvp29sdehtn5tp5l.apps.googleusercontent.com.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "client_473188600318-q3uf3l53eo2bp4rtmvp29sdehtn5tp5l.apps.googleusercontent.com.plist"; sourceTree = "<group>"; };
+		FF0000062A00000600000006 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		FF0000072A00000700000007 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +161,7 @@
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				97C147021CF9000F007C117D /* Info.plist */,
+				FF0000052A00000500000005 /* InfoPlist.strings */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
@@ -251,6 +255,7 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
@@ -283,6 +288,7 @@
 				33A4665B2FC8185F00164F5E /* client_473188600318-q3uf3l53eo2bp4rtmvp29sdehtn5tp5l.apps.googleusercontent.com.plist in Resources */,
 				FF0000032A00000300000003 /* client_473188600318-q3uf3l53eo2bp4rtmvp29sdehtn5tp5l.apps.googleusercontent.com.plist in Resources */,
 				33A466592FC816E300164F5E /* GoogleService-Info.plist in Resources */,
+				FF0000082A00000800000008 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -443,6 +449,15 @@
 				97C147001CF9000F007C117D /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		FF0000052A00000500000005 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FF0000062A00000600000006 /* en */,
+				FF0000072A00000700000007 /* de */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

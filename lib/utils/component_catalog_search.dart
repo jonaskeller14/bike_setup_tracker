@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/preset_spec_keys.dart';
 import 'component_preset_resolver.dart';
@@ -97,7 +98,7 @@ String? presetSuggestionSubtitle(ResolvedPreset suggestion) {
 /// `GRIP X2 / GRIP X`, `150 / 160 mm`, or `12 sizes` where listing them all
 /// would not fit a row.
 String optionAxisSummary(OptionAxis axis) {
-  if (axis.id == PresetOptionAxes.size.id && axis.values.length > 1) return '${axis.values.length} sizes';
+  if (axis.id == PresetOptionAxes.size.id && axis.values.length > 1) return currentL10n.catalogSizesCount(axis.values.length);
   final unit = axis.key.spec?.unit;
   if (unit == null) return axis.values.map((value) => value.label).join(' / ');
   // `150 / 160 mm` instead of the unit on every value. A literal value is its own id.

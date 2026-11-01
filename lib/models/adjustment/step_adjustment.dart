@@ -43,9 +43,9 @@ class StepAdjustment extends Adjustment {
   static const int unknownMaxPlaceholder = 20;
 
   /// For the rider only; notes are theirs to edit, so code asks
-  /// [PresetAdjustmentSpec.hasUnknownMax] instead.
-  static const String unknownMaxWarning =
-      'Click count not published. Max is a placeholder, edit it to match your component.';
+  /// [PresetAdjustmentSpec.hasUnknownMax] instead. In the app language of the
+  /// moment, stored as written with the notes.
+  static String get unknownMaxWarning => currentL10n.stepUnknownMaxWarning;
 
   StepAdjustment({
     super.id,

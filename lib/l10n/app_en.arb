@@ -1156,10 +1156,6 @@
   "@featuresComponentPresets": {
     "description": "Title of the component presets feature (developer builds)."
   },
-  "featuresComponentPresetsInfo": "When adding a fork or shock, pick the model from a built-in catalog to prefill its name, notes and adjustments (click ranges, air pressure, SAG) automatically. You can still edit everything afterwards.",
-  "@featuresComponentPresetsInfo": {
-    "description": "Explanation of the component presets feature."
-  },
   "featuresRequiresComponentPresets": "Requires Component Presets",
   "@featuresRequiresComponentPresets": {
     "description": "Subtitle of a disabled feature that depends on component presets."
@@ -1167,10 +1163,6 @@
   "featuresTaskPresets": "Task Presets",
   "@featuresTaskPresets": {
     "description": "Title of the task presets feature (developer builds)."
-  },
-  "featuresTaskPresetsInfo": "Suggests recommended tasks for a component, like a chain wear check or a fork service, based on its type and catalog model. You pick each suggestion individually and can edit the created tasks freely. Requires Component Presets, Tasks and Task Intervals.",
-  "@featuresTaskPresetsInfo": {
-    "description": "Explanation of the task presets feature."
   },
   "featuresSetupGuides": "Setup Guides",
   "@featuresSetupGuides": {
@@ -5727,6 +5719,14 @@
   "taskIntervalPrefixAfter": "After",
   "@taskIntervalPrefixAfter": {
     "description": "Start of the interval line of a task that does not repeat. The amount follows, like After 500 km. German avoids the case ending a literal translation would need."
+  },
+  "taskIntervalCardEveryDay": "Every day",
+  "@taskIntervalCardEveryDay": {
+    "description": "Interval line of a task that repeats daily, instead of the prefix and an amount. German needs the case ending a literal Every 1 day would miss."
+  },
+  "taskIntervalCardEveryRide": "Every ride",
+  "@taskIntervalCardEveryRide": {
+    "description": "Interval line of a task that repeats after every ride, instead of the prefix and an amount. German needs the gender a literal Every 1 ride would miss."
   },
   "taskRecommendedInterval": "Recommended interval: {interval}",
   "@taskRecommendedInterval": {
@@ -11912,5 +11912,242 @@
   "dialSizeSmall": "small",
   "@dialSizeSmall": {
     "description": "Screen reader label of the small dial size."
+  },
+  "catalogTermTravel": "travel",
+  "@catalogTermTravel": {
+    "description": "Name of the catalog property travel, in the sentence form (lowercase in English). It is capitalised where it stands alone, and it starts the note line Travel: 150 mm of a component created from the catalog."
+  },
+  "catalogTermWheelSize": "wheel size",
+  "@catalogTermWheelSize": {
+    "description": "Name of the catalog property wheel size, in the sentence form."
+  },
+  "catalogTermStanchion": "stanchion",
+  "@catalogTermStanchion": {
+    "description": "Name of the catalog property stanchion (the fork leg diameter), in the sentence form."
+  },
+  "catalogTermSpring": "spring",
+  "@catalogTermSpring": {
+    "description": "Name of the catalog property spring (air or coil), in the sentence form."
+  },
+  "catalogTermEyeToEye": "eye-to-eye",
+  "@catalogTermEyeToEye": {
+    "description": "Name of the catalog property eye-to-eye, the mounting length of a shock, in the sentence form."
+  },
+  "catalogTermStroke": "stroke",
+  "@catalogTermStroke": {
+    "description": "Name of the catalog property stroke of a shock, in the sentence form."
+  },
+  "catalogTermMount": "mount",
+  "@catalogTermMount": {
+    "description": "Name of the catalog property mount of a shock, and of the catalog level that offers mount variants, in the sentence form."
+  },
+  "catalogTermDamper": "damper",
+  "@catalogTermDamper": {
+    "description": "Name of the catalog choice damper (the cartridge of a fork or shock), in the sentence form."
+  },
+  "catalogTermSize": "size",
+  "@catalogTermSize": {
+    "description": "Name of the catalog choice size of a shock, in the sentence form."
+  },
+  "catalogTermGeneration": "generation",
+  "@catalogTermGeneration": {
+    "description": "Name of the catalog level generation, in the sentence form. It completes the picker title Select generation."
+  },
+  "catalogTermModel": "model",
+  "@catalogTermModel": {
+    "description": "Name of the catalog level model, in the sentence form. It completes the picker title Select model."
+  },
+  "catalogTermTrim": "trim",
+  "@catalogTermTrim": {
+    "description": "Name of the catalog level trim (the equipment variant of a model), in the sentence form. It completes the picker title Select trim."
+  },
+  "catalogTermVersion": "version",
+  "@catalogTermVersion": {
+    "description": "Name of the catalog level version, in the sentence form. It completes the picker title Select version."
+  },
+  "catalogPickerCategoryOther": "Other",
+  "@catalogPickerCategoryOther": {
+    "description": "Heading of the catalog models that have no category, and of the shock sizes that have no eye-to-eye length."
+  },
+  "catalogNoteModelYear": "Model year: {year}",
+  "@catalogNoteModelYear": {
+    "description": "Line of the note of a component created from the catalog. It is stored with the note. {year} is a year.",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogNoteModelYears": "Model years: {years}",
+  "@catalogNoteModelYears": {
+    "description": "Line of the note of a component created from the catalog when the model year is open. It is stored with the note. {years} is a span like 2025-2026.",
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogNoteMissing": "Not in the catalog yet, add by hand: {adjustments}",
+  "@catalogNoteMissing": {
+    "description": "Line of the note of a component created from the catalog that lists adjustments the catalog does not have. It is stored with the note. {adjustments} is a comma-separated list of names.",
+    "placeholders": {
+      "adjustments": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogNoteSetupGuide": "Setup guide: {guide}",
+  "@catalogNoteSetupGuide": {
+    "description": "Last paragraph of the note of a component created from the catalog. It is stored with the note. {guide} is a link.",
+    "placeholders": {
+      "guide": {
+        "type": "String"
+      }
+    }
+  },
+  "stepUnknownMaxWarning": "Click count not published. Max is a placeholder, edit it to match your component.",
+  "@stepUnknownMaxWarning": {
+    "description": "Note of a step adjustment created from the catalog whose maximum the manufacturer does not publish. It is stored with the note."
+  },
+  "catalogSizesCount": "{count, plural, =1{1 size} other{{count} sizes}}",
+  "@catalogSizesCount": {
+    "description": "Summary of a shock that comes in several sizes, where listing them all would not fit a row. {count} is the number of sizes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskTemplateWheelSpokeTensionName": "Spoke tension check",
+  "@taskTemplateWheelSpokeTensionName": {
+    "description": "Name of the recommended task wheel:spoke_tension. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateWheelSpokeTensionNotes": "Squeeze spoke pairs and check the rim for wobble; new wheels settle during the first rides.",
+  "@taskTemplateWheelSpokeTensionNotes": {
+    "description": "Note of the recommended task wheel:spoke_tension. It is stored with the task rule as written."
+  },
+  "taskTemplateWheelHubBearingName": "Hub bearing check",
+  "@taskTemplateWheelHubBearingName": {
+    "description": "Name of the recommended task wheel:hub_bearing. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateWheelHubBearingNotes": "Check the hub for play and rough or notchy rotation.",
+  "@taskTemplateWheelHubBearingNotes": {
+    "description": "Note of the recommended task wheel:hub_bearing. It is stored with the task rule as written."
+  },
+  "taskTemplateChainWearCheckName": "Check chain wear",
+  "@taskTemplateChainWearCheckName": {
+    "description": "Name of the recommended task chain:wear_check. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateChainWearCheckNotes": "Measure chain stretch with a wear gauge and replace the chain once it reaches the wear limit.",
+  "@taskTemplateChainWearCheckNotes": {
+    "description": "Note of the recommended task chain:wear_check. It is stored with the task rule as written."
+  },
+  "taskTemplateChainReplaceName": "Replace chain",
+  "@taskTemplateChainReplaceName": {
+    "description": "Name of the recommended task chain:replace. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateChainLubeName": "Clean & lube chain",
+  "@taskTemplateChainLubeName": {
+    "description": "Name of the recommended task chain:lube. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateCassetteWearCheckName": "Check cassette wear",
+  "@taskTemplateCassetteWearCheckName": {
+    "description": "Name of the recommended task cassette:wear_check. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateCassetteWearCheckNotes": "Look for hooked or shark-fin teeth and chain skipping under load.",
+  "@taskTemplateCassetteWearCheckNotes": {
+    "description": "Note of the recommended task cassette:wear_check. It is stored with the task rule as written."
+  },
+  "taskTemplateForkLowerLegServiceName": "Lower leg service",
+  "@taskTemplateForkLowerLegServiceName": {
+    "description": "Name of the recommended task fork:lower_leg_service. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateForkLowerLegServiceNotes": "Clean the stanchions and seals, replace the foam rings and refresh the bath oil.",
+  "@taskTemplateForkLowerLegServiceNotes": {
+    "description": "Note of the recommended task fork:lower_leg_service. It is stored with the task rule as written."
+  },
+  "taskTemplateForkFullServiceName": "Full service",
+  "@taskTemplateForkFullServiceName": {
+    "description": "Name of the recommended task fork:full_service. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateForkFullServiceNotes": "Lower leg service plus a damper and air spring rebuild, including seals and oil.",
+  "@taskTemplateForkFullServiceNotes": {
+    "description": "Note of the recommended task fork:full_service. It is stored with the task rule as written."
+  },
+  "taskTemplateShockAirCanServiceName": "Air can service",
+  "@taskTemplateShockAirCanServiceName": {
+    "description": "Name of the recommended task shock:air_can_service. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateShockAirCanServiceNotes": "Clean and re-grease the air can and replace its seals.",
+  "@taskTemplateShockAirCanServiceNotes": {
+    "description": "Note of the recommended task shock:air_can_service. It is stored with the task rule as written."
+  },
+  "taskTemplateShockFullServiceName": "Full service",
+  "@taskTemplateShockFullServiceName": {
+    "description": "Name of the recommended task shock:full_service. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateShockFullServiceNotes": "Damper rebuild including seals, oil and nitrogen charge, plus the air can service on air shocks.",
+  "@taskTemplateShockFullServiceNotes": {
+    "description": "Note of the recommended task shock:full_service. It is stored with the task rule as written."
+  },
+  "taskTemplateBrakePadWearCheckName": "Check pad wear",
+  "@taskTemplateBrakePadWearCheckName": {
+    "description": "Name of the recommended task brake_pad:wear_check. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateBrakePadWearCheckNotes": "Replace the pads before the friction material is worn down to the backing plate.",
+  "@taskTemplateBrakePadWearCheckNotes": {
+    "description": "Note of the recommended task brake_pad:wear_check. It is stored with the task rule as written."
+  },
+  "taskTemplateBrakeBleedName": "Bleed brakes",
+  "@taskTemplateBrakeBleedName": {
+    "description": "Name of the recommended task brake:bleed. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateBrakeBleedNotes": "Replace the brake fluid and remove air from the system.",
+  "@taskTemplateBrakeBleedNotes": {
+    "description": "Note of the recommended task brake:bleed. It is stored with the task rule as written."
+  },
+  "taskTemplateTireSealantName": "Refresh tubeless sealant",
+  "@taskTemplateTireSealantName": {
+    "description": "Name of the recommended task tire:sealant. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateTireSealantNotes": "Top up or replace the sealant before it dries out.",
+  "@taskTemplateTireSealantNotes": {
+    "description": "Note of the recommended task tire:sealant. It is stored with the task rule as written."
+  },
+  "taskTemplateHeadsetServiceName": "Clean & grease headset",
+  "@taskTemplateHeadsetServiceName": {
+    "description": "Name of the recommended task headset:service. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateBbPlayCheckName": "Check bottom bracket play",
+  "@taskTemplateBbPlayCheckName": {
+    "description": "Name of the recommended task bb:play_check. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateBbPlayCheckNotes": "Check the cranks for side play and the bearings for rough rotation.",
+  "@taskTemplateBbPlayCheckNotes": {
+    "description": "Note of the recommended task bb:play_check. It is stored with the task rule as written."
+  },
+  "taskTemplateSeatpostServiceName": "Dropper post service",
+  "@taskTemplateSeatpostServiceName": {
+    "description": "Name of the recommended task seatpost:service. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateFramePivotBearingsName": "Check pivot bearings",
+  "@taskTemplateFramePivotBearingsName": {
+    "description": "Name of the recommended task frame:pivot_bearings. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateFramePivotBearingsNotes": "Check the suspension linkage for play and rough bearings.",
+  "@taskTemplateFramePivotBearingsNotes": {
+    "description": "Note of the recommended task frame:pivot_bearings. It is stored with the task rule as written."
+  },
+  "taskTemplateFrameBoltTorqueName": "Check bolt torque",
+  "@taskTemplateFrameBoltTorqueName": {
+    "description": "Name of the recommended task frame:bolt_torque. It becomes the name of the task rule, which is stored as written."
+  },
+  "taskTemplateFrameBoltTorqueNotes": "Check all bolts against the torque values printed on the parts or in the manual.",
+  "@taskTemplateFrameBoltTorqueNotes": {
+    "description": "Note of the recommended task frame:bolt_torque. It is stored with the task rule as written."
+  },
+  "taskTemplateShiftCableReplaceName": "Replace shift cable",
+  "@taskTemplateShiftCableReplaceName": {
+    "description": "Name of the recommended task shift_cable:replace. It becomes the name of the task rule, which is stored as written."
   }
 }

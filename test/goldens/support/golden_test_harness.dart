@@ -265,11 +265,13 @@ class GoldenTestHarness {
     required Brightness brightness,
     required Widget child,
     Size viewport = goldenViewport,
+    Locale locale = const Locale('en'),
+    TextScaler textScaler = TextScaler.noScaling,
   }) {
     final mediaQueryData = MediaQueryData(
       size: viewport,
       devicePixelRatio: 1,
-      textScaler: TextScaler.noScaling,
+      textScaler: textScaler,
       disableAnimations: true,
     );
 
@@ -286,6 +288,7 @@ class GoldenTestHarness {
         width: viewport.width,
         height: viewport.height,
         child: localizedTestApp(
+          locale: locale,
           debugShowCheckedModeBanner: false,
           theme: brightness == Brightness.light ? materialAppTheme : materialAppDarkTheme,
           builder: (context, child) => MediaQuery(

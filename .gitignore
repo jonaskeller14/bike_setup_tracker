@@ -90,7 +90,3 @@ fastlane/README.md
 data/knob_research/**
 !data/knob_research/README.md
 !data/knob_research/inventory.yaml
-
-# Local string audit script
-tool/find_hardcoded_strings.dart
-tool/hardcoded_strings_allowlist.txt

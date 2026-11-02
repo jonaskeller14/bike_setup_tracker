@@ -315,7 +315,7 @@ void main() {
       'Hinten · Ruhe',
     );
     expect(testSessionExpectedRuns(const PatternSearch(), 2, germanL10n), 'etwa 8 Läufe');
-    expect(germanL10n.testSessionUnnamed, 'Testsitzung');
+    expect(germanL10n.testSessionUnnamed, 'Testsession');
   });
 
   group('expectedRuns', () {

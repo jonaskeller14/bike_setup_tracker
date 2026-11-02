@@ -495,11 +495,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeAddSetup => 'Setup hinzufügen';
 
   @override
-  String get homeTooltipStartTestSession => 'Testsitzung starten';
+  String get homeTooltipStartTestSession => 'Testsession starten';
 
   @override
   String homeTooltipEndTestSession(String name) {
-    return 'Testsitzung „$name“ beenden';
+    return 'Testsession „$name“ beenden';
   }
 
   @override
@@ -2494,18 +2494,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String bikeDetailsTestSessionsTitle(int count) {
-    return 'Testsitzungen ($count)';
+    return 'Testsessions ($count)';
   }
 
   @override
-  String get bikeDetailsNoTestSessionsTitle => 'Noch keine Testsitzungen';
+  String get bikeDetailsNoTestSessionsTitle => 'Noch keine Testsessions';
 
   @override
   String get bikeDetailsNoTestSessionsSubtitle =>
       'Probiere Einstellungen nacheinander aus und finde heraus, welche am besten funktioniert';
 
   @override
-  String get startTestSession => 'Testsitzung starten';
+  String get startTestSession => 'Testsession starten';
 
   @override
   String get bikeDetailsSetupHistoryTitle => 'Setup-Verlauf';
@@ -3549,7 +3549,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get setupTagsSubtitle =>
-      'Nutze Tags, um deine Setups zu gruppieren und zu ordnen, z. B. nach bestimmten Testsitzungen, Strecken oder Gelände.';
+      'Nutze Tags, um deine Setups zu gruppieren und zu ordnen, z. B. nach bestimmten Testsessions, Strecken oder Gelände.';
 
   @override
   String get setupActionBikeRequired => 'Zum Erstellen eines Setups ist ein Bike erforderlich';
@@ -4141,7 +4141,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get setupColumnCondition => 'Trailzustand';
 
   @override
-  String get setupColumnTestSession => 'Testsitzung';
+  String get setupColumnTestSession => 'Testsession';
 
   @override
   String get tableSectionGeneralContext => 'Allgemeiner Kontext';
@@ -4193,17 +4193,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get setupFormSessionRunningEdit =>
-      'Auf diesem Bike läuft eine Testsitzung. Beende sie, bevor du ihre Setups bearbeitest.';
+      'Auf diesem Bike läuft eine Testsession. Beende sie, bevor du ihre Setups bearbeitest.';
 
   @override
   String get setupFormSessionRunningRecord =>
-      'Auf diesem Bike läuft eine Testsitzung. Beende sie, bevor du ein Setup aufzeichnest.';
+      'Auf diesem Bike läuft eine Testsession. Beende sie, bevor du ein Setup aufzeichnest.';
 
   @override
-  String get setupFormSessionRunning => 'Sitzung läuft';
+  String get setupFormSessionRunning => 'Session läuft';
 
   @override
-  String get setupFormRunOrder => 'Ein Lauf muss nach dem vorherigen Lauf seiner Testsitzung liegen.';
+  String get setupFormRunOrder => 'Ein Lauf muss nach dem vorherigen Lauf seiner Testsession liegen.';
 
   @override
   String get setupFormLocationDisabled => 'Ortungsdienste sind deaktiviert.';
@@ -4286,7 +4286,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String setupFormSessionFirstTournament(String from) {
-    return 'Der erste Lauf fährt mit $from. Seine Einstellungen sind gesperrt, damit die Setups vergleichbar bleiben. Lege Datum, Wetter und Notizen dieser Fahrt fest und speichere dann, um die Sitzung zu starten.';
+    return 'Der erste Lauf fährt mit $from. Seine Einstellungen sind gesperrt, damit die Setups vergleichbar bleiben. Lege Datum, Wetter und Notizen dieser Fahrt fest und speichere dann, um die Session zu starten.';
   }
 
   @override
@@ -4296,11 +4296,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get setupFormSessionFirstBase =>
-      'Dies ist das Basis-Setup, von dem die Sitzung ausgeht. Wenn dein Bike so eingestellt ist, speichere einfach. Andernfalls ändere die Einstellungen der Sitzung passend zu deinem Bike.';
+      'Dies ist das Basis-Setup, von dem die Session ausgeht. Wenn dein Bike so eingestellt ist, speichere einfach. Andernfalls ändere die Einstellungen der Session passend zu deinem Bike.';
 
   @override
   String get setupFormSessionNextBase =>
-      'Nur die Einstellungen der Sitzung können sich ändern, gesperrte bleiben unverändert. Alles andere wird vom vorherigen Lauf übernommen.';
+      'Nur die Einstellungen der Session können sich ändern, gesperrte bleiben unverändert. Alles andere wird vom vorherigen Lauf übernommen.';
 
   @override
   String setupFormSessionFirstRunTitle(String name) {
@@ -4398,7 +4398,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contextNoRiderLinked => 'Diesem Setup ist kein Rider zugeordnet.';
 
   @override
-  String get testSessionNotFound => 'TESTSITZUNG NICHT GEFUNDEN';
+  String get testSessionNotFound => 'TESTSESSION NICHT GEFUNDEN';
 
   @override
   String get adjustmentNotScored => 'nicht bewertet';
@@ -5617,7 +5617,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get calendarTestSessionNoMove =>
-      'Eine Testsitzung lässt sich nicht verschieben. Ändere stattdessen die Zeiten ihrer Läufe.';
+      'Eine Testsession lässt sich nicht verschieben. Ändere stattdessen die Zeiten ihrer Läufe.';
 
   @override
   String calendarMoved(String subject, String from, String to) {
@@ -5705,8 +5705,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count Testsitzungen',
-      one: '1 Testsitzung',
+      other: '$count Testsessions',
+      one: '1 Testsession',
     );
     return '$_temp0';
   }
@@ -5750,16 +5750,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get filterNoSetupTagsHintSessions =>
-      'Füge Tags über das Setup-Formular hinzu oder starte eine Testsitzung, um ihre Läufe zu filtern.';
+      'Füge Tags über das Setup-Formular hinzu oder starte eine Testsession, um ihre Läufe zu filtern.';
 
   @override
   String get filterNoSetupTagsHint => 'Füge Tags über das Setup-Formular hinzu.';
 
   @override
-  String get filterNoTestSessionsTitle => 'Noch keine Testsitzungen';
+  String get filterNoTestSessionsTitle => 'Noch keine Testsessions';
 
   @override
-  String get filterNoTestSessionsHint => 'Starte eine Testsitzung, um ihre Läufe zu filtern.';
+  String get filterNoTestSessionsHint => 'Starte eine Testsession, um ihre Läufe zu filtern.';
 
   @override
   String get filterDateTitle => 'Datum';
@@ -6118,7 +6118,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get customIssueRemoveBody =>
-      'Es wird aus jedem Feedback und jedem Testsitzungsziel entfernt, auch aus dem Papierkorb. Das lässt sich nicht rückgängig machen.';
+      'Es wird aus jedem Feedback und jedem Testsession-Ziel entfernt, auch aus dem Papierkorb. Das lässt sich nicht rückgängig machen.';
 
   @override
   String get customIssueRemoved => 'Problem entfernt.';
@@ -6146,7 +6146,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get addTagConfirm => 'Hinzufügen';
 
   @override
-  String get testSessionUnnamed => 'Testsitzung';
+  String get testSessionUnnamed => 'Testsession';
 
   @override
   String testSessionRunName(int number) {
@@ -6212,13 +6212,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get testSessionEditTitle => 'Testsitzung bearbeiten';
+  String get testSessionEditTitle => 'Testsession bearbeiten';
 
   @override
   String get testSessionStartTooltip => 'Starten';
 
   @override
-  String get testSessionErrAlreadyRunning => 'Auf diesem Bike läuft bereits eine Testsitzung.';
+  String get testSessionErrAlreadyRunning => 'Auf diesem Bike läuft bereits eine Testsession.';
 
   @override
   String get testSessionErrRecordSetup =>
@@ -6325,7 +6325,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get testSessionNameLabel => 'Name (optional)';
 
   @override
-  String get testSessionGone => 'Diese Testsitzung existiert nicht mehr.';
+  String get testSessionGone => 'Diese Testsession existiert nicht mehr.';
 
   @override
   String get testSessionEnded => 'Beendet';
@@ -6361,7 +6361,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get testSessionStepNoRuns => 'Diese Sitzung hat keine Läufe. Zeichne einen auf, um weiterzumachen.';
+  String get testSessionStepNoRuns => 'Diese Session hat keine Läufe. Zeichne einen auf, um weiterzumachen.';
 
   @override
   String testSessionStepRated(String name) {
@@ -6377,13 +6377,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get testSessionNextRun => 'Nächster Lauf';
 
   @override
-  String get testSessionEndSession => 'Sitzung beenden';
+  String get testSessionEndSession => 'Session beenden';
 
   @override
-  String get testSessionActionsTooltip => 'Aktionen der Testsitzung';
+  String get testSessionActionsTooltip => 'Aktionen der Testsession';
 
   @override
-  String get testSessionBikeRequired => 'Zum Starten einer Testsitzung wird ein Bike benötigt';
+  String get testSessionBikeRequired => 'Zum Starten einer Testsession wird ein Bike benötigt';
 
   @override
   String get testSessionAdjustmentRequired => 'Füge zuerst einer Komponente eine Einstellung hinzu';
@@ -6397,25 +6397,25 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String testSessionEndedSnack(String name) {
-    return 'Testsitzung „$name“ beendet.';
+    return 'Testsession „$name“ beendet.';
   }
 
   @override
   String testSessionMovedToTrash(String name) {
-    return 'Testsitzung „$name“ in den Papierkorb verschoben.';
+    return 'Testsession „$name“ in den Papierkorb verschoben.';
   }
 
   @override
   String testSessionRestoredFromTrash(String name) {
-    return 'Testsitzung „$name“ aus dem Papierkorb wiederhergestellt.';
+    return 'Testsession „$name“ aus dem Papierkorb wiederhergestellt.';
   }
 
   @override
-  String get testSessionEndFirstTitle => 'Sitzung zuerst beenden?';
+  String get testSessionEndFirstTitle => 'Session zuerst beenden?';
 
   @override
   String testSessionEndFirstBody(String name) {
-    return '„$name“ läuft auf diesem Bike. Ein jetzt aufgezeichnetes Setup würde seine Läufe durcheinanderbringen. Nutze „Nächster Lauf“, um die Sitzung fortzusetzen.';
+    return '„$name“ läuft auf diesem Bike. Ein jetzt aufgezeichnetes Setup würde seine Läufe durcheinanderbringen. Nutze „Nächster Lauf“, um die Session fortzusetzen.';
   }
 
   @override
@@ -7160,7 +7160,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String stravaActivitySessionRunning(String name) {
-    return 'Auf diesem Bike läuft die Testsitzung „$name“. Beende sie, um ein Setup hinzuzufügen.';
+    return 'Auf diesem Bike läuft die Testsession „$name“. Beende sie, um ein Setup hinzuzufügen.';
   }
 
   @override
@@ -7478,7 +7478,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String dataSelectTestSessions(int selected, int total) {
-    return 'Testsitzungen ($selected / $total)';
+    return 'Testsessions ($selected / $total)';
   }
 
   @override
@@ -8839,7 +8839,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get suggestionAdjustmentGone =>
-      'Eine Einstellung dieser Sitzung ist nicht mehr am Bike. Setze sie fest, um fortzufahren.';
+      'Eine Einstellung dieser Session ist nicht mehr am Bike. Setze sie fest, um fortzufahren.';
 
   @override
   String suggestionNoValue(String run, String adjustment) {
@@ -8855,11 +8855,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get suggestionAllLocked => 'Alle Einstellungen sind festgesetzt.';
 
   @override
-  String get suggestionNotCompare => 'Diese Sitzung vergleicht keine Setups.';
+  String get suggestionNotCompare => 'Diese Session vergleicht keine Setups.';
 
   @override
   String get suggestionSetupRemoved =>
-      'Ein zu vergleichendes Setup wurde entfernt. Beende die Sitzung oder vergleiche die übrigen in einer neuen.';
+      'Ein zu vergleichendes Setup wurde entfernt. Beende die Session oder vergleiche die übrigen in einer neuen.';
 
   @override
   String suggestionPatternStep(String number, String total, String move, String base) {

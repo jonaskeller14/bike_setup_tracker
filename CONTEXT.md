@@ -59,7 +59,7 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | From beginning | Von Beginn an | |
 | Strava Gear | Strava-Ausrüstung | Strava's own German term |
 | Line / Radial Chart | Liniendiagramm / Netzdiagramm | |
-| Test session | Testsitzung | |
+| Test session | Testsession | |
 | Attribute (rider) | Attribut | An adjustment of a rider: Numerisches Attribut, Textattribut |
 | Template / Preset (adjustments) | Vorlage | Also Komponentenvorlagen, Aufgabenvorlagen |
 | Riding style | Fahrstil | Rider attribute with the options Komfort / Ausgewogen / Race |

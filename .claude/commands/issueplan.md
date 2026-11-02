@@ -36,6 +36,15 @@ GitHub issue**. Do not create a plan file under `doc/`. This is still a planning
     - `**Verification:**` — how to prove the phase works: exact `flutter test` targets to
       add/run, `flutter analyze`, and any manual check (e.g. overflow with long text).
     - `**Commit:**` — the suggested conventional-commit subject for this phase.
+  - **Collapsing phases:** wrap each `## Phase N` section (everything under its heading) in a
+    `<details>` block and keep the heading visible above it. Summary: `Status: <icon> <label>`,
+    e.g. `Status: ✅ Done`, `Status: 🟨 Partly done`, `Status: ⬜ Not started`. The `**Status:**`
+    line itself becomes the summary; a remark that goes with it stays inside as `**Note:** …`.
+    - All checkboxes checked and status Done → `<details>` (collapsed).
+    - Status not Done, or any checkbox unchecked → `<details open>` (expanded).
+    - Re-check this on every progress update: tick a box or change a status, and flip `open`.
+    - Only phases are wrapped. `Resolved open questions`, `Feature flag`, the commit list and the
+      acceptance criteria stay as they are.
   - `## Suggested commit granularity` — the overall commit/PR sequencing across phases.
 - Order phases so pure-logic layers (models, DAOs, repository) land before UI, and each
   phase is independently mergeable where possible.

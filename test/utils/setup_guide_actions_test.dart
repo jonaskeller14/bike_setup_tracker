@@ -6,12 +6,14 @@ import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
 import 'package:bike_setup_tracker/models/person.dart';
+import 'package:bike_setup_tracker/utils/adjustment_presets.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/utils/setup_guide_actions.dart';
-import 'package:bike_setup_tracker/widgets/sheets/person_add_adjustment.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/german_l10n.dart';
 
 const _catalog = '''
 brand: Acme
@@ -123,7 +125,7 @@ nodes:
   });
 
   group('guideInputsFor', () {
-    final weight = ridingWeightPreset;
+    final weight = ridingWeightPresetFor(englishL10n);
     final style = CategoricalAdjustment(
       name: 'Riding style',
       unit: null,
@@ -154,6 +156,32 @@ nodes:
       );
       expect(inputs.riderWeight, 75);
       expect(inputs.ridingStyle, GuideRidingStyle.race);
+    });
+
+    test('reads the style a German rider stored', () {
+      final germanStyle = personAdjustmentPresetsFor(germanL10n).whereType<CategoricalAdjustment>().single;
+      final germanPerson = Person(name: 'Rider', adjustments: [ridingWeightPresetFor(germanL10n), germanStyle]);
+      for (final (stored, expected) in [
+        ('Komfort', GuideRidingStyle.comfort),
+        ('Ausgewogen', GuideRidingStyle.balanced),
+        ('Race', GuideRidingStyle.race),
+      ]) {
+        final inputs = guideInputsFor(
+          germanPerson,
+          values: {germanStyle.id: CategoricalValue([stored])},
+          previousValues: {},
+        );
+        expect(inputs.ridingStyle, expected, reason: stored);
+      }
+    });
+
+    test('has no style for an option that is none of the three', () {
+      final inputs = guideInputsFor(
+        person,
+        values: {style.id: CategoricalValue(const ['Gravel'])},
+        previousValues: {},
+      );
+      expect(inputs.ridingStyle, isNull);
     });
 
     test('uses the card weight, in kg, only while no weight is entered or recorded', () {

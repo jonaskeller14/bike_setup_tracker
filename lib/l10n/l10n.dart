@@ -18,6 +18,11 @@ const appLocalizationsDelegates = <LocalizationsDelegate<dynamic>>[
 /// authors, and search, which also matches the English names.
 final AppLocalizations englishL10n = lookupAppLocalizations(const Locale('en'));
 
+/// Every supported language, for matching stored text that was written in any of them.
+final List<AppLocalizations> allLocalizations = [
+  for (final locale in AppLocalizations.supportedLocales) lookupAppLocalizations(locale),
+];
+
 extension AppLocalizationsContext on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
 

@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
@@ -208,7 +209,7 @@ class _WeightFieldState extends State<_WeightField> {
               child: Text(
                 [
                   context.l10n.guideCardRidingWeight,
-                  if (widget.ridingStyle case final style?) style.label,
+                  if (widget.ridingStyle case final style?) style.label(context.l10n),
                 ].join(" · "),
                 style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
                 maxLines: 1,
@@ -406,7 +407,7 @@ String _inputsText(GuideInputs inputs, AppLocalizations l10n) {
   if (weight == null) return l10n.guideCardEnterWeight;
   return [
     l10n.guideCardValuesFor(_number(weight), inputs.riderWeightUnit.label),
-    ?inputs.ridingStyle?.label,
+    ?inputs.ridingStyle?.label(l10n),
   ].join(" · ");
 }
 

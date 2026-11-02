@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 
+import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
@@ -68,9 +69,7 @@ GuideInputs guideInputsFor(
   final recorded = weightUnit == null ? null : valueOf('riding_weight')?.asNum?.toDouble();
   final weight = recorded ?? fallbackWeight;
   final style = switch (valueOf(kRidingStyleKey)) {
-    CategoricalValue(:final options) when options.length == 1 => GuideRidingStyle.values.firstWhereOrNull(
-      (style) => style.label == options.single,
-    ),
+    CategoricalValue(:final options) when options.length == 1 => guideRidingStyleOfOption(options.single),
     _ => null,
   };
   return GuideInputs(

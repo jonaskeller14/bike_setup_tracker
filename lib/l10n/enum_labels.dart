@@ -2,6 +2,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/component/resolved_installation.dart';
+import '../models/component/setup_guide.dart';
 import '../models/context/context_weather.dart';
 import '../models/feedback/feedback_vocabulary.dart';
 import '../models/service_error.dart';
@@ -17,7 +18,7 @@ import '../utils/installation_timeline_validation.dart';
 import '../utils/table_column.dart';
 import '../utils/value_delta.dart';
 import 'adjustment_value_text.dart';
-import 'app_localizations.dart';
+import 'l10n.dart';
 
 /// Display names of enums. The enums themselves are persisted by `name` (or
 /// `toString()` in JSON), never by these labels, so a language switch can't
@@ -542,4 +543,24 @@ extension TipFailureMessage on TipFailure {
     TipErrorKind.tipNotLoaded => l10n.tipErrorTipNotLoaded,
     TipErrorKind.purchaseFailed => l10n.tipErrorPurchaseFailed(detail ?? ''),
   };
+}
+
+/// The option of the `person:riding_style` template that names the style. The
+/// rider stores the option as written, so [guideRidingStyleOfOption] reads it
+/// back in any supported language.
+extension GuideRidingStyleLabel on GuideRidingStyle {
+  String label(AppLocalizations l10n) => switch (this) {
+    GuideRidingStyle.comfort => l10n.adjustmentTemplateOptionComfort,
+    GuideRidingStyle.balanced => l10n.adjustmentTemplateOptionBalanced,
+    GuideRidingStyle.race => l10n.adjustmentTemplateOptionRace,
+  };
+}
+
+/// The style whose label in some supported language is [option], or `null`.
+GuideRidingStyle? guideRidingStyleOfOption(String option) {
+  final wanted = option.trim().toLowerCase();
+  for (final style in GuideRidingStyle.values) {
+    if (allLocalizations.any((l10n) => style.label(l10n).toLowerCase() == wanted)) return style;
+  }
+  return null;
 }

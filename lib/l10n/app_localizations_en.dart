@@ -9060,4 +9060,426 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskTemplateShiftCableReplaceName => 'Replace shift cable';
+
+  @override
+  String get adjustmentTemplateFlipchipName => 'Flipchip';
+
+  @override
+  String get adjustmentTemplateFlipchipNotes => 'Controls geometry and bottom bracket height';
+
+  @override
+  String get adjustmentTemplateChainstayLengthName => 'Chainstay Length';
+
+  @override
+  String get adjustmentTemplateChainstayLengthNotes => 'Some bikes have an adjustable chainstay length';
+
+  @override
+  String get adjustmentTemplateOptionLow => 'Low';
+
+  @override
+  String get adjustmentTemplateOptionMid => 'Mid';
+
+  @override
+  String get adjustmentTemplateOptionHigh => 'High';
+
+  @override
+  String get adjustmentTemplateOptionShort => 'Short';
+
+  @override
+  String get adjustmentTemplateOptionLong => 'Long';
+
+  @override
+  String get adjustmentTemplateLockoutName => 'Lockout';
+
+  @override
+  String get adjustmentTemplateLockoutNotes => 'Is the lockout lever enabled?';
+
+  @override
+  String get adjustmentTemplatePressureName => 'Pressure';
+
+  @override
+  String get adjustmentTemplateForkPressureNotes => 'Fork air pressure';
+
+  @override
+  String get adjustmentTemplateShockPressureNotes => 'Shock air pressure';
+
+  @override
+  String get adjustmentTemplateSpringRateName => 'Spring Rate';
+
+  @override
+  String get adjustmentTemplateSpringRateNotes => 'Coil spring rate';
+
+  @override
+  String get adjustmentTemplateSagName => 'SAG';
+
+  @override
+  String get adjustmentTemplateForkSagNotes =>
+      'Travel used with you and your gear on the bike in riding position. Targets: XC 15%, Trail 15-20%, Enduro 20%, DH 20-25%';
+
+  @override
+  String get adjustmentTemplateShockSagNotes =>
+      'Travel used with you and your gear on the bike in riding position. Targets: XC 20-25%, Trail 25-30%, Enduro 30%, DH 30-35%';
+
+  @override
+  String get adjustmentTemplateReboundName => 'Rebound';
+
+  @override
+  String get adjustmentTemplateReboundNotes => 'Rebound clicks';
+
+  @override
+  String get adjustmentTemplateCompressionName => 'Compression';
+
+  @override
+  String get adjustmentTemplateCompressionNotes => 'Compression clicks';
+
+  @override
+  String get adjustmentTemplateLsrName => 'LSR';
+
+  @override
+  String get adjustmentTemplateLsrNotes => 'Low Speed Rebound clicks';
+
+  @override
+  String get adjustmentTemplateHsrName => 'HSR';
+
+  @override
+  String get adjustmentTemplateHsrNotes => 'High Speed Rebound clicks';
+
+  @override
+  String get adjustmentTemplateLscName => 'LSC';
+
+  @override
+  String get adjustmentTemplateLscNotes => 'Low Speed Compression clicks';
+
+  @override
+  String get adjustmentTemplateHscName => 'HSC';
+
+  @override
+  String get adjustmentTemplateHscNotes => 'High Speed Compression clicks';
+
+  @override
+  String get adjustmentTemplateVolumeSpacersName => 'Volume Spacers';
+
+  @override
+  String get adjustmentTemplateVolumeSpacersNotes => 'Number of volume spacers installed in the air spring';
+
+  @override
+  String get adjustmentTemplateBarRollName => 'Bar Roll';
+
+  @override
+  String get adjustmentTemplateBarRollNotes => 'Angle of handlebars in degrees';
+
+  @override
+  String get adjustmentTemplateBarWidthName => 'Bar Width';
+
+  @override
+  String get adjustmentTemplateBarWidthNotes => 'Total width of handlebars';
+
+  @override
+  String get adjustmentTemplateBarRiseName => 'Bar Rise';
+
+  @override
+  String get adjustmentTemplateBarRiseNotes =>
+      'The vertical distance between the center of the clamp area and the center of the bar ends.';
+
+  @override
+  String get adjustmentTemplateStemLengthName => 'Stem Length';
+
+  @override
+  String get adjustmentTemplateStemLengthNotes =>
+      'Measured center-to-center from the fork steerer tube to the handlebar clamp.';
+
+  @override
+  String get adjustmentTemplateStemAngleName => 'Stem Angle';
+
+  @override
+  String get adjustmentTemplateStemAngleNotes => 'Angle of the stem relative to the steering column';
+
+  @override
+  String get adjustmentTemplateStackSpacersName => 'Stack Spacers';
+
+  @override
+  String get adjustmentTemplateStackSpacersNotes => 'Height of spacers under the stem';
+
+  @override
+  String get adjustmentTemplateGripRotationName => 'Rotation';
+
+  @override
+  String get adjustmentTemplateGripRotationNotes => 'Rotation angle for ergonomic or asymmetric grips';
+
+  @override
+  String get adjustmentTemplateLateralPositionName => 'Lateral Position';
+
+  @override
+  String get adjustmentTemplateShifterLateralPositionNotes => 'Distance from the grip to the shifter clamp';
+
+  @override
+  String get adjustmentTemplateAngleName => 'Angle';
+
+  @override
+  String get adjustmentTemplateShifterAngleNotes => 'Angle of the shifter relative to the horizontal';
+
+  @override
+  String get adjustmentTemplateClutchName => 'Clutch';
+
+  @override
+  String get adjustmentTemplateClutchNotes => 'Is the derailleur clutch/stabilizer enabled?';
+
+  @override
+  String get adjustmentTemplateClutchTensionName => 'Clutch Tension';
+
+  @override
+  String get adjustmentTemplateClutchTensionNotes => 'Adjustable clutch tension for some derailleurs';
+
+  @override
+  String get adjustmentTemplateOptionSoft => 'Soft';
+
+  @override
+  String get adjustmentTemplateOptionMedium => 'Medium';
+
+  @override
+  String get adjustmentTemplateOptionHard => 'Hard';
+
+  @override
+  String get adjustmentTemplateClipSpringTensionName => 'Clipless Spring Tension';
+
+  @override
+  String get adjustmentTemplateClipSpringTensionNotes => 'Release tension setting for clipless pedals';
+
+  @override
+  String get adjustmentTemplatePinArrangementName => 'Pin Arrangement';
+
+  @override
+  String get adjustmentTemplatePinArrangementNotes => 'Pattern and arrangement of pins on platform pedals';
+
+  @override
+  String get adjustmentTemplateOptionFull => 'Full';
+
+  @override
+  String get adjustmentTemplateOptionAggressive => 'Aggressive';
+
+  @override
+  String get adjustmentTemplateOptionBalanced => 'Balanced';
+
+  @override
+  String get adjustmentTemplateOptionMinimum => 'Minimum';
+
+  @override
+  String get adjustmentTemplatePinHeightName => 'Pin Height';
+
+  @override
+  String get adjustmentTemplatePinHeightNotes => 'Height of the pins above the pedal platform';
+
+  @override
+  String get adjustmentTemplateLeverReachName => 'Lever Reach';
+
+  @override
+  String get adjustmentTemplateLeverReachNotes => 'Distance from the handlebar to the lever blade';
+
+  @override
+  String get adjustmentTemplateLeverAngleName => 'Lever Angle';
+
+  @override
+  String get adjustmentTemplateLeverAngleNotes => 'Angle of brake levers relative to horizontal (pointing down).';
+
+  @override
+  String get adjustmentTemplateBrakeLeverLateralPositionNotes => 'Distance from the grip to the lever clamp';
+
+  @override
+  String get adjustmentTemplateBitePointName => 'Bite Point';
+
+  @override
+  String get adjustmentTemplateBitePointNotes => 'The distance the lever moves before the pads engage';
+
+  @override
+  String get adjustmentTemplateFrontPressureNotes => 'Front tire pressure';
+
+  @override
+  String get adjustmentTemplateInsertName => 'Insert';
+
+  @override
+  String get adjustmentTemplateInsertNotes => 'Tire insert installed?';
+
+  @override
+  String get adjustmentTemplateWearName => 'Wear';
+
+  @override
+  String get adjustmentTemplateWearNotes => 'Current state of the tire tread';
+
+  @override
+  String get adjustmentTemplateOptionNew => 'New';
+
+  @override
+  String get adjustmentTemplateOptionUsed => 'Used';
+
+  @override
+  String get adjustmentTemplateOptionWornOut => 'Worn Out';
+
+  @override
+  String get adjustmentTemplateTirePressureName => 'Tire Pressure';
+
+  @override
+  String get adjustmentTemplateRearPressureNotes => 'Rear tire pressure';
+
+  @override
+  String get adjustmentTemplateTireWearName => 'Tire Wear';
+
+  @override
+  String get adjustmentTemplateTirePressureNotes => 'Tire pressure';
+
+  @override
+  String get adjustmentTemplateSaddleTiltName => 'Saddle Tilt';
+
+  @override
+  String get adjustmentTemplateSaddleTiltNotes => 'Angle of the saddle relative to horizontal';
+
+  @override
+  String get adjustmentTemplateSaddleForeAftName => 'Saddle Fore/Aft';
+
+  @override
+  String get adjustmentTemplateSaddleForeAftNotes => 'Position of the saddle on the rails';
+
+  @override
+  String get adjustmentTemplateSaddleHeightName => 'Saddle Height';
+
+  @override
+  String get adjustmentTemplateSaddleHeightNotes => 'Distance from Bottom Bracket to top of saddle';
+
+  @override
+  String get adjustmentTemplateDropperPressureName => 'Dropper Pressure';
+
+  @override
+  String get adjustmentTemplateDropperPressureNotes => 'Air pressure for the dropper post return';
+
+  @override
+  String get adjustmentTemplateMaxPowerName => 'Max Power';
+
+  @override
+  String get adjustmentTemplateMaxPowerNotes => 'Maximum motor power output';
+
+  @override
+  String get adjustmentTemplateMaxTorqueName => 'Max Torque';
+
+  @override
+  String get adjustmentTemplateMaxTorqueNotes => 'Maximum motor torque';
+
+  @override
+  String get adjustmentTemplateModeName => 'Mode';
+
+  @override
+  String get adjustmentTemplateModeNotes => 'Current assistance level';
+
+  @override
+  String get adjustmentTemplateOptionEco => 'Eco';
+
+  @override
+  String get adjustmentTemplateOptionTrail => 'Trail';
+
+  @override
+  String get adjustmentTemplateOptionTurbo => 'Turbo';
+
+  @override
+  String get adjustmentTemplateOptionBoost => 'Boost';
+
+  @override
+  String get adjustmentTemplateOptionAuto => 'Auto';
+
+  @override
+  String get adjustmentTemplateBackpackName => 'Backpack';
+
+  @override
+  String get adjustmentTemplateBackpackNotes => 'Wearing a backpack? Yes/No';
+
+  @override
+  String get adjustmentTemplateUpperLayer1Name => 'Upper clothing layer 1';
+
+  @override
+  String get adjustmentTemplateUpperLayer1Notes => 'First clothing layer from inside (e.g. thermal shirt, ...)';
+
+  @override
+  String get adjustmentTemplateUpperLayer2Name => 'Upper clothing layer 2';
+
+  @override
+  String get adjustmentTemplateUpperLayer2Notes => 'Second clothing layer from inside (e.g. wind jacket, ...)';
+
+  @override
+  String get adjustmentTemplateOptionClothingA => 'my Clothing Item A';
+
+  @override
+  String get adjustmentTemplateOptionClothingB => 'my Clothing Item B';
+
+  @override
+  String get adjustmentTemplateCleatPositionName => 'Cleat Position';
+
+  @override
+  String get adjustmentTemplateCleatPositionNotes => 'Shoe cleat fore/aft or lateral position';
+
+  @override
+  String get adjustmentTemplateOptionForward => 'Forward';
+
+  @override
+  String get adjustmentTemplateOptionNeutral => 'Neutral';
+
+  @override
+  String get adjustmentTemplateOptionRearward => 'Rearward';
+
+  @override
+  String get adjustmentTemplateStackHeightName => 'Stack Height';
+
+  @override
+  String get riderTemplateRidingWeightName => 'Riding weight';
+
+  @override
+  String get riderTemplateRidingWeightNotes => 'Weight including all gear (helmet, shoes, hydration pack).';
+
+  @override
+  String get riderTemplateHeightName => 'Height';
+
+  @override
+  String get riderTemplateHeightNotes => 'Body height';
+
+  @override
+  String get riderTemplateInseamName => 'Inseam';
+
+  @override
+  String get riderTemplateInseamNotes => 'Crotch to floor, barefoot. Helps with dropper post length and saddle height.';
+
+  @override
+  String get riderTemplateFtpName => 'FTP';
+
+  @override
+  String get riderTemplateFtpNotes =>
+      'Functional Threshold Power: the highest power you can sustain for about one hour.';
+
+  @override
+  String get riderTemplateMaxHeartRateName => 'Max heart rate';
+
+  @override
+  String get riderTemplateMaxHeartRateNotes =>
+      'Highest heart rate reached in an all-out effort. Basis for heart rate zones.';
+
+  @override
+  String get riderTemplateRestingHeartRateName => 'Resting heart rate';
+
+  @override
+  String get riderTemplateRestingHeartRateNotes => 'Heart rate at rest, ideally measured right after waking up.';
+
+  @override
+  String get riderTemplateLthrName => 'LTHR';
+
+  @override
+  String get riderTemplateLthrNotes =>
+      'Lactate Threshold Heart Rate: the average heart rate you can sustain for about one hour.';
+
+  @override
+  String get riderTemplateRidingStyleName => 'Riding style';
+
+  @override
+  String get riderTemplateRidingStyleNotes =>
+      'Race-oriented riders usually require higher support (more compression damping).';
+
+  @override
+  String get adjustmentTemplateOptionComfort => 'Comfort';
+
+  @override
+  String get adjustmentTemplateOptionRace => 'Race';
 }

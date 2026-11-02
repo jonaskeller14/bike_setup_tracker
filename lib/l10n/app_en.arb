@@ -12225,5 +12225,557 @@
   "taskTemplateShiftCableReplaceName": "Replace shift cable",
   "@taskTemplateShiftCableReplaceName": {
     "description": "Name of the recommended task shift_cable:replace. It becomes the name of the task rule, which is stored as written."
+  },
+  "adjustmentTemplateFlipchipName": "Flipchip",
+  "@adjustmentTemplateFlipchipName": {
+    "description": "Name of the adjustment template frame:flipchip. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateFlipchipNotes": "Controls geometry and bottom bracket height",
+  "@adjustmentTemplateFlipchipNotes": {
+    "description": "Note of the adjustment template frame:flipchip. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateChainstayLengthName": "Chainstay Length",
+  "@adjustmentTemplateChainstayLengthName": {
+    "description": "Name of the adjustment template frame:chainstay_length. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateChainstayLengthNotes": "Some bikes have an adjustable chainstay length",
+  "@adjustmentTemplateChainstayLengthNotes": {
+    "description": "Note of the adjustment template frame:chainstay_length. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateOptionLow": "Low",
+  "@adjustmentTemplateOptionLow": {
+    "description": "Option of the categorical template frame:flipchip. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionMid": "Mid",
+  "@adjustmentTemplateOptionMid": {
+    "description": "Option of the categorical template frame:flipchip, frame:chainstay_length. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionHigh": "High",
+  "@adjustmentTemplateOptionHigh": {
+    "description": "Option of the categorical template frame:flipchip. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionShort": "Short",
+  "@adjustmentTemplateOptionShort": {
+    "description": "Option of the categorical template frame:chainstay_length. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionLong": "Long",
+  "@adjustmentTemplateOptionLong": {
+    "description": "Option of the categorical template frame:chainstay_length. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateLockoutName": "Lockout",
+  "@adjustmentTemplateLockoutName": {
+    "description": "Name of the adjustment template fork:lockout, shock:lockout. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateLockoutNotes": "Is the lockout lever enabled?",
+  "@adjustmentTemplateLockoutNotes": {
+    "description": "Note of the adjustment template fork:lockout, shock:lockout. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplatePressureName": "Pressure",
+  "@adjustmentTemplatePressureName": {
+    "description": "Name of the adjustment template fork:pressure, shock:pressure, wheel_front:pressure, tire:pressure. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateForkPressureNotes": "Fork air pressure",
+  "@adjustmentTemplateForkPressureNotes": {
+    "description": "Note of the adjustment template fork:pressure. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateShockPressureNotes": "Shock air pressure",
+  "@adjustmentTemplateShockPressureNotes": {
+    "description": "Note of the adjustment template shock:pressure. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateSpringRateName": "Spring Rate",
+  "@adjustmentTemplateSpringRateName": {
+    "description": "Name of the adjustment template shock:spring_rate. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateSpringRateNotes": "Coil spring rate",
+  "@adjustmentTemplateSpringRateNotes": {
+    "description": "Note of the adjustment template shock:spring_rate. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateSagName": "SAG",
+  "@adjustmentTemplateSagName": {
+    "description": "Name of the adjustment template fork:sag, shock:sag. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateForkSagNotes": "Travel used with you and your gear on the bike in riding position. Targets: XC 15%, Trail 15-20%, Enduro 20%, DH 20-25%",
+  "@adjustmentTemplateForkSagNotes": {
+    "description": "Note of the adjustment template fork:sag. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateShockSagNotes": "Travel used with you and your gear on the bike in riding position. Targets: XC 20-25%, Trail 25-30%, Enduro 30%, DH 30-35%",
+  "@adjustmentTemplateShockSagNotes": {
+    "description": "Note of the adjustment template shock:sag. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateReboundName": "Rebound",
+  "@adjustmentTemplateReboundName": {
+    "description": "Name of the adjustment template fork:rebound, shock:rebound. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateReboundNotes": "Rebound clicks",
+  "@adjustmentTemplateReboundNotes": {
+    "description": "Note of the adjustment template fork:rebound, shock:rebound. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateCompressionName": "Compression",
+  "@adjustmentTemplateCompressionName": {
+    "description": "Name of the adjustment template fork:compression, shock:compression. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateCompressionNotes": "Compression clicks",
+  "@adjustmentTemplateCompressionNotes": {
+    "description": "Note of the adjustment template fork:compression, shock:compression. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateLsrName": "LSR",
+  "@adjustmentTemplateLsrName": {
+    "description": "Name of the adjustment template fork:lsr, shock:lsr. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateLsrNotes": "Low Speed Rebound clicks",
+  "@adjustmentTemplateLsrNotes": {
+    "description": "Note of the adjustment template fork:lsr, shock:lsr. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateHsrName": "HSR",
+  "@adjustmentTemplateHsrName": {
+    "description": "Name of the adjustment template fork:hsr, shock:hsr. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateHsrNotes": "High Speed Rebound clicks",
+  "@adjustmentTemplateHsrNotes": {
+    "description": "Note of the adjustment template fork:hsr, shock:hsr. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateLscName": "LSC",
+  "@adjustmentTemplateLscName": {
+    "description": "Name of the adjustment template fork:lsc, shock:lsc. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateLscNotes": "Low Speed Compression clicks",
+  "@adjustmentTemplateLscNotes": {
+    "description": "Note of the adjustment template fork:lsc, shock:lsc. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateHscName": "HSC",
+  "@adjustmentTemplateHscName": {
+    "description": "Name of the adjustment template fork:hsc, shock:hsc. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateHscNotes": "High Speed Compression clicks",
+  "@adjustmentTemplateHscNotes": {
+    "description": "Note of the adjustment template fork:hsc, shock:hsc. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateVolumeSpacersName": "Volume Spacers",
+  "@adjustmentTemplateVolumeSpacersName": {
+    "description": "Name of the adjustment template fork:volume_spacers, shock:volume_spacers. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateVolumeSpacersNotes": "Number of volume spacers installed in the air spring",
+  "@adjustmentTemplateVolumeSpacersNotes": {
+    "description": "Note of the adjustment template fork:volume_spacers, shock:volume_spacers. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateBarRollName": "Bar Roll",
+  "@adjustmentTemplateBarRollName": {
+    "description": "Name of the adjustment template cockpit:bar_roll. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateBarRollNotes": "Angle of handlebars in degrees",
+  "@adjustmentTemplateBarRollNotes": {
+    "description": "Note of the adjustment template cockpit:bar_roll. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateBarWidthName": "Bar Width",
+  "@adjustmentTemplateBarWidthName": {
+    "description": "Name of the adjustment template cockpit:bar_width. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateBarWidthNotes": "Total width of handlebars",
+  "@adjustmentTemplateBarWidthNotes": {
+    "description": "Note of the adjustment template cockpit:bar_width. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateBarRiseName": "Bar Rise",
+  "@adjustmentTemplateBarRiseName": {
+    "description": "Name of the adjustment template cockpit:bar_rise. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateBarRiseNotes": "The vertical distance between the center of the clamp area and the center of the bar ends.",
+  "@adjustmentTemplateBarRiseNotes": {
+    "description": "Note of the adjustment template cockpit:bar_rise. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateStemLengthName": "Stem Length",
+  "@adjustmentTemplateStemLengthName": {
+    "description": "Name of the adjustment template stem:stem_length. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateStemLengthNotes": "Measured center-to-center from the fork steerer tube to the handlebar clamp.",
+  "@adjustmentTemplateStemLengthNotes": {
+    "description": "Note of the adjustment template stem:stem_length. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateStemAngleName": "Stem Angle",
+  "@adjustmentTemplateStemAngleName": {
+    "description": "Name of the adjustment template stem:stem_angle. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateStemAngleNotes": "Angle of the stem relative to the steering column",
+  "@adjustmentTemplateStemAngleNotes": {
+    "description": "Note of the adjustment template stem:stem_angle. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateStackSpacersName": "Stack Spacers",
+  "@adjustmentTemplateStackSpacersName": {
+    "description": "Name of the adjustment template stem:stack_spacers. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateStackSpacersNotes": "Height of spacers under the stem",
+  "@adjustmentTemplateStackSpacersNotes": {
+    "description": "Note of the adjustment template stem:stack_spacers, other:stack_height. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateGripRotationName": "Rotation",
+  "@adjustmentTemplateGripRotationName": {
+    "description": "Name of the adjustment template grip:rotation. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateGripRotationNotes": "Rotation angle for ergonomic or asymmetric grips",
+  "@adjustmentTemplateGripRotationNotes": {
+    "description": "Note of the adjustment template grip:rotation. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateLateralPositionName": "Lateral Position",
+  "@adjustmentTemplateLateralPositionName": {
+    "description": "Name of the adjustment template shifter:lateral_position, brake_lever:lateral_position. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateShifterLateralPositionNotes": "Distance from the grip to the shifter clamp",
+  "@adjustmentTemplateShifterLateralPositionNotes": {
+    "description": "Note of the adjustment template shifter:lateral_position. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateAngleName": "Angle",
+  "@adjustmentTemplateAngleName": {
+    "description": "Name of the adjustment template shifter:angle. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateShifterAngleNotes": "Angle of the shifter relative to the horizontal",
+  "@adjustmentTemplateShifterAngleNotes": {
+    "description": "Note of the adjustment template shifter:angle. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateClutchName": "Clutch",
+  "@adjustmentTemplateClutchName": {
+    "description": "Name of the adjustment template derailleur:clutch. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateClutchNotes": "Is the derailleur clutch/stabilizer enabled?",
+  "@adjustmentTemplateClutchNotes": {
+    "description": "Note of the adjustment template derailleur:clutch. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateClutchTensionName": "Clutch Tension",
+  "@adjustmentTemplateClutchTensionName": {
+    "description": "Name of the adjustment template derailleur:clutch_tension. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateClutchTensionNotes": "Adjustable clutch tension for some derailleurs",
+  "@adjustmentTemplateClutchTensionNotes": {
+    "description": "Note of the adjustment template derailleur:clutch_tension. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateOptionSoft": "Soft",
+  "@adjustmentTemplateOptionSoft": {
+    "description": "Option of the categorical template derailleur:clutch_tension. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionMedium": "Medium",
+  "@adjustmentTemplateOptionMedium": {
+    "description": "Option of the categorical template derailleur:clutch_tension. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionHard": "Hard",
+  "@adjustmentTemplateOptionHard": {
+    "description": "Option of the categorical template derailleur:clutch_tension. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateClipSpringTensionName": "Clipless Spring Tension",
+  "@adjustmentTemplateClipSpringTensionName": {
+    "description": "Name of the adjustment template pedal:spring_tension. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateClipSpringTensionNotes": "Release tension setting for clipless pedals",
+  "@adjustmentTemplateClipSpringTensionNotes": {
+    "description": "Note of the adjustment template pedal:spring_tension. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplatePinArrangementName": "Pin Arrangement",
+  "@adjustmentTemplatePinArrangementName": {
+    "description": "Name of the adjustment template pedal:pin_arrangement. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplatePinArrangementNotes": "Pattern and arrangement of pins on platform pedals",
+  "@adjustmentTemplatePinArrangementNotes": {
+    "description": "Note of the adjustment template pedal:pin_arrangement. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateOptionFull": "Full",
+  "@adjustmentTemplateOptionFull": {
+    "description": "Option of the categorical template pedal:pin_arrangement. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionAggressive": "Aggressive",
+  "@adjustmentTemplateOptionAggressive": {
+    "description": "Option of the categorical template pedal:pin_arrangement. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionBalanced": "Balanced",
+  "@adjustmentTemplateOptionBalanced": {
+    "description": "Option of the categorical template pedal:pin_arrangement, person:riding_style. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionMinimum": "Minimum",
+  "@adjustmentTemplateOptionMinimum": {
+    "description": "Option of the categorical template pedal:pin_arrangement. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplatePinHeightName": "Pin Height",
+  "@adjustmentTemplatePinHeightName": {
+    "description": "Name of the adjustment template pedal:pin_height. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplatePinHeightNotes": "Height of the pins above the pedal platform",
+  "@adjustmentTemplatePinHeightNotes": {
+    "description": "Note of the adjustment template pedal:pin_height. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateLeverReachName": "Lever Reach",
+  "@adjustmentTemplateLeverReachName": {
+    "description": "Name of the adjustment template brake_lever:lever_reach. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateLeverReachNotes": "Distance from the handlebar to the lever blade",
+  "@adjustmentTemplateLeverReachNotes": {
+    "description": "Note of the adjustment template brake_lever:lever_reach. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateLeverAngleName": "Lever Angle",
+  "@adjustmentTemplateLeverAngleName": {
+    "description": "Name of the adjustment template brake_lever:lever_angle. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateLeverAngleNotes": "Angle of brake levers relative to horizontal (pointing down).",
+  "@adjustmentTemplateLeverAngleNotes": {
+    "description": "Note of the adjustment template brake_lever:lever_angle. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateBrakeLeverLateralPositionNotes": "Distance from the grip to the lever clamp",
+  "@adjustmentTemplateBrakeLeverLateralPositionNotes": {
+    "description": "Note of the adjustment template brake_lever:lateral_position. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateBitePointName": "Bite Point",
+  "@adjustmentTemplateBitePointName": {
+    "description": "Name of the adjustment template brake_lever:bite_point. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateBitePointNotes": "The distance the lever moves before the pads engage",
+  "@adjustmentTemplateBitePointNotes": {
+    "description": "Note of the adjustment template brake_lever:bite_point. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateFrontPressureNotes": "Front tire pressure",
+  "@adjustmentTemplateFrontPressureNotes": {
+    "description": "Note of the adjustment template wheel_front:pressure. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateInsertName": "Insert",
+  "@adjustmentTemplateInsertName": {
+    "description": "Name of the adjustment template wheel_front:insert, wheel_rear:insert. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateInsertNotes": "Tire insert installed?",
+  "@adjustmentTemplateInsertNotes": {
+    "description": "Note of the adjustment template wheel_front:insert, wheel_rear:insert. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateWearName": "Wear",
+  "@adjustmentTemplateWearName": {
+    "description": "Name of the adjustment template wheel_front:wear, tire:wear. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateWearNotes": "Current state of the tire tread",
+  "@adjustmentTemplateWearNotes": {
+    "description": "Note of the adjustment template wheel_front:wear, wheel_rear:tire_wear, tire:wear. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateOptionNew": "New",
+  "@adjustmentTemplateOptionNew": {
+    "description": "Option of the categorical template wheel_front:wear, wheel_rear:tire_wear, tire:wear. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionUsed": "Used",
+  "@adjustmentTemplateOptionUsed": {
+    "description": "Option of the categorical template wheel_front:wear, wheel_rear:tire_wear, tire:wear. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionWornOut": "Worn Out",
+  "@adjustmentTemplateOptionWornOut": {
+    "description": "Option of the categorical template wheel_front:wear, wheel_rear:tire_wear, tire:wear. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateTirePressureName": "Tire Pressure",
+  "@adjustmentTemplateTirePressureName": {
+    "description": "Name of the adjustment template wheel_rear:tire_pressure. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateRearPressureNotes": "Rear tire pressure",
+  "@adjustmentTemplateRearPressureNotes": {
+    "description": "Note of the adjustment template wheel_rear:tire_pressure. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateTireWearName": "Tire Wear",
+  "@adjustmentTemplateTireWearName": {
+    "description": "Name of the adjustment template wheel_rear:tire_wear. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateTirePressureNotes": "Tire pressure",
+  "@adjustmentTemplateTirePressureNotes": {
+    "description": "Note of the adjustment template tire:pressure. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateSaddleTiltName": "Saddle Tilt",
+  "@adjustmentTemplateSaddleTiltName": {
+    "description": "Name of the adjustment template saddle:saddle_tilt. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateSaddleTiltNotes": "Angle of the saddle relative to horizontal",
+  "@adjustmentTemplateSaddleTiltNotes": {
+    "description": "Note of the adjustment template saddle:saddle_tilt. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateSaddleForeAftName": "Saddle Fore/Aft",
+  "@adjustmentTemplateSaddleForeAftName": {
+    "description": "Name of the adjustment template saddle:saddle_fore_aft. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateSaddleForeAftNotes": "Position of the saddle on the rails",
+  "@adjustmentTemplateSaddleForeAftNotes": {
+    "description": "Note of the adjustment template saddle:saddle_fore_aft. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateSaddleHeightName": "Saddle Height",
+  "@adjustmentTemplateSaddleHeightName": {
+    "description": "Name of the adjustment template seatpost:saddle_height. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateSaddleHeightNotes": "Distance from Bottom Bracket to top of saddle",
+  "@adjustmentTemplateSaddleHeightNotes": {
+    "description": "Note of the adjustment template seatpost:saddle_height. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateDropperPressureName": "Dropper Pressure",
+  "@adjustmentTemplateDropperPressureName": {
+    "description": "Name of the adjustment template seatpost:dropper_pressure. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateDropperPressureNotes": "Air pressure for the dropper post return",
+  "@adjustmentTemplateDropperPressureNotes": {
+    "description": "Note of the adjustment template seatpost:dropper_pressure. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateMaxPowerName": "Max Power",
+  "@adjustmentTemplateMaxPowerName": {
+    "description": "Name of the adjustment template motor:max_power. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateMaxPowerNotes": "Maximum motor power output",
+  "@adjustmentTemplateMaxPowerNotes": {
+    "description": "Note of the adjustment template motor:max_power. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateMaxTorqueName": "Max Torque",
+  "@adjustmentTemplateMaxTorqueName": {
+    "description": "Name of the adjustment template motor:max_torque. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateMaxTorqueNotes": "Maximum motor torque",
+  "@adjustmentTemplateMaxTorqueNotes": {
+    "description": "Note of the adjustment template motor:max_torque. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateModeName": "Mode",
+  "@adjustmentTemplateModeName": {
+    "description": "Name of the adjustment template motor:mode. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateModeNotes": "Current assistance level",
+  "@adjustmentTemplateModeNotes": {
+    "description": "Note of the adjustment template motor:mode. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateOptionEco": "Eco",
+  "@adjustmentTemplateOptionEco": {
+    "description": "Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionTrail": "Trail",
+  "@adjustmentTemplateOptionTrail": {
+    "description": "Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionTurbo": "Turbo",
+  "@adjustmentTemplateOptionTurbo": {
+    "description": "Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionBoost": "Boost",
+  "@adjustmentTemplateOptionBoost": {
+    "description": "Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionAuto": "Auto",
+  "@adjustmentTemplateOptionAuto": {
+    "description": "Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateBackpackName": "Backpack",
+  "@adjustmentTemplateBackpackName": {
+    "description": "Name of the adjustment template equipment:backpack. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateBackpackNotes": "Wearing a backpack? Yes/No",
+  "@adjustmentTemplateBackpackNotes": {
+    "description": "Note of the adjustment template equipment:backpack. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateUpperLayer1Name": "Upper clothing layer 1",
+  "@adjustmentTemplateUpperLayer1Name": {
+    "description": "Name of the adjustment template equipment:upper_clothing_1. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateUpperLayer1Notes": "First clothing layer from inside (e.g. thermal shirt, ...)",
+  "@adjustmentTemplateUpperLayer1Notes": {
+    "description": "Note of the adjustment template equipment:upper_clothing_1. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateUpperLayer2Name": "Upper clothing layer 2",
+  "@adjustmentTemplateUpperLayer2Name": {
+    "description": "Name of the adjustment template equipment:upper_clothing_2. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateUpperLayer2Notes": "Second clothing layer from inside (e.g. wind jacket, ...)",
+  "@adjustmentTemplateUpperLayer2Notes": {
+    "description": "Note of the adjustment template equipment:upper_clothing_2. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateOptionClothingA": "my Clothing Item A",
+  "@adjustmentTemplateOptionClothingA": {
+    "description": "Option of the categorical template equipment:upper_clothing_1, equipment:upper_clothing_2. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionClothingB": "my Clothing Item B",
+  "@adjustmentTemplateOptionClothingB": {
+    "description": "Option of the categorical template equipment:upper_clothing_1, equipment:upper_clothing_2. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateCleatPositionName": "Cleat Position",
+  "@adjustmentTemplateCleatPositionName": {
+    "description": "Name of the adjustment template equipment:cleat_position. It becomes the name of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateCleatPositionNotes": "Shoe cleat fore/aft or lateral position",
+  "@adjustmentTemplateCleatPositionNotes": {
+    "description": "Note of the adjustment template equipment:cleat_position. It is stored with the adjustment as written."
+  },
+  "adjustmentTemplateOptionForward": "Forward",
+  "@adjustmentTemplateOptionForward": {
+    "description": "Option of the categorical template equipment:cleat_position. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionNeutral": "Neutral",
+  "@adjustmentTemplateOptionNeutral": {
+    "description": "Option of the categorical template equipment:cleat_position. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionRearward": "Rearward",
+  "@adjustmentTemplateOptionRearward": {
+    "description": "Option of the categorical template equipment:cleat_position. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateStackHeightName": "Stack Height",
+  "@adjustmentTemplateStackHeightName": {
+    "description": "Name of the adjustment template other:stack_height. It becomes the name of the adjustment, which is stored as written."
+  },
+  "riderTemplateRidingWeightName": "Riding weight",
+  "@riderTemplateRidingWeightName": {
+    "description": "Name of the rider attribute template person:riding_weight. It becomes the name of the rider attribute, which is stored as written."
+  },
+  "riderTemplateRidingWeightNotes": "Weight including all gear (helmet, shoes, hydration pack).",
+  "@riderTemplateRidingWeightNotes": {
+    "description": "Note of the rider attribute template person:riding_weight. It is stored with the rider attribute as written."
+  },
+  "riderTemplateHeightName": "Height",
+  "@riderTemplateHeightName": {
+    "description": "Name of the rider attribute template person:height. It becomes the name of the rider attribute, which is stored as written."
+  },
+  "riderTemplateHeightNotes": "Body height",
+  "@riderTemplateHeightNotes": {
+    "description": "Note of the rider attribute template person:height. It is stored with the rider attribute as written."
+  },
+  "riderTemplateInseamName": "Inseam",
+  "@riderTemplateInseamName": {
+    "description": "Name of the rider attribute template person:inseam. It becomes the name of the rider attribute, which is stored as written."
+  },
+  "riderTemplateInseamNotes": "Crotch to floor, barefoot. Helps with dropper post length and saddle height.",
+  "@riderTemplateInseamNotes": {
+    "description": "Note of the rider attribute template person:inseam. It is stored with the rider attribute as written."
+  },
+  "riderTemplateFtpName": "FTP",
+  "@riderTemplateFtpName": {
+    "description": "Name of the rider attribute template person:ftp. It becomes the name of the rider attribute, which is stored as written."
+  },
+  "riderTemplateFtpNotes": "Functional Threshold Power: the highest power you can sustain for about one hour.",
+  "@riderTemplateFtpNotes": {
+    "description": "Note of the rider attribute template person:ftp. It is stored with the rider attribute as written."
+  },
+  "riderTemplateMaxHeartRateName": "Max heart rate",
+  "@riderTemplateMaxHeartRateName": {
+    "description": "Name of the rider attribute template person:max_heart_rate. It becomes the name of the rider attribute, which is stored as written."
+  },
+  "riderTemplateMaxHeartRateNotes": "Highest heart rate reached in an all-out effort. Basis for heart rate zones.",
+  "@riderTemplateMaxHeartRateNotes": {
+    "description": "Note of the rider attribute template person:max_heart_rate. It is stored with the rider attribute as written."
+  },
+  "riderTemplateRestingHeartRateName": "Resting heart rate",
+  "@riderTemplateRestingHeartRateName": {
+    "description": "Name of the rider attribute template person:resting_heart_rate. It becomes the name of the rider attribute, which is stored as written."
+  },
+  "riderTemplateRestingHeartRateNotes": "Heart rate at rest, ideally measured right after waking up.",
+  "@riderTemplateRestingHeartRateNotes": {
+    "description": "Note of the rider attribute template person:resting_heart_rate. It is stored with the rider attribute as written."
+  },
+  "riderTemplateLthrName": "LTHR",
+  "@riderTemplateLthrName": {
+    "description": "Name of the rider attribute template person:lthr. It becomes the name of the rider attribute, which is stored as written."
+  },
+  "riderTemplateLthrNotes": "Lactate Threshold Heart Rate: the average heart rate you can sustain for about one hour.",
+  "@riderTemplateLthrNotes": {
+    "description": "Note of the rider attribute template person:lthr. It is stored with the rider attribute as written."
+  },
+  "riderTemplateRidingStyleName": "Riding style",
+  "@riderTemplateRidingStyleName": {
+    "description": "Name of the rider attribute template person:riding_style. It becomes the name of the rider attribute, which is stored as written."
+  },
+  "riderTemplateRidingStyleNotes": "Race-oriented riders usually require higher support (more compression damping).",
+  "@riderTemplateRidingStyleNotes": {
+    "description": "Note of the rider attribute template person:riding_style. It is stored with the rider attribute as written."
+  },
+  "adjustmentTemplateOptionComfort": "Comfort",
+  "@adjustmentTemplateOptionComfort": {
+    "description": "Option of the categorical template person:riding_style. It becomes an option of the adjustment, which is stored as written."
+  },
+  "adjustmentTemplateOptionRace": "Race",
+  "@adjustmentTemplateOptionRace": {
+    "description": "Option of the categorical template person:riding_style. It becomes an option of the adjustment, which is stored as written."
   }
 }

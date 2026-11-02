@@ -146,7 +146,7 @@ void main() {
       final sag = _sag(buildCatalogApplication(resolved, englishL10n).adjustments);
 
       expect(sag.referenceTravelMm, 160);
-      expect(sag.notes, kForkSagNotes);
+      expect(sag.notes, englishL10n.adjustmentTemplateForkSagNotes);
     });
 
     test('notes are a dash list of the chosen values and specs, then the setup guide', () {
@@ -250,7 +250,7 @@ void main() {
       expect(_names(app.adjustments), ['Spring Rate', 'SAG', 'Compression Mode']);
       final sag = _sag(app.adjustments);
       expect(sag.referenceTravelMm, 55);
-      expect(sag.notes, kShockSagNotes);
+      expect(sag.notes, englishL10n.adjustmentTemplateShockSagNotes);
       expect(app.preset['size'], '210x55');
     });
 

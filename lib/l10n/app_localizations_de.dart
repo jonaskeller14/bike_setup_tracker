@@ -9117,4 +9117,430 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get taskTemplateShiftCableReplaceName => 'Schaltzug ersetzen';
+
+  @override
+  String get adjustmentTemplateFlipchipName => 'Flipchip';
+
+  @override
+  String get adjustmentTemplateFlipchipNotes => 'Steuert Geometrie und Tretlagerhöhe';
+
+  @override
+  String get adjustmentTemplateChainstayLengthName => 'Kettenstrebenlänge';
+
+  @override
+  String get adjustmentTemplateChainstayLengthNotes => 'Manche Bikes haben eine verstellbare Kettenstrebenlänge';
+
+  @override
+  String get adjustmentTemplateOptionLow => 'Niedrig';
+
+  @override
+  String get adjustmentTemplateOptionMid => 'Mittel';
+
+  @override
+  String get adjustmentTemplateOptionHigh => 'Hoch';
+
+  @override
+  String get adjustmentTemplateOptionShort => 'Kurz';
+
+  @override
+  String get adjustmentTemplateOptionLong => 'Lang';
+
+  @override
+  String get adjustmentTemplateLockoutName => 'Lockout';
+
+  @override
+  String get adjustmentTemplateLockoutNotes => 'Ist der Lockout-Hebel aktiviert?';
+
+  @override
+  String get adjustmentTemplatePressureName => 'Luftdruck';
+
+  @override
+  String get adjustmentTemplateForkPressureNotes => 'Luftdruck der Gabel';
+
+  @override
+  String get adjustmentTemplateShockPressureNotes => 'Luftdruck des Dämpfers';
+
+  @override
+  String get adjustmentTemplateSpringRateName => 'Federrate';
+
+  @override
+  String get adjustmentTemplateSpringRateNotes => 'Federrate der Stahlfeder';
+
+  @override
+  String get adjustmentTemplateSagName => 'SAG';
+
+  @override
+  String get adjustmentTemplateForkSagNotes =>
+      'Genutzter Federweg mit dir und deiner Ausrüstung in Fahrposition auf dem Bike. Richtwerte: XC 15 %, Trail 15–20 %, Enduro 20 %, DH 20–25 %';
+
+  @override
+  String get adjustmentTemplateShockSagNotes =>
+      'Genutzter Federweg mit dir und deiner Ausrüstung in Fahrposition auf dem Bike. Richtwerte: XC 20–25 %, Trail 25–30 %, Enduro 30 %, DH 30–35 %';
+
+  @override
+  String get adjustmentTemplateReboundName => 'Zugstufe';
+
+  @override
+  String get adjustmentTemplateReboundNotes => 'Klicks der Zugstufe';
+
+  @override
+  String get adjustmentTemplateCompressionName => 'Druckstufe';
+
+  @override
+  String get adjustmentTemplateCompressionNotes => 'Klicks der Druckstufe';
+
+  @override
+  String get adjustmentTemplateLsrName => 'LSR';
+
+  @override
+  String get adjustmentTemplateLsrNotes => 'Klicks der Low-Speed-Zugstufe';
+
+  @override
+  String get adjustmentTemplateHsrName => 'HSR';
+
+  @override
+  String get adjustmentTemplateHsrNotes => 'Klicks der High-Speed-Zugstufe';
+
+  @override
+  String get adjustmentTemplateLscName => 'LSC';
+
+  @override
+  String get adjustmentTemplateLscNotes => 'Klicks der Low-Speed-Druckstufe';
+
+  @override
+  String get adjustmentTemplateHscName => 'HSC';
+
+  @override
+  String get adjustmentTemplateHscNotes => 'Klicks der High-Speed-Druckstufe';
+
+  @override
+  String get adjustmentTemplateVolumeSpacersName => 'Volumenspacer';
+
+  @override
+  String get adjustmentTemplateVolumeSpacersNotes => 'Anzahl der Volumenspacer in der Luftkammer';
+
+  @override
+  String get adjustmentTemplateBarRollName => 'Lenkerwinkel';
+
+  @override
+  String get adjustmentTemplateBarRollNotes => 'Winkel des Lenkers in Grad';
+
+  @override
+  String get adjustmentTemplateBarWidthName => 'Lenkerbreite';
+
+  @override
+  String get adjustmentTemplateBarWidthNotes => 'Gesamtbreite des Lenkers';
+
+  @override
+  String get adjustmentTemplateBarRiseName => 'Lenker-Rise';
+
+  @override
+  String get adjustmentTemplateBarRiseNotes =>
+      'Der vertikale Abstand zwischen der Mitte der Klemmfläche und der Mitte der Lenkerenden.';
+
+  @override
+  String get adjustmentTemplateStemLengthName => 'Vorbaulänge';
+
+  @override
+  String get adjustmentTemplateStemLengthNotes =>
+      'Gemessen von der Mitte des Gabelschafts bis zur Mitte der Lenkerklemmung.';
+
+  @override
+  String get adjustmentTemplateStemAngleName => 'Vorbauwinkel';
+
+  @override
+  String get adjustmentTemplateStemAngleNotes => 'Winkel des Vorbaus relativ zum Gabelschaft';
+
+  @override
+  String get adjustmentTemplateStackSpacersName => 'Spacer unter dem Vorbau';
+
+  @override
+  String get adjustmentTemplateStackSpacersNotes => 'Höhe der Spacer unter dem Vorbau';
+
+  @override
+  String get adjustmentTemplateGripRotationName => 'Drehung';
+
+  @override
+  String get adjustmentTemplateGripRotationNotes => 'Drehwinkel für ergonomische oder asymmetrische Griffe';
+
+  @override
+  String get adjustmentTemplateLateralPositionName => 'Seitliche Position';
+
+  @override
+  String get adjustmentTemplateShifterLateralPositionNotes => 'Abstand vom Griff zur Schalthebelklemmung';
+
+  @override
+  String get adjustmentTemplateAngleName => 'Winkel';
+
+  @override
+  String get adjustmentTemplateShifterAngleNotes => 'Winkel des Schalthebels relativ zur Waagerechten';
+
+  @override
+  String get adjustmentTemplateClutchName => 'Kupplung';
+
+  @override
+  String get adjustmentTemplateClutchNotes => 'Ist die Kupplung bzw. der Stabilisator des Schaltwerks aktiviert?';
+
+  @override
+  String get adjustmentTemplateClutchTensionName => 'Kupplungsspannung';
+
+  @override
+  String get adjustmentTemplateClutchTensionNotes => 'Einstellbare Kupplungsspannung bei manchen Schaltwerken';
+
+  @override
+  String get adjustmentTemplateOptionSoft => 'Weich';
+
+  @override
+  String get adjustmentTemplateOptionMedium => 'Mittel';
+
+  @override
+  String get adjustmentTemplateOptionHard => 'Hart';
+
+  @override
+  String get adjustmentTemplateClipSpringTensionName => 'Federspannung der Klickpedale';
+
+  @override
+  String get adjustmentTemplateClipSpringTensionNotes => 'Einstellung der Auslösehärte bei Klickpedalen';
+
+  @override
+  String get adjustmentTemplatePinArrangementName => 'Pin-Anordnung';
+
+  @override
+  String get adjustmentTemplatePinArrangementNotes => 'Muster und Anordnung der Pins an Plattformpedalen';
+
+  @override
+  String get adjustmentTemplateOptionFull => 'Voll';
+
+  @override
+  String get adjustmentTemplateOptionAggressive => 'Aggressiv';
+
+  @override
+  String get adjustmentTemplateOptionBalanced => 'Ausgewogen';
+
+  @override
+  String get adjustmentTemplateOptionMinimum => 'Minimal';
+
+  @override
+  String get adjustmentTemplatePinHeightName => 'Pin-Höhe';
+
+  @override
+  String get adjustmentTemplatePinHeightNotes => 'Höhe der Pins über der Pedalplattform';
+
+  @override
+  String get adjustmentTemplateLeverReachName => 'Hebelweite';
+
+  @override
+  String get adjustmentTemplateLeverReachNotes => 'Abstand vom Lenker zum Bremshebel';
+
+  @override
+  String get adjustmentTemplateLeverAngleName => 'Hebelwinkel';
+
+  @override
+  String get adjustmentTemplateLeverAngleNotes =>
+      'Winkel der Bremshebel relativ zur Waagerechten (nach unten zeigend).';
+
+  @override
+  String get adjustmentTemplateBrakeLeverLateralPositionNotes => 'Abstand vom Griff zur Hebelklemmung';
+
+  @override
+  String get adjustmentTemplateBitePointName => 'Druckpunkt';
+
+  @override
+  String get adjustmentTemplateBitePointNotes => 'Der Hebelweg, bis die Beläge greifen';
+
+  @override
+  String get adjustmentTemplateFrontPressureNotes => 'Luftdruck des Vorderreifens';
+
+  @override
+  String get adjustmentTemplateInsertName => 'Reifen-Insert';
+
+  @override
+  String get adjustmentTemplateInsertNotes => 'Ist ein Reifen-Insert montiert?';
+
+  @override
+  String get adjustmentTemplateWearName => 'Verschleiß';
+
+  @override
+  String get adjustmentTemplateWearNotes => 'Aktueller Zustand des Reifenprofils';
+
+  @override
+  String get adjustmentTemplateOptionNew => 'Neu';
+
+  @override
+  String get adjustmentTemplateOptionUsed => 'Gebraucht';
+
+  @override
+  String get adjustmentTemplateOptionWornOut => 'Abgefahren';
+
+  @override
+  String get adjustmentTemplateTirePressureName => 'Reifendruck';
+
+  @override
+  String get adjustmentTemplateRearPressureNotes => 'Luftdruck des Hinterreifens';
+
+  @override
+  String get adjustmentTemplateTireWearName => 'Reifenverschleiß';
+
+  @override
+  String get adjustmentTemplateTirePressureNotes => 'Luftdruck des Reifens';
+
+  @override
+  String get adjustmentTemplateSaddleTiltName => 'Sattelneigung';
+
+  @override
+  String get adjustmentTemplateSaddleTiltNotes => 'Winkel des Sattels relativ zur Waagerechten';
+
+  @override
+  String get adjustmentTemplateSaddleForeAftName => 'Sattel vor/zurück';
+
+  @override
+  String get adjustmentTemplateSaddleForeAftNotes => 'Position des Sattels auf den Sattelstreben';
+
+  @override
+  String get adjustmentTemplateSaddleHeightName => 'Sattelhöhe';
+
+  @override
+  String get adjustmentTemplateSaddleHeightNotes => 'Abstand vom Tretlager bis zur Oberkante des Sattels';
+
+  @override
+  String get adjustmentTemplateDropperPressureName => 'Druck der Vario-Stütze';
+
+  @override
+  String get adjustmentTemplateDropperPressureNotes => 'Luftdruck für das Ausfahren der Vario-Stütze';
+
+  @override
+  String get adjustmentTemplateMaxPowerName => 'Maximalleistung';
+
+  @override
+  String get adjustmentTemplateMaxPowerNotes => 'Maximale Motorleistung';
+
+  @override
+  String get adjustmentTemplateMaxTorqueName => 'Maximales Drehmoment';
+
+  @override
+  String get adjustmentTemplateMaxTorqueNotes => 'Maximales Drehmoment des Motors';
+
+  @override
+  String get adjustmentTemplateModeName => 'Modus';
+
+  @override
+  String get adjustmentTemplateModeNotes => 'Aktuelle Unterstützungsstufe';
+
+  @override
+  String get adjustmentTemplateOptionEco => 'Eco';
+
+  @override
+  String get adjustmentTemplateOptionTrail => 'Trail';
+
+  @override
+  String get adjustmentTemplateOptionTurbo => 'Turbo';
+
+  @override
+  String get adjustmentTemplateOptionBoost => 'Boost';
+
+  @override
+  String get adjustmentTemplateOptionAuto => 'Auto';
+
+  @override
+  String get adjustmentTemplateBackpackName => 'Rucksack';
+
+  @override
+  String get adjustmentTemplateBackpackNotes => 'Rucksack getragen? Ja/Nein';
+
+  @override
+  String get adjustmentTemplateUpperLayer1Name => 'Oberbekleidung Schicht 1';
+
+  @override
+  String get adjustmentTemplateUpperLayer1Notes => 'Erste Bekleidungsschicht von innen (z. B. Thermoshirt, ...)';
+
+  @override
+  String get adjustmentTemplateUpperLayer2Name => 'Oberbekleidung Schicht 2';
+
+  @override
+  String get adjustmentTemplateUpperLayer2Notes => 'Zweite Bekleidungsschicht von innen (z. B. Windjacke, ...)';
+
+  @override
+  String get adjustmentTemplateOptionClothingA => 'Mein Kleidungsstück A';
+
+  @override
+  String get adjustmentTemplateOptionClothingB => 'Mein Kleidungsstück B';
+
+  @override
+  String get adjustmentTemplateCleatPositionName => 'Cleat-Position';
+
+  @override
+  String get adjustmentTemplateCleatPositionNotes => 'Position der Schuhplatte nach vorn/hinten oder seitlich';
+
+  @override
+  String get adjustmentTemplateOptionForward => 'Vorne';
+
+  @override
+  String get adjustmentTemplateOptionNeutral => 'Neutral';
+
+  @override
+  String get adjustmentTemplateOptionRearward => 'Hinten';
+
+  @override
+  String get adjustmentTemplateStackHeightName => 'Stack-Höhe';
+
+  @override
+  String get riderTemplateRidingWeightName => 'Fahrergewicht';
+
+  @override
+  String get riderTemplateRidingWeightNotes =>
+      'Gewicht inklusive der gesamten Ausrüstung (Helm, Schuhe, Trinkrucksack).';
+
+  @override
+  String get riderTemplateHeightName => 'Körpergröße';
+
+  @override
+  String get riderTemplateHeightNotes => 'Deine Körpergröße';
+
+  @override
+  String get riderTemplateInseamName => 'Schrittlänge';
+
+  @override
+  String get riderTemplateInseamNotes =>
+      'Vom Schritt bis zum Boden, barfuß. Hilft bei der Wahl der Vario-Stützen-Länge und der Sattelhöhe.';
+
+  @override
+  String get riderTemplateFtpName => 'FTP';
+
+  @override
+  String get riderTemplateFtpNotes =>
+      'Functional Threshold Power: die höchste Leistung, die du etwa eine Stunde lang halten kannst.';
+
+  @override
+  String get riderTemplateMaxHeartRateName => 'Maximale Herzfrequenz';
+
+  @override
+  String get riderTemplateMaxHeartRateNotes =>
+      'Höchste Herzfrequenz bei maximaler Anstrengung. Grundlage für die Herzfrequenzzonen.';
+
+  @override
+  String get riderTemplateRestingHeartRateName => 'Ruhepuls';
+
+  @override
+  String get riderTemplateRestingHeartRateNotes =>
+      'Herzfrequenz in Ruhe, am besten direkt nach dem Aufwachen gemessen.';
+
+  @override
+  String get riderTemplateLthrName => 'LTHR';
+
+  @override
+  String get riderTemplateLthrNotes =>
+      'Laktatschwellen-Herzfrequenz (Lactate Threshold Heart Rate): die durchschnittliche Herzfrequenz, die du etwa eine Stunde lang halten kannst.';
+
+  @override
+  String get riderTemplateRidingStyleName => 'Fahrstil';
+
+  @override
+  String get riderTemplateRidingStyleNotes =>
+      'Rennorientierte Rider brauchen meist mehr Gegenhalt (mehr Druckstufendämpfung).';
+
+  @override
+  String get adjustmentTemplateOptionComfort => 'Komfort';
+
+  @override
+  String get adjustmentTemplateOptionRace => 'Race';
 }

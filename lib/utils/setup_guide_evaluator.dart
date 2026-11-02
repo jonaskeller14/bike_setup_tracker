@@ -3,6 +3,7 @@ import 'package:units_converter/units_converter.dart';
 
 import '../l10n/adjustment_value_text.dart';
 import '../l10n/catalog_labels.dart';
+import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component_catalog.dart';
@@ -389,7 +390,7 @@ class _RuleEvaluation {
     if (value == null) throw const _Failure(GuideIssue.missingInput);
     _inputText = switch (input) {
       PresetGuideInput(:final id) => preset.selections[id]!.label,
-      _ => inputs.ridingStyle!.label,
+      _ => inputs.ridingStyle!.label(l10n),
     };
     return value is num ? formatSpecNumber(value) : value;
   }

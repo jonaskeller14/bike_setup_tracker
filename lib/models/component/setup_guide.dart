@@ -56,16 +56,9 @@ class GuideRule {
 /// The rider-side `when:` key and [GuideInputKey.ridingStyle]'s values.
 const String kRidingStyleKey = 'riding_style';
 
-/// Brand vocabularies are mapped onto these in the YAML. [label] is the
-/// matching option of the `person:riding_style` template.
-enum GuideRidingStyle {
-  comfort('Comfort'),
-  balanced('Balanced'),
-  race('Race');
-
-  final String label;
-  const GuideRidingStyle(this.label);
-}
+/// Brand vocabularies are mapped onto these in the YAML. Each is the matching
+/// option of the `person:riding_style` template, see `GuideRidingStyleLabel`.
+enum GuideRidingStyle { comfort, balanced, race }
 
 sealed class GuideInput {
   const GuideInput();

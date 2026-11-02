@@ -62,6 +62,8 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Test session | Testsitzung | |
 | Attribute (rider) | Attribut | An adjustment of a rider: Numerisches Attribut, Textattribut |
 | Template / Preset (adjustments) | Vorlage | Also Komponentenvorlagen, Aufgabenvorlagen |
+| Riding style | Fahrstil | Rider attribute with the options Komfort / Ausgewogen / Race |
+| Inseam | Schrittlänge | Rider attribute |
 | Setup comparison | Setup-Vergleich | |
 | Context (place, weather) | Kontext | Ortskontext, Wetterkontext |
 | Dangling value | Wert ohne Zuordnung | A value whose adjustment, component or rider is no longer part of the setup |
@@ -72,7 +74,7 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Task trigger / Interval / Delay | Auslöser / Intervall / Aufschub | The trigger is the whole setting (type and value). The interval is its recurring amount, the delay postpones it once |
 | Ride (unit of a count trigger) | Fahrt, Fahrten | The unit word after a number, like 5 Fahrten |
 | Link (a task to a bike or component) | Verknüpfen / Verknüpft mit | |
-| Recommended tasks | Empfohlene Aufgaben | The task presets. The templates themselves stay English, see the note below |
+| Recommended tasks | Empfohlene Aufgaben | The task presets. The templates are translated when picked, see the note below |
 | Due now / Upcoming / Completed | Jetzt fällig / Anstehend / Erledigt | Sections of the task list |
 | Remaining / Exceeded | Verbleibend / Überschritten | After the amount, like 12 km verbleibend |
 | Feedback | Feedback | Stays an English loanword. A comparison against another setup is a Vergleich |
@@ -105,7 +107,7 @@ Unit symbols (`km`, `bar`, `°C`) are not translated.
 
 Address is **du** everywhere. A Sie addressing the reader is a bug; `Sie`/`Ihre` meaning "they" is fine.
 
-Preset templates are copied into the user's data when picked, so their text is written in the language of the moment it was picked and stays as written after a language switch (Phase 14). The generic **task templates** (`lib/utils/task_presets.dart`) are translated: `lib/l10n/task_template_texts.dart` looks the name and note up by template key, and a brand-only template or a catalog override keeps its YAML text. The **adjustment templates** of the Add Adjustment sheet and the **rider attribute templates** stay English: their names are mostly established terms (`LSC`, `HSR`, `SAG`, `Flipchip`), and the setup guide and the catalog merge match them by `presetKey` and by the riding style options (`Comfort`, `Balanced`, `Race`), so `GuideRidingStyle.label` echoes the option the rider has stored. The text the app generates around a template, like the `Empfohlenes Intervall: …` line in a task's notes or the note lines of a component created from the catalog (`Modelljahr: …`, `Setup-Anleitung: …`), is written in the language of the moment it was created.
+Preset templates are copied into the user's data when picked, so their text is written in the language of the moment it was picked and stays as written after a language switch (Phase 14). The generic **task templates** (`lib/utils/task_presets.dart`) are translated: `lib/l10n/task_template_texts.dart` looks the name and note up by template key, and a brand-only template or a catalog override keeps its YAML text. The **adjustment templates** of the Add Adjustment sheet and the **rider attribute templates** are translated the same way (`lib/utils/adjustment_presets.dart`, ARB keys `adjustmentTemplate…` / `riderTemplate…`): established terms stay as they are (`LSC`, `HSR`, `SAG`, `Flipchip`, `FTP`), descriptive names are translated (`Zugstufe`, `Druckstufe`, `Fahrergewicht`). Nothing language-dependent is matched by its text: the setup guide, the catalog merge and `adjustmentRole` use the language-neutral `presetKey`; "already added" accepts a template's name in any supported language (`adjustmentPresetNameVariants`); and the stored riding style option (`Comfort` / `Komfort`, `Balanced` / `Ausgewogen`, `Race`) is read back in any language by `guideRidingStyleOfOption`. Adjusters built from the component catalog stay English (YAML), except SAG, which shares the template. The text the app generates around a template, like the `Empfohlenes Intervall: …` line in a task's notes or the note lines of a component created from the catalog (`Modelljahr: …`, `Setup-Anleitung: …`), is written in the language of the moment it was created.
 
 Catalog prose that the YAML authors write (`note:`, `description:`, `review:` summaries, brand and model names) stays English: there is one text per entry, not one per language.
 

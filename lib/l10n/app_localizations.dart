@@ -14647,6 +14647,834 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Replace shift cable'**
   String get taskTemplateShiftCableReplaceName;
+
+  /// Name of the adjustment template frame:flipchip. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Flipchip'**
+  String get adjustmentTemplateFlipchipName;
+
+  /// Note of the adjustment template frame:flipchip. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Controls geometry and bottom bracket height'**
+  String get adjustmentTemplateFlipchipNotes;
+
+  /// Name of the adjustment template frame:chainstay_length. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Chainstay Length'**
+  String get adjustmentTemplateChainstayLengthName;
+
+  /// Note of the adjustment template frame:chainstay_length. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Some bikes have an adjustable chainstay length'**
+  String get adjustmentTemplateChainstayLengthNotes;
+
+  /// Option of the categorical template frame:flipchip. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get adjustmentTemplateOptionLow;
+
+  /// Option of the categorical template frame:flipchip, frame:chainstay_length. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Mid'**
+  String get adjustmentTemplateOptionMid;
+
+  /// Option of the categorical template frame:flipchip. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get adjustmentTemplateOptionHigh;
+
+  /// Option of the categorical template frame:chainstay_length. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get adjustmentTemplateOptionShort;
+
+  /// Option of the categorical template frame:chainstay_length. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get adjustmentTemplateOptionLong;
+
+  /// Name of the adjustment template fork:lockout, shock:lockout. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Lockout'**
+  String get adjustmentTemplateLockoutName;
+
+  /// Note of the adjustment template fork:lockout, shock:lockout. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the lockout lever enabled?'**
+  String get adjustmentTemplateLockoutNotes;
+
+  /// Name of the adjustment template fork:pressure, shock:pressure, wheel_front:pressure, tire:pressure. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Pressure'**
+  String get adjustmentTemplatePressureName;
+
+  /// Note of the adjustment template fork:pressure. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Fork air pressure'**
+  String get adjustmentTemplateForkPressureNotes;
+
+  /// Note of the adjustment template shock:pressure. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Shock air pressure'**
+  String get adjustmentTemplateShockPressureNotes;
+
+  /// Name of the adjustment template shock:spring_rate. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Spring Rate'**
+  String get adjustmentTemplateSpringRateName;
+
+  /// Note of the adjustment template shock:spring_rate. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Coil spring rate'**
+  String get adjustmentTemplateSpringRateNotes;
+
+  /// Name of the adjustment template fork:sag, shock:sag. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'SAG'**
+  String get adjustmentTemplateSagName;
+
+  /// Note of the adjustment template fork:sag. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel used with you and your gear on the bike in riding position. Targets: XC 15%, Trail 15-20%, Enduro 20%, DH 20-25%'**
+  String get adjustmentTemplateForkSagNotes;
+
+  /// Note of the adjustment template shock:sag. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel used with you and your gear on the bike in riding position. Targets: XC 20-25%, Trail 25-30%, Enduro 30%, DH 30-35%'**
+  String get adjustmentTemplateShockSagNotes;
+
+  /// Name of the adjustment template fork:rebound, shock:rebound. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebound'**
+  String get adjustmentTemplateReboundName;
+
+  /// Note of the adjustment template fork:rebound, shock:rebound. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebound clicks'**
+  String get adjustmentTemplateReboundNotes;
+
+  /// Name of the adjustment template fork:compression, shock:compression. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Compression'**
+  String get adjustmentTemplateCompressionName;
+
+  /// Note of the adjustment template fork:compression, shock:compression. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Compression clicks'**
+  String get adjustmentTemplateCompressionNotes;
+
+  /// Name of the adjustment template fork:lsr, shock:lsr. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'LSR'**
+  String get adjustmentTemplateLsrName;
+
+  /// Note of the adjustment template fork:lsr, shock:lsr. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Speed Rebound clicks'**
+  String get adjustmentTemplateLsrNotes;
+
+  /// Name of the adjustment template fork:hsr, shock:hsr. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'HSR'**
+  String get adjustmentTemplateHsrName;
+
+  /// Note of the adjustment template fork:hsr, shock:hsr. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'High Speed Rebound clicks'**
+  String get adjustmentTemplateHsrNotes;
+
+  /// Name of the adjustment template fork:lsc, shock:lsc. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'LSC'**
+  String get adjustmentTemplateLscName;
+
+  /// Note of the adjustment template fork:lsc, shock:lsc. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Speed Compression clicks'**
+  String get adjustmentTemplateLscNotes;
+
+  /// Name of the adjustment template fork:hsc, shock:hsc. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'HSC'**
+  String get adjustmentTemplateHscName;
+
+  /// Note of the adjustment template fork:hsc, shock:hsc. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'High Speed Compression clicks'**
+  String get adjustmentTemplateHscNotes;
+
+  /// Name of the adjustment template fork:volume_spacers, shock:volume_spacers. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume Spacers'**
+  String get adjustmentTemplateVolumeSpacersName;
+
+  /// Note of the adjustment template fork:volume_spacers, shock:volume_spacers. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of volume spacers installed in the air spring'**
+  String get adjustmentTemplateVolumeSpacersNotes;
+
+  /// Name of the adjustment template cockpit:bar_roll. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Roll'**
+  String get adjustmentTemplateBarRollName;
+
+  /// Note of the adjustment template cockpit:bar_roll. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle of handlebars in degrees'**
+  String get adjustmentTemplateBarRollNotes;
+
+  /// Name of the adjustment template cockpit:bar_width. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Width'**
+  String get adjustmentTemplateBarWidthName;
+
+  /// Note of the adjustment template cockpit:bar_width. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Total width of handlebars'**
+  String get adjustmentTemplateBarWidthNotes;
+
+  /// Name of the adjustment template cockpit:bar_rise. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Rise'**
+  String get adjustmentTemplateBarRiseName;
+
+  /// Note of the adjustment template cockpit:bar_rise. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'The vertical distance between the center of the clamp area and the center of the bar ends.'**
+  String get adjustmentTemplateBarRiseNotes;
+
+  /// Name of the adjustment template stem:stem_length. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Stem Length'**
+  String get adjustmentTemplateStemLengthName;
+
+  /// Note of the adjustment template stem:stem_length. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured center-to-center from the fork steerer tube to the handlebar clamp.'**
+  String get adjustmentTemplateStemLengthNotes;
+
+  /// Name of the adjustment template stem:stem_angle. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Stem Angle'**
+  String get adjustmentTemplateStemAngleName;
+
+  /// Note of the adjustment template stem:stem_angle. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle of the stem relative to the steering column'**
+  String get adjustmentTemplateStemAngleNotes;
+
+  /// Name of the adjustment template stem:stack_spacers. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Stack Spacers'**
+  String get adjustmentTemplateStackSpacersName;
+
+  /// Note of the adjustment template stem:stack_spacers, other:stack_height. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Height of spacers under the stem'**
+  String get adjustmentTemplateStackSpacersNotes;
+
+  /// Name of the adjustment template grip:rotation. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotation'**
+  String get adjustmentTemplateGripRotationName;
+
+  /// Note of the adjustment template grip:rotation. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotation angle for ergonomic or asymmetric grips'**
+  String get adjustmentTemplateGripRotationNotes;
+
+  /// Name of the adjustment template shifter:lateral_position, brake_lever:lateral_position. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Lateral Position'**
+  String get adjustmentTemplateLateralPositionName;
+
+  /// Note of the adjustment template shifter:lateral_position. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance from the grip to the shifter clamp'**
+  String get adjustmentTemplateShifterLateralPositionNotes;
+
+  /// Name of the adjustment template shifter:angle. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle'**
+  String get adjustmentTemplateAngleName;
+
+  /// Note of the adjustment template shifter:angle. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle of the shifter relative to the horizontal'**
+  String get adjustmentTemplateShifterAngleNotes;
+
+  /// Name of the adjustment template derailleur:clutch. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Clutch'**
+  String get adjustmentTemplateClutchName;
+
+  /// Note of the adjustment template derailleur:clutch. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the derailleur clutch/stabilizer enabled?'**
+  String get adjustmentTemplateClutchNotes;
+
+  /// Name of the adjustment template derailleur:clutch_tension. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Clutch Tension'**
+  String get adjustmentTemplateClutchTensionName;
+
+  /// Note of the adjustment template derailleur:clutch_tension. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustable clutch tension for some derailleurs'**
+  String get adjustmentTemplateClutchTensionNotes;
+
+  /// Option of the categorical template derailleur:clutch_tension. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft'**
+  String get adjustmentTemplateOptionSoft;
+
+  /// Option of the categorical template derailleur:clutch_tension. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get adjustmentTemplateOptionMedium;
+
+  /// Option of the categorical template derailleur:clutch_tension. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get adjustmentTemplateOptionHard;
+
+  /// Name of the adjustment template pedal:spring_tension. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Clipless Spring Tension'**
+  String get adjustmentTemplateClipSpringTensionName;
+
+  /// Note of the adjustment template pedal:spring_tension. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Release tension setting for clipless pedals'**
+  String get adjustmentTemplateClipSpringTensionNotes;
+
+  /// Name of the adjustment template pedal:pin_arrangement. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin Arrangement'**
+  String get adjustmentTemplatePinArrangementName;
+
+  /// Note of the adjustment template pedal:pin_arrangement. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern and arrangement of pins on platform pedals'**
+  String get adjustmentTemplatePinArrangementNotes;
+
+  /// Option of the categorical template pedal:pin_arrangement. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get adjustmentTemplateOptionFull;
+
+  /// Option of the categorical template pedal:pin_arrangement. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Aggressive'**
+  String get adjustmentTemplateOptionAggressive;
+
+  /// Option of the categorical template pedal:pin_arrangement, person:riding_style. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get adjustmentTemplateOptionBalanced;
+
+  /// Option of the categorical template pedal:pin_arrangement. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum'**
+  String get adjustmentTemplateOptionMinimum;
+
+  /// Name of the adjustment template pedal:pin_height. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin Height'**
+  String get adjustmentTemplatePinHeightName;
+
+  /// Note of the adjustment template pedal:pin_height. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Height of the pins above the pedal platform'**
+  String get adjustmentTemplatePinHeightNotes;
+
+  /// Name of the adjustment template brake_lever:lever_reach. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Lever Reach'**
+  String get adjustmentTemplateLeverReachName;
+
+  /// Note of the adjustment template brake_lever:lever_reach. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance from the handlebar to the lever blade'**
+  String get adjustmentTemplateLeverReachNotes;
+
+  /// Name of the adjustment template brake_lever:lever_angle. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Lever Angle'**
+  String get adjustmentTemplateLeverAngleName;
+
+  /// Note of the adjustment template brake_lever:lever_angle. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle of brake levers relative to horizontal (pointing down).'**
+  String get adjustmentTemplateLeverAngleNotes;
+
+  /// Note of the adjustment template brake_lever:lateral_position. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance from the grip to the lever clamp'**
+  String get adjustmentTemplateBrakeLeverLateralPositionNotes;
+
+  /// Name of the adjustment template brake_lever:bite_point. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Bite Point'**
+  String get adjustmentTemplateBitePointName;
+
+  /// Note of the adjustment template brake_lever:bite_point. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'The distance the lever moves before the pads engage'**
+  String get adjustmentTemplateBitePointNotes;
+
+  /// Note of the adjustment template wheel_front:pressure. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Front tire pressure'**
+  String get adjustmentTemplateFrontPressureNotes;
+
+  /// Name of the adjustment template wheel_front:insert, wheel_rear:insert. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert'**
+  String get adjustmentTemplateInsertName;
+
+  /// Note of the adjustment template wheel_front:insert, wheel_rear:insert. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Tire insert installed?'**
+  String get adjustmentTemplateInsertNotes;
+
+  /// Name of the adjustment template wheel_front:wear, tire:wear. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Wear'**
+  String get adjustmentTemplateWearName;
+
+  /// Note of the adjustment template wheel_front:wear, wheel_rear:tire_wear, tire:wear. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Current state of the tire tread'**
+  String get adjustmentTemplateWearNotes;
+
+  /// Option of the categorical template wheel_front:wear, wheel_rear:tire_wear, tire:wear. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get adjustmentTemplateOptionNew;
+
+  /// Option of the categorical template wheel_front:wear, wheel_rear:tire_wear, tire:wear. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get adjustmentTemplateOptionUsed;
+
+  /// Option of the categorical template wheel_front:wear, wheel_rear:tire_wear, tire:wear. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Worn Out'**
+  String get adjustmentTemplateOptionWornOut;
+
+  /// Name of the adjustment template wheel_rear:tire_pressure. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Tire Pressure'**
+  String get adjustmentTemplateTirePressureName;
+
+  /// Note of the adjustment template wheel_rear:tire_pressure. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Rear tire pressure'**
+  String get adjustmentTemplateRearPressureNotes;
+
+  /// Name of the adjustment template wheel_rear:tire_wear. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Tire Wear'**
+  String get adjustmentTemplateTireWearName;
+
+  /// Note of the adjustment template tire:pressure. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Tire pressure'**
+  String get adjustmentTemplateTirePressureNotes;
+
+  /// Name of the adjustment template saddle:saddle_tilt. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Saddle Tilt'**
+  String get adjustmentTemplateSaddleTiltName;
+
+  /// Note of the adjustment template saddle:saddle_tilt. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle of the saddle relative to horizontal'**
+  String get adjustmentTemplateSaddleTiltNotes;
+
+  /// Name of the adjustment template saddle:saddle_fore_aft. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Saddle Fore/Aft'**
+  String get adjustmentTemplateSaddleForeAftName;
+
+  /// Note of the adjustment template saddle:saddle_fore_aft. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Position of the saddle on the rails'**
+  String get adjustmentTemplateSaddleForeAftNotes;
+
+  /// Name of the adjustment template seatpost:saddle_height. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Saddle Height'**
+  String get adjustmentTemplateSaddleHeightName;
+
+  /// Note of the adjustment template seatpost:saddle_height. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance from Bottom Bracket to top of saddle'**
+  String get adjustmentTemplateSaddleHeightNotes;
+
+  /// Name of the adjustment template seatpost:dropper_pressure. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropper Pressure'**
+  String get adjustmentTemplateDropperPressureName;
+
+  /// Note of the adjustment template seatpost:dropper_pressure. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Air pressure for the dropper post return'**
+  String get adjustmentTemplateDropperPressureNotes;
+
+  /// Name of the adjustment template motor:max_power. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Power'**
+  String get adjustmentTemplateMaxPowerName;
+
+  /// Note of the adjustment template motor:max_power. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum motor power output'**
+  String get adjustmentTemplateMaxPowerNotes;
+
+  /// Name of the adjustment template motor:max_torque. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Torque'**
+  String get adjustmentTemplateMaxTorqueName;
+
+  /// Note of the adjustment template motor:max_torque. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum motor torque'**
+  String get adjustmentTemplateMaxTorqueNotes;
+
+  /// Name of the adjustment template motor:mode. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get adjustmentTemplateModeName;
+
+  /// Note of the adjustment template motor:mode. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Current assistance level'**
+  String get adjustmentTemplateModeNotes;
+
+  /// Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Eco'**
+  String get adjustmentTemplateOptionEco;
+
+  /// Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Trail'**
+  String get adjustmentTemplateOptionTrail;
+
+  /// Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Turbo'**
+  String get adjustmentTemplateOptionTurbo;
+
+  /// Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Boost'**
+  String get adjustmentTemplateOptionBoost;
+
+  /// Option of the categorical template motor:mode. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get adjustmentTemplateOptionAuto;
+
+  /// Name of the adjustment template equipment:backpack. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Backpack'**
+  String get adjustmentTemplateBackpackName;
+
+  /// Note of the adjustment template equipment:backpack. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Wearing a backpack? Yes/No'**
+  String get adjustmentTemplateBackpackNotes;
+
+  /// Name of the adjustment template equipment:upper_clothing_1. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Upper clothing layer 1'**
+  String get adjustmentTemplateUpperLayer1Name;
+
+  /// Note of the adjustment template equipment:upper_clothing_1. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'First clothing layer from inside (e.g. thermal shirt, ...)'**
+  String get adjustmentTemplateUpperLayer1Notes;
+
+  /// Name of the adjustment template equipment:upper_clothing_2. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Upper clothing layer 2'**
+  String get adjustmentTemplateUpperLayer2Name;
+
+  /// Note of the adjustment template equipment:upper_clothing_2. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Second clothing layer from inside (e.g. wind jacket, ...)'**
+  String get adjustmentTemplateUpperLayer2Notes;
+
+  /// Option of the categorical template equipment:upper_clothing_1, equipment:upper_clothing_2. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'my Clothing Item A'**
+  String get adjustmentTemplateOptionClothingA;
+
+  /// Option of the categorical template equipment:upper_clothing_1, equipment:upper_clothing_2. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'my Clothing Item B'**
+  String get adjustmentTemplateOptionClothingB;
+
+  /// Name of the adjustment template equipment:cleat_position. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleat Position'**
+  String get adjustmentTemplateCleatPositionName;
+
+  /// Note of the adjustment template equipment:cleat_position. It is stored with the adjustment as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Shoe cleat fore/aft or lateral position'**
+  String get adjustmentTemplateCleatPositionNotes;
+
+  /// Option of the categorical template equipment:cleat_position. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward'**
+  String get adjustmentTemplateOptionForward;
+
+  /// Option of the categorical template equipment:cleat_position. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get adjustmentTemplateOptionNeutral;
+
+  /// Option of the categorical template equipment:cleat_position. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Rearward'**
+  String get adjustmentTemplateOptionRearward;
+
+  /// Name of the adjustment template other:stack_height. It becomes the name of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Stack Height'**
+  String get adjustmentTemplateStackHeightName;
+
+  /// Name of the rider attribute template person:riding_weight. It becomes the name of the rider attribute, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Riding weight'**
+  String get riderTemplateRidingWeightName;
+
+  /// Note of the rider attribute template person:riding_weight. It is stored with the rider attribute as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight including all gear (helmet, shoes, hydration pack).'**
+  String get riderTemplateRidingWeightNotes;
+
+  /// Name of the rider attribute template person:height. It becomes the name of the rider attribute, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get riderTemplateHeightName;
+
+  /// Note of the rider attribute template person:height. It is stored with the rider attribute as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Body height'**
+  String get riderTemplateHeightNotes;
+
+  /// Name of the rider attribute template person:inseam. It becomes the name of the rider attribute, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Inseam'**
+  String get riderTemplateInseamName;
+
+  /// Note of the rider attribute template person:inseam. It is stored with the rider attribute as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Crotch to floor, barefoot. Helps with dropper post length and saddle height.'**
+  String get riderTemplateInseamNotes;
+
+  /// Name of the rider attribute template person:ftp. It becomes the name of the rider attribute, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'FTP'**
+  String get riderTemplateFtpName;
+
+  /// Note of the rider attribute template person:ftp. It is stored with the rider attribute as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Functional Threshold Power: the highest power you can sustain for about one hour.'**
+  String get riderTemplateFtpNotes;
+
+  /// Name of the rider attribute template person:max_heart_rate. It becomes the name of the rider attribute, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Max heart rate'**
+  String get riderTemplateMaxHeartRateName;
+
+  /// Note of the rider attribute template person:max_heart_rate. It is stored with the rider attribute as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest heart rate reached in an all-out effort. Basis for heart rate zones.'**
+  String get riderTemplateMaxHeartRateNotes;
+
+  /// Name of the rider attribute template person:resting_heart_rate. It becomes the name of the rider attribute, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Resting heart rate'**
+  String get riderTemplateRestingHeartRateName;
+
+  /// Note of the rider attribute template person:resting_heart_rate. It is stored with the rider attribute as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart rate at rest, ideally measured right after waking up.'**
+  String get riderTemplateRestingHeartRateNotes;
+
+  /// Name of the rider attribute template person:lthr. It becomes the name of the rider attribute, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'LTHR'**
+  String get riderTemplateLthrName;
+
+  /// Note of the rider attribute template person:lthr. It is stored with the rider attribute as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Lactate Threshold Heart Rate: the average heart rate you can sustain for about one hour.'**
+  String get riderTemplateLthrNotes;
+
+  /// Name of the rider attribute template person:riding_style. It becomes the name of the rider attribute, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Riding style'**
+  String get riderTemplateRidingStyleName;
+
+  /// Note of the rider attribute template person:riding_style. It is stored with the rider attribute as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Race-oriented riders usually require higher support (more compression damping).'**
+  String get riderTemplateRidingStyleNotes;
+
+  /// Option of the categorical template person:riding_style. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Comfort'**
+  String get adjustmentTemplateOptionComfort;
+
+  /// Option of the categorical template person:riding_style. It becomes an option of the adjustment, which is stored as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Race'**
+  String get adjustmentTemplateOptionRace;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

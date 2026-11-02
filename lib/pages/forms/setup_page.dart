@@ -36,6 +36,7 @@ import '../../services/setup_resolution_service.dart';
 import '../../services/test_session_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
+import '../../utils/adjustment_presets.dart';
 import '../../utils/adjustment_role.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
@@ -50,7 +51,6 @@ import '../../widgets/setup_guide_card.dart';
 import '../../widgets/setup_guide_scope.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
-import '../../widgets/sheets/person_add_adjustment.dart';
 import '../../widgets/sheets/set_condition.dart';
 import '../../widgets/sheets/set_location_place.dart';
 import '../../widgets/sheets/set_tags.dart';
@@ -1530,7 +1530,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   /// this setup's value of it.
   Future<void> _addRidingWeightTo(Person person) async {
     unawaited(HapticFeedback.selectionClick());
-    final adjustment = ridingWeightPreset.deepCopy();
+    final adjustment = ridingWeightPresetFor(context.l10n).deepCopy();
     await context.read<AppRepository>().editPerson(
       person.copyWith(adjustments: [...person.adjustments, adjustment]),
     );

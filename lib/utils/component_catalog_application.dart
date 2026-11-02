@@ -4,14 +4,8 @@ import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/preset_spec_keys.dart';
+import 'adjustment_presets.dart';
 import 'component_preset_resolver.dart';
-
-const String kForkSagNotes =
-    'Travel used with you and your gear on the bike in riding position. '
-    'Targets: XC 15%, Trail 15-20%, Enduro 20%, DH 20-25%';
-const String kShockSagNotes =
-    'Travel used with you and your gear on the bike in riding position. '
-    'Targets: XC 20-25%, Trail 25-30%, Enduro 30%, DH 30-35%';
 
 /// A generation's label is its year span, which the `Year:` note line and the
 /// year badge already carry.
@@ -122,7 +116,7 @@ String? _joined(List<String> parts) => parts.isEmpty ? null : parts.join(' · ')
 List<Adjustment> _buildAdjustments(ResolvedPreset resolved, AppLocalizations l10n) {
   return [
     ...?resolved.product?.adjustments.map((spec) => buildCatalogAdjustment(spec, l10n)),
-    if (_takesSag(resolved.catalog.componentType)) _buildSag(resolved),
+    if (_takesSag(resolved.catalog.componentType)) _buildSag(resolved, l10n),
     for (final value in resolved.selections.values)
       for (final spec in value.adjustments) buildCatalogAdjustment(spec, l10n),
   ];
@@ -149,17 +143,12 @@ Set<String> _unknownMaxKeys(ResolvedPreset resolved) => {
 
 bool _takesSag(ComponentType type) => type == ComponentType.fork || type == ComponentType.shock;
 
-SagAdjustment _buildSag(ResolvedPreset resolved) {
-  final isShock = resolved.catalog.componentType == ComponentType.shock;
+SagAdjustment _buildSag(ResolvedPreset resolved, AppLocalizations l10n) {
+  final type = resolved.catalog.componentType;
   // Set by the chosen travel (fork) or size (shock); a one-time copy the user
   // edits on the SAG adjustment afterwards.
-  final travel = resolved.effectiveSpecs.get(isShock ? PresetSpecKeys.strokeMm : PresetSpecKeys.travelMm);
-  return SagAdjustment(
-    name: 'SAG',
-    notes: isShock ? kShockSagNotes : kForkSagNotes,
-    referenceTravelMm: travel?.toDouble(),
-    presetKey: '${resolved.catalog.componentType.name}:$kSagAdjusterId',
-  );
+  final travel = resolved.effectiveSpecs.get(type == ComponentType.shock ? PresetSpecKeys.strokeMm : PresetSpecKeys.travelMm);
+  return sagPresetFor(l10n, type).copyWith(referenceTravelMm: travel?.toDouble());
 }
 
 bool _isNotBlank(String? value) => value != null && value.isNotEmpty;

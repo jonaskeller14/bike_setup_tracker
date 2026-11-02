@@ -11,6 +11,7 @@ import '../../models/strava/strava_athlete.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
+import '../../utils/adjustment_presets.dart';
 import '../../utils/value_migration_actions.dart';
 import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
@@ -83,7 +84,7 @@ class _PersonPageState extends State<PersonPage> {
     if (widget.mode != PersonPageMode.add) _expanded = true;
 
     _adjustments = widget.person == null
-        ? [ridingWeightPreset.deepCopy()]
+        ? [ridingWeightPresetFor(lookupAppLocalizations(Locale(context.untrackedLocaleName))).deepCopy()]
         : List.from(widget.person!.adjustments);
     _initialAdjustments = List.from(_adjustments);
   }

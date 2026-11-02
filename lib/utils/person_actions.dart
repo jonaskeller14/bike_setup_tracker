@@ -18,6 +18,7 @@ import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/bike_link_sheet.dart';
 import '../widgets/sheets/person_add_adjustment.dart';
+import 'adjustment_presets.dart';
 import 'setup_actions.dart';
 
 class PersonActions {
@@ -69,7 +70,7 @@ class PersonActions {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return null;
 
-    final person = Person(name: trimmed, adjustments: [ridingWeightPreset.deepCopy()]);
+    final person = Person(name: trimmed, adjustments: [ridingWeightPresetFor(context.l10n).deepCopy()]);
     await context.read<AppRepository>().addPersons([person]);
     return person;
   }

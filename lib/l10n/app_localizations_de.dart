@@ -774,15 +774,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get preferencesTimeFormat => 'Zeitformat';
 
   @override
-  String get preferencesFirstDayOfWeek => 'Erster Wochentag';
-
-  @override
-  String get preferencesMonday => 'Montag';
-
-  @override
-  String get preferencesSunday => 'Sonntag';
-
-  @override
   String get preferencesSectionUnits => 'Standardeinheiten';
 
   @override
@@ -1122,13 +1113,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get featuresMapBoxTiles => 'MapBox-Kacheln';
-
-  @override
-  String get featuresLanguageSelection => 'Sprachauswahl';
-
-  @override
-  String get featuresLanguageSelectionInfo =>
-      'Folgt der Systemsprache oder der in den Voreinstellungen gewählten Sprache, statt immer Englisch anzuzeigen. Die Übersetzungen werden noch ergänzt, deshalb bleiben einige Bildschirme englisch.';
 
   @override
   String get aboutTitle => 'Über die App & Rechtliches';
@@ -1684,6 +1668,16 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get hintRelease45TasksBodyOfferTasks =>
       'Sobald du eine Komponente hinzufügst, werden passende Wartungsaufgaben wie eine Kettenverschleißprüfung oder ein Gabelservice vorgeschlagen. Katalog-Gabeln und -Dämpfer nutzen die Serviceintervalle des Herstellers. Aktiviere Aufgaben, um sie zu erhalten.';
+
+  @override
+  String get hintRelease46LanguageTitle => 'Jetzt auch auf Deutsch';
+
+  @override
+  String get hintRelease46LanguageBody =>
+      'Die App gibt es jetzt auf Deutsch und sie folgt der Sprache deines Geräts. Lieber eine andere Sprache? Wähle sie unten oder ändere sie jederzeit in den Voreinstellungen.';
+
+  @override
+  String get hintRelease46ChooseLanguage => 'Sprache wählen';
 
   @override
   String get hintGarageTitle => 'Gesten in der Garage';

@@ -1,8 +1,8 @@
 import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
-/// A [MaterialApp] with the app's localization delegates, forced to English
-/// like the production app while `enableLanguageSelection` is off.
+/// A [MaterialApp] with the app's localization delegates, in English unless
+/// a test asks for another [locale].
 MaterialApp localizedTestApp({
   Key? key,
   GlobalKey<NavigatorState>? navigatorKey,

@@ -43,11 +43,6 @@ class PreferencesPage extends StatelessWidget {
     };
   }
 
-  static Map<int, Text> _firstDayOfWeekOptionWidgets(AppLocalizations l10n) => {
-    DateTime.monday: Text(l10n.preferencesMonday),
-    DateTime.sunday: Text(l10n.preferencesSunday),
-  };
-
   static Map<String, Text> _tempUnitOptionWidgets(AppLocalizations l10n) => {
     '°C': Text(l10n.preferencesUnitCelsius),
     '°F': Text(l10n.preferencesUnitFahrenheit),
@@ -111,18 +106,17 @@ class PreferencesPage extends StatelessWidget {
                   },
                 ),
               ),
-              if (appSettings.enableLanguageSelection)
-                ListTile(
-                  leading: const Icon(Icons.language),
-                  title: Text(l10n.preferencesLanguage),
-                  subtitle: Text(languageName(l10n, appSettings.localeCode)),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => languageSheet(
-                    context: context,
-                    localeCode: appSettings.localeCode,
-                    onSelected: (newValue) => appSettings.localeCode = newValue,
-                  ),
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: Text(l10n.preferencesLanguage),
+                subtitle: Text(languageName(l10n, appSettings.localeCode)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => languageSheet(
+                  context: context,
+                  localeCode: appSettings.localeCode,
+                  onSelected: (newValue) => appSettings.localeCode = newValue,
                 ),
+              ),
               const Divider(),
               SectionTitle(title: l10n.preferencesSectionFilters),
               ListTile(
@@ -179,24 +173,6 @@ class PreferencesPage extends StatelessWidget {
                   },
                 ),
               ),
-              if (appSettings.enableCalendar)
-                ListTile(
-                  leading: const Icon(Icons.calendar_month_outlined),
-                  title: Text(l10n.preferencesFirstDayOfWeek),
-                  subtitle: _firstDayOfWeekOptionWidgets(l10n)[appSettings.firstDayOfWeek] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => radioGroupSheet<int>(
-                    context: context,
-                    title: l10n.preferencesFirstDayOfWeek,
-                    value: appSettings.firstDayOfWeek,
-                    optionWidgets: _firstDayOfWeekOptionWidgets(l10n),
-                    onChanged: (int? newValue) {
-                      if (newValue == null) return;
-                      appSettings.firstDayOfWeek = newValue;
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
               const Divider(),
               SectionTitle(title: l10n.preferencesSectionUnits),
               ListTile(

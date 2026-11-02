@@ -1586,24 +1586,6 @@ abstract class AppLocalizations {
   /// **'Time Format'**
   String get preferencesTimeFormat;
 
-  /// Title of the preference and sheet that picks the first day of the week.
-  ///
-  /// In en, this message translates to:
-  /// **'First Day of Week'**
-  String get preferencesFirstDayOfWeek;
-
-  /// First day of the week choice.
-  ///
-  /// In en, this message translates to:
-  /// **'Monday'**
-  String get preferencesMonday;
-
-  /// First day of the week choice.
-  ///
-  /// In en, this message translates to:
-  /// **'Sunday'**
-  String get preferencesSunday;
-
   /// Section heading of the unit preferences.
   ///
   /// In en, this message translates to:
@@ -2215,18 +2197,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'MapBox Tiles'**
   String get featuresMapBoxTiles;
-
-  /// Title of the language selection feature (developer builds).
-  ///
-  /// In en, this message translates to:
-  /// **'Language Selection'**
-  String get featuresLanguageSelection;
-
-  /// Explanation of the language selection feature.
-  ///
-  /// In en, this message translates to:
-  /// **'Follows the system language, or the language picked in Preferences, instead of always showing English. Translations are still being added, so some screens stay English.'**
-  String get featuresLanguageSelectionInfo;
 
   /// App bar title of the about page.
   ///
@@ -3205,6 +3175,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals. Turn on Tasks to get them.'**
   String get hintRelease45TasksBodyOfferTasks;
+
+  /// Title of the what's new hint shown to people whose app switched language to match their device.
+  ///
+  /// In en, this message translates to:
+  /// **'German is here'**
+  String get hintRelease46LanguageTitle;
+
+  /// Body of the what's new hint about the app language following the device language.
+  ///
+  /// In en, this message translates to:
+  /// **'The app is now available in German and follows your device language. Prefer another language? Choose it below, or change it anytime in Preferences.'**
+  String get hintRelease46LanguageBody;
+
+  /// Button of the what's new hint that opens the language picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose language'**
+  String get hintRelease46ChooseLanguage;
 
   /// Title of the garage gestures hint.
   ///

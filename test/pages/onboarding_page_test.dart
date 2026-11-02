@@ -225,18 +225,13 @@ void main() {
   group('Language button', () {
     final languageButton = find.widgetWithText(TextButton, 'EN');
 
-    testWidgets('only exists behind the language flag', (WidgetTester tester) async {
+    testWidgets('shows on the first slide', (WidgetTester tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
-      expect(languageButton, findsNothing);
-
-      appSettings.enableLanguageSelection = true;
       await tester.pumpAndSettle();
       expect(languageButton, findsOneWidget);
     });
 
     testWidgets('gives way to the back arrow after the first slide', (WidgetTester tester) async {
-      appSettings.enableLanguageSelection = true;
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 
@@ -248,7 +243,6 @@ void main() {
     });
 
     testWidgets('opens the language sheet and stores the choice', (WidgetTester tester) async {
-      appSettings.enableLanguageSelection = true;
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 

@@ -64,14 +64,8 @@ void main() {
     expect(find.text('An'), findsOneWidget);
   });
 
-  testWidgets('hides the language picker until the language flag is on, then names each language itself', (
-    tester,
-  ) async {
+  testWidgets('shows the language picker, which names each language itself', (tester) async {
     await pumpPage(tester);
-    expect(find.text('Language'), findsNothing);
-
-    appSettings.enableLanguageSelection = true;
-    await tester.pumpAndSettle();
     expect(find.text('Language'), findsOneWidget);
 
     await tester.tap(find.text('Language'));

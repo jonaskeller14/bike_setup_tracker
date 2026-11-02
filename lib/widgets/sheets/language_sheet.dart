@@ -43,7 +43,6 @@ class _LanguageSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final deviceLanguage = resolveAppLocale(
-      enabled: true,
       deviceLocales: View.of(context).platformDispatcher.locales,
     ).languageCode;
 

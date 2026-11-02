@@ -1024,18 +1024,6 @@
   "@preferencesTimeFormat": {
     "description": "Title of the preference and sheet that picks the time format."
   },
-  "preferencesFirstDayOfWeek": "First Day of Week",
-  "@preferencesFirstDayOfWeek": {
-    "description": "Title of the preference and sheet that picks the first day of the week."
-  },
-  "preferencesMonday": "Monday",
-  "@preferencesMonday": {
-    "description": "First day of the week choice."
-  },
-  "preferencesSunday": "Sunday",
-  "@preferencesSunday": {
-    "description": "First day of the week choice."
-  },
   "preferencesSectionUnits": "Default Units",
   "@preferencesSectionUnits": {
     "description": "Section heading of the unit preferences."
@@ -1451,14 +1439,6 @@
   "featuresMapBoxTiles": "MapBox Tiles",
   "@featuresMapBoxTiles": {
     "description": "Title of the MapBox tiles feature (developer builds)."
-  },
-  "featuresLanguageSelection": "Language Selection",
-  "@featuresLanguageSelection": {
-    "description": "Title of the language selection feature (developer builds)."
-  },
-  "featuresLanguageSelectionInfo": "Follows the system language, or the language picked in Preferences, instead of always showing English. Translations are still being added, so some screens stay English.",
-  "@featuresLanguageSelectionInfo": {
-    "description": "Explanation of the language selection feature."
   },
   "aboutTitle": "About & Legal",
   "@aboutTitle": {
@@ -2116,6 +2096,18 @@
   "hintRelease45TasksBodyOfferTasks": "Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals. Turn on Tasks to get them.",
   "@hintRelease45TasksBodyOfferTasks": {
     "description": "Body of the second page of the what's new hint when tasks are still off."
+  },
+  "hintRelease46LanguageTitle": "German is here",
+  "@hintRelease46LanguageTitle": {
+    "description": "Title of the what's new hint shown to people whose app switched language to match their device."
+  },
+  "hintRelease46LanguageBody": "The app is now available in German and follows your device language. Prefer another language? Choose it below, or change it anytime in Preferences.",
+  "@hintRelease46LanguageBody": {
+    "description": "Body of the what's new hint about the app language following the device language."
+  },
+  "hintRelease46ChooseLanguage": "Choose language",
+  "@hintRelease46ChooseLanguage": {
+    "description": "Button of the what's new hint that opens the language picker."
   },
   "hintGarageTitle": "Gestures in Garage",
   "@hintGarageTitle": {

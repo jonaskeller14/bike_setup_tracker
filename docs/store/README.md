@@ -24,9 +24,9 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 
 Previews and screenshots upload in filename order (`preview_1`, `iphone_01`, `iphone_02`, ...), so renaming a file changes the order.
 
-Locales: `en-US` (primary) and `de-DE` (listing text only). Screenshots stay English until the app UI
-is translated ([#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)); the per-locale
-screenshot layout is planned in #69.
+Locales: `en-US` (primary) and `de-DE` (listing text only). The app UI is available in German, but the
+screenshots stay English until the per-locale layout lands
+([#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18) Phase 15b, #69).
 
 ## Field rules
 

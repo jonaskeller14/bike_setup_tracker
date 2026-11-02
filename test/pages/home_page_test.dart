@@ -99,7 +99,6 @@ void main() {
 
   testWidgets('shows the shell in German when the language is selected', (tester) async {
     appSettings
-      ..enableLanguageSelection = true
       ..localeCode = 'de'
       ..enableTask = true;
     addTearDown(() => Intl.defaultLocale = null);

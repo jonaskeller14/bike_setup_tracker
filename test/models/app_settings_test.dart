@@ -112,7 +112,6 @@ void main() {
         '${_kPrefix}enableCalendar': true,
         '${_kPrefix}distanceUnit': 'mi',
         '${_kPrefix}themeMode': ThemeMode.dark.toString(),
-        '${_kPrefix}firstDayOfWeek': DateTime.sunday,
         'unrelated.key': 'kept',
       });
       final settings = AppSettings();
@@ -125,7 +124,6 @@ void main() {
       expect(settings.enableCalendar, isFalse);
       expect(settings.distanceUnit, 'km');
       expect(settings.themeMode, ThemeMode.system);
-      expect(settings.firstDayOfWeek, DateTime.monday);
       expect(settings.showOnboarding, isFalse);
       expect(notified, isTrue);
 
@@ -188,12 +186,23 @@ void main() {
   });
 
   group('AppSettings — language', () {
-    test('defaults to the flag off and the system language', () async {
+    test('drops the retired flag and week start on load', () async {
+      SharedPreferences.setMockInitialValues({
+        '${_kPrefix}enableLanguageSelection': true,
+        '${_kPrefix}firstDayOfWeek': DateTime.sunday,
+        '${_kPrefix}localeCode': 'de',
+      });
+      await AppSettings().loadAppSettings();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getKeys(), {'${_kPrefix}localeCode'});
+    });
+
+    test('defaults to the system language', () async {
       SharedPreferences.setMockInitialValues({});
       final settings = AppSettings();
       await settings.loadAppSettings();
 
-      expect(settings.enableLanguageSelection, isFalse);
       expect(settings.localeCode, isNull);
     });
 
@@ -202,23 +211,18 @@ void main() {
       final settings = AppSettings();
       await settings.loadAppSettings();
 
-      settings.enableLanguageSelection = true;
       settings.localeCode = 'de';
       await flushWrites();
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('${_kPrefix}enableLanguageSelection'), isTrue);
       expect(prefs.getString('${_kPrefix}localeCode'), 'de');
       expect(settings.hasDefaultValues, isFalse);
 
       final reloaded = AppSettings();
       await reloaded.loadAppSettings();
-      expect(reloaded.enableLanguageSelection, isTrue);
       expect(reloaded.localeCode, 'de');
 
       await reloaded.resetToDefaults();
-      expect(reloaded.enableLanguageSelection, isFalse);
       expect(reloaded.localeCode, isNull);
-      expect(prefs.getBool('${_kPrefix}enableLanguageSelection'), isNull);
       expect(prefs.getString('${_kPrefix}localeCode'), isNull);
     });
 

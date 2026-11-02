@@ -54,6 +54,11 @@ const double kCalendarViewHeaderHeight = 30;
 const int kCalendarMonthWeekRows = 6;
 const double kCalendarMonthCellMinHeight = 95;
 
+/// Maps [MaterialLocalizations.firstDayOfWeekIndex] (0 = Sunday … 6 = Saturday)
+/// to a [DateTime] weekday (1 = Monday … 7 = Sunday), which is what [SfCalendar] takes.
+int calendarFirstWeekday(int firstDayOfWeekIndex) =>
+    firstDayOfWeekIndex == 0 ? DateTime.sunday : firstDayOfWeekIndex;
+
 DateTime calendarSlotStart(DateTime date) => date.copyWith(
       minute: (date.minute ~/ kCalendarZeroDuration.inMinutes) *
           kCalendarZeroDuration.inMinutes,
@@ -799,7 +804,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   child: SfCalendar(
                     controller: _controller,
                     view: _defaultView.view,
-                    firstDayOfWeek: appSettings.firstDayOfWeek,
+                    firstDayOfWeek: calendarFirstWeekday(MaterialLocalizations.of(context).firstDayOfWeekIndex),
                     maxDate: DateTime.now().add(kCalendarFutureWindow),
                     cellEndPadding: 0,
                     dataSource: CalendarTimelineDataSource(calendarItems, cs, context.l10n),

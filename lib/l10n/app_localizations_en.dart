@@ -772,15 +772,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preferencesTimeFormat => 'Time Format';
 
   @override
-  String get preferencesFirstDayOfWeek => 'First Day of Week';
-
-  @override
-  String get preferencesMonday => 'Monday';
-
-  @override
-  String get preferencesSunday => 'Sunday';
-
-  @override
   String get preferencesSectionUnits => 'Default Units';
 
   @override
@@ -1114,13 +1105,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get featuresMapBoxTiles => 'MapBox Tiles';
-
-  @override
-  String get featuresLanguageSelection => 'Language Selection';
-
-  @override
-  String get featuresLanguageSelectionInfo =>
-      'Follows the system language, or the language picked in Preferences, instead of always showing English. Translations are still being added, so some screens stay English.';
 
   @override
   String get aboutTitle => 'About & Legal';
@@ -1668,6 +1652,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hintRelease45TasksBodyOfferTasks =>
       'Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals. Turn on Tasks to get them.';
+
+  @override
+  String get hintRelease46LanguageTitle => 'German is here';
+
+  @override
+  String get hintRelease46LanguageBody =>
+      'The app is now available in German and follows your device language. Prefer another language? Choose it below, or change it anytime in Preferences.';
+
+  @override
+  String get hintRelease46ChooseLanguage => 'Choose language';
 
   @override
   String get hintGarageTitle => 'Gestures in Garage';

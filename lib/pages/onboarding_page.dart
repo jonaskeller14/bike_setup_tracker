@@ -210,7 +210,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final showLanguageButton = _currentPage == 0 && context.select<AppSettings, bool>((s) => s.enableLanguageSelection);
+    final showLanguageButton = _currentPage == 0;
 
     return Scaffold(
       appBar: AppBar(

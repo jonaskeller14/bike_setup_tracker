@@ -8,10 +8,12 @@ import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../services/app_hint_service.dart';
 import '../app_snackbar.dart';
+import '../sheets/language_sheet.dart';
 import 'garage_list_hint.dart';
 import 'getting_started_guide_hint.dart';
 import 'release_44_hint.dart';
 import 'release_45_hint.dart';
+import 'release_46_hint.dart';
 import 'setup_calendar_hint.dart';
 import 'setup_comparison_hint.dart';
 import 'setup_task_hint.dart';
@@ -71,6 +73,10 @@ class AppHintSlot extends StatelessWidget {
       AppHint.release45 => Release45Hint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.release45)),
         onEnableTasks: () => _enableTaskPresets(context, hintService),
+      ),
+      AppHint.release46 => Release46Hint(
+        onDismiss: () => unawaited(hintService.dismiss(AppHint.release46)),
+        onChooseLanguage: () => _chooseLanguage(context, hintService),
       ),
     };
 
@@ -135,6 +141,21 @@ class AppHintSlot extends StatelessWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       AppSnackBar.success(context, context.l10n.hintAttachmentsEnabled),
+    );
+  }
+
+  Future<void> _chooseLanguage(
+    BuildContext context,
+    AppHintService hintService,
+  ) {
+    final settings = context.read<AppSettings>();
+    return languageSheet(
+      context: context,
+      localeCode: settings.localeCode,
+      onSelected: (code) {
+        settings.localeCode = code;
+        unawaited(hintService.complete(AppHint.release46));
+      },
     );
   }
 

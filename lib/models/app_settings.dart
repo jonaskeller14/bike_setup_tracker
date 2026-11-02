@@ -54,9 +54,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTimelineSetupGrouping = false;
   bool _enableTimelineReplacementDetection = true;
   bool _enableTimelineStravaContext = false;
-  int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
   bool _rememberFilters = true;
-  bool _enableLanguageSelection = false;
   String? _localeCode; // null = follow the system language
   bool _developerMode = false;
 
@@ -105,9 +103,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
-  int get firstDayOfWeek => _firstDayOfWeek;
   bool get rememberFilters => _rememberFilters;
-  bool get enableLanguageSelection => _enableLanguageSelection;
   String? get localeCode => _localeCode;
   // Debug builds only: store screenshots and marketing content must show the production UI.
   bool get developerMode => kDebugMode && _developerMode;
@@ -399,25 +395,11 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableTimelineStravaContext', newValue);
   }
 
-  set firstDayOfWeek(int newValue) {
-    if (newValue == _firstDayOfWeek) return;
-    _firstDayOfWeek = newValue;
-    notifyListeners();
-    _persistInt('firstDayOfWeek', newValue);
-  }
-
   set rememberFilters(bool newValue) {
     if (newValue == _rememberFilters) return;
     _rememberFilters = newValue;
     notifyListeners();
     _persistBool('rememberFilters', newValue);
-  }
-
-  set enableLanguageSelection(bool newValue) {
-    if (newValue == _enableLanguageSelection) return;
-    _enableLanguageSelection = newValue;
-    notifyListeners();
-    _persistBool('enableLanguageSelection', newValue);
   }
 
   set localeCode(String? newValue) {
@@ -527,10 +509,7 @@ class AppSettings extends ChangeNotifier {
           prefs.getBool('${_kPrefix}enableTimelineReplacementDetection') ?? _enableTimelineReplacementDetection;
       _enableTimelineStravaContext =
           prefs.getBool('${_kPrefix}enableTimelineStravaContext') ?? _enableTimelineStravaContext;
-      _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
       _rememberFilters = prefs.getBool('${_kPrefix}rememberFilters') ?? _rememberFilters;
-      _enableLanguageSelection =
-          prefs.getBool('${_kPrefix}enableLanguageSelection') ?? _enableLanguageSelection;
       _localeCode = prefs.getString('${_kPrefix}localeCode') ?? _localeCode;
       _developerMode = prefs.getBool('${_kPrefix}developerMode') ?? _developerMode;
     } catch (e, st) {
@@ -587,9 +566,7 @@ class AppSettings extends ChangeNotifier {
     _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
     _enableTimelineReplacementDetection = defaults._enableTimelineReplacementDetection;
     _enableTimelineStravaContext = defaults._enableTimelineStravaContext;
-    _firstDayOfWeek = defaults._firstDayOfWeek;
     _rememberFilters = defaults._rememberFilters;
-    _enableLanguageSelection = defaults._enableLanguageSelection;
     _localeCode = defaults._localeCode;
     _developerMode = defaults._developerMode;
     defaults.dispose();
@@ -642,9 +619,7 @@ class AppSettings extends ChangeNotifier {
     _enableTimelineSetupGrouping,
     _enableTimelineReplacementDetection,
     _enableTimelineStravaContext,
-    _firstDayOfWeek,
     _rememberFilters,
-    _enableLanguageSelection,
     _localeCode ?? '',
     _developerMode,
   ];
@@ -680,6 +655,8 @@ class AppSettings extends ChangeNotifier {
 
   static const _deprecatedPreferenceKeys = [
     'enableGarage',
+    'enableLanguageSelection',
+    'firstDayOfWeek',
     'enableSetupComparison',
     'enableStrava',
     'enableTimelineDayHeaders',

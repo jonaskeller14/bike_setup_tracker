@@ -29,5 +29,7 @@ extension AppLocalizationsContext on BuildContext {
   /// The app language without depending on it, for `State.initState`, where
   /// [l10n] throws. Only for the starting text of a field, which stays as it is
   /// when the language changes.
-  String get untrackedLocaleName => findAncestorWidgetOfExactType<Localizations>()!.locale.toString();
+  Locale get untrackedLocale => findAncestorWidgetOfExactType<Localizations>()!.locale;
+
+  String get untrackedLocaleName => untrackedLocale.toString();
 }

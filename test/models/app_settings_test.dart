@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/utils/regional_defaults.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -147,6 +148,181 @@ void main() {
 
       await settings.resetToDefaults();
       expect(settings.hasDefaultValues, isTrue);
+    });
+  });
+
+  group('AppSettings — regional defaults', () {
+    const markerKey = '${_kPrefix}regionalDefaultsApplied';
+    const unitKeys = ['temperatureUnit', 'windSpeedUnit', 'altitudeUnit', 'precipitationUnit', 'distanceUnit'];
+    final us = regionalDefaults('US', alwaysUse24HourFormat: false);
+    final de = regionalDefaults('DE');
+
+    Map<String, String> units(AppSettings settings) => {
+      'temperatureUnit': settings.temperatureUnit,
+      'windSpeedUnit': settings.windSpeedUnit,
+      'altitudeUnit': settings.altitudeUnit,
+      'precipitationUnit': settings.precipitationUnit,
+      'distanceUnit': settings.distanceUnit,
+      'timeFormat': settings.timeFormat,
+    };
+
+    test('the code defaults are the metric ones', () {
+      expect(units(AppSettings()), RegionalDefaults.metric.settings);
+    });
+
+    test('a fresh install in the US stores imperial units and the 12-hour clock', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: us);
+
+      expect(units(settings), us.settings);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('${_kPrefix}distanceUnit'), 'mi');
+      expect(prefs.getString('${_kPrefix}temperatureUnit'), '°F');
+      expect(prefs.getString('${_kPrefix}timeFormat'), 'h:mm a');
+      expect(prefs.getBool(markerKey), isTrue);
+    });
+
+    test('a fresh install in the UK stores the mixed units', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: regionalDefaults('GB'));
+
+      expect(settings.distanceUnit, 'mi');
+      expect(settings.windSpeedUnit, 'mph');
+      expect(settings.temperatureUnit, '°C');
+      expect(settings.altitudeUnit, 'm');
+    });
+
+    test('a fresh install in Germany stays metric and writes only the marker', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: de);
+
+      expect(units(settings), RegionalDefaults.metric.settings);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getKeys(), {markerKey});
+    });
+
+    test('an existing install keeps its metric units in the US', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}showOnboarding': false});
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: us);
+
+      expect(units(settings), RegionalDefaults.metric.settings);
+      final prefs = await SharedPreferences.getInstance();
+      for (final key in unitKeys) {
+        expect(prefs.containsKey('$_kPrefix$key'), isFalse, reason: key);
+      }
+      expect(prefs.getBool(markerKey), isTrue);
+    });
+
+    test('a legacy blob user keeps its metric units in the US', () async {
+      SharedPreferences.setMockInitialValues({
+        _kLegacyBlobKey: jsonEncode({'showOnboarding': false, 'themeMode': 'ThemeMode.dark'}),
+      });
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: us);
+
+      expect(units(settings), RegionalDefaults.metric.settings);
+      expect(settings.themeMode, ThemeMode.dark);
+    });
+
+    test('an explicit unit survives a fresh install in the US', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}distanceUnit': 'km'});
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: us);
+
+      expect(settings.distanceUnit, 'km');
+    });
+
+    test('the units stay when the device region changes later', () async {
+      SharedPreferences.setMockInitialValues({});
+      await AppSettings().loadAppSettings(regionalDefaults: us);
+
+      final afterTravel = AppSettings();
+      await afterTravel.loadAppSettings(regionalDefaults: de);
+      expect(afterTravel.distanceUnit, 'mi');
+      expect(afterTravel.timeFormat, 'h:mm a');
+    });
+
+    test('the marker stops a second derivation', () async {
+      SharedPreferences.setMockInitialValues({});
+      final first = AppSettings();
+      await first.loadAppSettings(regionalDefaults: us);
+      first.distanceUnit = 'km';
+      await flushWrites();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('${_kPrefix}temperatureUnit'); // would be derived again without the marker
+
+      final second = AppSettings();
+      await second.loadAppSettings(regionalDefaults: us);
+      expect(second.distanceUnit, 'km');
+      expect(second.temperatureUnit, '°C');
+    });
+
+    test('without regional defaults nothing is derived and nothing is written', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      expect(units(settings), RegionalDefaults.metric.settings);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getKeys(), isEmpty);
+    });
+
+    test('a fresh install is at the derived defaults', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: us);
+      expect(settings.hasDefaultValues, isTrue);
+
+      settings.distanceUnit = 'km';
+      expect(settings.hasDefaultValues, isFalse);
+    });
+
+    test('an existing install in the US is not at the derived defaults', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}showOnboarding': false});
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: us);
+
+      expect(settings.hasDefaultValues, isFalse);
+    });
+
+    test('reset restores and persists the derived defaults', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}showOnboarding': false});
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: us);
+      settings.enableCalendar = true;
+      await flushWrites();
+
+      await settings.resetToDefaults();
+
+      expect(units(settings), us.settings);
+      expect(settings.enableCalendar, isFalse);
+      expect(settings.hasDefaultValues, isTrue);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('${_kPrefix}distanceUnit'), 'mi');
+      expect(prefs.containsKey('${_kPrefix}enableCalendar'), isFalse);
+      expect(prefs.getBool(markerKey), isTrue);
+
+      final reloaded = AppSettings();
+      await reloaded.loadAppSettings(regionalDefaults: us);
+      expect(units(reloaded), us.settings);
+    });
+
+    test('reset in Germany removes the stored units', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}showOnboarding': false});
+      final settings = AppSettings();
+      await settings.loadAppSettings(regionalDefaults: de);
+      settings.distanceUnit = 'mi';
+      await flushWrites();
+
+      await settings.resetToDefaults();
+
+      expect(settings.distanceUnit, 'km');
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('${_kPrefix}distanceUnit'), isFalse);
     });
   });
 

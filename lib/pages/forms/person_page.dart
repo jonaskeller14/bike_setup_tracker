@@ -84,7 +84,7 @@ class _PersonPageState extends State<PersonPage> {
     if (widget.mode != PersonPageMode.add) _expanded = true;
 
     _adjustments = widget.person == null
-        ? [ridingWeightPresetFor(lookupAppLocalizations(Locale(context.untrackedLocaleName))).deepCopy()]
+        ? [ridingWeightPresetFor(lookupAppLocalizations(context.untrackedLocale)).deepCopy()]
         : List.from(widget.person!.adjustments);
     _initialAdjustments = List.from(_adjustments);
   }

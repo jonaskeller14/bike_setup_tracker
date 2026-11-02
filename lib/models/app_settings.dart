@@ -4,22 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:units_converter/units_converter.dart';
 
+import '../utils/regional_defaults.dart';
 import 'component/component.dart';
 
 class AppSettings extends ChangeNotifier {
   static const String _kPrefix = 'app_settings.';
   static const String _kLegacyBlobKey = 'app_settings';
   static const String kFiltersKey = '${_kPrefix}filters';
+  static const String _kRegionalDefaultsAppliedKey = '${_kPrefix}regionalDefaultsApplied';
 
   bool _showOnboarding = true;
   ThemeMode _themeMode = ThemeMode.system;
   String _dateFormat = 'yyyy-MM-dd';
-  String _timeFormat = 'HH:mm';
-  String _temperatureUnit = '°C';
-  String _windSpeedUnit = 'km/h';
-  String _altitudeUnit = 'm';
-  String _precipitationUnit = 'mm';
-  String _distanceUnit = 'km';
+  String _timeFormat = RegionalDefaults.metric.timeFormat;
+  String _temperatureUnit = RegionalDefaults.metric.temperatureUnit;
+  String _windSpeedUnit = RegionalDefaults.metric.windSpeedUnit;
+  String _altitudeUnit = RegionalDefaults.metric.altitudeUnit;
+  String _precipitationUnit = RegionalDefaults.metric.precipitationUnit;
+  String _distanceUnit = RegionalDefaults.metric.distanceUnit;
   bool _enableGoogleDrive = false; // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
   bool _enableMultiSelect = false;
@@ -57,6 +59,8 @@ class AppSettings extends ChangeNotifier {
   bool _rememberFilters = true;
   String? _localeCode; // null = follow the system language
   bool _developerMode = false;
+  // What this device suggests for the units and the clock; null keeps the metric code defaults.
+  RegionalDefaults? _regionalDefaults;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -445,12 +449,13 @@ class AppSettings extends ChangeNotifier {
     await prefs.setStringList('$_kPrefix$name', value);
   }
 
-  Future<void> loadAppSettings() async {
+  Future<void> loadAppSettings({RegionalDefaults? regionalDefaults}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
       await _migrateLegacyBlob(prefs);
       await _removeDeprecatedPreferences(prefs);
+      await _applyRegionalDefaults(prefs, regionalDefaults);
 
       _showOnboarding = prefs.getBool('${_kPrefix}showOnboarding') ?? _showOnboarding;
       final storedThemeMode = prefs.getString('${_kPrefix}themeMode');
@@ -520,12 +525,15 @@ class AppSettings extends ChangeNotifier {
 
   Future<void> resetToDefaults() async {
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().where((key) => key.startsWith(_kPrefix) && key != '${_kPrefix}showOnboarding');
+    final keys = prefs.getKeys().where(
+      (key) => key.startsWith(_kPrefix) && key != '${_kPrefix}showOnboarding' && key != _kRegionalDefaultsAppliedKey,
+    );
     for (final key in keys.toList()) {
       await prefs.remove(key);
     }
 
-    final defaults = AppSettings();
+    final defaults = AppSettings().._useRegionalDefaults(_regionalDefaults);
+    await _persistRegionalDefaults(prefs, _regionalDefaults);
     _themeMode = defaults._themeMode;
     _dateFormat = defaults._dateFormat;
     _timeFormat = defaults._timeFormat;
@@ -573,9 +581,46 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  static final List<Object> _defaultValues = AppSettings()._resettableValues;
+  /// Per instance, because the units start from the device's region.
+  List<Object> get _defaultValues {
+    final defaults = AppSettings().._useRegionalDefaults(_regionalDefaults);
+    final values = defaults._resettableValues;
+    defaults.dispose();
+    return values;
+  }
 
   bool get hasDefaultValues => listEquals(_resettableValues, _defaultValues);
+
+  void _useRegionalDefaults(RegionalDefaults? regional) {
+    if (regional == null) return;
+    _timeFormat = regional.timeFormat;
+    _temperatureUnit = regional.temperatureUnit;
+    _windSpeedUnit = regional.windSpeedUnit;
+    _altitudeUnit = regional.altitudeUnit;
+    _precipitationUnit = regional.precipitationUnit;
+    _distanceUnit = regional.distanceUnit;
+  }
+
+  /// A fresh install takes the device's region once and keeps it, so a unit does
+  /// not change when the device language does or the user travels. An existing
+  /// install shows what it always showed (an unset unit falls back to metric),
+  /// so it only gets the marker. Only values that differ from the code default
+  /// are written, so a metric install keeps following it.
+  Future<void> _applyRegionalDefaults(SharedPreferences prefs, RegionalDefaults? regional) async {
+    _regionalDefaults = regional;
+    if (regional == null || prefs.containsKey(_kRegionalDefaultsAppliedKey)) return;
+    final isFreshInstall = !prefs.containsKey('${_kPrefix}showOnboarding');
+    if (isFreshInstall) await _persistRegionalDefaults(prefs, regional);
+    await prefs.setBool(_kRegionalDefaultsAppliedKey, true);
+  }
+
+  Future<void> _persistRegionalDefaults(SharedPreferences prefs, RegionalDefaults? regional) async {
+    if (regional == null) return;
+    final metric = RegionalDefaults.metric.settings;
+    for (final MapEntry(:key, :value) in regional.settings.entries) {
+      if (value != metric[key] && !prefs.containsKey('$_kPrefix$key')) await prefs.setString('$_kPrefix$key', value);
+    }
+  }
 
   List<Object> get _resettableValues => [
     _themeMode,

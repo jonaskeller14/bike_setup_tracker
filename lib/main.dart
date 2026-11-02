@@ -39,6 +39,7 @@ import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
 import 'services/tip_service.dart';
 import 'theme.dart';
+import 'utils/regional_defaults.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -145,12 +146,20 @@ class _LoadingGateState extends State<LoadingGate> {
     _initialization = _initialize();
   }
 
+  RegionalDefaults _deviceRegionalDefaults() {
+    final dispatcher = PlatformDispatcher.instance;
+    return regionalDefaults(
+      deviceRegionCode(dispatcher.locales),
+      alwaysUse24HourFormat: dispatcher.alwaysUse24HourFormat,
+    );
+  }
+
   Future<void> _initialize() async {
     try {
       await Future.wait([
         // Settings load best-effort: whatever was read before the failure is
         // kept, the rest stays at its code default.
-        widget.appSettings.loadAppSettings().catchError(
+        widget.appSettings.loadAppSettings(regionalDefaults: _deviceRegionalDefaults()).catchError(
           (Object e, StackTrace s) => recordBootError(e, s, reason: 'App settings failed to load'),
         ),
         _loadAndMigrate(),
@@ -357,6 +366,7 @@ class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsB
       darkTheme: materialAppDarkTheme,
       themeMode: appSettings.themeMode,
       locale: locale,
+      localeResolutionCallback: keepRegionLocale,
       localizationsDelegates: appLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       // For packages that format with the default locale, such as the calendar.

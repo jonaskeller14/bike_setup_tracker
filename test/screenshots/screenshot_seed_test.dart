@@ -8,6 +8,7 @@ import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dar
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/screenshots/screenshot_seed.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
+import 'package:bike_setup_tracker/utils/regional_defaults.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -140,6 +141,18 @@ void main() {
       expect(loaded.enableRating, isFalse);
       expect(loaded.enableTask, isTrue);
       expect(loaded.enableCalendar, isTrue);
+      loaded.dispose();
+    });
+
+    test('keeps the metric units and 24-hour clock on a US device with a 12-hour clock', () async {
+      await ScreenshotSeed.resetPreferences(hintService);
+
+      final loaded = AppSettings();
+      await loaded.loadAppSettings(regionalDefaults: regionalDefaults('US', alwaysUse24HourFormat: false));
+
+      expect(loaded.distanceUnit, 'km');
+      expect(loaded.temperatureUnit, '°C');
+      expect(loaded.timeFormat, 'HH:mm');
       loaded.dispose();
     });
 

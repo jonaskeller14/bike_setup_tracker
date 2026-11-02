@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/l10n/l10n.dart';
+import 'package:bike_setup_tracker/l10n/locale_resolution.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -31,5 +32,28 @@ void main() {
 
     expect(context.l10n.cancel, 'Abbrechen');
     expect(MaterialLocalizations.of(context).cancelButtonLabel, 'Abbrechen');
+  });
+
+  testWidgets('a device region leaves the language and its text alone', (tester) async {
+    late BuildContext context;
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('de', 'CH'),
+        localeResolutionCallback: keepRegionLocale,
+        localizationsDelegates: appLocalizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (builderContext) {
+            context = builderContext;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+
+    expect(context.untrackedLocale, const Locale('de', 'CH'));
+    expect(context.untrackedLocaleName, 'de_CH');
+    expect(lookupAppLocalizations(context.untrackedLocale).cancel, 'Abbrechen');
+    expect(context.l10n.cancel, 'Abbrechen');
   });
 }

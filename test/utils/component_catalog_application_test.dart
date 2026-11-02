@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/utils/adjustment_preset_consumption.dart';
 import 'package:bike_setup_tracker/utils/adjustment_role.dart';
@@ -307,6 +308,55 @@ void main() {
 
       expect(isAdjustmentPresetConsumed(template('fork:sag'), app.adjustments), isTrue);
       expect(isAdjustmentPresetConsumed(template('shock:sag'), app.adjustments), isFalse);
+    });
+  });
+
+  group('catalog text in German', () {
+    const yaml = '''
+brand: FOX
+component_type: fork
+option_values:
+  damper:
+    grip_x2:
+      name: GRIP X2
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest] }
+nodes:
+  - label: "36"
+    level: model
+    category: Trail
+    note: Stiff chassis
+    note_de: Steifes Fahrwerk
+    options:
+      damper: [grip_x2]
+''';
+
+    CatalogApplication build(String language, AppLocalizations l10n) {
+      final preset = catalogProducts(parseCatalogFile(yaml, languageCode: language)).single;
+      return buildCatalogApplication(preset.select(preset.axes.single, preset.axes.single.values.single), l10n);
+    }
+
+    test('a fork created in German stores German names, notes and options, and the preset key', () {
+      final app = build('de', germanL10n);
+
+      final rebound = app.adjustments.firstWhere((a) => a.presetKey == 'fork:rebound');
+      expect((rebound.name, rebound.notes), ('Zugstufe', 'Low-Speed-Zugstufe'));
+      final mode = app.adjustments.firstWhere((a) => a.presetKey == 'fork:compression_mode') as CategoricalAdjustment;
+      expect(mode.name, 'Druckstufenmodus');
+      expect(mode.options, {'Offen', 'Fest'});
+      expect(app.notes, contains('- Steifes Fahrwerk'));
+    });
+
+    test('the same fork created in English is the same component with English text', () {
+      final english = build('en', englishL10n);
+      final german = build('de', germanL10n);
+
+      expect(english.name, german.name);
+      expect(english.preset.toJson(), german.preset.toJson());
+      expect(english.adjustments.map((a) => a.presetKey), german.adjustments.map((a) => a.presetKey));
+      expect(english.adjustments.firstWhere((a) => a.presetKey == 'fork:rebound').name, 'Rebound');
+      expect(english.notes, contains('- Stiff chassis'));
     });
   });
 

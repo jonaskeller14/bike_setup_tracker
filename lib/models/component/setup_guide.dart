@@ -5,6 +5,10 @@ import '../adjustment/adjustment.dart';
 class SetupGuide {
   final String id;
   final String label;
+
+  /// [label] in English, whatever the catalog language, for recognising a notes
+  /// line written before a language switch.
+  final String sourceLabel;
   final String source;
 
   /// In dependency order: a rule reading another adjuster as its input comes
@@ -14,9 +18,10 @@ class SetupGuide {
   const SetupGuide({
     required this.id,
     required this.label,
+    String? sourceLabel,
     required this.source,
     required this.rules,
-  });
+  }) : sourceLabel = sourceLabel ?? label;
 }
 
 class GuideRule {

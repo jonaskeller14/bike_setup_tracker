@@ -274,6 +274,25 @@ nodes:
       expect(appendNotesLine(notes, german), '$notes\n$german');
     });
 
+    test('names the guides by their English label on request', () {
+      const german = SetupGuide(
+        id: 'g',
+        label: 'FOX Bedienungsanleitung (2027)',
+        sourceLabel: "FOX owner's manual (2027)",
+        source: 'https://example.com',
+        rules: [],
+      );
+
+      expect(
+        guideNotesLine([german], const GuideInputs(), englishL10n),
+        'Started from recommended values (FOX Bedienungsanleitung (2027))',
+      );
+      expect(
+        guideNotesLine([german], const GuideInputs(), englishL10n, sourceLabels: true),
+        "Started from recommended values (FOX owner's manual (2027))",
+      );
+    });
+
     test('is appended on its own line, once', () {
       expect(appendNotesLine('', 'line'), 'line');
       expect(appendNotesLine('Dry and dusty\n', 'line'), 'Dry and dusty\nline');

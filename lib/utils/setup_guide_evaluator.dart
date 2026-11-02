@@ -434,7 +434,10 @@ class _RuleEvaluation {
     }(),
     GuideBand(:final min, :final max) => _bandCell(_resolveScalar(min), _resolveScalar(max)),
     GuideOption(:final option) => switch (adjustment) {
-      CategoricalAdjustment(:final options) when options.contains(option) => _DiscreteCell(CategoricalValue([option])),
+      CategoricalAdjustment(:final options) => switch (_storedOption(option, options)) {
+        final stored? => _DiscreteCell(CategoricalValue([stored])),
+        null => throw const _Failure(GuideIssue.incompatible),
+      },
       _ => throw const _Failure(GuideIssue.incompatible),
     },
     GuideBoolean(:final value) => switch (adjustment) {
@@ -442,6 +445,22 @@ class _RuleEvaluation {
       _ => throw const _Failure(GuideIssue.incompatible),
     },
   };
+
+  /// The option of the rider's adjuster that the guide's English [option] means.
+  /// The component may have been built in another language than the catalog is
+  /// in now, so beyond the text in the catalog language and in English, an
+  /// adjuster built from this catalog adjuster is matched by the option's place.
+  String? _storedOption(String option, Set<String> stored) {
+    if (stored.contains(option)) return option;
+    final spec = _catalogSpec;
+    final index = spec?.sourceOptions.indexOf(option) ?? -1;
+    if (spec == null || index < 0) return null;
+
+    final catalogOptions = (spec.build() as CategoricalAdjustment).options.toList();
+    if (stored.contains(catalogOptions[index])) return catalogOptions[index];
+    if (adjustment.presetKey == spec.presetKey && stored.length == catalogOptions.length) return stored.elementAt(index);
+    return null;
+  }
 
   /// A step band with its ends on the nearest clicks, as the value is rounded;
   /// otherwise a click the band reaches by less than half could count as off.

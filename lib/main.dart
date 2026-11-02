@@ -135,7 +135,9 @@ class LoadingGate extends StatefulWidget {
 
 class _LoadingGateState extends State<LoadingGate> {
   late final Future<void> _initialization;
-  final _catalogRepository = ComponentCatalogRepository();
+  late final _catalogRepository = ComponentCatalogRepository(
+    languageCode: () => appLocaleOf(widget.appSettings).languageCode,
+  );
 
   @override
   void initState() {
@@ -347,11 +349,7 @@ class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsB
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final locale = resolveAppLocale(
-      enabled: appSettings.enableLanguageSelection,
-      override: appSettings.localeCode,
-      deviceLocales: WidgetsBinding.instance.platformDispatcher.locales,
-    );
+    final locale = appLocaleOf(appSettings);
 
     return MaterialApp(
       title: 'Bike Setup Tracker',

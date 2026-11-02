@@ -1,17 +1,13 @@
-import 'dart:ui';
+import 'package:flutter/widgets.dart';
 
+import '../models/app_settings.dart';
 import 'app_localizations.dart';
 
 const _fallbackLocale = Locale('en');
 
-/// The language the app UI runs in.
-///
-/// While [enabled] is false the app stays English even on a German device, so a
-/// half-translated UI never reaches users. Otherwise an [override] wins, then
-/// the first supported device language, then English.
 Locale resolveAppLocale({
-  required bool enabled,
-  String? override,
+  required bool enabled, // if false --> english
+  String? override, // lang = override ?? supported device language ?? english
   required List<Locale> deviceLocales,
 }) {
   if (!enabled) return _fallbackLocale;
@@ -24,3 +20,9 @@ Locale resolveAppLocale({
   }
   return _fallbackLocale;
 }
+
+Locale appLocaleOf(AppSettings settings) => resolveAppLocale(
+  enabled: settings.enableLanguageSelection,
+  override: settings.localeCode,
+  deviceLocales: WidgetsBinding.instance.platformDispatcher.locales,
+);

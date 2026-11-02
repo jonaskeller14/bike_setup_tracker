@@ -185,6 +185,44 @@ void main() {
       expect((merged.adjustment as CategoricalAdjustment).options, {'none', '1 x 10cc'});
     });
 
+    test('the same catalog adjuster in another language keeps its own options', () {
+      final own = CategoricalAdjustment(
+        name: 'Compression Mode',
+        notes: null,
+        unit: null,
+        presetKey: 'fork:compression_mode',
+        options: const {'Open', 'Firm'},
+      );
+      final catalog = CategoricalAdjustment(
+        name: 'Druckstufenmodus',
+        notes: null,
+        unit: null,
+        presetKey: 'fork:compression_mode',
+        options: const {'Offen', 'Fest'},
+      );
+
+      final merged = mergeAdjustment(own, catalog, [
+        CategoricalValue(const ['Open']),
+      ]);
+
+      expect((merged.adjustment as CategoricalAdjustment).options, {'Open', 'Firm'});
+    });
+
+    test('an adjustment without the catalog preset key is not assumed to hold the same options', () {
+      final own = CategoricalAdjustment(name: 'Mode', notes: null, unit: null, options: const {'Open', 'Firm'});
+      final catalog = CategoricalAdjustment(
+        name: 'Mode',
+        notes: null,
+        unit: null,
+        presetKey: 'fork:compression_mode',
+        options: const {'Offen', 'Fest'},
+      );
+
+      final merged = mergeAdjustment(own, catalog, const []);
+
+      expect((merged.adjustment as CategoricalAdjustment).options, {'Open', 'Firm', 'Offen', 'Fest'});
+    });
+
     test('SAG only gets the preset key', () {
       final own = SagAdjustment(name: 'Sag', notes: null, referenceTravelMm: 160);
       final catalog = SagAdjustment(name: 'SAG', notes: null, presetKey: 'fork:sag');

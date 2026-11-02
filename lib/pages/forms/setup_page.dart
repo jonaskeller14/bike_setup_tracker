@@ -1571,7 +1571,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       // Apply all after a language switch must not add a second line.
       equivalents: [
         for (final locale in AppLocalizations.supportedLocales)
-          guideNotesLine(guides, inputs, lookupAppLocalizations(locale)),
+          for (final sourceLabels in const [false, true])
+            guideNotesLine(guides, inputs, lookupAppLocalizations(locale), sourceLabels: sourceLabels),
       ],
     );
     ScaffoldMessenger.of(context).showSnackBar(

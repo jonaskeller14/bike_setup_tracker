@@ -626,6 +626,65 @@ void main() {
     });
   });
 
+  group('across catalog languages', () {
+    const bilingual = '''
+brand: FOX
+component_type: fork
+guides:
+  g:
+    label: Manual
+    source: https://example.com
+    rules:
+      - { target: compression_mode, value: Firm }
+option_values:
+  damper:
+    d:
+      name: D
+      adjustments:
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest] }
+nodes:
+  - label: "36"
+    level: model
+    guide: g
+    options:
+      damper: [d]
+''';
+
+    ResolvedPreset presetIn(String language) {
+      final preset = catalogProducts(parseCatalogFile(bilingual, languageCode: language)).single;
+      final axis = preset.axes.single;
+      return preset.select(axis, axis.values.single);
+    }
+
+    CategoricalValue? recommendedFor(String componentLanguage, String catalogLanguage) {
+      final l10n = componentLanguage == 'de' ? germanL10n : englishL10n;
+      final built = buildCatalogApplication(presetIn(componentLanguage), l10n).adjustments;
+      final results = evaluateSetupGuide(presetIn(catalogLanguage), built, const GuideInputs(), const {}, englishL10n);
+      return results.single.value as CategoricalValue?;
+    }
+
+    test('a component made in English is evaluated in German', () {
+      expect(recommendedFor('en', 'de'), CategoricalValue(const ['Firm']));
+    });
+
+    test('a component made in German is evaluated in English', () {
+      expect(recommendedFor('de', 'en'), CategoricalValue(const ['Fest']));
+    });
+
+    test('a component evaluated in its own language keeps its text', () {
+      expect(recommendedFor('de', 'de'), CategoricalValue(const ['Fest']));
+      expect(recommendedFor('en', 'en'), CategoricalValue(const ['Firm']));
+    });
+
+    test('an adjustment with other options and no catalog key is incompatible', () {
+      final edited = [
+        CategoricalAdjustment(name: 'Compression Mode', notes: null, unit: null, options: const {'Auf', 'Zu'}),
+      ];
+      final result = evaluateSetupGuide(presetIn('de'), edited, const GuideInputs(), const {}, germanL10n).single;
+      expect(result.issue, GuideIssue.incompatible);
+    });
+  });
+
   group('deviation', () {
     GuideRecommendation pressure({required double weight, required double now}) => _of(
       _evaluate(

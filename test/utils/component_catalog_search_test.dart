@@ -116,6 +116,44 @@ void main() {
   final fox = _products(_foxYaml);
   final all = [...fox, ..._products(_rockShoxYaml)];
 
+  group('in a translated catalog', () {
+    final german = catalogProducts(
+      parseCatalogFile(
+        '''
+brand: FOX
+component_type: fork
+option_values:
+  damper:
+    grip_x2:
+      name: GRIP X2
+      description: Four-way adjustable.
+      description_de: Vierfach einstellbar.
+      adjustments:
+        - { name: LSC, name_de: Druckstufe, type: step, max: 18 }
+nodes:
+  - label: "36"
+    level: model
+    category: Trail
+    category_de: Trail-Gabeln
+    note: Stiff chassis
+    note_de: Steifes Fahrwerk
+    options:
+      damper: [grip_x2]
+''',
+        languageCode: 'de',
+      ),
+    ).toList();
+
+    test('finds a product by brand, model and damper, which are not translated', () {
+      expect(suggestPresets(german, 'fox 36 grip').map(presetDisplayName), ['FOX 36']);
+    });
+
+    test('does not find it by the translated text', () {
+      expect(suggestPresets(german, 'steifes'), isEmpty);
+      expect(suggestPresets(german, 'trail-gabeln'), isEmpty);
+    });
+  });
+
   group('suggestPresets', () {
     test('returns nothing below the 3-character threshold', () {
       expect(suggestPresets(fox, 'fo'), isEmpty);

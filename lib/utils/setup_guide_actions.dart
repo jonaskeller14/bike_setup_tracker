@@ -103,11 +103,17 @@ Map<Adjustment, AdjustmentValue> guideValuesToApply(
 /// The setup notes line **Apply all** leaves: `Started from recommended values
 /// (FOX 38 owner's manual (2027)) · 82 kg`, in the language of [l10n]. The line
 /// is stored with the notes like typed text, so it keeps the language it was
-/// written in.
-String guideNotesLine(Iterable<SetupGuide> guides, GuideInputs inputs, AppLocalizations l10n) {
+/// written in. With [sourceLabels] the guides are named by their English label,
+/// as a line written before the catalog changed language names them.
+String guideNotesLine(
+  Iterable<SetupGuide> guides,
+  GuideInputs inputs,
+  AppLocalizations l10n, {
+  bool sourceLabels = false,
+}) {
   final weight = inputs.riderWeight;
   return [
-    l10n.guideNotesLine(guides.map((guide) => guide.label).toSet().join(', ')),
+    l10n.guideNotesLine(guides.map((guide) => sourceLabels ? guide.sourceLabel : guide.label).toSet().join(', ')),
     if (weight != null)
       '${formatLocalizedDouble(double.parse(weight.toStringAsFixed(1)), locale: l10n.localeName)} ${inputs.riderWeightUnit.label}',
   ].join(' · ');

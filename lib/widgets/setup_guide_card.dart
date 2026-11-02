@@ -143,12 +143,13 @@ class SetupGuideCard extends StatelessWidget {
           ],
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Row(
+            child: Wrap(
               spacing: 12,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(
-                  child: Text(context.l10n.guideCardStartingPoint, style: textTheme.bodySmall?.merge(onContainer)),
-                ),
+                Text(context.l10n.guideCardStartingPoint, style: textTheme.bodySmall?.merge(onContainer)),
                 FilledButton.icon(
                   style: FilledButton.styleFrom(backgroundColor: hint.accent, foregroundColor: hint.onAccent),
                   onPressed: onApplyAll,

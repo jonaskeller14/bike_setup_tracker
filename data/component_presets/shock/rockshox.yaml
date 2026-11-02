@@ -90,10 +90,14 @@ option_values:
         - Rebound, two independent compression circuits and a threshold climb setting
         - HSC and LSC are 5-position dials, centred on the shock's base tune
         - 15 clicks of rebound; LSC turns by hand, HSC takes a 3mm hex key
+      description_de: |-
+        - Zugstufe, zwei unabhängige Druckstufenkreise und eine Threshold-Climb-Einstellung
+        - HSC und LSC sind Räder mit 5 Positionen, zentriert auf die Grundabstimmung des Dämpfers
+        - 15 Klicks Zugstufe; LSC wird von Hand gedreht, HSC braucht einen 3-mm-Inbusschlüssel
       adjustments:
-        - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle base tune; 3mm hex key", dialColor: blue, dialSize: small }
-        - { name: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle base tune; adjusted by hand", dialColor: blue }
-        - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: HSC, name_de: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle base tune; 3mm hex key", notes_de: High-Speed-Druckstufe; von der mittleren Grundabstimmung gezählt; 3-mm-Inbusschlüssel, dialColor: blue, dialSize: small }
+        - { name: LSC, name_de: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle base tune; adjusted by hand", notes_de: Low-Speed-Druckstufe; von der mittleren Grundabstimmung gezählt; von Hand verstellt, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 15, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
       source:
         - https://support.rockshox.com/hc/en-us/articles/6004026399259-How-far-can-I-adjust-the-High-Speed-Compression-HSC-and-Low-Speed-Compression-LSC-on-Rockshox-RC2T-dampers
         - https://support.rockshox.com/hc/en-us/articles/6004236989083-How-do-I-adjust-Rebound-High-Speed-Compression-HSC-and-Low-Speed-Compression-LSC-on-the-RockShox-RC2T-damper
@@ -115,9 +119,13 @@ option_values:
       description: >-
         Piggyback damper of the 2027 Super Deluxe with a rebound dial, compression
         adjusters and a two-position lockout.
+      description_de: >-
+        Piggyback-Dämpfer des Super Deluxe 2027 mit Zugstufenrad,
+        Druckstufenverstellern und Zwei-Positionen-Lockout.
       missing_adjustments: [Compression, Lockout lever]
+      missing_adjustments_de: [Druckstufe, Lockout-Hebel]
       adjustments:
-        - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 15, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
       source:
         - https://support.rockshox.com/hc/en-us/articles/48154327224219-How-many-rebound-clicks-does-the-Super-Deluxe-D1-have
         - https://support.rockshox.com/hc/en-us/articles/48154123356571-Is-there-a-three-position-3P-variant-of-the-Super-Deluxe-D1
@@ -132,9 +140,13 @@ option_values:
       description: >-
         Downhill damper of the Super Deluxe Ultimate DH, with separate high- and
         low-speed compression and no climb switch.
+      description_de: >-
+        Downhill-Dämpfer des Super Deluxe Ultimate DH mit getrennter High- und
+        Low-Speed-Druckstufe und ohne Climb-Schalter.
       missing_adjustments: [HSC, LSC]
+      missing_adjustments_de: [HSC, LSC]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
       source: https://support.rockshox.com/hc/en-us/articles/17938105283355-Will-Vivid-Ultimate-DH-replace-Super-Deluxe-Ultimate-DH
       note: >-
         SRAM publishes no click counts for the DH-specific RC2. The RC2T numbers
@@ -148,11 +160,15 @@ option_values:
         - Piggyback damper with five positions each of high- and low-speed compression
         - Twenty clicks of rebound
         - Five positions of adjustable hydraulic bottom-out to control the last of the stroke
+      description_de: |-
+        - Piggyback-Dämpfer mit je fünf Positionen für High- und Low-Speed-Druckstufe
+        - Zwanzig Klicks Zugstufe
+        - Fünf Positionen des einstellbaren hydraulischen Durchschlagschutzes, der das Ende des Federwegs kontrolliert
       adjustments:
-        - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent; 5 positions in total", dialSize: small }
-        - { name: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent; 5 positions in total" }
-        - { name: Rebound, type: step, max: 20, notes: Counted from fully open (fastest), dialColor: red }
-        - { name: Hydraulic Bottom Out, type: step, max: 4, notes: "Adjustable Hydraulic Bottom Out (AHBO); 5 positions in total; Counted from fully open", dialSize: small }
+        - { name: HSC, name_de: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent; 5 positions in total", notes_de: High-Speed-Druckstufe; von der mittleren Raste gezählt; insgesamt 5 Positionen, dialSize: small }
+        - { name: LSC, name_de: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent; 5 positions in total", notes_de: Low-Speed-Druckstufe; von der mittleren Raste gezählt; insgesamt 5 Positionen }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 20, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
+        - { name: Hydraulic Bottom Out, name_de: Hydraulischer Durchschlagschutz, type: step, max: 4, notes: "Adjustable Hydraulic Bottom Out (AHBO); 5 positions in total; Counted from fully open", notes_de: Adjustable Hydraulic Bottom Out (AHBO); insgesamt 5 Positionen; von ganz offen gezählt, dialSize: small }
       source:
         - https://support.rockshox.com/hc/en-us/articles/17939326675867-How-many-positions-of-High-Speed-Compression-HSC-Low-Speed-Compression-LSC-Rebound-and-Adjustable-Hydraulic-Bottom-Out-AHBO-does-Vivid-Ultimate-have
         - https://support.rockshox.com/hc/en-us/articles/46640345306779-How-many-rebound-clicks-does-Vivid-Coil-D1-feature
@@ -182,9 +198,13 @@ option_values:
       description: >-
         Compact trail damper of the Deluxe and SIDLuxe, with compression damping,
         rebound and a climb lever.
+      description_de: >-
+        Kompakter Trail-Dämpfer des Deluxe und SIDLuxe mit Druckstufendämpfung,
+        Zugstufe und Climb-Hebel.
       missing_adjustments: [Compression, Climb lever]
+      missing_adjustments_de: [Druckstufe, Climb-Hebel]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
       source: https://www.sram.com/en/rockshox/products/shocks
       note: >-
         Previously carried RC2T's numbers by inference; that was wrong and has been
@@ -195,9 +215,12 @@ option_values:
       name: Monarch RT3
       description: >-
         Inline air damper with rebound and a three-position compression lever.
+      description_de: >-
+        Inline-Luftdämpfer mit Zugstufe und Drei-Positionen-Druckstufenhebel.
       missing_adjustments: [Compression lever]
+      missing_adjustments_de: [Druckstufenhebel]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
       note: >-
         Model codes RS-MNR-RT3-C1..D2 in the Bottomless Tokens document confirm the
@@ -209,9 +232,13 @@ option_values:
       description: >-
         Piggyback air damper with rebound and a three-position compression lever for
         longer-travel bikes.
+      description_de: >-
+        Piggyback-Luftdämpfer mit Zugstufe und Drei-Positionen-Druckstufenhebel
+        für Bikes mit mehr Federweg.
       missing_adjustments: [Compression lever]
+      missing_adjustments_de: [Druckstufenhebel]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
       note: >-
         Model codes RS-MNRP-RC3-A2, B1-B4. No click counts published, so rebound
@@ -221,9 +248,12 @@ option_values:
       name: Deluxe RT3
       description: >-
         Inline trail damper with rebound and a three-position compression lever.
+      description_de: >-
+        Inline-Trail-Dämpfer mit Zugstufe und Drei-Positionen-Druckstufenhebel.
       missing_adjustments: [Compression lever]
+      missing_adjustments_de: [Druckstufenhebel]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
       note: >-
         Model codes RS-DLX-RT3-A2, B1 (Deluxe <= 2022). No click counts
@@ -235,9 +265,13 @@ option_values:
       description: >-
         Piggyback damper of the 2017-2022 Super Deluxe, with rebound, compression and
         a threshold lever.
+      description_de: >-
+        Piggyback-Dämpfer des Super Deluxe 2017-2022 mit Zugstufe, Druckstufe
+        und Threshold-Hebel.
       missing_adjustments: [Compression, Threshold lever]
+      missing_adjustments_de: [Druckstufe, Threshold-Hebel]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
       note: >-
         Model codes RS-SDLX-RCT-A1, B1 and RS-SDLX-RC3-A2, B1 (Super Deluxe
@@ -249,10 +283,14 @@ option_values:
       description: >-
         Downhill air damper with separate beginning- and ending-stroke rebound
         adjusters.
+      description_de: >-
+        Downhill-Luftdämpfer mit getrennten Zugstufenverstellern für Beginn und
+        Ende des Hubs.
       missing_adjustments: [Compression]
+      missing_adjustments_de: [Druckstufe]
       adjustments:
-        - { name: Beginning Stroke Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
-        - { name: Ending Stroke Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Beginning Stroke Rebound, name_de: Zugstufe zu Beginn des Hubs, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
+        - { name: Ending Stroke Rebound, name_de: Zugstufe am Ende des Hubs, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
       source: https://www.sram.com/en/rockshox/products/shocks
       note: >-
         The classic Vivid Air (pre-2017). SRAM's current documentation no longer
@@ -270,6 +308,7 @@ option_values:
 guides:
   rockshox_rear_shock_um:
     label: RockShox Suspension User Manual
+    label_de: RockShox Fahrwerk-Bedienungsanleitung
     source: https://docs.sram.com/en-US/publications/5ODr3E6BhL1uWDnWhq4ATB
     rules:
       - target: pressure
@@ -282,6 +321,7 @@ guides:
           100: 220, 105: 231, 110: 243, 115: 254, 120: 265
         }
         note: Calculated from RockShox's starting point (psi = rider weight in lb, with gear); set the final pressure by SAG
+        note_de: Berechnet aus dem Ausgangspunkt von RockShox (psi = Fahrergewicht in lb, mit Ausrüstung); den endgültigen Druck über den SAG einstellen
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -292,6 +332,7 @@ guides:
           100: max-6, 105: max-6, 110: max-5, 115: max-5, 120: max-4
         }
         note: Calculated from RockShox TrailHead's formula
+        note_de: Berechnet nach der Formel von RockShox TrailHead
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -302,16 +343,17 @@ guides:
           100: max-8, 105: max-8, 110: max-7, 115: max-6, 120: max-5
         }
         note: Calculated from RockShox TrailHead's formula
+        note_de: Berechnet nach der Formel von RockShox TrailHead
       - { target: hsc, value: 0, when: { damper: [rc2t, vivid_ultimate] } }
       - { target: lsc, value: 0, when: { damper: [rc2t, vivid_ultimate] } }
       # DebonAir, DebonAir+ and coil springs.
-      - { target: sag, range: [25, 35], comfort_at: max, note: "Around 30 %, ±5 %" }
+      - { target: sag, range: [25, 35], comfort_at: max, note: "Around 30 %, ±5 %", note_de: "Etwa 30 %, ±5 %" }
       # SoloAir springs, then the Linear XL Super Deluxe and the classic Vivid
       # Air, for which SRAM states only its general 20-30 % band.
-      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", when: { model: [monarch, monarch-plus], trim: [rt3, xx, r] } }
-      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", when: { model: [deluxe, super-deluxe], trim: [select, rl, rc3] } }
-      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", when: { model: super-deluxe, generation: "2027", trim: [ultimate, select-plus] } }
-      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", when: { model: vivid-air, generation: "2010" } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", note_de: "Etwa 25 %, ±5 %", when: { model: [monarch, monarch-plus], trim: [rt3, xx, r] } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", note_de: "Etwa 25 %, ±5 %", when: { model: [deluxe, super-deluxe], trim: [select, rl, rc3] } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", note_de: Allgemeines Band von RockShox für Luftdämpfer, when: { model: super-deluxe, generation: "2027", trim: [ultimate, select-plus] } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", note_de: Allgemeines Band von RockShox für Luftdämpfer, when: { model: vivid-air, generation: "2010" } }
       - { target: sag, value: 30, when: { model: vivid-air, generation: "2024" } }
 
 # --------------------------------------------------------------------------
@@ -339,10 +381,11 @@ nodes:
   - label: "Deluxe"
     level: model
     category: Trail
+    category_de: Trail
     guide: rockshox_rear_shock_um
     tasks: &rockshox_service
-      shock:air_can_service: &rockshox_air_can_service { interval: { moving_time_h: 50 }, source: RockShox service intervals }
-      shock:full_service: &rockshox_full_service { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: RockShox service intervals }
+      shock:air_can_service: &rockshox_air_can_service { interval: { moving_time_h: 50 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle }
+      shock:full_service: &rockshox_full_service { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle }
     children:
       - label: "2023–2026"
         level: generation
@@ -350,14 +393,14 @@ nodes:
         draft: true
         years: "2023-2026"
         url: https://www.sram.com/en/rockshox/series/deluxe
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+ }
             adjustments: &gen_c_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; a Linear XL air can takes up to 4 more air can tokens" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; a Linear XL air can takes up to 4 more air can tokens", notes_de: Bottomless Tokens; eine Linear-XL-Luftkammer nimmt bis zu 4 weitere Luftkammer-Tokens auf }
             options:
               damper: [rct]
               size: &metric_sizes
@@ -371,35 +414,38 @@ nodes:
                 - { size: "250x67.5/70/72.5/75", mount: Standard }
           - label: Select+
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir }
             adjustments: *gen_c_air_spring
             options:
               damper: [rct]
               size: *metric_sizes
             note: OEM only
+            note_de: Nur OEM
           - label: Select
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir }
             adjustments: *gen_c_air_spring
             options:
               damper: [rct]
               size: *metric_sizes
             note: OEM only
+            note_de: Nur OEM
       - label: "2017–2022"
         level: generation
         id: "2017"
         draft: true
         years: "2017-2022"
         url: https://www.sram.com/en/rockshox/series/deluxe
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         note: Inline (no piggyback); model codes RS-DLX-*-A2/B1/B2
+        note_de: Inline (kein Piggyback); Modellcodes RS-DLX-*-A2/B1/B2
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir }
             adjustments: &gen_a_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
             options:
               damper: [deluxe_rt3]
               size: &gen_a_debonair_sizes
@@ -413,14 +459,14 @@ nodes:
                 - "250x67.5/70/72.5/75"
           - label: RT3
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [deluxe_rt3]
               size: *gen_a_debonair_sizes
           - label: RL
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [deluxe_rt3]
@@ -437,6 +483,7 @@ nodes:
   - label: "Super Deluxe"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
     guide: rockshox_rear_shock_um
     tasks: *rockshox_service
     children:
@@ -446,14 +493,14 @@ nodes:
         years: "2027"
         url: https://www.sram.com/en/rockshox/series/super-deluxe
         setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: Linear XL }
+            specs: { spring: Linear XL, spring_de: Linear XL }
             adjustments: &super_deluxe_d1_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 400 }
-              - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; Maximum depends on the size: 37.5-45mm stroke 4, 47.5-55mm stroke 5, 57.5-65mm stroke 6" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 400 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; Maximum depends on the size: 37.5-45mm stroke 4, 47.5-55mm stroke 5, 57.5-65mm stroke 6", notes_de: "Bottomless Tokens; das Maximum hängt von der Größe ab: 37,5-45mm Hub 4, 47,5-55mm Hub 5, 57,5-65mm Hub 6" }
             options:
               damper: [super_deluxe_d1]
               size: &super_deluxe_d1_strokes
@@ -471,77 +518,82 @@ nodes:
                 - 65
           - label: Select+
             level: trim
-            specs: { spring: Linear XL }
+            specs: { spring: Linear XL, spring_de: Linear XL }
             adjustments: *super_deluxe_d1_air_spring
             options:
               damper: [super_deluxe_d1]
               size: *super_deluxe_d1_strokes
             note: OEM only
+            note_de: Nur OEM
           - label: Select
             level: trim
-            specs: { spring: Linear XL }
+            specs: { spring: Linear XL, spring_de: Linear XL }
             adjustments: *super_deluxe_d1_air_spring
             options:
               damper: [super_deluxe_d1]
               size: *super_deluxe_d1_strokes
             note: OEM only
+            note_de: Nur OEM
       - label: "2023–2026"
         level: generation
         id: "2023"
         years: "2023-2026"
         url: https://www.sram.com/en/rockshox/series/super-deluxe
         setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+ }
             adjustments: *gen_c_air_spring
             options:
               damper: [rc2t]
               size: *metric_sizes
           - label: Select+
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir }
             adjustments: *gen_c_air_spring
             options:
               damper: [rc2t]
               size: *metric_sizes
             note: OEM only
+            note_de: Nur OEM
           - label: Select
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir }
             adjustments: *gen_c_air_spring
             options:
               damper: [rc2t]
               size: *metric_sizes
             note: OEM only
+            note_de: Nur OEM
       - label: "2017–2022"
         level: generation
         id: "2017"
         draft: true
         years: "2017-2022"
         url: https://www.sram.com/en/rockshox/series/super-deluxe
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         note: Piggyback reservoir; model codes RS-SDLX-*-A1/A2/B1/B2
+        note_de: Piggyback-Ausgleichsbehälter; Modellcodes RS-SDLX-*-A1/A2/B1/B2
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [super_deluxe_rct]
               size: *gen_a_debonair_sizes
           - label: RCT
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [super_deluxe_rct]
               size: *gen_a_debonair_sizes
           - label: RC3
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [super_deluxe_rct]
@@ -556,6 +608,7 @@ nodes:
   - label: "Super Deluxe Coil"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
     guide: rockshox_rear_shock_um
     tasks:
       shock:full_service: *rockshox_full_service
@@ -566,13 +619,13 @@ nodes:
         years: "2023-2026"
         url: https://www.sram.com/en/rockshox/series/super-deluxe-coil
         setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
-        specs: { spring: Coil }
+        specs: { spring: Coil, spring_de: Stahlfeder }
         mounts: [Standard, Trunnion]
         children:
           - label: Ultimate
             level: trim
             adjustments: &coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [rc2t]
               size: &coil_strokes
@@ -599,6 +652,7 @@ nodes:
               damper: [rc2t]
               size: *coil_strokes
             note: OEM only
+            note_de: Nur OEM
           - label: Select
             level: trim
             adjustments: *coil_spring
@@ -606,13 +660,14 @@ nodes:
               damper: [rc2t]
               size: *coil_strokes
             note: OEM only
+            note_de: Nur OEM
       - label: "2017–2022"
         level: generation
         id: "2017"
         draft: true
         years: "2017-2022"
         url: https://www.sram.com/en/rockshox/series/super-deluxe-coil
-        specs: { spring: Coil }
+        specs: { spring: Coil, spring_de: Stahlfeder }
         children:
           - label: Ultimate
             level: trim
@@ -628,7 +683,8 @@ nodes:
   - label: "Super Deluxe Ultimate DH"
     level: model
     category: Downhill
-    specs: { spring: Air }
+    category_de: Downhill
+    specs: { spring: Air, spring_de: Luft }
     tasks: *rockshox_service
     children:
       - label: "2023–2026"
@@ -642,16 +698,18 @@ nodes:
           - label: Ultimate DH
             level: trim
             draft: true
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+ }
             adjustments: &air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
             options:
               damper: [rc2]
             note: Gravity-specific tune with a narrower damping window than the trail Super Deluxe
+            note_de: Gravity-spezifische Abstimmung mit engerem Dämpfungsfenster als beim Trail-Super-Deluxe
 
   - label: "Vivid Air"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
     guide: rockshox_rear_shock_um
     children:
       - label: "2024–2026"
@@ -660,17 +718,17 @@ nodes:
         years: "2024-2026"
         url: https://www.sram.com/en/rockshox/series/vivid-air
         setup_guide: https://www.sram.com/en/rockshox/learn/vivid-air-setup
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         tasks:
-          shock:air_can_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals }
+          shock:air_can_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle }
           shock:full_service: *rockshox_full_service
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: Vivid Air Spring }
+            specs: { spring: Vivid Air Spring, spring_de: Vivid-Luftfeder }
             adjustments: &vivid_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 360, notes: "Maximum 360 psi with 0-4 Bottomless Tokens, 300 psi with 5-6 Tokens or 67.5-75mm stroke" }
-              - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; snap onto the inner air can; Maximum depends on the size: 37.5-45mm stroke 4, 47.5-65mm stroke 6, 67.5-75mm stroke 4" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 360, notes: "Maximum 360 psi with 0-4 Bottomless Tokens, 300 psi with 5-6 Tokens or 67.5-75mm stroke", notes_de: "Maximal 360 psi mit 0-4 Bottomless Tokens, 300 psi mit 5-6 Tokens oder 67,5-75mm Hub" }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; snap onto the inner air can; Maximum depends on the size: 37.5-45mm stroke 4, 47.5-65mm stroke 6, 67.5-75mm stroke 4", notes_de: "Bottomless Tokens; rasten in der inneren Luftkammer ein; das Maximum hängt von der Größe ab: 37,5-45mm Hub 4, 47,5-65mm Hub 6, 67,5-75mm Hub 4" }
             options:
               damper: [vivid_ultimate]
               size: &vivid_air_sizes
@@ -684,11 +742,12 @@ nodes:
                 - { size: "250x67.5/70/72.5/75", mount: Standard }
           - label: Ultimate DH
             level: trim
-            specs: { spring: Vivid Air Spring }
+            specs: { spring: Vivid Air Spring, spring_de: Vivid-Luftfeder }
             adjustments: *vivid_air_spring
             options:
               damper: [vivid_ultimate]
             note: Downhill build of the Vivid Air
+            note_de: Downhill-Ausführung des Vivid Air
       - label: "2010–2016"
         level: generation
         id: "2010"
@@ -696,11 +755,12 @@ nodes:
         # whole nameplate — this generation was sold as a pure DH/freeride shock.
         years: "2010-2016"
         url: https://www.sram.com/en/rockshox/series/vivid-air
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         note: Separate beginning- and ending-stroke rebound adjusters
+        note_de: Getrennte Zugstufenversteller für Beginn und Ende des Hubs
         tasks: &rockshox_100h_service
           shock:air_can_service: *rockshox_air_can_service
-          shock:full_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals }
+          shock:full_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle }
         children:
           - label: R2C
             level: trim
@@ -712,7 +772,8 @@ nodes:
   - label: "Vivid Coil"
     level: model
     category: Trail / Enduro
-    specs: { spring: Coil }
+    category_de: Trail / Enduro
+    specs: { spring: Coil, spring_de: Stahlfeder }
     mounts: [Standard, Trunnion]
     tasks:
       shock:full_service: *rockshox_full_service
@@ -735,11 +796,16 @@ nodes:
               - Five positions each of high- and low-speed compression
               - Twenty clicks of rebound and five positions of hydraulic bottom-out
               - LSC turns by hand, HSC takes a 3mm hex key
+            note_de: |-
+              - Je fünf Positionen für High- und Low-Speed-Druckstufe
+              - Zwanzig Klicks Zugstufe und fünf Positionen des hydraulischen Durchschlagschutzes
+              - LSC wird von Hand gedreht, HSC braucht einen 3-mm-Inbusschlüssel
 
   - label: "Vivid Coil Ultimate DH"
     level: model
     category: Downhill
-    specs: { spring: Coil }
+    category_de: Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks:
       shock:full_service: *rockshox_full_service
     children:
@@ -757,12 +823,14 @@ nodes:
             options:
               damper: [vivid_ultimate]
             note: Downhill build of the Vivid Coil
+            note_de: Downhill-Ausführung des Vivid Coil
 
   - label: "SIDLuxe"
     level: model
     draft: true
     category: XC
-    specs: { spring: Air }
+    category_de: XC
+    specs: { spring: Air, spring_de: Luft }
     mounts: [Standard, Trunnion]
     tasks: *rockshox_service
     children:
@@ -775,10 +843,10 @@ nodes:
         children:
           - label: Ultimate Flight Attendant
             level: trim
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+ }
             adjustments: &sidluxe_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, type: step, max: 1, unit: tokens, visualization: stepper, notes: "Bottomless Token clamps onto the sealhead in a large or small size; only one fits at a time" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 1, unit: tokens, visualization: stepper, notes: "Bottomless Token clamps onto the sealhead in a large or small size; only one fits at a time", notes_de: Der Bottomless Token wird in großer oder kleiner Größe auf den Sealhead geklemmt; es passt immer nur einer }
             options:
               damper: [rct]
               size: &sidluxe_sizes
@@ -789,27 +857,30 @@ nodes:
                 - "185x47.5/50/52.5/55"
                 - "210x47.5/50/52.5/55"
             note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
+            note_de: Die Druckstufe wird elektronisch vom Flight Attendant eingestellt; das Zugstufenrad bleibt manuell
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+ }
             adjustments: *sidluxe_air_spring
             options:
               damper: [rct]
               size: *sidluxe_sizes
           - label: Select+
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir }
             adjustments: *sidluxe_air_spring
             options:
               damper: [rct]
               size: *sidluxe_sizes
             note: OEM only
+            note_de: Nur OEM
 
   - label: "Monarch"
     level: model
     draft: true
     category: XC / Trail
-    specs: { spring: Air }
+    category_de: XC / Trail
+    specs: { spring: Air, spring_de: Luft }
     tasks: *rockshox_100h_service
     children:
       - label: "2013–2018"
@@ -819,13 +890,14 @@ nodes:
         url: https://www.sram.com/en/rockshox/series/monarch
         guide: rockshox_rear_shock_um
         note: Inline air shock; Bottomless Rings tune the air can volume
+        note_de: Inline-Luftdämpfer; Bottomless Rings stimmen das Volumen der Luftkammer ab
         children:
           - label: RT3
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir }
             adjustments: &monarch_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, type: step, max: 9, unit: tokens, visualization: stepper, notes: "Bottomless Rings; Maximum depends on the stroke: 38mm 4, 44.5mm 5, 51-63.5mm 8, 66mm 9" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 9, unit: tokens, visualization: stepper, notes: "Bottomless Rings; Maximum depends on the stroke: 38mm 4, 44.5mm 5, 51-63.5mm 8, 66mm 9", notes_de: "Bottomless Rings; das Maximum hängt vom Hub ab: 38mm 4, 44,5mm 5, 51-63,5mm 8, 66mm 9" }
             options:
               damper: [monarch_rt3]
               size: &monarch_sizes
@@ -838,22 +910,23 @@ nodes:
                 - "216x63"
           - label: RL
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_rt3]
               size: *monarch_sizes
           - label: XX
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_rt3]
               size: *monarch_sizes
             note: XLoc remote lockout
+            note_de: XLoc-Fernbedienungs-Lockout
           - label: R
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_rt3]
@@ -863,7 +936,8 @@ nodes:
     level: model
     draft: true
     category: Enduro / Gravity
-    specs: { spring: Air }
+    category_de: Enduro / Gravity
+    specs: { spring: Air, spring_de: Luft }
     tasks: *rockshox_100h_service
     children:
       - label: "2013–2018"
@@ -873,17 +947,18 @@ nodes:
         url: https://www.sram.com/en/rockshox/series/monarch-plus
         guide: rockshox_rear_shock_um
         note: Piggyback reservoir version of the Monarch
+        note_de: Piggyback-Ausgleichsbehälter-Version des Monarch
         children:
           - label: RC3
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_plus_rc3]
               size: *monarch_sizes
           - label: R
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_plus_rc3]

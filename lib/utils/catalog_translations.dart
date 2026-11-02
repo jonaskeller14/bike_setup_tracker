@@ -9,7 +9,7 @@ import 'package:yaml/yaml.dart';
 
 /// Languages whose catalog text must be complete. Adding catalog content always
 /// includes these; any other language falls back to English at runtime.
-const List<String> shippedCatalogLanguages = [];
+const List<String> shippedCatalogLanguages = ['de'];
 
 /// Every field name that can have a translated sibling. Whether a given map
 /// translates it depends on where the map sits, see [catalogStrings].

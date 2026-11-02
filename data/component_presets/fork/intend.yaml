@@ -58,9 +58,19 @@ option_values:
         compression valve as standard equipment on Hero/Edge/Flash 35/Flash
         38/Infinity EN/Bandit (not on Samurai or Essential, and not on older
         units — retrofittable separately).
+      description_de: >
+        INTENDs Standard-Dämpfer mit geschlossener Kartusche, verbaut in Samurai
+        Super TR, Hero, Edge, Flash 35, Flash 38, Infinity EN und Bandit. Ein
+        einzelnes externes Zugstufenrad und ein einzelnes externes
+        Druckstufenrad (keine HS/LS-Aufteilung). Aktuelle Serienmodelle werden
+        bei Hero/Edge/Flash 35/Flash 38/Infinity EN/Bandit serienmäßig mit dem
+        nachrüstbaren „Smooth Operator“-Druckstufenventil ausgeliefert (nicht
+        bei Samurai oder Essential und nicht bei älteren Modellen — dort separat
+        nachrüstbar).
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
       adjustments:
-        - { name: Compression, type: step, max: ~, notes: Counted from fully closed (firmest) }
+        - { name: Compression, name_de: Druckstufe, type: step, max: ~, notes: Counted from fully closed (firmest), notes_de: Von ganz geschlossen (am festesten) gezählt }
       source: https://www.intend-bc.com/fork-setup/
       note: Fork setup guide describes compression clicks counted from fully closed (1-6 coarse zone, then a finer zone to fully open) with no total.
 
@@ -69,9 +79,13 @@ option_values:
       description: >
         Essential's entry-level open-bath damper. External Low-Speed Rebound and
         Low-Speed Compression dials.
+      description_de: >
+        Essentials Einstiegsdämpfer mit offenem Ölbad. Externe Räder für
+        Low-Speed-Zugstufe und Low-Speed-Druckstufe.
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
       adjustments:
-        - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
+        - { name: Compression, name_de: Druckstufe, type: step, max: ~, notes: "Low-Speed Compression; Counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
       source: https://www.intend-bc.com/fork-setup/
       note: Same compression counting as the closed cartridge per the fork setup guide; no total published.
 
@@ -81,8 +95,13 @@ option_values:
         3-position lockout cartridge offered on the Samurai XC (29" and 32").
         Open / Gravel / Road modes; Road is ~99% firm and lets the fork sink
         slowly into sag for a climbing position. Optional remote available.
+      description_de: >
+        3-Positionen-Lockout-Kartusche für die Samurai XC (29" und 32"). Modi
+        Open / Gravel / Road; Road ist zu ca. 99 % fest und lässt die Gabel
+        langsam in den SAG einsinken, für eine Kletterposition. Optional mit
+        Fernbedienung.
       adjustments:
-        - { name: Mode, type: categorical, options: [Open, Gravel, Road] }
+        - { name: Mode, name_de: Modus, type: categorical, options: [Open, Gravel, Road], options_de: [Offen, Gravel, Straße] }
 
     rs_charger_raceday:
       name: RockShox Charger Raceday (OEM)
@@ -93,6 +112,13 @@ option_values:
         fork to 120mm max travel. 2- or 3-position lockout, with or without
         remote. Its click/damping specs are RockShox's own and are out of scope
         for this INTEND brand file — not modelled here.
+      description_de: >
+        RockShox-Charger-Raceday-Kartusche eines Drittanbieters (Generation
+        Raceday 1 oder 2), als Alternative zum Energizer für die Samurai XC
+        (29"/32") für Fahrer, die auf RockShox-Dämpfung setzen; begrenzt die
+        Gabel auf maximal 120mm Federweg. 2- oder 3-Positionen-Lockout, mit oder
+        ohne Fernbedienung. Die Klick- und Dämpfungswerte stammen von RockShox
+        und gehören nicht in diese INTEND-Markendatei — hier nicht abgebildet.
       adjustments: []
 
 # --------------------------------------------------------------------------
@@ -109,6 +135,7 @@ option_values:
 guides:
   intend_fork_setup_2025:
     label: INTEND fork setup guide (2025)
+    label_de: INTEND Gabel-Setup-Anleitung (2025)
     source: https://www.intend-bc.com/fork-setup/
     rules:
       - target: pressure
@@ -122,6 +149,7 @@ guides:
           100: 100, 105: 105, 110: 110, 115: 115, 120: 120
         }
         note: "Calculated from INTEND's formula: 1.0 psi per kg of rider weight"
+        note_de: "Berechnet nach der Formel von INTEND: 1,0 psi pro kg Fahrergewicht"
       - target: pressure
         unit: psi
         input: rider_weight
@@ -133,10 +161,12 @@ guides:
           100: 130, 105: 136.5, 110: 143, 115: 149.5, 120: 156
         }
         note: "Calculated from INTEND's formula: 1.3 psi per kg of rider weight"
+        note_de: "Berechnet nach der Formel von INTEND: 1,3 psi pro kg Fahrergewicht"
       - target: compression
         value: 6
         when: { damper: [closed_cartridge, open_bath] }
         note: Clicks 1-6 are coarse steps for race support; past 6 they get finer for comfort
+        note_de: Die Klicks 1-6 sind grobe Schritte für Halt im Rennen; ab 6 werden sie für mehr Komfort feiner
 
 # --------------------------------------------------------------------------
 # Forks — current INTEND lineup (all inverted, all air-sprung).
@@ -149,8 +179,9 @@ nodes:
   - label: "Samurai XC 29"
     level: model
     category: XC / Down-country
+    category_de: XC / Downcountry
     tasks: &intend_service
-      fork:upper_leg_service: { name: Upper leg service, interval: { days: 365 }, preselected: true, source: Intend fork setup guide }
+      fork:upper_leg_service: { name: Upper leg service, name_de: Tauchrohr-Service, interval: { days: 365 }, preselected: true, source: Intend fork setup guide, source_de: Intend-Gabel-Setup-Anleitung }
     children:
       - label: "2025–2026"
         level: generation
@@ -163,10 +194,10 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments: &air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
             options:
               damper: [energizer, rs_charger_raceday]
               travel_mm: [100, 110, 120, 130]
@@ -174,10 +205,14 @@ nodes:
             note: >
               Max travel is 130mm with the Energizer cartridge but only 120mm
               when fitted with the RockShox Charger Raceday cartridge.
+            note_de: >
+              Der maximale Federweg beträgt 130mm mit der Energizer-Kartusche,
+              aber nur 120mm mit der RockShox-Charger-Raceday-Kartusche.
 
   - label: "Samurai XC 32"
     level: model
     category: XC
+    category_de: XC
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -191,7 +226,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
             offset_mm: [46, 48] # 46mm at sag, 48mm fully extended
             adjustments: *air_spring
             options:
@@ -201,10 +236,14 @@ nodes:
             note: >
               Max travel is 130mm with the Energizer cartridge but only 120mm
               when fitted with the RockShox Charger Raceday cartridge.
+            note_de: >
+              Der maximale Federweg beträgt 130mm mit der Energizer-Kartusche,
+              aber nur 120mm mit der RockShox-Charger-Raceday-Kartusche.
 
   - label: "Samurai Super TR"
     level: model
     category: Downcountry / Trail / Enduro
+    category_de: Downcountry / Trail / Enduro
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -218,7 +257,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -229,6 +268,7 @@ nodes:
   - label: "Hero"
     level: model
     category: Trail / All-Mountain / Enduro
+    category_de: Trail / All-Mountain / Enduro
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -242,7 +282,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 44mm upper / 35mm lower (inverted), spring: Air }
+            specs: { stanchion: 44mm upper / 35mm lower (inverted), stanchion_de: 44mm oben / 35mm unten (Upside-down), spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -250,10 +290,12 @@ nodes:
               travel_mm: [140, 150, 160, 170]
               wheel_size: [29]
             note: No TorqueCap compatibility from April 2025 on.
+            note_de: Ab April 2025 keine TorqueCap-Kompatibilität.
 
   - label: "Essential"
     level: model
     category: Trail / All-Mountain / Enduro
+    category_de: Trail / All-Mountain / Enduro
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -267,7 +309,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -278,10 +320,15 @@ nodes:
               Budget-line model. Early first-production-batch units are not
               compatible with a retrofit Linearizer or the current TravelRanger
               air unit.
+            note_de: >
+              Modell der Budget-Linie. Frühe Einheiten der ersten
+              Produktionscharge sind nicht mit einem nachgerüsteten Linearizer
+              oder der aktuellen TravelRanger-Lufteinheit kompatibel.
 
   - label: "Edge"
     level: model
     category: Enduro
+    category_de: Enduro
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -295,7 +342,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -306,6 +353,7 @@ nodes:
   - label: "Flash 35"
     level: model
     category: Enduro / Freeride
+    category_de: Enduro / Freeride
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -319,7 +367,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -330,6 +378,7 @@ nodes:
   - label: "Flash 38"
     level: model
     category: Enduro / Freeride / DH
+    category_de: Enduro / Freeride / DH
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -343,7 +392,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 38mm, spring: Air }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -351,10 +400,12 @@ nodes:
               travel_mm: [160, 170, 180, 190]
               wheel_size: [29]
             note: Swappable axle design — 15x110 or 20x110 Boost.
+            note_de: Austauschbares Achskonzept — 15x110 oder 20x110 Boost.
 
   - label: "Infinity EN"
     level: model
     category: Enduro / Freeride / DH (Dual Crown)
+    category_de: Enduro / Freeride / DH (Doppelbrücke)
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -368,7 +419,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -376,10 +427,12 @@ nodes:
               travel_mm: [160, 170, 180, 190]
               wheel_size: [29]
             note: Dual-crown chassis.
+            note_de: Chassis mit Doppelbrücke.
 
   - label: "Bandit"
     level: model
     category: Enduro / Freeride
+    category_de: Enduro / Freeride
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -393,7 +446,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments: *air_spring
             options:

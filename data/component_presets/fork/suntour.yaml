@@ -61,7 +61,14 @@ option_values:
         forged alloy dial knobs; high-speed compression/rebound is managed internally
         by shims and is not user-adjustable. Used on the current RUX, DUROLUX and
         AURON.
+      description_de: >
+        Im Rennen bewährte WERX-Kartusche mit schwimmendem PCS-Kolben (Piston
+        Compensator System). Externe Verstellung von Low-Speed-Druckstufe und
+        Zugstufe über geschmiedete Alu-Räder; High-Speed-Druckstufe/-Zugstufe
+        wird intern über Shims geregelt und ist nicht vom Fahrer einstellbar.
+        Verbaut an den aktuellen RUX, DUROLUX und AURON.
       missing_adjustments: [Low-speed compression, Rebound dials]
+      missing_adjustments_de: [Low-Speed-Druckstufe, Zugstufenräder]
       adjustments: []
       note: Low-speed compression and rebound click counts are not published by SR SUNTOUR.
 
@@ -71,9 +78,14 @@ option_values:
         WERX/PCS cartridge with a 3-position on-the-fly compression lever (Open,
         Medium, Firm settings) plus a separate low-speed rebound dial.
         Buyer-selectable on AION and ZERON.
+      description_de: >
+        WERX/PCS-Kartusche mit 3-Positionen-Druckstufenhebel zum Umschalten
+        während der Fahrt (Einstellungen Open, Medium, Firm) plus separatem
+        Low-Speed-Zugstufenrad. Beim Kauf wählbar bei AION und ZERON.
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm], notes: 3-position on-the-fly lever (PCS cartridge) }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], notes: 3-position on-the-fly lever (PCS cartridge), notes_de: 3-Positionen-Hebel zum Umschalten während der Fahrt (PCS-Kartusche) }
       note: "Low-speed rebound click count unconfirmed"
 
     cr2_pcs:
@@ -82,9 +94,14 @@ option_values:
         WERX/PCS cartridge with a 2-position on-the-fly compression lever (Open,
         Firm settings) plus a separate low-speed rebound dial. Buyer-selectable
         on AION, ZERON and RAIDON.
+      description_de: >
+        WERX/PCS-Kartusche mit 2-Positionen-Druckstufenhebel zum Umschalten
+        während der Fahrt (Einstellungen Open, Firm) plus separatem
+        Low-Speed-Zugstufenrad. Beim Kauf wählbar bei AION, ZERON und RAIDON.
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-position on-the-fly lever (PCS cartridge) }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], notes: 2-position on-the-fly lever (PCS cartridge), notes_de: 2-Positionen-Hebel zum Umschalten während der Fahrt (PCS-Kartusche) }
       note: "Low-speed rebound click count unconfirmed"
 
     rc_pcs:
@@ -93,7 +110,12 @@ option_values:
         WERX/PCS cartridge with external low-speed compression and low-speed rebound
         dials (continuously adjustable, no discrete on-the-fly positions).
         Buyer-selectable on AION.
+      description_de: >
+        WERX/PCS-Kartusche mit externen Rädern für Low-Speed-Druckstufe und
+        Low-Speed-Zugstufe (stufenlos einstellbar, keine festen Positionen zum
+        Umschalten während der Fahrt). Beim Kauf wählbar bei AION.
       missing_adjustments: [Both dials]
+      missing_adjustments_de: [Beide Räder]
       adjustments: []
       note: "Low-speed compression and rebound click counts unconfirmed"
 
@@ -103,9 +125,14 @@ option_values:
         WERX/PCS cartridge combining a handlebar-remote hydraulic lockout with
         adjustable rebound and compression damping (blow-off protected). Used on AXON
         and AXON Werx/Elite.
+      description_de: >
+        WERX/PCS-Kartusche mit hydraulischem Lockout per Lenkerfernbedienung
+        sowie einstellbarer Zugstufen- und Druckstufendämpfung (mit
+        Blow-off-Schutz). Verbaut an AXON und AXON Werx/Elite.
       missing_adjustments: [Rebound, Compression dials]
+      missing_adjustments_de: [Zugstufe, Druckstufenräder]
       adjustments:
-        - { name: Lockout, type: boolean, notes: Handlebar-remote hydraulic lockout with blow-off feature }
+        - { name: Lockout, name_de: Lockout, type: boolean, notes: Handlebar-remote hydraulic lockout with blow-off feature, notes_de: Hydraulischer Lockout mit Lenkerfernbedienung und Blow-off-Funktion }
       note: "Rebound/compression click counts unconfirmed"
 
     lorc_pcs:
@@ -114,9 +141,15 @@ option_values:
         WERX/PCS cartridge combining a crown-mounted (non-remote) hydraulic lockout
         lever with adjustable rebound and compression damping (blow-off protected).
         Alternative to RLRC-PCS on AXON.
+      description_de: >
+        WERX/PCS-Kartusche mit hydraulischem Lockout-Hebel an der Gabelbrücke
+        (ohne Fernbedienung) sowie einstellbarer Zugstufen- und
+        Druckstufendämpfung (mit Blow-off-Schutz). Alternative zur RLRC-PCS an
+        der AXON.
       missing_adjustments: [Rebound, Compression dials]
+      missing_adjustments_de: [Zugstufe, Druckstufenräder]
       adjustments:
-        - { name: Lockout, type: boolean, notes: Crown-mounted hydraulic lockout lever with blow-off feature }
+        - { name: Lockout, name_de: Lockout, type: boolean, notes: Crown-mounted hydraulic lockout lever with blow-off feature, notes_de: Hydraulischer Lockout-Hebel an der Gabelbrücke mit Blow-off-Funktion }
       note: "Rebound/compression click counts unconfirmed"
 
     r_2cr_pcs:
@@ -125,9 +158,15 @@ option_values:
         WERX/PCS cartridge with a handlebar-remote 2-position compression lever
         (Open, Firm settings) plus a low-speed rebound dial. Buyer-selectable
         on RAIDON alongside the manual 2CR-PCS cartridge.
+      description_de: >
+        WERX/PCS-Kartusche mit 2-Positionen-Druckstufenhebel per
+        Lenkerfernbedienung (Einstellungen Open, Firm) plus
+        Low-Speed-Zugstufenrad. Beim Kauf wählbar an der RAIDON neben der
+        manuellen 2CR-PCS-Kartusche.
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: Handlebar-remote 2-position lever (PCS cartridge) }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], notes: Handlebar-remote 2-position lever (PCS cartridge), notes_de: 2-Positionen-Hebel mit Lenkerfernbedienung (PCS-Kartusche) }
       note: "Low-speed rebound click count unconfirmed"
 
 # --------------------------------------------------------------------------
@@ -146,6 +185,7 @@ option_values:
 guides:
   suntour_forks_my26:
     label: SR SUNTOUR general fork manual (MY26)
+    label_de: SR SUNTOUR Allgemeine Gabelanleitung (MY26)
     source: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
     rules:
       # The RUX38 / DUROLUX38 and DUROLUX38X / AION38X columns print the same values.
@@ -189,11 +229,13 @@ guides:
         input: travel_mm
         rows: { 100: [15, 20], 110: [15, 20], 130: [20, 25], 140: [20, 25], 150: [20, 25], 170: [25, 30], 200: [30, 35] }
         note: Measured with the compression open
+        note_de: Bei geöffneter Druckstufe gemessen
       - target: sag
         input: travel_mm
         when: { travel_mm: [120, 160, 180] }
         rows: { 120: [15, 25], 160: [20, 30], 180: [25, 35] }
         note: This travel sits between two SAG bands; the range spans both
+        note_de: Dieser Federweg liegt zwischen zwei SAG-Bändern; der Bereich umfasst beide
       - target: volume_spacers
         input: travel_mm
         when: { model: rux }
@@ -254,8 +296,9 @@ nodes:
   - label: "RUX"
     level: model
     category: Downhill
+    category_de: Downhill
     tasks: &suntour_service
-      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual }
+      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual, source_de: SR-Suntour-Handbuch }
     children:
       - label: "2025–2026"
         level: generation
@@ -268,21 +311,23 @@ nodes:
           - label: Boost
             level: trim
             draft: true
-            specs: { stanchion: 38mm (Alloy), spring: Air }
+            specs: { stanchion: 38mm (Alloy), stanchion_de: 38mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 50
             axle: ø20-110 (Q-LOC2 tool-type or tool-free)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 105 }
-              - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Rubber clip spacers" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 105 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 7, visualization: stepper, notes: "Rubber clip spacers", notes_de: Gummi-Klemmspacer }
             options:
               damper: [rc_plus_pcs]
               travel_mm: [200]
               wheel_size: [29, 27.5]
             note: Downhill/Freeride chassis. Postmount 203mm, max rotor 220mm.
+            note_de: Downhill-/Freeride-Chassis. Postmount 203mm, maximale Bremsscheibe 220mm.
 
   - label: "DUROLUX 36X"
     level: model
     category: All-Mountain (eMTB)
+    category_de: All-Mountain (E-MTB)
     tasks: *suntour_service
     children:
       - label: "2025–2026"
@@ -296,22 +341,24 @@ nodes:
           - label: Boost
             level: trim
             draft: true
-            specs: { stanchion: 36mm (Alloy), spring: Air }
+            specs: { stanchion: 36mm (Alloy), stanchion_de: 36mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 10, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 10, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 160mm 9, 150mm 10" }
             options:
               damper: [rc_plus_pcs]
               travel_mm: [150, 160]
               wheel_size: [29, 27.5]
             note: eMTB_AM-tuned variant of the DUROLUX chassis with a lighter 36mm stanchion; ABS mount optional.
+            note_de: Auf eMTB_AM abgestimmte Variante des DUROLUX-Chassis mit leichterem 36mm-Standrohr; ABS-Aufnahme optional.
 
   - label: "DUROLUX 38"
     level: model
     draft: true
     category: Enduro
+    category_de: Enduro
     tasks: *suntour_service
     children:
       - label: "2025–2026"
@@ -324,35 +371,38 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 38mm (Alloy), spring: Air }
+            specs: { stanchion: 38mm (Alloy), stanchion_de: 38mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 105 }
-              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 105 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 180mm 6, 170mm 7, 160mm 8" }
             options:
               damper: [rc_plus_pcs]
               travel_mm: [160, 170, 180]
               wheel_size: [29]
             note: Postmount 203mm, max rotor 220mm. Semi-open oil bath.
+            note_de: Postmount 203mm, maximale Bremsscheibe 220mm. Halboffenes Ölbad.
           - label: E-Bike
             level: trim
             url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38X-Boost-8052.html
-            specs: { stanchion: 38mm (Alloy), spring: Air }
+            specs: { stanchion: 38mm (Alloy), stanchion_de: 38mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 110 }
-              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 110 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 180mm 6, 170mm 7, 160mm 8" }
             options:
               damper: [rc_plus_pcs]
               travel_mm: [160, 170, 180]
               wheel_size: [29]
             note: eMTB_Enduro tune; ABS mount optional.
+            note_de: Abstimmung eMTB_Enduro; ABS-Aufnahme optional.
 
   - label: "AION 36"
     level: model
     category: All-Mountain
+    category_de: All-Mountain
     tasks: *suntour_service
     children:
       - label: "2025–2026"
@@ -366,12 +416,12 @@ nodes:
           - label: Boost
             level: trim
             draft: true
-            specs: { stanchion: 36mm (Alloy), spring: Air }
+            specs: { stanchion: 36mm (Alloy), stanchion_de: 36mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
-              - { name: Volume Spacers, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 145 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
             options:
               damper: [cr3_pcs, cr2_pcs, rc_pcs]
               travel_mm: [120, 130, 140, 150, 160]
@@ -380,6 +430,7 @@ nodes:
   - label: "AION 38X"
     level: model
     category: All-Mountain (eMTB)
+    category_de: All-Mountain (E-MTB)
     tasks: *suntour_service
     children:
       - label: "2025–2026"
@@ -393,21 +444,23 @@ nodes:
           - label: Boost
             level: trim
             draft: true
-            specs: { stanchion: 38mm (Alloy), spring: Air }
+            specs: { stanchion: 38mm (Alloy), stanchion_de: 38mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 110 }
-              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 29in: 180mm 6, 170mm 7, 160mm 8; 27.5in: 170mm 5, 160mm 6" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 110 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 29in: 180mm 6, 170mm 7, 160mm 8; 27.5in: 170mm 5, 160mm 6", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 29in: 180mm 6, 170mm 7, 160mm 8; 27.5in: 170mm 5, 160mm 6" }
             options:
               damper: [cr3_pcs, cr2_pcs, rc_pcs]
               travel_mm: [160, 170, 180]
               wheel_size: [29, 27.5]
             note: ABS mount optional.
+            note_de: ABS-Aufnahme optional.
 
   - label: "AURON 36"
     level: model
     category: All-Mountain
+    category_de: All-Mountain
     tasks: *suntour_service
     children:
       - label: "2025–2026"
@@ -421,12 +474,12 @@ nodes:
           - label: Boost
             level: trim
             draft: true
-            specs: { stanchion: 36mm (Alloy), spring: Air }
+            specs: { stanchion: 36mm (Alloy), stanchion_de: 36mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 4, 150mm 5, 140mm 6" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 4, 150mm 5, 140mm 6", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 160mm 4, 150mm 5, 140mm 6" }
             options:
               damper: [rc_plus_pcs]
               travel_mm: [140, 150, 160]
@@ -435,6 +488,7 @@ nodes:
   - label: "ZERON 36"
     level: model
     category: All-Mountain
+    category_de: All-Mountain
     tasks: *suntour_service
     children:
       - label: "2025–2026"
@@ -448,12 +502,12 @@ nodes:
           - label: Boost
             level: trim
             draft: true
-            specs: { stanchion: 36mm (Alloy), spring: Air }
+            specs: { stanchion: 36mm (Alloy), stanchion_de: 36mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
-              - { name: Volume Spacers, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 145 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
             options:
               damper: [cr3_pcs, cr2_pcs, rc_pcs]
               travel_mm: [120, 130, 140, 150, 160]
@@ -462,6 +516,7 @@ nodes:
   - label: "ZERON 36X"
     level: model
     category: All-Mountain (eMTB)
+    category_de: All-Mountain (E-MTB)
     tasks: *suntour_service
     children:
       - label: "2026"
@@ -474,12 +529,12 @@ nodes:
           - label: Boost
             level: trim
             draft: true
-            specs: { stanchion: 36mm (Alloy), spring: Air }
+            specs: { stanchion: 36mm (Alloy), stanchion_de: 36mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
-              - { name: Volume Spacers, type: step, max: 12, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10, 140mm 11, 130mm 12" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 145 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 12, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10, 140mm 11, 130mm 12", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 160mm 9, 150mm 10, 140mm 11, 130mm 12" }
             options:
               damper: [cr3_pcs, cr2_pcs, rc_pcs]
               travel_mm: [130, 140, 150, 160]
@@ -488,10 +543,12 @@ nodes:
             # SUNTOUR's function legend does not define; omitted rather than
             # guessed (see Follow-ups).
             note: ABS mount optional.
+            note_de: ABS-Aufnahme optional.
 
   - label: "AXON 34"
     level: model
     category: Trail / XC
+    category_de: Trail / XC
     tasks: *suntour_service
     children:
       - label: "2025–2026"
@@ -504,12 +561,12 @@ nodes:
         children:
           - label: Boost
             level: trim
-            specs: { stanchion: 34mm (Alloy), spring: Air }
+            specs: { stanchion: 34mm (Alloy), stanchion_de: 34mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 13, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 10, 130mm 11, 120mm 12, 100mm 13" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 13, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 10, 130mm 11, 120mm 12, 100mm 13", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 140mm 10, 130mm 11, 120mm 12, 100mm 13" }
             options:
               damper: [rlrc_pcs, lorc_pcs]
               travel_mm: [100, 120, 130, 140]
@@ -518,6 +575,7 @@ nodes:
   - label: "AXON 34 Werx"
     level: model
     category: Trail / XC
+    category_de: Trail / XC
     tasks: *suntour_service
     children:
       - label: "2025–2026"
@@ -530,35 +588,38 @@ nodes:
         children:
           - label: Werx
             level: trim
-            specs: { stanchion: 34mm (Alloy), spring: Air }
+            specs: { stanchion: 34mm (Alloy), stanchion_de: 34mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 51
             axle: ø15-110 (15AHL)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
-              - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 130 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 120mm 9, 110mm 10, 100mm 11" }
             options:
               damper: [rlrc_pcs]
               travel_mm: [100, 110, 120]
               wheel_size: [29]
             note: One-piece hollow carbon steerer. Flagship XC race fork.
+            note_de: Einteiliger, hohler Carbon-Gabelschaft. Flaggschiff-Gabel für XC-Rennen.
           - label: Elite
             level: trim
             url: https://www.srsuntour.com/products/fork/SF20-AXON34-Elite-Boost-8061.html
-            specs: { stanchion: 34mm (Alloy), spring: Air }
+            specs: { stanchion: 34mm (Alloy), stanchion_de: 34mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 51
             axle: ø15-110 (15AHL)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
-              - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 130 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 120mm 9, 110mm 10, 100mm 11" }
             options:
               damper: [rlrc_pcs]
               travel_mm: [100, 110, 120]
               wheel_size: [29]
             note: Same chassis/travel as Werx with an alloy (not carbon) steerer.
+            note_de: Gleiches Chassis und gleicher Federweg wie Werx, mit Aluminium- (nicht Carbon-) Gabelschaft.
 
   - label: "RAIDON 34"
     level: model
     category: Trail / XC
+    category_de: Trail / XC
     tasks: *suntour_service
     children:
       - label: "2025–2026"
@@ -571,12 +632,12 @@ nodes:
         children:
           - label: Boost
             level: trim
-            specs: { stanchion: 34mm (Alloy), spring: Air }
+            specs: { stanchion: 34mm (Alloy), stanchion_de: 34mm (Alu), spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: ø15-110 (15AH4)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
-              - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 5, 130mm 6, 120mm 7, 100mm 9" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 130 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 9, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 5, 130mm 6, 120mm 7, 100mm 9", notes_de: "Gummi-Klemmspacer; das Maximum hängt vom Federweg ab: 140mm 5, 130mm 6, 120mm 7, 100mm 9" }
             options:
               damper: [r_2cr_pcs, cr2_pcs]
               travel_mm: [100, 120, 130, 140]

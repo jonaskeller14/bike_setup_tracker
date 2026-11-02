@@ -47,9 +47,12 @@ option_values:
       description: >
         Damper on Bomber Z1 (Air), Bomber Z1 Coil and Bomber Z2: a simple sweep
         compression lever and a clicked rebound dial.
+      description_de: >
+        Dämpfer der Bomber Z1 (Air), Bomber Z1 Coil und Bomber Z2: ein einfacher
+        Sweep-Druckstufenhebel und ein Zugstufenrad mit Klicks.
       adjustments: &sweep_2pos
-        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: "Sweep lever, continuously variable between Open and Firm" }
-        - { name: Rebound, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], notes: "Sweep lever, continuously variable between Open and Firm", notes_de: "Sweep-Hebel, stufenlos zwischen Open und Firm" }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red }
       source:
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
@@ -67,6 +70,7 @@ option_values:
     grip:
       name: GRIP
       description: Damper on Bomber DJ with a sweep compression lever and a clicked rebound dial.
+      description_de: Dämpfer der Bomber DJ mit Sweep-Druckstufenhebel und Zugstufenrad mit Klicks.
       adjustments: *sweep_2pos
       source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
       note: Same spec as `rail`, per the shared 2020 "Bomber Z1 & DJ" tuning guide, which calls it GRIP.
@@ -76,9 +80,12 @@ option_values:
       description: >
         Damper on the dual-crown Bomber 58: a clicked low-speed compression dial
         plus a clicked rebound dial.
+      description_de: >
+        Dämpfer der Bomber 58 mit Doppelbrücke: ein Low-Speed-Druckstufenrad mit
+        Klicks plus ein Zugstufenrad mit Klicks.
       adjustments:
-        - { name: Compression, type: step, max: 8, notes: "Low-Speed Compression; counted from fully closed (firmest)" }
-        - { name: Rebound, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 8, notes: "Low-Speed Compression; counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
       source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
       note: >-
         Official Bomber 58 tuning guide (605-00-174): the low-speed compression
@@ -97,6 +104,7 @@ option_values:
 guides:
   marzocchi_z1_2024:
     label: Marzocchi Bomber Z1 owner's guide (2024)
+    label_de: Marzocchi Bomber Z1 Bedienungsanleitung (2024)
     source: https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
     rules:
       - target: pressure
@@ -119,7 +127,7 @@ guides:
           170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
           220-230: 3, 230-240: 2, 240-250: 1
         }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende" }
       # Factory spacers for the catalog travels; the guide prints no 100 mm row.
       - target: volume_spacers
         input: travel_mm
@@ -129,6 +137,7 @@ guides:
 
   marzocchi_z1_dj_2020:
     label: Marzocchi Bomber Z1 and DJ tuning guide (2020)
+    label_de: Marzocchi Bomber Z1 und DJ Tuning-Anleitung (2020)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
     rules:
       - target: pressure
@@ -140,11 +149,12 @@ guides:
         input: rider_weight
         input_unit: lb
         rows: *marzocchi_rebound
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende" }
       - { target: volume_spacers, value: 8 }
 
   marzocchi_z2_2019:
     label: Marzocchi Bomber Z2 tuning guide (2019)
+    label_de: Marzocchi Bomber Z2 Tuning-Anleitung (2019)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
     # Standard column only: the E-Bike+ column waits for an e-bike option (#72).
     rules:
@@ -165,13 +175,14 @@ guides:
           170-180: 8, 180-190: 8, 190-200: 7, 200-210: 7, 210-220: 6,
           220-230: 4, 230-240: 3, 240-250: 2
         }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende" }
       - target: volume_spacers
         input: travel_mm
         rows: { 120: 2, 130: 1, 140: 0, 150: 0 }
 
   marzocchi_58_2017:
     label: Marzocchi Bomber 58 tuning guide (2017)
+    label_de: Marzocchi Bomber 58 Tuning-Anleitung (2017)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
     rules:
       - target: pressure
@@ -188,7 +199,7 @@ guides:
         input_unit: lb
         rows: *marzocchi_rebound
       - { target: compression, value: 4 }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende" }
       - { target: volume_spacers, value: 4 }
 
 # --------------------------------------------------------------------------
@@ -200,8 +211,9 @@ nodes:
   - label: "Z1"
     level: model
     category: Trail / All-Mountain
+    category_de: Trail / All-Mountain
     tasks: &marzocchi_service
-      fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide }
+      fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide, source_de: Marzocchi-Handbuch }
     children:
       - label: "2025–2026"
         level: generation
@@ -213,21 +225,23 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: "36mm, Black Anodized", spring: Air }
+            specs: { stanchion: "36mm, Black Anodized", stanchion_de: "36mm, schwarz eloxiert", spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: 15QRx110
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 8, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5", notes_de: "Aufklipp-Spacer; das Maximum hängt vom Federweg ab: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5" }
             options:
               damper: [rail]
               travel_mm: [100, 150, 160]
               wheel_size: [29, 27.5]
             note: 180mm post mount, max air pressure 120psi.
+            note_de: 180mm Post Mount, maximaler Luftdruck 120psi.
 
   - label: "Z1 Coil"
     level: model
     category: Trail / All-Mountain
+    category_de: Trail / All-Mountain
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -240,11 +254,11 @@ nodes:
         children:
           - label: Coil
             level: trim
-            specs: { stanchion: "36mm, Black Anodized", spring: Coil }
+            specs: { stanchion: "36mm, Black Anodized", stanchion_de: "36mm, schwarz eloxiert", spring: Coil, spring_de: Stahlfeder }
             offset_mm: 44
             axle: 15QRx110
             adjustments:
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [rail]
               travel_mm: [160]
@@ -254,10 +268,17 @@ nodes:
               spacers. Coil springs sold separately, color-coded to rider weight
               (Purple/Blue/Green/Yellow ~ Soft/Medium/Firm/X-Firm); Marzocchi
               does not publish the actual lbs/in rate per color.
+            note_de: >
+              Der Federweg lässt sich mit den mitgelieferten internen Spacern in
+              10mm-Schritten verringern. Stahlfedern separat erhältlich, nach
+              Fahrergewicht farbcodiert (Violett/Blau/Grün/Gelb ~
+              Weich/Medium/Fest/Extrafest); Marzocchi gibt die tatsächliche
+              Federrate in lbs/in je Farbe nicht an.
 
   - label: "Z2"
     level: model
     category: Trail
+    category_de: Trail
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -270,12 +291,12 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: "34mm, Black Anodized", spring: Air }
+            specs: { stanchion: "34mm, Black Anodized", stanchion_de: "34mm, schwarz eloxiert", spring: Air, spring_de: Luft }
             offset_mm: 44
             axle: 15QRx110
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140, notes: "Maximum 120 psi; 140 psi on the E-Bike+ tune" }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 100/110mm 6, 120/130mm 5, 140/150mm 4" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 140, notes: "Maximum 120 psi; 140 psi on the E-Bike+ tune", notes_de: Maximal 120 psi; 140 psi bei der E-Bike+-Abstimmung }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 100/110mm 6, 120/130mm 5, 140/150mm 4", notes_de: "Aufklipp-Spacer; das Maximum hängt vom Federweg ab: 100/110mm 6, 120/130mm 5, 140/150mm 4" }
             options:
               damper: [rail]
               travel_mm: [120, 130, 140, 150]
@@ -283,10 +304,15 @@ nodes:
             note: >
               160mm post mount, max air pressure 120psi. An "E-Bike+" tune is
               also offered (max air pressure 140psi) for e-MTB use.
+            note_de: >
+              160mm Post Mount, maximaler Luftdruck 120psi. Für den
+              E-MTB-Einsatz gibt es auch eine „E-Bike+“-Abstimmung (maximaler
+              Luftdruck 140psi).
 
   - label: "DJ"
     level: model
     category: Dirt Jump / Slopestyle
+    category_de: Dirt Jump / Slopestyle
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -299,21 +325,23 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 36mm, spring: Air }
+            specs: { stanchion: 36mm, stanchion_de: 36mm, spring: Air, spring_de: Luft }
             offset_mm: 37
             axle: 20x110 non-boost (15x100 conversion kit available)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, visualization: stepper, max: 10, notes: Factory installed 8 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, visualization: stepper, max: 10, notes: Factory installed 8, notes_de: "Werkseitig verbaut: 8" }
             options:
               damper: [grip]
               travel_mm: [100]
               wheel_size: [26]
             note: Max air pressure 120psi.
+            note_de: Maximaler Luftdruck 120psi.
 
   - label: "58"
     level: model
     category: Downhill
+    category_de: Downhill
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -326,17 +354,18 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: "40mm, Black Anodized", spring: Air }
+            specs: { stanchion: "40mm, Black Anodized", stanchion_de: "40mm, schwarz eloxiert", spring: Air, spring_de: Luft }
             offset_mm: 51
             axle: 20x110 DH (non-Boost)
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, visualization: stepper, max: 7, notes: Factory installed 4 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, visualization: stepper, max: 7, notes: Factory installed 4, notes_de: "Werkseitig verbaut: 4" }
             options:
               damper: [grip_58]
               travel_mm: [203]
               wheel_size: [27.5]
             note: Dual-crown chassis, 203mm post mount, 1.125in straight steerer.
+            note_de: Chassis mit Doppelbrücke, 203mm Post Mount, gerader 1.125in-Gabelschaft.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

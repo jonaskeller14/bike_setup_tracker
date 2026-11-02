@@ -36,9 +36,12 @@ option_values:
       description: >
         Air shock with a 10-click rebound dial and a tool-free low-speed
         compression sweep between Open and Firm.
+      description_de: >
+        Luftdämpfer mit Zugstufenrad mit 10 Klicks und werkzeuglosem
+        Low-Speed-Druckstufen-Sweep zwischen Open und Firm.
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: "Low-Speed Compression; non-indexed sweep, clockwise is firmer" }
-        - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest), dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], notes: "Low-Speed Compression; non-indexed sweep, clockwise is firmer", notes_de: "Low-Speed-Druckstufe; nicht indexiertes Sweep-Rad, im Uhrzeigersinn ist fester" }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 10, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, dialColor: red }
       source:
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
         - https://flowmountainbike.com/tests/marzocchi-bomber-air-shock-review/
@@ -56,10 +59,14 @@ option_values:
       description: >
         Coil shock with indexed low-speed compression and rebound adjusters and
         adjustable spring preload.
+      description_de: >
+        Stahlfederdämpfer mit indexierten Verstellern für Low-Speed-Druckstufe
+        und Zugstufe sowie einstellbarer Federvorspannung.
       missing_adjustments: [Preload]
+      missing_adjustments_de: [Vorspannung]
       adjustments:
-        - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; clockwise is firmer" }
-        - { name: Rebound, type: step, max: 16, notes: "Clockwise is slower; some units may have 15 clicks, check your dial and edit the maximum if it differs" }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 16, notes: "Low-Speed Compression; clockwise is firmer", notes_de: Low-Speed-Druckstufe; im Uhrzeigersinn ist fester }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, notes: "Clockwise is slower; some units may have 15 clicks, check your dial and edit the maximum if it differs", notes_de: "Im Uhrzeigersinn ist langsamer; manche Dämpfer haben evtl. 15 Klicks, am Drehrad prüfen und das Maximum bei Abweichung anpassen" }
       source:
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
         - https://www.mtb-mag.com/en/tested-marzocchi-bomber-cr/
@@ -84,6 +91,7 @@ option_values:
 guides:
   marzocchi_bomber_air_2022:
     label: Marzocchi Bomber Air shock owner's guide (2022)
+    label_de: Marzocchi Bomber Luftdämpfer Bedienungsanleitung (2022)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
     rules:
       - target: pressure
@@ -96,6 +104,7 @@ guides:
           100: 220, 105: 231, 110: 243, 115: 254, 120: 265
         }
         note: Calculated from Marzocchi's starting point (psi = rider weight in lb); set the final pressure by SAG
+        note_de: Berechnet aus dem Ausgangspunkt von Marzocchi (psi = Fahrergewicht in lb); den endgültigen Druck über den SAG einstellen
       # Counted from fully closed, the catalog's direction.
       - target: rebound
         input: pressure
@@ -106,10 +115,11 @@ guides:
           280-300: 1
         }
       - { target: compression_mode, value: Open }
-      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is Marzocchi's firm end, 30 % the plush end" }
+      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is Marzocchi's firm end, 30 % the plush end", note_de: "25 % ist das feste Ende von Marzocchi, 30 % das komfortable Ende" }
 
   marzocchi_bomber_cr_2018:
     label: Marzocchi Bomber CR tuning guide (2018)
+    label_de: Marzocchi Bomber CR Tuning-Anleitung (2018)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
     # The guide prints no click starting points. Marzocchi's web spring
     # calculator needs the bike's rear wheel travel, so its rate is not
@@ -127,9 +137,10 @@ nodes:
   - label: "Bomber Air"
     level: model
     category: Trail / Enduro
-    specs: { spring: Air }
+    category_de: Trail / Enduro
+    specs: { spring: Air, spring_de: Luft }
     tasks: &marzocchi_service
-      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide }
+      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide, source_de: Marzocchi-Handbuch }
     children:
       - label: "2025–2026"
         level: generation
@@ -143,13 +154,16 @@ nodes:
             level: trim
             specs: { mount: Metric (compatible with FOX bearing mounts) }
             adjustments: &air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 350 }
             options:
               damper: [bomber_air]
               size: ["190x45", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x65", "250x75"]
             note: >
               Max air pressure 350psi. Adjustable volume spacers in 0.1 in³
               increments.
+            note_de: >
+              Maximaler Luftdruck 350psi. Einstellbare Volumenspacer in
+              Schritten von 0,1 in³.
           - label: Trunnion
             level: trim
             specs: { mount: Trunnion }
@@ -161,7 +175,8 @@ nodes:
   - label: "Bomber CR"
     level: model
     category: Enduro / Downhill
-    specs: { spring: Coil }
+    category_de: Enduro / Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -176,7 +191,7 @@ nodes:
             level: trim
             specs: { mount: Standard eyelet }
             adjustments: &coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [bomber_cr]
               size: ["210x50", "210x55", "230x60", "230x65", "250x75", { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: "7.5x2.0in" }, { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: "7.875x2.0in" }, { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: "7.875x2.25in" }, { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: "8.5x2.5in" }, { eye_to_eye_mm: 222.25, stroke_mm: 69.85, label: "8.75x2.75in" }]
@@ -184,6 +199,10 @@ nodes:
               Coil spring sold separately, color-coded to rider weight
               (Purple/Blue/Green/Yellow ~ Soft/Medium/Firm/X-Firm); Marzocchi
               does not publish the actual lbs/in rate per color.
+            note_de: >
+              Stahlfeder separat erhältlich, nach Fahrergewicht farbcodiert
+              (Violett/Blau/Grün/Gelb ~ Weich/Medium/Fest/Extrafest); Marzocchi
+              gibt die tatsächliche Federrate in lbs/in je Farbe nicht an.
           - label: Trunnion
             level: trim
             specs: { mount: Trunnion (threaded reservoir end) }

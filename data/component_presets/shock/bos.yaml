@@ -40,10 +40,13 @@ option_values:
       description: |-
         - Three-way adjustable monotube damper for enduro, freeride and downhill
         - Separate low-speed compression, high-speed compression and rebound dials
+      description_de: |-
+        - Monotube-Dämpfer mit drei Einstellwegen für Enduro, Freeride und Downhill
+        - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
       adjustments:
-        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 23, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+        - { name: HSC, name_de: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: LSC, name_de: LSC, type: step, max: 23, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
       source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422708
       note: >-
         Stoy 4 product page: "Hydraulique : 3 voies monotube", "Compression Basses
@@ -57,11 +60,15 @@ option_values:
         - Three-way damper with an adjustable hydraulic bottom-out stop
         - Factory-set kick valve for extra support against big impacts
         - Separate low-speed compression, high-speed compression and rebound dials
+      description_de: |-
+        - Dämpfer mit drei Einstellwegen und einstellbarem hydraulischem Durchschlagpuffer
+        - Werkseitig eingestelltes Kick-Ventil für mehr Halt bei großen Schlägen
+        - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
       adjustments:
-        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 23, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
-        - { name: Bottom-Out Stop, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression }
+        - { name: HSC, name_de: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: LSC, name_de: LSC, type: step, max: 23, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: Bottom-Out Stop, name_de: Durchschlagpuffer, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression, notes_de: Einstellbarer hydraulischer Endanschlag in der Druckstufe }
       source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422711
       note: >-
         Void 4 product page: "3 voies + butée de fin de course réglable. Valve
@@ -76,11 +83,15 @@ option_values:
         - Three-way damper with an adjustable hydraulic bottom-out stop
         - Factory-set kick valve; quieter hydraulic operation than the first Syors
         - Separate low-speed compression, high-speed compression and rebound dials
+      description_de: |-
+        - Dämpfer mit drei Einstellwegen und einstellbarem hydraulischem Durchschlagpuffer
+        - Werkseitig eingestelltes Kick-Ventil; leiserer hydraulischer Betrieb als beim ersten Syors
+        - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
       adjustments:
-        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 23, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
-        - { name: Bottom-Out Stop, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression }
+        - { name: HSC, name_de: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: LSC, name_de: LSC, type: step, max: 23, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: Bottom-Out Stop, name_de: Durchschlagpuffer, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression, notes_de: Einstellbarer hydraulischer Endanschlag in der Druckstufe }
       source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422837
       note: >-
         Syors 2 product page: "3 voies + butée de fin de course réglable. Valve
@@ -101,7 +112,8 @@ nodes:
   - label: "Stoy 4"
     level: model
     category: Enduro / Freeride / Downhill
-    specs: { spring: Coil }
+    category_de: Enduro / Freeride / Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder }
     children:
       - label: "2025–2026"
         level: generation
@@ -111,19 +123,23 @@ nodes:
         note: |-
           - Light, compact three-way monotube shock; 393g in 205x65mm trunnion without spring
           - Coil spring sold separately, with a preload adjustment
+        note_de: |-
+          - Leichter, kompakter Monotube-Dämpfer mit drei Einstellwegen; 393g in 205x65mm Trunnion ohne Feder
+          - Stahlfeder separat erhältlich, mit Vorspannungsverstellung
         children:
           - label: Standard
             level: trim
             mounts: [Eyelet, Trunnion]
             adjustments: &coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [stoy4_2025]
 
   - label: "Void 4"
     level: model
     category: Enduro / Freeride / Downhill
-    specs: { spring: Air }
+    category_de: Enduro / Freeride / Downhill
+    specs: { spring: Air, spring_de: Luft }
     children:
       - label: "2025–2026"
         level: generation
@@ -134,12 +150,16 @@ nodes:
           - High-volume air spring with adjustable positive and negative chamber volume via spacers
           - Fourth generation of the Void, first released in 2012
           - 550g in 230x60mm without lever; maximum pressure 300 psi
+        note_de: |-
+          - Hochvolumige Luftfeder mit über Spacer einstellbarem Volumen von Positiv- und Negativkammer
+          - Vierte Generation des Void, erstmals 2012 erschienen
+          - 550g in 230x60mm ohne Hebel; maximaler Druck 300 psi
         children:
           - label: Standard
             level: trim
             mounts: [Eyelet, Trunnion]
             adjustments: &air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
             options:
               damper: [void4_2025]
           - label: Lever
@@ -149,11 +169,13 @@ nodes:
             options:
               damper: [void4_2025]
             note: Adds the optional pedalling-platform lever.
+            note_de: Ergänzt den optionalen Hebel für die Pedalplattform.
 
   - label: "Syors 2"
     level: model
     category: Enduro / Freeride / Downhill
-    specs: { spring: Coil }
+    category_de: Enduro / Freeride / Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder }
     children:
       - label: "2025–2026"
         level: generation
@@ -163,6 +185,9 @@ nodes:
         note: |-
           - Coil shock with an adjustable hydraulic bottom-out stop; 450g in 250x75mm without spring
           - Coil spring sold separately, with a preload adjustment
+        note_de: |-
+          - Stahlfederdämpfer mit einstellbarem hydraulischem Durchschlagpuffer; 450g in 250x75mm ohne Feder
+          - Stahlfeder separat erhältlich, mit Vorspannungsverstellung
         children:
           - label: Standard
             level: trim
@@ -177,6 +202,7 @@ nodes:
             options:
               damper: [syors2_2025]
             note: Adds the optional pedalling-platform lever.
+            note_de: Ergänzt den optionalen Hebel für die Pedalplattform.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

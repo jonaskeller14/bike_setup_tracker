@@ -67,10 +67,15 @@ option_values:
         - One compression dial moves high- and low-speed compression together
         - Compression Tuning System (CTS) valves swap in for larger changes
         - Crown-mounted lockout with an adjustable lockout force
+      description_de: |-
+        - Drop-in-Kartusche im Bladder-Stil mit Internal Floating Technology
+        - Ein Druckstufenrad verstellt High- und Low-Speed-Druckstufe gemeinsam
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
+        - Lockout an der Gabelbrücke mit einstellbarer Lockout-Kraft
       adjustments:
-        - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial), dialColor: blue }
-        - { name: Rebound, type: step, max: 19 }
-        - { name: Lockout, type: categorical, options: [Open, Locked], notes: Crown-mounted lever }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 12, notes: High and Low Speed (one combined dial), notes_de: High- und Low-Speed (ein gemeinsames Rad), dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 19 }
+        - { name: Lockout, name_de: Lockout, type: categorical, options: [Open, Locked], options_de: [Offen, Gesperrt], notes: Crown-mounted lever, notes_de: Hebel an der Gabelbrücke }
       source:
         - https://www.rideformula.com/products/mountain-bike/selva-v/
         - https://www.rideformula.com/wp-content/uploads/2025/06/Selva_V_User_Manual_EN-1.pdf
@@ -89,10 +94,15 @@ option_values:
         - One compression dial moves high- and low-speed compression together
         - Compression Tuning System (CTS) valves swap in for larger changes
         - Crown-mounted lockout with an adjustable lockout force
+      description_de: |-
+        - Drop-in-Kartusche mit Internal Floating Technology (Kugelgelenke lassen Luftfeder und Kartusche unabhängig vom Chassis arbeiten)
+        - Ein Druckstufenrad verstellt High- und Low-Speed-Druckstufe gemeinsam
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
+        - Lockout an der Gabelbrücke mit einstellbarer Lockout-Kraft
       adjustments:
-        - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial) }
-        - { name: Rebound, type: step, max: 21 }
-        - { name: Lockout, type: categorical, options: [Open, Locked], notes: Crown-mounted lever }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 12, notes: High and Low Speed (one combined dial), notes_de: High- und Low-Speed (ein gemeinsames Rad) }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 21 }
+        - { name: Lockout, name_de: Lockout, type: categorical, options: [Open, Locked], options_de: [Offen, Gesperrt], notes: Crown-mounted lever, notes_de: Hebel an der Gabelbrücke }
       source:
         - https://www.rideformula.com/products/mountain-bike/selva-s/
         - https://www.rideformula.com/products/mountain-bike/selva-r-2/
@@ -111,10 +121,15 @@ option_values:
         - One compression dial moves high- and low-speed compression together
         - Compression Tuning System (CTS) valves swap in for larger changes
         - Crown-mounted lockout, optional remote cartridge control
+      description_de: |-
+        - Drop-in-Kartusche mit Internal Floating Technology
+        - Ein Druckstufenrad verstellt High- und Low-Speed-Druckstufe gemeinsam
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
+        - Lockout an der Gabelbrücke, optional Fernbedienung der Kartusche
       adjustments:
-        - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial), dialColor: blue }
-        - { name: Rebound, type: step, max: 18 }
-        - { name: Lockout, type: categorical, options: [Open, Locked], notes: Crown-mounted lever }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 12, notes: High and Low Speed (one combined dial), notes_de: High- und Low-Speed (ein gemeinsames Rad), dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 18 }
+        - { name: Lockout, name_de: Lockout, type: categorical, options: [Open, Locked], options_de: [Offen, Gesperrt], notes: Crown-mounted lever, notes_de: Hebel an der Gabelbrücke }
       source: https://www.rideformula.com/products/mtb-forks/belva/
       note: >-
         Belva page: "Rebound: 18 Click Adjustment", "Compression: High and Low
@@ -127,10 +142,14 @@ option_values:
         - Downhill drop-in cartridge with Internal Floating Technology
         - Separate high-speed compression, low-speed compression and rebound dials
         - Compression Tuning System (CTS) valves swap in for larger changes
+      description_de: |-
+        - Downhill-Drop-in-Kartusche mit Internal Floating Technology
+        - Getrennte Räder für High-Speed-Druckstufe, Low-Speed-Druckstufe und Zugstufe
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
       adjustments:
-        - { name: HSC, type: step, max: 20, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 12, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 21 }
+        - { name: HSC, name_de: HSC, type: step, max: 20, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: LSC, name_de: LSC, type: step, max: 12, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 21 }
       source:
         - https://www.rideformula.com/products/mountain-bike/nero-r/
         - https://www.rideformula.com/products/mountain-bike/nero-c/
@@ -154,6 +173,7 @@ option_values:
 guides:
   formula_selva_s_2018:
     label: Formula Selva S owner's manual
+    label_de: Formula Selva S Bedienungsanleitung
     source: https://www.rideformula.com/wp-content/uploads/2018/10/Manuale_SELVA_S_GB.pdf
     rules:
       - target: pressure
@@ -161,10 +181,11 @@ guides:
         input: rider_weight
         input_unit: kg
         rows: { 50: 45, 60: 55, 70: 65, 80: 75, 90: 85, 100: 95, 110: 105, 120: 115 }
-      - { target: neopos, value: 0, note: Neopos are optional on the Selva S }
+      - { target: neopos, value: 0, note: Neopos are optional on the Selva S, note_de: Neopos sind bei der Selva S optional }
 
   formula_selva_r_2023:
     label: Formula Selva R owner's manual
+    label_de: Formula Selva R Bedienungsanleitung
     source: https://www.rideformula.com/wp-content/uploads/2023/06/Manuale_SELVA_R_GB-Def.pdf
     rules:
       # The table prints no unit; its values only fit psi (the manual's
@@ -175,16 +196,19 @@ guides:
         input_unit: kg
         rows: { 60: 60, 70: 70, 80: 80, 90: 90, 100: 100 }
         note: Inflate the Silver chamber first
+        note_de: Zuerst die Silver-Kammer befüllen
       - target: negative_chamber_pressure
         unit: psi
         input: rider_weight
         input_unit: kg
         rows: { 60: 80, 70: 90, 80: 100, 90: 110, 100: 120 }
         note: "Set after Silver, with the lockout closed; up to 10 psi more for a softer initial stroke, up to 10 psi less for a firmer one"
-      - { target: neopos, value: 1, note: One Neopos fitted as delivered }
+        note_de: Nach Silver einstellen, bei geschlossenem Lockout; bis zu 10 psi mehr für einen weicheren Anfangsfederweg, bis zu 10 psi weniger für einen festeren
+      - { target: neopos, value: 1, note: One Neopos fitted as delivered, note_de: Ein Neopos ist wie ausgeliefert verbaut }
 
   formula_belva_2024:
     label: Formula Belva user manual
+    label_de: Formula Belva Bedienungsanleitung
     source: https://www.rideformula.com/wp-content/uploads/2024/03/Manuale-Utente-Belva-ENG.pdf
     rules:
       - target: pressure
@@ -195,6 +219,7 @@ guides:
 
   formula_nero_r_2017:
     label: Formula Nero R owner's manual
+    label_de: Formula Nero R Bedienungsanleitung
     source: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-R-owner-manual.pdf
     rules:
       - target: progressivity_chamber_pressure
@@ -203,18 +228,21 @@ guides:
         input_unit: kg
         rows: { 60: 110, 70: 120, 80: 130, 90: 140, 100: 150 }
         note: Inflate Gold first and keep it at or above Silver
+        note_de: Zuerst Gold befüllen und auf oder über dem Silver-Druck halten
       - target: main_chamber_pressure
         unit: psi
         input: rider_weight
         input_unit: kg
         rows: { 60: 80, 70: 90, 80: 100, 90: 110, 100: 120 }
         note: Inflate Silver after Gold; let Bronze out before checking it
+        note_de: Silver nach Gold befüllen; vor der Kontrolle Luft aus Bronze ablassen
       - target: sensitivity_chamber_pressure
         unit: psi
         input: rider_weight
         input_unit: kg
         rows: { 60: 100, 70: 110, 80: 120, 90: 130, 100: 140 }
         note: Inflate Bronze last and keep it at least 20 psi above Silver
+        note_de: Bronze zuletzt befüllen und mindestens 20 psi über Silver halten
       # Neopos: the manual allows up to three but no count fitted as delivered
       # is published, so there is no rule.
 
@@ -228,21 +256,22 @@ nodes:
   - label: "Selva"
     level: model
     category: Enduro / All-Mountain
+    category_de: Enduro / All-Mountain
     setup_guide: https://www.rideformula.com/wp-content/uploads/2023/06/Manuale_SELVA_R_GB-Def.pdf
     tasks: &formula_service
-      fork:lower_leg_service: { interval: { moving_time_h: 30 }, fallback: { days: 180 }, source: Formula owner's manual }
-      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Formula owner's manual }
+      fork:lower_leg_service: { interval: { moving_time_h: 30 }, fallback: { days: 180 }, source: Formula owner's manual, source_de: Formula-Handbuch }
+      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Formula owner's manual, source_de: Formula-Handbuch }
     children:
       - label: V
         level: trim
         years: "2025-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-v/
         setup_guide: https://www.rideformula.com/wp-content/uploads/2025/06/Selva_V_User_Manual_EN-1.pdf
-        specs: { stanchion: 35mm 7075 aluminum, spring: Air }
+        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
         offset_mm: [43]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-          - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support }
+          - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
+          - { name: Neopos, name_de: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support, notes_de: Schwammartige Tokens in der Positivkammer für Halt im mittleren Federweg }
         options:
           damper: [selva_v_2025]
           travel_mm: [160, 170, 180]
@@ -252,17 +281,21 @@ nodes:
           - New dual-chamber V air spring with a floating piston for low friction
           - One valve inflates both chambers; a bypass valve balances them and a reset valve empties both to start over
           - 15x110mm Boost with the Integrated Locking System axle, PM7 brake mount, from 2030g
+        note_de: |-
+          - Neue Doppelkammer-V-Luftfeder mit schwimmendem Kolben für geringe Reibung
+          - Ein Ventil befüllt beide Kammern; ein Bypassventil gleicht sie aus und ein Reset-Ventil leert beide, um von vorn zu beginnen
+          - 15x110mm Boost mit Integrated-Locking-System-Achse, PM7-Bremsaufnahme, ab 2030g
       - label: R
         level: trim
         years: "2019-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-r-2/
         guide: formula_selva_r_2023
-        specs: { stanchion: 35mm 7075 aluminum, spring: Air }
+        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
         offset_mm: [37, 43]
         adjustments:
-          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 125, notes: Silver chamber (positive) }
-          - { name: Negative Chamber Pressure, type: numerical, unit: psi, min: 0, max: 125, notes: Bronze chamber (sensitivity) }
-          - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support; one included }
+          - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0, max: 125, notes: Silver chamber (positive), notes_de: Silberne Kammer (positiv) }
+          - { name: Negative Chamber Pressure, name_de: Negativkammerdruck, type: numerical, unit: psi, min: 0, max: 125, notes: Bronze chamber (sensitivity), notes_de: Bronzene Kammer (Ansprechverhalten) }
+          - { name: Neopos, name_de: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support; one included, notes_de: Schwammartige Tokens in der Positivkammer für Halt im mittleren Federweg; einer ist enthalten }
         options:
           damper: [selva_2017]
           travel_mm: [120, 130, 140, 160, 170, 180]
@@ -273,16 +306,19 @@ nodes:
         note: |-
           - 2Air spring: separate positive (Silver) and negative (Bronze) chambers, each set with a shock pump
           - Travel is internally adjustable with spacers, in a 27.5" and a 29" / 27.5+ chassis
+        note_de: |-
+          - 2Air-Feder: getrennte Positiv- (Silver) und Negativkammer (Bronze), jede mit einer Dämpferpumpe eingestellt
+          - Der Federweg lässt sich intern mit Spacern einstellen, in einem Chassis für 27.5" und einem für 29" / 27.5+
       - label: C
         level: trim
         years: "2019-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-c/
         setup_guide: https://www.rideformula.com/wp-content/uploads/2018/10/2021_02-FORCEL_SELVA_C_GB.pdf
-        specs: { stanchion: 35mm 7075 aluminum, spring: Coil }
+        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Coil, spring_de: Stahlfeder }
         offset_mm: [37, 43]
         adjustments:
-          - { name: Spring Rate, type: categorical, options: [Soft, Medium, Firm, Super Firm], notes: Medium is the default coil }
-          - { name: Preload, type: step, max: 10, notes: External preload knob on the right side of the fork }
+          - { name: Spring Rate, name_de: Federrate, type: categorical, options: [Soft, Medium, Firm, Super Firm], options_de: [Weich, Medium, Fest, Extra fest], notes: Medium is the default coil, notes_de: Medium ist die Standardfeder }
+          - { name: Preload, name_de: Vorspannung, type: step, max: 10, notes: External preload knob on the right side of the fork, notes_de: Externes Vorspannungsrad an der rechten Seite der Gabel }
         options:
           damper: [selva_2017]
           travel_mm: [160, 170]
@@ -290,17 +326,20 @@ nodes:
         note: |-
           - Steel coil spring with an external preload knob
           - Same damper and CTS tunability as the air Selvas
+        note_de: |-
+          - Stahlfeder mit externem Vorspannungsknopf
+          - Gleicher Dämpfer und gleiche CTS-Abstimmbarkeit wie bei den Luft-Selvas
       - label: S
         level: trim
         years: "2017-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-s/
         setup_guide: https://www.rideformula.com/wp-content/uploads/2018/10/Manuale_SELVA_S_GB.pdf
         guide: formula_selva_s_2018
-        specs: { stanchion: 35mm 7075 aluminum, spring: Air }
+        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
         offset_mm: [37, 43]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 125 }
-          - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support }
+          - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 125 }
+          - { name: Neopos, name_de: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support, notes_de: Schwammartige Tokens in der Positivkammer für Halt im mittleren Federweg }
         options:
           damper: [selva_2017]
           travel_mm: [120, 160, 170, 180]
@@ -309,10 +348,15 @@ nodes:
           - Single positive air chamber with a steel negative spring (triple coil technology)
           - Travel is internally adjustable with spacers; Neopos are optional
           - Can be converted to a Selva R with Formula's 2Air kit
+        note_de: |-
+          - Einzelne Positiv-Luftkammer mit einer Negativ-Stahlfeder (Triple-Coil-Technologie)
+          - Der Federweg lässt sich intern mit Spacern einstellen; Neopos sind optional
+          - Lässt sich mit dem 2Air-Kit von Formula zur Selva R umbauen
 
   - label: "Belva"
     level: model
     category: Enduro / All-Mountain
+    category_de: Enduro / All-Mountain
     tasks: *formula_service
     children:
       - label: "2024–2026"
@@ -325,10 +369,10 @@ nodes:
         children:
           - label: Air
             level: trim
-            specs: { stanchion: 35mm 7075 aluminum, spring: Air }
+            specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
             offset_mm: [43]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 85 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 85 }
             options:
               damper: [belva_2024]
               travel_mm: [170, 180]
@@ -337,10 +381,15 @@ nodes:
               - Dual-crown enduro fork built on the Selva lowers, 43mm offset, tapered 1.5" steerer
               - Steel negative spring (triple coil technology); Neopos are optional
               - 15x110mm Boost with the Integrated Locking System axle, from 2370g
+            note_de: |-
+              - Enduro-Gabel mit Doppelbrücke auf Basis der Selva-Tauchrohre, 43mm Offset, konischer 1.5"-Gabelschaft
+              - Negativ-Stahlfeder (Triple-Coil-Technologie); Neopos sind optional
+              - 15x110mm Boost mit Integrated-Locking-System-Achse, ab 2370g
 
   - label: "Nero"
     level: model
     category: Downhill
+    category_de: Downhill
     tasks: *formula_service
     children:
       - label: "2017–2026"
@@ -353,13 +402,13 @@ nodes:
           - label: R
             level: trim
             guide: formula_nero_r_2017
-            specs: { stanchion: 35mm 7075 aluminum, spring: Air }
+            specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
             offset_mm: [50, 56]
             adjustments:
-              - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Silver chamber }
-              - { name: Sensitivity Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Bronze chamber (negative) }
-              - { name: Progressivity Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Gold chamber (end-stroke) }
-              - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber; one included }
+              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0, notes: Silver chamber, notes_de: Silberne Kammer }
+              - { name: Sensitivity Chamber Pressure, name_de: Ansprechkammerdruck, type: numerical, unit: psi, min: 0, notes: Bronze chamber (negative), notes_de: Bronzene Kammer (negativ) }
+              - { name: Progressivity Chamber Pressure, name_de: Progressionskammerdruck, type: numerical, unit: psi, min: 0, notes: Gold chamber (end-stroke), notes_de: Goldene Kammer (Endprogression) }
+              - { name: Neopos, name_de: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber; one included, notes_de: Schwammartige Tokens in der Positivkammer; einer ist enthalten }
             options:
               damper: [nero_2017]
               travel_mm: [180, 190, 200]
@@ -370,15 +419,19 @@ nodes:
               - 3Air spring: three chambers set in the order Gold, Silver, Bronze
               - Keep Gold at or above the Silver pressure and Bronze at least 20 psi above Silver
               - 20mm Boost axle with the FIRM locking system, from 2620g
+            note_de: |-
+              - 3Air-Feder: drei Kammern, befüllt in der Reihenfolge Gold, Silver, Bronze
+              - Gold auf oder über dem Silver-Druck halten und Bronze mindestens 20 psi über Silver
+              - 20mm-Boost-Achse mit FIRM-Klemmsystem, ab 2620g
           - label: C
             level: trim
             url: https://www.rideformula.com/products/mountain-bike/nero-c/
             setup_guide: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-C-Owner-manual.pdf
-            specs: { stanchion: 35mm 7075 aluminum, spring: Coil }
+            specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Coil, spring_de: Stahlfeder }
             offset_mm: [50, 56]
             adjustments:
-              - { name: Spring Rate, type: categorical, options: [Soft, Medium, Firm], notes: Medium is the default coil }
-              - { name: Preload, type: numerical, notes: "Tool-free external preload ring nut; fully loose is minimum preload" }
+              - { name: Spring Rate, name_de: Federrate, type: categorical, options: [Soft, Medium, Firm], options_de: [Weich, Medium, Fest], notes: Medium is the default coil, notes_de: Medium ist die Standardfeder }
+              - { name: Preload, name_de: Vorspannung, type: numerical, notes: "Tool-free external preload ring nut; fully loose is minimum preload", notes_de: Werkzeuglose externe Vorspannungsmutter; ganz lose ist die minimale Vorspannung }
             options:
               damper: [nero_2017]
               travel_mm: [200]
@@ -386,6 +439,9 @@ nodes:
             note: |-
               - Steel coil spring with a tool-free external preload ring nut
               - Same damper as the Nero R, from 2850g
+            note_de: |-
+              - Stahlfeder mit werkzeuglos bedienbarer externer Vorspannungs-Ringmutter
+              - Gleicher Dämpfer wie die Nero R, ab 2850g
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

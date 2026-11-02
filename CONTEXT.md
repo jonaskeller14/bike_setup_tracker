@@ -105,6 +105,16 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Volume spacers | Volumenspacer | Same word as the generic adjustment template |
 | Lower leg service / Air can service / Full service | Tauchrohr-Service / Luftkammer-Service / Komplett-Service | Task templates of forks and shocks |
 | Dropper post | Vario-Stütze | In the task template `Vario-Stütze warten` |
+| High-Speed / Low-Speed (Compression, Rebound) | High-Speed- / Low-Speed-Druckstufe, -Zugstufe | Hyphenated compound. The abbreviations HSC, LSC, HSR, LSR stay |
+| Air pressure (adjustment template) | Luftdruck | The template name, so the catalog adjuster `Pressure` is Luftdruck too. Other pressures stay `…druck` (Hauptkammerdruck) |
+| Lockout / Climb switch / Platform | Lockout / Climb-Schalter / Pedalplattform | Lockout and the lever and mode names (Open, Drive, Lock, Firm, Pedal) stay English |
+| Blow-off valve / Bottomless Tokens / Ramp Clamps | Blow-off-Ventil / Bottomless Tokens / Ramp Clamps | Product names and brand features stay English |
+| Twin-tube / Monotube / Open-bath | Zweirohr- / Eirohr- (Monotube-) / Offenes Ölbad | |
+| Counted from fully closed / open | Von ganz geschlossen / ganz offen gezählt | Clicks are Klicks |
+| Clockwise / counter-clockwise | Im Uhrzeigersinn / gegen den Uhrzeigersinn | |
+| Max per travel (spacers) | Max. je Federweg | The travel is the Federweg; the shock's travel is the Hub |
+| Owner's / user manual, set-up guide, quickstart | Bedienungsanleitung, Setup-Anleitung, Schnellstart | Guide labels, so a guide reads like the rider's manual |
+| Upside-down (inverted) / dual-crown | Upside-down / Doppelbrücke | Chassis terms |
 
 Unit symbols (`km`, `bar`, `°C`) are not translated.
 

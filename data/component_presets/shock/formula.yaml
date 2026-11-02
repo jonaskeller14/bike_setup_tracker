@@ -41,10 +41,14 @@ option_values:
         - Bladder-backed damper with a three-position compression switch: Open, Platform, Firm
         - Compression Tuning System (CTS) valves swap in for larger changes
         - Very wide rebound range so one tune suits many frames
+      description_de: |-
+        - Dämpfer mit Bladder und Drei-Positionen-Druckstufenschalter: Open, Platform, Firm
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
+        - Sehr großer Zugstufenbereich, sodass eine Abstimmung zu vielen Rahmen passt
       adjustments:
-        - { name: Compression, type: step, max: 21, dialColor: blue }
-        - { name: Rebound, type: step, max: 23 }
-        - { name: Compression Mode, type: categorical, options: [Open, Platform, Firm] }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 21, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 23 }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Platform, Firm], options_de: [Offen, Platform, Fest] }
       source: https://www.rideformula.com/products/mtb-shocks/nebbia/
       note: >-
         Nebbia page: "Compression: 21 Click Adjustment", "Rebound: 23 Click
@@ -57,10 +61,14 @@ option_values:
         - Single-tube damper with a 30mm piston and a large-volume bladder reservoir
         - Two-position compression switch: Open or Firm
         - Compression Tuning System (CTS) valves swap in for larger changes
+      description_de: |-
+        - Eirohr-Dämpfer mit 30mm-Kolben und großvolumigem Bladder-Ausgleichsbehälter
+        - Zwei-Positionen-Druckstufenschalter: Open oder Firm
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
       adjustments:
-        - { name: Compression, type: step, max: 17, dialColor: blue }
-        - { name: Rebound, type: step, max: 13, dialColor: red }
-        - { name: Compression Mode, type: categorical, options: [Open, Firm] }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 17, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 13, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest] }
       source: https://www.rideformula.com/products/mtb-shocks/mod/
       note: >-
         MOD page: "Compression: 17 Click Adjustment", "Rebound: 13 Click
@@ -73,9 +81,13 @@ option_values:
         - Downhill version of the MOD damper, without a climb switch
         - Single-tube damper with a 30mm piston and a large-volume bladder reservoir
         - Compression Tuning System (CTS) valves swap in for larger changes
+      description_de: |-
+        - Downhill-Version des MOD-Dämpfers, ohne Climb-Schalter
+        - Eirohr-Dämpfer mit 30mm-Kolben und großvolumigem Bladder-Ausgleichsbehälter
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
       adjustments:
-        - { name: Compression, type: step, max: 17, dialColor: blue }
-        - { name: Rebound, type: step, max: 13, dialColor: red }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 17, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 13, dialColor: red }
       source: https://www.rideformula.com/products/mtb-shocks/mod-dh/
       note: >-
         MOD DH page: "Compression: 17 Click Adjustment", "Rebound: 13 Click
@@ -96,6 +108,7 @@ option_values:
 guides:
   formula_nebbia_2024:
     label: Formula Nebbia user manual
+    label_de: Formula Nebbia Bedienungsanleitung
     source: https://www.rideformula.com/wp-content/uploads/2024/07/Manuale-Utente-Nebbia-ENG.pdf
     rules:
       - target: pressure
@@ -107,16 +120,18 @@ guides:
           80-90: [150, 170], 90-100: [170, 190], 100+: [190, 210]
         }
         note: Frames can differ by up to 30 psi; set the final pressure by SAG
+        note_de: Rahmen können um bis zu 30 psi abweichen; den endgültigen Druck über den SAG einstellen
       - { target: rebound, value: 12 }
       - { target: compression, value: 10 }
 
   formula_mod_2020:
     label: Formula MOD owner's manual
+    label_de: Formula MOD Bedienungsanleitung
     source: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Owner-Manual.pdf
     rules:
-      - { target: rebound, value: 6, note: "A stiffer spring needs a little more: 1-2 clicks going from 400 to 450 lbs/in" }
+      - { target: rebound, value: 6, note: "A stiffer spring needs a little more: 1-2 clicks going from 400 to 450 lbs/in", note_de: "Eine härtere Feder braucht etwas mehr: 1-2 Klicks beim Wechsel von 400 auf 450 lbs/in" }
       - { target: compression, value: 9 }
-      - { target: sag, value: 30, note: "Set with preload between 2 and 5 mm; beyond that, change the spring" }
+      - { target: sag, value: 30, note: "Set with preload between 2 and 5 mm; beyond that, change the spring", note_de: Mit Vorspannung zwischen 2 und 5 mm einstellen; darüber hinaus die Feder wechseln }
 
 # --------------------------------------------------------------------------
 # Shocks
@@ -125,10 +140,11 @@ nodes:
   - label: "Nebbia"
     level: model
     category: Trail / Enduro / All-Mountain
-    specs: { spring: Air }
+    category_de: Trail / Enduro / All-Mountain
+    specs: { spring: Air, spring_de: Luft }
     tasks:
-      shock:air_can_service: { interval: { moving_time_h: 60 }, fallback: { days: 180 }, source: Formula owner's manual }
-      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Formula owner's manual }
+      shock:air_can_service: { interval: { moving_time_h: 60 }, fallback: { days: 180 }, source: Formula owner's manual, source_de: Formula-Handbuch }
+      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Formula owner's manual, source_de: Formula-Handbuch }
     children:
       - label: "2024–2026"
         level: generation
@@ -141,7 +157,7 @@ nodes:
           - label: Air
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
             options:
               damper: [nebbia_2024]
               size: [{ size: "190x37.5/40/42.5/45", mount: Standard }, { size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "250x67.5/70/72.5/75", mount: Standard }, { size: "165x37.5/40/42.5/45", mount: Trunnion }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65/67.5", mount: Trunnion }, { size: "225x70/72.5/75", mount: Trunnion }]
@@ -149,13 +165,18 @@ nodes:
               - Coil and air hybrid negative spring with a bladder oil reservoir
               - Volume spacers tune the mid- and end-stroke
               - Clip-in spacers cut the stroke by 2.5, 5 or 7.5mm without tools
+            note_de: |-
+              - Negativfeder als Mischung aus Stahlfeder und Luft mit Bladder-Ölbehälter
+              - Volumenspacer stimmen den mittleren Federweg und das Federwegsende ab
+              - Einklick-Spacer verkürzen den Hub werkzeuglos um 2,5, 5 oder 7,5mm
 
   - label: "MOD"
     level: model
     category: Enduro / All-Mountain
-    specs: { spring: Coil }
+    category_de: Enduro / All-Mountain
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks: &formula_mod_service
-      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Formula owner's manual }
+      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Formula owner's manual, source_de: Formula-Handbuch }
     children:
       - label: "2020–2026"
         level: generation
@@ -168,8 +189,8 @@ nodes:
           - label: Coil
             level: trim
             adjustments:
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-              - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Preload, name_de: Vorspannung, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn", notes_de: "Ringmutter, 1,25mm pro Umdrehung" }
             options:
               damper: [mod_2020]
               size: [{ size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65", mount: Trunnion }]
@@ -177,21 +198,26 @@ nodes:
               - Steel coil springs from 300 to 700 lbs/in
               - Yoke-mount compatible version available
               - Major service interval of 200 hours
+            note_de: |-
+              - Stahlfedern von 300 bis 700 lbs/in
+              - Version mit Yoke-Mount-Kompatibilität erhältlich
+              - Großer Serviceintervall von 200 Stunden
 
   - label: "MOD DH"
     level: model
     category: Downhill
+    category_de: Downhill
     url: https://www.rideformula.com/products/mtb-shocks/mod-dh/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Manuale-utente.pdf
     guide: formula_mod_2020
-    specs: { spring: Coil }
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks: *formula_mod_service
     children:
       - label: Coil
         level: trim
         adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
+          - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Preload, name_de: Vorspannung, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn", notes_de: "Ringmutter, 1,25mm pro Umdrehung" }
         options:
           damper: [mod_dh]
           size: [{ size: "250x67.5/70/72.5/75", mount: Standard }, { size: "225x67.5/70/72.5/75", mount: Trunnion }]
@@ -199,6 +225,10 @@ nodes:
           - Steel coil springs from 250 to 550 lbs/in
           - Same internals as the MOD, without the climb switch
           - Major service interval of 200 hours
+        note_de: |-
+          - Stahlfedern von 250 bis 550 lbs/in
+          - Gleiches Innenleben wie der MOD, ohne den Climb-Schalter
+          - Großer Serviceintervall von 200 Stunden
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

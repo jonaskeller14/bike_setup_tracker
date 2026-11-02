@@ -70,10 +70,14 @@ option_values:
         - Twin-tube air shock with a nitrogen-charged piggyback reservoir
         - Twin-tube flow keeps damping steady as shaft speed rises
         - High-speed compression is a three-position dial: Soft, Medium and Pedal
+      description_de: |-
+        - Zweirohr-Luftdämpfer mit stickstoffgefülltem Piggyback-Ausgleichsbehälter
+        - Der Zweirohr-Durchfluss hält die Dämpfung auch bei steigender Kolbenstangengeschwindigkeit gleichmäßig
+        - Die High-Speed-Druckstufe ist ein Rad mit drei Positionen: Soft, Medium und Pedal
       adjustments:
-        - { name: HSC, type: categorical, options: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform" }
-        - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, type: categorical, options: ["1", "2", P], options_de: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform", notes_de: "High-Speed-Druckstufe; 1 Soft, 2 Medium, P Pedalplattform" }
+        - { name: LSC, name_de: LSC, type: step, max: 10, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 12, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, dialColor: orange }
       source: https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
       note: >-
         TTX1Air listing: "12-fach verstellbare Low-Speed-Zugstufendämpfung",
@@ -89,10 +93,14 @@ option_values:
         - Twin-tube air shock, m.2 generation, with a volume-spacer air can
         - Far finer low-speed compression than the first generation, but coarser rebound
         - High-speed compression is a three-position dial: Soft, Medium and Pedal
+      description_de: |-
+        - Zweirohr-Luftdämpfer, Generation m.2, mit Luftkammer für Volumenspacer
+        - Deutlich feinere Low-Speed-Druckstufe als bei der ersten Generation, aber gröbere Zugstufe
+        - Die High-Speed-Druckstufe ist ein Rad mit drei Positionen: Soft, Medium und Pedal
       adjustments:
-        - { name: HSC, type: categorical, options: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform" }
-        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, type: categorical, options: ["1", "2", P], options_de: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform", notes_de: "High-Speed-Druckstufe; 1 Soft, 2 Medium, P Pedalplattform" }
+        - { name: LSC, name_de: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 7, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, dialColor: orange }
       source: https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
       note: >-
         TTX1Air m.2 listing: "7-fach verstellbare Low-Speed-Zugstufendämpfung",
@@ -105,10 +113,14 @@ option_values:
         - Twin-tube air shock built around a larger-volume can than the TTX1Air
         - Twin-tube flow keeps damping steady as shaft speed rises
         - High-speed compression is a three-position dial: Soft, Medium and Pedal
+      description_de: |-
+        - Zweirohr-Luftdämpfer mit größerer Kammer als beim TTX1Air
+        - Der Zweirohr-Durchfluss hält die Dämpfung auch bei steigender Kolbenstangengeschwindigkeit gleichmäßig
+        - Die High-Speed-Druckstufe ist ein Rad mit drei Positionen: Soft, Medium und Pedal
       adjustments:
-        - { name: HSC, type: categorical, options: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform" }
-        - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, type: categorical, options: ["1", "2", P], options_de: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform", notes_de: "High-Speed-Druckstufe; 1 Soft, 2 Medium, P Pedalplattform" }
+        - { name: LSC, name_de: LSC, type: step, max: 10, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 12, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, dialColor: orange }
       source: https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
       note: >-
         TTX2Air listing: "12-fach verstellbare Low-Speed-Zugstufendämpfung",
@@ -122,10 +134,14 @@ option_values:
         - Twin-tube air shock, m.2 generation, with a double-can high-volume air spring
         - Rebound is a coarse four-position dial rather than a fine click range
         - High-speed compression is a three-position dial: Soft, Medium and Climb
+      description_de: |-
+        - Zweirohr-Luftdämpfer, Generation m.2, mit großvolumiger Doppelkammer-Luftfeder
+        - Die Zugstufe ist ein grobes Rad mit vier Positionen statt eines feinen Klickbereichs
+        - Die High-Speed-Druckstufe ist ein Rad mit drei Positionen: Soft, Medium und Climb
       adjustments:
-        - { name: HSC, type: categorical, options: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Climb platform" }
-        - { name: LSC, type: step, max: 12, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 3, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, type: categorical, options: ["1", "2", P], options_de: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Climb platform", notes_de: "High-Speed-Druckstufe; 1 Soft, 2 Medium, P Climb-Plattform" }
+        - { name: LSC, name_de: LSC, type: step, max: 12, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 3, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, dialColor: orange }
       source: https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
       note: >-
         TTX2Air m.2 listing: "3-fach einstellbare Low-Speed-Zugstufendämpfung",
@@ -139,9 +155,13 @@ option_values:
         - Cross-country air shock, the rear half of the RXC34 package
         - A three-position lever steps between Open, Pedal and Lockout
         - Rebound is the only click adjuster; compression is set by the lever alone
+      description_de: |-
+        - Cross-Country-Luftdämpfer, die hintere Hälfte des RXC34-Pakets
+        - Ein Drei-Positionen-Hebel schaltet zwischen Open, Pedal und Lockout
+        - Die Zugstufe ist der einzige Klickversteller; die Druckstufe wird allein über den Hebel eingestellt
       adjustments:
-        - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
-        - { name: Ride Mode, type: categorical, options: [Open, Pedal, Lockout], notes: "Bar remote at 7.5mm cable pull per click, 5.5mm/click adapter available" }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 12, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: Ride Mode, name_de: Fahrmodus, type: categorical, options: [Open, Pedal, Lockout], options_de: [Offen, Pedal, Lockout], notes: "Bar remote at 7.5mm cable pull per click, 5.5mm/click adapter available", notes_de: "Lenkerfernbedienung mit 7,5mm Seilzug pro Klick, Adapter mit 5,5mm/Klick erhältlich" }
       source: https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
       note: >-
         TXC1Air listing gives "12 Klicks Zugstufendämpfung" and "drei
@@ -157,10 +177,14 @@ option_values:
         - Cross-country air shock from 255g, with a three-position lever
         - Open, Pedal and Lockout are selectable at the shock or by bar remote
         - The 16-click low-speed compression range works within Open mode
+      description_de: |-
+        - Cross-Country-Luftdämpfer ab 255g mit Drei-Positionen-Hebel
+        - Open, Pedal und Lockout sind am Dämpfer oder per Lenkerfernbedienung wählbar
+        - Der Low-Speed-Druckstufenbereich mit 16 Klicks wirkt im Open-Modus
       adjustments:
-        - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; operates within Open mode", dialColor: blue }
-        - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
-        - { name: Ride Mode, type: categorical, options: [Open, Pedal, Lockout], notes: "Lever at the shock or a three-position bar remote; 5.5mm/click cable-pull adapter available" }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 16, notes: "Low-Speed Compression; operates within Open mode", notes_de: Low-Speed-Druckstufe; wirkt im offenen Modus, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 12, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: Ride Mode, name_de: Fahrmodus, type: categorical, options: [Open, Pedal, Lockout], options_de: [Offen, Pedal, Lockout], notes: "Lever at the shock or a three-position bar remote; 5.5mm/click cable-pull adapter available", notes_de: "Hebel am Dämpfer oder Lenkerfernbedienung mit drei Positionen; Seilzugadapter mit 5,5mm/Klick erhältlich" }
       source:
         - https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
         - https://nsmb.com/articles/ohlins-txc2air-and-rxc34-m1-suspension/
@@ -177,10 +201,14 @@ option_values:
         - Twin-tube coil shock for gravity riding, with a nitrogen bladder reservoir
         - The same cartridge sits in every Piggyback, Side-by-side and Trunnion variant
         - Threaded preload collar sets spring preload independently of the clicks
+      description_de: |-
+        - Zweirohr-Stahlfederdämpfer für den Gravity-Einsatz mit Stickstoff-Bladder-Ausgleichsbehälter
+        - Dieselbe Kartusche sitzt in jeder Piggyback-, Side-by-side- und Trunnion-Variante
+        - Ein Federteller mit Gewinde stellt die Federvorspannung unabhängig von den Klicks ein
       adjustments:
-        - { name: HSC, type: categorical, options: [I, II, III], notes: "High-Speed Compression; I Soft, II Medium, III Hard" }
-        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, type: categorical, options: [I, II, III], options_de: [I, II, III], notes: "High-Speed Compression; I Soft, II Medium, III Hard", notes_de: "High-Speed-Druckstufe; I Soft, II Medium, III Hard" }
+        - { name: LSC, name_de: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 7, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, dialColor: orange }
       source:
         - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
         - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-side-by-side--7681/
@@ -200,10 +228,13 @@ option_values:
       description: |-
         - Original twin-tube coil shock for gravity riding, a universal side-by-side design
         - Same click counts as the TTX22 m.2
+      description_de: |-
+        - Ursprünglicher Zweirohr-Stahlfederdämpfer für den Gravity-Einsatz, ein universelles Side-by-side-Design
+        - Gleiche Klickzahlen wie beim TTX22 m.2
       adjustments:
-        - { name: HSC, type: step, max: 3, notes: High-Speed Compression, dialColor: grey }
-        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, type: step, max: 3, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, dialColor: grey }
+        - { name: LSC, name_de: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 7, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, dialColor: orange }
       source:
         - https://www.ohlins.eu/de/products/packages/mtbm-1893-210x55mm--102/
         - https://www.ohlins.eu/de/products/mountainbike/230x575mm-mtbm-1894--6314/
@@ -231,18 +262,20 @@ option_values:
 guides:
   ohlins_ttx_air_m1_2020:
     label: Öhlins TTX Air owner's manual (2020)
+    label_de: Öhlins TTX Air Bedienungsanleitung (2020)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00002997.pdf
     rules:
-      - &ohlins_ttx_air_pressure { target: pressure, unit: psi, value: 170, note: Starting pressure; adjust it until the sag is right }
-      - &ohlins_ttx_air_hsc { target: hsc, value: "2", note: "Delivery setting; set sag in 1 or 2, not P" }
+      - &ohlins_ttx_air_pressure { target: pressure, unit: psi, value: 170, note: Starting pressure; adjust it until the sag is right, note_de: "Startdruck; so lange anpassen, bis der SAG stimmt" }
+      - &ohlins_ttx_air_hsc { target: hsc, value: "2", note: "Delivery setting; set sag in 1 or 2, not P", note_de: "Auslieferungseinstellung; den SAG in 1 oder 2 einstellen, nicht in P" }
       - &ohlins_ttx_sag { target: sag, range: [25, 35], comfort_at: max }
       # TTX1Air = MTBM 1950-1955, all delivered with reducer A. The TTX2Air
       # production volume depends on a part number the catalog sizes don't map.
-      - { target: volume_spacers, value: A, when: { damper: ttx1air_m1 }, note: Production setting }
+      - { target: volume_spacers, value: A, when: { damper: ttx1air_m1 }, note: Production setting, note_de: Serieneinstellung }
       # The Specialized OEM sag table (SBC article numbers) has no catalog node.
 
   ohlins_ttx_air_m2_2025:
     label: Öhlins TTXAir m.2 owner's manual (2025)
+    label_de: Öhlins TTXAir m.2 Bedienungsanleitung (2025)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00004276.pdf
     rules:
       - *ohlins_ttx_air_pressure
@@ -250,22 +283,24 @@ guides:
       - *ohlins_ttx_sag
       # TTX2Air m.2: 5 or 6 spacers by part number (MTBM 2565/2585 vs
       # 2569/2589), which the catalog sizes don't map.
-      - { target: volume_spacers, value: 1, when: { damper: ttx1air_m2 }, note: Production setting }
+      - { target: volume_spacers, value: 1, when: { damper: ttx1air_m2 }, note: Production setting, note_de: Serieneinstellung }
 
   ohlins_txc_air_2023:
     label: Öhlins TXC Air owner's manual (2023)
+    label_de: Öhlins TXC Air Bedienungsanleitung (2023)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
     rules:
-      - { target: pressure, unit: psi, value: 200, note: Starting pressure; set sag with the lever in Open }
+      - { target: pressure, unit: psi, value: 200, note: Starting pressure; set sag with the lever in Open, note_de: Startdruck; den SAG mit dem Hebel in Open einstellen }
       - { target: sag, range: [20, 30], comfort_at: max }
       # The manual gives spacer maxima per stroke only, no production count.
 
   ohlins_ttx22_m2_2022:
     label: Öhlins TTX22m.2 owner's manual (2022)
+    label_de: Öhlins TTX22m.2 Bedienungsanleitung (2022)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx22m2-englisch--00003682.pdf
     rules:
-      - { target: hsc, value: II, note: Delivery setting }
-      - { target: sag, range: [25, 35], comfort_at: max, note: The right sag depends on the bike }
+      - { target: hsc, value: II, note: Delivery setting, note_de: Auslieferungseinstellung }
+      - { target: sag, range: [25, 35], comfort_at: max, note: The right sag depends on the bike, note_de: Der richtige SAG hängt vom Bike ab }
 
 # --------------------------------------------------------------------------
 # Shocks — current Öhlins MTB lineup, both generations of each air shock.
@@ -282,9 +317,10 @@ nodes:
   - label: TTX1Air
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
     tasks: &ohlins_service
-      shock:air_can_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual }
-      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 730 }, source: Öhlins owner's manual }
+      shock:air_can_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch }
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 730 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch }
     children:
       - label: First generation
         level: version
@@ -293,17 +329,18 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00002997.pdf
         guide: ohlins_ttx_air_m1_2020
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         children:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300, notes: 300 psi maximum }
-              - { name: Volume Spacers, type: categorical, options: [A, B, C, D, E], notes: "Sized volume reducers, from A (2000 mm3) to E (12000 mm3)" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300, notes: 300 psi maximum, notes_de: Maximal 300 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: categorical, options: [A, B, C, D, E], options_de: [A, B, C, D, E], notes: "Sized volume reducers, from A (2000 mm3) to E (12000 mm3)", notes_de: "Volumenreduzierer in gestuften Größen, von A (2000 mm3) bis E (12000 mm3)" }
             options:
               damper: [ttx1air_m1]
               size: [{ size: "190x40/42.5/45", mount: Standard eyelet }, { size: "210x50/52.5/55", mount: Standard eyelet }, { size: "230x60/62.5/65", mount: Standard eyelet }, { size: "165x40/42.5/45", mount: Trunnion }, { size: "185x50/52.5/55", mount: Trunnion }, { size: "205x60/62.5/65", mount: Trunnion }]
             note: First-generation TTX1Air, from 390g. Its click table differs from the m.2 on every circuit.
+            note_de: TTX1Air der ersten Generation, ab 390g. Die Klicktabelle weicht bei jedem Kreis von der m.2 ab.
       - label: m.2
         level: version
         id: m2
@@ -311,23 +348,27 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00004276.pdf
         guide: ohlins_ttx_air_m2_2025
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         children:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300, notes: 300 psi maximum }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "2000 mm3 spacers on the spacer holder" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300, notes: 300 psi maximum, notes_de: Maximal 300 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 5, visualization: stepper, notes: "2000 mm3 spacers on the spacer holder", notes_de: 2000-mm3-Spacer auf dem Spacerhalter }
             options:
               damper: [ttx1air_m2]
               size: [{ size: "165x45/42.5/40/37.5", mount: Trunnion }, { size: "185x55/52.5/50/47.5", mount: Trunnion }, { size: "190x45/42.5/40/37.5", mount: Standard eyelet }, { size: "210x55/52.5/50/47.5", mount: Standard eyelet }]
             note: |-
               - Air-spring progression is tuned with volume spacers, supplied with the shock
               - From 390g in 190x45
+            note_de: |-
+              - Die Progression der Luftfeder wird über mitgelieferte Volumenspacer abgestimmt
+              - Ab 390g in 190x45
 
   - label: TTX2Air
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
     tasks: *ohlins_service
     children:
       - label: First generation
@@ -337,16 +378,17 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00002997.pdf
         guide: ohlins_ttx_air_m1_2020
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         children:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 325, notes: 325 psi maximum }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 325, notes: 325 psi maximum, notes_de: Maximal 325 psi }
             options:
               damper: [ttx2air_m1]
               size: [{ size: "190x40/42.5/45", mount: Standard eyelet (15 x 12.7mm) }, { size: "185x50/52.5/55", mount: Trunnion }, { size: "205x60/62.5/65", mount: Trunnion }]
             note: First-generation TTX2Air, from 390g. Its click table differs from the m.2 on every circuit.
+            note_de: TTX2Air der ersten Generation, ab 390g. Die Klicktabelle weicht bei jedem Kreis von der m.2 ab.
       - label: m.2
         level: version
         id: m2
@@ -354,24 +396,28 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00004276.pdf
         guide: ohlins_ttx_air_m2_2025
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         children:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 325, notes: 325 psi maximum }
-              - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "2000 mm3 spacers on the spacer holder. Maximum depends on the size: 185x55 and 210x55 8, 205x65 and 230x65 9" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 325, notes: 325 psi maximum, notes_de: Maximal 325 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 9, visualization: stepper, notes: "2000 mm3 spacers on the spacer holder. Maximum depends on the size: 185x55 and 210x55 8, 205x65 and 230x65 9", notes_de: "2000-mm3-Spacer auf dem Spacerhalter. Das Maximum hängt von der Größe ab: 185x55 und 210x55 8, 205x65 und 230x65 9" }
             options:
               damper: [ttx2air_m2]
               size: [{ size: "185x55/52.5/50/47.5", mount: Trunnion }, { size: "205x65/62.5/60/57.5", mount: Trunnion }, { size: "210x55/52.5/50/47.5", mount: Metric }, { size: "230x65/62.5/60/57.5", mount: Metric }]
             note: |-
               - Double-can air spring with more volume in both chambers
               - Takes up to 325 psi, and ships with volume spacers for progression
+            note_de: |-
+              - Doppelkammer-Luftfeder mit mehr Volumen in beiden Kammern
+              - Verträgt bis zu 325 psi und wird mit Volumenspacern für Progression geliefert
 
   - label: "TXC1Air"
     level: model
     category: XC
-    specs: { spring: Air }
+    category_de: XC
+    specs: { spring: Air, spring_de: Luft }
     tasks: *ohlins_service
     children:
       - label: "2025–2026"
@@ -385,19 +431,23 @@ nodes:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "1 ml spacers: up to 4 on the spacer holder plus 2 smaller 0.7 ml spacers on the end eye" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum, notes_de: Maximal 350 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, visualization: stepper, notes: "1 ml spacers: up to 4 on the spacer holder plus 2 smaller 0.7 ml spacers on the end eye", notes_de: "1-ml-Spacer: bis zu 4 auf dem Spacerhalter plus 2 kleinere 0,7-ml-Spacer am Dämpferauge" }
             options:
               damper: [txc1air]
               size: [{ size: "165x37.5/40", mount: Trunnion Remote }, { size: "185x47.5/50", mount: Trunnion Remote }, { size: "190x37.5/40", mount: Remote }, { size: "210x47.5/50", mount: Remote }]
             note: |-
               - Cross-country tune, from 245g, and the rear half of the RXC34 package
               - Volume spacers tune air-spring progression; travel is adjustable
+            note_de: |-
+              - Cross-Country-Abstimmung, ab 245g, und die hintere Hälfte des RXC34-Pakets
+              - Volumenspacer stimmen die Progression der Luftfeder ab; der Federweg ist einstellbar
 
   - label: "TXC2Air"
     level: model
     category: XC
-    specs: { spring: Air }
+    category_de: XC
+    specs: { spring: Air, spring_de: Luft }
     tasks: *ohlins_service
     children:
       - label: "2025–2026"
@@ -412,18 +462,20 @@ nodes:
             level: trim
             mounts: [Standard eyelet, "Remote (5.5mm cable pull adapter)"]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Up to 3 on the spacer holder plus smaller 0.7 ml spacers on the end eye. Maximum depends on the stroke: 55/45 mm 3, 52.5/42.5 mm 4, 50/40 mm 5, 47.5/37.5 mm 6" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum, notes_de: Maximal 350 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, visualization: stepper, notes: "Up to 3 on the spacer holder plus smaller 0.7 ml spacers on the end eye. Maximum depends on the stroke: 55/45 mm 3, 52.5/42.5 mm 4, 50/40 mm 5, 47.5/37.5 mm 6", notes_de: "Bis zu 3 auf dem Spacerhalter plus kleinere 0,7-ml-Spacer am Dämpferauge. Das Maximum hängt vom Hub ab: 55/45 mm 3, 52,5/42,5 mm 4, 50/40 mm 5, 47,5/37,5 mm 6" }
             options:
               damper: [txc2air]
               size: ["165x37.5/40/42.5/45", "185x47.5/50/52.5/55", "190x37.5/40/42.5/45", "210x47.5/50/52.5/55"]
             note: Cross-country tune from 255g, with low-speed compression clicks on top of the three-mode lever.
+            note_de: Cross-Country-Abstimmung ab 255g, mit Low-Speed-Druckstufenklicks zusätzlich zum Hebel mit drei Modi.
 
   - label: TTX22
     level: model
     category: Enduro / Downhill
+    category_de: Enduro / Downhill
     tasks:
-      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual }
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch }
     children:
       - label: m.2
         level: version
@@ -432,20 +484,24 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx22m2-englisch--00003682.pdf
         guide: ohlins_ttx22_m2_2022
-        specs: { spring: Coil }
+        specs: { spring: Coil, spring_de: Stahlfeder }
         note: |-
           - The coil spring is bought separately, from the Öhlins 18075 series
           - Sixteen rates run 64 to 136 N/mm, one series covering every shock size
+        note_de: |-
+          - Die Stahlfeder wird separat gekauft, aus der Öhlins-Serie 18075
+          - Sechzehn Federraten von 64 bis 136 N/mm, eine Serie deckt jede Dämpfergröße ab
         children:
           - label: Piggyback
             level: trim
             adjustments: &coil_spring
-              - { name: Spring Rate, type: numerical, unit: N/mm, min: 0 }
-              - { name: Preload, type: numerical, unit: turns, min: 0, max: 2, notes: Maximum 2 full turns }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: N/mm, min: 0 }
+              - { name: Preload, name_de: Vorspannung, type: numerical, unit: turns, min: 0, max: 2, notes: Maximum 2 full turns, notes_de: Maximal 2 volle Umdrehungen }
             options:
               damper: [ttx22_m2]
               size: [{ size: "267x89", label: "267x89 (10.5x3.5in)" }]
             note: 425-460g without the spring.
+            note_de: 425-460g ohne Feder.
           - label: Side-by-side
             level: trim
             url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-side-by-side--7681/
@@ -476,18 +532,21 @@ nodes:
         level: version
         id: m1
         url: https://www.ohlins.eu/en/products/mountainbike/coil-shocks/?show_unavailable=1
-        specs: { spring: Coil }
+        specs: { spring: Coil, spring_de: Stahlfeder }
         tasks:
           shock:full_service: ~
         note: |-
           - Original TTX22 generation, discontinued; the coil spring is bought separately
           - Universal side-by-side body, with a trunnion mount only on the separate TTX22M Custom
+        note_de: |-
+          - Ursprüngliche TTX22-Generation, eingestellt; die Stahlfeder wird separat gekauft
+          - Universelles Side-by-side-Gehäuse, Trunnion-Aufnahme nur beim separaten TTX22M Custom
         children:
           - label: Side-by-side
             level: trim
             adjustments:
-              - { name: Spring Rate, type: numerical, unit: N/mm, min: 0 }
-              - { name: Preload, type: numerical, unit: turns, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: N/mm, min: 0 }
+              - { name: Preload, name_de: Vorspannung, type: numerical, unit: turns, min: 0 }
             options:
               damper: [ttx22m_m1]
               size:

@@ -77,10 +77,13 @@ option_values:
       description: |-
         - Low Speed Compression "Quick Range", 6 clicks: 1 wide open to descend, 6 the firmest pedalling platform
         - Full-range High Speed Compression on a second dial, moved in full 1-2 rotations rather than clicks
+      description_de: |-
+        - Low-Speed-Druckstufe „Quick Range“, 6 Klicks: 1 ganz offen für die Abfahrt, 6 die festeste Pedalplattform
+        - High-Speed-Druckstufe über den gesamten Bereich auf einem zweiten Rad, verstellt in vollen 1-2 Umdrehungen statt in Klicks
       adjustments:
-        - { name: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest", dialColor: green }
-        - { name: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust 1-2 full rotations at a time; clockwise = firmer" }
-        - { name: Rebound, type: step, max: 22, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
+        - { name: LSC, name_de: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest", notes_de: "Low-Speed-Druckstufe; DVO-„Quick Range“-Versteller; Position 1 = ganz offen (am weichsten), 6 = am festesten", dialColor: green }
+        - { name: HSC, name_de: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust 1-2 full rotations at a time; clockwise = firmer", notes_de: High-Speed-Druckstufe; ganz offen beginnen (gegen den Uhrzeigersinn) und jeweils 1-2 volle Umdrehungen verstellen; im Uhrzeigersinn = fester }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 22, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
       source:
         - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
       note: >-
@@ -98,9 +101,12 @@ option_values:
       description: |-
         - Mid-tier BERYL damper with a 4-click "Quick Range" Low Speed Compression dial, soft through firm
         - OTT is set internally to one of three positions for your body weight, so it is not a trailside adjustment
+      description_de: |-
+        - BERYL-Dämpfer der mittleren Klasse mit 4-Klick-„Quick Range“-Low-Speed-Druckstufenrad, von weich bis fest
+        - OTT wird intern je nach Körpergewicht auf eine von drei Positionen gesetzt und ist daher keine Einstellung am Trailrand
       adjustments:
-        - { name: Compression, type: step, max: 4, notes: "Low-Speed Compression; Soft → Medium → Firm dial; counted from fully open (soft)", dialColor: green }
-        - { name: Rebound, type: step, max: 22, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 4, notes: "Low-Speed Compression; Soft → Medium → Firm dial; counted from fully open (soft)", notes_de: Low-Speed-Druckstufe; Rad Soft → Medium → Firm; von ganz offen (weich) gezählt, dialColor: green }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 22, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
       source:
         - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
       note: >-
@@ -117,10 +123,14 @@ option_values:
         - Low Speed Compression, 5 settings: fully clockwise is open, each counter-clockwise click adds support
         - Rebound, 25 clicks counted out from fully closed
         - Full-range High Speed Compression on the green dial, moved a half to a full turn at a time
+      description_de: |-
+        - Low-Speed-Druckstufe, 5 Einstellungen: ganz im Uhrzeigersinn ist offen, jeder Klick gegen den Uhrzeigersinn gibt mehr Halt
+        - Zugstufe, 25 Klicks von ganz geschlossen aus gezählt
+        - High-Speed-Druckstufe über den gesamten Bereich am grünen Rad, verstellt in halben bis ganzen Umdrehungen
       adjustments:
-        - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); counter-clockwise click = firmer", dialColor: grey, dialSize: small }
-        - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); opening (counter-clockwise) increases speed", dialColor: green }
-        - { name: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust a half to a full turn at a time; clockwise = firmer. DVO publishes no total rotation count" }
+        - { name: LSC, name_de: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); counter-clockwise click = firmer", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; Klick gegen den Uhrzeigersinn = fester, dialColor: grey, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 25, notes: "Counted from fully closed (slowest); opening (counter-clockwise) increases speed", notes_de: Von ganz geschlossen (am langsamsten) gezählt; Öffnen (gegen den Uhrzeigersinn) erhöht die Geschwindigkeit, dialColor: green }
+        - { name: HSC, name_de: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust a half to a full turn at a time; clockwise = firmer. DVO publishes no total rotation count", notes_de: High-Speed-Druckstufe; ganz offen beginnen (gegen den Uhrzeigersinn) und jeweils eine halbe bis ganze Umdrehung verstellen; im Uhrzeigersinn = fester. DVO gibt keine Gesamtzahl der Umdrehungen an }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Diamond-36-Setup-Guide-May16.pdf
       note: >-
@@ -134,9 +144,12 @@ option_values:
       description: |-
         - Base-tier closed-cartridge damper with a full-range Low Speed Compression dial
         - LSC is not click-indexed: start fully open and add support a full turn at a time
+      description_de: |-
+        - Geschlossene Kartusche der Einstiegsklasse mit Low-Speed-Druckstufenrad über den gesamten Bereich
+        - LSC hat keine Klick-Indexierung: ganz offen beginnen und jeweils eine ganze Umdrehung mehr Halt geben
       adjustments:
-        - { name: Compression, type: numerical, unit: turns, min: 0, notes: "Low-Speed Compression; Full-range adjuster with no detents — start fully open (counter-clockwise) and make full-turn adjustments; clockwise = firmer" }
-        - { name: Rebound, type: step, max: 22, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
+        - { name: Compression, name_de: Druckstufe, type: numerical, unit: turns, min: 0, notes: "Low-Speed Compression; Full-range adjuster with no detents — start fully open (counter-clockwise) and make full-turn adjustments; clockwise = firmer", notes_de: Low-Speed-Druckstufe; Versteller über den gesamten Bereich ohne Rasten — ganz offen beginnen (gegen den Uhrzeigersinn) und in ganzen Umdrehungen verstellen; im Uhrzeigersinn = fester }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 22, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
       source:
         - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
       note: >-
@@ -153,9 +166,13 @@ option_values:
         - All-new damper for the Diamond 36 CORE with full-range Low Speed Compression and Rebound dials
         - Rebound, 28 clicks counted out from fully closed
         - Low Speed Compression, 14 clicks; counter-clockwise is softer
+      description_de: |-
+        - Komplett neuer Dämpfer für die Diamond 36 CORE mit Low-Speed-Druckstufen- und Zugstufenrad über den gesamten Bereich
+        - Zugstufe, 28 Klicks von ganz geschlossen aus gezählt
+        - Low-Speed-Druckstufe, 14 Klicks; gegen den Uhrzeigersinn ist weicher
       adjustments:
-        - { name: Compression, type: step, max: 14, notes: "Low-Speed Compression; Counted from fully closed (firmest); counter-clockwise = softer" }
-        - { name: Rebound, type: step, max: 28, notes: "Counted from fully closed (slowest); opening (counter-clockwise) increases speed" }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 14, notes: "Low-Speed Compression; Counted from fully closed (firmest); counter-clockwise = softer", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt; gegen den Uhrzeigersinn = weicher }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 28, notes: "Counted from fully closed (slowest); opening (counter-clockwise) increases speed", notes_de: Von ganz geschlossen (am langsamsten) gezählt; Öffnen (gegen den Uhrzeigersinn) erhöht die Geschwindigkeit }
       source:
         - https://dvosuspension.com/product/diamond-36-core/
         - https://dvosuspension.com/wp-content/uploads/2026/05/V3Diamond-CORE-Set-up-Guide.pdf
@@ -173,10 +190,14 @@ option_values:
         - Low Speed Compression, 5 settings: fully clockwise is open, each click counter-clockwise adds support
         - Rebound, 25 clicks counted out from fully closed — the same scale on every Onyx 38
         - Full-range High Speed Compression on the green dial, moved a half to a full turn at a time
+      description_de: |-
+        - Low-Speed-Druckstufe, 5 Einstellungen: ganz im Uhrzeigersinn ist offen, jeder Klick gegen den Uhrzeigersinn gibt mehr Halt
+        - Zugstufe, 25 Klicks von ganz geschlossen aus gezählt — gleiche Skala bei jeder Onyx 38
+        - High-Speed-Druckstufe über den gesamten Bereich am grünen Rad, verstellt in halben bis ganzen Umdrehungen
       adjustments:
-        - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); counter-clockwise click = firmer", dialColor: grey, dialSize: small }
-        - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models", dialColor: green }
-        - { name: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust a half to a full turn at a time; clockwise = firmer. DVO publishes no total rotation count" }
+        - { name: LSC, name_de: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); counter-clockwise click = firmer", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; Klick gegen den Uhrzeigersinn = fester, dialColor: grey, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models", notes_de: Von ganz geschlossen (am langsamsten) gezählt; gleiche Skala bei allen Onyx-38-Modellen, dialColor: green }
+        - { name: HSC, name_de: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust a half to a full turn at a time; clockwise = firmer. DVO publishes no total rotation count", notes_de: High-Speed-Druckstufe; ganz offen beginnen (gegen den Uhrzeigersinn) und jeweils eine halbe bis ganze Umdrehung verstellen; im Uhrzeigersinn = fester. DVO gibt keine Gesamtzahl der Umdrehungen an }
       source:
         - https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
       note: >-
@@ -193,9 +214,13 @@ option_values:
         - Low Speed Compression, 3 settings: fully counter-clockwise is open, each click clockwise adds support
         - Rebound, 25 clicks counted out from fully closed — the same scale on every Onyx 38
         - No High Speed Compression dial at this tier
+      description_de: |-
+        - Low-Speed-Druckstufe, 3 Einstellungen: ganz gegen den Uhrzeigersinn ist offen, jeder Klick im Uhrzeigersinn gibt mehr Halt
+        - Zugstufe, 25 Klicks von ganz geschlossen aus gezählt — gleiche Skala bei jeder Onyx 38
+        - In dieser Klasse gibt es kein High-Speed-Druckstufenrad
       adjustments:
-        - { name: Compression, type: step, max: 3, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer", dialColor: green }
-        - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models", dialColor: green }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 3, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; Klick im Uhrzeigersinn = fester, dialColor: green }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models", notes_de: Von ganz geschlossen (am langsamsten) gezählt; gleiche Skala bei allen Onyx-38-Modellen, dialColor: green }
       source:
         - https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
       note: >-
@@ -208,9 +233,13 @@ option_values:
         - Full-range Low Speed Compression: not click-indexed, so start fully open and add support a full turn at a time
         - Rebound, 25 clicks counted out from fully closed — the same scale on every Onyx 38
         - No High Speed Compression dial at this tier
+      description_de: |-
+        - Low-Speed-Druckstufe über den gesamten Bereich: ohne Klick-Indexierung, daher ganz offen beginnen und jeweils eine ganze Umdrehung mehr Halt geben
+        - Zugstufe, 25 Klicks von ganz geschlossen aus gezählt — gleiche Skala bei jeder Onyx 38
+        - In dieser Klasse gibt es kein High-Speed-Druckstufenrad
       adjustments:
-        - { name: Compression, type: numerical, unit: turns, min: 0, notes: "Low-Speed Compression; Full-range adjuster with no detents — start fully open (counter-clockwise) and make full-turn adjustments; clockwise = firmer" }
-        - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models", dialColor: green }
+        - { name: Compression, name_de: Druckstufe, type: numerical, unit: turns, min: 0, notes: "Low-Speed Compression; Full-range adjuster with no detents — start fully open (counter-clockwise) and make full-turn adjustments; clockwise = firmer", notes_de: Low-Speed-Druckstufe; Versteller über den gesamten Bereich ohne Rasten — ganz offen beginnen (gegen den Uhrzeigersinn) und in ganzen Umdrehungen verstellen; im Uhrzeigersinn = fester }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models", notes_de: Von ganz geschlossen (am langsamsten) gezählt; gleiche Skala bei allen Onyx-38-Modellen, dialColor: green }
       source:
         - https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
       note: >-
@@ -224,10 +253,14 @@ option_values:
         - Twin-tube open-bath damper with both compression dials at the bottom of the right leg
         - High Speed Compression, 33 clicks, and Low Speed Compression, 27 clicks, counted in from wide open
         - Rebound, 40 clicks, set from the top of the leg
+      description_de: |-
+        - Zweirohr-Dämpfer mit offenem Ölbad und beiden Druckstufenrädern unten am rechten Gabelbein
+        - High-Speed-Druckstufe, 33 Klicks, und Low-Speed-Druckstufe, 27 Klicks, von ganz offen aus eingedreht gezählt
+        - Zugstufe, 40 Klicks, am oberen Ende des Gabelbeins eingestellt
       adjustments:
-        - { name: HSC, type: step, max: 33, notes: "High-Speed Compression; Adjuster at the bottom of the right leg; counted clockwise (firmer) from wide open" }
-        - { name: LSC, type: step, max: 27, notes: "Low-Speed Compression; Adjuster at the bottom of the right leg; counted clockwise (firmer) from wide open" }
-        - { name: Rebound, type: step, max: 40, notes: "Adjuster at the top of the leg; counted clockwise (slower) from wide open" }
+        - { name: HSC, name_de: HSC, type: step, max: 33, notes: "High-Speed Compression; Adjuster at the bottom of the right leg; counted clockwise (firmer) from wide open", notes_de: High-Speed-Druckstufe; Versteller unten am rechten Gabelbein; im Uhrzeigersinn (fester) von ganz offen gezählt }
+        - { name: LSC, name_de: LSC, type: step, max: 27, notes: "Low-Speed Compression; Adjuster at the bottom of the right leg; counted clockwise (firmer) from wide open", notes_de: Low-Speed-Druckstufe; Versteller unten am rechten Gabelbein; im Uhrzeigersinn (fester) von ganz offen gezählt }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 40, notes: "Adjuster at the top of the leg; counted clockwise (slower) from wide open", notes_de: Versteller oben am Gabelbein; im Uhrzeigersinn (langsamer) von ganz offen gezählt }
       source:
         - https://tech.dvosuspension.com/setup/emerald/
       note: >-
@@ -259,6 +292,7 @@ option_values:
 guides:
   dvo_onyx38_2024:
     label: DVO Onyx 38 Series Set-Up Guide (v1.1, 2024)
+    label_de: DVO Onyx 38 Serie Setup-Anleitung (v1.1, 2024)
     source: https://dvosuspension.com/wp-content/uploads/2024/08/38-Setup-Guide-v1.1.pdf
     rules:
       - &dvo_36_38_air
@@ -271,6 +305,7 @@ guides:
           200-220: [70, 80], 220-240: [75, 85], 240-250: [80, 90], 250-260: [90, 100]
         }
         note: The band runs from DVO's Plush to its Firm setting
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO
       - &dvo_36_38_air_plush
         target: pressure
         unit: psi
@@ -282,6 +317,7 @@ guides:
           200-220: 70, 220-240: 75, 240-250: 80, 250-260: 90
         }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - &dvo_36_38_air_firm
         target: pressure
         unit: psi
@@ -293,6 +329,7 @@ guides:
           200-220: 80, 220-240: 85, 240-250: 90, 250-260: 100
         }
         note: DVO's Firm setting
+        note_de: Die Firm-Einstellung von DVO
       # The 90-95 and 100+ rows are left out: the chart has no 85-90 row.
       - &dvo_36_38_rebound
         target: rebound
@@ -303,6 +340,7 @@ guides:
           70-75: [12, 16], 75-80: [10, 14], 80-85: [8, 12]
         }
         note: The band runs from slower to faster rebound
+        note_de: Das Band reicht von langsamerer bis zu schnellerer Zugstufe
       # The 100+ row (4) is left out: the chart has no 95-100 row.
       - &dvo_36_38_hsc
         target: hsc
@@ -314,6 +352,7 @@ guides:
           75-80: 2, 80-85: 3, 85-90: 3, 90-95: 4
         }
         note: Full turns in from fully open
+        note_de: Volle Umdrehungen von ganz offen aus eingedreht
       # The 85-90 and 90-100 rows are left out: the chart has no 80-85 row.
       - target: ott
         input: pressure
@@ -324,13 +363,15 @@ guides:
           70-75: [6, 8], 75-80: [7, 9]
         }
         note: Full turns in from fully open
+        note_de: Volle Umdrehungen von ganz offen aus eingedreht
       # DVO says volume spacers are for the SL forks only, so the factory
       # count is given for the D1 SL alone.
       - { target: volume_spacers, value: 0, when: { trim: d1-sl } }
-      - &dvo_fork_sag { target: sag, range: [15, 30], comfort_at: max, note: "Toward 15 % for stability at speed, toward 30 % for comfort and cornering" }
+      - &dvo_fork_sag { target: sag, range: [15, 30], comfort_at: max, note: "Toward 15 % for stability at speed, toward 30 % for comfort and cornering", note_de: "Richtung 15 % für Stabilität bei hohem Tempo, Richtung 30 % für Komfort und Kurvenfahrt" }
 
   dvo_diamond36_2024:
     label: DVO Diamond 36 Series Set-Up Guide (v1.1, 2024)
+    label_de: DVO Diamond 36 Serie Setup-Anleitung (v1.1, 2024)
     source: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Diamond-36-Setup-Guide-May16.pdf
     rules:
       - *dvo_36_38_air
@@ -347,11 +388,13 @@ guides:
           75-80: 2, 80-85: 3, 85-90: 3, 90-95: 4
         }
         note: Full turns in from fully open
+        note_de: Volle Umdrehungen von ganz offen aus eingedreht
       - { target: volume_spacers, value: 0 }
       - *dvo_fork_sag
 
   dvo_diamond36core_2026:
     label: DVO Diamond CORE Series Set-Up Guide (2026)
+    label_de: DVO Diamond CORE Serie Setup-Anleitung (2026)
     source: https://dvosuspension.com/wp-content/uploads/2026/05/V3Diamond-CORE-Set-up-Guide.pdf
     rules:
       - *dvo_36_38_air
@@ -360,12 +403,13 @@ guides:
       # Same rows as the Onyx 38 chart; the 90-95 and 100 rows are left out
       # (no 85-90 row).
       - *dvo_36_38_rebound
-      - { target: compression, value: 7, note: The middle of the range }
+      - { target: compression, value: 7, note: The middle of the range, note_de: Die Mitte des Bereichs }
       - { target: volume_spacers, value: 0 }
       - *dvo_fork_sag
 
   dvo_fork_2020:
     label: DVO Fork Set-Up Guide (2020)
+    label_de: DVO Gabel-Setup-Anleitung (2020)
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     rules:
       # Sapphire 34 D1. The psi axis is printed 55, 65, 75, 80, 85 …, so the
@@ -380,6 +424,7 @@ guides:
           200-220: [105, 115], 220-240: [115, 125], 240+: [125, 135]
         }
         note: The band runs from DVO's Plush to its Firm setting
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -387,6 +432,7 @@ guides:
         when: { model: sapphire-34, riding_style: comfort }
         rows: { 120-140: 55, 140-160: 75, 160-180: 85, 180-200: 95, 200-220: 105, 220-240: 115, 240+: 125 }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -394,6 +440,7 @@ guides:
         when: { model: sapphire-34, riding_style: race }
         rows: { 120-140: 75, 140-160: 85, 160-180: 95, 180-200: 105, 200-220: 115, 220-240: 125, 240+: 135 }
         note: DVO's Firm setting
+        note_de: Die Firm-Einstellung von DVO
       # Onyx SC: the D1/D2 column (the catalog has the D2 only; E1/E2 not encoded).
       - target: pressure
         unit: psi
@@ -405,6 +452,7 @@ guides:
           200-220: [85, 90], 220-240: [90, 95], 240+: [95, 100]
         }
         note: The band runs from DVO's Plush to its Firm setting
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -412,6 +460,7 @@ guides:
         when: { model: onyx-sc, riding_style: comfort }
         rows: { 120-140: 60, 140-160: 70, 160-180: 75, 180-200: 80, 200-220: 85, 220-240: 90, 240+: 95 }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -419,6 +468,7 @@ guides:
         when: { model: onyx-sc, riding_style: race }
         rows: { 120-140: 65, 140-160: 75, 160-180: 80, 180-200: 85, 200-220: 90, 220-240: 95, 240+: 100 }
         note: DVO's Firm setting
+        note_de: Die Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -429,6 +479,7 @@ guides:
           200-220: [85, 90], 220-240: [90, 95], 240+: [95, 100]
         }
         note: The band runs from DVO's Plush to its Firm setting
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -436,6 +487,7 @@ guides:
         when: { model: onyx-dc, riding_style: comfort }
         rows: { 120-140: 65, 140-160: 70, 160-180: 75, 180-200: 80, 200-220: 85, 220-240: 90, 240+: 95 }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -443,6 +495,7 @@ guides:
         when: { model: onyx-dc, riding_style: race }
         rows: { 120-140: 70, 140-160: 75, 160-180: 80, 180-200: 85, 200-220: 90, 220-240: 95, 240+: 100 }
         note: DVO's Firm setting
+        note_de: Die Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -453,6 +506,7 @@ guides:
           200-220: [90, 95], 220-240: [95, 100], 240+: [100, 105]
         }
         note: The band runs from DVO's Plush to its Firm setting
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -460,6 +514,7 @@ guides:
         when: { model: diamond, trim: d3, riding_style: comfort }
         rows: { 120-140: 70, 140-160: 75, 160-180: 80, 180-200: 85, 200-220: 90, 220-240: 95, 240+: 100 }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -467,6 +522,7 @@ guides:
         when: { model: diamond, trim: d3, riding_style: race }
         rows: { 120-140: 75, 140-160: 80, 160-180: 85, 180-200: 90, 200-220: 95, 220-240: 100, 240+: 105 }
         note: DVO's Firm setting
+        note_de: Die Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -477,6 +533,7 @@ guides:
           200-220: [100, 105], 220-240: [105, 110], 240+: [110, 120]
         }
         note: The band runs from DVO's Plush to its Firm setting
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -484,6 +541,7 @@ guides:
         when: { model: diamond, trim: e3, riding_style: comfort }
         rows: { 120-140: 80, 140-160: 85, 160-180: 90, 180-200: 95, 200-220: 100, 220-240: 105, 240+: 110 }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -491,6 +549,7 @@ guides:
         when: { model: diamond, trim: e3, riding_style: race }
         rows: { 120-140: 85, 140-160: 90, 160-180: 95, 180-200: 100, 200-220: 105, 220-240: 110, 240+: 120 }
         note: DVO's Firm setting
+        note_de: Die Firm-Einstellung von DVO
       # External D1/E1 OTT. The 200+ row (12) is left out: the chart has no
       # 190-200 row.
       - target: ott
@@ -502,6 +561,7 @@ guides:
           170-180: [9, 11], 180-190: [11, 12]
         }
         note: Full turns in from fully open
+        note_de: Volle Umdrehungen von ganz offen aus eingedreht
       # Sapphire 34 D1. The top row is printed "125-135+".
       - target: rebound
         input: pressure
@@ -512,6 +572,7 @@ guides:
           115-125: [6, 10], 125+: [2, 6]
         }
         note: The band runs from slower to faster rebound
+        note_de: Das Band reicht von langsamerer bis zu schnellerer Zugstufe
       # Onyx SC and Onyx DC print the same values. The top row (2-6) is left
       # out: Onyx SC has no 90-95 row, Onyx DC no 90-100 row.
       - target: rebound
@@ -520,6 +581,7 @@ guides:
         when: { model: [onyx-sc, onyx-dc] }
         rows: { 60-70: [18, 22], 70-75: [18, 22], 75-80: [14, 18], 80-85: [10, 14], 85-90: [6, 10] }
         note: The band runs from slower to faster rebound
+        note_de: Das Band reicht von langsamerer bis zu schnellerer Zugstufe
       # Diamond D3/E3. The top row is printed "100-110+".
       - target: rebound
         input: pressure
@@ -530,12 +592,14 @@ guides:
           90-100: [6, 10], 100+: [4, 8]
         }
         note: The band runs from slower to faster rebound
+        note_de: Das Band reicht von langsamerer bis zu schnellerer Zugstufe
       - target: hsc
         input: pressure
         input_unit: psi
         when: { model: sapphire-34 }
         rows: { 55-70: [0, 1], 70-85: [0, 1], 85-100: [2, 3], 100-115: [2, 3], 115-130: [4, 5], 130+: [4, 5] }
         note: Full turns in from fully open
+        note_de: Volle Umdrehungen von ganz offen aus eingedreht
       # Onyx DC. The top row is printed "100-110+".
       - target: hsc
         input: pressure
@@ -543,11 +607,13 @@ guides:
         when: { model: onyx-dc }
         rows: { 60-70: [0, 1], 70-80: [0, 1], 80-90: [2, 3], 90-95: [2, 3], 95-100: [4, 5], 100+: [4, 5] }
         note: Full turns in from fully open
-      - { target: compression, value: min, when: { damper: diamond_d3e3 }, note: Start fully open }
+        note_de: Volle Umdrehungen von ganz offen aus eingedreht
+      - { target: compression, value: min, when: { damper: diamond_d3e3 }, note: Start fully open, note_de: Ganz offen beginnen }
       - *dvo_fork_sag
 
   dvo_fork_2018:
     label: DVO Fork Set-Up Guide (2018)
+    label_de: DVO Gabel-Setup-Anleitung (2018)
     source: https://tech.dvosuspension.com/wp-content/uploads/2018/08/DVO-SET-UP-GUIDE_fork.pdf
     # Air chart only. The guide's rebound, HSC (in clicks) and OTT charts name
     # no fork and predate the catalog's quick_range_d1e1 damper; its 15-20 %
@@ -562,6 +628,7 @@ guides:
           200-220: [125, 135], 220-240: [135, 145], 240+: [145, 155]
         }
         note: The band runs from DVO's Plush to its Firm setting
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -569,6 +636,7 @@ guides:
         when: { riding_style: comfort }
         rows: { 120-140: 85, 140-160: 95, 160-180: 105, 180-200: 115, 200-220: 125, 220-240: 135, 240+: 145 }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -576,9 +644,11 @@ guides:
         when: { riding_style: race }
         rows: { 120-140: 95, 140-160: 105, 160-180: 115, 180-200: 125, 200-220: 135, 220-240: 145, 240+: 155 }
         note: DVO's Firm setting
+        note_de: Die Firm-Einstellung von DVO
 
   dvo_emerald_tech:
     label: DVO Emerald set-up page
+    label_de: DVO Emerald Setup-Seite
     source: https://tech.dvosuspension.com/setup/emerald/
     # Every click and turn is counted clockwise from wide open, as the
     # catalog dials are.
@@ -593,6 +663,7 @@ guides:
         input_unit: lb
         rows: { 120-140: [0, 2], 140-160: [3, 4], 160-180: [5, 6], 180-200: [6, 7], 200-220: [8, 10], 220+: [11, 14] }
         note: Full turns in from fully open
+        note_de: Volle Umdrehungen von ganz offen aus eingedreht
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -613,10 +684,11 @@ nodes:
   - label: "38"
     level: model
     category: Enduro / DH
+    category_de: Enduro / DH
     source: https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
     tasks: &dvo_service
-      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DVO fork owner's manual }
-      fork:full_service: { interval: { moving_time_h: 100 }, source: DVO fork owner's manual }
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DVO fork owner's manual, source_de: DVO-Gabel-Handbuch }
+      fork:full_service: { interval: { moving_time_h: 100 }, source: DVO fork owner's manual, source_de: DVO-Gabel-Handbuch }
     children:
       - label: "2024–2026"
         level: generation
@@ -632,14 +704,17 @@ nodes:
         note: >-
           Also sold as co-branded "D1 x RENEN" and "SL x WP" editions, which share this
           chassis and its adjusters.
+        note_de: >-
+          Wird auch als Co-Branding-Editionen „D1 x RENEN“ und „SL x WP“
+          verkauft, die dieses Chassis und seine Versteller teilen.
         children:
           - label: D1
             level: trim
-            specs: { stanchion: 38mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 38mm Tapered Alloy, stanchion_de: "38mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
-              - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
-              - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 100 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 4, visualization: stepper }
+              - { name: OTT, name_de: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting", notes_de: "Vorspannung der Negativfeder (Off The Top); 5-mm-Inbusschlüssel unter dem linken Gabelbein, nur ganze Umdrehungen; mehr OTT = sensibleres Ansprechen am Anfang des Federwegs. Vor dem Verstellen die Luft aus der Gabel lassen" }
             options:
               damper: [onyx38_d1e1]
               travel_mm: [160, 170, 180]
@@ -649,39 +724,48 @@ nodes:
               - More OTT softens roughly the first 30mm of travel without softening mid-stroke
               - 5mm allen key under the left leg, turned in full rotations; let the air out first
               - The only Onyx 38 trim with the external OTT adjuster
+            note_de: |-
+              - OTT (Off The Top) spannt die Negativ-Stahlfeder in der Luftkartusche vor
+              - Mehr OTT macht etwa die ersten 30mm des Federwegs weicher, ohne den mittleren Federweg weicher zu machen
+              - 5-mm-Inbusschlüssel unter dem linken Gabelbein, in vollen Umdrehungen gedreht; vorher die Luft ablassen
+              - Die einzige Onyx-38-Ausstattung mit dem externen OTT-Versteller
           - label: D1 SL
             level: trim
-            specs: { stanchion: 38mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 38mm Tapered Alloy, stanchion_de: "38mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments: &onyx38_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
-              - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 100 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 4, visualization: stepper }
             options:
               damper: [onyx38_d1e1]
               travel_mm: [160, 170, 180]
               wheel_size: [29]
             note: Super-Light dual air system; no OTT adjuster on this trim.
+            note_de: Super-Light-Doppelluftsystem; bei dieser Ausstattung kein OTT-Versteller.
           - label: D2
             level: trim
-            specs: { stanchion: 38mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 38mm Tapered Alloy, stanchion_de: "38mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments: *onyx38_air_spring
             options:
               damper: [onyx38_d2e2]
               travel_mm: [160, 170, 180]
               wheel_size: [29]
             note: OEM only. No OTT adjuster on this trim.
+            note_de: Nur OEM. Bei dieser Ausstattung kein OTT-Versteller.
           - label: D3
             level: trim
-            specs: { stanchion: 38mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 38mm Tapered Alloy, stanchion_de: "38mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments: *onyx38_air_spring
             options:
               damper: [onyx38_d3e3]
               travel_mm: [160, 170, 180]
               wheel_size: [29]
             note: OEM only. No OTT adjuster on this trim.
+            note_de: Nur OEM. Bei dieser Ausstattung kein OTT-Versteller.
 
   - label: Diamond 36
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
     tasks: *dvo_service
     children:
       - label: "2024–2026"
@@ -694,10 +778,10 @@ nodes:
             level: trim
             setup_guide: https://dvosuspension.com/wp-content/uploads/2026/05/V3Diamond-CORE-Set-up-Guide.pdf
             guide: dvo_diamond36core_2026
-            specs: { stanchion: 36mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 36mm Tapered Alloy, stanchion_de: "36mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 100 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, visualization: stepper }
             options:
               damper: [diamond_core]
               travel_mm: [140, 150, 160, 170]
@@ -706,19 +790,20 @@ nodes:
             # Set-Up Guide (V3), "Volume Spacer Configurations" and "DO NOT exceed maximum
             # air pressure of 100PSI".
             note: All-new CORE damper. Ships with a 6x 5cc air volume reducer kit.
+            note_de: Komplett neuer CORE-Dämpfer. Wird mit einem Luftvolumen-Reduzierset aus 6x 5cc geliefert.
           - label: D1 SL
             level: trim
             url: https://dvosuspension.com/product/diamond-d1-2024/
             setup_guide: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Diamond-36-Setup-Guide-May16.pdf
             guide: dvo_diamond36_2024
-            specs: { stanchion: 36mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 36mm Tapered Alloy, stanchion_de: "36mm Alu, konisch", spring: Air, spring_de: Luft }
             # 100 PSI air limit and the 6-spacer maximum (140-160mm): Diamond 36 Set-Up
             # Guide v1.1, "DO NOT exceed maximum air pressure of 100PSI" and "Volume Spacer
             # Configurations" table. The guide's text line says "A maximum of 4 volume
             # spacers", which contradicts its own table; the table is used.
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 100 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, visualization: stepper }
             options:
               damper: [diamond36_d1e1]
               travel_mm: [140, 150, 160]
@@ -726,10 +811,14 @@ nodes:
             note: |-
               - Super-Light dual air system with the Remastered D1 damper
               - Ships with a 6x 5cc air volume reducer kit
+            note_de: |-
+              - Super-Light-Doppelluftsystem mit dem überarbeiteten D1-Dämpfer
+              - Wird mit einem Luftvolumen-Reduzierset aus 6x 5cc geliefert
 
   - label: Diamond
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     tasks: *dvo_service
     children:
@@ -745,26 +834,29 @@ nodes:
         children:
           - label: D3
             level: trim
-            specs: { stanchion: 35mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 35mm Tapered Alloy, stanchion_de: "35mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 150 }
             options:
               damper: [diamond_d3e3]
               wheel_size: [27.5, 29]
             note: OEM only. Closed-cartridge damper, no OTT adjuster.
+            note_de: Nur OEM. Dämpfer mit geschlossener Kartusche, kein OTT-Versteller.
           - label: E3
             level: trim
-            specs: { stanchion: 35mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 35mm Tapered Alloy, stanchion_de: "35mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 150 }
             options:
               damper: [diamond_d3e3]
               wheel_size: [27.5, 29]
             note: OEM only. E-bike-tuned valving of the D3, no OTT adjuster.
+            note_de: Nur OEM. Auf E-Bikes abgestimmte Ventilierung des D3, kein OTT-Versteller.
 
   - label: Sapphire 34
     level: model
     category: Trail
+    category_de: Trail
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     tasks: *dvo_service
     children:
@@ -781,20 +873,25 @@ nodes:
         children:
           - label: D1
             level: trim
-            specs: { stanchion: 34mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 34mm Tapered Alloy, stanchion_de: "34mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
-              - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 150 }
+              - { name: OTT, name_de: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting", notes_de: "Vorspannung der Negativfeder (Off The Top); 5-mm-Inbusschlüssel unter dem linken Gabelbein, nur ganze Umdrehungen; mehr OTT = sensibleres Ansprechen am Anfang des Federwegs. Vor dem Verstellen die Luft aus der Gabel lassen" }
             options:
               damper: [quick_range_d1e1]
             note: |-
               - 34mm-stanchion trail fork with the D1 damper and external OTT
               - OTT preloads the negative coil spring to soften the top of the travel
               - Its "Quick Range" LSC doubles as a pedalling platform: click 6 is firmest
+            note_de: |-
+              - Trail-Gabel mit 34mm Standrohren, D1-Dämpfer und externem OTT
+              - OTT spannt die Negativ-Stahlfeder vor, um den oberen Bereich des Federwegs weicher zu machen
+              - Die „Quick Range“-LSC dient zugleich als Pedalplattform: Klick 6 ist am festesten
 
   - label: Sapphire 32
     level: model
     category: XC
+    category_de: XC
     source: https://tech.dvosuspension.com/wp-content/uploads/2018/08/DVO-SET-UP-GUIDE_fork.pdf
     tasks: *dvo_service
     children:
@@ -810,16 +907,18 @@ nodes:
         children:
           - label: D1
             level: trim
-            specs: { stanchion: 32mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 32mm Tapered Alloy, stanchion_de: "32mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 170 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 170 }
             options:
               damper: [quick_range_d1e1]
             note: 32mm-stanchion XC fork with the D1 damper and its 6-click Quick Range LSC.
+            note_de: XC-Gabel mit 32mm Standrohren, D1-Dämpfer und 6-Klick-Quick-Range-LSC.
 
   - label: Onyx SC
     level: model
     category: Enduro
+    category_de: Enduro
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     tasks: *dvo_service
     children:
@@ -835,18 +934,20 @@ nodes:
         children:
           - label: D2
             level: trim
-            specs: { stanchion: 36mm Tapered Alloy, spring: Air }
+            specs: { stanchion: 36mm Tapered Alloy, stanchion_de: "36mm Alu, konisch", spring: Air, spring_de: Luft }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 130 }
             options:
               damper: [quick_range_d2e2]
               travel_mm: [160, 170, 180]
               wheel_size: [29]
             note: OEM only. OTT is set internally for your body weight, not from outside.
+            note_de: Nur OEM. OTT wird intern für dein Körpergewicht eingestellt, nicht von außen.
 
   - label: Onyx DC
     level: model
     category: Downhill
+    category_de: Downhill
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     tasks: *dvo_service
     children:
@@ -862,10 +963,10 @@ nodes:
         children:
           - label: D1
             level: trim
-            specs: { stanchion: 36mm (dual-crown), spring: Air }
+            specs: { stanchion: 36mm (dual-crown), stanchion_de: 36mm (Doppelbrücke), spring: Air, spring_de: Luft }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-              - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: OTT, name_de: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting", notes_de: "Vorspannung der Negativfeder (Off The Top); 5-mm-Inbusschlüssel unter dem linken Gabelbein, nur ganze Umdrehungen; mehr OTT = sensibleres Ansprechen am Anfang des Federwegs. Vor dem Verstellen die Luft aus der Gabel lassen" }
             options:
               damper: [quick_range_d1e1]
               travel_mm: [203]
@@ -874,11 +975,16 @@ nodes:
               - OEM only. Dual-crown air fork with a coil negative spring
               - That negative coil is what OTT preloads, softening the top of the travel
               - Set OTT with a 5mm allen key in full rotations; let the air out first
+            note_de: |-
+              - Nur OEM. Luftgabel mit Doppelbrücke und Negativ-Stahlfeder
+              - Diese Negativ-Stahlfeder wird von OTT vorgespannt und macht den oberen Bereich des Federwegs weicher
+              - OTT mit einem 5-mm-Inbusschlüssel in vollen Umdrehungen einstellen; vorher die Luft ablassen
 
       # ---------------- Legacy ----------------
   - label: Emerald (Inverted)
     level: model
     category: Downhill
+    category_de: Downhill
     source:
       - https://tech.dvosuspension.com/setup/emerald/
       - https://www.bikeradar.com/reviews/components/forks/suspension-forks/dvo-emerald-inverted-downhill-fork-review
@@ -899,10 +1005,10 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 36mm Inverted, spring: Air }
+            specs: { stanchion: 36mm Inverted, stanchion_de: 36mm Upside-down, spring: Air, spring_de: Luft }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 60, max: 100 }
-              - { name: OTT, type: step, max: 15, unit: turns, notes: "Off The Top negative-spring preload; 15 full rotations total, 6 clicks per rotation; more OTT = plusher off the top. Let the air out of the fork before adjusting", dialColor: green }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 60, max: 100 }
+              - { name: OTT, name_de: OTT, type: step, max: 15, unit: turns, notes: "Off The Top negative-spring preload; 15 full rotations total, 6 clicks per rotation; more OTT = plusher off the top. Let the air out of the fork before adjusting", notes_de: "Vorspannung der Negativfeder (Off The Top); insgesamt 15 volle Umdrehungen, 6 Klicks pro Umdrehung; mehr OTT = sensibleres Ansprechen am Anfang des Federwegs. Vor dem Verstellen die Luft aus der Gabel lassen", dialColor: green }
             options:
               damper: [emerald_damper]
               travel_mm: [203]
@@ -911,6 +1017,10 @@ nodes:
               - Inverted (upside-down) dual-crown chassis joined by a carbon torsion arch
               - The air spring runs 60-100psi, far lower than an upright fork
               - Wide-open is the reference point: every dial is counted in from there
+            note_de: |-
+              - Inverted-Chassis (Upside-down) mit Doppelbrücke, verbunden durch einen Carbon-Torsionsbogen
+              - Die Luftfeder läuft mit 60-100psi, deutlich weniger als bei einer Gabel in Normalstellung
+              - Ganz offen ist der Referenzpunkt: Jedes Rad wird von dort aus gezählt
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

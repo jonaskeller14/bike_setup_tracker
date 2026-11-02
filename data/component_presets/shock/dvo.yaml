@@ -62,9 +62,12 @@ option_values:
       description: |-
         - One lever, three on-the-fly settings: Open for rough descents, Mid for support, Firm for fire-road climbs
         - Firm is a pedalling platform, not a lockout
+      description_de: |-
+        - Ein Hebel, drei Einstellungen zum Umschalten während der Fahrt: Open für ruppige Abfahrten, Mid für Unterstützung, Firm für Forstweganstiege
+        - Firm ist eine Pedalplattform, kein Lockout
       adjustments:
-        - { name: Rebound, type: step, max: 18, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
-        - { name: Compression Mode, type: categorical, options: [Open, Mid, Firm], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)" }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 18, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Mid, Firm], options_de: [Offen, Mittel, Fest], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)", notes_de: "Hebel zum Umschalten während der Fahrt; Open = komfortabel, Mid = unterstützend, Firm = fest (kein Lockout)" }
       source:
         - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
       note: >-
@@ -79,10 +82,13 @@ option_values:
       description: |-
         - High Speed Compression on the green dial, 10 clicks from fully open to closed
         - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
+      description_de: |-
+        - High-Speed-Druckstufe am grünen Rad, 10 Klicks von ganz offen bis geschlossen
+        - Low-Speed-Druckstufe am schwarzen Rad dahinter, 5 Klicks; im Uhrzeigersinn gibt mehr Halt
       adjustments:
-        - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
-        - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
-        - { name: Rebound, type: step, max: 18, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
+        - { name: HSC, name_de: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: High-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, dialColor: green }
+        - { name: LSC, name_de: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, dialColor: grey, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 18, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
       source:
         - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
       note: >-
@@ -96,10 +102,14 @@ option_values:
         - High Speed Compression, 24 clicks, and Low Speed Compression, 22 clicks, counted in from fully open
         - Rebound, 37 clicks, counted out from fully closed
         - A pressurised bladder replaces the usual floating piston and is itself tunable
+      description_de: |-
+        - High-Speed-Druckstufe, 24 Klicks, und Low-Speed-Druckstufe, 22 Klicks, von ganz offen aus eingedreht gezählt
+        - Zugstufe, 37 Klicks, von ganz geschlossen aus gezählt
+        - Ein unter Druck stehender Bladder ersetzt den üblichen schwimmenden Kolben und ist selbst abstimmbar
       adjustments:
-        - { name: HSC, type: step, max: 24, notes: "High-Speed Compression; Counted from fully open (counter-clockwise = open); clockwise = firmer" }
-        - { name: LSC, type: step, max: 22, notes: "Low-Speed Compression; Counted from fully open; clockwise = firmer" }
-        - { name: Rebound, type: step, max: 37, notes: "Counted from fully closed (clockwise = closed/slowest); opening (counter-clockwise) increases speed" }
+        - { name: HSC, name_de: HSC, type: step, max: 24, notes: "High-Speed Compression; Counted from fully open (counter-clockwise = open); clockwise = firmer", notes_de: High-Speed-Druckstufe; von ganz offen gezählt (gegen den Uhrzeigersinn = offen); im Uhrzeigersinn = fester }
+        - { name: LSC, name_de: LSC, type: step, max: 22, notes: "Low-Speed Compression; Counted from fully open; clockwise = firmer", notes_de: Low-Speed-Druckstufe; von ganz offen gezählt; im Uhrzeigersinn = fester }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 37, notes: "Counted from fully closed (clockwise = closed/slowest); opening (counter-clockwise) increases speed", notes_de: Von ganz geschlossen gezählt (im Uhrzeigersinn = geschlossen/am langsamsten); Öffnen (gegen den Uhrzeigersinn) erhöht die Geschwindigkeit }
       source:
         - https://tech.dvosuspension.com/setup/jade/
       note: >-
@@ -114,10 +124,13 @@ option_values:
       description: |-
         - High Speed Compression on the green dial, 10 clicks from fully open to closed
         - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
+      description_de: |-
+        - High-Speed-Druckstufe am grünen Rad, 10 Klicks von ganz offen bis geschlossen
+        - Low-Speed-Druckstufe am schwarzen Rad dahinter, 5 Klicks; im Uhrzeigersinn gibt mehr Halt
       adjustments:
-        - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
-        - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
-        - { name: Rebound, type: step, max: 9, notes: Counted from fully closed (slowest) }
+        - { name: HSC, name_de: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: High-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, dialColor: green }
+        - { name: LSC, name_de: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, dialColor: grey, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 9, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
         - https://www.pinkbike.com/news/review-dvo-topaz-3-air-shock.html
@@ -133,9 +146,12 @@ option_values:
       description: |-
         - One lever, three on-the-fly settings: Open for rough descents, Mid for support, Firm for steep climbs
         - Firm is a pedalling platform, not a lockout
+      description_de: |-
+        - Ein Hebel, drei Einstellungen zum Umschalten während der Fahrt: Open für ruppige Abfahrten, Mid für Unterstützung, Firm für steile Anstiege
+        - Firm ist eine Pedalplattform, kein Lockout
       adjustments:
-        - { name: Rebound, type: step, max: 9, notes: Counted from fully closed (slowest) }
-        - { name: Compression Mode, type: categorical, options: [Open, Mid, Firm], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)" }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 9, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Mid, Firm], options_de: [Offen, Mittel, Fest], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)", notes_de: "Hebel zum Umschalten während der Fahrt; Open = komfortabel, Mid = unterstützend, Firm = fest (kein Lockout)" }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
         - https://www.pinkbike.com/news/review-dvo-topaz-3-air-shock.html
@@ -149,9 +165,12 @@ option_values:
       description: |-
         - Previous-generation Topaz lever with three positions: Open, Medium and Closed
         - Closed reduces pedal bob for climbing; it is a platform, not a lockout
+      description_de: |-
+        - Topaz-Hebel der Vorgängergeneration mit drei Positionen: Open, Medium und Closed
+        - Closed verringert das Wippen beim Klettern; es ist eine Plattform, kein Lockout
       adjustments:
-        - { name: Rebound, type: step, max: 9, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
-        - { name: Compression Mode, type: categorical, options: [Open, Medium, Closed], notes: "On-the-fly lever; Open = most sensitive, Medium = balanced with a pedalling platform, Closed = least bob when climbing" }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 9, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Medium, Closed], options_de: [Offen, Medium, Geschlossen], notes: "On-the-fly lever; Open = most sensitive, Medium = balanced with a pedalling platform, Closed = least bob when climbing", notes_de: "Hebel zum Umschalten während der Fahrt; Open = am sensibelsten, Medium = ausgewogen mit Pedalplattform, Closed = am wenigsten Wippen beim Klettern" }
       source:
         - https://tech.dvosuspension.com/setup/topaz-2/
         - https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
@@ -168,9 +187,13 @@ option_values:
       description: >-
         Lightweight XC air shock with a three-position on-the-fly compression lever
         and a low-speed rebound dial.
+      description_de: >-
+        Leichter XC-Luftdämpfer mit Drei-Positionen-Druckstufenhebel zum
+        Umschalten während der Fahrt und Low-Speed-Zugstufenrad.
       missing_adjustments: [Compression lever]
+      missing_adjustments_de: [Druckstufenhebel]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
       source:
         - https://dvosuspension.com/product/opal-hv-t3/
       note: >-
@@ -185,10 +208,14 @@ option_values:
       description: |-
         - WP Suspension's Cone Valve damper with separate High and Low Speed Compression dials
         - Both are counted from fully closed: HSC 6 clicks, LSC 18 clicks
+      description_de: |-
+        - Cone-Valve-Dämpfer von WP Suspension mit getrennten Rädern für High- und Low-Speed-Druckstufe
+        - Beide werden von ganz geschlossen gezählt: HSC 6 Klicks, LSC 18 Klicks
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
       adjustments: &wp_cv_compression
-        - { name: HSC, type: step, max: 6, notes: "High-Speed Compression; Counted from fully closed (firmest)" }
-        - { name: LSC, type: step, max: 18, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
+        - { name: HSC, name_de: HSC, type: step, max: 6, notes: "High-Speed Compression; Counted from fully closed (firmest)", notes_de: High-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
+        - { name: LSC, name_de: LSC, type: step, max: 18, notes: "Low-Speed Compression; Counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Jade-X-WP-Setup_Guide_Dec5_2023.pdf
       note: >-
@@ -201,7 +228,11 @@ option_values:
       description: |-
         - WP Suspension's Cone Valve damper with separate High and Low Speed Compression dials
         - Both are counted from fully closed: HSC 6 clicks, LSC 18 clicks
+      description_de: |-
+        - Cone-Valve-Dämpfer von WP Suspension mit getrennten Rädern für High- und Low-Speed-Druckstufe
+        - Beide werden von ganz geschlossen gezählt: HSC 6 Klicks, LSC 18 Klicks
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
       adjustments: *wp_cv_compression
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Topaz-WP-Setup_Guide_Dec5_2023.pdf
@@ -226,12 +257,14 @@ option_values:
 guides:
   dvo_jadex_2024:
     label: DVO Jade X Set-Up Guide (v2.0, 2024)
+    label_de: DVO Jade X Setup-Anleitung (v2.0, 2024)
     source: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Jade-X-Setup-Guide-May16.pdf
     rules:
       - &dvo_jade_x_sag { target: sag, range: [25, 30], comfort_at: max }
 
   dvo_jadexwp_2023:
     label: DVO Jade X WP1 Set-Up Guide (2023)
+    label_de: DVO Jade X WP1 Setup-Anleitung (2023)
     source: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Jade-X-WP-Setup_Guide_Dec5_2023.pdf
     rules:
       - target: spring_rate
@@ -245,6 +278,7 @@ guides:
 
   dvo_jade_tech:
     label: DVO Jade set-up page
+    label_de: DVO Jade Setup-Seite
     source: https://tech.dvosuspension.com/setup/jade/
     # The base tunes cover three catalog sizes. Table 3 (10.5x3.5in) and the
     # 9.5x3in size of table 2 are not catalog sizes; every other size gets
@@ -300,10 +334,11 @@ guides:
         input_unit: lb
         when: { size: "222.25x69.85" }
         rows: { 120-140: 1, 140-160: 2, 160-180: [2, 5], 180-200: [5, 8], 200-220: [5, 8] }
-      - { target: sag, range: [25, 30], comfort_at: max, note: Measured in the attack position }
+      - { target: sag, range: [25, 30], comfort_at: max, note: Measured in the attack position, note_de: In der Angriffsposition gemessen }
 
   dvo_topaz_2024:
     label: DVO Topaz Set-Up Guide (v2.1, 2024)
+    label_de: DVO Topaz Setup-Anleitung (v2.1, 2024)
     source: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
     # The 240+ row's Firm end is printed "250+", so that row is left out of
     # the band and the Firm rule. The 180-199 and 200-219 bands overlap, as
@@ -315,6 +350,7 @@ guides:
         input_unit: lb
         rows: { 120-140: [140, 150], 140-160: [150, 165], 160-180: [165, 175], 180-200: [180, 200], 200-220: [190, 210], 220-240: [210, 230] }
         note: The band runs from DVO's Plush to its Firm setting; the frame's leverage shifts it a lot
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO; die Hebelverhältnisse des Rahmens verschieben es stark
       - target: pressure
         unit: psi
         input: rider_weight
@@ -322,6 +358,7 @@ guides:
         when: { riding_style: comfort }
         rows: { 120-140: 140, 140-160: 150, 160-180: 165, 180-200: 180, 200-220: 190, 220-240: 210, 240+: 230 }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -329,10 +366,12 @@ guides:
         when: { riding_style: race }
         rows: { 120-140: 150, 140-160: 165, 160-180: 175, 180-200: 200, 200-220: 210, 220-240: 230 }
         note: DVO's Firm setting
-      - &dvo_topaz_sag { target: sag, range: [20, 30], comfort_at: max, note: "20 % is DVO's supportive end, 30 % the plush end" }
+        note_de: Die Firm-Einstellung von DVO
+      - &dvo_topaz_sag { target: sag, range: [20, 30], comfort_at: max, note: "20 % is DVO's supportive end, 30 % the plush end", note_de: "20 % ist das unterstützende Ende von DVO, 30 % das komfortable Ende" }
 
   dvo_topazwp_2023:
     label: DVO Topaz WP1 Set-Up Guide (2023)
+    label_de: DVO Topaz WP1 Setup-Anleitung (2023)
     source: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Topaz-WP-Setup_Guide_Dec5_2023.pdf
     # The 240+ row has no Firm label (240 and 250+ shaded), so it is left out
     # of the band and the Firm rule.
@@ -343,6 +382,7 @@ guides:
         input_unit: lb
         rows: { 120-140: [145, 160], 140-160: [160, 170], 160-180: [170, 180], 180-200: [190, 210], 200-220: [200, 220], 220-240: [220, 240] }
         note: The band runs from DVO's Plush to its Firm setting; the frame's leverage shifts it a lot
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO; die Hebelverhältnisse des Rahmens verschieben es stark
       - target: pressure
         unit: psi
         input: rider_weight
@@ -350,6 +390,7 @@ guides:
         when: { riding_style: comfort }
         rows: { 120-140: 145, 140-160: 160, 160-180: 170, 180-200: 190, 200-220: 200, 220-240: 220, 240+: 240 }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -357,12 +398,14 @@ guides:
         when: { riding_style: race }
         rows: { 120-140: 160, 140-160: 170, 160-180: 180, 180-200: 210, 200-220: 220, 220-240: 240 }
         note: DVO's Firm setting
+        note_de: Die Firm-Einstellung von DVO
       - *dvo_wp_hsc
       - *dvo_wp_lsc
       - *dvo_topaz_sag
 
   dvo_topaz_2020:
     label: DVO Topaz Air Set Up Guide (2020)
+    label_de: DVO Topaz Air Setup-Anleitung (2020)
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
     # The 240+ row's Firm end is printed "250+", so that row is left out of
     # the band and the Firm rule.
@@ -373,6 +416,7 @@ guides:
         input_unit: lb
         rows: { 120-140: [140, 150], 140-160: [150, 165], 160-180: [165, 175], 180-200: [175, 190], 200-220: [190, 210], 220-240: [210, 230] }
         note: The band runs from DVO's Plush to its Firm setting
+        note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -380,6 +424,7 @@ guides:
         when: { riding_style: comfort }
         rows: { 120-140: 140, 140-160: 150, 160-180: 165, 180-200: 175, 200-220: 190, 220-240: 210, 240+: 230 }
         note: DVO's Plush setting
+        note_de: Die Plush-Einstellung von DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -387,6 +432,7 @@ guides:
         when: { riding_style: race }
         rows: { 120-140: 150, 140-160: 165, 160-180: 175, 180-200: 190, 200-220: 210, 220-240: 230 }
         note: DVO's Firm setting
+        note_de: Die Firm-Einstellung von DVO
       - target: bladder_pressure
         unit: psi
         input: rider_weight
@@ -403,7 +449,8 @@ nodes:
   - label: Jade X
     level: model
     category: Enduro / DH
-    specs: { spring: Coil }
+    category_de: Enduro / DH
+    specs: { spring: Coil, spring_de: Stahlfeder }
     # Bladder 140-180psi and the 6mm preload limit: Jade X Set-Up Guide v2.0,
     # p.8 "BLADDER PRESSURE RANGE 140-180PSI / DO NOT EXCEED 180PSI" and p.11
     # "One (1) rotation equals 1mm of preload. Do NOT exceed 6mm of preload."
@@ -420,9 +467,9 @@ nodes:
           - label: T3
             level: trim
             adjustments: &jade_coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-              - { name: Preload, type: numerical, unit: mm, min: 0, max: 6, notes: "One full turn of the spring collar equals 1mm of preload; do not exceed 6mm" }
-              - { name: Bladder Pressure, type: numerical, unit: psi, min: 140, max: 180 }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Preload, name_de: Vorspannung, type: numerical, unit: mm, min: 0, max: 6, notes: "One full turn of the spring collar equals 1mm of preload; do not exceed 6mm", notes_de: Eine volle Umdrehung des Federtellers entspricht 1mm Vorspannung; 6mm nicht überschreiten }
+              - { name: Bladder Pressure, name_de: Bladder-Druck, type: numerical, unit: psi, min: 140, max: 180 }
             options:
               damper: [jade_x_t3]
               size:
@@ -436,6 +483,10 @@ nodes:
               - Coil spring sold separately: DVO's LS "light steel" or a regular steel spring
               - The bladder charge tunes the whole shock's feel — try the full 140-180psi range
               - Aim for 25-30% sag, then fine-tune with preload
+            note_de: |-
+              - Stahlfeder separat erhältlich: DVOs LS „Light Steel“ oder eine normale Stahlfeder
+              - Der Bladder-Druck bestimmt das Gefühl des ganzen Dämpfers — den gesamten Bereich von 140-180psi ausprobieren
+              - 25-30 % SAG anstreben, dann mit der Vorspannung feinjustieren
           - label: Prime
             level: trim
             url: https://dvosuspension.com/product/jade-x-prime/
@@ -450,6 +501,7 @@ nodes:
                 - { size: "205x57.5/60/62.5/65", mount: Trunnion }
                 - { size: "185x50/52.5/55", mount: Trunnion }
             note: Coil spring sold separately. Aim for 25-30% sag, then fine-tune with preload.
+            note_de: Stahlfeder separat erhältlich. 25-30 % SAG anstreben, dann mit der Vorspannung feinjustieren.
           - label: WP CV
             level: trim
             url: https://dvosuspension.com/product/jade-x-wp/
@@ -462,11 +514,15 @@ nodes:
                 - { size: "205x65", mount: Trunnion }
             note: >-
               Built with WP Suspension and running WP's Cone Valve damper internals.
+            note_de: >-
+              Gemeinsam mit WP Suspension gebaut und mit dem
+              Cone-Valve-Dämpferinnenleben von WP.
 
   - label: Jade
     level: model
     category: Downhill
-    specs: { spring: Coil }
+    category_de: Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder }
     # Bladder 170-200psi and the 5mm preload limit: tech.dvosuspension.com/setup/jade
     # ("Air Pressure Range: 170-200psi", "The maximum amount of preload length is 5mm.").
     source: https://tech.dvosuspension.com/setup/jade/
@@ -482,9 +538,9 @@ nodes:
           - label: Standard
             level: trim
             adjustments:
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-              - { name: Preload, type: numerical, unit: mm, min: 0, max: 5, notes: "Do not exceed 5mm of preload — more risks damaging the spring" }
-              - { name: Bladder Pressure, type: numerical, unit: psi, min: 170, max: 200 }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Preload, name_de: Vorspannung, type: numerical, unit: mm, min: 0, max: 5, notes: "Do not exceed 5mm of preload — more risks damaging the spring", notes_de: Nicht mehr als 5mm Vorspannung — mehr kann die Feder beschädigen }
+              - { name: Bladder Pressure, name_de: Bladder-Druck, type: numerical, unit: psi, min: 170, max: 200 }
             options:
               damper: [jade_coil]
               size:
@@ -501,11 +557,16 @@ nodes:
               - Coil DH shock, born on the UCI Downhill World Cup circuit
               - Runs a higher 170-200psi bladder charge than the Jade X
               - Aim for 25-30% sag measured in the attack position
+            note_de: |-
+              - Stahlfeder-DH-Dämpfer, entstanden im UCI Downhill World Cup
+              - Läuft mit einem höheren Bladder-Druck von 170-200psi als der Jade X
+              - 25-30 % SAG in der Angriffsposition gemessen anstreben
 
   - label: Topaz
     level: model
     category: XC / Trail / Enduro / E-MTB
-    specs: { spring: Air }
+    category_de: XC / Trail / Enduro / E-MTB
+    specs: { spring: Air, spring_de: Luft }
     # Max air 300psi and bladder 140-180psi: Topaz Set-Up Guide (May 2024), p.10
     # "DO NOT EXCEED MAXIMUM AIR PRESSURE! 300PSI" and p.9 "BLADDER PRESSURE
     # RANGE 140-180PSI / DO NOT EXCEED 180PSI".
@@ -522,8 +583,8 @@ nodes:
           - label: Pro
             level: trim
             adjustments: &topaz_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
-              - { name: Bladder Pressure, type: numerical, unit: psi, min: 140, max: 180 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Bladder Pressure, name_de: Bladder-Druck, type: numerical, unit: psi, min: 140, max: 180 }
             options:
               damper: [topaz_pro]
               size:
@@ -537,6 +598,10 @@ nodes:
               - Quick-clip volume spacers tune the positive and the negative chamber separately
               - Positive spacers stop it bottoming out; negative spacers add pedalling support
               - Aim for 20-30% sag
+            note_de: |-
+              - Quick-Clip-Volumenspacer stimmen Positiv- und Negativkammer getrennt ab
+              - Positive Spacer verhindern das Durchschlagen; negative Spacer sorgen für mehr Pedalunterstützung
+              - 20-30 % SAG anstreben
           - label: Prime
             level: trim
             url: https://dvosuspension.com/product/topaz-prime/
@@ -549,6 +614,7 @@ nodes:
                 - { size: "185x50/52.5/55", mount: Trunnion }
                 - { size: "205x57.5/60/62.5/65", mount: Trunnion }
             note: Aim for 20-30% sag, then use the bladder charge to fine-tune the feel.
+            note_de: 20-30 % SAG anstreben, dann das Gefühl mit dem Bladder-Druck feinjustieren.
           - label: WP CV
             level: trim
             url: https://dvosuspension.com/product/topaz-wp-cv/
@@ -561,11 +627,15 @@ nodes:
                 - { size: "205x60", mount: Trunnion }
             note: >-
               Built with WP Suspension and running WP's Cone Valve damper internals.
+            note_de: >-
+              Gemeinsam mit WP Suspension gebaut und mit dem
+              Cone-Valve-Dämpferinnenleben von WP.
 
   - label: Opal
     level: model
     category: XC
-    specs: { spring: Air }
+    category_de: XC
+    specs: { spring: Air, spring_de: Luft }
     children:
       - label: "2023–2026"
         level: generation
@@ -578,17 +648,19 @@ nodes:
             draft: true
             mounts: [Metric, Trunnion]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
             options:
               damper: [opal_t3]
               size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
             note: OEM option only. High-volume air can with a spacer-adjustable negative chamber.
+            note_de: Nur als OEM-Option. Hochvolumige Luftkammer mit über Spacer einstellbarer Negativkammer.
 
       # ---------------- Previous generation ----------------
   - label: Topaz 2
     level: model
     category: XC / Trail
-    specs: { spring: Air }
+    category_de: XC / Trail
+    specs: { spring: Air, spring_de: Luft }
     # Max air 300psi and bladder 170-200psi: 2020 Topaz Air Owner's Guide, p.4
     # "Do Not Exceed Maximum Air Pressure! 300PSI" and p.5 "Do Not Exceed
     # Maximum Bladder Pressure! 200PSI" with a 170-200 rider-weight chart.
@@ -607,14 +679,18 @@ nodes:
           - label: T3Air
             level: trim
             adjustments: &topaz_t3air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
-              - { name: Bladder Pressure, type: numerical, unit: psi, min: 170, max: 200 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Bladder Pressure, name_de: Bladder-Druck, type: numerical, unit: psi, min: 170, max: 200 }
             options:
               damper: [topaz_t3air]
             note: |-
               - Previous-generation Topaz, with a higher 170-200psi bladder than the current one
               - Volume spacers tune the positive and the negative chamber separately
               - Aim for 20-30% sag
+            note_de: |-
+              - Topaz der Vorgängergeneration mit höherem Bladder-Druck von 170-200psi als beim aktuellen
+              - Volumenspacer stimmen Positiv- und Negativkammer getrennt ab
+              - 20-30 % SAG anstreben
           - label: Maestro HV
             level: trim
             adjustments: *topaz_t3air_spring
@@ -623,6 +699,7 @@ nodes:
               size:
                 - { size: "205x62.5", mount: Trunnion }
             note: High-volume air can tuned specifically for Giant's Maestro suspension layout.
+            note_de: Hochvolumige Luftkammer, speziell auf das Maestro-Fahrwerk von Giant abgestimmt.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

@@ -45,10 +45,14 @@ option_values:
         - Pressurised closed three-way cartridge with the FCV valve
         - Separate low-speed compression, high-speed compression and rebound dials
         - Every click is counted from fully closed, opening counter-clockwise
+      description_de: |-
+        - Geschlossene Druckkartusche mit drei Einstellwegen und FCV-Ventil
+        - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
+        - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
       adjustments:
-        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 27, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+        - { name: HSC, name_de: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: LSC, name_de: LSC, type: step, max: 27, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
       source:
         - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422873
         - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422386
@@ -66,10 +70,14 @@ option_values:
         - Downhill version of the pressurised closed three-way Grabber cartridge with FCV valve
         - Adds a hydraulic end-of-travel stop
         - Every click is counted from fully closed, opening counter-clockwise
+      description_de: |-
+        - Downhill-Version der geschlossenen Druckkartusche Grabber mit drei Einstellwegen und FCV-Ventil
+        - Mit hydraulischem Endanschlag am Ende des Federwegs
+        - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
       adjustments:
-        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 27, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+        - { name: HSC, name_de: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: LSC, name_de: LSC, type: step, max: 27, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
       source:
         - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422364
         - https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
@@ -85,9 +93,13 @@ option_values:
         - Pressurised closed two-way downhill cartridge
         - One compression dial and one rebound dial
         - Progressive hydraulic end stop; every click is counted from fully closed
+      description_de: |-
+        - Geschlossene Downhill-Druckkartusche mit zwei Einstellwegen
+        - Ein Druckstufenrad und ein Zugstufenrad
+        - Progressiver hydraulischer Endanschlag; jeder Klick wird von ganz geschlossen gezählt
       adjustments:
-        - { name: Compression, type: step, max: 20 }
-        - { name: Rebound, type: step, max: 28 }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 20 }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 28 }
       source:
         - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422906
         - https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
@@ -105,10 +117,14 @@ option_values:
         - Open three-way cartridge tuned for dirt jump
         - Separate low-speed compression, high-speed compression and rebound dials
         - Every click is counted from fully closed, opening counter-clockwise
+      description_de: |-
+        - Offene Kartusche mit drei Einstellwegen, auf Dirt Jump abgestimmt
+        - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
+        - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
       adjustments:
-        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 27, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+        - { name: HSC, name_de: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: LSC, name_de: LSC, type: step, max: 27, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
       source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422893
       note: >-
         Toxik product page: "Cartouche Ouverte 3 voies" with 27/25/30 clics, "Plus
@@ -131,6 +147,7 @@ option_values:
 guides:
   bos_kyll39_2025:
     label: BOS Kyll 39 Grabber Quickstart (2025)
+    label_de: BOS Kyll 39 Grabber Schnellstart (2025)
     source: https://www.bos-suspension.com/Files/125448/Quickstart_KYLL_39_GRABBER_EN.pdf
     rules:
       - target: pressure
@@ -143,6 +160,7 @@ guides:
           90: 251, 95: 265, 100: 279, 105: 293, 110: 307
         }
         note: &bos_pressure_style Up to 5 psi more or less depending on use and riding style
+        note_de: &bos_pressure_style_de Bis zu 5 psi mehr oder weniger je nach Einsatz und Fahrstil
       - target: pressure
         unit: psi
         input: rider_weight
@@ -153,6 +171,7 @@ guides:
           90: 233, 95: 245, 100: 257, 105: 269, 110: 282
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -163,6 +182,7 @@ guides:
           90: 220, 95: 231, 100: 243, 105: 255, 110: 266
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -173,13 +193,15 @@ guides:
           90: 208, 95: 220, 100: 231, 105: 242, 110: 253
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
       - &grabber_lsc { target: lsc, value: 11 }
       - &grabber_hsc { target: hsc, value: 10 }
       - &grabber_rebound { target: rebound, value: 10 }
-      - &grabber_tokens { target: volume_spacers, value: 1, note: The factory-fitted token }
+      - &grabber_tokens { target: volume_spacers, value: 1, note: The factory-fitted token, note_de: Der werkseitig verbaute Token }
 
   bos_idylle39_2025:
     label: BOS Idylle 39 Grabber Quickstart (2025)
+    label_de: BOS Idylle 39 Grabber Schnellstart (2025)
     source: https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
     rules:
       - target: pressure
@@ -191,6 +213,7 @@ guides:
           90: 230, 95: 243, 100: 256, 105: 270, 110: 283
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
       - *grabber_lsc
       - *grabber_hsc
       - *grabber_rebound
@@ -198,6 +221,7 @@ guides:
 
   bos_obsys42_2025:
     label: BOS Obsys Quickstart
+    label_de: BOS Obsys Schnellstart
     source: https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
     rules:
       - target: pressure
@@ -209,6 +233,7 @@ guides:
           90: 209, 95: 216, 100: 221, 105: 226, 110: 231, 115: 235, 120: 238
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
       - { target: compression, value: 20 }
       - { target: rebound, value: 13 }
 
@@ -223,6 +248,7 @@ nodes:
   - label: "Deville 35"
     level: model
     category: All-Mountain / Enduro
+    category_de: All-Mountain / Enduro
     children:
       - label: "2025–2026"
         level: generation
@@ -234,14 +260,18 @@ nodes:
           - Magnesium lowers, 35mm 7050 aluminium stanchions, from 2020g at 150mm
           - Air pressure range 115-350 psi
           - 15x110 or 20x110mm Boost axle, post-mount 180mm brakes
+        note_de: |-
+          - Magnesium-Tauchrohre, 35mm Standrohre aus Aluminium 7050, ab 2020g bei 150mm
+          - Luftdruckbereich 115-350 psi
+          - 15x110 oder 20x110mm Boost-Achse, Post-Mount-Bremse 180mm
         children:
           - label: Grabber
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft }
             offset_mm: [48]
             adjustments: &air_spring_tokens
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
-              - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: Tokens clip onto the air-chamber cap; one stock token fitted }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 350 }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 5, unit: tokens, visualization: stepper, notes: Tokens clip onto the air-chamber cap; one stock token fitted, notes_de: Tokens werden auf die Luftkammerkappe geklippt; ein Serien-Token ist verbaut }
             options:
               damper: [grabber_2025]
               travel_mm: [140, 150, 160, 170]
@@ -250,6 +280,7 @@ nodes:
   - label: "Kyll 39"
     level: model
     category: Freeride / Enduro / E-Bike
+    category_de: Freeride / Enduro / E-Bike
     children:
       - label: "2025–2026"
         level: generation
@@ -263,10 +294,15 @@ nodes:
           - Tool-free air bleed valve
           - Air pressure range 115-350 psi
           - 15x110 or 20x110mm Boost axle, post-mount 200mm brakes
+        note_de: |-
+          - Magnesium-Tauchrohre, 39mm Standrohre aus Aluminium 7050, ab 2590g bei 170mm
+          - Werkzeugloses Luftablassventil
+          - Luftdruckbereich 115-350 psi
+          - 15x110 oder 20x110mm Boost-Achse, Post-Mount-Bremse 200mm
         children:
           - label: Grabber
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft }
             offset_mm: [44, 52]
             adjustments: *air_spring_tokens
             options:
@@ -277,6 +313,7 @@ nodes:
   - label: "Idylle 39"
     level: model
     category: Downhill
+    category_de: Downhill
     children:
       - label: "2025–2026"
         level: generation
@@ -289,10 +326,14 @@ nodes:
           - Dual-crown chassis, 39mm 7050 aluminium stanchions, 2950g
           - Air pressure range 115-350 psi
           - 20x110mm Boost axle, post-mount 200mm brakes, straight 1 1/8" steerer
+        note_de: |-
+          - Doppelbrücken-Chassis, 39mm Standrohre aus Aluminium 7050, 2950g
+          - Luftdruckbereich 115-350 psi
+          - 20x110mm Boost-Achse, Post-Mount-Bremse 200mm, gerader 1 1/8"-Gabelschaft
         children:
           - label: Grabber
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft }
             offset_mm: [48]
             adjustments: *air_spring_tokens
             options:
@@ -303,6 +344,7 @@ nodes:
   - label: "Obsys 42"
     level: model
     category: Downhill
+    category_de: Downhill
     children:
       - label: "2025–2026"
         level: generation
@@ -315,13 +357,17 @@ nodes:
           - Dual-crown chassis with aluminium lowers, 42mm 7050 aluminium stanchions, 3260g
           - Air pressure range 135-250 psi
           - 20x110mm Boost or standard axle, post-mount 200mm brakes
+        note_de: |-
+          - Doppelbrücken-Chassis mit Aluminium-Tauchrohren, 42mm Standrohre aus Aluminium 7050, 3260g
+          - Luftdruckbereich 135-250 psi
+          - 20x110mm Boost- oder Standardachse, Post-Mount-Bremse 200mm
         children:
           - label: Air
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft }
             offset_mm: [48]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 250 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 250 }
             options:
               damper: [obsys_2025]
               travel_mm: [200]
@@ -330,6 +376,7 @@ nodes:
   - label: "Toxik"
     level: model
     category: Dirt Jump
+    category_de: Dirt Jump
     children:
       - label: "2025–2026"
         level: generation
@@ -339,13 +386,16 @@ nodes:
         note: |-
           - Magnesium lowers, 35mm 7050 aluminium stanchions, 1900g
           - 15x110 or 20x110mm Boost axle, post-mount 180mm brakes
+        note_de: |-
+          - Magnesium-Tauchrohre, 35mm Standrohre aus Aluminium 7050, 1900g
+          - 15x110 oder 20x110mm Boost-Achse, Post-Mount-Bremse 180mm
         children:
           - label: Air
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft }
             offset_mm: [48]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
             options:
               damper: [toxik_open_2025]
               travel_mm: [100]

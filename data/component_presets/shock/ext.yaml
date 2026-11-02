@@ -64,11 +64,14 @@ option_values:
       description: >
         Four-way adjustable damper (LSC, HSC, rebound and the LOK pedal-platform
         lever) without an adjustable bottom-out circuit.
+      description_de: >
+        Vierwege-einstellbarer Dämpfer (LSC, HSC, Zugstufe und der
+        LOK-Pedalplattform-Hebel) ohne einstellbaren Durchschlagkreis.
       adjustments:
-        - { name: LSC, type: step, max: 14, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: 14, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: 10 }
-        - { name: LOK (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
+        - { name: LSC, name_de: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: HSC, name_de: HSC, type: step, max: 14, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 10 }
+        - { name: LOK (Climb Switch), name_de: LOK (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench or socket) / Rebound/R (bottom knob)
       source: https://www.pinkbike.com/news/review-ext-storia-v3-shock.html
       note: >-
@@ -81,12 +84,15 @@ option_values:
       description: >
         Four-way adjustable damper (LSC, HSC, rebound, HBC) plus the LOK 2.0
         pedal-platform lever.
+      description_de: >
+        Vierwege-einstellbarer Dämpfer (LSC, HSC, Zugstufe, HBC) plus der
+        LOK-2.0-Pedalplattform-Hebel.
       adjustments:
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
-        - { name: HBC, type: step, max: 10, notes: Hydraulic bottom-out control }
-        - { name: LOK 2.0 (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
+        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: HBC, name_de: HBC, type: step, max: 10, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
+        - { name: LOK 2.0 (Climb Switch), name_de: LOK 2.0 (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench or socket) / Rebound/R (bottom knob) / HBC (4mm Allen, top of compression valve)
       source:
         - https://www.pinkbike.com/news/review-exts-new-storia-v4-coil-shock.html
@@ -102,11 +108,12 @@ option_values:
     arma_v3:
       name: Arma V3
       description: Downhill-race damper with four adjusters (LSC, HSC, rebound, HBC) and no climb switch.
+      description_de: Downhill-Renndämpfer mit vier Verstellern (LSC, HSC, Zugstufe, HBC) und ohne Climb-Schalter.
       adjustments:
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
-        - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
+        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: HBC, name_de: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
       adjusters: LSC / HSC / Rebound / HBC — no LOK on Arma (confirmed "Available on Storia V4 only")
 
     arma_v4:
@@ -114,11 +121,15 @@ option_values:
       description: >
         Downhill damper with four adjusters (LSC, HSC, rebound, HBC), tunable
         with a multi-tool (5mm and 4mm Allen keys). No climb switch.
+      description_de: >
+        Downhill-Dämpfer mit vier Verstellern (LSC, HSC, Zugstufe, HBC),
+        abstimmbar mit einem Multitool (Inbusschlüssel 5mm und 4mm). Ohne
+        Climb-Schalter.
       adjustments:
-        - { name: LSC, type: step, max: 14, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: 15, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: 14, notes: Low-Speed Rebound }
-        - { name: HBC, type: step, max: 10, notes: "Hydraulic bottom-out control, last 20% of stroke" }
+        - { name: LSC, name_de: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: HSC, name_de: HSC, type: step, max: 15, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 14, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: HBC, name_de: HBC, type: step, max: 10, notes: "Hydraulic bottom-out control, last 20% of stroke", notes_de: "Hydraulische Durchschlagsregelung, letzte 20 % des Federwegs" }
       adjusters: LSC (4mm Allen) / HSC (5mm Allen) / Rebound / HBC
       source: https://www.pinkbike.com/news/review-ext-arma-v4-one-of-the-best-mtb-shocks-gets-even-better.html
       note: >-
@@ -134,12 +145,15 @@ option_values:
       description: >
         EXT's first air shock: four hydraulic adjusters (LSC, HSC, rebound,
         HBC) plus a LOK climb lever.
+      description_de: >
+        EXTs erster Luftdämpfer: vier hydraulische Versteller (LSC, HSC,
+        Zugstufe, HBC) plus ein LOK-Climb-Hebel.
       adjustments:
-        - { name: LSC, type: step, max: 12, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs" }
-        - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; estimated maximum, check your dial and edit it if it differs" }
-        - { name: Rebound, type: step, max: 13, notes: "Estimated maximum, check your dial and edit it if it differs" }
-        - { name: HBC, type: step, max: 4, notes: "Hydraulic bottom-out control; estimated maximum, check your dial and edit it if it differs" }
-        - { name: LOK (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
+        - { name: LSC, name_de: LSC, type: step, max: 12, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: HSC, name_de: HSC, type: step, max: 10, notes: "High-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "High-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 13, notes: "Estimated maximum, check your dial and edit it if it differs", notes_de: "Geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: HBC, name_de: HBC, type: step, max: 4, notes: "Hydraulic bottom-out control; estimated maximum, check your dial and edit it if it differs", notes_de: "Hydraulische Durchschlagsregelung; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: LOK (Climb Switch), name_de: LOK (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC/H (4mm Allen)
       source: https://extremeshox.com/wp-content/uploads/2023/08/Quick-manual-Aria-min.pdf
       note: >-
@@ -154,12 +168,16 @@ option_values:
         Damper tuned for e-MTB use (heavier bikes, higher speeds) with a
         stiffer spring platform and negative spring. Adjusters: LSC, HSC,
         rebound, HBC and LOK.
+      description_de: >
+        Für den E-MTB-Einsatz abgestimmter Dämpfer (schwerere Bikes, höhere
+        Geschwindigkeiten) mit steiferer Federplattform und Negativfeder.
+        Versteller: LSC, HSC, Zugstufe, HBC und LOK.
       adjustments:
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: ~ }
-        - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
-        - { name: LOK (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
+        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~ }
+        - { name: HBC, name_de: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
+        - { name: LOK (Climb Switch), name_de: LOK (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC (4mm Allen)
       note: High-rate springs (>600 lbs/in / 105 N/mm) require EXT-specific mounting adapters; spring preload must not exceed 2mm.
 
@@ -168,11 +186,15 @@ option_values:
       description: >
         Monotube coil damper with LSC (4mm Allen), HSC (5mm Allen), rebound and
         a LOK 2.0 climb lever. The HBC is factory-tuned and not adjustable.
+      description_de: >
+        Monotube-Stahlfederdämpfer mit LSC (4-mm-Inbus), HSC (5-mm-Inbus),
+        Zugstufe und einem LOK-2.0-Climb-Hebel. Der HBC ist werkseitig
+        abgestimmt und nicht einstellbar.
       adjustments:
-        - { name: LSC, type: step, max: 14, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: 14, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: 16 }
-        - { name: LOK 2.0 (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
+        - { name: LSC, name_de: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: HSC, name_de: HSC, type: step, max: 14, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 16 }
+        - { name: LOK 2.0 (Climb Switch), name_de: LOK 2.0 (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
       adjusters: LSC (4mm Allen) / HSC (5mm Allen) / Rebound (bottom knob)
       source: https://www.pinkbike.com/news/review-ext-vecta-coil-shock.html
       note: >-
@@ -186,12 +208,15 @@ option_values:
       description: >
         Air-shock damper with LSC (4mm Allen), HSC (5mm Allen), rebound and an
         adjustable HBC, plus the LOK 2.0 climb lever.
+      description_de: >
+        Luftdämpfer mit LSC (4-mm-Inbus), HSC (5-mm-Inbus), Zugstufe und
+        einstellbarem HBC, plus dem LOK-2.0-Climb-Hebel.
       adjustments:
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: ~ }
-        - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
-        - { name: LOK 2.0 (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
+        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~ }
+        - { name: HBC, name_de: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
+        - { name: LOK 2.0 (Climb Switch), name_de: LOK 2.0 (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC/H (4mm Allen) / LOK (lever)
       source:
         - https://extremeshox.com/product/aria-v2/
@@ -205,11 +230,14 @@ option_values:
       description: >
         Downhill version of the Aria V2 damper with a DH-specific HBC tune
         (20% more force at the end of the stroke) and no climb lever.
+      description_de: >
+        Downhill-Version des Aria-V2-Dämpfers mit DH-spezifischer HBC-Abstimmung
+        (20 % mehr Kraft am Ende des Federwegs) und ohne Climb-Hebel.
       adjustments:
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: ~ }
-        - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
+        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
+        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: ~ }
+        - { name: HBC, name_de: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC/H (4mm Allen)
       source:
         - https://extremeshox.com/product/aria-v2-dh/
@@ -234,6 +262,7 @@ option_values:
 guides:
   ext_arma_storia_v3_2023:
     label: EXT Arma / Storia V3 quick manual (2023)
+    label_de: EXT Arma / Storia V3 Kurzanleitung (2023)
     source: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
     # No HBC starting point is printed.
     rules:
@@ -243,15 +272,17 @@ guides:
 
   ext_arma_storia_v4_2024:
     label: EXT Arma / Storia V4 quick manual (2024)
+    label_de: EXT Arma / Storia V4 Kurzanleitung (2024)
     source: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
     rules:
       - { target: hsc, value: 10 }
       - { target: lsc, value: 10 }
       - { target: rebound, value: 9 }
-      - { target: hbc, value: 5, note: Close it step by step if the shock bottoms out often }
+      - { target: hbc, value: 5, note: Close it step by step if the shock bottoms out often, note_de: "Schrittweise schließen, wenn der Dämpfer oft durchschlägt" }
 
   ext_ridemaster_2026:
     label: EXT RideMaster (Vecta)
+    label_de: EXT RideMaster (Vecta)
     source: https://extremeshox.com/vecta-ridemaster/
     # RideMaster's starting clicks per spring rate, before its trail type and
     # riding level offsets. Its riding levels are skill, not firmness, so they
@@ -266,11 +297,13 @@ guides:
           725: 4, 750: 4, 775: 4, 800: 4
         }
         note: "RideMaster's start; technical trails +2, jumps and flow -2"
+        note_de: Ausgangspunkt von RideMaster; technische Trails +2, Sprünge und Flow -2
       - target: lsc
         input: spring_rate
         input_unit: lbs/in
         rows: *ext_ridemaster_compression
         note: "RideMaster's start; technical trails +1, jumps and flow -1"
+        note_de: Ausgangspunkt von RideMaster; technische Trails +1, Sprünge und Flow -1
       - target: rebound
         input: spring_rate
         input_unit: lbs/in
@@ -280,7 +313,8 @@ guides:
           725: 4, 750: 4, 775: 3, 800: 3
         }
         note: "RideMaster's start; technical trails +2, jumps and flow -2"
-      - { target: sag, range: [28, 33], comfort_at: max, note: "RideMaster picks 28 % for gentle, 30 % for medium and 33 % for steep trails" }
+        note_de: Ausgangspunkt von RideMaster; technische Trails +2, Sprünge und Flow -2
+      - { target: sag, range: [28, 33], comfort_at: max, note: "RideMaster picks 28 % for gentle, 30 % for medium and 33 % for steep trails", note_de: "RideMaster wählt 28 % für sanfte, 30 % für mittlere und 33 % für steile Trails" }
 
 # --------------------------------------------------------------------------
 # Shocks — current EXT MTB lineup (extremeshox.com, checked 2026-07-17).
@@ -292,9 +326,10 @@ nodes:
   - label: "Storia V3"
     level: model
     category: Enduro / Trail
-    specs: { spring: Coil }
+    category_de: Enduro / Trail
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks: &ext_service
-      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual }
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual, source_de: EXT-Kurzanleitung }
     children:
       - label: "2025–2026"
         level: generation
@@ -303,11 +338,12 @@ nodes:
         url: https://extremeshox.com/product/ext-storia/
         setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
         note: Sold as "Storia V3-S" per the official quick manual; features a spring thrust bearing between spring and collar — do not omit it during spring install.
+        note_de: Laut der offiziellen Kurzanleitung als „Storia V3-S“ verkauft; hat ein Federdrucklager zwischen Feder und Federteller — beim Einbau der Feder nicht weglassen.
         children:
           - label: Metric Standard
             level: trim
             adjustments: &coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [storia_v3]
               size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
@@ -327,7 +363,8 @@ nodes:
   - label: "Storia V4"
     level: model
     category: Enduro / Trail
-    specs: { spring: Coil }
+    category_de: Enduro / Trail
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -341,6 +378,10 @@ nodes:
           Marketed as one of the lightest coil shocks available (397g without
           spring); 30%-lighter steel spring option; inline low-pressure (55psi)
           reservoir.
+        note_de: >
+          Wird als einer der leichtesten verfügbaren Stahlfederdämpfer
+          vermarktet (397g ohne Feder); Stahlfeder-Option, die 30 % leichter
+          ist; Inline-Niederdruck-Ausgleichsbehälter (55psi).
         children:
           - label: Metric Standard
             level: trim
@@ -358,7 +399,8 @@ nodes:
   - label: "Arma V3"
     level: model
     category: Downhill
-    specs: { spring: Coil }
+    category_de: Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -391,7 +433,8 @@ nodes:
   - label: "Arma V4"
     level: model
     category: Downhill
-    specs: { spring: Coil }
+    category_de: Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -402,6 +445,7 @@ nodes:
         setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
         guide: ext_arma_storia_v4_2024
         note: Uses EV2S damper fluid; DLC-coated 14mm steel shaft.
+        note_de: Verwendet EV2S-Dämpferflüssigkeit; 14mm-Stahlstange mit DLC-Beschichtung.
         children:
           - label: Metric Standard
             level: trim
@@ -419,7 +463,8 @@ nodes:
   - label: "Aria"
     level: model
     category: Trail / Enduro
-    specs: { spring: Air }
+    category_de: Trail / Enduro
+    specs: { spring: Air, spring_de: Luft }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -429,12 +474,13 @@ nodes:
         url: https://extremeshox.com/product/ext-aria/
         setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/Quick-manual-Aria-min.pdf
         note: AS3 dual-positive-chamber air spring (2 dynamic seals separating 3 chambers); 28mm hydraulic main piston.
+        note_de: AS3-Luftfeder mit zwei Positivkammern (2 dynamische Dichtungen trennen 3 Kammern); 28mm-Hydraulik-Hauptkolben.
         children:
           - label: Metric Standard
             level: trim
             adjustments: &aria_air_spring
-              - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 280 }
-              - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber }
+              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0, max: 280 }
+              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber, notes_de: Erfordert die mitgelieferte EXT-Dämpferpumpe (600 psi); ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen }
             options:
               damper: [aria]
               size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
@@ -448,7 +494,8 @@ nodes:
   - label: "Aria V2"
     level: model
     category: Trail / Enduro
-    specs: { spring: Air }
+    category_de: Trail / Enduro
+    specs: { spring: Air, spring_de: Luft }
     tasks: *ext_service
     children:
       - label: "2026"
@@ -457,12 +504,13 @@ nodes:
         url: https://extremeshox.com/product/aria-v2/
         setup_guide: https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
         note: AS3 dual-positive-chamber air spring with a vertical piggyback; tuned with the + and ++ chamber pressures instead of volume tokens.
+        note_de: AS3-Luftfeder mit zwei Positivkammern und senkrechtem Piggyback; abgestimmt über die Drücke der Kammern + und ++ statt über Volumen-Tokens.
         children:
           - label: Metric Standard
             level: trim
             adjustments: &aria_v2_air_spring
-              - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 300 }
-              - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber }
+              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber, notes_de: Erfordert die mitgelieferte EXT-Dämpferpumpe (600 psi); ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen }
             options:
               damper: [aria_v2]
               size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
@@ -476,7 +524,8 @@ nodes:
   - label: "Aria V2 DH"
     level: model
     category: Downhill
-    specs: { spring: Air }
+    category_de: Downhill
+    specs: { spring: Air, spring_de: Luft }
     tasks: *ext_service
     children:
       - label: "2026"
@@ -485,6 +534,7 @@ nodes:
         url: https://extremeshox.com/product/aria-v2-dh/
         setup_guide: https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
         note: Downhill / freeride version of the Aria V2 with a stronger HBC tune and no LOK lever.
+        note_de: Downhill-/Freeride-Version der Aria V2 mit stärkerer HBC-Abstimmung und ohne LOK-Hebel.
         children:
           - label: Metric Standard
             level: trim
@@ -502,7 +552,8 @@ nodes:
   - label: "e-Storia"
     level: model
     category: E-MTB / Enduro
-    specs: { spring: Coil }
+    category_de: E-MTB / Enduro
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -528,7 +579,8 @@ nodes:
   - label: "Vecta"
     level: model
     category: Enduro / Trail
-    specs: { spring: Coil }
+    category_de: Enduro / Trail
+    specs: { spring: Coil, spring_de: Stahlfeder }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -542,6 +594,11 @@ nodes:
           Riders can adjust HSC/LSC with a common multi-tool (5mm/4mm Allen);
           harder negative spring to avoid top-out knock; low-pressure (55psi)
           air reservoir; factory-tuned HBC (not externally adjustable).
+        note_de: >
+          Fahrer können HSC/LSC mit einem gängigen Multitool (Inbus 5mm/4mm)
+          einstellen; härtere Negativfeder, um Anschlagklopfen am oberen
+          Anschlag zu vermeiden; Niederdruck-Luftbehälter (55psi); werkseitig
+          abgestimmter HBC (nicht extern einstellbar).
         children:
           - label: Metric Standard
             level: trim

@@ -70,10 +70,14 @@ option_values:
         - Travel-dependent low-speed compression: the first 30% of travel runs through an open bypass port for small-bump sensitivity, then closes progressively for mid-stroke support and bottom-out control
         - Lever with three modes: Open, Drive (partly closed compression) and Lock (with a blow-off valve)
         - External low-speed compression and rebound adjusters
+      description_de: |-
+        - Federwegabhängige Low-Speed-Druckstufe: die ersten 30 % des Federwegs laufen durch eine offene Bypassöffnung für Ansprechen bei kleinen Schlägen, danach schließt sie progressiv für Halt im mittleren Federweg und Kontrolle gegen Durchschlag
+        - Hebel mit drei Modi: Open, Drive (teilweise geschlossene Druckstufe) und Lock (mit Blow-off-Ventil)
+        - Externe Versteller für Low-Speed-Druckstufe und Zugstufe
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
-        - { name: Compression, type: step, max: 12, notes: "Low-Speed Compression; Counted from fully open (softest); DT Swiss recommends fully open" }
-        - { name: Rebound, type: step, max: 29, notes: Counted from fully open (fastest) }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock] }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 12, notes: "Low-Speed Compression; Counted from fully open (softest); DT Swiss recommends fully open", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; DT Swiss empfiehlt ganz offen }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 29, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt }
       source:
         - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
@@ -89,10 +93,14 @@ option_values:
         - Conventional (not travel-dependent) low-speed compression damper
         - Two-position lever: Open and Lock (with a blow-off valve)
         - External low-speed compression and rebound adjusters
+      description_de: |-
+        - Herkömmlicher (nicht federwegabhängiger) Dämpfer mit Low-Speed-Druckstufe
+        - Zwei-Positionen-Hebel: Open und Lock (mit Blow-off-Ventil)
+        - Externe Versteller für Low-Speed-Druckstufe und Zugstufe
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Lock] }
-        - { name: Compression, type: step, max: 12, notes: "Low-Speed Compression; Counted from fully open (softest); DT Swiss recommends fully open" }
-        - { name: Rebound, type: step, max: 29, notes: Counted from fully open (fastest) }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Lock], options_de: [Offen, Lock] }
+        - { name: Compression, name_de: Druckstufe, type: step, max: 12, notes: "Low-Speed Compression; Counted from fully open (softest); DT Swiss recommends fully open", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; DT Swiss empfiehlt ganz offen }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 29, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt }
       source:
         - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
@@ -106,10 +114,13 @@ option_values:
       description: >-
         Lightweight cross-country damper with a three-position lever (Open, Drive,
         Lock) and external rebound and low-speed compression adjusters.
+      description_de: >-
+        Leichter Cross-Country-Dämpfer mit Drei-Positionen-Hebel (Open, Drive,
+        Lock) und externen Verstellern für Zugstufe und Low-Speed-Druckstufe.
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
-        - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; blue T10 Torx adjuster, affects Open mode only", dialColor: blue }
-        - { name: Rebound, type: step, max: 25, notes: "Counted from fully open (fastest); estimated maximum, check your dial and edit it if it differs" }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock] }
+        - { name: Compression, name_de: Druckstufe, type: step, max: ~, notes: "Low-Speed Compression; blue T10 Torx adjuster, affects Open mode only", notes_de: "Low-Speed-Druckstufe; blauer T10-Torx-Versteller, wirkt nur im offenen Modus", dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 25, notes: "Counted from fully open (fastest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz offen (am schnellsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
       source:
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/81/9/MAN_FXD10000002819S_WEB_ZZ_001.pdf
         - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
@@ -127,9 +138,13 @@ option_values:
         - Open and Lock modes, switched with the L1 remote lever on the handlebar (PUSHCONTROL)
         - Open is the most sensitive, factory-set mode; in Lock a blow-off valve releases the oil flow on heavy impacts
         - External rebound adjuster on the lower leg
+      description_de: |-
+        - Modi Open und Lock, umgeschaltet über den L1-Fernhebel am Lenker (PUSHCONTROL)
+        - Open ist der sensibelste, werkseitig eingestellte Modus; im Lock-Modus gibt ein Blow-off-Ventil bei starken Schlägen den Ölfluss frei
+        - Externer Zugstufenversteller am unteren Gabelbein
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Lock] }
-        - { name: Rebound, type: step, max: 10, notes: "Counted from fully open (fastest); estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Lock], options_de: [Offen, Lock] }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 10, notes: "Counted from fully open (fastest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz offen (am schnellsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red }
       source:
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/06/17/6/MAN_FXD10000006176S_WEB_ZZ_001.pdf
         - https://www.dtswiss.com/en/suspension/forks/f-132-one
@@ -163,6 +178,7 @@ option_values:
 guides:
   dtswiss_f535_2023:
     label: DT Swiss F 535 / F 535 ONE user manual (2023)
+    label_de: DT Swiss F 535 / F 535 ONE Bedienungsanleitung (2023)
     source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
     rules:
       - target: pressure
@@ -178,6 +194,7 @@ guides:
           150: 177
         }
         note: &dt_system_weight DT Swiss keys this table by system weight; enter your weight with riding gear
+        note_de: &dt_system_weight_de DT Swiss ordnet diese Tabelle nach dem Systemgewicht; dein Gewicht mit Fahrausrüstung eingeben
       - target: pressure
         unit: psi
         input: rider_weight
@@ -191,6 +208,7 @@ guides:
           150: 164
         }
         note: *dt_system_weight
+        note_de: *dt_system_weight_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -204,6 +222,7 @@ guides:
           150: 152
         }
         note: *dt_system_weight
+        note_de: *dt_system_weight_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -217,6 +236,7 @@ guides:
           150: 144
         }
         note: *dt_system_weight
+        note_de: *dt_system_weight_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -230,6 +250,7 @@ guides:
           150: 135
         }
         note: *dt_system_weight
+        note_de: *dt_system_weight_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -243,6 +264,7 @@ guides:
           150: 171
         }
         note: *dt_system_weight
+        note_de: *dt_system_weight_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -256,6 +278,7 @@ guides:
           150: 158
         }
         note: *dt_system_weight
+        note_de: *dt_system_weight_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -269,6 +292,7 @@ guides:
           150: 146
         }
         note: *dt_system_weight
+        note_de: *dt_system_weight_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -282,6 +306,7 @@ guides:
           150: 138
         }
         note: *dt_system_weight
+        note_de: *dt_system_weight_de
       - target: pressure
         unit: psi
         input: rider_weight
@@ -295,6 +320,7 @@ guides:
           150: 129
         }
         note: *dt_system_weight
+        note_de: *dt_system_weight_de
       - target: rebound
         input: pressure
         input_unit: psi
@@ -305,6 +331,7 @@ guides:
           129-145: 22, 145-177: 23
         }
         note: &dt_rebound_temperature For about 25 °C; open about 6 clicks more at 0 °C, close a little when hot
+        note_de: &dt_rebound_temperature_de Für etwa 25 °C; bei 0 °C etwa 6 Klicks weiter öffnen, bei Hitze etwas schließen
       - target: rebound
         input: pressure
         input_unit: psi
@@ -315,12 +342,14 @@ guides:
           123-139: 22, 139-171: 23
         }
         note: *dt_rebound_temperature
-      - { target: compression, value: 0, note: Fully open }
+        note_de: *dt_rebound_temperature_de
+      - { target: compression, value: 0, note: Fully open, note_de: Ganz offen }
       - { target: compression_mode, value: Open }
-      - { target: volume_spacers, value: 1, note: "As delivered; 0 for a more linear feel, 2-3 for a more progressive one" }
+      - { target: volume_spacers, value: 1, note: "As delivered; 0 for a more linear feel, 2-3 for a more progressive one", note_de: "Wie ausgeliefert; 0 für ein linearers Gefühl, 2-3 für ein progressiveres" }
 
   dtswiss_f232one_2021:
     label: DT Swiss F 232 ONE user manual (2021)
+    label_de: DT Swiss F 232 ONE Bedienungsanleitung (2021)
     source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/81/9/MAN_FXD10000002819S_WEB_ZZ_001.pdf
     rules:
       - target: pressure
@@ -361,13 +390,15 @@ guides:
           87: 21, 94: 22, 102: 23, 109: 24, 116: 24, 123: 25, 131: 25, 138: 25
         }
         note: *dt_rebound_temperature
+        note_de: *dt_rebound_temperature_de
       # The blue compression adjuster has no published setting and no click
       # total (`max: ~`), so it gets no rule.
       - { target: compression_mode, value: Open }
-      - { target: volume_spacers, value: 2, note: "As delivered; fewer for a more linear feel, 3 for a more progressive one" }
+      - { target: volume_spacers, value: 2, note: "As delivered; fewer for a more linear feel, 3 for a more progressive one", note_de: "Wie ausgeliefert; weniger für ein linearers Gefühl, 3 für ein progressiveres" }
 
   dtswiss_f132one_2026:
     label: DT Swiss F 132 ONE user manual (2026)
+    label_de: DT Swiss F 132 ONE Bedienungsanleitung (2026)
     source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/06/17/6/MAN_FXD10000006176S_WEB_ZZ_001.pdf
     rules:
       - target: pressure
@@ -381,6 +412,7 @@ guides:
           115: 171, 120: 178
         }
         note: Rider weight with riding gear, without the bike
+        note_de: Fahrergewicht mit Fahrausrüstung, ohne das Bike
       - target: rebound
         input: pressure
         input_unit: psi
@@ -389,10 +421,11 @@ guides:
           87: 4, 94: 5, 102: 5, 109: 6, 116: 6, 123: 7, 131: 7, 138: 8,
           145: 8, 152: 9, 160: 9, 167: 10, 174: 10, 181: 10, 189: 10
         }
-      - { target: compression_mode, value: Open, note: Factory-set and most sensitive mode }
+      - { target: compression_mode, value: Open, note: Factory-set and most sensitive mode, note_de: Werkseitig eingestellter und sensibelster Modus }
 
   dtswiss_f132_2026:
     label: DT Swiss F 132 user manual (2026)
+    label_de: DT Swiss F 132 Bedienungsanleitung (2026)
     source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/07/78/8/MAN_FXD10000007788S_WEB_ZZ_001.pdf
     rules:
       - target: pressure
@@ -406,6 +439,7 @@ guides:
           115: 171, 120: 178
         }
         note: Rider weight with riding gear, without the bike
+        note_de: Fahrergewicht mit Fahrausrüstung, ohne das Bike
 
 # --------------------------------------------------------------------------
 # Forks — current lineup. DT Swiss only offers 29" versions of the three
@@ -415,9 +449,10 @@ nodes:
   - label: "F 535 ONE"
     level: model
     category: Trail / All-Mountain
+    category_de: Trail / All-Mountain
     tasks: &dtswiss_service
-      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual }
-      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual }
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual, source_de: DT-Swiss-Handbuch }
+      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual, source_de: DT-Swiss-Handbuch }
     children:
       - label: "2023–2026"
         level: generation
@@ -429,11 +464,11 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 197, notes: "Maximum depends on travel: 120mm 197 psi, 130mm 186, 140mm 175, 150mm 164, 160mm 154" }
-              - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 197, notes: "Maximum depends on travel: 120mm 197 psi, 130mm 186, 140mm 175, 150mm 164, 160mm 154", notes_de: "Das Maximum hängt vom Federweg ab: 120mm 197 psi, 130mm 186, 140mm 175, 150mm 164, 160mm 154" }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 3, visualization: stepper, notes: APT volume spacers, notes_de: APT-Volumenspacer }
             options:
               damper: [incontrol_odl_plushport_2023]
               travel_mm: [120, 130, 140, 150, 160]
@@ -443,10 +478,16 @@ nodes:
               - PLUSHPORT travel-dependent damping
               - One APT volume spacer fitted as delivered, two more in the box
               - 15mm Boost thru-axle, magnesium lowers
+            note_de: |-
+              - COILPAIR-Feder: Eine kleine Stahlfeder arbeitet auf den ersten 30mm des Federwegs mit der Luftfeder zusammen
+              - PLUSHPORT-Dämpfung abhängig vom Federweg
+              - Ein APT-Volumenspacer ist ab Werk verbaut, zwei weitere liegen bei
+              - 15mm-Boost-Steckachse, Magnesium-Tauchrohre
 
   - label: "F 535"
     level: model
     category: Trail / All-Mountain
+    category_de: Trail / All-Mountain
     tasks: *dtswiss_service
     children:
       - label: "2023–2026"
@@ -459,11 +500,11 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
             offset_mm: [44]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 191, notes: "Maximum depends on travel: 120mm 191 psi, 130mm 180, 140mm 170, 150mm 158, 160mm 148" }
-              - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 191, notes: "Maximum depends on travel: 120mm 191 psi, 130mm 180, 140mm 170, 150mm 158, 160mm 148", notes_de: "Das Maximum hängt vom Federweg ab: 120mm 191 psi, 130mm 180, 140mm 170, 150mm 158, 160mm 148" }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 3, visualization: stepper, notes: APT volume spacers, notes_de: APT-Volumenspacer }
             options:
               damper: [incontrol_ol_2023]
               travel_mm: [120, 130, 140, 150, 160]
@@ -473,10 +514,16 @@ nodes:
               - Two-mode lever (Open / Lock)
               - One APT volume spacer fitted as delivered, two more in the box
               - 15mm Boost thru-axle, magnesium lowers
+            note_de: |-
+              - Günstigeres Schwestermodell der F 535 ONE ohne COILPAIR oder PLUSHPORT
+              - Hebel mit zwei Modi (Open / Lock)
+              - Ein APT-Volumenspacer ist ab Werk verbaut, zwei weitere liegen bei
+              - 15mm-Boost-Steckachse, Magnesium-Tauchrohre
 
   - label: "F 232 ONE"
     level: model
     category: XC
+    category_de: XC
     tasks: *dtswiss_service
     children:
       - label: "2020–2026"
@@ -489,11 +536,11 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 32mm, spring: Air }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
             offset_mm: [44, 51]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 152, notes: "Maximum depends on travel: 100mm 152 psi, 110mm 149, 120mm 145" }
-              - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 152, notes: "Maximum depends on travel: 100mm 152 psi, 110mm 149, 120mm 145", notes_de: "Das Maximum hängt vom Federweg ab: 100mm 152 psi, 110mm 149, 120mm 145" }
+              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 3, visualization: stepper, notes: APT volume spacers, notes_de: APT-Volumenspacer }
             options:
               damper: [incontrol_odl_232_2020]
               travel_mm: [100, 110, 120]
@@ -502,13 +549,18 @@ nodes:
               - Topology-optimised lowers, from 1,480g
               - XC-tuned LINEAIR dual-chamber air spring
               - Two APT volume spacers fitted as delivered, one more in the box
+            note_de: |-
+              - Topologie-optimierte Tauchrohre, ab 1.480g
+              - Auf XC abgestimmte LINEAIR-Doppelkammer-Luftfeder
+              - Zwei APT-Volumenspacer sind ab Werk verbaut, einer liegt bei
 
   - label: "F 132 ONE"
     level: model
     category: Gravel
+    category_de: Gravel
     tasks: &dtswiss_gravel_service
-      fork:lower_leg_service: { interval: { moving_time_h: 150 }, fallback: { days: 365 }, source: DT Swiss user manual }
-      fork:full_service: { interval: { moving_time_h: 500 }, fallback: { days: 730 }, source: DT Swiss user manual }
+      fork:lower_leg_service: { interval: { moving_time_h: 150 }, fallback: { days: 365 }, source: DT Swiss user manual, source_de: DT-Swiss-Handbuch }
+      fork:full_service: { interval: { moving_time_h: 500 }, fallback: { days: 730 }, source: DT Swiss user manual, source_de: DT-Swiss-Handbuch }
     children:
       - label: "2026"
         level: generation
@@ -519,10 +571,10 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 32mm, spring: Air }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
             offset_mm: [45, 50, 56]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 261 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 261 }
             options:
               damper: [plaingain_ol_2026]
               travel_mm: [40]
@@ -532,10 +584,16 @@ nodes:
               - LINEAIR SL air spring with a positive and a negative chamber
               - Lockout lever for the drop bar; the right-hand lever is sold separately
               - Flat-mount brakes, tires up to 50mm; optional bikepacking adapters carry 3 kg per side
+            note_de: |-
+              - Gravel-Gabel mit kurzem Federweg: 40mm Federweg, 45 / 50 / 56mm Offset und 12x100mm-Steckachse
+              - LINEAIR-SL-Luftfeder mit Positiv- und Negativkammer
+              - Lockout-Hebel für den Rennlenker; der rechte Hebel wird separat verkauft
+              - Flat-Mount-Bremsen, Reifen bis 50mm; optionale Bikepacking-Adapter tragen 3 kg pro Seite
 
   - label: "F 132"
     level: model
     category: Gravel
+    category_de: Gravel
     tasks: *dtswiss_gravel_service
     children:
       - label: "2026"
@@ -547,10 +605,10 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 32mm, spring: Air }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
             offset_mm: [45, 50, 56]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 261 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 261 }
             options:
               travel_mm: [40]
               wheel_size: [700c]
@@ -559,6 +617,11 @@ nodes:
               - OpenFlow damper with continuous oil flow, always open and preset
               - LINEAIR SL air spring with a positive and a negative chamber
               - 40mm of travel, 12x100mm thru-axle, flat-mount brakes, tires up to 50mm
+            note_de: |-
+              - Günstigeres Schwestermodell der F 132 ONE ohne Lockout und Zugstufenversteller
+              - OpenFlow-Dämpfer mit kontinuierlichem Ölfluss, immer offen und voreingestellt
+              - LINEAIR-SL-Luftfeder mit Positiv- und Negativkammer
+              - 40mm Federweg, 12x100mm-Steckachse, Flat-Mount-Bremsen, Reifen bis 50mm
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

@@ -38,9 +38,14 @@ option_values:
         Air-shock damper with a three-position lockout knob: Downhill (maximum
         absorption), Pedal (reduced force while pedalling) and Uphill (firmer for
         climbing), plus an external rebound adjuster.
+      description_de: >-
+        Luftdämpfer mit Drei-Positionen-Lockout-Knopf: Downhill (maximale
+        Absorption), Pedal (reduzierte Kraft beim Treten) und Uphill (fester zum
+        Klettern), plus externem Zugstufenversteller.
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Downhill, Pedal, Uphill], notes: 3-position lockout knob (D / P / U) }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Downhill, Pedal, Uphill], options_de: [Downhill, Pedal, Bergauf], notes: 3-position lockout knob (D / P / U), notes_de: 3-Positionen-Lockout-Knopf (D / P / U) }
       source:
         - https://rstsuspension.com/products/mono-dpu-standard/
         - https://rstsuspension.com/products/mono-dpu-trunnion/
@@ -51,7 +56,10 @@ option_values:
       name: MONO R
       description: >-
         Air-shock damper with an external rebound adjuster.
+      description_de: >-
+        Luftdämpfer mit externem Zugstufenversteller.
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
       adjustments: []
       source:
         - https://rstsuspension.com/products/elementor-12676/
@@ -62,7 +70,10 @@ option_values:
       name: MEZZO
       description: >-
         Coil-shock damper with external compression and rebound adjusters.
+      description_de: >-
+        Stahlfederdämpfer mit externen Verstellern für Druckstufe und Zugstufe.
       missing_adjustments: [Compression, Rebound]
+      missing_adjustments_de: [Druckstufe, Zugstufe]
       adjustments: []
       source:
         - https://rstsuspension.com/products/elementor-12887/
@@ -75,19 +86,21 @@ nodes:
     level: model
     draft: true
     category: All-Mountain
+    category_de: All-Mountain
     url: https://rstsuspension.com/products/mono-dpu-standard/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-301%E5%BE%8C%E9%81%BF%E9%9C%87-MONO-%E8%8B%B1%E6%96%87ENGLISH_A4-1.pdf
-    specs: { spring: Air }
+    specs: { spring: Air, spring_de: Luft }
     children:
       - label: DPU Standard
         level: trim
         specs: { mount: Standard eyelet }
         adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
         options:
           damper: [mono_dpu]
           size: ["170x30/35", "190x40/45", "210x50/55", "230x60/65"]
         note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric and legacy sizes.
+        note_de: Leichter Luftdämpfer für aggressive Trail-/AM-Bikes und Rennstrecken; metrische und ältere Größen.
       - label: DPU Trunnion
         level: trim
         url: https://rstsuspension.com/products/mono-dpu-trunnion/
@@ -97,6 +110,7 @@ nodes:
           damper: [mono_dpu]
           size: ["145x30/35", "165x40/45", "185x50/55", "205x60/65"]
         note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric trunnion sizes.
+        note_de: Leichter Luftdämpfer für aggressive Trail-/AM-Bikes und Rennstrecken; metrische Trunnion-Größen.
       - label: R Standard
         level: trim
         url: https://rstsuspension.com/products/elementor-12676/
@@ -106,6 +120,7 @@ nodes:
           damper: [mono_r]
           size: ["170x30/35", "190x40/45", "210x50/55", "230x60/65"]
         note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric and legacy sizes.
+        note_de: Leichter Luftdämpfer für aggressive Trail-/AM-Bikes und Rennstrecken; metrische und ältere Größen.
       - label: R Trunnion
         level: trim
         url: https://rstsuspension.com/products/elementor-12687/
@@ -115,25 +130,30 @@ nodes:
           damper: [mono_r]
           size: ["145x30/35", "165x40/45", "185x50/55", "205x60/65"]
         note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric trunnion sizes.
+        note_de: Leichter Luftdämpfer für aggressive Trail-/AM-Bikes und Rennstrecken; metrische Trunnion-Größen.
 
   - label: "MEZZO"
     level: model
     category: E-Moto / Freeride
+    category_de: E-Moto / Freeride
     url: https://rstsuspension.com/products/elementor-12887/
-    specs: { spring: Coil }
+    specs: { spring: Coil, spring_de: Stahlfeder }
     children:
       - label: Coil
         level: trim
         draft: true
         adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, type: numerical, min: 0 }
+          - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Preload, name_de: Vorspannung, type: numerical, min: 0 }
         options:
           damper: [mezzo_coil]
           size: ["265x85", "210x55", "190x50"]
         note: |-
           - Coil shock for AM / FR / DH / e-moto use
           - Springs offered at 350, 400, 450, 500 and 550 lb
+        note_de: |-
+          - Stahlfederdämpfer für AM / FR / DH / E-Moto
+          - Federn mit 350, 400, 450, 500 und 550 lb erhältlich
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

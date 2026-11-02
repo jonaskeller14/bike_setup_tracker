@@ -51,11 +51,14 @@ option_values:
       description: |-
         - Externally adjustable high- and low-speed compression plus rebound
         - Work / Party lever swaps between a preset climbing platform and the fully adjustable descending circuit
+      description_de: |-
+        - Extern einstellbare High- und Low-Speed-Druckstufe sowie Zugstufe
+        - Der Work-/Party-Hebel wechselt zwischen einer voreingestellten Klettergrundlage (Plattform) und dem voll einstellbaren Abfahrtskreis
       adjustments:
-        - { name: Platform Mode, type: categorical, options: [Party, Work], notes: "Party = adjustable circuit open; Work = separate preset climbing platform, compression adjusters deactivated" }
-        - { name: HSC, type: step, max: 6, visualization: dial_cw, notes: "High-Speed Compression; Counted from fully open (softest)" }
-        - { name: LSC, type: step, max: 30, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
-        - { name: Rebound, type: step, max: 12, notes: Counted from fully closed (slowest) }
+        - { name: Platform Mode, name_de: Platform-Modus, type: categorical, options: [Party, Work], options_de: [Party, Work], notes: "Party = adjustable circuit open; Work = separate preset climbing platform, compression adjusters deactivated", notes_de: "Party = einstellbarer Kreis offen; Work = separate voreingestellte Klettergrundlage, Druckstufenversteller deaktiviert" }
+        - { name: HSC, name_de: HSC, type: step, max: 6, visualization: dial_cw, notes: "High-Speed Compression; Counted from fully open (softest)", notes_de: High-Speed-Druckstufe; von ganz offen (am weichsten) gezählt }
+        - { name: LSC, name_de: LSC, type: step, max: 30, notes: "Low-Speed Compression; Counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 12, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
       note: >-
@@ -68,10 +71,13 @@ option_values:
       description: |-
         - Same damper as the Mara Pro PB without the Work / Party lever, so the platform can't be engaged by accident
         - Externally adjustable high- and low-speed compression plus rebound
+      description_de: |-
+        - Derselbe Dämpfer wie der Mara Pro PB, jedoch ohne Work-/Party-Hebel, sodass die Plattform nicht versehentlich aktiviert werden kann
+        - Extern einstellbare High- und Low-Speed-Druckstufe sowie Zugstufe
       adjustments:
-        - { name: HSC, type: step, max: 6, visualization: dial_cw, notes: "High-Speed Compression; Counted from fully open (softest)" }
-        - { name: LSC, type: step, max: 30, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
-        - { name: Rebound, type: step, max: 12, notes: Counted from fully closed (slowest) }
+        - { name: HSC, name_de: HSC, type: step, max: 6, visualization: dial_cw, notes: "High-Speed Compression; Counted from fully open (softest)", notes_de: High-Speed-Druckstufe; von ganz offen (am weichsten) gezählt }
+        - { name: LSC, name_de: LSC, type: step, max: 30, notes: "Low-Speed Compression; Counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 12, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
         - https://hayesbicycle.com/products/mara-pro-piggyback-dh
@@ -84,11 +90,14 @@ option_values:
       description: |-
         - Externally adjustable high- and low-speed compression plus rebound
         - Work / Party lever swaps between a preset climbing platform and the fully adjustable descending circuit
+      description_de: |-
+        - Extern einstellbare High- und Low-Speed-Druckstufe sowie Zugstufe
+        - Der Work-/Party-Hebel wechselt zwischen einer voreingestellten Klettergrundlage (Plattform) und dem voll einstellbaren Abfahrtskreis
       adjustments:
-        - { name: Platform Mode, type: categorical, options: [Party, Work], notes: "Party = adjustable circuit open; Work = separate preset climbing platform, compression adjusters deactivated" }
-        - { name: HSC, type: step, max: 6, visualization: dial_cw, notes: "High-Speed Compression; Counted from fully open (softest)" }
-        - { name: LSC, type: step, max: 24, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
-        - { name: Rebound, type: step, max: 12, notes: Counted from fully closed (slowest) }
+        - { name: Platform Mode, name_de: Platform-Modus, type: categorical, options: [Party, Work], options_de: [Party, Work], notes: "Party = adjustable circuit open; Work = separate preset climbing platform, compression adjusters deactivated", notes_de: "Party = einstellbarer Kreis offen; Work = separate voreingestellte Klettergrundlage, Druckstufenversteller deaktiviert" }
+        - { name: HSC, name_de: HSC, type: step, max: 6, visualization: dial_cw, notes: "High-Speed Compression; Counted from fully open (softest)", notes_de: High-Speed-Druckstufe; von ganz offen (am weichsten) gezählt }
+        - { name: LSC, name_de: LSC, type: step, max: 24, notes: "Low-Speed Compression; Counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 12, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
         - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
@@ -103,9 +112,12 @@ option_values:
       description: |-
         - Four-position Incremental Platform Adjust compression lever, from an open descending setting to a firm climbing platform
         - Rebound knob with 17 detented clicks
+      description_de: |-
+        - Vierstufiger Incremental-Platform-Adjust-Druckstufenhebel, von einer offenen Abfahrtseinstellung bis zu einer festen Klettergrundlage (Plattform)
+        - Zugstufenknopf mit 17 Klicks
       adjustments:
-        - { name: IPA Compression, type: categorical, options: [Aggressive Descend, Trail Control, Technical Climb, Aggressive Climb] }
-        - { name: Rebound, type: step, max: 17, notes: "Clockwise adds rebound damping" }
+        - { name: IPA Compression, name_de: IPA-Druckstufe, type: categorical, options: [Aggressive Descend, Trail Control, Technical Climb, Aggressive Climb], options_de: [Aggressive Abfahrt, Trail Control, Technischer Anstieg, Aggressiver Anstieg] }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 17, notes: "Clockwise adds rebound damping", notes_de: Im Uhrzeigersinn erhöht die Zugstufendämpfung }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/25871616439319
         - https://hayesbicycle.com/products/mara-pro-inline
@@ -117,9 +129,13 @@ option_values:
         - Three-position compression lever on an XC-specific shim stack: plush open mode with a very firm lockout
         - Remote-compatible knobs
         - Rebound knob with 17 detented clicks
+      description_de: |-
+        - Drei-Positionen-Druckstufenhebel auf einem XC-spezifischen Shimstack: komfortabler offener Modus mit sehr festem Lockout
+        - Knöpfe mit Fernbedienungsunterstützung
+        - Zugstufenknopf mit 17 Klicks
       adjustments:
-        - { name: IPA Compression, type: categorical, options: [Descend, Trail / Technical Climb, Climb] }
-        - { name: Rebound, type: step, max: 17, notes: "Clockwise adds rebound damping" }
+        - { name: IPA Compression, name_de: IPA-Druckstufe, type: categorical, options: [Descend, Trail / Technical Climb, Climb], options_de: [Abfahrt, Trail / Technischer Anstieg, Climb] }
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 17, notes: "Clockwise adds rebound damping", notes_de: Im Uhrzeigersinn erhöht die Zugstufendämpfung }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/25871600341655
         - https://hayesbicycle.com/products/mara-pro-inline-xc
@@ -130,9 +146,12 @@ option_values:
       description: |-
         - Four-position Incremental Platform Adjust compression lever, from an open descending setting to a firm climbing platform
         - Simplified rebound knob with a smooth, non-detented 360 degrees of adjustment
+      description_de: |-
+        - Vierstufiger Incremental-Platform-Adjust-Druckstufenhebel, von einer offenen Abfahrtseinstellung bis zu einer festen Klettergrundlage (Plattform)
+        - Vereinfachter Zugstufenknopf mit stufenlosen, rastenlosen 360 Grad Verstellbereich
       adjustments:
-        - { name: IPA Compression, type: categorical, options: [Aggressive Descend, Trail Control, Technical Climb, Aggressive Climb] }
-        - { name: Rebound, type: numerical, unit: turns, min: 0, max: 1, notes: "Not detented; 360 degrees (one full turn) of adjustment; clockwise adds rebound damping" }
+        - { name: IPA Compression, name_de: IPA-Druckstufe, type: categorical, options: [Aggressive Descend, Trail Control, Technical Climb, Aggressive Climb], options_de: [Aggressive Abfahrt, Trail Control, Technischer Anstieg, Aggressiver Anstieg] }
+        - { name: Rebound, name_de: Zugstufe, type: numerical, unit: turns, min: 0, max: 1, notes: "Not detented; 360 degrees (one full turn) of adjustment; clockwise adds rebound damping", notes_de: Ohne Rasten; 360 Grad (eine volle Umdrehung) Verstellbereich; im Uhrzeigersinn erhöht die Zugstufendämpfung }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/25871643572375
         - https://hayesbicycle.com/products/mara-comp
@@ -151,20 +170,23 @@ guides:
   # Compliant HSC 1 / LSC 15.
   manitou_mara_pb_2024:
     label: Manitou Mara Pro set-up guide (2024)
+    label_de: Manitou Mara Pro Setup-Anleitung (2024)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
     rules:
-      - { target: rebound, value: 6, note: &mara_170_lb Starting point for a 170 lb (77 kg) rider }
-      - { target: sag, range: [25, 30], comfort_at: max, note: The frame maker's SAG figure comes first where there is one }
+      - { target: rebound, value: 6, note: &mara_170_lb Starting point for a 170 lb (77 kg) rider, note_de: Ausgangspunkt für einen Fahrer mit 170 lb (77 kg) }
+      - { target: sag, range: [25, 30], comfort_at: max, note: The frame maker's SAG figure comes first where there is one, note_de: "Der SAG-Wert des Rahmenherstellers steht zuerst, wenn es einen gibt" }
 
   manitou_mara_il_pro_2024:
     label: Manitou Mara Pro Inline set-up guide (2024)
+    label_de: Manitou Mara Pro Inline Setup-Anleitung (2024)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/25871616439319
     rules:
       - &mara_il_rebound { target: rebound, value: 7, note: *mara_170_lb }
-      - &mara_il_sag { target: sag, range: [20, 30], comfort_at: max, note: The frame maker's SAG figure comes first where there is one }
+      - &mara_il_sag { target: sag, range: [20, 30], comfort_at: max, note: The frame maker's SAG figure comes first where there is one, note_de: "Der SAG-Wert des Rahmenherstellers steht zuerst, wenn es einen gibt" }
 
   manitou_mara_il_pro_xc_2024:
     label: Manitou Mara Pro Inline XC set-up guide (2024)
+    label_de: Manitou Mara Pro Inline XC Setup-Anleitung (2024)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/25871600341655
     rules:
       - *mara_il_rebound
@@ -172,6 +194,7 @@ guides:
 
   manitou_mara_il_comp_2024:
     label: Manitou Mara Inline Comp set-up guide (2024)
+    label_de: Manitou Mara Inline Comp Setup-Anleitung (2024)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/25871643572375
     rules:
       - { target: rebound, value: 0.5, note: *mara_170_lb }
@@ -179,6 +202,7 @@ guides:
 
   manitou_mara_pb_2019:
     label: Manitou Mara Pro set-up guide (2020)
+    label_de: Manitou Mara Pro Setup-Anleitung (2020)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
     rules:
       - { target: rebound, value: 5, note: *mara_170_lb }
@@ -194,9 +218,10 @@ nodes:
   - label: "Mara"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
     tasks:
-      shock:air_can_service: { interval: { moving_time_h: 50 }, source: Manitou maintenance schedule }
-      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Manitou maintenance schedule }
+      shock:air_can_service: { interval: { moving_time_h: 50 }, source: Manitou maintenance schedule, source_de: Manitou-Wartungsplan }
+      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Manitou maintenance schedule, source_de: Manitou-Wartungsplan }
     children:
       # `size`: eye-to-eye x stroke with mount from the Hayes product pages. The
       # stroke-only ids of the earlier data were dropped before rollout.
@@ -205,7 +230,7 @@ nodes:
         id: "2024"
         years: "2024-2026"
         url: https://hayesbicycle.com/collections/shocks
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         children:
           - label: Pro Piggyback
             level: trim
@@ -214,7 +239,7 @@ nodes:
             guide: manitou_mara_pb_2024
             mounts: [Eyelet, Trunnion]
             adjustments: &mara_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: "Raise in 75 psi increments, cycling the shock between steps" }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 350, notes: "Raise in 75 psi increments, cycling the shock between steps", notes_de: In Schritten von 75 psi erhöhen und den Dämpfer zwischen den Schritten einfedern }
             options:
               damper: [mara_pb_g2]
               size:
@@ -228,6 +253,10 @@ nodes:
               - Balance Groove King Can air spring
               - Piggyback reservoir with Work / Party lever
               - 2.5mm travel spacers and air-volume spacers for tuning
+            note_de: |-
+              - Balance-Groove-King-Can-Luftfeder
+              - Piggyback-Ausgleichsbehälter mit Work-/Party-Hebel
+              - 2,5mm-Federwegspacer und Luftvolumenspacer zum Abstimmen
           - label: Pro Piggyback DH
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-piggyback-dh
@@ -243,6 +272,9 @@ nodes:
             note: |-
               - Balance Groove King Can air spring
               - Piggyback reservoir without the Work / Party lever
+            note_de: |-
+              - Balance-Groove-King-Can-Luftfeder
+              - Piggyback-Ausgleichsbehälter ohne Work-/Party-Hebel
           - label: Pro Inline
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-inline
@@ -264,6 +296,10 @@ nodes:
               - Balance Groove King Can air spring
               - SKF flexible internal floating piston
               - Trail-specific tune with a mid-firm technical-climb platform
+            note_de: |-
+              - Balance-Groove-King-Can-Luftfeder
+              - Flexibler interner SKF-Schwimmkolben
+              - Trail-spezifische Abstimmung mit mittelfester Plattform für technische Anstiege
           - label: Pro Inline XC
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-inline-xc
@@ -280,6 +316,10 @@ nodes:
               - Balance Groove Lite Can air spring
               - XC shim stack with a very firm lockout
               - King Can and manual knob available as options
+            note_de: |-
+              - Balance-Groove-Lite-Can-Luftfeder
+              - XC-Shimstack mit sehr festem Lockout
+              - King Can und manueller Knopf optional erhältlich
           - label: Comp Inline
             level: trim
             url: https://hayesbicycle.com/products/mara-comp
@@ -300,24 +340,30 @@ nodes:
             note: |-
               - Balance Groove King Can air spring
               - Simplified architecture with a non-detented rebound knob
+            note_de: |-
+              - Balance-Groove-King-Can-Luftfeder
+              - Vereinfachte Bauweise mit rastenlosem Zugstufenknopf
       - label: "2019–2023"
         level: generation
         id: "2019"
         years: "2019-2023"
         url: https://hayesbicycle.zendesk.com/hc/en-us/articles/360047142633-Mara-Pro-PB-Gen-1-Set-up-Guide
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft }
         children:
           - label: Pro Piggyback
             level: trim
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
             guide: manitou_mara_pb_2019
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 250 }
+              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 250 }
             options:
               damper: [mara_pb_g1]
             note: |-
               - Piggyback air shock with Work / Party lever
               - Externally adjustable high- and low-speed compression
+            note_de: |-
+              - Piggyback-Luftdämpfer mit Work-/Party-Hebel
+              - Extern einstellbare High- und Low-Speed-Druckstufe
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

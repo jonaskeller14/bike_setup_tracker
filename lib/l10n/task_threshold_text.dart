@@ -10,8 +10,9 @@ extension TaskThresholdText on TaskThreshold {
     String distanceUnit = 'km',
     String altitudeUnit = 'm',
     String dateFormat = 'yyyy-MM-dd',
+    String? numberLocale,
   }) {
-    final locale = l10n.localeName;
+    final locale = numberLocale ?? l10n.localeName;
     final grouped = NumberFormat.decimalPattern(locale);
     return switch (this) {
       DistanceThreshold(:final meters) =>
@@ -22,7 +23,7 @@ extension TaskThresholdText on TaskThreshold {
       DurationThreshold(:final days) => '${grouped.format(days.inDays)} ${l10n.taskUnitDays(days.inDays)}',
       ActivityCountThreshold(:final count) => '${grouped.format(count)} ${l10n.taskUnitRides(count)}',
       KilojoulesThreshold(:final kilojoules) => '${grouped.format(kilojoules.round())} kJ',
-      DateTimeThreshold(:final deadline) => DateFormat(dateFormat, locale).format(deadline.toLocal()),
+      DateTimeThreshold(:final deadline) => DateFormat(dateFormat, l10n.localeName).format(deadline.toLocal()),
     };
   }
 }

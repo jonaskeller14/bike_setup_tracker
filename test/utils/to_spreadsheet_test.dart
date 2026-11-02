@@ -125,20 +125,20 @@ void main() {
       expect(csv, contains('"Better"'));
     });
 
-    test('follows the language in headers, labels and numbers', () {
+    test('follows the language in headers and labels but writes numbers with a dot', () {
       final csv = SpreadsheetExport.toCsv(data, settings, german);
 
       expect(csv, contains('"Allgemein"'));
       expect(csv, contains('"Name","Datum/Uhrzeit","Tags","Notizen","Ort","Höhe [m]","Mit Lesezeichen","Bike"'));
       expect(csv, contains('"Luftfeuchtigkeit [%]"'));
       expect(csv, contains('"Ja"'));
-      expect(csv, contains('"2,5"'));
-      expect(csv, contains('"0,25"'));
+      expect(csv, contains('"2.5"'));
+      expect(csv, contains('"0.25"'));
       expect(csv, contains('"Aufgabenprotokoll"'));
       expect(csv, contains('"Komponente: Fork"'));
       expect(csv, contains('"Priorität"'));
-      expect(csv, contains('"2.500,5 km"'));
-      expect(csv, contains('"12,3","0","1,5","3"'));
+      expect(csv, contains('"2,500.5 km"'));
+      expect(csv, contains('"12.3","0","1.5","3"'));
       expect(csv, contains('"Verglichen mit"'));
       expect(csv, contains('"Ergebnis"'));
     });

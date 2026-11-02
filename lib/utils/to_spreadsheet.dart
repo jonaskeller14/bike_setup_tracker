@@ -7,6 +7,7 @@ import '../l10n/enum_labels.dart';
 import '../l10n/feedback_text.dart';
 import '../l10n/l10n.dart';
 import '../l10n/task_threshold_text.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
@@ -90,6 +91,14 @@ class SpreadsheetExport {
 
     return buffer.toString();
   }
+
+  /// Numbers in a CSV use a dot as the decimal separator in every language, so a
+  /// comma only ever separates columns and a script reads the file the same way anywhere.
+  static const _csvNumberLocale = 'en';
+
+  static String _csvValueText(AdjustmentValue value, AppLocalizations l10n) => value is NumericalValue
+      ? formatLocalizedDouble(value.value, locale: _csvNumberLocale)
+      : value.displayText(l10n);
 
   static String _csvCell(String value) => '"${value.replaceAll('"', '""')}"';
 
@@ -329,7 +338,7 @@ class SpreadsheetExport {
       row[columnMap['w_humid']!] = w.currentHumidity?.round().toString() ?? '';
       row[columnMap['w_wind']!] = ContextWeather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round().toString() ?? '';
       final soilMoisture = w.currentSoilMoisture0to7cm;
-      row[columnMap['w_soil']!] = soilMoisture == null ? '' : formatLocalizedDouble(soilMoisture, fractionDigits: 2, locale: l10n.localeName);
+      row[columnMap['w_soil']!] = soilMoisture == null ? '' : formatLocalizedDouble(soilMoisture, fractionDigits: 2, locale: _csvNumberLocale);
       row[columnMap['w_cond']!] = w.condition?.label(l10n) ?? '';
     }
 
@@ -341,7 +350,7 @@ class SpreadsheetExport {
       for (final entry in setup.personAdjustmentValues.entries) {
         final key = 'p_adj_${entry.key}';
         if (columnMap.containsKey(key)) {
-          row[columnMap[key]!] = entry.value.displayText(l10n);
+          row[columnMap[key]!] = _csvValueText(entry.value, l10n);
         }
       }
     }
@@ -349,7 +358,7 @@ class SpreadsheetExport {
     for (final entry in setup.bikeAdjustmentValues.entries) {
       final key = 'comp_${entry.key}';
       if (columnMap.containsKey(key)) {
-        row[columnMap[key]!] = entry.value.displayText(l10n);
+        row[columnMap[key]!] = _csvValueText(entry.value, l10n);
       }
     }
 
@@ -398,9 +407,10 @@ class SpreadsheetExport {
     };
   }
 
-  static String _intervalDisplay(TaskRule? taskRule, AppSettings appSettings, AppLocalizations l10n) {
+  static String _intervalDisplay(TaskRule? taskRule, AppSettings appSettings, AppLocalizations l10n, {String? numberLocale}) {
     return taskRule?.interval?.toDisplayValue(
           l10n,
+          numberLocale: numberLocale,
           distanceUnit: appSettings.distanceUnit,
           altitudeUnit: appSettings.altitudeUnit,
           dateFormat: appSettings.dateFormat,
@@ -517,15 +527,15 @@ class SpreadsheetExport {
 
     if (appSettings.enableTaskPriority) row.add(taskRule?.priority.label(l10n) ?? '');
     if (appSettings.enableTaskTags) row.add(taskRule?.tags.join('; ') ?? '');
-    row.add(_intervalDisplay(taskRule, appSettings, l10n));
+    row.add(_intervalDisplay(taskRule, appSettings, l10n, numberLocale: _csvNumberLocale));
 
     if (appSettings.enableStrava) {
       final snapshot = taskEntry.snapshot;
       if (snapshot != null) {
         row.addAll([
-          formatLocalizedDouble(AppSettings.convertDistanceFromMeters(snapshot.distance, appSettings.distanceUnit) ?? snapshot.distance, fractionDigits: 1, locale: l10n.localeName),
+          formatLocalizedDouble(AppSettings.convertDistanceFromMeters(snapshot.distance, appSettings.distanceUnit) ?? snapshot.distance, fractionDigits: 1, locale: _csvNumberLocale),
           (AppSettings.convertElevationFromMeters(snapshot.elevationGain, appSettings.altitudeUnit) ?? snapshot.elevationGain).round().toString(),
-          formatLocalizedDouble(snapshot.movingTime.inMinutes / 60, fractionDigits: 1, locale: l10n.localeName),
+          formatLocalizedDouble(snapshot.movingTime.inMinutes / 60, fractionDigits: 1, locale: _csvNumberLocale),
           snapshot.activityCount.toString(),
         ]);
       } else {

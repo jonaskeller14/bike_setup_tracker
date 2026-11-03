@@ -262,8 +262,8 @@ python tool/marketing/render_images.py store-screenshots --out build/x --caption
 `store_screenshots.py` renders `docs/store/screenshots.html` once per screen, device (`iphone`,
 `ipad`, `phone`, `tablet`) and locale into the export paths the uploads read (see the
 Screenshot sizes table in `docs/store/README.md`). The locales are the `docs/store/captions/<locale>.md` files present;
-a locale's raws come from `<raw folder>/<locale>/0N_raw.png` when that exists, else from
-`<raw folder>/0N_raw.png`. A caption that had to shrink prints `WARN` (rewrite it); one that needs
+a locale's raws come from `<raw folder>/<locale>/0N_raw.png` when that exists, else from the
+`en-US` ones. `--locale de-DE` renders only that locale's captions. A caption that had to shrink prints `WARN` (rewrite it); one that needs
 more than two lines at the brand minimum fails. Rendering is in software (`--disable-gpu`), so the
 same raws give the same files. It also writes the review page `build/marketing/store-screenshots/sheet.html`
 (old export next to new, dark-surround toggle). The tablet frame `android_tablet.png` is the Play

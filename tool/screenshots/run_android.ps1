@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Regenerates the Play Store raw screenshots (docs/store/play-store/**/0N_raw.png).
+  Regenerates the Play Store raw screenshots (docs/store/play-store/<device>/<locale>/0N_raw.png).
 
 .DESCRIPTION
   Builds the screenshot entry point (lib/main_screenshots.dart), boots each
@@ -14,6 +14,10 @@
 
 .PARAMETER Screens
   Screen numbers to capture, e.g. -Screens 3,7. Default: all flows.
+
+.PARAMETER Locale
+  Store locale to record (default en-US): the app runs in that language and the
+  raws go to <device>/<locale>/.
 
 .PARAMETER SkipBuild
   Reuse the last built APK.
@@ -35,6 +39,8 @@ param(
     [ValidateSet('phone', 'tablet', 'all')]
     [string]$Device = 'all',
     [int[]]$Screens,
+    [ValidatePattern('^[a-z]{2}-[A-Z]{2}$')]
+    [string]$Locale = 'en-US',
     [switch]$SkipBuild,
     [switch]$KeepRunning,
     [switch]$RawOnly,
@@ -156,6 +162,16 @@ function Set-Scenario([string]$serial, [string]$scenario) {
     }
 }
 
+# The app runs in the language of this marker's content (see lib/screenshots/screenshot_seed.dart).
+$localeMarker = 'app_flutter/screenshot_locale'
+function Set-AppLocale([string]$serial, [string]$language) {
+    if ($language) {
+        Invoke-Adb $serial @('shell', 'run-as', $appId, 'sh', '-c', "'mkdir -p app_flutter && printf %s $language > $localeMarker'")
+    } else {
+        Invoke-Adb $serial @('shell', 'run-as', $appId, 'rm', '-f', $localeMarker)
+    }
+}
+
 # Returns the flow's `# scenario: <name>` (see lib/screenshots/demo_scenario.dart), if any.
 function Get-FlowScenario([System.IO.FileInfo]$flow) {
     $match = Select-String -Path $flow.FullName -Pattern '^# scenario: *([a-z_]+)' | Select-Object -First 1
@@ -190,7 +206,8 @@ foreach ($name in $selected) {
         $outDir = Join-Path ([System.IO.Path]::GetTempPath()) "screenshots_$name"
         Remove-Item $outDir -Recurse -Force -ErrorAction SilentlyContinue
         New-Item -ItemType Directory -Path $outDir | Out-Null
-        $targetDir = Join-Path $repoRoot "docs\store\$($config.Folder)"
+        $targetDir = Join-Path $repoRoot "docs\store\$($config.Folder)\$Locale"
+        New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
         if ($Demo) {
             $targetDir = Join-Path $repoRoot 'build\marketing\raw'
             New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
@@ -198,6 +215,7 @@ foreach ($name in $selected) {
         # Cleared first, in case an aborted demo run left the marker behind.
         Set-TouchDots $serial $false
         if ($Demo) { Set-TouchDots $serial $true }
+        Set-AppLocale $serial $Locale.Substring(0, 2)
 
         foreach ($flow in $flows) {
             # The emulator's adb transport can drop briefly (seen right after
@@ -214,6 +232,7 @@ foreach ($name in $selected) {
                         --test-output-dir $outDir `
                         -e "APP_ID=$appId" `
                         -e "DEVICE=$name" `
+                        -e "LOCALE=$Locale" `
                         -e "TILE_WAIT_MS=$TileWaitMs"
                     $ok = $LASTEXITCODE -eq 0
                 } finally { Pop-Location }
@@ -231,7 +250,7 @@ foreach ($name in $selected) {
         $checkedFolders += $config.Folder
     } finally {
         # Best effort: a dropped adb transport here must not abort the next device.
-        & $adb -s $serial shell run-as $appId rm -f $touchMarker $scenarioMarker 2>&1 | Out-Null
+        & $adb -s $serial shell run-as $appId rm -f $touchMarker $scenarioMarker $localeMarker 2>&1 | Out-Null
         & $adb -s $serial shell am broadcast -a com.android.systemui.demo -e command exit 2>&1 | Out-Null
         if (-not $KeepRunning) { & $adb -s $serial emu kill 2>&1 | Out-Null }
     }
@@ -241,11 +260,12 @@ $checkExit = 0
 if ($Demo) {
     Write-Host "Recordings: $(Join-Path $repoRoot 'build\marketing\raw')"
 } else {
-    python (Join-Path $PSScriptRoot 'check_output.py') @checkedFolders
+    python (Join-Path $PSScriptRoot 'check_output.py') --locale $Locale @checkedFolders
     $checkExit = $LASTEXITCODE
     if (-not $RawOnly) {
         $renderArgs = @($selected)
         if ($Screens) { $renderArgs += ($Screens -join ',') }
+        $renderArgs += @('--locale', $Locale)
         python (Join-Path $repoRoot 'tool\marketing\render_images.py') store-screenshots @renderArgs
         if ($LASTEXITCODE -ne 0) { $checkExit = $LASTEXITCODE }
     }

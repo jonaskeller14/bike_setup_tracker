@@ -16,7 +16,7 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `release-steps.md` | Upload commands per release and the remaining manual clicks (submit) |
 | `captions/<locale>.md` | Screenshot captions, shared by both stores |
 | `screenshots.html` | Template of the store screenshots: raw screen in its device frame with the caption; `python tool/marketing/render_images.py store-screenshots [iphone\|ipad\|phone\|tablet] [screens]` renders the exports (also run by the screenshot scripts after a capture). The old Affinity composition (`screenshots.af`) is gone; the LFS history keeps it |
-| `app-store/<device>/`, `play-store/<device>/` | Raws (`0N_raw.png`, from `tool/screenshots/`) and the device `frame.png` |
+| `app-store/<device>/<locale>/`, `play-store/<device>/<locale>/` | Raws (`0N_raw.png`, from `tool/screenshots/`); the device `frame.png` sits one level up. Only `en-US` is tracked in git (see Locales) |
 | `app-store/screenshots/en-US/` | Rendered App Store screenshots (`iphone_NN.png` 1206×2622, `ipad_NN.png` 2064×2752), uploaded by `ios.sh screenshots` |
 | `app-store/app_previews/en-US/iphone_61/` | App previews (`preview_N.mp4`), uploaded by `ios.sh screenshots` |
 | `play-store/metadata/<locale>/images/` | Play graphics: `icon.png`, `featureGraphic.png`; export target for `phoneScreenshots/` and `tenInchScreenshots/` |
@@ -24,9 +24,11 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 
 Previews and screenshots upload in filename order (`preview_1`, `iphone_01`, `iphone_02`, ...), so renaming a file changes the order.
 
-Locales: `en-US` (primary) and `de-DE` (listing text only). The app UI is available in German, but the
-screenshots stay English until the per-locale layout lands
-([#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18) Phase 15b, #69).
+Locales: `en-US` (primary) and `de-DE`. The app UI is available in German, so `de-DE` has its own captions
+(`captions/de-DE.md`) and raws recorded with `--locale de-DE` (`tool/screenshots/README.md`). To save Git LFS
+space only the `en-US` screenshots (raws and exports) are tracked; the other locales' raws and rendered
+screenshots are gitignored and live on the machine that recorded them, so record before rendering and
+uploading a non-English set. A locale without raws of its own renders over the `en-US` ones.
 
 ## Field rules
 
@@ -57,12 +59,12 @@ screenshots stay English until the per-locale layout lands
 
 ## Screenshot sizes
 
-| Folder | Raw `0N_raw.png` | Export |
+| Folder | Raw `<locale>/0N_raw.png` | Export |
 |---|---|---|
-| `app-store/iPhone-17-Pro-Max` | 1320×2868 | `screenshots/en-US/iphone_NN.png`, 1206×2622 |
-| `app-store/iPad-Pro-13-inch_M5` | 2064×2752 | `screenshots/en-US/ipad_NN.png`, 2064×2752 |
-| `play-store/phone` | 1080×2400 | `metadata/en-US/images/phoneScreenshots/NN.png`, 1080×1920 |
-| `play-store/tablet_10-inch` | 1200×1920 | `metadata/en-US/images/tenInchScreenshots/NN.png`, 1800×2650 |
+| `app-store/iPhone-17-Pro-Max` | 1320×2868 | `screenshots/<locale>/iphone_NN.png`, 1206×2622 |
+| `app-store/iPad-Pro-13-inch_M5` | 2064×2752 | `screenshots/<locale>/ipad_NN.png`, 2064×2752 |
+| `play-store/phone` | 1080×2400 | `metadata/<locale>/images/phoneScreenshots/NN.png`, 1080×1920 |
+| `play-store/tablet_10-inch` | 1200×1920 | `metadata/<locale>/images/tenInchScreenshots/NN.png`, 1800×2650 |
 
 The iPhone exports (`iphone_NN.png`) are 1206×2622, the only size (besides 1179×2556) App Store Connect accepts in the
 6.1″/6.3″ slot. One set serves the default page and all custom product pages. The optional 6.5″

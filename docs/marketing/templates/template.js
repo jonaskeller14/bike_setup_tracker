@@ -95,10 +95,10 @@ const LIFT_SCALE = 1.6;
 
   const device = params.get('device') || document.body.dataset.device;
   const devices = {
-    iphone: { shotDir: 'docs/store/app-store/iPhone-17-Pro-Max/', frame: 'docs/store/app-store/iPhone-17-Pro-Max/frame.png' },
-    android: { shotDir: 'docs/store/play-store/phone/', frame: 'tool/marketing/assets/frames/android.png' },
-    ipad: { shotDir: 'docs/store/app-store/iPad-Pro-13-inch_M5/', frame: 'docs/store/app-store/iPad-Pro-13-inch_M5/frame.png' },
-    'android-tablet': { shotDir: 'docs/store/play-store/tablet_10-inch/', frame: 'tool/marketing/assets/frames/android_tablet.png' },
+    iphone: { shotDir: 'docs/store/app-store/iPhone-17-Pro-Max/en-US/', frame: 'docs/store/app-store/iPhone-17-Pro-Max/frame.png' },
+    android: { shotDir: 'docs/store/play-store/phone/en-US/', frame: 'tool/marketing/assets/frames/android.png' },
+    ipad: { shotDir: 'docs/store/app-store/iPad-Pro-13-inch_M5/en-US/', frame: 'docs/store/app-store/iPad-Pro-13-inch_M5/frame.png' },
+    'android-tablet': { shotDir: 'docs/store/play-store/tablet_10-inch/en-US/', frame: 'tool/marketing/assets/frames/android_tablet.png' },
   };
   document.body.dataset.device = devices[device] ? device : 'iphone';
   const { shotDir, frame } = devices[document.body.dataset.device];

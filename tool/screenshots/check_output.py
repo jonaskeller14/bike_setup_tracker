@@ -1,8 +1,9 @@
 """Checks store raw screenshots and lists which ones changed versus git HEAD.
 
-Usage: python tool/screenshots/check_output.py [folder ...]
+Usage: python tool/screenshots/check_output.py [--locale en-US] [folder ...]
 
-Folders are keys of EXPECTED_SIZES (e.g. play-store/phone); default is all.
+Folders are keys of EXPECTED_SIZES (e.g. play-store/phone); default is all. The raws of a
+locale sit in <folder>/<locale>/ and its exports in the locale's export folders.
 Folders in FRAMED_EXPORTS also have their rendered store screenshots checked
 (tool/marketing/render_images.py store-screenshots writes them).
 Exits 1 if any raw or checked export is missing or has an unexpected size.
@@ -30,10 +31,10 @@ EXPECTED_SIZES = {
 # rendered from it. App Store Connect's 6.1"/6.3" iPhone slot only accepts
 # 1179x2556 and 1206x2622.
 FRAMED_EXPORTS = {
-    "app-store/iPhone-17-Pro-Max": ("app-store/screenshots/en-US", "iphone_{:02d}.png", (1206, 2622)),
-    "app-store/iPad-Pro-13-inch_M5": ("app-store/screenshots/en-US", "ipad_{:02d}.png", (2064, 2752)),
-    "play-store/phone": ("play-store/metadata/en-US/images/phoneScreenshots", "{:02d}.png", (1080, 1920)),
-    "play-store/tablet_10-inch": ("play-store/metadata/en-US/images/tenInchScreenshots", "{:02d}.png", (1800, 2650)),
+    "app-store/iPhone-17-Pro-Max": ("app-store/screenshots/{locale}", "iphone_{:02d}.png", (1206, 2622)),
+    "app-store/iPad-Pro-13-inch_M5": ("app-store/screenshots/{locale}", "ipad_{:02d}.png", (2064, 2752)),
+    "play-store/phone": ("play-store/metadata/{locale}/images/phoneScreenshots", "{:02d}.png", (1080, 1920)),
+    "play-store/tablet_10-inch": ("play-store/metadata/{locale}/images/tenInchScreenshots", "{:02d}.png", (1800, 2650)),
 }
 
 
@@ -47,8 +48,8 @@ def png_size(path):
     return struct.unpack(">II", header[16:24])
 
 
-def changed_raws(folders):
-    paths = [str((STORE_DIR / folder).relative_to(REPO_ROOT)) for folder in folders]
+def changed_raws(folders, locale):
+    paths = [str((STORE_DIR / folder / locale).relative_to(REPO_ROOT)) for folder in folders]
     result = subprocess.run(
         ["git", "status", "--porcelain", "--", *paths],
         cwd=REPO_ROOT,
@@ -60,6 +61,9 @@ def changed_raws(folders):
 
 
 def main(argv):
+    locale = "en-US"
+    if argv[:1] == ["--locale"]:
+        locale, argv = argv[1], argv[2:]
     folders = argv or list(EXPECTED_SIZES)
     unknown = [folder for folder in folders if folder not in EXPECTED_SIZES]
     if unknown:
@@ -68,9 +72,10 @@ def main(argv):
 
     problems = []
     for folder in folders:
-        checks = [(folder, "{:02d}_raw.png", EXPECTED_SIZES[folder])]
+        checks = [(f"{folder}/{locale}", "{:02d}_raw.png", EXPECTED_SIZES[folder])]
         if folder in FRAMED_EXPORTS:
-            checks.append(FRAMED_EXPORTS[folder])
+            export_folder, name_format, expected = FRAMED_EXPORTS[folder]
+            checks.append((export_folder.format(locale=locale), name_format, expected))
         for check_folder, name_format, expected in checks:
             for index in range(1, SCREEN_COUNT + 1):
                 name = name_format.format(index)
@@ -89,7 +94,7 @@ def main(argv):
                         f"expected {expected[0]}x{expected[1]}"
                     )
 
-    changed = changed_raws(folders)
+    changed = changed_raws(folders, locale)
     print(f"Changed raws vs HEAD ({len(changed)}):")
     for path in changed:
         print(f"  {path}")

@@ -156,6 +156,21 @@ void main() {
       loaded.dispose();
     });
 
+    test('follows the device language unless a locale code is given', () async {
+      await ScreenshotSeed.resetPreferences(hintService);
+      final system = AppSettings();
+      await system.loadAppSettings();
+
+      await ScreenshotSeed.resetPreferences(hintService, localeCode: 'de');
+      final german = AppSettings();
+      await german.loadAppSettings();
+
+      expect(system.localeCode, isNull);
+      expect(german.localeCode, 'de');
+      system.dispose();
+      german.dispose();
+    });
+
     test('dismisses every hint', () async {
       await ScreenshotSeed.resetPreferences(hintService);
 

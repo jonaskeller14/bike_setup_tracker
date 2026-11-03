@@ -37,16 +37,20 @@ void main() async {
     appSettings: appSettings,
   );
 
-  // The run scripts write the flow's `# scenario:` name here, and
-  // `run_ios.sh --preview` drops the touch marker for recordings; screenshots
-  // stay dot-free. Files, because Dart can't read environment variables on iOS.
+  // The run scripts write the flow's `# scenario:` name and the store locale's
+  // language here, and `run_ios.sh --preview` drops the touch marker for
+  // recordings; screenshots stay dot-free. Files, because Dart can't read
+  // environment variables on iOS.
   final documents = await getApplicationDocumentsDirectory();
   final scenarioMarker = File('${documents.path}/${DemoScenario.markerFile}');
   final scenario = scenarioMarker.existsSync()
       ? DemoScenario.fromId(scenarioMarker.readAsStringSync().trim())
       : DemoScenario.full;
 
-  await ScreenshotSeed.resetPreferences(appHintService, scenario: scenario);
+  final localeMarker = File('${documents.path}/${ScreenshotSeed.localeMarkerFile}');
+  final localeCode = localeMarker.existsSync() ? localeMarker.readAsStringSync().trim() : null;
+
+  await ScreenshotSeed.resetPreferences(appHintService, scenario: scenario, localeCode: localeCode);
   await ScreenshotSeed.seedDatabase(appRepository, today: DateTime.now(), scenario: scenario);
 
   final app = LoadingGate(

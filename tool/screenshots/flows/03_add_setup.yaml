@@ -20,9 +20,10 @@ appId: ${APP_ID}
     id: setupForm.name
 - eraseText: 80
 - inputText: Finale Ligure - NATO Trail
+- runScript: scripts/locale_texts.js
 - tapOn:
     id: setupForm.notes
-- inputText: Loose over hard. Slowed rebound and firmed up for the long descents.
+- inputText: ${output.setupNotes}
 - runFlow: _hide_keyboard_android.yaml
 
 # Lyrik pressure (numerical field)

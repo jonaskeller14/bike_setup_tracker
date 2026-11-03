@@ -77,6 +77,23 @@ tool/marketing/assets/voice/**/*.mp3
 docs/store/app-store/custom-product-pages/*/*/screenshots/
 docs/store/app-store/custom-product-pages/*/*/app_previews/
 
+# Store screenshots: only en-US is tracked (Git LFS disk space). Other locales' raws and
+# renders stay on the machine that recorded them; the captions in docs/store/captions/ are tracked.
+docs/store/app-store/iPhone-17-Pro-Max/*/
+docs/store/app-store/iPad-Pro-13-inch_M5/*/
+docs/store/play-store/phone/*/
+docs/store/play-store/tablet_10-inch/*/
+docs/store/app-store/screenshots/*/
+docs/store/play-store/metadata/*/images/phoneScreenshots/
+docs/store/play-store/metadata/*/images/tenInchScreenshots/
+!docs/store/app-store/iPhone-17-Pro-Max/en-US/
+!docs/store/app-store/iPad-Pro-13-inch_M5/en-US/
+!docs/store/play-store/phone/en-US/
+!docs/store/play-store/tablet_10-inch/en-US/
+!docs/store/app-store/screenshots/en-US/
+!docs/store/play-store/metadata/en-US/images/phoneScreenshots/
+!docs/store/play-store/metadata/en-US/images/tenInchScreenshots/
+
 # Affinity lock files while a document is open
 *.af~lock~
 

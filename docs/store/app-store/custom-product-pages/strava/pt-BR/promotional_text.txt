@@ -1,0 +1,1 @@
+Vincule cada setup à pedalada do Strava que você realmente fez. Setups e pedaladas em um só mapa, distância por componente.

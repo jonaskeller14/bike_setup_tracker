@@ -1,0 +1,1 @@
+Vincula cada setup a la salida de Strava que realmente rodaste. Setups y salidas en un solo mapa, distancia por componente.

@@ -24,8 +24,11 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 
 Previews and screenshots upload in filename order (`preview_1`, `iphone_01`, `iphone_02`, ...), so renaming a file changes the order.
 
-Locales: `en-US` (primary) and `de-DE`. The app UI is available in German, so `de-DE` has its own captions
-(`captions/de-DE.md`) and raws recorded with `--locale de-DE` (`tool/screenshots/README.md`). To save Git LFS
+Locales: `en-US` (primary), `de-DE`, `fr-FR`, `it`, `es-ES` and `pt-BR`, the app's UI languages. The folder names
+are the App Store codes, so Italian is `it` there and `it-IT` in `play-store/metadata/`; `ios.sh` maps it
+(`play_locale`). Listing text exists for all six. Only `de-DE` has its own captions (`captions/de-DE.md`) and raws
+recorded with `--locale de-DE` (`tool/screenshots/README.md`); the other languages' captions, raws, creatives
+and feature graphics are still to do. To save Git LFS
 space only the `en-US` screenshots (raws and exports) are tracked; the other locales' raws and rendered
 screenshots are gitignored and live on the machine that recorded them, so record before rendering and
 uploading a non-English set. A locale without raws of its own renders over the `en-US` ones.
@@ -53,6 +56,10 @@ uploading a non-English set. A locale without raws of its own renders over the `
   No "free", "best" or "#1" in the title.
 - **Keep the EULA link at the end of the App Store description.** App Review guideline 3.1.2(c)
   requires a Terms of Use link in the metadata of apps with auto-renewable subscriptions (Strava Sync).
+- **fr/it/es/pt listings are LLM drafts** (no native review, like the UI, [#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)).
+  Their keywords are educated guesses, not search data; revisit them with real search terms per market.
+  Address: French "vous", Italian "tu", Spanish "tú", Portuguese "você"; component names stay English
+  because the catalog text is not translated yet.
 - **Only features that are live in release builds.** Debug-only features in
   `lib/pages/settings/features_page.dart` stay out of the copy until they ship.
 - **Subtitle and keyword changes ship with an app version.** Watch the two weeks after the release.

@@ -28,6 +28,18 @@ Between releases: `tool/store/ios.sh promo` (promotional text, no version needed
 2. [ ] **Play Console** → **Testen und veröffentlichen** → **Produktion** → open the draft →
    **Release prüfen** → **Zur Überprüfung senden**.
 
+## New listing languages
+
+A locale added to `LOCALES` in `tool/store/ios.sh` needs, before the first upload:
+
+- **App Store Connect:** every custom product page needs the locale added first, because
+  `ios.sh page-metadata` stops on a page without it. Run `ios.sh metadata --dry-run` before the first real
+  upload to see whether `migrate import` creates the version localizations itself (not yet verified). The header and search-results images are skipped until `creative/<header|search>_<locale>.png` exists.
+- **Release notes:** the next `/releaseversion` writes `changelogs/<versionCode>.txt` for every locale; both
+  `ios.sh release` and the Play `release` lane abort if one is missing.
+- **Play Console:** add the languages to the store listing (Manage translations) before `android metadata`,
+  and run it with `dry_run:true` first (not yet verified).
+
 ## Guards
 
 - Release commands abort if the IPA/AAB version differs from `pubspec.yaml` (stale `build/` folder)

@@ -1,0 +1,1 @@
+mtb,garfo,amortecedor,regulagem,retorno,manutenção,bike,enduro,downhill,gravel,ebike,sag,psi,estrada

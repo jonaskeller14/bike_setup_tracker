@@ -107,12 +107,15 @@ create a GitHub release until the applicable confirmation gate has been approved
   Keep each language's complete release-note text at **500 characters or fewer**, including
   bullets, punctuation, and line breaks. Report the character count beside each generated language
   block.
-- **Languages:** write every block in **English (en-US)** and **German (de-DE)**, matching the
-  two store locales in `docs/store/*/metadata/`. The German text is a natural rewrite, not a
-  literal translation: informal "du" form like the German listings, proper umlauts, and German
-  ride/bike vocabulary (Fahrwerk, Federgabel, Dämpfer, Reifendruck, Wartung). The UI is English
-  until #18, so keep names of screens and buttons as they appear in the app. German runs longer
-  than English — re-count it and trim until it fits 500 characters.
+- **Languages:** write every block in **English (en-US)**, **German (de-DE)**, **French
+  (fr-FR)**, **Italian (it-IT)**, **Spanish (es-ES)** and **Brazilian Portuguese (pt-BR)**,
+  matching the store locales in `docs/store/play-store/metadata/` (the App Store reads the same
+  files; its Italian locale is `it`). Each text is a natural rewrite, not a literal translation,
+  in the address of the listings: German "du", French "vous", Italian "tu", Spanish "tú",
+  Portuguese "você", with the app's own riding vocabulary (see the term tables in `CONTEXT.md`).
+  The German text uses Fahrwerk, Federgabel, Dämpfer, Reifendruck, Wartung. Name screens and
+  buttons as the app shows them in that language. German, French and Portuguese run longer than
+  English — re-count each and trim until it fits 500 characters.
 - Only bullet features that are actually shipped/default-on per the step 4 flag check — never
   translate a gated/prototype bullet into user-facing store copy.
 - **One text for both stores.** The same file feeds App Store Connect and Play, so there is no
@@ -122,16 +125,15 @@ create a GitHub release until the applicable confirmation gate has been approved
   bullets out of the store text (a store must never mention the other platform's features) and
   tell the user which bullets were left out, so they can go into the GitHub release notes.
 - If the release has no platform-specific changes, nothing extra is needed. Print one code block
-  per language (**English** and **German**, 2 in total), each labeled with its locale and
+  per language (all six locales), each labeled with its locale and
   character count.
 - **Write the file and get manual approval (gate).** Print the blocks as described above, then use
-  `AskUserQuestion` to ask whether the English and German release notes are approved as printed
+  `AskUserQuestion` to ask whether the release notes in all six languages are approved as printed
   (options: approve / needs changes). If changes are needed, revise, re-count the characters,
   re-print, and ask again. Do not continue until they are approved. Proofread the German text for
-  typos and umlauts before asking, since the step 2 review ran before it existed.
-- Only after approval, create `docs/store/play-store/metadata/en-US/changelogs/B.txt` and
-  `docs/store/play-store/metadata/de-DE/changelogs/B.txt` (`B` = the new build number) with the
-  approved text: plain text, bullets as written, no heading and no code fence. Both files are part
+  typos and umlauts, and the French, Italian, Spanish and Portuguese text for accents, before asking, since the step 2 review ran before it existed.
+- Only after approval, create `docs/store/play-store/metadata/<locale>/changelogs/B.txt` for each
+  of the six locales (`B` = the new build number) with the approved text: plain text, bullets as written, no heading and no code fence. Both files are part
   of the release commit (step 7). `tool/store/ios.sh` and `bundle exec fastlane android release`
   read them as the "What's New" text of both stores.
 
@@ -208,7 +210,7 @@ create a GitHub release until the applicable confirmation gate has been approved
 - The step 2 typo review is a hard gate: if it finds anything, abort before editing/committing/tagging
   and surface the findings — do not silently fix typos and continue.
 - The release commit must contain ONLY `pubspec.yaml`, `lib/utils/app_info.dart`,
-  the two `docs/store/play-store/metadata/{en-US,de-DE}/changelogs/B.txt` files (and
+  the six `docs/store/play-store/metadata/<locale>/changelogs/B.txt` files (and
   `lib/models/app_hint.dart` if a hint was added).
 - Release tags must be lightweight and message-free; GitHub release notes are their only
   human-readable release description.

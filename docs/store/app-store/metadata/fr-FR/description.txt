@@ -1,0 +1,54 @@
+Fini les approximations. Place au suivi.
+
+Vos clics de suspension, vos pressions de pneus et vos réglages de géométrie sont éparpillés dans une appli de notes ? Impossible de vous rappeler quel setup était parfait ce jour de pluie au bike park, la saison dernière ?
+
+Bike Setup Tracker est le carnet de bord numérique des cyclistes, mécaniciens et compétiteurs qui veulent tirer le maximum de leur matériel. Que vous fassiez de la descente, de l’enduro ou de la route, l’appli met de la méthode dans les réglages de votre vélo.
+
+L’appli existe en allemand, anglais, français, italien, espagnol et portugais, et suit la langue de votre appareil.
+
+
+VOTRE GARAGE
+Ajoutez autant de vélos que vous voulez à votre garage virtuel. Gravel, vélo de descente ou XC : tout est rangé au même endroit. Déplacez des composants d’un vélo à l’autre sans perdre leur historique.
+
+COMPOSANTS ENTIÈREMENT PERSONNALISABLES
+Deux vélos ne se ressemblent jamais. Créez vos propres composants avec exactement les réglages que vous voulez suivre.
+- Suspension : pression d’air (PSI), détente (rebound), compression (HSC/LSC), spacers de volume (Tokens) et SAG de la fourche et de l’amortisseur.
+- Pneus : pressions (PSI/bar) et gommes.
+- Cockpit : hauteur de selle, rotation du guidon et angle des leviers.
+- Cadre : positions de flip-chip et réglages de géométrie.
+- Saisies flexibles : curseurs, interrupteurs, listes ou champs numériques, comme les vraies molettes de réglage de votre vélo.
+
+MÉTÉO ET LIEU AUTOMATIQUES
+Le contexte change tout. À la création d’un setup, l’appli récupère automatiquement la météo, la température et le lieu.
+- Le sentier était-il sec et poussiéreux ?
+- Était-ce une manche de course sous la pluie et dans la boue ?
+- Vous pouvez enfin relier vos réglages aux conditions réelles du terrain.
+
+HISTORIQUE DES SETUPS
+Ne perdez plus jamais un bon setup. L’historique montre précisément ce que vous avez changé et quand, par exemple « Rebound 9 → 10 ». Des graphiques montrent l’évolution de chaque réglage pour comparer votre setup actuel aux précédents (par ex. « Week-end à Finale Ligure » vs « Sorties du coin »).
+
+ENTRETIEN ET TÂCHES
+Créez des tâches d’entretien et des rappels, puis cochez-les au fur et à mesure : plus jamais de révision de fourche ou de changement de chaîne oublié.
+
+CALENDRIER
+Sorties, setups, montages de composants et tâches d’entretien sur une seule frise chronologique.
+
+STRAVA SYNC (OPTION)
+Vos sorties reliées automatiquement ? Connectez Strava : chaque setup est associé à l’activité que vous avez réellement roulée, selon la date et le vélo. Affichez setups et sorties ensemble sur la carte. La distance et le temps de roulage sont suivis par composant, et les tâches peuvent arriver à échéance selon les kilomètres parcourus. C’est le seul extra payant (facultatif), tout le reste est entièrement gratuit.
+
+VOS DONNÉES VOUS APPARTIENNENT
+Vos réglages sont enregistrés en local. Pas de compte, pas de pub, et nous n’avons aucun accès à vos données.
+- Gratuit pour toujours : l’appli de base reste gratuite, vous gardez donc toujours accès à l’historique de vos setups.
+- Portabilité totale : exportez vos données vers Excel, CSV ou JSON à tout moment, vous n’êtes jamais enfermé.
+
+
+À QUI S’ADRESSE L’APPLI ?
+- Vététistes (VTT) : trouvez le point idéal de suspensions complexes.
+- Cyclistes route et gravel : un suivi précis de la pression des pneus et des réglages de position.
+- Compétiteurs et mécaniciens : un carnet de bord professionnel pour les réglages de course et les réglages de base.
+
+
+Rangez le carnet. Téléchargez Bike Setup Tracker et réglez votre vélo avec précision.
+
+---
+Conditions d’utilisation (EULA): https://jonaskeller14.com/bike_setup_tracker/eula.html

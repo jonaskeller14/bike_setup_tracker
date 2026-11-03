@@ -4,7 +4,7 @@ Hast du deine Fahrwerks-Klicks, Reifendrücke und Geometrie-Einstellungen in ein
 
 Bike Setup Tracker ist das digitale Logbuch für das Fahrwerk deines Mountainbikes, deinen Reifendruck und die Wartung deiner Bikes – gemacht für Radfahrer, Mechaniker und Racer, die das Beste aus ihrem Material herausholen wollen. Ob Downhill-Racer, Enduro-Fan oder Rennradfahrer – diese App bringt professionelle Struktur in deine Bike-Einstellungen.
 
-Die App gibt es auf Deutsch und Englisch und folgt der Sprache deines Geräts.
+Die App gibt es auf Deutsch, Englisch, Französisch, Italienisch, Spanisch und Portugiesisch und folgt der Sprache deines Geräts.
 
 Die wichtigsten Funktionen:
 

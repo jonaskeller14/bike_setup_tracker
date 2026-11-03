@@ -169,4 +169,54 @@ Draft columns for wave 1 of issue #18 (Phase 17). The translation is written aga
 | Trash | Corbeille | Cestino | Papelera | Lixeira | |
 | Backup | Sauvegarde | Backup (EN) | Copia de seguridad | Backup (EN) | |
 
-The form of address (French tu or vous, Italian tu or Lei, Spanish tú or usted, Portuguese você) is agreed with the reviewer of each language before the first string is written, then applied everywhere, like **du** in German.
+Address, decided for the LLM draft (no native review yet, so a reviewer may still change it): **French vous**, **Italian tu**, **Spanish tú**, **Portuguese você** (spoken as a plain imperative where the UI allows it). German **du** is the reference for the tone: friendly, short, a rider talking to a rider. Texts are rephrased where the literal word order reads stiff; the meaning and every placeholder stay.
+
+Further terms for wave 1, mirroring the German table. The app's own *Settings* is a different word from *Adjustment* wherever the language has one.
+
+| English | French | Italian | Spanish | Portuguese (BR) |
+|---|---|---|---|---|
+| Settings / Preferences / Features | Paramètres / Préférences / Fonctionnalités | Impostazioni / Preferenze / Funzioni | Configuración / Preferencias / Funciones | Configurações / Preferências / Recursos |
+| Adjustment (numerical / step / categorical / on-off / text) | Réglage (numérique / par paliers / catégoriel / on-off / texte) | Regolazione (numerica / a scatti / a categorie / on/off / di testo) | Ajuste (numérico / por pasos / por categorías / sí-no / de texto) | Regulagem (numérica / por passos / por categorias / liga-desliga / de texto) |
+| Riding weight | Poids du pilote | Peso del rider | Peso del rider | Peso do rider |
+| Task rule / Task entry | Règle de tâche / Entrée de tâche | Regola dell'intervento / Registro dell'intervento | Regla de tarea / Registro de tarea | Regra de tarefa / Registro de tarefa |
+| Setup history | Historique des setups | Cronologia dei setup | Historial de setups | Histórico de setups |
+| Installation timeline | Historique de montage | Cronologia di montaggio | Historial de montaje | Histórico de montagem |
+| Installed on / Not installed / Archived | Monté sur / Non monté / Archivé | Montato su / Non montato / Archiviato | Montado en / Sin montar / Archivado | Montado em / Não montado / Arquivado |
+| Install / Uninstall | Monter / Démonter | Montare / Smontare | Montar / Desmontar | Montar / Desmontar |
+| Replace | Remplacer | Sostituire | Reemplazar | Substituir |
+| Subcomponent | Sous-composant | Sottocomponente | Subcomponente | Subcomponente |
+| Attachments | Pièces jointes | Allegati | Adjuntos | Anexos |
+| Initial stats | Valeurs initiales | Valori iniziali | Valores iniciales | Valores iniciais |
+| Distance / Elevation gain / Moving time / Elapsed time | Distance / Dénivelé positif / Temps de déplacement / Temps écoulé | Distanza / Dislivello / Tempo in movimento / Tempo trascorso | Distancia / Desnivel positivo / Tiempo en movimiento / Tiempo transcurrido | Distância / Ganho de elevação / Tempo em movimento / Tempo decorrido |
+| Strava Gear | Équipement Strava | Attrezzatura Strava | Equipo de Strava | Equipamento do Strava |
+| Line / Radial chart | Graphique linéaire / en toile | Grafico a linee / radar | Gráfico de líneas / radar | Gráfico de linhas / radar |
+| Test session | Session de test | Sessione di test | Sesión de pruebas | Sessão de teste |
+| Run (of a test session) | Run (EN) | Run (EN) | Run (EN) | Run (EN) |
+| Template / Preset | Modèle | Modello | Plantilla | Modelo |
+| Riding style | Style de pilotage | Stile di guida | Estilo de pilotaje | Estilo de pilotagem |
+| Inseam | Entrejambe | Lunghezza interna gamba | Entrepierna | Entrepernas |
+| Context (place, weather) | Contexte | Contesto | Contexto | Contexto |
+| Step size / Dial / Visualization | Pas / Cadran / Affichage | Passo / Manopola / Visualizzazione | Paso / Dial / Visualización | Passo / Seletor / Visualização |
+| Trail condition | État du sentier | Condizioni del sentiero | Estado del sendero | Condição da trilha |
+| Task trigger / Interval / Delay | Déclencheur / Intervalle / Report | Condizione / Intervallo / Posticipo | Disparador / Intervalo / Aplazamiento | Gatilho / Intervalo / Adiamento |
+| Ride (unit of a count trigger) | Sortie | Uscita | Salida | Pedalada |
+| Link (to a bike or component) | Associer / Associé à | Collegare / Collegato a | Vincular / Vinculado a | Vincular / Vinculado a |
+| Recommended tasks | Tâches recommandées | Interventi consigliati | Tareas recomendadas | Tarefas recomendadas |
+| Due now / Upcoming / Completed | À faire maintenant / À venir / Terminées | Da fare ora / In arrivo / Completati | Pendientes ahora / Próximas / Completadas | Pendentes agora / Próximas / Concluídas |
+| Remaining / Exceeded | restant / dépassé | rimanenti / superato | restantes / excedido | restantes / excedido |
+| Feedback | Feedback (EN) | Feedback (EN) | Feedback (EN) | Feedback (EN) |
+| Issue (flagged problem) | Problème | Problema | Problema | Problema |
+| Front / Rear | Avant / Arrière | Anteriore / Posteriore | Delantero / Trasero | Dianteiro / Traseiro |
+| Grip / Comfort / Support / Calm / Bottoming | Adhérence / Confort / Soutien / Calme / Talonnage | Grip / Comfort / Sostegno / Calma / Fondocorsa | Agarre / Comodidad / Soporte / Calma / Topes | Aderência / Conforto / Apoio / Calma / Fim de curso |
+| Reference setup | Setup de référence | Setup di riferimento | Setup de referencia | Setup de referência |
+| Fine-tune / Explore / Compare / Free | Affiner / Explorer / Comparer / Libre | Rifinire / Esplorare / Confrontare / Libero | Afinar / Explorar / Comparar / Libre | Refinar / Explorar / Comparar / Livre |
+| Dialled in | Parfaitement réglé | Messo a punto | Perfectamente ajustado | Perfeitamente ajustado |
+| Subscription / Trial | Abonnement / Essai | Abbonamento / Prova | Suscripción / Prueba | Assinatura / Teste |
+| Sync | Synchronisation | Sincronizzazione | Sincronización | Sincronização |
+| Overwrite / Merge / Replace (import) | Écraser / Fusionner / Remplacer | Sovrascrivi / Unisci / Sostituisci | Sobrescribir / Combinar / Reemplazar | Sobrescrever / Mesclar / Substituir |
+| Tip (jar) | Pourboire | Mancia | Propina | Gorjeta |
+| Athlete (Strava) | Athlète | Atleta | Atleta | Atleta |
+| Travel / Stroke / Eye-to-eye | Débattement / Course / Entraxe | Escursione / Corsa / Interasse | Recorrido / Carrera / Distancia entre ojos | Curso / Curso do amortecedor / Distância entre olhais |
+| Lockout, High-Speed / Low-Speed, HSC / LSC / HSR / LSR | stay English | stay English | stay English | stay English |
+
+`View on Strava` and `Powered by Strava` stay English in every language.

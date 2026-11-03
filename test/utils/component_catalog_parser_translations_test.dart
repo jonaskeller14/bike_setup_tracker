@@ -166,7 +166,7 @@ void main() {
     }
 
     test('an unknown language suffix', () {
-      expectRejected(_fixed('category: Trail\n', 'category: Trail\n    category_fr: Trail\n'), 'unknown language "fr"');
+      expectRejected(_fixed('category: Trail\n', 'category: Trail\n    category_xx: Trail\n'), 'unknown language "xx"');
     });
 
     test('English is no suffix', () {

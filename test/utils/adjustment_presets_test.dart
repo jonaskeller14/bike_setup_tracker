@@ -124,7 +124,7 @@ void main() {
       final rebound = componentAdjustmentPresetsFor(
         englishL10n,
       )[ComponentType.fork]!.firstWhere((p) => p.presetKey == 'fork:rebound');
-      expect(adjustmentPresetNameVariants(rebound), {'rebound', 'zugstufe'});
+      expect(adjustmentPresetNameVariants(rebound), {'rebound', 'zugstufe', 'détente', 'ritorno', 'rebote', 'retorno'});
     });
 
     test('a preset without a known key has just its own name', () {

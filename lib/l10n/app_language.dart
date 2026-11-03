@@ -1,6 +1,10 @@
 enum AppLanguage {
+  de('🇩🇪', 'Deutsch'),
   en('🇬🇧', 'English'),
-  de('🇩🇪', 'Deutsch');
+  es('🇪🇸', 'Español'),
+  fr('🇫🇷', 'Français'),
+  it('🇮🇹', 'Italiano'),
+  pt('🇧🇷', 'Português (Brasil)');
 
   const AppLanguage(this.flag, this.nativeName);
 

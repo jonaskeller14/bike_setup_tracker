@@ -17,13 +17,11 @@ import 'package:bike_setup_tracker/utils/installation_timeline_validation.dart';
 import 'package:bike_setup_tracker/utils/table_column.dart';
 import 'package:bike_setup_tracker/widgets/setup_guide_status.dart';
 import 'package:drift/drift.dart' show EnumNameConverter;
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   final locales = {
-    'en': lookupAppLocalizations(const Locale('en')),
-    'de': lookupAppLocalizations(const Locale('de')),
+    for (final locale in AppLocalizations.supportedLocales) locale.toString(): lookupAppLocalizations(locale),
   };
 
   void expectLabeled<T>(List<T> values, String Function(T value, AppLocalizations l10n) label) {
@@ -34,7 +32,7 @@ void main() {
     }
   }
 
-  group('every value has a label in en and de', () {
+  group('every value has a label in every language', () {
     test('ComponentTypeCategory', () => expectLabeled(ComponentTypeCategory.values, (v, l10n) => v.label(l10n)));
     test('ComponentType', () => expectLabeled(ComponentType.values, (v, l10n) => v.label(l10n)));
     test('UnitQuantity', () => expectLabeled(UnitQuantity.values, (v, l10n) => v.label(l10n)));

@@ -127,3 +127,46 @@ Catalog text is translated the same way: it is translated when a catalog entry i
 Catalog numbers keep a dot in every language where they are part of a name: size labels (`210x52.5`), option chips, the eye-to-eye headers and the option summary of a suggestion (`52.5 / 55 mm`). They are model nomenclature, the labels are parsed once and cached, and the same number would otherwise read `52,5` in one place and `52.5` in the next. Numbers in the note of a component created from the catalog (`Hub: 52,5 mm`) are plain text for the rider and follow the language.
 
 The Strava link text `View on Strava` stays English in every language, because Strava's brand guidelines word it that way. The same goes for `Powered by Strava`.
+
+## Glossary for French, Italian, Spanish and Portuguese
+
+Draft columns for wave 1 of issue #18 (Phase 17). The translation is written against these words, so every screen uses one word per thing. *(EN)* means riders there say the English word, and a literal translation would read wrong. Portuguese is Brazilian; an `app_pt_PT.arb` override only lists the words that differ. Terms not listed follow the German table's meaning, and a new term is added here before it is used in an ARB file.
+
+| English | French | Italian | Spanish | Portuguese (BR) | Note |
+|---|---|---|---|---|---|
+| Setup | Setup (EN) | Setup (EN) | Setup (EN) | Setup (EN) | The adjustments themselves are Réglages / Regolazioni / Ajustes / Regulagens |
+| Bike | Vélo | Bici | Bici | Bike (EN) | |
+| Component | Composant | Componente | Componente | Componente | |
+| Fork | Fourche | Forcella | Horquilla | Garfo | |
+| Shock | Amortisseur | Ammortizzatore | Amortiguador | Amortecedor | |
+| Frame | Cadre | Telaio | Cuadro | Quadro | |
+| Handlebar | Guidon | Manubrio | Manillar | Guidão | |
+| Stem | Potence | Attacco manubrio | Potencia | Mesa | |
+| Headset | Jeu de direction | Serie sterzo | Juego de dirección | Caixa de direção | |
+| Shifter | Manette de vitesses | Comando del cambio | Mando de cambio | Passador de marcha | |
+| Derailleur | Dérailleur | Cambio (front: Deragliatore) | Cambio (front: Desviador) | Câmbio | Rear by default |
+| Cassette | Cassette | Cassetta | Cassette | Cassete | |
+| Chainring | Plateau | Corona | Plato | Coroa | |
+| Crank | Manivelle | Pedivella | Biela | Pedivela | |
+| Bottom Bracket | Boîtier de pédalier | Movimento centrale | Caja de pedalier | Movimento central | |
+| Brake Calliper | Étrier | Pinza | Pinza | Pinça | |
+| Brake Pad | Plaquette | Pastiglia | Pastilla | Pastilha | |
+| Brake Disc | Disque | Disco | Disco | Disco | |
+| Tire | Pneu | Copertone | Neumático | Pneu | |
+| Seatpost | Tige de selle | Reggisella | Tija de sillín | Canote | |
+| Battery | Batterie | Batteria | Batería | Bateria | |
+| Rebound | Détente | Ritorno | Rebote | Retorno | |
+| Compression | Compression | Compressione | Compresión | Compressão | |
+| Sag | SAG (EN) | SAG (EN) | SAG (EN) | SAG (EN) | Abbreviation stays upper case, like LSC and HSR |
+| Pressure | Pression | Pressione | Presión | Pressão | |
+| Torque | Couple de serrage | Coppia di serraggio | Par de apriete | Torque | |
+| Spring Rate | Raideur du ressort | Rigidità della molla | Rigidez del muelle | Rigidez da mola | |
+| Tokens / Volume spacers | Tokens (EN) | Token (EN) | Tokens (EN) | Tokens (EN) | Bottomless Tokens is a product name |
+| Rider | Pilote | Rider (EN) | Rider (EN) | Rider (EN) | |
+| Task | Tâche | Intervento | Tarea | Tarefa | Italian avoids Attività, which is the Strava activity |
+| Due / Overdue | À faire / En retard | In scadenza / Scaduto | Pendiente / Vencida | Pendente / Atrasada | |
+| Activity (Strava) | Activité | Attività | Actividad | Atividade | |
+| Trash | Corbeille | Cestino | Papelera | Lixeira | |
+| Backup | Sauvegarde | Backup (EN) | Copia de seguridad | Backup (EN) | |
+
+The form of address (French tu or vous, Italian tu or Lei, Spanish tú or usted, Portuguese você) is agreed with the reviewer of each language before the first string is written, then applied everywhere, like **du** in German.

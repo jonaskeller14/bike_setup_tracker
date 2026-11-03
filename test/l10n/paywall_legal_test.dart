@@ -20,9 +20,9 @@ void main() {
   }
 
   group('paywall legal note', () {
-    for (final locale in const ['en', 'de']) {
+    for (final locale in AppLocalizations.supportedLocales) {
       test('marks the store, terms and privacy links in $locale', () {
-        final l10n = lookupAppLocalizations(Locale(locale));
+        final l10n = lookupAppLocalizations(locale);
 
         for (final message in [l10n.paywallLegalTrial('€9.99', '/ year', 'Stores'), l10n.paywallLegalAuto('Stores')]) {
           final links = linksOf(message);

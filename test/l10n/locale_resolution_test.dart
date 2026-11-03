@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/l10n/locale_resolution.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -34,25 +36,37 @@ void main() {
     });
 
     test('an unsupported override falls back to the device language', () {
-      final locale = resolveAppLocale(override: 'fr', deviceLocales: const [german]);
+      final locale = resolveAppLocale(override: 'xx', deviceLocales: const [german]);
       expect(locale, german);
     });
 
     test('uses the first supported device locale', () {
       final locale = resolveAppLocale(
-        deviceLocales: const [Locale('fr'), german, english],
+        deviceLocales: const [Locale('xx'), german, english],
       );
       expect(locale, german);
     });
 
     test('an unsupported device language falls back to English in the device region', () {
-      expect(resolveAppLocale(deviceLocales: const [Locale('fr')]), english);
-      expect(resolveAppLocale(deviceLocales: const [Locale('fr', 'CH')]), const Locale('en', 'CH'));
+      expect(resolveAppLocale(deviceLocales: const [Locale('xx')]), english);
+      expect(resolveAppLocale(deviceLocales: const [Locale('xx', 'CH')]), const Locale('en', 'CH'));
     });
 
     test('no device locales falls back to English', () {
       expect(resolveAppLocale(deviceLocales: const []), english);
     });
+  });
+
+  test('the platform language lists name exactly the supported languages', () {
+    final supported = AppLocalizations.supportedLocales.map((locale) => locale.languageCode).toSet();
+    final plist = File('ios/Runner/Info.plist').readAsStringSync();
+    final iosLanguages = RegExp(r'<key>CFBundleLocalizations</key>\s*<array>(.*?)</array>', dotAll: true)
+        .firstMatch(plist)!
+        .group(1)!;
+    final androidLanguages = File('android/app/src/main/res/xml/locales_config.xml').readAsStringSync();
+
+    expect(RegExp(r'<string>(\w+)</string>').allMatches(iosLanguages).map((m) => m.group(1)).toSet(), supported);
+    expect(RegExp(r'android:name="(\w+)"').allMatches(androidLanguages).map((m) => m.group(1)).toSet(), supported);
   });
 
   group('deviceRegionCode', () {
@@ -74,7 +88,7 @@ void main() {
     });
 
     test('leaves an unsupported language to the default resolution', () {
-      expect(keepRegionLocale(const Locale('fr', 'FR'), supported), isNull);
+      expect(keepRegionLocale(const Locale('xx', 'FR'), supported), isNull);
       expect(keepRegionLocale(null, supported), isNull);
     });
   });

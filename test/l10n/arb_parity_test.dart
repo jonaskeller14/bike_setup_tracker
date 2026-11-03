@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Map<String, dynamic> _readArb(String locale) {
@@ -61,39 +62,48 @@ Set<String> _placeholders(String message) {
 
 void main() {
   final en = _readArb('en');
-  final de = _readArb('de');
   final enMessages = _messages(en);
-  final deMessages = _messages(de);
+  // A regional file such as app_pt_PT.arb only holds the strings that differ
+  // from its language, so it can't be complete, only consistent.
+  final translations = {
+    for (final locale in AppLocalizations.supportedLocales)
+      if (locale.languageCode != 'en') locale: _messages(_readArb(locale.toString())),
+  };
 
   group('ARB parity', () {
-    test('every English key exists in German', () {
-      expect(enMessages.keys.toSet().difference(deMessages.keys.toSet()), isEmpty);
-    });
-
-    test('every German key exists in English', () {
-      expect(deMessages.keys.toSet().difference(enMessages.keys.toSet()), isEmpty);
-    });
-
-    test('placeholders match between English and German', () {
-      for (final key in enMessages.keys.where(deMessages.containsKey)) {
-        expect(
-          _placeholders(deMessages[key]!),
-          _placeholders(enMessages[key]!),
-          reason: 'Placeholders of "$key" differ between app_en.arb and app_de.arb',
-        );
-      }
-    });
-
-    test('no German message is empty', () {
-      expect(deMessages.entries.where((e) => e.value.trim().isEmpty).map((e) => e.key), isEmpty);
-    });
-
     test('every English key has a description', () {
       for (final key in enMessages.keys) {
         final meta = en['@$key'] as Map<String, dynamic>?;
         expect(meta?['description'], isA<String>(), reason: '"$key" needs a @$key description');
       }
     });
+
+    for (final MapEntry(key: locale, value: messages) in translations.entries) {
+      group('$locale', () {
+        test('has every English key', () {
+          if (locale.countryCode != null) return;
+          expect(enMessages.keys.toSet().difference(messages.keys.toSet()), isEmpty);
+        });
+
+        test('has no key English lacks', () {
+          expect(messages.keys.toSet().difference(enMessages.keys.toSet()), isEmpty);
+        });
+
+        test('uses the English placeholders', () {
+          for (final key in enMessages.keys.where(messages.containsKey)) {
+            expect(
+              _placeholders(messages[key]!),
+              _placeholders(enMessages[key]!),
+              reason: 'Placeholders of "$key" differ between app_en.arb and app_$locale.arb',
+            );
+          }
+        });
+
+        test('has no empty message', () {
+          expect(messages.entries.where((e) => e.value.trim().isEmpty).map((e) => e.key), isEmpty);
+        });
+      });
+    }
   });
 
   group('placeholder extraction', () {

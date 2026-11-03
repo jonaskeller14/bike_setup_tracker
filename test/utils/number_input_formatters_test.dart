@@ -22,6 +22,12 @@ void main() {
       expect(parseLocalizedDouble('2.5'), 2.5);
     });
 
+    test('rejects a number grouped with spaces instead of guessing', () {
+      expect(parseLocalizedDouble('1 234,5'), isNull);
+      expect(parseLocalizedDouble('1\u00A0234,5'), isNull);
+      expect(parseLocalizedDouble('1\u202F234,5'), isNull);
+    });
+
     test('accepts a separator at either end, as a half-typed value has', () {
       expect(parseLocalizedDouble('2,'), 2);
       expect(parseLocalizedDouble('2.'), 2);
@@ -99,6 +105,12 @@ void main() {
       expect(_type(formatter, ['1', '1a']), ['1', '1']);
       expect(_type(formatter, ['1', '1-']), ['1', '1']);
       expect(_type(formatter, ['1', '1 ']), ['1', '1']);
+    });
+
+    test('rejects the grouping spaces of French and the Slavic languages', () {
+      expect(_type(formatter, ['1', '1\u00A0']), ['1', '1']);
+      expect(_type(formatter, ['1', '1\u202F']), ['1', '1']);
+      expect(_type(formatter, ['1 234,5']), ['']);
     });
 
     test('normalizes minus variants', () {

@@ -30,6 +30,17 @@ void main() {
       expect(parseLocalizedDouble(formatLocalizedDouble(1234.5, locale: 'de')), 1234.5);
     });
 
+    test('pre-fills a field that parses back in languages that group with a space', () {
+      for (final locale in ['fr', 'it', 'es', 'pt', 'nl', 'cs', 'pl', 'sl']) {
+        for (final value in [1234.5, -1234567.25, 12345.0]) {
+          final text = formatLocalizedDouble(value, locale: locale);
+          expect(text, isNot(matches(RegExp(r'\s'))), reason: '$value in $locale');
+          expect(parseLocalizedDouble(text), value, reason: '$text in $locale');
+          expect(parseLocalizedDouble(formatEditableDouble(value, locale: locale)), value, reason: '$value in $locale');
+        }
+      }
+    });
+
     test('fractionDigits matches toStringAsFixed', () {
       for (final (value, digits) in [(2.5, 2), (1.005, 2), (2.675, 2), (-0.04, 1), (1234.5678, 0), (0.1, 4)]) {
         final expected = value.toStringAsFixed(digits);

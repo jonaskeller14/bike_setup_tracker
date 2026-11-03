@@ -42,6 +42,18 @@ void main() {
     expect(find.text('🇩🇪'), findsOneWidget);
   });
 
+  testWidgets('scrolls when the languages do not fit the screen', (tester) async {
+    tester.view.physicalSize = const Size(360, 260);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await openSheet(tester, localeCode: null, onSelected: (_) {});
+
+    expect(tester.takeException(), isNull);
+    await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    expect(find.text('English').last, findsOneWidget);
+  });
+
   testWidgets('marks the system language when nothing is stored', (tester) async {
     await openSheet(tester, localeCode: null, onSelected: (_) {});
 

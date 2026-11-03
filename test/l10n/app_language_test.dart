@@ -14,7 +14,7 @@ void main() {
     test('reads a stored code back, and null or an unknown code as no choice', () {
       expect(AppLanguage.fromCode('de'), AppLanguage.de);
       expect(AppLanguage.fromCode(null), isNull);
-      expect(AppLanguage.fromCode('fr'), isNull);
+      expect(AppLanguage.fromCode('xx'), isNull);
     });
   });
 }

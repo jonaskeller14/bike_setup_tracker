@@ -65,9 +65,21 @@ option_values:
       description_de: |-
         - Ein Hebel, drei Einstellungen zum Umschalten während der Fahrt: Open für ruppige Abfahrten, Mid für Unterstützung, Firm für Forstweganstiege
         - Firm ist eine Pedalplattform, kein Lockout
+      description_fr: |-
+        - Un levier, trois réglages utilisables en roulant : Open pour les descentes cassantes, Mid pour le soutien, Firm pour les montées sur piste forestière
+        - Firm est une plateforme de pédalage, pas un lockout
+      description_it: |-
+        - Una leva, tre impostazioni azionabili in marcia: Open per le discese sconnesse, Mid per il sostegno, Firm per le salite su sterrato
+        - Firm è una piattaforma di pedalata, non un lockout
+      description_es: |-
+        - Una palanca, tres ajustes accionables en marcha: Open para bajadas rotas, Mid para apoyo, Firm para subidas por pista forestal
+        - Firm es una plataforma de pedaleo, no un lockout
+      description_pt: |-
+        - Uma alavanca, três ajustes acionáveis em movimento: Open para descidas acidentadas, Mid para apoio, Firm para subidas em estrada de terra
+        - Firm é uma plataforma de pedalada, não um lockout
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 18, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Mid, Firm], options_de: [Offen, Mittel, Fest], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)", notes_de: "Hebel zum Umschalten während der Fahrt; Open = komfortabel, Mid = unterstützend, Firm = fest (kein Lockout)" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 18, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compté depuis la position entièrement fermée (la plus lente) ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Contato a partire dalla posizione completamente chiusa (la più lenta); massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Contado desde la posición totalmente cerrada (la más lenta); máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Contado a partir da posição totalmente fechada (a mais lenta); máximo estimado, confira o seu seletor e edite-o se for diferente" }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Mid, Firm], options_de: [Offen, Mittel, Fest], options_fr: [Ouvert, Milieu, Ferme], options_it: [Aperto, Medio, Rigido], options_es: [Abierto, Medio, Firme], options_pt: [Aberto, Médio, Firme], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)", notes_de: "Hebel zum Umschalten während der Fahrt; Open = komfortabel, Mid = unterstützend, Firm = fest (kein Lockout)", notes_fr: "Levier utilisable en roulant ; Open = souple, Mid = soutenant, Firm = ferme (pas un lockout)", notes_it: "Leva azionabile in marcia; Open = morbido, Mid = di sostegno, Firm = rigido (non è un lockout)", notes_es: "Palanca accionable en marcha; Open = blando, Mid = con apoyo, Firm = firme (no es un lockout)", notes_pt: "Alavanca acionável em movimento; Open = macio, Mid = com apoio, Firm = firme (não é um lockout)" }
       source:
         - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
       note: >-
@@ -85,10 +97,22 @@ option_values:
       description_de: |-
         - High-Speed-Druckstufe am grünen Rad, 10 Klicks von ganz offen bis geschlossen
         - Low-Speed-Druckstufe am schwarzen Rad dahinter, 5 Klicks; im Uhrzeigersinn gibt mehr Halt
+      description_fr: |-
+        - Compression haute vitesse sur la molette verte, 10 clics de la position entièrement ouverte à fermée
+        - Compression basse vitesse sur la molette noire derrière, 5 clics ; le sens horaire ajoute du soutien
+      description_it: |-
+        - Compressione ad alta velocità sulla manopola verde, 10 scatti da completamente aperta a chiusa
+        - Compressione a bassa velocità sulla manopola nera dietro, 5 scatti; il senso orario aumenta il sostegno
+      description_es: |-
+        - Compresión de alta velocidad en la rueda verde, 10 clics de totalmente abierta a cerrada
+        - Compresión de baja velocidad en la rueda negra de detrás, 5 clics; el sentido horario añade apoyo
+      description_pt: |-
+        - Compressão de alta velocidade no seletor verde, 10 cliques de totalmente aberto a fechado
+        - Compressão de baixa velocidade no seletor preto atrás dele, 5 cliques; o sentido horário acrescenta apoio
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: High-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, dialColor: green }
-        - { name: LSC, name_de: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, dialColor: grey, dialSize: small }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 18, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: High-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, notes_fr: Compression haute vitesse ; comptée depuis la position entièrement ouverte (la plus souple) ; sens horaire = plus de soutien, notes_it: Compressione ad alta velocità; contata a partire dalla posizione completamente aperta (la più morbida); senso orario = più sostegno, notes_es: Compresión de alta velocidad; contada desde la posición totalmente abierta (la más blanda); sentido horario = más apoyo, notes_pt: Compressão de alta velocidade; contada a partir da posição totalmente aberta (a mais macia); sentido horário = mais apoio, dialColor: green }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, notes_fr: Compression basse vitesse ; comptée depuis la position entièrement ouverte (la plus souple) ; sens horaire = plus de soutien, notes_it: Compressione a bassa velocità; contata a partire dalla posizione completamente aperta (la più morbida); senso orario = più sostegno, notes_es: Compresión de baja velocidad; contada desde la posición totalmente abierta (la más blanda); sentido horario = más apoyo, notes_pt: Compressão de baixa velocidade; contada a partir da posição totalmente aberta (a mais macia); sentido horário = mais apoio, dialColor: grey, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 18, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compté depuis la position entièrement fermée (la plus lente) ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Contato a partire dalla posizione completamente chiusa (la più lenta); massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Contado desde la posición totalmente cerrada (la más lenta); máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Contado a partir da posição totalmente fechada (a mais lenta); máximo estimado, confira o seu seletor e edite-o se for diferente" }
       source:
         - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
       note: >-
@@ -106,10 +130,26 @@ option_values:
         - High-Speed-Druckstufe, 24 Klicks, und Low-Speed-Druckstufe, 22 Klicks, von ganz offen aus eingedreht gezählt
         - Zugstufe, 37 Klicks, von ganz geschlossen aus gezählt
         - Ein unter Druck stehender Bladder ersetzt den üblichen schwimmenden Kolben und ist selbst abstimmbar
+      description_fr: |-
+        - Compression haute vitesse, 24 clics, et compression basse vitesse, 22 clics, comptées depuis la position entièrement ouverte
+        - Détente, 37 clics, comptés depuis la position entièrement fermée
+        - Un bladder pressurisé remplace le piston flottant habituel et est lui-même réglable
+      description_it: |-
+        - Compressione ad alta velocità, 24 scatti, e compressione a bassa velocità, 22 scatti, contate a partire dalla posizione completamente aperta
+        - Ritorno, 37 scatti, contati a partire dalla posizione completamente chiusa
+        - Un bladder pressurizzato sostituisce il solito pistone flottante ed è esso stesso regolabile
+      description_es: |-
+        - Compresión de alta velocidad, 24 clics, y compresión de baja velocidad, 22 clics, contadas desde la posición totalmente abierta
+        - Rebote, 37 clics, contados desde la posición totalmente cerrada
+        - Un bladder presurizado sustituye al pistón flotante habitual y es en sí mismo ajustable
+      description_pt: |-
+        - Compressão de alta velocidade, 24 cliques, e compressão de baixa velocidade, 22 cliques, contadas a partir da posição totalmente aberta
+        - Retorno, 37 cliques, contados a partir da posição totalmente fechada
+        - Um bladder pressurizado substitui o pistão flutuante habitual e é, ele próprio, ajustável
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 24, notes: "High-Speed Compression; Counted from fully open (counter-clockwise = open); clockwise = firmer", notes_de: High-Speed-Druckstufe; von ganz offen gezählt (gegen den Uhrzeigersinn = offen); im Uhrzeigersinn = fester }
-        - { name: LSC, name_de: LSC, type: step, max: 22, notes: "Low-Speed Compression; Counted from fully open; clockwise = firmer", notes_de: Low-Speed-Druckstufe; von ganz offen gezählt; im Uhrzeigersinn = fester }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 37, notes: "Counted from fully closed (clockwise = closed/slowest); opening (counter-clockwise) increases speed", notes_de: Von ganz geschlossen gezählt (im Uhrzeigersinn = geschlossen/am langsamsten); Öffnen (gegen den Uhrzeigersinn) erhöht die Geschwindigkeit }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 24, notes: "High-Speed Compression; Counted from fully open (counter-clockwise = open); clockwise = firmer", notes_de: High-Speed-Druckstufe; von ganz offen gezählt (gegen den Uhrzeigersinn = offen); im Uhrzeigersinn = fester, notes_fr: Compression haute vitesse ; comptée depuis la position entièrement ouverte (sens antihoraire = ouvert) ; sens horaire = plus ferme, notes_it: Compressione ad alta velocità; contata a partire dalla posizione completamente aperta (senso antiorario = aperto); senso orario = più rigido, notes_es: Compresión de alta velocidad; contada desde la posición totalmente abierta (sentido antihorario = abierto); sentido horario = más firme, notes_pt: Compressão de alta velocidade; contada a partir da posição totalmente aberta (sentido anti-horário = aberto); sentido horário = mais firme }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 22, notes: "Low-Speed Compression; Counted from fully open; clockwise = firmer", notes_de: Low-Speed-Druckstufe; von ganz offen gezählt; im Uhrzeigersinn = fester, notes_fr: Compression basse vitesse ; comptée depuis la position entièrement ouverte ; sens horaire = plus ferme, notes_it: Compressione a bassa velocità; contata a partire dalla posizione completamente aperta; senso orario = più rigido, notes_es: Compresión de baja velocidad; contada desde la posición totalmente abierta; sentido horario = más firme, notes_pt: Compressão de baixa velocidade; contada a partir da posição totalmente aberta; sentido horário = mais firme }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 37, notes: "Counted from fully closed (clockwise = closed/slowest); opening (counter-clockwise) increases speed", notes_de: Von ganz geschlossen gezählt (im Uhrzeigersinn = geschlossen/am langsamsten); Öffnen (gegen den Uhrzeigersinn) erhöht die Geschwindigkeit, notes_fr: Compté depuis la position entièrement fermée (sens horaire = fermé/le plus lent) ; ouvrir (sens antihoraire) augmente la vitesse, notes_it: Contato a partire dalla posizione completamente chiusa (senso orario = chiuso/più lento); aprire (senso antiorario) aumenta la velocità, notes_es: Contado desde la posición totalmente cerrada (sentido horario = cerrado/más lento); abrir (sentido antihorario) aumenta la velocidad, notes_pt: Contado a partir da posição totalmente fechada (sentido horário = fechado/mais lento); abrir (sentido anti-horário) aumenta a velocidade }
       source:
         - https://tech.dvosuspension.com/setup/jade/
       note: >-
@@ -127,10 +167,22 @@ option_values:
       description_de: |-
         - High-Speed-Druckstufe am grünen Rad, 10 Klicks von ganz offen bis geschlossen
         - Low-Speed-Druckstufe am schwarzen Rad dahinter, 5 Klicks; im Uhrzeigersinn gibt mehr Halt
+      description_fr: |-
+        - Compression haute vitesse sur la molette verte, 10 clics de la position entièrement ouverte à fermée
+        - Compression basse vitesse sur la molette noire derrière, 5 clics ; le sens horaire ajoute du soutien
+      description_it: |-
+        - Compressione ad alta velocità sulla manopola verde, 10 scatti da completamente aperta a chiusa
+        - Compressione a bassa velocità sulla manopola nera dietro, 5 scatti; il senso orario aumenta il sostegno
+      description_es: |-
+        - Compresión de alta velocidad en la rueda verde, 10 clics de totalmente abierta a cerrada
+        - Compresión de baja velocidad en la rueda negra de detrás, 5 clics; el sentido horario añade apoyo
+      description_pt: |-
+        - Compressão de alta velocidade no seletor verde, 10 cliques de totalmente aberto a fechado
+        - Compressão de baixa velocidade no seletor preto atrás dele, 5 cliques; o sentido horário acrescenta apoio
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: High-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, dialColor: green }
-        - { name: LSC, name_de: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, dialColor: grey, dialSize: small }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 9, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: High-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, notes_fr: Compression haute vitesse ; comptée depuis la position entièrement ouverte (la plus souple) ; sens horaire = plus de soutien, notes_it: Compressione ad alta velocità; contata a partire dalla posizione completamente aperta (la più morbida); senso orario = più sostegno, notes_es: Compresión de alta velocidad; contada desde la posición totalmente abierta (la más blanda); sentido horario = más apoyo, notes_pt: Compressão de alta velocidade; contada a partir da posição totalmente aberta (a mais macia); sentido horário = mais apoio, dialColor: green }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt; im Uhrzeigersinn = mehr Unterstützung, notes_fr: Compression basse vitesse ; comptée depuis la position entièrement ouverte (la plus souple) ; sens horaire = plus de soutien, notes_it: Compressione a bassa velocità; contata a partire dalla posizione completamente aperta (la più morbida); senso orario = più sostegno, notes_es: Compresión de baja velocidad; contada desde la posición totalmente abierta (la más blanda); sentido horario = más apoyo, notes_pt: Compressão de baixa velocidade; contada a partir da posição totalmente aberta (a mais macia); sentido horário = mais apoio, dialColor: grey, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 9, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
         - https://www.pinkbike.com/news/review-dvo-topaz-3-air-shock.html
@@ -149,9 +201,21 @@ option_values:
       description_de: |-
         - Ein Hebel, drei Einstellungen zum Umschalten während der Fahrt: Open für ruppige Abfahrten, Mid für Unterstützung, Firm für steile Anstiege
         - Firm ist eine Pedalplattform, kein Lockout
+      description_fr: |-
+        - Un levier, trois réglages utilisables en roulant : Open pour les descentes cassantes, Mid pour le soutien, Firm pour les montées raides
+        - Firm est une plateforme de pédalage, pas un lockout
+      description_it: |-
+        - Una leva, tre impostazioni azionabili in marcia: Open per le discese sconnesse, Mid per il sostegno, Firm per le salite ripide
+        - Firm è una piattaforma di pedalata, non un lockout
+      description_es: |-
+        - Una palanca, tres ajustes accionables en marcha: Open para bajadas rotas, Mid para apoyo, Firm para subidas empinadas
+        - Firm es una plataforma de pedaleo, no un lockout
+      description_pt: |-
+        - Uma alavanca, três ajustes acionáveis em movimento: Open para descidas acidentadas, Mid para apoio, Firm para subidas íngremes
+        - Firm é uma plataforma de pedalada, não um lockout
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 9, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Mid, Firm], options_de: [Offen, Mittel, Fest], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)", notes_de: "Hebel zum Umschalten während der Fahrt; Open = komfortabel, Mid = unterstützend, Firm = fest (kein Lockout)" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 9, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Mid, Firm], options_de: [Offen, Mittel, Fest], options_fr: [Ouvert, Milieu, Ferme], options_it: [Aperto, Medio, Rigido], options_es: [Abierto, Medio, Firme], options_pt: [Aberto, Médio, Firme], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)", notes_de: "Hebel zum Umschalten während der Fahrt; Open = komfortabel, Mid = unterstützend, Firm = fest (kein Lockout)", notes_fr: "Levier utilisable en roulant ; Open = souple, Mid = soutenant, Firm = ferme (pas un lockout)", notes_it: "Leva azionabile in marcia; Open = morbido, Mid = di sostegno, Firm = rigido (non è un lockout)", notes_es: "Palanca accionable en marcha; Open = blando, Mid = con apoyo, Firm = firme (no es un lockout)", notes_pt: "Alavanca acionável em movimento; Open = macio, Mid = com apoio, Firm = firme (não é um lockout)" }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
         - https://www.pinkbike.com/news/review-dvo-topaz-3-air-shock.html
@@ -168,9 +232,21 @@ option_values:
       description_de: |-
         - Topaz-Hebel der Vorgängergeneration mit drei Positionen: Open, Medium und Closed
         - Closed verringert das Wippen beim Klettern; es ist eine Plattform, kein Lockout
+      description_fr: |-
+        - Levier du Topaz de génération précédente à trois positions : Open, Medium et Closed
+        - Closed réduit le pompage au pédalage en montée ; c’est une plateforme, pas un lockout
+      description_it: |-
+        - Leva del Topaz della generazione precedente a tre posizioni: Open, Medium e Closed
+        - Closed riduce le oscillazioni in pedalata in salita; è una piattaforma, non un lockout
+      description_es: |-
+        - Palanca del Topaz de la generación anterior de tres posiciones: Open, Medium y Closed
+        - Closed reduce el balanceo al pedalear en subida; es una plataforma, no un lockout
+      description_pt: |-
+        - Alavanca do Topaz da geração anterior de três posições: Open, Medium e Closed
+        - Closed reduz o balanço ao pedalar na subida; é uma plataforma, não um lockout
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 9, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Medium, Closed], options_de: [Offen, Medium, Geschlossen], notes: "On-the-fly lever; Open = most sensitive, Medium = balanced with a pedalling platform, Closed = least bob when climbing", notes_de: "Hebel zum Umschalten während der Fahrt; Open = am sensibelsten, Medium = ausgewogen mit Pedalplattform, Closed = am wenigsten Wippen beim Klettern" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 9, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compté depuis la position entièrement fermée (la plus lente) ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Contato a partire dalla posizione completamente chiusa (la più lenta); massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Contado desde la posición totalmente cerrada (la más lenta); máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Contado a partir da posição totalmente fechada (a mais lenta); máximo estimado, confira o seu seletor e edite-o se for diferente" }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Closed], options_de: [Offen, Medium, Geschlossen], options_fr: [Ouvert, Medium, Fermé], options_it: [Aperto, Medium, Chiuso], options_es: [Abierto, Medium, Cerrado], options_pt: [Aberto, Medium, Fechado], notes: "On-the-fly lever; Open = most sensitive, Medium = balanced with a pedalling platform, Closed = least bob when climbing", notes_de: "Hebel zum Umschalten während der Fahrt; Open = am sensibelsten, Medium = ausgewogen mit Pedalplattform, Closed = am wenigsten Wippen beim Klettern", notes_fr: "Levier utilisable en roulant ; Open = le plus sensible, Medium = équilibré avec une plateforme de pédalage, Closed = le moins de pompage en montée", notes_it: "Leva azionabile in marcia; Open = il più sensibile, Medium = bilanciato con una piattaforma di pedalata, Closed = meno oscillazioni in salita", notes_es: "Palanca accionable en marcha; Open = el más sensible, Medium = equilibrado con una plataforma de pedaleo, Closed = menos balanceo al subir", notes_pt: "Alavanca acionável em movimento; Open = o mais sensível, Medium = equilibrado com uma plataforma de pedalada, Closed = menos balanço na subida" }
       source:
         - https://tech.dvosuspension.com/setup/topaz-2/
         - https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
@@ -190,10 +266,18 @@ option_values:
       description_de: >-
         Leichter XC-Luftdämpfer mit Drei-Positionen-Druckstufenhebel zum
         Umschalten während der Fahrt und Low-Speed-Zugstufenrad.
+      description_fr: Amortisseur pneumatique XC léger avec un levier de compression à trois positions utilisable en roulant et une molette de détente basse vitesse.
+      description_it: Ammortizzatore pneumatico XC leggero con una leva di compressione a tre posizioni azionabile in marcia e una manopola del ritorno a bassa velocità.
+      description_es: Amortiguador neumático XC ligero con una palanca de compresión de tres posiciones accionable en marcha y una rueda de rebote de baja velocidad.
+      description_pt: Amortecedor a ar XC leve com uma alavanca de compressão de três posições acionável em movimento e um seletor de retorno de baixa velocidade.
       missing_adjustments: [Compression lever]
       missing_adjustments_de: [Druckstufenhebel]
+      missing_adjustments_fr: [Levier de compression]
+      missing_adjustments_it: [Leva di compressione]
+      missing_adjustments_es: [Palanca de compresión]
+      missing_adjustments_pt: [Alavanca de compressão]
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
       source:
         - https://dvosuspension.com/product/opal-hv-t3/
       note: >-
@@ -211,11 +295,27 @@ option_values:
       description_de: |-
         - Cone-Valve-Dämpfer von WP Suspension mit getrennten Rädern für High- und Low-Speed-Druckstufe
         - Beide werden von ganz geschlossen gezählt: HSC 6 Klicks, LSC 18 Klicks
+      description_fr: |-
+        - Amortisseur Cone Valve de WP Suspension avec des molettes séparées de compression haute et basse vitesse
+        - Toutes deux comptées depuis la position entièrement fermée : HSC 6 clics, LSC 18 clics
+      description_it: |-
+        - Ammortizzatore Cone Valve di WP Suspension con manopole separate di compressione ad alta e bassa velocità
+        - Entrambe contate a partire dalla posizione completamente chiusa: HSC 6 scatti, LSC 18 scatti
+      description_es: |-
+        - Amortiguador Cone Valve de WP Suspension con ruedas separadas de compresión de alta y baja velocidad
+        - Ambas contadas desde la posición totalmente cerrada: HSC 6 clics, LSC 18 clics
+      description_pt: |-
+        - Amortecedor Cone Valve da WP Suspension com seletores separados de compressão de alta e baixa velocidade
+        - Ambos contados a partir da posição totalmente fechada: HSC 6 cliques, LSC 18 cliques
       missing_adjustments: [Rebound]
       missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments: &wp_cv_compression
-        - { name: HSC, name_de: HSC, type: step, max: 6, notes: "High-Speed Compression; Counted from fully closed (firmest)", notes_de: High-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
-        - { name: LSC, name_de: LSC, type: step, max: 18, notes: "Low-Speed Compression; Counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 6, notes: "High-Speed Compression; Counted from fully closed (firmest)", notes_de: High-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt, notes_fr: Compression haute vitesse ; comptée depuis la position entièrement fermée (la plus ferme), notes_it: Compressione ad alta velocità; contata a partire dalla posizione completamente chiusa (la più rigida), notes_es: Compresión de alta velocidad; contada desde la posición totalmente cerrada (la más firme), notes_pt: Compressão de alta velocidade; contada a partir da posição totalmente fechada (a mais firme) }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 18, notes: "Low-Speed Compression; Counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt, notes_fr: Compression basse vitesse ; comptée depuis la position entièrement fermée (la plus ferme), notes_it: Compressione a bassa velocità; contata a partire dalla posizione completamente chiusa (la più rigida), notes_es: Compresión de baja velocidad; contada desde la posición totalmente cerrada (la más firme), notes_pt: Compressão de baixa velocidade; contada a partir da posição totalmente fechada (a mais firme) }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Jade-X-WP-Setup_Guide_Dec5_2023.pdf
       note: >-
@@ -231,8 +331,24 @@ option_values:
       description_de: |-
         - Cone-Valve-Dämpfer von WP Suspension mit getrennten Rädern für High- und Low-Speed-Druckstufe
         - Beide werden von ganz geschlossen gezählt: HSC 6 Klicks, LSC 18 Klicks
+      description_fr: |-
+        - Amortisseur Cone Valve de WP Suspension avec des molettes séparées de compression haute et basse vitesse
+        - Toutes deux comptées depuis la position entièrement fermée : HSC 6 clics, LSC 18 clics
+      description_it: |-
+        - Ammortizzatore Cone Valve di WP Suspension con manopole separate di compressione ad alta e bassa velocità
+        - Entrambe contate a partire dalla posizione completamente chiusa: HSC 6 scatti, LSC 18 scatti
+      description_es: |-
+        - Amortiguador Cone Valve de WP Suspension con ruedas separadas de compresión de alta y baja velocidad
+        - Ambas contadas desde la posición totalmente cerrada: HSC 6 clics, LSC 18 clics
+      description_pt: |-
+        - Amortecedor Cone Valve da WP Suspension com seletores separados de compressão de alta e baixa velocidade
+        - Ambos contados a partir da posição totalmente fechada: HSC 6 cliques, LSC 18 cliques
       missing_adjustments: [Rebound]
       missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments: *wp_cv_compression
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Topaz-WP-Setup_Guide_Dec5_2023.pdf
@@ -258,6 +374,10 @@ guides:
   dvo_jadex_2024:
     label: DVO Jade X Set-Up Guide (v2.0, 2024)
     label_de: DVO Jade X Setup-Anleitung (v2.0, 2024)
+    label_fr: Guide de setup DVO Jade X (v2.0, 2024)
+    label_it: Guida al setup DVO Jade X (v2.0, 2024)
+    label_es: Guía de setup DVO Jade X (v2.0, 2024)
+    label_pt: Guia de setup DVO Jade X (v2.0, 2024)
     source: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Jade-X-Setup-Guide-May16.pdf
     rules:
       - &dvo_jade_x_sag { target: sag, range: [25, 30], comfort_at: max }
@@ -265,6 +385,10 @@ guides:
   dvo_jadexwp_2023:
     label: DVO Jade X WP1 Set-Up Guide (2023)
     label_de: DVO Jade X WP1 Setup-Anleitung (2023)
+    label_fr: Guide de setup DVO Jade X WP1 (2023)
+    label_it: Guida al setup DVO Jade X WP1 (2023)
+    label_es: Guía de setup DVO Jade X WP1 (2023)
+    label_pt: Guia de setup DVO Jade X WP1 (2023)
     source: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Jade-X-WP-Setup_Guide_Dec5_2023.pdf
     rules:
       - target: spring_rate
@@ -279,6 +403,10 @@ guides:
   dvo_jade_tech:
     label: DVO Jade set-up page
     label_de: DVO Jade Setup-Seite
+    label_fr: Page de setup DVO Jade
+    label_it: Pagina del setup DVO Jade
+    label_es: Página de setup DVO Jade
+    label_pt: Página de setup DVO Jade
     source: https://tech.dvosuspension.com/setup/jade/
     # The base tunes cover three catalog sizes. Table 3 (10.5x3.5in) and the
     # 9.5x3in size of table 2 are not catalog sizes; every other size gets
@@ -334,11 +462,15 @@ guides:
         input_unit: lb
         when: { size: "222.25x69.85" }
         rows: { 120-140: 1, 140-160: 2, 160-180: [2, 5], 180-200: [5, 8], 200-220: [5, 8] }
-      - { target: sag, range: [25, 30], comfort_at: max, note: Measured in the attack position, note_de: In der Angriffsposition gemessen }
+      - { target: sag, range: [25, 30], comfort_at: max, note: Measured in the attack position, note_de: In der Angriffsposition gemessen, note_fr: Mesuré en position d’attaque, note_it: Misurato in posizione d’attacco, note_es: Medido en posición de ataque, note_pt: Medido na posição de ataque }
 
   dvo_topaz_2024:
     label: DVO Topaz Set-Up Guide (v2.1, 2024)
     label_de: DVO Topaz Setup-Anleitung (v2.1, 2024)
+    label_fr: Guide de setup DVO Topaz (v2.1, 2024)
+    label_it: Guida al setup DVO Topaz (v2.1, 2024)
+    label_es: Guía de setup DVO Topaz (v2.1, 2024)
+    label_pt: Guia de setup DVO Topaz (v2.1, 2024)
     source: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
     # The 240+ row's Firm end is printed "250+", so that row is left out of
     # the band and the Firm rule. The 180-199 and 200-219 bands overlap, as
@@ -351,6 +483,10 @@ guides:
         rows: { 120-140: [140, 150], 140-160: [150, 165], 160-180: [165, 175], 180-200: [180, 200], 200-220: [190, 210], 220-240: [210, 230] }
         note: The band runs from DVO's Plush to its Firm setting; the frame's leverage shifts it a lot
         note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO; die Hebelverhältnisse des Rahmens verschieben es stark
+        note_fr: La plage va du réglage Plush de DVO à son réglage Firm ; la cinématique du cadre la décale beaucoup
+        note_it: La fascia va dall’impostazione Plush di DVO a quella Firm; la leva del telaio la sposta molto
+        note_es: La banda va del ajuste Plush de DVO a su ajuste Firm; la cinemática del cuadro la desplaza mucho
+        note_pt: A faixa vai do ajuste Plush da DVO ao seu ajuste Firm; a cinemática do quadro a desloca bastante
       - target: pressure
         unit: psi
         input: rider_weight
@@ -359,6 +495,10 @@ guides:
         rows: { 120-140: 140, 140-160: 150, 160-180: 165, 180-200: 180, 200-220: 190, 220-240: 210, 240+: 230 }
         note: DVO's Plush setting
         note_de: Die Plush-Einstellung von DVO
+        note_fr: Réglage Plush de DVO
+        note_it: Impostazione Plush di DVO
+        note_es: Ajuste Plush de DVO
+        note_pt: Ajuste Plush da DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -367,11 +507,19 @@ guides:
         rows: { 120-140: 150, 140-160: 165, 160-180: 175, 180-200: 200, 200-220: 210, 220-240: 230 }
         note: DVO's Firm setting
         note_de: Die Firm-Einstellung von DVO
-      - &dvo_topaz_sag { target: sag, range: [20, 30], comfort_at: max, note: "20 % is DVO's supportive end, 30 % the plush end", note_de: "20 % ist das unterstützende Ende von DVO, 30 % das komfortable Ende" }
+        note_fr: Réglage Firm de DVO
+        note_it: Impostazione Firm di DVO
+        note_es: Ajuste Firm de DVO
+        note_pt: Ajuste Firm da DVO
+      - &dvo_topaz_sag { target: sag, range: [20, 30], comfort_at: max, note: "20 % is DVO's supportive end, 30 % the plush end", note_de: "20 % ist das unterstützende Ende von DVO, 30 % das komfortable Ende", note_fr: "20 % est la limite de soutien de DVO, 30 % la limite confortable", note_it: "20 % è il limite di sostegno di DVO, 30 % quello confortevole", note_es: 20 % es el extremo de apoyo de DVO y 30 % el cómodo, note_pt: 20 % é o extremo de apoio da DVO e 30 % o confortável }
 
   dvo_topazwp_2023:
     label: DVO Topaz WP1 Set-Up Guide (2023)
     label_de: DVO Topaz WP1 Setup-Anleitung (2023)
+    label_fr: Guide de setup DVO Topaz WP1 (2023)
+    label_it: Guida al setup DVO Topaz WP1 (2023)
+    label_es: Guía de setup DVO Topaz WP1 (2023)
+    label_pt: Guia de setup DVO Topaz WP1 (2023)
     source: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Topaz-WP-Setup_Guide_Dec5_2023.pdf
     # The 240+ row has no Firm label (240 and 250+ shaded), so it is left out
     # of the band and the Firm rule.
@@ -383,6 +531,10 @@ guides:
         rows: { 120-140: [145, 160], 140-160: [160, 170], 160-180: [170, 180], 180-200: [190, 210], 200-220: [200, 220], 220-240: [220, 240] }
         note: The band runs from DVO's Plush to its Firm setting; the frame's leverage shifts it a lot
         note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO; die Hebelverhältnisse des Rahmens verschieben es stark
+        note_fr: La plage va du réglage Plush de DVO à son réglage Firm ; la cinématique du cadre la décale beaucoup
+        note_it: La fascia va dall’impostazione Plush di DVO a quella Firm; la leva del telaio la sposta molto
+        note_es: La banda va del ajuste Plush de DVO a su ajuste Firm; la cinemática del cuadro la desplaza mucho
+        note_pt: A faixa vai do ajuste Plush da DVO ao seu ajuste Firm; a cinemática do quadro a desloca bastante
       - target: pressure
         unit: psi
         input: rider_weight
@@ -391,6 +543,10 @@ guides:
         rows: { 120-140: 145, 140-160: 160, 160-180: 170, 180-200: 190, 200-220: 200, 220-240: 220, 240+: 240 }
         note: DVO's Plush setting
         note_de: Die Plush-Einstellung von DVO
+        note_fr: Réglage Plush de DVO
+        note_it: Impostazione Plush di DVO
+        note_es: Ajuste Plush de DVO
+        note_pt: Ajuste Plush da DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -399,6 +555,10 @@ guides:
         rows: { 120-140: 160, 140-160: 170, 160-180: 180, 180-200: 210, 200-220: 220, 220-240: 240 }
         note: DVO's Firm setting
         note_de: Die Firm-Einstellung von DVO
+        note_fr: Réglage Firm de DVO
+        note_it: Impostazione Firm di DVO
+        note_es: Ajuste Firm de DVO
+        note_pt: Ajuste Firm da DVO
       - *dvo_wp_hsc
       - *dvo_wp_lsc
       - *dvo_topaz_sag
@@ -406,6 +566,10 @@ guides:
   dvo_topaz_2020:
     label: DVO Topaz Air Set Up Guide (2020)
     label_de: DVO Topaz Air Setup-Anleitung (2020)
+    label_fr: Guide de setup DVO Topaz Air (2020)
+    label_it: Guida al setup DVO Topaz Air (2020)
+    label_es: Guía de setup DVO Topaz Air (2020)
+    label_pt: Guia de setup DVO Topaz Air (2020)
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
     # The 240+ row's Firm end is printed "250+", so that row is left out of
     # the band and the Firm rule.
@@ -417,6 +581,10 @@ guides:
         rows: { 120-140: [140, 150], 140-160: [150, 165], 160-180: [165, 175], 180-200: [175, 190], 200-220: [190, 210], 220-240: [210, 230] }
         note: The band runs from DVO's Plush to its Firm setting
         note_de: Das Band reicht von der Plush- bis zur Firm-Einstellung von DVO
+        note_fr: La plage va du réglage Plush de DVO à son réglage Firm
+        note_it: La fascia va dall’impostazione Plush di DVO a quella Firm
+        note_es: La banda va del ajuste Plush de DVO a su ajuste Firm
+        note_pt: A faixa vai do ajuste Plush da DVO ao seu ajuste Firm
       - target: pressure
         unit: psi
         input: rider_weight
@@ -425,6 +593,10 @@ guides:
         rows: { 120-140: 140, 140-160: 150, 160-180: 165, 180-200: 175, 200-220: 190, 220-240: 210, 240+: 230 }
         note: DVO's Plush setting
         note_de: Die Plush-Einstellung von DVO
+        note_fr: Réglage Plush de DVO
+        note_it: Impostazione Plush di DVO
+        note_es: Ajuste Plush de DVO
+        note_pt: Ajuste Plush da DVO
       - target: pressure
         unit: psi
         input: rider_weight
@@ -433,6 +605,10 @@ guides:
         rows: { 120-140: 150, 140-160: 165, 160-180: 175, 180-200: 190, 200-220: 210, 220-240: 230 }
         note: DVO's Firm setting
         note_de: Die Firm-Einstellung von DVO
+        note_fr: Réglage Firm de DVO
+        note_it: Impostazione Firm di DVO
+        note_es: Ajuste Firm de DVO
+        note_pt: Ajuste Firm da DVO
       - target: bladder_pressure
         unit: psi
         input: rider_weight
@@ -450,7 +626,11 @@ nodes:
     level: model
     category: Enduro / DH
     category_de: Enduro / DH
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Enduro / DH
+    category_it: Enduro / DH
+    category_es: Enduro / DH
+    category_pt: Enduro / DH
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     # Bladder 140-180psi and the 6mm preload limit: Jade X Set-Up Guide v2.0,
     # p.8 "BLADDER PRESSURE RANGE 140-180PSI / DO NOT EXCEED 180PSI" and p.11
     # "One (1) rotation equals 1mm of preload. Do NOT exceed 6mm of preload."
@@ -467,9 +647,9 @@ nodes:
           - label: T3
             level: trim
             adjustments: &jade_coil_spring
-              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
-              - { name: Preload, name_de: Vorspannung, type: numerical, unit: mm, min: 0, max: 6, notes: "One full turn of the spring collar equals 1mm of preload; do not exceed 6mm", notes_de: Eine volle Umdrehung des Federtellers entspricht 1mm Vorspannung; 6mm nicht überschreiten }
-              - { name: Bladder Pressure, name_de: Bladder-Druck, type: numerical, unit: psi, min: 140, max: 180 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: mm, min: 0, max: 6, notes: "One full turn of the spring collar equals 1mm of preload; do not exceed 6mm", notes_de: Eine volle Umdrehung des Federtellers entspricht 1mm Vorspannung; 6mm nicht überschreiten, notes_fr: Un tour complet du collier du ressort équivaut à 1 mm de précontrainte ; ne dépassez pas 6 mm, notes_it: Un giro completo della ghiera della molla equivale a 1 mm di precarico; non superare 6 mm, notes_es: Una vuelta completa del collarín del muelle equivale a 1 mm de precarga; no superes los 6 mm, notes_pt: Uma volta completa do colar da mola equivale a 1 mm de pré-carga; não passe de 6 mm }
+              - { name: Bladder Pressure, name_de: Bladder-Druck, name_fr: Pression du bladder, name_it: Pressione del bladder, name_es: Presión del bladder, name_pt: Pressão do bladder, type: numerical, unit: psi, min: 140, max: 180 }
             options:
               damper: [jade_x_t3]
               size:
@@ -487,6 +667,22 @@ nodes:
               - Stahlfeder separat erhältlich: DVOs LS „Light Steel“ oder eine normale Stahlfeder
               - Der Bladder-Druck bestimmt das Gefühl des ganzen Dämpfers — den gesamten Bereich von 140-180psi ausprobieren
               - 25-30 % SAG anstreben, dann mit der Vorspannung feinjustieren
+            note_fr: |-
+              - Ressort vendu séparément : le LS « light steel » de DVO ou un ressort acier classique
+              - La charge du bladder règle le comportement de tout l’amortisseur — essayez toute la plage de 140 à 180 psi
+              - Visez 25-30 % de SAG, puis affinez avec la précontrainte
+            note_it: |-
+              - Molla venduta separatamente: la LS «light steel» di DVO o una normale molla in acciaio
+              - La carica del bladder regola il comportamento dell’intero ammortizzatore — prova tutto l’intervallo da 140 a 180 psi
+              - Punta a un SAG del 25-30 %, poi rifinisci con il precarico
+            note_es: |-
+              - Muelle vendido por separado: el LS «light steel» de DVO o un muelle de acero normal
+              - La carga del bladder define el comportamiento de todo el amortiguador — prueba todo el rango de 140 a 180 psi
+              - Busca un SAG del 25-30 % y afina después con la precarga
+            note_pt: |-
+              - Mola vendida separadamente: a LS “light steel” da DVO ou uma mola de aço comum
+              - A carga do bladder define o comportamento de todo o amortecedor — teste toda a faixa de 140 a 180 psi
+              - Busque 25-30 % de SAG e depois ajuste com a pré-carga
           - label: Prime
             level: trim
             url: https://dvosuspension.com/product/jade-x-prime/
@@ -502,6 +698,10 @@ nodes:
                 - { size: "185x50/52.5/55", mount: Trunnion }
             note: Coil spring sold separately. Aim for 25-30% sag, then fine-tune with preload.
             note_de: Stahlfeder separat erhältlich. 25-30 % SAG anstreben, dann mit der Vorspannung feinjustieren.
+            note_fr: Ressort vendu séparément. Visez 25-30 % de SAG, puis affinez avec la précontrainte.
+            note_it: Molla venduta separatamente. Punta a un SAG del 25-30 %, poi rifinisci con il precarico.
+            note_es: Muelle vendido por separado. Busca un SAG del 25-30 % y afina después con la precarga.
+            note_pt: Mola vendida separadamente. Busque 25-30 % de SAG e depois ajuste com a pré-carga.
           - label: WP CV
             level: trim
             url: https://dvosuspension.com/product/jade-x-wp/
@@ -517,12 +717,20 @@ nodes:
             note_de: >-
               Gemeinsam mit WP Suspension gebaut und mit dem
               Cone-Valve-Dämpferinnenleben von WP.
+            note_fr: Conçue avec WP Suspension et équipée des composants internes d’amortisseur Cone Valve de WP.
+            note_it: Realizzata con WP Suspension e dotata dei componenti interni dell’ammortizzatore Cone Valve di WP.
+            note_es: Fabricada con WP Suspension y equipada con los componentes internos de amortiguador Cone Valve de WP.
+            note_pt: Desenvolvida com a WP Suspension e equipada com os componentes internos de amortecedor Cone Valve da WP.
 
   - label: Jade
     level: model
     category: Downhill
     category_de: Downhill
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     # Bladder 170-200psi and the 5mm preload limit: tech.dvosuspension.com/setup/jade
     # ("Air Pressure Range: 170-200psi", "The maximum amount of preload length is 5mm.").
     source: https://tech.dvosuspension.com/setup/jade/
@@ -538,9 +746,9 @@ nodes:
           - label: Standard
             level: trim
             adjustments:
-              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
-              - { name: Preload, name_de: Vorspannung, type: numerical, unit: mm, min: 0, max: 5, notes: "Do not exceed 5mm of preload — more risks damaging the spring", notes_de: Nicht mehr als 5mm Vorspannung — mehr kann die Feder beschädigen }
-              - { name: Bladder Pressure, name_de: Bladder-Druck, type: numerical, unit: psi, min: 170, max: 200 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: mm, min: 0, max: 5, notes: "Do not exceed 5mm of preload — more risks damaging the spring", notes_de: Nicht mehr als 5mm Vorspannung — mehr kann die Feder beschädigen, notes_fr: Ne dépassez pas 5 mm de précontrainte — risque d’endommager le ressort, notes_it: Non superare 5 mm di precarico — rischio di danneggiare la molla, notes_es: No superes los 5 mm de precarga — hay riesgo de dañar el muelle, notes_pt: Não passe de 5 mm de pré-carga — há risco de danificar a mola }
+              - { name: Bladder Pressure, name_de: Bladder-Druck, name_fr: Pression du bladder, name_it: Pressione del bladder, name_es: Presión del bladder, name_pt: Pressão do bladder, type: numerical, unit: psi, min: 170, max: 200 }
             options:
               damper: [jade_coil]
               size:
@@ -561,12 +769,32 @@ nodes:
               - Stahlfeder-DH-Dämpfer, entstanden im UCI Downhill World Cup
               - Läuft mit einem höheren Bladder-Druck von 170-200psi als der Jade X
               - 25-30 % SAG in der Angriffsposition gemessen anstreben
+            note_fr: |-
+              - Amortisseur à ressort pour la descente, né sur le circuit de la Coupe du monde de descente UCI
+              - Fonctionne avec une charge de bladder plus élevée, 170-200 psi, que le Jade X
+              - Visez 25-30 % de SAG, mesuré en position d’attaque
+            note_it: |-
+              - Ammortizzatore a molla per downhill, nato sul circuito della Coppa del Mondo di downhill UCI
+              - Lavora con una carica del bladder più alta, 170-200 psi, rispetto al Jade X
+              - Punta a un SAG del 25-30 %, misurato in posizione d’attacco
+            note_es: |-
+              - Amortiguador de muelle para descenso, nacido en el circuito de la Copa del Mundo de descenso UCI
+              - Trabaja con una carga de bladder más alta, 170-200 psi, que el Jade X
+              - Busca un SAG del 25-30 %, medido en posición de ataque
+            note_pt: |-
+              - Amortecedor a mola para downhill, nascido no circuito da Copa do Mundo de downhill da UCI
+              - Trabalha com uma carga de bladder mais alta, 170-200 psi, que o Jade X
+              - Busque 25-30 % de SAG, medido na posição de ataque
 
   - label: Topaz
     level: model
     category: XC / Trail / Enduro / E-MTB
     category_de: XC / Trail / Enduro / E-MTB
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: XC / Trail / Enduro / E-MTB
+    category_it: XC / Trail / Enduro / E-MTB
+    category_es: XC / Trail / Enduro / E-MTB
+    category_pt: XC / Trail / Enduro / E-MTB
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     # Max air 300psi and bladder 140-180psi: Topaz Set-Up Guide (May 2024), p.10
     # "DO NOT EXCEED MAXIMUM AIR PRESSURE! 300PSI" and p.9 "BLADDER PRESSURE
     # RANGE 140-180PSI / DO NOT EXCEED 180PSI".
@@ -583,8 +811,8 @@ nodes:
           - label: Pro
             level: trim
             adjustments: &topaz_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
-              - { name: Bladder Pressure, name_de: Bladder-Druck, type: numerical, unit: psi, min: 140, max: 180 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Bladder Pressure, name_de: Bladder-Druck, name_fr: Pression du bladder, name_it: Pressione del bladder, name_es: Presión del bladder, name_pt: Pressão do bladder, type: numerical, unit: psi, min: 140, max: 180 }
             options:
               damper: [topaz_pro]
               size:
@@ -602,6 +830,22 @@ nodes:
               - Quick-Clip-Volumenspacer stimmen Positiv- und Negativkammer getrennt ab
               - Positive Spacer verhindern das Durchschlagen; negative Spacer sorgen für mehr Pedalunterstützung
               - 20-30 % SAG anstreben
+            note_fr: |-
+              - Les tokens de volume à clipser règlent séparément la chambre positive et la chambre négative
+              - Les tokens positifs empêchent le talonnage ; les tokens négatifs ajoutent du soutien au pédalage
+              - Visez 20-30 % de SAG
+            note_it: |-
+              - I token di volume a clip regolano separatamente la camera positiva e quella negativa
+              - I token positivi evitano il fondocorsa; quelli negativi aggiungono sostegno in pedalata
+              - Punta a un SAG del 20-30 %
+            note_es: |-
+              - Los tokens de volumen de clip ajustan por separado la cámara positiva y la negativa
+              - Los tokens positivos evitan que llegue al fondo; los negativos añaden apoyo al pedalear
+              - Busca un SAG del 20-30 %
+            note_pt: |-
+              - Os tokens de volume de encaixe ajustam separadamente a câmara positiva e a negativa
+              - Os tokens positivos evitam que chegue ao fim do curso; os negativos dão mais apoio ao pedalar
+              - Busque 20-30 % de SAG
           - label: Prime
             level: trim
             url: https://dvosuspension.com/product/topaz-prime/
@@ -615,6 +859,10 @@ nodes:
                 - { size: "205x57.5/60/62.5/65", mount: Trunnion }
             note: Aim for 20-30% sag, then use the bladder charge to fine-tune the feel.
             note_de: 20-30 % SAG anstreben, dann das Gefühl mit dem Bladder-Druck feinjustieren.
+            note_fr: Visez 20-30 % de SAG, puis servez-vous de la charge du bladder pour affiner la sensation.
+            note_it: Punta a un SAG del 20-30 %, poi usa la carica del bladder per rifinire la sensazione.
+            note_es: Busca un SAG del 20-30 % y usa después la carga del bladder para afinar la sensación.
+            note_pt: Busque 20-30 % de SAG e use depois a carga do bladder para ajustar a sensação.
           - label: WP CV
             level: trim
             url: https://dvosuspension.com/product/topaz-wp-cv/
@@ -630,12 +878,20 @@ nodes:
             note_de: >-
               Gemeinsam mit WP Suspension gebaut und mit dem
               Cone-Valve-Dämpferinnenleben von WP.
+            note_fr: Conçue avec WP Suspension et équipée des composants internes d’amortisseur Cone Valve de WP.
+            note_it: Realizzata con WP Suspension e dotata dei componenti interni dell’ammortizzatore Cone Valve di WP.
+            note_es: Fabricada con WP Suspension y equipada con los componentes internos de amortiguador Cone Valve de WP.
+            note_pt: Desenvolvida com a WP Suspension e equipada com os componentes internos de amortecedor Cone Valve da WP.
 
   - label: Opal
     level: model
     category: XC
     category_de: XC
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     children:
       - label: "2023–2026"
         level: generation
@@ -648,19 +904,27 @@ nodes:
             draft: true
             mounts: [Metric, Trunnion]
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
             options:
               damper: [opal_t3]
               size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
             note: OEM option only. High-volume air can with a spacer-adjustable negative chamber.
             note_de: Nur als OEM-Option. Hochvolumige Luftkammer mit über Spacer einstellbarer Negativkammer.
+            note_fr: Option monte d’origine uniquement. Chambre à air grand volume avec une chambre négative réglable par entretoises.
+            note_it: Solo opzione primo equipaggiamento. Camera d’aria ad alto volume con camera negativa regolabile con distanziali.
+            note_es: Solo opción de montaje original. Cámara de aire de gran volumen con cámara negativa ajustable mediante espaciadores.
+            note_pt: Somente opcional de montagem original. Câmara de ar de alto volume com câmara negativa ajustável com espaçadores.
 
       # ---------------- Previous generation ----------------
   - label: Topaz 2
     level: model
     category: XC / Trail
     category_de: XC / Trail
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     # Max air 300psi and bladder 170-200psi: 2020 Topaz Air Owner's Guide, p.4
     # "Do Not Exceed Maximum Air Pressure! 300PSI" and p.5 "Do Not Exceed
     # Maximum Bladder Pressure! 200PSI" with a 170-200 rider-weight chart.
@@ -679,8 +943,8 @@ nodes:
           - label: T3Air
             level: trim
             adjustments: &topaz_t3air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
-              - { name: Bladder Pressure, name_de: Bladder-Druck, type: numerical, unit: psi, min: 170, max: 200 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Bladder Pressure, name_de: Bladder-Druck, name_fr: Pression du bladder, name_it: Pressione del bladder, name_es: Presión del bladder, name_pt: Pressão do bladder, type: numerical, unit: psi, min: 170, max: 200 }
             options:
               damper: [topaz_t3air]
             note: |-
@@ -691,6 +955,22 @@ nodes:
               - Topaz der Vorgängergeneration mit höherem Bladder-Druck von 170-200psi als beim aktuellen
               - Volumenspacer stimmen Positiv- und Negativkammer getrennt ab
               - 20-30 % SAG anstreben
+            note_fr: |-
+              - Topaz de génération précédente, avec un bladder plus élevé que l’actuel, 170-200 psi
+              - Les tokens de volume règlent séparément la chambre positive et la chambre négative
+              - Visez 20-30 % de SAG
+            note_it: |-
+              - Topaz della generazione precedente, con un bladder più alto di quello attuale, 170-200 psi
+              - I token di volume regolano separatamente la camera positiva e quella negativa
+              - Punta a un SAG del 20-30 %
+            note_es: |-
+              - Topaz de la generación anterior, con un bladder más alto que el actual, 170-200 psi
+              - Los tokens de volumen ajustan por separado la cámara positiva y la negativa
+              - Busca un SAG del 20-30 %
+            note_pt: |-
+              - Topaz da geração anterior, com um bladder mais alto que o atual, 170-200 psi
+              - Os tokens de volume ajustam separadamente a câmara positiva e a negativa
+              - Busque 20-30 % de SAG
           - label: Maestro HV
             level: trim
             adjustments: *topaz_t3air_spring
@@ -700,6 +980,10 @@ nodes:
                 - { size: "205x62.5", mount: Trunnion }
             note: High-volume air can tuned specifically for Giant's Maestro suspension layout.
             note_de: Hochvolumige Luftkammer, speziell auf das Maestro-Fahrwerk von Giant abgestimmt.
+            note_fr: Chambre à air grand volume réglée spécialement pour la cinématique Maestro de Giant.
+            note_it: Camera d’aria ad alto volume tarata appositamente per la cinematica Maestro di Giant.
+            note_es: Cámara de aire de gran volumen tarada específicamente para la cinemática Maestro de Giant.
+            note_pt: Câmara de ar de alto volume calibrada especificamente para a cinemática Maestro da Giant.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

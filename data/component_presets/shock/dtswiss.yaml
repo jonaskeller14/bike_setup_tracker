@@ -49,9 +49,21 @@ option_values:
       description_de: |-
         - Hebel mit drei Modi: Open, Drive (teilweise geschlossene Druckstufe) und Lock (mit Blow-off-Ventil)
         - Rotes Zugstufenrad, etwa 40 Klicks bei Dämpfern mit Standardaufnahme
+      description_fr: |-
+        - Levier à trois modes : Open, Drive (compression partiellement fermée) et Lock (avec une valve blow-off)
+        - Molette de détente rouge, environ 40 clics sur les amortisseurs à fixation standard
+      description_it: |-
+        - Leva a tre modalità: Open, Drive (compressione parzialmente chiusa) e Lock (con una valvola blow-off)
+        - Manopola rossa del ritorno, circa 40 scatti sugli ammortizzatori con attacco standard
+      description_es: |-
+        - Palanca de tres modos: Open, Drive (compresión parcialmente cerrada) y Lock (con una válvula blow-off)
+        - Rueda roja de rebote, unos 40 clics en los amortiguadores con anclaje estándar
+      description_pt: |-
+        - Alavanca de três modos: Open, Drive (compressão parcialmente fechada) e Lock (com uma válvula blow-off)
+        - Seletor vermelho de retorno, cerca de 40 cliques nos amortecedores com fixação padrão
       adjustments:
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock] }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 40, notes: 'Clockwise adds damping; DT Swiss states around 40 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 40 Klicks, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock], options_fr: [Ouvert, Drive, Lock], options_it: [Aperto, Drive, Lock], options_es: [Abierto, Drive, Lock], options_pt: [Aberto, Drive, Lock] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 40, notes: 'Clockwise adds damping; DT Swiss states around 40 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 40 Klicks, notes_fr: Le sens horaire ajoute de l’amortissement ; DT Swiss indique environ 40 clics, notes_it: Il senso orario aumenta lo smorzamento; DT Swiss indica circa 40 scatti, notes_es: El sentido horario añade amortiguación; DT Swiss indica unos 40 clics, notes_pt: O sentido horário aumenta o amortecimento; a DT Swiss indica cerca de 40 cliques, dialColor: red }
       source:
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/01/87/3/MAN_CXD10000001873S_WEB_ZZ_001.pdf
@@ -65,9 +77,21 @@ option_values:
       description_de: |-
         - Hebel mit drei Modi: Open, Drive (teilweise geschlossene Druckstufe) und Lock (mit Blow-off-Ventil)
         - Rotes Zugstufenrad, etwa 22 Klicks bei Dämpfern mit Trunnion-Aufnahme
+      description_fr: |-
+        - Levier à trois modes : Open, Drive (compression partiellement fermée) et Lock (avec une valve blow-off)
+        - Molette de détente rouge, environ 22 clics sur les amortisseurs à fixation trunnion
+      description_it: |-
+        - Leva a tre modalità: Open, Drive (compressione parzialmente chiusa) e Lock (con una valvola blow-off)
+        - Manopola rossa del ritorno, circa 22 scatti sugli ammortizzatori con attacco trunnion
+      description_es: |-
+        - Palanca de tres modos: Open, Drive (compresión parcialmente cerrada) y Lock (con una válvula blow-off)
+        - Rueda roja de rebote, unos 22 clics en los amortiguadores con anclaje trunnion
+      description_pt: |-
+        - Alavanca de três modos: Open, Drive (compressão parcialmente fechada) e Lock (com uma válvula blow-off)
+        - Seletor vermelho de retorno, cerca de 22 cliques nos amortecedores com fixação trunnion
       adjustments:
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock] }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 22, notes: 'Clockwise adds damping; DT Swiss states around 22 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 22 Klicks, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock], options_fr: [Ouvert, Drive, Lock], options_it: [Aperto, Drive, Lock], options_es: [Abierto, Drive, Lock], options_pt: [Aberto, Drive, Lock] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 22, notes: 'Clockwise adds damping; DT Swiss states around 22 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 22 Klicks, notes_fr: Le sens horaire ajoute de l’amortissement ; DT Swiss indique environ 22 clics, notes_it: Il senso orario aumenta lo smorzamento; DT Swiss indica circa 22 scatti, notes_es: El sentido horario añade amortiguación; DT Swiss indica unos 22 clics, notes_pt: O sentido horário aumenta o amortecimento; a DT Swiss indica cerca de 22 cliques, dialColor: red }
       source:
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/01/87/3/MAN_CXD10000001873S_WEB_ZZ_001.pdf
@@ -81,9 +105,21 @@ option_values:
       description_de: |-
         - Zwei-Positionen-Hebel: Open und Lock (mit Blow-off-Ventil)
         - Rotes Zugstufenrad, etwa 40 Klicks bei Dämpfern mit Standardaufnahme
+      description_fr: |-
+        - Levier à deux positions : Open et Lock (avec une valve blow-off)
+        - Molette de détente rouge, environ 40 clics sur les amortisseurs à fixation standard
+      description_it: |-
+        - Leva a due posizioni: Open e Lock (con una valvola blow-off)
+        - Manopola rossa del ritorno, circa 40 scatti sugli ammortizzatori con attacco standard
+      description_es: |-
+        - Palanca de dos posiciones: Open y Lock (con una válvula blow-off)
+        - Rueda roja de rebote, unos 40 clics en los amortiguadores con anclaje estándar
+      description_pt: |-
+        - Alavanca de duas posições: Open e Lock (com uma válvula blow-off)
+        - Seletor vermelho de retorno, cerca de 40 cliques nos amortecedores com fixação padrão
       adjustments:
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Lock], options_de: [Offen, Lock] }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 40, notes: 'Clockwise adds damping; DT Swiss states around 40 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 40 Klicks, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Lock], options_de: [Offen, Lock], options_fr: [Ouvert, Lock], options_it: [Aperto, Lock], options_es: [Abierto, Lock], options_pt: [Aberto, Lock] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 40, notes: 'Clockwise adds damping; DT Swiss states around 40 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 40 Klicks, notes_fr: Le sens horaire ajoute de l’amortissement ; DT Swiss indique environ 40 clics, notes_it: Il senso orario aumenta lo smorzamento; DT Swiss indica circa 40 scatti, notes_es: El sentido horario añade amortiguación; DT Swiss indica unos 40 clics, notes_pt: O sentido horário aumenta o amortecimento; a DT Swiss indica cerca de 40 cliques, dialColor: red }
       source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
       note: R 535 / R 535 ONE user manual V2023.03 sec. 4.6 and 4.7.
 
@@ -95,9 +131,21 @@ option_values:
       description_de: |-
         - Zwei-Positionen-Hebel: Open und Lock (mit Blow-off-Ventil)
         - Rotes Zugstufenrad, etwa 22 Klicks bei Dämpfern mit Trunnion-Aufnahme
+      description_fr: |-
+        - Levier à deux positions : Open et Lock (avec une valve blow-off)
+        - Molette de détente rouge, environ 22 clics sur les amortisseurs à fixation trunnion
+      description_it: |-
+        - Leva a due posizioni: Open e Lock (con una valvola blow-off)
+        - Manopola rossa del ritorno, circa 22 scatti sugli ammortizzatori con attacco trunnion
+      description_es: |-
+        - Palanca de dos posiciones: Open y Lock (con una válvula blow-off)
+        - Rueda roja de rebote, unos 22 clics en los amortiguadores con anclaje trunnion
+      description_pt: |-
+        - Alavanca de duas posições: Open e Lock (com uma válvula blow-off)
+        - Seletor vermelho de retorno, cerca de 22 cliques nos amortecedores com fixação trunnion
       adjustments:
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Lock], options_de: [Offen, Lock] }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 22, notes: 'Clockwise adds damping; DT Swiss states around 22 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 22 Klicks, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Lock], options_de: [Offen, Lock], options_fr: [Ouvert, Lock], options_it: [Aperto, Lock], options_es: [Abierto, Lock], options_pt: [Aberto, Lock] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 22, notes: 'Clockwise adds damping; DT Swiss states around 22 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 22 Klicks, notes_fr: Le sens horaire ajoute de l’amortissement ; DT Swiss indique environ 22 clics, notes_it: Il senso orario aumenta lo smorzamento; DT Swiss indica circa 22 scatti, notes_es: El sentido horario añade amortiguación; DT Swiss indica unos 22 clics, notes_pt: O sentido horário aumenta o amortecimento; a DT Swiss indica cerca de 22 cliques, dialColor: red }
       source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
       note: R 535 / R 535 ONE user manual V2023.03 sec. 4.6 and 4.7.
 
@@ -109,9 +157,21 @@ option_values:
       description_de: |-
         - Hebel oder Lenkerfernbedienung mit drei Modi: Open, Drive und Lock (mit Blow-off-Ventil)
         - Rotes Zugstufenrad, etwa 40 Klicks bei Dämpfern mit Standardaufnahme
+      description_fr: |-
+        - Levier ou commande au guidon à trois modes : Open, Drive et Lock (avec une valve blow-off)
+        - Molette de détente rouge, environ 40 clics sur les amortisseurs à fixation standard
+      description_it: |-
+        - Leva o comando al manubrio a tre modalità: Open, Drive e Lock (con una valvola blow-off)
+        - Manopola rossa del ritorno, circa 40 scatti sugli ammortizzatori con attacco standard
+      description_es: |-
+        - Palanca o mando de manillar de tres modos: Open, Drive y Lock (con una válvula blow-off)
+        - Rueda roja de rebote, unos 40 clics en los amortiguadores con anclaje estándar
+      description_pt: |-
+        - Alavanca ou comando no guidão de três modos: Open, Drive e Lock (com uma válvula blow-off)
+        - Seletor vermelho de retorno, cerca de 40 cliques nos amortecedores com fixação padrão
       adjustments:
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock] }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 40, notes: 'Clockwise adds damping; DT Swiss states around 40 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 40 Klicks, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock], options_fr: [Ouvert, Drive, Lock], options_it: [Aperto, Drive, Lock], options_es: [Abierto, Drive, Lock], options_pt: [Aberto, Drive, Lock] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 40, notes: 'Clockwise adds damping; DT Swiss states around 40 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 40 Klicks, notes_fr: Le sens horaire ajoute de l’amortissement ; DT Swiss indique environ 40 clics, notes_it: Il senso orario aumenta lo smorzamento; DT Swiss indica circa 40 scatti, notes_es: El sentido horario añade amortiguación; DT Swiss indica unos 40 clics, notes_pt: O sentido horário aumenta o amortecimento; a DT Swiss indica cerca de 40 cliques, dialColor: red }
       source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
       note: R 232 ONE user manual V2021.10 sec. 4.5 and 4.6.
 
@@ -123,9 +183,21 @@ option_values:
       description_de: |-
         - Hebel oder Lenkerfernbedienung mit drei Modi: Open, Drive und Lock (mit Blow-off-Ventil)
         - Rotes Zugstufenrad, etwa 22 Klicks bei Dämpfern mit Trunnion-Aufnahme
+      description_fr: |-
+        - Levier ou commande au guidon à trois modes : Open, Drive et Lock (avec une valve blow-off)
+        - Molette de détente rouge, environ 22 clics sur les amortisseurs à fixation trunnion
+      description_it: |-
+        - Leva o comando al manubrio a tre modalità: Open, Drive e Lock (con una valvola blow-off)
+        - Manopola rossa del ritorno, circa 22 scatti sugli ammortizzatori con attacco trunnion
+      description_es: |-
+        - Palanca o mando de manillar de tres modos: Open, Drive y Lock (con una válvula blow-off)
+        - Rueda roja de rebote, unos 22 clics en los amortiguadores con anclaje trunnion
+      description_pt: |-
+        - Alavanca ou comando no guidão de três modos: Open, Drive e Lock (com uma válvula blow-off)
+        - Seletor vermelho de retorno, cerca de 22 cliques nos amortecedores com fixação trunnion
       adjustments:
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock] }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 22, notes: 'Clockwise adds damping; DT Swiss states around 22 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 22 Klicks, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Drive, Lock], options_de: [Offen, Drive, Lock], options_fr: [Ouvert, Drive, Lock], options_it: [Aperto, Drive, Lock], options_es: [Abierto, Drive, Lock], options_pt: [Aberto, Drive, Lock] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 22, notes: 'Clockwise adds damping; DT Swiss states around 22 clicks', notes_de: Im Uhrzeigersinn erhöht die Dämpfung; DT Swiss nennt etwa 22 Klicks, notes_fr: Le sens horaire ajoute de l’amortissement ; DT Swiss indique environ 22 clics, notes_it: Il senso orario aumenta lo smorzamento; DT Swiss indica circa 22 scatti, notes_es: El sentido horario añade amortiguación; DT Swiss indica unos 22 clics, notes_pt: O sentido horário aumenta o amortecimento; a DT Swiss indica cerca de 22 cliques, dialColor: red }
       source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
       note: R 232 ONE user manual V2021.10 sec. 4.5 and 4.6.
 
@@ -140,6 +212,10 @@ guides:
   dtswiss_r535_2023:
     label: DT Swiss R 535 / R 535 ONE user manual (2023)
     label_de: DT Swiss R 535 / R 535 ONE Bedienungsanleitung (2023)
+    label_fr: Manuel d’utilisation DT Swiss R 535 / R 535 ONE (2023)
+    label_it: Manuale d’uso DT Swiss R 535 / R 535 ONE (2023)
+    label_es: Manual del usuario DT Swiss R 535 / R 535 ONE (2023)
+    label_pt: Manual do usuário DT Swiss R 535 / R 535 ONE (2023)
     source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
     rules:
       - target: pressure
@@ -153,12 +229,20 @@ guides:
         }
         note: &dt_shock_pressure A starting point that varies with the frame; set the final pressure by SAG
         note_de: &dt_shock_pressure_de Ein Ausgangspunkt, der je nach Rahmen variiert; den endgültigen Druck über den SAG einstellen
+        note_fr: &dt_shock_pressure_fr Un point de départ qui varie selon le cadre ; réglez la pression finale au SAG
+        note_it: &dt_shock_pressure_it Un punto di partenza che varia in base al telaio; regola la pressione finale in base al SAG
+        note_es: &dt_shock_pressure_es Un punto de partida que varía según el cuadro; ajusta la presión final según el SAG
+        note_pt: &dt_shock_pressure_pt Um ponto de partida que varia conforme o quadro; defina a pressão final pelo SAG
       - &dt_shock_mode { target: compression_mode, value: Open }
-      - &dt_shock_sag { target: sag, range: [20, 35], comfort_at: max, note: "DT Swiss: 20-25 % for a firmer cross-country feel, 25-35 % for downhill", note_de: "DT Swiss: 20-25 % für ein festeres Cross-Country-Gefühl, 25-35 % für Downhill" }
+      - &dt_shock_sag { target: sag, range: [20, 35], comfort_at: max, note: "DT Swiss: 20-25 % for a firmer cross-country feel, 25-35 % for downhill", note_de: "DT Swiss: 20-25 % für ein festeres Cross-Country-Gefühl, 25-35 % für Downhill", note_fr: "DT Swiss : 20-25 % pour une sensation cross-country plus ferme, 25-35 % pour la descente", note_it: "DT Swiss: 20-25 % per una sensazione cross-country più rigida, 25-35 % per il downhill", note_es: "DT Swiss: 20-25 % para una sensación cross-country más firme, 25-35 % para descenso", note_pt: "DT Swiss: 20-25 % para uma sensação cross-country mais firme, 25-35 % para downhill" }
 
   dtswiss_r232one_2021:
     label: DT Swiss R 232 ONE user manual (2021)
     label_de: DT Swiss R 232 ONE Bedienungsanleitung (2021)
+    label_fr: Manuel d’utilisation DT Swiss R 232 ONE (2021)
+    label_it: Manuale d’uso DT Swiss R 232 ONE (2021)
+    label_es: Manual del usuario DT Swiss R 232 ONE (2021)
+    label_pt: Manual do usuário DT Swiss R 232 ONE (2021)
     source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
     rules:
       - target: pressure
@@ -172,6 +256,10 @@ guides:
         }
         note: *dt_shock_pressure
         note_de: *dt_shock_pressure_de
+        note_fr: *dt_shock_pressure_fr
+        note_it: *dt_shock_pressure_it
+        note_es: *dt_shock_pressure_es
+        note_pt: *dt_shock_pressure_pt
       - *dt_shock_mode
       - *dt_shock_sag
 
@@ -183,10 +271,14 @@ nodes:
     level: model
     category: Trail / All-Mountain
     category_de: Trail / All-Mountain
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: Trail / All-Mountain
+    category_it: Trail / All-Mountain
+    category_es: Trail / All-Mountain
+    category_pt: Trail / All-Mountain
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: &dtswiss_service
-      shock:air_can_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual, source_de: DT-Swiss-Handbuch }
-      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual, source_de: DT-Swiss-Handbuch }
+      shock:air_can_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual, source_de: DT-Swiss-Handbuch, source_fr: Manuel d’utilisation DT Swiss, source_it: Manuale d’uso DT Swiss, source_es: Manual del usuario DT Swiss, source_pt: Manual do usuário DT Swiss }
+      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual, source_de: DT-Swiss-Handbuch, source_fr: Manuel d’utilisation DT Swiss, source_it: Manuale d’uso DT Swiss, source_es: Manual del usuario DT Swiss, source_pt: Manual do usuário DT Swiss }
     children:
       - label: "2021–2026"
         level: generation
@@ -198,29 +290,41 @@ nodes:
         children:
           - label: Standard Mount
             level: trim
-            specs: { spring: LINEAIR, spring_de: LINEAIR, mount: Standard }
+            specs: { spring: LINEAIR, spring_de: LINEAIR, spring_fr: LINEAIR, spring_it: LINEAIR, spring_es: LINEAIR, spring_pt: LINEAIR, mount: Standard }
             adjustments: &air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 333 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 333 }
             options:
               damper: [r535_one_standard]
               size: ["190x40/45", "210x50/55", "230x60/65"]
             note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
             note_de: Große Negativluftkammer mit Bypass für Ansprechen bei kleinen Schlägen; DU-Buchsen.
+            note_fr: Grande chambre négative pneumatique avec un bypass pour la sensibilité aux petites bosses ; bagues DU.
+            note_it: Grande camera negativa pneumatica con un bypass per la sensibilità alle piccole asperità; boccole DU.
+            note_es: Gran cámara neumática negativa con un bypass para la sensibilidad en pequeños baches; casquillos DU.
+            note_pt: Grande câmara negativa a ar com um bypass para sensibilidade em pequenas irregularidades; buchas DU.
           - label: Trunnion Mount
             level: trim
-            specs: { spring: LINEAIR, spring_de: LINEAIR, mount: Trunnion }
+            specs: { spring: LINEAIR, spring_de: LINEAIR, spring_fr: LINEAIR, spring_it: LINEAIR, spring_es: LINEAIR, spring_pt: LINEAIR, mount: Trunnion }
             adjustments: *air_spring
             options:
               damper: [r535_one_trunnion]
               size: ["165x40/45", "185x50/55", "205x60/65"]
             note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
             note_de: Große Negativluftkammer mit Bypass für Ansprechen bei kleinen Schlägen; DU-Buchsen.
+            note_fr: Grande chambre négative pneumatique avec un bypass pour la sensibilité aux petites bosses ; bagues DU.
+            note_it: Grande camera negativa pneumatica con un bypass per la sensibilità alle piccole asperità; boccole DU.
+            note_es: Gran cámara neumática negativa con un bypass para la sensibilidad en pequeños baches; casquillos DU.
+            note_pt: Grande câmara negativa a ar com um bypass para sensibilidade em pequenas irregularidades; buchas DU.
 
   - label: "R 535"
     level: model
     category: Trail / All-Mountain
     category_de: Trail / All-Mountain
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: Trail / All-Mountain
+    category_it: Trail / All-Mountain
+    category_es: Trail / All-Mountain
+    category_pt: Trail / All-Mountain
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *dtswiss_service
     children:
       - label: "2023–2026"
@@ -233,28 +337,40 @@ nodes:
         children:
           - label: Standard Mount
             level: trim
-            specs: { spring: LINEAIR, spring_de: LINEAIR, mount: Standard }
+            specs: { spring: LINEAIR, spring_de: LINEAIR, spring_fr: LINEAIR, spring_it: LINEAIR, spring_es: LINEAIR, spring_pt: LINEAIR, mount: Standard }
             adjustments: *air_spring
             options:
               damper: [r535_standard]
               size: ["190x40/45", "210x50/55", "230x60/65"]
             note: Two-position lever (Open / Lock); DU bushings.
             note_de: Zwei-Positionen-Hebel (Open / Lock); DU-Buchsen.
+            note_fr: Levier à deux positions (Open / Lock) ; bagues DU.
+            note_it: Leva a due posizioni (Open / Lock); boccole DU.
+            note_es: Palanca de dos posiciones (Open / Lock); casquillos DU.
+            note_pt: Alavanca de duas posições (Open / Lock); buchas DU.
           - label: Trunnion Mount
             level: trim
-            specs: { spring: LINEAIR, spring_de: LINEAIR, mount: Trunnion }
+            specs: { spring: LINEAIR, spring_de: LINEAIR, spring_fr: LINEAIR, spring_it: LINEAIR, spring_es: LINEAIR, spring_pt: LINEAIR, mount: Trunnion }
             adjustments: *air_spring
             options:
               damper: [r535_trunnion]
               size: ["165x40/45", "185x50/55", "205x60/65"]
             note: Two-position lever (Open / Lock); DU bushings.
             note_de: Zwei-Positionen-Hebel (Open / Lock); DU-Buchsen.
+            note_fr: Levier à deux positions (Open / Lock) ; bagues DU.
+            note_it: Leva a due posizioni (Open / Lock); boccole DU.
+            note_es: Palanca de dos posiciones (Open / Lock); casquillos DU.
+            note_pt: Alavanca de duas posições (Open / Lock); buchas DU.
 
   - label: "R 232 ONE"
     level: model
     category: XC
     category_de: XC
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *dtswiss_service
     children:
       - label: "2020–2026"
@@ -267,23 +383,31 @@ nodes:
         children:
           - label: Standard Mount
             level: trim
-            specs: { spring: LINEAIR, spring_de: LINEAIR, mount: Standard }
+            specs: { spring: LINEAIR, spring_de: LINEAIR, spring_fr: LINEAIR, spring_it: LINEAIR, spring_es: LINEAIR, spring_pt: LINEAIR, mount: Standard }
             adjustments: &air_spring_232
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 260 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 260 }
             options:
               damper: [r232_one_standard]
               size: ["190x40/45", "210x50/55"]
             note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
             note_de: Auf XC abgestimmte Doppelkammer-Luftfeder ab 245g; Hebel- oder Fernbedienungsversionen.
+            note_fr: Ressort pneumatique à double chambre réglé pour le XC, à partir de 245 g ; versions à levier ou à commande déportée.
+            note_it: Molla pneumatica a doppia camera tarata per l’XC, da 245 g; versioni con leva o remote.
+            note_es: Muelle neumático de doble cámara tarado para XC, desde 245 g; versiones con palanca o con mando remoto.
+            note_pt: Mola a ar de câmara dupla calibrada para XC, a partir de 245 g; versões com alavanca ou remoto.
           - label: Trunnion Mount
             level: trim
-            specs: { spring: LINEAIR, spring_de: LINEAIR, mount: Trunnion }
+            specs: { spring: LINEAIR, spring_de: LINEAIR, spring_fr: LINEAIR, spring_it: LINEAIR, spring_es: LINEAIR, spring_pt: LINEAIR, mount: Trunnion }
             adjustments: *air_spring_232
             options:
               damper: [r232_one_trunnion]
               size: ["165x40/45", "185x50/55"]
             note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
             note_de: Auf XC abgestimmte Doppelkammer-Luftfeder ab 245g; Hebel- oder Fernbedienungsversionen.
+            note_fr: Ressort pneumatique à double chambre réglé pour le XC, à partir de 245 g ; versions à levier ou à commande déportée.
+            note_it: Molla pneumatica a doppia camera tarata per l’XC, da 245 g; versioni con leva o remote.
+            note_es: Muelle neumático de doble cámara tarado para XC, desde 245 g; versiones con palanca o con mando remoto.
+            note_pt: Mola a ar de câmara dupla calibrada para XC, a partir de 245 g; versões com alavanca ou remoto.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

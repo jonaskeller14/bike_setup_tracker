@@ -73,11 +73,23 @@ option_values:
       description_de: |-
         - XC-Rennkartusche mit Drei-Positionen-Hebel: Open, Pedal und Lockout
         - Zugstufe, Low-Speed- und High-Speed-Druckstufe haben jeweils ein eigenes Rad
+      description_fr: |-
+        - Cartouche de course XC avec un levier à trois positions : Open, Pedal et Lockout
+        - La détente, la compression basse vitesse et la compression haute vitesse ont chacune leur propre molette
+      description_it: |-
+        - Cartuccia da gara XC con una leva a tre posizioni: Open, Pedal e Lockout
+        - Ritorno, compressione a bassa velocità e compressione ad alta velocità hanno ciascuno la propria manopola
+      description_es: |-
+        - Cartucho de competición XC con una palanca de tres posiciones: Open, Pedal y Lockout
+        - El rebote, la compresión de baja velocidad y la de alta velocidad tienen cada uno su propia rueda
+      description_pt: |-
+        - Cartucho de competição XC com uma alavanca de três posições: Open, Pedal e Lockout
+        - O retorno, a compressão de baixa velocidade e a de alta velocidade têm cada um o seu próprio seletor
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: LSC, name_de: LSC, type: step, max: 10, notes: "Low-Speed Compression; manual-lever version", notes_de: Low-Speed-Druckstufe; Version mit manuellem Hebel }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 12 }
-        - { name: Ride Mode, name_de: Fahrmodus, type: categorical, options: [Open, Pedal, Lockout], options_de: [Offen, Pedal, Lockout], notes: "Crown lever or bar remote; 7.5mm cable pull per click, 5.5mm/click adapter available", notes_de: "Hebel an der Gabelbrücke oder Lenkerfernbedienung; 7,5mm Seilzug pro Klick, Adapter mit 5,5mm/Klick erhältlich" }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 10, notes: "Low-Speed Compression; manual-lever version", notes_de: Low-Speed-Druckstufe; Version mit manuellem Hebel, notes_fr: Compression basse vitesse ; version à levier manuel, notes_it: Compressione a bassa velocità; versione con leva manuale, notes_es: Compresión de baja velocidad; versión de palanca manual, notes_pt: Compressão de baixa velocidade; versão com alavanca manual }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 12 }
+        - { name: Ride Mode, name_de: Fahrmodus, name_fr: Mode de conduite, name_it: Modalità di guida, name_es: Modo de conducción, name_pt: Modo de pilotagem, type: categorical, options: [Open, Pedal, Lockout], options_de: [Offen, Pedal, Lockout], options_fr: [Ouvert, Pedal, Lockout], options_it: [Aperto, Pedal, Lockout], options_es: [Abierto, Pedal, Lockout], options_pt: [Aberto, Pedal, Lockout], notes: "Crown lever or bar remote; 7.5mm cable pull per click, 5.5mm/click adapter available", notes_de: "Hebel an der Gabelbrücke oder Lenkerfernbedienung; 7,5mm Seilzug pro Klick, Adapter mit 5,5mm/Klick erhältlich", notes_fr: "Levier sur le té ou commande au guidon ; 7,5 mm de course de câble par clic, adaptateur de 5,5 mm/clic disponible", notes_it: "Leva sulla piastra o comando al manubrio; 7,5 mm di corsa del cavo per scatto, adattatore da 5,5 mm/scatto disponibile", notes_es: "Palanca en la corona o mando de manillar; 7,5 mm de recorrido de cable por clic, adaptador de 5,5 mm/clic disponible", notes_pt: "Alavanca na coroa ou comando no guidão; 7,5 mm de puxada de cabo por clique, adaptador de 5,5 mm/clique disponível" }
       source:
         - https://www.ohlins.eu/en/products/mountainbike/rxc34-m1-air-otx14-r--7692/
         - https://www.ambmag.com.au/feature/ohlins-xc-suspension-review
@@ -102,10 +114,26 @@ option_values:
         - Trail-/Downcountry-Kartusche; Dämpfung und Luftfeder sitzen in gegenüberliegenden Gabelbeinen
         - Die High-Speed-Druckstufe ist ein Rad mit drei Positionen, 0 ist ganz geschlossen
         - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
+      description_fr: |-
+        - Cartouche trail/downcountry ; l’amortissement et le ressort pneumatique se trouvent dans des jambes opposées
+        - La compression haute vitesse est une molette à trois positions, 0 étant entièrement fermé
+        - Chaque clic est compté depuis la position entièrement fermée, en ouvrant dans le sens antihoraire
+      description_it: |-
+        - Cartuccia trail/downcountry; smorzamento e molla pneumatica stanno in steli opposti
+        - La compressione ad alta velocità è una manopola a tre posizioni, 0 è completamente chiusa
+        - Ogni scatto è contato a partire dalla posizione completamente chiusa, aprendo in senso antiorario
+      description_es: |-
+        - Cartucho trail/downcountry; la amortiguación y el muelle neumático están en piernas opuestas
+        - La compresión de alta velocidad es una rueda de tres posiciones, siendo 0 totalmente cerrada
+        - Cada clic se cuenta desde la posición totalmente cerrada, abriendo en sentido antihorario
+      description_pt: |-
+        - Cartucho trail/downcountry; o amortecimento e a mola a ar ficam em pernas opostas
+        - A compressão de alta velocidade é um seletor de três posições, sendo 0 totalmente fechada
+        - Cada clique é contado a partir da posição totalmente fechada, abrindo no sentido anti-horário
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 2, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, dialColor: grey }
-        - { name: LSC, name_de: LSC, type: step, max: 15, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 15, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 2, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: grey }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 15, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 15, dialColor: orange }
       source:
         - https://www.ohlins.eu/en/products/mountainbike/rxf34-m2-air-otx18-29--7685/
         - https://www.ohlins.com/storage/B9AC95E58353CFA82EC9840F30F16E6AD76B61BF05DB8A5B7CDE65BC9E15C8D0/469d00f818d54e0ca34230baa6eaa34e/pdf/media/fa74b243c1a34513a89ddb391dd8a5c7/Owners%20manual%20RXF34%20m2.pdf
@@ -128,10 +156,26 @@ option_values:
         - Zweirohr-Kartusche für Trail/Enduro, Generation m.2
         - Die High-Speed-Druckstufe ist ein Rad mit vier Positionen; 0 ist eine feste Klettergrundlage (Plattform)
         - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
+      description_fr: |-
+        - Cartouche trail/enduro bitube, génération m.2
+        - La compression haute vitesse est une molette à quatre positions ; 0 est une plateforme de montée ferme
+        - Chaque clic est compté depuis la position entièrement fermée, en ouvrant dans le sens antihoraire
+      description_it: |-
+        - Cartuccia trail/enduro bitubo, generazione m.2
+        - La compressione ad alta velocità è una manopola a quattro posizioni; 0 è una piattaforma rigida per la salita
+        - Ogni scatto è contato a partire dalla posizione completamente chiusa, aprendo in senso antiorario
+      description_es: |-
+        - Cartucho trail/enduro bitubo, generación m.2
+        - La compresión de alta velocidad es una rueda de cuatro posiciones; 0 es una plataforma firme de subida
+        - Cada clic se cuenta desde la posición totalmente cerrada, abriendo en sentido antihorario
+      description_pt: |-
+        - Cartucho trail/enduro bitubo, geração m.2
+        - A compressão de alta velocidade é um seletor de quatro posições; 0 é uma plataforma firme de subida
+        - Cada clique é contado a partir da posição totalmente fechada, abrindo no sentido anti-horário
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 3, notes: "High-Speed Compression; position 0 is the firm climb platform", notes_de: High-Speed-Druckstufe; Position 0 ist die feste Klettergrundlage (Plattform), dialColor: grey }
-        - { name: LSC, name_de: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 3, notes: "High-Speed Compression; position 0 is the firm climb platform", notes_de: High-Speed-Druckstufe; Position 0 ist die feste Klettergrundlage (Plattform), notes_fr: Compression haute vitesse ; la position 0 est la plateforme de montée ferme, notes_it: Compressione ad alta velocità; la posizione 0 è la piattaforma rigida per la salita, notes_es: Compresión de alta velocidad; la posición 0 es la plataforma firme de subida, notes_pt: Compressão de alta velocidade; a posição 0 é a plataforma firme de subida, dialColor: grey }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, dialColor: orange }
       source:
         - https://www.ohlins.eu/de/products/mountainbike/rxf36-m2-air-ttx18-275--7698/
         - https://www.ohlins.eu/en/products/mountainbike/rxf38-m2-air-ttx18-29--7694/
@@ -153,10 +197,26 @@ option_values:
         - Zweirohr-Kartusche für Trail/Enduro/DH, Generation m.3, mit überarbeitetem Innenleben
         - Überarbeitetes Innenleben gegenüber der m.2-Kartusche
         - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
+      description_fr: |-
+        - Cartouche trail/enduro/DH bitube, génération m.3, avec des composants internes retravaillés
+        - Composants internes retravaillés par rapport à la cartouche m.2
+        - Chaque clic est compté depuis la position entièrement fermée, en ouvrant dans le sens antihoraire
+      description_it: |-
+        - Cartuccia trail/enduro/DH bitubo, generazione m.3, con componenti interni rivisti
+        - Componenti interni rivisti rispetto alla cartuccia m.2
+        - Ogni scatto è contato a partire dalla posizione completamente chiusa, aprendo in senso antiorario
+      description_es: |-
+        - Cartucho trail/enduro/DH bitubo, generación m.3, con componentes internos rediseñados
+        - Componentes internos rediseñados respecto al cartucho m.2
+        - Cada clic se cuenta desde la posición totalmente cerrada, abriendo en sentido antihorario
+      description_pt: |-
+        - Cartucho trail/enduro/DH bitubo, geração m.3, com componentes internos reformulados
+        - Componentes internos reformulados em relação ao cartucho m.2
+        - Cada clique é contado a partir da posição totalmente fechada, abrindo no sentido anti-horário
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 3, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, dialColor: grey }
-        - { name: LSC, name_de: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 3, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: grey }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, dialColor: orange }
       source:
         - https://www.ohlins.eu/en/products/mountainbike/rxf36-m3-air-ttx18-275--7696/
         - https://www.ohlins.eu/en/products/mountainbike/rxf38-m3-air-coil-ttx18--7748/
@@ -174,10 +234,22 @@ option_values:
       description_de: |-
         - Zweirohr-Kartusche der RXF38 der ersten Generation
         - Die High-Speed-Druckstufe ist ein Rad mit vier Positionen, ausgeliefert ganz offen auf 3
+      description_fr: |-
+        - Cartouche bitube du RXF38 de première génération
+        - La compression haute vitesse est une molette à quatre positions, livrée entièrement ouverte sur 3
+      description_it: |-
+        - Cartuccia bitubo della RXF38 di prima generazione
+        - La compressione ad alta velocità è una manopola a quattro posizioni, fornita completamente aperta su 3
+      description_es: |-
+        - Cartucho bitubo de la RXF38 de primera generación
+        - La compresión de alta velocidad es una rueda de cuatro posiciones, que sale de fábrica totalmente abierta en 3
+      description_pt: |-
+        - Cartucho bitubo da RXF38 de primeira geração
+        - A compressão de alta velocidade é um seletor de quatro posições, entregue totalmente aberto em 3
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 3, notes: "High-Speed Compression; 0 is fully closed, 3 fully open", notes_de: "High-Speed-Druckstufe; 0 ist ganz geschlossen, 3 ganz offen", dialColor: grey }
-        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~ }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 3, notes: "High-Speed Compression; 0 is fully closed, 3 fully open", notes_de: "High-Speed-Druckstufe; 0 ist ganz geschlossen, 3 ganz offen", notes_fr: "Compression haute vitesse ; 0 est entièrement fermé, 3 entièrement ouvert", notes_it: "Compressione ad alta velocità; 0 è completamente chiuso, 3 completamente aperto", notes_es: "Compresión de alta velocidad; 0 es totalmente cerrado, 3 totalmente abierto", notes_pt: "Compressão de alta velocidade; 0 é totalmente fechado, 3 totalmente aberto", dialColor: grey }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~ }
       source: https://ohlins.com/storage/9C8C7FB7E305B5CED4AFC6118547113286CF63B94F14ADAB8050C2CFEA78FF38/dcb2294119c04b8da8dd7613ae7db28f/pdf/media/60aa019099bd416e8b0207e44ee4a2ac/OM_07258-09_3_FGxx%2038xx%2021xx.pdf
       note: >-
         Owner's Manual RXF38 m.1 (part no. OM_07258-09_3), chapter "4 TTX18
@@ -194,10 +266,22 @@ option_values:
       description_de: |-
         - Zweirohr-Kartusche der ursprünglichen RXF34/RXF36, gegenüber der Luftfeder
         - Die High-Speed-Druckstufe reicht von 0 ganz geschlossen bis 5 ganz offen, ausgeliefert auf 5
+      description_fr: |-
+        - Cartouche bitube des RXF34/RXF36 d’origine, à l’opposé du ressort pneumatique
+        - La compression haute vitesse va de 0 entièrement fermé à 5 entièrement ouvert, livrée sur 5
+      description_it: |-
+        - Cartuccia bitubo delle RXF34/RXF36 originali, opposta alla molla pneumatica
+        - La compressione ad alta velocità va da 0 completamente chiusa a 5 completamente aperta, fornita su 5
+      description_es: |-
+        - Cartucho bitubo de las RXF34/RXF36 originales, opuesto al muelle neumático
+        - La compresión de alta velocidad va de 0 totalmente cerrada a 5 totalmente abierta, y sale de fábrica en 5
+      description_pt: |-
+        - Cartucho bitubo das RXF34/RXF36 originais, oposto à mola a ar
+        - A compressão de alta velocidade vai de 0 totalmente fechada a 5 totalmente aberta, entregue em 5
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 5, notes: "High-Speed Compression; 0 is fully closed, 5 fully open", notes_de: "High-Speed-Druckstufe; 0 ist ganz geschlossen, 5 ganz offen" }
-        - { name: LSC, name_de: LSC, type: step, max: 8, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 8, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 5, notes: "High-Speed Compression; 0 is fully closed, 5 fully open", notes_de: "High-Speed-Druckstufe; 0 ist ganz geschlossen, 5 ganz offen", notes_fr: "Compression haute vitesse ; 0 est entièrement fermé, 5 entièrement ouvert", notes_it: "Compressione ad alta velocità; 0 è completamente chiuso, 5 completamente aperto", notes_es: "Compresión de alta velocidad; 0 es totalmente cerrado, 5 totalmente abierto", notes_pt: "Compressão de alta velocidade; 0 é totalmente fechado, 5 totalmente aberto" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 8, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compression basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Compressione a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Compresión de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Compressão de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 8, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Détente basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Ritorno a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Rebote de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Retorno de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente" }
       source: https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf
       note: >-
         Öhlins "Front Fork RXF34/RXF36 Owner's Manual / Mounting Instructions",
@@ -221,9 +305,21 @@ option_values:
       description_de: |-
         - Einfachere Kartusche, die in der ursprünglichen RXF36 neben der TTX22 angeboten wurde
         - Nur Low-Speed-Druckstufe und Zugstufe, beide ab Werk auf 7 Klicks von geschlossen aus
+      description_fr: |-
+        - Cartouche plus simple vendue avec le TTX22 dans la RXF36 d’origine
+        - Compression basse vitesse et détente uniquement, toutes deux livrées à 7 clics depuis la position fermée
+      description_it: |-
+        - Cartuccia più semplice venduta insieme al TTX22 nella RXF36 originale
+        - Solo compressione a bassa velocità e ritorno, entrambi forniti a 7 scatti dalla posizione chiusa
+      description_es: |-
+        - Cartucho más sencillo que se vendía junto al TTX22 en la RXF36 original
+        - Solo compresión de baja velocidad y rebote, ambos de fábrica a 7 clics desde la posición cerrada
+      description_pt: |-
+        - Cartucho mais simples vendido junto com o TTX22 na RXF36 original
+        - Somente compressão de baixa velocidade e retorno, ambos entregues a 7 cliques da posição fechada
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: 8, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 8, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 8, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compression basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Compressione a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Compresión de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Compressão de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 8, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Détente basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Ritorno a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Rebote de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Retorno de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente" }
       source: https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf
       note: >-
         Same manual, chapter "SETTING UP STX22", p. 11/16: "The front forks are
@@ -244,10 +340,26 @@ option_values:
         - Zweirohr-Downhill-Kartusche der DH38 der ersten Generation
         - Die High-Speed-Druckstufe ist ein Rad mit vier Positionen
         - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
+      description_fr: |-
+        - Cartouche descente bitube de la DH38 de première génération
+        - La compression haute vitesse est une molette à quatre positions
+        - Chaque clic est compté depuis la position entièrement fermée, en ouvrant dans le sens antihoraire
+      description_it: |-
+        - Cartuccia da downhill bitubo della DH38 di prima generazione
+        - La compressione ad alta velocità è una manopola a quattro posizioni
+        - Ogni scatto è contato a partire dalla posizione completamente chiusa, aprendo in senso antiorario
+      description_es: |-
+        - Cartucho de descenso bitubo de la DH38 de primera generación
+        - La compresión de alta velocidad es una rueda de cuatro posiciones
+        - Cada clic se cuenta desde la posición totalmente cerrada, abriendo en sentido antihorario
+      description_pt: |-
+        - Cartucho de downhill bitubo da DH38 de primeira geração
+        - A compressão de alta velocidade é um seletor de quatro posições
+        - Cada clique é contado a partir da posição totalmente fechada, abrindo no sentido anti-horário
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 3, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, dialColor: grey }
-        - { name: LSC, name_de: LSC, type: step, max: 15, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 15, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 3, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: grey }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 15, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 15, dialColor: orange }
       source: https://www.ohlins.eu/en/products/mountainbike/dh38-m1-downhill-front-fork--7683/
       note: >-
         Read off the DH38 m.1's own page ("15-fach Zugstufenverstellung",
@@ -272,6 +384,10 @@ guides:
   ohlins_rxc34_m1_2023:
     label: Öhlins RXC34 m.1 owner's manual (2023)
     label_de: Öhlins RXC34 m.1 Bedienungsanleitung (2023)
+    label_fr: Manuel d’utilisation Öhlins RXC34 m.1 (2023)
+    label_it: Manuale d’uso Öhlins RXC34 m.1 (2023)
+    label_es: Manual del usuario Öhlins RXC34 m.1 (2023)
+    label_pt: Manual do usuário Öhlins RXC34 m.1 (2023)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-rxc34-m1--00003982.pdf
     rules:
       - target: pressure
@@ -286,6 +402,10 @@ guides:
         }
         note: Check the pressure label on the fork as well
         note_de: Zusätzlich das Druckschild an der Gabel beachten
+        note_fr: Vérifiez aussi l’étiquette de pression sur la fourche
+        note_it: Controlla anche l’etichetta della pressione sulla forcella
+        note_es: Comprueba también la etiqueta de presión de la horquilla
+        note_pt: Confira também a etiqueta de pressão no garfo
       - &ohlins_sag_15_25 { target: sag, range: [15, 25], comfort_at: max }
       # Positive-chamber spacers (8 ml). The 130 mm row has no catalog travel;
       # the negative-chamber spacers (4 × 1 ml) have no catalog adjuster.
@@ -296,6 +416,10 @@ guides:
   ohlins_rxf34_m2_2026:
     label: Öhlins RXF34 m.2 owner's manual (2026)
     label_de: Öhlins RXF34 m.2 Bedienungsanleitung (2026)
+    label_fr: Manuel d’utilisation Öhlins RXF34 m.2 (2026)
+    label_it: Manuale d’uso Öhlins RXF34 m.2 (2026)
+    label_es: Manual del usuario Öhlins RXF34 m.2 (2026)
+    label_pt: Manual do usuário Öhlins RXF34 m.2 (2026)
     source: https://www.ohlins.com/storage/B9AC95E58353CFA82EC9840F30F16E6AD76B61BF05DB8A5B7CDE65BC9E15C8D0/469d00f818d54e0ca34230baa6eaa34e/pdf/media/fa74b243c1a34513a89ddb391dd8a5c7/Owners%20manual%20RXF34%20m2.pdf
     rules:
       - target: pressure
@@ -308,7 +432,7 @@ guides:
           90-95: [84, 99], 95-100: [89, 103], 100-105: [93, 108], 105-110: [98, 112],
           110-115: [102, 117], 115-120: [107, 121]
         }
-      - { target: hsc, value: 2, note: "Delivery setting, fully open", note_de: "Auslieferungseinstellung, ganz offen" }
+      - { target: hsc, value: 2, note: "Delivery setting, fully open", note_de: "Auslieferungseinstellung, ganz offen", note_fr: "Réglage d’usine, entièrement ouvert", note_it: "Impostazione di fabbrica, completamente aperto", note_es: "Ajuste de fábrica, totalmente abierto", note_pt: "Ajuste de fábrica, totalmente aberto" }
       - *ohlins_sag_15_25
       # The chart of forks with a 140 mm maximum travel, the only one covering
       # every catalog travel; forks with a 130 mm maximum take one spacer fewer.
@@ -317,10 +441,18 @@ guides:
         rows: { 120: 5, 130: 4, 140: 3 }
         note: One spacer fewer on forks with a 130 mm maximum travel
         note_de: Ein Spacer weniger bei Gabeln mit 130 mm maximalem Federweg
+        note_fr: Une entretoise de moins sur les fourches à débattement max. de 130 mm
+        note_it: Un distanziale in meno sulle forcelle con escursione massima di 130 mm
+        note_es: Un espaciador menos en las horquillas con un recorrido máximo de 130 mm
+        note_pt: Um espaçador a menos nos garfos com curso máximo de 130 mm
 
   ohlins_rxf34_rxf36_m1:
     label: Öhlins RXF34/RXF36 owner's manual
     label_de: Öhlins RXF34/RXF36 Bedienungsanleitung
+    label_fr: Manuel d’utilisation Öhlins RXF34/RXF36
+    label_it: Manuale d’uso Öhlins RXF34/RXF36
+    label_es: Manual del usuario Öhlins RXF34/RXF36
+    label_pt: Manual do usuário Öhlins RXF34/RXF36
     source: https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf
     rules:
       - target: main_chamber_pressure
@@ -345,12 +477,16 @@ guides:
       # The setup data's TTX22 "Compression high 7-8 clicks" contradicts the
       # 0-5 dial the same manual describes, so only the delivery position is
       # encoded. The STX22's delivery 7 clicks sit inside the 7-8 base tune.
-      - { target: hsc, value: 5, when: { damper: ttx22_fork }, note: "Delivery setting, fully open", note_de: "Auslieferungseinstellung, ganz offen" }
+      - { target: hsc, value: 5, when: { damper: ttx22_fork }, note: "Delivery setting, fully open", note_de: "Auslieferungseinstellung, ganz offen", note_fr: "Réglage d’usine, entièrement ouvert", note_it: "Impostazione di fabbrica, completamente aperto", note_es: "Ajuste de fábrica, totalmente abierto", note_pt: "Ajuste de fábrica, totalmente aberto" }
       - { target: sag, range: [10, 15], comfort_at: max }
 
   ohlins_rxf36_m2_2023:
     label: Öhlins RXF36 m.2 owner's manual (2023)
     label_de: Öhlins RXF36 m.2 Bedienungsanleitung (2023)
+    label_fr: Manuel d’utilisation Öhlins RXF36 m.2 (2023)
+    label_it: Manuale d’uso Öhlins RXF36 m.2 (2023)
+    label_es: Manual del usuario Öhlins RXF36 m.2 (2023)
+    label_pt: Manual do usuário Öhlins RXF36 m.2 (2023)
     source: https://ohlins.com/storage/B799A00056AAEF9DE3E7BAB002F50562A6D1BA21B2998148273DF3D42E6199C0/4def7de90bca493cb2a999f99d34bdbf/pdf/media/fe3f1b241587489f98caf3f73ccd9139/OM_07258-07_7_MI_RXF36_m.2_AirCoil_TTX18.pdf
     rules:
       - &ohlins_main_chamber
@@ -370,17 +506,21 @@ guides:
         rows: *ohlins_ramp_up
       - &ohlins_ttx18_rebound { target: rebound, range: [14, 16] }
       - &ohlins_ttx18_lsc { target: lsc, range: [14, 16] }
-      - &ohlins_ttx18_hsc { target: hsc, value: 3, note: "Delivery setting, fully open", note_de: "Auslieferungseinstellung, ganz offen" }
+      - &ohlins_ttx18_hsc { target: hsc, value: 3, note: "Delivery setting, fully open", note_de: "Auslieferungseinstellung, ganz offen", note_fr: "Réglage d’usine, entièrement ouvert", note_it: "Impostazione di fabbrica, completamente aperto", note_es: "Ajuste de fábrica, totalmente abierto", note_pt: "Ajuste de fábrica, totalmente aberto" }
       # The coil chart lists springs by travel, not by rider weight, so only
       # the factory spring is encoded.
-      - { target: spring_rate, unit: N/mm, value: 9.7, when: { trim: coil }, note: The spring fitted at the factory, note_de: Die werkseitig verbaute Feder }
+      - { target: spring_rate, unit: N/mm, value: 9.7, when: { trim: coil }, note: The spring fitted at the factory, note_de: Die werkseitig verbaute Feder, note_fr: Le ressort monté en usine, note_it: La molla montata in fabbrica, note_es: El muelle montado de fábrica, note_pt: A mola montada de fábrica }
       - { target: sag, range: [10, 15], comfort_at: max, when: { trim: air-ttx18 } }
-      - &ohlins_coil_sag { target: sag, range: [15, 20], comfort_at: max, when: { trim: coil }, note: Set the preload knob to minimum first, note_de: Zuerst den Vorspannungsknopf auf Minimum stellen }
+      - &ohlins_coil_sag { target: sag, range: [15, 20], comfort_at: max, when: { trim: coil }, note: Set the preload knob to minimum first, note_de: Zuerst den Vorspannungsknopf auf Minimum stellen, note_fr: Mettez d’abord la molette de précontrainte au minimum, note_it: Porta prima la manopola del precarico al minimo, note_es: Pon primero la rueda de precarga al mínimo, note_pt: Coloque primeiro o seletor de pré-carga no mínimo }
 
   # Edition 07258-12_2, the only RXF36 m.3 edition with a setup-data click table.
   ohlins_rxf36_m3_2023:
     label: Öhlins RXF36 m.3 owner's manual (2023)
     label_de: Öhlins RXF36 m.3 Bedienungsanleitung (2023)
+    label_fr: Manuel d’utilisation Öhlins RXF36 m.3 (2023)
+    label_it: Manuale d’uso Öhlins RXF36 m.3 (2023)
+    label_es: Manual del usuario Öhlins RXF36 m.3 (2023)
+    label_pt: Manual do usuário Öhlins RXF36 m.3 (2023)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf36--00004180.pdf
     rules:
       - *ohlins_main_chamber
@@ -393,6 +533,10 @@ guides:
   ohlins_rxf36_m3_2026:
     label: Öhlins RXF36 m.3 owner's manual (2026)
     label_de: Öhlins RXF36 m.3 Bedienungsanleitung (2026)
+    label_fr: Manuel d’utilisation Öhlins RXF36 m.3 (2026)
+    label_it: Manuale d’uso Öhlins RXF36 m.3 (2026)
+    label_es: Manual del usuario Öhlins RXF36 m.3 (2026)
+    label_pt: Manual do usuário Öhlins RXF36 m.3 (2026)
     source: https://ohlins.com/storage/F1FD2667BEF6A26936BBE79CBD7BC4023A47B74CEF08518C26294D2B1AFF0A33/24e7fcb03154439ea9ae0b6150bcede7/pdf/media/55239c8bd8da48c19d511823f9b1c5c6/OM_07258-12_4_RXF36%20m3%20air%20front%20fork.pdf
     rules:
       - &ohlins_coil_chart
@@ -409,6 +553,10 @@ guides:
   ohlins_rxf38_m2_2024:
     label: Öhlins RXF38 m.2 owner's manual (2024)
     label_de: Öhlins RXF38 m.2 Bedienungsanleitung (2024)
+    label_fr: Manuel d’utilisation Öhlins RXF38 m.2 (2024)
+    label_it: Manuale d’uso Öhlins RXF38 m.2 (2024)
+    label_es: Manual del usuario Öhlins RXF38 m.2 (2024)
+    label_pt: Manual do usuário Öhlins RXF38 m.2 (2024)
     source: https://ohlins.com/storage/4D81EA83A21214EDFB4A57331844F3692B56F2CCA1ED9BD1BE95A5CDFE6D1B1E/9bd7e6402a3e42ff93f357c6b15e645b/pdf/media/0377e17f271d4af39560e027d515d36d/Owners%20manual%20RXF38%20m.2.pdf
     rules:
       - *ohlins_main_chamber
@@ -422,6 +570,10 @@ guides:
   ohlins_rxf38_m3_2025:
     label: Öhlins RXF38 m.3 owner's manual (2025)
     label_de: Öhlins RXF38 m.3 Bedienungsanleitung (2025)
+    label_fr: Manuel d’utilisation Öhlins RXF38 m.3 (2025)
+    label_it: Manuale d’uso Öhlins RXF38 m.3 (2025)
+    label_es: Manual del usuario Öhlins RXF38 m.3 (2025)
+    label_pt: Manual do usuário Öhlins RXF38 m.3 (2025)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf38--00004275.pdf
     rules:
       - *ohlins_main_chamber
@@ -435,6 +587,10 @@ guides:
   ohlins_dh38_m1_2020:
     label: Öhlins DH38 m.1 owner's manual (2020)
     label_de: Öhlins DH38 m.1 Bedienungsanleitung (2020)
+    label_fr: Manuel d’utilisation Öhlins DH38 m.1 (2020)
+    label_it: Manuale d’uso Öhlins DH38 m.1 (2020)
+    label_es: Manual del usuario Öhlins DH38 m.1 (2020)
+    label_pt: Manual do usuário Öhlins DH38 m.1 (2020)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-doppelbrueckengabel-dh38--00002991.pdf
     rules:
       - &ohlins_dh38_air_sag { target: sag, range: [20, 25], comfort_at: max, when: { trim: air } }
@@ -442,6 +598,10 @@ guides:
   ohlins_dh38_m2_2025:
     label: Öhlins DH38 m.2 owner's manual (2025)
     label_de: Öhlins DH38 m.2 Bedienungsanleitung (2025)
+    label_fr: Manuel d’utilisation Öhlins DH38 m.2 (2025)
+    label_it: Manuale d’uso Öhlins DH38 m.2 (2025)
+    label_es: Manual del usuario Öhlins DH38 m.2 (2025)
+    label_pt: Manual do usuário Öhlins DH38 m.2 (2025)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-downhillgabel-dh38--00004274.pdf
     rules:
       # The 8.8 N/mm spring reads 73 kg here, 72 kg in the RXF36/RXF38 charts.
@@ -469,9 +629,13 @@ nodes:
     level: model
     category: XC
     category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
     tasks: &ohlins_service
-      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch }
-      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch }
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch, source_fr: Manuel d’utilisation Öhlins, source_it: Manuale d’uso Öhlins, source_es: Manual del usuario Öhlins, source_pt: Manual do usuário Öhlins }
+      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch, source_fr: Manuel d’utilisation Öhlins, source_it: Manuale d’uso Öhlins, source_es: Manual del usuario Öhlins, source_pt: Manual do usuário Öhlins }
     children:
       - label: m.1
         level: version
@@ -486,20 +650,32 @@ nodes:
         note_de: |-
           - Zweikammer-Luftfeder, nur 29", ab 1496g
           - Das Floating-Axle-Design lässt die Tauchrohre sich setzen, bevor die Achse geklemmt wird
+        note_fr: |-
+          - Ressort pneumatique à deux chambres, 29" uniquement, à partir de 1496 g
+          - L’axe flottant laisse les fourreaux se positionner avant le serrage de l’axe
+        note_it: |-
+          - Molla pneumatica a due camere, solo 29", da 1496 g
+          - Il perno flottante lascia assestare i foderi prima di serrare il perno
+        note_es: |-
+          - Muelle neumático de dos cámaras, solo 29", desde 1496 g
+          - El eje flotante deja que las botellas se asienten antes de apretar el eje
+        note_pt: |-
+          - Mola a ar de duas câmaras, somente 29", a partir de 1496 g
+          - O eixo flutuante deixa as botas se assentarem antes de apertar o eixo
         children:
           - label: Aluminum (remote)
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &rxc34_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 5, visualization: stepper, notes: "8 ml spacers in the positive chamber. Maximum depends on the travel: 100 mm 4, 110 mm 5, 120 mm 5", notes_de: "8-ml-Spacer in der Positivkammer. Das Maximum hängt vom Federweg ab: 100 mm 4, 110 mm 5, 120 mm 5" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "8 ml spacers in the positive chamber. Maximum depends on the travel: 100 mm 4, 110 mm 5, 120 mm 5", notes_de: "8-ml-Spacer in der Positivkammer. Das Maximum hängt vom Federweg ab: 100 mm 4, 110 mm 5, 120 mm 5", notes_fr: "Entretoises de 8 ml dans la chambre positive. Le maximum dépend du débattement : 100 mm 4, 110 mm 5, 120 mm 5", notes_it: "Distanziali da 8 ml nella camera positiva. Il massimo dipende dall’escursione: 100 mm 4, 110 mm 5, 120 mm 5", notes_es: "Espaciadores de 8 ml en la cámara positiva. El máximo depende del recorrido: 100 mm 4, 110 mm 5, 120 mm 5", notes_pt: "Espaçadores de 8 ml na câmara positiva. O máximo depende do curso: 100 mm 4, 110 mm 5, 120 mm 5" }
             options:
               damper: [otx14_r]
               travel_mm: [100, 110, 120]
               wheel_size: [29]
           - label: Carbon crown (remote)
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *rxc34_air_spring
             options:
               damper: [otx14_r]
@@ -507,7 +683,7 @@ nodes:
               wheel_size: [29]
           - label: Carbon crown (manual)
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *rxc34_air_spring
             options:
               damper: [otx14_r]
@@ -518,6 +694,10 @@ nodes:
     level: model
     category: Downcountry / Trail
     category_de: Downcountry / Trail
+    category_fr: Downcountry / Trail
+    category_it: Downcountry / Trail
+    category_es: Downcountry / Trail
+    category_pt: Downcountry / Trail
     tasks: *ohlins_service
     children:
       - label: m.2
@@ -530,17 +710,21 @@ nodes:
         children:
           - label: Air OTX18
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 7, visualization: stepper, notes: "8 ml spacers in the top cap. Maximum depends on the travel: 120 mm 7, 130 mm 6, 140 mm 5 (one fewer on 120 and 130 mm forks sold with a 130 mm maximum)", notes_de: "8-ml-Spacer in der oberen Kappe. Das Maximum hängt vom Federweg ab: 120 mm 7, 130 mm 6, 140 mm 5 (einer weniger bei Gabeln mit 120 und 130 mm Federweg, die mit einem Maximum von 130 mm verkauft werden)" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 7, visualization: stepper, notes: "8 ml spacers in the top cap. Maximum depends on the travel: 120 mm 7, 130 mm 6, 140 mm 5 (one fewer on 120 and 130 mm forks sold with a 130 mm maximum)", notes_de: "8-ml-Spacer in der oberen Kappe. Das Maximum hängt vom Federweg ab: 120 mm 7, 130 mm 6, 140 mm 5 (einer weniger bei Gabeln mit 120 und 130 mm Federweg, die mit einem Maximum von 130 mm verkauft werden)", notes_fr: "Entretoises de 8 ml dans le bouchon supérieur. Le maximum dépend du débattement : 120 mm 7, 130 mm 6, 140 mm 5 (une de moins sur les fourches de 120 et 130 mm vendues avec un maximum de 130 mm)", notes_it: "Distanziali da 8 ml nel tappo superiore. Il massimo dipende dall’escursione: 120 mm 7, 130 mm 6, 140 mm 5 (uno in meno sulle forcelle da 120 e 130 mm vendute con un massimo di 130 mm)", notes_es: "Espaciadores de 8 ml en la tapa superior. El máximo depende del recorrido: 120 mm 7, 130 mm 6, 140 mm 5 (uno menos en las horquillas de 120 y 130 mm que se venden con un máximo de 130 mm)", notes_pt: "Espaçadores de 8 ml na tampa superior. O máximo depende do curso: 120 mm 7, 130 mm 6, 140 mm 5 (um a menos nos garfos de 120 e 130 mm vendidos com máximo de 130 mm)" }
             options:
               damper: [otx18]
               travel_mm: [120, 130, 140]
               wheel_size: [29]
             note: Air-spring progression is tuned with volume spacers; from 1698g without one.
             note_de: Die Progression der Luftfeder wird über Volumenspacer abgestimmt; ab 1698g ohne Spacer.
+            note_fr: La progressivité du ressort pneumatique se règle avec des tokens de volume ; à partir de 1698 g sans token.
+            note_it: La progressività della molla pneumatica si regola con token di volume; da 1698 g senza token.
+            note_es: La progresividad del muelle neumático se ajusta con tokens de volumen; desde 1698 g sin tokens.
+            note_pt: A progressividade da mola a ar é ajustada com tokens de volume; a partir de 1698 g sem tokens.
       - label: m.1
         level: version
         id: m1
@@ -549,10 +733,10 @@ nodes:
         children:
           - label: Air TTX22
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &dual_chamber_air
-              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0 }
-              - { name: Ramp-up Chamber Pressure, name_de: Progressionskammerdruck, type: numerical, unit: psi, min: 0 }
+              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, name_fr: Pression de la chambre principale, name_it: Pressione della camera principale, name_es: Presión de la cámara principal, name_pt: Pressão da câmara principal, type: numerical, unit: psi, min: 0 }
+              - { name: Ramp-up Chamber Pressure, name_de: Progressionskammerdruck, name_fr: Pression de la chambre progressive, name_it: Pressione della camera progressiva, name_es: Presión de la cámara progresiva, name_pt: Pressão da câmara progressiva, type: numerical, unit: psi, min: 0 }
             options:
               damper: [ttx22_fork]
               travel_mm: [120, 140, 160]
@@ -562,6 +746,10 @@ nodes:
     level: model
     category: Trail
     category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     tasks: *ohlins_service
     children:
       - label: m.2
@@ -574,7 +762,7 @@ nodes:
         children:
           - label: Air TTX18
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [38, 44, 51]
             adjustments: *dual_chamber_air
             options:
@@ -584,10 +772,10 @@ nodes:
           - label: Coil
             level: trim
             # Spring rate chart and strokes: Owner's Manual RXF36 m.2 (00003012), pp. 8 and 13
-            specs: { spring: Coil, spring_de: Stahlfeder }
+            specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             adjustments: &coil_spring
-              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: N/mm, min: 0 }
-              - { name: Preload, name_de: Vorspannung, type: numerical, unit: turns, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: N/mm, min: 0 }
+              - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: turns, min: 0 }
             options:
               damper: [ttx18_m2]
               travel_mm: [120, 130, 140, 150, 160, 165]
@@ -600,6 +788,22 @@ nodes:
               - Stahlfedern von 6,1 bis 11,5 N/mm in sieben Stufen, am Rohr farbcodiert
               - Die längsten Federwege werden durch die härtesten Federn und zusätzliche Vorspannung begrenzt
               - Den Vorspannungsknopf auf Minimum stellen, dann 15-20 % SAG einstellen
+            note_fr: |-
+              - Les ressorts vont de 6,1 à 11,5 N/mm en sept paliers, repérés par couleur sur le tube
+              - Les courses les plus longues sont limitées par les ressorts les plus durs et par la précontrainte ajoutée
+              - Mettez la molette de précontrainte au minimum, puis réglez 15-20 % de SAG
+            note_it: |-
+              - Le molle vanno da 6,1 a 11,5 N/mm in sette gradini, identificate dal colore sul tubo
+              - Le corse più lunghe sono limitate dalle molle più dure e dal precarico aggiunto
+              - Porta la manopola del precarico al minimo, poi regola un SAG del 15-20 %
+            note_es: |-
+              - Los muelles van de 6,1 a 11,5 N/mm en siete pasos, identificados por color en el tubo
+              - Las carreras más largas están limitadas por los muelles más duros y por la precarga añadida
+              - Pon la rueda de precarga al mínimo y ajusta después un SAG del 15-20 %
+            note_pt: |-
+              - As molas vão de 6,1 a 11,5 N/mm em sete passos, identificadas por cor no tubo
+              - Os cursos mais longos são limitados pelas molas mais duras e pela pré-carga adicionada
+              - Coloque o seletor de pré-carga no mínimo e depois ajuste 15-20 % de SAG
       - label: m.3
         level: version
         id: m3
@@ -609,7 +813,7 @@ nodes:
         children:
           - label: Air TTX18
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [38, 44, 51]
             guide: ohlins_rxf36_m3_2023
             adjustments: *dual_chamber_air
@@ -622,7 +826,7 @@ nodes:
             url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m3-coil--6430/
             setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_owners-manual-rxf36-m3--00004297.pdf
             guide: ohlins_rxf36_m3_2026
-            specs: { spring: Coil, spring_de: Stahlfeder }
+            specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             adjustments: *coil_spring
             options:
               damper: [ttx18_m3]
@@ -639,10 +843,22 @@ nodes:
         note_de: |-
           - Ursprüngliches RXF36-Chassis, verkauft mit dem TTX22- oder dem einfacheren STX22-Dämpfer
           - Federwege von 120mm (29") oder 140mm (27.5") bis 170mm
+        note_fr: |-
+          - Châssis RXF36 d’origine, vendu avec l’amortisseur TTX22 ou le STX22, plus simple
+          - Courses de 120 mm (29") ou 140 mm (27,5") jusqu’à 170 mm
+        note_it: |-
+          - Telaio RXF36 originale, venduto con l’ammortizzatore TTX22 o con lo STX22, più semplice
+          - Corse da 120 mm (29") o 140 mm (27,5") fino a 170 mm
+        note_es: |-
+          - Chasis RXF36 original, vendido con el amortiguador TTX22 o con el STX22, más sencillo
+          - Carreras desde 120 mm (29") o 140 mm (27,5") hasta 170 mm
+        note_pt: |-
+          - Chassi RXF36 original, vendido com o amortecedor TTX22 ou com o STX22, mais simples
+          - Cursos de 120 mm (29") ou 140 mm (27,5") até 170 mm
         children:
           - label: Air TTX22
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *dual_chamber_air
             options:
               damper: [ttx22_fork]
@@ -650,7 +866,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Air STX22
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *dual_chamber_air
             options:
               damper: [stx22_fork]
@@ -661,6 +877,10 @@ nodes:
     level: model
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     tasks: *ohlins_service
     children:
       - label: m.2
@@ -678,10 +898,26 @@ nodes:
           - Dreikammer-Luftfeder: Haupt- und Progressionskammer werden getrennt aufgepumpt
           - Offsets gibt es auch in den Versionen mit langer Brücke „44L“ und „51L“
           - Empfohlener SAG sind 10-15 % des Federwegs bei Luft, 15-20 % bei Stahlfeder
+        note_fr: |-
+          - Ressort pneumatique à trois chambres : principale et progressive se gonflent séparément
+          - Les déports existent aussi en versions à long té « 44L » et « 51L »
+          - Le SAG recommandé est de 10-15 % du débattement en pneumatique, 15-20 % en ressort
+        note_it: |-
+          - Molla pneumatica a tre camere: principale e progressiva si gonfiano separatamente
+          - Gli offset sono disponibili anche nelle versioni a piastra lunga «44L» e «51L»
+          - Il SAG consigliato è del 10-15 % dell’escursione con la molla pneumatica, del 15-20 % con quella a molla
+        note_es: |-
+          - Muelle neumático de tres cámaras: la principal y la progresiva se inflan por separado
+          - Los offsets también existen en versiones de corona larga «44L» y «51L»
+          - El SAG recomendado es del 10-15 % del recorrido con aire y del 15-20 % con muelle
+        note_pt: |-
+          - Mola a ar de três câmaras: a principal e a progressiva são enchidas separadamente
+          - Os offsets também existem em versões de coroa longa “44L” e “51L”
+          - O SAG recomendado é de 10-15 % do curso com ar e de 15-20 % com mola
         children:
           - label: Air
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44, 51]
             adjustments: *dual_chamber_air
             options:
@@ -690,7 +926,7 @@ nodes:
               wheel_size: [29]
           - label: Coil
             level: trim
-            specs: { spring: Coil, spring_de: Stahlfeder }
+            specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             offset_mm: [44, 51]
             # Spring rate chart: Owner's Manual RXF38 m.2, "4 COIL SPRING SETUP", p. 12
             adjustments: *coil_spring
@@ -704,6 +940,18 @@ nodes:
             note_de: |-
               - Stahlfedern von 7,0 bis 12,4 N/mm in sieben Stufen, am Rohr farbcodiert
               - Den Vorspannungsknopf auf Minimum stellen, dann 15-20 % SAG einstellen
+            note_fr: |-
+              - Les ressorts vont de 7,0 à 12,4 N/mm en sept paliers, repérés par couleur sur le tube
+              - Mettez la molette de précontrainte au minimum, puis réglez 15-20 % de SAG
+            note_it: |-
+              - Le molle vanno da 7,0 a 12,4 N/mm in sette gradini, identificate dal colore sul tubo
+              - Porta la manopola del precarico al minimo, poi regola un SAG del 15-20 %
+            note_es: |-
+              - Los muelles van de 7,0 a 12,4 N/mm en siete pasos, identificados por color en el tubo
+              - Pon la rueda de precarga al mínimo y ajusta después un SAG del 15-20 %
+            note_pt: |-
+              - As molas vão de 7,0 a 12,4 N/mm em sete passos, identificadas por cor no tubo
+              - Coloque o seletor de pré-carga no mínimo e depois ajuste 15-20 % de SAG
       - label: m.3
         level: version
         id: m3
@@ -719,10 +967,26 @@ nodes:
           - Dreikammer-Luftfeder: Haupt- und Progressionskammer werden getrennt aufgepumpt
           - Überarbeitetes Innenleben gegenüber der m.2
           - Nur 29", maximale Reifengröße 29x2.6, ab 2320g
+        note_fr: |-
+          - Ressort pneumatique à trois chambres : principale et progressive se gonflent séparément
+          - Composants internes retravaillés par rapport à la m.2
+          - 29" uniquement, pneu max. 29x2,6, à partir de 2320 g
+        note_it: |-
+          - Molla pneumatica a tre camere: principale e progressiva si gonfiano separatamente
+          - Componenti interni rivisti rispetto alla m.2
+          - Solo 29", copertone max. 29x2,6, da 2320 g
+        note_es: |-
+          - Muelle neumático de tres cámaras: la principal y la progresiva se inflan por separado
+          - Componentes internos rediseñados respecto a la m.2
+          - Solo 29", neumático máx. 29x2,6, desde 2320 g
+        note_pt: |-
+          - Mola a ar de três câmaras: a principal e a progressiva são enchidas separadamente
+          - Componentes internos reformulados em relação à m.2
+          - Somente 29", pneu máx. 29x2,6, a partir de 2320 g
         children:
           - label: Air
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *dual_chamber_air
             options:
@@ -731,7 +995,7 @@ nodes:
               wheel_size: [29]
           - label: Coil
             level: trim
-            specs: { spring: Coil, spring_de: Stahlfeder }
+            specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             offset_mm: [44]
             adjustments: *coil_spring
             options:
@@ -743,6 +1007,10 @@ nodes:
     level: model
     category: Downhill
     category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     tasks: *ohlins_service
     children:
       - label: m.1
@@ -758,10 +1026,22 @@ nodes:
         note_de: |-
           - Downhill-Chassis mit Doppelbrücke, 180 oder 200mm Federweg, 110mm Boost mit 20mm-Achse
           - Maximale Reifengröße 29x2.8 oder 27.5x3.0, für den E-Bike-Einsatz zugelassen
+        note_fr: |-
+          - Châssis descente à double té, débattement de 180 ou 200 mm, Boost 110 mm avec un axe de 20 mm
+          - Pneu max. 29x2,8 ou 27,5x3,0, et homologuée pour le vélo électrique
+        note_it: |-
+          - Telaio da downhill a doppia piastra, escursione di 180 o 200 mm, Boost 110 mm con perno da 20 mm
+          - Copertone max. 29x2,8 o 27,5x3,0, e omologata per l’uso su e-bike
+        note_es: |-
+          - Chasis de descenso de doble corona, recorrido de 180 o 200 mm, Boost de 110 mm con eje de 20 mm
+          - Neumático máx. 29x2,8 o 27,5x3,0, y homologada para uso en bicicleta eléctrica
+        note_pt: |-
+          - Chassi de downhill de dupla coroa, curso de 180 ou 200 mm, Boost de 110 mm com eixo de 20 mm
+          - Pneu máx. 29x2,8 ou 27,5x3,0, e homologado para uso em bike elétrica
         children:
           - label: Air
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [46, 50, 54, 58]
             adjustments: *dual_chamber_air
             options:
@@ -783,10 +1063,26 @@ nodes:
           - Downhill-Chassis mit Doppelbrücke, 200mm Federweg, vier Offsets von 46 bis 58mm
           - Maximale Reifengröße 27.5x3.2 oder 29x2.8, 200/203mm-Bremsscheiben
           - 2820g inklusive Achse und Zubehör
+        note_fr: |-
+          - Châssis descente à double té, débattement de 200 mm, quatre déports de 46 à 58 mm
+          - Pneu max. 27,5x3,2 ou 29x2,8, disques de 200/203 mm
+          - 2820 g axe et visserie compris
+        note_it: |-
+          - Telaio da downhill a doppia piastra, escursione di 200 mm, quattro offset da 46 a 58 mm
+          - Copertone max. 27,5x3,2 o 29x2,8, dischi da 200/203 mm
+          - 2820 g compresi perno e minuteria
+        note_es: |-
+          - Chasis de descenso de doble corona, recorrido de 200 mm, cuatro offsets de 46 a 58 mm
+          - Neumático máx. 27,5x3,2 o 29x2,8, discos de 200/203 mm
+          - 2820 g incluyendo eje y tornillería
+        note_pt: |-
+          - Chassi de downhill de dupla coroa, curso de 200 mm, quatro offsets de 46 a 58 mm
+          - Pneu máx. 27,5x3,2 ou 29x2,8, discos de 200/203 mm
+          - 2820 g incluindo eixo e parafusos
         children:
           - label: Air
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [46, 50, 54, 58]
             adjustments: *dual_chamber_air
             options:
@@ -795,7 +1091,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Coil
             level: trim
-            specs: { spring: Coil, spring_de: Stahlfeder }
+            specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             offset_mm: [46, 50, 54, 58]
             adjustments: *coil_spring
             options:
@@ -807,6 +1103,10 @@ nodes:
     level: model
     category: Dirt Jump
     category_de: Dirt Jump
+    category_fr: Dirt Jump
+    category_it: Dirt Jump
+    category_es: Dirt Jump
+    category_pt: Dirt Jump
     children:
       - label: m.1
         level: version
@@ -816,9 +1116,9 @@ nodes:
         children:
           - label: Air TTX18
             level: trim
-            specs: { spring: Air, spring_de: Luft }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
             options:
               damper: [ttx18_m2]
               travel_mm: [90]

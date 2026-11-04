@@ -1136,7 +1136,9 @@ single paragraph.
 The text a rider reads is translated **inline**: a translatable field `x` gets a
 sibling `x_<lang>` right next to it, so one entry holds all its text and a data
 update happens in one place. The app reads English plus the language it runs in
-and ignores the other siblings; a missing sibling shows the English text.
+and ignores the other siblings; a missing sibling shows the English text. Every
+language the app ships needs its sibling (`_de`, `_fr`, `_it`, `_es`, `_pt`, see
+`shippedCatalogLanguages`); the examples below show German only.
 
 ```yaml
 option_values:
@@ -1188,7 +1190,7 @@ The parser rejects a sibling of a field that is not translated, one in a languag
 the app does not have, a sibling without its English field, and a list of
 another length.
 
-`dart run tool/catalog_l10n.dart missing de` lists every text without its
+`dart run tool/catalog_l10n.dart missing <lang>` (for example `missing fr`) lists every text without its
 translation as `file:line field (path) English`, with a suggestion where the same
 English text is translated elsewhere. `dart run tool/catalog_l10n.dart stats`
 counts the texts and words per language. The tool only reads, it never rewrites a

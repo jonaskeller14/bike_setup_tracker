@@ -169,6 +169,38 @@ Draft columns for wave 1 of issue #18 (Phase 17). The translation is written aga
 | Trash | Corbeille | Cestino | Papelera | Lixeira | |
 | Backup | Sauvegarde | Backup (EN) | Copia de seguridad | Backup (EN) | |
 
+### Catalog terms for French, Italian, Spanish and Portuguese
+
+The catalog text in `data/component_presets/` is written against these words, next to the table above. Brand and model names, mode names (`Open`, `Drive`, `Lock`, `Firm`, `Pedal`, `Platform`), product names (`Bottomless Tokens`, `Ramp Clamps`, `Internal Floating Technology`, `Compression Tuning System`) and the abbreviations `HSC`, `LSC`, `HSR`, `LSR`, `HBC`, `OTT`, `IVA`, `IRT`, `SAG` stay as they are. Numbers in prose use the decimal comma and a space before the unit of a percentage (`15 %`); sizes and weights written as part of a name stay as in the catalog (`210x52.5`, `1450 g` in prose).
+
+| English | French | Italian | Spanish | Portuguese (BR) |
+|---|---|---|---|---|
+| Stanchion / Lowers | Tube de fourche / Fourreaux | Stelo / Foderi | Barra / Botellas | Bengala / Botas |
+| Crown / Dual-crown | Té / Double té | Piastra / Doppia piastra | Corona / Doble corona | Coroa / Dupla coroa |
+| Spring (Air / Coil) | Ressort (Air / Hélicoïdal) | Molla (Aria / Elicoidale) | Muelle (Aire / Helicoidal) | Mola (Ar / Helicoidal) |
+| Air spring / Negative spring | Ressort pneumatique / ressort négatif | Molla pneumatica / molla negativa | Muelle neumático / muelle negativo | Mola a ar / mola negativa |
+| Travel (fork) / Stroke (shock) | Débattement / Course | Escursione / Corsa | Recorrido / Carrera | Curso / Curso |
+| Preload | Précontrainte | Precarico | Precarga | Pré-carga |
+| Bottom-out (stop) | Talonnage (butée anti-talonnage) | Fondocorsa | Final de carrera | Fim de curso |
+| High-speed / Low-speed | Haute vitesse / Basse vitesse | Alta velocità / Bassa velocità | Alta velocidad / Baja velocidad | Alta velocidade / Baixa velocidade |
+| Volume spacers, Tokens | Tokens (de volume) | Token (di volume) | Tokens (de volumen) | Tokens (de volume) |
+| Spacers (travel, clip-on) | Entretoises | Distanziali | Espaciadores | Espaçadores |
+| Piggyback / Inline / Twin-tube | Piggyback / Inline / Bitube | Piggyback / Inline / Bitubo | Piggyback / Inline / Bitubo | Piggyback / Inline / Bitubo |
+| Thru-axle / Offset | Axe traversant / Déport | Perno passante / Offset | Eje pasante / Offset | Eixo passante / Offset |
+| Click(s) | Clic(s) | Scatto/i | Clic(s) | Clique(s) |
+| Dial (the rider's adjuster) / Knob (physical) | Cadran / Molette | Manopola | Dial / Rueda | Seletor |
+| Counted from fully closed / open | Compté depuis la position entièrement fermée / ouverte | Contato a partire dalla posizione completamente chiusa / aperta | Contado desde la posición totalmente cerrada / abierta | Contado a partir da posição totalmente fechada / aberta |
+| Clockwise / counter-clockwise | Sens horaire / antihoraire | Senso orario / antiorario | Sentido horario / antihorario | Sentido horário / anti-horário |
+| Climb switch / Lockout lever | Levier Climb / Levier de lockout | Leva Climb / Leva di lockout | Palanca Climb / Palanca de lockout | Alavanca Climb / Alavanca de lockout |
+| Owner's / user manual | Manuel d’utilisation | Manuale d’uso | Manual del usuario | Manual do usuário |
+| Quickstart / Quick manual | Guide de démarrage rapide / Guide rapide | Guida rapida | Guía de inicio rápido / Manual rápido | Guia rápido / Manual rápido |
+| Set-up guide / Tuning guide | Guide de setup / Guide de réglage | Guida al setup / Guida alla taratura | Guía de setup / Guía de tarado | Guia de setup / Guia de calibragem |
+| Tune (a damper's factory setting) | Tarage / Réglage | Taratura | Tarado | Calibragem |
+| Compression Mode positions Open / Medium / Firm | Ouvert / Medium / Ferme | Aperto / Medium / Rigido | Abierto / Medium / Firme | Aberto / Medium / Firme |
+| Heavy-duty (e-bike rated) | Renforcé | Rinforzato | Reforzado | Reforçado |
+
+An adjuster that has a generic template takes the template's name in each language (`Détente`, `Ritorno`, `Rebote`, `Retorno`; `Pression d’air`, `Pressione dell’aria`, `Presión de aire`, `Pressão do ar`), as in German.
+
 Address, decided for the LLM draft (no native review yet, so a reviewer may still change it): **French vous**, **Italian tu**, **Spanish tú**, **Portuguese você** (spoken as a plain imperative where the UI allows it). German **du** is the reference for the tone: friendly, short, a rider talking to a rider. Texts are rephrased where the literal word order reads stiff; the meaning and every placeholder stay.
 
 Further terms for wave 1, mirroring the German table. The app's own *Settings* is a different word from *Adjustment* wherever the language has one.

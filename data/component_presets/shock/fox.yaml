@@ -81,11 +81,27 @@ option_values:
         - Gravity-Dämpfer, den sich FLOAT X2 und DHX2 teilen
         - Variable Valve Control an beiden High-Speed-Kreisen
         - Factory und Performance Elite haben zusätzlich einen 2-Positionen-Hebel für den Firm-Modus
+      description_fr: |-
+        - Amortisseur gravity partagé par le FLOAT X2 et le DHX2
+        - Variable Valve Control sur les deux circuits haute vitesse
+        - Factory et Performance Elite ajoutent un levier Firm Mode à 2 positions
+      description_it: |-
+        - Ammortizzatore gravity condiviso da FLOAT X2 e DHX2
+        - Variable Valve Control su entrambi i circuiti ad alta velocità
+        - Factory e Performance Elite aggiungono una leva Firm Mode a 2 posizioni
+      description_es: |-
+        - Amortiguador gravity compartido por el FLOAT X2 y el DHX2
+        - Variable Valve Control en ambos circuitos de alta velocidad
+        - Factory y Performance Elite añaden una palanca Firm Mode de 2 posiciones
+      description_pt: |-
+        - Amortecedor gravity compartilhado pelo FLOAT X2 e pelo DHX2
+        - Variable Valve Control nos dois circuitos de alta velocidade
+        - Factory e Performance Elite acrescentam uma alavanca Firm Mode de 2 posições
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 8, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, dialColor: blue }
-        - { name: LSC, name_de: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue, dialSize: small }
-        - { name: HSR, name_de: HSR, type: step, max: 8, notes: High-Speed Rebound, notes_de: High-Speed-Zugstufe, dialColor: red }
-        - { name: LSR, name_de: LSR, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, dialColor: red, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 8, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: blue }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: step, max: 8, notes: High-Speed Rebound, notes_de: High-Speed-Zugstufe, notes_fr: Détente haute vitesse, notes_it: Ritorno ad alta velocità, notes_es: Rebote de alta velocidad, notes_pt: Retorno de alta velocidade, dialColor: red }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: red, dialSize: small }
       firm_mode: optional 2-position independent lever
       source:
         - https://ridefox.com/pages/fox-float-x2
@@ -95,20 +111,28 @@ option_values:
       name: FLOAT X damper
       description: All-mountain air shock damper. Tool-free 2-position lever (Open/Firm).
       description_de: Luftdämpfer für All-Mountain. Werkzeugloser 2-Positionen-Hebel (Open/Firm).
+      description_fr: Amortisseur pneumatique all-mountain. Levier à 2 positions sans outil (Open/Firm).
+      description_it: Ammortizzatore pneumatico all-mountain. Leva a 2 posizioni senza attrezzi (Open/Firm).
+      description_es: Amortiguador neumático all-mountain. Palanca de 2 posiciones sin herramientas (Open/Firm).
+      description_pt: Amortecedor a ar all-mountain. Alavanca de 2 posições sem ferramentas (Open/Firm).
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: 11, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, dialColor: red }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest] }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 11, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], options_fr: [Ouvert, Ferme], options_it: [Aperto, Rigido], options_es: [Abierto, Firme], options_pt: [Aberto, Firme] }
       source: https://ridefox.com/pages/fox-float-x
 
     float:
       name: FLOAT damper
       description: XC/Trail air shock damper. 2-position lever (Open/Firm) plus a 3-position open-mode adjust (1 plush, 3 firm).
       description_de: Luftdämpfer für XC/Trail. 2-Positionen-Hebel (Open/Firm) plus 3-stufige Open-Modus-Einstellung (1 komfortabel, 3 fest).
+      description_fr: Amortisseur pneumatique XC/Trail. Levier à 2 positions (Open/Firm) plus un réglage à 3 positions du mode ouvert (1 souple, 3 ferme).
+      description_it: Ammortizzatore pneumatico XC/Trail. Leva a 2 posizioni (Open/Firm) più una regolazione a 3 posizioni della modalità aperta (1 morbido, 3 rigido).
+      description_es: Amortiguador neumático XC/Trail. Palanca de 2 posiciones (Open/Firm) más un ajuste de 3 posiciones del modo abierto (1 blando, 3 firme).
+      description_pt: Amortecedor a ar XC/Trail. Alavanca de 2 posições (Open/Firm) mais um ajuste de 3 posições do modo aberto (1 macio, 3 firme).
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 12, dialColor: red }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest] }
-        - { name: Open Mode Adjust, name_de: Einstellung im offenen Modus, type: categorical, options: ["1", "2", "3"], options_de: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; 1 is plushest, 3 firmest", notes_de: "Low-Speed-Druckstufe im offenen Modus; 1 ist am komfortabelsten, 3 am festesten" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 12, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], options_fr: [Ouvert, Ferme], options_it: [Aperto, Rigido], options_es: [Abierto, Firme], options_pt: [Aberto, Firme] }
+        - { name: Open Mode Adjust, name_de: Einstellung im offenen Modus, name_fr: Réglage du mode ouvert, name_it: Regolazione della modalità aperta, name_es: Ajuste del modo abierto, name_pt: Ajuste do modo aberto, type: categorical, options: ["1", "2", "3"], options_de: ["1", "2", "3"], options_fr: ["1", "2", "3"], options_it: ["1", "2", "3"], options_es: ["1", "2", "3"], options_pt: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; 1 is plushest, 3 firmest", notes_de: "Low-Speed-Druckstufe im offenen Modus; 1 ist am komfortabelsten, 3 am festesten", notes_fr: "Compression basse vitesse en mode Open ; 1 est le plus souple, 3 le plus ferme", notes_it: "Compressione a bassa velocità in modalità Open; 1 è la più morbida, 3 la più rigida", notes_es: "Compresión de baja velocidad en modo Open; 1 es la más blanda, 3 la más firme", notes_pt: "Compressão de baixa velocidade no modo Open; 1 é a mais macia, 3 a mais firme" }
       open_mode_micro_adjust: 3-position
       source:
         - https://ridefox.com/pages/fox-float
@@ -124,10 +148,26 @@ option_values:
         - Leichtester XC-Rennbahndämpfer
         - 3-Positionen-Hebel (Open/Medium/Firm) plus 3-stufige Open-Modus-Einstellung
         - 2- und 3-Positionen-Lenkerfernbedienungen erhältlich
+      description_fr: |-
+        - Amortisseur de course XC le plus léger
+        - Levier à 3 positions (Open/Medium/Firm) plus un réglage à 3 positions du mode ouvert
+        - Commandes au guidon à 2 et 3 positions disponibles
+      description_it: |-
+        - Ammortizzatore da gara XC più leggero
+        - Leva a 3 posizioni (Open/Medium/Firm) più una regolazione a 3 posizioni della modalità aperta
+        - Comandi al manubrio a 2 e 3 posizioni disponibili
+      description_es: |-
+        - Amortiguador de competición XC más ligero
+        - Palanca de 3 posiciones (Open/Medium/Firm) más un ajuste de 3 posiciones del modo abierto
+        - Mandos de manillar de 2 y 3 posiciones disponibles
+      description_pt: |-
+        - Amortecedor de competição XC mais leve
+        - Alavanca de 3 posições (Open/Medium/Firm) mais um ajuste de 3 posições do modo aberto
+        - Comandos no guidão de 2 e 3 posições disponíveis
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 12, dialColor: red }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest] }
-        - { name: Open Mode Adjust, name_de: Einstellung im offenen Modus, type: categorical, options: ["1", "2", "3"], options_de: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; 1 is plushest, 3 firmest", notes_de: "Low-Speed-Druckstufe im offenen Modus; 1 ist am komfortabelsten, 3 am festesten" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 12, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme] }
+        - { name: Open Mode Adjust, name_de: Einstellung im offenen Modus, name_fr: Réglage du mode ouvert, name_it: Regolazione della modalità aperta, name_es: Ajuste del modo abierto, name_pt: Ajuste do modo aberto, type: categorical, options: ["1", "2", "3"], options_de: ["1", "2", "3"], options_fr: ["1", "2", "3"], options_it: ["1", "2", "3"], options_es: ["1", "2", "3"], options_pt: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; 1 is plushest, 3 firmest", notes_de: "Low-Speed-Druckstufe im offenen Modus; 1 ist am komfortabelsten, 3 am festesten", notes_fr: "Compression basse vitesse en mode Open ; 1 est le plus souple, 3 le plus ferme", notes_it: "Compressione a bassa velocità in modalità Open; 1 è la più morbida, 3 la più rigida", notes_es: "Compresión de baja velocidad en modo Open; 1 es la más blanda, 3 la más firme", notes_pt: "Compressão de baixa velocidade no modo Open; 1 é a mais macia, 3 a mais firme" }
       source:
         - https://ridefox.com/pages/fox-float-sl
         - https://tech.ridefox.com/bike/owners-manuals/3098/shock--2026-float-sl-and-float-x
@@ -136,10 +176,14 @@ option_values:
       name: DHX damper (coil)
       description: Coil-sprung trail/enduro damper. Tool-free adjusters, 2-position Firm switch.
       description_de: Dämpfer für Trail/Enduro mit Stahlfeder. Werkzeuglose Versteller, 2-Positionen-Firm-Schalter.
+      description_fr: Amortisseur trail/enduro à ressort. Réglages sans outil, commutateur Firm à 2 positions.
+      description_it: Ammortizzatore trail/enduro a molla. Regolatori senza attrezzi, selettore Firm a 2 posizioni.
+      description_es: Amortiguador trail/enduro de muelle. Ajustes sin herramientas, interruptor Firm de 2 posiciones.
+      description_pt: Amortecedor trail/enduro a mola. Ajustes sem ferramentas, seletor Firm de 2 posições.
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: 11, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, dialColor: blue }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, dialColor: red }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest] }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 11, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], options_fr: [Ouvert, Ferme], options_it: [Aperto, Rigido], options_es: [Abierto, Firme], options_pt: [Aberto, Firme] }
       source: https://ridefox.com/products/fox-dhx-factory
 
     # ------------------------------------------------------------------------
@@ -155,11 +199,23 @@ option_values:
       description_de: |-
         - Vierwege-Gravity-Dämpfer, den sich FLOAT X2 und DHX2 dieser Jahre teilen
         - Inbus-Versteller: 6mm für die High-Speed-Kreise, 3mm für die Low-Speed-Kreise
+      description_fr: |-
+        - Amortisseur gravity à quatre voies partagé par le FLOAT X2 et le DHX2 de ces années
+        - Réglages à clé hexagonale : 6 mm pour les circuits haute vitesse, 3 mm pour la basse vitesse
+      description_it: |-
+        - Ammortizzatore gravity a quattro vie condiviso da FLOAT X2 e DHX2 di questi anni
+        - Regolatori a brugola: 6 mm per i circuiti ad alta velocità, 3 mm per la bassa velocità
+      description_es: |-
+        - Amortiguador gravity de cuatro vías compartido por el FLOAT X2 y el DHX2 de estos años
+        - Ajustes con llave Allen: 6 mm para los circuitos de alta velocidad, 3 mm para los de baja velocidad
+      description_pt: |-
+        - Amortecedor gravity de quatro vias compartilhado pelo FLOAT X2 e pelo DHX2 destes anos
+        - Ajustes com chave Allen: 6 mm para os circuitos de alta velocidade, 3 mm para os de baixa velocidade
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 23, notes: "High-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "High-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: blue }
-        - { name: LSC, name_de: LSC, type: step, max: 22, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: blue, dialSize: small }
-        - { name: HSR, name_de: HSR, type: step, max: 19, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "High-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red }
-        - { name: LSR, name_de: LSR, type: step, max: 24, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 23, notes: "High-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "High-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compression haute vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Compressione ad alta velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Compresión de alta velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Compressão de alta velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: blue }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 22, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compression basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Compressione a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Compresión de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Compressão de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: blue, dialSize: small }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: step, max: 19, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "High-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Détente haute vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Ritorno ad alta velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Rebote de alta velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Retorno de alta velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 24, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Détente basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Ritorno a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Rebote de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Retorno de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/941/shock--2019-float-x2
         - https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
@@ -180,11 +236,23 @@ option_values:
       description_de: |-
         - Vierwege-Gravity-Dämpfer mit High-Speed-Kreisen mit Variable Valve Control
         - Geteilt von FLOAT X2 und DHX2 dieser Jahre
+      description_fr: |-
+        - Amortisseur gravity à quatre voies avec des circuits haute vitesse Variable Valve Control
+        - Partagé par le FLOAT X2 et le DHX2 de ces années
+      description_it: |-
+        - Ammortizzatore gravity a quattro vie con circuiti ad alta velocità Variable Valve Control
+        - Condiviso da FLOAT X2 e DHX2 di questi anni
+      description_es: |-
+        - Amortiguador gravity de cuatro vías con circuitos de alta velocidad Variable Valve Control
+        - Compartido por el FLOAT X2 y el DHX2 de estos años
+      description_pt: |-
+        - Amortecedor gravity de quatro vias com circuitos de alta velocidade Variable Valve Control
+        - Compartilhado pelo FLOAT X2 e pelo DHX2 destes anos
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 8, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, dialColor: blue }
-        - { name: LSC, name_de: LSC, type: step, max: 18, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: blue, dialSize: small }
-        - { name: HSR, name_de: HSR, type: step, max: 8, notes: High-Speed Rebound, notes_de: High-Speed-Zugstufe, dialColor: red }
-        - { name: LSR, name_de: LSR, type: step, max: 18, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 8, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: blue }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 18, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compression basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Compressione a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Compresión de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Compressão de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: blue, dialSize: small }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: step, max: 8, notes: High-Speed Rebound, notes_de: High-Speed-Zugstufe, notes_fr: Détente haute vitesse, notes_it: Ritorno ad alta velocità, notes_es: Rebote de alta velocidad, notes_pt: Retorno de alta velocidade, dialColor: red }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 18, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Détente basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Ritorno a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Rebote de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Retorno de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
         - https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
@@ -206,9 +274,13 @@ option_values:
       name: X2 VVC Low-Speed (2021-2025)
       description: Performance Elite version of the X2 damper. Low-speed compression and rebound only, no high-speed adjusters.
       description_de: Performance-Elite-Version des X2-Dämpfers. Nur Low-Speed-Druckstufe und Zugstufe, keine High-Speed-Versteller.
+      description_fr: Version Performance Elite de l’amortisseur X2. Compression basse vitesse et détente uniquement, sans réglage haute vitesse.
+      description_it: Versione Performance Elite dell’ammortizzatore X2. Solo compressione a bassa velocità e ritorno, senza regolatori ad alta velocità.
+      description_es: Versión Performance Elite del amortiguador X2. Solo compresión de baja velocidad y rebote, sin ajustes de alta velocidad.
+      description_pt: Versão Performance Elite do amortecedor X2. Somente compressão de baixa velocidade e retorno, sem ajustes de alta velocidade.
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: 18, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: blue }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 18, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 18, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compression basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Compressione a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Compresión de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Compressão de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 18, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Détente basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Ritorno a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Rebote de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Retorno de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
       source: https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
       note: >-
         HSR and HSC are Factory Series only. Maxima are the highest values of the
@@ -219,9 +291,13 @@ option_values:
       name: X2 Low-Speed (2019-2020)
       description: Performance Elite version of the X2 damper. Low-speed compression and rebound only, no high-speed adjusters.
       description_de: Performance-Elite-Version des X2-Dämpfers. Nur Low-Speed-Druckstufe und Zugstufe, keine High-Speed-Versteller.
+      description_fr: Version Performance Elite de l’amortisseur X2. Compression basse vitesse et détente uniquement, sans réglage haute vitesse.
+      description_it: Versione Performance Elite dell’ammortizzatore X2. Solo compressione a bassa velocità e ritorno, senza regolatori ad alta velocità.
+      description_es: Versión Performance Elite del amortiguador X2. Solo compresión de baja velocidad y rebote, sin ajustes de alta velocidad.
+      description_pt: Versão Performance Elite do amortecedor X2. Somente compressão de baixa velocidade e retorno, sem ajustes de alta velocidade.
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: 22, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: blue }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 24, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 22, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compression basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Compressione a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Compresión de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Compressão de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 24, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Détente basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Ritorno a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Rebote de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Retorno de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/941/shock--2019-float-x2
         - https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
@@ -238,10 +314,22 @@ option_values:
       description_de: |-
         - Trail-Dämpfer mit Dual Piston System und EVOL-Negativluftkammer
         - 3-Positionen-Hebel (Open/Medium/Firm) plus 3-stufige Open-Modus-Einstellung
+      description_fr: |-
+        - Amortisseur trail Dual Piston System avec un manchon pneumatique négatif EVOL
+        - Levier à 3 positions (Open/Medium/Firm) plus un réglage à 3 positions du mode ouvert
+      description_it: |-
+        - Ammortizzatore trail Dual Piston System con una camicia pneumatica negativa EVOL
+        - Leva a 3 posizioni (Open/Medium/Firm) più una regolazione a 3 posizioni della modalità aperta
+      description_es: |-
+        - Amortiguador trail Dual Piston System con una camisa neumática negativa EVOL
+        - Palanca de 3 posiciones (Open/Medium/Firm) más un ajuste de 3 posiciones del modo abierto
+      description_pt: |-
+        - Amortecedor trail Dual Piston System com uma camisa a ar negativa EVOL
+        - Alavanca de 3 posições (Open/Medium/Firm) mais um ajuste de 3 posições do modo aberto
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 11, notes: "estimated maximum, check your dial and edit it if it differs", notes_de: "geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest] }
-        - { name: Open Mode Adjust, name_de: Einstellung im offenen Modus, type: categorical, options: ["1", "2", "3"], options_de: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; Factory and Performance Elite non-remote shocks only", notes_de: Low-Speed-Druckstufe im offenen Modus; nur Factory- und Performance-Elite-Dämpfer ohne Fernbedienung }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 11, notes: "estimated maximum, check your dial and edit it if it differs", notes_de: "geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme] }
+        - { name: Open Mode Adjust, name_de: Einstellung im offenen Modus, name_fr: Réglage du mode ouvert, name_it: Regolazione della modalità aperta, name_es: Ajuste del modo abierto, name_pt: Ajuste do modo aberto, type: categorical, options: ["1", "2", "3"], options_de: ["1", "2", "3"], options_fr: ["1", "2", "3"], options_it: ["1", "2", "3"], options_es: ["1", "2", "3"], options_pt: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; Factory and Performance Elite non-remote shocks only", notes_de: Low-Speed-Druckstufe im offenen Modus; nur Factory- und Performance-Elite-Dämpfer ohne Fernbedienung, notes_fr: Compression basse vitesse en mode Open ; uniquement sur les amortisseurs Factory et Performance Elite sans commande déportée, notes_it: Compressione a bassa velocità in modalità Open; solo sugli ammortizzatori Factory e Performance Elite senza comando remoto, notes_es: Compresión de baja velocidad en modo Open; solo en los amortiguadores Factory y Performance Elite sin mando remoto, notes_pt: Compressão de baixa velocidade no modo Open; somente nos amortecedores Factory e Performance Elite sem comando remoto }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
         - https://tech.ridefox.com/bike/owners-manuals/824/shock--2018-float-dps-and-dpx2
@@ -259,10 +347,22 @@ option_values:
       description_de: |-
         - Größer gebaute Trail-/Enduro-Version des DPS-Dämpfers
         - 3-Positionen-Hebel (Open/Medium/Firm) plus ein Comp-Adj-Knopf für die gesamte Druckstufe
+      description_fr: |-
+        - Version trail/enduro à corps plus grand de l’amortisseur DPS
+        - Levier à 3 positions (Open/Medium/Firm) plus une molette Comp Adj pour la compression globale
+      description_it: |-
+        - Versione trail/enduro a corpo più grande dell’ammortizzatore DPS
+        - Leva a 3 posizioni (Open/Medium/Firm) più una manopola Comp Adj per la compressione complessiva
+      description_es: |-
+        - Versión trail/enduro de cuerpo más grande del amortiguador DPS
+        - Palanca de 3 posiciones (Open/Medium/Firm) más una rueda Comp Adj para la compresión global
+      description_pt: |-
+        - Versão trail/enduro de corpo maior do amortecedor DPS
+        - Alavanca de 3 posições (Open/Medium/Firm) mais um seletor Comp Adj para a compressão geral
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: ~, notes: Comp Adj knob, notes_de: Comp-Adj-Knopf, dialColor: blue }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, dialColor: red }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest] }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: ~, notes: Comp Adj knob, notes_de: Comp-Adj-Knopf, notes_fr: Molette Comp Adj, notes_it: Manopola Comp Adj, notes_es: Rueda Comp Adj, notes_pt: Seletor Comp Adj, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme] }
       source: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
       note: Neither the Comp Adj knob's detent count nor the rebound total is stated in the 2018-2021 manuals.
 
@@ -274,6 +374,10 @@ guides:
   fox_float_2027:
     label: FOX FLOAT owner's manual (2027)
     label_de: FOX FLOAT Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX FLOAT (2027)
+    label_it: Manuale d’uso FOX FLOAT (2027)
+    label_es: Manual del usuario FOX FLOAT (2027)
+    label_pt: Manual do usuário FOX FLOAT (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3172/shock--2027-float
     rules:
       - target: pressure
@@ -287,6 +391,10 @@ guides:
         }
         note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
         note_de: Berechnet aus dem Ausgangspunkt von FOX (psi = Fahrergewicht in lb); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de FOX (psi = poids du pilote en lb) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di FOX (psi = peso del rider in lb); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de FOX (psi = peso del rider en lb); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da FOX (psi = peso do rider em lb); defina a pressão final pelo SAG
       - target: rebound
         input: pressure
         input_unit: psi
@@ -297,11 +405,15 @@ guides:
         }
       - { target: compression_mode, value: Open }
       - { target: open_mode_adjust, value: "1", when: { trim: [factory, performance-elite] } }
-      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is FOX's firm end, 30 % the plush end", note_de: "25 % ist das feste Ende von FOX, 30 % das komfortable Ende" }
+      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is FOX's firm end, 30 % the plush end", note_de: "25 % ist das feste Ende von FOX, 30 % das komfortable Ende", note_fr: "25 % est la limite ferme de FOX, 30 % la limite confortable", note_it: "25 % è il limite rigido di FOX, 30 % quello confortevole", note_es: 25 % es el extremo firme de FOX y 30 % el cómodo, note_pt: 25 % é o extremo firme da FOX e 30 % o confortável }
 
   fox_float_sl_float_x_2027:
     label: FOX FLOAT SL and FLOAT X owner's manual (2027)
     label_de: FOX FLOAT SL und FLOAT X Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX FLOAT SL et FLOAT X (2027)
+    label_it: Manuale d’uso FOX FLOAT SL e FLOAT X (2027)
+    label_es: Manual del usuario FOX FLOAT SL y FLOAT X (2027)
+    label_pt: Manual do usuário FOX FLOAT SL e FLOAT X (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3173/shock--2027-float-sl-and-float-x
     rules:
       - target: pressure
@@ -311,6 +423,10 @@ guides:
         rows: *fox_air_shock_start
         note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
         note_de: Berechnet aus dem Ausgangspunkt von FOX (psi = Fahrergewicht in lb); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de FOX (psi = poids du pilote en lb) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di FOX (psi = peso del rider in lb); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de FOX (psi = peso del rider en lb); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da FOX (psi = peso do rider em lb); defina a pressão final pelo SAG
       - target: rebound
         input: pressure
         input_unit: psi
@@ -331,11 +447,15 @@ guides:
         }
       - { target: compression_mode, value: Open, when: { damper: float_sl } }
       - { target: open_mode_adjust, value: "1", when: { damper: float_sl } }
-      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is FOX's firm end, 30 % the plush end", note_de: "25 % ist das feste Ende von FOX, 30 % das komfortable Ende" }
+      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is FOX's firm end, 30 % the plush end", note_de: "25 % ist das feste Ende von FOX, 30 % das komfortable Ende", note_fr: "25 % est la limite ferme de FOX, 30 % la limite confortable", note_it: "25 % è il limite rigido di FOX, 30 % quello confortevole", note_es: 25 % es el extremo firme de FOX y 30 % el cómodo, note_pt: 25 % é o extremo firme da FOX e 30 % o confortável }
 
   fox_float_x2_2027:
     label: FOX FLOAT X2 owner's manual (2027)
     label_de: FOX FLOAT X2 Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX FLOAT X2 (2027)
+    label_it: Manuale d’uso FOX FLOAT X2 (2027)
+    label_es: Manual del usuario FOX FLOAT X2 (2027)
+    label_pt: Manual do usuário FOX FLOAT X2 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3183/shock--2027-float-x2
     rules:
       - target: pressure
@@ -345,6 +465,10 @@ guides:
         rows: *fox_air_shock_start
         note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
         note_de: Berechnet aus dem Ausgangspunkt von FOX (psi = Fahrergewicht in lb); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de FOX (psi = poids du pilote en lb) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di FOX (psi = peso del rider in lb); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de FOX (psi = peso del rider en lb); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da FOX (psi = peso do rider em lb); defina a pressão final pelo SAG
       - target: lsr
         input: pressure
         input_unit: psi
@@ -384,6 +508,10 @@ guides:
   fox_float_x2_2020:
     label: FOX FLOAT X2 owner's manual (2020)
     label_de: FOX FLOAT X2 Bedienungsanleitung (2020)
+    label_fr: Manuel d’utilisation FOX FLOAT X2 (2020)
+    label_it: Manuale d’uso FOX FLOAT X2 (2020)
+    label_es: Manual del usuario FOX FLOAT X2 (2020)
+    label_pt: Manual do usuário FOX FLOAT X2 (2020)
     source: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
     rules:
       - target: pressure
@@ -393,6 +521,10 @@ guides:
         rows: *fox_air_shock_start
         note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
         note_de: Berechnet aus dem Ausgangspunkt von FOX (psi = Fahrergewicht in lb); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de FOX (psi = poids du pilote en lb) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di FOX (psi = peso del rider in lb); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de FOX (psi = peso del rider en lb); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da FOX (psi = peso do rider em lb); defina a pressão final pelo SAG
       - target: lsr
         input: pressure
         input_unit: psi
@@ -452,6 +584,10 @@ guides:
   fox_float_x2_2025:
     label: FOX FLOAT X2 owner's manual (2025)
     label_de: FOX FLOAT X2 Bedienungsanleitung (2025)
+    label_fr: Manuel d’utilisation FOX FLOAT X2 (2025)
+    label_it: Manuale d’uso FOX FLOAT X2 (2025)
+    label_es: Manual del usuario FOX FLOAT X2 (2025)
+    label_pt: Manual do usuário FOX FLOAT X2 (2025)
     source: https://tech.ridefox.com/bike/owners-manuals/2984/shock--2025-float-x2
     rules:
       - target: pressure
@@ -461,6 +597,10 @@ guides:
         rows: *fox_air_shock_start
         note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
         note_de: Berechnet aus dem Ausgangspunkt von FOX (psi = Fahrergewicht in lb); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de FOX (psi = poids du pilote en lb) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di FOX (psi = peso del rider in lb); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de FOX (psi = peso del rider en lb); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da FOX (psi = peso do rider em lb); defina a pressão final pelo SAG
       - target: lsr
         input: pressure
         input_unit: psi
@@ -520,6 +660,10 @@ guides:
   fox_dhx2_2027:
     label: FOX DHX2 owner's manual (2027)
     label_de: FOX DHX2 Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX DHX2 (2027)
+    label_it: Manuale d’uso FOX DHX2 (2027)
+    label_es: Manual del usuario FOX DHX2 (2027)
+    label_pt: Manual do usuário FOX DHX2 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3171/shock--2027-dhx2
     rules:
       - target: lsr
@@ -569,6 +713,10 @@ guides:
   fox_coil_2025:
     label: FOX coil shock owner's manual (2025)
     label_de: FOX Stahlfeder-Dämpfer Bedienungsanleitung (2025)
+    label_fr: Manuel d’utilisation des amortisseurs à ressort FOX (2025)
+    label_it: Manuale d’uso degli ammortizzatori a molla FOX (2025)
+    label_es: Manual del usuario de los amortiguadores de muelle FOX (2025)
+    label_pt: Manual do usuário dos amortecedores a mola FOX (2025)
     source: https://tech.ridefox.com/bike/owners-manuals/2981/shock--2025-all-coil-shocks-(dhx2-and-dhx-models)
     rules:
       - { target: sag, value: 30 }
@@ -576,6 +724,10 @@ guides:
   fox_coil_2020:
     label: FOX coil shock owner's manual (2020)
     label_de: FOX Stahlfeder-Dämpfer Bedienungsanleitung (2020)
+    label_fr: Manuel d’utilisation des amortisseurs à ressort FOX (2020)
+    label_it: Manuale d’uso degli ammortizzatori a molla FOX (2020)
+    label_es: Manual del usuario de los amortiguadores de muelle FOX (2020)
+    label_pt: Manual do usuário dos amortecedores a mola FOX (2020)
     source: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
     rules:
       - { target: sag, value: 30 }
@@ -583,6 +735,10 @@ guides:
   fox_dhx_2027:
     label: FOX DHX owner's manual (2027)
     label_de: FOX DHX Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX DHX (2027)
+    label_it: Manuale d’uso FOX DHX (2027)
+    label_es: Manual del usuario FOX DHX (2027)
+    label_pt: Manual do usuário FOX DHX (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3170/shock--2027-dhx-
     rules:
       - { target: sag, value: 30 }
@@ -590,6 +746,10 @@ guides:
   fox_float_dps_dpx2_2021:
     label: FOX FLOAT DPS and DPX2 owner's manual (2021)
     label_de: FOX FLOAT DPS und DPX2 Bedienungsanleitung (2021)
+    label_fr: Manuel d’utilisation FOX FLOAT DPS et DPX2 (2021)
+    label_it: Manuale d’uso FOX FLOAT DPS e DPX2 (2021)
+    label_es: Manual del usuario FOX FLOAT DPS y DPX2 (2021)
+    label_pt: Manual do usuário FOX FLOAT DPS e DPX2 (2021)
     source: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     rules:
       - target: pressure
@@ -599,6 +759,10 @@ guides:
         rows: *fox_air_shock_start
         note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
         note_de: Berechnet aus dem Ausgangspunkt von FOX (psi = Fahrergewicht in lb); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de FOX (psi = poids du pilote en lb) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di FOX (psi = peso del rider in lb); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de FOX (psi = peso del rider en lb); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da FOX (psi = peso do rider em lb); defina a pressão final pelo SAG
       - target: rebound
         input: pressure
         input_unit: psi
@@ -610,7 +774,7 @@ guides:
         }
       - { target: compression_mode, value: Open }
       - { target: open_mode_adjust, value: "1", when: { damper: dps_2018, trim: [factory, performance-elite] } }
-      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is FOX's firm end, 30 % the plush end", note_de: "25 % ist das feste Ende von FOX, 30 % das komfortable Ende" }
+      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is FOX's firm end, 30 % the plush end", note_de: "25 % ist das feste Ende von FOX, 30 % das komfortable Ende", note_fr: "25 % est la limite ferme de FOX, 30 % la limite confortable", note_it: "25 % è il limite rigido di FOX, 30 % quello confortevole", note_es: 25 % es el extremo firme de FOX y 30 % el cómodo, note_pt: 25 % é o extremo firme da FOX e 30 % o confortável }
 
 # --------------------------------------------------------------------------
 # Shocks — current (2026/2027) FOX lineup, then legacy generations. A model
@@ -632,9 +796,13 @@ nodes:
     level: model
     category: XC
     category_de: XC
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: &fox_service
-      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: FOX owner's manual, source_de: FOX-Handbuch }
+      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: FOX owner's manual, source_de: FOX-Handbuch, source_fr: Manuel d’utilisation FOX, source_it: Manuale d’uso FOX, source_es: Manual del usuario FOX, source_pt: Manual do usuário FOX }
     children:
       - label: "2024–2027"
         level: generation
@@ -646,9 +814,9 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             adjustments: &air_spring_sl
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve, notes_de: Maximal 300 psi bei Dämpfern ohne EVOL-Luftkammer }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve, notes_de: Maximal 300 psi bei Dämpfern ohne EVOL-Luftkammer, notes_fr: Maximum 300 psi sur les amortisseurs sans manchon pneumatique EVOL, notes_it: Massimo 300 psi sugli ammortizzatori senza camicia pneumatica EVOL, notes_es: Máximo 300 psi en los amortiguadores sin camisa neumática EVOL, notes_pt: Máximo 300 psi nos amortecedores sem camisa a ar EVOL }
             options:
               damper: [float_sl]
               size:
@@ -657,7 +825,7 @@ nodes:
                 - { size: "165x40/42.5/45", mount: Trunnion }
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring_sl
             options:
               damper: [float_sl]
@@ -669,7 +837,11 @@ nodes:
     level: model
     category: XC / Trail
     category_de: XC / Trail
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *fox_service
     children:
       - label: "2024–2027"
@@ -682,9 +854,9 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             adjustments: &air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 350 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 350 }
             options:
               damper: [float]
               size:
@@ -693,13 +865,13 @@ nodes:
                 - { size: "185x50/52.5/55", mount: Trunnion }
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring
             options:
               damper: [float]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring
             options:
               damper: [float]
@@ -709,18 +881,26 @@ nodes:
                 - { size: "185x55", mount: Trunnion }
           - label: Rhythm
             level: trim
-            specs: { stanchion: "6000-series alloy, black anodized", stanchion_de: "Aluminium der 6000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "6000-series alloy, black anodized", stanchion_de: "Aluminium der 6000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 6000, anodisé noir", stanchion_it: "Lega della serie 6000, anodizzato nero", stanchion_es: "Aleación de la serie 6000, anodizado negro", stanchion_pt: "Liga da série 6000, anodizado preto" }
             adjustments: *air_spring
             options:
               damper: [float]
             note: OEM complete bikes only
             note_de: Nur für OEM-Komplettbikes
+            note_fr: Uniquement sur vélos complets en monte d’origine
+            note_it: Solo su bici complete di primo equipaggiamento
+            note_es: Solo en bicicletas completas de montaje original
+            note_pt: Somente em bikes completas de montagem original
 
   - label: "FLOAT X"
     level: model
     category: All-Mountain
     category_de: All-Mountain
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: All-Mountain
+    category_it: All-Mountain
+    category_es: All-Mountain
+    category_pt: All-Mountain
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *fox_service
     children:
       - label: "2022–2027"
@@ -733,7 +913,7 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             adjustments: *air_spring
             options:
               damper: [float_x]
@@ -745,7 +925,7 @@ nodes:
                 - { size: "205x60/62.5/65", mount: Trunnion }
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring
             options:
               damper: [float_x]
@@ -755,7 +935,7 @@ nodes:
                 - { size: "205x65", mount: Trunnion }
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring
             options:
               damper: [float_x]
@@ -764,6 +944,10 @@ nodes:
     level: model
     category: Enduro / Gravity
     category_de: Enduro / Gravity
+    category_fr: Enduro / Gravity
+    category_it: Enduro / Gravity
+    category_es: Enduro / Gravity
+    category_pt: Enduro / Gravity
     tasks: *fox_service
     children:
       - label: "2026–2027"
@@ -773,11 +957,11 @@ nodes:
         url: https://ridefox.com/pages/fox-float-x2
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/3183/shock--2027-float-x2
         guide: fox_float_x2_2027
-        specs: { spring: Air, spring_de: Luft }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             adjustments: *air_spring
             options:
               damper: [vvc2]
@@ -790,7 +974,7 @@ nodes:
                 - { size: "225x75", mount: Trunnion }
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring
             options:
               damper: [vvc2]
@@ -800,12 +984,16 @@ nodes:
                 - { size: "205x60/65", mount: Trunnion }
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring
             options:
               damper: [vvc2]
             note: OEM complete bikes only
             note_de: Nur für OEM-Komplettbikes
+            note_fr: Uniquement sur vélos complets en monte d’origine
+            note_it: Solo su bici complete di primo equipaggiamento
+            note_es: Solo en bicicletas completas de montaje original
+            note_pt: Somente em bikes completas de montagem original
       - label: "2021–2025"
         level: generation
         id: "2021"
@@ -813,14 +1001,14 @@ nodes:
         url: https://tech.ridefox.com/bike/owners-manuals/2984/shock--2025-float-x2
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/2984/shock--2025-float-x2
         guide: fox_float_x2_2025
-        specs: { spring: Air, spring_de: Luft }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         adjustments:
-          - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
-          - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 5, visualization: stepper, notes: "Maximum depends on the size: metric 210x50/55 3, 230x57.5/60/65 4, 250x70/75 5; trunnion 185x50/55 1, 205x60/62.5/65 2, 225x70/75 3; imperial 7.5x2 and 7.875x2 1, 8.5x2.5 2, 9.5x3 3, 10.5x3.5 4", notes_de: "Das Maximum hängt von der Größe ab: metrisch 210x50/55 3, 230x57.5/60/65 4, 250x70/75 5; Trunnion 185x50/55 1, 205x60/62.5/65 2, 225x70/75 3; imperial 7.5x2 und 7.875x2 1, 8.5x2.5 2, 9.5x3 3, 10.5x3.5 4" }
+          - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300 }
+          - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Maximum depends on the size: metric 210x50/55 3, 230x57.5/60/65 4, 250x70/75 5; trunnion 185x50/55 1, 205x60/62.5/65 2, 225x70/75 3; imperial 7.5x2 and 7.875x2 1, 8.5x2.5 2, 9.5x3 3, 10.5x3.5 4", notes_de: "Das Maximum hängt von der Größe ab: metrisch 210x50/55 3, 230x57.5/60/65 4, 250x70/75 5; Trunnion 185x50/55 1, 205x60/62.5/65 2, 225x70/75 3; imperial 7.5x2 und 7.875x2 1, 8.5x2.5 2, 9.5x3 3, 10.5x3.5 4", notes_fr: "Le maximum dépend de la taille : métrique 210x50/55 3, 230x57,5/60/65 4, 250x70/75 5 ; trunnion 185x50/55 1, 205x60/62,5/65 2, 225x70/75 3 ; impérial 7,5x2 et 7,875x2 1, 8,5x2,5 2, 9,5x3 3, 10,5x3,5 4", notes_it: "Il massimo dipende dalla misura: metrica 210x50/55 3, 230x57,5/60/65 4, 250x70/75 5; trunnion 185x50/55 1, 205x60/62,5/65 2, 225x70/75 3; imperiale 7,5x2 e 7,875x2 1, 8,5x2,5 2, 9,5x3 3, 10,5x3,5 4", notes_es: "El máximo depende de la medida: métrica 210x50/55 3, 230x57,5/60/65 4, 250x70/75 5; trunnion 185x50/55 1, 205x60/62,5/65 2, 225x70/75 3; imperial 7,5x2 y 7,875x2 1, 8,5x2,5 2, 9,5x3 3, 10,5x3,5 4", notes_pt: "O máximo depende do tamanho: métrico 210x50/55 3, 230x57,5/60/65 4, 250x70/75 5; trunnion 185x50/55 1, 205x60/62,5/65 2, 225x70/75 3; imperial 7,5x2 e 7,875x2 1, 8,5x2,5 2, 9,5x3 3, 10,5x3,5 4" }
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             options:
               damper: [x2_vvc_2021]
               size: &x2_sizes_2021
@@ -837,7 +1025,7 @@ nodes:
                 - { eye_to_eye_mm: 266.7, stroke_mm: 88.9, label: 10.5x3.5in }
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             options:
               damper: [x2_vvc_2021_ls]
               size: *x2_sizes_2021
@@ -849,14 +1037,14 @@ nodes:
         url: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
         guide: fox_float_x2_2020
-        specs: { spring: Air, spring_de: Luft }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         adjustments:
-          - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
-          - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, visualization: stepper, notes: "Maximum depends on the size: metric 185x50/55 2, 205x60/62.5/65 3, 210x50/55 4, 225x70/75 4, 230x57.5/60/65 5, 250x70/75 6; imperial 7.875x2 and 7.875x2.25 2, 8.5x2.25 4, 8.5x2.5 3, 8.75x2.75 3, 9.5x3 4, 10.5x3.5 5", notes_de: "Das Maximum hängt von der Größe ab: metrisch 185x50/55 2, 205x60/62.5/65 3, 210x50/55 4, 225x70/75 4, 230x57.5/60/65 5, 250x70/75 6; imperial 7.875x2 und 7.875x2.25 2, 8.5x2.25 4, 8.5x2.5 3, 8.75x2.75 3, 9.5x3 4, 10.5x3.5 5" }
+          - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300 }
+          - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Maximum depends on the size: metric 185x50/55 2, 205x60/62.5/65 3, 210x50/55 4, 225x70/75 4, 230x57.5/60/65 5, 250x70/75 6; imperial 7.875x2 and 7.875x2.25 2, 8.5x2.25 4, 8.5x2.5 3, 8.75x2.75 3, 9.5x3 4, 10.5x3.5 5", notes_de: "Das Maximum hängt von der Größe ab: metrisch 185x50/55 2, 205x60/62.5/65 3, 210x50/55 4, 225x70/75 4, 230x57.5/60/65 5, 250x70/75 6; imperial 7.875x2 und 7.875x2.25 2, 8.5x2.25 4, 8.5x2.5 3, 8.75x2.75 3, 9.5x3 4, 10.5x3.5 5", notes_fr: "Le maximum dépend de la taille : métrique 185x50/55 2, 205x60/62,5/65 3, 210x50/55 4, 225x70/75 4, 230x57,5/60/65 5, 250x70/75 6 ; impérial 7,875x2 et 7,875x2,25 2, 8,5x2,25 4, 8,5x2,5 3, 8,75x2,75 3, 9,5x3 4, 10,5x3,5 5", notes_it: "Il massimo dipende dalla misura: metrica 185x50/55 2, 205x60/62,5/65 3, 210x50/55 4, 225x70/75 4, 230x57,5/60/65 5, 250x70/75 6; imperiale 7,875x2 e 7,875x2,25 2, 8,5x2,25 4, 8,5x2,5 3, 8,75x2,75 3, 9,5x3 4, 10,5x3,5 5", notes_es: "El máximo depende de la medida: métrica 185x50/55 2, 205x60/62,5/65 3, 210x50/55 4, 225x70/75 4, 230x57,5/60/65 5, 250x70/75 6; imperial 7,875x2 y 7,875x2,25 2, 8,5x2,25 4, 8,5x2,5 3, 8,75x2,75 3, 9,5x3 4, 10,5x3,5 5", notes_pt: "O máximo depende do tamanho: métrico 185x50/55 2, 205x60/62,5/65 3, 210x50/55 4, 225x70/75 4, 230x57,5/60/65 5, 250x70/75 6; imperial 7,875x2 e 7,875x2,25 2, 8,5x2,25 4, 8,5x2,5 3, 8,75x2,75 3, 9,5x3 4, 10,5x3,5 5" }
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             mounts: [Standard, Trunnion]
             options:
               damper: [x2_2019]
@@ -880,20 +1068,40 @@ nodes:
             note_de: |-
               - Vierfach einstellbar; bei einigen Dämpfern wurde ein 2-Positionen-Firm-Hebel angeboten
               - High-Speed-Druckstufe und Zugstufe nur in der Factory Series
+            note_fr: |-
+              - Réglable sur quatre voies ; un levier Firm à 2 positions était proposé sur certains amortisseurs
+              - La compression et la détente haute vitesse sont réservées à la série Factory
+            note_it: |-
+              - Regolabile in quattro vie; su alcuni ammortizzatori era offerta una leva Firm a 2 posizioni
+              - Compressione e ritorno ad alta velocità sono riservati alla serie Factory
+            note_es: |-
+              - Ajustable en cuatro vías; en algunos amortiguadores se ofrecía una palanca Firm de 2 posiciones
+              - La compresión y el rebote de alta velocidad son exclusivos de la serie Factory
+            note_pt: |-
+              - Ajustável em quatro vias; em alguns amortecedores havia uma alavanca Firm de 2 posições
+              - A compressão e o retorno de alta velocidade são exclusivos da série Factory
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             mounts: [Standard, Trunnion]
             options:
               damper: [x2_2019_ls]
               size: *x2_sizes_2019
             note: Low-speed compression and rebound only — no high-speed adjusters.
             note_de: Nur Low-Speed-Druckstufe und Zugstufe — keine High-Speed-Versteller.
+            note_fr: Compression et détente basse vitesse uniquement — pas de réglage haute vitesse.
+            note_it: Solo compressione e ritorno a bassa velocità — nessuna regolazione ad alta velocità.
+            note_es: Solo compresión y rebote de baja velocidad — sin ajustes de alta velocidad.
+            note_pt: Somente compressão e retorno de baixa velocidade — sem ajustes de alta velocidade.
   - label: "DHX"
     level: model
     category: Trail / Enduro
     category_de: Trail / Enduro
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *fox_service
     children:
       - label: "2022–2027"
@@ -906,20 +1114,28 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             mounts: [Metric, Metric Trunnion]
             adjustments: &coil_spring
-              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [dhx_coil]
               size: [55, 60, 62.5, 65]
             note: "Coil spring sold separately. Common sizes: 210x55, 230x60, 230x65, 185x55, 205x60, 205x62.5"
             note_de: "Stahlfeder separat erhältlich. Gängige Größen: 210x55, 230x60, 230x65, 185x55, 205x60, 205x62.5"
+            note_fr: "Ressort vendu séparément. Tailles courantes : 210x55, 230x60, 230x65, 185x55, 205x60, 205x62,5"
+            note_it: "Molla venduta separatamente. Misure comuni: 210x55, 230x60, 230x65, 185x55, 205x60, 205x62,5"
+            note_es: "Muelle vendido por separado. Medidas habituales: 210x55, 230x60, 230x65, 185x55, 205x60, 205x62,5"
+            note_pt: "Mola vendida separadamente. Tamanhos comuns: 210x55, 230x60, 230x65, 185x55, 205x60, 205x62,5"
 
   - label: "DHX2"
     level: model
     category: Downhill / Enduro
     category_de: Downhill / Enduro
+    category_fr: Downhill / Enduro
+    category_it: Downhill / Enduro
+    category_es: Downhill / Enduro
+    category_pt: Downhill / Enduro
     tasks: *fox_service
     children:
       - label: "2026–2027"
@@ -929,11 +1145,11 @@ nodes:
         url: https://ridefox.com/pages/fox-dhx2
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/3171/shock--2027-dhx2
         guide: fox_dhx2_2027
-        specs: { spring: Coil, spring_de: Stahlfeder }
+        specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             adjustments: *coil_spring
             options:
               damper: [vvc2]
@@ -946,18 +1162,22 @@ nodes:
                 - { size: "225x75", mount: Trunnion }
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *coil_spring
             options:
               damper: [vvc2]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *coil_spring
             options:
               damper: [vvc2]
             note: OEM complete bikes only
             note_de: Nur für OEM-Komplettbikes
+            note_fr: Uniquement sur vélos complets en monte d’origine
+            note_it: Solo su bici complete di primo equipaggiamento
+            note_es: Solo en bicicletas completas de montaje original
+            note_pt: Somente em bikes completas de montagem original
       - label: "2021–2025"
         level: generation
         id: "2021"
@@ -965,11 +1185,11 @@ nodes:
         url: https://tech.ridefox.com/bike/owners-manuals/2981/shock--2025-all-coil-shocks-(dhx2-and-dhx-models)
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/2981/shock--2025-all-coil-shocks-(dhx2-and-dhx-models)
         guide: fox_coil_2025
-        specs: { spring: Coil, spring_de: Stahlfeder }
+        specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             adjustments: *coil_spring
             options:
               damper: [x2_vvc_2021]
@@ -980,9 +1200,13 @@ nodes:
                 - { eye_to_eye_mm: 266.7, stroke_mm: 88.9, label: 10.5x3.5in }
             note: Coil spring sold separately.
             note_de: Stahlfeder separat erhältlich.
+            note_fr: Ressort vendu séparément.
+            note_it: Molla venduta separatamente.
+            note_es: Muelle vendido por separado.
+            note_pt: Mola vendida separadamente.
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *coil_spring
             options:
               damper: [x2_vvc_2021]
@@ -993,19 +1217,23 @@ nodes:
         url: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
         guide: fox_coil_2020
-        specs: { spring: Coil, spring_de: Stahlfeder }
+        specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             adjustments: *coil_spring
             options:
               damper: [x2_2019]
             note: Coil spring sold separately. Shares the four-way X2 damper with the air FLOAT X2.
             note_de: Stahlfeder separat erhältlich. Teilt sich den Vierwege-X2-Dämpfer mit dem Luft-FLOAT-X2.
+            note_fr: Ressort vendu séparément. Partage l’amortisseur X2 à quatre voies avec le FLOAT X2 pneumatique.
+            note_it: Molla venduta separatamente. Condivide l’ammortizzatore X2 a quattro vie con il FLOAT X2 pneumatico.
+            note_es: Muelle vendido por separado. Comparte el amortiguador X2 de cuatro vías con el FLOAT X2 neumático.
+            note_pt: Mola vendida separadamente. Compartilha o amortecedor X2 de quatro vias com o FLOAT X2 a ar.
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *coil_spring
             options:
               damper: [x2_2019]
@@ -1020,7 +1248,11 @@ nodes:
     level: model
     category: XC / Trail
     category_de: XC / Trail
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *fox_service
     children:
       - label: "2018–2023"
@@ -1033,9 +1265,9 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             adjustments: &air_spring_dps
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve, notes_de: Maximal 300 psi bei Dämpfern ohne EVOL-Luftkammer }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve, notes_de: Maximal 300 psi bei Dämpfern ohne EVOL-Luftkammer, notes_fr: Maximum 300 psi sur les amortisseurs sans manchon pneumatique EVOL, notes_it: Massimo 300 psi sugli ammortizzatori senza camicia pneumatica EVOL, notes_es: Máximo 300 psi en los amortiguadores sin camisa neumática EVOL, notes_pt: Máximo 300 psi nos amortecedores sem camisa a ar EVOL }
             options:
               damper: [dps_2018]
               size:
@@ -1046,15 +1278,19 @@ nodes:
                 - { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: 7.875x2.25in }
             note: EVOL air sleeve, 350 psi maximum. Sold with a 9mm damper shaft.
             note_de: EVOL-Luftkammer, maximal 350 psi. Wird mit 9mm-Dämpferstange verkauft.
+            note_fr: Manchon pneumatique EVOL, 350 psi maximum. Vendu avec une tige d’amortisseur de 9 mm.
+            note_it: Camicia pneumatica EVOL, 350 psi al massimo. Venduto con uno stelo dell’ammortizzatore da 9 mm.
+            note_es: Camisa neumática EVOL, 350 psi como máximo. Se vende con un vástago de amortiguador de 9 mm.
+            note_pt: Camisa a ar EVOL, 350 psi no máximo. Vendido com uma haste de amortecedor de 9 mm.
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring_dps
             options:
               damper: [dps_2018]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring_dps
             options:
               damper: [dps_2018]
@@ -1071,7 +1307,11 @@ nodes:
     level: model
     category: Trail / Enduro
     category_de: Trail / Enduro
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *fox_service
     children:
       - label: "2018–2021"
@@ -1084,21 +1324,25 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, stanchion_de: Kashima }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima }
             adjustments: *air_spring
             options:
               damper: [dpx2_2018]
             note: EVOL air sleeve, 350 psi maximum. Larger 1/2in damper shaft than the DPS.
             note_de: EVOL-Luftkammer, maximal 350 psi. Größere 1/2in-Dämpferstange als beim DPS.
+            note_fr: Manchon pneumatique EVOL, 350 psi maximum. Tige d’amortisseur de 1/2" plus grosse que celle du DPS.
+            note_it: Camicia pneumatica EVOL, 350 psi al massimo. Stelo dell’ammortizzatore da 1/2" più grande rispetto al DPS.
+            note_es: Camisa neumática EVOL, 350 psi como máximo. Vástago del amortiguador de 1/2" más grande que el del DPS.
+            note_pt: Camisa a ar EVOL, 350 psi no máximo. Haste do amortecedor de 1/2" maior que a do DPS.
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring
             options:
               damper: [dpx2_2018]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert" }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto" }
             adjustments: *air_spring
             options:
               damper: [dpx2_2018]

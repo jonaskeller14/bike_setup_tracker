@@ -67,11 +67,15 @@ option_values:
       description_de: >
         Vierwege-einstellbarer Dämpfer (LSC, HSC, Zugstufe und der
         LOK-Pedalplattform-Hebel) ohne einstellbaren Durchschlagkreis.
+      description_fr: Amortisseur réglable à quatre voies (LSC, HSC, détente et le levier de plateforme de pédalage LOK) sans circuit de fin de course réglable.
+      description_it: Ammortizzatore regolabile a quattro vie (LSC, HSC, ritorno e la leva della piattaforma di pedalata LOK) senza circuito di fondocorsa regolabile.
+      description_es: Amortiguador ajustable de cuatro vías (LSC, HSC, rebote y la palanca de plataforma de pedaleo LOK) sin circuito de final de carrera ajustable.
+      description_pt: Amortecedor ajustável de quatro vias (LSC, HSC, retorno e a alavanca de plataforma de pedalada LOK) sem circuito de fim de curso ajustável.
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: 14, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 10 }
-        - { name: LOK (Climb Switch), name_de: LOK (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 14, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 10 }
+        - { name: LOK (Climb Switch), name_de: LOK (Climb-Schalter), name_fr: LOK (levier Climb), name_it: LOK (leva Climb), name_es: LOK (palanca Climb), name_pt: LOK (alavanca Climb), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout", notes_fr: "Sens horaire = LOK (plateforme de pédalage ferme), sens antihoraire = Open. Ce n’est pas un vrai lockout", notes_it: "In senso orario = LOK (piattaforma di pedalata rigida), in senso antiorario = Open. Non è un vero lockout", notes_es: "Sentido horario = LOK (plataforma de pedaleo firme), sentido antihorario = Open. No es un lockout de verdad", notes_pt: "Sentido horário = LOK (plataforma de pedalada firme), sentido anti-horário = Open. Não é um lockout de verdade" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench or socket) / Rebound/R (bottom knob)
       source: https://www.pinkbike.com/news/review-ext-storia-v3-shock.html
       note: >-
@@ -87,12 +91,16 @@ option_values:
       description_de: >
         Vierwege-einstellbarer Dämpfer (LSC, HSC, Zugstufe, HBC) plus der
         LOK-2.0-Pedalplattform-Hebel.
+      description_fr: Amortisseur réglable à quatre voies (LSC, HSC, détente, HBC) plus le levier de plateforme de pédalage LOK 2.0.
+      description_it: Ammortizzatore regolabile a quattro vie (LSC, HSC, ritorno, HBC) più la leva della piattaforma di pedalata LOK 2.0.
+      description_es: Amortiguador ajustable de cuatro vías (LSC, HSC, rebote, HBC) más la palanca de plataforma de pedaleo LOK 2.0.
+      description_pt: Amortecedor ajustável de quatro vias (LSC, HSC, retorno, HBC) mais a alavanca de plataforma de pedalada LOK 2.0.
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
-        - { name: HBC, name_de: HBC, type: step, max: 10, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
-        - { name: LOK 2.0 (Climb Switch), name_de: LOK 2.0 (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
+        - { name: HBC, name_de: HBC, name_fr: HBC, name_it: HBC, name_es: HBC, name_pt: HBC, type: step, max: 10, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung, notes_fr: Réglage de la butée hydraulique de fin de course, notes_it: Regolazione del fondocorsa idraulico, notes_es: Control del final de carrera hidráulico, notes_pt: Controle do fim de curso hidráulico }
+        - { name: LOK 2.0 (Climb Switch), name_de: LOK 2.0 (Climb-Schalter), name_fr: LOK 2.0 (levier Climb), name_it: LOK 2.0 (leva Climb), name_es: LOK 2.0 (palanca Climb), name_pt: LOK 2.0 (alavanca Climb), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout", notes_fr: "Sens horaire = LOK (plateforme de pédalage ferme), sens antihoraire = Open. Ce n’est pas un vrai lockout", notes_it: "In senso orario = LOK (piattaforma di pedalata rigida), in senso antiorario = Open. Non è un vero lockout", notes_es: "Sentido horario = LOK (plataforma de pedaleo firme), sentido antihorario = Open. No es un lockout de verdad", notes_pt: "Sentido horário = LOK (plataforma de pedalada firme), sentido anti-horário = Open. Não é um lockout de verdade" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench or socket) / Rebound/R (bottom knob) / HBC (4mm Allen, top of compression valve)
       source:
         - https://www.pinkbike.com/news/review-exts-new-storia-v4-coil-shock.html
@@ -109,11 +117,15 @@ option_values:
       name: Arma V3
       description: Downhill-race damper with four adjusters (LSC, HSC, rebound, HBC) and no climb switch.
       description_de: Downhill-Renndämpfer mit vier Verstellern (LSC, HSC, Zugstufe, HBC) und ohne Climb-Schalter.
+      description_fr: Amortisseur de course de descente avec quatre réglages (LSC, HSC, détente, HBC) et sans climb switch.
+      description_it: Ammortizzatore da gara downhill con quattro regolatori (LSC, HSC, ritorno, HBC) e senza climb switch.
+      description_es: Amortiguador de competición de descenso con cuatro ajustes (LSC, HSC, rebote, HBC) y sin climb switch.
+      description_pt: Amortecedor de competição de downhill com quatro ajustes (LSC, HSC, retorno, HBC) e sem climb switch.
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
-        - { name: HBC, name_de: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
+        - { name: HBC, name_de: HBC, name_fr: HBC, name_it: HBC, name_es: HBC, name_pt: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung, notes_fr: Réglage de la butée hydraulique de fin de course, notes_it: Regolazione del fondocorsa idraulico, notes_es: Control del final de carrera hidráulico, notes_pt: Controle do fim de curso hidráulico }
       adjusters: LSC / HSC / Rebound / HBC — no LOK on Arma (confirmed "Available on Storia V4 only")
 
     arma_v4:
@@ -125,11 +137,15 @@ option_values:
         Downhill-Dämpfer mit vier Verstellern (LSC, HSC, Zugstufe, HBC),
         abstimmbar mit einem Multitool (Inbusschlüssel 5mm und 4mm). Ohne
         Climb-Schalter.
+      description_fr: Amortisseur de descente avec quatre réglages (LSC, HSC, détente, HBC), réglable avec un multi-outil (clés Allen de 5 mm et 4 mm). Pas de climb switch.
+      description_it: Ammortizzatore da discesa con quattro regolatori (LSC, HSC, ritorno, HBC), regolabile con un multiutensile (brugole da 5 mm e 4 mm). Nessun climb switch.
+      description_es: Amortiguador de descenso con cuatro ajustes (LSC, HSC, rebote, HBC), ajustable con una multiherramienta (llaves Allen de 5 mm y 4 mm). Sin climb switch.
+      description_pt: Amortecedor de descida com quatro ajustes (LSC, HSC, retorno, HBC), ajustável com uma multiferramenta (chaves Allen de 5 mm e 4 mm). Sem climb switch.
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: 15, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 14, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
-        - { name: HBC, name_de: HBC, type: step, max: 10, notes: "Hydraulic bottom-out control, last 20% of stroke", notes_de: "Hydraulische Durchschlagsregelung, letzte 20 % des Federwegs" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 15, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 14, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
+        - { name: HBC, name_de: HBC, name_fr: HBC, name_it: HBC, name_es: HBC, name_pt: HBC, type: step, max: 10, notes: "Hydraulic bottom-out control, last 20% of stroke", notes_de: "Hydraulische Durchschlagsregelung, letzte 20 % des Federwegs", notes_fr: "Réglage de la butée hydraulique de fin de course, sur les derniers 20 % du débattement", notes_it: "Regolazione del fondocorsa idraulico, sull’ultimo 20 % della corsa", notes_es: "Control del final de carrera hidráulico, en el último 20 % del recorrido", notes_pt: "Controle do fim de curso hidráulico, nos últimos 20 % do curso" }
       adjusters: LSC (4mm Allen) / HSC (5mm Allen) / Rebound / HBC
       source: https://www.pinkbike.com/news/review-ext-arma-v4-one-of-the-best-mtb-shocks-gets-even-better.html
       note: >-
@@ -148,12 +164,16 @@ option_values:
       description_de: >
         EXTs erster Luftdämpfer: vier hydraulische Versteller (LSC, HSC,
         Zugstufe, HBC) plus ein LOK-Climb-Hebel.
+      description_fr: "Premier amortisseur pneumatique d’EXT : quatre réglages hydrauliques (LSC, HSC, détente, HBC) plus un levier Climb LOK."
+      description_it: "Il primo ammortizzatore pneumatico di EXT: quattro regolatori idraulici (LSC, HSC, ritorno, HBC) più una leva Climb LOK."
+      description_es: "El primer amortiguador neumático de EXT: cuatro ajustes hidráulicos (LSC, HSC, rebote, HBC) más una palanca Climb LOK."
+      description_pt: "O primeiro amortecedor a ar da EXT: quatro ajustes hidráulicos (LSC, HSC, retorno, HBC) mais uma alavanca Climb LOK."
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: 12, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
-        - { name: HSC, name_de: HSC, type: step, max: 10, notes: "High-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "High-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 13, notes: "Estimated maximum, check your dial and edit it if it differs", notes_de: "Geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
-        - { name: HBC, name_de: HBC, type: step, max: 4, notes: "Hydraulic bottom-out control; estimated maximum, check your dial and edit it if it differs", notes_de: "Hydraulische Durchschlagsregelung; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
-        - { name: LOK (Climb Switch), name_de: LOK (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 12, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compression basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Compressione a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Compresión de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Compressão de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente" }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 10, notes: "High-Speed Compression; estimated maximum, check your dial and edit it if it differs", notes_de: "High-Speed-Druckstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compression haute vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Compressione ad alta velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Compresión de alta velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Compressão de alta velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 13, notes: "Estimated maximum, check your dial and edit it if it differs", notes_de: "Geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Máximo estimado, confira o seu seletor e edite-o se for diferente" }
+        - { name: HBC, name_de: HBC, name_fr: HBC, name_it: HBC, name_es: HBC, name_pt: HBC, type: step, max: 4, notes: "Hydraulic bottom-out control; estimated maximum, check your dial and edit it if it differs", notes_de: "Hydraulische Durchschlagsregelung; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Réglage de la butée hydraulique de fin de course ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Regolazione del fondocorsa idraulico; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Control del final de carrera hidráulico; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Controle do fim de curso hidráulico; máximo estimado, confira o seu seletor e edite-o se for diferente" }
+        - { name: LOK (Climb Switch), name_de: LOK (Climb-Schalter), name_fr: LOK (levier Climb), name_it: LOK (leva Climb), name_es: LOK (palanca Climb), name_pt: LOK (alavanca Climb), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout", notes_fr: "Sens horaire = LOK (plateforme de pédalage ferme), sens antihoraire = Open. Ce n’est pas un vrai lockout", notes_it: "In senso orario = LOK (piattaforma di pedalata rigida), in senso antiorario = Open. Non è un vero lockout", notes_es: "Sentido horario = LOK (plataforma de pedaleo firme), sentido antihorario = Open. No es un lockout de verdad", notes_pt: "Sentido horário = LOK (plataforma de pedalada firme), sentido anti-horário = Open. Não é um lockout de verdade" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC/H (4mm Allen)
       source: https://extremeshox.com/wp-content/uploads/2023/08/Quick-manual-Aria-min.pdf
       note: >-
@@ -172,12 +192,16 @@ option_values:
         Für den E-MTB-Einsatz abgestimmter Dämpfer (schwerere Bikes, höhere
         Geschwindigkeiten) mit steiferer Federplattform und Negativfeder.
         Versteller: LSC, HSC, Zugstufe, HBC und LOK.
+      description_fr: "Amortisseur réglé pour le VTT électrique (vélos plus lourds, vitesses plus élevées) avec une plateforme de ressort plus raide et un ressort négatif. Réglages : LSC, HSC, détente, HBC et LOK."
+      description_it: "Ammortizzatore tarato per l’e-MTB (bici più pesanti, velocità più elevate) con una piattaforma della molla più rigida e una molla negativa. Regolatori: LSC, HSC, ritorno, HBC e LOK."
+      description_es: "Amortiguador tarado para e-MTB (bicicletas más pesadas, velocidades más altas) con una plataforma de muelle más rígida y un muelle negativo. Ajustes: LSC, HSC, rebote, HBC y LOK."
+      description_pt: "Amortecedor calibrado para e-MTB (bikes mais pesadas, velocidades mais altas) com uma plataforma de mola mais rígida e uma mola negativa. Ajustes: LSC, HSC, retorno, HBC e LOK."
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~ }
-        - { name: HBC, name_de: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
-        - { name: LOK (Climb Switch), name_de: LOK (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~ }
+        - { name: HBC, name_de: HBC, name_fr: HBC, name_it: HBC, name_es: HBC, name_pt: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung, notes_fr: Réglage de la butée hydraulique de fin de course, notes_it: Regolazione del fondocorsa idraulico, notes_es: Control del final de carrera hidráulico, notes_pt: Controle do fim de curso hidráulico }
+        - { name: LOK (Climb Switch), name_de: LOK (Climb-Schalter), name_fr: LOK (levier Climb), name_it: LOK (leva Climb), name_es: LOK (palanca Climb), name_pt: LOK (alavanca Climb), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout", notes_fr: "Sens horaire = LOK (plateforme de pédalage ferme), sens antihoraire = Open. Ce n’est pas un vrai lockout", notes_it: "In senso orario = LOK (piattaforma di pedalata rigida), in senso antiorario = Open. Non è un vero lockout", notes_es: "Sentido horario = LOK (plataforma de pedaleo firme), sentido antihorario = Open. No es un lockout de verdad", notes_pt: "Sentido horário = LOK (plataforma de pedalada firme), sentido anti-horário = Open. Não é um lockout de verdade" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC (4mm Allen)
       note: High-rate springs (>600 lbs/in / 105 N/mm) require EXT-specific mounting adapters; spring preload must not exceed 2mm.
 
@@ -190,11 +214,15 @@ option_values:
         Monotube-Stahlfederdämpfer mit LSC (4-mm-Inbus), HSC (5-mm-Inbus),
         Zugstufe und einem LOK-2.0-Climb-Hebel. Der HBC ist werkseitig
         abgestimmt und nicht einstellbar.
+      description_fr: Amortisseur monotube à ressort avec LSC (clé Allen de 4 mm), HSC (clé Allen de 5 mm), détente et un levier Climb LOK 2.0. Le HBC est réglé en usine et n’est pas réglable.
+      description_it: Ammortizzatore monotubo a molla con LSC (brugola da 4 mm), HSC (brugola da 5 mm), ritorno e una leva Climb LOK 2.0. L’HBC è tarato in fabbrica e non è regolabile.
+      description_es: Amortiguador monotubo de muelle con LSC (llave Allen de 4 mm), HSC (llave Allen de 5 mm), rebote y una palanca Climb LOK 2.0. El HBC viene tarado de fábrica y no es ajustable.
+      description_pt: Amortecedor monotubo a mola com LSC (chave Allen de 4 mm), HSC (chave Allen de 5 mm), retorno e uma alavanca Climb LOK 2.0. O HBC é calibrado de fábrica e não é ajustável.
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: 14, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 16 }
-        - { name: LOK 2.0 (Climb Switch), name_de: LOK 2.0 (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 14, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16 }
+        - { name: LOK 2.0 (Climb Switch), name_de: LOK 2.0 (Climb-Schalter), name_fr: LOK 2.0 (levier Climb), name_it: LOK 2.0 (leva Climb), name_es: LOK 2.0 (palanca Climb), name_pt: LOK 2.0 (alavanca Climb), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout", notes_fr: "Sens horaire = LOK (plateforme de pédalage ferme), sens antihoraire = Open. Ce n’est pas un vrai lockout", notes_it: "In senso orario = LOK (piattaforma di pedalata rigida), in senso antiorario = Open. Non è un vero lockout", notes_es: "Sentido horario = LOK (plataforma de pedaleo firme), sentido antihorario = Open. No es un lockout de verdad", notes_pt: "Sentido horário = LOK (plataforma de pedalada firme), sentido anti-horário = Open. Não é um lockout de verdade" }
       adjusters: LSC (4mm Allen) / HSC (5mm Allen) / Rebound (bottom knob)
       source: https://www.pinkbike.com/news/review-ext-vecta-coil-shock.html
       note: >-
@@ -211,12 +239,16 @@ option_values:
       description_de: >
         Luftdämpfer mit LSC (4-mm-Inbus), HSC (5-mm-Inbus), Zugstufe und
         einstellbarem HBC, plus dem LOK-2.0-Climb-Hebel.
+      description_fr: Amortisseur pneumatique avec LSC (clé Allen de 4 mm), HSC (clé Allen de 5 mm), détente et un HBC réglable, plus le levier Climb LOK 2.0.
+      description_it: Ammortizzatore pneumatico con LSC (brugola da 4 mm), HSC (brugola da 5 mm), ritorno e un HBC regolabile, più la leva Climb LOK 2.0.
+      description_es: Amortiguador neumático con LSC (llave Allen de 4 mm), HSC (llave Allen de 5 mm), rebote y un HBC ajustable, más la palanca Climb LOK 2.0.
+      description_pt: Amortecedor a ar com LSC (chave Allen de 4 mm), HSC (chave Allen de 5 mm), retorno e um HBC ajustável, mais a alavanca Climb LOK 2.0.
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~ }
-        - { name: HBC, name_de: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
-        - { name: LOK 2.0 (Climb Switch), name_de: LOK 2.0 (Climb-Schalter), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~ }
+        - { name: HBC, name_de: HBC, name_fr: HBC, name_it: HBC, name_es: HBC, name_pt: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung, notes_fr: Réglage de la butée hydraulique de fin de course, notes_it: Regolazione del fondocorsa idraulico, notes_es: Control del final de carrera hidráulico, notes_pt: Controle do fim de curso hidráulico }
+        - { name: LOK 2.0 (Climb Switch), name_de: LOK 2.0 (Climb-Schalter), name_fr: LOK 2.0 (levier Climb), name_it: LOK 2.0 (leva Climb), name_es: LOK 2.0 (palanca Climb), name_pt: LOK 2.0 (alavanca Climb), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout", notes_de: "Im Uhrzeigersinn = LOK (feste Pedalplattform), gegen den Uhrzeigersinn = Open. Kein echter Lockout", notes_fr: "Sens horaire = LOK (plateforme de pédalage ferme), sens antihoraire = Open. Ce n’est pas un vrai lockout", notes_it: "In senso orario = LOK (piattaforma di pedalata rigida), in senso antiorario = Open. Non è un vero lockout", notes_es: "Sentido horario = LOK (plataforma de pedaleo firme), sentido antihorario = Open. No es un lockout de verdad", notes_pt: "Sentido horário = LOK (plataforma de pedalada firme), sentido anti-horário = Open. Não é um lockout de verdade" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC/H (4mm Allen) / LOK (lever)
       source:
         - https://extremeshox.com/product/aria-v2/
@@ -233,11 +265,15 @@ option_values:
       description_de: >
         Downhill-Version des Aria-V2-Dämpfers mit DH-spezifischer HBC-Abstimmung
         (20 % mehr Kraft am Ende des Federwegs) und ohne Climb-Hebel.
+      description_fr: Version descente de l’amortisseur Aria V2 avec un tarage HBC spécifique DH (20 % de force en plus en fin de course) et sans levier Climb.
+      description_it: Versione downhill dell’ammortizzatore Aria V2 con una taratura HBC specifica per il DH (il 20 % di forza in più a fine corsa) e senza leva Climb.
+      description_es: Versión de descenso del amortiguador Aria V2 con un tarado HBC específico para DH (un 20 % más de fuerza al final del recorrido) y sin palanca Climb.
+      description_pt: Versão downhill do amortecedor Aria V2 com uma calibragem HBC específica para DH (20 % mais força no fim do curso) e sem alavanca Climb.
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~ }
-        - { name: HBC, name_de: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~ }
+        - { name: HBC, name_de: HBC, name_fr: HBC, name_it: HBC, name_es: HBC, name_pt: HBC, type: step, max: ~, notes: Hydraulic bottom-out control, notes_de: Hydraulische Durchschlagsregelung, notes_fr: Réglage de la butée hydraulique de fin de course, notes_it: Regolazione del fondocorsa idraulico, notes_es: Control del final de carrera hidráulico, notes_pt: Controle do fim de curso hidráulico }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC/H (4mm Allen)
       source:
         - https://extremeshox.com/product/aria-v2-dh/
@@ -263,6 +299,10 @@ guides:
   ext_arma_storia_v3_2023:
     label: EXT Arma / Storia V3 quick manual (2023)
     label_de: EXT Arma / Storia V3 Kurzanleitung (2023)
+    label_fr: Guide rapide EXT Arma / Storia V3 (2023)
+    label_it: Guida rapida EXT Arma / Storia V3 (2023)
+    label_es: Manual rápido EXT Arma / Storia V3 (2023)
+    label_pt: Manual rápido EXT Arma / Storia V3 (2023)
     source: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
     # No HBC starting point is printed.
     rules:
@@ -273,16 +313,24 @@ guides:
   ext_arma_storia_v4_2024:
     label: EXT Arma / Storia V4 quick manual (2024)
     label_de: EXT Arma / Storia V4 Kurzanleitung (2024)
+    label_fr: Guide rapide EXT Arma / Storia V4 (2024)
+    label_it: Guida rapida EXT Arma / Storia V4 (2024)
+    label_es: Manual rápido EXT Arma / Storia V4 (2024)
+    label_pt: Manual rápido EXT Arma / Storia V4 (2024)
     source: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
     rules:
       - { target: hsc, value: 10 }
       - { target: lsc, value: 10 }
       - { target: rebound, value: 9 }
-      - { target: hbc, value: 5, note: Close it step by step if the shock bottoms out often, note_de: "Schrittweise schließen, wenn der Dämpfer oft durchschlägt" }
+      - { target: hbc, value: 5, note: Close it step by step if the shock bottoms out often, note_de: "Schrittweise schließen, wenn der Dämpfer oft durchschlägt", note_fr: Fermez-le pas à pas si l’amortisseur talonne souvent, note_it: Chiudilo un passo alla volta se l’ammortizzatore va spesso a fondocorsa, note_es: Ciérralo paso a paso si el amortiguador llega al fondo a menudo, note_pt: Feche-o passo a passo se o amortecedor chega ao fim do curso com frequência }
 
   ext_ridemaster_2026:
     label: EXT RideMaster (Vecta)
     label_de: EXT RideMaster (Vecta)
+    label_fr: EXT RideMaster (Vecta)
+    label_it: EXT RideMaster (Vecta)
+    label_es: EXT RideMaster (Vecta)
+    label_pt: EXT RideMaster (Vecta)
     source: https://extremeshox.com/vecta-ridemaster/
     # RideMaster's starting clicks per spring rate, before its trail type and
     # riding level offsets. Its riding levels are skill, not firmness, so they
@@ -298,12 +346,20 @@ guides:
         }
         note: "RideMaster's start; technical trails +2, jumps and flow -2"
         note_de: Ausgangspunkt von RideMaster; technische Trails +2, Sprünge und Flow -2
+        note_fr: Point de départ de RideMaster ; trails techniques +2, sauts et flow -2
+        note_it: Punto di partenza di RideMaster; trail tecnici +2, salti e flow -2
+        note_es: Punto de partida de RideMaster; trails técnicos +2, saltos y flow -2
+        note_pt: Ponto de partida do RideMaster; trilhas técnicas +2, saltos e flow -2
       - target: lsc
         input: spring_rate
         input_unit: lbs/in
         rows: *ext_ridemaster_compression
         note: "RideMaster's start; technical trails +1, jumps and flow -1"
         note_de: Ausgangspunkt von RideMaster; technische Trails +1, Sprünge und Flow -1
+        note_fr: Point de départ de RideMaster ; trails techniques +1, sauts et flow -1
+        note_it: Punto di partenza di RideMaster; trail tecnici +1, salti e flow -1
+        note_es: Punto de partida de RideMaster; trails técnicos +1, saltos y flow -1
+        note_pt: Ponto de partida do RideMaster; trilhas técnicas +1, saltos e flow -1
       - target: rebound
         input: spring_rate
         input_unit: lbs/in
@@ -314,7 +370,11 @@ guides:
         }
         note: "RideMaster's start; technical trails +2, jumps and flow -2"
         note_de: Ausgangspunkt von RideMaster; technische Trails +2, Sprünge und Flow -2
-      - { target: sag, range: [28, 33], comfort_at: max, note: "RideMaster picks 28 % for gentle, 30 % for medium and 33 % for steep trails", note_de: "RideMaster wählt 28 % für sanfte, 30 % für mittlere und 33 % für steile Trails" }
+        note_fr: Point de départ de RideMaster ; trails techniques +2, sauts et flow -2
+        note_it: Punto di partenza di RideMaster; trail tecnici +2, salti e flow -2
+        note_es: Punto de partida de RideMaster; trails técnicos +2, saltos y flow -2
+        note_pt: Ponto de partida do RideMaster; trilhas técnicas +2, saltos e flow -2
+      - { target: sag, range: [28, 33], comfort_at: max, note: "RideMaster picks 28 % for gentle, 30 % for medium and 33 % for steep trails", note_de: "RideMaster wählt 28 % für sanfte, 30 % für mittlere und 33 % für steile Trails", note_fr: "RideMaster retient 28 % pour les trails doux, 30 % pour les trails moyens et 33 % pour les trails raides", note_it: "RideMaster sceglie il 28 % per i trail dolci, il 30 % per quelli medi e il 33 % per quelli ripidi", note_es: "RideMaster elige un 28 % para trails suaves, un 30 % para medios y un 33 % para empinados", note_pt: "O RideMaster escolhe 28 % para trilhas suaves, 30 % para médias e 33 % para íngremes" }
 
 # --------------------------------------------------------------------------
 # Shocks — current EXT MTB lineup (extremeshox.com, checked 2026-07-17).
@@ -327,9 +387,13 @@ nodes:
     level: model
     category: Enduro / Trail
     category_de: Enduro / Trail
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Enduro / Trail
+    category_it: Enduro / Trail
+    category_es: Enduro / Trail
+    category_pt: Enduro / Trail
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: &ext_service
-      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual, source_de: EXT-Kurzanleitung }
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual, source_de: EXT-Kurzanleitung, source_fr: Guide rapide EXT, source_it: Guida rapida EXT, source_es: Manual rápido EXT, source_pt: Manual rápido EXT }
     children:
       - label: "2025–2026"
         level: generation
@@ -339,11 +403,15 @@ nodes:
         setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
         note: Sold as "Storia V3-S" per the official quick manual; features a spring thrust bearing between spring and collar — do not omit it during spring install.
         note_de: Laut der offiziellen Kurzanleitung als „Storia V3-S“ verkauft; hat ein Federdrucklager zwischen Feder und Federteller — beim Einbau der Feder nicht weglassen.
+        note_fr: Vendu sous le nom « Storia V3-S » dans le manuel rapide officiel ; comporte une butée à billes entre le ressort et la coupelle — ne l’oubliez pas lors du montage du ressort.
+        note_it: Venduto come «Storia V3-S» secondo la guida rapida ufficiale; ha un cuscinetto reggispinta tra molla e collare — non ometterlo durante il montaggio della molla.
+        note_es: Se vende como «Storia V3-S» según el manual rápido oficial; incluye un rodamiento de empuje entre el muelle y el collarín — no lo omitas al montar el muelle.
+        note_pt: Vendido como “Storia V3-S” conforme o manual rápido oficial; possui um rolamento axial entre a mola e o colar — não o omita ao instalar a mola.
         children:
           - label: Metric Standard
             level: trim
             adjustments: &coil_spring
-              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [storia_v3]
               size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
@@ -364,7 +432,11 @@ nodes:
     level: model
     category: Enduro / Trail
     category_de: Enduro / Trail
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Enduro / Trail
+    category_it: Enduro / Trail
+    category_es: Enduro / Trail
+    category_pt: Enduro / Trail
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -382,6 +454,10 @@ nodes:
           Wird als einer der leichtesten verfügbaren Stahlfederdämpfer
           vermarktet (397g ohne Feder); Stahlfeder-Option, die 30 % leichter
           ist; Inline-Niederdruck-Ausgleichsbehälter (55psi).
+        note_fr: Présenté comme l’un des amortisseurs à ressort les plus légers du marché (397 g sans ressort) ; ressort en acier plus léger de 30 % en option ; réservoir inline basse pression (55 psi).
+        note_it: Presentato come uno degli ammortizzatori a molla più leggeri disponibili (397 g senza molla); molla in acciaio più leggera del 30 % come optional; serbatoio inline a bassa pressione (55 psi).
+        note_es: Presentado como uno de los amortiguadores de muelle más ligeros del mercado (397 g sin muelle); muelle de acero un 30 % más ligero como opción; depósito inline de baja presión (55 psi).
+        note_pt: Anunciado como um dos amortecedores a mola mais leves disponíveis (397 g sem mola); mola de aço 30 % mais leve como opcional; reservatório inline de baixa pressão (55 psi).
         children:
           - label: Metric Standard
             level: trim
@@ -400,7 +476,11 @@ nodes:
     level: model
     category: Downhill
     category_de: Downhill
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -434,7 +514,11 @@ nodes:
     level: model
     category: Downhill
     category_de: Downhill
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -446,6 +530,10 @@ nodes:
         guide: ext_arma_storia_v4_2024
         note: Uses EV2S damper fluid; DLC-coated 14mm steel shaft.
         note_de: Verwendet EV2S-Dämpferflüssigkeit; 14mm-Stahlstange mit DLC-Beschichtung.
+        note_fr: Utilise du fluide d’amortisseur EV2S ; tige en acier de 14 mm avec revêtement DLC.
+        note_it: Usa fluido per ammortizzatori EV2S; stelo in acciaio da 14 mm con rivestimento DLC.
+        note_es: Usa fluido de amortiguador EV2S; vástago de acero de 14 mm con recubrimiento DLC.
+        note_pt: Usa fluido de amortecedor EV2S; haste de aço de 14 mm com revestimento DLC.
         children:
           - label: Metric Standard
             level: trim
@@ -464,7 +552,11 @@ nodes:
     level: model
     category: Trail / Enduro
     category_de: Trail / Enduro
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -475,12 +567,16 @@ nodes:
         setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/Quick-manual-Aria-min.pdf
         note: AS3 dual-positive-chamber air spring (2 dynamic seals separating 3 chambers); 28mm hydraulic main piston.
         note_de: AS3-Luftfeder mit zwei Positivkammern (2 dynamische Dichtungen trennen 3 Kammern); 28mm-Hydraulik-Hauptkolben.
+        note_fr: Ressort pneumatique AS3 à double chambre positive (2 joints dynamiques séparant 3 chambres) ; piston hydraulique principal de 28 mm.
+        note_it: Molla pneumatica AS3 a doppia camera positiva (2 guarnizioni dinamiche che separano 3 camere); pistone idraulico principale da 28 mm.
+        note_es: Muelle neumático AS3 de doble cámara positiva (2 juntas dinámicas que separan 3 cámaras); pistón hidráulico principal de 28 mm.
+        note_pt: Mola a ar AS3 de câmara positiva dupla (2 vedações dinâmicas separando 3 câmaras); pistão hidráulico principal de 28 mm.
         children:
           - label: Metric Standard
             level: trim
             adjustments: &aria_air_spring
-              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0, max: 280 }
-              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber, notes_de: Erfordert die mitgelieferte EXT-Dämpferpumpe (600 psi); ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen }
+              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, name_fr: Pression de la chambre principale, name_it: Pressione della camera principale, name_es: Presión de la cámara principal, name_pt: Pressão da câmara principal, type: numerical, unit: psi, min: 0, max: 280 }
+              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, name_fr: Pression de la chambre secondaire, name_it: Pressione della camera secondaria, name_es: Presión de la cámara secundaria, name_pt: Pressão da câmara secundária, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber, notes_de: Erfordert die mitgelieferte EXT-Dämpferpumpe (600 psi); ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen, notes_fr: Nécessite la pompe à amortisseur EXT de 600 psi fournie ; gonflez la chambre ++ (secondaire) avant la chambre + (principale), notes_it: Richiede la pompa per ammortizzatori EXT da 600 psi in dotazione; gonfia la camera ++ (secondaria) prima della camera + (principale), notes_es: Requiere la bomba de amortiguador EXT de 600 psi incluida; infla la cámara ++ (secundaria) antes que la cámara + (principal), notes_pt: Exige a bomba de amortecedor EXT de 600 psi incluída; encha a câmara ++ (secundária) antes da câmara + (principal) }
             options:
               damper: [aria]
               size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
@@ -495,7 +591,11 @@ nodes:
     level: model
     category: Trail / Enduro
     category_de: Trail / Enduro
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *ext_service
     children:
       - label: "2026"
@@ -505,12 +605,16 @@ nodes:
         setup_guide: https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
         note: AS3 dual-positive-chamber air spring with a vertical piggyback; tuned with the + and ++ chamber pressures instead of volume tokens.
         note_de: AS3-Luftfeder mit zwei Positivkammern und senkrechtem Piggyback; abgestimmt über die Drücke der Kammern + und ++ statt über Volumen-Tokens.
+        note_fr: Ressort pneumatique AS3 à double chambre positive avec piggyback vertical ; réglé avec les pressions des chambres + et ++ plutôt qu’avec des tokens de volume.
+        note_it: Molla pneumatica AS3 a doppia camera positiva con piggyback verticale; si regola con le pressioni delle camere + e ++ invece che con token di volume.
+        note_es: Muelle neumático AS3 de doble cámara positiva con piggyback vertical; se ajusta con las presiones de las cámaras + y ++ en lugar de tokens de volumen.
+        note_pt: Mola a ar AS3 de câmara positiva dupla com piggyback vertical; é ajustada com as pressões das câmaras + e ++ em vez de tokens de volume.
         children:
           - label: Metric Standard
             level: trim
             adjustments: &aria_v2_air_spring
-              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0, max: 300 }
-              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber, notes_de: Erfordert die mitgelieferte EXT-Dämpferpumpe (600 psi); ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen }
+              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, name_fr: Pression de la chambre principale, name_it: Pressione della camera principale, name_es: Presión de la cámara principal, name_pt: Pressão da câmara principal, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, name_fr: Pression de la chambre secondaire, name_it: Pressione della camera secondaria, name_es: Presión de la cámara secundaria, name_pt: Pressão da câmara secundária, type: numerical, unit: psi, min: 0, max: 600, notes: Requires the included 600psi EXT shock pump; inflate ++ (secondary) chamber before + (main) chamber, notes_de: Erfordert die mitgelieferte EXT-Dämpferpumpe (600 psi); ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen, notes_fr: Nécessite la pompe à amortisseur EXT de 600 psi fournie ; gonflez la chambre ++ (secondaire) avant la chambre + (principale), notes_it: Richiede la pompa per ammortizzatori EXT da 600 psi in dotazione; gonfia la camera ++ (secondaria) prima della camera + (principale), notes_es: Requiere la bomba de amortiguador EXT de 600 psi incluida; infla la cámara ++ (secundaria) antes que la cámara + (principal), notes_pt: Exige a bomba de amortecedor EXT de 600 psi incluída; encha a câmara ++ (secundária) antes da câmara + (principal) }
             options:
               damper: [aria_v2]
               size: ["210x47.5", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
@@ -525,7 +629,11 @@ nodes:
     level: model
     category: Downhill
     category_de: Downhill
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *ext_service
     children:
       - label: "2026"
@@ -535,6 +643,10 @@ nodes:
         setup_guide: https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
         note: Downhill / freeride version of the Aria V2 with a stronger HBC tune and no LOK lever.
         note_de: Downhill-/Freeride-Version der Aria V2 mit stärkerer HBC-Abstimmung und ohne LOK-Hebel.
+        note_fr: Version descente / freeride de l’Aria V2 avec un tarage HBC plus ferme et sans levier LOK.
+        note_it: Versione downhill / freeride dell’Aria V2 con una taratura HBC più decisa e senza leva LOK.
+        note_es: Versión de descenso / freeride de la Aria V2 con un tarado HBC más firme y sin palanca LOK.
+        note_pt: Versão downhill / freeride da Aria V2 com uma calibragem HBC mais firme e sem alavanca LOK.
         children:
           - label: Metric Standard
             level: trim
@@ -553,7 +665,11 @@ nodes:
     level: model
     category: E-MTB / Enduro
     category_de: E-MTB / Enduro
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: E-MTB / Enduro
+    category_it: E-MTB / Enduro
+    category_es: E-MTB / Enduro
+    category_pt: E-MTB / Enduro
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -580,7 +696,11 @@ nodes:
     level: model
     category: Enduro / Trail
     category_de: Enduro / Trail
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Enduro / Trail
+    category_it: Enduro / Trail
+    category_es: Enduro / Trail
+    category_pt: Enduro / Trail
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -599,6 +719,10 @@ nodes:
           einstellen; härtere Negativfeder, um Anschlagklopfen am oberen
           Anschlag zu vermeiden; Niederdruck-Luftbehälter (55psi); werkseitig
           abgestimmter HBC (nicht extern einstellbar).
+        note_fr: Le HSC/LSC se règle avec un multi-outil courant (clés Allen de 5 mm/4 mm) ; ressort négatif plus dur pour éviter le choc de détente en fin de course ; réservoir d’air basse pression (55 psi) ; HBC réglé en usine (non réglable de l’extérieur).
+        note_it: L’HSC/LSC si regola con un comune multiutensile (brugole da 5 mm/4 mm); molla negativa più dura per evitare il colpo a fine ritorno; serbatoio d’aria a bassa pressione (55 psi); HBC tarato in fabbrica (non regolabile dall’esterno).
+        note_es: El HSC/LSC se ajusta con una multiherramienta común (llaves Allen de 5 mm/4 mm); muelle negativo más duro para evitar el golpe al llegar arriba; depósito de aire de baja presión (55 psi); HBC tarado de fábrica (no ajustable desde el exterior).
+        note_pt: O HSC/LSC é ajustado com uma multiferramenta comum (chaves Allen de 5 mm/4 mm); mola negativa mais dura para evitar a batida no topo; reservatório de ar de baixa pressão (55 psi); HBC calibrado de fábrica (não ajustável por fora).
         children:
           - label: Metric Standard
             level: trim

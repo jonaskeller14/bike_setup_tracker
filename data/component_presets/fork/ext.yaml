@@ -59,10 +59,14 @@ option_values:
         IFP-Ausgleichsbehälter mit 24mm-Kolben. Low-Speed-Druckstufe,
         High-Speed-Druckstufe und Zugstufe sind unabhängig einstellbar, alle von
         ganz geschlossen (Klick 0) gezählt.
+      description_fr: "Cartouche d’amortisseur commune aux Era V2.1 et Era V2 LT : cartouche grand volume avec un piston de 22 mm, une valve de compression HDRV (piston de 24 mm) et un réservoir IFP à piston de 24 mm. Compression basse vitesse, compression haute vitesse et détente réglables indépendamment, toutes comptées depuis la position entièrement fermée (clic 0)."
+      description_it: "Cartuccia dell’ammortizzatore condivisa da Era V2.1 ed Era V2 LT: cartuccia ad alto volume con un pistone da 22 mm, una valvola di compressione HDRV (pistone da 24 mm) e un serbatoio IFP con pistone da 24 mm. Compressione a bassa velocità, compressione ad alta velocità e ritorno regolabili in modo indipendente, tutti contati a partire dalla posizione completamente chiusa (scatto 0)."
+      description_es: "Cartucho de amortiguador compartido por las Era V2.1 y Era V2 LT: cartucho de gran volumen con un pistón de 22 mm, una válvula de compresión HDRV (pistón de 24 mm) y un depósito IFP con pistón de 24 mm. Compresión de baja velocidad, compresión de alta velocidad y rebote ajustables de forma independiente, todos contados desde la posición totalmente cerrada (clic 0)."
+      description_pt: "Cartucho de amortecedor compartilhado pelas Era V2.1 e Era V2 LT: cartucho de alto volume com um pistão de 22 mm, uma válvula de compressão HDRV (pistão de 24 mm) e um reservatório IFP com pistão de 24 mm. Compressão de baixa velocidade, compressão de alta velocidade e retorno ajustáveis de forma independente, todos contados a partir da posição totalmente fechada (clique 0)."
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: 14, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 20, dialColor: red }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 14, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 20, dialColor: red }
       adjusters: LSC (nickel dial, top of right leg) / HSC (black dial, top of right leg) / Rebound (red dial, bottom of right leg)
       source:
         - https://www.pinkbike.com/news/review-ext-era-v21-fork.html
@@ -86,10 +90,14 @@ option_values:
         Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe sind unabhängig
         einstellbar, alle von ganz geschlossen (Klick 0) gezählt, mit derselben
         Konvention „im Uhrzeigersinn schließt“ wie bei der Era.
+      description_fr: "Cartouche d’amortisseur propre à Vaia (fourche de descente à double té). Compression basse vitesse, compression haute vitesse et détente réglables indépendamment, toutes comptées depuis la position entièrement fermée (clic 0) avec la même convention que sur l’Era : le sens horaire ferme."
+      description_it: "Cartuccia dell’ammortizzatore propria di Vaia (forcella da downhill a doppia piastra). Compressione a bassa velocità, compressione ad alta velocità e ritorno regolabili in modo indipendente, tutti contati a partire dalla posizione completamente chiusa (scatto 0) con la stessa convenzione dell’Era: il senso orario chiude."
+      description_es: "Cartucho de amortiguador propio de Vaia (horquilla de descenso de doble corona). Compresión de baja velocidad, compresión de alta velocidad y rebote ajustables de forma independiente, todos contados desde la posición totalmente cerrada (clic 0) con la misma convención que la Era: el sentido horario cierra."
+      description_pt: "Cartucho de amortecedor próprio da Vaia (garfo de downhill de dupla coroa). Compressão de baixa velocidade, compressão de alta velocidade e retorno ajustáveis de forma independente, todos contados a partir da posição totalmente fechada (clique 0) com a mesma convenção da Era: o sentido horário fecha."
       adjustments:
-        - { name: LSC, name_de: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: HSC, name_de: HSC, type: step, max: 10, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 18, dialColor: red }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 10, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 18, dialColor: red }
       adjusters: LSC (nickel dial) / HSC (black dial) / Rebound (red dial), all on the fork's left leg
       source: https://www.pinkbike.com/news/review-ext-vaia-extra-adjustable-usd-fork.html
       note: >-
@@ -108,6 +116,10 @@ guides:
   ext_era_v2_2023:
     label: EXT Era V2 quick manual (2023)
     label_de: EXT Era V2 Kurzanleitung (2023)
+    label_fr: Guide rapide EXT Era V2 (2023)
+    label_it: Guida rapida EXT Era V2 (2023)
+    label_es: Manual rápido EXT Era V2 (2023)
+    label_pt: Manual rápido EXT Era V2 (2023)
     source: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf
     # The "> 100 kg" row is left out of every rule: an open row must continue
     # the table at its edge, and the table jumps from the 90 kg point to it.
@@ -155,8 +167,12 @@ nodes:
     level: model
     category: Trail / Enduro
     category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     tasks: &ext_service
-      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual, source_de: EXT-Kurzanleitung }
+      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual, source_de: EXT-Kurzanleitung, source_fr: Guide rapide EXT, source_it: Guida rapida EXT, source_es: Manual rápido EXT, source_pt: Manual rápido EXT }
     children:
       - label: "2025–2026"
         level: generation
@@ -168,21 +184,29 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: "36mm, forged AL 7050 T6 crown", stanchion_de: "36mm, geschmiedete Alu-Brücke (7050 T6)", spring: Air, spring_de: Luft }
+            specs: { stanchion: "36mm, forged AL 7050 T6 crown", stanchion_de: "36mm, geschmiedete Alu-Brücke (7050 T6)", stanchion_fr: "36mm, té forgé en AL 7050 T6", stanchion_it: "36mm, piastra forgiata in AL 7050 T6", stanchion_es: "36mm, corona forjada de AL 7050 T6", stanchion_pt: "36mm, coroa forjada de AL 7050 T6", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &hs3_air_spring
-              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0, max: 200 }
-              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, type: numerical, unit: psi, min: 0, max: 200, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 200 psi / 14 bar combined per the product warning label (not broken out per chamber), notes_de: ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen; gemäß Warnaufkleber des Produkts insgesamt höchstens 200 psi / 14 bar (nicht je Kammer aufgeschlüsselt) }
+              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, name_fr: Pression de la chambre principale, name_it: Pressione della camera principale, name_es: Presión de la cámara principal, name_pt: Pressão da câmara principal, type: numerical, unit: psi, min: 0, max: 200 }
+              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, name_fr: Pression de la chambre secondaire, name_it: Pressione della camera secondaria, name_es: Presión de la cámara secundaria, name_pt: Pressão da câmara secundária, type: numerical, unit: psi, min: 0, max: 200, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 200 psi / 14 bar combined per the product warning label (not broken out per chamber), notes_de: ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen; gemäß Warnaufkleber des Produkts insgesamt höchstens 200 psi / 14 bar (nicht je Kammer aufgeschlüsselt), notes_fr: "Gonflez la chambre ++ (secondaire) avant la chambre + (principale) ; ne dépassez pas 200 psi / 14 bar au total, selon l’étiquette d’avertissement du produit (non détaillé par chambre)", notes_it: "Gonfia la camera ++ (secondaria) prima della camera + (principale); non superare 200 psi / 14 bar in totale, secondo l’etichetta di avvertenza del prodotto (non specificato per camera)", notes_es: "Infla la cámara ++ (secundaria) antes que la cámara + (principal); no superes 200 psi / 14 bar en total, según la etiqueta de advertencia del producto (sin desglosar por cámara)", notes_pt: "Encha a câmara ++ (secundária) antes da câmara + (principal); não passe de 200 psi / 14 bar no total, conforme a etiqueta de advertência do produto (sem detalhar por câmara)" }
             options:
               damper: [era_cartridge]
               travel_mm: [130, 140, 150, 160, 170]
               wheel_size: [29]
             note: HS3 hybrid dual-positive-chamber air spring; 15QR Boost Torque Cap dropout (15x110mm)
             note_de: HS3-Hybrid-Luftfeder mit zwei Positivkammern; Ausfallende 15QR Boost Torque Cap (15x110mm)
+            note_fr: Ressort pneumatique hybride HS3 à double chambre positive ; patte 15QR Boost Torque Cap (15x110 mm)
+            note_it: Molla pneumatica ibrida HS3 a doppia camera positiva; forcellino 15QR Boost Torque Cap (15x110 mm)
+            note_es: Muelle neumático híbrido HS3 de doble cámara positiva; punta 15QR Boost Torque Cap (15x110 mm)
+            note_pt: Mola a ar híbrida HS3 de câmara positiva dupla; dropout 15QR Boost Torque Cap (15x110 mm)
 
   - label: "Era V2 LT"
     level: model
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -195,7 +219,7 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: "36mm, stem/crown-integrated design", stanchion_de: "36mm, Schaft und Brücke aus einem Stück", spring: Air, spring_de: Luft }
+            specs: { stanchion: "36mm, stem/crown-integrated design", stanchion_de: "36mm, Schaft und Brücke aus einem Stück", stanchion_fr: "36mm, tube de direction et té d’un seul tenant", stanchion_it: "36mm, canotto e piastra in un unico pezzo", stanchion_es: "36mm, tubo de dirección y corona de una sola pieza", stanchion_pt: "36mm, tubo de direção e coroa em peça única", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *hs3_air_spring
             options:
               damper: [era_cartridge]
@@ -209,11 +233,19 @@ nodes:
               gleiches HS3-Feder-/Dämpfersystem laut der gemeinsamen
               Era-V2/V2-LT-Kurzanleitung von EXT. Achse bis Brücke: 594mm (180mm
               Federweg) / 604mm (190mm Federweg).
+            note_fr: "Petite sœur Super Enduro à plus grand débattement de l’Era V2.1 ; même système ressort/amortisseur HS3 selon le manuel rapide commun Era V2/V2 LT d’EXT. Axe-té : 594 mm (180 mm de débattement) / 604 mm (190 mm de débattement)."
+            note_it: "Sorella Super Enduro a più lunga escursione dell’Era V2.1; stesso sistema molla/ammortizzatore HS3 secondo la guida rapida comune Era V2/V2 LT di EXT. Interasse perno-piastra: 594 mm (180 mm di escursione) / 604 mm (190 mm di escursione)."
+            note_es: "Hermana Super Enduro de más recorrido de la Era V2.1; mismo sistema de muelle y amortiguador HS3 según el manual rápido conjunto Era V2/V2 LT de EXT. Eje a corona: 594 mm (180 mm de recorrido) / 604 mm (190 mm de recorrido)."
+            note_pt: "Irmã Super Enduro de mais curso da Era V2.1; mesmo sistema de mola e amortecedor HS3 conforme o manual rápido conjunto Era V2/V2 LT da EXT. Eixo à coroa: 594 mm (180 mm de curso) / 604 mm (190 mm de curso)."
 
   - label: "Vaia"
     level: model
     category: Downhill / Enduro
     category_de: Downhill / Enduro
+    category_fr: Downhill / Enduro
+    category_it: Downhill / Enduro
+    category_es: Downhill / Enduro
+    category_pt: Downhill / Enduro
     tasks: *ext_service
     children:
       - label: "2025–2026"
@@ -225,11 +257,11 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: "38.5mm tapered, dual-crown", stanchion_de: "38,5mm konisch, Doppelbrücke", spring: Air, spring_de: Luft }
+            specs: { stanchion: "38.5mm tapered, dual-crown", stanchion_de: "38,5mm konisch, Doppelbrücke", stanchion_fr: "38,5mm conique, double té", stanchion_it: "38,5mm conico, doppia piastra", stanchion_es: "38,5mm cónico, doble corona", stanchion_pt: "38,5mm cônico, dupla coroa", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44, 48]
             adjustments:
-              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0 }
-              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, type: numerical, unit: psi, min: 0, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 250 psi / 17 bar combined per the product warning label (not broken out per chamber), notes_de: ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen; gemäß Warnaufkleber des Produkts insgesamt höchstens 250 psi / 17 bar (nicht je Kammer aufgeschlüsselt) }
+              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, name_fr: Pression de la chambre principale, name_it: Pressione della camera principale, name_es: Presión de la cámara principal, name_pt: Pressão da câmara principal, type: numerical, unit: psi, min: 0 }
+              - { name: Secondary Chamber Pressure, name_de: Zweitkammerdruck, name_fr: Pression de la chambre secondaire, name_it: Pressione della camera secondaria, name_es: Presión de la cámara secundaria, name_pt: Pressão da câmara secundária, type: numerical, unit: psi, min: 0, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 250 psi / 17 bar combined per the product warning label (not broken out per chamber), notes_de: ++-Kammer (Zweitkammer) vor der +-Kammer (Hauptkammer) befüllen; gemäß Warnaufkleber des Produkts insgesamt höchstens 250 psi / 17 bar (nicht je Kammer aufgeschlüsselt), notes_fr: "Gonflez la chambre ++ (secondaire) avant la chambre + (principale) ; ne dépassez pas 250 psi / 17 bar au total, selon l’étiquette d’avertissement du produit (non détaillé par chambre)", notes_it: "Gonfia la camera ++ (secondaria) prima della camera + (principale); non superare 250 psi / 17 bar in totale, secondo l’etichetta di avvertenza del prodotto (non specificato per camera)", notes_es: "Infla la cámara ++ (secundaria) antes que la cámara + (principal); no superes 250 psi / 17 bar en total, según la etiqueta de advertencia del producto (sin desglosar por cámara)", notes_pt: "Encha a câmara ++ (secundária) antes da câmara + (principal); não passe de 250 psi / 17 bar no total, conforme a etiqueta de advertência do produto (sem detalhar por câmara)" }
             options:
               damper: [vaia_cartridge]
               travel_mm: [170, 180, 190, 200]
@@ -243,6 +275,10 @@ nodes:
               Zwei-Positionen-Exzenterschaft stellt 44mm (Enduro) oder 48mm (DH)
               Offset ein. Gewicht ca. 3195g (200mm Federweg, 20mm-Achse,
               gekürzter Schaft, inklusive Öl).
+            note_fr: Axe en titane grade 5 interchangeable 20 mm/15 mm (Boost 110) ; une tige à came à deux positions règle le déport sur 44 mm (enduro) ou 48 mm (DH). Poids ~3195 g (200 mm de débattement, axe de 20 mm, tube de direction coupé, huile comprise).
+            note_it: Perno in titanio grado 5 intercambiabile 20 mm/15 mm (Boost 110); un perno a camma a due posizioni imposta l’offset su 44 mm (enduro) o 48 mm (DH). Peso ~3195 g (200 mm di escursione, perno da 20 mm, canotto sterzo tagliato, olio incluso).
+            note_es: Eje de titanio grado 5 intercambiable 20 mm/15 mm (Boost 110); un vástago de leva de dos posiciones fija el offset en 44 mm (enduro) o 48 mm (DH). Peso ~3195 g (200 mm de recorrido, eje de 20 mm, tubo de dirección cortado, aceite incluido).
+            note_pt: Eixo de titânio grau 5 intercambiável 20 mm/15 mm (Boost 110); uma haste de came de duas posições define o offset em 44 mm (enduro) ou 48 mm (DH). Peso ~3195 g (200 mm de curso, eixo de 20 mm, tubo de direção cortado, óleo incluído).
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

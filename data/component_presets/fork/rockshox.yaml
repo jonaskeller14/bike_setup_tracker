@@ -92,10 +92,26 @@ option_values:
         - Unabhängige High- und Low-Speed-Druckstufenkreise, beide von einer mittleren Raste gezählt
         - HSC ist ein Rad mit 5 Positionen, LSC ein Rad mit 15 Positionen, Zugstufe 18 Klicks
         - Verbaut an Pike, Lyrik und ZEB Ultimate / Select+ der Modelljahre 2023-2024
+      description_fr: |-
+        - Circuits de compression haute et basse vitesse indépendants, tous deux comptés depuis un cran central
+        - Le HSC est une molette à 5 positions, le LSC une molette à 15 positions, la détente 18 clics
+        - Monté sur les Pike, Lyrik et ZEB Ultimate / Select+ 2023-2024
+      description_it: |-
+        - Circuiti di compressione ad alta e bassa velocità indipendenti, entrambi contati a partire da uno scatto centrale
+        - L’HSC è una manopola a 5 posizioni, l’LSC una a 15 posizioni, il ritorno 18 scatti
+        - Montata su Pike, Lyrik e ZEB Ultimate / Select+ 2023-2024
+      description_es: |-
+        - Circuitos independientes de compresión de alta y baja velocidad, ambos contados desde una muesca central
+        - El HSC es una rueda de 5 posiciones, el LSC una de 15 posiciones y el rebote tiene 18 clics
+        - Montado en las Pike, Lyrik y ZEB Ultimate / Select+ 2023-2024
+      description_pt: |-
+        - Circuitos independentes de compressão de alta e baixa velocidade, ambos contados a partir de um clique central
+        - O HSC é um seletor de 5 posições, o LSC um de 15 posições e o retorno tem 18 cliques
+        - Instalado nas Pike, Lyrik e ZEB Ultimate / Select+ 2023-2024
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent", notes_de: High-Speed-Druckstufe; von der mittleren Raste gezählt }
-        - { name: LSC, name_de: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent", notes_de: Low-Speed-Druckstufe; von der mittleren Raste gezählt, dialSize: small }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 18, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent", notes_de: High-Speed-Druckstufe; von der mittleren Raste gezählt, notes_fr: Compression haute vitesse ; comptée depuis le cran médian, notes_it: Compressione ad alta velocità; contata a partire dallo scatto centrale, notes_es: Compresión de alta velocidad; contada desde la muesca central, notes_pt: Compressão de alta velocidade; contada a partir do clique central }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent", notes_de: Low-Speed-Druckstufe; von der mittleren Raste gezählt, notes_fr: Compression basse vitesse ; comptée depuis le cran médian, notes_it: Compressione a bassa velocità; contata a partire dallo scatto centrale, notes_es: Compresión de baja velocidad; contada desde la muesca central, notes_pt: Compressão de baixa velocidade; contada a partir do clique central, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 18, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source:
         - https://support.rockshox.com/hc/en-us/articles/5910471591579-What-is-the-range-of-adjustability-on-Charger-3
         - https://support.rockshox.com/hc/en-us/articles/5930461078683-What-RockShox-forks-come-with-Charger-3-dampers
@@ -118,10 +134,26 @@ option_values:
         - Gleiche Verstellerausstattung und Klickzahl wie beim Charger 3, mit größerem nutzbarem Bereich pro Klick
         - Offener LSC am offenen Ende und festerer HSC am geschlossenen Ende
         - Verbaut an Pike, Lyrik und ZEB Ultimate / Select+ der Modelljahre 2025-2027
+      description_fr: |-
+        - Même disposition des réglages et même nombre de clics que le Charger 3, avec une plage utile plus large par clic
+        - LSC plus ouvert côté ouvert et HSC plus ferme côté fermé
+        - Monté sur les Pike, Lyrik et ZEB Ultimate / Select+ 2025-2027
+      description_it: |-
+        - Stessa disposizione dei regolatori e stesso numero di scatti del Charger 3, con una gamma utile più ampia per scatto
+        - LSC più aperto all’estremo aperto e HSC più rigido all’estremo chiuso
+        - Montata su Pike, Lyrik e ZEB Ultimate / Select+ 2025-2027
+      description_es: |-
+        - Misma disposición de ajustes y mismo número de clics que el Charger 3, con un rango útil más amplio por clic
+        - LSC más abierto en el extremo abierto y HSC más firme en el extremo cerrado
+        - Montado en las Pike, Lyrik y ZEB Ultimate / Select+ 2025-2027
+      description_pt: |-
+        - Mesma disposição de ajustes e mesmo número de cliques do Charger 3, com uma faixa útil mais ampla por clique
+        - LSC mais aberto no extremo aberto e HSC mais firme no extremo fechado
+        - Instalado nas Pike, Lyrik e ZEB Ultimate / Select+ 2025-2027
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent", notes_de: High-Speed-Druckstufe; von der mittleren Raste gezählt }
-        - { name: LSC, name_de: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent", notes_de: Low-Speed-Druckstufe; von der mittleren Raste gezählt, dialSize: small }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 18, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent", notes_de: High-Speed-Druckstufe; von der mittleren Raste gezählt, notes_fr: Compression haute vitesse ; comptée depuis le cran médian, notes_it: Compressione ad alta velocità; contata a partire dallo scatto centrale, notes_es: Compresión de alta velocidad; contada desde la muesca central, notes_pt: Compressão de alta velocidade; contada a partir do clique central }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent", notes_de: Low-Speed-Druckstufe; von der mittleren Raste gezählt, notes_fr: Compression basse vitesse ; comptée depuis le cran médian, notes_it: Compressione a bassa velocità; contata a partire dallo scatto centrale, notes_es: Compresión de baja velocidad; contada desde la muesca central, notes_pt: Compressão de baixa velocidade; contada a partir do clique central, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 18, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source:
         - https://support.rockshox.com/hc/en-us/articles/26413313637531-Does-the-RockShox-Charger-3-1-damper-offer-more-clicks-of-adjustment
         - https://support.rockshox.com/hc/en-us/articles/26413299077659-How-did-the-adjustment-range-of-Low-Speed-Compression-and-High-Speed-Compression-change-on-RockShox-Charger-3-1
@@ -143,10 +175,14 @@ option_values:
       description_de: >-
         Der Charger mit der stärksten Dämpfung, abgestimmt auf die
         Linear-XL-Luftfeder und das Chassis 2027.
+      description_fr: Le Charger le plus amorti, conçu pour s’accorder au ressort pneumatique Linear XL et au châssis 2027.
+      description_it: Il Charger con il maggior smorzamento, progettato per abbinarsi alla molla pneumatica Linear XL e al telaio 2027.
+      description_es: El Charger con más amortiguación, diseñado para combinar con el muelle neumático Linear XL y el chasis 2027.
+      description_pt: O Charger de maior amortecimento, projetado para combinar com a mola a ar Linear XL e o chassi 2027.
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent", notes_de: High-Speed-Druckstufe; von der mittleren Raste gezählt }
-        - { name: LSC, name_de: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent", notes_de: Low-Speed-Druckstufe; von der mittleren Raste gezählt, dialSize: small }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 18, notes: "Counted from fully open (fastest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz offen (am schnellsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent", notes_de: High-Speed-Druckstufe; von der mittleren Raste gezählt, notes_fr: Compression haute vitesse ; comptée depuis le cran médian, notes_it: Compressione ad alta velocità; contata a partire dallo scatto centrale, notes_es: Compresión de alta velocidad; contada desde la muesca central, notes_pt: Compressão de alta velocidade; contada a partir do clique central }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent", notes_de: Low-Speed-Druckstufe; von der mittleren Raste gezählt, notes_fr: Compression basse vitesse ; comptée depuis le cran médian, notes_it: Compressione a bassa velocità; contata a partire dallo scatto centrale, notes_es: Compresión de baja velocidad; contada desde la muesca central, notes_pt: Compressão de baixa velocidade; contada a partir do clique central, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 18, notes: "Counted from fully open (fastest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz offen (am schnellsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compté depuis la position entièrement ouverte (la plus rapide) ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Contato a partire dalla posizione completamente aperta (la più rapida); massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Contado desde la posición totalmente abierta (la más rápida); máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Contado a partir da posição totalmente aberta (a mais rápida); máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
       source:
         - https://docs.sram.com/en-US/publications/5ODr3E6BhL1uWDnWhq4ATB
         - https://support.rockshox.com/hc/en-us/articles/5910471591579-What-is-the-range-of-adjustability-on-Charger-3
@@ -169,10 +205,18 @@ option_values:
       description_de: >-
         Gravity-Dämpfer der BoXXer 2019-2023 mit getrennten Rädern für High- und
         Low-Speed-Druckstufe.
+      description_fr: Amortisseur gravity de la BoXXer 2019-2023, avec des molettes séparées de compression haute et basse vitesse.
+      description_it: Ammortizzatore gravity della BoXXer 2019-2023, con manopole separate di compressione ad alta e bassa velocità.
+      description_es: Amortiguador gravity de la BoXXer 2019-2023, con ruedas separadas de compresión de alta y baja velocidad.
+      description_pt: Amortecedor gravity da BoXXer 2019-2023, com seletores separados de compressão de alta e baixa velocidade.
       missing_adjustments: [HSC, LSC]
       missing_adjustments_de: [HSC, LSC]
+      missing_adjustments_fr: [HSC, LSC]
+      missing_adjustments_it: [HSC, LSC]
+      missing_adjustments_es: [HSC, LSC]
+      missing_adjustments_pt: [HSC, LSC]
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
       note: >-
         Damper-to-model assignment from the 2023 Front Suspension Specifications
@@ -188,10 +232,18 @@ option_values:
       description_de: >-
         Federleichter XC-Dämpfer mit Zugstufenrad und einem Druckstufenhebel,
         der die Gabel für Anstiege fester macht.
+      description_fr: Amortisseur XC ultraléger avec une molette de détente et un levier de compression qui raffermit la fourche en montée.
+      description_it: Ammortizzatore XC ultraleggero con una manopola del ritorno e una leva di compressione che irrigidisce la forcella in salita.
+      description_es: Amortiguador XC ultraligero con una rueda de rebote y una palanca de compresión que endurece la horquilla en las subidas.
+      description_pt: Amortecedor XC ultraleve com um seletor de retorno e uma alavanca de compressão que firma o garfo nas subidas.
       missing_adjustments: [Compression lever]
       missing_adjustments_de: [Druckstufenhebel]
+      missing_adjustments_fr: [Levier de compression]
+      missing_adjustments_it: [Leva di compressione]
+      missing_adjustments_es: [Palanca de compresión]
+      missing_adjustments_pt: [Alavanca de compressão]
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
       note: >-
         Fitted to 2021-2023 SID / SID SL Ultimate and Rudy XPLR Ultimate. The
@@ -207,10 +259,18 @@ option_values:
       description_de: >-
         Federleichter XC-Dämpfer für Marathon- und Cross-Country-Rennen mit
         Zugstufenrad und einem 2- oder 3-Positionen-Druckstufenhebel.
+      description_fr: Amortisseur XC ultraléger pour le marathon et la course cross-country, avec une molette de détente et un levier de compression à 2 ou 3 positions.
+      description_it: Ammortizzatore XC ultraleggero per maratona e gare cross-country, con una manopola del ritorno e una leva di compressione a 2 o 3 posizioni.
+      description_es: Amortiguador XC ultraligero para maratón y competición cross-country, con una rueda de rebote y una palanca de compresión de 2 o 3 posiciones.
+      description_pt: Amortecedor XC ultraleve para maratona e competição cross-country, com um seletor de retorno e uma alavanca de compressão de 2 ou 3 posições.
       missing_adjustments: [Compression lever]
       missing_adjustments_de: [Druckstufenhebel]
+      missing_adjustments_fr: [Levier de compression]
+      missing_adjustments_it: [Leva di compressione]
+      missing_adjustments_es: [Palanca de compresión]
+      missing_adjustments_pt: [Alavanca de compressão]
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source:
         - https://support.rockshox.com/hc/en-us/articles/24894559854747-What-is-the-difference-between-the-Race-Day-and-Race-Day-2-damper
         - https://support.rockshox.com/hc/en-us/articles/17383057951259-How-do-the-Charger-XC-and-Rush-XC-differ-from-Charger-Race-Day-2
@@ -226,9 +286,13 @@ option_values:
         Cross-country damper with a rebound dial and a lockout lever.
       description_de: >-
         Cross-Country-Dämpfer mit Zugstufenrad und Lockout-Hebel.
+      description_fr: Amortisseur cross-country avec une molette de détente et un levier de lockout.
+      description_it: Ammortizzatore cross-country con una manopola del ritorno e una leva di lockout.
+      description_es: Amortiguador cross-country con una rueda de rebote y una palanca de lockout.
+      description_pt: Amortecedor cross-country com um seletor de retorno e uma alavanca de lockout.
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
-        - { name: Lockout, name_de: Lockout, type: boolean }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
       note: "Fitted to 2021-2023 SID / SID SL Select+. No click counts published; rebound carries `max: ~`."
 
@@ -238,9 +302,13 @@ option_values:
         Sealed-bladder trail damper with a rebound dial and a lockout lever.
       description_de: >-
         Trail-Dämpfer mit geschlossenem Bladder, Zugstufenrad und Lockout-Hebel.
+      description_fr: Amortisseur trail à bladder scellé avec une molette de détente et un levier de lockout.
+      description_it: Ammortizzatore trail a bladder sigillato con una manopola del ritorno e una leva di lockout.
+      description_es: Amortiguador trail de bladder sellado con una rueda de rebote y una palanca de lockout.
+      description_pt: Amortecedor trail de bladder selado com um seletor de retorno e uma alavanca de lockout.
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
-        - { name: Lockout, name_de: Lockout, type: boolean }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
       note: "Fitted to 2021-2023 SID / SID SL Select. No click counts published; rebound carries `max: ~`."
 
@@ -254,8 +322,24 @@ option_values:
         - Preisbewusster Trail-Dämpfer für Pike, Lyrik und ZEB in der Ausstattung Base
         - Zugstufenrad mit 16 Klicks, von ganz offen gezählt
         - Low-Speed-Druckstufenknopf oben am Dämpferbein
+      description_fr: |-
+        - Amortisseur trail économique pour les Pike, Lyrik et ZEB en finition Base
+        - Molette de détente à 16 clics, comptés depuis la position entièrement ouverte
+        - Molette de compression basse vitesse sur le haut de la jambe de l’amortisseur
+      description_it: |-
+        - Ammortizzatore trail economico per Pike, Lyrik e ZEB in allestimento Base
+        - Manopola del ritorno a 16 scatti, contati a partire dalla posizione completamente aperta
+        - Manopola di compressione a bassa velocità sulla parte alta dello stelo dell’ammortizzatore
+      description_es: |-
+        - Amortiguador trail económico para las Pike, Lyrik y ZEB en acabado Base
+        - Rueda de rebote de 16 clics, contados desde la posición totalmente abierta
+        - Rueda de compresión de baja velocidad en la parte superior de la pierna del amortiguador
+      description_pt: |-
+        - Amortecedor trail econômico para as Pike, Lyrik e ZEB no acabamento Base
+        - Seletor de retorno de 16 cliques, contados a partir da posição totalmente aberta
+        - Seletor de compressão de baixa velocidade no alto da perna do amortecedor
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source:
         - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-zeb-lyrik-pike-service-manual.pdf
         - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
@@ -275,9 +359,25 @@ option_values:
         - Cross-Country-Dämpfer der Einstiegsklasse für SID und SID SL in der Ausstattung Base
         - Zugstufenrad mit 16 Klicks, von ganz offen gezählt
         - Druckstufen-Lockout-Hebel, mit Lenkerfernbedienung erhältlich
+      description_fr: |-
+        - Amortisseur cross-country d’entrée de gamme pour les SID et SID SL en finition Base
+        - Molette de détente à 16 clics, comptés depuis la position entièrement ouverte
+        - Levier de lockout de la compression, disponible avec une commande au guidon
+      description_it: |-
+        - Ammortizzatore cross-country entry-level per SID e SID SL in allestimento Base
+        - Manopola del ritorno a 16 scatti, contati a partire dalla posizione completamente aperta
+        - Leva di lockout della compressione, disponibile con comando al manubrio
+      description_es: |-
+        - Amortiguador cross-country de gama de entrada para las SID y SID SL en acabado Base
+        - Rueda de rebote de 16 clics, contados desde la posición totalmente abierta
+        - Palanca de lockout de la compresión, disponible con mando de manillar
+      description_pt: |-
+        - Amortecedor cross-country de entrada para as SID e SID SL no acabamento Base
+        - Seletor de retorno de 16 cliques, contados a partir da posição totalmente aberta
+        - Alavanca de lockout da compressão, disponível com comando no guidão
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
-        - { name: Lockout, name_de: Lockout, type: boolean }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean }
       source:
         - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
         - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
@@ -295,9 +395,25 @@ option_values:
         - Trail-Dämpfer der Psylo Gold RC und Domain Gold RC
         - 16 Klicks Zugstufe, von ganz offen gezählt
         - Drei-Positionen-Druckstufenhebel: Open, Pedal und Firm
+      description_fr: |-
+        - Amortisseur trail des Psylo Gold RC et Domain Gold RC
+        - 16 clics de détente, comptés depuis la position entièrement ouverte
+        - Levier de compression à trois positions : Open, Pedal et Firm
+      description_it: |-
+        - Ammortizzatore trail delle Psylo Gold RC e Domain Gold RC
+        - 16 scatti di ritorno, contati a partire dalla posizione completamente aperta
+        - Leva di compressione a tre posizioni: Open, Pedal e Firm
+      description_es: |-
+        - Amortiguador trail de las Psylo Gold RC y Domain Gold RC
+        - 16 clics de rebote, contados desde la posición totalmente abierta
+        - Palanca de compresión de tres posiciones: Open, Pedal y Firm
+      description_pt: |-
+        - Amortecedor trail das Psylo Gold RC e Domain Gold RC
+        - 16 cliques de retorno, contados a partir da posição totalmente aberta
+        - Alavanca de compressão de três posições: Open, Pedal e Firm
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Pedal, Firm], options_de: [Offen, Pedal, Fest] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Pedal, Firm], options_de: [Offen, Pedal, Fest], options_fr: [Ouvert, Pedal, Ferme], options_it: [Aperto, Pedal, Rigido], options_es: [Abierto, Pedal, Firme], options_pt: [Aberto, Pedal, Firme] }
       source:
         - https://support.rockshox.com/hc/en-us/articles/24895607833499-What-is-the-range-of-adjustability-on-the-Isolator-Damper
         - https://support.rockshox.com/hc/en-us/articles/24895680722331-What-RockShox-forks-is-the-Isolator-damper-compatible-with
@@ -314,10 +430,18 @@ option_values:
       description_de: >-
         Trail-Dämpfer für lange Federwege mit Zugstufenrad und einem
         Druckstufenrad, das von offen bis zu einer festen Pedalplattform reicht.
+      description_fr: Amortisseur trail à grand débattement avec une molette de détente et une molette de compression qui va de l’ouvert à une plateforme de pédalage ferme.
+      description_it: Ammortizzatore trail a lunga escursione con una manopola del ritorno e una manopola di compressione che va da aperta a una piattaforma di pedalata rigida.
+      description_es: Amortiguador trail de mucho recorrido con una rueda de rebote y una rueda de compresión que va de abierta a una plataforma de pedaleo firme.
+      description_pt: Amortecedor trail de longo curso com um seletor de retorno e um seletor de compressão que vai de aberto a uma plataforma de pedalada firme.
       missing_adjustments: [Compression]
       missing_adjustments_de: [Druckstufe]
+      missing_adjustments_fr: [Compression]
+      missing_adjustments_it: [Compressione]
+      missing_adjustments_es: [Compresión]
+      missing_adjustments_pt: [Compressão]
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
       note: >-
         Fitted to Yari, Revelation and Domain per the 2023 Front Suspension
@@ -333,9 +457,13 @@ option_values:
       description_de: >-
         Cross-Country-Dämpfer mit Zugstufenrad und Lockout-Hebel, mit
         Lenkerfernbedienung erhältlich.
+      description_fr: Amortisseur cross-country avec une molette de détente et un levier de lockout, proposé avec une commande au guidon.
+      description_it: Ammortizzatore cross-country con una manopola del ritorno e una leva di lockout, offerto con comando al manubrio.
+      description_es: Amortiguador cross-country con una rueda de rebote y una palanca de lockout, que se ofrece con mando de manillar.
+      description_pt: Amortecedor cross-country com um seletor de retorno e uma alavanca de lockout, oferecido com comando no guidão.
       adjustments:
-        - { name: Rebound, name_de: Zugstufe, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, dialColor: red }
-        - { name: Lockout, name_de: Lockout, type: boolean }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
       note: >-
         Fitted to Reba, Recon Gold and 35 Gold per the 2023 Front Suspension
@@ -361,6 +489,10 @@ guides:
   rockshox_sid_sl_2026:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -378,11 +510,19 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: volume_spacers, value: 0 }
 
   rockshox_sid_sl_2025:
     label: RockShox Front Suspension Specifications (2025)
     label_de: RockShox Gabel-Spezifikationen (2025)
+    label_fr: Caractéristiques des fourches RockShox (2025)
+    label_it: Specifiche delle forcelle RockShox (2025)
+    label_es: Especificaciones de las horquillas RockShox (2025)
+    label_pt: Especificações dos garfos RockShox (2025)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -400,11 +540,19 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
-      - &rockshox_fork_sag { target: sag, range: [10, 30], comfort_at: max, note: "RockShox's general band: toward 30 % on long travel, toward 10 % on short travel", note_de: "Allgemeines Band von RockShox: Richtung 30 % bei langem Federweg, Richtung 10 % bei kurzem Federweg" }
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
+      - &rockshox_fork_sag { target: sag, range: [10, 30], comfort_at: max, note: "RockShox's general band: toward 30 % on long travel, toward 10 % on short travel", note_de: "Allgemeines Band von RockShox: Richtung 30 % bei langem Federweg, Richtung 10 % bei kurzem Federweg", note_fr: "Plage générale de RockShox : vers 30 % pour un grand débattement, vers 10 % pour un petit débattement", note_it: "Fascia generale di RockShox: verso il 30 % con lunga escursione, verso il 10 % con escursione corta", note_es: "Banda general de RockShox: hacia el 30 % con mucho recorrido, hacia el 10 % con poco recorrido", note_pt: "Faixa geral da RockShox: perto de 30 % com muito curso, perto de 10 % com pouco curso" }
 
   rockshox_sid_sl_2021:
     label: RockShox Front Suspension Specifications (2023)
     label_de: RockShox Gabel-Spezifikationen (2023)
+    label_fr: Caractéristiques des fourches RockShox (2023)
+    label_it: Specifiche delle forcelle RockShox (2023)
+    label_es: Especificaciones de las horquillas RockShox (2023)
+    label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
     rules:
       - target: pressure
@@ -424,6 +572,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -435,6 +587,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -446,6 +602,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -457,6 +617,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - &rockshox_lockout_open { target: lockout, value: false, when: { damper: [charger_2_rl, charger_rl, rush_rl] } }
       - *rockshox_fork_sag
       - { target: volume_spacers, value: 0, when: { travel_mm: 100 } }
@@ -464,6 +628,10 @@ guides:
   rockshox_sid_2025:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -480,6 +648,10 @@ guides:
         rows: *th_sid_d1
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: volume_spacers
         input: travel_mm
         rows: { 100: 1, 110: 1, 120: 0 }
@@ -487,6 +659,10 @@ guides:
   rockshox_sid_2021:
     label: RockShox Front Suspension Specifications (2023)
     label_de: RockShox Gabel-Spezifikationen (2023)
+    label_fr: Caractéristiques des fourches RockShox (2023)
+    label_it: Specifiche delle forcelle RockShox (2023)
+    label_es: Especificaciones de las horquillas RockShox (2023)
+    label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
     rules:
       - target: pressure
@@ -506,6 +682,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -517,6 +697,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -528,6 +712,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -539,6 +727,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - *rockshox_lockout_open
       - *rockshox_fork_sag
       - target: volume_spacers
@@ -548,6 +740,10 @@ guides:
   rockshox_reba_2024:
     label: RockShox Front Suspension Specifications (2024)
     label_de: RockShox Gabel-Spezifikationen (2024)
+    label_fr: Caractéristiques des fourches RockShox (2024)
+    label_it: Specifiche delle forcelle RockShox (2024)
+    label_es: Especificaciones de las horquillas RockShox (2024)
+    label_pt: Especificações dos garfos RockShox (2024)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -566,6 +762,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -577,6 +777,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - *rockshox_fork_sag
       - target: volume_spacers
         input: travel_mm
@@ -585,6 +789,10 @@ guides:
   rockshox_pike_2025:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -616,6 +824,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -627,6 +839,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -638,6 +854,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -649,6 +869,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0, when: { damper: charger_3_1 } }
       - { target: lsc, value: 0, when: { damper: charger_3_1 } }
       - target: volume_spacers
@@ -658,6 +882,10 @@ guides:
   rockshox_pike_2023:
     label: RockShox Front Suspension Specifications (2023)
     label_de: RockShox Gabel-Spezifikationen (2023)
+    label_fr: Caractéristiques des fourches RockShox (2023)
+    label_it: Specifiche delle forcelle RockShox (2023)
+    label_es: Especificaciones de las horquillas RockShox (2023)
+    label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
     rules:
       - target: pressure
@@ -685,6 +913,10 @@ guides:
         rows: *th_c3_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -692,6 +924,10 @@ guides:
         rows: *th_c3_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -699,6 +935,10 @@ guides:
         rows: *th_rush_p120
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -706,6 +946,10 @@ guides:
         rows: *th_rush_p130
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0, when: { damper: charger_3 } }
       - { target: lsc, value: 0, when: { damper: charger_3 } }
       - target: volume_spacers
@@ -715,6 +959,10 @@ guides:
   rockshox_lyrik_2027:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -760,6 +1008,10 @@ guides:
         rows: *th_c3_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -767,6 +1019,10 @@ guides:
         rows: *th_c3_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0 }
       - { target: lsc, value: 0 }
       - target: volume_spacers
@@ -776,6 +1032,10 @@ guides:
   rockshox_lyrik_2025:
     label: RockShox Front Suspension Specifications (2026)
     label_de: RockShox Gabel-Spezifikationen (2026)
+    label_fr: Caractéristiques des fourches RockShox (2026)
+    label_it: Specifiche delle forcelle RockShox (2026)
+    label_es: Especificaciones de las horquillas RockShox (2026)
+    label_pt: Especificações dos garfos RockShox (2026)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -797,6 +1057,10 @@ guides:
         rows: *th_c3_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -804,6 +1068,10 @@ guides:
         rows: *th_c3_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -815,6 +1083,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -826,6 +1098,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0, when: { damper: charger_3_1 } }
       - { target: lsc, value: 0, when: { damper: charger_3_1 } }
       - target: volume_spacers
@@ -835,6 +1111,10 @@ guides:
   rockshox_lyrik_2023:
     label: RockShox Front Suspension Specifications (2023)
     label_de: RockShox Gabel-Spezifikationen (2023)
+    label_fr: Caractéristiques des fourches RockShox (2023)
+    label_it: Specifiche delle forcelle RockShox (2023)
+    label_es: Especificaciones de las horquillas RockShox (2023)
+    label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
     rules:
       - target: pressure
@@ -856,6 +1136,10 @@ guides:
         rows: *th_c3_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -863,6 +1147,10 @@ guides:
         rows: *th_c3_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -870,6 +1158,10 @@ guides:
         rows: *th_base_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -877,6 +1169,10 @@ guides:
         rows: *th_base_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0, when: { damper: charger_3 } }
       - { target: lsc, value: 0, when: { damper: charger_3 } }
       - target: volume_spacers
@@ -886,6 +1182,10 @@ guides:
   rockshox_zeb_2027:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -931,6 +1231,10 @@ guides:
         rows: *th_c3_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -938,6 +1242,10 @@ guides:
         rows: *th_c3_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0 }
       - { target: lsc, value: 0 }
       - target: volume_spacers
@@ -949,6 +1257,10 @@ guides:
   rockshox_zeb_2025:
     label: RockShox Front Suspension Specifications (2026)
     label_de: RockShox Gabel-Spezifikationen (2026)
+    label_fr: Caractéristiques des fourches RockShox (2026)
+    label_it: Specifiche delle forcelle RockShox (2026)
+    label_es: Especificaciones de las horquillas RockShox (2026)
+    label_pt: Especificações dos garfos RockShox (2026)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -985,6 +1297,10 @@ guides:
         rows: *th_c3_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -992,6 +1308,10 @@ guides:
         rows: *th_c3_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1003,6 +1323,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1010,6 +1334,10 @@ guides:
         rows: *th_base_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1017,6 +1345,10 @@ guides:
         rows: *th_base_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1028,6 +1360,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0, when: { damper: charger_3_1 } }
       - { target: lsc, value: 0, when: { damper: charger_3_1 } }
       - target: volume_spacers
@@ -1037,6 +1373,10 @@ guides:
   rockshox_zeb_2023:
     label: RockShox Front Suspension Specifications (2023)
     label_de: RockShox Gabel-Spezifikationen (2023)
+    label_fr: Caractéristiques des fourches RockShox (2023)
+    label_it: Specifiche delle forcelle RockShox (2023)
+    label_es: Especificaciones de las horquillas RockShox (2023)
+    label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
     rules:
       - target: pressure
@@ -1064,6 +1404,10 @@ guides:
         rows: *th_c3_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1071,6 +1415,10 @@ guides:
         rows: *th_c3_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1078,6 +1426,10 @@ guides:
         rows: *th_c3_c
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1085,6 +1437,10 @@ guides:
         rows: *th_base_a
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1092,6 +1448,10 @@ guides:
         rows: *th_base_b
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1099,6 +1459,10 @@ guides:
         rows: *th_base_c
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0, when: { damper: charger_3 } }
       - { target: lsc, value: 0, when: { damper: charger_3 } }
       - target: volume_spacers
@@ -1108,6 +1472,10 @@ guides:
   rockshox_psylo_2027:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -1139,6 +1507,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1150,12 +1522,20 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - *rockshox_fork_sag
       - { target: volume_spacers, value: 0 }
 
   rockshox_domain_2027:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -1181,6 +1561,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1192,6 +1576,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - *rockshox_fork_sag
       - target: volume_spacers
         input: travel_mm
@@ -1200,6 +1588,10 @@ guides:
   rockshox_boxxer_2027:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -1231,6 +1623,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1242,6 +1638,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0 }
       - { target: lsc, value: 0 }
       - target: volume_spacers
@@ -1251,6 +1651,10 @@ guides:
   rockshox_boxxer_2024:
     label: RockShox Front Suspension Specifications (2026)
     label_de: RockShox Gabel-Spezifikationen (2026)
+    label_fr: Caractéristiques des fourches RockShox (2026)
+    label_it: Specifiche delle forcelle RockShox (2026)
+    label_es: Especificaciones de las horquillas RockShox (2026)
+    label_pt: Especificações dos garfos RockShox (2026)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -1272,6 +1676,10 @@ guides:
         rows: *th_bxr_d_180
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1279,6 +1687,10 @@ guides:
         rows: *th_bxr_d_190
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0 }
       - { target: lsc, value: 0 }
       - target: volume_spacers
@@ -1288,6 +1700,10 @@ guides:
   rockshox_boxxer_2019:
     label: RockShox Front Suspension Specifications (2023)
     label_de: RockShox Gabel-Spezifikationen (2023)
+    label_fr: Caractéristiques des fourches RockShox (2023)
+    label_it: Specifiche delle forcelle RockShox (2023)
+    label_es: Especificaciones de las horquillas RockShox (2023)
+    label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
     rules:
       - target: pressure
@@ -1319,6 +1735,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1330,6 +1750,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - *rockshox_fork_sag
       - target: volume_spacers
         input: travel_mm
@@ -1338,6 +1762,10 @@ guides:
   rockshox_rudy_xplr_2027:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -1355,11 +1783,19 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: sag, value: 5 }
 
   rockshox_rudy_xl_2027:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -1377,10 +1813,18 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
 
   rockshox_yari_2024:
     label: RockShox Front Suspension Specifications (2024)
     label_de: RockShox Gabel-Spezifikationen (2024)
+    label_fr: Caractéristiques des fourches RockShox (2024)
+    label_it: Specifiche delle forcelle RockShox (2024)
+    label_es: Especificaciones de las horquillas RockShox (2024)
+    label_pt: Especificações dos garfos RockShox (2024)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -1412,6 +1856,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1423,6 +1871,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - *rockshox_fork_sag
       - target: volume_spacers
         input: travel_mm
@@ -1432,6 +1884,10 @@ guides:
   rockshox_revelation_2024:
     label: RockShox Front Suspension Specifications (2024)
     label_de: RockShox Gabel-Spezifikationen (2024)
+    label_fr: Caractéristiques des fourches RockShox (2024)
+    label_it: Specifiche delle forcelle RockShox (2024)
+    label_es: Especificaciones de las horquillas RockShox (2024)
+    label_pt: Especificações dos garfos RockShox (2024)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -1478,6 +1934,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1489,6 +1949,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1500,6 +1964,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - *rockshox_fork_sag
       - target: volume_spacers
         input: travel_mm
@@ -1514,6 +1982,10 @@ guides:
   rockshox_recon_gold_2027:
     label: RockShox Front Suspension Specifications (2027)
     label_de: RockShox Gabel-Spezifikationen (2027)
+    label_fr: Caractéristiques des fourches RockShox (2027)
+    label_it: Specifiche delle forcelle RockShox (2027)
+    label_es: Especificaciones de las horquillas RockShox (2027)
+    label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
     rules:
       - target: pressure
@@ -1545,6 +2017,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1556,6 +2032,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1567,6 +2047,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -1578,6 +2062,10 @@ guides:
         }
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - *rockshox_fork_sag
       - { target: volume_spacers, value: 0 }
 
@@ -1595,8 +2083,12 @@ nodes:
     level: model
     category: XC
     category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
     tasks:
-      fork:full_service: &rockshox_full_service { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle }
+      fork:full_service: &rockshox_full_service { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle, source_fr: Intervalles de révision RockShox, source_it: Intervalli di manutenzione RockShox, source_es: Intervalos de mantenimiento RockShox, source_pt: Intervalos de revisão RockShox }
     children:
       - label: "2026–2027"
         level: generation
@@ -1608,17 +2100,17 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &sid_sl_e1_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 195 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 195 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [charger_race_day_2]
               travel_mm: [100, 110]
               wheel_size: [29]
           - label: Select+
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_sl_e1_air_spring
             options:
               damper: [charger_race_day_2]
@@ -1626,6 +2118,10 @@ nodes:
               wheel_size: [29]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2024–2025"
         level: generation
         id: "2025"
@@ -1636,16 +2132,16 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &sid_sl_d1_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 195 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 195 }
             options:
               damper: [charger_race_day_2]
               travel_mm: [100, 110]
               wheel_size: [29]
           - label: Select+
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_sl_d1_air_spring
             options:
               damper: [charger_race_day_2]
@@ -1653,6 +2149,10 @@ nodes:
               wheel_size: [29]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2021–2023"
         level: generation
         id: "2021"
@@ -1663,17 +2163,17 @@ nodes:
           - label: Ultimate
             level: trim
             draft: true
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &sid_sl_c1_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 195 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 195 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [charger_race_day]
               travel_mm: [80, 100]
               wheel_size: [29]
           - label: Select+
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_sl_c1_air_spring
             options:
               damper: [charger_2_rl]
@@ -1681,7 +2181,7 @@ nodes:
               wheel_size: [29]
           - label: Select
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_sl_c1_air_spring
             options:
               damper: [charger_rl]
@@ -1689,7 +2189,7 @@ nodes:
               wheel_size: [29]
           - label: Base
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_sl_c1_air_spring
             options:
               damper: [rush_rl]
@@ -1697,13 +2197,21 @@ nodes:
               wheel_size: [29]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
 
   - label: "SID"
     level: model
     category: XC
     category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
     tasks:
-      fork:lower_leg_service: &rockshox_lower_leg_service { interval: { moving_time_h: 50 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle }
+      fork:lower_leg_service: &rockshox_lower_leg_service { interval: { moving_time_h: 50 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle, source_fr: Intervalles de révision RockShox, source_it: Intervalli di manutenzione RockShox, source_es: Intervalos de mantenimiento RockShox, source_pt: Intervalos de revisão RockShox }
       fork:full_service: *rockshox_full_service
     children:
       - label: "2025–2026"
@@ -1716,17 +2224,17 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &sid_d1_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 150 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 150 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [charger_race_day_2]
               travel_mm: [100, 110, 120]
               wheel_size: [29]
           - label: Select+
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_d1_air_spring
             options:
               damper: [charger_race_day_2]
@@ -1734,6 +2242,10 @@ nodes:
               wheel_size: [29]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2021–2023"
         level: generation
         id: "2021"
@@ -1744,17 +2256,17 @@ nodes:
           - label: Ultimate
             level: trim
             draft: true
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &sid_c1_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 146 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 146 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [charger_race_day]
               travel_mm: [100, 110, 120]
               wheel_size: [29]
           - label: Select+
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_c1_air_spring
             options:
               damper: [charger_2_rl]
@@ -1762,7 +2274,7 @@ nodes:
               wheel_size: [29]
           - label: Select
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_c1_air_spring
             options:
               damper: [charger_rl]
@@ -1770,7 +2282,7 @@ nodes:
               wheel_size: [29]
           - label: Base
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_c1_air_spring
             options:
               damper: [rush_rl]
@@ -1778,11 +2290,19 @@ nodes:
               wheel_size: [29]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
 
   - label: "Reba"
     level: model
     category: XC / Trail
     category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -1796,31 +2316,39 @@ nodes:
         children:
           - label: RL
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 195 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel", notes_de: Bottomless Tokens; maximal 3 bei 100mm Federweg }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 195 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel", notes_de: Bottomless Tokens; maximal 3 bei 100mm Federweg, notes_fr: Bottomless Tokens ; 3 maximum à 100 mm de débattement, notes_it: Bottomless Token; massimo 3 a 100 mm di escursione, notes_es: Bottomless Tokens; máximo 3 con 100 mm de recorrido, notes_pt: Bottomless Tokens; máximo de 3 com 100 mm de curso }
             options:
               damper: [motion_control_rl]
               travel_mm: [100, 110, 120]
               wheel_size: [29, 27.5]
           - label: Gold RL
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 195 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel", notes_de: Bottomless Tokens; maximal 3 bei 100mm Federweg }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 195 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel", notes_de: Bottomless Tokens; maximal 3 bei 100mm Federweg, notes_fr: Bottomless Tokens ; 3 maximum à 100 mm de débattement, notes_it: Bottomless Token; massimo 3 a 100 mm di escursione, notes_es: Bottomless Tokens; máximo 3 con 100 mm de recorrido, notes_pt: Bottomless Tokens; máximo de 3 com 100 mm de curso }
             options:
               damper: [motion_control_rl]
               travel_mm: [100, 110, 120]
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
 
   - label: "Pike"
     level: model
     category: Trail
     category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     setup_guide: https://www.sram.com/en/rockshox/learn/charger-3-setup
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
@@ -1835,17 +2363,17 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &pike_c2_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 163 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm", notes_de: "Bottomless Tokens; maximal 6 bei 120-130mm Federweg, 5 bei 140mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 163 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm", notes_de: "Bottomless Tokens; maximal 6 bei 120-130mm Federweg, 5 bei 140mm", notes_fr: "Bottomless Tokens ; 6 maximum à 120-130 mm de débattement, 5 à 140 mm", notes_it: "Bottomless Token; massimo 6 a 120-130 mm di escursione, 5 a 140 mm", notes_es: "Bottomless Tokens; máximo 6 con 120-130 mm de recorrido, 5 con 140 mm", notes_pt: "Bottomless Tokens; máximo de 6 com 120-130 mm de curso, 5 com 140 mm" }
             options:
               damper: [charger_3_1]
               travel_mm: [120, 130, 140]
               wheel_size: [29, 27.5]
           - label: Ultimate Flight Attendant
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *pike_c2_air_spring
             options:
               damper: [charger_3_1]
@@ -1853,9 +2381,13 @@ nodes:
               wheel_size: [29, 27.5]
             note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
             note_de: Die Druckstufe wird elektronisch vom Flight Attendant eingestellt; das Zugstufenrad bleibt manuell
+            note_fr: La compression est réglée électroniquement par Flight Attendant ; la molette de détente reste manuelle
+            note_it: La compressione è regolata elettronicamente da Flight Attendant; la manopola del ritorno resta manuale
+            note_es: La compresión la regula electrónicamente Flight Attendant; la rueda de rebote sigue siendo manual
+            note_pt: A compressão é ajustada eletronicamente pelo Flight Attendant; o seletor de retorno continua manual
           - label: Select+
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *pike_c2_air_spring
             options:
               damper: [charger_3_1]
@@ -1863,7 +2395,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Base
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *pike_c2_air_spring
             options:
               damper: [rush_rc]
@@ -1871,6 +2403,10 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2023–2024"
         level: generation
         id: "2023"
@@ -1880,17 +2416,17 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &pike_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm", notes_de: "Bottomless Tokens; maximal 6 bei 120-130mm Federweg, 5 bei 140mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm", notes_de: "Bottomless Tokens; maximal 6 bei 120-130mm Federweg, 5 bei 140mm", notes_fr: "Bottomless Tokens ; 6 maximum à 120-130 mm de débattement, 5 à 140 mm", notes_it: "Bottomless Token; massimo 6 a 120-130 mm di escursione, 5 a 140 mm", notes_es: "Bottomless Tokens; máximo 6 con 120-130 mm de recorrido, 5 con 140 mm", notes_pt: "Bottomless Tokens; máximo de 6 com 120-130 mm de curso, 5 com 140 mm" }
             options:
               damper: [charger_3]
               travel_mm: [120, 130, 140]
               wheel_size: [29, 27.5]
           - label: Select+
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *pike_air_spring
             options:
               damper: [charger_3]
@@ -1898,7 +2434,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Base
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *pike_air_spring
             options:
               damper: [rush_rc]
@@ -1906,11 +2442,19 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
 
   - label: "Lyrik"
     level: model
     category: Trail / All-Mountain
     category_de: Trail / All-Mountain
+    category_fr: Trail / All-Mountain
+    category_it: Trail / All-Mountain
+    category_es: Trail / All-Mountain
+    category_pt: Trail / All-Mountain
     setup_guide: https://www.sram.com/en/rockshox/learn/charger-3-setup
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
@@ -1924,17 +2468,17 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Linear XL, spring_de: Linear XL }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Linear XL, spring_de: Linear XL, spring_fr: Linear XL, spring_it: Linear XL, spring_es: Linear XL, spring_pt: Linear XL }
             adjustments: &lyrik_e1_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 140mm travel, 4 at 150-160mm, 3 at 170mm", notes_de: "Bottomless Tokens; maximal 5 bei 140mm Federweg, 4 bei 150-160mm, 3 bei 170mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 140mm travel, 4 at 150-160mm, 3 at 170mm", notes_de: "Bottomless Tokens; maximal 5 bei 140mm Federweg, 4 bei 150-160mm, 3 bei 170mm", notes_fr: "Bottomless Tokens ; 5 maximum à 140 mm de débattement, 4 à 150-160 mm, 3 à 170 mm", notes_it: "Bottomless Token; massimo 5 a 140 mm di escursione, 4 a 150-160 mm, 3 a 170 mm", notes_es: "Bottomless Tokens; máximo 5 con 140 mm de recorrido, 4 con 150-160 mm, 3 con 170 mm", notes_pt: "Bottomless Tokens; máximo de 5 com 140 mm de curso, 4 com 150-160 mm, 3 com 170 mm" }
             options:
               damper: [charger_3_2]
               travel_mm: [140, 150, 160, 170]
               wheel_size: [29, 27.5]
           - label: Ultimate Flight Attendant
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Linear XL, spring_de: Linear XL }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Linear XL, spring_de: Linear XL, spring_fr: Linear XL, spring_it: Linear XL, spring_es: Linear XL, spring_pt: Linear XL }
             adjustments: *lyrik_e1_air_spring
             options:
               damper: [charger_3_2]
@@ -1942,9 +2486,13 @@ nodes:
               wheel_size: [29, 27.5]
             note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
             note_de: Die Druckstufe wird elektronisch vom Flight Attendant eingestellt; das Zugstufenrad bleibt manuell
+            note_fr: La compression est réglée électroniquement par Flight Attendant ; la molette de détente reste manuelle
+            note_it: La compressione è regolata elettronicamente da Flight Attendant; la manopola del ritorno resta manuale
+            note_es: La compresión la regula electrónicamente Flight Attendant; la rueda de rebote sigue siendo manual
+            note_pt: A compressão é ajustada eletronicamente pelo Flight Attendant; o seletor de retorno continua manual
           - label: Select+
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Linear XL, spring_de: Linear XL }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Linear XL, spring_de: Linear XL, spring_fr: Linear XL, spring_it: Linear XL, spring_es: Linear XL, spring_pt: Linear XL }
             adjustments: *lyrik_e1_air_spring
             options:
               damper: [charger_3_2]
@@ -1959,17 +2507,17 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &lyrik_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 163 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 5, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 163 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [charger_3_1]
               travel_mm: [140, 150, 160]
               wheel_size: [29, 27.5]
           - label: Ultimate Flight Attendant
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *lyrik_air_spring
             options:
               damper: [charger_3_1]
@@ -1977,9 +2525,13 @@ nodes:
               wheel_size: [29, 27.5]
             note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
             note_de: Die Druckstufe wird elektronisch vom Flight Attendant eingestellt; das Zugstufenrad bleibt manuell
+            note_fr: La compression est réglée électroniquement par Flight Attendant ; la molette de détente reste manuelle
+            note_it: La compressione è regolata elettronicamente da Flight Attendant; la manopola del ritorno resta manuale
+            note_es: La compresión la regula electrónicamente Flight Attendant; la rueda de rebote sigue siendo manual
+            note_pt: A compressão é ajustada eletronicamente pelo Flight Attendant; o seletor de retorno continua manual
           - label: Select+
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *lyrik_air_spring
             options:
               damper: [charger_3_1]
@@ -1987,7 +2539,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Base
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *lyrik_air_spring
             options:
               damper: [rush_rc]
@@ -1995,6 +2547,10 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2023–2024"
         level: generation
         id: "2023"
@@ -2004,7 +2560,7 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *lyrik_air_spring
             options:
               damper: [charger_3]
@@ -2012,7 +2568,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Select+
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *lyrik_air_spring
             options:
               damper: [charger_3]
@@ -2020,7 +2576,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Base
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *lyrik_air_spring
             options:
               damper: [rush_rc]
@@ -2028,11 +2584,19 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
 
   - label: "ZEB"
     level: model
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     setup_guide: https://www.sram.com/en/rockshox/learn/charger-3-setup
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
@@ -2046,17 +2610,17 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Linear XL, spring_de: Linear XL }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Linear XL, spring_de: Linear XL, spring_fr: Linear XL, spring_it: Linear XL, spring_es: Linear XL, spring_pt: Linear XL }
             adjustments: &zeb_b1_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150mm travel, 4 at 160-170mm, 3 at 180mm", notes_de: "Bottomless Tokens; maximal 5 bei 150mm Federweg, 4 bei 160-170mm, 3 bei 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150mm travel, 4 at 160-170mm, 3 at 180mm", notes_de: "Bottomless Tokens; maximal 5 bei 150mm Federweg, 4 bei 160-170mm, 3 bei 180mm", notes_fr: "Bottomless Tokens ; 5 maximum à 150 mm de débattement, 4 à 160-170 mm, 3 à 180 mm", notes_it: "Bottomless Token; massimo 5 a 150 mm di escursione, 4 a 160-170 mm, 3 a 180 mm", notes_es: "Bottomless Tokens; máximo 5 con 150 mm de recorrido, 4 con 160-170 mm, 3 con 180 mm", notes_pt: "Bottomless Tokens; máximo de 5 com 150 mm de curso, 4 com 160-170 mm, 3 com 180 mm" }
             options:
               damper: [charger_3_2]
               travel_mm: [150, 160, 170, 180]
               wheel_size: [29, 27.5]
           - label: Ultimate Flight Attendant
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Linear XL, spring_de: Linear XL }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Linear XL, spring_de: Linear XL, spring_fr: Linear XL, spring_it: Linear XL, spring_es: Linear XL, spring_pt: Linear XL }
             adjustments: *zeb_b1_air_spring
             options:
               damper: [charger_3_2]
@@ -2064,9 +2628,13 @@ nodes:
               wheel_size: [29, 27.5]
             note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
             note_de: Die Druckstufe wird elektronisch vom Flight Attendant eingestellt; das Zugstufenrad bleibt manuell
+            note_fr: La compression est réglée électroniquement par Flight Attendant ; la molette de détente reste manuelle
+            note_it: La compressione è regolata elettronicamente da Flight Attendant; la manopola del ritorno resta manuale
+            note_es: La compresión la regula electrónicamente Flight Attendant; la rueda de rebote sigue siendo manual
+            note_pt: A compressão é ajustada eletronicamente pelo Flight Attendant; o seletor de retorno continua manual
           - label: Select+
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Linear XL, spring_de: Linear XL }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Linear XL, spring_de: Linear XL, spring_fr: Linear XL, spring_it: Linear XL, spring_es: Linear XL, spring_pt: Linear XL }
             adjustments: *zeb_b1_air_spring
             options:
               damper: [charger_3_2]
@@ -2081,17 +2649,17 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &zeb_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 148 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150-160mm travel, 4 at 170-190mm", notes_de: "Bottomless Tokens; maximal 5 bei 150-160mm Federweg, 4 bei 170-190mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 148 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150-160mm travel, 4 at 170-190mm", notes_de: "Bottomless Tokens; maximal 5 bei 150-160mm Federweg, 4 bei 170-190mm", notes_fr: "Bottomless Tokens ; 5 maximum à 150-160 mm de débattement, 4 à 170-190 mm", notes_it: "Bottomless Token; massimo 5 a 150-160 mm di escursione, 4 a 170-190 mm", notes_es: "Bottomless Tokens; máximo 5 con 150-160 mm de recorrido, 4 con 170-190 mm", notes_pt: "Bottomless Tokens; máximo de 5 com 150-160 mm de curso, 4 com 170-190 mm" }
             options:
               damper: [charger_3_1]
               travel_mm: [150, 160, 170, 180, 190]
               wheel_size: [29, 27.5]
           - label: Ultimate Flight Attendant
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *zeb_air_spring
             options:
               damper: [charger_3_1]
@@ -2099,9 +2667,13 @@ nodes:
               wheel_size: [29, 27.5]
             note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
             note_de: Die Druckstufe wird elektronisch vom Flight Attendant eingestellt; das Zugstufenrad bleibt manuell
+            note_fr: La compression est réglée électroniquement par Flight Attendant ; la molette de détente reste manuelle
+            note_it: La compressione è regolata elettronicamente da Flight Attendant; la manopola del ritorno resta manuale
+            note_es: La compresión la regula electrónicamente Flight Attendant; la rueda de rebote sigue siendo manual
+            note_pt: A compressão é ajustada eletronicamente pelo Flight Attendant; o seletor de retorno continua manual
           - label: Select+
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *zeb_air_spring
             options:
               damper: [charger_3_1]
@@ -2109,7 +2681,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Base
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *zeb_air_spring
             options:
               damper: [rush_rc]
@@ -2117,6 +2689,10 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2023–2024"
         level: generation
         id: "2023"
@@ -2126,7 +2702,7 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *zeb_air_spring
             options:
               damper: [charger_3]
@@ -2134,7 +2710,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Select+
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *zeb_air_spring
             options:
               damper: [charger_3]
@@ -2142,7 +2718,7 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Base
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *zeb_air_spring
             options:
               damper: [rush_rc]
@@ -2150,11 +2726,19 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
 
   - label: "Psylo"
     level: model
     category: Trail
     category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     tasks:
       fork:full_service: *rockshox_full_service
     children:
@@ -2167,21 +2751,29 @@ nodes:
         children:
           - label: Gold RC
             level: trim
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 194 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 194 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [isolator]
               travel_mm: [130, 140, 150, 160]
               wheel_size: [29, 27.5]
             note: DebonAir air spring
             note_de: DebonAir-Luftfeder
+            note_fr: Ressort pneumatique DebonAir
+            note_it: Molla pneumatica DebonAir
+            note_es: Muelle neumático DebonAir
+            note_pt: Mola a ar DebonAir
 
   - label: "Domain"
     level: model
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -2195,30 +2787,46 @@ nodes:
         children:
           - label: Gold RC
             level: trim
-            specs: { stanchion: 38mm, stanchion_de: 38mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 148 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 148 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [isolator]
               travel_mm: [150, 160, 170, 180]
               wheel_size: [29, 27.5]
             note: DebonAir air spring in a 38mm chassis
             note_de: DebonAir-Luftfeder in einem 38mm-Chassis
+            note_fr: Ressort pneumatique DebonAir dans un châssis de 38 mm
+            note_it: Molla pneumatica DebonAir in un telaio da 38 mm
+            note_es: Muelle neumático DebonAir en un chasis de 38 mm
+            note_pt: Mola a ar DebonAir em um chassi de 38 mm
 
   - label: "BoXXer"
     level: model
     category: Downhill
     category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     tasks:
       fork:full_service: *rockshox_full_service
       fork:air_spring_service:
         name: Air spring service
         name_de: Luftfeder-Service
+        name_fr: Révision du ressort pneumatique
+        name_it: Manutenzione della molla pneumatica
+        name_es: Mantenimiento del muelle neumático
+        name_pt: Revisão da mola a ar
         interval: { moving_time_h: 100 }
         preselected: true
         source: RockShox service intervals
         source_de: RockShox-Serviceintervalle
+        source_fr: Intervalles de révision RockShox
+        source_it: Intervalli di manutenzione RockShox
+        source_es: Intervalos de mantenimiento RockShox
+        source_pt: Intervalos de revisão RockShox
     children:
       - label: "2027"
         level: generation
@@ -2229,21 +2837,25 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 38mm (dual-crown), stanchion_de: 38mm (Doppelbrücke), spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm (dual-crown), stanchion_de: 38mm (Doppelbrücke), stanchion_fr: 38mm (double té), stanchion_it: 38mm (doppia piastra), stanchion_es: 38mm (doble corona), stanchion_pt: 38mm (dupla coroa), spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44, 48, 52]
             adjustments: &boxxer_linear_xl_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 260 }
-              - &boxxer_volume_spacers { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 260 }
+              - &boxxer_volume_spacers { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [charger_3_2]
               travel_mm: [180, 190, 200]
               wheel_size: [29, 27.5]
             note: Linear XL air spring paired with the higher-damping Charger 3.2
             note_de: Linear-XL-Luftfeder mit dem stärker dämpfenden Charger 3.2
+            note_fr: Ressort pneumatique Linear XL associé au Charger 3.2, plus amorti
+            note_it: Molla pneumatica Linear XL abbinata al Charger 3.2, più smorzato
+            note_es: Muelle neumático Linear XL combinado con el Charger 3.2, de más amortiguación
+            note_pt: Mola a ar Linear XL combinada com o Charger 3.2, de mais amortecimento
           - label: Select
             level: trim
             draft: true
-            specs: { stanchion: 38mm (dual-crown), stanchion_de: 38mm (Doppelbrücke), spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm (dual-crown), stanchion_de: 38mm (Doppelbrücke), stanchion_fr: 38mm (double té), stanchion_it: 38mm (doppia piastra), stanchion_es: 38mm (doble corona), stanchion_pt: 38mm (dupla coroa), spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44, 48, 52]
             adjustments: *boxxer_linear_xl_air_spring
             options:
@@ -2252,6 +2864,10 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2024–2026"
         level: generation
         id: "2024"
@@ -2262,10 +2878,10 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 38mm (dual-crown), stanchion_de: 38mm (Doppelbrücke), spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm (dual-crown), stanchion_de: 38mm (Doppelbrücke), stanchion_fr: 38mm (double té), stanchion_it: 38mm (doppia piastra), stanchion_es: 38mm (doble corona), stanchion_pt: 38mm (dupla coroa), spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44, 48, 52]
             adjustments: &boxxer_d1_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
               - *boxxer_volume_spacers
             options:
               damper: [charger_3_1, charger_3]
@@ -2279,9 +2895,25 @@ nodes:
               - Chassis mit Doppelbrücke, 38mm Standrohre, 180/190/200mm Federweg
               - Brücken-Offsets von 44, 48 und 52mm
               - DebonAir+-Luftfeder mit einem ButterCup an der Dämpferstange
+            note_fr: |-
+              - Châssis à double té, tubes de 38 mm, débattement de 180/190/200 mm
+              - Déports de té de 44, 48 et 52 mm
+              - Ressort pneumatique DebonAir+ avec un ButterCup sur la tige d’amortisseur
+            note_it: |-
+              - Telaio a doppia piastra, steli da 38 mm, escursione di 180/190/200 mm
+              - Offset delle piastre di 44, 48 e 52 mm
+              - Molla pneumatica DebonAir+ con un ButterCup sullo stelo dell’ammortizzatore
+            note_es: |-
+              - Chasis de doble corona, barras de 38 mm, recorrido de 180/190/200 mm
+              - Offsets de corona de 44, 48 y 52 mm
+              - Muelle neumático DebonAir+ con un ButterCup en el vástago del amortiguador
+            note_pt: |-
+              - Chassi de dupla coroa, bengalas de 38 mm, curso de 180/190/200 mm
+              - Offsets de coroa de 44, 48 e 52 mm
+              - Mola a ar DebonAir+ com um ButterCup na haste do amortecedor
           - label: Select
             level: trim
-            specs: { stanchion: 38mm (dual-crown), stanchion_de: 38mm (Doppelbrücke), spring: Air, spring_de: Luft }
+            specs: { stanchion: 38mm (dual-crown), stanchion_de: 38mm (Doppelbrücke), stanchion_fr: 38mm (double té), stanchion_it: 38mm (doppia piastra), stanchion_es: 38mm (doble corona), stanchion_pt: 38mm (dupla coroa), spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44, 48, 52]
             adjustments: *boxxer_d1_air_spring
             options:
@@ -2290,6 +2922,10 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2019–2023"
         level: generation
         id: "2019"
@@ -2301,11 +2937,11 @@ nodes:
         children:
           - label: Ultimate
             level: trim
-            specs: { stanchion: 35mm (dual-crown), stanchion_de: 35mm (Doppelbrücke), spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm (dual-crown), stanchion_de: 35mm (Doppelbrücke), stanchion_fr: 35mm (double té), stanchion_it: 35mm (doppia piastra), stanchion_es: 35mm (doble corona), stanchion_pt: 35mm (dupla coroa), spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [36, 46, 56]
             adjustments: &boxxer_c2_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 200 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 200 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [charger_2_1_rc2]
               travel_mm: [180, 190, 200]
@@ -2318,9 +2954,25 @@ nodes:
               - Chassis mit Doppelbrücke, 35mm Standrohre, 180/190/200mm Federweg
               - Brücken-Offsets von 36 und 46mm (27.5") oder 46 und 56mm (29")
               - DebonAir-Luftfeder
+            note_fr: |-
+              - Châssis à double té, tubes de 35 mm, débattement de 180/190/200 mm
+              - Déports de té de 36 et 46 mm (27,5") ou 46 et 56 mm (29")
+              - Ressort pneumatique DebonAir
+            note_it: |-
+              - Telaio a doppia piastra, steli da 35 mm, escursione di 180/190/200 mm
+              - Offset delle piastre di 36 e 46 mm (27,5") o 46 e 56 mm (29")
+              - Molla pneumatica DebonAir
+            note_es: |-
+              - Chasis de doble corona, barras de 35 mm, recorrido de 180/190/200 mm
+              - Offsets de corona de 36 y 46 mm (27,5") o 46 y 56 mm (29")
+              - Muelle neumático DebonAir
+            note_pt: |-
+              - Chassi de dupla coroa, bengalas de 35 mm, curso de 180/190/200 mm
+              - Offsets de coroa de 36 e 46 mm (27,5") ou 46 e 56 mm (29")
+              - Mola a ar DebonAir
           - label: Select
             level: trim
-            specs: { stanchion: 35mm (dual-crown), stanchion_de: 35mm (Doppelbrücke), spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm (dual-crown), stanchion_de: 35mm (Doppelbrücke), stanchion_fr: 35mm (double té), stanchion_it: 35mm (doppia piastra), stanchion_es: 35mm (doble corona), stanchion_pt: 35mm (dupla coroa), spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [36, 46, 56]
             adjustments: *boxxer_c2_air_spring
             options:
@@ -2329,11 +2981,19 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM only
             note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
 
   - label: "Rudy XPLR"
     level: model
     category: Gravel / Bikepacking
     category_de: Gravel / Bikepacking
+    category_fr: Gravel / Bikepacking
+    category_it: Gravel / Bikepacking
+    category_es: Gravel / Bikepacking
+    category_pt: Gravel / Bikepacking
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -2348,21 +3008,29 @@ nodes:
           - label: Ultimate
             level: trim
             draft: true
-            specs: { stanchion: 30mm, stanchion_de: 30mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 30mm, stanchion_de: 30mm, stanchion_fr: 30mm, stanchion_it: 30mm, stanchion_es: 30mm, stanchion_pt: 30mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [45, 51]
             adjustments: &rudy_air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 200 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 200 }
             options:
               damper: [charger_race_day_2, charger_race_day]
               travel_mm: [30, 40]
               wheel_size: ["700c"]
             note: Solo Air spring; no Bottomless Tokens are offered for this chassis
             note_de: Solo-Air-Luftfeder; für dieses Chassis werden keine Bottomless Tokens angeboten
+            note_fr: Ressort pneumatique Solo Air ; aucun Bottomless Token n’est proposé pour ce châssis
+            note_it: Molla pneumatica Solo Air; per questo telaio non sono previsti Bottomless Token
+            note_es: Muelle neumático Solo Air; no hay Bottomless Tokens para este chasis
+            note_pt: Mola a ar Solo Air; não há Bottomless Tokens para este chassi
 
   - label: "Rudy XL"
     level: model
     category: Gravel / Bikepacking
     category_de: Gravel / Bikepacking
+    category_fr: Gravel / Bikepacking
+    category_it: Gravel / Bikepacking
+    category_es: Gravel / Bikepacking
+    category_pt: Gravel / Bikepacking
     tasks:
       fork:full_service: *rockshox_full_service
     children:
@@ -2374,11 +3042,15 @@ nodes:
         guide: rockshox_rudy_xl_2027
         note: Fits 29x2.2" tires max
         note_de: Passt für Reifen bis maximal 29x2.2"
+        note_fr: Accepte des pneus de 29x2,2" max.
+        note_it: Monta copertoni fino a 29x2,2"
+        note_es: Admite neumáticos de 29x2,2" como máximo
+        note_pt: Aceita pneus de até 29x2,2"
         children:
           - label: Ultimate
             level: trim
             draft: true
-            specs: { stanchion: 30mm, stanchion_de: 30mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 30mm, stanchion_de: 30mm, stanchion_fr: 30mm, stanchion_it: 30mm, stanchion_es: 30mm, stanchion_pt: 30mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *rudy_air_spring
             options:
               damper: [charger_race_day_2]
@@ -2389,6 +3061,10 @@ nodes:
     level: model
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -2403,22 +3079,30 @@ nodes:
           - label: RC
             level: trim
             draft: true
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [37, 42, 44, 46, 51]
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150-160mm travel, 4 at 170-180mm", notes_de: "Bottomless Tokens; maximal 5 bei 150-160mm Federweg, 4 bei 170-180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150-160mm travel, 4 at 170-180mm", notes_de: "Bottomless Tokens; maximal 5 bei 150-160mm Federweg, 4 bei 170-180mm", notes_fr: "Bottomless Tokens ; 5 maximum à 150-160 mm de débattement, 4 à 170-180 mm", notes_it: "Bottomless Token; massimo 5 a 150-160 mm di escursione, 4 a 170-180 mm", notes_es: "Bottomless Tokens; máximo 5 con 150-160 mm de recorrido, 4 con 170-180 mm", notes_pt: "Bottomless Tokens; máximo de 5 com 150-160 mm de curso, 4 com 170-180 mm" }
             options:
               damper: [motion_control_rc]
               travel_mm: [150, 160, 170, 180]
               wheel_size: [29, 27.5]
             note: Burly Lyrik chassis with a simpler damper; DebonAir or Dual Position Air spring
             note_de: Burly-Lyrik-Chassis mit einfacherem Dämpfer; DebonAir- oder Dual-Position-Air-Luftfeder
+            note_fr: Châssis Lyrik robuste avec un amortisseur plus simple ; ressort pneumatique DebonAir ou Dual Position Air
+            note_it: Robusto telaio Lyrik con un ammortizzatore più semplice; molla pneumatica DebonAir o Dual Position Air
+            note_es: Robusto chasis Lyrik con un amortiguador más sencillo; muelle neumático DebonAir o Dual Position Air
+            note_pt: Chassi Lyrik robusto com um amortecedor mais simples; mola a ar DebonAir ou Dual Position Air
 
   - label: "Revelation"
     level: model
     category: Trail
     category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -2433,22 +3117,30 @@ nodes:
           - label: RC
             level: trim
             draft: true
-            specs: { stanchion: 35mm, stanchion_de: 35mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [37, 42, 46, 51]
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm, 4 at 150-160mm", notes_de: "Bottomless Tokens; maximal 6 bei 120-130mm Federweg, 5 bei 140mm, 4 bei 150-160mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm, 4 at 150-160mm", notes_de: "Bottomless Tokens; maximal 6 bei 120-130mm Federweg, 5 bei 140mm, 4 bei 150-160mm", notes_fr: "Bottomless Tokens ; 6 maximum à 120-130 mm de débattement, 5 à 140 mm, 4 à 150-160 mm", notes_it: "Bottomless Token; massimo 6 a 120-130 mm di escursione, 5 a 140 mm, 4 a 150-160 mm", notes_es: "Bottomless Tokens; máximo 6 con 120-130 mm de recorrido, 5 con 140 mm, 4 con 150-160 mm", notes_pt: "Bottomless Tokens; máximo de 6 com 120-130 mm de curso, 5 com 140 mm, 4 com 150-160 mm" }
             options:
               damper: [motion_control_rc]
               travel_mm: [120, 130, 140, 150, 160]
               wheel_size: [29, 27.5]
             note: DebonAir air spring in a 35mm trail chassis
             note_de: DebonAir-Luftfeder in einem 35mm-Trail-Chassis
+            note_fr: Ressort pneumatique DebonAir dans un châssis trail de 35 mm
+            note_it: Molla pneumatica DebonAir in un telaio trail da 35 mm
+            note_es: Muelle neumático DebonAir en un chasis trail de 35 mm
+            note_pt: Mola a ar DebonAir em um chassi trail de 35 mm
 
   - label: "Recon Gold"
     level: model
     category: XC / Trail
     category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -2462,17 +3154,21 @@ nodes:
         children:
           - label: Gold RL
             level: trim
-            specs: { stanchion: 32mm, stanchion_de: 32mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [37, 42, 46, 51]
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [motion_control_rl]
               travel_mm: [80, 100, 120, 130, 140, 150]
               wheel_size: [29, 27.5]
             note: DebonAir air spring; remote lockout compatible
             note_de: DebonAir-Luftfeder; kompatibel mit Fernbedienungs-Lockout
+            note_fr: Ressort pneumatique DebonAir ; compatible avec un lockout à distance
+            note_it: Molla pneumatica DebonAir; compatibile con lockout remoto
+            note_es: Muelle neumático DebonAir; compatible con lockout remoto
+            note_pt: Mola a ar DebonAir; compatível com lockout remoto
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

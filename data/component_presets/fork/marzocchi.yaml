@@ -50,9 +50,13 @@ option_values:
       description_de: >
         Dämpfer der Bomber Z1 (Air), Bomber Z1 Coil und Bomber Z2: ein einfacher
         Sweep-Druckstufenhebel und ein Zugstufenrad mit Klicks.
+      description_fr: "Amortisseur des Bomber Z1 (Air), Bomber Z1 Coil et Bomber Z2 : un simple levier de compression à balayage et une molette de détente à clics."
+      description_it: "Ammortizzatore delle Bomber Z1 (Air), Bomber Z1 Coil e Bomber Z2: una semplice leva di compressione a corsa continua e una manopola del ritorno a scatti."
+      description_es: "Amortiguador de las Bomber Z1 (Air), Bomber Z1 Coil y Bomber Z2: una sencilla palanca de compresión de barrido y una rueda de rebote con clics."
+      description_pt: "Amortecedor das Bomber Z1 (Air), Bomber Z1 Coil e Bomber Z2: uma alavanca de compressão de varredura simples e um seletor de retorno com cliques."
       adjustments: &sweep_2pos
-        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], notes: "Sweep lever, continuously variable between Open and Firm", notes_de: "Sweep-Hebel, stufenlos zwischen Open und Firm" }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], options_fr: [Ouvert, Ferme], options_it: [Aperto, Rigido], options_es: [Abierto, Firme], options_pt: [Aberto, Firme], notes: "Sweep lever, continuously variable between Open and Firm", notes_de: "Sweep-Hebel, stufenlos zwischen Open und Firm", notes_fr: "Levier à balayage, variable en continu entre Open et Firm", notes_it: "Leva a corsa continua, variabile senza scatti tra Open e Firm", notes_es: "Palanca de barrido, variable de forma continua entre Open y Firm", notes_pt: "Alavanca de varredura, variável continuamente entre Open e Firm" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compté depuis la position entièrement fermée (la plus lente) ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Contato a partire dalla posizione completamente chiusa (la più lenta); massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Contado desde la posición totalmente cerrada (la más lenta); máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Contado a partir da posição totalmente fechada (a mais lenta); máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
       source:
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
@@ -71,6 +75,10 @@ option_values:
       name: GRIP
       description: Damper on Bomber DJ with a sweep compression lever and a clicked rebound dial.
       description_de: Dämpfer der Bomber DJ mit Sweep-Druckstufenhebel und Zugstufenrad mit Klicks.
+      description_fr: Amortisseur de la Bomber DJ avec un levier de compression à balayage et une molette de détente à clics.
+      description_it: Ammortizzatore della Bomber DJ con una leva di compressione a corsa continua e una manopola del ritorno a scatti.
+      description_es: Amortiguador de la Bomber DJ con una palanca de compresión de barrido y una rueda de rebote con clics.
+      description_pt: Amortecedor da Bomber DJ com uma alavanca de compressão de varredura e um seletor de retorno com cliques.
       adjustments: *sweep_2pos
       source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
       note: Same spec as `rail`, per the shared 2020 "Bomber Z1 & DJ" tuning guide, which calls it GRIP.
@@ -83,9 +91,13 @@ option_values:
       description_de: >
         Dämpfer der Bomber 58 mit Doppelbrücke: ein Low-Speed-Druckstufenrad mit
         Klicks plus ein Zugstufenrad mit Klicks.
+      description_fr: "Amortisseur de la Bomber 58 à double té : une molette de compression basse vitesse à clics plus une molette de détente à clics."
+      description_it: "Ammortizzatore della Bomber 58 a doppia piastra: una manopola di compressione a bassa velocità a scatti più una manopola del ritorno a scatti."
+      description_es: "Amortiguador de la Bomber 58 de doble corona: una rueda de compresión de baja velocidad con clics más una rueda de rebote con clics."
+      description_pt: "Amortecedor da Bomber 58 de dupla coroa: um seletor de compressão de baixa velocidade com cliques mais um seletor de retorno com cliques."
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: 8, notes: "Low-Speed Compression; counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen" }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 8, notes: "Low-Speed Compression; counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt, notes_fr: Compression basse vitesse ; comptée depuis la position entièrement fermée (la plus ferme), notes_it: Compressione a bassa velocità; contata a partire dalla posizione completamente chiusa (la più rigida), notes_es: Compresión de baja velocidad; contada desde la posición totalmente cerrada (la más firme), notes_pt: Compressão de baixa velocidade; contada a partir da posição totalmente fechada (a mais firme) }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen (am langsamsten) gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compté depuis la position entièrement fermée (la plus lente) ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Contato a partire dalla posizione completamente chiusa (la più lenta); massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Contado desde la posición totalmente cerrada (la más lenta); máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Contado a partir da posição totalmente fechada (a mais lenta); máximo estimado, confira o seu seletor e edite-o se for diferente" }
       source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
       note: >-
         Official Bomber 58 tuning guide (605-00-174): the low-speed compression
@@ -105,6 +117,10 @@ guides:
   marzocchi_z1_2024:
     label: Marzocchi Bomber Z1 owner's guide (2024)
     label_de: Marzocchi Bomber Z1 Bedienungsanleitung (2024)
+    label_fr: Manuel d’utilisation Marzocchi Bomber Z1 (2024)
+    label_it: Manuale d’uso Marzocchi Bomber Z1 (2024)
+    label_es: Manual del usuario Marzocchi Bomber Z1 (2024)
+    label_pt: Manual do usuário Marzocchi Bomber Z1 (2024)
     source: https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
     rules:
       - target: pressure
@@ -127,7 +143,7 @@ guides:
           170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
           220-230: 3, 230-240: 2, 240-250: 1
         }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de Marzocchi, 20 % la limite confortable", note_it: "15 % è il limite rigido di Marzocchi, 20 % quello confortevole", note_es: 15 % es el extremo firme de Marzocchi y 20 % el cómodo, note_pt: 15 % é o extremo firme da Marzocchi e 20 % o confortável }
       # Factory spacers for the catalog travels; the guide prints no 100 mm row.
       - target: volume_spacers
         input: travel_mm
@@ -138,6 +154,10 @@ guides:
   marzocchi_z1_dj_2020:
     label: Marzocchi Bomber Z1 and DJ tuning guide (2020)
     label_de: Marzocchi Bomber Z1 und DJ Tuning-Anleitung (2020)
+    label_fr: Guide de réglage Marzocchi Bomber Z1 et DJ (2020)
+    label_it: Guida alla taratura Marzocchi Bomber Z1 e DJ (2020)
+    label_es: Guía de tarado Marzocchi Bomber Z1 y DJ (2020)
+    label_pt: Guia de calibragem Marzocchi Bomber Z1 e DJ (2020)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
     rules:
       - target: pressure
@@ -149,12 +169,16 @@ guides:
         input: rider_weight
         input_unit: lb
         rows: *marzocchi_rebound
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de Marzocchi, 20 % la limite confortable", note_it: "15 % è il limite rigido di Marzocchi, 20 % quello confortevole", note_es: 15 % es el extremo firme de Marzocchi y 20 % el cómodo, note_pt: 15 % é o extremo firme da Marzocchi e 20 % o confortável }
       - { target: volume_spacers, value: 8 }
 
   marzocchi_z2_2019:
     label: Marzocchi Bomber Z2 tuning guide (2019)
     label_de: Marzocchi Bomber Z2 Tuning-Anleitung (2019)
+    label_fr: Guide de réglage Marzocchi Bomber Z2 (2019)
+    label_it: Guida alla taratura Marzocchi Bomber Z2 (2019)
+    label_es: Guía de tarado Marzocchi Bomber Z2 (2019)
+    label_pt: Guia de calibragem Marzocchi Bomber Z2 (2019)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
     # Standard column only: the E-Bike+ column waits for an e-bike option (#72).
     rules:
@@ -175,7 +199,7 @@ guides:
           170-180: 8, 180-190: 8, 190-200: 7, 200-210: 7, 210-220: 6,
           220-230: 4, 230-240: 3, 240-250: 2
         }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de Marzocchi, 20 % la limite confortable", note_it: "15 % è il limite rigido di Marzocchi, 20 % quello confortevole", note_es: 15 % es el extremo firme de Marzocchi y 20 % el cómodo, note_pt: 15 % é o extremo firme da Marzocchi e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 120: 2, 130: 1, 140: 0, 150: 0 }
@@ -183,6 +207,10 @@ guides:
   marzocchi_58_2017:
     label: Marzocchi Bomber 58 tuning guide (2017)
     label_de: Marzocchi Bomber 58 Tuning-Anleitung (2017)
+    label_fr: Guide de réglage Marzocchi Bomber 58 (2017)
+    label_it: Guida alla taratura Marzocchi Bomber 58 (2017)
+    label_es: Guía de tarado Marzocchi Bomber 58 (2017)
+    label_pt: Guia de calibragem Marzocchi Bomber 58 (2017)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
     rules:
       - target: pressure
@@ -199,7 +227,7 @@ guides:
         input_unit: lb
         rows: *marzocchi_rebound
       - { target: compression, value: 4 }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von Marzocchi, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de Marzocchi, 20 % la limite confortable", note_it: "15 % è il limite rigido di Marzocchi, 20 % quello confortevole", note_es: 15 % es el extremo firme de Marzocchi y 20 % el cómodo, note_pt: 15 % é o extremo firme da Marzocchi e 20 % o confortável }
       - { target: volume_spacers, value: 4 }
 
 # --------------------------------------------------------------------------
@@ -212,8 +240,12 @@ nodes:
     level: model
     category: Trail / All-Mountain
     category_de: Trail / All-Mountain
+    category_fr: Trail / All-Mountain
+    category_it: Trail / All-Mountain
+    category_es: Trail / All-Mountain
+    category_pt: Trail / All-Mountain
     tasks: &marzocchi_service
-      fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide, source_de: Marzocchi-Handbuch }
+      fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide, source_de: Marzocchi-Handbuch, source_fr: Manuel d’utilisation Marzocchi, source_it: Manuale d’uso Marzocchi, source_es: Manual del usuario Marzocchi, source_pt: Manual do usuário Marzocchi }
     children:
       - label: "2025–2026"
         level: generation
@@ -225,23 +257,31 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: "36mm, Black Anodized", stanchion_de: "36mm, schwarz eloxiert", spring: Air, spring_de: Luft }
+            specs: { stanchion: "36mm, Black Anodized", stanchion_de: "36mm, schwarz eloxiert", stanchion_fr: "36mm, anodisé noir", stanchion_it: "36mm, anodizzato nero", stanchion_es: "36mm, anodizado negro", stanchion_pt: "36mm, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: 44
             axle: 15QRx110
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 8, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5", notes_de: "Aufklipp-Spacer; das Maximum hängt vom Federweg ab: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 8, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5", notes_de: "Aufklipp-Spacer; das Maximum hängt vom Federweg ab: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5", notes_fr: "Entretoises à clipser ; le maximum dépend du débattement : 130/140 mm 8, 150/160 mm 7, 170 mm 6, 180 mm 5", notes_it: "Distanziali a clip; il massimo dipende dall’escursione: 130/140 mm 8, 150/160 mm 7, 170 mm 6, 180 mm 5", notes_es: "Espaciadores de clip; el máximo depende del recorrido: 130/140 mm 8, 150/160 mm 7, 170 mm 6, 180 mm 5", notes_pt: "Espaçadores de encaixe; o máximo depende do curso: 130/140 mm 8, 150/160 mm 7, 170 mm 6, 180 mm 5" }
             options:
               damper: [rail]
               travel_mm: [100, 150, 160]
               wheel_size: [29, 27.5]
             note: 180mm post mount, max air pressure 120psi.
             note_de: 180mm Post Mount, maximaler Luftdruck 120psi.
+            note_fr: Post mount 180 mm, pression d’air max. 120 psi.
+            note_it: Post mount da 180 mm, pressione dell’aria max. 120 psi.
+            note_es: Post mount de 180 mm, presión de aire máx. 120 psi.
+            note_pt: Post mount de 180 mm, pressão de ar máx. 120 psi.
 
   - label: "Z1 Coil"
     level: model
     category: Trail / All-Mountain
     category_de: Trail / All-Mountain
+    category_fr: Trail / All-Mountain
+    category_it: Trail / All-Mountain
+    category_es: Trail / All-Mountain
+    category_pt: Trail / All-Mountain
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -254,11 +294,11 @@ nodes:
         children:
           - label: Coil
             level: trim
-            specs: { stanchion: "36mm, Black Anodized", stanchion_de: "36mm, schwarz eloxiert", spring: Coil, spring_de: Stahlfeder }
+            specs: { stanchion: "36mm, Black Anodized", stanchion_de: "36mm, schwarz eloxiert", stanchion_fr: "36mm, anodisé noir", stanchion_it: "36mm, anodizzato nero", stanchion_es: "36mm, anodizado negro", stanchion_pt: "36mm, anodizado preto", spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             offset_mm: 44
             axle: 15QRx110
             adjustments:
-              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [rail]
               travel_mm: [160]
@@ -274,11 +314,19 @@ nodes:
               Fahrergewicht farbcodiert (Violett/Blau/Grün/Gelb ~
               Weich/Medium/Fest/Extrafest); Marzocchi gibt die tatsächliche
               Federrate in lbs/in je Farbe nicht an.
+            note_fr: Débattement réglable à la baisse par paliers de 10 mm avec les entretoises internes fournies. Ressorts vendus séparément, repérés par couleur selon le poids du pilote (Violet/Bleu/Vert/Jaune ~ Souple/Moyen/Ferme/X-Ferme) ; Marzocchi ne publie pas la raideur réelle en lbs/in de chaque couleur.
+            note_it: Escursione regolabile verso il basso a passi da 10 mm con i distanziali interni in dotazione. Molle vendute separatamente, identificate dal colore in base al peso del rider (Viola/Blu/Verde/Giallo ~ Morbida/Media/Rigida/X-Rigida); Marzocchi non pubblica la rigidità reale in lbs/in di ciascun colore.
+            note_es: Recorrido reducible en pasos de 10 mm con los espaciadores internos incluidos. Muelles vendidos por separado, identificados por color según el peso del rider (Morado/Azul/Verde/Amarillo ~ Blando/Medio/Firme/X-Firme); Marzocchi no publica la rigidez real en lbs/in de cada color.
+            note_pt: Curso ajustável para baixo em passos de 10 mm com os espaçadores internos fornecidos. Molas vendidas separadamente, identificadas por cor conforme o peso do rider (Roxo/Azul/Verde/Amarelo ~ Macia/Média/Firme/X-Firme); a Marzocchi não publica a rigidez real em lbs/in de cada cor.
 
   - label: "Z2"
     level: model
     category: Trail
     category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -291,12 +339,12 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: "34mm, Black Anodized", stanchion_de: "34mm, schwarz eloxiert", spring: Air, spring_de: Luft }
+            specs: { stanchion: "34mm, Black Anodized", stanchion_de: "34mm, schwarz eloxiert", stanchion_fr: "34mm, anodisé noir", stanchion_it: "34mm, anodizzato nero", stanchion_es: "34mm, anodizado negro", stanchion_pt: "34mm, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: 44
             axle: 15QRx110
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 140, notes: "Maximum 120 psi; 140 psi on the E-Bike+ tune", notes_de: Maximal 120 psi; 140 psi bei der E-Bike+-Abstimmung }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, max: 6, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 100/110mm 6, 120/130mm 5, 140/150mm 4", notes_de: "Aufklipp-Spacer; das Maximum hängt vom Federweg ab: 100/110mm 6, 120/130mm 5, 140/150mm 4" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140, notes: "Maximum 120 psi; 140 psi on the E-Bike+ tune", notes_de: Maximal 120 psi; 140 psi bei der E-Bike+-Abstimmung, notes_fr: Maximum 120 psi ; 140 psi avec le tarage E-Bike+, notes_it: Massimo 120 psi; 140 psi con la taratura E-Bike+, notes_es: Máximo 120 psi; 140 psi con el tarado E-Bike+, notes_pt: Máximo 120 psi; 140 psi com a calibragem E-Bike+ }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 100/110mm 6, 120/130mm 5, 140/150mm 4", notes_de: "Aufklipp-Spacer; das Maximum hängt vom Federweg ab: 100/110mm 6, 120/130mm 5, 140/150mm 4", notes_fr: "Entretoises à clipser ; le maximum dépend du débattement : 100/110 mm 6, 120/130 mm 5, 140/150 mm 4", notes_it: "Distanziali a clip; il massimo dipende dall’escursione: 100/110 mm 6, 120/130 mm 5, 140/150 mm 4", notes_es: "Espaciadores de clip; el máximo depende del recorrido: 100/110 mm 6, 120/130 mm 5, 140/150 mm 4", notes_pt: "Espaçadores de encaixe; o máximo depende do curso: 100/110 mm 6, 120/130 mm 5, 140/150 mm 4" }
             options:
               damper: [rail]
               travel_mm: [120, 130, 140, 150]
@@ -308,11 +356,19 @@ nodes:
               160mm Post Mount, maximaler Luftdruck 120psi. Für den
               E-MTB-Einsatz gibt es auch eine „E-Bike+“-Abstimmung (maximaler
               Luftdruck 140psi).
+            note_fr: Post mount 160 mm, pression d’air max. 120 psi. Un tarage « E-Bike+ » est aussi proposé (pression d’air max. 140 psi) pour le VTT électrique.
+            note_it: Post mount da 160 mm, pressione dell’aria max. 120 psi. È disponibile anche una taratura «E-Bike+» (pressione dell’aria max. 140 psi) per l’e-MTB.
+            note_es: Post mount de 160 mm, presión de aire máx. 120 psi. También hay un tarado «E-Bike+» (presión de aire máx. 140 psi) para e-MTB.
+            note_pt: Post mount de 160 mm, pressão de ar máx. 120 psi. Há também uma calibragem “E-Bike+” (pressão de ar máx. 140 psi) para e-MTB.
 
   - label: "DJ"
     level: model
     category: Dirt Jump / Slopestyle
     category_de: Dirt Jump / Slopestyle
+    category_fr: Dirt Jump / Slopestyle
+    category_it: Dirt Jump / Slopestyle
+    category_es: Dirt Jump / Slopestyle
+    category_pt: Dirt Jump / Slopestyle
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -325,23 +381,31 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 36mm, stanchion_de: 36mm, spring: Air, spring_de: Luft }
+            specs: { stanchion: 36mm, stanchion_de: 36mm, stanchion_fr: 36mm, stanchion_it: 36mm, stanchion_es: 36mm, stanchion_pt: 36mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: 37
             axle: 20x110 non-boost (15x100 conversion kit available)
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, visualization: stepper, max: 10, notes: Factory installed 8, notes_de: "Werkseitig verbaut: 8" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, visualization: stepper, max: 10, notes: Factory installed 8, notes_de: "Werkseitig verbaut: 8", notes_fr: "Monté en usine : 8", notes_it: "Montati in fabbrica: 8", notes_es: "Montados de fábrica: 8", notes_pt: "Montados de fábrica: 8" }
             options:
               damper: [grip]
               travel_mm: [100]
               wheel_size: [26]
             note: Max air pressure 120psi.
             note_de: Maximaler Luftdruck 120psi.
+            note_fr: Pression d’air max. 120 psi.
+            note_it: Pressione dell’aria max. 120 psi.
+            note_es: Presión de aire máx. 120 psi.
+            note_pt: Pressão de ar máx. 120 psi.
 
   - label: "58"
     level: model
     category: Downhill
     category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -354,18 +418,22 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: "40mm, Black Anodized", stanchion_de: "40mm, schwarz eloxiert", spring: Air, spring_de: Luft }
+            specs: { stanchion: "40mm, Black Anodized", stanchion_de: "40mm, schwarz eloxiert", stanchion_fr: "40mm, anodisé noir", stanchion_it: "40mm, anodizzato nero", stanchion_es: "40mm, anodizado negro", stanchion_pt: "40mm, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: 51
             axle: 20x110 DH (non-Boost)
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, name_de: Volumenspacer, type: step, visualization: stepper, max: 7, notes: Factory installed 4, notes_de: "Werkseitig verbaut: 4" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, visualization: stepper, max: 7, notes: Factory installed 4, notes_de: "Werkseitig verbaut: 4", notes_fr: "Monté en usine : 4", notes_it: "Montati in fabbrica: 4", notes_es: "Montados de fábrica: 4", notes_pt: "Montados de fábrica: 4" }
             options:
               damper: [grip_58]
               travel_mm: [203]
               wheel_size: [27.5]
             note: Dual-crown chassis, 203mm post mount, 1.125in straight steerer.
             note_de: Chassis mit Doppelbrücke, 203mm Post Mount, gerader 1.125in-Gabelschaft.
+            note_fr: Châssis à double té, post mount 203 mm, tube de direction droit 1,125".
+            note_it: Telaio a doppia piastra, post mount da 203 mm, canotto sterzo dritto da 1,125".
+            note_es: Chasis de doble corona, post mount de 203 mm, tubo de dirección recto de 1,125".
+            note_pt: Chassi de dupla coroa, post mount de 203 mm, tubo de direção reto de 1,125".
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

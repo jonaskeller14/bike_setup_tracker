@@ -43,10 +43,22 @@ option_values:
       description_de: |-
         - Monotube-Dämpfer mit drei Einstellwegen für Enduro, Freeride und Downhill
         - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
+      description_fr: |-
+        - Amortisseur monotube à trois voies réglable pour l’enduro, le freeride et la descente
+        - Molettes séparées de compression basse vitesse, de compression haute vitesse et de détente
+      description_it: |-
+        - Ammortizzatore monotubo a tre vie regolabile per enduro, freeride e downhill
+        - Manopole separate di compressione a bassa velocità, di compressione ad alta velocità e di ritorno
+      description_es: |-
+        - Amortiguador monotubo de tres vías ajustable para enduro, freeride y descenso
+        - Ruedas separadas de compresión de baja velocidad, de compresión de alta velocidad y de rebote
+      description_pt: |-
+        - Amortecedor monotubo de três vias ajustável para enduro, freeride e downhill
+        - Seletores separados de compressão de baixa velocidade, de compressão de alta velocidade e de retorno
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: LSC, name_de: LSC, type: step, max: 23, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 23, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
       source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422708
       note: >-
         Stoy 4 product page: "Hydraulique : 3 voies monotube", "Compression Basses
@@ -64,11 +76,27 @@ option_values:
         - Dämpfer mit drei Einstellwegen und einstellbarem hydraulischem Durchschlagpuffer
         - Werkseitig eingestelltes Kick-Ventil für mehr Halt bei großen Schlägen
         - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
+      description_fr: |-
+        - Amortisseur à trois voies avec une butée hydraulique de fin de course réglable
+        - Valve kick réglée en usine pour un soutien supplémentaire face aux gros impacts
+        - Molettes séparées de compression basse vitesse, de compression haute vitesse et de détente
+      description_it: |-
+        - Ammortizzatore a tre vie con un fondocorsa idraulico regolabile
+        - Valvola kick tarata in fabbrica per un sostegno extra contro i grandi impatti
+        - Manopole separate di compressione a bassa velocità, di compressione ad alta velocità e di ritorno
+      description_es: |-
+        - Amortiguador de tres vías con un tope hidráulico de final de carrera regulable
+        - Válvula kick tarada de fábrica para un apoyo extra frente a grandes impactos
+        - Ruedas separadas de compresión de baja velocidad, de compresión de alta velocidad y de rebote
+      description_pt: |-
+        - Amortecedor de três vias com um batente hidráulico de fim de curso ajustável
+        - Válvula kick calibrada de fábrica para apoio extra contra grandes impactos
+        - Seletores separados de compressão de baixa velocidade, de compressão de alta velocidade e de retorno
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: LSC, name_de: LSC, type: step, max: 23, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
-        - { name: Bottom-Out Stop, name_de: Durchschlagpuffer, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression, notes_de: Einstellbarer hydraulischer Endanschlag in der Druckstufe }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 23, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
+        - { name: Bottom-Out Stop, name_de: Durchschlagpuffer, name_fr: Butée anti-talonnage, name_it: Fine corsa, name_es: Tope de final de carrera, name_pt: Batente de fim de curso, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression, notes_de: Einstellbarer hydraulischer Endanschlag in der Druckstufe, notes_fr: Butée hydraulique réglable de fin de course en compression, notes_it: Arresto idraulico regolabile di fine corsa in compressione, notes_es: Tope hidráulico regulable de final de carrera en compresión, notes_pt: Batente hidráulico ajustável de fim de curso em compressão }
       source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422711
       note: >-
         Void 4 product page: "3 voies + butée de fin de course réglable. Valve
@@ -87,11 +115,27 @@ option_values:
         - Dämpfer mit drei Einstellwegen und einstellbarem hydraulischem Durchschlagpuffer
         - Werkseitig eingestelltes Kick-Ventil; leiserer hydraulischer Betrieb als beim ersten Syors
         - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
+      description_fr: |-
+        - Amortisseur à trois voies avec une butée hydraulique de fin de course réglable
+        - Valve kick réglée en usine ; fonctionnement hydraulique plus silencieux que les premiers Syors
+        - Molettes séparées de compression basse vitesse, de compression haute vitesse et de détente
+      description_it: |-
+        - Ammortizzatore a tre vie con un fondocorsa idraulico regolabile
+        - Valvola kick tarata in fabbrica; funzionamento idraulico più silenzioso dei primi Syors
+        - Manopole separate di compressione a bassa velocità, di compressione ad alta velocità e di ritorno
+      description_es: |-
+        - Amortiguador de tres vías con un tope hidráulico de final de carrera regulable
+        - Válvula kick tarada de fábrica; funcionamiento hidráulico más silencioso que los primeros Syors
+        - Ruedas separadas de compresión de baja velocidad, de compresión de alta velocidad y de rebote
+      description_pt: |-
+        - Amortecedor de três vias com um batente hidráulico de fim de curso ajustável
+        - Válvula kick calibrada de fábrica; funcionamento hidráulico mais silencioso que os primeiros Syors
+        - Seletores separados de compressão de baixa velocidade, de compressão de alta velocidade e de retorno
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: LSC, name_de: LSC, type: step, max: 23, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
-        - { name: Bottom-Out Stop, name_de: Durchschlagpuffer, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression, notes_de: Einstellbarer hydraulischer Endanschlag in der Druckstufe }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 23, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
+        - { name: Bottom-Out Stop, name_de: Durchschlagpuffer, name_fr: Butée anti-talonnage, name_it: Fine corsa, name_es: Tope de final de carrera, name_pt: Batente de fim de curso, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression, notes_de: Einstellbarer hydraulischer Endanschlag in der Druckstufe, notes_fr: Butée hydraulique réglable de fin de course en compression, notes_it: Arresto idraulico regolabile di fine corsa in compressione, notes_es: Tope hidráulico regulable de final de carrera en compresión, notes_pt: Batente hidráulico ajustável de fim de curso em compressão }
       source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422837
       note: >-
         Syors 2 product page: "3 voies + butée de fin de course réglable. Valve
@@ -113,7 +157,11 @@ nodes:
     level: model
     category: Enduro / Freeride / Downhill
     category_de: Enduro / Freeride / Downhill
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Enduro / Freeride / Downhill
+    category_it: Enduro / Freeride / Downhill
+    category_es: Enduro / Freeride / Downhill
+    category_pt: Enduro / Freeride / Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     children:
       - label: "2025–2026"
         level: generation
@@ -126,12 +174,24 @@ nodes:
         note_de: |-
           - Leichter, kompakter Monotube-Dämpfer mit drei Einstellwegen; 393g in 205x65mm Trunnion ohne Feder
           - Stahlfeder separat erhältlich, mit Vorspannungsverstellung
+        note_fr: |-
+          - Amortisseur monotube léger et compact à trois voies ; 393 g en 205x65 mm trunnion sans ressort
+          - Ressort vendu séparément, avec un réglage de précontrainte
+        note_it: |-
+          - Ammortizzatore monotubo leggero e compatto a tre vie; 393 g nella 205x65 mm trunnion senza molla
+          - Molla venduta separatamente, con regolazione del precarico
+        note_es: |-
+          - Amortiguador monotubo ligero y compacto de tres vías; 393 g en 205x65 mm trunnion sin muelle
+          - Muelle vendido por separado, con ajuste de precarga
+        note_pt: |-
+          - Amortecedor monotubo leve e compacto de três vias; 393 g no 205x65 mm trunnion sem mola
+          - Mola vendida separadamente, com ajuste de pré-carga
         children:
           - label: Standard
             level: trim
             mounts: [Eyelet, Trunnion]
             adjustments: &coil_spring
-              - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [stoy4_2025]
 
@@ -139,7 +199,11 @@ nodes:
     level: model
     category: Enduro / Freeride / Downhill
     category_de: Enduro / Freeride / Downhill
-    specs: { spring: Air, spring_de: Luft }
+    category_fr: Enduro / Freeride / Downhill
+    category_it: Enduro / Freeride / Downhill
+    category_es: Enduro / Freeride / Downhill
+    category_pt: Enduro / Freeride / Downhill
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     children:
       - label: "2025–2026"
         level: generation
@@ -154,12 +218,28 @@ nodes:
           - Hochvolumige Luftfeder mit über Spacer einstellbarem Volumen von Positiv- und Negativkammer
           - Vierte Generation des Void, erstmals 2012 erschienen
           - 550g in 230x60mm ohne Hebel; maximaler Druck 300 psi
+        note_fr: |-
+          - Ressort pneumatique grand volume avec volume des chambres positive et négative réglable par tokens
+          - Quatrième génération du Void, sortie en 2012
+          - 550 g en 230x60 mm sans levier ; pression maximale 300 psi
+        note_it: |-
+          - Molla pneumatica ad alto volume con volume delle camere positiva e negativa regolabile tramite token
+          - Quarta generazione del Void, uscita nel 2012
+          - 550 g nella 230x60 mm senza leva; pressione massima 300 psi
+        note_es: |-
+          - Muelle neumático de gran volumen con volumen de las cámaras positiva y negativa ajustable mediante tokens
+          - Cuarta generación del Void, lanzada en 2012
+          - 550 g en 230x60 mm sin palanca; presión máxima 300 psi
+        note_pt: |-
+          - Mola a ar de alto volume com volume das câmaras positiva e negativa ajustável por tokens
+          - Quarta geração do Void, lançada em 2012
+          - 550 g no 230x60 mm sem alavanca; pressão máxima 300 psi
         children:
           - label: Standard
             level: trim
             mounts: [Eyelet, Trunnion]
             adjustments: &air_spring
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300 }
             options:
               damper: [void4_2025]
           - label: Lever
@@ -170,12 +250,20 @@ nodes:
               damper: [void4_2025]
             note: Adds the optional pedalling-platform lever.
             note_de: Ergänzt den optionalen Hebel für die Pedalplattform.
+            note_fr: Ajoute le levier de plateforme de pédalage en option.
+            note_it: Aggiunge la leva opzionale della piattaforma di pedalata.
+            note_es: Añade la palanca opcional de plataforma de pedaleo.
+            note_pt: Acrescenta a alavanca opcional da plataforma de pedalada.
 
   - label: "Syors 2"
     level: model
     category: Enduro / Freeride / Downhill
     category_de: Enduro / Freeride / Downhill
-    specs: { spring: Coil, spring_de: Stahlfeder }
+    category_fr: Enduro / Freeride / Downhill
+    category_it: Enduro / Freeride / Downhill
+    category_es: Enduro / Freeride / Downhill
+    category_pt: Enduro / Freeride / Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     children:
       - label: "2025–2026"
         level: generation
@@ -188,6 +276,18 @@ nodes:
         note_de: |-
           - Stahlfederdämpfer mit einstellbarem hydraulischem Durchschlagpuffer; 450g in 250x75mm ohne Feder
           - Stahlfeder separat erhältlich, mit Vorspannungsverstellung
+        note_fr: |-
+          - Amortisseur à ressort avec butée hydraulique de fin de course réglable ; 450 g en 250x75 mm sans ressort
+          - Ressort vendu séparément, avec un réglage de précontrainte
+        note_it: |-
+          - Ammortizzatore a molla con fine corsa idraulico regolabile; 450 g nella 250x75 mm senza molla
+          - Molla venduta separatamente, con regolazione del precarico
+        note_es: |-
+          - Amortiguador de muelle con tope hidráulico de final de carrera regulable; 450 g en 250x75 mm sin muelle
+          - Muelle vendido por separado, con ajuste de precarga
+        note_pt: |-
+          - Amortecedor a mola com batente hidráulico de fim de curso ajustável; 450 g no 250x75 mm sem mola
+          - Mola vendida separadamente, com ajuste de pré-carga
         children:
           - label: Standard
             level: trim
@@ -203,6 +303,10 @@ nodes:
               damper: [syors2_2025]
             note: Adds the optional pedalling-platform lever.
             note_de: Ergänzt den optionalen Hebel für die Pedalplattform.
+            note_fr: Ajoute le levier de plateforme de pédalage en option.
+            note_it: Aggiunge la leva opzionale della piattaforma di pedalata.
+            note_es: Añade la palanca opcional de plataforma de pedaleo.
+            note_pt: Acrescenta a alavanca opcional da plataforma de pedalada.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

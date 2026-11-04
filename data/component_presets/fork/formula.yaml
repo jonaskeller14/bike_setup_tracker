@@ -72,10 +72,30 @@ option_values:
         - Ein Druckstufenrad verstellt High- und Low-Speed-Druckstufe gemeinsam
         - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
         - Lockout an der Gabelbrücke mit einstellbarer Lockout-Kraft
+      description_fr: |-
+        - Cartouche à insérer de type bladder avec Internal Floating Technology
+        - Une seule molette de compression déplace ensemble la compression haute et basse vitesse
+        - Les valves Compression Tuning System (CTS) s’échangent pour des changements plus importants
+        - Lockout sur le té avec une force de lockout réglable
+      description_it: |-
+        - Cartuccia a inserimento di tipo bladder con Internal Floating Technology
+        - Una sola manopola di compressione muove insieme la compressione ad alta e bassa velocità
+        - Le valvole Compression Tuning System (CTS) si sostituiscono per cambiamenti più importanti
+        - Lockout sulla piastra con forza di lockout regolabile
+      description_es: |-
+        - Cartucho de inserción directa tipo bladder con Internal Floating Technology
+        - Una sola rueda de compresión mueve a la vez la compresión de alta y de baja velocidad
+        - Las válvulas Compression Tuning System (CTS) se cambian para modificaciones más grandes
+        - Lockout en la corona con fuerza de lockout ajustable
+      description_pt: |-
+        - Cartucho de encaixe direto tipo bladder com Internal Floating Technology
+        - Um único seletor de compressão move juntas a compressão de alta e de baixa velocidade
+        - As válvulas Compression Tuning System (CTS) são trocadas para mudanças maiores
+        - Lockout na coroa com força de lockout ajustável
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: 12, notes: High and Low Speed (one combined dial), notes_de: High- und Low-Speed (ein gemeinsames Rad), dialColor: blue }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 19 }
-        - { name: Lockout, name_de: Lockout, type: categorical, options: [Open, Locked], options_de: [Offen, Gesperrt], notes: Crown-mounted lever, notes_de: Hebel an der Gabelbrücke }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 12, notes: High and Low Speed (one combined dial), notes_de: High- und Low-Speed (ein gemeinsames Rad), notes_fr: Haute et basse vitesse (une seule molette combinée), notes_it: Alta e bassa velocità (un’unica manopola combinata), notes_es: Alta y baja velocidad (una sola rueda combinada), notes_pt: Alta e baixa velocidade (um único seletor combinado), dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 19 }
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: categorical, options: [Open, Locked], options_de: [Offen, Gesperrt], options_fr: [Ouvert, Verrouillé], options_it: [Aperto, Bloccato], options_es: [Abierto, Bloqueado], options_pt: [Aberto, Travado], notes: Crown-mounted lever, notes_de: Hebel an der Gabelbrücke, notes_fr: Levier sur le té, notes_it: Leva sulla piastra, notes_es: Palanca en la corona, notes_pt: Alavanca na coroa }
       source:
         - https://www.rideformula.com/products/mountain-bike/selva-v/
         - https://www.rideformula.com/wp-content/uploads/2025/06/Selva_V_User_Manual_EN-1.pdf
@@ -99,10 +119,30 @@ option_values:
         - Ein Druckstufenrad verstellt High- und Low-Speed-Druckstufe gemeinsam
         - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
         - Lockout an der Gabelbrücke mit einstellbarer Lockout-Kraft
+      description_fr: |-
+        - Cartouche à insérer avec Internal Floating Technology (des rotules permettent au ressort pneumatique et à la cartouche de bouger indépendamment du châssis)
+        - Une seule molette de compression déplace ensemble la compression haute et basse vitesse
+        - Les valves Compression Tuning System (CTS) s’échangent pour des changements plus importants
+        - Lockout sur le té avec une force de lockout réglable
+      description_it: |-
+        - Cartuccia a inserimento con Internal Floating Technology (snodi sferici permettono alla molla pneumatica e alla cartuccia di muoversi indipendentemente dal telaio)
+        - Una sola manopola di compressione muove insieme la compressione ad alta e bassa velocità
+        - Le valvole Compression Tuning System (CTS) si sostituiscono per cambiamenti più importanti
+        - Lockout sulla piastra con forza di lockout regolabile
+      description_es: |-
+        - Cartucho de inserción directa con Internal Floating Technology (unas rótulas permiten que el muelle neumático y el cartucho se muevan con independencia del chasis)
+        - Una sola rueda de compresión mueve a la vez la compresión de alta y de baja velocidad
+        - Las válvulas Compression Tuning System (CTS) se cambian para modificaciones más grandes
+        - Lockout en la corona con fuerza de lockout ajustable
+      description_pt: |-
+        - Cartucho de encaixe direto com Internal Floating Technology (juntas esféricas permitem que a mola a ar e o cartucho se movam independentemente do chassi)
+        - Um único seletor de compressão move juntas a compressão de alta e de baixa velocidade
+        - As válvulas Compression Tuning System (CTS) são trocadas para mudanças maiores
+        - Lockout na coroa com força de lockout ajustável
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: 12, notes: High and Low Speed (one combined dial), notes_de: High- und Low-Speed (ein gemeinsames Rad) }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 21 }
-        - { name: Lockout, name_de: Lockout, type: categorical, options: [Open, Locked], options_de: [Offen, Gesperrt], notes: Crown-mounted lever, notes_de: Hebel an der Gabelbrücke }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 12, notes: High and Low Speed (one combined dial), notes_de: High- und Low-Speed (ein gemeinsames Rad), notes_fr: Haute et basse vitesse (une seule molette combinée), notes_it: Alta e bassa velocità (un’unica manopola combinata), notes_es: Alta y baja velocidad (una sola rueda combinada), notes_pt: Alta e baixa velocidade (um único seletor combinado) }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 21 }
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: categorical, options: [Open, Locked], options_de: [Offen, Gesperrt], options_fr: [Ouvert, Verrouillé], options_it: [Aperto, Bloccato], options_es: [Abierto, Bloqueado], options_pt: [Aberto, Travado], notes: Crown-mounted lever, notes_de: Hebel an der Gabelbrücke, notes_fr: Levier sur le té, notes_it: Leva sulla piastra, notes_es: Palanca en la corona, notes_pt: Alavanca na coroa }
       source:
         - https://www.rideformula.com/products/mountain-bike/selva-s/
         - https://www.rideformula.com/products/mountain-bike/selva-r-2/
@@ -126,10 +166,30 @@ option_values:
         - Ein Druckstufenrad verstellt High- und Low-Speed-Druckstufe gemeinsam
         - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
         - Lockout an der Gabelbrücke, optional Fernbedienung der Kartusche
+      description_fr: |-
+        - Cartouche à insérer avec Internal Floating Technology
+        - Une seule molette de compression déplace ensemble la compression haute et basse vitesse
+        - Les valves Compression Tuning System (CTS) s’échangent pour des changements plus importants
+        - Lockout sur le té, commande de cartouche déportée en option
+      description_it: |-
+        - Cartuccia a inserimento con Internal Floating Technology
+        - Una sola manopola di compressione muove insieme la compressione ad alta e bassa velocità
+        - Le valvole Compression Tuning System (CTS) si sostituiscono per cambiamenti più importanti
+        - Lockout sulla piastra, comando remoto della cartuccia opzionale
+      description_es: |-
+        - Cartucho de inserción directa con Internal Floating Technology
+        - Una sola rueda de compresión mueve a la vez la compresión de alta y de baja velocidad
+        - Las válvulas Compression Tuning System (CTS) se cambian para modificaciones más grandes
+        - Lockout en la corona, control remoto del cartucho opcional
+      description_pt: |-
+        - Cartucho de encaixe direto com Internal Floating Technology
+        - Um único seletor de compressão move juntas a compressão de alta e de baixa velocidade
+        - As válvulas Compression Tuning System (CTS) são trocadas para mudanças maiores
+        - Lockout na coroa, comando remoto do cartucho opcional
       adjustments:
-        - { name: Compression, name_de: Druckstufe, type: step, max: 12, notes: High and Low Speed (one combined dial), notes_de: High- und Low-Speed (ein gemeinsames Rad), dialColor: blue }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 18 }
-        - { name: Lockout, name_de: Lockout, type: categorical, options: [Open, Locked], options_de: [Offen, Gesperrt], notes: Crown-mounted lever, notes_de: Hebel an der Gabelbrücke }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 12, notes: High and Low Speed (one combined dial), notes_de: High- und Low-Speed (ein gemeinsames Rad), notes_fr: Haute et basse vitesse (une seule molette combinée), notes_it: Alta e bassa velocità (un’unica manopola combinata), notes_es: Alta y baja velocidad (una sola rueda combinada), notes_pt: Alta e baixa velocidade (um único seletor combinado), dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 18 }
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: categorical, options: [Open, Locked], options_de: [Offen, Gesperrt], options_fr: [Ouvert, Verrouillé], options_it: [Aperto, Bloccato], options_es: [Abierto, Bloqueado], options_pt: [Aberto, Travado], notes: Crown-mounted lever, notes_de: Hebel an der Gabelbrücke, notes_fr: Levier sur le té, notes_it: Leva sulla piastra, notes_es: Palanca en la corona, notes_pt: Alavanca na coroa }
       source: https://www.rideformula.com/products/mtb-forks/belva/
       note: >-
         Belva page: "Rebound: 18 Click Adjustment", "Compression: High and Low
@@ -146,10 +206,26 @@ option_values:
         - Downhill-Drop-in-Kartusche mit Internal Floating Technology
         - Getrennte Räder für High-Speed-Druckstufe, Low-Speed-Druckstufe und Zugstufe
         - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
+      description_fr: |-
+        - Cartouche descente à insérer avec Internal Floating Technology
+        - Molettes séparées de compression haute vitesse, de compression basse vitesse et de détente
+        - Les valves Compression Tuning System (CTS) s’échangent pour des changements plus importants
+      description_it: |-
+        - Cartuccia da downhill a inserimento con Internal Floating Technology
+        - Manopole separate di compressione ad alta velocità, di compressione a bassa velocità e di ritorno
+        - Le valvole Compression Tuning System (CTS) si sostituiscono per cambiamenti più importanti
+      description_es: |-
+        - Cartucho de descenso de inserción directa con Internal Floating Technology
+        - Ruedas separadas de compresión de alta velocidad, de compresión de baja velocidad y de rebote
+        - Las válvulas Compression Tuning System (CTS) se cambian para modificaciones más grandes
+      description_pt: |-
+        - Cartucho de downhill de encaixe direto com Internal Floating Technology
+        - Seletores separados de compressão de alta velocidade, de compressão de baixa velocidade e de retorno
+        - As válvulas Compression Tuning System (CTS) são trocadas para mudanças maiores
       adjustments:
-        - { name: HSC, name_de: HSC, type: step, max: 20, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe }
-        - { name: LSC, name_de: LSC, type: step, max: 12, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe }
-        - { name: Rebound, name_de: Zugstufe, type: step, max: 21 }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 20, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 12, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 21 }
       source:
         - https://www.rideformula.com/products/mountain-bike/nero-r/
         - https://www.rideformula.com/products/mountain-bike/nero-c/
@@ -174,6 +250,10 @@ guides:
   formula_selva_s_2018:
     label: Formula Selva S owner's manual
     label_de: Formula Selva S Bedienungsanleitung
+    label_fr: Manuel d’utilisation Formula Selva S
+    label_it: Manuale d’uso Formula Selva S
+    label_es: Manual del usuario Formula Selva S
+    label_pt: Manual do usuário Formula Selva S
     source: https://www.rideformula.com/wp-content/uploads/2018/10/Manuale_SELVA_S_GB.pdf
     rules:
       - target: pressure
@@ -181,11 +261,15 @@ guides:
         input: rider_weight
         input_unit: kg
         rows: { 50: 45, 60: 55, 70: 65, 80: 75, 90: 85, 100: 95, 110: 105, 120: 115 }
-      - { target: neopos, value: 0, note: Neopos are optional on the Selva S, note_de: Neopos sind bei der Selva S optional }
+      - { target: neopos, value: 0, note: Neopos are optional on the Selva S, note_de: Neopos sind bei der Selva S optional, note_fr: Les Neopos sont en option sur la Selva S, note_it: I Neopos sono opzionali sulla Selva S, note_es: Los Neopos son opcionales en la Selva S, note_pt: Os Neopos são opcionais na Selva S }
 
   formula_selva_r_2023:
     label: Formula Selva R owner's manual
     label_de: Formula Selva R Bedienungsanleitung
+    label_fr: Manuel d’utilisation Formula Selva R
+    label_it: Manuale d’uso Formula Selva R
+    label_es: Manual del usuario Formula Selva R
+    label_pt: Manual do usuário Formula Selva R
     source: https://www.rideformula.com/wp-content/uploads/2023/06/Manuale_SELVA_R_GB-Def.pdf
     rules:
       # The table prints no unit; its values only fit psi (the manual's
@@ -197,6 +281,10 @@ guides:
         rows: { 60: 60, 70: 70, 80: 80, 90: 90, 100: 100 }
         note: Inflate the Silver chamber first
         note_de: Zuerst die Silver-Kammer befüllen
+        note_fr: Gonflez d’abord la chambre Silver
+        note_it: Gonfia prima la camera Silver
+        note_es: Infla primero la cámara Silver
+        note_pt: Encha primeiro a câmara Silver
       - target: negative_chamber_pressure
         unit: psi
         input: rider_weight
@@ -204,11 +292,19 @@ guides:
         rows: { 60: 80, 70: 90, 80: 100, 90: 110, 100: 120 }
         note: "Set after Silver, with the lockout closed; up to 10 psi more for a softer initial stroke, up to 10 psi less for a firmer one"
         note_de: Nach Silver einstellen, bei geschlossenem Lockout; bis zu 10 psi mehr für einen weicheren Anfangsfederweg, bis zu 10 psi weniger für einen festeren
-      - { target: neopos, value: 1, note: One Neopos fitted as delivered, note_de: Ein Neopos ist wie ausgeliefert verbaut }
+        note_fr: À régler après Silver, lockout fermé ; jusqu’à 10 psi de plus pour une première partie de course plus souple, jusqu’à 10 psi de moins pour une plus ferme
+        note_it: Da impostare dopo Silver, con il lockout chiuso; fino a 10 psi in più per una prima parte di corsa più morbida, fino a 10 psi in meno per una più rigida
+        note_es: Se ajusta después de Silver, con el lockout cerrado; hasta 10 psi más para un inicio de recorrido más blando, hasta 10 psi menos para uno más firme
+        note_pt: Ajuste depois de Silver, com o lockout fechado; até 10 psi a mais para um início de curso mais macio, até 10 psi a menos para um mais firme
+      - { target: neopos, value: 1, note: One Neopos fitted as delivered, note_de: Ein Neopos ist wie ausgeliefert verbaut, note_fr: Un Neopos monté à la livraison, note_it: Un Neopos montato alla consegna, note_es: Un Neopos montado de fábrica, note_pt: Um Neopos montado na entrega }
 
   formula_belva_2024:
     label: Formula Belva user manual
     label_de: Formula Belva Bedienungsanleitung
+    label_fr: Manuel d’utilisation Formula Belva
+    label_it: Manuale d’uso Formula Belva
+    label_es: Manual del usuario Formula Belva
+    label_pt: Manual do usuário Formula Belva
     source: https://www.rideformula.com/wp-content/uploads/2024/03/Manuale-Utente-Belva-ENG.pdf
     rules:
       - target: pressure
@@ -220,6 +316,10 @@ guides:
   formula_nero_r_2017:
     label: Formula Nero R owner's manual
     label_de: Formula Nero R Bedienungsanleitung
+    label_fr: Manuel d’utilisation Formula Nero R
+    label_it: Manuale d’uso Formula Nero R
+    label_es: Manual del usuario Formula Nero R
+    label_pt: Manual do usuário Formula Nero R
     source: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-R-owner-manual.pdf
     rules:
       - target: progressivity_chamber_pressure
@@ -229,6 +329,10 @@ guides:
         rows: { 60: 110, 70: 120, 80: 130, 90: 140, 100: 150 }
         note: Inflate Gold first and keep it at or above Silver
         note_de: Zuerst Gold befüllen und auf oder über dem Silver-Druck halten
+        note_fr: Gonflez Gold en premier et gardez-le au moins à la pression de Silver
+        note_it: Gonfia Gold per prima e tienila almeno alla pressione di Silver
+        note_es: Infla Gold primero y mantenla al menos a la presión de Silver
+        note_pt: Encha Gold primeiro e mantenha-a pelo menos na pressão de Silver
       - target: main_chamber_pressure
         unit: psi
         input: rider_weight
@@ -236,6 +340,10 @@ guides:
         rows: { 60: 80, 70: 90, 80: 100, 90: 110, 100: 120 }
         note: Inflate Silver after Gold; let Bronze out before checking it
         note_de: Silver nach Gold befüllen; vor der Kontrolle Luft aus Bronze ablassen
+        note_fr: Gonflez Silver après Gold ; videz Bronze avant de la contrôler
+        note_it: Gonfia Silver dopo Gold; scarica Bronze prima di controllarla
+        note_es: Infla Silver después de Gold; deja salir el aire de Bronze antes de comprobarla
+        note_pt: Encha Silver depois de Gold; esvazie Bronze antes de conferi-la
       - target: sensitivity_chamber_pressure
         unit: psi
         input: rider_weight
@@ -243,6 +351,10 @@ guides:
         rows: { 60: 100, 70: 110, 80: 120, 90: 130, 100: 140 }
         note: Inflate Bronze last and keep it at least 20 psi above Silver
         note_de: Bronze zuletzt befüllen und mindestens 20 psi über Silver halten
+        note_fr: Gonflez Bronze en dernier et gardez-le au moins 20 psi au-dessus de Silver
+        note_it: Gonfia Bronze per ultima e tienila almeno 20 psi sopra Silver
+        note_es: Infla Bronze en último lugar y mantenla al menos 20 psi por encima de Silver
+        note_pt: Encha Bronze por último e mantenha-a pelo menos 20 psi acima de Silver
       # Neopos: the manual allows up to three but no count fitted as delivered
       # is published, so there is no rule.
 
@@ -257,21 +369,25 @@ nodes:
     level: model
     category: Enduro / All-Mountain
     category_de: Enduro / All-Mountain
+    category_fr: Enduro / All-Mountain
+    category_it: Enduro / All-Mountain
+    category_es: Enduro / All-Mountain
+    category_pt: Enduro / All-Mountain
     setup_guide: https://www.rideformula.com/wp-content/uploads/2023/06/Manuale_SELVA_R_GB-Def.pdf
     tasks: &formula_service
-      fork:lower_leg_service: { interval: { moving_time_h: 30 }, fallback: { days: 180 }, source: Formula owner's manual, source_de: Formula-Handbuch }
-      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Formula owner's manual, source_de: Formula-Handbuch }
+      fork:lower_leg_service: { interval: { moving_time_h: 30 }, fallback: { days: 180 }, source: Formula owner's manual, source_de: Formula-Handbuch, source_fr: Manuel d’utilisation Formula, source_it: Manuale d’uso Formula, source_es: Manual del usuario Formula, source_pt: Manual do usuário Formula }
+      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Formula owner's manual, source_de: Formula-Handbuch, source_fr: Manuel d’utilisation Formula, source_it: Manuale d’uso Formula, source_es: Manual del usuario Formula, source_pt: Manual do usuário Formula }
     children:
       - label: V
         level: trim
         years: "2025-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-v/
         setup_guide: https://www.rideformula.com/wp-content/uploads/2025/06/Selva_V_User_Manual_EN-1.pdf
-        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
+        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, stanchion_fr: 35mm aluminium 7075, stanchion_it: 35mm alluminio 7075, stanchion_es: 35mm aluminio 7075, stanchion_pt: 35mm alumínio 7075, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: [43]
         adjustments:
-          - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
-          - { name: Neopos, name_de: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support, notes_de: Schwammartige Tokens in der Positivkammer für Halt im mittleren Federweg }
+          - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+          - { name: Neopos, name_de: Neopos, name_fr: Neopos, name_it: Neopos, name_es: Neopos, name_pt: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support, notes_de: Schwammartige Tokens in der Positivkammer für Halt im mittleren Federweg, notes_fr: Tokens en forme d’éponge dans la chambre positive pour le soutien en milieu de course, notes_it: Token simili a spugna nella camera positiva per il sostegno a metà corsa, notes_es: Tokens con forma de esponja en la cámara positiva para el apoyo en la parte media del recorrido, notes_pt: Tokens em forma de esponja na câmara positiva para apoio no meio do curso }
         options:
           damper: [selva_v_2025]
           travel_mm: [160, 170, 180]
@@ -285,17 +401,33 @@ nodes:
           - Neue Doppelkammer-V-Luftfeder mit schwimmendem Kolben für geringe Reibung
           - Ein Ventil befüllt beide Kammern; ein Bypassventil gleicht sie aus und ein Reset-Ventil leert beide, um von vorn zu beginnen
           - 15x110mm Boost mit Integrated-Locking-System-Achse, PM7-Bremsaufnahme, ab 2030g
+        note_fr: |-
+          - Nouveau ressort pneumatique V à double chambre avec un piston flottant pour un faible frottement
+          - Une seule valve gonfle les deux chambres ; une valve de bypass les équilibre et une valve de reset les vide toutes deux pour repartir de zéro
+          - Boost 15x110 mm avec l’Integrated Locking System, fixation de frein PM7, à partir de 2030 g
+        note_it: |-
+          - Nuova molla pneumatica V a doppia camera con un pistone flottante per ridurre l’attrito
+          - Una sola valvola gonfia entrambe le camere; una valvola di bypass le equilibra e una valvola di reset le svuota entrambe per ripartire da zero
+          - Boost 15x110 mm con Integrated Locking System, attacco freno PM7, da 2030 g
+        note_es: |-
+          - Nuevo muelle neumático V de doble cámara con un pistón flotante para reducir la fricción
+          - Una sola válvula infla ambas cámaras; una válvula de bypass las equilibra y una válvula de reset vacía las dos para empezar de nuevo
+          - Boost de 15x110 mm con Integrated Locking System, anclaje de freno PM7, desde 2030 g
+        note_pt: |-
+          - Nova mola a ar V de câmara dupla com um pistão flutuante para menos atrito
+          - Uma única válvula infla as duas câmaras; uma válvula de bypass as equilibra e uma válvula de reset esvazia as duas para recomeçar
+          - Boost 15x110 mm com Integrated Locking System, fixação de freio PM7, a partir de 2030 g
       - label: R
         level: trim
         years: "2019-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-r-2/
         guide: formula_selva_r_2023
-        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
+        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, stanchion_fr: 35mm aluminium 7075, stanchion_it: 35mm alluminio 7075, stanchion_es: 35mm aluminio 7075, stanchion_pt: 35mm alumínio 7075, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: [37, 43]
         adjustments:
-          - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0, max: 125, notes: Silver chamber (positive), notes_de: Silberne Kammer (positiv) }
-          - { name: Negative Chamber Pressure, name_de: Negativkammerdruck, type: numerical, unit: psi, min: 0, max: 125, notes: Bronze chamber (sensitivity), notes_de: Bronzene Kammer (Ansprechverhalten) }
-          - { name: Neopos, name_de: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support; one included, notes_de: Schwammartige Tokens in der Positivkammer für Halt im mittleren Federweg; einer ist enthalten }
+          - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, name_fr: Pression de la chambre principale, name_it: Pressione della camera principale, name_es: Presión de la cámara principal, name_pt: Pressão da câmara principal, type: numerical, unit: psi, min: 0, max: 125, notes: Silver chamber (positive), notes_de: Silberne Kammer (positiv), notes_fr: Chambre Silver (positive), notes_it: Camera Silver (positiva), notes_es: Cámara Silver (positiva), notes_pt: Câmara Silver (positiva) }
+          - { name: Negative Chamber Pressure, name_de: Negativkammerdruck, name_fr: Pression de la chambre négative, name_it: Pressione della camera negativa, name_es: Presión de la cámara negativa, name_pt: Pressão da câmara negativa, type: numerical, unit: psi, min: 0, max: 125, notes: Bronze chamber (sensitivity), notes_de: Bronzene Kammer (Ansprechverhalten), notes_fr: Chambre Bronze (sensibilité), notes_it: Camera Bronze (sensibilità), notes_es: Cámara Bronze (sensibilidad), notes_pt: Câmara Bronze (sensibilidade) }
+          - { name: Neopos, name_de: Neopos, name_fr: Neopos, name_it: Neopos, name_es: Neopos, name_pt: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support; one included, notes_de: Schwammartige Tokens in der Positivkammer für Halt im mittleren Federweg; einer ist enthalten, notes_fr: Tokens en forme d’éponge dans la chambre positive pour le soutien en milieu de course ; un fourni, notes_it: Token simili a spugna nella camera positiva per il sostegno a metà corsa; uno incluso, notes_es: Tokens con forma de esponja en la cámara positiva para el apoyo en la parte media del recorrido; se incluye uno, notes_pt: Tokens em forma de esponja na câmara positiva para apoio no meio do curso; um incluído }
         options:
           damper: [selva_2017]
           travel_mm: [120, 130, 140, 160, 170, 180]
@@ -309,16 +441,28 @@ nodes:
         note_de: |-
           - 2Air-Feder: getrennte Positiv- (Silver) und Negativkammer (Bronze), jede mit einer Dämpferpumpe eingestellt
           - Der Federweg lässt sich intern mit Spacern einstellen, in einem Chassis für 27.5" und einem für 29" / 27.5+
+        note_fr: |-
+          - Ressort 2Air : chambres positive (Silver) et négative (Bronze) séparées, chacune réglée avec une pompe à amortisseur
+          - Le débattement se règle en interne avec des entretoises, en châssis 27,5" et 29" / 27,5+
+        note_it: |-
+          - Molla 2Air: camere positiva (Silver) e negativa (Bronze) separate, ciascuna regolata con una pompa per ammortizzatori
+          - L’escursione si regola internamente con distanziali, in telaio da 27,5" e da 29" / 27,5+
+        note_es: |-
+          - Muelle 2Air: cámaras positiva (Silver) y negativa (Bronze) separadas, cada una ajustada con una bomba de amortiguador
+          - El recorrido se ajusta internamente con espaciadores, en chasis de 27,5" y de 29" / 27,5+
+        note_pt: |-
+          - Mola 2Air: câmaras positiva (Silver) e negativa (Bronze) separadas, cada uma ajustada com uma bomba de amortecedor
+          - O curso é ajustável internamente com espaçadores, em chassi de 27,5" e de 29" / 27,5+
       - label: C
         level: trim
         years: "2019-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-c/
         setup_guide: https://www.rideformula.com/wp-content/uploads/2018/10/2021_02-FORCEL_SELVA_C_GB.pdf
-        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, stanchion_fr: 35mm aluminium 7075, stanchion_it: 35mm alluminio 7075, stanchion_es: 35mm aluminio 7075, stanchion_pt: 35mm alumínio 7075, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: [37, 43]
         adjustments:
-          - { name: Spring Rate, name_de: Federrate, type: categorical, options: [Soft, Medium, Firm, Super Firm], options_de: [Weich, Medium, Fest, Extra fest], notes: Medium is the default coil, notes_de: Medium ist die Standardfeder }
-          - { name: Preload, name_de: Vorspannung, type: step, max: 10, notes: External preload knob on the right side of the fork, notes_de: Externes Vorspannungsrad an der rechten Seite der Gabel }
+          - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: categorical, options: [Soft, Medium, Firm, Super Firm], options_de: [Weich, Medium, Fest, Extra fest], options_fr: [Souple, Medium, Ferme, Extra ferme], options_it: [Morbida, Medium, Rigido, Extra rigido], options_es: [Blanda, Medium, Firme, Extrafirme], options_pt: [Macia, Medium, Firme, Extrafirme], notes: Medium is the default coil, notes_de: Medium ist die Standardfeder, notes_fr: Medium est le ressort par défaut, notes_it: Medium è la molla di serie, notes_es: Medium es el muelle por defecto, notes_pt: Medium é a mola padrão }
+          - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: step, max: 10, notes: External preload knob on the right side of the fork, notes_de: Externes Vorspannungsrad an der rechten Seite der Gabel, notes_fr: Molette de précontrainte externe sur le côté droit de la fourche, notes_it: Manopola di precarico esterna sul lato destro della forcella, notes_es: Rueda de precarga externa en el lado derecho de la horquilla, notes_pt: Seletor de pré-carga externo no lado direito do garfo }
         options:
           damper: [selva_2017]
           travel_mm: [160, 170]
@@ -329,17 +473,29 @@ nodes:
         note_de: |-
           - Stahlfeder mit externem Vorspannungsknopf
           - Gleicher Dämpfer und gleiche CTS-Abstimmbarkeit wie bei den Luft-Selvas
+        note_fr: |-
+          - Ressort hélicoïdal en acier avec molette de précontrainte externe
+          - Même amortisseur et même réglage CTS que les Selva pneumatiques
+        note_it: |-
+          - Molla elicoidale in acciaio con manopola di precarico esterna
+          - Stesso ammortizzatore e stessa regolabilità CTS delle Selva pneumatiche
+        note_es: |-
+          - Muelle helicoidal de acero con rueda de precarga externa
+          - Mismo amortiguador y misma capacidad de ajuste CTS que las Selva neumáticas
+        note_pt: |-
+          - Mola helicoidal de aço com seletor de pré-carga externo
+          - Mesmo amortecedor e mesma ajustabilidade CTS das Selva a ar
       - label: S
         level: trim
         years: "2017-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-s/
         setup_guide: https://www.rideformula.com/wp-content/uploads/2018/10/Manuale_SELVA_S_GB.pdf
         guide: formula_selva_s_2018
-        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
+        specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, stanchion_fr: 35mm aluminium 7075, stanchion_it: 35mm alluminio 7075, stanchion_es: 35mm aluminio 7075, stanchion_pt: 35mm alumínio 7075, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: [37, 43]
         adjustments:
-          - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 125 }
-          - { name: Neopos, name_de: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support, notes_de: Schwammartige Tokens in der Positivkammer für Halt im mittleren Federweg }
+          - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 125 }
+          - { name: Neopos, name_de: Neopos, name_fr: Neopos, name_it: Neopos, name_es: Neopos, name_pt: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support, notes_de: Schwammartige Tokens in der Positivkammer für Halt im mittleren Federweg, notes_fr: Tokens en forme d’éponge dans la chambre positive pour le soutien en milieu de course, notes_it: Token simili a spugna nella camera positiva per il sostegno a metà corsa, notes_es: Tokens con forma de esponja en la cámara positiva para el apoyo en la parte media del recorrido, notes_pt: Tokens em forma de esponja na câmara positiva para apoio no meio do curso }
         options:
           damper: [selva_2017]
           travel_mm: [120, 160, 170, 180]
@@ -352,11 +508,31 @@ nodes:
           - Einzelne Positiv-Luftkammer mit einer Negativ-Stahlfeder (Triple-Coil-Technologie)
           - Der Federweg lässt sich intern mit Spacern einstellen; Neopos sind optional
           - Lässt sich mit dem 2Air-Kit von Formula zur Selva R umbauen
+        note_fr: |-
+          - Chambre pneumatique positive unique avec un ressort négatif en acier (triple coil technology)
+          - Le débattement se règle en interne avec des entretoises ; les Neopos sont en option
+          - Convertible en Selva R avec le kit 2Air de Formula
+        note_it: |-
+          - Camera pneumatica positiva singola con molla negativa in acciaio (triple coil technology)
+          - L’escursione si regola internamente con distanziali; i Neopos sono opzionali
+          - Convertibile in Selva R con il kit 2Air di Formula
+        note_es: |-
+          - Una sola cámara neumática positiva con muelle negativo de acero (triple coil technology)
+          - El recorrido se ajusta internamente con espaciadores; los Neopos son opcionales
+          - Se puede convertir en Selva R con el kit 2Air de Formula
+        note_pt: |-
+          - Câmara a ar positiva única com mola negativa de aço (triple coil technology)
+          - O curso é ajustado internamente com espaçadores; os Neopos são opcionais
+          - Pode ser convertido em Selva R com o kit 2Air da Formula
 
   - label: "Belva"
     level: model
     category: Enduro / All-Mountain
     category_de: Enduro / All-Mountain
+    category_fr: Enduro / All-Mountain
+    category_it: Enduro / All-Mountain
+    category_es: Enduro / All-Mountain
+    category_pt: Enduro / All-Mountain
     tasks: *formula_service
     children:
       - label: "2024–2026"
@@ -369,10 +545,10 @@ nodes:
         children:
           - label: Air
             level: trim
-            specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, stanchion_fr: 35mm aluminium 7075, stanchion_it: 35mm alluminio 7075, stanchion_es: 35mm aluminio 7075, stanchion_pt: 35mm alumínio 7075, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [43]
             adjustments:
-              - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0, max: 85 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 85 }
             options:
               damper: [belva_2024]
               travel_mm: [170, 180]
@@ -385,11 +561,31 @@ nodes:
               - Enduro-Gabel mit Doppelbrücke auf Basis der Selva-Tauchrohre, 43mm Offset, konischer 1.5"-Gabelschaft
               - Negativ-Stahlfeder (Triple-Coil-Technologie); Neopos sind optional
               - 15x110mm Boost mit Integrated-Locking-System-Achse, ab 2370g
+            note_fr: |-
+              - Fourche enduro à double té construite sur les fourreaux de la Selva, déport de 43 mm, tube de direction conique 1,5"
+              - Ressort négatif en acier (triple coil technology) ; les Neopos sont en option
+              - Axe Boost 15x110 mm avec l’Integrated Locking System, à partir de 2370 g
+            note_it: |-
+              - Forcella enduro a doppia piastra costruita sui foderi della Selva, offset di 43 mm, canotto sterzo conico da 1,5"
+              - Molla negativa in acciaio (triple coil technology); i Neopos sono opzionali
+              - Perno Boost 15x110 mm con Integrated Locking System, da 2370 g
+            note_es: |-
+              - Horquilla enduro de doble corona construida sobre las botellas de la Selva, offset de 43 mm, tubo de dirección cónico de 1,5"
+              - Muelle negativo de acero (triple coil technology); los Neopos son opcionales
+              - Eje Boost de 15x110 mm con Integrated Locking System, desde 2370 g
+            note_pt: |-
+              - Garfo de enduro de dupla coroa construído sobre as botas da Selva, offset de 43 mm, tubo de direção cônico de 1,5"
+              - Mola negativa de aço (triple coil technology); os Neopos são opcionais
+              - Eixo Boost 15x110 mm com Integrated Locking System, a partir de 2370 g
 
   - label: "Nero"
     level: model
     category: Downhill
     category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     tasks: *formula_service
     children:
       - label: "2017–2026"
@@ -402,13 +598,13 @@ nodes:
           - label: R
             level: trim
             guide: formula_nero_r_2017
-            specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Air, spring_de: Luft }
+            specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, stanchion_fr: 35mm aluminium 7075, stanchion_it: 35mm alluminio 7075, stanchion_es: 35mm aluminio 7075, stanchion_pt: 35mm alumínio 7075, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [50, 56]
             adjustments:
-              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, type: numerical, unit: psi, min: 0, notes: Silver chamber, notes_de: Silberne Kammer }
-              - { name: Sensitivity Chamber Pressure, name_de: Ansprechkammerdruck, type: numerical, unit: psi, min: 0, notes: Bronze chamber (negative), notes_de: Bronzene Kammer (negativ) }
-              - { name: Progressivity Chamber Pressure, name_de: Progressionskammerdruck, type: numerical, unit: psi, min: 0, notes: Gold chamber (end-stroke), notes_de: Goldene Kammer (Endprogression) }
-              - { name: Neopos, name_de: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber; one included, notes_de: Schwammartige Tokens in der Positivkammer; einer ist enthalten }
+              - { name: Main Chamber Pressure, name_de: Hauptkammerdruck, name_fr: Pression de la chambre principale, name_it: Pressione della camera principale, name_es: Presión de la cámara principal, name_pt: Pressão da câmara principal, type: numerical, unit: psi, min: 0, notes: Silver chamber, notes_de: Silberne Kammer, notes_fr: Chambre Silver, notes_it: Camera Silver, notes_es: Cámara Silver, notes_pt: Câmara Silver }
+              - { name: Sensitivity Chamber Pressure, name_de: Ansprechkammerdruck, name_fr: Pression de la chambre de sensibilité, name_it: Pressione della camera di sensibilità, name_es: Presión de la cámara de sensibilidad, name_pt: Pressão da câmara de sensibilidade, type: numerical, unit: psi, min: 0, notes: Bronze chamber (negative), notes_de: Bronzene Kammer (negativ), notes_fr: Chambre Bronze (négative), notes_it: Camera Bronze (negativa), notes_es: Cámara Bronze (negativa), notes_pt: Câmara Bronze (negativa) }
+              - { name: Progressivity Chamber Pressure, name_de: Progressionskammerdruck, name_fr: Pression de la chambre de progressivité, name_it: Pressione della camera di progressività, name_es: Presión de la cámara de progresividad, name_pt: Pressão da câmara de progressividade, type: numerical, unit: psi, min: 0, notes: Gold chamber (end-stroke), notes_de: Goldene Kammer (Endprogression), notes_fr: Chambre Gold (fin de course), notes_it: Camera Gold (fine corsa), notes_es: Cámara Gold (final del recorrido), notes_pt: Câmara Gold (fim do curso) }
+              - { name: Neopos, name_de: Neopos, name_fr: Neopos, name_it: Neopos, name_es: Neopos, name_pt: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber; one included, notes_de: Schwammartige Tokens in der Positivkammer; einer ist enthalten, notes_fr: Tokens en forme d’éponge dans la chambre positive ; un fourni, notes_it: Token simili a spugna nella camera positiva; uno incluso, notes_es: Tokens con forma de esponja en la cámara positiva; se incluye uno, notes_pt: Tokens em forma de esponja na câmara positiva; um incluído }
             options:
               damper: [nero_2017]
               travel_mm: [180, 190, 200]
@@ -423,15 +619,31 @@ nodes:
               - 3Air-Feder: drei Kammern, befüllt in der Reihenfolge Gold, Silver, Bronze
               - Gold auf oder über dem Silver-Druck halten und Bronze mindestens 20 psi über Silver
               - 20mm-Boost-Achse mit FIRM-Klemmsystem, ab 2620g
+            note_fr: |-
+              - Ressort pneumatique 3Air : trois chambres réglées dans l’ordre Gold, Silver, Bronze
+              - Garder Gold au moins à la pression de Silver et Bronze au moins 20 psi au-dessus de Silver
+              - Axe Boost de 20 mm avec le système de verrouillage FIRM, à partir de 2620 g
+            note_it: |-
+              - Molla pneumatica 3Air: tre camere regolate nell’ordine Gold, Silver, Bronze
+              - Tieni Gold almeno alla pressione di Silver e Bronze almeno 20 psi sopra Silver
+              - Perno Boost da 20 mm con sistema di bloccaggio FIRM, da 2620 g
+            note_es: |-
+              - Muelle neumático 3Air: tres cámaras ajustadas en el orden Gold, Silver, Bronze
+              - Mantén Gold al menos a la presión de Silver y Bronze al menos 20 psi por encima de Silver
+              - Eje Boost de 20 mm con el sistema de bloqueo FIRM, desde 2620 g
+            note_pt: |-
+              - Mola a ar 3Air: três câmaras ajustadas na ordem Gold, Silver, Bronze
+              - Mantenha Gold pelo menos na pressão de Silver e Bronze pelo menos 20 psi acima de Silver
+              - Eixo Boost de 20 mm com o sistema de travamento FIRM, a partir de 2620 g
           - label: C
             level: trim
             url: https://www.rideformula.com/products/mountain-bike/nero-c/
             setup_guide: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-C-Owner-manual.pdf
-            specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, spring: Coil, spring_de: Stahlfeder }
+            specs: { stanchion: 35mm 7075 aluminum, stanchion_de: 35mm Aluminium 7075, stanchion_fr: 35mm aluminium 7075, stanchion_it: 35mm alluminio 7075, stanchion_es: 35mm aluminio 7075, stanchion_pt: 35mm alumínio 7075, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             offset_mm: [50, 56]
             adjustments:
-              - { name: Spring Rate, name_de: Federrate, type: categorical, options: [Soft, Medium, Firm], options_de: [Weich, Medium, Fest], notes: Medium is the default coil, notes_de: Medium ist die Standardfeder }
-              - { name: Preload, name_de: Vorspannung, type: numerical, notes: "Tool-free external preload ring nut; fully loose is minimum preload", notes_de: Werkzeuglose externe Vorspannungsmutter; ganz lose ist die minimale Vorspannung }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: categorical, options: [Soft, Medium, Firm], options_de: [Weich, Medium, Fest], options_fr: [Souple, Medium, Ferme], options_it: [Morbida, Medium, Rigido], options_es: [Blanda, Medium, Firme], options_pt: [Macia, Medium, Firme], notes: Medium is the default coil, notes_de: Medium ist die Standardfeder, notes_fr: Medium est le ressort par défaut, notes_it: Medium è la molla di serie, notes_es: Medium es el muelle por defecto, notes_pt: Medium é a mola padrão }
+              - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, notes: "Tool-free external preload ring nut; fully loose is minimum preload", notes_de: Werkzeuglose externe Vorspannungsmutter; ganz lose ist die minimale Vorspannung, notes_fr: Écrou à bague de précontrainte externe sans outil ; entièrement desserré = précontrainte minimale, notes_it: Ghiera di precarico esterna senza attrezzi; completamente allentata = precarico minimo, notes_es: Tuerca de anillo de precarga externa sin herramientas; totalmente suelta = precarga mínima, notes_pt: Porca de anel de pré-carga externa sem ferramentas; totalmente solta = pré-carga mínima }
             options:
               damper: [nero_2017]
               travel_mm: [200]
@@ -442,6 +654,18 @@ nodes:
             note_de: |-
               - Stahlfeder mit werkzeuglos bedienbarer externer Vorspannungs-Ringmutter
               - Gleicher Dämpfer wie die Nero R, ab 2850g
+            note_fr: |-
+              - Ressort hélicoïdal en acier avec bague de précontrainte externe sans outil
+              - Même amortisseur que la Nero R, à partir de 2850 g
+            note_it: |-
+              - Molla elicoidale in acciaio con ghiera di precarico esterna senza attrezzi
+              - Stesso ammortizzatore della Nero R, da 2850 g
+            note_es: |-
+              - Muelle helicoidal de acero con tuerca de precarga externa sin herramientas
+              - Mismo amortiguador que la Nero R, desde 2850 g
+            note_pt: |-
+              - Mola helicoidal de aço com porca de pré-carga externa sem ferramentas
+              - Mesmo amortecedor da Nero R, a partir de 2850 g
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

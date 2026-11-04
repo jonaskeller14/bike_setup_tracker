@@ -76,8 +76,16 @@ option_values:
       description_de: >-
         Hydraulischer Dämpfer mit offenem Ölbad und externen Verstellern für
         Druckstufe und Zugstufe.
+      description_fr: Amortisseur hydraulique à bain d’huile ouvert avec réglages externes de compression et de détente.
+      description_it: Ammortizzatore idraulico a bagno d’olio aperto con regolatori esterni di compressione e di ritorno.
+      description_es: Amortiguador hidráulico de baño de aceite abierto con ajustes externos de compresión y de rebote.
+      description_pt: Amortecedor hidráulico de banho de óleo aberto com ajustes externos de compressão e de retorno.
       missing_adjustments: [Compression, Rebound]
       missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/killah/
@@ -91,8 +99,16 @@ option_values:
       description_de: >-
         Hydraulischer Dämpfer mit offenem Ölbad und externen Verstellern für
         Druckstufe und Zugstufe.
+      description_fr: Amortisseur hydraulique à bain d’huile ouvert avec réglages externes de compression et de détente.
+      description_it: Ammortizzatore idraulico a bagno d’olio aperto con regolatori esterni di compressione e di ritorno.
+      description_es: Amortiguador hidráulico de baño de aceite abierto con ajustes externos de compresión y de rebote.
+      description_pt: Amortecedor hidráulico de banho de óleo aberto com ajustes externos de compressão e de retorno.
       missing_adjustments: [Compression, Rebound]
       missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/r-evo-29/
@@ -110,8 +126,16 @@ option_values:
         Hydraulischer Dämpfer mit offenem Ölbad, externen Verstellern für
         Druckstufe und Zugstufe sowie hydraulischem Lockout (Lenkerfernbedienung
         bei den TRL-Ausstattungen).
+      description_fr: Amortisseur hydraulique à bain d’huile ouvert avec réglages externes de compression et de détente plus un lockout hydraulique (commande au guidon sur les finitions TRL).
+      description_it: Ammortizzatore idraulico a bagno d’olio aperto con regolatori esterni di compressione e di ritorno più un lockout idraulico (comando al manubrio sugli allestimenti TRL).
+      description_es: Amortiguador hidráulico de baño de aceite abierto con ajustes externos de compresión y de rebote más un lockout hidráulico (mando de manillar en los acabados TRL).
+      description_pt: Amortecedor hidráulico de banho de óleo aberto com ajustes externos de compressão e de retorno mais um lockout hidráulico (comando no guidão nos acabamentos TRL).
       missing_adjustments: [Compression, Rebound]
       missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/rogue-v2-2/
@@ -123,8 +147,16 @@ option_values:
       description_de: >-
         Hydraulischer Dämpfer mit offenem Ölbad und externen Verstellern für
         Druckstufe und Zugstufe.
+      description_fr: Amortisseur hydraulique à bain d’huile ouvert avec réglages externes de compression et de détente.
+      description_it: Ammortizzatore idraulico a bagno d’olio aperto con regolatori esterni di compressione e di ritorno.
+      description_es: Amortiguador hidráulico de baño de aceite abierto con ajustes externos de compresión y de rebote.
+      description_pt: Amortecedor hidráulico de banho de óleo aberto com ajustes externos de compressão e de retorno.
       missing_adjustments: [Compression, Rebound]
       missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/rebel-v2/
@@ -138,8 +170,16 @@ option_values:
       description_de: >-
         Hydraulischer Dämpfer mit offenem Ölbad, externen Verstellern für
         Druckstufe und Zugstufe sowie hydraulischem Lockout an der Gabelbrücke.
+      description_fr: Amortisseur hydraulique à bain d’huile ouvert avec réglages externes de compression et de détente plus un lockout hydraulique sur le té.
+      description_it: Ammortizzatore idraulico a bagno d’olio aperto con regolatori esterni di compressione e di ritorno più un lockout idraulico sulla piastra.
+      description_es: Amortiguador hidráulico de baño de aceite abierto con ajustes externos de compresión y de rebote más un lockout hidráulico en la corona.
+      description_pt: Amortecedor hidráulico de banho de óleo aberto com ajustes externos de compressão e de retorno mais um lockout hidráulico na coroa.
       missing_adjustments: [Compression, Rebound]
       missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/rebel-v2/
@@ -152,8 +192,16 @@ option_values:
       description_de: >-
         Hydraulischer Dämpfer mit offenem Ölbad, externem Zugstufenversteller
         und hydraulischem Lockout mit Lenkerfernbedienung.
+      description_fr: Amortisseur hydraulique à bain d’huile ouvert avec réglage de détente externe et un lockout hydraulique déporté au guidon.
+      description_it: Ammortizzatore idraulico a bagno d’olio aperto con regolatore esterno del ritorno e un lockout idraulico remoto al manubrio.
+      description_es: Amortiguador hidráulico de baño de aceite abierto con ajuste de rebote externo y un lockout hidráulico remoto en el manillar.
+      description_pt: Amortecedor hidráulico de banho de óleo aberto com ajuste de retorno externo e um lockout hidráulico remoto no guidão.
       missing_adjustments: [Rebound]
       missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/rebel-v2/
@@ -165,8 +213,16 @@ option_values:
       description_de: >-
         Hydraulischer Dämpfer mit offenem Ölbad und externen Verstellern für
         Druckstufe und Zugstufe.
+      description_fr: Amortisseur hydraulique à bain d’huile ouvert avec réglages externes de compression et de détente.
+      description_it: Ammortizzatore idraulico a bagno d’olio aperto con regolatori esterni di compressione e di ritorno.
+      description_es: Amortiguador hidráulico de baño de aceite abierto con ajustes externos de compresión y de rebote.
+      description_pt: Amortecedor hidráulico de banho de óleo aberto com ajustes externos de compressão e de retorno.
       missing_adjustments: [Compression, Rebound]
       missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/slope/
@@ -179,8 +235,16 @@ option_values:
       description_de: >-
         Dämpfer mit Blow-off-Schutz, externer Druckstufenverstellung,
         hydraulischem Lockout und Zugstufenverstellung.
+      description_fr: Amortisseur protégé par blow-off avec réglage de compression externe, lockout hydraulique et réglage de détente.
+      description_it: Ammortizzatore protetto da blow-off con regolazione esterna della compressione, lockout idraulico e regolazione del ritorno.
+      description_es: Amortiguador protegido por blow-off con ajuste de compresión externo, lockout hidráulico y ajuste de rebote.
+      description_pt: Amortecedor protegido por blow-off com ajuste de compressão externo, lockout hidráulico e ajuste de retorno.
       missing_adjustments: [Compression, Rebound]
       missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/f1rst/
@@ -198,8 +262,16 @@ option_values:
       description_de: >-
         Dämpfer mit Blow-off-Schutz, Zugstufenverstellung und hydraulischem
         Lockout mit Lenkerfernbedienung.
+      description_fr: Amortisseur protégé par blow-off avec réglage de détente et lockout hydraulique déporté au guidon.
+      description_it: Ammortizzatore protetto da blow-off con regolazione del ritorno e lockout idraulico remoto al manubrio.
+      description_es: Amortiguador protegido por blow-off con ajuste de rebote y lockout hidráulico remoto en el manillar.
+      description_pt: Amortecedor protegido por blow-off com ajuste de retorno e lockout hidráulico remoto no guidão.
       missing_adjustments: [Rebound]
       missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/f1rst/
@@ -217,8 +289,16 @@ option_values:
       description_de: >-
         Hydraulischer Druckstufendämpfer mit externen Verstellern für Druckstufe
         und Zugstufe, ohne Lockout.
+      description_fr: Amortisseur hydraulique de compression avec réglages externes de compression et de détente, sans lockout.
+      description_it: Ammortizzatore idraulico di compressione con regolatori esterni di compressione e di ritorno, senza lockout.
+      description_es: Amortiguador hidráulico de compresión con ajustes externos de compresión y de rebote, sin lockout.
+      description_pt: Amortecedor hidráulico de compressão com ajustes externos de compressão e de retorno, sem lockout.
       missing_adjustments: [Compression, Rebound]
       missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/blade-pro/
@@ -231,8 +311,16 @@ option_values:
         Hydraulic lockout damper.
       description_de: >-
         Dämpfer mit hydraulischem Lockout.
+      description_fr: Amortisseur à lockout hydraulique.
+      description_it: Ammortizzatore con lockout idraulico.
+      description_es: Amortiguador de lockout hidráulico.
+      description_pt: Amortecedor com lockout hidráulico.
       missing_adjustments: [Lockout control]
       missing_adjustments_de: [Lockout-Hebel]
+      missing_adjustments_fr: [Commande de lockout]
+      missing_adjustments_it: [Comando del lockout]
+      missing_adjustments_es: [Control del lockout]
+      missing_adjustments_pt: [Controle do lockout]
       adjustments: []
       source:
         - https://rstsuspension.com/products/aerial/
@@ -251,8 +339,16 @@ option_values:
       description_de: >-
         Dämpfer mit hydraulischem Lockout und fester (nicht einstellbarer)
         Zugstufe.
+      description_fr: Amortisseur à lockout hydraulique avec détente fixe (non réglable).
+      description_it: Ammortizzatore con lockout idraulico e ritorno fisso (non regolabile).
+      description_es: Amortiguador de lockout hidráulico con rebote fijo (no ajustable).
+      description_pt: Amortecedor com lockout hidráulico e retorno fixo (não ajustável).
       missing_adjustments: [Lockout control]
       missing_adjustments_de: [Lockout-Hebel]
+      missing_adjustments_fr: [Commande de lockout]
+      missing_adjustments_it: [Comando del lockout]
+      missing_adjustments_es: [Control del lockout]
+      missing_adjustments_pt: [Controle do lockout]
       adjustments: []
       source:
         - https://rstsuspension.com/products/blade/
@@ -263,8 +359,16 @@ option_values:
         Hydraulic lockout damper with external rebound adjust.
       description_de: >-
         Dämpfer mit hydraulischem Lockout und externer Zugstufenverstellung.
+      description_fr: Amortisseur à lockout hydraulique avec réglage de détente externe.
+      description_it: Ammortizzatore con lockout idraulico e regolazione esterna del ritorno.
+      description_es: Amortiguador de lockout hidráulico con ajuste de rebote externo.
+      description_pt: Amortecedor com lockout hidráulico e ajuste de retorno externo.
       missing_adjustments: [Rebound, Lockout control]
       missing_adjustments_de: [Zugstufe, Lockout-Hebel]
+      missing_adjustments_fr: [Détente, Commande de lockout]
+      missing_adjustments_it: [Ritorno, Comando del lockout]
+      missing_adjustments_es: [Rebote, Control del lockout]
+      missing_adjustments_pt: [Retorno, Controle do lockout]
       adjustments: []
       source:
         - https://rstsuspension.com/products/blade/
@@ -276,8 +380,12 @@ option_values:
       description_de: >-
         Mechanischer Lockout, der die Gabel an jeder Stelle ihres Federwegs
         sperrt.
+      description_fr: Lockout mécanique qui verrouille la fourche en n’importe quel point de son débattement.
+      description_it: Lockout meccanico che blocca la forcella in qualsiasi punto della sua escursione.
+      description_es: Lockout mecánico que bloquea la horquilla en cualquier punto de su recorrido.
+      description_pt: Lockout mecânico que trava o garfo em qualquer ponto do seu curso.
       adjustments:
-        - { name: Lockout, name_de: Lockout, type: boolean, notes: Mechanical lock-out, notes_de: Mechanischer Lockout }
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean, notes: Mechanical lock-out, notes_de: Mechanischer Lockout, notes_fr: Lockout mécanique, notes_it: Lockout meccanico, notes_es: Lockout mecánico, notes_pt: Lockout mecânico }
       source:
         - https://rstsuspension.com/products/aerial/
         - https://rstsuspension.com/products/capa/
@@ -290,8 +398,16 @@ option_values:
         Simple damper with external rebound adjust.
       description_de: >-
         Einfacher Dämpfer mit externer Zugstufenverstellung.
+      description_fr: Amortisseur simple avec réglage de détente externe.
+      description_it: Ammortizzatore semplice con regolazione esterna del ritorno.
+      description_es: Amortiguador sencillo con ajuste de rebote externo.
+      description_pt: Amortecedor simples com ajuste de retorno externo.
       missing_adjustments: [Rebound]
       missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/vibe-v2/
@@ -317,6 +433,10 @@ guides:
   rst_highend_forks:
     label: RST owner's manual, high-end models (XC1800-123)
     label_de: RST Bedienungsanleitung, Highend-Modelle (XC1800-123)
+    label_fr: Manuel d’utilisation RST, modèles haut de gamme (XC1800-123)
+    label_it: Manuale d’uso RST, modelli di fascia alta (XC1800-123)
+    label_es: Manual del usuario RST, modelos de gama alta (XC1800-123)
+    label_pt: Manual do usuário RST, modelos de topo de linha (XC1800-123)
     source: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     rules:
       - target: pressure
@@ -346,17 +466,21 @@ nodes:
     draft: true
     category: Downhill
     category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     url: https://rstsuspension.com/products/killah/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, stanchion_fr: 36mm aluminium, stanchion_it: 36mm alluminio, stanchion_es: 36mm aluminio, stanchion_pt: 36mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 43
         axle: 20x110mm bolt axle
         adjustments: &air_spring
-          - { name: Pressure, name_de: Luftdruck, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
         options:
           damper: [ocrc_plus]
           travel_mm: [200]
@@ -367,14 +491,26 @@ nodes:
         note_de: |-
           - Downhill-Chassis mit Doppelbrücke und Magnesium-Tauchrohren
           - Post-Mount-Scheibenbremse, 180-220mm-Bremsscheiben
+        note_fr: |-
+          - Châssis descente à double té avec fourreaux en magnésium
+          - Disque post mount, rotors de 180-220 mm
+        note_it: |-
+          - Telaio da downhill a doppia piastra con foderi in magnesio
+          - Freno post mount, dischi da 180-220 mm
+        note_es: |-
+          - Chasis de descenso de doble corona con botellas de magnesio
+          - Freno post mount, discos de 180-220 mm
+        note_pt: |-
+          - Chassi de downhill de dupla coroa com botas de magnésio
+          - Freio post mount, discos de 180-220 mm
       - label: Coil
         level: trim
-        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, stanchion_fr: 36mm aluminium, stanchion_it: 36mm alluminio, stanchion_es: 36mm aluminio, stanchion_pt: 36mm alumínio, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 43
         axle: 20x110mm bolt axle
         adjustments: &coil_spring
-          - { name: Spring Rate, name_de: Federrate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, name_de: Vorspannung, type: numerical, min: 0 }
+          - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, min: 0 }
         options:
           damper: [ocrc_plus]
           travel_mm: [200]
@@ -385,19 +521,35 @@ nodes:
         note_de: |-
           - Downhill-Chassis mit Doppelbrücke und Magnesium-Tauchrohren
           - Post-Mount-Scheibenbremse, 180-220mm-Bremsscheiben
+        note_fr: |-
+          - Châssis descente à double té avec fourreaux en magnésium
+          - Disque post mount, rotors de 180-220 mm
+        note_it: |-
+          - Telaio da downhill a doppia piastra con foderi in magnesio
+          - Freno post mount, dischi da 180-220 mm
+        note_es: |-
+          - Chasis de descenso de doble corona con botellas de magnesio
+          - Freno post mount, discos de 180-220 mm
+        note_pt: |-
+          - Chassi de downhill de dupla coroa com botas de magnésio
+          - Freio post mount, discos de 180-220 mm
 
   - label: "R.EVO 29"
     level: model
     draft: true
     category: Downhill
     category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     url: https://rstsuspension.com/products/r-evo-29/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, stanchion_fr: 38mm aluminium, stanchion_it: 38mm alluminio, stanchion_es: 38mm aluminio, stanchion_pt: 38mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 20x110mm bolt axle (Boost)
         adjustments: *air_spring
@@ -411,9 +563,21 @@ nodes:
         note_de: |-
           - 29er-Downhill-Chassis mit Doppelbrücke, maximale Reifengröße 29x2.8
           - Bosch-eBike-ABS-fähig
+        note_fr: |-
+          - Châssis descente 29" à double té, pneu max. 29x2,8
+          - Prêt pour le Bosch eBike ABS
+        note_it: |-
+          - Telaio da downhill 29" a doppia piastra, copertone max. 29x2,8
+          - Predisposta per il Bosch eBike ABS
+        note_es: |-
+          - Chasis de descenso 29" de doble corona, neumático máx. 29x2,8
+          - Preparada para el Bosch eBike ABS
+        note_pt: |-
+          - Chassi de downhill 29" de dupla coroa, pneu máx. 29x2,8
+          - Preparado para o Bosch eBike ABS
       - label: Coil
         level: trim
-        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, stanchion_fr: 38mm aluminium, stanchion_it: 38mm alluminio, stanchion_es: 38mm aluminio, stanchion_pt: 38mm alumínio, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 51
         axle: 20x110mm bolt axle (Boost)
         adjustments: *coil_spring
@@ -427,6 +591,18 @@ nodes:
         note_de: |-
           - 29er-Downhill-Chassis mit Doppelbrücke, maximale Reifengröße 29x2.8
           - Bosch-eBike-ABS-fähig
+        note_fr: |-
+          - Châssis descente 29" à double té, pneu max. 29x2,8
+          - Prêt pour le Bosch eBike ABS
+        note_it: |-
+          - Telaio da downhill 29" a doppia piastra, copertone max. 29x2,8
+          - Predisposta per il Bosch eBike ABS
+        note_es: |-
+          - Chasis de descenso 29" de doble corona, neumático máx. 29x2,8
+          - Preparada para el Bosch eBike ABS
+        note_pt: |-
+          - Chassi de downhill 29" de dupla coroa, pneu máx. 29x2,8
+          - Preparado para o Bosch eBike ABS
 
   # ---- Enduro / e-MTB -----------------------------------------------------
   - label: "STITCH 29"
@@ -434,13 +610,17 @@ nodes:
     draft: true
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     url: https://rstsuspension.com/products/stitch/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, stanchion_fr: 38mm aluminium, stanchion_it: 38mm alluminio, stanchion_es: 38mm aluminio, stanchion_pt: 38mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x110mm or 20x110mm (Boost) bolt axle
         adjustments: *air_spring
@@ -450,9 +630,13 @@ nodes:
           wheel_size: [29]
         note: Tapered 1.5" aluminum steerer, max tire 29x2.8. Bosch eBike ABS ready.
         note_de: Konischer 1.5"-Aluminium-Gabelschaft, maximale Reifengröße 29x2.8. Bosch-eBike-ABS-fähig.
+        note_fr: Tube de direction conique en aluminium de 1,5", pneu max. 29x2,8. Prête pour le Bosch eBike ABS.
+        note_it: Canotto sterzo conico in alluminio da 1,5", copertone max. 29x2,8. Predisposta per il Bosch eBike ABS.
+        note_es: Tubo de dirección cónico de aluminio de 1,5", neumático máx. 29x2,8. Preparada para el Bosch eBike ABS.
+        note_pt: Tubo de direção cônico de alumínio de 1,5", pneu máx. 29x2,8. Preparado para o Bosch eBike ABS.
       - label: Coil
         level: trim
-        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, stanchion_fr: 38mm aluminium, stanchion_it: 38mm alluminio, stanchion_es: 38mm aluminio, stanchion_pt: 38mm alumínio, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 51
         axle: 15x110mm or 20x110mm (Boost) bolt axle
         adjustments: *coil_spring
@@ -462,11 +646,19 @@ nodes:
           wheel_size: [29]
         note: Tapered 1.5" aluminum steerer, max tire 29x2.8. Bosch eBike ABS ready.
         note_de: Konischer 1.5"-Aluminium-Gabelschaft, maximale Reifengröße 29x2.8. Bosch-eBike-ABS-fähig.
+        note_fr: Tube de direction conique en aluminium de 1,5", pneu max. 29x2,8. Prête pour le Bosch eBike ABS.
+        note_it: Canotto sterzo conico in alluminio da 1,5", copertone max. 29x2,8. Predisposta per il Bosch eBike ABS.
+        note_es: Tubo de dirección cónico de aluminio de 1,5", neumático máx. 29x2,8. Preparada para el Bosch eBike ABS.
+        note_pt: Tubo de direção cônico de alumínio de 1,5", pneu máx. 29x2,8. Preparado para o Bosch eBike ABS.
 
   - label: "STITCH 29 Limited Edition"
     level: model
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     url: https://rstsuspension.com/products/stitch-29-limited-edition/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
@@ -474,7 +666,7 @@ nodes:
       - label: Air
         level: trim
         draft: true
-        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, stanchion_fr: 38mm aluminium, stanchion_it: 38mm alluminio, stanchion_es: 38mm aluminio, stanchion_pt: 38mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -484,19 +676,27 @@ nodes:
           wheel_size: [29]
         note: 180mm-only edition of the STITCH 29. Bosch eBike ABS ready.
         note_de: Reine 180mm-Edition der STITCH 29. Bosch-eBike-ABS-fähig.
+        note_fr: Édition 180 mm uniquement de la STITCH 29. Prête pour le Bosch eBike ABS.
+        note_it: Edizione solo 180 mm della STITCH 29. Predisposta per il Bosch eBike ABS.
+        note_es: Edición de solo 180 mm de la STITCH 29. Preparada para el Bosch eBike ABS.
+        note_pt: Edição somente de 180 mm da STITCH 29. Preparada para o Bosch eBike ABS.
 
   - label: "STITCH"
     level: model
     draft: true
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     url: https://rstsuspension.com/products/stitch-2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, stanchion_fr: 36mm aluminium, stanchion_it: 36mm alluminio, stanchion_es: 36mm aluminio, stanchion_pt: 36mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 43
         axle: 20x110mm QR axle
         adjustments: *air_spring
@@ -506,9 +706,13 @@ nodes:
           wheel_size: [27.5, 26]
         note: 27.5" / 26" chassis, max tire 2.4".
         note_de: Chassis für 27.5" / 26", maximale Reifengröße 2.4".
+        note_fr: Châssis 27,5" / 26", pneu max. 2,4".
+        note_it: Telaio 27,5" / 26", copertone max. 2,4".
+        note_es: Chasis 27,5" / 26", neumático máx. 2,4".
+        note_pt: Chassi 27,5" / 26", pneu máx. 2,4".
       - label: Coil
         level: trim
-        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, stanchion_fr: 36mm aluminium, stanchion_it: 36mm alluminio, stanchion_es: 36mm aluminio, stanchion_pt: 36mm alumínio, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 43
         axle: 20x110mm QR axle
         adjustments: *coil_spring
@@ -518,19 +722,27 @@ nodes:
           wheel_size: [27.5, 26]
         note: 27.5" / 26" chassis, max tire 2.4".
         note_de: Chassis für 27.5" / 26", maximale Reifengröße 2.4".
+        note_fr: Châssis 27,5" / 26", pneu max. 2,4".
+        note_it: Telaio 27,5" / 26", copertone max. 2,4".
+        note_es: Chasis 27,5" / 26", neumático máx. 2,4".
+        note_pt: Chassi 27,5" / 26", pneu máx. 2,4".
 
   - label: "ROGUE V2"
     level: model
     draft: true
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     url: https://rstsuspension.com/products/rogue-v2-2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, stanchion_fr: 36mm aluminium, stanchion_it: 36mm alluminio, stanchion_es: 36mm aluminio, stanchion_pt: 36mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm QR axle
         adjustments: *air_spring
@@ -540,7 +752,7 @@ nodes:
           wheel_size: [29]
       - label: Air-TRL
         level: trim
-        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, stanchion_fr: 36mm aluminium, stanchion_it: 36mm alluminio, stanchion_es: 36mm aluminio, stanchion_pt: 36mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm QR axle
         adjustments: *air_spring
@@ -550,9 +762,13 @@ nodes:
           wheel_size: [29]
         note: Handlebar remote lockout (TRL).
         note_de: Lenker-Fernbedienung für den Lockout (TRL).
+        note_fr: Lockout déporté au guidon (TRL).
+        note_it: Lockout remoto al manubrio (TRL).
+        note_es: Lockout remoto en el manillar (TRL).
+        note_pt: Lockout remoto no guidão (TRL).
       - label: Air w/o Lockout
         level: trim
-        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, stanchion_fr: 36mm aluminium, stanchion_it: 36mm alluminio, stanchion_es: 36mm aluminio, stanchion_pt: 36mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm QR axle
         adjustments: *air_spring
@@ -566,13 +782,17 @@ nodes:
     draft: true
     category: Trail
     category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     url: https://rstsuspension.com/products/vibe-v2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air-RA
         level: trim
-        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, stanchion_fr: 36mm acier, stanchion_it: 36mm acciaio, stanchion_es: 36mm acero, stanchion_pt: 36mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -582,7 +802,7 @@ nodes:
           wheel_size: [29]
       - label: Air-RL
         level: trim
-        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, stanchion_fr: 36mm acier, stanchion_it: 36mm acciaio, stanchion_es: 36mm acero, stanchion_pt: 36mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -592,9 +812,13 @@ nodes:
           wheel_size: [29]
         note: Remote-lockout variant.
         note_de: Variante mit Fernbedienungs-Lockout.
+        note_fr: Variante à lockout déporté.
+        note_it: Variante con lockout remoto.
+        note_es: Variante con lockout remoto.
+        note_pt: Variante com lockout remoto.
       - label: RA
         level: trim
-        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, stanchion_fr: 36mm acier, stanchion_it: 36mm acciaio, stanchion_es: 36mm acero, stanchion_pt: 36mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 51
         axle: 15x110mm bolt axle
         adjustments: *coil_spring
@@ -604,7 +828,7 @@ nodes:
           wheel_size: [29]
       - label: RL
         level: trim
-        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, stanchion_fr: 36mm acier, stanchion_it: 36mm acciaio, stanchion_es: 36mm acero, stanchion_pt: 36mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 51
         axle: 15x110mm bolt axle
         adjustments: *coil_spring
@@ -614,9 +838,13 @@ nodes:
           wheel_size: [29]
         note: Remote-lockout variant.
         note_de: Variante mit Fernbedienungs-Lockout.
+        note_fr: Variante à lockout déporté.
+        note_it: Variante con lockout remoto.
+        note_es: Variante con lockout remoto.
+        note_pt: Variante com lockout remoto.
       - label: TNL
         level: trim
-        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, stanchion_fr: 36mm acier, stanchion_it: 36mm acciaio, stanchion_es: 36mm acero, stanchion_pt: 36mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 51
         axle: 15x110mm bolt axle
         adjustments: *coil_spring
@@ -630,13 +858,17 @@ nodes:
     draft: true
     category: Trail
     category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     url: https://rstsuspension.com/products/rebel-v2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 43
         axle: 15x110mm or 20x110mm (Boost) bolt axle
         adjustments: *air_spring
@@ -646,9 +878,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Max tire 29x2.4 or 27.5x3.0.
         note_de: Maximale Reifengröße 29x2.4 oder 27.5x3.0.
+        note_fr: Pneu max. 29x2,4 ou 27,5x3,0.
+        note_it: Copertone max. 29x2,4 o 27,5x3,0.
+        note_es: Neumático máx. 29x2,4 o 27,5x3,0.
+        note_pt: Pneu máx. 29x2,4 ou 27,5x3,0.
       - label: Air-TRL
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 43
         axle: 15x110mm or 20x110mm (Boost) bolt axle
         adjustments: *air_spring
@@ -658,9 +894,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Handlebar remote lockout (TRL). Max tire 29x2.4 or 27.5x3.0.
         note_de: Lenker-Fernbedienung für den Lockout (TRL). Maximale Reifengröße 29x2.4 oder 27.5x3.0.
+        note_fr: Lockout déporté au guidon (TRL). Pneu max. 29x2,4 ou 27,5x3,0.
+        note_it: Lockout remoto al manubrio (TRL). Copertone max. 29x2,4 o 27,5x3,0.
+        note_es: Lockout remoto en el manillar (TRL). Neumático máx. 29x2,4 o 27,5x3,0.
+        note_pt: Lockout remoto no guidão (TRL). Pneu máx. 29x2,4 ou 27,5x3,0.
       - label: Air w/o Lockout
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 43
         axle: 15x110mm or 20x110mm (Boost) bolt axle
         adjustments: *air_spring
@@ -670,19 +910,27 @@ nodes:
           wheel_size: [29, 27.5]
         note: Max tire 29x2.4 or 27.5x3.0.
         note_de: Maximale Reifengröße 29x2.4 oder 27.5x3.0.
+        note_fr: Pneu max. 29x2,4 ou 27,5x3,0.
+        note_it: Copertone max. 29x2,4 o 27,5x3,0.
+        note_es: Neumático máx. 29x2,4 o 27,5x3,0.
+        note_pt: Pneu máx. 29x2,4 ou 27,5x3,0.
 
   - label: "BLADE PRO"
     level: model
     draft: true
     category: Trail
     category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     url: https://rstsuspension.com/products/blade-pro/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 35mm Aluminum, stanchion_de: 35mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 35mm Aluminum, stanchion_de: 35mm Aluminium, stanchion_fr: 35mm aluminium, stanchion_it: 35mm alluminio, stanchion_es: 35mm aluminio, stanchion_pt: 35mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -692,9 +940,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: 29" travels 130/140/150mm, 27.5" travels 100/120/140mm; max tire 2.8".
         note_de: 29" mit Federwegen von 130/140/150mm, 27.5" mit 100/120/140mm; maximale Reifengröße 2.8".
+        note_fr: Le 29" propose 130/140/150 mm, le 27,5" propose 100/120/140 mm ; pneu max. 2,8".
+        note_it: Il 29" ha 130/140/150 mm, il 27,5" ha 100/120/140 mm; copertone max. 2,8".
+        note_es: El 29" ofrece 130/140/150 mm y el 27,5" ofrece 100/120/140 mm; neumático máx. 2,8".
+        note_pt: O 29" tem 130/140/150 mm e o 27,5" tem 100/120/140 mm; pneu máx. 2,8".
       - label: Air-TRL
         level: trim
-        specs: { stanchion: 35mm Aluminum, stanchion_de: 35mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 35mm Aluminum, stanchion_de: 35mm Aluminium, stanchion_fr: 35mm aluminium, stanchion_it: 35mm alluminio, stanchion_es: 35mm aluminio, stanchion_pt: 35mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -704,9 +956,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Handlebar remote lockout (TRL). 29" travels 130/140/150mm, 27.5" travels 100/120/140mm.
         note_de: Lenker-Fernbedienung für den Lockout (TRL). 29" mit Federwegen von 130/140/150mm, 27.5" mit 100/120/140mm.
+        note_fr: Lockout déporté au guidon (TRL). Le 29" propose 130/140/150 mm, le 27,5" propose 100/120/140 mm.
+        note_it: Lockout remoto al manubrio (TRL). Il 29" ha 130/140/150 mm, il 27,5" ha 100/120/140 mm.
+        note_es: Lockout remoto en el manillar (TRL). El 29" ofrece 130/140/150 mm y el 27,5" ofrece 100/120/140 mm.
+        note_pt: Lockout remoto no guidão (TRL). O 29" tem 130/140/150 mm e o 27,5" tem 100/120/140 mm.
       - label: Air w/o Lockout
         level: trim
-        specs: { stanchion: 35mm Aluminum, stanchion_de: 35mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 35mm Aluminum, stanchion_de: 35mm Aluminium, stanchion_fr: 35mm aluminium, stanchion_it: 35mm alluminio, stanchion_es: 35mm aluminio, stanchion_pt: 35mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -716,19 +972,27 @@ nodes:
           wheel_size: [29, 27.5]
         note: 29" travels 130/140/150mm, 27.5" travels 100/120/140mm; max tire 2.8".
         note_de: 29" mit Federwegen von 130/140/150mm, 27.5" mit 100/120/140mm; maximale Reifengröße 2.8".
+        note_fr: Le 29" propose 130/140/150 mm, le 27,5" propose 100/120/140 mm ; pneu max. 2,8".
+        note_it: Il 29" ha 130/140/150 mm, il 27,5" ha 100/120/140 mm; copertone max. 2,8".
+        note_es: El 29" ofrece 130/140/150 mm y el 27,5" ofrece 100/120/140 mm; neumático máx. 2,8".
+        note_pt: O 29" tem 130/140/150 mm e o 27,5" tem 100/120/140 mm; pneu máx. 2,8".
 
   - label: "BLADE"
     level: model
     draft: true
     category: Trail
     category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     url: https://rstsuspension.com/products/blade/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air-TNL-F
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -738,9 +1002,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: 29" travels 90-140mm (air up to 150mm), 27.5" travels 100/120/140mm; max tire 2.8".
         note_de: 29" mit Federwegen von 90-140mm (bei Luft bis 150mm), 27.5" mit 100/120/140mm; maximale Reifengröße 2.8".
+        note_fr: Le 29" propose 90-140 mm (jusqu’à 150 mm en pneumatique), le 27,5" propose 100/120/140 mm ; pneu max. 2,8".
+        note_it: Il 29" ha 90-140 mm (fino a 150 mm con molla pneumatica), il 27,5" ha 100/120/140 mm; copertone max. 2,8".
+        note_es: El 29" ofrece 90-140 mm (hasta 150 mm en aire) y el 27,5" ofrece 100/120/140 mm; neumático máx. 2,8".
+        note_pt: O 29" tem 90-140 mm (até 150 mm no ar) e o 27,5" tem 100/120/140 mm; pneu máx. 2,8".
       - label: Air-TNL-R
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -750,9 +1018,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: 29" travels 90-140mm (air up to 150mm), 27.5" travels 100/120/140mm; max tire 2.8".
         note_de: 29" mit Federwegen von 90-140mm (bei Luft bis 150mm), 27.5" mit 100/120/140mm; maximale Reifengröße 2.8".
+        note_fr: Le 29" propose 90-140 mm (jusqu’à 150 mm en pneumatique), le 27,5" propose 100/120/140 mm ; pneu max. 2,8".
+        note_it: Il 29" ha 90-140 mm (fino a 150 mm con molla pneumatica), il 27,5" ha 100/120/140 mm; copertone max. 2,8".
+        note_es: El 29" ofrece 90-140 mm (hasta 150 mm en aire) y el 27,5" ofrece 100/120/140 mm; neumático máx. 2,8".
+        note_pt: O 29" tem 90-140 mm (até 150 mm no ar) e o 27,5" tem 100/120/140 mm; pneu máx. 2,8".
       - label: Air-RL
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -762,9 +1034,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Remote-lockout variant.
         note_de: Variante mit Fernbedienungs-Lockout.
+        note_fr: Variante à lockout déporté.
+        note_it: Variante con lockout remoto.
+        note_es: Variante con lockout remoto.
+        note_pt: Variante com lockout remoto.
       - label: Air-RL-R
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -774,9 +1050,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Remote-lockout variant.
         note_de: Variante mit Fernbedienungs-Lockout.
+        note_fr: Variante à lockout déporté.
+        note_it: Variante con lockout remoto.
+        note_es: Variante con lockout remoto.
+        note_pt: Variante com lockout remoto.
       - label: TNL-F
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *coil_spring
@@ -786,7 +1066,7 @@ nodes:
           wheel_size: [29, 27.5]
       - label: TNL-R
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *coil_spring
@@ -796,7 +1076,7 @@ nodes:
           wheel_size: [29, 27.5]
       - label: RL
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *coil_spring
@@ -806,9 +1086,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Remote-lockout variant.
         note_de: Variante mit Fernbedienungs-Lockout.
+        note_fr: Variante à lockout déporté.
+        note_it: Variante con lockout remoto.
+        note_es: Variante con lockout remoto.
+        note_pt: Variante com lockout remoto.
       - label: RL-R
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 47
         axle: 15x110mm bolt axle
         adjustments: *coil_spring
@@ -818,11 +1102,19 @@ nodes:
           wheel_size: [29, 27.5]
         note: Remote-lockout variant.
         note_de: Variante mit Fernbedienungs-Lockout.
+        note_fr: Variante à lockout déporté.
+        note_it: Variante con lockout remoto.
+        note_es: Variante con lockout remoto.
+        note_pt: Variante com lockout remoto.
 
   - label: "STORM"
     level: model
     category: Enduro
     category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     url: https://rstsuspension.com/products/storm/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
@@ -830,7 +1122,7 @@ nodes:
       - label: RA
         level: trim
         draft: true
-        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, stanchion_fr: 36mm acier, stanchion_it: 36mm acciaio, stanchion_es: 36mm acero, stanchion_pt: 36mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 43
         axle: 20x110mm QR axle (Boost)
         adjustments: *coil_spring
@@ -840,6 +1132,10 @@ nodes:
           wheel_size: [27.5, 26]
         note: Coil-sprung 27.5" / 26" chassis, max tire 2.4".
         note_de: Chassis für 27.5" / 26" mit Stahlfeder, maximale Reifengröße 2.4".
+        note_fr: Châssis 27,5" / 26" à ressort, pneu max. 2,4".
+        note_it: Telaio 27,5" / 26" a molla, copertone max. 2,4".
+        note_es: Chasis 27,5" / 26" de muelle, neumático máx. 2,4".
+        note_pt: Chassi 27,5" / 26" a mola, pneu máx. 2,4".
 
   # ---- XC / e-MTB ---------------------------------------------------------
   - label: "F1RST 110"
@@ -847,13 +1143,17 @@ nodes:
     draft: true
     category: XC / Trail
     category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
     url: https://rstsuspension.com/products/f1rst/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: 110-15 Air
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x110mm bolt axle (Boost)
         adjustments: *air_spring
@@ -863,7 +1163,7 @@ nodes:
           wheel_size: [29, 27.5, 26]
       - label: 110-15 Air-TRL
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x110mm bolt axle (Boost)
         adjustments: *air_spring
@@ -873,9 +1173,13 @@ nodes:
           wheel_size: [29, 27.5, 26]
         note: Handlebar remote lockout (TRL).
         note_de: Lenker-Fernbedienung für den Lockout (TRL).
+        note_fr: Lockout déporté au guidon (TRL).
+        note_it: Lockout remoto al manubrio (TRL).
+        note_es: Lockout remoto en el manillar (TRL).
+        note_pt: Lockout remoto no guidão (TRL).
       - label: 110-9 Air
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         axle: 9x110mm open dropout
         adjustments: *air_spring
         options:
@@ -884,9 +1188,13 @@ nodes:
           wheel_size: [29, 27.5, 26]
         note: Offset 51mm (29" / 27.5+) or 43mm (27.5" / 26").
         note_de: Offset 51mm (29" / 27.5+) oder 43mm (27.5" / 26").
+        note_fr: Déport 51 mm (29" / 27,5+) ou 43 mm (27,5" / 26").
+        note_it: Offset 51 mm (29" / 27,5+) o 43 mm (27,5" / 26").
+        note_es: Offset 51 mm (29" / 27,5+) o 43 mm (27,5" / 26").
+        note_pt: Offset 51 mm (29" / 27,5+) ou 43 mm (27,5" / 26").
       - label: 110-9 Air-TRL
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         axle: 9x110mm open dropout
         adjustments: *air_spring
         options:
@@ -895,19 +1203,27 @@ nodes:
           wheel_size: [29, 27.5, 26]
         note: Handlebar remote lockout (TRL). Offset 51mm (29" / 27.5+) or 43mm (27.5" / 26").
         note_de: Lenker-Fernbedienung für den Lockout (TRL). Offset 51mm (29" / 27.5+) oder 43mm (27.5" / 26").
+        note_fr: Lockout déporté au guidon (TRL). Déport 51 mm (29" / 27,5+) ou 43 mm (27,5" / 26").
+        note_it: Lockout remoto al manubrio (TRL). Offset 51 mm (29" / 27,5+) o 43 mm (27,5" / 26").
+        note_es: Lockout remoto en el manillar (TRL). Offset 51 mm (29" / 27,5+) o 43 mm (27,5" / 26").
+        note_pt: Lockout remoto no guidão (TRL). Offset 51 mm (29" / 27,5+) ou 43 mm (27,5" / 26").
 
   - label: "F1RST"
     level: model
     draft: true
     category: XC / Trail
     category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
     url: https://rstsuspension.com/products/f1rst-3/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
         options:
@@ -916,9 +1232,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Offset 51mm (29") or 43mm (27.5").
         note_de: Offset 51mm (29") oder 43mm (27.5").
+        note_fr: Déport 51 mm (29") ou 43 mm (27,5").
+        note_it: Offset 51 mm (29") o 43 mm (27,5").
+        note_es: Offset 51 mm (29") o 43 mm (27,5").
+        note_pt: Offset 51 mm (29") ou 43 mm (27,5").
       - label: Air-TRL
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
         options:
@@ -927,11 +1247,19 @@ nodes:
           wheel_size: [29, 27.5]
         note: Handlebar remote lockout (TRL). Offset 51mm (29") or 43mm (27.5").
         note_de: Lenker-Fernbedienung für den Lockout (TRL). Offset 51mm (29") oder 43mm (27.5").
+        note_fr: Lockout déporté au guidon (TRL). Déport 51 mm (29") ou 43 mm (27,5").
+        note_it: Lockout remoto al manubrio (TRL). Offset 51 mm (29") o 43 mm (27,5").
+        note_es: Lockout remoto en el manillar (TRL). Offset 51 mm (29") o 43 mm (27,5").
+        note_pt: Lockout remoto no guidão (TRL). Offset 51 mm (29") ou 43 mm (27,5").
 
   - label: "AERIAL 110"
     level: model
     category: XC / Trail
     category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
     url: https://rstsuspension.com/products/aerial/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
@@ -939,7 +1267,7 @@ nodes:
       - label: 110-15 TNL
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -949,7 +1277,7 @@ nodes:
           wheel_size: [29, 27.5, 26]
       - label: 110-15 MLC
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x110mm bolt axle
         adjustments: *air_spring
@@ -960,7 +1288,7 @@ nodes:
       - label: 110-9 TNL
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         axle: 9x110mm open dropout
         adjustments: *air_spring
         options:
@@ -969,7 +1297,7 @@ nodes:
           wheel_size: [29, 27.5, 26]
       - label: 110-9 MLC
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         axle: 9x110mm open dropout
         adjustments: *air_spring
         options:
@@ -981,6 +1309,10 @@ nodes:
     level: model
     category: XC / Trail
     category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
     url: https://rstsuspension.com/products/aerial-2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
@@ -988,7 +1320,7 @@ nodes:
       - label: RL
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
         options:
@@ -997,10 +1329,14 @@ nodes:
           wheel_size: [29, 27.5]
         note: Remote-lockout variant. Offset 51mm (29") or 43mm (27.5").
         note_de: Variante mit Fernbedienungs-Lockout. Offset 51mm (29") oder 43mm (27.5").
+        note_fr: Variante à lockout déporté. Déport 51 mm (29") ou 43 mm (27,5").
+        note_it: Variante con lockout remoto. Offset 51 mm (29") o 43 mm (27,5").
+        note_es: Variante con lockout remoto. Offset 51 mm (29") o 43 mm (27,5").
+        note_pt: Variante com lockout remoto. Offset 51 mm (29") ou 43 mm (27,5").
       - label: TNL
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
         options:
@@ -1009,9 +1345,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Offset 51mm (29") or 43mm (27.5").
         note_de: Offset 51mm (29") oder 43mm (27.5").
+        note_fr: Déport 51 mm (29") ou 43 mm (27,5").
+        note_it: Offset 51 mm (29") o 43 mm (27,5").
+        note_es: Offset 51 mm (29") o 43 mm (27,5").
+        note_pt: Offset 51 mm (29") ou 43 mm (27,5").
       - label: MLC
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
         options:
@@ -1020,18 +1360,26 @@ nodes:
           wheel_size: [29, 27.5]
         note: Offset 51mm (29") or 43mm (27.5").
         note_de: Offset 51mm (29") oder 43mm (27.5").
+        note_fr: Déport 51 mm (29") ou 43 mm (27,5").
+        note_it: Offset 51 mm (29") o 43 mm (27,5").
+        note_es: Offset 51 mm (29") o 43 mm (27,5").
+        note_pt: Offset 51 mm (29") ou 43 mm (27,5").
 
   - label: "OMEGA"
     level: model
     category: XC / Trail
     category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
     url: https://rstsuspension.com/products/omega/
     setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: RL
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
         options:
@@ -1040,10 +1388,14 @@ nodes:
           wheel_size: [29, 27.5, 26]
         note: Remote-lockout variant. Offset 51mm (29"), 43mm (27.5") or 38mm (26").
         note_de: Variante mit Fernbedienungs-Lockout. Offset 51mm (29"), 43mm (27.5") oder 38mm (26").
+        note_fr: Variante à lockout déporté. Déport 51 mm (29"), 43 mm (27,5") ou 38 mm (26").
+        note_it: Variante con lockout remoto. Offset 51 mm (29"), 43 mm (27,5") o 38 mm (26").
+        note_es: Variante con lockout remoto. Offset 51 mm (29"), 43 mm (27,5") o 38 mm (26").
+        note_pt: Variante com lockout remoto. Offset 51 mm (29"), 43 mm (27,5") ou 38 mm (26").
       - label: TNL
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
         options:
@@ -1052,9 +1404,13 @@ nodes:
           wheel_size: [29, 27.5, 26]
         note: Offset 51mm (29"), 43mm (27.5") or 38mm (26").
         note_de: Offset 51mm (29"), 43mm (27.5") oder 38mm (26").
+        note_fr: Déport 51 mm (29"), 43 mm (27,5") ou 38 mm (26").
+        note_it: Offset 51 mm (29"), 43 mm (27,5") o 38 mm (26").
+        note_es: Offset 51 mm (29"), 43 mm (27,5") o 38 mm (26").
+        note_pt: Offset 51 mm (29"), 43 mm (27,5") ou 38 mm (26").
       - label: MLC
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
         options:
@@ -1063,9 +1419,13 @@ nodes:
           wheel_size: [29, 27.5, 26]
         note: Offset 51mm (29"), 43mm (27.5") or 38mm (26").
         note_de: Offset 51mm (29"), 43mm (27.5") oder 38mm (26").
+        note_fr: Déport 51 mm (29"), 43 mm (27,5") ou 38 mm (26").
+        note_it: Offset 51 mm (29"), 43 mm (27,5") o 38 mm (26").
+        note_es: Offset 51 mm (29"), 43 mm (27,5") o 38 mm (26").
+        note_pt: Offset 51 mm (29"), 43 mm (27,5") ou 38 mm (26").
       - label: T
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
         options:
@@ -1073,18 +1433,26 @@ nodes:
           wheel_size: [29, 27.5, 26]
         note: Undamped coil fork. Offset 51mm (29"), 43mm (27.5") or 38mm (26").
         note_de: Gabel mit Stahlfeder ohne Dämpfung. Offset 51mm (29"), 43mm (27.5") oder 38mm (26").
+        note_fr: Fourche à ressort sans amortissement. Déport 51 mm (29"), 43 mm (27,5") ou 38 mm (26").
+        note_it: Forcella a molla senza smorzamento. Offset 51 mm (29"), 43 mm (27,5") o 38 mm (26").
+        note_es: Horquilla de muelle sin amortiguación. Offset 51 mm (29"), 43 mm (27,5") o 38 mm (26").
+        note_pt: Garfo a mola sem amortecimento. Offset 51 mm (29"), 43 mm (27,5") ou 38 mm (26").
 
   - label: "BLAZE"
     level: model
     category: XC / Trail
     category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
     url: https://rstsuspension.com/products/blaze/
     setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: RL
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
         options:
@@ -1093,10 +1461,14 @@ nodes:
           wheel_size: [29, 27.5]
         note: Remote-lockout variant. Offset 51mm (29") or 44mm (27.5").
         note_de: Variante mit Fernbedienungs-Lockout. Offset 51mm (29") oder 44mm (27.5").
+        note_fr: Variante à lockout déporté. Déport 51 mm (29") ou 44 mm (27,5").
+        note_it: Variante con lockout remoto. Offset 51 mm (29") o 44 mm (27,5").
+        note_es: Variante con lockout remoto. Offset 51 mm (29") o 44 mm (27,5").
+        note_pt: Variante com lockout remoto. Offset 51 mm (29") ou 44 mm (27,5").
       - label: TNL
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
         options:
@@ -1105,9 +1477,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Offset 51mm (29") or 44mm (27.5").
         note_de: Offset 51mm (29") oder 44mm (27.5").
+        note_fr: Déport 51 mm (29") ou 44 mm (27,5").
+        note_it: Offset 51 mm (29") o 44 mm (27,5").
+        note_es: Offset 51 mm (29") o 44 mm (27,5").
+        note_pt: Offset 51 mm (29") ou 44 mm (27,5").
       - label: MLC
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
         options:
@@ -1116,9 +1492,13 @@ nodes:
           wheel_size: [29, 27.5]
         note: Offset 51mm (29") or 44mm (27.5").
         note_de: Offset 51mm (29") oder 44mm (27.5").
+        note_fr: Déport 51 mm (29") ou 44 mm (27,5").
+        note_it: Offset 51 mm (29") o 44 mm (27,5").
+        note_es: Offset 51 mm (29") o 44 mm (27,5").
+        note_pt: Offset 51 mm (29") ou 44 mm (27,5").
       - label: T
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
         options:
@@ -1126,6 +1506,10 @@ nodes:
           wheel_size: [29, 27.5]
         note: Undamped coil fork. Offset 51mm (29") or 44mm (27.5").
         note_de: Gabel mit Stahlfeder ohne Dämpfung. Offset 51mm (29") oder 44mm (27.5").
+        note_fr: Fourche à ressort sans amortissement. Déport 51 mm (29") ou 44 mm (27,5").
+        note_it: Forcella a molla senza smorzamento. Offset 51 mm (29") o 44 mm (27,5").
+        note_es: Horquilla de muelle sin amortiguación. Offset 51 mm (29") o 44 mm (27,5").
+        note_pt: Garfo a mola sem amortecimento. Offset 51 mm (29") ou 44 mm (27,5").
 
   # ---- Dirt jump ----------------------------------------------------------
   - label: "SPACE"
@@ -1133,11 +1517,15 @@ nodes:
     draft: true
     category: Dirt Jump
     category_de: Dirt Jump
+    category_fr: Dirt Jump
+    category_it: Dirt Jump
+    category_es: Dirt Jump
+    category_pt: Dirt Jump
     url: https://rstsuspension.com/products/space/
     children:
       - label: Jump
         level: trim
-        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, stanchion_fr: 36mm aluminium, stanchion_it: 36mm alluminio, stanchion_es: 36mm aluminio, stanchion_pt: 36mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 43
         axle: 15x100mm or 20x110mm bolt axle
         adjustments: *air_spring
@@ -1147,7 +1535,7 @@ nodes:
           wheel_size: [26]
       - label: Free
         level: trim
-        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 36mm Steel, stanchion_de: 36mm Stahl, stanchion_fr: 36mm acier, stanchion_it: 36mm acciaio, stanchion_es: 36mm acero, stanchion_pt: 36mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 43
         axle: 15x100mm or 20x110mm bolt axle
         adjustments: *coil_spring
@@ -1160,6 +1548,10 @@ nodes:
     level: model
     category: Dirt Jump
     category_de: Dirt Jump
+    category_fr: Dirt Jump
+    category_it: Dirt Jump
+    category_es: Dirt Jump
+    category_pt: Dirt Jump
     url: https://rstsuspension.com/products/slope/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
@@ -1167,7 +1559,7 @@ nodes:
       - label: HC
         level: trim
         draft: true
-        specs: { stanchion: 34mm Aluminum, stanchion_de: 34mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 34mm Aluminum, stanchion_de: 34mm Aluminium, stanchion_fr: 34mm aluminium, stanchion_it: 34mm alluminio, stanchion_es: 34mm aluminio, stanchion_pt: 34mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 43
         axle: 15x100mm QR axle
         adjustments: *air_spring
@@ -1180,12 +1572,16 @@ nodes:
     level: model
     category: Dirt Jump
     category_de: Dirt Jump
+    category_fr: Dirt Jump
+    category_it: Dirt Jump
+    category_es: Dirt Jump
+    category_pt: Dirt Jump
     url: https://rstsuspension.com/products/shine/
     children:
       - label: RA
         level: trim
         draft: true
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 43
         axle: 15x100mm bolt axle
         adjustments: *air_spring
@@ -1198,13 +1594,17 @@ nodes:
     level: model
     category: Dirt Jump
     category_de: Dirt Jump
+    category_fr: Dirt Jump
+    category_it: Dirt Jump
+    category_es: Dirt Jump
+    category_pt: Dirt Jump
     url: https://rstsuspension.com/products/dirt/
     setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: RA
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 38
         axle: 15x100mm bolt axle
         adjustments: *coil_spring
@@ -1214,7 +1614,7 @@ nodes:
           wheel_size: [26]
       - label: R
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 38
         axle: 15x100mm bolt axle
         adjustments: *coil_spring
@@ -1223,19 +1623,27 @@ nodes:
           wheel_size: [26]
         note: Fixed (non-adjustable) rebound.
         note_de: Feste (nicht einstellbare) Zugstufe.
+        note_fr: Détente fixe (non réglable).
+        note_it: Ritorno fisso (non regolabile).
+        note_es: Rebote fijo (no ajustable).
+        note_pt: Retorno fixo (não ajustável).
 
   - label: "SNYPER"
     level: model
     draft: true
     category: Dirt Jump
     category_de: Dirt Jump
+    category_fr: Dirt Jump
+    category_it: Dirt Jump
+    category_es: Dirt Jump
+    category_pt: Dirt Jump
     url: https://rstsuspension.com/products/snyper/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 38
         axle: 9x100mm open dropout
         adjustments: *air_spring
@@ -1245,9 +1653,13 @@ nodes:
           wheel_size: [24]
         note: 24" chassis, max tire 24x2.2.
         note_de: Chassis für 24", maximale Reifengröße 24x2.2.
+        note_fr: Châssis 24", pneu max. 24x2,2.
+        note_it: Telaio 24", copertone max. 24x2,2.
+        note_es: Chasis 24", neumático máx. 24x2,2.
+        note_pt: Chassi 24", pneu máx. 24x2,2.
       - label: TRL
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 38
         axle: 9x100mm open dropout
         adjustments: *air_spring
@@ -1257,18 +1669,26 @@ nodes:
           wheel_size: [24]
         note: Handlebar remote lockout (TRL). 24" chassis, max tire 24x2.2.
         note_de: Lenker-Fernbedienung für den Lockout (TRL). Chassis für 24", maximale Reifengröße 24x2.2.
+        note_fr: Lockout déporté au guidon (TRL). Châssis 24", pneu max. 24x2,2.
+        note_it: Lockout remoto al manubrio (TRL). Telaio 24", copertone max. 24x2,2.
+        note_es: Lockout remoto en el manillar (TRL). Chasis 24", neumático máx. 24x2,2.
+        note_pt: Lockout remoto no guidão (TRL). Chassi 24", pneu máx. 24x2,2.
 
   # ---- Junior -------------------------------------------------------------
   - label: "CAPA"
     level: model
     category: Junior
     category_de: Junior
+    category_fr: Junior
+    category_it: Junior
+    category_es: Júnior
+    category_pt: Júnior
     url: https://rstsuspension.com/products/capa/
     setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: MLC
         level: trim
-        specs: { stanchion: 25.4mm Steel, stanchion_de: "25,4mm Stahl", spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 25.4mm Steel, stanchion_de: "25,4mm Stahl", stanchion_fr: "25,4mm acier", stanchion_it: "25,4mm acciaio", stanchion_es: "25,4mm acero", stanchion_pt: "25,4mm aço", spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 38
         axle: 9x100mm open dropout
         adjustments: *coil_spring
@@ -1278,9 +1698,13 @@ nodes:
           wheel_size: [24, 20]
         note: 24" chassis, max tire 24x2.2.
         note_de: Chassis für 24", maximale Reifengröße 24x2.2.
+        note_fr: Châssis 24", pneu max. 24x2,2.
+        note_it: Telaio 24", copertone max. 24x2,2.
+        note_es: Chasis 24", neumático máx. 24x2,2.
+        note_pt: Chassi 24", pneu máx. 24x2,2.
       - label: T
         level: trim
-        specs: { stanchion: 25.4mm Steel, stanchion_de: "25,4mm Stahl", spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 25.4mm Steel, stanchion_de: "25,4mm Stahl", stanchion_fr: "25,4mm acier", stanchion_it: "25,4mm acciaio", stanchion_es: "25,4mm acero", stanchion_pt: "25,4mm aço", spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 38
         axle: 9x100mm open dropout
         adjustments: *coil_spring
@@ -1289,17 +1713,25 @@ nodes:
           wheel_size: [24, 20]
         note: Undamped coil fork for 24" or 20" wheels, max tire 2.2".
         note_de: Gabel mit Stahlfeder ohne Dämpfung für 24"- oder 20"-Laufräder, maximale Reifengröße 2.2".
+        note_fr: Fourche à ressort sans amortissement pour roues de 24" ou 20", pneu max. 2,2".
+        note_it: Forcella a molla senza smorzamento per ruote da 24" o 20", copertone max. 2,2".
+        note_es: Horquilla de muelle sin amortiguación para ruedas de 24" o 20", neumático máx. 2,2".
+        note_pt: Garfo a mola sem amortecimento para rodas de 24" ou 20", pneu máx. 2,2".
 
   - label: "VIVO"
     level: model
     category: Junior
     category_de: Junior
+    category_fr: Junior
+    category_it: Junior
+    category_es: Júnior
+    category_pt: Júnior
     url: https://rstsuspension.com/products/vivo/
     children:
       - label: Air-TNL
         level: trim
         draft: true
-        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, stanchion_fr: 30mm acier, stanchion_it: 30mm acciaio, stanchion_es: 30mm acero, stanchion_pt: 30mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 38
         axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
@@ -1309,7 +1741,7 @@ nodes:
           wheel_size: [24, 20]
       - label: Air-MLC
         level: trim
-        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, stanchion_fr: 30mm acier, stanchion_it: 30mm acciaio, stanchion_es: 30mm acero, stanchion_pt: 30mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 38
         axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
@@ -1320,7 +1752,7 @@ nodes:
       - label: Air-HCR
         level: trim
         draft: true
-        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, stanchion_fr: 30mm acier, stanchion_it: 30mm acciaio, stanchion_es: 30mm acero, stanchion_pt: 30mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 38
         axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
@@ -1331,7 +1763,7 @@ nodes:
       - label: TNL
         level: trim
         draft: true
-        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, stanchion_fr: 30mm acier, stanchion_it: 30mm acciaio, stanchion_es: 30mm acero, stanchion_pt: 30mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 38
         axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
@@ -1341,7 +1773,7 @@ nodes:
           wheel_size: [24, 20]
       - label: MLC
         level: trim
-        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, stanchion_fr: 30mm acier, stanchion_it: 30mm acciaio, stanchion_es: 30mm acero, stanchion_pt: 30mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 38
         axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
@@ -1351,7 +1783,7 @@ nodes:
           wheel_size: [24, 20]
       - label: T
         level: trim
-        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 30mm Steel, stanchion_de: 30mm Stahl, stanchion_fr: 30mm acier, stanchion_it: 30mm acciaio, stanchion_es: 30mm acero, stanchion_pt: 30mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 38
         axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
@@ -1360,6 +1792,10 @@ nodes:
           wheel_size: [24, 20]
         note: Undamped coil fork.
         note_de: Gabel mit Stahlfeder ohne Dämpfung.
+        note_fr: Fourche à ressort sans amortissement.
+        note_it: Forcella a molla senza smorzamento.
+        note_es: Horquilla de muelle sin amortiguación.
+        note_pt: Garfo a mola sem amortecimento.
 
   # ---- Fat bike -----------------------------------------------------------
   - label: "RENEGADE"
@@ -1367,13 +1803,17 @@ nodes:
     draft: true
     category: Fat Bike
     category_de: Fatbike
+    category_fr: Fat bike
+    category_it: Fat bike
+    category_es: Fat bike
+    category_pt: Fat bike
     url: https://rstsuspension.com/products/renegade/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     guide: rst_highend_forks
     children:
       - label: Air
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x150mm QR axle
         adjustments: *air_spring
@@ -1383,9 +1823,13 @@ nodes:
           wheel_size: [26]
         note: Max tire 26x4.0.
         note_de: Maximale Reifengröße 26x4.0.
+        note_fr: Pneu max. 26x4,0.
+        note_it: Copertone max. 26x4,0.
+        note_es: Neumático máx. 26x4,0.
+        note_pt: Pneu máx. 26x4,0.
       - label: Air-TRL
         level: trim
-        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 51
         axle: 15x150mm QR axle
         adjustments: *air_spring
@@ -1395,9 +1839,13 @@ nodes:
           wheel_size: [26]
         note: Handlebar remote lockout (TRL). Max tire 26x4.0.
         note_de: Lenker-Fernbedienung für den Lockout (TRL). Maximale Reifengröße 26x4.0.
+        note_fr: Lockout déporté au guidon (TRL). Pneu max. 26x4,0.
+        note_it: Lockout remoto al manubrio (TRL). Copertone max. 26x4,0.
+        note_es: Lockout remoto en el manillar (TRL). Neumático máx. 26x4,0.
+        note_pt: Lockout remoto no guidão (TRL). Pneu máx. 26x4,0.
       - label: TNL
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 51
         axle: 15x150mm QR axle
         adjustments: *coil_spring
@@ -1407,18 +1855,26 @@ nodes:
           wheel_size: [26]
         note: Max tire 26x4.0.
         note_de: Maximale Reifengröße 26x4.0.
+        note_fr: Pneu max. 26x4,0.
+        note_it: Copertone max. 26x4,0.
+        note_es: Neumático máx. 26x4,0.
+        note_pt: Pneu máx. 26x4,0.
 
   - label: "GUIDE"
     level: model
     category: Fat Bike
     category_de: Fatbike
+    category_fr: Fat bike
+    category_it: Fat bike
+    category_es: Fat bike
+    category_pt: Fat bike
     url: https://rstsuspension.com/products/guide/
     setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: Air-TNL
         level: trim
         draft: true
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 50
         axle: 15x135mm bolt axle or 9x135mm open dropout
         adjustments: *air_spring
@@ -1428,9 +1884,13 @@ nodes:
           wheel_size: [26, 20]
         note: 26" chassis, max tire 26x4.6.
         note_de: Chassis für 26", maximale Reifengröße 26x4.6.
+        note_fr: Châssis 26", pneu max. 26x4,6.
+        note_it: Telaio 26", copertone max. 26x4,6.
+        note_es: Chasis 26", neumático máx. 26x4,6.
+        note_pt: Chassi 26", pneu máx. 26x4,6.
       - label: Air-MLC
         level: trim
-        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, spring: Air, spring_de: Luft }
+        specs: { stanchion: 32mm Steel, stanchion_de: 32mm Stahl, stanchion_fr: 32mm acier, stanchion_it: 32mm acciaio, stanchion_es: 32mm acero, stanchion_pt: 32mm aço, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         offset_mm: 50
         axle: 15x135mm bolt axle or 9x135mm open dropout
         adjustments: *air_spring
@@ -1440,10 +1900,14 @@ nodes:
           wheel_size: [26, 20]
         note: 26" chassis, max tire 26x4.6.
         note_de: Chassis für 26", maximale Reifengröße 26x4.6.
+        note_fr: Châssis 26", pneu max. 26x4,6.
+        note_it: Telaio 26", copertone max. 26x4,6.
+        note_es: Chasis 26", neumático máx. 26x4,6.
+        note_pt: Chassi 26", pneu máx. 26x4,6.
       - label: TNL
         level: trim
         draft: true
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 50
         axle: 15x135mm bolt axle or 9x135mm open dropout
         adjustments: *coil_spring
@@ -1453,9 +1917,13 @@ nodes:
           wheel_size: [26, 20]
         note: 26" chassis, max tire 26x4.6.
         note_de: Chassis für 26", maximale Reifengröße 26x4.6.
+        note_fr: Châssis 26", pneu max. 26x4,6.
+        note_it: Telaio 26", copertone max. 26x4,6.
+        note_es: Chasis 26", neumático máx. 26x4,6.
+        note_pt: Chassi 26", pneu máx. 26x4,6.
       - label: MLC
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 50
         axle: 15x135mm bolt axle or 9x135mm open dropout
         adjustments: *coil_spring
@@ -1465,9 +1933,13 @@ nodes:
           wheel_size: [26, 20]
         note: 26" chassis, max tire 26x4.6.
         note_de: Chassis für 26", maximale Reifengröße 26x4.6.
+        note_fr: Châssis 26", pneu max. 26x4,6.
+        note_it: Telaio 26", copertone max. 26x4,6.
+        note_es: Chasis 26", neumático máx. 26x4,6.
+        note_pt: Chassi 26", pneu máx. 26x4,6.
       - label: T
         level: trim
-        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, spring: Coil, spring_de: Stahlfeder }
+        specs: { stanchion: 34mm Steel, stanchion_de: 34mm Stahl, stanchion_fr: 34mm acier, stanchion_it: 34mm acciaio, stanchion_es: 34mm acero, stanchion_pt: 34mm aço, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         offset_mm: 50
         axle: 15x135mm bolt axle or 9x135mm open dropout
         adjustments: *coil_spring
@@ -1476,6 +1948,10 @@ nodes:
           wheel_size: [26, 20]
         note: Undamped coil fork. 26" chassis, max tire 26x4.6.
         note_de: Gabel mit Stahlfeder ohne Dämpfung. Chassis für 26", maximale Reifengröße 26x4.6.
+        note_fr: Fourche à ressort sans amortissement. Châssis 26", pneu max. 26x4,6.
+        note_it: Forcella a molla senza smorzamento. Telaio 26", copertone max. 26x4,6.
+        note_es: Horquilla de muelle sin amortiguación. Chasis 26", neumático máx. 26x4,6.
+        note_pt: Garfo a mola sem amortecimento. Chassi 26", pneu máx. 26x4,6.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

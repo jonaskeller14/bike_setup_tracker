@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/utils/adjustment_presets.dart';
@@ -8,8 +9,6 @@ import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
-
-import 'support/german_l10n.dart';
 
 /// Catalog text in other languages (`<field>_<lang>` siblings): complete for
 /// every shipped language, consistent, and parseable. The same field
@@ -186,42 +185,46 @@ nodes:
         }
       });
 
-      test('rider-facing German text carries no research notes', () {
-        for (final string in strings.where((string) => const {'description', 'note', 'notes'}.contains(string.field))) {
-          final german = string.translations['de'];
-          if (german is! String) continue;
-          final match = _researchNoteDe.firstMatch(german);
-          expect(match, isNull, reason: 'line ${string.line}: "${match?[0]}" in "$german"');
-        }
-      });
+      for (final MapEntry(key: language, value: researchNote) in _researchNotes.entries) {
+        test('rider-facing $language text carries no research notes', () {
+          for (final string in strings.where((string) => const {'description', 'note', 'notes'}.contains(string.field))) {
+            final translated = string.translations[language];
+            if (translated is! String) continue;
+            final match = researchNote.firstMatch(translated);
+            expect(match, isNull, reason: 'line ${string.line}: "${match?[0]}" in "$translated"');
+          }
+        });
+      }
 
-      test('adjusters with a generic template are named like it in German', () {
-        final templates = _germanTemplateNames();
-        final type = p.split(relative).first;
-        final unmatched = <String>[];
-        void visit(Object? node) {
-          switch (node) {
-            case YamlMap():
-              if (node['adjustments'] case final YamlList adjustments) {
-                for (final adjuster in adjustments.whereType<YamlMap>()) {
-                  final name = adjuster['name']?.toString();
-                  if (name == null || adjuster['name_de'] == null) continue;
-                  final id = adjuster['id']?.toString() ?? adjustmentNameSlug(name);
-                  final template = templates['${_camelToSnake(type)}:$id'];
-                  if (template != null && template != adjuster['name_de'].toString()) {
-                    unmatched.add('$name: "${adjuster['name_de']}" but the template says "$template"');
+      for (final language in shippedCatalogLanguages) {
+        test('adjusters with a generic template are named like it in $language', () {
+          final templates = _templateNames(language);
+          final type = p.split(relative).first;
+          final unmatched = <String>[];
+          void visit(Object? node) {
+            switch (node) {
+              case YamlMap():
+                if (node['adjustments'] case final YamlList adjustments) {
+                  for (final adjuster in adjustments.whereType<YamlMap>()) {
+                    final name = adjuster['name']?.toString();
+                    if (name == null || adjuster['name_$language'] == null) continue;
+                    final id = adjuster['id']?.toString() ?? adjustmentNameSlug(name);
+                    final template = templates['${_camelToSnake(type)}:$id'];
+                    if (template != null && template != adjuster['name_$language'].toString()) {
+                      unmatched.add('$name: "${adjuster['name_$language']}" but the template says "$template"');
+                    }
                   }
                 }
-              }
-              node.values.forEach(visit);
-            case YamlList():
-              node.forEach(visit);
+                node.values.forEach(visit);
+              case YamlList():
+                node.forEach(visit);
+            }
           }
-        }
 
-        visit(loadYaml(source));
-        expect(unmatched, isEmpty);
-      });
+          visit(loadYaml(source));
+          expect(unmatched, isEmpty);
+        });
+      }
     });
   }
 
@@ -237,18 +240,39 @@ nodes:
 
 String _camelToSnake(String name) => name.replaceAllMapped(RegExp('[A-Z]'), (match) => '_${match[0]!.toLowerCase()}');
 
-/// The German name of every generic adjustment template, by preset key.
-Map<String, String> _germanTemplateNames() => {
-  for (final preset in [
-    ...componentAdjustmentPresetsFor(germanL10n).values.expand((presets) => presets),
-    ...personAdjustmentPresetsFor(germanL10n),
-  ])
-    if (preset.presetKey != null) preset.presetKey!: preset.name,
-};
+/// The name of every generic adjustment template in [language], by preset key.
+Map<String, String> _templateNames(String language) {
+  final l10n = lookupAppLocalizations(Locale(language));
+  return {
+    for (final preset in [
+      ...componentAdjustmentPresetsFor(l10n).values.expand((presets) => presets),
+      ...personAdjustmentPresetsFor(l10n),
+    ])
+      if (preset.presetKey != null) preset.presetKey!: preset.name,
+  };
+}
 
-/// [_researchNote] of `component_catalog_test.dart` in German.
-final RegExp _researchNoteDe = RegExp(
-  r'https?://|\bquelle[nd]?\b|\bgeprüft|\bbestätigt|\bverifizier|follow-?up|nicht (noch )?(veröffentlicht|publiziert)|'
-  r'\blaut (handbuch|test|artikel|produktseite)|siehe dämpfer|produktseite|unvollständig|selbst (hinzufügen|ergänzen)',
-  caseSensitive: false,
-);
+/// [_researchNote] of `component_catalog_test.dart` per language.
+final Map<String, RegExp> _researchNotes = {
+  'de': RegExp(
+    r'https?://|\bquelle[nd]?\b|\bgeprüft|\bbestätigt|\bverifizier|follow-?up|nicht (noch )?(veröffentlicht|publiziert)|'
+    r'\blaut (handbuch|test|artikel|produktseite)|siehe dämpfer|produktseite|unvollständig|selbst (hinzufügen|ergänzen)',
+    caseSensitive: false,
+  ),
+  'fr': RegExp(
+    r'https?://|sources?|vérifié|confirm|follow-?up|non publi|page produit|incomplet|vous-même',
+    caseSensitive: false,
+  ),
+  'it': RegExp(
+    r'https?://|\bfont[ei]\b|\bverific|\bconferm|follow-?up|non pubblicat|pagina del prodotto|incomplet|da solo',
+    caseSensitive: false,
+  ),
+  'es': RegExp(
+    r'https?://|\bfuentes?\b|\bverific|\bconfirm|follow-?up|no publicad|página del producto|incomplet|tú mismo',
+    caseSensitive: false,
+  ),
+  'pt': RegExp(
+    r'https?://|\bfontes?\b|\bverific|\bconfirm|follow-?up|não publicad|página do produto|incomplet|você mesmo',
+    caseSensitive: false,
+  ),
+};

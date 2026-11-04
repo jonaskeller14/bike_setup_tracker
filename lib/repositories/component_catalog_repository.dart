@@ -174,7 +174,7 @@ class ComponentCatalogRepository {
       try {
         final catalogs = _inBrandOrder(await _read(type, _language));
         // A switch in the meantime made this the wrong language.
-        if (generation != _generation) return _load(type);
+        if (generation != _generation) return await _load(type);
         return _catalogs[type] = catalogs;
       } finally {
         // The removed future is this very load; awaiting it would never return.

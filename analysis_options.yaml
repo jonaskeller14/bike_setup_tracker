@@ -26,6 +26,8 @@ analyzer:
     - "**/*.freezed.dart"
     - "lib/generated_plugin_registrant.dart"
     - "build/**"
+    - android/**
+    - ios/**
 
 linter:
   # The lint rules applied to this project can be customized in the
@@ -63,7 +65,6 @@ linter:
     prefer_const_constructors: true
     prefer_const_literals_to_create_immutables: true
     avoid_print: true # Re-enabled to ensure it stays active
-    unnecessary_await_in_return: true
     unnecessary_parenthesis: true
 
 # Additional information about this file can be found at

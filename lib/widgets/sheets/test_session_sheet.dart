@@ -17,6 +17,7 @@ import '../items/feedback_list_tile.dart';
 import '../items/setup_tile.dart';
 import '../items/tile_meta_row.dart';
 import '../running_badge.dart';
+import '../sticky_section.dart';
 import '../test_session_next_step.dart';
 import '../test_session_suggestion.dart';
 import '../text/section_title.dart';
@@ -34,32 +35,17 @@ Future<void> showTestSessionSheet({required BuildContext context, required Strin
 /// The session's details: method and goal, the adjustments it tunes (tap one
 /// to lock it) or, comparing setups, those they differ in, every run with its values and feedbacks, the suggested next
 /// run, and the next step.
-/// A running session opens scrolled to its next step.
-class TestSessionSheetContent extends StatefulWidget {
+/// The header and the next step of a running session stay in view while the
+/// sections scroll, their titles pinned.
+class TestSessionSheetContent extends StatelessWidget {
   final String sessionId;
 
   const TestSessionSheetContent({super.key, required this.sessionId});
 
   @override
-  State<TestSessionSheetContent> createState() => _TestSessionSheetContentState();
-}
-
-class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
-  final _nextStepKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final nextStep = _nextStepKey.currentContext;
-      if (nextStep != null) unawaited(Scrollable.ensureVisible(nextStep, alignment: 1));
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final session = appRepository.testSessions[widget.sessionId];
+    final session = appRepository.testSessions[sessionId];
     if (session == null) {
       return Padding(padding: const EdgeInsets.all(24), child: Text(context.l10n.testSessionGone));
     }
@@ -67,68 +53,95 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
     final runs = appRepository.setupsInSession(session.id);
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SheetHeader(
-              title: session.label(context.l10n),
-              leadingIcon: const Icon(TestSession.iconData),
-              titleMaxLines: 2,
-              onEdit: () => unawaited(TestSessionActions.editSession(context, session: session)),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                crossAxisAlignment: WrapCrossAlignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SheetHeader(
+            title: session.label(context.l10n),
+            leadingIcon: const Icon(TestSession.iconData),
+            titleMaxLines: 2,
+            onEdit: () => unawaited(TestSessionActions.editSession(context, session: session)),
+          ),
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (session.isRunning)
-                    const RunningBadge()
-                  else
-                    TileMetaRow(icon: Icons.stop_circle_outlined, text: context.l10n.testSessionEnded),
-                  TileMetaRow(icon: Icons.tune, text: testSessionMethodLabel(session.method, context.l10n)),
-                  TileMetaRow(
-                    icon: Icons.directions_bike,
-                    text: context.l10n.testSessionRunsCount(runs.length),
-                  ),
-                  for (final aspect in session.goal)
-                    TileMetaRow(
-                      icon: Icons.track_changes,
-                      text: testSessionGoalLabel(aspect, appRepository.customIssues.labelOf, context.l10n),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (session.isRunning)
+                          const RunningBadge()
+                        else
+                          TileMetaRow(icon: Icons.stop_circle_outlined, text: context.l10n.testSessionEnded),
+                        TileMetaRow(icon: Icons.tune, text: testSessionMethodLabel(session.method, context.l10n)),
+                        TileMetaRow(
+                          icon: Icons.directions_bike,
+                          text: context.l10n.testSessionRunsCount(runs.length),
+                        ),
+                        for (final aspect in session.goal)
+                          TileMetaRow(
+                            icon: Icons.track_changes,
+                            text: testSessionGoalLabel(aspect, appRepository.customIssues.labelOf, context.l10n),
+                          ),
+                      ],
                     ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: Text(
+                      testSessionMethodDescription(session.method, context.l10n),
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                  _section(
+                    context,
+                    title: context.l10n.componentFormAdjustmentsTitle,
+                    children: [
+                      if (session.isRunning && session.method is! Tournament)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                          child: Text(
+                            context.l10n.testSessionLockInfo,
+                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: _knobs(context, appRepository, session),
+                      ),
+                    ],
+                  ),
+                  _section(
+                    context,
+                    title: context.l10n.testSessionRunsTitle,
+                    children: [..._runs(context, appRepository, session), TestSessionSuggestion(session: session)],
+                  ),
                 ],
               ),
             ),
+          ),
+          if (session.isRunning)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(
-                testSessionMethodDescription(session.method, context.l10n),
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              ),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: TestSessionNextStep(session: session),
             ),
-            SectionTitle(
-              title: context.l10n.componentFormAdjustmentsTitle,
-              infoText: session.isRunning && session.method is! Tournament ? context.l10n.testSessionLockInfo : null,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _knobs(context, appRepository, session),
-            ),
-            SectionTitle(title: context.l10n.testSessionRunsTitle),
-            ..._runs(context, appRepository, session),
-            TestSessionSuggestion(session: session),
-            if (session.isRunning)
-              Padding(
-                key: _nextStepKey,
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: TestSessionNextStep(session: session),
-              ),
-          ],
-        ),
+        ],
       ),
+    );
+  }
+
+  /// A section whose title stays pinned to the top while its content scrolls.
+  Widget _section(BuildContext context, {required String title, required List<Widget> children}) {
+    return StickySection(
+      header: ColoredBox(color: Theme.of(context).colorScheme.surface, child: SectionTitle(title: title)),
+      content: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
     );
   }
 

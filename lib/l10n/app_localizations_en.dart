@@ -6295,7 +6295,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get testSessionLockInfo =>
-      'Tap an adjustment to lock it at its value in the latest run. The next runs keep that value.';
+      'Tap an adjustment to lock it at its value in the latest run, so the next runs keep it and you can tell what made the difference.';
 
   @override
   String get testSessionRunsTitle => 'Runs';

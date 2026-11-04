@@ -10387,10 +10387,10 @@ abstract class AppLocalizations {
   /// **'Ended'**
   String get testSessionEnded;
 
-  /// Info text of the adjustments of a running session.
+  /// Hint below the adjustments title of a running session.
   ///
   /// In en, this message translates to:
-  /// **'Tap an adjustment to lock it at its value in the latest run. The next runs keep that value.'**
+  /// **'Tap an adjustment to lock it at its value in the latest run, so the next runs keep it and you can tell what made the difference.'**
   String get testSessionLockInfo;
 
   /// Section title of the runs of a test session.

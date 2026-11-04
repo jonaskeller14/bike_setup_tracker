@@ -6330,7 +6330,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get testSessionLockInfo =>
-      'Touchez un réglage pour le verrouiller à sa valeur du dernier run. Les runs suivants conservent cette valeur.';
+      'Touchez un réglage pour le verrouiller à sa valeur du dernier run : il reste identique dans les runs suivants et vous voyez ce qui fait la différence.';
 
   @override
   String get testSessionRunsTitle => 'Runs';

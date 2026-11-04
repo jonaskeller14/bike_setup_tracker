@@ -6333,7 +6333,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get testSessionLockInfo =>
-      'Tippe auf eine Einstellung, um sie auf ihrem Wert im letzten Lauf festzusetzen. Die nächsten Läufe behalten diesen Wert.';
+      'Tippe auf eine Einstellung, um sie auf ihrem Wert im letzten Lauf festzusetzen – so bleibt sie in den nächsten Läufen gleich und du erkennst, was den Unterschied macht.';
 
   @override
   String get testSessionRunsTitle => 'Läufe';

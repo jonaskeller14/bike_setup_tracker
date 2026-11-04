@@ -1714,7 +1714,7 @@
   "testSessionNameLabel": "Name (optional)",
   "testSessionGone": "Diese Testsession existiert nicht mehr.",
   "testSessionEnded": "Beendet",
-  "testSessionLockInfo": "Tippe auf eine Einstellung, um sie auf ihrem Wert im letzten Lauf festzusetzen. Die nächsten Läufe behalten diesen Wert.",
+  "testSessionLockInfo": "Tippe auf eine Einstellung, um sie auf ihrem Wert im letzten Lauf festzusetzen – so bleibt sie in den nächsten Läufen gleich und du erkennst, was den Unterschied macht.",
   "testSessionRunsTitle": "Läufe",
   "testSessionDiffering": "Die Einstellungen, in denen sich deine Setups unterscheiden:",
   "testSessionLockedTooltip": "Auf diesem Wert festgesetzt. Tippe zum Lösen.",

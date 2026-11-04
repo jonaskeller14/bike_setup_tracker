@@ -1714,7 +1714,7 @@
   "testSessionNameLabel": "Nom (facultatif)",
   "testSessionGone": "Cette session de test n’existe plus.",
   "testSessionEnded": "Terminée",
-  "testSessionLockInfo": "Touchez un réglage pour le verrouiller à sa valeur du dernier run. Les runs suivants conservent cette valeur.",
+  "testSessionLockInfo": "Touchez un réglage pour le verrouiller à sa valeur du dernier run : il reste identique dans les runs suivants et vous voyez ce qui fait la différence.",
   "testSessionRunsTitle": "Runs",
   "testSessionDiffering": "Les réglages qui diffèrent entre vos setups :",
   "testSessionLockedTooltip": "Verrouillé à sa valeur. Touchez pour déverrouiller.",

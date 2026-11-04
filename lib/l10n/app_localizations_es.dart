@@ -6316,7 +6316,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get testSessionLockInfo =>
-      'Toca un ajuste para bloquearlo en su valor del último run. Los siguientes runs mantienen ese valor.';
+      'Toca un ajuste para bloquearlo en su valor del último run: se mantiene igual en los siguientes runs y así ves qué marca la diferencia.';
 
   @override
   String get testSessionRunsTitle => 'Runs';

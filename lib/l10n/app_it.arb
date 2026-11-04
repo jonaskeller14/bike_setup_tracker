@@ -1714,7 +1714,7 @@
   "testSessionNameLabel": "Nome (facoltativo)",
   "testSessionGone": "Questa sessione di test non esiste più.",
   "testSessionEnded": "Terminata",
-  "testSessionLockInfo": "Tocca una regolazione per bloccarla al valore dell’ultimo run. I run successivi mantengono quel valore.",
+  "testSessionLockInfo": "Tocca una regolazione per bloccarla al valore dell’ultimo run: resta uguale nei run successivi e così capisci cosa fa la differenza.",
   "testSessionRunsTitle": "Run",
   "testSessionDiffering": "Le regolazioni in cui i tuoi setup differiscono:",
   "testSessionLockedTooltip": "Bloccata al suo valore. Tocca per sbloccarla.",

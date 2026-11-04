@@ -6317,7 +6317,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get testSessionLockInfo =>
-      'Toque em uma regulagem para travá-la no valor do último run. Os próximos runs mantêm esse valor.';
+      'Toque em uma regulagem para travá-la no valor do último run: ela fica igual nos próximos runs e você percebe o que faz a diferença.';
 
   @override
   String get testSessionRunsTitle => 'Runs';

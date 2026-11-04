@@ -13,6 +13,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/bike_adjustment_column_service.dart';
 import '../../services/test_session_service.dart';
 import '../../utils/test_session_actions.dart';
+import '../display_data/test_session_run_table.dart';
 import '../items/feedback_list_tile.dart';
 import '../items/setup_tile.dart';
 import '../items/tile_meta_row.dart';
@@ -32,11 +33,6 @@ Future<void> showTestSessionSheet({required BuildContext context, required Strin
   );
 }
 
-/// The session's details: method and goal, the adjustments it tunes (tap one
-/// to lock it) or, comparing setups, those they differ in, every run with its values and feedbacks, the suggested next
-/// run, and the next step.
-/// The header and the next step of a running session stay in view while the
-/// sections scroll, their titles pinned.
 class TestSessionSheetContent extends StatelessWidget {
   final String sessionId;
 
@@ -63,36 +59,36 @@ class TestSessionSheetContent extends StatelessWidget {
             titleMaxLines: 2,
             onEdit: () => unawaited(TestSessionActions.editSession(context, session: session)),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (session.isRunning)
+                  const RunningBadge()
+                else
+                  TileMetaRow(icon: Icons.stop_circle_outlined, text: context.l10n.testSessionEnded),
+                TileMetaRow(icon: Icons.psychology, text: testSessionMethodLabel(session.method, context.l10n)),
+                TileMetaRow(
+                  icon: Icons.repeat,
+                  text: context.l10n.testSessionRunsCount(runs.length),
+                ),
+                for (final aspect in session.goal)
+                  TileMetaRow(
+                    icon: Icons.track_changes,
+                    text: testSessionGoalLabel(aspect, appRepository.customIssues.labelOf, context.l10n),
+                  ),
+              ],
+            ),
+          ),
           Flexible(
             child: SingleChildScrollView(
               padding: const EdgeInsets.only(bottom: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        if (session.isRunning)
-                          const RunningBadge()
-                        else
-                          TileMetaRow(icon: Icons.stop_circle_outlined, text: context.l10n.testSessionEnded),
-                        TileMetaRow(icon: Icons.tune, text: testSessionMethodLabel(session.method, context.l10n)),
-                        TileMetaRow(
-                          icon: Icons.directions_bike,
-                          text: context.l10n.testSessionRunsCount(runs.length),
-                        ),
-                        for (final aspect in session.goal)
-                          TileMetaRow(
-                            icon: Icons.track_changes,
-                            text: testSessionGoalLabel(aspect, appRepository.customIssues.labelOf, context.l10n),
-                          ),
-                      ],
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: Text(
@@ -118,6 +114,12 @@ class TestSessionSheetContent extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (runs.isNotEmpty)
+                    _section(
+                      context,
+                      title: context.l10n.testSessionRunTableTitle,
+                      children: [TestSessionRunTable(session: session)],
+                    ),
                   _section(
                     context,
                     title: context.l10n.testSessionRunsTitle,

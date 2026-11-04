@@ -10096,7 +10096,7 @@ abstract class AppLocalizations {
   /// Name shown for a test session without a name.
   ///
   /// In en, this message translates to:
-  /// **'Test session'**
+  /// **'Unnamed Test Session'**
   String get testSessionUnnamed;
 
   /// Name given to a run of a test session. {number} counts the runs.
@@ -10392,6 +10392,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Runs'**
   String get testSessionRunsTitle;
+
+  /// Section title of the table that shows the runs of a test session side by side.
+  ///
+  /// In en, this message translates to:
+  /// **'Run overview'**
+  String get testSessionRunTableTitle;
+
+  /// Column of the run table: the problems flagged in the feedbacks on a run.
+  ///
+  /// In en, this message translates to:
+  /// **'Issues'**
+  String get testSessionRunTableIssues;
+
+  /// Column of the run table: how the feedbacks on a run compare it with other setups, e.g. 'Better than Run 1'.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluation'**
+  String get testSessionRunTableEvaluation;
+
+  /// Column of the run table: the notes of the feedbacks on a run. Distinct from the notes of the setup, which can be shown beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback notes'**
+  String get testSessionRunTableNotes;
 
   /// Heading above the adjustments in which the compared setups differ.
   ///

@@ -8236,6 +8236,22 @@
   "@testSessionRunsTitle": {
     "description": "Section title of the runs of a test session."
   },
+  "testSessionRunTableTitle": "Run overview",
+  "@testSessionRunTableTitle": {
+    "description": "Section title of the table that shows the runs of a test session side by side."
+  },
+  "testSessionRunTableIssues": "Issues",
+  "@testSessionRunTableIssues": {
+    "description": "Column of the run table: the problems flagged in the feedbacks on a run."
+  },
+  "testSessionRunTableEvaluation": "Evaluation",
+  "@testSessionRunTableEvaluation": {
+    "description": "Column of the run table: how the feedbacks on a run compare it with other setups, e.g. 'Better than Run 1'."
+  },
+  "testSessionRunTableNotes": "Feedback notes",
+  "@testSessionRunTableNotes": {
+    "description": "Column of the run table: the notes of the feedbacks on a run. Distinct from the notes of the setup, which can be shown beside it."
+  },
   "testSessionDiffering": "The adjustments your setups differ in:",
   "@testSessionDiffering": {
     "description": "Heading above the adjustments in which the compared setups differ."

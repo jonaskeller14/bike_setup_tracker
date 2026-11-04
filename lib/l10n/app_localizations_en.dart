@@ -6298,6 +6298,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get testSessionRunsTitle => 'Runs';
 
   @override
+  String get testSessionRunTableTitle => 'Run overview';
+
+  @override
+  String get testSessionRunTableIssues => 'Issues';
+
+  @override
+  String get testSessionRunTableEvaluation => 'Evaluation';
+
+  @override
+  String get testSessionRunTableNotes => 'Feedback notes';
+
+  @override
   String get testSessionDiffering => 'The adjustments your setups differ in:';
 
   @override

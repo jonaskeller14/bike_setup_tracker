@@ -182,7 +182,7 @@ void main() {
 
     final sheet = find.byType(TestSessionSheetContent);
     expect(sheet, findsOneWidget);
-    expect(find.descendant(of: sheet, matching: find.text('Run 1')), findsOneWidget);
+    expect(find.descendant(of: sheet, matching: find.text('Run 1')), findsNWidgets(2), reason: 'the table and the tile');
     expect(find.descendant(of: sheet, matching: find.byType(FeedbackListTile)), findsNWidgets(2));
   });
 

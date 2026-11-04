@@ -33,11 +33,11 @@ extension RideFeedbackText on RideFeedback {
       [for (final comparison in overallComparisons(setups)) _verdictOf(comparison, setups, l10n)];
 
   /// "Front: Harsh · Rear: Low grip · Wet roots", or "No issues".
-  String? issuesSummaryText(AppLocalizations l10n) {
+  String? issuesSummaryText(AppLocalizations l10n, {String separator = ' · '}) {
     if (nothingStoodOut) return l10n.feedbackNoIssues;
     final ordered = orderedIssues;
     if (ordered.isEmpty) return null;
-    return ordered.map((issue) => issue.labelText(l10n)).join(' · ');
+    return ordered.map((issue) => issue.labelText(l10n)).join(separator);
   }
 }
 

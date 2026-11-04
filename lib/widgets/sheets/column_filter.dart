@@ -8,12 +8,12 @@ import '../text/sheet_section_title.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
-Future<void> showColumnFilterSheet({
+Future<void> showColumnFilterSheet<T extends SelectableColumn>({
   required BuildContext context,
-  required List<TableColumn> columns,
-  required String Function(TableColumn column) columnLabel,
+  required List<T> columns,
+  required String Function(T column) columnLabel,
   required VoidCallback onColumnStatusChanged,
-  ColumnGroup? Function(TableColumn column)? columnGroup,
+  ColumnGroup? Function(T column)? columnGroup,
 }) async {
   final columnsCopy = columns.toList();
   return showModalBottomSheet<void>(

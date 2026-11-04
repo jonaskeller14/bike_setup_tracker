@@ -39,13 +39,37 @@ enum SetupColumn {
   const SetupColumn(this.section, {this.defaultActive = false});
 }
 
+/// What the column sheet switches on and off.
 /// [active] is mutable. Equality/Hash ignores it
-sealed class TableColumn {
+sealed class SelectableColumn {
   bool active;
 
-  TableColumn({required this.active});
+  SelectableColumn({required this.active});
 
   TableColumnSection get section;
+}
+
+/// A column of the setup tables of the details pages.
+sealed class TableColumn extends SelectableColumn {
+  TableColumn({required super.active});
+}
+
+enum RunFeedbackField { issues, evaluation, notes }
+
+/// A column of the run table of a test session: what the feedbacks on a run say.
+class RunFeedbackColumn extends SelectableColumn {
+  final RunFeedbackField field;
+
+  RunFeedbackColumn(this.field, {required super.active});
+
+  @override
+  TableColumnSection get section => TableColumnSection.feedback;
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || other is RunFeedbackColumn && other.field == field;
+
+  @override
+  int get hashCode => Object.hash(section, field);
 }
 
 class SetupTableColumn extends TableColumn {

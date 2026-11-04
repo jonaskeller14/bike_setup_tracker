@@ -2,24 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../l10n/adjustment_value_text.dart';
-import '../../l10n/entity_names.dart';
-import '../../l10n/enum_labels.dart';
-import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/context/context_weather.dart';
 import '../../models/feedback/test_session.dart';
 import '../../models/setup.dart';
 import '../../models/setup_history.dart';
-import '../../theme.dart';
 import '../../utils/automation_ids.dart';
-import '../../utils/localized_number.dart';
 import '../../utils/table_column.dart';
+import 'setup_table_cells.dart';
 
 class SetupTable extends StatefulWidget {
   final List<TableColumn> activeColumns;
@@ -137,57 +130,14 @@ class _SetupTableState extends State<SetupTable> {
 
   DataColumn _dataColumn(TableColumn column) {
     final isSorted = widget.sortColumn == column;
-    final tooltip = widget.columnTooltip?.call(column);
-    final label = Text(
-      widget.columnLabel(column),
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontWeight: FontWeight.bold),
-    );
-
-    void sort() {
-      widget.onSort(column, isSorted ? !widget.sortAscending : true);
-    }
-
     return DataColumn(
-      label: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: sort,
-        onLongPress: () {
-          unawaited(HapticFeedback.selectionClick());
-          widget.onColumnRemoved(column);
-        },
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: tooltip == null
-                  ? label
-                  // Hover only: on touch, tap sorts and long-press removes the column.
-                  : Tooltip(message: tooltip, triggerMode: TooltipTriggerMode.manual, child: label),
-            ),
-            const SizedBox(width: 4),
-            Opacity(
-              opacity: isSorted ? 1 : 0,
-              child: AnimatedRotation(
-                turns: widget.sortAscending ? 0 : 0.5,
-                duration: const Duration(milliseconds: 150),
-                child: const Icon(Icons.arrow_upward, size: 16),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  DataCell _scrollableTextCell(String text, {double maxWidth = 150}) {
-    return DataCell(
-      ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Text(text, overflow: TextOverflow.ellipsis),
-        ),
+      label: SortableColumnLabel(
+        label: widget.columnLabel(column),
+        tooltip: widget.columnTooltip?.call(column),
+        isSorted: isSorted,
+        sortAscending: widget.sortAscending,
+        onSort: () => widget.onSort(column, isSorted ? !widget.sortAscending : true),
+        onRemove: () => widget.onColumnRemoved(column),
       ),
     );
   }
@@ -200,87 +150,15 @@ class _SetupTableState extends State<SetupTable> {
   ) {
     switch (column) {
       case SetupTableColumn(column: final setupColumn):
-        return switch (setupColumn) {
-          SetupColumn.name => _scrollableTextCell(setup.label(context.l10n)),
-          SetupColumn.notes => _scrollableTextCell(setup.notes ?? '-', maxWidth: 300),
-          SetupColumn.tags => _scrollableTextCell(setup.tags.isEmpty ? '-' : setup.tags.join('; '), maxWidth: 300),
-          SetupColumn.date => DataCell(Text(DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal))),
-          SetupColumn.time => DataCell(Text(DateFormat(appSettings.timeFormat, context.l10n.localeName).format(setup.datetimeLocal))),
-          SetupColumn.place => _scrollableTextCell(setup.place?.locality ?? '-'),
-          SetupColumn.altitude => DataCell(
-            Center(
-              child: Text(
-                setup.position?.altitude == null
-                    ? '-'
-                    : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}",
-              ),
-            ),
-          ),
-          SetupColumn.bike => _scrollableTextCell(widget.bikes[setup.bike]?.name ?? '-'),
-          SetupColumn.bookmarked => DataCell(
-            Center(
-              child: setup.isBookmarked
-                  ? Icon(Icons.bookmark, size: 16, color: Theme.of(context).colorScheme.primary)
-                  : const Text('-'),
-            ),
-          ),
-          SetupColumn.activities => DataCell(
-            Center(
-              child: Text(
-                '${widget.setupActivityCounts[setup.id] ?? 0}',
-                key: ValueKey('setup-activity-count-${setup.id}'),
-              ),
-            ),
-          ),
-          SetupColumn.weatherCode => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel(context.l10n) ?? "-"))),
-          SetupColumn.temperature => DataCell(
-            Center(
-              child: Text(
-                setup.weather?.currentTemperature == null
-                    ? '-'
-                    : "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
-              ),
-            ),
-          ),
-          SetupColumn.precipitation => DataCell(
-            Center(
-              child: Text(
-                setup.weather?.dayAccumulatedPrecipitation == null
-                    ? '-'
-                    : "${ContextWeather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}",
-              ),
-            ),
-          ),
-          SetupColumn.humidity => DataCell(
-            Center(
-              child: Text(
-                setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %",
-              ),
-            ),
-          ),
-          SetupColumn.windSpeed => DataCell(
-            Center(
-              child: Text(
-                setup.weather?.currentWindSpeed == null
-                    ? '-'
-                    : "${ContextWeather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}",
-              ),
-            ),
-          ),
-          SetupColumn.soilMoisture => DataCell(
-            Center(
-              child: Text(
-                setup.weather?.currentSoilMoisture0to7cm == null
-                    ? '-'
-                    : formatLocalizedDouble(setup.weather!.currentSoilMoisture0to7cm!, fractionDigits: 2, locale: context.l10n.localeName),
-              ),
-            ),
-          ),
-          SetupColumn.condition => DataCell(
-            Center(child: Text(setup.weather?.condition?.label(context.l10n) ?? "-")),
-          ),
-          SetupColumn.testSession => _scrollableTextCell(widget.testSessions[setup.testSessionId]?.label(context.l10n) ?? '-'),
-        };
+        return setupColumnCell(
+          context,
+          setup,
+          setupColumn,
+          appSettings: appSettings,
+          bikes: widget.bikes,
+          testSessions: widget.testSessions,
+          setupActivityCounts: widget.setupActivityCounts,
+        );
       case ComponentAdjustmentColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, widget.setupHistory.previousBikeValuesOf(setup.id)[adjustmentId]);
       case BikeAdjustmentColumn():
@@ -294,28 +172,11 @@ class _SetupTableState extends State<SetupTable> {
   }
 
   DataCell _adjustmentCell(BuildContext context, Setup setup, TableColumn column, AdjustmentValue? previousValue) {
-    final value = widget.valueFor(setup, column);
-    final bool isChanged = value != null && previousValue != value;
-    final bool isInitial = previousValue == null;
-    final bool isDangling = value != null && (widget.isDangling?.call(setup, column) ?? false);
-    final highlights = Theme.of(context).extension<ValueHighlightColors>();
-    final highlightColor = isDangling
-        ? Theme.of(context).colorScheme.error
-        : isChanged
-        ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange)
-        : null;
-
-    return DataCell(
-      Center(
-        child: Text(
-          value?.displayText(context.l10n) ?? '-',
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: highlightColor,
-            fontWeight: highlightColor != null ? FontWeight.bold : null,
-          ),
-        ),
-      ),
+    return adjustmentValueCell(
+      context,
+      value: widget.valueFor(setup, column),
+      previousValue: previousValue,
+      isDangling: widget.isDangling?.call(setup, column) ?? false,
     );
   }
 

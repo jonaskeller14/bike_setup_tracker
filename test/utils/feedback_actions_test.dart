@@ -186,7 +186,7 @@ void main() {
     await settle(tester);
     expect(find.byType(FeedbackPage), findsOneWidget);
 
-    final chip = find.widgetWithText(FilterChip, englishL10n.feedbackNothingStoodOut);
+    final chip = find.widgetWithText(FilterChip, englishL10n.feedbackNoIssues);
     await tester.ensureVisible(chip);
     await tester.tap(chip);
     await settle(tester);

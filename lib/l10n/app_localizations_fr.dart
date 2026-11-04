@@ -5906,10 +5906,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get feedbackNothingStoodOut => 'Rien à signaler';
-
-  @override
-  String get feedbackDialledIn => 'Parfaitement réglé';
+  String get feedbackNoIssues => 'Aucun problème';
 
   @override
   String get feedbackNotesHelper => 'Non utilisé pour le classement ni pour les propositions.';

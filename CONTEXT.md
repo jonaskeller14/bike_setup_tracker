@@ -83,7 +83,7 @@ Domain vocabulary. The German column is the fixed translation for `lib/l10n/app_
 | Grip / Comfort / Support / Calm / Bottoming | Grip / Komfort / Gegenhalt / Ruhe / Durchschlag | The qualities of a goal. The problem chips read Wenig Grip, Hart, Sackt ein / taucht ab, Unruhig, Schlägt durch |
 | Reference setup | Referenz-Setup | The setup a feedback compares against |
 | Fine-tune / Explore / Compare / Free (test session method) | Feinjustieren / Erkunden / Vergleichen / Frei | |
-| Dialled in | Perfekt eingestellt | Feedback where nothing stood out |
+| No issues | Keine Probleme | Feedback where nothing stood out |
 | Calendar views Schedule / Month / Week / Day | Agenda / Monat / Woche / Tag | |
 | Pin (on the map) | Markierung | |
 | Visibility (filter) | Sichtbarkeit | Shows or hides entry kinds such as setups and tasks |

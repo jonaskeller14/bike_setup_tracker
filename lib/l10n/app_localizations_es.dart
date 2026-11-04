@@ -5894,10 +5894,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get feedbackNothingStoodOut => 'Nada destacable';
-
-  @override
-  String get feedbackDialledIn => 'Perfectamente ajustado';
+  String get feedbackNoIssues => 'Sin problemas';
 
   @override
   String get feedbackNotesHelper => 'No se usa para la clasificación ni para las propuestas.';

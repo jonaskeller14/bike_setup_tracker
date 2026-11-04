@@ -131,12 +131,12 @@ void main() {
       expect(feedback.issuesSummaryText(germanL10n), 'Vorne: Hart · Hinten: Wenig Grip');
       expect(
         _feedback(observations: {const FeedbackObservation.flag(NoIssueKey())}).issuesSummaryText(germanL10n),
-        'Perfekt eingestellt',
+        'Keine Probleme',
       );
     });
 
-    test('is "Dialled in" for nothing stood out, and null without answers', () {
-      expect(_feedback(observations: {const FeedbackObservation.flag(NoIssueKey())}).issuesSummaryText(englishL10n), 'Dialled in');
+    test('is "No issues" for nothing stood out, and null without answers', () {
+      expect(_feedback(observations: {const FeedbackObservation.flag(NoIssueKey())}).issuesSummaryText(englishL10n), 'No issues');
       expect(_feedback().issuesSummaryText(englishL10n), isNull);
     });
   });

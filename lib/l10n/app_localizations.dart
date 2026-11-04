@@ -9673,17 +9673,11 @@ abstract class AppLocalizations {
   /// **'Better than {reference}'**
   String feedbackVerdictBetter(String reference);
 
-  /// Chip that says no problem was felt.
+  /// Chip and summary that say no problem was felt.
   ///
   /// In en, this message translates to:
-  /// **'Nothing stood out'**
-  String get feedbackNothingStoodOut;
-
-  /// Summary of a feedback where nothing stood out.
-  ///
-  /// In en, this message translates to:
-  /// **'Dialled in'**
-  String get feedbackDialledIn;
+  /// **'No issues'**
+  String get feedbackNoIssues;
 
   /// Helper text of the feedback notes field.
   ///

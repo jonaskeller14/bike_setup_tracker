@@ -11,7 +11,7 @@ import '../../models/feedback/feedback_vocabulary.dart';
 import '../../services/custom_issue_service.dart';
 
 /// "Anything stand out?": the problem chips per end of the bike, the rider's
-/// own issues, plus "Nothing stood out", which excludes every chip and vice
+/// own issues, plus "No issues", which excludes every chip and vice
 /// versa.
 class FeedbackIssueChips extends StatelessWidget {
   final Set<IssueKey> issues;
@@ -73,7 +73,7 @@ class FeedbackIssueChips extends StatelessWidget {
         FilterChip(
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           avatar: nothingStoodOut ? null : const Icon(Icons.check_circle_outline),
-          label: Text(context.l10n.feedbackNothingStoodOut),
+          label: Text(context.l10n.feedbackNoIssues),
           selected: nothingStoodOut,
           onSelected: _toggleNothingStoodOut,
         ),

@@ -5899,10 +5899,7 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get feedbackNothingStoodOut => 'Niente di rilevante';
-
-  @override
-  String get feedbackDialledIn => 'Messo a punto';
+  String get feedbackNoIssues => 'Nessun problema';
 
   @override
   String get feedbackNotesHelper => 'Non usato per la classifica né per i suggerimenti.';

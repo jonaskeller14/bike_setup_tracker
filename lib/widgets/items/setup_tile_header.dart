@@ -79,7 +79,7 @@ class SetupTileHeader extends StatelessWidget {
   /// clear they earn the space; setup details always show them.
   static const bool showOpenIssuesInTiles = false;
 
-  /// The setup's open issues or "Dialled in", for the [footer]. Null while Feedback is off.
+  /// The setup's open issues or "No issues", for the [footer]. Null while Feedback is off.
   static Widget? openIssuesOf(Setup setup, AppSettings appSettings, AppRepository appRepository) => switch (
     appSettings.enableRating ? appRepository.openIssuesFor(setup.id) : null
   ) {

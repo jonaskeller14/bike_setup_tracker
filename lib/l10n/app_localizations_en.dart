@@ -5873,10 +5873,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get feedbackNothingStoodOut => 'Nothing stood out';
-
-  @override
-  String get feedbackDialledIn => 'Dialled in';
+  String get feedbackNoIssues => 'No issues';
 
   @override
   String get feedbackNotesHelper => 'Not used for ranking or proposals.';

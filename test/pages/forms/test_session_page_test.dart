@@ -80,11 +80,14 @@ void main() {
     TestSessionPage Function()? page,
     double width = 800,
     ThemeData? theme,
+    bool enableGoal = false,
   }) async {
     await tester.runAsync(() async {
       database = AppDatabase.memory();
       appRepository = AppRepository(database);
-      appSettings = AppSettings()..showOnboarding = false;
+      appSettings = AppSettings()
+        ..showOnboarding = false
+        ..enableTestSessionGoal = enableGoal;
       await appRepository.addBikes([Bike(id: _bikeId, name: 'Test Bike', person: null)]);
       await appRepository.addComponents([
         Component(
@@ -189,8 +192,22 @@ void main() {
     expect((result as TestSession).adjustmentIds, hasLength(6));
   });
 
-  testWidgets('the goal is grouped like the feedback form and counts to three', (tester) async {
+  testWidgets('the goal stays hidden without its feature flag, and a new session has none', (tester) async {
     await open(tester);
+
+    expect(find.text('GOAL (OPTIONAL)'), findsNothing);
+    expect(find.widgetWithText(FilterChip, 'Calm'), findsNothing);
+
+    await pickAdjustments(tester, ['Adjustment a1']);
+    await closeSheet(tester);
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    expect((result as TestSession).goal, isEmpty);
+  });
+
+  testWidgets('the goal is grouped like the feedback form and counts to three', (tester) async {
+    await open(tester, enableGoal: true);
 
     expect(find.text('GOAL (OPTIONAL)'), findsOneWidget);
     expect(find.text('0 / 3'), findsOneWidget);
@@ -352,7 +369,7 @@ void main() {
 
     testWidgets('only the name changes, everything else is shown locked', (tester) async {
       final original = session();
-      await open(tester, page: () => TestSessionPage.edit(session: original));
+      await open(tester, page: () => TestSessionPage.edit(session: original), enableGoal: true);
 
       expect(find.text('Edit Test Session'), findsOneWidget);
       expect(find.byIcon(Icons.lock_outline), findsNWidgets(4), reason: 'bike, method, adjustments and goal');
@@ -371,6 +388,21 @@ void main() {
       expect(find.widgetWithText(FilterChip, 'Grip'), findsNothing);
 
       await tester.enterText(find.byType(TextField), '  Faster rebound  ');
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(result, original.copyWith(name: 'Faster rebound'));
+    });
+
+    testWidgets('without the feature flag the goal is hidden but kept', (tester) async {
+      final original = session();
+      await open(tester, page: () => TestSessionPage.edit(session: original));
+
+      expect(find.text('GOAL (OPTIONAL)'), findsNothing);
+      expect(find.widgetWithText(FilterChip, 'Front · Calm'), findsNothing);
+      expect(find.byIcon(Icons.lock_outline), findsNWidgets(3), reason: 'bike, method and adjustments');
+
+      await tester.enterText(find.byType(TextField), 'Faster rebound');
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 

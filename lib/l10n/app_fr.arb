@@ -317,6 +317,8 @@
   "featuresRiderInfo": "Ajoute un profil de pilote, ouvert avec le bouton pilote de la barre d’application. Associez le pilote à vos vélos pour enregistrer le poids et d’autres attributs avec chaque setup. Un nouveau pilote démarre avec l’attribut « Poids du pilote ». Si vous désactivez cette fonction, le pilote est masqué mais ses données sont conservées.",
   "featuresRiderAdvanced": "Affichage pilote avancé",
   "featuresRiderAdvancedInfo": "Rétablit l’interface multi-pilotes : un onglet Pilotes avec réorganisation et filtre par vélo, la duplication, la page de détails du pilote et le lien avec l’athlète Strava.",
+  "featuresTestSessionGoal": "Objectif de la session de test",
+  "featuresTestSessionGoalInfo": "Ajoute un objectif facultatif au formulaire de session de test : ce qui doit s’améliorer. Chaque run demande si c’est le cas.",
   "featuresTimelineGrouping": "Regroupement de l’historique",
   "featuresTimelineGroupingInfo": "Définit comment l’historique des setups condense les entrées liées. Chaque étape peut être activée séparément.",
   "featuresSetupGrouping": "Regroupement des setups",

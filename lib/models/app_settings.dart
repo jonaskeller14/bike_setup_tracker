@@ -50,6 +50,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupGuides = false;
   bool _enableInstallOnComponent = false;
   bool _enablePressureAssistant = false;
+  bool _enableTestSessionGoal = false;
   int _pressureCheckThresholdPercent = 3;
   Set<ComponentType> _pressureCheckHiddenComponentTypes = const {};
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
@@ -101,6 +102,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableSetupGuides => _enableSetupGuides && _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
   bool get enablePressureAssistant => _enablePressureAssistant;
+  bool get enableTestSessionGoal => _enableTestSessionGoal;
   int get pressureCheckThresholdPercent => _pressureCheckThresholdPercent;
   double get pressureCheckThreshold => _pressureCheckThresholdPercent / 100;
   Set<ComponentType> get pressureCheckHiddenComponentTypes => _pressureCheckHiddenComponentTypes;
@@ -364,6 +366,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enablePressureAssistant', newValue);
   }
 
+  set enableTestSessionGoal(bool newValue) {
+    if (newValue == _enableTestSessionGoal) return;
+    _enableTestSessionGoal = newValue;
+    notifyListeners();
+    _persistBool('enableTestSessionGoal', newValue);
+  }
+
   set pressureCheckThresholdPercent(int newValue) {
     if (newValue == _pressureCheckThresholdPercent) return;
     _pressureCheckThresholdPercent = newValue;
@@ -500,6 +509,7 @@ class AppSettings extends ChangeNotifier {
       _enableSetupGuides = prefs.getBool('${_kPrefix}enableSetupGuides') ?? _enableSetupGuides;
       _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
       _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
+      _enableTestSessionGoal = prefs.getBool('${_kPrefix}enableTestSessionGoal') ?? _enableTestSessionGoal;
       _pressureCheckThresholdPercent =
           prefs.getInt('${_kPrefix}pressureCheckThresholdPercent') ?? _pressureCheckThresholdPercent;
       final hiddenPressureCheckTypes = prefs.getStringList('${_kPrefix}pressureCheckHiddenComponentTypes');
@@ -569,6 +579,7 @@ class AppSettings extends ChangeNotifier {
     _enableSetupGuides = defaults._enableSetupGuides;
     _enableInstallOnComponent = defaults._enableInstallOnComponent;
     _enablePressureAssistant = defaults._enablePressureAssistant;
+    _enableTestSessionGoal = defaults._enableTestSessionGoal;
     _pressureCheckThresholdPercent = defaults._pressureCheckThresholdPercent;
     _pressureCheckHiddenComponentTypes = defaults._pressureCheckHiddenComponentTypes;
     _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
@@ -658,6 +669,7 @@ class AppSettings extends ChangeNotifier {
     _enableSetupGuides,
     _enableInstallOnComponent,
     _enablePressureAssistant,
+    _enableTestSessionGoal,
     _pressureCheckThresholdPercent,
     // Sets compare by identity, so compare the sorted type names instead.
     (_pressureCheckHiddenComponentTypes.map((type) => type.name).toList()..sort()).join(','),

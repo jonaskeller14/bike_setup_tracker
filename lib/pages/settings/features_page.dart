@@ -194,6 +194,14 @@ class FeaturesPage extends StatelessWidget {
                     filters.setup = filters.setup.copyWith(testSessionNames: const {});
                   },
                 ),
+              if (appSettings.developerMode && appSettings.enableRating)
+                _FeatureToggleTile(
+                  icon: Icons.track_changes,
+                  title: l10n.featuresTestSessionGoal,
+                  value: appSettings.enableTestSessionGoal,
+                  onChanged: (v) => appSettings.enableTestSessionGoal = v,
+                  infoText: l10n.featuresTestSessionGoalInfo,
+                ),
               _FeatureToggleTile(
                 icon: Icons.person,
                 title: l10n.featuresRider,

@@ -361,6 +361,29 @@ void main() {
     });
   });
 
+  group('AppSettings — enableTestSessionGoal', () {
+    test('persists, loads and resets', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+      expect(settings.enableTestSessionGoal, isFalse);
+
+      settings.enableTestSessionGoal = true;
+      await flushWrites();
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enableTestSessionGoal'), isTrue);
+      expect(settings.hasDefaultValues, isFalse);
+
+      final reloaded = AppSettings();
+      await reloaded.loadAppSettings();
+      expect(reloaded.enableTestSessionGoal, isTrue);
+
+      await reloaded.resetToDefaults();
+      expect(reloaded.enableTestSessionGoal, isFalse);
+      expect(prefs.getBool('${_kPrefix}enableTestSessionGoal'), isNull);
+    });
+  });
+
   group('AppSettings — language', () {
     test('drops the retired flag and week start on load', () async {
       SharedPreferences.setMockInitialValues({

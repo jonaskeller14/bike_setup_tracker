@@ -317,6 +317,8 @@
   "featuresRiderInfo": "Fügt ein Rider-Profil hinzu, das du mit der Rider-Schaltfläche in der App-Leiste öffnest. Verknüpfe den Rider mit deinen Bikes, um Fahrergewicht und weitere Merkmale bei jedem Setup festzuhalten. Ein neuer Rider startet mit dem Merkmal „Fahrergewicht“. Wenn du die Funktion ausschaltest, wird der Rider ausgeblendet, seine Daten bleiben aber erhalten.",
   "featuresRiderAdvanced": "Erweitertes Rider-Layout",
   "featuresRiderAdvancedInfo": "Stellt die Oberfläche für mehrere Rider wieder her: einen Rider-Tab mit Sortierung und Bike-Filter, Duplizieren, die Rider-Detailseite und die Strava-Athletenverknüpfung.",
+  "featuresTestSessionGoal": "Testsession-Ziel",
+  "featuresTestSessionGoalInfo": "Ergänzt das Testsession-Formular um ein optionales Ziel: was besser werden soll. Nach jedem Lauf wirst du gefragt, ob es das ist.",
   "featuresTimelineGrouping": "Verlaufsgruppierung",
   "featuresTimelineGroupingInfo": "Legt fest, wie der Setup-Verlauf zusammengehörige Einträge verdichtet. Jeder Schritt lässt sich einzeln ein- oder ausschalten.",
   "featuresSetupGrouping": "Setup-Gruppierung",

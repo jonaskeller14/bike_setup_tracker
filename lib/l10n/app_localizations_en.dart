@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -993,6 +994,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Restores the multi-rider UI: a Riders tab with reorder and bike filter, Duplicate, the rider details page and the Strava athlete link.';
 
   @override
+  String get featuresTestSessionGoal => 'Test Session Goal';
+
+  @override
+  String get featuresTestSessionGoalInfo =>
+      'Adds an optional goal to the test session form: what should get better. Each run then asks if it did.';
+
+  @override
   String get featuresTimelineGrouping => 'Timeline Grouping';
 
   @override
@@ -1180,8 +1188,7 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other:
           '$count attachments are no longer linked to a setup, bike, component or task. They are removed the next time the app starts.',
-      one:
-          '1 attachment is no longer linked to a setup, bike, component or task. It is removed the next time the app starts.',
+      one: '1 attachment is no longer linked to a setup, bike, component or task. It is removed the next time the app starts.',
     );
     return '$_temp0';
   }

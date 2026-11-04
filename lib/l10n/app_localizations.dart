@@ -2005,6 +2005,18 @@ abstract class AppLocalizations {
   /// **'Restores the multi-rider UI: a Riders tab with reorder and bike filter, Duplicate, the rider details page and the Strava athlete link.'**
   String get featuresRiderAdvancedInfo;
 
+  /// Title of the test session goal feature (developer builds).
+  ///
+  /// In en, this message translates to:
+  /// **'Test Session Goal'**
+  String get featuresTestSessionGoal;
+
+  /// Explanation of the test session goal feature.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds an optional goal to the test session form: what should get better. Each run then asks if it did.'**
+  String get featuresTestSessionGoalInfo;
+
   /// Title of the group of timeline grouping features.
   ///
   /// In en, this message translates to:

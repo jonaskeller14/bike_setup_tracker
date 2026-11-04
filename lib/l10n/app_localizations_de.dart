@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -997,6 +998,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Stellt die Oberfläche für mehrere Rider wieder her: einen Rider-Tab mit Sortierung und Bike-Filter, Duplizieren, die Rider-Detailseite und die Strava-Athletenverknüpfung.';
 
   @override
+  String get featuresTestSessionGoal => 'Testsession-Ziel';
+
+  @override
+  String get featuresTestSessionGoalInfo =>
+      'Ergänzt das Testsession-Formular um ein optionales Ziel: was besser werden soll. Nach jedem Lauf wirst du gefragt, ob es das ist.';
+
+  @override
   String get featuresTimelineGrouping => 'Verlaufsgruppierung';
 
   @override
@@ -1189,8 +1197,7 @@ class AppLocalizationsDe extends AppLocalizations {
       locale: localeName,
       other:
           '$count Anhänge sind keinem Setup, Bike, keiner Komponente und keiner Aufgabe mehr zugeordnet. Sie werden beim nächsten Start der App entfernt.',
-      one:
-          '1 Anhang ist keinem Setup, Bike, keiner Komponente und keiner Aufgabe mehr zugeordnet. Er wird beim nächsten Start der App entfernt.',
+      one: '1 Anhang ist keinem Setup, Bike, keiner Komponente und keiner Aufgabe mehr zugeordnet. Er wird beim nächsten Start der App entfernt.',
     );
     return '$_temp0';
   }

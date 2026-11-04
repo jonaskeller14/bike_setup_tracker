@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -998,6 +999,13 @@ class AppLocalizationsPt extends AppLocalizations {
       'Restaura a interface de vários riders: uma aba Riders com reordenação e filtro por bike, Duplicar, a página de detalhes do rider e o vínculo com o atleta do Strava.';
 
   @override
+  String get featuresTestSessionGoal => 'Objetivo da sessão de teste';
+
+  @override
+  String get featuresTestSessionGoalInfo =>
+      'Adiciona um objetivo opcional ao formulário da sessão de teste: o que deve melhorar. Depois de cada run, o app pergunta se melhorou.';
+
+  @override
   String get featuresTimelineGrouping => 'Agrupamento do histórico';
 
   @override
@@ -1189,8 +1197,7 @@ class AppLocalizationsPt extends AppLocalizations {
       locale: localeName,
       other:
           '$count anexos não estão mais ligados a nenhum setup, bike, componente ou tarefa. Eles serão removidos na próxima vez que o app for aberto.',
-      one:
-          '1 anexo não está mais ligado a nenhum setup, bike, componente ou tarefa. Ele será removido na próxima vez que o app for aberto.',
+      one: '1 anexo não está mais ligado a nenhum setup, bike, componente ou tarefa. Ele será removido na próxima vez que o app for aberto.',
     );
     return '$_temp0';
   }

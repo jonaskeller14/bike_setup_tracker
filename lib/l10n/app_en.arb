@@ -1304,6 +1304,14 @@
   "@featuresRiderAdvancedInfo": {
     "description": "Explanation of the advanced rider layout feature."
   },
+  "featuresTestSessionGoal": "Test Session Goal",
+  "@featuresTestSessionGoal": {
+    "description": "Title of the test session goal feature (developer builds)."
+  },
+  "featuresTestSessionGoalInfo": "Adds an optional goal to the test session form: what should get better. Each run then asks if it did.",
+  "@featuresTestSessionGoalInfo": {
+    "description": "Explanation of the test session goal feature."
+  },
   "featuresTimelineGrouping": "Timeline Grouping",
   "@featuresTimelineGrouping": {
     "description": "Title of the group of timeline grouping features."

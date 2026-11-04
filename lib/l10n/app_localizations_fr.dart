@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -996,6 +997,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Rétablit l’interface multi-pilotes : un onglet Pilotes avec réorganisation et filtre par vélo, la duplication, la page de détails du pilote et le lien avec l’athlète Strava.';
 
   @override
+  String get featuresTestSessionGoal => 'Objectif de la session de test';
+
+  @override
+  String get featuresTestSessionGoalInfo =>
+      'Ajoute un objectif facultatif au formulaire de session de test : ce qui doit s’améliorer. Chaque run demande si c’est le cas.';
+
+  @override
   String get featuresTimelineGrouping => 'Regroupement de l’historique';
 
   @override
@@ -1187,8 +1195,7 @@ class AppLocalizationsFr extends AppLocalizations {
       locale: localeName,
       other:
           '$count pièces jointes ne sont plus liées à un setup, un vélo, un composant ou une tâche. Elles seront supprimées au prochain démarrage de l’application.',
-      one:
-          '1 pièce jointe n’est plus liée à un setup, un vélo, un composant ou une tâche. Elle sera supprimée au prochain démarrage de l’application.',
+      one: '1 pièce jointe n’est plus liée à un setup, un vélo, un composant ou une tâche. Elle sera supprimée au prochain démarrage de l’application.',
     );
     return '$_temp0';
   }

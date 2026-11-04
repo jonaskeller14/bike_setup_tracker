@@ -317,6 +317,8 @@
   "featuresRiderInfo": "Adiciona um perfil de rider, aberto pelo botão de rider na barra do app. Vincule o rider às suas bikes para registrar o peso e outros atributos em cada setup. Um novo rider começa com o atributo “Peso do rider”. Se você desativar o recurso, o rider fica oculto, mas os dados dele são mantidos.",
   "featuresRiderAdvanced": "Layout de rider avançado",
   "featuresRiderAdvancedInfo": "Restaura a interface de vários riders: uma aba Riders com reordenação e filtro por bike, Duplicar, a página de detalhes do rider e o vínculo com o atleta do Strava.",
+  "featuresTestSessionGoal": "Objetivo da sessão de teste",
+  "featuresTestSessionGoalInfo": "Adiciona um objetivo opcional ao formulário da sessão de teste: o que deve melhorar. Depois de cada run, o app pergunta se melhorou.",
   "featuresTimelineGrouping": "Agrupamento do histórico",
   "featuresTimelineGroupingInfo": "Define como o histórico de setups condensa as entradas relacionadas. Cada etapa pode ser ativada separadamente.",
   "featuresSetupGrouping": "Agrupamento de setups",

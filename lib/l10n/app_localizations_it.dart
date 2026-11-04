@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -996,6 +997,13 @@ class AppLocalizationsIt extends AppLocalizations {
       'Ripristina l’interfaccia multi-rider: una scheda Rider con riordino e filtro per bici, Duplica, la pagina dei dettagli del rider e il collegamento con l’atleta Strava.';
 
   @override
+  String get featuresTestSessionGoal => 'Obiettivo della sessione di test';
+
+  @override
+  String get featuresTestSessionGoalInfo =>
+      'Aggiunge un obiettivo facoltativo al modulo della sessione di test: cosa deve migliorare. Dopo ogni run ti viene chiesto se è successo.';
+
+  @override
   String get featuresTimelineGrouping => 'Raggruppamento della cronologia';
 
   @override
@@ -1188,8 +1196,7 @@ class AppLocalizationsIt extends AppLocalizations {
       locale: localeName,
       other:
           '$count allegati non sono più collegati a un setup, una bici, un componente o un intervento. Verranno rimossi al prossimo avvio dell’app.',
-      one:
-          '1 allegato non è più collegato a un setup, una bici, un componente o un intervento. Verrà rimosso al prossimo avvio dell’app.',
+      one: '1 allegato non è più collegato a un setup, una bici, un componente o un intervento. Verrà rimosso al prossimo avvio dell’app.',
     );
     return '$_temp0';
   }

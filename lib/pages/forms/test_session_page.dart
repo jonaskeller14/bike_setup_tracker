@@ -317,7 +317,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
     );
   }
 
-  Widget _methodSection() {
+  Widget _methodSection({required EdgeInsets padding}) {
     final theme = Theme.of(context);
     final expected = testSessionExpectedRuns(
       _choice == _MethodChoice.compare ? Tournament(candidateSetupIds: _candidateIds) : _choice.method,
@@ -328,23 +328,30 @@ class _TestSessionPageState extends State<TestSessionPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
-        Wrap(
-          spacing: 8,
-          children: [
-            for (final choice in _MethodChoice.values)
-              ChoiceChip(
-                label: Text(testSessionMethodLabel(choice.method, context.l10n)),
-                selected: _choice == choice,
-                onSelected: _isEdit ? null : (_) => setState(() => _choice = choice),
-              ),
-          ],
+        SingleChildScrollView(
+          padding: padding,
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            spacing: 8,
+            children: [
+              for (final choice in _MethodChoice.values)
+                ChoiceChip(
+                  label: Text(testSessionMethodLabel(choice.method, context.l10n)),
+                  selected: _choice == choice,
+                  onSelected: _isEdit ? null : (_) => setState(() => _choice = choice),
+                ),
+            ],
+          ),
         ),
-        Text(
-          [
-            testSessionMethodDescription(_choice.method, context.l10n),
-            if (expected != null) context.l10n.testSessionExpect(expected),
-          ].join(' '),
-          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        Padding(
+          padding: padding,
+          child: Text(
+            [
+              testSessionMethodDescription(_choice.method, context.l10n),
+              if (expected != null) context.l10n.testSessionExpect(expected),
+            ].join(' '),
+            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
         ),
       ],
     );
@@ -687,7 +694,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
                     infoText: context.l10n.testSessionSectionMethodInfo,
                     trailing: locked,
                   ),
-                  Padding(padding: padding, child: _methodSection()),
+                  _methodSection(padding: padding),
                   if (_choice == _MethodChoice.compare) ...[
                     SectionTitle(title: context.l10n.testSessionSectionSetups, trailing: locked),
                     Padding(padding: padding, child: _isEdit ? _lockedCandidates() : _candidateSection()),
@@ -699,26 +706,28 @@ class _TestSessionPageState extends State<TestSessionPage> {
                     ),
                     Padding(padding: padding, child: _isEdit ? _lockedKnobs() : _knobSection()),
                   ],
-                  SectionTitle(
-                    title: context.l10n.testSessionSectionGoal,
-                    trailing:
-                        locked ??
-                        Text(
-                          '${_goal.length} / ${TestSession.maxGoalAspects}',
-                          style: Theme.of(context).textTheme.labelLarge,
+                  if (context.select<AppSettings, bool>((s) => s.enableTestSessionGoal)) ...[
+                    SectionTitle(
+                      title: context.l10n.testSessionSectionGoal,
+                      trailing:
+                          locked ??
+                          Text(
+                            '${_goal.length} / ${TestSession.maxGoalAspects}',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                    ),
+                    Padding(
+                      padding: padding,
+                      child: Text(
+                        context.l10n.testSessionGoalPrompt,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
-                  ),
-                  Padding(
-                    padding: padding,
-                    child: Text(
-                      context.l10n.testSessionGoalPrompt,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Padding(padding: padding, child: _isEdit ? _lockedGoal() : _goalSection()),
+                    const SizedBox(height: 12),
+                    Padding(padding: padding, child: _isEdit ? _lockedGoal() : _goalSection()),
+                  ],
                 ],
               ),
             ),

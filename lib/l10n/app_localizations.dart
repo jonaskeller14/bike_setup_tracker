@@ -10495,7 +10495,7 @@ abstract class AppLocalizations {
   /// **'Resume'**
   String get testSessionResume;
 
-  /// Error snackbar when an ended test session can't be resumed.
+  /// Why an ended test session can't be resumed, shown below the disabled menu option.
   ///
   /// In en, this message translates to:
   /// **'Only the latest session on a bike can be resumed, and only if no setup was added since.'**

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/feedback/test_session.dart';
+import '../../repositories/app_repository.dart';
 import '../../utils/test_session_actions.dart';
 
 /// Resume (once ended), Edit (the name) and Remove of a test session. Ending it
-/// stays on the next step card and the session sheet.
+/// stays on the next step card and the session sheet. Resume stays listed but
+/// disabled when blocked, so the reason is visible.
 class TestSessionOptionsMenu extends StatelessWidget {
   final TestSession session;
   final bool enabled;
@@ -22,20 +25,39 @@ class TestSessionOptionsMenu extends StatelessWidget {
         _TestSessionOption.edit => TestSessionActions.editSession(context, session: session),
         _TestSessionOption.remove => TestSessionActions.removeSession(context, session: session),
       },
-      itemBuilder: (context) => [
-        for (final option in _TestSessionOption.values)
-          if (option != _TestSessionOption.resume || !session.isRunning)
-            PopupMenuItem(
-              value: option,
-              child: Row(
-                spacing: 10,
-                children: [
-                  Icon(option.iconData, size: 20),
-                  Text(option.label(context.l10n)),
-                ],
+      itemBuilder: (context) {
+        final canResume = context.read<AppRepository>().canResumeTestSession(session);
+        return [
+          for (final option in _TestSessionOption.values)
+            if (option != _TestSessionOption.resume || !session.isRunning)
+              PopupMenuItem(
+                value: option,
+                enabled: option != _TestSessionOption.resume || canResume,
+                child: Row(
+                  spacing: 10,
+                  children: [
+                    Icon(option.iconData, size: 20),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(option.label(context.l10n)),
+                          if (option == _TestSessionOption.resume && !canResume)
+                            Text(
+                              context.l10n.testSessionResumeBlocked,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-      ],
+        ];
+      },
     );
   }
 }

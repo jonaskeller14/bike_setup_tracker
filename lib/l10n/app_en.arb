@@ -8326,7 +8326,7 @@
   },
   "testSessionResumeBlocked": "Only the latest session on a bike can be resumed, and only if no setup was added since.",
   "@testSessionResumeBlocked": {
-    "description": "Error snackbar when an ended test session can't be resumed."
+    "description": "Why an ended test session can't be resumed, shown below the disabled menu option."
   },
   "testSessionMovedToTrash": "Test session '{name}' moved to trash.",
   "@testSessionMovedToTrash": {

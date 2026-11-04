@@ -94,6 +94,14 @@ docs/store/play-store/metadata/*/images/tenInchScreenshots/
 !docs/store/play-store/metadata/en-US/images/phoneScreenshots/
 !docs/store/play-store/metadata/en-US/images/tenInchScreenshots/
 
+# Header, search-results and feature graphics: same rule, only en-US is tracked.
+docs/store/app-store/creative/header_*.png
+docs/store/app-store/creative/search_*.png
+docs/store/play-store/metadata/*/images/featureGraphic.png
+!docs/store/app-store/creative/header_en-US.png
+!docs/store/app-store/creative/search_en-US.png
+!docs/store/play-store/metadata/en-US/images/featureGraphic.png
+
 # Affinity lock files while a document is open
 *.af~lock~
 

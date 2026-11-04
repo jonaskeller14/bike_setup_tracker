@@ -25,13 +25,19 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 Previews and screenshots upload in filename order (`preview_1`, `iphone_01`, `iphone_02`, ...), so renaming a file changes the order.
 
 Locales: `en-US` (primary), `de-DE`, `fr-FR`, `it`, `es-ES` and `pt-BR`, the app's UI languages. The folder names
-are the App Store codes, so Italian is `it` there and `it-IT` in `play-store/metadata/`; `ios.sh` maps it
-(`play_locale`). Listing text exists for all six. Only `de-DE` has its own captions (`captions/de-DE.md`) and raws
-recorded with `--locale de-DE` (`tool/screenshots/README.md`); the other languages' captions, raws, creatives
-and feature graphics are still to do. To save Git LFS
-space only the `en-US` screenshots (raws and exports) are tracked; the other locales' raws and rendered
-screenshots are gitignored and live on the machine that recorded them, so record before rendering and
-uploading a non-English set. A locale without raws of its own renders over the `en-US` ones.
+are the App Store codes, so Italian is `it` in `app-store/` and `it-IT` in `play-store/metadata/`; `ios.sh` maps it
+(`play_locale`). The raws and the tooling use `it-IT` (`--locale it-IT`, `captions/it-IT.md`, `<device>/it-IT/`); the
+renderers write the App Store exports and creatives under `it` (`APP_STORE_LOCALES` in `render_images.py`). Every
+locale has listing text, captions (`captions/<locale>.md`), raws recorded with `--locale <locale>`
+(`tool/screenshots/README.md`), App Store header and search images and a Play feature graphic; the screens in them show
+the app in that language (record data such as bike names stays English). The fr/it/es/pt captions are LLM drafts
+like the UI (#18): French "vous", Italian "tu", Spanish "tú", Portuguese "você"; a caption that doesn't fit is
+shortened rather than shrunk. To save Git LFS
+space only the `en-US` media is tracked: screenshots (raws and exports), `header_en-US.png`, `search_en-US.png` and
+`featureGraphic.png`. The other locales' raws, rendered screenshots, header and search images and feature graphics are
+gitignored and live on the machine that recorded or rendered them, so record before rendering and
+uploading a non-English set. A locale without raws of its own renders over the `en-US` ones and prints a `WARN`; the
+search image and the feature graphic use a locale's own raw `04` once it exists.
 
 ## Field rules
 

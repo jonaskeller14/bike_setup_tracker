@@ -10,7 +10,8 @@
 //                     element's data-default; an element left empty is hidden.
 //   kind=…            removes every [data-kind] element that doesn't list this kind (default: the
 //                     body's data-kind); a [data-param] may carry data-default-<kind>
-//   lang=de           <html lang>, and [data-i18n] from the page's STRINGS[lang] (default en)
+//   lang=de           de, fr, it, es or pt: <html lang>, and [data-i18n] from the page's STRINGS[lang]
+//                     (default en)
 //   device=android    Android frame and Play raws instead of the iPhone; also ipad and
 //                     android-tablet (default: the body's data-device, else iphone)
 //   shots=04,03       raws for the .phone[data-shot="N"] elements; an entry with a "/" is a repo path
@@ -29,6 +30,7 @@
 // [data-fit="<min px>"] shrinks an element's font size until its text fits its box. With check, a
 // shrunk element is a warning (<body data-warnings>), one that still doesn't fit a problem.
 // [data-decor] marks text that may sit outside the safe area (a brand row a platform may cover).
+// With check, an Archivo web font that did not load is a problem (the text would render in a fallback font).
 // When everything is laid out, <body data-ready> is set.
 const LIFT_SCALE = 1.6;
 
@@ -54,7 +56,7 @@ const LIFT_SCALE = 1.6;
     }
   }
 
-  const lang = params.get('lang') === 'de' ? 'de' : 'en';
+  const lang = ['de', 'fr', 'it', 'es', 'pt'].includes(params.get('lang')) ? params.get('lang') : 'en';
   document.documentElement.lang = lang;
   if (typeof STRINGS !== 'undefined') {
     document.querySelectorAll('[data-i18n]').forEach((el) => {
@@ -111,6 +113,10 @@ const LIFT_SCALE = 1.6;
 
   await new Promise((resolve) => (document.readyState === 'complete' ? resolve() : addEventListener('load', resolve)));
   await document.fonts.ready;
+  // Headless Chrome renders a failed Google Fonts request in a fallback sans without a word.
+  if (![...document.fonts].some((face) => face.family.replace(/["']/g, '') === 'Archivo' && face.status === 'loaded')) {
+    problems.push('the Archivo web font did not load');
+  }
 
   document.querySelectorAll('[data-fit]').forEach((el) => {
     const min = Number(el.dataset.fit);

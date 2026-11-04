@@ -12,7 +12,7 @@ product page header got cropped in the App Store Connect preview.
 |---|---|---|
 | Source | [`search_3x2.html`](search_3x2.html) | [`header_21x9.html`](header_21x9.html) |
 | Render | `python tool/marketing/render_images.py appstore-search` | `python tool/marketing/render_images.py appstore-header` |
-| Output | `search_{en-US,de-DE}.png`, 3840×2560 | `header_{en-US,de-DE}.png`, 3840×1646 |
+| Output | `search_<locale>.png`, 3840×2560 | `header_<locale>.png`, 3840×1646 |
 | Art safe area | 836, 765, 2168×1030 | 1097, 493, 1646×661 |
 | Layout | Brand row, headline, a block of changed values left; the phone right | Type only: brand row, headline, a row of values in the safe area; rules full width |
 
@@ -22,8 +22,8 @@ product page header got cropped in the App Store Connect preview.
 - Safe areas come from Apple's Photoshop templates on
   [asset best practices](https://developer.apple.com/app-store/asset-best-practices/).
   `render_images.py` checks that all text sits inside them; `--safe` also writes each render with
-  the overlay to `build/marketing/safe/`. `?lang=de` switches to German.
-- The search layout reaches past its safe area. That's accepted: the App Store Connect search
+  the overlay to `build/marketing/safe/`. `?lang=de|fr|it|es|pt` switches the language; `--locale <loc>` renders only one locale's files.
+- The search headline shrinks (down to 200 px) until it fits three lines above the rule; a long translation therefore prints a WARN. The search layout reaches past its safe area. That's accepted: the App Store Connect search
   preview showed the full image, and Apple's own samples do the same. The check uses a 160 px
   margin there and draws Apple's area as a guide.
 - No phone on the header: Apple's guidance makes the header about the brand.
@@ -32,16 +32,23 @@ product page header got cropped in the App Store Connect preview.
 - Screen: the real raw `04_raw.png` (Setup History) in the iPhone frame. Re-render and re-upload
   when it changes.
 - PNG, RGB, no transparency. Leave **"use header asset in search results"** off.
-- Commit a new render only once it's live in App Store Connect.
+- Commit a new render only once it's live in App Store Connect. Only the `en-US` files are tracked; every other
+  locale's header and search image is gitignored (Git LFS space) and stays on the machine that rendered it.
 
 | Locale | Headline ([messaging.md](../../../marketing/messaging.md)) |
 |---|---|
 | en-US | Search: R4 "The logbook for your MTB suspension." · Header: R2 "Fork and shock settings, remembered." |
 | de-DE | Search: R4 "Das Logbuch für dein MTB-Fahrwerk." · Header: R2 "Gabel und Dämpfer: kein Klick geht verloren." |
+| fr-FR | Search: R4 "Le carnet de votre suspension VTT." · Header: R2 "Fourche et amortisseur : aucun réglage oublié." |
+| it | Search: R4 "Il diario delle tue sospensioni MTB." · Header: R2 "Forcella e ammortizzatore: nessun clic perso." |
+| es-ES | Search: R4 "El diario de tu suspensión MTB." · Header: R2 "Horquilla y amortiguador: ningún clic se pierde." |
+| pt-BR | Search: R4 "O diário da sua suspensão de MTB." · Header: R2 "Garfo e amortecedor: nenhum clique se perde." |
 
-The screens stay English in both locales, like the screenshots, until #18.
+The file name uses the App Store locale (`header_it.png`, not `it-IT`); `ios.sh creatives` skips a locale whose
+file is missing. The phone of the search image shows the locale's own raw `04` when it was recorded, else the
+`en-US` one. The fr/it/es/pt headlines are LLM drafts, written for riders and not word for word.
 
-**Before upload**, check the App Store Connect preview in light and dark mode, EN and DE, for
+**Before upload**, check the App Store Connect preview in light and dark mode, every locale, for
 cropped text.
 
 ## Video variants

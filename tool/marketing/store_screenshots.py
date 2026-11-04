@@ -61,12 +61,17 @@ def raw_path(folder, locale, n):
 
 
 def export_path(root, key, locale, n):
+    # App Store Connect knows Italian as "it", the tooling and Play as "it-IT".
+    if key in ("iphone", "ipad"):
+        locale = render_images.APP_STORE_LOCALES.get(locale, locale)
     return root / DEVICES[key][3].format(locale=locale, n=n)
 
 
 def render_set(chrome, key, locale, rows, root, safe):
     """Renders one device set of a locale; returns (problems, [(n, label, caption, file)])."""
     device, folder, size, _ = DEVICES[key]
+    if locale != "en-US" and not (STORE / folder / locale).is_dir():
+        print(f"WARN {key} {locale}: no raws in {folder}/{locale}/, the screens show the en-US UI")
     outputs, done = {}, []
     for n, (label, caption) in rows.items():
         out = export_path(root, key, locale, n)

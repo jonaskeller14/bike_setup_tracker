@@ -38,6 +38,10 @@ FRAMED_EXPORTS = {
 }
 
 
+# App Store Connect knows Italian as "it"; the raws and Play use the tooling's "it-IT".
+APP_STORE_LOCALES = {"it-IT": "it"}
+
+
 def png_size(path):
     with path.open("rb") as f:
         header = f.read(24)
@@ -75,7 +79,8 @@ def main(argv):
         checks = [(f"{folder}/{locale}", "{:02d}_raw.png", EXPECTED_SIZES[folder])]
         if folder in FRAMED_EXPORTS:
             export_folder, name_format, expected = FRAMED_EXPORTS[folder]
-            checks.append((export_folder.format(locale=locale), name_format, expected))
+            export_locale = APP_STORE_LOCALES.get(locale, locale) if export_folder.startswith("app-store/") else locale
+            checks.append((export_folder.format(locale=export_locale), name_format, expected))
         for check_folder, name_format, expected in checks:
             for index in range(1, SCREEN_COUNT + 1):
                 name = name_format.format(index)

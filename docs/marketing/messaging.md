@@ -122,6 +122,19 @@ German riders, not translated word for word.
 | D4 | Your riding buddy wants your fork settings? | Dein Kumpel fragt nach deinen Gabel-Einstellungen? |
 | D5 | Want all your bike setups in a spreadsheet? | Alle deine Bike-Setups in einer Tabelle? |
 
+### R2, R4 and C3 in French, Italian, Spanish and Portuguese
+
+The three store-asset headlines, for the localized header, search and feature graphic
+(`docs/store/app-store/creative/`, `docs/store/play-store/feature_graphic.html`). LLM drafts, written for
+riders and not word for word, like the UI ([#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)).
+Address: French "vous", Italian "tu", Spanish "tú", Portuguese "você".
+
+| ID | FR | IT | ES | PT-BR |
+|---|---|---|---|---|
+| R2 | Fourche et amortisseur : aucun réglage oublié. | Forcella e ammortizzatore: nessun clic perso. | Horquilla y amortiguador: ningún clic se pierde. | Garfo e amortecedor: nenhum clique se perde. |
+| R4 | Le carnet de votre suspension VTT. | Il diario delle tue sospensioni MTB. | El diario de tu suspensión MTB. | O diário da sua suspensão de MTB. |
+| C3 | Trouvez le réglage de fourche qui vous convient. | Trova la regolazione della forcella giusta per te. | Encuentra el ajuste de horquilla que te funciona. | Encontre a regulagem do garfo que funciona para você. |
+
 ### Signature
 
 **78 psi. 4 clicks. Saved.** / **78 psi. 4 Klicks. Gespeichert.**

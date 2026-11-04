@@ -9,7 +9,7 @@
   for the iPad and Mac crops.
 
   URL parameters (and the shared ones in docs/marketing/templates/template.js):
-    ?lang=de   German texts (default: English)
+    ?lang=de|fr|it|es|pt   that language's texts (default: English)
     ?step=N    show only the first N changed values; the frames of the header video
                (tool/marketing/build_kit.py 00_appstore)
 
@@ -51,6 +51,10 @@
   const STRINGS = {
     en: { label: 'Fork · Shock · Tires', headline: '<em>Fork and shock</em><br>settings, remembered.', rebound: 'Rebound', pressure: 'Pressure (psi)' },
     de: { label: 'Gabel · Dämpfer · Reifen', headline: '<em>Gabel und Dämpfer:</em><br>kein Klick geht verloren.', rebound: 'Zugstufe', pressure: 'Druck (psi)' },
+    fr: { label: 'Fourche · Amortisseur · Pneus', headline: '<em>Fourche et amortisseur :</em><br>aucun réglage oublié.', rebound: 'Détente', pressure: 'Pression (psi)' },
+    it: { label: 'Forcella · Ammortizzatore · Copertoni', headline: '<em>Forcella e ammortizzatore:</em><br>nessun clic perso.', rebound: 'Ritorno', pressure: 'Pressione (psi)' },
+    es: { label: 'Horquilla · Amortiguador · Neumáticos', headline: '<em>Horquilla y amortiguador:</em><br>ningún clic se pierde.', rebound: 'Rebote', pressure: 'Presión (psi)' },
+    pt: { label: 'Garfo · Amortecedor · Pneus', headline: '<em>Garfo e amortecedor:</em><br>nenhum clique se perde.', rebound: 'Retorno', pressure: 'Pressão (psi)' },
   };
 </script>
 <script src="../../../marketing/templates/template.js"></script>

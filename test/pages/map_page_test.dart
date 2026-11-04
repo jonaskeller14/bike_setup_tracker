@@ -20,7 +20,6 @@ import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/utils/map_empty_state.dart';
 import 'package:bike_setup_tracker/widgets/map/map_control_button.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
@@ -306,24 +305,6 @@ void main() {
     expect(controller.camera.rotation, closeTo(360, 0.001));
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byKey(const Key('map-compass')), findsNothing);
-  });
-
-  testWidgets('uses no device heading source on iOS', (tester) async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    try {
-      final service = unpermittedService();
-      await tester.pumpWidget(buildPage(service, headingStream: null));
-      await tester.pump();
-
-      // flutter_rotation_sensor 0.2.0 has no north reference on iOS, so the
-      // heading cone must stay off rather than point the wrong way.
-      final layer = tester.widget<CurrentLocationLayer>(find.byType(CurrentLocationLayer));
-      expect(await layer.headingStream!.isEmpty, isTrue);
-    } finally {
-      // Must be reset inside the body: the binding asserts on leaked debug
-      // variables before addTearDown callbacks run.
-      debugDefaultTargetPlatformOverride = null;
-    }
   });
 
   testWidgets('is safe to dispose during an in-flight request', (tester) async {

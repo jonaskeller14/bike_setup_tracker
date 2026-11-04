@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
@@ -108,15 +107,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             accuracy: position.accuracy ?? 0,
           ),
         );
-    // flutter_rotation_sensor 0.2.0 starts Core Motion without a north
-    // reference, so on iOS the azimuth is offset by an arbitrary constant and
-    // the heading cone points the wrong way. Leave it off there. The fix needs
-    // flutter_map_location_marker 10.3.0, which requires AGP 9.
     _headings =
         widget.headingStream ??
-        (defaultTargetPlatform == TargetPlatform.iOS
-            ? const Stream<LocationMarkerHeading?>.empty()
-            : const LocationMarkerDataStreamFactory().fromRotationSensorHeadingStream());
+        const LocationMarkerDataStreamFactory().fromRotationSensorHeadingStream();
     _mapEventSubscription = _mapController.mapEventStream.listen((event) {
       _rotation.value = _mapController.camera.rotation;
       if (!_programmaticCameraSources.contains(event.source)) _cameraTouchedByUser = true;

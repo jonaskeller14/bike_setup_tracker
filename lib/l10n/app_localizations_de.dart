@@ -6402,6 +6402,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get testSessionResume => 'Fortsetzen';
+
+  @override
+  String get testSessionResumeBlocked =>
+      'Nur die neueste Session eines Bikes kann fortgesetzt werden, und nur wenn seitdem kein Setup hinzugekommen ist.';
+
+  @override
   String testSessionMovedToTrash(String name) {
     return 'Testsession „$name“ in den Papierkorb verschoben.';
   }

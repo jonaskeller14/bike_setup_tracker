@@ -8324,6 +8324,14 @@
       }
     }
   },
+  "testSessionResume": "Resume",
+  "@testSessionResume": {
+    "description": "Menu option that lets an ended test session run again."
+  },
+  "testSessionResumeBlocked": "Only the latest session on a bike can be resumed, and only if no setup was added since.",
+  "@testSessionResumeBlocked": {
+    "description": "Error snackbar when an ended test session can't be resumed."
+  },
   "testSessionMovedToTrash": "Test session '{name}' moved to trash.",
   "@testSessionMovedToTrash": {
     "description": "Snackbar after deleting a test session.",

@@ -753,6 +753,39 @@ void main() {
       await awaitData(tester, () => appRepository.testSessions['ts']!.isRunning);
       expect(appRepository.runningSessionFor(_bikeId)?.id, 'ts');
     });
+
+    testWidgets('Resume clears the end without a snackbar', (tester) async {
+      await seed(tester, session: session(ended: true), runs: [run(1)]);
+      final ended = appRepository.testSessions['ts']!;
+      await pumpButton(tester, (context) => TestSessionActions.resumeSession(context, session: ended));
+      await awaitData(tester, () => appRepository.testSessions['ts']!.isRunning);
+
+      final resumed = appRepository.testSessions['ts']!;
+      expect(resumed.endedAtUTC, isNull);
+      expect(resumed.endedAtLocal, isNull);
+      expect(appRepository.runningSessionFor(_bikeId)?.id, 'ts');
+      expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets('Resume is refused with a reason once a newer setup exists', (tester) async {
+      final later = DateTime(2026, 5, 3, 9);
+      await seed(
+        tester,
+        session: session(ended: true),
+        runs: [
+          run(1),
+          baseSetup().copyWith(id: 'newer', datetime: later.toUtc(), datetimeLocal: later),
+        ],
+      );
+      final ended = appRepository.testSessions['ts']!;
+      await pumpButton(tester, (context) => TestSessionActions.resumeSession(context, session: ended));
+
+      expect(
+        find.text('Only the latest session on a bike can be resumed, and only if no setup was added since.'),
+        findsOneWidget,
+      );
+      expect(appRepository.testSessions['ts']!.endedAtUTC, ended.endedAtUTC);
+    });
   });
 
   group('edit and remove', () {

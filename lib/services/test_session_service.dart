@@ -133,6 +133,31 @@ class TestSessionService {
     return session.adjustmentIds.toSet().difference(session.locks.keys.toSet());
   }
 
+  /// Whether an ended [session] may run again: only while it is still the latest
+  /// thing on its bike, so no change slips in between its runs. Setups count from
+  /// the session's start, as one can be backdated between the runs, and other
+  /// sessions on their own, as a newer one may have lost all its runs.
+  static bool canResume(
+    TestSession session, {
+    required Iterable<TestSession> sessions,
+    required Iterable<Setup> setups,
+  }) {
+    if (session.isRunning) return false;
+    final blockedBySession = sessions.any(
+      (other) =>
+          other.id != session.id &&
+          other.bike == session.bike &&
+          (other.isRunning || other.startedAtUTC.isAfter(session.startedAtUTC)),
+    );
+    if (blockedBySession) return false;
+    return !setups.any(
+      (setup) =>
+          setup.bike == session.bike &&
+          setup.testSessionId != session.id &&
+          setup.datetime.isAfter(session.startedAtUTC),
+    );
+  }
+
   /// "Copy of 'Run 2' (1.10.2026)" below the notes of [source]. The notes of an
   /// earlier run describe that ride, so only a source from outside the session
   /// passes its notes on, and the copy lines don't pile up run after run.

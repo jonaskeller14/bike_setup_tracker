@@ -192,6 +192,79 @@ void main() {
     });
   });
 
+  group('canResume', () {
+    final ended = session(ended: true);
+
+    Setup at(DateTime local, {String bike = 'bike', String? testSessionId}) => Setup(
+      id: '$local$bike',
+      datetime: local.toUtc(),
+      datetimeLocal: local,
+      tags: const {},
+      bike: bike,
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      testSessionId: testSessionId,
+    );
+
+    TestSession other(DateTime startedLocal, {String bike = 'bike', bool running = false}) => TestSession(
+      id: 'other',
+      bike: bike,
+      adjustmentIds: const ['a'],
+      startedAtUTC: startedLocal.toUtc(),
+      startedAtLocal: startedLocal,
+      endedAtUTC: running ? null : startedLocal.toUtc(),
+      endedAtLocal: running ? null : startedLocal,
+    );
+
+    bool canResume({TestSession? session, List<TestSession> sessions = const [], List<Setup> setups = const []}) {
+      final target = session ?? ended;
+      return TestSessionService.canResume(target, sessions: [target, ...sessions], setups: setups);
+    }
+
+    final before = DateTime(2026, 5, 1, 9);
+    final during = DateTime(2026, 5, 2, 10);
+    final after = DateTime(2026, 5, 3, 9);
+
+    test('an ended session with only its own runs and older setups may', () {
+      expect(canResume(setups: [at(before), at(during, testSessionId: 'ts'), at(after, testSessionId: 'ts')]), isTrue);
+    });
+
+    test('a running session may not', () {
+      expect(canResume(session: session()), isFalse);
+    });
+
+    test('an older session on the bike that has ended does not block', () {
+      expect(canResume(sessions: [other(before)]), isTrue);
+    });
+
+    test('another running session on the bike blocks, even an older one', () {
+      expect(canResume(sessions: [other(before, running: true)]), isFalse);
+    });
+
+    test('a newer session blocks, even without any runs left', () {
+      expect(canResume(sessions: [other(after)]), isFalse);
+    });
+
+    test('a newer setup blocks', () {
+      expect(canResume(setups: [at(after)]), isFalse);
+    });
+
+    test('a setup backdated between the runs blocks', () {
+      expect(canResume(setups: [at(during), at(after, testSessionId: 'ts')]), isFalse);
+    });
+
+    test("another bike's setups and sessions don't block", () {
+      expect(
+        canResume(
+          sessions: [other(after, bike: 'other bike', running: true)],
+          setups: [at(after, bike: 'other bike')],
+        ),
+        isTrue,
+      );
+    });
+  });
+
   group('run', () {
     final now = DateTime(2026, 5, 3, 14, 30);
 

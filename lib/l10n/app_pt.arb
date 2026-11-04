@@ -1732,6 +1732,8 @@
   "testSessionPickNextSetup": "Qual setup para o próximo run?",
   "testSessionNoValueToLock": "O último run não tem valor para travar nesta regulagem.",
   "testSessionEndedSnack": "Sessão de teste “{name}” encerrada.",
+  "testSessionResume": "Retomar",
+  "testSessionResumeBlocked": "Só é possível retomar a sessão mais recente de uma bike, e apenas se nenhum setup tiver sido adicionado desde então.",
   "testSessionMovedToTrash": "Sessão de teste “{name}” movida para a lixeira.",
   "testSessionRestoredFromTrash": "Sessão de teste “{name}” restaurada da lixeira.",
   "testSessionEndFirstTitle": "Encerrar a sessão primeiro?",

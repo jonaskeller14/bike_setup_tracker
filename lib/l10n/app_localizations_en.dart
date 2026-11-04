@@ -6363,6 +6363,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get testSessionResume => 'Resume';
+
+  @override
+  String get testSessionResumeBlocked =>
+      'Only the latest session on a bike can be resumed, and only if no setup was added since.';
+
+  @override
   String testSessionMovedToTrash(String name) {
     return 'Test session \'$name\' moved to trash.';
   }

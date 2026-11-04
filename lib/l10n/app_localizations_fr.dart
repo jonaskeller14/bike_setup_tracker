@@ -6398,6 +6398,13 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get testSessionResume => 'Reprendre';
+
+  @override
+  String get testSessionResumeBlocked =>
+      'Seule la dernière session d’un vélo peut être reprise, et seulement si aucun setup n’a été ajouté depuis.';
+
+  @override
   String testSessionMovedToTrash(String name) {
     return 'Session de test « $name » déplacée dans la corbeille.';
   }

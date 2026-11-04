@@ -1732,6 +1732,8 @@
   "testSessionPickNextSetup": "Quale setup per il prossimo run?",
   "testSessionNoValueToLock": "L’ultimo run non ha un valore da bloccare per questa regolazione.",
   "testSessionEndedSnack": "Sessione di test “{name}” terminata.",
+  "testSessionResume": "Riprendi",
+  "testSessionResumeBlocked": "Si può riprendere solo l’ultima sessione di una bici, e solo se da allora non è stato aggiunto alcun setup.",
   "testSessionMovedToTrash": "Sessione di test “{name}” spostata nel cestino.",
   "testSessionRestoredFromTrash": "Sessione di test “{name}” ripristinata dal cestino.",
   "testSessionEndFirstTitle": "Terminare prima la sessione?",

@@ -10495,6 +10495,18 @@ abstract class AppLocalizations {
   /// **'Test session \'{name}\' ended.'**
   String testSessionEndedSnack(String name);
 
+  /// Menu option that lets an ended test session run again.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get testSessionResume;
+
+  /// Error snackbar when an ended test session can't be resumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the latest session on a bike can be resumed, and only if no setup was added since.'**
+  String get testSessionResumeBlocked;
+
   /// Snackbar after deleting a test session.
   ///
   /// In en, this message translates to:

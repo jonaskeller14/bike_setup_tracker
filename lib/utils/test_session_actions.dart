@@ -251,6 +251,18 @@ class TestSessionActions {
     );
   }
 
+  static Future<void> resumeSession(BuildContext context, {required TestSession session}) async {
+    final appRepository = context.read<AppRepository>();
+
+    if (!appRepository.canResumeTestSession(session)) {
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.testSessionResumeBlocked));
+      return;
+    }
+
+    unawaited(HapticFeedback.mediumImpact());
+    await appRepository.resumeTestSession(session);
+  }
+
   /// Only the name changes: the runs already depend on everything else.
   static Future<void> editSession(BuildContext context, {required TestSession session}) async {
     final appRepository = context.read<AppRepository>();

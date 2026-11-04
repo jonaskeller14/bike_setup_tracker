@@ -6384,6 +6384,13 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get testSessionResume => 'Reanudar';
+
+  @override
+  String get testSessionResumeBlocked =>
+      'Solo se puede reanudar la última sesión de una bici, y solo si no se ha añadido ningún setup desde entonces.';
+
+  @override
   String testSessionMovedToTrash(String name) {
     return 'Sesión de pruebas “$name” movida a la papelera.';
   }

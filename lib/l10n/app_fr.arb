@@ -1732,6 +1732,8 @@
   "testSessionPickNextSetup": "Quel setup pour le prochain run ?",
   "testSessionNoValueToLock": "Le dernier run n’a pas de valeur à verrouiller pour ce réglage.",
   "testSessionEndedSnack": "Session de test « {name} » terminée.",
+  "testSessionResume": "Reprendre",
+  "testSessionResumeBlocked": "Seule la dernière session d’un vélo peut être reprise, et seulement si aucun setup n’a été ajouté depuis.",
   "testSessionMovedToTrash": "Session de test « {name} » déplacée dans la corbeille.",
   "testSessionRestoredFromTrash": "Session de test « {name} » restaurée depuis la corbeille.",
   "testSessionEndFirstTitle": "Terminer d’abord la session ?",

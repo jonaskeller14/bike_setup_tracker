@@ -1603,6 +1603,12 @@ class AppRepository extends ChangeNotifier {
     return editTestSession(session.copyWith(endedAtUTC: when.toUtc(), endedAtLocal: when));
   }
 
+  bool canResumeTestSession(TestSession session) =>
+      TestSessionService.canResume(session, sessions: _testSessions.values, setups: _setups.values);
+
+  Future<void> resumeTestSession(TestSession session) =>
+      editTestSession(session.copyWith(endedAtUTC: null, endedAtLocal: null));
+
   Future<void> addComponents(Iterable<Component> components) async {
     if (components.isEmpty) return;
     final now = DateTime.now().toUtc();

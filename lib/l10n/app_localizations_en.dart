@@ -6112,7 +6112,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTagConfirm => 'Add';
 
   @override
-  String get testSessionUnnamed => 'Test session';
+  String get testSessionUnnamed => 'Unnamed Test Session';
 
   @override
   String testSessionRunName(int number) {

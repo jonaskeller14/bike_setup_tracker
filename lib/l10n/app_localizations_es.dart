@@ -6133,7 +6133,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get addTagConfirm => 'Añadir';
 
   @override
-  String get testSessionUnnamed => 'Sesión de pruebas';
+  String get testSessionUnnamed => 'Sesión de pruebas sin nombre';
 
   @override
   String testSessionRunName(int number) {

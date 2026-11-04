@@ -746,7 +746,7 @@ void main() {
       expect(ended.isRunning, isFalse);
       expect(ended.endedAtLocal, isNotNull);
       expect(appRepository.runningSessionFor(_bikeId), isNull);
-      expect(find.text("Test session 'Test session' ended."), findsOneWidget);
+      expect(find.text("Test session 'Unnamed Test Session' ended."), findsOneWidget);
 
       await tester.tap(find.text('UNDO'));
       await settle(tester);
@@ -832,7 +832,7 @@ void main() {
 
       expect(appRepository.setups.keys, ['s1']);
       expect(appRepository.feedbacks.keys, ['outside']);
-      expect(find.text("Test session 'Test session' moved to trash."), findsOneWidget);
+      expect(find.text("Test session 'Unnamed Test Session' moved to trash."), findsOneWidget);
 
       await tester.tap(find.text('UNDO'));
       await settle(tester);

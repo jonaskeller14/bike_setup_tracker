@@ -6138,7 +6138,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get addTagConfirm => 'Aggiungi';
 
   @override
-  String get testSessionUnnamed => 'Sessione di test';
+  String get testSessionUnnamed => 'Sessione di test senza nome';
 
   @override
   String testSessionRunName(int number) {

@@ -7973,7 +7973,7 @@
   "@addTagConfirm": {
     "description": "Tooltip of the check button of the inline add field."
   },
-  "testSessionUnnamed": "Test session",
+  "testSessionUnnamed": "Unnamed Test Session",
   "@testSessionUnnamed": {
     "description": "Name shown for a test session without a name."
   },

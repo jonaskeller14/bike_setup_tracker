@@ -1666,7 +1666,7 @@
   "addTagHint": "Nuevo tag",
   "addIssueHint": "Nuevo problema",
   "addTagConfirm": "Añadir",
-  "testSessionUnnamed": "Sesión de pruebas",
+  "testSessionUnnamed": "Sesión de pruebas sin nombre",
   "testSessionRunName": "Run {number}",
   "testSessionCopyLine": "Copia de “{name}” ({date})",
   "testSessionGoalLabel": "{end} · {attribute}",

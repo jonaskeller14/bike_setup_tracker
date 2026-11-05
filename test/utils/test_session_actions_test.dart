@@ -916,17 +916,18 @@ void main() {
       expect(find.textContaining('Suggested'), findsNothing);
     });
 
-    testWidgets('a running session opens scrolled to its next step', (tester) async {
+    testWidgets('a running session keeps its next step in view outside the scrolling runs', (tester) async {
       await seed(tester, session: session(), runs: [for (var number = 1; number <= 20; number++) run(number)]);
       await pumpButton(tester, (context) => showTestSessionSheet(context: context, sessionId: 'ts'));
 
       final scrollable = tester.state<ScrollableState>(
         find.descendant(of: find.byType(TestSessionSheetContent), matching: find.byType(Scrollable)).first,
       );
-      expect(scrollable.position.pixels, greaterThan(0));
+      expect(scrollable.position.maxScrollExtent, greaterThan(0));
       final nextRun = tester.getRect(find.text('Next run'));
       final viewport = tester.getRect(find.byWidget(scrollable.widget));
-      expect(viewport.contains(nextRun.topLeft) && viewport.contains(nextRun.bottomRight), isTrue);
+      expect(viewport.overlaps(nextRun), isFalse, reason: 'pinned below the scroll area, not scrolled with it');
+      expect(nextRun.bottom, lessThanOrEqualTo(tester.view.physicalSize.height / tester.view.devicePixelRatio));
     });
 
     testWidgets('an ended session shows its adjustments without lock actions', (tester) async {

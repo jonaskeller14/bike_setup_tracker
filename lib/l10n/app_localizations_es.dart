@@ -5025,9 +5025,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get taskAssociationMissingTooltip => 'Este elemento ya no existe';
 
   @override
-  String get taskAssociationBikeMissing => 'Bici no encontrada';
-
-  @override
   String setDurationMin(String value) {
     return 'Mín.: $value';
   }

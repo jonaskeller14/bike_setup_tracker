@@ -755,6 +755,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case GeneralTaskAssociation():
         icon = Icons.circle_outlined;
         primary = context.l10n.taskGeneral;
+        secondary = context.l10n.taskAssociationGeneralTooltip;
       case BikeTaskAssociation(:final id):
         final bike = bikes[id];
         icon = Bike.iconData;

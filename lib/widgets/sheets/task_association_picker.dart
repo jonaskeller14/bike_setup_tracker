@@ -8,11 +8,14 @@ import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
+import '../../models/component/component_ancestor.dart';
 import '../../models/task/task_association.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/component_hierarchy_resolver.dart';
 import '../../theme.dart';
 import '../../utils/component_catalog_search.dart';
+import '../component_ancestors_column.dart';
+import 'picker_tile.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
@@ -28,8 +31,6 @@ Future<TaskAssociation?> showTaskAssociationSheet({
     builder: (_) => _TaskAssociationPickerSheet(selected: selected, initial: initial),
   );
 }
-
-const double _chipSpacing = 8;
 
 class _TaskAssociationPickerSheet extends StatefulWidget {
   final TaskAssociation selected;
@@ -131,19 +132,23 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
             Flexible(
               child: SingleChildScrollView(
                 controller: _scrollController,
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: const EdgeInsets.only(bottom: 16),
                 child: isEmpty
-                    ? SheetFilterEmptyHint(
-                        icon: Icons.search_off,
-                        title: context.l10n.taskAssociationNoMatches(_query),
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: SheetFilterEmptyHint(
+                          icon: Icons.search_off,
+                          title: context.l10n.taskAssociationNoMatches(_query),
+                        ),
                       )
                     : Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 8,
                         children: [
-                          if (showGeneral) _generalChipRow(),
-                          ...dangling.map(_danglingChipRow),
-                          ...groups.map(_groupCard),
+                          if (showGeneral) _generalTile(),
+                          ...dangling.map(_danglingTile),
+                          for (final group in groups) _group(group, bikes),
                         ],
                       ),
               ),
@@ -180,149 +185,84 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
     );
   }
 
-  // --- rows and cards --------------------------------------------------------
+  // --- rows ------------------------------------------------------------------
 
-  Widget _generalChipRow() {
-    const association = GeneralTaskAssociation();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: _chipFor(
-          association: association,
-          icon: Icons.circle_outlined,
-          label: context.l10n.taskGeneral,
-          tooltip: context.l10n.taskAssociationGeneralTooltip,
-          emphasized: true,
-        ),
-      ),
+  Widget _generalTile() {
+    return _tile(
+      association: const GeneralTaskAssociation(),
+      icon: Icons.circle_outlined,
+      label: context.l10n.taskGeneral,
+      subtitle: _subtitleText(context.l10n.taskAssociationGeneralTooltip),
     );
   }
 
-  Widget _danglingChipRow(TaskAssociation association) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: _chipFor(
-          association: association,
-          icon: Icons.error_outline,
-          label: association.bikeId != null ? context.l10n.bikeNotFound : context.l10n.componentNotFound,
-          tooltip: context.l10n.taskAssociationMissingTooltip,
-          backgroundColor: scheme.errorContainer,
-          foregroundColor: scheme.onErrorContainer,
-          borderColor: scheme.error,
-        ),
-      ),
+  Widget _danglingTile(TaskAssociation association) {
+    return _tile(
+      association: association,
+      icon: Icons.error_outline,
+      label: association.bikeId != null ? context.l10n.bikeNotFound : context.l10n.componentNotFound,
+      subtitle: _subtitleText(context.l10n.taskAssociationMissingTooltip),
+      color: Theme.of(context).colorScheme.error,
     );
   }
 
-  Widget _groupCard(_Group group) {
-    final scheme = Theme.of(context).colorScheme;
+  Widget _subtitleText(String text) {
+    final theme = Theme.of(context);
+    return Text(text, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant));
+  }
+
+  Widget _group(_Group group, Map<String, Bike> bikes) {
     final bike = group.bike;
-    // Outlined: a filled Card defaults to the same `surfaceContainerLow` as the
-    // sheet and disappears, and any fill that fixes that has to flip direction
-    // between light and dark. An outline defines the card the same way in both.
-    return Card.outlined(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        // A chip header brings its own tap padding, so the card needs less of
-        // its own; a plain text header does not.
-        padding: EdgeInsets.fromLTRB(12, bike != null ? 8 : 12, 12, bike != null ? 8 : 12),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final chipMaxWidth = (constraints.maxWidth - _chipSpacing) / 2;
-
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // A bike header is a chip because the bike itself is selectable;
-                // a bucket header is plain text because it is not.
-                if (bike != null)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: _chipFor(
-                      association: BikeTaskAssociation(bike.id),
-                      icon: Bike.iconData,
-                      label: bike.name,
-                      tooltip: bike.name,
-                      emphasized: true,
-                    ),
-                  )
-                else
-                  Row(
-                    children: [
-                      Icon(group.icon, size: 18, color: group.color ?? scheme.onSurfaceVariant),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          group.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: group.color ?? scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                if (group.components.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  // `MaterialTapTargetSize.padded` pads every chip out to a 48dp
-                  // tap target, and that padding stacks on top of `runSpacing` —
-                  // which is why a symmetric spacing/runSpacing renders with a
-                  // far bigger vertical gap. Let the tap padding be the run gap.
-                  Wrap(
-                    spacing: _chipSpacing,
-                    runSpacing: 0,
-                    children: [
-                      for (final component in group.components)
-                        _chipFor(
-                          association: ComponentTaskAssociation(component.id),
-                          icon: component.componentType.getIconData(),
-                          label: component.name,
-                          tooltip: '${component.name} · ${component.componentType.label(context.l10n)}'
-                              '${bike != null ? ' · ${bike.name}' : ' · ${group.label}'}',
-                          maxWidth: chipMaxWidth,
-                        ),
-                    ],
-                  ),
-                ],
-              ],
-            );
-          },
-        ),
-      ),
+    final rows = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final row in group.rows)
+          _tile(
+            association: ComponentTaskAssociation(row.component.id),
+            icon: row.component.componentType.getIconData(),
+            label: row.component.name,
+            subtitle: ComponentAncestorsColumn(ancestors: row.ancestors, bikes: bikes),
+            depth: row.depth + 1,
+            showArrow: row.depth > 0,
+            compact: true,
+          ),
+      ],
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (bike != null)
+          _tile(association: BikeTaskAssociation(bike.id), icon: group.icon, label: group.label)
+        else
+          PickerTile(icon: group.icon, label: group.label, enabled: false),
+        rows,
+      ],
     );
   }
 
-  Widget _chipFor({
+  Widget _tile({
     required TaskAssociation association,
     required IconData icon,
     required String label,
-    required String tooltip,
-    double? maxWidth,
-    bool emphasized = false,
-    Color? backgroundColor,
-    Color? foregroundColor,
-    Color? borderColor,
+    Widget? subtitle,
+    Color? color,
+    int depth = 0,
+    bool showArrow = false,
+    bool compact = false,
   }) {
     final isSelected = association == _selected;
-    return _AssociationChip(
+    return PickerTile(
       key: isSelected ? _selectedKey : null,
       icon: icon,
       label: label,
-      tooltip: tooltip,
+      color: color,
+      subtitle: subtitle,
       selected: isSelected,
-      maxWidth: maxWidth,
-      emphasized: emphasized,
       highlightColor: _highlightColorFor(association),
       isPrevious: _isPrevious(association),
-      backgroundColor: backgroundColor,
-      foregroundColor: foregroundColor,
-      borderColor: borderColor,
+      depth: depth,
+      showArrow: showArrow,
+      compact: compact,
       onTap: () => _select(association),
     );
   }
@@ -339,7 +279,6 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
   ) {
     final byBike = <String, List<Component>>{for (final id in bikes.keys) id: []};
     final shelf = <Component>[];
-    final orphaned = <Component>[];
     final archived = <Component>[];
 
     for (final component in components.values) {
@@ -351,22 +290,16 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
         }
         continue;
       }
-      final bikeId = hierarchy.currentBike(component.id);
-      if (bikeId == null) {
-        shelf.add(component);
-      } else if (byBike.containsKey(bikeId)) {
-        byBike[bikeId]!.add(component);
-      } else {
-        orphaned.add(component);
-      }
+      // As in the garage, a component on a bike that no longer exists counts as
+      // not installed.
+      (byBike[hierarchy.currentBike(component.id)] ?? shelf).add(component);
     }
 
     int byOrderIndex(Component a, Component b) => a.orderIndex.compareTo(b.orderIndex);
-    for (final list in [...byBike.values, shelf, orphaned, archived]) {
+    for (final list in [...byBike.values, shelf, archived]) {
       list.sort(byOrderIndex);
     }
 
-    final scheme = Theme.of(context).colorScheme;
     final groups = <_Group>[];
 
     for (final bike in bikes.values) {
@@ -377,20 +310,55 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
           ? all
           : all.where((c) => _matches(_componentHaystack(c, bike))).toList();
       if (!bikeMatches && visible.isEmpty) continue;
-      groups.add(_Group(bike: bike, label: bike.name, icon: Bike.iconData, components: visible));
+      groups.add(_Group(bike: bike, label: bike.name, icon: Bike.iconData, rows: _nest(visible, hierarchy)));
     }
 
-    void addBucket(List<Component> source, String label, IconData icon, {Color? color}) {
+    void addBucket(List<Component> source, String label, IconData icon) {
       final visible = source.where((c) => _matches(_componentHaystack(c, null))).toList();
       if (visible.isEmpty) return;
-      groups.add(_Group(label: label, icon: icon, components: visible, color: color));
+      groups.add(_Group(label: label, icon: icon, rows: _nest(visible, hierarchy)));
     }
 
     addBucket(shelf, context.l10n.timelineNotInstalled, Icons.shelves);
-    addBucket(orphaned, context.l10n.taskAssociationBikeMissing, Icons.error_outline, color: scheme.error);
     addBucket(archived, context.l10n.timelineArchived, Icons.inventory_2_outlined);
 
     return groups;
+  }
+
+  /// [components] with each one right below the nearest listed component it is
+  /// installed on, siblings keeping their order. A parent hidden by the search
+  /// takes no level, so a row is only indented below a row that is really there.
+  List<_ComponentRow> _nest(List<Component> components, ComponentHierarchyResolver hierarchy) {
+    final listedIds = {for (final component in components) component.id};
+    final ancestors = {for (final component in components) component.id: hierarchy.currentAncestors(component.id)};
+    final childrenOf = <String?, List<Component>>{};
+    for (final component in components) {
+      final parentId = ancestors[component.id]!
+          .whereType<ParentComponentAncestor>()
+          .map((ancestor) => ancestor.component.id)
+          .where(listedIds.contains)
+          .firstOrNull;
+      (childrenOf[parentId] ??= []).add(component);
+    }
+
+    final rows = <_ComponentRow>[];
+    final placed = <String>{};
+    void place(Component component, int depth) {
+      if (!placed.add(component.id)) return;
+      rows.add(_ComponentRow(component: component, ancestors: ancestors[component.id]!, depth: depth));
+      for (final child in childrenOf[component.id] ?? const <Component>[]) {
+        place(child, depth + 1);
+      }
+    }
+
+    for (final root in childrenOf[null] ?? const <Component>[]) {
+      place(root, 0);
+    }
+    // A cycle has no root, so its components are only reached here.
+    for (final component in components) {
+      place(component, 0);
+    }
+    return rows;
   }
 
   /// Associations pointing at an id that no longer exists at all.
@@ -411,125 +379,23 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
   }
 }
 
-/// One card on the sheet: a bike and its components, or a bucket of components
-/// (shelf / archived) with a plain, non-selectable header.
+/// A bike with its components, or a bucket of components (shelf / archived)
+/// under a non-selectable header.
 class _Group {
   final Bike? bike;
   final String label;
   final IconData icon;
-  final Color? color;
-  final List<Component> components;
+  final List<_ComponentRow> rows;
 
-  const _Group({
-    this.bike,
-    required this.label,
-    required this.icon,
-    required this.components,
-    this.color,
-  });
+  const _Group({this.bike, required this.label, required this.icon, required this.rows});
 }
 
-class _AssociationChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String tooltip;
-  final bool selected;
+class _ComponentRow {
+  final Component component;
+  final List<ComponentAncestor> ancestors;
 
-  /// Hard cap on the whole chip. A chip re-lays its label against whatever
-  /// bounded width it is handed, so constraining the chip is enough to make the
-  /// label ellipsize — and it is the only way to know what a chip actually
-  /// costs a row. `null` lets it take the full width its parent offers, which
-  /// is already bounded by the row, so it can never overflow.
-  final double? maxWidth;
+  /// Levels below the group's top-level components.
+  final int depth;
 
-  /// Tint for a picked chip that differs from the saved association; `null`
-  /// leaves the plain selected look (unchanged, or not editing).
-  final Color? highlightColor;
-
-  /// The saved association, currently not picked. Stays a normal, tappable
-  /// chip, just marked so the old value stays visible.
-  final bool isPrevious;
-
-  /// A bike chip heads its card, so it is stepped up typographically to read as
-  /// a header rather than as a peer of the component chips below it.
-  final bool emphasized;
-
-  final Color? backgroundColor;
-  final Color? foregroundColor;
-  final Color? borderColor;
-  final VoidCallback onTap;
-
-  const _AssociationChip({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.tooltip,
-    required this.selected,
-    required this.maxWidth,
-    required this.highlightColor,
-    required this.isPrevious,
-    required this.onTap,
-    this.emphasized = false,
-    this.backgroundColor,
-    this.foregroundColor,
-    this.borderColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
-    final Color? labelColor =
-        highlightColor ?? (isPrevious ? scheme.onSurfaceVariant : foregroundColor);
-    // Component chips sit one step below the chip default (labelLarge), which
-    // buys a couple of characters inside the half-row cap. The bike and General
-    // Task chips keep the default size and go semi-bold, so they read as
-    // headers rather than as peers of the components.
-    final TextStyle? baseStyle = emphasized
-        ? theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600)
-        : theme.textTheme.labelMedium;
-    final TextStyle? labelStyle =
-        labelColor == null ? baseStyle : baseStyle?.copyWith(color: labelColor);
-    final BorderSide? side = highlightColor != null
-        ? BorderSide(color: highlightColor!)
-        : isPrevious
-            ? BorderSide(color: scheme.outline)
-            : borderColor != null
-                ? BorderSide(color: borderColor!)
-                : null;
-
-    final Widget chip = ChoiceChip(
-      // Selected chips drop the avatar so the checkmark can take its place.
-      avatar: selected
-          ? null
-          : Icon(
-              isPrevious ? Icons.history : icon,
-              size: emphasized ? 18 : 16,
-              color: labelColor,
-            ),
-      label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-      selected: selected,
-      labelStyle: labelStyle,
-      side: side,
-      // No fill by default: the chip's own outline carries it against the card,
-      // and it reads the same in light and dark. Only the dangling chip passes
-      // one, to earn its error tone.
-      backgroundColor: backgroundColor,
-      selectedColor: highlightColor?.withValues(alpha: 0.18),
-      checkmarkColor: highlightColor ?? foregroundColor,
-      // Only the component chips are shrunk to fit two per row; the header chips
-      // keep the default chip size.
-      visualDensity: emphasized ? VisualDensity.standard : VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.padded,
-      onSelected: (_) => onTap(),
-    );
-
-    return Tooltip(
-      message: isPrevious ? context.l10n.previousValueTooltip : tooltip,
-      child: maxWidth == null
-          ? chip
-          : ConstrainedBox(constraints: BoxConstraints(maxWidth: maxWidth!), child: chip),
-    );
-  }
+  const _ComponentRow({required this.component, required this.ancestors, required this.depth});
 }

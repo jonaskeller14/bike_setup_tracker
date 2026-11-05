@@ -11,6 +11,7 @@ import '../../theme.dart';
 import '../../utils/component_catalog_search.dart';
 import '../component_ancestors_column.dart';
 import '../sticky_section.dart';
+import 'picker_tile.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
@@ -431,38 +432,16 @@ class _ParentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-      // ListTile paints its tile color on the nearest Material; the sheet's own
-      // sits outside the scroll view, so the color would scroll over the header.
-      child: Material(
-        type: MaterialType.transparency,
-        child: ListTile(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          contentPadding: const EdgeInsetsDirectional.only(start: 8, end: 16),
-          leading: Icon(option.icon, color: option.color),
-          title: Text(
-            option.label,
-            style: TextStyle(color: option.color, fontWeight: selected ? FontWeight.w600 : null),
-          ),
-          subtitle: _subtitle(theme),
-          enabled: option.isEnabled,
-          selected: selected,
-          selectedColor: highlightColor == null ? scheme.onSecondaryContainer : scheme.onSurface,
-          selectedTileColor: highlightColor?.withValues(alpha: 0.18) ?? scheme.secondaryContainer,
-          trailing: selected
-              ? Icon(Icons.check, color: highlightColor)
-              : isPrevious
-                  ? Tooltip(
-                      message: context.l10n.previousValueTooltip,
-                      child: Icon(Icons.history, color: scheme.onSurfaceVariant),
-                    )
-                  : null,
-          onTap: onTap,
-        ),
-      ),
+    return PickerTile(
+      icon: option.icon,
+      label: option.label,
+      color: option.color,
+      subtitle: _subtitle(Theme.of(context)),
+      enabled: option.isEnabled,
+      selected: selected,
+      highlightColor: highlightColor,
+      isPrevious: isPrevious,
+      onTap: onTap,
     );
   }
 }

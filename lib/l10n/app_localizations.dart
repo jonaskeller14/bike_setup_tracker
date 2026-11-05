@@ -8179,12 +8179,6 @@ abstract class AppLocalizations {
   /// **'This entry no longer exists'**
   String get taskAssociationMissingTooltip;
 
-  /// Group header in the link picker for components whose bike no longer exists.
-  ///
-  /// In en, this message translates to:
-  /// **'Bike not found'**
-  String get taskAssociationBikeMissing;
-
   /// Minimum shown in the duration sheet. {value} is the duration.
   ///
   /// In en, this message translates to:

@@ -1346,7 +1346,6 @@
   "taskAssociationNoMatches": "Sin resultados para “{query}”",
   "taskAssociationGeneralTooltip": "Una tarea que no está vinculada a una bici ni a un componente",
   "taskAssociationMissingTooltip": "Este elemento ya no existe",
-  "taskAssociationBikeMissing": "Bici no encontrada",
   "setDurationMin": "Mín.: {value}",
   "setDurationMax": "Máx.: {value}",
   "setDurationBelowMin": "La duración elegida es inferior al mínimo",

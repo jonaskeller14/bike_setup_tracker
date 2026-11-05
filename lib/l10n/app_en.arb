@@ -6433,10 +6433,6 @@
   "@taskAssociationMissingTooltip": {
     "description": "Tooltip of the chip of a deleted bike or component in the link picker."
   },
-  "taskAssociationBikeMissing": "Bike not found",
-  "@taskAssociationBikeMissing": {
-    "description": "Group header in the link picker for components whose bike no longer exists."
-  },
   "setDurationMin": "Min: {value}",
   "@setDurationMin": {
     "description": "Minimum shown in the duration sheet. {value} is the duration.",

@@ -1346,7 +1346,6 @@
   "taskAssociationNoMatches": "Aucun résultat pour « {query} »",
   "taskAssociationGeneralTooltip": "Une tâche qui n’est associée ni à un vélo ni à un composant",
   "taskAssociationMissingTooltip": "Cet élément n’existe plus",
-  "taskAssociationBikeMissing": "Vélo introuvable",
   "setDurationMin": "Min : {value}",
   "setDurationMax": "Max : {value}",
   "setDurationBelowMin": "La durée choisie est inférieure au minimum",

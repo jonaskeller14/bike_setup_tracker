@@ -115,6 +115,7 @@ Before each flow, the run scripts delete the marker file `demo_scenario` in the 
 | `tasks_one_due` | *Investigate BB creaking noise* as the only due task. It doesn't repeat, so ticking it off moves it to the completed section |
 | `tags` | The whole sample with setup and task tags on |
 | `dial_style` | The whole sample with every dial of the Hightower's Lyrik in the default color and size |
+| `restore` | The Hightower with four setups that differ at a glance, the newest three fork values from *Finale Ligure - DH Men*; no rides or tasks in its history |
 
 Dropping a bike drops everything recorded on it: its components, setups, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
 
@@ -206,6 +207,7 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_task_presets` | `one_bike_no_components` | The same fork, then the service tasks it comes with: add them, and the task list with the new ones |
 | `demo_dial_style` | `dial_style` | The Lyrik's rebound dial turned red and LSC small, then a new setup showing them |
 | `demo_catalog_brands` | `one_bike_no_components` | The catalog's brands, three of them opened, and a request for a fork that isn't listed |
+| `demo_setup_restore` | `restore` | The Hightower's history, an older setup restored from its tile's menu (pressure, LSC and rebound go back), and the copy saved as the newest setup |
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.
 - **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.

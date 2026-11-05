@@ -259,6 +259,24 @@ void main() {
       }
     });
 
+    test('restore keeps four setups, the newest 3 fork values from the one to go back to', () {
+      final json = seedJson(DemoScenario.restore);
+      final setups = (json['setups'] as List).cast<Map<String, dynamic>>();
+      expect(setups.map((s) => s['name']), [
+        'Flowtrail Stromberg',
+        'Bikepark Lac Blanc',
+        'Finale Ligure - DH Men',
+        'Hometrails - firmer fork',
+      ]);
+      expect(json['stravaActivities'], isEmpty);
+      expect(json['taskRules'], isEmpty);
+      final finale = setups[2]['bikeAdjustmentValues'] as Map;
+      final firmer = setups[3]['bikeAdjustmentValues'] as Map;
+      expect(firmer.keys.toSet(), finale.keys.toSet());
+      expect(finale.keys.where((k) => finale[k] != firmer[k]).length, 3);
+      expect(setups[3]['personAdjustmentValues'], setups[2]['personAdjustmentValues']);
+    });
+
     test('dial_style gives every Lyrik dial the default style', () async {
       await seed(DemoScenario.dialStyle);
       final lyrik = repository.components['e47480ee-0f71-453e-bb97-61d2041d05f5']!;

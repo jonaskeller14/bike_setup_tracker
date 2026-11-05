@@ -64,7 +64,12 @@ enum DemoScenario {
 
   /// The full master with the Lyrik's dials all in the default style, so the
   /// flow can make rebound and LSC look like the knobs on the fork.
-  dialStyle('dial_style');
+  dialStyle('dial_style'),
+
+  /// The Hightower alone with four setups that differ at a glance, the newest
+  /// three fork values away from the one that felt right, and no rides or tasks
+  /// between them in the history.
+  restore('restore');
 
   const DemoScenario(this.id);
 
@@ -114,6 +119,7 @@ enum DemoScenario {
     serviceLoopBefore => _serviceLoop(json, due: false),
     serviceLoopAfter => _serviceLoop(json, due: true),
     dialStyle => _withDefaultDials(json, _lyrikId),
+    restore => _withRestoreHistory(json),
   };
 }
 
@@ -126,6 +132,15 @@ const String _stemLengthId = '9e3f4a5b-6c7d-4e8f-a091-b2c3d4e5f607';
 const String _spacersId = 'af4a5b6c-7d8e-4f90-b1a2-c3d4e5f60718';
 
 const String _lyrikId = 'e47480ee-0f71-453e-bb97-61d2041d05f5';
+const String _lyrikPressureId = '22866141-fe35-4cdc-99df-6e1ba91c1033';
+const String _lyrikLscId = '2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d';
+const String _lyrikReboundId = 'aefea436-580a-479b-bcd4-943a93c8e2fb';
+const String _strombergSetupId = '665a7021-6bbc-4502-ad85-2f44ad17b087';
+const String _lacBlancSetupId = '60546389-6a03-4f2a-86ff-ef00779c5340';
+const String _finaleSetupId = 'aef06f55-8000-42f0-b9e9-d6d71ec2716b';
+const String _anglesetSetupId = '2e44d8eb-2141-4845-9b53-6ef7d3c17bc1';
+// Clicks count from closed: fewer LSC clicks are firmer, more rebound clicks are faster.
+const _restoreChange = {_lyrikPressureId: 88, _lyrikLscId: 6, _lyrikReboundId: 11};
 
 const String _hightowerGearId = 'b18168107';
 const String _forkLowersRuleId = '340ef012-fb70-40d6-889e-02ac62dd6699';
@@ -291,6 +306,38 @@ _Json _withBikeFit(_Json json) {
                 'bikeAdjustmentValues': {...setup['bikeAdjustmentValues'] as _Json, ...preFit},
               }
             : setup,
+    ],
+  };
+}
+
+/// Reduces the Hightower's history to Stromberg, Lac Blanc and Finale, then a
+/// firmer fork that didn't work out: the Hometrails setup, 3 fork values from Finale.
+_Json _withRestoreHistory(_Json json) {
+  final hightower = _dropBikes(json, _ids(json, 'bikes').difference({_hightowerId}));
+  _Json setup(String id) => _list(hightower, 'setups').firstWhere((s) => s['id'] == id);
+  final finaleValues = {
+    ...setup(_lacBlancSetupId)['bikeAdjustmentValues'] as _Json,
+    _lyrikLscId: 8,
+    _lyrikReboundId: 9,
+  };
+  final result = _dropTaskRules(hightower, _ids(hightower, 'taskRules'));
+  return {
+    ..._where(result, 'stravaActivities', (_) => false),
+    'setups': [
+      setup(_strombergSetupId),
+      setup(_lacBlancSetupId),
+      {
+        ...setup(_finaleSetupId),
+        'notes': 'Fork felt right: calm on the rocks, plenty of grip.',
+        'bikeAdjustmentValues': finaleValues,
+      },
+      {
+        ...setup(_anglesetSetupId),
+        'name': 'Hometrails - firmer fork',
+        'notes': 'More pressure, firmer LSC, faster rebound. Harsh on the roots now.',
+        'bikeAdjustmentValues': {...finaleValues, ..._restoreChange},
+        'personAdjustmentValues': setup(_finaleSetupId)['personAdjustmentValues'],
+      },
     ],
   };
 }

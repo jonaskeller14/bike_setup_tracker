@@ -1,0 +1,43 @@
+/*
+  Shared by the post_<kind>.html slides: one template per kind, each with a layout per format, keyed
+  on body[data-size] (template.js sets it from ?size=):
+    1080×1350 (4:5)    Instagram carousel slides and feed posts (reference: "post" in
+                       docs/marketing/brand/reference/reference.html)
+    1080×1080 (1:1)    YouTube community posts (YouTube crops multi-image posts to square), X and
+                       Mastodon; the phone is always shown whole, next to the text
+    1080×1920 (9:16)   TikTok photo mode and Instagram stories, inside the Short's safe area
+                       (brand.md): the brand row on top is decoration a top bar may cover, text stays
+                       above the caption block and, from y 760, left of the action buttons. The phone
+                       may run under both, but always shows whole
+  The last slide of a set is endcard.html at the same size.
+
+  This file holds the rows several kinds share: the brand row and rule on top, label and note, and
+  the footer of the text kinds.
+*/
+.abs { position: absolute; }
+
+/* Only 9:16 has the brand row on top; 4:5 and 1:1 have it in the footer. */
+.top-brand, .top-rule { display: none; }
+[data-size="1080x1920"] .top-brand { display: flex; left: 60px; top: 120px; --mark: 72px; }
+[data-size="1080x1920"] .top-rule { display: block; left: 60px; right: 60px; top: 218px; }
+
+[data-size="1080x1350"] .label { left: 72px; top: 72px; font-size: 28px; }
+[data-size="1080x1350"] .note { right: 72px; top: 72px; font-size: 28px; }
+[data-size="1080x1350"] .head-rule { left: 72px; right: 72px; top: 128px; }
+[data-size="1080x1350"] .footer .rule { left: 72px; right: 72px; top: 1150px; }
+[data-size="1080x1350"] .footer .brand { left: 72px; top: 1186px; --mark: 84px; --name: 36px; }
+[data-size="1080x1350"] .footer .meta { right: 72px; top: 1214px; font-size: 28px; }
+
+[data-size="1080x1080"] .label { left: 72px; top: 72px; font-size: 28px; }
+[data-size="1080x1080"] .note { right: 72px; top: 72px; font-size: 28px; }
+[data-size="1080x1080"] .head-rule { left: 72px; right: 72px; top: 128px; }
+[data-size="1080x1080"] .footer .rule { left: 72px; right: 72px; top: 900px; }
+[data-size="1080x1080"] .footer .brand { left: 72px; top: 930px; --mark: 72px; }
+[data-size="1080x1080"] .footer .meta { right: 72px; top: 952px; font-size: 28px; }
+
+[data-size="1080x1920"] .label { left: 60px; top: 244px; font-size: 28px; }
+[data-size="1080x1920"] .note { right: 60px; top: 244px; font-size: 28px; }
+[data-size="1080x1920"] .head-rule { left: 60px; right: 60px; top: 300px; --rule: 2px; }
+[data-size="1080x1920"] .footer .rule { left: 60px; width: 860px; top: 1250px; --rule: 2px; }
+[data-size="1080x1920"] .footer .brand { display: none; }
+[data-size="1080x1920"] .footer .meta { left: 60px; top: 1270px; width: 860px; font-size: 28px; }

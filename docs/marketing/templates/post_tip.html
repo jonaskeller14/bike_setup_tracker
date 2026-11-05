@@ -1,0 +1,58 @@
+<!doctype html>
+<!--
+  Post slide "tip": label, note, title, body, footer. Formats: see post.css.
+
+  URL parameters (and the shared ones in template.js: size, safe):
+    label=…                    default "Tip"
+    note=…, footer=…           right of the label; right of the brand row in the footer
+    title=…, body=…            texts; *key phrase* in teal, {9} a changed value
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Post: Tip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="marketing.css">
+<link rel="stylesheet" href="post.css">
+<style>
+  .mid-rule { --rule: 2px; }
+
+  [data-size="1080x1350"] .title { left: 72px; top: 168px; width: 936px; height: 540px; font-size: 120px; }
+  [data-size="1080x1350"] .mid-rule { left: 72px; right: 72px; top: 740px; }
+  [data-size="1080x1350"] .text { left: 72px; top: 780px; width: 936px; height: 330px; font-size: 40px; }
+
+  [data-size="1080x1080"] .title { left: 72px; top: 160px; width: 936px; height: 440px; font-size: 112px; }
+  [data-size="1080x1080"] .mid-rule { left: 72px; right: 72px; top: 624px; }
+  [data-size="1080x1080"] .text { left: 72px; top: 660px; width: 936px; height: 210px; font-size: 38px; }
+
+  [data-size="1080x1920"] .title { left: 60px; top: 330px; width: 860px; height: 560px; font-size: 120px; }
+  [data-size="1080x1920"] .mid-rule { left: 60px; width: 860px; top: 920px; }
+  [data-size="1080x1920"] .text { left: 60px; top: 960px; width: 860px; height: 270px; font-size: 40px; }
+</style>
+</head>
+<body data-size="1080x1350">
+  <!-- The platforms' top bar may cover the brand row. -->
+  <div class="brand top-brand" data-decor>
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
+  </div>
+  <div class="rule top-rule"></div>
+  <div class="abs meta label" data-param="label" data-default="Tip"></div>
+  <div class="abs meta muted note" data-param="note"></div>
+  <div class="rule head-rule"></div>
+  <h1 class="abs hl title" data-param="title" data-fit="96"></h1>
+  <div class="rule mid-rule"></div>
+  <p class="abs body text" data-param="body" data-fit="36"></p>
+  <div class="footer">
+    <div class="rule"></div>
+    <div class="brand">
+      <img src="../../../assets/icons/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="abs meta muted" data-param="footer"></div>
+  </div>
+<script src="template.js"></script>
+</body>
+</html>

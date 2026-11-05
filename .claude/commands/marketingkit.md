@@ -86,7 +86,9 @@ copy `02_showcase.json` or `03_features.json` as the starting point.
   scratchpad, never next to the recordings.
 - Each Short: a problem hook (≤1.5 s) from the bank, the action, an on-screen payoff, the end card;
   at least one callout where a single control is the point.
-- Images (release mode): `release` and `changed` slides in `carousel` and `square`, a thumbnail.
+- Images (release mode): `release` and `changed` slides in `carousel` and `square`, a thumbnail. The
+  `release` slide opens `carousel`, `square` and `vertical`, because it is the preview image; its
+  `version` is `X.Y.Z`, without the `v`.
 - Voiceover is optional. If the kit uses it, write `<kit>.vo.md` and the `batch-N.md` texts in
   `tool/marketing/assets/voice/<kit>/` (style rules in `03_features.vo.md`), then **stop**: the
   maintainer generates the MP3s in speechma. Continue after they say the batches exist; check

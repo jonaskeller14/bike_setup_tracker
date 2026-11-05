@@ -113,7 +113,7 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
   "gifs": ["clip", "…"],
   "web": ["clip", "…"],         // website loops, see the website repo's CLAUDE.md
   "images": {
-    // Slides: URL parameters of post_4x5.html (carousel), post_1x1.html (square) or post_9x16.html (vertical); {"kind": "endcard"} is the end card.
+    // Slides: "kind" picks the template post_<kind>.html (default screen), the rest are its URL parameters; carousel renders 4:5, square 1:1, vertical 9:16. {"kind": "endcard"} is the end card.
     "carousel": [{ "kind": "cover|screen|changed|tip|release", "title": "…", "sub": "…", "shots": "04" }],
     "square": [ … ],
     "vertical": [ … ],
@@ -294,16 +294,14 @@ header lists its parameters.
 | `video_9x16.html` | 1080×1920 | Shorts, Reels, TikTok background |
 | `video_16x9.html` | 1920×1080 | YouTube walkthrough background |
 | `endcard.html` | 1080×1920, 1920×1080, 1080×1350, 1080×1080 | End card of every video and the last slide |
-| `post_4x5.html` | 1080×1350 | Instagram carousel and feed: `cover`, `screen`, `changed`, `tip`, `release` |
-| `post_1x1.html` | 1080×1080 | YouTube community posts, X, Mastodon: the same kinds, the phone always whole |
-| `post_9x16.html` | 1080×1920 | TikTok photo mode, Instagram stories: the same kinds inside the Short's safe area |
+| `post_cover.html`, `post_screen.html`, `post_changed.html`, `post_tip.html`, `post_release.html` | 1080×1350, 1080×1080, 1080×1920 | Post slides, one template per kind (shared rows in `post.css`): Instagram carousel and feed; YouTube community posts, X, Mastodon; TikTok photo mode, Instagram stories |
 | `banner.html` | 1280×720, 1200×630, 1920×640 | Thumbnail v2 (`?dark`, `?lift=`, `?bg=`), OG image, forum header |
 | `channel_art.html` | 2560×1440, 800×800, 1080×1080 | YouTube banner, avatar, Instagram highlight cover |
 
 Shared parameters: `device=android`, `shots=04`, `bg=<repo path>` (background image slot),
 `zoom=`/`lift=x,y,w,h` (still callouts, raw-screenshot pixels), `lang=de`, `kind=`, `size=`.
 Preview one in Chrome, e.g.
-`docs/marketing/templates/post_4x5.html?kind=changed&field=Fork%20·%20Rebound&from=9&to=10`.
+`docs/marketing/templates/post_changed.html?size=1080x1350&field=Fork%20·%20Rebound&from=9&to=10`.
 
 ## `assets/`
 

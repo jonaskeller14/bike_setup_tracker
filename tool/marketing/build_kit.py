@@ -36,11 +36,12 @@ CREATIVE = "docs/store/app-store/creative"
 SHORT = (f"{TEMPLATES}/video_9x16.html", (1080, 1920))
 WALKTHROUGH = (f"{TEMPLATES}/video_16x9.html", (1920, 1080))
 ENDCARD = f"{TEMPLATES}/endcard.html"
-# Kit key: (template, size, output folder) of a list of post slides; {"kind": "endcard"} is the end card.
+# Kit key: (size, output folder) of a list of post slides. A slide's "kind" picks post_<kind>.html
+# (default "screen"); {"kind": "endcard"} is the end card.
 POSTS_SLIDES = {
-    "carousel": (f"{TEMPLATES}/post_4x5.html", (1080, 1350), "carousel"),
-    "square": (f"{TEMPLATES}/post_1x1.html", (1080, 1080), "square"),
-    "vertical": (f"{TEMPLATES}/post_9x16.html", (1080, 1920), "vertical"),
+    "carousel": ((1080, 1350), "carousel"),
+    "square": ((1080, 1080), "square"),
+    "vertical": ((1080, 1920), "vertical"),
 }
 # Kit key: (template, size, output file).
 BANNERS = {
@@ -299,16 +300,18 @@ class Kit:
     def build_images(self):
         images = self.spec["images"]
         renders = []
-        for key, (template, size, folder) in POSTS_SLIDES.items():
+        for key, (size, folder) in POSTS_SLIDES.items():
             slides = images.get(key, [])
             if len(slides) > CAROUSEL_MAX:
                 self.problems.append(f"{key}: {len(slides)} slides, Instagram allows {CAROUSEL_MAX}")
             for i, slide in enumerate(slides, 1):
                 (self.out / folder).mkdir(parents=True, exist_ok=True)
-                if slide.get("kind") == "endcard":
-                    page, params = ENDCARD, {k: v for k, v in slide.items() if k != "kind"}
+                kind = slide.get("kind", "screen")
+                params = {k: v for k, v in slide.items() if k != "kind"}
+                if kind == "endcard":
+                    page = ENDCARD
                 else:
-                    page, params = template, {**self.params(), **slide}
+                    page, params = f"{TEMPLATES}/post_{kind}.html", {**self.params(), **params}
                 renders.append((page, size, {self.out / folder / f"{i:02d}.png": "?" + urlencode(params)}))
         for key, (template, size, file_name) in BANNERS.items():
             if key in images:

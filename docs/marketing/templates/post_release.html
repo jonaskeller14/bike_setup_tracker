@@ -1,0 +1,64 @@
+<!doctype html>
+<!--
+  Post slide "release", the preview image of a release's carousel: label, note (date or platforms),
+  the version in big type, up to four items, footer. Formats: see post.css.
+
+  URL parameters (and the shared ones in template.js: size, safe):
+    label=…                    default "What's new"
+    note=…, footer=…           right of the label; right of the brand row in the footer
+    version=…                  X.Y.Z, without a "v"
+    item1=… … item4=…          what changed
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Post: Release</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="marketing.css">
+<link rel="stylesheet" href="post.css">
+<style>
+  .items div { border-top: 2px solid var(--ink); font-weight: 700; letter-spacing: -.01em; line-height: 1.15; }
+
+  [data-size="1080x1350"] .version { left: 64px; top: 170px; width: 944px; height: 300px; font-size: 300px; }
+  [data-size="1080x1350"] .items { left: 72px; right: 72px; top: 520px; }
+  [data-size="1080x1350"] .items div { padding: 26px 0; font-size: 44px; }
+
+  [data-size="1080x1080"] .version { left: 66px; top: 160px; width: 942px; height: 300px; font-size: 300px; }
+  [data-size="1080x1080"] .items { left: 72px; right: 72px; top: 440px; }
+  [data-size="1080x1080"] .items div { padding: 20px 0; font-size: 38px; }
+
+  [data-size="1080x1920"] .version { left: 52px; top: 320px; width: 868px; height: 300px; font-size: 300px; }
+  [data-size="1080x1920"] .items { left: 60px; width: 860px; top: 620px; }
+  [data-size="1080x1920"] .items div { padding: 24px 0; font-size: 44px; }
+</style>
+</head>
+<body data-size="1080x1350">
+  <!-- The platforms' top bar may cover the brand row. -->
+  <div class="brand top-brand" data-decor>
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
+  </div>
+  <div class="rule top-rule"></div>
+  <div class="abs meta label" data-param="label" data-default="What&#39;s new"></div>
+  <div class="abs meta muted note" data-param="note"></div>
+  <div class="rule head-rule"></div>
+  <div class="abs num version" data-param="version" data-fit="200"></div>
+  <div class="abs items">
+    <div data-param="item1"></div>
+    <div data-param="item2"></div>
+    <div data-param="item3"></div>
+    <div data-param="item4"></div>
+  </div>
+  <div class="footer">
+    <div class="rule"></div>
+    <div class="brand">
+      <img src="../../../assets/icons/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="abs meta muted" data-param="footer"></div>
+  </div>
+<script src="template.js"></script>
+</body>
+</html>

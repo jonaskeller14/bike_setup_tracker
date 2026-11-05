@@ -1,0 +1,86 @@
+<!doctype html>
+<!--
+  Post slide "changed", the setup history in big type: label, note (date), the setup's name, a field
+  with from → to, up to two smaller pairs, footer. Formats: see post.css.
+
+  URL parameters (and the shared ones in template.js: size, safe):
+    label=…                    default "Setup history"
+    note=…, footer=…           date; right of the brand row in the footer, e.g. "See what changed"
+    title=…                    the setup's name
+    field=…, from=…, to=…      the main change
+    field2/from2/to2, field3/from3/to3   the smaller pairs
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Post: Changed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="marketing.css">
+<link rel="stylesheet" href="post.css">
+<style>
+  .setup { font-weight: 800; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pairs { display: flex; justify-content: space-between; }
+  .mid-rule { --rule: 2px; }
+
+  [data-size="1080x1350"] .setup { left: 72px; top: 160px; width: 936px; font-size: 44px; }
+  [data-size="1080x1350"] .field { left: 72px; top: 262px; font-size: 30px; }
+  [data-size="1080x1350"] .big { left: 64px; top: 310px; font-size: 330px; }
+  [data-size="1080x1350"] .mid-rule { left: 72px; right: 72px; top: 720px; }
+  [data-size="1080x1350"] .pairs { left: 72px; right: 72px; top: 756px; }
+  [data-size="1080x1350"] .pairs .meta { font-size: 30px; margin-bottom: 14px; }
+  [data-size="1080x1350"] .pairs .num { font-size: 150px; }
+
+  [data-size="1080x1080"] .setup { left: 72px; top: 156px; width: 936px; font-size: 40px; }
+  [data-size="1080x1080"] .field { left: 72px; top: 240px; font-size: 28px; }
+  [data-size="1080x1080"] .big { left: 64px; top: 284px; font-size: 270px; }
+  [data-size="1080x1080"] .mid-rule { left: 72px; right: 72px; top: 588px; }
+  [data-size="1080x1080"] .pairs { left: 72px; right: 72px; top: 620px; }
+  [data-size="1080x1080"] .pairs .meta { font-size: 28px; margin-bottom: 12px; }
+  [data-size="1080x1080"] .pairs .num { font-size: 130px; }
+
+  [data-size="1080x1920"] .setup { left: 60px; top: 330px; width: 960px; font-size: 44px; }
+  [data-size="1080x1920"] .field { left: 60px; top: 432px; font-size: 30px; }
+  [data-size="1080x1920"] .big { left: 52px; top: 480px; font-size: 270px; }
+  [data-size="1080x1920"] .mid-rule { left: 60px; width: 860px; top: 860px; }
+  [data-size="1080x1920"] .pairs { left: 60px; width: 860px; top: 900px; }
+  [data-size="1080x1920"] .pairs .meta { font-size: 30px; margin-bottom: 14px; }
+  [data-size="1080x1920"] .pairs .num { font-size: 150px; }
+</style>
+</head>
+<body data-size="1080x1350">
+  <!-- The platforms' top bar may cover the brand row. -->
+  <div class="brand top-brand" data-decor>
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
+  </div>
+  <div class="rule top-rule"></div>
+  <div class="abs meta label" data-param="label" data-default="Setup history"></div>
+  <div class="abs meta muted note" data-param="note"></div>
+  <div class="rule head-rule"></div>
+  <div class="abs setup" data-param="title"></div>
+  <div class="abs meta muted field" data-param="field"></div>
+  <div class="abs num big"><span data-param="from"></span>→<span class="new" data-param="to"></span></div>
+  <div class="rule mid-rule" data-if="field2 field3"></div>
+  <div class="abs pairs">
+    <div data-if="field2">
+      <div class="meta muted" data-param="field2"></div>
+      <div class="num"><span data-param="from2"></span>→<span class="new" data-param="to2"></span></div>
+    </div>
+    <div data-if="field3">
+      <div class="meta muted" data-param="field3"></div>
+      <div class="num"><span data-param="from3"></span>→<span class="new" data-param="to3"></span></div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="rule"></div>
+    <div class="brand">
+      <img src="../../../assets/icons/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="abs meta muted" data-param="footer"></div>
+  </div>
+<script src="template.js"></script>
+</body>
+</html>

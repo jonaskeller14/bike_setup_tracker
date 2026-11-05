@@ -1,0 +1,54 @@
+<!doctype html>
+<!--
+  Post slide "screen" (the default slide of a kit): label, note and title with a phone. 4:5 and 9:16
+  put the title above a phone that runs off the bottom; 1:1 puts it next to the whole phone, with an
+  optional sub and without the note. Formats: see post.css.
+
+  URL parameters (and the shared ones in template.js: size, device, shots, bg, zoom, lift, safe):
+    label=…, note=…, title=…, sub=… (1:1 only)   texts; *key phrase* in teal, {9} a changed value
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Post: Screen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<link rel="stylesheet" href="marketing.css">
+<link rel="stylesheet" href="post.css">
+<style>
+  .sub { display: none; }
+
+  [data-size="1080x1350"] .title { left: 72px; top: 168px; width: 936px; height: 200px; font-size: 104px; }
+  [data-size="1080x1350"] .phone { left: 220px; top: 410px; --pw: 640; }
+
+  /* The note would sit over the phone; the rule ends behind it. Sized in em, so data-fit shrinks title and sub together. */
+  [data-size="1080x1080"] .note { display: none; }
+  [data-size="1080x1080"] .head-rule { right: auto; width: 600px; }
+  [data-size="1080x1080"] .title { left: 72px; top: 168px; width: 500px; height: 840px; display: flex; flex-direction: column; gap: .4em; font-size: 100px; }
+  [data-size="1080x1080"] .sub { display: block; font-size: .36em; }
+  [data-size="1080x1080"] .phone { left: 576px; top: 72px; --pw: 432; }
+
+  [data-size="1080x1920"] .head-rule { display: none; }
+  [data-size="1080x1920"] .title { left: 60px; top: 250px; width: 960px; height: 330px; font-size: 112px; }
+  [data-size="1080x1920"] .phone { left: 224px; top: 600px; --pw: 632; }
+</style>
+</head>
+<body data-size="1080x1350">
+  <!-- The platforms' top bar may cover the brand row. -->
+  <div class="brand top-brand" data-decor>
+    <img src="../../../assets/icons/logo_1024.png" alt="">
+    <span>Bike Setup Tracker</span>
+  </div>
+  <div class="rule top-rule"></div>
+  <div class="abs meta label" data-param="label"></div>
+  <div class="abs meta muted note" data-param="note"></div>
+  <div class="rule head-rule"></div>
+  <div class="abs title" data-fit="72">
+    <h1 class="hl" data-param="title"></h1>
+    <p class="body muted sub" data-param="sub"></p>
+  </div>
+  <div class="phone" data-shot="0" data-callout></div>
+<script src="template.js"></script>
+</body>
+</html>

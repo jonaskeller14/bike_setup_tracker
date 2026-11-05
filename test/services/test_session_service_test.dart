@@ -354,11 +354,13 @@ void main() {
   });
 
   group('runNotes', () {
-    test("keeps the notes of a setup from outside the session and adds where it's from", () {
+    final tournament = session().copyWith(method: const Tournament(candidateSetupIds: ['s1', 's2']));
+
+    test("keeps the notes of a candidate and adds where it's from", () {
       final source = setup('s1').copyWith(name: 'Base');
 
       expect(
-        TestSessionService.runNotes(englishL10n, source: source, session: session(), dateFormat: 'yyyy-MM-dd'),
+        TestSessionService.runNotes(englishL10n, source: source, session: tournament, dateFormat: 'yyyy-MM-dd'),
         "notes\n\nCopy of 'Base' (2026-05-01)",
       );
     });
@@ -367,8 +369,24 @@ void main() {
       final earlier = setup('r1').copyWith(name: 'Run 1', notes: "Felt harsh\n\nCopy of 'Base' (2026-05-01)", testSessionId: 'ts');
 
       expect(
-        TestSessionService.runNotes(englishL10n, source: earlier, session: session(), dateFormat: 'dd.MM.yyyy'),
+        TestSessionService.runNotes(englishL10n, source: earlier, session: tournament, dateFormat: 'dd.MM.yyyy'),
         "Copy of 'Run 1' (01.05.2026)",
+      );
+    });
+
+    test('adds no copy line outside a Compare session, as its runs change values', () {
+      final earlier = setup('r1').copyWith(name: 'Run 1', notes: 'Felt harsh', testSessionId: 'ts');
+
+      expect(
+        TestSessionService.runNotes(englishL10n, source: earlier, session: session(), dateFormat: 'dd.MM.yyyy'),
+        isNull,
+      );
+    });
+
+    test('still passes on the notes of a setup from outside the session', () {
+      expect(
+        TestSessionService.runNotes(englishL10n, source: setup('s1'), session: session(), dateFormat: 'yyyy-MM-dd'),
+        'notes',
       );
     });
   });

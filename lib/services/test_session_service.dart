@@ -158,21 +158,21 @@ class TestSessionService {
     );
   }
 
-  /// "Copy of 'Run 2' (1.10.2026)" below the notes of [source]. The notes of an
-  /// earlier run describe that ride, so only a source from outside the session
-  /// passes its notes on, and the copy lines don't pile up run after run.
-  static String runNotes(
+  /// Notes of [source], with "Copy of 'Run 2' (1.10.2026)" below (only Tournament)
+  static String? runNotes(
     AppLocalizations l10n, {
     required Setup source,
     required TestSession session,
     required String dateFormat,
   }) {
+    final notes = source.testSessionId == session.id ? null : source.notes?.trim();
+    final text = notes == null || notes.isEmpty ? null : notes;
+    if (session.method is! Tournament) return text;
     final copyLine = l10n.testSessionCopyLine(
       source.label(l10n),
       DateFormat(dateFormat, l10n.localeName).format(source.datetimeLocal),
     );
-    final notes = source.testSessionId == session.id ? null : source.notes?.trim();
-    return notes == null || notes.isEmpty ? copyLine : '$notes\n\n$copyLine';
+    return text == null ? copyLine : '$text\n\n$copyLine';
   }
 
   /// Run 1 or a later run: a copy of [source] stamped [now] with [values] (a

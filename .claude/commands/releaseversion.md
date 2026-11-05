@@ -217,5 +217,4 @@ create a GitHub release until the applicable confirmation gate has been approved
 - Never silently resolve merge conflicts, force-push, or overwrite a release asset.
 - Never log, commit, or expose signing credentials, keystores, `key.properties`,
   Firebase configuration, or `.env` values.
-- Never add a `Co-Authored-By` line to the commit message.
 - For any multi-paragraph message use multiple `-m` flags (avoid PowerShell here-strings).

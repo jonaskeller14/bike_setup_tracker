@@ -292,6 +292,7 @@ class _SetupIdentity extends StatelessWidget {
       context,
       title: context.l10n.compareChooseSetup(side),
       options: setups!.toList(),
+      selectedId: setup.id,
       // Comparing a setup with itself shows nothing, so the other side's is taken.
       disabledIds: {?highlightedSetupId},
       sideLabels: {

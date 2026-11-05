@@ -32,23 +32,20 @@ Future<Setup?> showPickSetupSheet(
               setups: options,
               tileBuilder: (setup) {
                 final selected = setup.id == selectedId;
-                return ColoredBox(
-                  color: selected ? Theme.of(context).colorScheme.secondaryContainer : Colors.transparent,
-                  child: SetupPickTile(
-                    key: Key('pick-setup-option-${setup.id}'),
-                    setup: setup,
-                    badges: [
-                      if (sideLabels[setup.id] case final label?) _SideBadge(label: label),
-                      if (setup.id == suggestedId) const _SuggestedBadge(),
-                    ],
-                    showBikeName: showBikeNames,
-                    selected: selected,
-                    semanticsIdentifier: semanticsIdentifier?.call(setup.id),
-                    trailing: selected
-                        ? const Icon(Icons.check, size: 20)
-                        : const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: disabledIds.contains(setup.id) ? null : () => Navigator.pop(context, setup),
-                  ),
+                return SetupPickTile(
+                  key: Key('pick-setup-option-${setup.id}'),
+                  setup: setup,
+                  badges: [
+                    if (sideLabels[setup.id] case final label?) _SideBadge(label: label),
+                    if (setup.id == suggestedId) const _SuggestedBadge(),
+                  ],
+                  showBikeName: showBikeNames,
+                  selected: selected,
+                  semanticsIdentifier: semanticsIdentifier?.call(setup.id),
+                  trailing: selected
+                      ? const Icon(Icons.check, size: 20)
+                      : const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: disabledIds.contains(setup.id) ? null : () => Navigator.pop(context, setup),
                 );
               },
             ),

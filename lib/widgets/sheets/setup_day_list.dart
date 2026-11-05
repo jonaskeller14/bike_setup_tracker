@@ -89,7 +89,7 @@ class SetupPickTile extends StatelessWidget {
     // The ripple paints on the nearest Material; the sheet's own sits outside
     // the scroll view, so it would draw over the header while scrolling.
     final tile = Material(
-      type: MaterialType.transparency,
+      color: selected ? Theme.of(context).colorScheme.secondaryContainer : Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Padding(

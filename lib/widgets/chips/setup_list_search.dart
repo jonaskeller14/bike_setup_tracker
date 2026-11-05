@@ -171,10 +171,13 @@ class SetupListSearch extends StatelessWidget {
             if (layers.shows(TimelineLayer.feedback))
               ...appRepository.view.feedbacks.values.map((f) => FeedbackTimelineEntry(f)),
           ].where((entry) => matchedIds.contains(sessionIdOf(entry)));
+          final emptySessions = appRepository.view.emptyTestSessions.values
+              .where((session) => matchedIds.contains(session.id))
+              .map((session) => TestSessionTimelineEntry(session, runs: const []));
           // A run or feedback can match on its own and through its session.
           final seen = <String>{};
           final bundled = bundleTestSessions(
-            [...matchingEntries, ...contents].where((entry) => seen.add(entry.id)).toList(),
+            [...matchingEntries, ...contents, ...emptySessions].where((entry) => seen.add(entry.id)).toList(),
             sessions: {for (final id in matchedIds) id: sessions[id]!},
             ratedSetupIdOf: appRepository.resolvedSetupIdFor,
           );

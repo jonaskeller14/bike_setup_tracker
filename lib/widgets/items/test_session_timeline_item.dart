@@ -158,27 +158,36 @@ class TestSessionTimelineItem extends StatelessWidget {
               badge: session.isRunning ? const RunningBadge() : null,
               trailing: TestSessionOptionsMenu(session: session, enabled: !selectionMode),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  border: Border.all(color: outline),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (hidden > 0 && ascending) ...[showEarlier, Divider(height: 1, thickness: 1, color: outline)],
-                    for (final (index, item) in visible.indexed) ...[
-                      if (index > 0) Divider(height: 1, thickness: 1, color: outline),
-                      itemWidget(item),
+            // While running, the next step already says there are no runs.
+            if (items.isNotEmpty || !session.isRunning)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: outline),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (items.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Center(
+                            child: TileMetaRow(icon: Icons.repeat, text: context.l10n.testSessionNoRuns, muted: true),
+                          ),
+                        ),
+                      if (hidden > 0 && ascending) ...[showEarlier, Divider(height: 1, thickness: 1, color: outline)],
+                      for (final (index, item) in visible.indexed) ...[
+                        if (index > 0) Divider(height: 1, thickness: 1, color: outline),
+                        itemWidget(item),
+                      ],
+                      if (hidden > 0 && !ascending) ...[Divider(height: 1, thickness: 1, color: outline), showEarlier],
                     ],
-                    if (hidden > 0 && !ascending) ...[Divider(height: 1, thickness: 1, color: outline), showEarlier],
-                  ],
+                  ),
                 ),
               ),
-            ),
             if (session.isRunning)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),

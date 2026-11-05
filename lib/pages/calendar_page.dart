@@ -285,6 +285,8 @@ class _CalendarPageState extends State<CalendarPage> {
     final entries = [
       if (layers.shows(TimelineLayer.setups))
         ...appRepository.view.setups.values.map((s) => SetupEntry(s)),
+      if (appSettings.enableRating && layers.shows(TimelineLayer.setups))
+        ...appRepository.view.emptyTestSessions.values.map((session) => TestSessionTimelineEntry(session, runs: const [])),
       if (_showingStrava(appRepository, appSettings, subscriptionService))
         ...appRepository.stravaActivities.values.map((a) => StravaEntry(a)),
       if (layers.shows(TimelineLayer.tasks))

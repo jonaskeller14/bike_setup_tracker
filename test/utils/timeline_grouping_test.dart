@@ -415,6 +415,28 @@ void main() {
       expect(bundle([orphan]), [orphan]);
     });
 
+    test('an empty session stays an item at its start, between the other entries', () {
+      final empty = TestSessionTimelineEntry(session('ts'), runs: const []);
+      final before = setupEntry(id: 's0', utc: DateTime.utc(2026, 7, 1, 7));
+      final after = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 9));
+
+      expect(empty.dateUTC, DateTime.utc(2026, 7, 1, 8));
+      expect(empty.dateLocal, DateTime(2026, 7, 1, 8));
+      expect(bundle([empty])..sort(compareTimelineEntries), [empty]);
+      expect(bundle([after, empty, before])..sort(compareTimelineEntries), [before, empty, after]);
+
+      final other = TestSessionTimelineEntry(session('other'), runs: const []);
+      expect(bundle([other, run('r1', DateTime.utc(2026, 7, 1, 8))]), contains(other), reason: 'beside a session with runs');
+    });
+
+    test('an empty session ends at its start while running, at its end time once ended', () {
+      TestSessionTimelineEntry emptyItem(TestSession emptySession) => TestSessionTimelineEntry(emptySession, runs: const []);
+      expect(emptyItem(session('ts')).endLocal, DateTime(2026, 7, 1, 8));
+
+      final endedAt = DateTime.utc(2026, 7, 1, 12);
+      expect(emptyItem(session('ts', endedAt: endedAt)).endLocal, local(endedAt));
+    });
+
     test('end at the end time once ended, otherwise at the latest run or feedback', () {
       final entries = [run('r1', DateTime.utc(2026, 7, 1, 8)), feedback('f1', DateTime.utc(2026, 7, 1, 8, 30))];
       final running = bundle(entries).single as TestSessionTimelineEntry;

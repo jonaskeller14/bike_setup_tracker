@@ -22,6 +22,9 @@ class SetupFilter {
   bool matches(Setup setup, {Map<String, TestSession> testSessions = const {}}) =>
       setup.tags.containsAll(tags) && (!bookmarkedOnly || setup.isBookmarked) && _matchesTestSession(testSessions[setup.testSessionId]);
 
+  /// A session without runs has no tags or bookmark, so those criteria exclude it.
+  bool matchesEmptySession(TestSession session) => tags.isEmpty && !bookmarkedOnly && _matchesTestSession(session);
+
   bool _matchesTestSession(TestSession? session) =>
       testSessionNames.isEmpty || (session != null && testSessionNames.contains(session.name ?? unnamedTestSession));
 

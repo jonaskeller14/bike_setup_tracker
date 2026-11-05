@@ -199,6 +199,31 @@ void main() {
     expect(find.byType(FilledButton), findsNothing);
   });
 
+  testWidgets('a running session without runs leaves saying so to the next step', (tester) async {
+    final entry = await seed(tester, session(name: 'Emptied'), runs: 0);
+    await pump(tester, TestSessionTimelineItem(entry: entry));
+
+    expect(find.text('Emptied'), findsOneWidget);
+    expect(find.text('0 runs'), findsOneWidget);
+    expect(find.text('This session has no runs. Record one to go on.'), findsOneWidget);
+    expect(find.text('Next run'), findsOneWidget);
+    expect(find.text('No runs yet.'), findsNothing);
+    expect(find.textContaining('earlier'), findsNothing);
+  });
+
+  testWidgets('an ended session without runs shows the placeholder without a next step', (tester) async {
+    final entry = await seed(tester, session(ended: true), runs: 0);
+    await pump(tester, TestSessionTimelineItem(entry: entry));
+
+    expect(find.text('No runs yet.'), findsOneWidget);
+    expect(find.byType(FilledButton), findsNothing);
+
+    await tester.tap(find.text('No runs yet.'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(TestSessionSheetContent), findsOneWidget, reason: 'a tap opens the sheet like on any session');
+  });
+
   testWidgets('a long press selects the session, and selection mode disables the menus', (tester) async {
     final entry = await seed(tester, session(), runs: 1);
     var toggled = 0;

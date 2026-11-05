@@ -187,8 +187,8 @@ For a single control that is the point (#77 decision H):
 
 ## Motion
 
-For Shorts rendered from `docs/marketing/motion/` (`tool/marketing/README.md`, Motion). The medium is
-still paper and ink: type is set, rules are drawn, and nothing glows.
+Every new Short renders from `docs/marketing/motion/` (its `README.md`). The medium is still paper and
+ink: type is set, rules are drawn, and nothing glows.
 
 - **Words arrive one by one:** a 26 px rise and a fade over 0.14 s. In a hook they follow the voice; in a
   caption they follow each other, 0.13 s apart. Once a line is complete it holds still until it leaves.

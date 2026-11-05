@@ -206,25 +206,32 @@ their line, so muted viewers read what is said.
 
 ### Motion
 
-A Short with `"motion"` isn't composed from `video_9x16.html`: a [Hyperframes](https://github.com/heygen-com/hyperframes)
-composition in `docs/marketing/motion/` draws its whole picture (word-by-word text, drawn explainers,
-camera moves on the phone), rendered frame by frame in headless Chrome. The rest of the pipeline stays:
-`prepare` cuts the clip from the kit's `segments`, and `assemble` adds the end card, music and voice.
-Everything else (other Shorts, GIFs, web loops, App Store videos) doesn't use it. `build_kit.py` fails if
-the composition's `<video id="recording">` `data-duration` doesn't match the kit's cut.
+Every new Short sets `"motion"`, and a [Hyperframes](https://github.com/heygen-com/hyperframes) composition
+in `docs/marketing/motion/` draws its whole picture. `motion/standard.html` is generated from the kit
+(captions word by word, the whole phone, lift callouts); a custom composition adds drawn explainers and
+camera moves. How to choose and write one: [`docs/marketing/motion/README.md`](../../docs/marketing/motion/README.md).
+The rest of the pipeline stays: `prepare` cuts the clips from the kit's `segments` and `assemble` adds the end
+card, music and voice. Walkthroughs, GIFs, web loops, App Store videos and older kits don't use it.
 
-- A composition is one file, written by hand against the render contract: one paused GSAP timeline on
-  `window.__timelines`, nothing that depends on the clock, transforms instead of layout changes. Its
-  timings are Short seconds, kept in step with the kit's `voice.at` by hand. The look is `brand.md`, Motion.
-- `render_video.motion` copies it to `.work/shorts/<name>/motion/index.html` next to `assets/`
-  (`marketing.css`, `gsap.min.js`, `frame.png`, `logo_1024.png`, `fonts/`, `recording.mp4`) and renders it
-  from that folder with telemetry and update checks off. Archivo comes from `assets/fonts/` (Google
-  Fonts, SIL OFL), because a composition can't load the web font.
-- Text inside a composition doesn't go through `render_images`' safe-area check: check its frames against
-  `SAFE_AREAS` (y 220–1400, and left of x 920 from y 760) on the contact sheet.
-- `package.json` pins Hyperframes (0.9.x, several releases a day): update it on purpose, then rebuild a
-  motion Short and compare. Its agent skills aren't installed; they send usage pings and point to HeyGen's
-  paid services.
+```
+npm ci --prefix tool/marketing                            # once per machine; needs Node.js 22+
+python tool/marketing/build_kit.py 05_setup-restore preview restore   # look at it (the picture only)
+tool/marketing/node_modules/.bin/hyperframes preview --kill-all       # stop the preview
+```
+
+- **Checks:** the build fails on an error from `hyperframes check`, on text outside `SAFE_AREAS` at any moment
+  of the timeline (`motion.js`), and when a composition's recording doesn't match the kit's cut.
+  `standard.html` captions also go through `video_9x16.html`, so they fit and shrink as on a still. Its
+  warnings don't fail the build: e.g. the silent film it sees, because sound is added later.
+- **Pinned:** `package.json` pins Hyperframes (0.9.x, several releases a day). Update on purpose: rebuild a
+  motion Short and compare it with the last one.
+- **Privacy:** the build runs the CLI with telemetry and update checks off. For running it by hand, run
+  `tool/marketing/node_modules/.bin/hyperframes telemetry disable` once per machine, and run it from a
+  project folder, because it reads a `.env` in the current directory. Its agent skills aren't installed: they
+  send usage pings and point to HeyGen's paid services.
+- **Licenses:** Hyperframes is Apache 2.0, Archivo (`assets/fonts/`) SIL OFL. GSAP uses its own
+  [no-charge license](https://gsap.com/standard-license): commercial use is allowed, and it restricts tools that
+  build animations without code.
 
 ## `render_video.py`
 

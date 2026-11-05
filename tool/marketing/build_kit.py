@@ -6,7 +6,8 @@ Reads docs/marketing/kits/<kit>.json and writes build/marketing/<kit>/. Parts: s
 walkthrough, gifs, web, images, appstore; the default is every part the kit defines. Only a full
 run clears the kit folder and writes POST.md, including the channel posts from
 docs/marketing/kits/<kit>.posts.md, and the contact sheet sheet.html. The parts `post` and `sheet`
-run alone and rewrite POST.md or sheet.html from the last full run.
+run alone and rewrite POST.md or sheet.html from the last full run. `preview [short]` opens a Short
+that sets "motion" in the Hyperframes preview.
 
 Needs ffmpeg and ffprobe on PATH, plus Chrome and network access (see render_images.py). The web
 part also needs img2webp and cwebp (libwebp).
@@ -32,6 +33,7 @@ RAW = "build/marketing/raw"  # Default "recordings" folder of a kit.
 MUSIC = REPO_ROOT / "tool/marketing/assets/music"
 TEMPLATES = "docs/marketing/templates"
 MOTION = REPO_ROOT / "docs/marketing/motion"
+STANDARD_MOTION = "standard.html"
 CREATIVE = "docs/store/app-store/creative"
 
 SHORT = (f"{TEMPLATES}/video_9x16.html", (1080, 1920))
@@ -76,6 +78,7 @@ CREATIVE_LENGTH = (5, 30)
 PARTS = ["shorts", "walkthrough", "gifs", "web", "images", "appstore"]
 POST = "post"
 SHEET = "sheet"
+PREVIEW = "preview"
 SHEET_FRAMES = (0.15, 0.5, 0.97)  # Where the contact sheet samples each video, as a share of its length.
 POSTS = "posts"  # Folder with one Markdown file per post.
 MANIFEST = "manifest.json"  # What a full run built, so `post` can rewrite POST.md without it.
@@ -222,10 +225,10 @@ class Kit:
         template, size = SHORT
         card = self.end_card(size, "end_9x16.png")
         for name, short in self.spec["shorts"].items():
-            clips = [self.clip(clip_name) for clip_name in short["clips"]]
             if "motion" in short:
-                self.build_motion_short(name, short, clips[0][0], size, card)
+                self.build_motion_short(name, short, size, card)
                 continue
+            clips = [self.clip(clip_name) for clip_name in short["clips"]]
             offsets = [sum(length - rv.JOIN_FADE for _, _, length in clips[:i]) for i in range(len(clips))]
             lines, spans = self.voiceover(name, short, offsets[-1] + clips[-1][2])
             segments = []
@@ -244,16 +247,52 @@ class Kit:
             rv.assemble(segments, out, end_card=card, music=self.music(), fade=rv.JOIN_FADE, voice=lines)
             self.shorts.append((out, short["title"], self.check(out, size, (0, SHORT_MAX), audio=True)))
 
-    def build_motion_short(self, name, short, clip, size, card):
-        """A Short whose whole picture comes from a Hyperframes composition; audio and end card as usual."""
+    def motion_short(self, name, short, size):
+        """(composition, clip, its {{…}}, voice lines) of a Short that sets "motion"."""
+        if "device" in self.spec:
+            raise SystemExit(f"short '{name}': motion compositions use the iPhone frame; remove the kit's device.")
         page = MOTION / short["motion"]
-        lines, _ = self.voiceover(name, short, rv.motion_length(page))
+        clips = [self.clip(clip_name) for clip_name in short["clips"]]
+        if short["motion"] != STANDARD_MOTION:
+            lines, _ = self.voiceover(name, short, rv.motion_length(page))
+            return page, clips[0][0], None, lines
+        offsets = [sum(length - rv.JOIN_FADE for _, _, length in clips[:i]) for i in range(len(clips))]
+        joined = self.work / "shorts" / name / "joined.mp4"
+        length = rv.join([clip for clip, _, _ in clips], joined)
+        lines, captions = self.voiceover(name, short, length)
+        if captions is None:
+            captions = [(offset + start, offset + end, layer["caption"])
+                        for i, ((_, edit, clip_length), offset) in enumerate(zip(clips, offsets))
+                        for start, end, layer in self.caption_layers(edit, clip_length, short.get("hook") if i == 0 else None)]
+        lifts = [(offset + start, offset + end, rect)
+                 for (_, edit, _), offset in zip(clips, offsets) for start, end, rect in edit.callout_spans("lift")]
+        fill = rv.standard_motion_fill(self.chrome, SHORT[0], size, self.params(), joined, captions, lifts)
+        return page, joined, fill, lines
+
+    def build_motion_short(self, name, short, size, card):
+        """A Short whose whole picture comes from a Hyperframes composition; audio and end card as usual."""
+        page, clip, fill, lines = self.motion_short(name, short, size)
         segment = self.work / "shorts" / name / "motion.mp4"
         segment.parent.mkdir(parents=True, exist_ok=True)
-        rv.motion(page, clip, segment)
+        self.problems += [f"short '{name}': {problem}" for problem in rv.motion(self.chrome, page, clip, size, segment, fill)]
         out = self.out / "shorts" / f"{name}_9x16.mp4"
         rv.assemble([segment], out, end_card=card, music=self.music(), voice=lines)
         self.shorts.append((out, short["title"], self.check(out, size, (0, SHORT_MAX), audio=True)))
+
+    def preview(self, name=None):
+        """Opens a motion Short in the Hyperframes preview: the picture only, in a build folder."""
+        motion = [short for short, spec in self.spec.get("shorts", {}).items() if "motion" in spec]
+        if name is None and motion:
+            name = motion[0]
+        if name not in motion:
+            print(f"Motion Shorts in this kit: {', '.join(motion) or 'none'}.")
+            return 2
+        page, clip, fill, _ = self.motion_short(name, self.spec["shorts"][name], SHORT[1])
+        project = self.work / "preview" / name
+        rv.motion_project(page, clip, project, fill)
+        rv.hyperframes("preview", "--background", project.resolve(), cwd=project, check=True)
+        print(f"Stop it with: {rel(rv.HYPERFRAMES)} preview --kill-all")
+        return 0
 
     def build_walkthrough(self):
         template, size = WALKTHROUGH
@@ -528,6 +567,11 @@ def main(argv):
         known = ", ".join(sorted(p.stem for p in KITS.glob("*.json")))
         print(f"Unknown kit '{name}'. Known: {known}")
         return 2
+    if parts[:1] == [PREVIEW]:
+        if len(parts) > 2:
+            print(f"Usage: build_kit.py {name} {PREVIEW} [short]")
+            return 2
+        return Kit(name, render_images.find_chrome()).preview(*parts[1:])
     unknown = [part for part in parts if part not in PARTS + [POST, SHEET]]
     if unknown:
         print(f"Unknown part(s): {', '.join(unknown)}. Known: {', '.join(PARTS + [POST, SHEET])}")

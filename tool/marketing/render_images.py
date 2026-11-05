@@ -183,17 +183,24 @@ def screenshot(chrome, size, url, out, alpha=False, flags=()):
 FONT_PROBLEM = "the Archivo web font did not load"
 
 
+def dump_dom(chrome, size, url):
+    """The page's DOM once it has rendered, or "" if Chrome keeps timing out."""
+    for _ in range(2):
+        try:
+            return subprocess.run([*chrome_args(chrome, size), "--dump-dom", url],
+                                  capture_output=True, text=True, timeout=60).stdout
+        except subprocess.TimeoutExpired:
+            pass
+    return ""
+
+
 def page_problems(chrome, size, url):
     """What template.js reports with &check: (problems, warnings). Problems are text outside the
     safe area or that doesn't fit; warnings are text that fit only after shrinking."""
-    dom = ""
-    for _ in range(2):
-        try:
-            dom = subprocess.run([*chrome_args(chrome, size), "--dump-dom", url],
-                                 capture_output=True, text=True, timeout=60).stdout
-            break
-        except subprocess.TimeoutExpired:
-            pass
+    return dom_problems(dump_dom(chrome, size, url))
+
+
+def dom_problems(dom):
     match = re.search(r'data-problems="([^"]*)"', dom)
     if not match:
         return ["the page set no data-problems; does it load template.js?"], []

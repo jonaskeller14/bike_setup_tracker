@@ -19,7 +19,7 @@ canonical plan and status tracker; this folder holds the reusable material.
 | `docs/marketing/backlog.md` | Evergreen Short topics with pillar, audience and hook; `/marketingkit` builds them (#77 Phase 10) | yes |
 | `.claude/commands/marketingkit.md` | `/marketingkit <release tag \| backlog topic \| monthly>`: re-record, render, contact sheet, post files (#77 Phase 10) | yes |
 | `docs/marketing/templates/` | HTML/CSS templates: video backgrounds, end card, posts (one template per kind, `post_<kind>.html`, each with 4:5, 1:1 and 9:16), banners, channel art; brand tokens in `marketing.css` (#77) | yes |
-| `docs/marketing/motion/` | Hyperframes compositions of the Shorts that set `motion`: one file per Short (`tool/marketing/README.md`, Motion) | yes |
+| `docs/marketing/motion/` | Hyperframes compositions of the Shorts: `standard.html` generated from the kit, or one custom file per Short; `README.md` explains how to write them | yes |
 | `docs/marketing/kits/` | One JSON per content kit: clip edits, captions, Shorts, images (Phase 3); `<kit>.posts.md`: post drafts per channel (Phase 4) | yes |
 | `docs/marketing/metrics/` | Store exports and baseline/monthly numbers | **no — gitignored** |
 | `tool/marketing/` | Record and render scripts (Phase 3) | yes |

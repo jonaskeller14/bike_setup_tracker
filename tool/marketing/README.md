@@ -12,6 +12,7 @@ live in [`docs/marketing/`](../../docs/marketing/README.md); the look is in
 - Network access: the templates load Google Fonts.
 - For videos: `ffmpeg` and `ffprobe` on `PATH` (`brew install ffmpeg`, `winget install Gyan.FFmpeg`).
   No libass or drawtext needed: captions are rendered by Chrome.
+- For Shorts that set `motion`: Node.js 22+, then `npm ci --prefix tool/marketing` (see Motion).
 - For the `web` part: `img2webp` and `cwebp` from libwebp on `PATH` (`brew install webp`; Windows: [libwebp downloads](https://developers.google.com/speed/webp/download)).
 
 ## `build_kit.py`
@@ -108,7 +109,9 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
       "lines": ["batch-2#10", "batch-1#1.4"],  // a whole take, or one paragraph of it
       "at": [0.3, 3.0, …],                     // optional: Short second where each line starts; default one after the other
       "captions": [null, "Your *bike fit*", …]  // optional: one per line, shown from its start; null keeps the one before; the first is the hook
-    } } },
+    },
+    "motion": "restore.html"  // optional, see Motion: docs/marketing/motion/<file> draws the whole picture; the first clip is its recording
+  } },
   "walkthrough": ["clip", "…"],
   "gifs": ["clip", "…"],
   "web": ["clip", "…"],         // website loops, see the website repo's CLAUDE.md
@@ -200,6 +203,28 @@ Mix: the voice is loudness-normalized as one track (−15 LUFS); the music bed p
 and ducks further while a line plays (sidechain compressor), then a limiter. A Short with voice
 measures about −16 LUFS over its voiced part, like the music-only Shorts. Captions start with
 their line, so muted viewers read what is said.
+
+### Motion
+
+A Short with `"motion"` isn't composed from `video_9x16.html`: a [Hyperframes](https://github.com/heygen-com/hyperframes)
+composition in `docs/marketing/motion/` draws its whole picture (word-by-word text, drawn explainers,
+camera moves on the phone), rendered frame by frame in headless Chrome. The rest of the pipeline stays:
+`prepare` cuts the clip from the kit's `segments`, and `assemble` adds the end card, music and voice.
+Everything else (other Shorts, GIFs, web loops, App Store videos) doesn't use it. `build_kit.py` fails if
+the composition's `<video id="recording">` `data-duration` doesn't match the kit's cut.
+
+- A composition is one file, written by hand against the render contract: one paused GSAP timeline on
+  `window.__timelines`, nothing that depends on the clock, transforms instead of layout changes. Its
+  timings are Short seconds, kept in step with the kit's `voice.at` by hand. The look is `brand.md`, Motion.
+- `render_video.motion` copies it to `.work/shorts/<name>/motion/index.html` next to `assets/`
+  (`marketing.css`, `gsap.min.js`, `frame.png`, `logo_1024.png`, `fonts/`, `recording.mp4`) and renders it
+  from that folder with telemetry and update checks off. Archivo comes from `assets/fonts/` (Google
+  Fonts, SIL OFL), because a composition can't load the web font.
+- Text inside a composition doesn't go through `render_images`' safe-area check: check its frames against
+  `SAFE_AREAS` (y 220–1400, and left of x 920 from y 760) on the contact sheet.
+- `package.json` pins Hyperframes (0.9.x, several releases a day): update it on purpose, then rebuild a
+  motion Short and compare. Its agent skills aren't installed; they send usage pings and point to HeyGen's
+  paid services.
 
 ## `render_video.py`
 

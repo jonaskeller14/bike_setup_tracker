@@ -54,7 +54,7 @@ build.
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
   never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
-- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16, R17, C5–C8, S4–S8, D4, D5) open Shorts and
+- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R18, C5–C8, S4–S8, D4, D5) open Shorts and
   posts; store assets use statements.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
@@ -85,6 +85,7 @@ German riders, not translated word for word.
 | R15 | New fork? Every click range, filled in. | Neue Gabel? Alle Klickbereiche schon eingetragen. |
 | R16 | Thinking about upgrading your fork? | Überlegst du, deine Gabel aufzurüsten? |
 | R17 | Red dial or blue dial: which one was rebound? | Rotes oder blaues Rad: Welches war die Zugstufe? |
+| R18 | You changed your fork settings. But you liked it better before? | Du hast deine Gabel verstellt. Aber vorher war es besser? |
 
 ### C — See what changed
 

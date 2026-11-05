@@ -10,6 +10,7 @@ phone and reports where it sits (docs/marketing/templates/template.js).
 import html
 import json
 import math
+import os
 import re
 import shutil
 import subprocess
@@ -20,6 +21,7 @@ from urllib.request import url2pathname
 import render_images
 
 FPS = 30
+HYPERFRAMES = render_images.REPO_ROOT / "tool/marketing/node_modules/.bin/hyperframes"
 CAPTION_FADE = 0.25
 # Callouts (brand.md, Callouts): ease in and out over CALLOUT_EASE s; a lift is shown LIFT_SCALE×
 # its size in the phone (template.js uses the same factor for stills).
@@ -326,6 +328,40 @@ def add_lifts(graph, current, lifts, size, screen):
         ]
         current = f"lifted{i}"
     return current
+
+
+def motion_length(page):
+    """The length in seconds of a Hyperframes composition: its root's data-duration."""
+    return float(re.search(r'data-composition-id="[^"]*"[^>]*data-duration="([0-9.]+)"', page.read_text(encoding="utf-8"))[1])
+
+
+def motion(page, clip, out):
+    """Renders a Hyperframes composition (docs/marketing/motion/, README.md) with a prepared clip
+    as its assets/recording.mp4. Writes a video-only intermediate and returns its length."""
+    if not HYPERFRAMES.is_file():
+        raise SystemExit("Hyperframes is missing: npm ci --prefix tool/marketing")
+    html = page.read_text(encoding="utf-8")
+    expected = float(re.search(r'id="recording"[^>]*data-duration="([0-9.]+)"', html)[1])
+    if abs(duration(clip) - expected) > 0.1:
+        raise ValueError(f"{page.name}: the recording lasts {expected} s, its cut in the kit {duration(clip):.2f} s")
+    work = out.with_suffix("")
+    shutil.rmtree(work, ignore_errors=True)
+    assets = work / "assets"
+    assets.mkdir(parents=True)
+    (work / "index.html").write_text(html, encoding="utf-8")
+    root = render_images.REPO_ROOT
+    for source, name in ((clip, "recording.mp4"),
+                         (root / "docs/marketing/templates/marketing.css", "marketing.css"),
+                         (root / "docs/store/app-store/iPhone-17-Pro-Max/frame.png", "frame.png"),
+                         (root / "assets/icons/logo_1024.png", "logo_1024.png"),
+                         (root / "tool/marketing/node_modules/gsap/dist/gsap.min.js", "gsap.min.js")):
+        shutil.copy(source, assets / name)
+    shutil.copytree(root / "tool/marketing/assets/fonts", assets / "fonts")
+    env = {**os.environ, "HYPERFRAMES_NO_TELEMETRY": "1", "HYPERFRAMES_NO_UPDATE_CHECK": "1", "DO_NOT_TRACK": "1"}
+    # From its own folder: the CLI reads a .env in the current directory.
+    subprocess.run([HYPERFRAMES, "render", "--quiet", "--fps", str(FPS), "--crf", "12", "-o", out.resolve()],
+                   cwd=work, env=env, check=True)
+    return duration(out)
 
 
 def render_still(chrome, template, size, params, out):

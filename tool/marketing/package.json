@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "description": "Hyperframes for the Shorts that set \"motion\" in their kit (README.md, Motion). Pinned: it releases several times a day.",
+  "dependencies": {
+    "gsap": "3.15.0",
+    "hyperframes": "0.9.15"
+  }
+}

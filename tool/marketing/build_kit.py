@@ -31,6 +31,7 @@ KITS = REPO_ROOT / "docs/marketing/kits"
 RAW = "build/marketing/raw"  # Default "recordings" folder of a kit.
 MUSIC = REPO_ROOT / "tool/marketing/assets/music"
 TEMPLATES = "docs/marketing/templates"
+MOTION = REPO_ROOT / "docs/marketing/motion"
 CREATIVE = "docs/store/app-store/creative"
 
 SHORT = (f"{TEMPLATES}/video_9x16.html", (1080, 1920))
@@ -222,6 +223,9 @@ class Kit:
         card = self.end_card(size, "end_9x16.png")
         for name, short in self.spec["shorts"].items():
             clips = [self.clip(clip_name) for clip_name in short["clips"]]
+            if "motion" in short:
+                self.build_motion_short(name, short, clips[0][0], size, card)
+                continue
             offsets = [sum(length - rv.JOIN_FADE for _, _, length in clips[:i]) for i in range(len(clips))]
             lines, spans = self.voiceover(name, short, offsets[-1] + clips[-1][2])
             segments = []
@@ -239,6 +243,17 @@ class Kit:
             out = self.out / "shorts" / f"{name}_9x16.mp4"
             rv.assemble(segments, out, end_card=card, music=self.music(), fade=rv.JOIN_FADE, voice=lines)
             self.shorts.append((out, short["title"], self.check(out, size, (0, SHORT_MAX), audio=True)))
+
+    def build_motion_short(self, name, short, clip, size, card):
+        """A Short whose whole picture comes from a Hyperframes composition; audio and end card as usual."""
+        page = MOTION / short["motion"]
+        lines, _ = self.voiceover(name, short, rv.motion_length(page))
+        segment = self.work / "shorts" / name / "motion.mp4"
+        segment.parent.mkdir(parents=True, exist_ok=True)
+        rv.motion(page, clip, segment)
+        out = self.out / "shorts" / f"{name}_9x16.mp4"
+        rv.assemble([segment], out, end_card=card, music=self.music(), voice=lines)
+        self.shorts.append((out, short["title"], self.check(out, size, (0, SHORT_MAX), audio=True)))
 
     def build_walkthrough(self):
         template, size = WALKTHROUGH

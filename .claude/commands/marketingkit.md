@@ -86,6 +86,9 @@ copy `02_showcase.json` or `03_features.json` as the starting point.
   scratchpad, never next to the recordings.
 - Each Short: a problem hook (≤1.5 s) from the bank, the action, an on-screen payoff, the end card;
   at least one callout where a single control is the point.
+- A Short that should move beyond the standard layout sets `motion` and gets a composition in
+  `docs/marketing/motion/` (`tool/marketing/README.md`, Motion; look in `brand.md`, Motion). Time it to
+  the voice after the MP3s exist.
 - Images (release mode): `release` and `changed` slides in `carousel` and `square`, a thumbnail. The
   `release` slide opens `carousel`, `square` and `vertical`, because it is the preview image; its
   `version` is `X.Y.Z`, without the `v`.

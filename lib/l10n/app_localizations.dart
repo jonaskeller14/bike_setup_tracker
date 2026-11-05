@@ -10441,6 +10441,18 @@ abstract class AppLocalizations {
   /// **'No runs yet.'**
   String get testSessionNoRuns;
 
+  /// Title of the empty state of the runs of a test session.
+  ///
+  /// In en, this message translates to:
+  /// **'No runs yet'**
+  String get testSessionNoRunsTitle;
+
+  /// Call to action of the empty state of the runs of a running test session.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a run to start comparing'**
+  String get testSessionNoRunsSubtitle;
+
   /// Button of the timeline that reveals earlier runs.
   ///
   /// In en, this message translates to:

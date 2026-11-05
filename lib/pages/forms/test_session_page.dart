@@ -17,6 +17,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/bike_adjustment_column_service.dart';
 import '../../services/test_session_service.dart';
 import '../../theme.dart';
+import '../../utils/component_actions.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/empty_state_placeholder2.dart';
@@ -240,6 +241,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
       groups: [
         for (final group in groups)
           PickAdjustmentsGroup(
+            id: group.first.ownerId,
             title: group.first.ownerName,
             icon: group.first.ownerIcon,
             ancestors: hierarchy.ancestorsBelowBikeAt(group.first.ownerId, now),
@@ -257,6 +259,8 @@ class _TestSessionPageState extends State<TestSessionPage> {
       },
       warningFor: _tooManyAdjustmentsMessage,
       emptyHint: context.l10n.testSessionNoAdjustments,
+      emptyActionLabel: context.l10n.addComponent,
+      onEmptyAction: () => ComponentActions.addComponent(context, initialBike: _bike),
     );
   }
 

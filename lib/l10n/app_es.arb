@@ -1723,6 +1723,8 @@
   "testSessionLockedTooltip": "Bloqueado en su valor. Toca para desbloquearlo.",
   "testSessionLockTooltip": "Toca para bloquearlo en su valor del último run.",
   "testSessionNoRuns": "Aún no hay runs.",
+  "testSessionNoRunsTitle": "Aún no hay runs",
+  "testSessionNoRunsSubtitle": "Registra un run para empezar a comparar",
   "testSessionShowEarlier": "{count, plural, =1{Mostrar 1 anterior} other{Mostrar {count} anteriores}}",
   "testSessionStepNoRuns": "Esta sesión no tiene runs. Registra uno para continuar.",
   "testSessionStepRated": "{name} está valorado. Listo para el siguiente run.",

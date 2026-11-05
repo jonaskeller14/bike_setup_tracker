@@ -8268,6 +8268,14 @@
   "@testSessionNoRuns": {
     "description": "Shown when a test session has no run."
   },
+  "testSessionNoRunsTitle": "No runs yet",
+  "@testSessionNoRunsTitle": {
+    "description": "Title of the empty state of the runs of a test session."
+  },
+  "testSessionNoRunsSubtitle": "Record a run to start comparing",
+  "@testSessionNoRunsSubtitle": {
+    "description": "Call to action of the empty state of the runs of a running test session."
+  },
   "testSessionShowEarlier": "{count, plural, =1{Show 1 earlier} other{Show {count} earlier}}",
   "@testSessionShowEarlier": {
     "description": "Button of the timeline that reveals earlier runs.",

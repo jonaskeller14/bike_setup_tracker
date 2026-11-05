@@ -1723,6 +1723,8 @@
   "testSessionLockedTooltip": "Travada no valor. Toque para destravar.",
   "testSessionLockTooltip": "Toque para travar no valor do último run.",
   "testSessionNoRuns": "Nenhum run ainda.",
+  "testSessionNoRunsTitle": "Nenhum run ainda",
+  "testSessionNoRunsSubtitle": "Registre um run para começar a comparar",
   "testSessionShowEarlier": "{count, plural, =1{Mostrar 1 anterior} other{Mostrar {count} anteriores}}",
   "testSessionStepNoRuns": "Esta sessão não tem runs. Registre um para continuar.",
   "testSessionStepRated": "{name} foi avaliado. Pronto para o próximo run.",

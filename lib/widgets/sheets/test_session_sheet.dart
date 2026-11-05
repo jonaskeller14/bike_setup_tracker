@@ -14,6 +14,7 @@ import '../../services/bike_adjustment_column_service.dart';
 import '../../services/test_session_service.dart';
 import '../../utils/test_session_actions.dart';
 import '../display_data/test_session_run_table.dart';
+import '../empty_state_placeholder.dart';
 import '../items/feedback_list_tile.dart';
 import '../items/setup_tile.dart';
 import '../items/tile_meta_row.dart';
@@ -223,7 +224,16 @@ class TestSessionSheetContent extends StatelessWidget {
   /// Collapsed, a run shows the session's adjustments so the runs compare.
   List<Widget> _runs(BuildContext context, AppRepository appRepository, TestSession session) {
     final runs = appRepository.setupsInSession(session.id);
-    if (runs.isEmpty) return [ListTile(title: Text(context.l10n.testSessionNoRuns))];
+    if (runs.isEmpty) {
+      return [
+        EmptyStatePlaceholder(
+          icon: Icons.repeat,
+          title: context.l10n.testSessionNoRunsTitle,
+          // The next step below already offers the action to a running session.
+          subtitle: session.isRunning ? context.l10n.testSessionNoRunsSubtitle : null,
+        ),
+      ];
+    }
 
     final adjustmentIds = session.adjustmentIds.toSet();
     return [

@@ -1723,6 +1723,8 @@
   "testSessionLockedTooltip": "Verrouillé à sa valeur. Touchez pour déverrouiller.",
   "testSessionLockTooltip": "Touchez pour le verrouiller à sa valeur du dernier run.",
   "testSessionNoRuns": "Pas encore de run.",
+  "testSessionNoRunsTitle": "Pas encore de run",
+  "testSessionNoRunsSubtitle": "Enregistrez un run pour commencer à comparer",
   "testSessionShowEarlier": "{count, plural, =1{Afficher 1 précédent} other{Afficher {count} précédents}}",
   "testSessionStepNoRuns": "Cette session n’a aucun run. Enregistrez-en un pour continuer.",
   "testSessionStepRated": "{name} est noté. Prêt pour le prochain run.",

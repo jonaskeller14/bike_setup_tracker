@@ -6357,6 +6357,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get testSessionNoRuns => 'Pas encore de run.';
 
   @override
+  String get testSessionNoRunsTitle => 'Pas encore de run';
+
+  @override
+  String get testSessionNoRunsSubtitle => 'Enregistrez un run pour commencer à comparer';
+
+  @override
   String testSessionShowEarlier(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

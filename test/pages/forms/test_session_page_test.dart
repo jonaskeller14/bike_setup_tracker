@@ -11,8 +11,10 @@ import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session_method.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/pages/forms/component_page.dart';
 import 'package:bike_setup_tracker/pages/forms/test_session_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/setup_day_list.dart';
 import 'package:bike_setup_tracker/widgets/timeline_day_header.dart';
@@ -128,6 +130,8 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appRepository),
+          // Lazy: only the component form opened from the empty sheet reads it.
+          ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
         ],
         child: localizedTestApp(
           theme: theme ?? materialAppTheme,
@@ -149,7 +153,7 @@ void main() {
 
   Future<void> selectInSheet(WidgetTester tester, List<String> names) async {
     for (final name in names) {
-      final tile = find.descendant(of: find.byType(BottomSheet), matching: find.widgetWithText(FilterChip, name));
+      final tile = find.descendant(of: find.byType(BottomSheet), matching: find.text(name));
       await tester.ensureVisible(tile);
       await tester.tap(tile);
       await tester.pump();
@@ -169,6 +173,20 @@ void main() {
   }
 
   const tooMany = 'More than 5 adjustments make it hard to tell which one helped. 1–3 work best.';
+
+  testWidgets('a bike without adjustments offers to add a component from the empty sheet', (tester) async {
+    await open(tester, page: () => TestSessionPage(initialBike: Bike(id: 'empty', name: 'Empty Bike', person: null)));
+
+    await tester.tap(find.text('No adjustments yet'));
+    await tester.pumpAndSettle();
+    expect(find.text('This bike has no adjustments.'), findsOneWidget);
+
+    await tester.tap(find.text('Add Component'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.byType(ComponentPage), findsOneWidget);
+  });
 
   testWidgets('the adjustment sheet is grouped by component and warns softly above five', (tester) async {
     await open(tester);

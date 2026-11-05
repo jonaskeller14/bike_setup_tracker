@@ -1723,6 +1723,8 @@
   "testSessionLockedTooltip": "Auf diesem Wert festgesetzt. Tippe zum Lösen.",
   "testSessionLockTooltip": "Tippe, um sie auf ihrem Wert im letzten Lauf festzusetzen.",
   "testSessionNoRuns": "Noch keine Läufe.",
+  "testSessionNoRunsTitle": "Noch keine Läufe",
+  "testSessionNoRunsSubtitle": "Zeichne einen Lauf auf, um zu vergleichen",
   "testSessionShowEarlier": "{count, plural, =1{1 früheren anzeigen} other{{count} frühere anzeigen}}",
   "testSessionStepNoRuns": "Diese Session hat keine Läufe. Zeichne einen auf, um weiterzumachen.",
   "testSessionStepRated": "{name} ist bewertet. Bereit für den nächsten Lauf.",

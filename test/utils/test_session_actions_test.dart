@@ -236,7 +236,7 @@ void main() {
       await tester.tap(find.text('No adjustments yet'));
       await settle(tester);
       expect(find.text('Fork'), findsOneWidget, reason: 'adjustments are grouped by component');
-      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
+      await tester.tap(find.text('Rebound'));
       await settle(tester);
       await tester.tapAt(const Offset(10, 10)); // closing the sheet keeps the selection
       await settle(tester);
@@ -275,7 +275,7 @@ void main() {
       await pumpButton(tester, (context) => TestSessionActions.startSession(context));
       await tester.tap(find.text('No adjustments yet'));
       await settle(tester);
-      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
+      await tester.tap(find.text('Rebound'));
       await settle(tester);
       await tester.tapAt(const Offset(10, 10));
       await settle(tester);
@@ -297,7 +297,7 @@ void main() {
 
       await tester.tap(find.text('No adjustments yet'));
       await settle(tester);
-      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
+      await tester.tap(find.text('Rebound'));
       await settle(tester);
       await tester.tapAt(const Offset(10, 10));
       await settle(tester);

@@ -204,10 +204,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     T retained<T extends TableColumn>(T column) => previousColumns.lookup(column) as T? ?? column;
 
     _columns = {
-      for (final column in availableSetupColumns) retained(SetupTableColumn(column, active: column.defaultActive)),
+      for (final column in availableSetupColumns.where((c) => c.section != TableColumnSection.feedback))
+        retained(SetupTableColumn(column, active: column.defaultActive)),
       for (final adjustment in componentAdjustments) retained(ComponentAdjustmentColumn(adjustment.id, active: true)),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
+      for (final column in availableSetupColumns.where((c) => c.section == TableColumnSection.feedback))
+        retained(SetupTableColumn(column, active: column.defaultActive)),
       if (appSettings.enableRating) retained(SetupRankColumn(active: false)),
     };
 

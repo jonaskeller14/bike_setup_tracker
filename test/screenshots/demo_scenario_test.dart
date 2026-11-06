@@ -8,6 +8,7 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/screenshots/demo_scenario.dart';
 import 'package:bike_setup_tracker/screenshots/screenshot_seed.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
+import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -286,6 +287,80 @@ void main() {
         expect((dial.dialColor, dial.dialSize), (StepAdjustmentDialColor.blue, StepAdjustmentDialSize.normal), reason: dial.name);
       }
     });
+  });
+
+  group('scenario content (06_v1.7.0 demos)', () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+    });
+
+    tearDown(() async {
+      await repository.disposeAndAwaitCancellation();
+      await database.close();
+    });
+
+    Future<void> seed(DemoScenario scenario, {DateTime? on}) async {
+      await ScreenshotSeed.seedDatabase(repository, today: on ?? today, scenario: scenario);
+      await repository.initialDataLoaded;
+    }
+
+    test('one_click keeps the Hightower, newest setup with rebound on 9', () async {
+      await seed(DemoScenario.oneClick);
+      expect(repository.bikes.values.map((b) => b.name), ['Santa Cruz Hightower']);
+      expect(seedJson(DemoScenario.oneClick)['taskRules'], isEmpty);
+      final setups = (seedJson(DemoScenario.oneClick)['setups'] as List).cast<Map<String, dynamic>>()
+        ..sort((a, b) => (a['datetime'] as String).compareTo(b['datetime'] as String));
+      expect(setups.last['name'], 'Hometrails - end of May reference');
+      expect((setups.last['bikeAdjustmentValues'] as Map)['aefea436-580a-479b-bcd4-943a93c8e2fb'], 9);
+    });
+
+    test('wet_dry is one loop three times, only the ground and the tire pressures changing', () {
+      final setups = (seedJson(DemoScenario.wetDry)['setups'] as List).cast<Map<String, dynamic>>();
+      expect(setups.map((s) => (s['weather'] as Map)['condition']), ['Condition.dry', 'Condition.wet', 'Condition.dry']);
+      final dry = setups[0]['bikeAdjustmentValues'] as Map;
+      final wet = setups[1]['bikeAdjustmentValues'] as Map;
+      expect(dry.keys.where((k) => dry[k] != wet[k]).length, 2);
+      expect(setups[2]['bikeAdjustmentValues'], dry);
+    });
+
+    test('part_km credits the pedals with the 9 of 10 rides that started while they were fitted', () async {
+      await seed(DemoScenario.partKm);
+      expect(repository.bikes.values.map((b) => b.name).toSet(), {'Santa Cruz Hightower', 'Trek Session 9'});
+      final rides = seedJson(DemoScenario.partKm)['stravaActivities'] as List;
+      expect(rides, hasLength(10));
+      final stats = repository.componentStatsOf('44e3c1ce-72db-4bc2-b58c-47a0de8ab188');
+      expect(stats.activityCount, 9);
+      expect(stats.distance / 1000, closeTo(193, 0.5));
+    });
+
+    test('rides_per_value counts 3 rides on 8 clicks, 7 on 9 and 4 on 10', () async {
+      await seed(DemoScenario.ridesPerValue);
+      final histogram = await SetupActivityAnalysisService(database).getAdjustmentHistogram('aefea436-580a-479b-bcd4-943a93c8e2fb');
+      expect({for (final bar in histogram.bars) '${bar.exactValue}': bar.activityCount}, {
+        'StepValue(8)': 3,
+        'StepValue(9)': 7,
+        'StepValue(10)': 4,
+      });
+    });
+
+    for (final (scenario, hoursLeft, minDays, maxDays) in [
+      (DemoScenario.forecastWeekly, 14, 42, 48),
+      (DemoScenario.forecastMore, 10, 24, 28),
+      (DemoScenario.forecastOften, 14, 18, 21),
+    ]) {
+      test('${scenario.id} forecasts the fork service in $minDays to $maxDays days, $hoursLeft of 50 h left', () async {
+        final now = DateTime.now();
+        await seed(scenario, on: now);
+        final fork = repository.upcomingTaskRules.singleWhere((r) => r.rule.name == 'Fork lowers service');
+        expect(fork.status.progress, closeTo((50 - hoursLeft) / 50, 0.001));
+        final days = repository.getTaskRuleForecast(fork.rule)!.dueDate.difference(now).inDays;
+        expect(days, inInclusiveRange(minDays, maxDays));
+      });
+    }
   });
 
   group('content rules of the full sample', () {

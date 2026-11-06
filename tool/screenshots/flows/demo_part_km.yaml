@@ -1,0 +1,37 @@
+# scenario: part_km
+# Demo: the km of a part that moved. The garage with the pedals among the
+# Hightower's parts, then their details: the km and rides counted, and the History
+# with the move to the Session and back. Timed to the voiceover (06_v1.7.0, clip 5).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_part_km
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+# Crankbrothers Stamp 7 Pedals: double-tap opens its details page.
+- doubleTapOn:
+    id: garage.component.44e3c1ce-72db-4bc2-b58c-47a0de8ab188
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+# The stats pager's second page counts the rides.
+- swipe:
+    start: 80%, 17%
+    end: 20%, 17%
+    duration: 500
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+- tapOn: History
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 5000

@@ -96,7 +96,8 @@ copy `02_showcase.json` or `03_features.json` as the starting point.
 - Voiceover is optional. If the kit uses it, write `<kit>.vo.md` and the `batch-N.md` texts in
   `tool/marketing/assets/voice/<kit>/` (style rules in `03_features.vo.md`), then **stop**: the
   maintainer generates the MP3s in speechma. Continue after they say the batches exist; check
-  them with `python3 tool/marketing/voice.py <kit>/batch-N`.
+  them with `python3 tool/marketing/voice.py <kit>/batch-N --words`, which writes the word times that captions
+  and drawings follow. Prefer captions in the spoken words, hooks above all; a sentence not worth reading stays voice only.
 
 ## 5. Render
 

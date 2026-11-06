@@ -13,6 +13,9 @@ live in [`docs/marketing/`](../../docs/marketing/README.md); the look is in
 - For videos: `ffmpeg` and `ffprobe` on `PATH` (`brew install ffmpeg`, `winget install Gyan.FFmpeg`).
   No libass or drawtext needed: captions are rendered by Chrome.
 - For Shorts that set `motion`: Node.js 22+, then `npm ci --prefix tool/marketing` (see Motion).
+- To time captions to a new voice take: `brew install whisper-cpp` and the model, once per machine:
+  `curl -L --create-dirs -o ~/.cache/whisper/ggml-small.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en.bin`.
+  A build only reads the tracked `.words.json`, so it needs neither.
 - For the `web` part: `img2webp` and `cwebp` from libwebp on `PATH` (`brew install webp`; Windows: [libwebp downloads](https://developers.google.com/speed/webp/download)).
 
 ## `build_kit.py`
@@ -192,6 +195,7 @@ and drops the slates. Check a new batch before using it:
 
 ```
 python tool/marketing/voice.py 03_features/batch-2    # every take and paragraph with its times
+python tool/marketing/voice.py 06_v1.7.0/batch-3 --words   # and when each word starts: writes batch-3.words.json
 ```
 
 A Short's `voice` lists its `lines`: `batch-2#10` is take 10, `batch-2#10.3` its third paragraph,

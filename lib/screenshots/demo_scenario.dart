@@ -6,6 +6,8 @@
 /// flow starts; without the marker the app seeds [DemoScenario.full].
 library;
 
+import 'sample_date_shift.dart';
+
 typedef _Json = Map<String, dynamic>;
 
 const String _hightowerId = '93f93d45-3a56-43ae-8936-5cfcbd768c9b';
@@ -69,7 +71,34 @@ enum DemoScenario {
   /// The Hightower alone with four setups that differ at a glance, the newest
   /// three fork values away from the one that felt right, and no rides or tasks
   /// between them in the history.
-  restore('restore');
+  restore('restore'),
+
+  /// The Hightower alone, its newest setup with rebound on 9, so the next setup
+  /// starts from every value and changes one.
+  oneClick('one_click'),
+
+  /// The Grizl alone with the same loop three times: dry, wet, dry again, only
+  /// the tire pressures changing.
+  wetDry('wet_dry'),
+
+  /// The Hightower and the Session with their parts and rides, and the
+  /// installation timeline on: the pedals moved across and back.
+  partKm('part_km'),
+
+  /// The Hightower with four setups that change only the rebound, and rides
+  /// between them that are easy to count per value.
+  ridesPerValue('rides_per_value'),
+
+  /// "Fork lowers service" with 14 of its 50 riding hours left, on a bike ridden
+  /// about once a week.
+  forecastWeekly('forecast_weekly'),
+
+  /// [forecastWeekly] after two more rides this week: 10 of the 50 h left, and a
+  /// faster pace.
+  forecastMore('forecast_more'),
+
+  /// [forecastWeekly], ridden every three days.
+  forecastOften('forecast_often');
 
   const DemoScenario(this.id);
 
@@ -84,7 +113,7 @@ enum DemoScenario {
   /// Preferences written over `ScreenshotSeed.settings`.
   Map<String, Object> get settings => switch (this) {
     tags => const {'enableSetupTags': true, 'enableTaskTags': true},
-    swap => const {'enableInstallationTimeline': true},
+    swap || partKm => const {'enableInstallationTimeline': true},
     _ => const {},
   };
 
@@ -120,6 +149,13 @@ enum DemoScenario {
     serviceLoopAfter => _serviceLoop(json, due: true),
     dialStyle => _withDefaultDials(json, _lyrikId),
     restore => _withRestoreHistory(json),
+    oneClick => _oneClick(json),
+    wetDry => _wetDry(json),
+    partKm => _partKm(json),
+    ridesPerValue => _ridesPerValue(json),
+    forecastWeekly => _forecast(json, gapDays: 7),
+    forecastMore => _forecast(json, gapDays: 7, idleDays: 2, moreRides: 2),
+    forecastOften => _forecast(json, gapDays: 3),
   };
 }
 
@@ -141,6 +177,15 @@ const String _finaleSetupId = 'aef06f55-8000-42f0-b9e9-d6d71ec2716b';
 const String _anglesetSetupId = '2e44d8eb-2141-4845-9b53-6ef7d3c17bc1';
 // Clicks count from closed: fewer LSC clicks are firmer, more rebound clicks are faster.
 const _restoreChange = {_lyrikPressureId: 88, _lyrikLscId: 6, _lyrikReboundId: 11};
+
+const String _backToNeutralSetupId = '7bd910e8-e09f-4168-9217-e0583bbbdcdd';
+const String _endOfMaySetupId = '50d59709-8863-40e0-8671-6cf4f0f3bc05';
+
+const String _kaiserstuhlSetupId = '9c622baf-c14c-4631-b0a2-3d3ab01c6696';
+const String _grizlFrontPressureId = 'e8bf4053-f593-4d05-a539-0e8a84e3ca3d';
+const String _grizlRearPressureId = 'ee796534-cfd8-4d89-9f81-2b31396746a2';
+
+const String _sessionId = '5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a';
 
 const String _hightowerGearId = 'b18168107';
 const String _forkLowersRuleId = '340ef012-fb70-40d6-889e-02ac62dd6699';
@@ -340,6 +385,135 @@ _Json _withRestoreHistory(_Json json) {
       },
     ],
   };
+}
+
+_Json _oneClick(_Json json) {
+  final hightower = _dropBikes(json, _ids(json, 'bikes').difference({_hightowerId}));
+  return _dropSetups(
+    _where(_dropTaskRules(hightower, _ids(hightower, 'taskRules')), 'stravaActivities', (_) => false),
+    (s) => const {_anglesetSetupId, _backToNeutralSetupId}.contains(s['id']),
+  );
+}
+
+/// The Kaiserstuhl setup as three rides of one loop, a week apart: the same place,
+/// and the tire pressures and the ground the only things that differ.
+_Json _wetDry(_Json json) {
+  final grizl = _dropBikes(json, _ids(json, 'bikes').difference({_grizlId}));
+  final base = _list(grizl, 'setups').firstWhere((s) => s['id'] == _kaiserstuhlSetupId);
+  _Json ride(String id, String name, int daysAfter, double front, double rear, double soilMoisture, double dayRain, double temperature) {
+    String moved(String key, _Json source) =>
+        DateTime.parse(source[key] as String).add(Duration(days: daysAfter)).toIso8601String();
+    final weather = base['weather'] as _Json;
+    final datetime = moved('datetime', base);
+    return {
+      ...base,
+      'id': id,
+      'name': name,
+      'notes': null,
+      'tags': const <String>[],
+      'datetime': datetime,
+      'lastModified': datetime,
+      'datetimeLocal': moved('datetimeLocal', base),
+      'bikeAdjustmentValues': {
+        ...base['bikeAdjustmentValues'] as _Json,
+        _grizlFrontPressureId: front,
+        _grizlRearPressureId: rear,
+      },
+      'weather': {
+        ...weather,
+        'currentDateTime': moved('currentDateTime', weather),
+        'currentTemperature': temperature,
+        'currentSoilMoisture0to7cm': soilMoisture,
+        'dayAccumulatedPrecipitation': dayRain,
+        'currentWeatherCode': dayRain > 0 ? 61 : 1,
+        'condition': soilMoisture < 0.1 ? 'Condition.dry' : 'Condition.wet',
+      },
+    };
+  }
+
+  return {
+    ..._where(_dropTaskRules(grizl, _ids(grizl, 'taskRules')), 'stravaActivities', (_) => false),
+    'setups': [
+      ride('1d6e4b70-3c55-4a3e-9d21-6f0a7b8c9d01', 'Kaiserstuhl - dry', -14, 2.6, 2.8, 0.08, 0.0, 14.0),
+      ride('2e7f5c81-4d66-4b4f-8e32-7a1b8c9d0e12', 'Kaiserstuhl - wet', -7, 2.4, 2.6, 0.3, 6.5, 11.0),
+      ride('3f806d92-5e77-4c50-9f43-8b2c9d0e1f23', 'Kaiserstuhl - dry', 0, 2.6, 2.8, 0.08, 0.0, 14.0),
+    ],
+  };
+}
+
+_Json _partKm(_Json json) {
+  final bikes = _dropBikes(json, _ids(json, 'bikes').difference({_hightowerId, _sessionId}));
+  final uninstalled = {
+    for (final component in _list(bikes, 'components'))
+      if (_list(component, 'installations').last['type'] != 'bike') component['id'] as String,
+  };
+  return _dropSetups(_dropComponents(_dropTaskRules(bikes, _ids(bikes, 'taskRules')), uninstalled), (_) => true);
+}
+
+/// Four setups differing in the Lyrik's rebound only, with 3 rides on 8 clicks, 7
+/// on 9 (the newest setup's value) and 4 on 10.
+_Json _ridesPerValue(_Json json) {
+  final hightower = _dropBikes(json, _ids(json, 'bikes').difference({_hightowerId}));
+  final result = _dropTaskRules(hightower, _ids(hightower, 'taskRules'));
+  final setups = _list(result, 'setups');
+  _Json setup(String id) => setups.firstWhere((s) => s['id'] == id);
+  final values = setup(_endOfMaySetupId)['bikeAdjustmentValues'] as _Json;
+  final windows = [(_strombergSetupId, 8, 3), (_lacBlancSetupId, 9, 4), (_endOfMaySetupId, 10, 4), (_backToNeutralSetupId, 9, 3)];
+  var withRides = _where(result, 'stravaActivities', (_) => false);
+  for (final (i, (id, _, count)) in windows.indexed) {
+    final from = DateTime.parse(setup(id)['datetime'] as String).add(const Duration(days: 1));
+    final to = i + 1 < windows.length
+        ? DateTime.parse(setup(windows[i + 1].$1)['datetime'] as String).subtract(const Duration(days: 1))
+        : from.add(const Duration(days: 9));
+    withRides = _addHightowerRides(
+      withRides,
+      from: from,
+      to: to,
+      movingTimes: List.filled(count, 5400),
+      firstId: 18300000001 + i * 100,
+    );
+  }
+  return {
+    ...withRides,
+    'setups': [
+      for (final (id, rebound, _) in windows)
+        {
+          ...setup(id),
+          'notes': null,
+          'bikeAdjustmentValues': {...values, _lyrikReboundId: rebound},
+        },
+    ],
+  };
+}
+
+/// 18 rides of 2 h since the last fork service, the newest [idleDays] before the
+/// sample's last day and each [gapDays] apart: 36 of the 50 h, and the forecast's
+/// sample of 10 rides at the pace the Short names. [moreRides] then follow, one a
+/// day up to the last day.
+_Json _forecast(_Json json, {required int gapDays, int idleDays = 0, int moreRides = 0}) {
+  final lastDay = newestSampleDate(json)!;
+  final hightower = _dropBikes(json, _ids(json, 'bikes').difference({_hightowerId}));
+  var result = _dropTaskRules(hightower, _ids(hightower, 'taskRules').difference({_forkLowersRuleId}));
+  result = _where(result, 'taskEntries', (e) => !_recentForkServiceIds.contains(e['id']));
+  final newest = lastDay.subtract(Duration(days: idleDays));
+  final rides = _addHightowerRides(
+    _dropSetups(
+      _where(result, 'stravaActivities', (_) => false),
+      (s) => const {_anglesetSetupId, _backToNeutralSetupId}.contains(s['id']),
+    ),
+    from: newest.subtract(Duration(days: 17 * gapDays)),
+    to: newest,
+    movingTimes: List.filled(18, 7200),
+    firstId: 18400000001,
+  );
+  if (moreRides == 0) return rides;
+  return _addHightowerRides(
+    rides,
+    from: lastDay.subtract(Duration(days: moreRides - 1)),
+    to: lastDay,
+    movingTimes: List.filled(moreRides, 7200),
+    firstId: 18400000101,
+  );
 }
 
 /// Resets the color and size of [componentId]'s dials to the defaults.

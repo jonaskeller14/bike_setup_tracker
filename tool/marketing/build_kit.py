@@ -253,12 +253,12 @@ class Kit:
             raise SystemExit(f"short '{name}': motion compositions use the iPhone frame; remove the kit's device.")
         page = MOTION / short["motion"]
         clips = [self.clip(clip_name) for clip_name in short["clips"]]
-        if short["motion"] != STANDARD_MOTION:
-            lines, _ = self.voiceover(name, short, rv.motion_length(page))
-            return page, clips[0][0], None, lines
-        offsets = [sum(length - rv.JOIN_FADE for _, _, length in clips[:i]) for i in range(len(clips))]
         joined = self.work / "shorts" / name / "joined.mp4"
         length = rv.join([clip for clip, _, _ in clips], joined)
+        if short["motion"] != STANDARD_MOTION:
+            lines, _ = self.voiceover(name, short, rv.motion_length(page))
+            return page, joined, {"VOICE": self.voice_json(short, lines)}, lines
+        offsets = [sum(length - rv.JOIN_FADE for _, _, length in clips[:i]) for i in range(len(clips))]
         lines, captions = self.voiceover(name, short, length)
         if captions is None:
             captions = [(offset + start, offset + end, layer["caption"])
@@ -266,8 +266,19 @@ class Kit:
                         for start, end, layer in self.caption_layers(edit, clip_length, short.get("hook") if i == 0 else None)]
         lifts = [(offset + start, offset + end, rect)
                  for (_, edit, _), offset in zip(clips, offsets) for start, end, rect in edit.callout_spans("lift")]
-        fill = rv.standard_motion_fill(self.chrome, SHORT[0], size, self.params(), joined, captions, lifts)
+        spec_captions = short.get("voice", {}).get("captions") or [None]
+        said = [i for i, text in enumerate(spec_captions) if text or (i == 0 and short.get("hook"))] if lines else []
+        fill = rv.standard_motion_fill(self.chrome, SHORT[0], size, self.params(), joined, captions, lifts, said)
+        fill["VOICE"] = self.voice_json(short, lines)
         return page, joined, fill, lines
+
+    def voice_json(self, short, lines):
+        """window.VOICE of a composition: when each voice line starts and each of its words, in Short seconds."""
+        if not lines:
+            return "null"
+        words = self._voice.words(short["voice"]["lines"])
+        return json.dumps([{"at": round(at, 3), "words": line and [[word, round(at + offset, 3)] for word, offset in line]}
+                           for (_, _, _, at), line in zip(lines, words)], ensure_ascii=False)
 
     def build_motion_short(self, name, short, size, card):
         """A Short whose whole picture comes from a Hyperframes composition; audio and end card as usual."""

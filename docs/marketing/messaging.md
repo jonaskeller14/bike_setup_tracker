@@ -55,7 +55,7 @@ build.
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
   never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
-- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R20, C5–C8, S4–S8, D4, D5) open Shorts and
+- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R22, C5–C10, S4–S9, D4, D5) open Shorts and
   posts; store assets use statements.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
@@ -89,6 +89,8 @@ German riders, not translated word for word.
 | R18 | You changed your fork settings. But you liked it better before? | Du hast deine Gabel verstellt. Aber vorher war es besser? |
 | R19 | Rebound, Zugstufe or détente: what do you call it? | Rebound, Zugstufe oder Détente: Wie sagst du dazu? |
 | R20 | What language are you speaking? | Welche Sprache sprichst du? |
+| R21 | You moved your pedals to another bike. Who gets the kilometers? | Du hast deine Pedale ans andere Bike geschraubt. Wer bekommt die Kilometer? |
+| R22 | Writing down every fork click sounds like too much work? | Jeden Gabel-Klick aufschreiben klingt nach zu viel Arbeit? |
 
 ### C — See what changed
 
@@ -102,6 +104,8 @@ German riders, not translated word for word.
 | C6 | How did your fork setup change this season? | Wie hat sich dein Gabel-Setup diese Saison verändert? |
 | C7 | What did you change on your bike before that ride? | Was hast du vor der Ausfahrt an deinem Bike geändert? |
 | C8 | Which tire pressure have you ridden the most? | Mit welchem Reifendruck bist du am meisten gefahren? |
+| C9 | How many rides have you done on nine clicks of rebound? | Wie viele Ausfahrten hast du mit neun Klicks Zugstufe gemacht? |
+| C10 | What tire pressure did you ride when it was wet? | Welchen Reifendruck bist du bei Nässe gefahren? |
 
 ### S — Service on time
 
@@ -115,6 +119,7 @@ German riders, not translated word for word.
 | S6 | How many km has your chain done? | Wie viele Kilometer hat deine Kette schon? |
 | S7 | How often does your fork need a lower leg service? | Wie oft braucht deine Gabel einen Lower-Leg-Service? |
 | S8 | Off-season: what's due on your fork? | Winterpause: Was ist an deiner Gabel fällig? |
+| S9 | When is your next fork service due? | Wann ist dein nächster Gabel-Service fällig? |
 
 ### D — Your data stays yours
 

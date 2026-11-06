@@ -1,0 +1,205 @@
+<!doctype html>
+<!--
+  The "part-km" Short of kit 06_v1.7.0: a Hyperframes composition (README.md), 27.5 s before the end card.
+  Words and drawings follow the voice (window.VOICE, batch-3 clip 5); the kit's voice.at sets the lines.
+
+    0.0  the hook in two beats
+    4.6  the Hightower's parts as the app's icons, the pedals in ink: one part of many
+   10.8  ten rides on two bikes, a bar per ride, its height the km
+   13.1  the pedals' line: Hightower, Session for a few days, back
+   16.4  nine rides turn ink; a box on the one that doesn't count
+   20.8  the phone: the pedals in the garage, 193 km, the History
+
+  Rides of the sample's May (day, km). Hightower: 1 24, 5 21, 13 16, 21 20, 23 28, 24 24, 31 23. Session: 3 18, 16 15,
+  17 22. The pedals move on the 15th and back on the 20th, so all count but the Session's on the 3rd: 193 km, pinned in
+  test/screenshots/demo_scenario_test.dart. Recording (demo_part_km, scenario part_km): details from 4.1 s, the stats pager
+  at 7.4 s, History open from 14.7 s. The cut starts at Short second 20.75.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, height=1920">
+<link rel="stylesheet" href="assets/marketing.css">
+<link rel="stylesheet" href="assets/motion.css">
+<script src="assets/gsap.min.js"></script>
+<script>window.VOICE = {{VOICE}};</script>
+<script src="assets/motion.js"></script>
+<style>
+  .scene { position: absolute; left: 60px; z-index: 3; }
+  #hook { top: 300px; width: 860px; font-size: 128px; }
+
+  /* Keeps the caption readable when the camera pushes the phone up behind it. */
+  #band { position: absolute; inset: 0 0 auto 0; height: 456px; background: var(--paper); z-index: 2; }
+  .caption { top: 244px; width: 960px; height: 200px; font-size: 96px; }
+
+  #move { left: 190px; top: 470px; width: 700px; height: 1429px; }
+  #move .phone { --pw: 700; }
+  /* In recording pixels, inside the phone's screen. */
+  .box { position: absolute; border: 10px solid var(--ink); }
+
+  #hook-1, #hook-2 { position: absolute; left: 60px; width: 860px; font-size: 128px; z-index: 3; }
+  #hook-1 { top: 300px; }
+  #hook-2 { top: 800px; }
+
+  #parts { top: 700px; width: 850px; display: grid; grid-template-columns: repeat(5, 150px); gap: 25px; }
+  .tile { width: 150px; height: 150px; border: 3px solid var(--muted); color: var(--muted); font: 92px/150px 'BikeIcons'; text-align: center; box-sizing: border-box; line-height: 144px; }
+  .tile.pedal { border: 6px solid var(--ink); color: var(--ink); }
+
+  #timeline { top: 0; left: 0; width: 1080px; height: 1920px; }
+  .bike { position: absolute; left: 60px; font-size: 32px; }
+  .base { position: absolute; left: 60px; width: 840px; border-top: 4px solid var(--ink); }
+  .bar { position: absolute; width: 16px; background: var(--ink); transform-origin: center bottom; }
+  .way { position: absolute; background: var(--ink); }
+  #skip { position: absolute; border: 6px solid var(--ink); }
+  #way-icon { position: absolute; left: 60px; top: 915px; font: 64px/1 'BikeIcons'; color: var(--ink); }
+
+  #pedal-box { left: 410px; top: 950px; width: 165px; height: 160px; }
+  #km-box { left: 120px; top: 396px; width: 240px; height: 205px; }
+  #history-box { left: 40px; top: 1060px; width: 1240px; height: 540px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="27.5" data-width="1080" data-height="1920">
+  <div id="top">
+    <div class="brand" data-decor>
+      <img src="assets/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="rule"></div>
+  </div>
+
+  <h1 id="hook-1" class="hl" data-words>You moved your <em>pedals</em> to another bike.</h1>
+  <h1 id="hook-2" class="hl" data-words>Who gets the kilometers?</h1>
+
+  <div id="parts" class="scene">
+    <div class="tile">&#xe900;</div>
+    <div class="tile">&#xe904;</div>
+    <div class="tile">&#xe90e;</div>
+    <div class="tile">&#xe90e;</div>
+    <div class="tile">&#xe908;</div>
+    <div class="tile">&#xe909;</div>
+    <div class="tile">&#xe911;</div>
+    <div class="tile">&#xe911;</div>
+    <div class="tile">&#xe910;</div>
+    <div class="tile pedal">&#xe90a;</div>
+  </div>
+
+  <div id="timeline" class="scene">
+    <div class="bike meta" style="top: 610px">Santa Cruz Hightower</div>
+    <div class="base" style="top: 860px"></div>
+    <div class="bike meta" style="top: 1020px">Trek Session 9</div>
+    <div class="base" style="top: 1260px"></div>
+    <div id="bars"></div>
+    <div id="way-1" class="way"></div>
+    <div id="way-2" class="way"></div>
+    <div id="way-3" class="way"></div>
+    <div id="way-4" class="way"></div>
+    <div id="way-5" class="way"></div>
+    <div id="way-icon">&#xe90a;</div>
+    <div id="skip"></div>
+  </div>
+
+  <div id="band"></div>
+  <h1 id="c-part" class="caption hl" data-words>Every part <em>counts for itself</em></h1>
+  <h1 id="c-ride" class="caption hl" data-words>Every ride goes to the parts on the bike <em>when it started</em></h1>
+  <h1 id="c-ten" class="caption hl" data-words><em>Ten rides</em> on two bikes</h1>
+  <h1 id="c-pedals" class="caption hl" data-words>The pedals went over <em>for a few days,</em> then back</h1>
+  <h1 id="c-count" class="caption hl" data-words>Nine rides count. <em>One doesn't</em></h1>
+  <h1 id="c-km" class="caption hl" data-words>193 kilometers, <em>on the pedals alone</em></h1>
+  <h1 id="c-history" class="caption hl" data-words>Their <em>history</em> shows where they've been</h1>
+
+  <div id="move">
+    <div class="phone">
+      <div class="screen">
+        <video id="recording" class="clip" src="assets/recording.mp4" muted playsinline data-start="20.75" data-duration="6.75" data-track-index="1"></video>
+        <div id="pedal-box" class="box"></div>
+        <div id="km-box" class="box"></div>
+        <div id="history-box" class="box"></div>
+      </div>
+      <img class="frame" src="assets/frame.png" alt="">
+    </div>
+  </div>
+</div>
+<script>
+  const { tl, words, leave, say, when, finish } = Motion.create();
+  const at = (line) => window.VOICE[line].at;
+
+  const x = (day) => 60 + (day - 1) / 30 * 824;
+  const hightower = 860;
+  const session = 1260;
+  const rides = [[1, 24, hightower], [3, 18, session], [5, 21, hightower], [13, 16, hightower], [16, 15, session], [17, 22, session], [21, 20, hightower], [23, 28, hightower], [24, 24, hightower], [31, 23, hightower]];
+  const bars = rides.map(([day, km, base]) => {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    Object.assign(bar.style, { left: x(day) + 'px', top: base - km * 7 + 'px', height: km * 7 + 'px' });
+    document.getElementById('bars').appendChild(bar);
+    return bar;
+  });
+  const onWay = 34;
+  const line = (id, left, top, width, height) => Object.assign(document.getElementById(id).style, { left: left + 'px', top: top + 'px', width: width + 'px', height: height + 'px' });
+  line('way-1', x(1), hightower + onWay, x(15) - x(1), 12);
+  line('way-2', x(15), hightower + onWay, 12, session - hightower);
+  line('way-3', x(15), session + onWay, x(20) - x(15) + 12, 12);
+  line('way-4', x(20), hightower + onWay, 12, session - hightower);
+  line('way-5', x(20), hightower + onWay, x(31) - x(20) + 16, 12);
+  line('skip', x(3) - 22, session - 18 * 7 - 22, 60, 18 * 7 + 44);
+
+  gsap.set(['#parts', '#timeline', '#band', '.box', '#skip', '#way-1', '#way-2', '#way-3', '#way-4', '#way-5', '#way-icon'], { autoAlpha: 0 });
+  gsap.set('#move', { y: 1500 });
+
+  say('#hook-1', 0, undefined, 0);
+  say('#hook-2', 1);
+  leave(['#hook-1', '#hook-2'], at(2) - .2);
+
+  say('#c-part', 2, at(3) - .1);
+  tl.set('#parts', { autoAlpha: 1 }, at(2));
+  document.querySelectorAll('.tile').forEach((tile, i) => tl.fromTo(tile, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .16, ease: 'power3.out' }, at(2) + i * .05));
+
+  say('#c-ride', 3, at(4) - .1);
+  // When the ride starts, every part on the bike counts it, not just the one that matters here.
+  document.querySelectorAll('.tile').forEach((tile) => tl.to(tile, { color: '#0A0A0A', borderColor: '#0A0A0A', duration: .2 }, when(3, 'started')));
+  leave('#parts', at(4) - .2);
+
+  say('#c-ten', 4, at(5) - .1);
+  tl.set('#timeline', { autoAlpha: 1 }, at(4));
+  bars.forEach((bar, i) => tl.fromTo(bar, { scaleY: 0 }, { scaleY: 1, duration: .2, ease: 'power2.out' }, at(4) + .1 + i * .14));
+
+  say('#c-pedals', 5, at(6) - .1);
+  tl.to(bars, { opacity: .25, duration: .25 }, at(5));
+  const show = (id, t) => tl.set(id, { autoAlpha: 1 }, t);
+  const draw = (id, t, duration) => {
+    show(id, t);
+    tl.fromTo(id, { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration, ease: 'none' }, t);
+  };
+  show('#way-icon', at(5));
+  draw('#way-1', at(5), .5);
+  tl.fromTo('#way-2', { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .3, ease: 'none', immediateRender: false }, when(5, 'went'));
+  show('#way-2', when(5, 'went'));
+  draw('#way-3', when(5, 'over'), .4);
+  tl.fromTo('#way-4', { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .3, ease: 'none', immediateRender: false }, when(5, 'then'));
+  show('#way-4', when(5, 'then'));
+  draw('#way-5', when(5, 'back'), .5);
+
+  say('#c-count', 6, at(7) - .25);
+  bars.forEach((bar, i) => { if (i !== 1) tl.to(bar, { opacity: 1, duration: .15 }, when(6, 'nine') + i * .05); });
+  show('#skip', when(6, 'one'));
+  leave('#timeline', at(7) - .75);
+
+  tl.set('#band', { autoAlpha: 1 }, 20.75);
+  tl.to('#move', { y: 0, duration: .4, ease: 'power3.out' }, 20.75);
+  tl.set('#pedal-box', { autoAlpha: 1 }, 21.0);
+  tl.set('#pedal-box', { autoAlpha: 0 }, 21.55);
+
+  tl.set('#c-km', { autoAlpha: 1 }, at(7));
+  tl.set('#c-km', { autoAlpha: 0 }, at(8) - .1);
+  words('#c-km', [when(7, 'hundred'), when(7, 'kilometers'), when(7, 'on'), when(7, 'the'), when(7, 'pedals'), when(7, 'alone')]);
+  tl.set('#km-box', { autoAlpha: 1 }, 21.9);
+  tl.set('#km-box', { autoAlpha: 0 }, 24.4);
+
+  say('#c-history', 8);
+  tl.set('#history-box', { autoAlpha: 1 }, 25.35);
+
+  finish();
+</script>
+</body>
+</html>

@@ -26,31 +26,59 @@ const Motion = (() => {
     }
   };
   const element = (target) => (typeof target === 'string' ? document.querySelector(target) : target);
+  const spokenKey = (word) => word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+
+  // When each shown word is said: the next spoken word that matches, in order. A word the voice doesn't
+  // say follows the word before it, so a caption that isn't word for word still reads in one go.
+  const spokenTimes = (words, line, start) => {
+    const said = (window.VOICE && window.VOICE[line] && window.VOICE[line].words) || null;
+    if (!said) return null;
+    let next = 0;
+    let previous = start - WORD_GAP;
+    return words.map((w, i) => {
+      const key = spokenKey(w.textContent);
+      const found = said.findIndex((entry, j) => j >= next && spokenKey(entry[0]) === key);
+      if (found >= 0) next = found + 1;
+      const time = i === 0 && found < 0 ? start : Math.max(found >= 0 ? said[found][1] : previous + WORD_GAP, previous);
+      previous = time;
+      return time;
+    });
+  };
 
   const create = () => {
     document.querySelectorAll('[data-words]').forEach(splitWords);
     gsap.set('.caption', { autoAlpha: 0 });
     const tl = gsap.timeline({ paused: true });
     const word = (target, t) => tl.fromTo(target, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .14, ease: 'power3.out' }, t);
+    const caption = (el, start, end) => {
+      const all = [...el.querySelectorAll('.w')];
+      const times = (el.dataset.line !== undefined && spokenTimes(all, Number(el.dataset.line), start))
+        || all.map((_, i) => start + i * WORD_GAP);
+      if (start < .01) {
+        gsap.set(el, { autoAlpha: 1 });
+        all.slice(1).forEach((w, i) => word(w, times[i + 1]));
+      } else {
+        tl.set(el, { autoAlpha: 1 }, start);
+        all.forEach((w, i) => word(w, times[i]));
+      }
+      if (end !== undefined) tl.set(el, { autoAlpha: 0 }, end);
+    };
     return {
       tl,
       word,
       // One start time per word of target, in order.
       words: (target, times) => element(target).querySelectorAll('.w').forEach((w, i) => word(w, times[i])),
-      // Words follow each other WORD_GAP apart. A caption at 0 s has its first word on frame 0, which
-      // is what a feed shows before the Short plays.
-      caption: (target, start, end) => {
+      // Words follow the voice line in data-line, else each other WORD_GAP apart. A caption at 0 s has its
+      // first word on frame 0, which is what a feed shows before the Short plays.
+      caption: (target, start, end) => caption(element(target), start, end),
+      // A caption of voice line `line`, its words as they are said. start: 0 for a hook.
+      say: (target, line, end, start) => {
         const el = element(target);
-        const all = [...el.querySelectorAll('.w')];
-        if (start < .01) {
-          gsap.set(el, { autoAlpha: 1 });
-          all.slice(1).forEach((w, i) => word(w, (i + 1) * WORD_GAP));
-        } else {
-          tl.set(el, { autoAlpha: 1 }, start);
-          all.forEach((w, i) => word(w, start + i * WORD_GAP));
-        }
-        if (end !== undefined) tl.set(el, { autoAlpha: 0 }, end);
+        el.dataset.line = line;
+        caption(el, start === undefined ? window.VOICE[line].at : start, end);
       },
+      // The second a voice line says a word (its nth time), to time a drawing to it.
+      when: (line, spoken, nth = 1) => window.VOICE[line].words.filter((entry) => spokenKey(entry[0]) === spokenKey(spoken))[nth - 1][1],
       leave: (target, t) => {
         tl.to(target, { y: -90, opacity: 0, duration: .16, ease: 'power2.in' }, t);
         tl.set(target, { autoAlpha: 0 }, t + .16);

@@ -10,7 +10,7 @@ cuts, voice, music and the end card stay in `build_kit.py`. The look is in
 
 | `"motion"` | When | Work |
 |---|---|---|
-| `standard.html` | The screen explains itself: brand row, captions word by word, the whole phone, lift callouts | None beyond the kit: filled in from its clips, voice, captions and callouts |
+| `standard.html` | The screen explains itself: brand row, captions word by word, the whole phone, lift callouts | None beyond the kit: filled in from its clips, voice, captions and callouts; with a `.words.json` its captions follow the voice |
 | `<short>.html` | A concept needs explaining before the phone makes sense, or the Short needs a camera move, boxes or an arrow | Hand-written, one file per Short, like [`restore.html`](restore.html) |
 
 Start from `standard.html`. Write a custom one only when the Short needs it. Kits without `"motion"`,
@@ -20,8 +20,8 @@ both; a custom composition draws its own lifts and boxes.
 ## Writing a custom one
 
 1. Record the flow and get the voice first (`/marketingkit`). Times come from the MP3 and the recording.
-2. Read the line times: `python3 tool/marketing/voice.py <kit>/batch-N`. Set the kit's `voice.at` with gaps
-   of about 0.3 s, shorter than the take's pauses.
+2. Read the line and word times: `python3 tool/marketing/voice.py <kit>/batch-N --words`, which also writes the
+   tracked `batch-N.words.json`. Set the kit's `voice.at` with gaps of about 0.3 s, shorter than the take's pauses.
 3. Sample the recording on the cut's timeline: `-vf "fps=30,trim=A:B,setpts=PTS-STARTPTS,fps=10,…"`.
    Input seeking is about a second off on these recordings. Then choose `segments` so each tap lands on the
    word that names it.
@@ -35,6 +35,13 @@ both; a custom composition draws its own lifts and boxes.
 
 - Load `marketing.css`, `motion.css`, `gsap.min.js` and `motion.js` from `assets/`. `Motion.create()` gives
   `tl`, `word`, `words`, `caption`, `leave` and `finish`; call `finish()` last.
+- For words in sync with the voice, add `<script>window.VOICE = {{VOICE}};</script>` before `motion.js`. Then
+  `say(target, line, end, start)` shows a caption's words as voice line `line` says them (`start: 0` for a hook, whose
+  first word sits on frame 0), and `when(line, word, nth)` gives the second a word is said, to time a drawing to it.
+  Times then follow the kit's `voice.at`, so they don't need rewriting.
+- A caption's words match the voice line in order; a word the voice doesn't say follows the one before it. Use the
+  spoken words where they're short enough, especially in hooks. A sentence not worth reading stays voice only.
+- A Short with several clips joins them with a crossfade into the one `recording.mp4`.
 - One paused timeline, and everything visible depends only on its time: no `Date.now()`, timers, unseeded
   `Math.random()`, network or `repeat: -1`. Finite repeats are fine.
 - Animate transforms and opacity, never `left`, `top`, `width` or `height`, and don't put a CSS `transform`
@@ -56,5 +63,7 @@ both; a custom composition draws its own lifts and boxes.
   `s = pw / 1470 × camera scale`. Inside `.screen`, boxes use recording pixels directly and follow the phone.
 - **Keep the moves few.** Show the real screen instead of a drawn copy: a list of names without context
   confused viewers. Boxes on the real tiles and one arrow said it better than camera pans.
+- **Hold the payoff.** Leave at least 0.6 s after a value lands before the scene leaves: 9→10 for 0.35 s read as a flicker.
+- **A word's sync shows the gap before it.** A caption that starts on a word said late sits empty until then. Keep the line's first words in it.
 - **Write for the ear.** A take trails off at the end of a long line; a short clause there gets lost.
 - **Check every direction a line claims.** Clicks count from closed: fewer compression clicks are firmer.

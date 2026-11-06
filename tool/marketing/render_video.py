@@ -377,6 +377,7 @@ def motion_project(page, clip, work, fill=None):
                          (root / "tool/marketing/node_modules/gsap/dist/gsap.min.js", "gsap.min.js")):
         shutil.copy(source, assets / name)
     shutil.copytree(root / "tool/marketing/assets/fonts", assets / "fonts")
+    shutil.copy(root / "assets/fonts/BikeIcons.ttf", assets / "fonts" / "BikeIcons.ttf")
 
 
 def motion_problems(chrome, work, size):
@@ -406,10 +407,10 @@ def motion_markup(text):
     return re.sub(r"\*([^*]+)\*", r"<em>\1</em>", escaped)
 
 
-def standard_motion_fill(chrome, template, size, params, clip, captions, lifts):
+def standard_motion_fill(chrome, template, size, params, clip, captions, lifts, said=()):
     """The {{…}} of motion/standard.html. captions: (start, end, text); lifts: (start, end, rect), in
-    Short seconds and recording pixels. Each caption goes through the layout's own template, so its
-    size and the safe-area check are the same as on a still."""
+    Short seconds and recording pixels; said: per caption, the voice line it shows, if any. Each caption
+    goes through the layout's own template, so its size and the safe-area check are the same as on a still."""
     length = duration(clip)
     rows = []
     for i, (start, end, text) in enumerate(captions):
@@ -424,7 +425,8 @@ def standard_motion_fill(chrome, template, size, params, clip, captions, lifts):
             raise RuntimeError("; ".join(problems))
         tag = re.search(r'<h1[^>]*\bcaption\b[^>]*>', dom)[0]
         fitted = re.search(r'font-size:\s*([0-9.]+)px', tag)
-        rows.append(f'  <h1 class="caption hl" data-words data-from="{start:.3f}" data-to="{end:.3f}" '
+        line = f'data-line="{said[i]}" ' if i < len(said) else ""
+        rows.append(f'  <h1 class="caption hl" data-words {line}data-from="{start:.3f}" data-to="{end:.3f}" '
                     f'style="font-size: {fitted[1] if fitted else CAPTION_SIZE}px">{motion_markup(text)}</h1>')
     # The phone's place in video_9x16.html.
     frame_scale = 620 / 1470

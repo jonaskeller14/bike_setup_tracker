@@ -1,0 +1,35 @@
+# scenario: forecast_more
+# Demo: the weekly rider's fork service after two more rides this week: the prediction
+# moves from Dec 21 to about four weeks out. One swipe stops on the same month as
+# demo_forecast_weekly, although the entry also shows in November's last row, so the
+# entry jumps at the crossfade while the calendar stays put. A tap on it would miss:
+# its text's bounds are the whole grid. Timed to the voiceover (06_v1.7.0, clip 8).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: setups.calendar
+- extendedWaitUntil:
+    visible:
+      id: calendar.today
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 3000
+- startRecording: demo_forecast_more
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- swipe:
+    start: 85%, 55%
+    end: 15%, 55%
+    duration: 600
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- assertVisible: "Fork.*"
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 6000

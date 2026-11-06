@@ -1,0 +1,150 @@
+<!doctype html>
+<!--
+  The "one-click" Short of kit 06_v1.7.0: a Hyperframes composition (README.md), 27.9 s before the end card.
+  Words and drawings follow the voice (window.VOICE, batch-4 clip 9); the kit's voice.at sets the lines.
+
+    0.0  the hook, word by word
+    4.9  the 17 values of the Hightower's newest setup, all typed out
+    7.7  only rebound stays, 9 to 10
+   10.25 the phone: a new setup, filled in; a box on place and weather
+   18.3  the tap: rebound 9 to 10 as the voice says ten, with a push onto the row
+   19.5  saved: the box on the only change in the history
+   24.0  "open it up": the tile expands, a push onto all 17 values
+
+  Recording (demo_one_click, scenario one_click): Add Setup tapped at 2.3 s, the form at 2.9 s, place and weather
+  by 4.4 s, the tap on rebound lands at about 7.1 s, Save at 17.4 s, the history from 17.9 s, the tap on the arrow at
+  22.2 s. The cut starts at Short second 10.25.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, height=1920">
+<link rel="stylesheet" href="assets/marketing.css">
+<link rel="stylesheet" href="assets/motion.css">
+<script src="assets/gsap.min.js"></script>
+<script>window.VOICE = {{VOICE}};</script>
+<script src="assets/motion.js"></script>
+<style>
+  .scene { position: absolute; left: 60px; z-index: 3; }
+  #hook { top: 300px; width: 860px; font-size: 128px; }
+
+  #vals { top: 484px; width: 840px; display: grid; grid-template-columns: 400px 400px; grid-auto-flow: column; grid-template-rows: repeat(9, 90px); column-gap: 40px; }
+  .v { border-top: 2px solid var(--ink); padding-top: 8px; white-space: nowrap; }
+  .v .meta { font-size: 28px; }
+  .v .num { font-size: 46px; line-height: 1; margin-top: 4px; }
+  #after { display: inline-block; }
+
+  /* Keeps the caption readable when the camera pushes the phone up behind it. */
+  #band { position: absolute; inset: 0 0 auto 0; height: 456px; background: var(--paper); z-index: 2; }
+  .caption { top: 244px; width: 960px; height: 200px; font-size: 96px; }
+
+  #move { left: 190px; top: 470px; width: 700px; height: 1429px; }
+  #move .phone { --pw: 700; }
+  /* In recording pixels, inside the phone's screen. */
+  .box { position: absolute; border: 10px solid var(--ink); }
+  #chips { left: 30px; top: 866px; width: 1250px; height: 282px; }
+  #row { left: 30px; top: 2430px; width: 1260px; height: 290px; }
+  #tile { left: 14px; top: 640px; width: 1292px; height: 490px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="27.9" data-width="1080" data-height="1920">
+  <div id="top">
+    <div class="brand" data-decor>
+      <img src="assets/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="rule"></div>
+  </div>
+
+  <h1 id="hook" class="scene hl" data-words>Writing down every <em>fork click</em> sounds like too much work?</h1>
+
+  <div id="vals" class="scene">
+    <div class="v"><div class="meta muted">Fork pressure</div><div class="num">84 psi</div></div>
+    <div class="v"><div class="meta muted">Fork tokens</div><div class="num">3</div></div>
+    <div class="v"><div class="meta muted">Fork LSC</div><div class="num">7</div></div>
+    <div class="v"><div class="meta muted">Fork HSC</div><div class="num">2</div></div>
+    <div class="v" id="rebound"><div class="meta">Fork rebound</div><div class="num">9<span id="after">→<span class="new">10</span></span></div></div>
+    <div class="v"><div class="meta muted">Shock pressure</div><div class="num">192 psi</div></div>
+    <div class="v"><div class="meta muted">Shock tokens</div><div class="num">1</div></div>
+    <div class="v"><div class="meta muted">Shock LSC</div><div class="num">4</div></div>
+    <div class="v"><div class="meta muted">Shock rebound</div><div class="num">8</div></div>
+    <div class="v"><div class="meta muted">Shock mode</div><div class="num">Open</div></div>
+    <div class="v"><div class="meta muted">Front tire</div><div class="num">Assegai MaxxGrip</div></div>
+    <div class="v"><div class="meta muted">Front pressure</div><div class="num">1.45 bar</div></div>
+    <div class="v"><div class="meta muted">Rear tire</div><div class="num">Minion DHR II</div></div>
+    <div class="v"><div class="meta muted">Rear pressure</div><div class="num">1.6 bar</div></div>
+    <div class="v"><div class="meta muted">Rear insert</div><div class="num">Yes</div></div>
+    <div class="v"><div class="meta muted">Bar roll</div><div class="num">4°</div></div>
+    <div class="v"><div class="meta muted">Lever reach</div><div class="num">4</div></div>
+  </div>
+
+  <div id="band"></div>
+  <h1 id="c-count" class="caption hl" data-words>This bike has <em>seventeen</em> values</h1>
+  <h1 id="c-one" class="caption hl" data-words>You only touch the <em>one you changed</em></h1>
+  <h1 id="c-filled" class="caption hl" data-words>A new setup, all of them <em>filled in</em></h1>
+  <h1 id="c-place" class="caption hl" data-words><em>Place and weather</em> on their own</h1>
+  <h1 id="c-rebound" class="caption hl" data-words><em>Rebound,</em> <span class="new">9→10</span></h1>
+  <h1 id="c-change" class="caption hl" data-words>Your history: <em>that one change</em></h1>
+  <h1 id="c-other" class="caption hl" data-words>The other sixteen, <em>still there</em></h1>
+
+  <div id="move">
+    <div class="phone">
+      <div class="screen">
+        <video id="recording" class="clip" src="assets/recording.mp4" muted playsinline data-start="10.25" data-duration="17.65" data-track-index="1"></video>
+        <div id="chips" class="box"></div>
+        <div id="row" class="box"></div>
+        <div id="tile" class="box"></div>
+      </div>
+      <img class="frame" src="assets/frame.png" alt="">
+    </div>
+  </div>
+</div>
+<script>
+  const { tl, words, leave, say, when, finish } = Motion.create();
+  const at = (line) => window.VOICE[line].at;
+
+  gsap.set(['#vals', '#band', '.box'], { autoAlpha: 0 });
+  gsap.set('#after', { autoAlpha: 0 });
+  gsap.set('#move', { y: 1500 });
+
+  say('#hook', 0, undefined, 0);
+  leave('#hook', at(1) - .2);
+
+  say('#c-count', 1, when(1, 'but') - .1);
+  tl.set('#vals', { autoAlpha: 1 }, at(1));
+  document.querySelectorAll('.v').forEach((row, i) => {
+    tl.fromTo(row, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .16, ease: 'power3.out' }, at(1) + .1 + i * .085);
+  });
+
+  say('#c-one', 1, at(2) - .25, when(1, 'but'));
+  document.querySelectorAll('.v:not(#rebound)').forEach((row) => tl.to(row, { opacity: .16, duration: .3, ease: 'power2.out' }, when(1, 'only')));
+  tl.fromTo('#after', { autoAlpha: 0, scale: 1.5, transformOrigin: 'left bottom' }, { autoAlpha: 1, scale: 1, duration: .22, ease: 'back.out(2)' }, when(1, 'changed'));
+  leave('#vals', 10.1);
+
+  tl.set('#band', { autoAlpha: 1 }, 10.25);
+  tl.to('#move', { y: 0, duration: .5, ease: 'power3.out' }, 10.25);
+  say('#c-filled', 2, when(2, 'and') - .1);
+  say('#c-place', 2, when(2, 'so') - .1, when(2, 'and'));
+  tl.set('#chips', { autoAlpha: 1 }, when(2, 'place'));
+  tl.set('#chips', { autoAlpha: 0 }, when(2, 'so') - .1);
+
+  const reboundCaption = document.querySelector('#c-rebound');
+  tl.set(reboundCaption, { autoAlpha: 1 }, when(2, 'so'));
+  tl.set(reboundCaption, { autoAlpha: 0 }, at(3) - .1);
+  words('#c-rebound', [when(2, 'rebound'), when(2, 'nine')]);
+  tl.to('#move', { x: -105, y: -1000, scale: 1.3, duration: .45, ease: 'power3.inOut' }, when(2, 'so') + .1);
+  tl.set('#row', { autoAlpha: 1 }, when(2, 'ten') - .05);
+  tl.set('#row', { autoAlpha: 0 }, 18.75);
+  tl.to('#move', { x: 0, y: 0, scale: 1, duration: .3, ease: 'power3.inOut' }, 18.75);
+
+  say('#c-change', 3, when(3, 'the') - .1);
+  tl.set('#tile', { autoAlpha: 1 }, when(3, 'just'));
+  tl.set('#tile', { autoAlpha: 0 }, when(3, 'open'));
+  tl.to('#move', { y: -210, scale: 1.25, duration: .45, ease: 'power3.inOut' }, when(3, 'open') + .3);
+  say('#c-other', 3, undefined, when(3, 'the'));
+
+  finish();
+</script>
+</body>
+</html>

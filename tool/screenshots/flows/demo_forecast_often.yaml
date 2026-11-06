@@ -1,0 +1,37 @@
+# scenario: forecast_often
+# Demo: where the fork service lands on the calendar at this pace of riding, three weeks
+# out. The prediction's name is record data, so the flow finds it by text; a swipe
+# left pages the month view forward. A tap on it would miss: its text's bounds are the
+# whole grid. Timed to the voiceover (06_v1.7.0, clip 8).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: setups.calendar
+- extendedWaitUntil:
+    visible:
+      id: calendar.today
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 3000
+- startRecording: demo_forecast_often
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- repeat:
+    while:
+      notVisible: "Fork.*"
+    commands:
+      - swipe:
+          start: 85%, 55%
+          end: 15%, 55%
+          duration: 600
+      - runFlow:
+          file: _pause.yaml
+          env:
+            MS: 1000
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 6000

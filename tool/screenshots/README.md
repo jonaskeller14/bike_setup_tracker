@@ -116,6 +116,11 @@ Before each flow, the run scripts delete the marker file `demo_scenario` in the 
 | `tags` | The whole sample with setup and task tags on |
 | `dial_style` | The whole sample with every dial of the Hightower's Lyrik in the default color and size |
 | `restore` | The Hightower with four setups that differ at a glance, the newest three fork values from *Finale Ligure - DH Men*; no rides or tasks in its history |
+| `one_click` | The Hightower without rides or tasks, its newest setup with rebound on 9 |
+| `wet_dry` | The Grizl with one loop three times: dry, wet, dry, only the tire pressures and the ground changing |
+| `part_km` | The Hightower and the Session with their parts and rides, no setups or tasks, the installation timeline on: the pedals moved across and back |
+| `rides_per_value` | The Hightower with four setups that differ in the Lyrik's rebound only, and 14 rides between them |
+| `forecast_weekly`, `forecast_more`, `forecast_often` | The Hightower with *Fork lowers service* at 36 of 50 h, ridden once a week or every three days; `forecast_more` is the weekly rider after two more rides this week, at 40 of 50 h |
 
 Dropping a bike drops everything recorded on it: its components, setups, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
 
@@ -208,6 +213,11 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_dial_style` | `dial_style` | The Lyrik's rebound dial turned red and LSC small, then a new setup showing them |
 | `demo_catalog_brands` | `one_bike_no_components` | The catalog's brands, three of them opened, and a request for a fork that isn't listed |
 | `demo_setup_restore` | `restore` | The Hightower's history, an older setup restored from its tile's menu (pressure, LSC and rebound go back), and the copy saved as the newest setup |
+| `demo_one_click` | `one_click` | A new setup filled in from the last one, rebound 9 → 10 with one tap, saved: the history shows that one change |
+| `demo_wet_dry` | `wet_dry` | The history with the ground per setup, then the comparison: Wet and Dry above the two tire pressures |
+| `demo_part_km` | `part_km` | The garage with the pedals among the parts, their km and rides, and the History of the move |
+| `demo_rides_per_value` | `rides_per_value` | The rides between the setups in the history, then the newest setup's Rebound name with its histogram of rides per value |
+| `demo_forecast_weekly`, `demo_forecast_more`, `demo_forecast_often` | `forecast_*` | The calendar's month view from today to where the fork service's prediction lands at that pace of riding |
 | `demo_language` | `one_bike_no_components` | Settings → Preferences → Language, the page relabelling itself through French, Italian, Spanish, Portuguese and German, then the Hightower's fork from the catalog with its adjusters in German |
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.

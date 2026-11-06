@@ -1,0 +1,48 @@
+# scenario: rides_per_value
+# Demo: rides per value, from a setup. The history shows the rides sitting between
+# the setups; the newest setup's Rebound name opens a small histogram of rides per
+# value, the current one in bold, which stays up 5 s. Timed to the voiceover
+# (06_v1.7.0, clip 6).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- startRecording: demo_rides_per_value
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# Slow drags read as scrolling instead of a jump.
+- swipe:
+    start: 50%, 75%
+    end: 50%, 35%
+    duration: 3000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- swipe:
+    start: 50%, 35%
+    end: 50%, 85%
+    duration: 1500
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn: "(?s).*Hometrails - back to neutral.*"
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- swipe:
+    start: 50%, 80%
+    end: 50%, 45%
+    duration: 2000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+# The name isn't its own element; after the swipe the Lyrik's Rebound row sits here.
+- tapOn:
+    point: 23%,61%
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 4500

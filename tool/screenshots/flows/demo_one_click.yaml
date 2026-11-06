@@ -1,0 +1,55 @@
+# scenario: one_click
+# Demo: you only touch what you changed. A new setup opens with every value of the
+# Hightower's last setup filled in; place and weather arrive on their own. Rebound
+# goes from 9 to 10 with one tap, and the history shows just that change, until the
+# tile is expanded and shows the rest of the values too. Timed to the voiceover
+# (06_v1.7.0, clip 9).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- startRecording: demo_one_click
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: setups.add
+- extendedWaitUntil:
+    visible:
+      id: setupForm.name
+    timeout: 15000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3500
+# Rebound's slider runs 0-18; this point is its 10th step.
+- tapOn:
+    point: 64%,88%
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2500
+- tapOn:
+    id: setupForm.name
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Hometrails - faster rebound
+- runFlow: _hide_keyboard_android.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+# Saving returns to the history with the new setup on top.
+- tapOn:
+    id: setupForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+# The new setup's expand arrow, on the top tile of the history.
+- tapOn:
+    point: 91%,31%
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 5000

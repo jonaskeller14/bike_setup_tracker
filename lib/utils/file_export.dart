@@ -234,7 +234,8 @@ class FileExport {
       final Directory tempDir = await getTemporaryDirectory();
       final String filePath = '${tempDir.path}/bike_setup_tracker.csv';
       final File file = File(filePath);
-      await file.writeAsString(csvString);
+      // The BOM makes Excel read the file as UTF-8 instead of ANSI (umlauts).
+      await file.writeAsString('\uFEFF$csvString');
 
       if (!context.mounted) return;
       await ShareService.shareFile(

@@ -58,7 +58,7 @@ I am open for feedback, suggestions, and bug reports—please feel free to open 
 | Area | Stack |
 |---|---|
 | **App** | Flutter / Dart for iOS and Android from one codebase. Provider for state management, Drift (SQLite) as an offline-first local database with versioned migrations, feature flags for staged rollouts |
-| **Backend** | Firebase: Cloud Functions (Node.js), Firestore, Auth, App Check, Cloud Messaging, Crashlytics and Analytics. Powers the Strava sync and the server-validated in-app subscriptions |
+| **Backend** | Firebase: Cloud Functions (Node.js), Firestore, Auth, App Check, Cloud Messaging, Crashlytics and Analytics. Powers the Strava sync and the server-validated in-app subscriptions. Strava activities arrive through webhooks and are processed by queued, idempotent workers; App Store and Google Play purchases are validated server-side, including renewal and cancellation notifications. The source lives in a [private repository](https://github.com/jonaskeller14/bike_setup_tracker_backend) |
 | **Testing** | Unit, widget and golden tests (Alchemist), CI on GitHub Actions with Codecov coverage reports |
 | **Screenshot automation** | Store screenshots captured from a seeded demo app with Maestro flows and rendered into store frames from an HTML template |
 | **Deployment** | Store listings, release notes and screenshots versioned in the repo and uploaded via `asc` (App Store) and fastlane (Google Play) |

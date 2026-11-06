@@ -154,7 +154,7 @@ void main() {
     await useBuild46(tester);
 
     await tester.pumpWidget(buildSubject(AppHintPlacement.garageHeader, const Locale('de')));
-    expect(find.text('Jetzt auch auf Deutsch').hitTestable(), findsOneWidget);
+    expect(find.text('Jetzt in 6 Sprachen').hitTestable(), findsOneWidget);
 
     await tester.tap(find.text('Sprache wählen').hitTestable());
     await tester.pumpAndSettle();
@@ -163,7 +163,7 @@ void main() {
 
     expect(settings.localeCode, 'en');
     expect(service.statusOf(AppHint.release46), AppHintStatus.completed);
-    expect(find.text('Jetzt auch auf Deutsch'), findsNothing);
+    expect(find.text('Jetzt in 6 Sprachen'), findsNothing);
   });
 
   testWidgets('the build 46 hint stays when the language sheet is closed without a choice', (tester) async {
@@ -177,7 +177,7 @@ void main() {
 
     expect(settings.localeCode, isNull);
     expect(service.statusOf(AppHint.release46), AppHintStatus.unseen);
-    expect(find.text('German is here').hitTestable(), findsOneWidget);
+    expect(find.text('Now in 6 languages').hitTestable(), findsOneWidget);
   });
 
   testWidgets('the build 45 deck turns on Tasks with its intervals and completes', (tester) async {

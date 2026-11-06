@@ -94,7 +94,7 @@ void main() {
     expect(find.text('4'), findsOneWidget);
     expect(find.text('Fixed value'), findsOneWidget);
     expect(find.text('Not set'), findsNWidgets(2));
-    expect(find.text('A starting point, check your manual.'), findsOneWidget);
+    expect(find.text('A starting point. Check your manual.'), findsOneWidget);
   });
 
   testWidgets('tapping a row applies that value', (tester) async {
@@ -203,7 +203,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Recommended values'), findsOneWidget);
-    expect(find.textContaining('check your manual'), findsWidgets);
+    expect(find.textContaining('Check your manual'), findsWidgets);
     expect(find.text('In range'), findsOneWidget);
     expect(find.text("Acme owner's manual (2027)"), findsOneWidget);
     expect(find.textContaining('For Acme'), findsOneWidget);

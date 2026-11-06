@@ -2105,11 +2105,11 @@
   "@hintRelease45TasksBodyOfferTasks": {
     "description": "Body of the second page of the what's new hint when tasks are still off."
   },
-  "hintRelease46LanguageTitle": "German is here",
+  "hintRelease46LanguageTitle": "Now in 6 languages",
   "@hintRelease46LanguageTitle": {
     "description": "Title of the what's new hint shown to people whose app switched language to match their device."
   },
-  "hintRelease46LanguageBody": "The app is now available in German and follows your device language. Prefer another language? Choose it below, or change it anytime in Preferences.",
+  "hintRelease46LanguageBody": "The app is now available in English, German, French, Italian, Spanish and Portuguese and follows your device language. Prefer another one? Choose it below, or change it anytime in Preferences.",
   "@hintRelease46LanguageBody": {
     "description": "Body of the what's new hint about the app language following the device language."
   },
@@ -4759,7 +4759,7 @@
   "@weatherSheetTitle": {
     "description": "Title of the weather sheet."
   },
-  "weatherNeedsLocation": "Update Weather is not possible without location.",
+  "weatherNeedsLocation": "Updating weather is not possible without a location.",
   "@weatherNeedsLocation": {
     "description": "Shown in the weather sheet when no location is set."
   },
@@ -5473,7 +5473,7 @@
   "@setupFormSessionFirstBase": {
     "description": "Notice on the first run of a non-tournament test session."
   },
-  "setupFormSessionNextBase": "Only the adjustments of the session can change, locked ones stay as they are. Everything else is copied from the previous run.",
+  "setupFormSessionNextBase": "Only the adjustments of the session can change; locked ones stay as they are. Everything else is copied from the previous run.",
   "@setupFormSessionNextBase": {
     "description": "Notice on a later run of a non-tournament test session."
   },
@@ -6050,7 +6050,7 @@
   "@taskListEmptyTitle": {
     "description": "Title of the empty task list."
   },
-  "taskListEmptySubtitle": "Add a task to track service intervals or other bike related todos.",
+  "taskListEmptySubtitle": "Add a task to track service intervals or other bike-related to-dos.",
   "@taskListEmptySubtitle": {
     "description": "Subtitle of the empty task list."
   },
@@ -8621,7 +8621,7 @@
   "@driveSheetAutoSyncSubtitle": {
     "description": "Subtitle of the row that explains the automatic sync."
   },
-  "driveSheetInfo": "Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. Additionally daily backups are created which can be restored via 'Import Data -> Backup'. Backups are permanently deleted after 30 days. You can also trigger a manual sync.",
+  "driveSheetInfo": "Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. Additionally, daily backups are created, which can be restored via 'Import Data -> Backup'. Backups are permanently deleted after 30 days. You can also trigger a manual sync.",
   "@driveSheetInfo": {
     "description": "Tooltip that explains the Google Drive sync. 'Import Data -> Backup' names the import menu entry and its backup step (homeMenuImport, importRestoreBackup)."
   },
@@ -9434,7 +9434,7 @@
       }
     }
   },
-  "stravaActivityFeedbackCount": "{count, plural, =1{1 feedback} other{{count} feedbacks}}",
+  "stravaActivityFeedbackCount": "{count, plural, =1{1 feedback} other{{count} feedback}}",
   "@stravaActivityFeedbackCount": {
     "description": "Subtitle of the setups section with the number of feedbacks of the ride.",
     "placeholders": {
@@ -10827,7 +10827,7 @@
   "@guideCardHeadline": {
     "description": "Headline of the setup guide card."
   },
-  "guideCardStartingPoint": "A starting point, check your manual.",
+  "guideCardStartingPoint": "A starting point. Check your manual.",
   "@guideCardStartingPoint": {
     "description": "Footnote of the setup guide card."
   },
@@ -11015,7 +11015,7 @@
   "@guideInfoTitle": {
     "description": "Title of the setup guide info sheet."
   },
-  "guideInfoIntro": "Each value comes from the manufacturer's setup guide for your exact model and riding weight. It is a starting point, check your manual.",
+  "guideInfoIntro": "Each value comes from the manufacturer's setup guide for your exact model and riding weight. It is a starting point. Check your manual.",
   "@guideInfoIntro": {
     "description": "Introduction of the setup guide info sheet."
   },
@@ -12105,7 +12105,7 @@
       }
     }
   },
-  "stepUnknownMaxWarning": "Click count not published. Max is a placeholder, edit it to match your component.",
+  "stepUnknownMaxWarning": "Click count not published. Max is a placeholder. Edit it to match your component.",
   "@stepUnknownMaxWarning": {
     "description": "Note of a step adjustment created from the catalog whose maximum the manufacturer does not publish. It is stored with the note."
   },

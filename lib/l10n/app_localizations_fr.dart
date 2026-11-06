@@ -1454,7 +1454,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqSetupHighlightsAnswer =>
-      'Ils montrent comment une valeur se compare au dernier setup enregistré.\n\nVert : la valeur est enregistrée pour la première fois, il n’y avait pas de valeur précédente à comparer.\n\nOrange : vous avez modifié la valeur. La précédente s’affiche en dessous, barrée, pour voir d’un coup d’œil ce que vous avez réellement touché.';
+      'Elles montrent comment une valeur se compare au dernier setup enregistré.\n\nVert : la valeur est enregistrée pour la première fois, il n’y avait pas de valeur précédente à comparer.\n\nOrange : vous avez modifié la valeur. La précédente s’affiche en dessous, barrée, pour voir d’un coup d’œil ce que vous avez réellement touché.';
 
   @override
   String get faqSetupRestoreIconQuestion => 'À quoi sert l’icône ↺ à côté d’une valeur ?';
@@ -1673,11 +1673,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Chaque fois que vous ajoutez un composant, des tâches d’entretien adaptées, comme un contrôle d’usure de chaîne ou une révision de fourche, vous sont suggérées. Les fourches et amortisseurs du catalogue reprennent les intervalles d’entretien du fabricant. Activez les tâches pour en profiter.';
 
   @override
-  String get hintRelease46LanguageTitle => 'Désormais aussi en allemand';
+  String get hintRelease46LanguageTitle => 'Désormais en 6 langues';
 
   @override
   String get hintRelease46LanguageBody =>
-      'L’application est désormais disponible en allemand et suit la langue de votre appareil. Vous préférez une autre langue ? Choisissez-la ci-dessous ou changez-la à tout moment dans les préférences.';
+      'L’application est désormais disponible en anglais, allemand, français, italien, espagnol et portugais, et suit la langue de votre appareil. Vous préférez une autre langue ? Choisissez-la ci-dessous ou changez-la à tout moment dans les préférences.';
 
   @override
   String get hintRelease46ChooseLanguage => 'Choisir la langue';

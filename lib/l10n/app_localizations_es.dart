@@ -1674,11 +1674,11 @@ class AppLocalizationsEs extends AppLocalizations {
       'Cada vez que añades un componente, se te sugieren tareas de mantenimiento adecuadas, como revisar el desgaste de la cadena o el servicio de la horquilla. Las horquillas y amortiguadores del catálogo usan los intervalos de servicio del fabricante. Activa las tareas para recibirlas.';
 
   @override
-  String get hintRelease46LanguageTitle => 'Ahora también en alemán';
+  String get hintRelease46LanguageTitle => 'Ahora en 6 idiomas';
 
   @override
   String get hintRelease46LanguageBody =>
-      'La app ya está disponible en alemán y sigue el idioma de tu dispositivo. ¿Prefieres otro idioma? Elígelo abajo o cámbialo cuando quieras en las preferencias.';
+      'La app ya está disponible en inglés, alemán, francés, italiano, español y portugués, y sigue el idioma de tu dispositivo. ¿Prefieres otro idioma? Elígelo abajo o cámbialo cuando quieras en las preferencias.';
 
   @override
   String get hintRelease46ChooseLanguage => 'Elegir idioma';

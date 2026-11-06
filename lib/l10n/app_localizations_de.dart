@@ -1677,11 +1677,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Sobald du eine Komponente hinzufügst, werden passende Wartungsaufgaben wie eine Kettenverschleißprüfung oder ein Gabelservice vorgeschlagen. Katalog-Gabeln und -Dämpfer nutzen die Serviceintervalle des Herstellers. Aktiviere Aufgaben, um sie zu erhalten.';
 
   @override
-  String get hintRelease46LanguageTitle => 'Jetzt auch auf Deutsch';
+  String get hintRelease46LanguageTitle => 'Jetzt in 6 Sprachen';
 
   @override
   String get hintRelease46LanguageBody =>
-      'Die App gibt es jetzt auf Deutsch und sie folgt der Sprache deines Geräts. Lieber eine andere Sprache? Wähle sie unten oder ändere sie jederzeit in den Voreinstellungen.';
+      'Die App gibt es jetzt auf Englisch, Deutsch, Französisch, Italienisch, Spanisch und Portugiesisch, und sie folgt der Sprache deines Geräts. Lieber eine andere Sprache? Wähle sie unten oder ändere sie jederzeit in den Voreinstellungen.';
 
   @override
   String get hintRelease46ChooseLanguage => 'Sprache wählen';

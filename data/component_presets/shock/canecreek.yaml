@@ -406,7 +406,7 @@ guides:
         note_it: Calcolato dal punto di partenza di Cane Creek (120 % del peso del rider in lb, come psi); regola la pressione finale in base al SAG
         note_es: Calculado a partir del punto de partida de Cane Creek (120 % del peso del rider en lb, como psi); ajusta la presión final según el SAG
         note_pt: Calculado a partir do ponto de partida da Cane Creek (120 % do peso do rider em lb, como psi); defina a pressão final pelo SAG
-      - &canecreek_sag { target: sag, range: [25, 35], comfort_at: max, note: "Cane Creek starts at 30 %", note_de: Cane Creek beginnt bei 30 %, note_fr: Cane Creek part de 30 %, note_it: Cane Creek part de 30 %, note_es: Cane Creek parte de un 30 %, note_pt: A Cane Creek parte de 30 % }
+      - &canecreek_sag { target: sag, range: [25, 35], comfort_at: max, note: "Cane Creek starts at 30 %", note_de: Cane Creek beginnt bei 30 %, note_fr: Cane Creek part de 30 %, note_it: Cane Creek parte da 30 %, note_es: Cane Creek parte de un 30 %, note_pt: A Cane Creek parte de 30 % }
 
   canecreek_kitsuma_g2_2025:
     label: Cane Creek Kitsuma manual (2025)

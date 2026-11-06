@@ -64,8 +64,7 @@ search image and the feature graphic use a locale's own raw `04` once it exists.
   requires a Terms of Use link in the metadata of apps with auto-renewable subscriptions (Strava Sync).
 - **fr/it/es/pt listings are LLM drafts** (no native review, like the UI, [#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)).
   Their keywords are educated guesses, not search data; revisit them with real search terms per market.
-  Address: French "vous", Italian "tu", Spanish "tú", Portuguese "você"; component names stay English
-  because the catalog text is not translated yet.
+  Address: French "vous", Italian "tu", Spanish "tú", Portuguese "você".
 - **Only features that are live in release builds.** Debug-only features in
   `lib/pages/settings/features_page.dart` stay out of the copy until they ship.
 - **Subtitle and keyword changes ship with an app version.** Watch the two weeks after the release.

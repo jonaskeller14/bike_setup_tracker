@@ -3202,13 +3202,13 @@ abstract class AppLocalizations {
   /// Title of the what's new hint shown to people whose app switched language to match their device.
   ///
   /// In en, this message translates to:
-  /// **'German is here'**
+  /// **'Now in 6 languages'**
   String get hintRelease46LanguageTitle;
 
   /// Body of the what's new hint about the app language following the device language.
   ///
   /// In en, this message translates to:
-  /// **'The app is now available in German and follows your device language. Prefer another language? Choose it below, or change it anytime in Preferences.'**
+  /// **'The app is now available in English, German, French, Italian, Spanish and Portuguese and follows your device language. Prefer another one? Choose it below, or change it anytime in Preferences.'**
   String get hintRelease46LanguageBody;
 
   /// Button of the what's new hint that opens the language picker.
@@ -6304,7 +6304,7 @@ abstract class AppLocalizations {
   /// Shown in the weather sheet when no location is set.
   ///
   /// In en, this message translates to:
-  /// **'Update Weather is not possible without location.'**
+  /// **'Updating weather is not possible without a location.'**
   String get weatherNeedsLocation;
 
   /// Label of the weather code field.
@@ -7300,7 +7300,7 @@ abstract class AppLocalizations {
   /// Notice on a later run of a non-tournament test session.
   ///
   /// In en, this message translates to:
-  /// **'Only the adjustments of the session can change, locked ones stay as they are. Everything else is copied from the previous run.'**
+  /// **'Only the adjustments of the session can change; locked ones stay as they are. Everything else is copied from the previous run.'**
   String get setupFormSessionNextBase;
 
   /// Title of the test session notice on the first run. {name} is the session name.
@@ -7792,7 +7792,7 @@ abstract class AppLocalizations {
   /// Subtitle of the empty task list.
   ///
   /// In en, this message translates to:
-  /// **'Add a task to track service intervals or other bike related todos.'**
+  /// **'Add a task to track service intervals or other bike-related to-dos.'**
   String get taskListEmptySubtitle;
 
   /// Button of the empty task list.
@@ -10816,7 +10816,7 @@ abstract class AppLocalizations {
   /// Tooltip that explains the Google Drive sync. 'Import Data -> Backup' names the import menu entry and its backup step (homeMenuImport, importRestoreBackup).
   ///
   /// In en, this message translates to:
-  /// **'Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. Additionally daily backups are created which can be restored via \'Import Data -> Backup\'. Backups are permanently deleted after 30 days. You can also trigger a manual sync.'**
+  /// **'Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. Additionally, daily backups are created, which can be restored via \'Import Data -> Backup\'. Backups are permanently deleted after 30 days. You can also trigger a manual sync.'**
   String get driveSheetInfo;
 
   /// Date and time of the last Google Drive sync.
@@ -11734,7 +11734,7 @@ abstract class AppLocalizations {
   /// Subtitle of the setups section with the number of feedbacks of the ride.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 feedback} other{{count} feedbacks}}'**
+  /// **'{count, plural, =1{1 feedback} other{{count} feedback}}'**
   String stravaActivityFeedbackCount(int count);
 
   /// Title when no setup belongs to an activity.
@@ -13306,7 +13306,7 @@ abstract class AppLocalizations {
   /// Footnote of the setup guide card.
   ///
   /// In en, this message translates to:
-  /// **'A starting point, check your manual.'**
+  /// **'A starting point. Check your manual.'**
   String get guideCardStartingPoint;
 
   /// Button that applies every recommended value of the setup guide card.
@@ -13504,7 +13504,7 @@ abstract class AppLocalizations {
   /// Introduction of the setup guide info sheet.
   ///
   /// In en, this message translates to:
-  /// **'Each value comes from the manufacturer\'s setup guide for your exact model and riding weight. It is a starting point, check your manual.'**
+  /// **'Each value comes from the manufacturer\'s setup guide for your exact model and riding weight. It is a starting point. Check your manual.'**
   String get guideInfoIntro;
 
   /// Heading in the setup guide info sheet.
@@ -14488,7 +14488,7 @@ abstract class AppLocalizations {
   /// Note of a step adjustment created from the catalog whose maximum the manufacturer does not publish. It is stored with the note.
   ///
   /// In en, this message translates to:
-  /// **'Click count not published. Max is a placeholder, edit it to match your component.'**
+  /// **'Click count not published. Max is a placeholder. Edit it to match your component.'**
   String get stepUnknownMaxWarning;
 
   /// Summary of a shock that comes in several sizes, where listing them all would not fit a row. {count} is the number of sizes.

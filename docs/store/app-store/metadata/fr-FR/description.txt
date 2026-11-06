@@ -51,4 +51,4 @@ Vos réglages sont enregistrés en local. Pas de compte, pas de pub, et nous n�
 Rangez le carnet. Téléchargez Bike Setup Tracker et réglez votre vélo avec précision.
 
 ---
-Conditions d’utilisation (EULA): https://jonaskeller14.com/bike_setup_tracker/eula.html
+Conditions d’utilisation (EULA) : https://jonaskeller14.com/bike_setup_tracker/eula.html

@@ -1671,11 +1671,11 @@ class AppLocalizationsIt extends AppLocalizations {
       'Ogni volta che aggiungi un componente ti vengono suggeriti gli interventi di manutenzione adatti, come il controllo dell’usura della catena o il tagliando della forcella. Le forcelle e gli ammortizzatori del catalogo usano gli intervalli di manutenzione del produttore. Attiva gli interventi per riceverli.';
 
   @override
-  String get hintRelease46LanguageTitle => 'Ora anche in tedesco';
+  String get hintRelease46LanguageTitle => 'Ora in 6 lingue';
 
   @override
   String get hintRelease46LanguageBody =>
-      'L’app ora è disponibile anche in tedesco e segue la lingua del tuo dispositivo. Preferisci un’altra lingua? Sceglila qui sotto o cambiala in qualsiasi momento nelle preferenze.';
+      'L’app ora è disponibile in inglese, tedesco, francese, italiano, spagnolo e portoghese e segue la lingua del tuo dispositivo. Preferisci un’altra lingua? Sceglila qui sotto o cambiala in qualsiasi momento nelle preferenze.';
 
   @override
   String get hintRelease46ChooseLanguage => 'Scegli la lingua';

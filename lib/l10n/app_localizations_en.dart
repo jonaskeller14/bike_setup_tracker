@@ -1661,11 +1661,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Whenever you add a component, matching maintenance tasks like a chain wear check or a fork service are suggested. Catalog forks and shocks use the manufacturer’s service intervals. Turn on Tasks to get them.';
 
   @override
-  String get hintRelease46LanguageTitle => 'German is here';
+  String get hintRelease46LanguageTitle => 'Now in 6 languages';
 
   @override
   String get hintRelease46LanguageBody =>
-      'The app is now available in German and follows your device language. Prefer another language? Choose it below, or change it anytime in Preferences.';
+      'The app is now available in English, German, French, Italian, Spanish and Portuguese and follows your device language. Prefer another one? Choose it below, or change it anytime in Preferences.';
 
   @override
   String get hintRelease46ChooseLanguage => 'Choose language';
@@ -3737,7 +3737,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weatherSheetTitle => 'Weather Context';
 
   @override
-  String get weatherNeedsLocation => 'Update Weather is not possible without location.';
+  String get weatherNeedsLocation => 'Updating weather is not possible without a location.';
 
   @override
   String get weatherCodeLabel => 'Weather Code';
@@ -4273,7 +4273,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setupFormSessionNextBase =>
-      'Only the adjustments of the session can change, locked ones stay as they are. Everything else is copied from the previous run.';
+      'Only the adjustments of the session can change; locked ones stay as they are. Everything else is copied from the previous run.';
 
   @override
   String setupFormSessionFirstRunTitle(String name) {
@@ -4739,7 +4739,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskListEmptyTitle => 'No tasks yet';
 
   @override
-  String get taskListEmptySubtitle => 'Add a task to track service intervals or other bike related todos.';
+  String get taskListEmptySubtitle => 'Add a task to track service intervals or other bike-related to-dos.';
 
   @override
   String get taskListEmptyAction => 'Add a task';
@@ -6560,7 +6560,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get driveSheetInfo =>
-      'Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. Additionally daily backups are created which can be restored via \'Import Data -> Backup\'. Backups are permanently deleted after 30 days. You can also trigger a manual sync.';
+      'Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. Additionally, daily backups are created, which can be restored via \'Import Data -> Backup\'. Backups are permanently deleted after 30 days. You can also trigger a manual sync.';
 
   @override
   String driveSheetLastSync(String date, String time) {
@@ -7117,7 +7117,7 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count feedbacks',
+      other: '$count feedback',
       one: '1 feedback',
     );
     return '$_temp0';
@@ -8078,7 +8078,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideCardHeadline => 'Recommended first values';
 
   @override
-  String get guideCardStartingPoint => 'A starting point, check your manual.';
+  String get guideCardStartingPoint => 'A starting point. Check your manual.';
 
   @override
   String get guideCardApplyAll => 'Apply all';
@@ -8199,7 +8199,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideInfoIntro =>
-      'Each value comes from the manufacturer\'s setup guide for your exact model and riding weight. It is a starting point, check your manual.';
+      'Each value comes from the manufacturer\'s setup guide for your exact model and riding weight. It is a starting point. Check your manual.';
 
   @override
   String get guideInfoHowHeading => 'How values are found';
@@ -8962,7 +8962,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stepUnknownMaxWarning =>
-      'Click count not published. Max is a placeholder, edit it to match your component.';
+      'Click count not published. Max is a placeholder. Edit it to match your component.';
 
   @override
   String catalogSizesCount(int count) {

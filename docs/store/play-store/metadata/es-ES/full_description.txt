@@ -34,7 +34,7 @@ Las funciones principales:
 - Gratis para siempre: la app básica seguirá siendo gratuita, así que siempre tendrás acceso al historial de tus setups.
 - Portabilidad total: exporta tus datos a Excel, CSV o JSON cuando quieras; nunca quedas atrapado.
 
-¿para quién es la app?
+¿Para quién es la app?
 - Ciclistas de montaña (MTB): encuentra el punto ideal de suspensiones complejas.
 - Ciclistas de carretera y gravel: registro preciso de la presión de los neumáticos y de los ajustes de posición.
 - Pilotos y mecánicos: un diario profesional para setups de carrera y ajustes base.

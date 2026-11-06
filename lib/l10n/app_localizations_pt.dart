@@ -1672,11 +1672,11 @@ class AppLocalizationsPt extends AppLocalizations {
       'Sempre que você adiciona um componente, tarefas de manutenção adequadas, como a verificação do desgaste da corrente ou a revisão do garfo, são sugeridas. Garfos e amortecedores do catálogo usam os intervalos de revisão do fabricante. Ative as tarefas para recebê-las.';
 
   @override
-  String get hintRelease46LanguageTitle => 'Agora também em alemão';
+  String get hintRelease46LanguageTitle => 'Agora em 6 idiomas';
 
   @override
   String get hintRelease46LanguageBody =>
-      'O app agora está disponível em alemão e segue o idioma do seu dispositivo. Prefere outro idioma? Escolha abaixo ou mude quando quiser nas preferências.';
+      'O app agora está disponível em inglês, alemão, francês, italiano, espanhol e português e segue o idioma do seu dispositivo. Prefere outro idioma? Escolha abaixo ou mude quando quiser nas preferências.';
 
   @override
   String get hintRelease46ChooseLanguage => 'Escolher idioma';

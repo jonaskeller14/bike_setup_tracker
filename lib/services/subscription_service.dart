@@ -588,6 +588,15 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // permission-denied "Purchase is not active."). Terminal — no retry, and a
       // clear, non-alarming message rather than a raw verify error.
       if (e.code == 'permission-denied' && (e.message ?? '').toLowerCase().contains('not active')) {
+        // An expired transaction left unfinished is redelivered on every launch
+        // and makes StoreKit reject any new purchase of the same product.
+        if (Platform.isIOS && pd.pendingCompletePurchase) {
+          try {
+            await _iap.completePurchase(pd);
+          } catch (e, s) {
+            _report('completePurchase', e, s, detail: '${pd.productID} ${pd.status.name}');
+          }
+        }
         _setState(const SubscriptionError(SubscriptionErrorKind.subscriptionInactive));
         return false;
       }

@@ -1,6 +1,6 @@
 # tiktok · Video: One click
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-12 20:00
 - App version: 1.7.0

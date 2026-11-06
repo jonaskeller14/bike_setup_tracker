@@ -1,6 +1,6 @@
 # tiktok · Video: Service forecast
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-16 20:00
 - App version: 1.7.0

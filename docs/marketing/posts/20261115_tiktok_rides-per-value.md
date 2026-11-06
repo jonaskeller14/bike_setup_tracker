@@ -1,6 +1,6 @@
 # tiktok · Video: Rides per value
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-15 20:00
 - App version: 1.7.0

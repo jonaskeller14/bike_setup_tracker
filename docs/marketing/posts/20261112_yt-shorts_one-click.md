@@ -1,7 +1,7 @@
 # yt-shorts · One click
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/ArCBNMW6yQQ
 - Posted: 2026-11-12 17:00
 - App version: 1.7.0
 - Playlist: v1.7.0

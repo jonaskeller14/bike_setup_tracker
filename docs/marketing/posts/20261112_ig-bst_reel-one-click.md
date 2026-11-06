@@ -1,6 +1,6 @@
 # ig-bst · Reel: One click
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-12 18:00
 - App version: 1.7.0

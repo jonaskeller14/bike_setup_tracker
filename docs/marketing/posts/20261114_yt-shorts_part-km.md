@@ -1,7 +1,7 @@
 # yt-shorts · Part km
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/NkUgFuArTeI?feature=share
 - Posted: 2026-11-14 17:00
 - App version: 1.7.0
 - Playlist: v1.7.0

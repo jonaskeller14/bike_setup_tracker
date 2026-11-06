@@ -1,7 +1,7 @@
 # yt-shorts · Service forecast
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/LqJrJr_mJaY?feature=share
 - Posted: 2026-11-16 17:00
 - App version: 1.7.0
 - Playlist: v1.7.0

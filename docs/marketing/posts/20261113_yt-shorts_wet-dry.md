@@ -1,7 +1,7 @@
 # yt-shorts · Wet or dry
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/SqElKQ8m_r0
 - Posted: 2026-11-13 17:00
 - App version: 1.7.0
 - Playlist: v1.7.0

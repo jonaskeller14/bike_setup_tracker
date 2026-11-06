@@ -1,7 +1,7 @@
 # yt-shorts · Rides per value
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/Ydb7cQqhcd4?feature=share
 - Posted: 2026-11-15 17:00
 - App version: 1.7.0
 - Playlist: v1.7.0

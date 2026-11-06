@@ -39,8 +39,8 @@ both; a custom composition draws its own lifts and boxes.
   `say(target, line, end, start)` shows a caption's words as voice line `line` says them (`start: 0` for a hook, whose
   first word sits on frame 0), and `when(line, word, nth)` gives the second a word is said, to time a drawing to it.
   Times then follow the kit's `voice.at`, so they don't need rewriting.
-- A caption's words match the voice line in order; a word the voice doesn't say follows the one before it. Use the
-  spoken words where they're short enough, especially in hooks. A sentence not worth reading stays voice only.
+- A caption's words match the voice line in order; a word the voice doesn't say follows the one before it. Hooks stay
+  word for word; other captions show the key idea and may differ from the voice, timed with `words()` and `when()`.
 - A Short with several clips joins them with a crossfade into the one `recording.mp4`.
 - One paused timeline, and everything visible depends only on its time: no `Date.now()`, timers, unseeded
   `Math.random()`, network or `repeat: -1`. Finite repeats are fine.

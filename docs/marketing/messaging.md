@@ -60,6 +60,31 @@ build.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
 
+## Voiceover scripts
+
+Write a Short's voice the way a friend who rides would explain it out loud at the trailhead. Older `.vo.md` files
+predate these rules.
+
+- **Structure:** the hook word for word, then the scenario, what the rider does, and the payoff. One idea, 20–28 s.
+- **Sentences:** each has a subject and a verb, and you could say it to someone. No colons, and no comma where a verb
+  belongs. Say what a number is before giving it. Use everyday words.
+- **Flow:** when explaining a concept, each sentence picks up where the last stopped, with spoken links where the logic
+  needs them (so, because, if, when, but, which means). It should still make sense with the screen off.
+- **Paragraphs set the pauses:** a blank line is about 1.2 s. Split by thought, not by sentence.
+- **Facts are for checking, not reciting.** Leave out details beside the point; they can go in the post text. These
+  [Rules](#rules) still apply: numbers come from the sample, opt-in and paid notes go in the post text.
+- **Script first, captions last.** A caption shows the key idea in a few words and may differ from the voice ("14 hours
+  left"). Only the hook stays word for word, and not every sentence needs a caption.
+
+Read the script aloud before finishing, and rewrite any line you wouldn't say to a friend.
+
+> Before: "Say every fifty hours, and you have fourteen left. The app looks at your last ten rides. Ride once a week:
+> about six weeks. Every other day: about two weeks."
+>
+> After: "Say your fork needs a service every fifty hours, and you've got fourteen left. The app predicts the date from
+> your last ten rides. If you ride once a week, that's about six weeks away. If you ride every three days, it's more
+> like three."
+
 ## Headline bank
 
 IDs stay stable; reference them in kits and post files (e.g. `headline: C1`). DE is written for

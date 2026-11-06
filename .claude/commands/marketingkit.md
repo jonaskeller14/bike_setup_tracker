@@ -94,10 +94,10 @@ copy `02_showcase.json` or `03_features.json` as the starting point.
   `release` slide opens `carousel`, `square` and `vertical`, because it is the preview image; its
   `version` is `X.Y.Z`, without the `v`.
 - Voiceover is optional. If the kit uses it, write `<kit>.vo.md` and the `batch-N.md` texts in
-  `tool/marketing/assets/voice/<kit>/` (style rules in `03_features.vo.md`), then **stop**: the
+  `tool/marketing/assets/voice/<kit>/` (rules in `messaging.md`, Voiceover scripts), then **stop**: the
   maintainer generates the MP3s in speechma. Continue after they say the batches exist; check
   them with `python3 tool/marketing/voice.py <kit>/batch-N --words`, which writes the word times that captions
-  and drawings follow. Prefer captions in the spoken words, hooks above all; a sentence not worth reading stays voice only.
+  and drawings follow. Hooks stay word for word; other captions show the key idea and may differ from the voice.
 
 ## 5. Render
 

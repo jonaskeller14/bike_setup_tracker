@@ -127,12 +127,15 @@ class _Search {
 
   SuggestionResult next() {
     if (_patternTarget() case final target?) {
-      return _proposal(target, '${best.displayName} was better. Keep going: ${_describe(target)}.');
+      return _proposal(target, SuggestionNote(SuggestionNoteKind.keepGoing, [SetupArg(best.name), _describe(target)]));
     }
 
     while (true) {
       if (_nextPoll() case final target?) {
-        return _proposal(target, 'Try ${_describe(target)} from ${best.displayName}, the best run so far.');
+        return _proposal(
+          target,
+          SuggestionNote(SuggestionNoteKind.tryFromBest, [_describe(target), SetupArg(best.name)]),
+        );
       }
       if (!_halveSteps()) break;
     }
@@ -143,7 +146,7 @@ class _Search {
         baseSetupId: best.id,
         values: TestSessionStrategy.valuesAt(knobs, bestPosition),
         referenceSetupId: history.runs.last.id,
-        rationale: 'Ride ${best.displayName} again to check that nothing else changed.',
+        rationale: SuggestionNote(SuggestionNoteKind.rideAgainCheck, [SetupArg(best.name)]),
       );
     }
     final index = history.runs.indexOf(repeated);
@@ -194,9 +197,9 @@ class _Search {
     return changed;
   }
 
-  String _describe(List<double> target) => TestSessionStrategy.describeMove(knobs, bestPosition, target);
+  MoveArg _describe(List<double> target) => TestSessionStrategy.describeMove(knobs, bestPosition, target);
 
-  Proposal _proposal(List<double> target, String rationale) => Proposal(
+  Proposal _proposal(List<double> target, SuggestionNote rationale) => Proposal(
     baseSetupId: best.id,
     values: TestSessionStrategy.valuesAt(knobs, target),
     referenceSetupId: best.id,

@@ -187,8 +187,10 @@ abstract class TestSessionStrategy {
   /// Why nothing can be proposed for any method yet, or null.
   static SuggestionResult? waiting(TestSessionHistory history) {
     final latest = history.runs.lastOrNull;
-    if (latest == null) return const NoSuggestion('Record a run first.');
-    if (!history.ratedRunIds.contains(latest.id)) return NoSuggestion('Add feedback on ${latest.displayName} first.');
+    if (latest == null) return const NoSuggestion(SuggestionNote(SuggestionNoteKind.recordRunFirst));
+    if (!history.ratedRunIds.contains(latest.id)) {
+      return NoSuggestion(SuggestionNote(SuggestionNoteKind.addFeedbackFirst, [SetupArg(latest.name)]));
+    }
     return null;
   }
 
@@ -204,22 +206,25 @@ abstract class TestSessionStrategy {
       if (adjustment == null) {
         return (
           knobs: const [],
-          result: const InvalidData('An adjustment of this session is no longer on the bike. Lock it to go on.'),
+          result: const InvalidData(SuggestionNote(SuggestionNoteKind.adjustmentGone)),
         );
       }
       final value = TestSessionHistory.valueOf(latest, id);
       if (value == null) {
-        return (knobs: const [], result: InvalidData("${latest.displayName} has no value for '${adjustment.name}'."));
+        return (
+          knobs: const [],
+          result: InvalidData(SuggestionNote(SuggestionNoteKind.noValue, [SetupArg(latest.name), TextArg(adjustment.name)])),
+        );
       }
       if (!adjustment.isValidValue(value)) {
         return (
           knobs: const [],
-          result: InvalidData("'${adjustment.name}' in ${latest.displayName} is outside its range."),
+          result: InvalidData(SuggestionNote(SuggestionNoteKind.outOfRange, [TextArg(adjustment.name), SetupArg(latest.name)])),
         );
       }
       if (StrategyKnob.of(adjustment, reference: value) case final knob?) knobs.add(knob);
     }
-    if (knobs.isEmpty) return (knobs: knobs, result: const NoSuggestion('Every adjustment is locked.'));
+    if (knobs.isEmpty) return (knobs: knobs, result: const NoSuggestion(SuggestionNote(SuggestionNoteKind.allLocked)));
     return (knobs: knobs, result: null);
   }
 
@@ -247,10 +252,10 @@ abstract class TestSessionStrategy {
   };
 
   /// "Rebound +2, Lockout On": what changes from [from] to [to].
-  static String describeMove(List<StrategyKnob> knobs, List<double> from, List<double> to) => [
+  static MoveArg describeMove(List<StrategyKnob> knobs, List<double> from, List<double> to) => MoveArg([
     for (var i = 0; i < knobs.length; i++)
-      if (!knobs[i].isSame(from[i], to[i])) knobs[i].describe(from[i], to[i]),
-  ].join(', ');
+      if (!knobs[i].isSame(from[i], to[i])) knobs[i].change(from[i], to[i]),
+  ]);
 
   /// The A-B-A check: [repeatId] (a re-ride of [originalId]) lost against
   /// [previousId], which [originalId] had beaten.

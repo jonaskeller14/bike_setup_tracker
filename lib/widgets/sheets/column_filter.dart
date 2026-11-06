@@ -1,17 +1,19 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../utils/table_column.dart';
 import '../text/sheet_section_title.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
-Future<void> showColumnFilterSheet({
+Future<void> showColumnFilterSheet<T extends SelectableColumn>({
   required BuildContext context,
-  required List<TableColumn> columns,
-  required String Function(TableColumn column) columnLabel,
+  required List<T> columns,
+  required String Function(T column) columnLabel,
   required VoidCallback onColumnStatusChanged,
-  ColumnGroup? Function(TableColumn column)? columnGroup,
+  ColumnGroup? Function(T column)? columnGroup,
 }) async {
   final columnsCopy = columns.toList();
   return showModalBottomSheet<void>(
@@ -27,12 +29,12 @@ Future<void> showColumnFilterSheet({
               mainAxisSize: MainAxisSize.min,
               children: [
                 SheetHeader(
-                  title: 'Column Select',
+                  title: context.l10n.columnFilterTitle,
                   actions: [
                     sheetActionButton(
                       context,
                       icon: Icons.deselect,
-                      tooltip: 'Deselect all',
+                      tooltip: context.l10n.deselectAll,
                       onPressed: columnsCopy.any((c) => c.active)
                           ? () {
                               setSheetState(() {
@@ -65,7 +67,7 @@ Future<void> showColumnFilterSheet({
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SheetSectionTitle(title: tcs.label),
+                              SheetSectionTitle(title: tcs.label(context.l10n)),
                               for (final MapEntry(key: title, value: groupColumns) in groups.entries) ...[
                                 if (title != null) _ColumnGroupHeader(group: groupOf[groupColumns.first]!),
                                 Wrap(

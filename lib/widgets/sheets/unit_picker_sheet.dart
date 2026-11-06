@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment_unit.dart';
 import 'sheet_header.dart';
 
@@ -91,7 +93,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
             child: Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                quantity.label,
+                quantity.label(context.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
@@ -128,15 +130,15 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             width: _quantityLabelWidth,
             child: Padding(
-              padding: EdgeInsets.only(top: 6),
+              padding: const EdgeInsets.only(top: 6),
               child: Text(
-                'Custom',
+                context.l10n.unitPickerCustom,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -157,7 +159,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                 ChoiceChip(
                   visualDensity: VisualDensity.compact,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  label: Text(_isCustomActive ? (_selected as CustomUnit).label : 'Other'),
+                  label: Text(_isCustomActive ? (_selected as CustomUnit).label : context.l10n.unitPickerOther),
                   avatar: _isCustomActive ? null : const Icon(Icons.edit),
                   selected: _isCustomActive,
                   onSelected: (_) {
@@ -190,7 +192,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: "Choose Unit", leadingIcon: Icon(Icons.straighten)),
+          SheetHeader(title: context.l10n.unitPickerTitle, leadingIcon: const Icon(Icons.straighten)),
           const SizedBox(height: 8),
           Flexible(
             child: SingleChildScrollView(
@@ -214,7 +216,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                             border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
                           ),
                           child: Text(
-                            'Did you mean "${suggestion.label}" (${suggestion.quantity.label})?',
+                            context.l10n.unitPickerDidYouMean(suggestion.label, suggestion.quantity.label(context.l10n)),
                             style: TextStyle(color: colorScheme.primary, fontSize: 12),
                           ),
                         ),
@@ -233,8 +235,8 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                         _select(CustomUnit(trimmed));
                       },
                       decoration: InputDecoration(
-                        labelText: 'Custom unit',
-                        hintText: 'Enter a custom unit',
+                        labelText: context.l10n.unitPickerCustomLabel,
+                        hintText: context.l10n.unitPickerCustomHint,
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.check),

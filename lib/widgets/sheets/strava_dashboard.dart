@@ -5,8 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
+import '../../models/service_error.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../models/strava/strava_athlete.dart';
 import '../../repositories/app_repository.dart';
@@ -45,9 +48,9 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SheetHeader(
-            title: 'Strava Sync',
-            leadingIcon: Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
+          SheetHeader(
+            title: context.l10n.stravaSheetTitle,
+            leadingIcon: const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
           ),
           const SizedBox(height: 16),
           Flexible(
@@ -63,9 +66,9 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         switch (stravaService.state) {
-                          StravaSyncing() => _busyTile(context, label: "Syncing..."),
-                          StravaDisconnecting() => _busyTile(context, label: "Disconnecting..."),
-                          StravaFailed(:final message) => StravaErrorTile(message: message),
+                          StravaSyncing() => _busyTile(context, label: context.l10n.stravaSyncing),
+                          StravaDisconnecting() => _busyTile(context, label: context.l10n.stravaDisconnecting),
+                          StravaFailed(:final failure) => StravaErrorTile(failure: failure),
                           _ => const SizedBox.shrink(),
                         },
                         const SizedBox(height: 8),
@@ -100,9 +103,9 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                   ],
 
                   const Divider(),
-                  const Padding(
+                  Padding(
                     padding: _sectionPadding,
-                    child: SheetSectionTitle(title: "Latest Activities:"),
+                    child: SheetSectionTitle(title: context.l10n.stravaLatestActivities),
                   ),
                   FutureBuilder<List<StravaActivity>>(
                     future: appRepository.latestStravaActivities,
@@ -122,12 +125,12 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                           child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()),
                         );
                       } else {
-                        return const Padding(
+                        return Padding(
                           padding: _sectionPadding,
                           child: SheetFilterEmptyHint(
                             icon: Icons.directions_bike,
-                            title: "No activities synced yet.",
-                            hint: "Connect Strava and sync your rides to see activities here.",
+                            title: context.l10n.stravaNoActivitiesTitle,
+                            hint: context.l10n.stravaNoActivitiesHint,
                           ),
                         );
                       }
@@ -157,7 +160,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                       side: BorderSide(color: Theme.of(context).colorScheme.error),
                     ),
                     icon: const Icon(Icons.logout),
-                    label: const Text("Disconnect"),
+                    label: Text(context.l10n.stravaDisconnectConfirm),
                   ),
                   Expanded(
                     flex: 2,
@@ -179,7 +182,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                                   child: CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : const Icon(Icons.sync),
-                          label: const Text("Full Sync"),
+                          label: Text(context.l10n.stravaFullSync),
                         ),
                       ),
                     ),
@@ -190,7 +193,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                       child: FilledButton.icon(
                         onPressed: stravaService.isBusy ? null : () => stravaService.launchStravaLogin(),
                         icon: const Icon(Icons.login),
-                        label: const Text("Sign in to Strava"),
+                        label: Text(context.l10n.stravaSignIn),
                       ),
                     ),
                   ),
@@ -209,8 +212,8 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         child: Icon(Icons.person_off, color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
-      title: const Text("Not connected", style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: const Text("Connect to sync your rides"),
+      title: Text(context.l10n.stravaNotConnected, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(context.l10n.stravaNotConnectedHint),
       trailing: ConstrainedBox(
         constraints: const BoxConstraints(
           maxHeight: 48,
@@ -239,7 +242,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
         style: const TextStyle(fontWeight: FontWeight.bold),
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text("Athlete ID: ${stravaAthletes.id}", overflow: TextOverflow.ellipsis),
+      subtitle: Text(context.l10n.stravaAthleteId(stravaAthletes.id), overflow: TextOverflow.ellipsis),
       trailing: ConstrainedBox(
         constraints: const BoxConstraints(
           maxHeight: 48,
@@ -265,8 +268,8 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
 
     return ListTile(
       leading: const Icon(Icons.sync_alt),
-      title: const Text("Auto-sync is active"),
-      subtitle: const Text("Activities import automatically after your ride."),
+      title: Text(context.l10n.stravaAutoSyncTitle),
+      subtitle: Text(context.l10n.stravaAutoSyncSubtitle),
       dense: true,
       contentPadding: EdgeInsets.zero,
       onTap: () => _syncInfoTooltipKey.currentState?.ensureTooltipVisible(),
@@ -289,9 +292,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
             spacing: 4,
             children: [
               Text(
-                "Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. "
-                "While most updates are instant, a full background sync also runs weekly to catch any missed changes. "
-                "You can also trigger a manual sync once per hour.",
+                context.l10n.stravaSyncInfo,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSecondary,
                 ),
@@ -299,22 +300,31 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
               const SizedBox(height: 6),
               Text(
                 lastFull != null
-                    ? "Last full sync: ${DateFormat(appSettings.dateFormat).format(lastFull)} ${DateFormat(appSettings.timeFormat).format(lastFull)}"
-                    : "No full sync yet",
+                    ? context.l10n.stravaLastFullSync(
+                        DateFormat(appSettings.dateFormat, context.l10n.localeName).format(lastFull),
+                        DateFormat(appSettings.timeFormat, context.l10n.localeName).format(lastFull),
+                      )
+                    : context.l10n.stravaNoFullSync,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSecondary,
                 ),
               ),
               if (nextFull != null)
                 Text(
-                  "Next scheduled sync: ${DateFormat(appSettings.dateFormat).format(nextFull)} ${DateFormat(appSettings.timeFormat).format(nextFull)}",
+                  context.l10n.stravaNextScheduledSync(
+                    DateFormat(appSettings.dateFormat, context.l10n.localeName).format(nextFull),
+                    DateFormat(appSettings.timeFormat, context.l10n.localeName).format(nextFull),
+                  ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
               if (manualAvailableAt != null)
                 Text(
-                  "Next Manual sync available: ${DateFormat(appSettings.dateFormat).format(manualAvailableAt)} ${DateFormat(appSettings.timeFormat).format(manualAvailableAt)}",
+                  context.l10n.stravaNextManualSync(
+                    DateFormat(appSettings.dateFormat, context.l10n.localeName).format(manualAvailableAt),
+                    DateFormat(appSettings.timeFormat, context.l10n.localeName).format(manualAvailableAt),
+                  ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
@@ -402,10 +412,10 @@ class _StravaSyncButtonState extends State<_StravaSyncButton> {
         final isBusy = widget.stravaService.isBusy;
         final canSync = widget.stravaService.canSyncRecent;
         final label = isBusy
-            ? 'Syncing'
+            ? context.l10n.stravaSyncButtonSyncing
             : canSync
-            ? 'Sync'
-            : 'In ${_formatRemaining(remaining ?? Duration.zero)}';
+            ? context.l10n.stravaSyncButtonSync
+            : context.l10n.stravaSyncButtonIn(_formatRemaining(remaining ?? Duration.zero));
 
         return SizedBox(
           width: double.infinity,
@@ -454,19 +464,19 @@ Widget _busyTile(BuildContext context, {required String label}) {
 }
 
 class StravaErrorTile extends StatelessWidget {
-  final String message;
+  final StravaFailure failure;
 
-  const StravaErrorTile({super.key, required this.message});
+  const StravaErrorTile({super.key, required this.failure});
 
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme.error;
     return ListTile(
       leading: Icon(
-        message.startsWith("No internet") ? Icons.wifi_off : Icons.error_outline,
+        failure.kind == StravaErrorKind.noInternet ? Icons.wifi_off : Icons.error_outline,
         color: color,
       ),
-      title: SelectableText(message, style: TextStyle(color: color)),
+      title: SelectableText(failure.message(context.l10n), style: TextStyle(color: color)),
       dense: true,
       contentPadding: EdgeInsets.zero,
     );

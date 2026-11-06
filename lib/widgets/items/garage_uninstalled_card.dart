@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/component/component.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
@@ -12,6 +13,7 @@ import '../../utils/garage_component_grouping.dart';
 import '../../utils/installation_issue.dart';
 import '../dashed_border_painter.dart';
 import 'component_list_card.dart';
+import 'garage_add_component_button.dart';
 import 'garage_component_cell.dart';
 import 'garage_component_group.dart';
 import 'garage_component_icon_card.dart';
@@ -77,10 +79,10 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
             Flexible(
               child: Text(
                 isUnarchiving
-                    ? "Release to unarchive"
+                    ? context.l10n.garageReleaseToUnarchive
                     : parent == null
-                        ? "Release to uninstall component"
-                        : "Release to uninstall from ${parent.name}",
+                        ? context.l10n.garageReleaseToUninstall
+                        : context.l10n.garageReleaseToUninstallFrom(parent.name),
                 style: TextStyle(color: color, fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -113,9 +115,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Drag components here to uninstall from bike"),
+              Text(context.l10n.garageDragComponentsToUninstall),
               Text(
-                "or tap to add new",
+                context.l10n.garageOrTapToAdd,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
                 ),
@@ -152,8 +154,8 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
             Flexible(
               child: Text(
                 parent == null
-                    ? "Drag here to uninstall"
-                    : "Drag here to uninstall from ${parent.name}",
+                    ? context.l10n.garageDragToUninstall
+                    : context.l10n.garageDragToUninstallFrom(parent.name),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: color.withValues(alpha: 0.7),
                 ),
@@ -190,7 +192,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
             Icon(Icons.inventory_2_outlined, size: 18, color: color.withValues(alpha: 0.6)),
             Flexible(
               child: Text(
-                "Drag here to archive",
+                context.l10n.garageDragToArchive,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: color.withValues(alpha: 0.7),
                 ),
@@ -232,7 +234,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
             Icon(Icons.inventory_2_outlined, color: color),
             Flexible(
               child: Text(
-                "Release to archive",
+                context.l10n.garageReleaseToArchive,
                 style: TextStyle(color: color, fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -275,12 +277,14 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                 context,
               ).colorScheme.tertiary.withValues(alpha: 0.6),
             ),
-            Text(
-              "Drag here to archive",
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.tertiary.withValues(alpha: 0.7),
+            Flexible(
+              child: Text(
+                context.l10n.garageDragToArchive,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.tertiary.withValues(alpha: 0.7),
+                ),
               ),
             ),
           ],
@@ -330,7 +334,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
               vertical: 8,
             ),
             title: Text(
-              "Uninstalled components",
+              context.l10n.parentPickerUninstalled,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -410,27 +414,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                             widget.setDraggedComponent(uninstalledRoots[index]),
                                         onNoReorder: (index) => widget.setDraggedComponent(null),
                                         buildDraggableFeedback: buildGarageDraggableFeedback,
-                                        footer: Container(
+                                        footer: GarageAddComponentButton(
                                           width: itemWidth,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(
-                                              color: Theme.of(context).colorScheme.outlineVariant,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          child: InkWell(
-                                            onTap: () => ComponentActions.addComponent(context, initialBike: null),
-                                            borderRadius: BorderRadius.circular(12),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Icon(
-                                                Icons.add,
-                                                size: 24,
-                                                color: Theme.of(context).colorScheme.primary,
-                                              ),
-                                            ),
-                                          ),
+                                          onTap: () => ComponentActions.addComponent(context, initialBike: null),
                                         ),
                                         spacing: spacing,
                                         runSpacing: spacing,
@@ -576,7 +562,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                           vertical: 8,
                         ),
                         title: Text(
-                          "Archive",
+                          context.l10n.timelineArchive,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ),

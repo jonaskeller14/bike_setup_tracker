@@ -13,7 +13,7 @@ set -euo pipefail
 
 APP_ID=6759974325
 TESTED_ASC_MAJOR=5
-LOCALES=(en-US de-DE)
+LOCALES=(en-US de-DE fr-FR it es-ES pt-BR)
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 STORE_DIR="$ROOT/docs/store/app-store"
@@ -28,6 +28,9 @@ PAGE_EDITABLE_STATES='["PREPARE_FOR_SUBMISSION","READY_FOR_REVIEW","REJECTED"]'
 API=https://api.appstoreconnect.apple.com/v1
 
 die() { echo "error: $*" >&2; exit 1; }
+
+# The Play listing folder of an App Store locale (the only code that differs is Italian).
+play_locale() { [[ "$1" == it ]] && echo it-IT || echo "$1"; }
 
 usage() {
   sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
@@ -121,7 +124,7 @@ cmd_release() {
     die "IPA is version $ipa_version, pubspec.yaml says $version (stale build folder?)"
 
   for locale in "${LOCALES[@]}"; do
-    changelog="$CHANGELOG_DIR/$locale/changelogs/$build.txt"
+    changelog="$CHANGELOG_DIR/$(play_locale "$locale")/changelogs/$build.txt"
     [[ -f "$changelog" ]] || die "missing release notes: ${changelog#"$ROOT"/}"
   done
 
@@ -148,7 +151,7 @@ cmd_release() {
   apply_metadata
   for locale in "${LOCALES[@]}"; do
     asc apps info edit --app "$APP_ID" --version "$version" --platform IOS --locale "$locale" \
-      --whats-new "$(field "$CHANGELOG_DIR/$locale/changelogs/$build.txt")" >/dev/null
+      --whats-new "$(field "$CHANGELOG_DIR/$(play_locale "$locale")/changelogs/$build.txt")" >/dev/null
     echo "  $locale: What's New updated"
   done
   echo "Next: submit version $version for review in App Store Connect."
@@ -193,7 +196,10 @@ cmd_creatives() {
     for slot in header:PRODUCT_PAGE_HEADER_ASSET search:APP_STORE_SEARCH_RESULTS_ASSET; do
       placement_type="${slot#*:}"
       file="$CREATIVE_DIR/${slot%%:*}_$locale.png"
-      [[ -f "$file" ]] || die "missing creative: ${file#"$ROOT"/}"
+      if [[ ! -f "$file" ]]; then
+        echo "Creative ${file#"$CREATIVE_DIR"/}: not rendered yet, skipped"
+        continue
+      fi
       echo "Creative ${file#"$CREATIVE_DIR"/}"
       if [[ "$DRY_RUN" == true ]]; then
         echo "[dry-run] upload ${file#"$ROOT"/} and replace $placement_type ($locale)"

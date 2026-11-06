@@ -1,6 +1,8 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 
+import '../../l10n/l10n.dart';
+
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
@@ -108,7 +110,7 @@ class SelectDataMethodSheetContent extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SheetHeader(
-            title: 'Select Data',
+            title: context.l10n.dataSelectTitle,
             onBack: onBack,
           ),
           const SizedBox(height: 16),
@@ -119,15 +121,15 @@ class SelectDataMethodSheetContent extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: Icon(Icons.select_all, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Entire dataset"),
-                    subtitle: const Text("Use all items from the provided data"),
+                    title: Text(context.l10n.dataSelectAll),
+                    subtitle: Text(context.l10n.dataSelectAllSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onAllSelected,
                   ),
                   ListTile(
                     leading: Icon(Icons.list_alt, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Choose specific items"),
-                    subtitle: const Text("Pick which items to include"),
+                    title: Text(context.l10n.dataSelectChoose),
+                    subtitle: Text(context.l10n.dataSelectChooseSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onManualSelected,
                   ),
@@ -209,7 +211,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
         mainAxisSize: MainAxisSize.min,
         children: [
           SheetHeader(
-            title: 'Select Data Items',
+            title: context.l10n.dataSelectItemsTitle,
             onBack: widget.onBack,
           ),
           const SizedBox(height: 16),
@@ -219,7 +221,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ExpansionTile(
-                    title: Text("Bikes (${selectedBikes.length} / ${widget.allData.bikes.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    title: Text(context.l10n.dataSelectBikes(selectedBikes.length, widget.allData.bikes.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                     tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                     controlAffinity: ListTileControlAffinity.leading,
                     childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -255,7 +257,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   ),
                   const SizedBox(height: 16),
                   ExpansionTile(
-                    title: Text("Components (${selectedComponents.length} / ${widget.allData.components.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    title: Text(context.l10n.dataSelectComponents(selectedComponents.length, widget.allData.components.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                     tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                     controlAffinity: ListTileControlAffinity.leading,
                     childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -292,7 +294,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   ),
                   const SizedBox(height: 16),
                   ExpansionTile(
-                    title: Text("Setups (${selectedSetups.length} / ${widget.allData.setups.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    title: Text(context.l10n.dataSelectSetups(selectedSetups.length, widget.allData.setups.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                     tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                     controlAffinity: ListTileControlAffinity.leading,
                     childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -329,7 +331,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   if (appSettings.enablePerson || widget.allData.persons.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     ExpansionTile(
-                      title: Text("Riders (${selectedPersons.length} / ${widget.allData.persons.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      title: Text(context.l10n.dataSelectRiders(selectedPersons.length, widget.allData.persons.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                       controlAffinity: ListTileControlAffinity.leading,
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -366,7 +368,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   if (appSettings.enableTask || widget.allData.taskRules.isNotEmpty) ... [
                     const SizedBox(height: 16),
                     ExpansionTile(
-                      title: Text("Tasks (${selectedTaskRules.length} / ${widget.allData.taskRules.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      title: Text(context.l10n.dataSelectTasks(selectedTaskRules.length, widget.allData.taskRules.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                       controlAffinity: ListTileControlAffinity.leading,
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -405,7 +407,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   if (appSettings.enableTask || widget.allData.taskEntries.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     ExpansionTile(
-                      title: Text("Task Entries (${selectedTaskEntries.length} / ${widget.allData.taskEntries.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      title: Text(context.l10n.dataSelectTaskEntries(selectedTaskEntries.length, widget.allData.taskEntries.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                       controlAffinity: ListTileControlAffinity.leading,
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -443,7 +445,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   if (appSettings.enableRating || widget.allData.feedbacks.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     ExpansionTile(
-                      title: Text("Feedback (${selectedFeedbacks.length} / ${widget.allData.feedbacks.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      title: Text(context.l10n.dataSelectFeedback(selectedFeedbacks.length, widget.allData.feedbacks.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                       controlAffinity: ListTileControlAffinity.leading,
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -481,7 +483,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   if (appSettings.enableRating || widget.allData.testSessions.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     ExpansionTile(
-                      title: Text("Test Sessions (${selectedTestSessions.length} / ${widget.allData.testSessions.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      title: Text(context.l10n.dataSelectTestSessions(selectedTestSessions.length, widget.allData.testSessions.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                       controlAffinity: ListTileControlAffinity.leading,
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -538,7 +540,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                 );
                 widget.onConfirm(selectedData);
               },
-              child: Text("Confirm Selection ($selectedCount / $allCount)"),
+              child: Text(context.l10n.dataSelectConfirm(selectedCount, allCount)),
             ),
           ),
         ],

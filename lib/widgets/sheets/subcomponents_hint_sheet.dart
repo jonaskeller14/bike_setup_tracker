@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../utils/garage_component_grouping.dart';
@@ -26,37 +28,32 @@ class _SubcomponentsHintSheet extends StatelessWidget {
 
   final bool value;
 
-  static Component _component(String id, ComponentType type) =>
-      Component(id: id, name: type.label, componentType: type, installations: const []);
-
-  static final _frame = _component('frame', ComponentType.frame);
-  static final _fork = _component('fork', ComponentType.fork);
-  static final _frontWheel = GarageComponentGroupData(
-    parent: _component('front-wheel', ComponentType.wheelFront),
-    children: [
-      _component('front-tire', ComponentType.tire),
-      _component('front-disc', ComponentType.brakeDisc),
-    ],
-  );
-  static final _rearWheel = GarageComponentGroupData(
-    parent: _component('rear-wheel', ComponentType.wheelRear),
-    children: [
-      _component('rear-tire', ComponentType.tire),
-      _component('rear-disc', ComponentType.brakeDisc),
-    ],
-  );
+  static Component _component(AppLocalizations l10n, String id, ComponentType type) =>
+      Component(id: id, name: type.label(l10n), componentType: type, installations: const []);
 
   /// The same bike as the garage shows it with the feature off: every component a separate cell.
-  static final _flatGroups = [
-    for (final component in [_frame, _fork, ..._frontWheel.components, ..._rearWheel.components])
+  static List<GarageComponentGroupData> _flatGroups(AppLocalizations l10n) => [
+    for (final component in [..._nestedGroups(l10n).expand((group) => group.components)])
       GarageComponentGroupData(parent: component),
   ];
 
-  static final _nestedGroups = [
-    GarageComponentGroupData(parent: _frame),
-    GarageComponentGroupData(parent: _fork),
-    _frontWheel,
-    _rearWheel,
+  static List<GarageComponentGroupData> _nestedGroups(AppLocalizations l10n) => [
+    GarageComponentGroupData(parent: _component(l10n, 'frame', ComponentType.frame)),
+    GarageComponentGroupData(parent: _component(l10n, 'fork', ComponentType.fork)),
+    GarageComponentGroupData(
+      parent: _component(l10n, 'front-wheel', ComponentType.wheelFront),
+      children: [
+        _component(l10n, 'front-tire', ComponentType.tire),
+        _component(l10n, 'front-disc', ComponentType.brakeDisc),
+      ],
+    ),
+    GarageComponentGroupData(
+      parent: _component(l10n, 'rear-wheel', ComponentType.wheelRear),
+      children: [
+        _component(l10n, 'rear-tire', ComponentType.tire),
+        _component(l10n, 'rear-disc', ComponentType.brakeDisc),
+      ],
+    ),
   ];
 
   @override
@@ -71,9 +68,9 @@ class _SubcomponentsHintSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SheetHeader(
-            title: 'Subcomponents',
-            leadingIcon: Icon(Icons.account_tree_outlined),
+          SheetHeader(
+            title: context.l10n.featuresSubcomponents,
+            leadingIcon: const Icon(Icons.account_tree_outlined),
           ),
           const SizedBox(height: 16),
           Flexible(
@@ -83,22 +80,20 @@ class _SubcomponentsHintSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Install components on other components, e.g. a tire and a brake disc on a wheel. '
-                    'In the Garage, they are grouped with their parent.',
+                    context.l10n.subcomponentsSheetIntro,
                     style: theme.textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 20),
-                  const _ExampleLabel('Without subcomponents'),
+                  _ExampleLabel(context.l10n.subcomponentsSheetWithout),
                   const SizedBox(height: 8),
-                  _ExampleBikeCard(groups: _flatGroups),
+                  _ExampleBikeCard(groups: _flatGroups(context.l10n)),
                   const SizedBox(height: 16),
-                  const _ExampleLabel('With subcomponents'),
+                  _ExampleLabel(context.l10n.subcomponentsSheetWith),
                   const SizedBox(height: 8),
-                  _ExampleBikeCard(groups: _nestedGroups),
+                  _ExampleBikeCard(groups: _nestedGroups(context.l10n)),
                   const SizedBox(height: 12),
                   Text(
-                    'Move a wheel and its tire and brake disc come along. '
-                    'They are credited with the same rides.',
+                    context.l10n.subcomponentsSheetCaption,
                     style: captionStyle,
                   ),
                   const SizedBox(height: 8),
@@ -109,10 +104,10 @@ class _SubcomponentsHintSheet extends StatelessWidget {
           RadioGroup<bool>(
             groupValue: value,
             onChanged: (selected) => Navigator.pop(context, selected),
-            child: const Column(
+            child: Column(
               children: [
-                RadioListTile(value: false, title: Text('Off')),
-                RadioListTile(value: true, title: Text('On')),
+                RadioListTile(value: false, title: Text(context.l10n.valueOff)),
+                RadioListTile(value: true, title: Text(context.l10n.valueOn)),
               ],
             ),
           ),
@@ -156,7 +151,7 @@ class _ExampleBikeCard extends StatelessWidget {
             dense: true,
             leading: const Icon(Bike.iconData),
             title: Text(
-              'Trail bike',
+              context.l10n.subcomponentsExampleBike,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),

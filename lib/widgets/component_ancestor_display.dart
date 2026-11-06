@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/component/component_ancestor.dart';
@@ -19,11 +20,11 @@ extension ComponentAncestorDisplay on ComponentAncestor {
     UninstalledAncestor() => Icons.shelves,
   };
 
-  String label(Map<String, Bike> bikes) => switch (this) {
+  String label(Map<String, Bike> bikes, AppLocalizations l10n) => switch (this) {
     ParentComponentAncestor(:final component) => component.name,
-    MissingParentAncestor() => 'COMPONENT NOT FOUND',
-    BikeAncestor(:final bikeId) => bikes[bikeId]?.name ?? 'BIKE NOT FOUND',
-    ArchivedAncestor() => 'Archived',
-    UninstalledAncestor() => 'Not installed',
+    MissingParentAncestor() => l10n.componentNotFound,
+    BikeAncestor(:final bikeId) => bikes[bikeId]?.name ?? l10n.bikeNotFound,
+    ArchivedAncestor() => l10n.timelineArchived,
+    UninstalledAncestor() => l10n.timelineNotInstalled,
   };
 }

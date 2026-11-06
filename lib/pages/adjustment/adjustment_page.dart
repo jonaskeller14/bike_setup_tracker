@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+
 enum AdjustmentPageMode {
   add,
   edit,
@@ -8,14 +10,12 @@ enum AdjustmentPageMode {
 }
 
 enum AdjustmentTerm {
-  adjustment('Adjustment'),
-  attribute('Attribute');
-  final String label;
-  const AdjustmentTerm(this.label);
+  adjustment,
+  attribute,
 }
 
-String? validateAdjustmentName(String? value) {
-  if (value == null || value.trim().isEmpty) return 'Name is required';
+String? validateAdjustmentName(BuildContext context, String? value) {
+  if (value == null || value.trim().isEmpty) return context.l10n.adjustmentNameRequired;
   return null;
 }
 
@@ -30,7 +30,7 @@ Widget? adjustmentNameLengthWarning(BuildContext context, String name) {
       const SizedBox(width: 4),
       Expanded(
         child: Text(
-          'Short names display better in other views.',
+          context.l10n.adjustmentNameTooLong,
           style: TextStyle(color: helperColor, fontSize: 12),
         ),
       ),
@@ -74,16 +74,20 @@ class _CollapsibleAdjustmentPreviewState extends State<CollapsibleAdjustmentPrev
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, _expanded ? 8 : 8 + bottomInset),
               child: Row(
+                spacing: 8,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   chevron,
-                  Text(
-                    _expanded ? "Preview only — changes won’t be saved!" : 'Preview',
-                    style: TextStyle(
-                      color: theme.colorScheme.onInverseSurface,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                      letterSpacing: 0.5,
+                  Flexible(
+                    child: Text(
+                      _expanded ? context.l10n.adjustmentPreviewExpanded : context.l10n.adjustmentPreviewTitle,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: theme.colorScheme.onInverseSurface,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
                   chevron,

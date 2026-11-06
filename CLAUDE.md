@@ -32,6 +32,10 @@ CI runs `flutter pub get` → `flutter analyze` → `flutter test` on push to `m
 
 Listing text, release notes and screenshots live in `docs/store/` (layout in `docs/store/README.md`) and are the single source of truth. Uploads run locally on macOS: `tool/store/ios.sh` (App Store, via `asc`) and `bundle exec fastlane android <lane>` (Play, via `supply`); see `docs/store/release-steps.md`. Nothing is submitted for review automatically. Release notes are one file per build number, `docs/store/play-store/metadata/<locale>/changelogs/<versionCode>.txt`, for both stores. Credentials stay outside the repo (`asc` keychain, `fastlane/.env`).
 
+## Marketing Shorts
+
+New Shorts render with Hyperframes; `/marketingkit` covers it, and `docs/marketing/motion/README.md` explains how to write a composition.
+
 ## Planning and feature status
 
 GitHub Issues are the canonical planning and status tracker:
@@ -156,6 +160,7 @@ idioms. Consistency with existing code outranks personal preference.
 - **Feedback is consistent.** Confirm completed actions and surface errors via `SnackBar`;
   fire `HapticFeedback` on primary/destructive interactions; gate destructive/irreversible
   actions behind a confirmation dialog (see the `lib/utils/*_actions.dart` pattern).
+- **User-facing text goes through `context.l10n`** (`lib/l10n/`), never a string literal
 
 ### Code quality
 - **Maintainable over clever.** Small, single-purpose widgets and functions. Keep

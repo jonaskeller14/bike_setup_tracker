@@ -10,6 +10,7 @@ phone and reports where it sits (docs/marketing/templates/template.js).
 import html
 import json
 import math
+import os
 import re
 import shutil
 import subprocess
@@ -20,6 +21,8 @@ from urllib.request import url2pathname
 import render_images
 
 FPS = 30
+CAPTION_SIZE = 124  # The caption's font size in video_9x16.html before data-fit shrinks it.
+HYPERFRAMES = render_images.REPO_ROOT / "tool/marketing/node_modules/.bin/hyperframes"
 CAPTION_FADE = 0.25
 # Callouts (brand.md, Callouts): ease in and out over CALLOUT_EASE s; a lift is shown LIFT_SCALE×
 # its size in the phone (template.js uses the same factor for stills).
@@ -291,6 +294,21 @@ def compose(chrome, template, size, clip, params, captions, out, out_size=None, 
     return duration(out)
 
 
+def lift_geometry(rect, size, screen):
+    """(scale, width, height, center x, center y) of a lift callout. screen: (left, top, scale) of the
+    phone screen in the frame."""
+    left, top, scale = screen
+    x, y, w, h = rect
+    safe = render_images.SAFE_AREAS.get(tuple(size), {}).get("safe", (24, 24, size[0] - 48, size[1] - 48))
+    # A wide element grows less, so it still fits the safe area.
+    lift = min(LIFT_SCALE, (safe[2] - 4) / (w * scale), (safe[3] - 4) / (h * scale))
+    lw, lh = (2 * round(v * scale * lift / 2) for v in (w, h))
+    bw, bh = lw + 4, lh + 4
+    cx = min(max(left + (x + w / 2) * scale, safe[0] + bw / 2), safe[0] + safe[2] - bw / 2)
+    cy = min(max(top + (y + h / 2) * scale, safe[1] + bh / 2), safe[1] + safe[3] - bh / 2)
+    return lift, lw, lh, cx, cy
+
+
 def add_lifts(graph, current, lifts, size, screen):
     """Appends one lift layer per (start, end, [x, y, w, h]) to the filter graph; returns its output.
 
@@ -299,16 +317,10 @@ def add_lifts(graph, current, lifts, size, screen):
     2 px ink border and a soft shadow, and stays centered on the element, inside the format's safe
     area.
     """
-    left, top, scale = screen
-    safe = render_images.SAFE_AREAS.get(tuple(size), {}).get("safe", (24, 24, size[0] - 48, size[1] - 48))
     blur = max(4, round(size[0] * .025))
     for i, (start, end, (x, y, w, h)) in enumerate(lifts):
-        # A wide element grows less, so it still fits the safe area.
-        lift = min(LIFT_SCALE, (safe[2] - 4) / (w * scale), (safe[3] - 4) / (h * scale))
-        lw, lh = (2 * round(v * scale * lift / 2) for v in (w, h))
+        lift, lw, lh, cx, cy = lift_geometry((x, y, w, h), size, screen)
         bw, bh = lw + 4, lh + 4
-        cx = min(max(left + (x + w / 2) * scale, safe[0] + bw / 2), safe[0] + safe[2] - bw / 2)
-        cy = min(max(top + (y + h / 2) * scale, safe[1] + bh / 2), safe[1] + safe[3] - bh / 2)
         e = ease(start, end)
         grow = f"({1 / lift:.4f}+{1 - 1 / lift:.4f}*{e})"
         graph += [
@@ -326,6 +338,109 @@ def add_lifts(graph, current, lifts, size, screen):
         ]
         current = f"lifted{i}"
     return current
+
+
+def motion_length(page):
+    """The length in seconds of a Hyperframes composition: its root's data-duration."""
+    return float(re.search(r'data-composition-id="[^"]*"[^>]*data-duration="([0-9.]+)"', page.read_text(encoding="utf-8"))[1])
+
+
+def hyperframes(*args, cwd, **options):
+    """Runs the pinned Hyperframes CLI in a composition's folder: the CLI reads a .env in the current
+    directory, and telemetry and update checks stay off whatever the machine's setting."""
+    if not HYPERFRAMES.is_file():
+        raise SystemExit("Hyperframes is missing: npm ci --prefix tool/marketing")
+    env = {**os.environ, "HYPERFRAMES_NO_TELEMETRY": "1", "HYPERFRAMES_NO_UPDATE_CHECK": "1", "DO_NOT_TRACK": "1"}
+    return subprocess.run([HYPERFRAMES, *args], cwd=cwd, env=env, **options)
+
+
+def motion_project(page, clip, work, fill=None):
+    """Writes a Hyperframes project to the folder work: the composition as index.html, with {{KEY}}
+    replaced from fill, next to assets/ with the prepared clip as recording.mp4."""
+    html = page.read_text(encoding="utf-8")
+    for key, value in (fill or {}).items():
+        html = html.replace(f"{{{{{key}}}}}", value)
+    expected = float(re.search(r'id="recording"[^>]*data-duration="([0-9.]+)"', html)[1])
+    if abs(duration(clip) - expected) > 0.1:
+        raise ValueError(f"{page.name}: the recording lasts {expected} s, its cut in the kit {duration(clip):.2f} s")
+    shutil.rmtree(work, ignore_errors=True)
+    assets = work / "assets"
+    assets.mkdir(parents=True)
+    (work / "index.html").write_text(html, encoding="utf-8")
+    root = render_images.REPO_ROOT
+    for source, name in ((clip, "recording.mp4"),
+                         (root / "docs/marketing/templates/marketing.css", "marketing.css"),
+                         (page.with_name("motion.css"), "motion.css"),
+                         (page.with_name("motion.js"), "motion.js"),
+                         (root / "docs/store/app-store/iPhone-17-Pro-Max/frame.png", "frame.png"),
+                         (root / "assets/icons/logo_1024.png", "logo_1024.png"),
+                         (root / "tool/marketing/node_modules/gsap/dist/gsap.min.js", "gsap.min.js")):
+        shutil.copy(source, assets / name)
+    shutil.copytree(root / "tool/marketing/assets/fonts", assets / "fonts")
+
+
+def motion_problems(chrome, work, size):
+    """What fails in a project: errors from `hyperframes check`, and text outside the safe area at
+    any moment (motion.js). Its warnings don't count: e.g. a film without sound, added later."""
+    report = json.loads(hyperframes("check", "--json", cwd=work, capture_output=True, text=True).stdout)
+    problems = [f"{finding.get('code', section)}: {finding.get('message', '')}"
+                for section, value in report.items() if isinstance(value, dict)
+                for finding in value.get("findings", []) if finding.get("severity") == "error"]
+    url = (work / "index.html").resolve().as_uri() + "?check&" + render_images.safe_query(size)
+    return problems + render_images.page_problems(chrome, size, url)[0]
+
+
+def motion(chrome, page, clip, size, out, fill=None):
+    """Renders a Hyperframes composition (docs/marketing/motion/) into a video-only intermediate.
+    Returns what motion_problems found; the video is rendered anyway, so it can be looked at."""
+    work = out.with_suffix("")
+    motion_project(page, clip, work, fill)
+    problems = motion_problems(chrome, work, size)
+    hyperframes("render", "--quiet", "--fps", str(FPS), "--crf", "12", "-o", out.resolve(), cwd=work, check=True)
+    return problems
+
+
+def motion_markup(text):
+    """A kit caption as HTML: *key phrase* in teal, {9} a changed value."""
+    escaped = html.escape(text).replace("\n", "<br>").replace("{", '<span class="new">').replace("}", "</span>")
+    return re.sub(r"\*([^*]+)\*", r"<em>\1</em>", escaped)
+
+
+def standard_motion_fill(chrome, template, size, params, clip, captions, lifts):
+    """The {{…}} of motion/standard.html. captions: (start, end, text); lifts: (start, end, rect), in
+    Short seconds and recording pixels. Each caption goes through the layout's own template, so its
+    size and the safe-area check are the same as on a still."""
+    length = duration(clip)
+    rows = []
+    for i, (start, end, text) in enumerate(captions):
+        # Two clips overlap while they crossfade; their captions don't.
+        if i + 1 < len(captions):
+            end = min(end, captions[i + 1][0])
+        query = "?" + urlencode({**params, "caption": text})
+        dom = render_images.dump_dom(chrome, size, render_images.page_url(
+            template, size, render_images.with_query(query, "check&" + render_images.safe_query(size))))
+        problems = render_images.dom_problems(dom)[0]
+        if problems:
+            raise RuntimeError("; ".join(problems))
+        tag = re.search(r'<h1[^>]*\bcaption\b[^>]*>', dom)[0]
+        fitted = re.search(r'font-size:\s*([0-9.]+)px', tag)
+        rows.append(f'  <h1 class="caption hl" data-words data-from="{start:.3f}" data-to="{end:.3f}" '
+                    f'style="font-size: {fitted[1] if fitted else CAPTION_SIZE}px">{motion_markup(text)}</h1>')
+    # The phone's place in video_9x16.html.
+    frame_scale = 620 / 1470
+    clip_w, clip_h = video_size(clip)
+    scale = 1320 * frame_scale / clip_w
+    screen = (230 + 75 * frame_scale, 640 + 66 * frame_scale, scale)
+    boxes = []
+    for i, (start, end, (x, y, w, h)) in enumerate(lifts):
+        lift, lw, lh, cx, cy = lift_geometry((x, y, w, h), size, screen)
+        k = scale * lift
+        boxes.append(f'  <div class="lift" data-from="{start:.3f}" data-to="{end:.3f}" data-shrink="{1 / lift:.4f}" '
+                     f'style="left: {cx - lw / 2:.1f}px; top: {cy - lh / 2:.1f}px; width: {lw}px; height: {lh}px">'
+                     f'<video id="lift{i}" class="clip" src="assets/recording.mp4" muted playsinline data-start="0" '
+                     f'data-duration="{length:.3f}" data-track-index="{2 + i}" style="left: {-x * k:.1f}px; top: {-y * k:.1f}px; '
+                     f'width: {clip_w * k:.1f}px; height: {clip_h * k:.1f}px"></video></div>')
+    return {"LENGTH": f"{length:.3f}", "CAPTIONS": "\n".join(rows), "LIFTS": "\n".join(boxes)}
 
 
 def render_still(chrome, template, size, params, out):

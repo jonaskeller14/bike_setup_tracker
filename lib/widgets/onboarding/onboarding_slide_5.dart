@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/person.dart';
 import '../../utils/person_actions.dart';
 import '../rider_name_form.dart';
@@ -95,7 +96,7 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
 
     return OnboardingSlideScaffold(
       onNext: savedName != null ? widget.onNext : _save,
-      nextLabel: savedName != null ? "Next" : "Continue",
+      nextLabel: savedName != null ? context.l10n.onboardingNext : context.l10n.onboardingContinue,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -105,7 +106,7 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
           ),
           const SizedBox(height: 60),
           Text(
-            "What's your name?",
+            context.l10n.onboardingRiderTitle,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -113,7 +114,7 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
           ),
           const SizedBox(height: 12),
           Text(
-            "You can change it any time.",
+            context.l10n.onboardingRiderBody,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -160,7 +161,7 @@ class _SavedRider extends StatelessWidget {
           const SizedBox(width: 12),
           Flexible(
             child: Text(
-              "Nice to meet you, $name!",
+              context.l10n.onboardingRiderGreeting(name),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.onSecondaryContainer),
               overflow: TextOverflow.ellipsis,
             ),

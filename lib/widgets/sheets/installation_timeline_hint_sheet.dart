@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
@@ -38,12 +40,12 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
   final Component? component;
   final bool? value;
 
-  static final _exampleBikes = {
-    'trail-bike': Bike(id: 'trail-bike', name: 'Trail bike', person: null),
-    'enduro-bike': Bike(id: 'enduro-bike', name: 'Enduro bike', person: null),
+  static Map<String, Bike> _exampleBikes(AppLocalizations l10n) => {
+    'trail-bike': Bike(id: 'trail-bike', name: l10n.installationHintExampleTrailBike, person: null),
+    'enduro-bike': Bike(id: 'enduro-bike', name: l10n.installationHintExampleEnduroBike, person: null),
   };
 
-  Component _exampleComponent() {
+  Component _exampleComponent(AppLocalizations l10n) {
     final now = DateTime.now();
 
     Installation event(String? bikeId, int daysAgo, int hour, int minute) {
@@ -55,7 +57,12 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
       );
     }
 
-    final base = component ?? Component(name: 'Fork', componentType: ComponentType.fork, installations: const []);
+    final base = component ??
+        Component(
+          name: ComponentType.fork.label(l10n),
+          componentType: ComponentType.fork,
+          installations: const [],
+        );
     return base.copyWith(
       installations: [
         event('trail-bike', 88, 9, 30),
@@ -68,7 +75,8 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final exampleComponent = _exampleComponent();
+    final l10n = context.l10n;
+    final exampleComponent = _exampleComponent(l10n);
     final value = this.value;
 
     return SafeArea(
@@ -76,9 +84,9 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SheetHeader(
-            title: 'Installation history',
-            leadingIcon: Icon(Icons.history),
+          SheetHeader(
+            title: l10n.installationHintTitle,
+            leadingIcon: const Icon(Icons.history),
           ),
           const SizedBox(height: 16),
           Flexible(
@@ -88,16 +96,15 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Track when you install, remove, move, or archive components. '
-                    'Set the date for each change to keep an accurate history. '
-                    'This lets your setups show only the components that were installed on the bike at that time.',
+                    l10n.installationHintBody,
                     style: theme.textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Without installation history, the app only saves the bike where this component is installed now. '
-                    'It does not save past installs or removals.'
-                    '${value == null ? ' You can change this anytime in Settings.' : ''}',
+                    [
+                      l10n.installationHintWithout,
+                      if (value == null) l10n.installationHintChangeAnytime,
+                    ].join(' '),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -114,13 +121,13 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Example timeline',
+                          l10n.installationHintExample,
                           style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         DisplayInstallationTimeline(
                           component: exampleComponent,
-                          bikes: _exampleBikes,
+                          bikes: _exampleBikes(l10n),
                           components: const {},
                         ),
                       ],
@@ -140,11 +147,11 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
                   FilledButton.icon(
                     onPressed: () => Navigator.pop(context, true),
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Activate now'),
+                    label: Text(l10n.installationHintActivate),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Continue without tracking'),
+                    child: Text(l10n.installationHintDecline),
                   ),
                 ],
               ),
@@ -153,10 +160,10 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
             RadioGroup<bool>(
               groupValue: value,
               onChanged: (selected) => Navigator.pop(context, selected),
-              child: const Column(
+              child: Column(
                 children: [
-                  RadioListTile(value: false, title: Text('Off')),
-                  RadioListTile(value: true, title: Text('On')),
+                  RadioListTile(value: false, title: Text(l10n.valueOff)),
+                  RadioListTile(value: true, title: Text(l10n.valueOn)),
                 ],
               ),
             ),

@@ -4,22 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:units_converter/units_converter.dart';
 
+import '../utils/regional_defaults.dart';
 import 'component/component.dart';
 
 class AppSettings extends ChangeNotifier {
   static const String _kPrefix = 'app_settings.';
   static const String _kLegacyBlobKey = 'app_settings';
   static const String kFiltersKey = '${_kPrefix}filters';
+  static const String _kRegionalDefaultsAppliedKey = '${_kPrefix}regionalDefaultsApplied';
 
   bool _showOnboarding = true;
   ThemeMode _themeMode = ThemeMode.system;
   String _dateFormat = 'yyyy-MM-dd';
-  String _timeFormat = 'HH:mm';
-  String _temperatureUnit = '°C';
-  String _windSpeedUnit = 'km/h';
-  String _altitudeUnit = 'm';
-  String _precipitationUnit = 'mm';
-  String _distanceUnit = 'km';
+  String _timeFormat = RegionalDefaults.metric.timeFormat;
+  String _temperatureUnit = RegionalDefaults.metric.temperatureUnit;
+  String _windSpeedUnit = RegionalDefaults.metric.windSpeedUnit;
+  String _altitudeUnit = RegionalDefaults.metric.altitudeUnit;
+  String _precipitationUnit = RegionalDefaults.metric.precipitationUnit;
+  String _distanceUnit = RegionalDefaults.metric.distanceUnit;
   bool _enableGoogleDrive = false; // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
   bool _enableMultiSelect = false;
@@ -48,15 +50,18 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupGuides = false;
   bool _enableInstallOnComponent = false;
   bool _enablePressureAssistant = false;
+  bool _enableTestSessionGoal = false;
   int _pressureCheckThresholdPercent = 3;
   Set<ComponentType> _pressureCheckHiddenComponentTypes = const {};
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineSetupGrouping = false;
   bool _enableTimelineReplacementDetection = true;
   bool _enableTimelineStravaContext = false;
-  int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
   bool _rememberFilters = true;
+  String? _localeCode; // null = follow the system language
   bool _developerMode = false;
+  // What this device suggests for the units and the clock; null keeps the metric code defaults.
+  RegionalDefaults? _regionalDefaults;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -97,14 +102,15 @@ class AppSettings extends ChangeNotifier {
   bool get enableSetupGuides => _enableSetupGuides && _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
   bool get enablePressureAssistant => _enablePressureAssistant;
+  bool get enableTestSessionGoal => _enableTestSessionGoal;
   int get pressureCheckThresholdPercent => _pressureCheckThresholdPercent;
   double get pressureCheckThreshold => _pressureCheckThresholdPercent / 100;
   Set<ComponentType> get pressureCheckHiddenComponentTypes => _pressureCheckHiddenComponentTypes;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
-  int get firstDayOfWeek => _firstDayOfWeek;
   bool get rememberFilters => _rememberFilters;
+  String? get localeCode => _localeCode;
   // Debug builds only: store screenshots and marketing content must show the production UI.
   bool get developerMode => kDebugMode && _developerMode;
 
@@ -360,6 +366,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enablePressureAssistant', newValue);
   }
 
+  set enableTestSessionGoal(bool newValue) {
+    if (newValue == _enableTestSessionGoal) return;
+    _enableTestSessionGoal = newValue;
+    notifyListeners();
+    _persistBool('enableTestSessionGoal', newValue);
+  }
+
   set pressureCheckThresholdPercent(int newValue) {
     if (newValue == _pressureCheckThresholdPercent) return;
     _pressureCheckThresholdPercent = newValue;
@@ -395,18 +408,18 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableTimelineStravaContext', newValue);
   }
 
-  set firstDayOfWeek(int newValue) {
-    if (newValue == _firstDayOfWeek) return;
-    _firstDayOfWeek = newValue;
-    notifyListeners();
-    _persistInt('firstDayOfWeek', newValue);
-  }
-
   set rememberFilters(bool newValue) {
     if (newValue == _rememberFilters) return;
     _rememberFilters = newValue;
     notifyListeners();
     _persistBool('rememberFilters', newValue);
+  }
+
+  set localeCode(String? newValue) {
+    if (newValue == _localeCode) return;
+    _localeCode = newValue;
+    notifyListeners();
+    _persistNullableString('localeCode', newValue);
   }
 
   set developerMode(bool newValue) {
@@ -426,6 +439,15 @@ class AppSettings extends ChangeNotifier {
     await prefs.setString('$_kPrefix$name', value);
   }
 
+  void _persistNullableString(String name, String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove('$_kPrefix$name');
+    } else {
+      await prefs.setString('$_kPrefix$name', value);
+    }
+  }
+
   void _persistInt(String name, int value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('$_kPrefix$name', value);
@@ -436,12 +458,13 @@ class AppSettings extends ChangeNotifier {
     await prefs.setStringList('$_kPrefix$name', value);
   }
 
-  Future<void> loadAppSettings() async {
+  Future<void> loadAppSettings({RegionalDefaults? regionalDefaults}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
       await _migrateLegacyBlob(prefs);
       await _removeDeprecatedPreferences(prefs);
+      await _applyRegionalDefaults(prefs, regionalDefaults);
 
       _showOnboarding = prefs.getBool('${_kPrefix}showOnboarding') ?? _showOnboarding;
       final storedThemeMode = prefs.getString('${_kPrefix}themeMode');
@@ -486,6 +509,7 @@ class AppSettings extends ChangeNotifier {
       _enableSetupGuides = prefs.getBool('${_kPrefix}enableSetupGuides') ?? _enableSetupGuides;
       _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
       _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
+      _enableTestSessionGoal = prefs.getBool('${_kPrefix}enableTestSessionGoal') ?? _enableTestSessionGoal;
       _pressureCheckThresholdPercent =
           prefs.getInt('${_kPrefix}pressureCheckThresholdPercent') ?? _pressureCheckThresholdPercent;
       final hiddenPressureCheckTypes = prefs.getStringList('${_kPrefix}pressureCheckHiddenComponentTypes');
@@ -500,8 +524,8 @@ class AppSettings extends ChangeNotifier {
           prefs.getBool('${_kPrefix}enableTimelineReplacementDetection') ?? _enableTimelineReplacementDetection;
       _enableTimelineStravaContext =
           prefs.getBool('${_kPrefix}enableTimelineStravaContext') ?? _enableTimelineStravaContext;
-      _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
       _rememberFilters = prefs.getBool('${_kPrefix}rememberFilters') ?? _rememberFilters;
+      _localeCode = prefs.getString('${_kPrefix}localeCode') ?? _localeCode;
       _developerMode = prefs.getBool('${_kPrefix}developerMode') ?? _developerMode;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
@@ -511,12 +535,15 @@ class AppSettings extends ChangeNotifier {
 
   Future<void> resetToDefaults() async {
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().where((key) => key.startsWith(_kPrefix) && key != '${_kPrefix}showOnboarding');
+    final keys = prefs.getKeys().where(
+      (key) => key.startsWith(_kPrefix) && key != '${_kPrefix}showOnboarding' && key != _kRegionalDefaultsAppliedKey,
+    );
     for (final key in keys.toList()) {
       await prefs.remove(key);
     }
 
-    final defaults = AppSettings();
+    final defaults = AppSettings().._useRegionalDefaults(_regionalDefaults);
+    await _persistRegionalDefaults(prefs, _regionalDefaults);
     _themeMode = defaults._themeMode;
     _dateFormat = defaults._dateFormat;
     _timeFormat = defaults._timeFormat;
@@ -552,21 +579,59 @@ class AppSettings extends ChangeNotifier {
     _enableSetupGuides = defaults._enableSetupGuides;
     _enableInstallOnComponent = defaults._enableInstallOnComponent;
     _enablePressureAssistant = defaults._enablePressureAssistant;
+    _enableTestSessionGoal = defaults._enableTestSessionGoal;
     _pressureCheckThresholdPercent = defaults._pressureCheckThresholdPercent;
     _pressureCheckHiddenComponentTypes = defaults._pressureCheckHiddenComponentTypes;
     _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
     _enableTimelineReplacementDetection = defaults._enableTimelineReplacementDetection;
     _enableTimelineStravaContext = defaults._enableTimelineStravaContext;
-    _firstDayOfWeek = defaults._firstDayOfWeek;
     _rememberFilters = defaults._rememberFilters;
+    _localeCode = defaults._localeCode;
     _developerMode = defaults._developerMode;
     defaults.dispose();
     notifyListeners();
   }
 
-  static final List<Object> _defaultValues = AppSettings()._resettableValues;
+  /// Per instance, because the units start from the device's region.
+  List<Object> get _defaultValues {
+    final defaults = AppSettings().._useRegionalDefaults(_regionalDefaults);
+    final values = defaults._resettableValues;
+    defaults.dispose();
+    return values;
+  }
 
   bool get hasDefaultValues => listEquals(_resettableValues, _defaultValues);
+
+  void _useRegionalDefaults(RegionalDefaults? regional) {
+    if (regional == null) return;
+    _timeFormat = regional.timeFormat;
+    _temperatureUnit = regional.temperatureUnit;
+    _windSpeedUnit = regional.windSpeedUnit;
+    _altitudeUnit = regional.altitudeUnit;
+    _precipitationUnit = regional.precipitationUnit;
+    _distanceUnit = regional.distanceUnit;
+  }
+
+  /// A fresh install takes the device's region once and keeps it, so a unit does
+  /// not change when the device language does or the user travels. An existing
+  /// install shows what it always showed (an unset unit falls back to metric),
+  /// so it only gets the marker. Only values that differ from the code default
+  /// are written, so a metric install keeps following it.
+  Future<void> _applyRegionalDefaults(SharedPreferences prefs, RegionalDefaults? regional) async {
+    _regionalDefaults = regional;
+    if (regional == null || prefs.containsKey(_kRegionalDefaultsAppliedKey)) return;
+    final isFreshInstall = !prefs.containsKey('${_kPrefix}showOnboarding');
+    if (isFreshInstall) await _persistRegionalDefaults(prefs, regional);
+    await prefs.setBool(_kRegionalDefaultsAppliedKey, true);
+  }
+
+  Future<void> _persistRegionalDefaults(SharedPreferences prefs, RegionalDefaults? regional) async {
+    if (regional == null) return;
+    final metric = RegionalDefaults.metric.settings;
+    for (final MapEntry(:key, :value) in regional.settings.entries) {
+      if (value != metric[key] && !prefs.containsKey('$_kPrefix$key')) await prefs.setString('$_kPrefix$key', value);
+    }
+  }
 
   List<Object> get _resettableValues => [
     _themeMode,
@@ -604,14 +669,15 @@ class AppSettings extends ChangeNotifier {
     _enableSetupGuides,
     _enableInstallOnComponent,
     _enablePressureAssistant,
+    _enableTestSessionGoal,
     _pressureCheckThresholdPercent,
     // Sets compare by identity, so compare the sorted type names instead.
     (_pressureCheckHiddenComponentTypes.map((type) => type.name).toList()..sort()).join(','),
     _enableTimelineSetupGrouping,
     _enableTimelineReplacementDetection,
     _enableTimelineStravaContext,
-    _firstDayOfWeek,
     _rememberFilters,
+    _localeCode ?? '',
     _developerMode,
   ];
 
@@ -646,6 +712,8 @@ class AppSettings extends ChangeNotifier {
 
   static const _deprecatedPreferenceKeys = [
     'enableGarage',
+    'enableLanguageSelection',
+    'firstDayOfWeek',
     'enableSetupComparison',
     'enableStrava',
     'enableTimelineDayHeaders',

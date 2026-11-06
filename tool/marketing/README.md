@@ -12,6 +12,7 @@ live in [`docs/marketing/`](../../docs/marketing/README.md); the look is in
 - Network access: the templates load Google Fonts.
 - For videos: `ffmpeg` and `ffprobe` on `PATH` (`brew install ffmpeg`, `winget install Gyan.FFmpeg`).
   No libass or drawtext needed: captions are rendered by Chrome.
+- For Shorts that set `motion`: Node.js 22+, then `npm ci --prefix tool/marketing` (see Motion).
 - For the `web` part: `img2webp` and `cwebp` from libwebp on `PATH` (`brew install webp`; Windows: [libwebp downloads](https://developers.google.com/speed/webp/download)).
 
 ## `build_kit.py`
@@ -108,12 +109,14 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
       "lines": ["batch-2#10", "batch-1#1.4"],  // a whole take, or one paragraph of it
       "at": [0.3, 3.0, …],                     // optional: Short second where each line starts; default one after the other
       "captions": [null, "Your *bike fit*", …]  // optional: one per line, shown from its start; null keeps the one before; the first is the hook
-    } } },
+    },
+    "motion": "restore.html"  // optional, see Motion: docs/marketing/motion/<file> draws the whole picture; the first clip is its recording
+  } },
   "walkthrough": ["clip", "…"],
   "gifs": ["clip", "…"],
   "web": ["clip", "…"],         // website loops, see the website repo's CLAUDE.md
   "images": {
-    // Slides: URL parameters of post_4x5.html (carousel), post_1x1.html (square) or post_9x16.html (vertical); {"kind": "endcard"} is the end card.
+    // Slides: "kind" picks the template post_<kind>.html (default screen), the rest are its URL parameters; carousel renders 4:5, square 1:1, vertical 9:16. {"kind": "endcard"} is the end card.
     "carousel": [{ "kind": "cover|screen|changed|tip|release", "title": "…", "sub": "…", "shots": "04" }],
     "square": [ … ],
     "vertical": [ … ],
@@ -201,6 +204,35 @@ and ducks further while a line plays (sidechain compressor), then a limiter. A S
 measures about −16 LUFS over its voiced part, like the music-only Shorts. Captions start with
 their line, so muted viewers read what is said.
 
+### Motion
+
+Every new Short sets `"motion"`, and a [Hyperframes](https://github.com/heygen-com/hyperframes) composition
+in `docs/marketing/motion/` draws its whole picture. `motion/standard.html` is generated from the kit
+(captions word by word, the whole phone, lift callouts); a custom composition adds drawn explainers and
+camera moves. How to choose and write one: [`docs/marketing/motion/README.md`](../../docs/marketing/motion/README.md).
+The rest of the pipeline stays: `prepare` cuts the clips from the kit's `segments` and `assemble` adds the end
+card, music and voice. Walkthroughs, GIFs, web loops, App Store videos and older kits don't use it.
+
+```
+npm ci --prefix tool/marketing                            # once per machine; needs Node.js 22+
+python tool/marketing/build_kit.py 05_setup-restore preview restore   # look at it (the picture only)
+tool/marketing/node_modules/.bin/hyperframes preview --kill-all       # stop the preview
+```
+
+- **Checks:** the build fails on an error from `hyperframes check`, on text outside `SAFE_AREAS` at any moment
+  of the timeline (`motion.js`), and when a composition's recording doesn't match the kit's cut.
+  `standard.html` captions also go through `video_9x16.html`, so they fit and shrink as on a still. Its
+  warnings don't fail the build: e.g. the silent film it sees, because sound is added later.
+- **Pinned:** `package.json` pins Hyperframes (0.9.x, several releases a day). Update on purpose: rebuild a
+  motion Short and compare it with the last one.
+- **Privacy:** the build runs the CLI with telemetry and update checks off. For running it by hand, run
+  `tool/marketing/node_modules/.bin/hyperframes telemetry disable` once per machine, and run it from a
+  project folder, because it reads a `.env` in the current directory. Its agent skills aren't installed: they
+  send usage pings and point to HeyGen's paid services.
+- **Licenses:** Hyperframes is Apache 2.0, Archivo (`assets/fonts/`) SIL OFL. GSAP uses its own
+  [no-charge license](https://gsap.com/standard-license): commercial use is allowed, and it restricts tools that
+  build animations without code.
+
 ## `render_video.py`
 
 The ffmpeg side of `build_kit.py`: cutting and speed ramps, callouts, compositing a clip into a
@@ -262,8 +294,8 @@ python tool/marketing/render_images.py store-screenshots --out build/x --caption
 `store_screenshots.py` renders `docs/store/screenshots.html` once per screen, device (`iphone`,
 `ipad`, `phone`, `tablet`) and locale into the export paths the uploads read (see the
 Screenshot sizes table in `docs/store/README.md`). The locales are the `docs/store/captions/<locale>.md` files present;
-a locale's raws come from `<raw folder>/<locale>/0N_raw.png` when that exists, else from
-`<raw folder>/0N_raw.png`. A caption that had to shrink prints `WARN` (rewrite it); one that needs
+a locale's raws come from `<raw folder>/<locale>/0N_raw.png` when that exists, else from the
+`en-US` ones. `--locale de-DE` renders only that locale's captions. A caption that had to shrink prints `WARN` (rewrite it); one that needs
 more than two lines at the brand minimum fails. Rendering is in software (`--disable-gpu`), so the
 same raws give the same files. It also writes the review page `build/marketing/store-screenshots/sheet.html`
 (old export next to new, dark-surround toggle). The tablet frame `android_tablet.png` is the Play
@@ -294,16 +326,14 @@ header lists its parameters.
 | `video_9x16.html` | 1080×1920 | Shorts, Reels, TikTok background |
 | `video_16x9.html` | 1920×1080 | YouTube walkthrough background |
 | `endcard.html` | 1080×1920, 1920×1080, 1080×1350, 1080×1080 | End card of every video and the last slide |
-| `post_4x5.html` | 1080×1350 | Instagram carousel and feed: `cover`, `screen`, `changed`, `tip`, `release` |
-| `post_1x1.html` | 1080×1080 | YouTube community posts, X, Mastodon: the same kinds, the phone always whole |
-| `post_9x16.html` | 1080×1920 | TikTok photo mode, Instagram stories: the same kinds inside the Short's safe area |
+| `post_cover.html`, `post_screen.html`, `post_changed.html`, `post_tip.html`, `post_release.html` | 1080×1350, 1080×1080, 1080×1920 | Post slides, one template per kind (shared rows in `post.css`): Instagram carousel and feed; YouTube community posts, X, Mastodon; TikTok photo mode, Instagram stories |
 | `banner.html` | 1280×720, 1200×630, 1920×640 | Thumbnail v2 (`?dark`, `?lift=`, `?bg=`), OG image, forum header |
 | `channel_art.html` | 2560×1440, 800×800, 1080×1080 | YouTube banner, avatar, Instagram highlight cover |
 
 Shared parameters: `device=android`, `shots=04`, `bg=<repo path>` (background image slot),
 `zoom=`/`lift=x,y,w,h` (still callouts, raw-screenshot pixels), `lang=de`, `kind=`, `size=`.
 Preview one in Chrome, e.g.
-`docs/marketing/templates/post_4x5.html?kind=changed&field=Fork%20·%20Rebound&from=9&to=10`.
+`docs/marketing/templates/post_changed.html?size=1080x1350&field=Fork%20·%20Rebound&from=9&to=10`.
 
 ## `assets/`
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/strava/strava_activity.dart';
@@ -33,12 +34,14 @@ class StravaListTile extends StatelessWidget {
       spacing: 2,
       children: [
         Icon(icon, size: 10, color: StravaContextWrapper.stravaOrange.withValues(alpha: 0.7)),
-        Text(
-          text,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            color: StravaContextWrapper.stravaOrange,
+        Flexible(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: StravaContextWrapper.stravaOrange,
+            ),
           ),
         ),
       ],
@@ -55,8 +58,8 @@ class StravaListTile extends StatelessWidget {
         ? null
         : appRepository.bikes.values.firstWhereOrNull((b) => b.stravaGear == stravaActivity.gearId);
 
-    final dateText = DateFormat(appSettings.dateFormat).format(stravaActivity.startDateLocal);
-    final timeText = DateFormat(appSettings.timeFormat).format(stravaActivity.startDateLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(stravaActivity.startDateLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(stravaActivity.startDateLocal);
 
     final distance = AppSettings.convertDistanceFromMeters(stravaActivity.distance, appSettings.distanceUnit);
     final elevation = AppSettings.convertElevationFromMeters(stravaActivity.totalElevationGain, appSettings.altitudeUnit);
@@ -166,11 +169,11 @@ class StravaListTile extends StatelessWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     if (distance != null)
-                      _buildStatItem(context, Icons.route, '${NumberFormat.decimalPattern().format(distance.round())} ${appSettings.distanceUnit}'),
+                      _buildStatItem(context, Icons.route, '${NumberFormat.decimalPattern(context.l10n.localeName).format(distance.round())} ${appSettings.distanceUnit}'),
                     if (elevation != null)
-                      _buildStatItem(context, Icons.terrain, '${NumberFormat.decimalPattern().format(elevation.round())} ${appSettings.altitudeUnit}'),
+                      _buildStatItem(context, Icons.terrain, '${NumberFormat.decimalPattern(context.l10n.localeName).format(elevation.round())} ${appSettings.altitudeUnit}'),
                     if (movingTime > Duration.zero)
-                      _buildStatItem(context, Icons.timer, '${NumberFormat.decimalPattern().format(movingTime.inHours)}h ${movingTime.inMinutes.remainder(60)}m'),
+                      _buildStatItem(context, Icons.timer, '${NumberFormat.decimalPattern(context.l10n.localeName).format(movingTime.inHours)}h ${movingTime.inMinutes.remainder(60)}m'),
                   ],
                 ),
               ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/setup.dart';
 
@@ -24,7 +26,7 @@ class DataSelectSetup extends StatelessWidget {
       child: CheckboxListTile(
         secondary: const Icon(Setup.iconData),
         title: Text(
-          setup.displayName,
+          setup.label(context.l10n),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             decoration: setup.isDeleted ? TextDecoration.lineThrough : null,
           ),
@@ -42,7 +44,7 @@ class DataSelectSetup extends StatelessWidget {
             ),
             Flexible(
               child: Text(
-                bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                bikes[setup.bike]?.name ?? context.l10n.bikeNotFound,
                 style: TextStyle(
                   color: bikes.containsKey(setup.bike)
                       ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)

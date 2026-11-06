@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -63,7 +64,7 @@ void main() {
       // complex service dependencies (Firebase, Strava, etc.) in HomePage.
       child: Consumer<AppSettings>(
         builder: (context, settings, child) {
-          return MaterialApp(
+          return localizedTestApp(
             theme: materialAppTheme,
             home: settings.showOnboarding 
                 ? const OnboardingPage() 
@@ -219,6 +220,42 @@ void main() {
 
     expect(find.text("Home Page Proxy"), findsOneWidget);
     expect(appSettings.showOnboarding, isFalse);
+  });
+
+  group('Language button', () {
+    final languageButton = find.widgetWithText(TextButton, 'EN');
+
+    testWidgets('shows on the first slide', (WidgetTester tester) async {
+      await tester.pumpWidget(buildTestApp());
+      await tester.pumpAndSettle();
+      expect(languageButton, findsOneWidget);
+    });
+
+    testWidgets('gives way to the back arrow after the first slide', (WidgetTester tester) async {
+      await tester.pumpWidget(buildTestApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text("Next"));
+      await tester.pumpAndSettle();
+
+      expect(languageButton, findsNothing);
+      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+    });
+
+    testWidgets('opens the language sheet and stores the choice', (WidgetTester tester) async {
+      await tester.pumpWidget(buildTestApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(languageButton);
+      await tester.pumpAndSettle();
+      expect(find.text('Language'), findsOneWidget);
+
+      await tester.tap(find.text('Deutsch'));
+      await tester.pumpAndSettle();
+
+      expect(appSettings.localeCode, 'de');
+      expect(find.text('Deutsch'), findsNothing);
+    });
   });
 
   group('Rider slide', () {

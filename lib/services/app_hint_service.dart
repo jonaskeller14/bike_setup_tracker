@@ -152,7 +152,9 @@ class AppHintService extends ChangeNotifier {
     var oldestBuild = 0;
     for (final entry in _releaseBuilds.entries) {
       final eligible =
-          entry.value > baseline && entry.value <= _currentBuild && statusOf(entry.key) == AppHintStatus.unseen;
+          entry.value > baseline &&
+          entry.value <= _currentBuild &&
+          statusOf(entry.key) == AppHintStatus.unseen;
       if (!eligible) continue;
       if (oldest == null || entry.value < oldestBuild) {
         oldest = entry.key;

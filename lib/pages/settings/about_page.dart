@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../database/app_database.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/app_info.dart';
@@ -31,6 +33,16 @@ class _AboutPageState extends State<AboutPage> {
       context.read<SubscriptionService>().userId ?? 
       FirebaseAuth.instance.currentUser?.uid;
 
+  /// [AppInfo.releaseDate] is written in English; show it in the app language.
+  String get _releaseDate {
+    try {
+      final date = DateFormat('MMMM yyyy', 'en').parse(AppInfo.releaseDate);
+      return DateFormat.yMMMM(Localizations.localeOf(context).toString()).format(date);
+    } on FormatException {
+      return AppInfo.releaseDate;
+    }
+  }
+
   Widget _buildInfoTile({required String title, required String subtitle}) {
     return ListTile(
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -50,20 +62,21 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   Widget _buildUserIdTile() {
+    final l10n = context.l10n;
     final userId = _userId;
     return ListTile(
-      title: const Text('User UID', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: Text(l10n.aboutUserUid, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: userId == null
-          ? const Text('Not available yet')
+          ? Text(l10n.aboutUserUidUnavailable)
           : SelectableText(userId),
       trailing: userId == null
           ? null
           : IconButton(
               icon: const Icon(Icons.copy_rounded, size: 16.0),
-              tooltip: 'Copy',
+              tooltip: l10n.aboutCopy,
               onPressed: () {
                 unawaited(Clipboard.setData(ClipboardData(text: userId)));
-                ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.success(context, 'User UID copied'));
+                ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.success(context, l10n.aboutUserUidCopied));
               },
             ),
       dense: true,
@@ -73,10 +86,11 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final appSettings = context.watch<AppSettings>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About & Legal'),
+        title: Text(l10n.aboutTitle),
       ),
       body: SafeArea(
         bottom: false,
@@ -96,7 +110,7 @@ class _AboutPageState extends State<AboutPage> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Bike Setup Tracker',
+                        l10n.appTitle,
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -105,18 +119,18 @@ class _AboutPageState extends State<AboutPage> {
               ),
 
               const Divider(),
-              const SectionTitle(title: 'App Information'),
+              SectionTitle(title: l10n.aboutSectionInformation),
               Row(
                 children: [
                   Expanded(
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onDoubleTap: _showUserId ? null : () => setState(() => _showUserId = true),
-                      child: _buildInfoTile(title: 'Version', subtitle: "${AppInfo.appVersion} (+${AppInfo.buildNumber})"),
+                      child: _buildInfoTile(title: l10n.aboutVersion, subtitle: "${AppInfo.appVersion} (+${AppInfo.buildNumber})"),
                     ),
                   ),
                   Expanded(
-                    child: _buildInfoTile(title: 'Release Date', subtitle: AppInfo.releaseDate),
+                    child: _buildInfoTile(title: l10n.aboutReleaseDate, subtitle: _releaseDate),
                   ),
                 ],
               ),
@@ -129,42 +143,40 @@ class _AboutPageState extends State<AboutPage> {
               ],
 
               const Divider(),
-              const SectionTitle(title: 'Legal Agreements'),
+              SectionTitle(title: l10n.aboutSectionLegal),
               _buildLegalTile(
-                title: 'Privacy Policy',
+                title: l10n.aboutPrivacyPolicy,
                 url: AppInfo.privacyPolicyUrl,
               ),
               _buildLegalTile(
-                title: 'End-User License Agreement (EULA)',
+                title: l10n.aboutEula,
                 url: AppInfo.eulaUrl,
               ),
               if (appSettings.enableStrava)
                 _buildLegalTile(
-                  title: 'Terms of Service',
+                  title: l10n.aboutTermsOfService,
                   url: AppInfo.tosUrl,
                 ),
               ListTile(
                 leading: const Icon(Icons.article_outlined),
-                title: const Text('Open-Source Licenses'),
+                title: Text(l10n.aboutLicenses),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => showLicensePage(
                   context: context,
-                  applicationName: 'Bike Setup Tracker',
+                  applicationName: l10n.appTitle,
                   applicationVersion: '${AppInfo.appVersion} (+${AppInfo.buildNumber})',
                   applicationIcon: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Image.asset('assets/icons/logo_256.png', width: 64, height: 64),
                   ),
-                  applicationLegalese: '© 2025-2026 Jonas Keller. All rights reserved.',
+                  applicationLegalese: l10n.aboutLegalese,
                 ),
               ),
               ListTile(
                 leading: const Icon(Icons.copyright),
-                title: const Text("Third-party trademarks"),
+                title: Text(l10n.aboutTrademarks),
                 subtitle: Text(
-                  appSettings.enableStrava
-                      ? "Strava is a trademark of Strava, Inc.\nGoogle Drive is a trademark of Google LLC."
-                      : "Google Drive is a trademark of Google LLC.",
+                  appSettings.enableStrava ? l10n.aboutTrademarksStravaAndDrive : l10n.aboutTrademarksDrive,
                 ),
                 dense: true,
               ),

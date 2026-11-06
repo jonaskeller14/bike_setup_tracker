@@ -1,6 +1,8 @@
 # Store screenshots
 
-This tooling regenerates the store raws (`docs/store/**/0N_raw.png`) from seeded data, then renders the store screenshots from them: the raw screen in its device frame with the caption from `docs/store/captions/`, via `docs/store/screenshots.html` (`tool/marketing/render_images.py store-screenshots`). One run gives the raw and the edited version. Pass `--raw-only` (`-RawOnly` on Windows) to skip the rendering.
+This tooling regenerates the store raws (`docs/store/<store>/<device>/<locale>/0N_raw.png`) from seeded data, then renders the store screenshots from them: the raw screen in its device frame with the caption from `docs/store/captions/`, via `docs/store/screenshots.html` (`tool/marketing/render_images.py store-screenshots`). One run gives the raw and the edited version. Pass `--raw-only` (`-RawOnly` on Windows) to skip the rendering.
+
+Both run scripts take `--locale <store locale>` (`-Locale` on Windows, default `en-US`), e.g. `tool/screenshots/run_ios.sh --locale de-DE`. The app then runs in that language, the typed text of the flows comes from `flows/scripts/locale_texts.js`, the raws land in `<device>/<locale>/`, and only that locale's captions (`docs/store/captions/<locale>.md`) are rendered. Only the `en-US` raws and exports are tracked in git; the other locales are gitignored, so they exist only on the machine that recorded them. Record data (bike, setup and task names from the sample) stays English in every locale. The flows record Italian as `it-IT` (the tooling and Play locale); `render_images.py` and `check_output.py` write and read the App Store exports under `app-store/screenshots/it/` (`APP_STORE_LOCALES`), which is the folder `ios.sh screenshots` uploads from.
 
 | Folder | Device | Size (px) |
 |---|---|---|
@@ -11,7 +13,7 @@ This tooling regenerates the store raws (`docs/store/**/0N_raw.png`) from seeded
 
 The device frames in the template assume these sizes. If `check_output.py` reports a mismatch, fix the device or adjust the frames before rendering.
 
-The exported iPhone frames (`app-store/screenshots/en-US/iphone_0N.png`) are 1206×2622, the 6.3″ slot size App Store Connect accepts for the default page and every custom product page. The raws have the same aspect ratio, so the composition is exported at that canvas size rather than from a new simulator. `check_output.py` checks the frames as well as the raws.
+The exported iPhone frames (`app-store/screenshots/<locale>/iphone_0N.png`) are 1206×2622, the 6.3″ slot size App Store Connect accepts for the default page and every custom product page. The raws have the same aspect ratio, so the composition is exported at that canvas size rather than from a new simulator. `check_output.py` checks the frames as well as the raws.
 
 The phone AVD uses the generic `medium_phone` profile on purpose. Device profiles such as `pixel_8` add a camera cutout, which makes the status bar about twice as tall as in the old raws.
 
@@ -47,7 +49,7 @@ The run does the following:
 3. Installs the APK, grants the location permission and turns off stylus handwriting, so Gboard's stylus onboarding can't cover a text field.
 4. Sets the GPS to Finale Ligure and, before each flow, pins the status bar with SystemUI demo mode: 9:41, full battery, full wifi, no notifications. The mobile icon is hidden, because Android 16's demo mode ignores `datatype` and always labels it "3G". Demo mode is re-entered per flow, because after a cold boot a second wifi icon can appear next to the demo one.
 5. Runs each flow and copies the resulting PNGs over the raws in place. A flow that fails is retried once, because the emulator's adb connection sometimes drops right after the install. If it fails again, its raw is left unchanged and the script exits non-zero.
-6. Runs `python tool/screenshots/check_output.py <folders>`. It checks the sizes and lists which raws changed against `HEAD`.
+6. Runs `python tool/screenshots/check_output.py --locale <locale> <folders>`. It checks the sizes and lists which raws changed against `HEAD`.
 
 Before building, the script aborts if any entry in `adb devices` is not in the `device` state (`offline`, `authorizing`, `unauthorized`). Maestro connects to every listed device, and a single stuck one, even an unrelated emulator, makes it report "Device emulator-5580 was requested, but it is not connected". Shut the stuck emulator down with `adb -s <serial> emu kill`, or unplug the device.
 
@@ -101,6 +103,8 @@ appId: ${APP_ID}
 
 Before each flow, the run scripts delete the marker file `demo_scenario` in the app's documents folder and, if the flow has a `# scenario:` line, write the name into it (iOS: the data container's `Documents`; Android: `app_flutter` via `adb shell run-as`). `lib/main_screenshots.dart` reads it at launch. Without the marker, the app seeds `full`; an unknown name stops the launch, so a typo can't record the wrong state.
 
+`--locale` works the same way: the run scripts write the locale's language code (`de` for `de-DE`) into the marker file `screenshot_locale` next to it, and `lib/main_screenshots.dart` stores it as the app language (`localeCode`) when it resets the preferences. The device language stays English, so system dialogs (Play services' Location Accuracy prompt) look as before.
+
 | Scenario | Data |
 |---|---|
 | `full` | The whole sample (default; store screenshots) |
@@ -110,6 +114,8 @@ Before each flow, the run scripts delete the marker file `demo_scenario` in the 
 | `analysis` | The Hightower's 4 newest setups; fork and shock *Pressure* removed, so the click-based series fill the charts |
 | `tasks_one_due` | *Investigate BB creaking noise* as the only due task. It doesn't repeat, so ticking it off moves it to the completed section |
 | `tags` | The whole sample with setup and task tags on |
+| `dial_style` | The whole sample with every dial of the Hightower's Lyrik in the default color and size |
+| `restore` | The Hightower with four setups that differ at a glance, the newest three fork values from *Finale Ligure - DH Men*; no rides or tasks in its history |
 
 Dropping a bike drops everything recorded on it: its components, setups, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
 
@@ -197,6 +203,11 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_calendar` | `full` | The month view, then the showcase day in the day view, opening its installation, setup, ride and task |
 | `demo_tasks` | `tasks_one_due` | Ticking off the only due task: the "all caught up" placeholder, then the task in the completed section |
 | `demo_strava_distance` | `full` | Rides counted automatically: the chain's distance and rides, its distance-based task, then the bike's due "every 150 km" bolt check |
+| `demo_add_component_catalog` | `one_bike_no_components` | The Hightower's fork from the catalog: search, Lyrik 2025–2026 Ultimate, 160 mm, every adjuster filled in with its range |
+| `demo_task_presets` | `one_bike_no_components` | The same fork, then the service tasks it comes with: add them, and the task list with the new ones |
+| `demo_dial_style` | `dial_style` | The Lyrik's rebound dial turned red and LSC small, then a new setup showing them |
+| `demo_catalog_brands` | `one_bike_no_components` | The catalog's brands, three of them opened, and a request for a fork that isn't listed |
+| `demo_setup_restore` | `restore` | The Hightower's history, an older setup restored from its tile's menu (pressure, LSC and rebound go back), and the copy saved as the newest setup |
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.
 - **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.

@@ -20,7 +20,6 @@ import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/utils/map_empty_state.dart';
 import 'package:bike_setup_tracker/widgets/map/map_control_button.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
@@ -29,6 +28,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   late MockAppRepository repository;
@@ -105,7 +105,7 @@ void main() {
         ListenableProvider<AppRepository>.value(value: repository),
         ListenableProvider<SubscriptionService>.value(value: subscriptionService),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         home: MapPage(
           locationService: service,
           headingStream: headingStream,
@@ -307,24 +307,6 @@ void main() {
     expect(find.byKey(const Key('map-compass')), findsNothing);
   });
 
-  testWidgets('uses no device heading source on iOS', (tester) async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    try {
-      final service = unpermittedService();
-      await tester.pumpWidget(buildPage(service, headingStream: null));
-      await tester.pump();
-
-      // flutter_rotation_sensor 0.2.0 has no north reference on iOS, so the
-      // heading cone must stay off rather than point the wrong way.
-      final layer = tester.widget<CurrentLocationLayer>(find.byType(CurrentLocationLayer));
-      expect(await layer.headingStream!.isEmpty, isTrue);
-    } finally {
-      // Must be reset inside the body: the binding asserts on leaked debug
-      // variables before addTearDown callbacks run.
-      debugDefaultTargetPlatformOverride = null;
-    }
-  });
-
   testWidgets('is safe to dispose during an in-flight request', (tester) async {
     final completer = Completer<ContextPosition>();
     final provider = FakeMapLocationProvider(null)..pendingPosition = completer.future;
@@ -332,7 +314,7 @@ void main() {
     await tester.pumpWidget(buildPage(service));
     await tester.pump();
 
-    await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+    await tester.pumpWidget(localizedTestApp(home: const SizedBox()));
     completer.complete(const ContextPosition(latitude: 47.1, longitude: 8.2));
     await tester.pump();
 

@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +66,11 @@ void main() {
     await database.close();
   });
 
-  Widget buildSubject([AppHintPlacement placement = AppHintPlacement.garageHeader]) => MaterialApp(
+  Widget buildSubject([
+    AppHintPlacement placement = AppHintPlacement.garageHeader,
+    Locale locale = const Locale('en'),
+  ]) => localizedTestApp(
+    locale: locale,
     theme: materialAppTheme,
     home: Scaffold(
       body: MultiProvider(
@@ -135,6 +140,44 @@ void main() {
     expect(settings.enableAttachments, isTrue);
     expect(service.statusOf(AppHint.release44), AppHintStatus.completed);
     expect(find.text('Attachments'), findsNothing);
+  });
+
+  Future<void> useBuild46(WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 45});
+    service.dispose();
+    service = AppHintService(appRepository: repository, appSettings: settings, currentBuild: 46);
+    await tester.runAsync(service.load);
+    service.update(appRepository: repository, appSettings: settings);
+  }
+
+  testWidgets('the build 46 hint opens the language sheet and completes once a language is picked', (tester) async {
+    await useBuild46(tester);
+
+    await tester.pumpWidget(buildSubject(AppHintPlacement.garageHeader, const Locale('de')));
+    expect(find.text('Jetzt in 6 Sprachen').hitTestable(), findsOneWidget);
+
+    await tester.tap(find.text('Sprache wählen').hitTestable());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('English').last);
+    await tester.pumpAndSettle();
+
+    expect(settings.localeCode, 'en');
+    expect(service.statusOf(AppHint.release46), AppHintStatus.completed);
+    expect(find.text('Jetzt in 6 Sprachen'), findsNothing);
+  });
+
+  testWidgets('the build 46 hint stays when the language sheet is closed without a choice', (tester) async {
+    await useBuild46(tester);
+
+    await tester.pumpWidget(buildSubject());
+    await tester.tap(find.text('Choose language').hitTestable());
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+
+    expect(settings.localeCode, isNull);
+    expect(service.statusOf(AppHint.release46), AppHintStatus.unseen);
+    expect(find.text('Now in 6 languages').hitTestable(), findsOneWidget);
   });
 
   testWidgets('the build 45 deck turns on Tasks with its intervals and completes', (tester) async {

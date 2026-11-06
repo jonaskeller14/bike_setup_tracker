@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
@@ -55,10 +57,6 @@ class BikeDetailsPage extends StatefulWidget {
 }
 
 class _BikeDetailsPageState extends State<BikeDetailsPage> {
-  static const _mergedColumnsInfoText =
-      "\n\nComponents that followed each other in the same position (e.g. the tire on the front wheel) "
-      "share a column, so a replacement continues its predecessor's column and starts with a green value. "
-      "Red values belong to a component that was not installed at that setup.";
   static const int _defaultSelectedSetupCount = 3;
 
   bool _sortAscending = true;
@@ -110,14 +108,14 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   /// One row per lane component: name, first setup, dash, last setup it was present at.
   /// Components still on this bike end with "now".
   List<List<String>> _laneHistory(SlotLane lane, AppRepository appRepository, String dateFormat) {
-    final format = DateFormat(dateFormat);
+    final format = DateFormat(dateFormat, context.l10n.localeName);
     return lane.members.map((member) {
       final name = member.component.name;
       final dates = member.setupIds.map((id) => appRepository.setups[id]?.datetimeLocal).nonNulls.sorted();
       if (dates.isEmpty) return [name, '', '', ''];
       final first = format.format(dates.first);
       final last = appRepository.componentHierarchy.currentBike(member.component.id) == widget.bikeId
-          ? 'now'
+          ? context.l10n.bikeDetailsLaneNow
           : format.format(dates.last);
       return first == last ? [name, first, '', ''] : [name, first, '–', last];
     }).toList();
@@ -132,12 +130,12 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
   String _columnLabel(TableColumn column, Iterable<Adjustment> personAdjustments) {
     return switch (column) {
-      SetupTableColumn(column: final setupColumn) => setupColumn.label,
+      SetupTableColumn(column: final setupColumn) => setupColumn.label(context.l10n),
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       ComponentAdjustmentColumn(:final adjustmentId) => adjustmentId,
-      BikeAdjustmentColumn(:final key) => _projection?.columnLabel(key) ?? key.adjustment.name,
-      SetupRankColumn() => "Rank",
+      BikeAdjustmentColumn(:final key) => _projection?.columnLabel(key, context.l10n) ?? key.adjustment.name,
+      SetupRankColumn() => context.l10n.setupColumnRank,
     };
   }
 
@@ -153,6 +151,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
     final comparator = tableColumnComparator(
       sortColumn,
+      context.l10n,
       valueFor: _rawValue,
       componentAdjustments: const [],
       personAdjustments: personAdjustments,
@@ -176,6 +175,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   }
 
   Widget _testSessions(BuildContext context, AppRepository appRepository, Bike bike) {
+    final l10n = context.l10n;
     final sessions = appRepository.testSessions.values
         .where((session) => session.bike == bike.id)
         .sorted((a, b) => b.startedAtUTC.compareTo(a.startedAtUTC));
@@ -185,7 +185,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       collapsedShape: const Border(),
       leading: const Icon(TestSession.iconData),
       title: Text(
-        "Test sessions (${sessions.length})",
+        l10n.bikeDetailsTestSessionsTitle(sessions.length),
         style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
       ),
       childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -193,8 +193,8 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
         if (sessions.isEmpty) ...[
           EmptyStatePlaceholder2(
             iconData: TestSession.iconData,
-            title: 'No test sessions yet',
-            subtitle: 'Try adjustments one after the other and see which works best',
+            title: l10n.bikeDetailsNoTestSessionsTitle,
+            subtitle: l10n.bikeDetailsNoTestSessionsSubtitle,
             onTap: () => unawaited(TestSessionActions.startSession(context, initialBike: bike)),
           ),
           const SizedBox(height: 8),
@@ -203,7 +203,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             child: FilledButton.icon(
               onPressed: () => unawaited(TestSessionActions.startSession(context, initialBike: bike)),
               icon: const Icon(Icons.add),
-              label: const Text('Start Test Session'),
+              label: Text(l10n.startTestSession),
             ),
           ),
         ] else ...[
@@ -221,7 +221,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             child: TextButton.icon(
               onPressed: () => unawaited(TestSessionActions.startSession(context, initialBike: bike)),
               icon: const Icon(Icons.add),
-              label: const Text('Start Test Session'),
+              label: Text(l10n.startTestSession),
             ),
           ),
         ],
@@ -252,6 +252,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       unawaited(context.read<SetupActivityAnalysisService>().getSetupActivityCounts());
     }
 
+    final l10n = context.l10n;
     final personAdjustments = person?.adjustments ?? [];
     final projection = _projectionFor(appRepository);
 
@@ -288,10 +289,13 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     T retained<T extends TableColumn>(T column) => previousColumns.lookup(column) as T? ?? column;
 
     _columns = {
-      for (final column in availableSetupColumns) retained(SetupTableColumn(column, active: column.defaultActive)),
+      for (final column in availableSetupColumns.where((c) => c.section != TableColumnSection.feedback))
+        retained(SetupTableColumn(column, active: column.defaultActive)),
       for (final key in projection.columns) retained(BikeAdjustmentColumn(key, active: _changingColumns.contains(key))),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
+      for (final column in availableSetupColumns.where((c) => c.section == TableColumnSection.feedback))
+        retained(SetupTableColumn(column, active: column.defaultActive)),
       if (appSettings.enableRating) retained(SetupRankColumn(active: false)),
     };
 
@@ -337,12 +341,9 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(
-          title: "Setup History",
-          infoText:
-              "All setups of this bike. Add or remove columns via the Columns button, or long-press a column "
-              "header to remove it. Green values are new (no prior value), orange values have changed from the "
-              "previous setup. Select rows to compare setups in the charts below.$_mergedColumnsInfoText",
+        SectionTitle(
+          title: l10n.bikeDetailsSetupHistoryTitle,
+          infoText: l10n.bikeDetailsSetupHistoryInfo + l10n.bikeDetailsMergedColumnsInfo,
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -353,7 +354,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
               FilterChip(
                 avatar: const Icon(Icons.view_column_outlined),
                 showCheckmark: false,
-                label: const Text("Columns"),
+                label: Text(l10n.columnsLabel),
                 selected: activeColumns.isNotEmpty,
                 onSelected: (bool newValue) async {
                   await showColumnFilterSheet(
@@ -367,7 +368,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                     columnGroup: (TableColumn c) => switch (c) {
                       BikeAdjustmentColumn(:final key) => switch (projection.laneOf(key)) {
                         final lane? => (
-                          title: lane.label,
+                          title: lane.label(context.l10n),
                           info: _laneHistory(lane, appRepository, appSettings.dateFormat),
                         ),
                         null => null,
@@ -384,25 +385,25 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
           ),
         ),
         if (bikeSetups.isEmpty)
-          const EmptyStatePlaceholder(
+          EmptyStatePlaceholder(
             icon: Icons.history_rounded,
-            title: 'No setups yet',
-            subtitle: 'No setups reference this bike',
+            title: l10n.noSetupsTitle,
+            subtitle: l10n.bikeDetailsNoSetupsSubtitle,
           )
         else if (setups.isEmpty)
           EmptyStatePlaceholder(
             icon: Icons.filter_alt_off,
-            title: 'Nothing matches this filter',
-            subtitle: 'Your filters are hiding all setups.',
-            actionLabel: 'Clear filters',
+            title: l10n.bikeDetailsFilterEmptyTitle,
+            subtitle: l10n.bikeDetailsFilterEmptySubtitle,
+            actionLabel: l10n.clearFilters,
             actionIcon: Icons.filter_alt_off,
             onAction: () => FilterActions.clear(context, FilterSheetChip.bikeDetailsPage.sections),
           )
         else if (activeColumns.isEmpty)
-          const EmptyStatePlaceholder(
+          EmptyStatePlaceholder(
             icon: Icons.view_column_outlined,
-            title: 'No columns',
-            subtitle: 'Select a column to display the table',
+            title: l10n.tableNoColumnsTitle,
+            subtitle: l10n.tableNoColumnsSubtitle,
           )
         else ...[
           SetupTable(
@@ -454,14 +455,9 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
         ],
         const SizedBox(height: 16),
         const Divider(height: 1),
-        const SectionTitle(
-          title: "Line Chart",
-          infoText:
-              "• Shows the setups selected in the table above in their current sort order.\n"
-              "• The y-axis represents adjustment values.\n"
-              "• Select at least two setups to display a trend.\n"
-              "• Tap a legend entry to highlight a specific line.\n"
-              "• Long-press a legend entry to remove its column.",
+        SectionTitle(
+          title: l10n.chartLineTitle,
+          infoText: l10n.bikeDetailsLineChartInfo,
         ),
         SetupLineChart(
           activeColumns: activeColumns,
@@ -478,13 +474,9 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
           onColumnRemoved: _removeColumn,
         ),
         const Divider(height: 1),
-        const SectionTitle(
-          title: "Radial Chart",
-          infoText:
-              "• Shows the setups selected in the table above.\n"
-              "• Axes are normalized across all data for stable comparison.\n"
-              "• Tap a legend entry to highlight a specific graph.\n"
-              "• Long-press a legend entry to remove it from the selection.",
+        SectionTitle(
+          title: l10n.chartRadialTitle,
+          infoText: l10n.chartRadialInfo,
         ),
         SetupRadialChart(
           activeColumns: activeColumns,
@@ -499,22 +491,16 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
         ),
         if (appSettings.enableStrava) ...[
           const Divider(height: 1),
-          const SectionTitle(
-            title: "Activity Histogram",
-            infoText:
-                "• Shows how many Strava activities were ridden with each adjustment value.\n"
-                "• Counts all setups in the table above, not just the selected ones.\n"
-                "• Components that followed each other in the same position are counted together in one column.\n"
-                "• Numerical values are grouped into ranges when there are many distinct values.\n"
-                "• Tap a legend entry to show a different adjustment.\n"
-                "• Long-press a legend entry to remove its column.",
+          SectionTitle(
+            title: l10n.chartHistogramTitle,
+            infoText: l10n.bikeDetailsHistogramInfo,
           ),
           if (!subscriptionService.hasStravaEntitlement)
             EmptyStatePlaceholder(
               icon: Icons.lock_outline,
-              title: "Strava Sync required",
-              subtitle: "See how many activities you rode with each adjustment value.",
-              actionLabel: "View plans",
+              title: l10n.chartHistogramLockedTitle,
+              subtitle: l10n.chartHistogramLockedSubtitle,
+              actionLabel: l10n.viewPlans,
               actionIcon: Icons.auto_awesome,
               onAction: () => showStravaSheet(context: context),
             )
@@ -545,15 +531,16 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
+    final l10n = context.l10n;
 
     final bike = appRepository.bikes[widget.bikeId];
     if (bike == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const SafeArea(
+        body: SafeArea(
           child: EmptyStatePlaceholder.error(
-            title: "Bike not found",
-            subtitle: "This bike was deleted or is no longer available.",
+            title: l10n.bikeDetailsNotFoundTitle,
+            subtitle: l10n.bikeDetailsNotFoundSubtitle,
           ),
         ),
       );
@@ -565,7 +552,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       (component) => appRepository.componentHierarchy.currentBike(component.id) == bike.id,
     );
     final stats = appRepository.bikeStats[widget.bikeId] ?? bike.initialStats;
-    final initialStatsSummary = initial_stats.initialStatsSummary(bike.initialStats, appSettings);
+    final initialStatsSummary = initial_stats.initialStatsSummary(bike.initialStats, appSettings, l10n);
     final attachments = appSettings.enableAttachments ? bike.attachments : const <Attachment>[];
 
     return Scaffold(
@@ -602,7 +589,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                       ? const Icon(Person.iconData)
                       : const Icon(Icons.person_off),
                   title: Text(
-                    person?.name ?? (bike.person == null ? "No rider linked to this bike." : "RIDER NOT FOUND"),
+                    person?.name ?? (bike.person == null ? l10n.bikeDetailsNoRider : l10n.riderNotFound),
                     style: TextStyle(
                       color: bike.person == null || person != null
                           ? null
@@ -623,7 +610,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                         : const Icon(Icons.link_off),
                   ),                
                   title: Text(
-                    stravaGear?.name ?? (bike.stravaGear == null ? "No Strava Gear linked to this bike." : "STRAVA GEAR NOT FOUND"),
+                    stravaGear?.name ?? (bike.stravaGear == null ? l10n.bikeDetailsNoStravaGear : l10n.bikeDetailsStravaGearNotFound),
                     style: TextStyle(
                       color: bike.stravaGear == null || stravaGear != null
                           ? null
@@ -644,7 +631,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
               if (initialStatsSummary != null)
                 ListTile(
                   leading: const Icon(Icons.start),
-                  title: Text("Initial: $initialStatsSummary"),
+                  title: Text(l10n.initialStatsChip(initialStatsSummary)),
                   dense: true,
                 ),
 
@@ -663,7 +650,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                 collapsedShape: const Border(),
                 leading: const Icon(Component.iconData),
                 title: Text(
-                  "Components (${components.length})",
+                  l10n.bikeDetailsComponentsTitle(components.length),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -673,8 +660,8 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                   if (components.isEmpty) ...[
                     EmptyStatePlaceholder2(
                       iconData: Component.iconData,
-                      title: 'No components yet',
-                      subtitle: 'Add a component to this bike',
+                      title: l10n.noComponentsTitle,
+                      subtitle: l10n.bikeDetailsNoComponentsSubtitle,
                       onTap: () => ComponentActions.addComponent(context, initialBike: widget.bikeId),
                     ),
                     const SizedBox(height: 8),
@@ -683,7 +670,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                       child: FilledButton.icon(
                         onPressed: () => ComponentActions.addComponent(context, initialBike: widget.bikeId),
                         icon: const Icon(Icons.add),
-                        label: const Text('Add Component'),
+                        label: Text(l10n.addComponent),
                       ),
                     ),
                   ] else ...[
@@ -697,7 +684,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                       child: TextButton.icon(
                         onPressed: () => ComponentActions.addComponent(context, initialBike: widget.bikeId),
                         icon: const Icon(Icons.add),
-                        label: const Text('Add Component'),
+                        label: Text(l10n.addComponent),
                       ),
                     ),
                   ],

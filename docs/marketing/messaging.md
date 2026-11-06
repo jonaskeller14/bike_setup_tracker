@@ -54,7 +54,7 @@ build.
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
   never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
-- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16, R17, C5–C8, S4–S8, D4, D5) open Shorts and
+- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R18, C5–C8, S4–S8, D4, D5) open Shorts and
   posts; store assets use statements.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
@@ -85,6 +85,7 @@ German riders, not translated word for word.
 | R15 | New fork? Every click range, filled in. | Neue Gabel? Alle Klickbereiche schon eingetragen. |
 | R16 | Thinking about upgrading your fork? | Überlegst du, deine Gabel aufzurüsten? |
 | R17 | Red dial or blue dial: which one was rebound? | Rotes oder blaues Rad: Welches war die Zugstufe? |
+| R18 | You changed your fork settings. But you liked it better before? | Du hast deine Gabel verstellt. Aber vorher war es besser? |
 
 ### C — See what changed
 
@@ -121,6 +122,19 @@ German riders, not translated word for word.
 | D3 | Export every bike setup: Excel, CSV, JSON. | Jedes Bike-Setup exportieren: Excel, CSV, JSON. |
 | D4 | Your riding buddy wants your fork settings? | Dein Kumpel fragt nach deinen Gabel-Einstellungen? |
 | D5 | Want all your bike setups in a spreadsheet? | Alle deine Bike-Setups in einer Tabelle? |
+
+### R2, R4 and C3 in French, Italian, Spanish and Portuguese
+
+The three store-asset headlines, for the localized header, search and feature graphic
+(`docs/store/app-store/creative/`, `docs/store/play-store/feature_graphic.html`). LLM drafts, written for
+riders and not word for word, like the UI ([#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)).
+Address: French "vous", Italian "tu", Spanish "tú", Portuguese "você".
+
+| ID | FR | IT | ES | PT-BR |
+|---|---|---|---|---|
+| R2 | Fourche et amortisseur : aucun réglage oublié. | Forcella e ammortizzatore: nessun clic perso. | Horquilla y amortiguador: ningún clic se pierde. | Garfo e amortecedor: nenhum clique se perde. |
+| R4 | Le carnet de votre suspension VTT. | Il diario delle tue sospensioni MTB. | El diario de tu suspensión MTB. | O diário da sua suspensão de MTB. |
+| C3 | Trouvez le réglage de fourche qui vous convient. | Trova la regolazione della forcella giusta per te. | Encuentra el ajuste de horquilla que te funciona. | Encontre a regulagem do garfo que funciona para você. |
 
 ### Signature
 

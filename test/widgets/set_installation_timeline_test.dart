@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   late AppDatabase database;
@@ -46,7 +47,7 @@ void main() {
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: Scaffold(
           // Wrap in SingleChildScrollView to avoid layout overflows in test environment

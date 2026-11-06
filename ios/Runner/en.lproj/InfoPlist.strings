@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "Allows you to take a photo to attach to a bike setup.";
+"NSPhotoLibraryUsageDescription" = "Allows you to attach photos from your library to a bike setup.";
+"NSLocationWhenInUseUsageDescription" = "This app uses your location to automatically add location data to your bike setups.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Bike Setup Tracker uses your location to automatically add location data to your bike setups.";

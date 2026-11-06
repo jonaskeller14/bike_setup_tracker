@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'add_tag_chip.dart';
 import 'sheet_header.dart';
 
@@ -62,7 +63,7 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
   }
 
   String? _addTag(String newTag) {
-    if (_availableTags.contains(newTag)) return "Tag already exists";
+    if (_availableTags.contains(newTag)) return context.l10n.tagAlreadyExists;
 
     setState(() {
       _availableTags.add(newTag);
@@ -98,7 +99,7 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 32),
                       child: Center(
-                        child: Text("No tags yet", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
+                        child: Text(context.l10n.tagsEmpty, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
                       ),
                     ),
                   Wrap(

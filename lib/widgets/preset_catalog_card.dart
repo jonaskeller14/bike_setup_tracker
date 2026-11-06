@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
 import '../repositories/component_catalog_repository.dart';
@@ -94,7 +96,7 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
     return [
       for (final axis in applied.optionalAxes) ?applied.selections[axis.id]?.label,
       if (years != null) years.toString(),
-      'Tap to change',
+      context.l10n.catalogCardTapToChange,
     ].join(' · ');
   }
 
@@ -122,8 +124,8 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
               isApplied
                   ? presetDisplayName(applied)
                   : isLinked
-                  ? 'Catalog entry not found'
-                  : 'Choose from catalog',
+                  ? context.l10n.catalogCardNotFound
+                  : context.l10n.catalogPickerTitle,
               maxLines: isLinked ? 1 : null,
               overflow: isLinked ? TextOverflow.ellipsis : null,
               style: TextStyle(fontWeight: FontWeight.w600, color: foreground),
@@ -132,10 +134,10 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
               isApplied
                   ? _appliedSubtitle(applied)
                   : isLinked
-                  ? 'No longer in the catalog · Tap to choose another'
+                  ? context.l10n.catalogCardNotFoundHint
                   : [
-                      _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
-                      if (widget.showGuideHint && _hasGuides) 'Link to a catalog product to get recommended values',
+                      _teaser ?? context.l10n.catalogCardPrefill(widget.componentType.labelInSentence(context.l10n)),
+                      if (widget.showGuideHint && _hasGuides) context.l10n.catalogCardGuideHint,
                     ].join('\n'),
               maxLines: isApplied ? 1 : null,
               overflow: isApplied ? TextOverflow.ellipsis : null,
@@ -145,7 +147,7 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
                 ? IconButton(
                     icon: const Icon(Icons.link_off),
                     color: subtitleColor,
-                    tooltip: 'Unlink preset (keeps values)',
+                    tooltip: context.l10n.catalogCardUnlinkTooltip,
                     onPressed: widget.onUnlink,
                   )
                 : Icon(Icons.arrow_forward_ios, size: 16, color: foreground),
@@ -187,7 +189,7 @@ class _CatalogUpdate extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Update available',
+                  context.l10n.catalogCardUpdateAvailable,
                   style: theme.textTheme.titleSmall?.copyWith(color: colors.primary),
                 ),
               ),
@@ -208,8 +210,8 @@ class _CatalogUpdate extends StatelessWidget {
             alignment: MainAxisAlignment.end,
             spacing: 8,
             children: [
-              TextButton(onPressed: onDismiss, child: const Text('Dismiss')),
-              TextButton(onPressed: onReview, child: const Text('Review')),
+              TextButton(onPressed: onDismiss, child: Text(context.l10n.catalogCardDismiss)),
+              TextButton(onPressed: onReview, child: Text(context.l10n.catalogCardReview)),
             ],
           ),
         ],

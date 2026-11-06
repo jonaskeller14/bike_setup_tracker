@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/filter_actions.dart';
@@ -102,9 +103,9 @@ class _TaskListState extends State<TaskList> {
       return EmptyStatePlaceholder(
         key: const ValueKey('task-empty-none'),
         icon: Icons.checklist,
-        title: 'No tasks yet',
-        subtitle: 'Add a task to track service intervals or other bike related todos.',
-        actionLabel: 'Add a task',
+        title: context.l10n.taskListEmptyTitle,
+        subtitle: context.l10n.taskListEmptySubtitle,
+        actionLabel: context.l10n.taskListEmptyAction,
         onAction: () => TaskActions.addTaskRule(context),
       );
     }
@@ -113,9 +114,9 @@ class _TaskListState extends State<TaskList> {
       return EmptyStatePlaceholder(
         key: const ValueKey('task-empty-filtered'),
         icon: Icons.filter_alt_off,
-        title: 'Nothing due in this view',
-        subtitle: 'Priority or tag filters are hiding tasks that need attention.',
-        actionLabel: 'Clear filters',
+        title: context.l10n.taskListFilteredTitle,
+        subtitle: context.l10n.taskListFilteredSubtitle,
+        actionLabel: context.l10n.clearFilters,
         actionIcon: Icons.filter_alt_off,
         onAction: () => FilterActions.clear(context, const {FilterSection.taskPriority, FilterSection.taskTags}),
       );
@@ -135,16 +136,18 @@ class _TaskListState extends State<TaskList> {
     required int count,
     required VoidCallback onPressed,
     required String section,
+    required String showFewerLabel,
+    required String showAllLabel,
   }) {
     return Semantics(
       button: true,
-      label: expanded ? 'Show fewer $section tasks' : 'Show all $count $section tasks',
+      label: expanded ? showFewerLabel : showAllLabel,
       child: Center(
         child: TextButton.icon(
           key: ValueKey('task-$section-toggle'),
           onPressed: onPressed,
           icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
-          label: Text(expanded ? 'Show less' : 'Show all ($count)'),
+          label: Text(expanded ? context.l10n.taskListShowLess : context.l10n.taskListShowAllCount(count)),
         ),
       ),
     );
@@ -266,7 +269,7 @@ class _TaskListState extends State<TaskList> {
               children: [
                 _section(
                   key: _dueSectionKey,
-                  title: 'Due now',
+                  title: context.l10n.taskListDueNow,
                   count: due.length,
                   content: _animatedSectionContent(
                     membershipKey: 'due-${due.map((task) => task.rule.id).join(',')}',
@@ -290,7 +293,7 @@ class _TaskListState extends State<TaskList> {
                 if (upcoming.isNotEmpty)
                   _section(
                     key: _upcomingSectionKey,
-                    title: 'Upcoming',
+                    title: context.l10n.taskListUpcoming,
                     count: upcoming.length,
                     content: _animatedSectionContent(
                       membershipKey: 'upcoming-${visibleUpcoming.map((task) => task.rule.id).join(',')}',
@@ -305,6 +308,8 @@ class _TaskListState extends State<TaskList> {
                               expanded: _showAllUpcoming,
                               count: upcoming.length,
                               section: 'upcoming',
+                              showFewerLabel: context.l10n.taskListShowFewerUpcoming,
+                              showAllLabel: context.l10n.taskListShowAllUpcoming(upcoming.length),
                               onPressed: () => setState(
                                 () => _showAllUpcoming = !_showAllUpcoming,
                               ),
@@ -316,7 +321,7 @@ class _TaskListState extends State<TaskList> {
                 if (completed.isNotEmpty)
                   _section(
                     key: _completedSectionKey,
-                    title: 'Completed',
+                    title: context.l10n.taskListCompleted,
                     count: completed.length,
                     content: _animatedSectionContent(
                       membershipKey: 'completed-${visibleCompleted.map((task) => task.rule.id).join(',')}',
@@ -331,6 +336,8 @@ class _TaskListState extends State<TaskList> {
                               expanded: _showAllCompleted,
                               count: completed.length,
                               section: 'completed',
+                              showFewerLabel: context.l10n.taskListShowFewerCompleted,
+                              showAllLabel: context.l10n.taskListShowAllCompleted(completed.length),
                               onPressed: () => setState(
                                 () => _showAllCompleted = !_showAllCompleted,
                               ),

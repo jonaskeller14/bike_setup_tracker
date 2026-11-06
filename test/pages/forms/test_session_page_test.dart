@@ -11,8 +11,10 @@ import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session_method.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/pages/forms/component_page.dart';
 import 'package:bike_setup_tracker/pages/forms/test_session_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/setup_day_list.dart';
 import 'package:bike_setup_tracker/widgets/timeline_day_header.dart';
@@ -21,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 const _bikeId = 'bike';
 
@@ -79,11 +82,14 @@ void main() {
     TestSessionPage Function()? page,
     double width = 800,
     ThemeData? theme,
+    bool enableGoal = false,
   }) async {
     await tester.runAsync(() async {
       database = AppDatabase.memory();
       appRepository = AppRepository(database);
-      appSettings = AppSettings()..showOnboarding = false;
+      appSettings = AppSettings()
+        ..showOnboarding = false
+        ..enableTestSessionGoal = enableGoal;
       await appRepository.addBikes([Bike(id: _bikeId, name: 'Test Bike', person: null)]);
       await appRepository.addComponents([
         Component(
@@ -124,8 +130,10 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appRepository),
+          // Lazy: only the component form opened from the empty sheet reads it.
+          ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: theme ?? materialAppTheme,
           home: Builder(
             builder: (context) => TextButton(
@@ -145,7 +153,7 @@ void main() {
 
   Future<void> selectInSheet(WidgetTester tester, List<String> names) async {
     for (final name in names) {
-      final tile = find.descendant(of: find.byType(BottomSheet), matching: find.widgetWithText(FilterChip, name));
+      final tile = find.descendant(of: find.byType(BottomSheet), matching: find.text(name));
       await tester.ensureVisible(tile);
       await tester.tap(tile);
       await tester.pump();
@@ -165,6 +173,20 @@ void main() {
   }
 
   const tooMany = 'More than 5 adjustments make it hard to tell which one helped. 1–3 work best.';
+
+  testWidgets('a bike without adjustments offers to add a component from the empty sheet', (tester) async {
+    await open(tester, page: () => TestSessionPage(initialBike: Bike(id: 'empty', name: 'Empty Bike', person: null)));
+
+    await tester.tap(find.text('No adjustments yet'));
+    await tester.pumpAndSettle();
+    expect(find.text('This bike has no adjustments.'), findsOneWidget);
+
+    await tester.tap(find.text('Add Component'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.byType(ComponentPage), findsOneWidget);
+  });
 
   testWidgets('the adjustment sheet is grouped by component and warns softly above five', (tester) async {
     await open(tester);
@@ -188,8 +210,22 @@ void main() {
     expect((result as TestSession).adjustmentIds, hasLength(6));
   });
 
-  testWidgets('the goal is grouped like the feedback form and counts to three', (tester) async {
+  testWidgets('the goal stays hidden without its feature flag, and a new session has none', (tester) async {
     await open(tester);
+
+    expect(find.text('GOAL (OPTIONAL)'), findsNothing);
+    expect(find.widgetWithText(FilterChip, 'Calm'), findsNothing);
+
+    await pickAdjustments(tester, ['Adjustment a1']);
+    await closeSheet(tester);
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    expect((result as TestSession).goal, isEmpty);
+  });
+
+  testWidgets('the goal is grouped like the feedback form and counts to three', (tester) async {
+    await open(tester, enableGoal: true);
 
     expect(find.text('GOAL (OPTIONAL)'), findsOneWidget);
     expect(find.text('0 / 3'), findsOneWidget);
@@ -351,7 +387,7 @@ void main() {
 
     testWidgets('only the name changes, everything else is shown locked', (tester) async {
       final original = session();
-      await open(tester, page: () => TestSessionPage.edit(session: original));
+      await open(tester, page: () => TestSessionPage.edit(session: original), enableGoal: true);
 
       expect(find.text('Edit Test Session'), findsOneWidget);
       expect(find.byIcon(Icons.lock_outline), findsNWidgets(4), reason: 'bike, method, adjustments and goal');
@@ -370,6 +406,21 @@ void main() {
       expect(find.widgetWithText(FilterChip, 'Grip'), findsNothing);
 
       await tester.enterText(find.byType(TextField), '  Faster rebound  ');
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(result, original.copyWith(name: 'Faster rebound'));
+    });
+
+    testWidgets('without the feature flag the goal is hidden but kept', (tester) async {
+      final original = session();
+      await open(tester, page: () => TestSessionPage.edit(session: original));
+
+      expect(find.text('GOAL (OPTIONAL)'), findsNothing);
+      expect(find.widgetWithText(FilterChip, 'Front · Calm'), findsNothing);
+      expect(find.byIcon(Icons.lock_outline), findsNWidgets(3), reason: 'bike, method and adjustments');
+
+      await tester.enterText(find.byType(TextField), 'Faster rebound');
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 

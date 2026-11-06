@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
@@ -99,11 +101,14 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
   }
 
   ComponentOutcome? _outcomeFor({required int depth, required Component? replacement}) {
-    if (depth == 0) return const ComponentOutcome(icon: Icons.shelves, label: 'Uninstalled');
+    final l10n = context.l10n;
+    if (depth == 0) return ComponentOutcome(icon: Icons.shelves, label: l10n.timelineUninstalled);
     // Deeper levels stay on their own parent and follow it.
     if (depth > 1) return null;
-    if (!_moveSubcomponents) return const ComponentOutcome(icon: Icons.shelves, label: 'Uninstalled');
-    final label = _mode == _ReplaceMode.existing ? replacement?.name ?? 'Replacement' : 'New component';
+    if (!_moveSubcomponents) return ComponentOutcome(icon: Icons.shelves, label: l10n.timelineUninstalled);
+    final label = _mode == _ReplaceMode.existing
+        ? replacement?.name ?? l10n.replaceOutcomeReplacement
+        : l10n.replaceOutcomeNewComponent;
     return ComponentOutcome(icon: widget.component.componentType.getIconData(), label: label);
   }
 
@@ -187,9 +192,11 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                   spacing: 2,
                   children: [
                     Icon(Icons.route, size: 11, color: cs.onSurfaceVariant),
-                    Text(
-                      '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
-                      style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                    Flexible(
+                      child: Text(
+                        '${NumberFormat.decimalPattern(context.l10n.localeName).format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+                        style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                      ),
                     ),
                   ],
                 ),
@@ -197,9 +204,11 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                   spacing: 2,
                   children: [
                     Icon(Icons.timer_outlined, size: 11, color: cs.onSurfaceVariant),
-                    Text(
-                      '${stats.movingTime.inHours}h ${stats.movingTime.inMinutes.remainder(60)}m',
-                      style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                    Flexible(
+                      child: Text(
+                        '${stats.movingTime.inHours}h ${stats.movingTime.inMinutes.remainder(60)}m',
+                        style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                      ),
                     ),
                   ],
                 ),
@@ -216,6 +225,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final hintService = context.watch<AppHintService>();
+    final l10n = context.l10n;
     final showStrava = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
     // Without the timeline the swap happens now and nothing is dated.
     final tracksDates = appSettings.enableInstallationTimeline ||
@@ -258,7 +268,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SheetHeader(title: "Replace '${widget.component.name}'"),
+            SheetHeader(title: l10n.replaceTitle(widget.component.name)),
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(
@@ -269,16 +279,16 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                     SizedBox(
                       width: double.infinity,
                       child: SegmentedButton<_ReplaceMode>(
-                        segments: const [
+                        segments: [
                           ButtonSegment(
                             value: _ReplaceMode.existing,
-                            label: Text("Existing"),
-                            icon: Icon(Icons.shelves),
+                            label: Text(l10n.replaceModeExisting),
+                            icon: const Icon(Icons.shelves),
                           ),
                           ButtonSegment(
                             value: _ReplaceMode.create,
-                            label: Text("New"),
-                            icon: Icon(Icons.add),
+                            label: Text(l10n.replaceModeNew),
+                            icon: const Icon(Icons.add),
                           ),
                         ],
                         selected: {_mode},
@@ -291,10 +301,10 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                     const SizedBox(height: 16),
                     Text(
                       switch ((_mode, tracksDates)) {
-                        (_ReplaceMode.existing, true) =>  "Pick an already uninstalled component to install in place of this one, and set the replacement date. This is when the current component is retired and the selected one installed.",
-                        (_ReplaceMode.create, true) => "Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
-                        (_ReplaceMode.existing, false) => "Pick an already uninstalled component to install in place of this one. The current component is uninstalled.",
-                        (_ReplaceMode.create, false) => "The current component is uninstalled and a new one installed in its place. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
+                        (_ReplaceMode.existing, true) => l10n.replaceDescriptionExistingDated,
+                        (_ReplaceMode.create, true) => l10n.replaceDescriptionNewDated,
+                        (_ReplaceMode.existing, false) => l10n.replaceDescriptionExistingUndated,
+                        (_ReplaceMode.create, false) => l10n.replaceDescriptionNewUndated,
                       },
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -303,9 +313,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                     if (offerTimeline) ...[
                       const SizedBox(height: 16),
                       InstallationTimelineHint(
-                        message: "Without a swap date, the new part counts as installed from the start. "
-                            "Past setups then no longer show the old part and the values you recorded for it. "
-                            "Date the swap to keep both histories intact.",
+                        message: l10n.replaceTimelineHint,
                         onDismiss: () => unawaited(hintService.dismiss(AppHint.installationTimelineV1)),
                         onActivate: () async {
                           // Reveals the date field in place.
@@ -318,8 +326,8 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                       const SizedBox(height: 16),
                       SheetFilterEmptyHint(
                         icon: Icons.shelves,
-                        title: "No uninstalled ${widget.component.componentType.label} available",
-                        hint: "Create a new component instead.",
+                        title: l10n.replaceNoUninstalledTitle(widget.component.componentType.label(l10n)),
+                        hint: l10n.replaceNoUninstalledHint,
                         onTap: () {
                           setState(() => _mode = _ReplaceMode.create);
                           _formKey.currentState?.validate();
@@ -331,12 +339,12 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                         initialValue: _selectedComponentId,
                         isExpanded: true,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
-                        decoration: const InputDecoration(
-                          labelText: "Replacement Component",
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n.replaceComponentLabel,
+                          border: const OutlineInputBorder(),
                           isDense: true,
                         ),
-                        hint: const Text("Select a component"),
+                        hint: Text(l10n.replaceComponentHint),
                         selectedItemBuilder: (_) => menuComponents.map(_componentSelectedDisplay).toList(),
                         items: menuComponents
                             .map((c) => _componentDropdownItem(c, showStrava: showStrava, appSettings: appSettings))
@@ -344,7 +352,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                         onChanged: (id) => setState(() => _selectedComponentId = id),
                         validator: (id) {
                           if (_mode == _ReplaceMode.existing && id == null) {
-                            return "Please select a component";
+                            return l10n.replaceComponentRequired;
                           }
                           return null;
                         },
@@ -370,9 +378,9 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                           }
                         }
                         if (lastInstall != null && !value.toUtc().isAfter(lastInstall)) {
-                          final formatted = DateFormat("${appSettings.dateFormat} ${appSettings.timeFormat}")
+                          final formatted = DateFormat("${appSettings.dateFormat} ${appSettings.timeFormat}", context.l10n.localeName)
                               .format(lastInstall.toLocal());
-                          return "Must be after last installation ($formatted)";
+                          return l10n.replaceDateAfterLast(formatted);
                         }
                         return null;
                       },
@@ -387,7 +395,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                           },
                           child: InputDecorator(
                             decoration: InputDecoration(
-                              labelText: "Replacement Date",
+                              labelText: l10n.replaceDateLabel,
                               border: const OutlineInputBorder(),
                               isDense: true,
                               errorText: state.errorText,
@@ -397,7 +405,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  DateFormat(appSettings.dateFormat).format(state.value ?? _replaceDate),
+                                  DateFormat(appSettings.dateFormat, context.l10n.localeName).format(state.value ?? _replaceDate),
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     height: 1.1,
                                   ),
@@ -405,7 +413,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  DateFormat(appSettings.timeFormat).format(state.value ?? _replaceDate),
+                                  DateFormat(appSettings.timeFormat, context.l10n.localeName).format(state.value ?? _replaceDate),
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Theme.of(context).hintColor,
                                     height: 1.1,
@@ -434,14 +442,14 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                           RadioOptionCard(
                             selected: _moveSubcomponents,
                             onTap: () => setState(() => _moveSubcomponents = true),
-                            title: "Move subcomponents to replacement",
-                            subtitle: "They are installed on the replacement at the replacement date.",
+                            title: l10n.replaceMoveSubcomponents,
+                            subtitle: l10n.replaceMoveSubcomponentsHint,
                           ),
                           RadioOptionCard(
                             selected: !_moveSubcomponents,
                             onTap: () => setState(() => _moveSubcomponents = false),
-                            title: "Uninstall subcomponents",
-                            subtitle: "They move to your uninstalled components.",
+                            title: l10n.uninstallSubcomponents,
+                            subtitle: l10n.uninstallSubcomponentsHint,
                           ),
                         ],
                       ),
@@ -456,7 +464,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
               child: FilledButton.icon(
                 icon: const Icon(Icons.arrow_forward),
                 onPressed: noExistingAvailable ? null : _onContinue,
-                label: const Text('Continue'),
+                label: Text(l10n.continueLabel),
               ),
             ),
           ],

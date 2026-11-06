@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/utils/preset_merge.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -132,7 +133,7 @@ void main() {
 
     test('the placeholder warning in notes alone does not mark a max as unknown', () {
       final own = _step('LSR', max: 12);
-      final catalog = _step('LSR', presetKey: 'fork:lsr', max: 16, notes: StepAdjustment.unknownMaxWarning);
+      final catalog = _step('LSR', presetKey: 'fork:lsr', max: 16, notes: englishL10n.stepUnknownMaxWarning);
 
       final merged = mergeAdjustment(own, catalog, const []);
 
@@ -182,6 +183,44 @@ void main() {
 
       expect(merged.keptOwnRange, isFalse);
       expect((merged.adjustment as CategoricalAdjustment).options, {'none', '1 x 10cc'});
+    });
+
+    test('the same catalog adjuster in another language keeps its own options', () {
+      final own = CategoricalAdjustment(
+        name: 'Compression Mode',
+        notes: null,
+        unit: null,
+        presetKey: 'fork:compression_mode',
+        options: const {'Open', 'Firm'},
+      );
+      final catalog = CategoricalAdjustment(
+        name: 'Druckstufenmodus',
+        notes: null,
+        unit: null,
+        presetKey: 'fork:compression_mode',
+        options: const {'Offen', 'Fest'},
+      );
+
+      final merged = mergeAdjustment(own, catalog, [
+        CategoricalValue(const ['Open']),
+      ]);
+
+      expect((merged.adjustment as CategoricalAdjustment).options, {'Open', 'Firm'});
+    });
+
+    test('an adjustment without the catalog preset key is not assumed to hold the same options', () {
+      final own = CategoricalAdjustment(name: 'Mode', notes: null, unit: null, options: const {'Open', 'Firm'});
+      final catalog = CategoricalAdjustment(
+        name: 'Mode',
+        notes: null,
+        unit: null,
+        presetKey: 'fork:compression_mode',
+        options: const {'Offen', 'Fest'},
+      );
+
+      final merged = mergeAdjustment(own, catalog, const []);
+
+      expect((merged.adjustment as CategoricalAdjustment).options, {'Open', 'Firm', 'Offen', 'Fest'});
     });
 
     test('SAG only gets the preset key', () {

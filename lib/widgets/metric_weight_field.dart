@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/l10n.dart';
+import '../utils/localized_number.dart';
 import '../utils/number_input_formatters.dart';
 
 class MetricWeightField extends StatefulWidget {
@@ -17,8 +19,8 @@ class MetricWeightField extends StatefulWidget {
   });
 
   /// Trims trailing ".0" so 1.0 → "1" / -1.0 → "-1" while keeping 1.5 etc.
-  static String formatWeight(double v) =>
-      v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
+  static String formatWeight(double v, String locale) =>
+      formatLocalizedDouble(v, fractionDigits: v == v.roundToDouble() ? 0 : 1, locale: locale);
 
   @override
   State<MetricWeightField> createState() => _MetricWeightFieldState();
@@ -41,10 +43,10 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
     super.dispose();
   }
 
-  double get _value => double.tryParse(widget.controller?.text.trim() ?? '') ?? 0;
+  double get _value => parseLocalizedDouble(widget.controller?.text ?? '') ?? 0;
 
   void _setValue(double v) {
-    final text = MetricWeightField.formatWeight(v);
+    final text = MetricWeightField.formatWeight(v, context.l10n.localeName);
     widget.controller?.value = TextEditingValue(
       text: text,
       selection: TextSelection.collapsed(offset: text.length),
@@ -68,7 +70,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "Not included in the score",
+              context.l10n.metricWeightNotScored,
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
           ),
@@ -80,7 +82,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Scoring weight",
+          context.l10n.metricWeightTitle,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(color: scheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
@@ -89,7 +91,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
             IconButton.outlined(
               onPressed: () => _bump(-widget.step),
               icon: const Icon(Icons.remove),
-              tooltip: 'Decrease weight',
+              tooltip: context.l10n.metricWeightDecrease,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -133,7 +135,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
             IconButton.outlined(
               onPressed: () => _bump(widget.step),
               icon: const Icon(Icons.add),
-              tooltip: 'Increase weight',
+              tooltip: context.l10n.metricWeightIncrease,
             ),
           ],
         ),
@@ -141,12 +143,12 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
         ListenableBuilder(
           listenable: widget.controller!,
           builder: (context, _) {
-            final v = double.tryParse(widget.controller!.text.trim());
+            final v = parseLocalizedDouble(widget.controller!.text);
             final (IconData icon, String text) = switch (v) {
-              null => (Icons.help_outline, 'Set how this metric affects the score'),
-              _ when v > 0 => (Icons.arrow_upward, 'Higher values improve the score'),
-              _ when v < 0 => (Icons.arrow_downward, 'Lower values improve the score'),
-              _ => (Icons.block, 'Not counted in the score'),
+              null => (Icons.help_outline, context.l10n.metricWeightHintUnset),
+              _ when v > 0 => (Icons.arrow_upward, context.l10n.metricWeightHintPositive),
+              _ when v < 0 => (Icons.arrow_downward, context.l10n.metricWeightHintNegative),
+              _ => (Icons.block, context.l10n.metricWeightHintZero),
             };
             return Row(
               children: [

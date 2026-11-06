@@ -221,7 +221,7 @@ void main() {
       semantics.dispose();
     });
 
-    testWidgets('ComponentPage exposes the type, suggestion and adjustment form identifiers', (tester) async {
+    testWidgets('ComponentPage exposes the type, catalog, suggestion and adjustment form identifiers', (tester) async {
       useGoldenViewport(tester);
       final semantics = tester.ensureSemantics();
       await tester.pumpWidget(harness.wrap(brightness: Brightness.light, child: ComponentPage.add()));
@@ -241,17 +241,33 @@ void main() {
       await tester.tap(find.bySemanticsIdentifier(AutomationIds.componentType('fork')));
       await tester.pumpAndSettle();
 
+      expect(find.bySemanticsIdentifier(AutomationIds.componentFormCatalog), findsOneWidget);
+
       // Pressure opens the numerical form, Rebound the step form.
       for (final presetKey in ['fork:pressure', 'fork:rebound']) {
         await tester.tap(find.bySemanticsIdentifier(AutomationIds.componentFormAddAdjustment));
         await tester.pumpAndSettle();
         await tester.tap(find.bySemanticsIdentifier(AutomationIds.adjustmentPreset(presetKey)));
         await tester.pumpAndSettle();
+        if (presetKey == 'fork:rebound') {
+          await tester.tap(find.bySemanticsIdentifier(AutomationIds.adjustmentFormDialStyle));
+          await tester.pumpAndSettle();
+          expect(find.bySemanticsIdentifier(AutomationIds.dialStyleColor('red')), findsOneWidget);
+          expect(find.bySemanticsIdentifier(AutomationIds.dialStyleSize('small')), findsOneWidget);
+          await tester.tapAt(const Offset(10, 10));
+          await tester.pumpAndSettle();
+        }
         final save = find.bySemanticsIdentifier(AutomationIds.adjustmentFormSave);
         expect(save, findsOneWidget, reason: presetKey);
         await tester.tap(save);
         await tester.pumpAndSettle();
       }
+
+      final adjustmentActions = find.bySemanticsIdentifier(RegExp(r'^adjustment\.actions\.(?!edit$)'));
+      expect(adjustmentActions, findsNWidgets(2));
+      await tester.tap(adjustmentActions.last);
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsIdentifier(AutomationIds.adjustmentActionsEdit), findsOneWidget);
       semantics.dispose();
     });
 

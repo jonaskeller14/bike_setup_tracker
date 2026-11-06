@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+import '../l10n/l10n.dart';
+
 class CalendarAddSetupSlot {
   const CalendarAddSetupSlot(this.date);
 
@@ -39,7 +41,7 @@ class CalendarAddSetupAppointment extends StatelessWidget {
                       const SizedBox(width: 2),
                       Flexible(
                         child: Text(
-                          'Add setup',
+                          context.l10n.calendarAddSetup,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

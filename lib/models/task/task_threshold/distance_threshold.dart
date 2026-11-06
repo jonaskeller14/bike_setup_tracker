@@ -14,12 +14,6 @@ class DistanceThreshold extends AccumulatingThreshold {
   IconData get iconData => Icons.route;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) {
-    final value = distanceUnit == 'mi' ? meters / 1609.344 : meters / 1000;
-    return '${NumberFormat('#,##0.#').format(value)} $distanceUnit';
-  }
-
-  @override
   Map<String, dynamic> toJson() => {
         'type': 'distance',
         'meters': meters,

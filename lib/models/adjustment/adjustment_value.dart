@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 
 import 'adjustment.dart';
 
@@ -67,9 +66,6 @@ sealed class AdjustmentValue {
   /// JSON string as stored in the value tables.
   String encode();
 
-  /// Context-free display text, without unit.
-  String get display;
-
   /// Numeric projection for charts; `null` where the value has no order.
   num? get asNum;
 
@@ -83,9 +79,6 @@ final class BooleanValue extends AdjustmentValue {
 
   @override
   String encode() => jsonEncode(value);
-
-  @override
-  String get display => value ? 'On' : 'Off';
 
   @override
   num? get asNum => value ? 1 : 0;
@@ -110,9 +103,6 @@ final class StepValue extends AdjustmentValue {
 
   @override
   String encode() => jsonEncode(value);
-
-  @override
-  String get display => value.toString();
 
   @override
   num? get asNum => value;
@@ -140,11 +130,6 @@ final class NumericalValue extends AdjustmentValue {
   String encode() => jsonEncode(value);
 
   static NumericalValue? orNull(double? value) => value == null ? null : NumericalValue(value);
-
-  static final NumberFormat _format = NumberFormat('0.#####', 'en_US');
-
-  @override
-  String get display => _format.format(value);
 
   @override
   num? get asNum => value;
@@ -174,9 +159,6 @@ final class TextValue extends AdjustmentValue {
   String encode() => jsonEncode(value);
 
   @override
-  String get display => value;
-
-  @override
   num? get asNum => null;
 
   @override
@@ -202,18 +184,6 @@ final class CategoricalValue extends AdjustmentValue {
   String encode() => jsonEncode(options);
 
   @override
-  String get display {
-    if (options.isEmpty) return '-';
-    final counts = <String, int>{};
-    for (final option in options) {
-      counts[option] = (counts[option] ?? 0) + 1;
-    }
-    return counts.entries
-        .map((entry) => entry.value == 1 ? entry.key : '${entry.key} (${entry.value})')
-        .join(Adjustment.multiValueSeparator);
-  }
-
-  @override
   num? get asNum => null;
 
   @override
@@ -237,12 +207,6 @@ final class DurationValue extends AdjustmentValue {
 
   @override
   String encode() => jsonEncode(value.inMicroseconds);
-
-  @override
-  String get display {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    return '${twoDigits(value.inHours)}:${twoDigits(value.inMinutes.remainder(60))}:${twoDigits(value.inSeconds.remainder(60))}';
-  }
 
   /// Seconds.
   @override
@@ -273,9 +237,6 @@ final class UnresolvedValue extends AdjustmentValue {
 
   @override
   String encode() => raw;
-
-  @override
-  String get display => raw;
 
   @override
   num? get asNum => null;

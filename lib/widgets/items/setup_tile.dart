@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/setup.dart';
@@ -85,11 +86,11 @@ class _SetupTileState extends State<SetupTile> {
     final bikes = appRepository.bikes;
     final bool showInlineExpandIcon = summary.collapsedHidesSomething;
 
-    final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
-    final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(setup.datetimeLocal);
 
     final metadataRows = [
-      ...SetupTileHeader.metadataOf(setup, appSettings, hidePlace: widget.hidePlace),
+      ...SetupTileHeader.metadataOf(setup, appSettings, context.l10n, hidePlace: widget.hidePlace),
       ?SetupTileHeader.rankOf(setup, appSettings, appRepository),
     ];
     final Widget? badge = widget.showCurrentBadge
@@ -135,7 +136,7 @@ class _SetupTileState extends State<SetupTile> {
                       : null,
                   secondaryMetadata: TileMetaRow(
                     icon: Bike.iconData,
-                    text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                    text: bikes[setup.bike]?.name ?? context.l10n.bikeNotFound,
                     isError: !bikes.containsKey(setup.bike),
                   ),
                 ),

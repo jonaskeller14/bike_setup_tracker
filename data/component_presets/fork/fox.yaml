@@ -70,39 +70,59 @@ option_values:
     grip_x2:
       name: GRIP X2
       description: Most tunable, descent-focused damper (enduro/DH). Four external adjusters.
+      description_de: Am vielseitigsten einstellbarer Dämpfer für die Abfahrt (Enduro/DH). Vier externe Versteller.
+      description_fr: Amortisseur le plus réglable, axé sur la descente (enduro/DH). Quatre réglages externes.
+      description_it: L’ammortizzatore più regolabile, orientato alla discesa (enduro/DH). Quattro regolatori esterni.
+      description_es: El amortiguador más ajustable, centrado en el descenso (enduro/DH). Cuatro ajustes externos.
+      description_pt: O amortecedor mais ajustável, voltado para a descida (enduro/DH). Quatro ajustes externos.
       adjustments:
-        - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
-        - { name: LSC, type: step, max: 18, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: 8, notes: High-Speed Rebound, dialColor: red }
-        - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 8, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: blue }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 18, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: step, max: 8, notes: High-Speed Rebound, notes_de: High-Speed-Zugstufe, notes_fr: Détente haute vitesse, notes_it: Ritorno ad alta velocità, notes_es: Rebote de alta velocidad, notes_pt: Retorno de alta velocidade, dialColor: red }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: red, dialSize: small }
       valves: 23
       source: https://ridefox.com/pages/fox-36
 
     grip_x:
       name: GRIP X
       description: Trail-focused damper. HSC dial has a Firm detent at its final click (170° sweep).
+      description_de: Dämpfer für den Trail-Einsatz. Das HSC-Rad hat bei seinem letzten Klick eine Firm-Raste (170° Drehbereich).
+      description_fr: Amortisseur orienté trail. La molette HSC a un cran Firm à son dernier clic (débattement de 170°).
+      description_it: Ammortizzatore orientato al trail. La manopola HSC ha uno scatto Firm all’ultimo scatto (corsa di 170°).
+      description_es: Amortiguador orientado a trail. La rueda HSC tiene una muesca Firm en su último clic (barrido de 170°).
+      description_pt: Amortecedor voltado para trail. O seletor HSC tem um clique Firm no último clique (varredura de 170°).
       adjustments:
-        - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Firm mode engaged at the final click", dialColor: blue }
-        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob, dialColor: red }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 15, notes: "High-Speed Compression; Firm mode engaged at the final click", notes_de: High-Speed-Druckstufe; Firm-Modus am letzten Klick aktiv, notes_fr: Compression haute vitesse ; le mode Firm s’enclenche au dernier clic, notes_it: Compressione ad alta velocità; la modalità Firm si inserisce all’ultimo scatto, notes_es: Compresión de alta velocidad; el modo Firm se activa en el último clic, notes_pt: Compressão de alta velocidade; o modo Firm é acionado no último clique, dialColor: blue }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob, notes_de: FOX bezeichnet dies als „Low-Speed-Zugstufe“; einzelnes Zugstufenrad, notes_fr: FOX appelle cela « détente basse vitesse » ; une seule molette de détente, notes_it: FOX la chiama «ritorno a bassa velocità»; una sola manopola del ritorno, notes_es: FOX lo llama «rebote de baja velocidad»; una sola rueda de rebote, notes_pt: A FOX chama isso de “retorno de baixa velocidade”; um único seletor de retorno, dialColor: red }
       firm_mode: at final HSC click
       source: https://ridefox.com/pages/fox-34
 
     grip_sl:
       name: GRIP SL
       description: Lightweight XC damper. Three on-the-fly compression positions (Open/Medium/Firm), 2-position remote compatible.
+      description_de: Leichter XC-Dämpfer. Drei Druckstufenpositionen zum Umschalten während der Fahrt (Open/Medium/Firm), kompatibel mit 2-Positionen-Fernbedienung.
+      description_fr: Amortisseur XC léger. Trois positions de compression utilisables en roulant (Open/Medium/Firm), compatible commande à 2 positions.
+      description_it: Ammortizzatore XC leggero. Tre posizioni di compressione azionabili in marcia (Open/Medium/Firm), compatibile con comando remoto a 2 posizioni.
+      description_es: Amortiguador XC ligero. Tres posiciones de compresión accionables en marcha (Open/Medium/Firm), compatible con mando remoto de 2 posiciones.
+      description_pt: Amortecedor XC leve. Três posições de compressão acionáveis em movimento (Open/Medium/Firm), compatível com comando remoto de 2 posições.
       adjustments:
-        - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob, dialColor: red }
-        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob, notes_de: FOX bezeichnet dies als „Low-Speed-Zugstufe“; einzelnes Zugstufenrad, notes_fr: FOX appelle cela « détente basse vitesse » ; une seule molette de détente, notes_it: FOX la chiama «ritorno a bassa velocità»; una sola manopola del ritorno, notes_es: FOX lo llama «rebote de baja velocidad»; una sola rueda de rebote, notes_pt: A FOX chama isso de “retorno de baixa velocidade”; um único seletor de retorno, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme] }
       remote: 2-position
       source: https://ridefox.com/pages/fox-34-sl
 
     grip:
       name: GRIP
       description: Updated GRIP cartridge (Performance/Rhythm trims). Three on-the-fly compression positions with micro-adjust detents.
+      description_de: Überarbeitete GRIP-Kartusche (Ausstattungen Performance/Rhythm). Drei Druckstufenpositionen zum Umschalten während der Fahrt mit Feinjustier-Rasten.
+      description_fr: Cartouche GRIP mise à jour (finitions Performance/Rhythm). Trois positions de compression utilisables en roulant avec crans de micro-réglage.
+      description_it: Cartuccia GRIP aggiornata (allestimenti Performance/Rhythm). Tre posizioni di compressione azionabili in marcia con scatti di microregolazione.
+      description_es: Cartucho GRIP actualizado (acabados Performance/Rhythm). Tres posiciones de compresión accionables en marcha con muescas de microajuste.
+      description_pt: Cartucho GRIP atualizado (acabamentos Performance/Rhythm). Três posições de compressão acionáveis em movimento com cliques de microajuste.
       adjustments:
-        - { name: Rebound, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
-        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", notes_de: "geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme] }
       source:
         - https://ridefox.com/pages/fox-34
         - https://tech.ridefox.com/bike/owners-manuals/3164/fork--2027-36mm
@@ -115,9 +135,14 @@ option_values:
     grip_tc:
       name: GRIP (32 Taper-Cast)
       description: GRIP cartridge of the 32 Taper-Cast gravel fork. Three on-the-fly compression positions with micro-adjust detents.
+      description_de: GRIP-Kartusche der 32 Taper-Cast Gravel-Gabel. Drei Druckstufenpositionen zum Umschalten während der Fahrt mit Feinjustier-Rasten.
+      description_fr: Cartouche GRIP de la fourche gravel 32 Taper-Cast. Trois positions de compression utilisables en roulant avec crans de micro-réglage.
+      description_it: Cartuccia GRIP della forcella gravel 32 Taper-Cast. Tre posizioni di compressione azionabili in marcia con scatti di microregolazione.
+      description_es: Cartucho GRIP de la horquilla gravel 32 Taper-Cast. Tres posiciones de compresión accionables en marcha con muescas de microajuste.
+      description_pt: Cartucho GRIP do garfo gravel 32 Taper-Cast. Três posições de compressão acionáveis em movimento com cliques de microajuste.
       adjustments:
-        - { name: Rebound, type: step, max: 22, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
-        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 22, notes: "estimated maximum, check your dial and edit it if it differs", notes_de: "geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme] }
       source: https://tech.ridefox.com/bike/owners-manuals/3162/fork--2027-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
       note: >-
         Own id because its rebound table differs from every other GRIP: the
@@ -127,9 +152,14 @@ option_values:
     rail:
       name: RAIL
       description: Adventure/e-bike damper (AWL). Tool-free external adjusters.
+      description_de: Dämpfer für Adventure und E-Bike (AWL). Externe Versteller ohne Werkzeug.
+      description_fr: Amortisseur Adventure/e-bike (AWL). Réglages externes sans outil.
+      description_it: Ammortizzatore Adventure/e-bike (AWL). Regolatori esterni senza attrezzi.
+      description_es: Amortiguador Adventure/bicicleta eléctrica (AWL). Ajustes externos sin herramientas.
+      description_pt: Amortecedor Adventure/bike elétrica (AWL). Ajustes externos sem ferramentas.
       adjustments:
-        - { name: Rebound, type: step, max: 10, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
-        - { name: Compression Mode, type: categorical, options: ["1", "2"], notes: 2-position SWEEP ADJUST compression }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 10, notes: "estimated maximum, check your dial and edit it if it differs", notes_de: "geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: ["1", "2"], options_de: ["1", "2"], options_fr: ["1", "2"], options_it: ["1", "2"], options_es: ["1", "2"], options_pt: ["1", "2"], notes: 2-position SWEEP ADJUST compression, notes_de: 2-Positionen-Druckstufe (SWEEP ADJUST), notes_fr: Compression à 2 positions SWEEP ADJUST, notes_it: Compressione a 2 posizioni SWEEP ADJUST, notes_es: Compresión de 2 posiciones SWEEP ADJUST, notes_pt: Compressão de 2 posições SWEEP ADJUST }
       source:
         - https://ridefox.com/pages/fox-awl
         - https://tech.ridefox.com/bike/owners-manuals/3168/fork--2027-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
@@ -141,9 +171,14 @@ option_values:
     rail_hd:
       name: RAIL (AWL HD)
       description: Adventure/e-bike damper of the 36mm AWL HD. Tool-free external adjusters.
+      description_de: Dämpfer für Adventure und E-Bike der 36mm AWL HD. Externe Versteller ohne Werkzeug.
+      description_fr: Amortisseur Adventure/e-bike de la 36 mm AWL HD. Réglages externes sans outil.
+      description_it: Ammortizzatore Adventure/e-bike della 36 mm AWL HD. Regolatori esterni senza attrezzi.
+      description_es: Amortiguador Adventure/bicicleta eléctrica de la 36 mm AWL HD. Ajustes externos sin herramientas.
+      description_pt: Amortecedor Adventure/bike elétrica da 36 mm AWL HD. Ajustes externos sem ferramentas.
       adjustments:
-        - { name: Rebound, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
-        - { name: Compression Mode, type: categorical, options: ["1", "2"], notes: 2-position SWEEP ADJUST compression }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", notes_de: "geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: ["1", "2"], options_de: ["1", "2"], options_fr: ["1", "2"], options_it: ["1", "2"], options_es: ["1", "2"], options_pt: ["1", "2"], notes: 2-position SWEEP ADJUST compression, notes_de: 2-Positionen-Druckstufe (SWEEP ADJUST), notes_fr: Compression à 2 positions SWEEP ADJUST, notes_it: Compressione a 2 posizioni SWEEP ADJUST, notes_es: Compresión de 2 posiciones SWEEP ADJUST, notes_pt: Compressão de 2 posições SWEEP ADJUST }
       source: https://tech.ridefox.com/bike/owners-manuals/3168/fork--2027-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
       note: >-
         Own id because the 36mm AWL HD rebound table of the 2025-2027 manuals
@@ -163,11 +198,26 @@ option_values:
       description: |-
         - Four-way descent damper: high- and low-speed compression and rebound
         - Only the 16 high-speed compression clicks nearest fully closed change damping
+      description_de: |-
+        - Vierwege-Dämpfer für die Abfahrt: High- und Low-Speed-Druckstufe sowie Zugstufe
+        - Nur die 16 High-Speed-Druckstufen-Klicks nahe ganz geschlossen verändern die Dämpfung
+      description_fr: |-
+        - Amortisseur de descente à quatre voies : compression et détente haute et basse vitesse
+        - Seuls les 16 clics de compression haute vitesse proches de la position entièrement fermée modifient l’amortissement
+      description_it: |-
+        - Ammortizzatore da discesa a quattro vie: compressione e ritorno ad alta e bassa velocità
+        - Solo i 16 scatti di compressione ad alta velocità più vicini alla posizione completamente chiusa modificano lo smorzamento
+      description_es: |-
+        - Amortiguador de descenso de cuatro vías: compresión y rebote de alta y baja velocidad
+        - Solo los 16 clics de compresión de alta velocidad más cercanos a la posición totalmente cerrada cambian la amortiguación
+      description_pt: |-
+        - Amortecedor de descida de quatro vias: compressão e retorno de alta e baixa velocidade
+        - Só os 16 cliques de compressão de alta velocidade mais próximos da posição totalmente fechada mudam o amortecimento
       adjustments:
-        - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", dialColor: blue }
-        - { name: LSC, type: step, max: 12, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
-        - { name: LSR, type: step, max: 9, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", notes_de: High-Speed-Druckstufe; Klicks jenseits von 16 aus ganz geschlossen haben keine Dämpfungswirkung, notes_fr: Compression haute vitesse ; les clics au-delà de 16 depuis la position entièrement fermée n’ont aucun effet d’amortissement, notes_it: Compressione ad alta velocità; gli scatti oltre il 16 a partire dalla posizione completamente chiusa non hanno alcun effetto di smorzamento, notes_es: Compresión de alta velocidad; los clics más allá del 16 desde la posición totalmente cerrada no tienen efecto de amortiguación, notes_pt: Compressão de alta velocidade; os cliques além do 16 a partir da posição totalmente fechada não têm efeito de amortecimento, dialColor: blue }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 12, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: step, max: 8, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "High-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Détente haute vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Ritorno ad alta velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Rebote de alta velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Retorno de alta velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 9, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", notes_de: "Low-Speed-Zugstufe; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Détente basse vitesse ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Ritorno a bassa velocità; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Rebote de baja velocidad; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Retorno de baixa velocidade; máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red, dialSize: small }
       source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
       note: >-
         "Factory and Performance-Elite Series GRIP2 Compression Adjusters" section
@@ -180,11 +230,17 @@ option_values:
       name: GRIP2 VVC (2021-2024)
       description: |-
         - Four-way descent damper with Variable Valve Control high-speed circuits
+      description_de: |-
+        - Vierwege-Dämpfer für die Abfahrt mit High-Speed-Kreisen mit Variable Valve Control
+      description_fr: "- Amortisseur de descente à quatre voies avec des circuits haute vitesse Variable Valve Control"
+      description_it: "- Ammortizzatore da discesa a quattro vie con circuiti ad alta velocità Variable Valve Control"
+      description_es: "- Amortiguador de descenso de cuatro vías con circuitos de alta velocidad Variable Valve Control"
+      description_pt: "- Amortecedor de descida de quatro vias com circuitos de alta velocidade Variable Valve Control"
       adjustments:
-        - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
-        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: 8, notes: High-Speed Rebound, dialColor: red }
-        - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 8, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: blue }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: step, max: 8, notes: High-Speed Rebound, notes_de: High-Speed-Zugstufe, notes_fr: Détente haute vitesse, notes_it: Ritorno ad alta velocità, notes_es: Rebote de alta velocidad, notes_pt: Retorno de alta velocidade, dialColor: red }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: red, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
@@ -208,10 +264,25 @@ option_values:
       description: |-
         - Three-position compression lever: Open, Medium, Firm
         - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
+      description_de: |-
+        - Drei-Positionen-Druckstufenhebel: Open, Medium, Firm
+        - Der Open-Modus bietet 22 zusätzliche Klicks zur Low-Speed-Feinabstimmung (22 am komfortabelsten, 1 am festesten)
+      description_fr: |-
+        - Levier de compression à trois positions : Open, Medium, Firm
+        - Le mode Open dispose de 22 clics supplémentaires de réglage fin basse vitesse (22 le plus souple, 1 le plus ferme)
+      description_it: |-
+        - Leva di compressione a tre posizioni: Open, Medium, Firm
+        - La modalità Open ha 22 scatti in più di regolazione fine a bassa velocità (22 il più morbido, 1 il più rigido)
+      description_es: |-
+        - Palanca de compresión de tres posiciones: Open, Medium, Firm
+        - El modo Open tiene 22 clics extra de ajuste fino de baja velocidad (22 el más blando, 1 el más firme)
+      description_pt: |-
+        - Alavanca de compressão de três posições: Open, Medium, Firm
+        - O modo Open tem 22 cliques extras de ajuste fino de baixa velocidade (22 o mais macio, 1 o mais firme)
       adjustments:
-        - { name: Rebound, type: step, max: 8, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
-        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
-        - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 8, notes: "estimated maximum, check your dial and edit it if it differs", notes_de: "geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme] }
+        - { name: Open Mode Adjust, name_de: Einstellung im offenen Modus, name_fr: Réglage du mode ouvert, name_it: Regolazione della modalità aperta, name_es: Ajuste del modo abierto, name_pt: Ajuste do modo aberto, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", notes_de: Low-Speed-Druckstufe im offenen Modus; nur Gabeln der Varianten Factory und Performance Elite, notes_fr: Compression basse vitesse en mode Open ; uniquement sur les fourches Factory et Performance Elite, notes_it: Compressione a bassa velocità in modalità Open; solo sulle forcelle Factory e Performance Elite, notes_es: Compresión de baja velocidad en modo Open; solo en las horquillas Factory y Performance Elite, notes_pt: Compressão de baixa velocidade no modo Open; somente nos garfos Factory e Performance Elite, dialColor: blue, dialSize: small }
       source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
       note: >-
         "OPEN mode adjust provides 22 additional fine tuning adjustments for the
@@ -224,10 +295,25 @@ option_values:
       description: |-
         - Three-position compression lever: Open, Medium, Firm
         - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
+      description_de: |-
+        - Drei-Positionen-Druckstufenhebel: Open, Medium, Firm
+        - Der Open-Modus bietet 22 zusätzliche Klicks zur Low-Speed-Feinabstimmung (22 am komfortabelsten, 1 am festesten)
+      description_fr: |-
+        - Levier de compression à trois positions : Open, Medium, Firm
+        - Le mode Open dispose de 22 clics supplémentaires de réglage fin basse vitesse (22 le plus souple, 1 le plus ferme)
+      description_it: |-
+        - Leva di compressione a tre posizioni: Open, Medium, Firm
+        - La modalità Open ha 22 scatti in più di regolazione fine a bassa velocità (22 il più morbido, 1 il più rigido)
+      description_es: |-
+        - Palanca de compresión de tres posiciones: Open, Medium, Firm
+        - El modo Open tiene 22 clics extra de ajuste fino de baja velocidad (22 el más blando, 1 el más firme)
+      description_pt: |-
+        - Alavanca de compressão de três posições: Open, Medium, Firm
+        - O modo Open tem 22 cliques extras de ajuste fino de baixa velocidade (22 o mais macio, 1 o mais firme)
       adjustments:
-        - { name: Rebound, type: step, max: 14, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
-        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
-        - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 14, notes: "estimated maximum, check your dial and edit it if it differs", notes_de: "geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme] }
+        - { name: Open Mode Adjust, name_de: Einstellung im offenen Modus, name_fr: Réglage du mode ouvert, name_it: Regolazione della modalità aperta, name_es: Ajuste del modo abierto, name_pt: Ajuste do modo aberto, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", notes_de: Low-Speed-Druckstufe im offenen Modus; nur Gabeln der Varianten Factory und Performance Elite, notes_fr: Compression basse vitesse en mode Open ; uniquement sur les fourches Factory et Performance Elite, notes_it: Compressione a bassa velocità in modalità Open; solo sulle forcelle Factory e Performance Elite, notes_es: Compresión de baja velocidad en modo Open; solo en las horquillas Factory y Performance Elite, notes_pt: Compressão de baixa velocidade no modo Open; somente nos garfos Factory e Performance Elite, dialColor: blue, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
@@ -242,9 +328,24 @@ option_values:
       description: |-
         - Three-position compression lever: Open, Medium, Firm
         - The detents between the three modes are usable for fine tuning
+      description_de: |-
+        - Drei-Positionen-Druckstufenhebel: Open, Medium, Firm
+        - Die Rasten zwischen den drei Modi lassen sich zur Feinabstimmung nutzen
+      description_fr: |-
+        - Levier de compression à trois positions : Open, Medium, Firm
+        - Les crans entre les trois modes sont utilisables pour un réglage fin
+      description_it: |-
+        - Leva di compressione a tre posizioni: Open, Medium, Firm
+        - Gli scatti tra le tre modalità sono utilizzabili per la rifinitura
+      description_es: |-
+        - Palanca de compresión de tres posiciones: Open, Medium, Firm
+        - Las muescas entre los tres modos se pueden usar para el ajuste fino
+      description_pt: |-
+        - Alavanca de compressão de três posições: Open, Medium, Firm
+        - Os cliques entre os três modos podem ser usados para o ajuste fino
       adjustments:
-        - { name: Rebound, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
-        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", notes_de: "geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "máximo estimado, confira o seu seletor e edite-o se for diferente", dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme] }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
         - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
@@ -262,6 +363,11 @@ option_values:
 guides:
   fox_32_34_2027:
     label: FOX 32/34 owner's manual (2027)
+    label_de: FOX 32/34 Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX 32/34 (2027)
+    label_it: Manuale d’uso FOX 32/34 (2027)
+    label_es: Manual del usuario FOX 32/34 (2027)
+    label_pt: Manual do usuário FOX 32/34 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3162/fork--2027-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
     rules:
       - target: pressure
@@ -342,7 +448,7 @@ guides:
         }
       - { target: hsc, value: 10, when: { damper: grip_x } }
       - { target: lsc, value: 10, when: { damper: grip_x } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         when: { model: 32-taper-cast }
@@ -362,6 +468,11 @@ guides:
 
   fox_34sl_2027:
     label: FOX 34 SL owner's manual (2027)
+    label_de: FOX 34 SL Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX 34 SL (2027)
+    label_it: Manuale d’uso FOX 34 SL (2027)
+    label_es: Manual del usuario FOX 34 SL (2027)
+    label_pt: Manual do usuário FOX 34 SL (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3163/fork--2027-34sl
     rules:
       - target: pressure
@@ -381,13 +492,18 @@ guides:
           170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
           220-230: 3, 230-240: 2, 240-250: 1
         }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 120: 2, 130: 1 }
 
   fox_36sl_2027:
     label: FOX 36 SL owner's manual (2027)
+    label_de: FOX 36 SL Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX 36 SL (2027)
+    label_it: Manuale d’uso FOX 36 SL (2027)
+    label_es: Manual del usuario FOX 36 SL (2027)
+    label_pt: Manual do usuário FOX 36 SL (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3165/fork--2027-36sl
     rules:
       - target: pressure
@@ -400,6 +516,11 @@ guides:
           220-230: 101, 230-240: 105, 240-250: 108
         }
         note: Some riders need up to 10 psi more or less than the table value
+        note_de: Manche Fahrer brauchen bis zu 10 psi mehr oder weniger als der Tabellenwert
+        note_fr: Certains pilotes ont besoin de jusqu’à 10 psi de plus ou de moins que la valeur du tableau
+        note_it: Alcuni rider hanno bisogno di fino a 10 psi in più o in meno rispetto al valore della tabella
+        note_es: Algunos riders necesitan hasta 10 psi más o menos que el valor de la tabla
+        note_pt: Alguns riders precisam de até 10 psi a mais ou a menos que o valor da tabela
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -420,7 +541,7 @@ guides:
         }
       - { target: hsc, value: 5, when: { damper: grip_x } }
       - { target: lsc, value: 5, when: { damper: grip_x } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 130: 2, 140: 1 }
@@ -429,6 +550,11 @@ guides:
   # differs (10 instead of 5 clicks).
   fox_36sl_2026:
     label: FOX 36 SL owner's manual (2026)
+    label_de: FOX 36 SL Bedienungsanleitung (2026)
+    label_fr: Manuel d’utilisation FOX 36 SL (2026)
+    label_it: Manuale d’uso FOX 36 SL (2026)
+    label_es: Manual del usuario FOX 36 SL (2026)
+    label_pt: Manual do usuário FOX 36 SL (2026)
     source: https://tech.ridefox.com/bike/owners-manuals/3088/fork--2026-36sl
     rules:
       - target: pressure
@@ -437,6 +563,11 @@ guides:
         input_unit: lb
         rows: *fox_36sl_pressure
         note: Some riders need up to 10 psi more or less than the table value
+        note_de: Manche Fahrer brauchen bis zu 10 psi mehr oder weniger als der Tabellenwert
+        note_fr: Certains pilotes ont besoin de jusqu’à 10 psi de plus ou de moins que la valeur du tableau
+        note_it: Alcuni rider hanno bisogno di fino a 10 psi in più o in meno rispetto al valore della tabella
+        note_es: Algunos riders necesitan hasta 10 psi más o menos que el valor de la tabla
+        note_pt: Alguns riders precisam de até 10 psi a mais ou a menos que o valor da tabela
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -449,13 +580,18 @@ guides:
         rows: *fox_36sl_rebound_grip_x
       - { target: hsc, value: 10, when: { damper: grip_x } }
       - { target: lsc, value: 10, when: { damper: grip_x } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 130: 2, 140: 1 }
 
   fox_36_2027:
     label: FOX 36 owner's manual (2027)
+    label_de: FOX 36 Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX 36 (2027)
+    label_it: Manuale d’uso FOX 36 (2027)
+    label_es: Manual del usuario FOX 36 (2027)
+    label_pt: Manual do usuário FOX 36 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3164/fork--2027-36mm
     rules:
       - target: pressure
@@ -468,6 +604,11 @@ guides:
           220-230: 109, 230-240: 113, 240-250: 117
         }
         note: Some riders need up to 10 psi more or less than the table value
+        note_de: Manche Fahrer brauchen bis zu 10 psi mehr oder weniger als der Tabellenwert
+        note_fr: Certains pilotes ont besoin de jusqu’à 10 psi de plus ou de moins que la valeur du tableau
+        note_it: Alcuni rider hanno bisogno di fino a 10 psi in più o in meno rispetto al valore della tabella
+        note_es: Algunos riders necesitan hasta 10 psi más o menos que el valor de la tabla
+        note_pt: Alguns riders precisam de até 10 psi a mais ou a menos que o valor da tabela
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -508,7 +649,7 @@ guides:
       - { target: lsc, value: 5, when: { damper: grip_x } }
       - { target: hsc, value: 5, when: { damper: grip_x2 } }
       - { target: lsc, value: 10, when: { damper: grip_x2 } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 150: 2, 160: 1 }
@@ -517,6 +658,11 @@ guides:
   # tune differs (10 instead of 5 clicks).
   fox_36_2026:
     label: FOX 36 owner's manual (2026)
+    label_de: FOX 36 Bedienungsanleitung (2026)
+    label_fr: Manuel d’utilisation FOX 36 (2026)
+    label_it: Manuale d’uso FOX 36 (2026)
+    label_es: Manual del usuario FOX 36 (2026)
+    label_pt: Manual do usuário FOX 36 (2026)
     source: https://tech.ridefox.com/bike/owners-manuals/3089/fork--2026-36mm
     rules:
       - target: pressure
@@ -525,6 +671,11 @@ guides:
         input_unit: lb
         rows: *fox_36_pressure
         note: Some riders need up to 10 psi more or less than the table value
+        note_de: Manche Fahrer brauchen bis zu 10 psi mehr oder weniger als der Tabellenwert
+        note_fr: Certains pilotes ont besoin de jusqu’à 10 psi de plus ou de moins que la valeur du tableau
+        note_it: Alcuni rider hanno bisogno di fino a 10 psi in più o in meno rispetto al valore della tabella
+        note_es: Algunos riders necesitan hasta 10 psi más o menos que el valor de la tabla
+        note_pt: Alguns riders precisam de até 10 psi a mais ou a menos que o valor da tabela
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -549,13 +700,18 @@ guides:
       - { target: lsc, value: 10, when: { damper: grip_x } }
       - { target: hsc, value: 5, when: { damper: grip_x2 } }
       - { target: lsc, value: 10, when: { damper: grip_x2 } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 150: 2, 160: 1 }
 
   fox_36_38_2025:
     label: FOX 36/38 owner's manual (2025)
+    label_de: FOX 36/38 Bedienungsanleitung (2025)
+    label_fr: Manuel d’utilisation FOX 36/38 (2025)
+    label_it: Manuale d’uso FOX 36/38 (2025)
+    label_es: Manual del usuario FOX 36/38 (2025)
+    label_pt: Manual do usuário FOX 36/38 (2025)
     source: https://tech.ridefox.com/bike/owners-manuals/2979/fork--2025-36mm-or-38mm
     rules:
       - target: pressure
@@ -575,13 +731,18 @@ guides:
           170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
           220-230: 3, 230-240: 2, 240-250: 1
         }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 150: 3, 160: 2 }
 
   fox_38_2027:
     label: FOX 38 owner's manual (2027)
+    label_de: FOX 38 Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX 38 (2027)
+    label_it: Manuale d’uso FOX 38 (2027)
+    label_es: Manual del usuario FOX 38 (2027)
+    label_pt: Manual do usuário FOX 38 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3166/fork--2027-38mm
     rules:
       - target: pressure
@@ -595,6 +756,11 @@ guides:
           220-230: 97, 230-240: 100, 240-250: 104
         }
         note: Some riders need up to 10 psi more or less than the table value
+        note_de: Manche Fahrer brauchen bis zu 10 psi mehr oder weniger als der Tabellenwert
+        note_fr: Certains pilotes ont besoin de jusqu’à 10 psi de plus ou de moins que la valeur du tableau
+        note_it: Alcuni rider hanno bisogno di fino a 10 psi in più o in meno rispetto al valore della tabella
+        note_es: Algunos riders necesitan hasta 10 psi más o menos que el valor de la tabla
+        note_pt: Alguns riders precisam de até 10 psi a mais ou a menos que o valor da tabela
       - target: pressure
         unit: psi
         input: rider_weight
@@ -606,6 +772,11 @@ guides:
           220-230: 101, 230-240: 105, 240-250: 109
         }
         note: Some riders need up to 10 psi more or less than the table value
+        note_de: Manche Fahrer brauchen bis zu 10 psi mehr oder weniger als der Tabellenwert
+        note_fr: Certains pilotes ont besoin de jusqu’à 10 psi de plus ou de moins que la valeur du tableau
+        note_it: Alcuni rider hanno bisogno di fino a 10 psi in più o in meno rispetto al valore della tabella
+        note_es: Algunos riders necesitan hasta 10 psi más o menos que el valor de la tabla
+        note_pt: Alguns riders precisam de até 10 psi a mais ou a menos que o valor da tabela
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -635,7 +806,7 @@ guides:
         }
       - { target: hsc, value: 5, when: { damper: grip_x2 } }
       - { target: lsc, value: 10, when: { damper: grip_x2 } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         when: { trim: [factory, performance-elite] }
@@ -647,6 +818,11 @@ guides:
 
   fox_38_2026:
     label: FOX 38 owner's manual (2026)
+    label_de: FOX 38 Bedienungsanleitung (2026)
+    label_fr: Manuel d’utilisation FOX 38 (2026)
+    label_it: Manuale d’uso FOX 38 (2026)
+    label_es: Manual del usuario FOX 38 (2026)
+    label_pt: Manual do usuário FOX 38 (2026)
     source: https://tech.ridefox.com/bike/owners-manuals/3103/fork--2026-38mm
     rules:
       - target: pressure
@@ -660,6 +836,11 @@ guides:
           220-230: 114, 230-240: 119, 240-250: 123
         }
         note: Some riders need up to 10 psi more or less than the table value
+        note_de: Manche Fahrer brauchen bis zu 10 psi mehr oder weniger als der Tabellenwert
+        note_fr: Certains pilotes ont besoin de jusqu’à 10 psi de plus ou de moins que la valeur du tableau
+        note_it: Alcuni rider hanno bisogno di fino a 10 psi in più o in meno rispetto al valore della tabella
+        note_es: Algunos riders necesitan hasta 10 psi más o menos que el valor de la tabla
+        note_pt: Alguns riders precisam de até 10 psi a mais ou a menos que o valor da tabela
       - target: pressure
         unit: psi
         input: rider_weight
@@ -671,6 +852,11 @@ guides:
           220-230: 101, 230-240: 105, 240-250: 109
         }
         note: Some riders need up to 10 psi more or less than the table value
+        note_de: Manche Fahrer brauchen bis zu 10 psi mehr oder weniger als der Tabellenwert
+        note_fr: Certains pilotes ont besoin de jusqu’à 10 psi de plus ou de moins que la valeur du tableau
+        note_it: Alcuni rider hanno bisogno di fino a 10 psi in più o in meno rispetto al valore della tabella
+        note_es: Algunos riders necesitan hasta 10 psi más o menos que el valor de la tabla
+        note_pt: Alguns riders precisam de até 10 psi a mais ou a menos que o valor da tabela
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -700,7 +886,7 @@ guides:
         }
       - { target: hsc, value: 5, when: { damper: grip_x2 } }
       - { target: lsc, value: 10, when: { damper: grip_x2 } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         when: { trim: [factory, performance-elite] }
@@ -712,6 +898,11 @@ guides:
 
   fox_40_2027:
     label: FOX 40 owner's manual (2027)
+    label_de: FOX 40 Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX 40 (2027)
+    label_it: Manuale d’uso FOX 40 (2027)
+    label_es: Manual del usuario FOX 40 (2027)
+    label_pt: Manual do usuário FOX 40 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3167/fork--2027-40mm
     rules:
       - target: pressure
@@ -730,13 +921,18 @@ guides:
         }
       - { target: hsc, value: 5, when: { damper: grip_x2 } }
       - { target: lsc, value: 10, when: { damper: grip_x2 } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 203: 2 }
 
   fox_podium_2027:
     label: FOX Podium owner's manual (2027)
+    label_de: FOX Podium Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX Podium (2027)
+    label_it: Manuale d’uso FOX Podium (2027)
+    label_es: Manual del usuario FOX Podium (2027)
+    label_pt: Manual do usuário FOX Podium (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3169/fork--2027-podium-
     rules:
       - target: pressure
@@ -768,13 +964,18 @@ guides:
         }
       - { target: hsc, value: 6, when: { damper: grip_x2 } }
       - { target: lsc, value: 8, when: { damper: grip_x2 } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 150: 4, 160: 3, 170: 2 }
 
   fox_awl_2027:
     label: FOX AWL owner's manual (2027)
+    label_de: FOX AWL Bedienungsanleitung (2027)
+    label_fr: Manuel d’utilisation FOX AWL (2027)
+    label_it: Manuale d’uso FOX AWL (2027)
+    label_es: Manual del usuario FOX AWL (2027)
+    label_pt: Manual do usuário FOX AWL (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3168/fork--2027-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
     rules:
       - target: pressure
@@ -815,7 +1016,7 @@ guides:
           170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
           220-230: 3, 230-240: 2, 240-250: 1
         }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         when: { trim: standard }
@@ -830,6 +1031,11 @@ guides:
 
   fox_36_2020:
     label: FOX 36 owner's manual (2020)
+    label_de: FOX 36 Bedienungsanleitung (2020)
+    label_fr: Manuel d’utilisation FOX 36 (2020)
+    label_it: Manuale d’uso FOX 36 (2020)
+    label_es: Manual del usuario FOX 36 (2020)
+    label_pt: Manual do usuário FOX 36 (2020)
     source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
     rules:
       - target: pressure
@@ -877,13 +1083,18 @@ guides:
       - { target: open_mode_adjust, value: 18, when: { damper: fit4_2019 } }
       - { target: hsc, value: 10, when: { damper: grip2_2019 } }
       - { target: lsc, value: 6, when: { damper: grip2_2019 } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         rows: { 140: 4, 150: 2, 160: 1, 170: 0, 180: 0 }
 
   fox_36_38_2024:
     label: FOX 36/38 owner's manual (2024)
+    label_de: FOX 36/38 Bedienungsanleitung (2024)
+    label_fr: Manuel d’utilisation FOX 36/38 (2024)
+    label_it: Manuale d’uso FOX 36/38 (2024)
+    label_es: Manual del usuario FOX 36/38 (2024)
+    label_pt: Manual do usuário FOX 36/38 (2024)
     source: https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
     rules:
       - target: pressure
@@ -966,7 +1177,7 @@ guides:
       - { target: open_mode_adjust, value: 18, when: { damper: fit4_2021 } }
       - { target: hsc, value: 5, when: { damper: grip2_vvc_2021 } }
       - { target: lsc, value: 10, when: { damper: grip2_vvc_2021 } }
-      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end", note_de: "15 % ist das feste Ende von FOX, 20 % das komfortable Ende", note_fr: "15 % est la limite ferme de FOX, 20 % la limite confortable", note_it: "15 % è il limite rigido di FOX, 20 % quello confortevole", note_es: 15 % es el extremo firme de FOX y 20 % el cómodo, note_pt: 15 % é o extremo firme da FOX e 20 % o confortável }
       - target: volume_spacers
         input: travel_mm
         when: { model: "36", trim: [factory, performance-elite, performance] }
@@ -1002,8 +1213,13 @@ nodes:
   - label: "32 Taper-Cast"
     level: model
     category: Gravel
+    category_de: Gravel
+    category_fr: Gravel
+    category_it: Gravel
+    category_es: Gravel
+    category_pt: Gravel
     tasks: &fox_service
-      fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: FOX owner's manual }
+      fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: FOX owner's manual, source_de: FOX-Handbuch, source_fr: Manuel d’utilisation FOX, source_it: Manuale d’uso FOX, source_es: Manual del usuario FOX, source_pt: Manual do usuário FOX }
     children:
       - label: "2025–2027"
         level: generation
@@ -1013,23 +1229,28 @@ nodes:
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/3162/fork--2027-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
         guide: fox_32_34_2027
         note: 12x100 Kabolt thru-axle, integrated fender mounts
+        note_de: 12x100 Kabolt-Steckachse, integrierte Schutzblech-Aufnahmen
+        note_fr: Axe traversant Kabolt 12x100, fixations de garde-boue intégrées
+        note_it: Perno passante Kabolt 12x100, attacchi parafango integrati
+        note_es: Eje pasante Kabolt 12x100, anclajes de guardabarros integrados
+        note_pt: Eixo passante Kabolt 12x100, fixações de paralama integradas
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
-              - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at both 40mm and 50mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 150 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at both 40mm and 50mm travel", notes_de: Maximal 4 bei 40mm und 50mm Federweg, notes_fr: Maximum 4 à 40 mm comme à 50 mm de débattement, notes_it: Massimo 4 sia a 40 mm sia a 50 mm di escursione, notes_es: Máximo 4 tanto con 40 mm como con 50 mm de recorrido, notes_pt: Máximo de 4 tanto com 40 mm quanto com 50 mm de curso }
             options:
               damper: [grip_sl]
               travel_mm: [40, 50]
               wheel_size: [700c, 650b]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
-              - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 150 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 4, visualization: stepper }
             options:
               damper: [grip_tc]
               travel_mm: [40]
@@ -1038,6 +1259,11 @@ nodes:
   - label: "32 Step-Cast"
     level: model
     category: XC
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
     tasks: *fox_service
     children:
       - label: "2025–2027"
@@ -1050,20 +1276,20 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-              - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel", notes_de: Maximal 4 bei 100mm Federweg, notes_fr: Maximum 4 à 100 mm de débattement, notes_it: Massimo 4 a 100 mm di escursione, notes_es: Máximo 4 con 100 mm de recorrido, notes_pt: Máximo de 4 com 100 mm de curso }
             options:
               damper: [grip_sl]
               travel_mm: [100]
               wheel_size: [29]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-              - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel", notes_de: Maximal 4 bei 100mm Federweg, notes_fr: Maximum 4 à 100 mm de débattement, notes_it: Massimo 4 a 100 mm di escursione, notes_es: Máximo 4 con 100 mm de recorrido, notes_pt: Máximo de 4 com 100 mm de curso }
             options:
               damper: [grip]
               travel_mm: [100]
@@ -1072,6 +1298,11 @@ nodes:
   - label: "34 SL"
     level: model
     category: Downcountry
+    category_de: Downcountry
+    category_fr: Downcountry
+    category_it: Downcountry
+    category_es: Downcountry
+    category_pt: Downcountry
     tasks: *fox_service
     children:
       - label: "2026–2027"
@@ -1084,30 +1315,30 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 120mm, 4 at 130mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 120mm, 4 at 130mm", notes_de: "Max. je Federweg: 5 bei 120mm, 4 bei 130mm", notes_fr: "Max. par débattement : 5 à 120 mm, 4 à 130 mm", notes_it: "Max. per escursione: 5 a 120 mm, 4 a 130 mm", notes_es: "Máx. por recorrido: 5 con 120 mm, 4 con 130 mm", notes_pt: "Máx. por curso: 5 com 120 mm, 4 com 130 mm" }
             options:
               damper: [grip_sl]
               travel_mm: [120, 130]
               wheel_size: [29]
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel", notes_de: Maximal 5 bei 120mm Federweg, notes_fr: Maximum 5 à 120 mm de débattement, notes_it: Massimo 5 a 120 mm di escursione, notes_es: Máximo 5 con 120 mm de recorrido, notes_pt: Máximo de 5 com 120 mm de curso }
             options:
               damper: [grip_sl]
               travel_mm: [120]
               wheel_size: [29]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel", notes_de: Maximal 5 bei 120mm Federweg, notes_fr: Maximum 5 à 120 mm de débattement, notes_it: Massimo 5 a 120 mm di escursione, notes_es: Máximo 5 con 120 mm de recorrido, notes_pt: Máximo de 5 com 120 mm de curso }
             options:
               damper: [grip]
               travel_mm: [120]
@@ -1116,6 +1347,11 @@ nodes:
   - label: "34"
     level: model
     category: Trail
+    category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     tasks: *fox_service
     children:
       - label: "2025–2027"
@@ -1128,49 +1364,59 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm and 140mm, 6 at 120mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm and 140mm, 6 at 120mm", notes_de: "Max. je Federweg: 5 bei 130mm und 140mm, 6 bei 120mm", notes_fr: "Max. par débattement : 5 à 130 mm et 140 mm, 6 à 120 mm", notes_it: "Max. per escursione: 5 a 130 mm e 140 mm, 6 a 120 mm", notes_es: "Máx. por recorrido: 5 con 130 mm y 140 mm, 6 con 120 mm", notes_pt: "Máx. por curso: 5 com 130 mm e 140 mm, 6 com 120 mm" }
             options:
               damper: [grip_x]
               travel_mm: [130, 140]
               wheel_size: [29]
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel", notes_de: Maximal 5 bei 130mm Federweg, notes_fr: Maximum 5 à 130 mm de débattement, notes_it: Massimo 5 a 130 mm di escursione, notes_es: Máximo 5 con 130 mm de recorrido, notes_pt: Máximo de 5 com 130 mm de curso }
             options:
               damper: [grip_x]
               travel_mm: [130]
               wheel_size: [29]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel", notes_de: Maximal 5 bei 130mm Federweg, notes_fr: Maximum 5 à 130 mm de débattement, notes_it: Massimo 5 a 130 mm di escursione, notes_es: Máximo 5 con 130 mm de recorrido, notes_pt: Máximo de 5 com 130 mm de curso }
             options:
               damper: [grip]
               travel_mm: [130]
               wheel_size: [29]
           - label: Rhythm
             level: trim
-            specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "6000-series alloy, black anodized", stanchion_de: "Aluminium der 6000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 6000, anodisé noir", stanchion_it: "Lega della serie 6000, anodizzato nero", stanchion_es: "Aleación de la serie 6000, anodizado negro", stanchion_pt: "Liga da série 6000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm, 4 at 140mm and 150mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm, 4 at 140mm and 150mm", notes_de: "Max. je Federweg: 5 bei 130mm, 4 bei 140mm und 150mm", notes_fr: "Max. par débattement : 5 à 130 mm, 4 à 140 mm et 150 mm", notes_it: "Max. per escursione: 5 a 130 mm, 4 a 140 mm e 150 mm", notes_es: "Máx. por recorrido: 5 con 130 mm, 4 con 140 mm y 150 mm", notes_pt: "Máx. por curso: 5 com 130 mm, 4 com 140 mm e 150 mm" }
             options:
               damper: [grip]
               travel_mm: [130, 150]
               wheel_size: [29]
             note: OEM complete bikes only
+            note_de: Nur für OEM-Komplettbikes
+            note_fr: Uniquement sur vélos complets en monte d’origine
+            note_it: Solo su bici complete di primo equipaggiamento
+            note_es: Solo en bicicletas completas de montaje original
+            note_pt: Somente em bikes completas de montagem original
 
   - label: "36 SL"
     level: model
     category: Trail
+    category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     tasks: *fox_service
     children:
       # 2027 differs from 2026 only in the GRIP X base tune (10 → 5 clicks).
@@ -1184,10 +1430,10 @@ nodes:
           - &fox_36sl_factory
             label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 120mm, 7 at 130mm, 6 at 140mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 120mm, 7 at 130mm, 6 at 140mm", notes_de: "Max. je Federweg: 8 bei 120mm, 7 bei 130mm, 6 bei 140mm", notes_fr: "Max. par débattement : 8 à 120 mm, 7 à 130 mm, 6 à 140 mm", notes_it: "Max. per escursione: 8 a 120 mm, 7 a 130 mm, 6 a 140 mm", notes_es: "Máx. por recorrido: 8 con 120 mm, 7 con 130 mm, 6 con 140 mm", notes_pt: "Máx. por curso: 8 com 120 mm, 7 com 130 mm, 6 com 140 mm" }
             options:
               damper: [grip_x]
               travel_mm: [130, 140]
@@ -1195,10 +1441,10 @@ nodes:
           - &fox_36sl_performance_elite
             label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel", notes_de: Maximal 6 bei 140mm Federweg, notes_fr: Maximum 6 à 140 mm de débattement, notes_it: Massimo 6 a 140 mm di escursione, notes_es: Máximo 6 con 140 mm de recorrido, notes_pt: Máximo de 6 com 140 mm de curso }
             options:
               damper: [grip_x]
               travel_mm: [140]
@@ -1206,10 +1452,10 @@ nodes:
           - &fox_36sl_performance
             label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel", notes_de: Maximal 6 bei 140mm Federweg, notes_fr: Maximum 6 à 140 mm de débattement, notes_it: Massimo 6 a 140 mm di escursione, notes_es: Máximo 6 con 140 mm de recorrido, notes_pt: Máximo de 6 com 140 mm de curso }
             options:
               damper: [grip]
               travel_mm: [140]
@@ -1228,6 +1474,11 @@ nodes:
   - label: "36"
     level: model
     category: All-Mountain
+    category_de: All-Mountain
+    category_fr: All-Mountain
+    category_it: All-Mountain
+    category_es: All-Mountain
+    category_pt: All-Mountain
     tasks: *fox_service
     children:
       # 2027: same hardware, tables and dampers as 2025-2026; the manual only
@@ -1242,10 +1493,10 @@ nodes:
           - &fox_36_factory
             label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm", notes_de: "Max. je Federweg: 8 bei 140mm, 7 bei 150mm, 6 bei 160mm", notes_fr: "Max. par débattement : 8 à 140 mm, 7 à 150 mm, 6 à 160 mm", notes_it: "Max. per escursione: 8 a 140 mm, 7 a 150 mm, 6 a 160 mm", notes_es: "Máx. por recorrido: 8 con 140 mm, 7 con 150 mm, 6 con 160 mm", notes_pt: "Máx. por curso: 8 com 140 mm, 7 com 150 mm, 6 com 160 mm" }
             options:
               damper: [grip_x2, grip_x]   # buyer-selectable damper
               travel_mm: [150, 160]
@@ -1253,10 +1504,10 @@ nodes:
           - &fox_36_performance_elite
             label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel", notes_de: Maximal 6 bei 160mm Federweg, notes_fr: Maximum 6 à 160 mm de débattement, notes_it: Massimo 6 a 160 mm di escursione, notes_es: Máximo 6 con 160 mm de recorrido, notes_pt: Máximo de 6 com 160 mm de curso }
             options:
               damper: [grip_x]
               travel_mm: [160]
@@ -1264,10 +1515,10 @@ nodes:
           - &fox_36_performance
             label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel", notes_de: Maximal 6 bei 160mm Federweg, notes_fr: Maximum 6 à 160 mm de débattement, notes_it: Massimo 6 a 160 mm di escursione, notes_es: Máximo 6 con 160 mm de recorrido, notes_pt: Máximo de 6 com 160 mm de curso }
             options:
               damper: [grip]
               travel_mm: [160]
@@ -1285,20 +1536,25 @@ nodes:
           - *fox_36_performance
           - label: Rhythm
             level: trim
-            specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "6000-series alloy, black anodized", stanchion_de: "Aluminium der 6000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 6000, anodisé noir", stanchion_it: "Lega della serie 6000, anodizzato nero", stanchion_es: "Aleación de la serie 6000, anodizado negro", stanchion_pt: "Liga da série 6000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             # Only the 2025 36mm/38mm manual has a 36 RHYTHM pressure column and
             # spacer table; the 2026 and 2027 36mm manuals omit them.
             years: "2025"
             setup_guide: https://tech.ridefox.com/bike/owners-manuals/2979/fork--2025-36mm-or-38mm
             guide: fox_36_38_2025
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 7 at 150mm and 160mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 7, visualization: stepper, notes: "Max per travel: 7 at 150mm and 160mm", notes_de: "Max. je Federweg: 7 bei 150mm und 160mm", notes_fr: "Max. par débattement : 7 à 150 mm et 160 mm", notes_it: "Max. per escursione: 7 a 150 mm e 160 mm", notes_es: "Máx. por recorrido: 7 con 150 mm y 160 mm", notes_pt: "Máx. por curso: 7 com 150 mm e 160 mm" }
             options:
               damper: [grip]
               travel_mm: [150, 160]
               wheel_size: [29, 27.5]
             note: OEM complete bikes only
+            note_de: Nur für OEM-Komplettbikes
+            note_fr: Uniquement sur vélos complets en monte d’origine
+            note_it: Solo su bici complete di primo equipaggiamento
+            note_es: Solo en bicicletas completas de montaje original
+            note_pt: Somente em bikes completas de montagem original
       # Legacy generations, here and on the 38. Keep them below the current
       # generation. FOX publishes no rebound totals for these cartridges, so
       # those maxima are estimates from the rebound starting-point tables.
@@ -1312,46 +1568,56 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm", notes_de: "Max. je Federweg: 9 bei 130mm, 8 bei 140mm, 7 bei 150mm, 6 bei 160mm, 5 bei 170mm", notes_fr: "Max. par débattement : 9 à 130 mm, 8 à 140 mm, 7 à 150 mm, 6 à 160 mm, 5 à 170 mm", notes_it: "Max. per escursione: 9 a 130 mm, 8 a 140 mm, 7 a 150 mm, 6 a 160 mm, 5 a 170 mm", notes_es: "Máx. por recorrido: 9 con 130 mm, 8 con 140 mm, 7 con 150 mm, 6 con 160 mm, 5 con 170 mm", notes_pt: "Máx. por curso: 9 com 130 mm, 8 com 140 mm, 7 com 150 mm, 6 com 160 mm, 5 com 170 mm" }
             options:
               damper: [grip2_vvc_2021, fit4_2021]   # buyer-selectable damper
               travel_mm: [130, 140, 150, 160, 170]
               wheel_size: [29, 27.5]
             note: Chassis with the floating axle and bleed buttons; GRIP2 gained Variable Valve Control in 2021.
+            note_de: Chassis mit schwimmender Achse und Entlüftungsknöpfen; GRIP2 erhielt 2021 die Variable Valve Control.
+            note_fr: Châssis avec axe flottant et boutons de purge ; la GRIP2 a reçu le Variable Valve Control en 2021.
+            note_it: Telaio con perno flottante e pulsanti di sfiato; la GRIP2 ha ricevuto il Variable Valve Control nel 2021.
+            note_es: Chasis con eje flotante y botones de purga; la GRIP2 incorporó el Variable Valve Control en 2021.
+            note_pt: Chassi com eixo flutuante e botões de sangria; a GRIP2 ganhou o Variable Valve Control em 2021.
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm", notes_de: "Max. je Federweg: 9 bei 130mm, 8 bei 140mm, 7 bei 150mm, 6 bei 160mm, 5 bei 170mm", notes_fr: "Max. par débattement : 9 à 130 mm, 8 à 140 mm, 7 à 150 mm, 6 à 160 mm, 5 à 170 mm", notes_it: "Max. per escursione: 9 a 130 mm, 8 a 140 mm, 7 a 150 mm, 6 a 160 mm, 5 a 170 mm", notes_es: "Máx. por recorrido: 9 con 130 mm, 8 con 140 mm, 7 con 150 mm, 6 con 160 mm, 5 con 170 mm", notes_pt: "Máx. por curso: 9 com 130 mm, 8 com 140 mm, 7 com 150 mm, 6 com 160 mm, 5 com 170 mm" }
             options:
               damper: [grip2_vvc_2021, fit4_2021]
               travel_mm: [130, 140, 150, 160, 170]
               wheel_size: [29, 27.5]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm", notes_de: "Max. je Federweg: 9 bei 130mm, 8 bei 140mm, 7 bei 150mm, 6 bei 160mm, 5 bei 170mm", notes_fr: "Max. par débattement : 9 à 130 mm, 8 à 140 mm, 7 à 150 mm, 6 à 160 mm, 5 à 170 mm", notes_it: "Max. per escursione: 9 a 130 mm, 8 a 140 mm, 7 a 150 mm, 6 a 160 mm, 5 a 170 mm", notes_es: "Máx. por recorrido: 9 con 130 mm, 8 con 140 mm, 7 con 150 mm, 6 con 160 mm, 5 con 170 mm", notes_pt: "Máx. por curso: 9 com 130 mm, 8 com 140 mm, 7 com 150 mm, 6 com 160 mm, 5 com 170 mm" }
             options:
               damper: [grip_2019]
               travel_mm: [130, 140, 150, 160, 170]
               wheel_size: [29, 27.5]
           - label: Rhythm
             level: trim
-            specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "6000-series alloy, black anodized", stanchion_de: "Aluminium der 6000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 6000, anodisé noir", stanchion_it: "Lega della serie 6000, anodizzato nero", stanchion_es: "Aleación de la serie 6000, anodizado negro", stanchion_pt: "Liga da série 6000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 130mm and 140mm, 7 at 150mm, 6 at 160mm and 170mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 130mm and 140mm, 7 at 150mm, 6 at 160mm and 170mm", notes_de: "Max. je Federweg: 8 bei 130mm und 140mm, 7 bei 150mm, 6 bei 160mm und 170mm", notes_fr: "Max. par débattement : 8 à 130 mm et 140 mm, 7 à 150 mm, 6 à 160 mm et 170 mm", notes_it: "Max. per escursione: 8 a 130 mm e 140 mm, 7 a 150 mm, 6 a 160 mm e 170 mm", notes_es: "Máx. por recorrido: 8 con 130 mm y 140 mm, 7 con 150 mm, 6 con 160 mm y 170 mm", notes_pt: "Máx. por curso: 8 com 130 mm e 140 mm, 7 com 150 mm, 6 com 160 mm e 170 mm" }
             options:
               damper: [grip_2019]
               travel_mm: [130, 140, 150, 160, 170]
               wheel_size: [29, 27.5]
             note: OEM complete bikes only
+            note_de: Nur für OEM-Komplettbikes
+            note_fr: Uniquement sur vélos complets en monte d’origine
+            note_it: Solo su bici complete di primo equipaggiamento
+            note_es: Solo en bicicletas completas de montaje original
+            note_pt: Somente em bikes completas de montagem original
       - label: "2019–2020"
         level: generation
         id: "2019"
@@ -1362,31 +1628,36 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 8 bei 140mm, 7 bei 150mm, 6 bei 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 8 à 140 mm, 7 à 150 mm, 6 à 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 8 a 140 mm, 7 a 150 mm, 6 a 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 8 con 140 mm, 7 con 150 mm, 6 con 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 8 com 140 mm, 7 com 150 mm, 6 com 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip2_2019, fit4_2019]   # buyer-selectable damper
               travel_mm: [140, 150, 160, 170, 180]
               wheel_size: [29, 27.5]
             note: First 36 generation with the GRIP2 damper.
+            note_de: Erste 36-Generation mit dem GRIP2-Dämpfer.
+            note_fr: Première génération de la 36 avec l’amortisseur GRIP2.
+            note_it: Prima generazione della 36 con l’ammortizzatore GRIP2.
+            note_es: Primera generación de la 36 con el amortiguador GRIP2.
+            note_pt: Primeira geração da 36 com o amortecedor GRIP2.
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 8 bei 140mm, 7 bei 150mm, 6 bei 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 8 à 140 mm, 7 à 150 mm, 6 à 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 8 a 140 mm, 7 a 150 mm, 6 a 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 8 con 140 mm, 7 con 150 mm, 6 con 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 8 com 140 mm, 7 com 150 mm, 6 com 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip2_2019, fit4_2019]
               travel_mm: [140, 150, 160, 170, 180]
               wheel_size: [29, 27.5]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 8 bei 140mm, 7 bei 150mm, 6 bei 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 8 à 140 mm, 7 à 150 mm, 6 à 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 8 a 140 mm, 7 a 150 mm, 6 a 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 8 con 140 mm, 7 con 150 mm, 6 con 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 8 com 140 mm, 7 com 150 mm, 6 com 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip_2019]
               travel_mm: [140, 150, 160, 170, 180]
@@ -1395,6 +1666,11 @@ nodes:
   - label: "38"
     level: model
     category: Enduro
+    category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     tasks: *fox_service
     children:
       # 2027: same trims and dampers (the manual's rebound tables and GRIP X2
@@ -1409,20 +1685,35 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &fox_38_2027_float
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
               - name: Volume Spacers
+                name_de: Volumenspacer
+                name_fr: Tokens
+                name_it: Token
+                name_es: Tokens
+                name_pt: Tokens
                 type: categorical
                 options: ["1× 5cc", "1× 10cc", "1× 10cc + 1× 5cc", "2× 10cc", "2× 10cc + 1× 5cc"]
+                options_de: [1× 5cc, 1× 10cc, 1× 10cc + 1× 5cc, 2× 10cc, 2× 10cc + 1× 5cc]
+                options_fr: [1× 5cc, 1× 10cc, 1× 10cc + 1× 5cc, 2× 10cc, 2× 10cc + 1× 5cc]
+                options_it: [1× 5cc, 1× 10cc, 1× 10cc + 1× 5cc, 2× 10cc, 2× 10cc + 1× 5cc]
+                options_es: [1× 5cc, 1× 10cc, 1× 10cc + 1× 5cc, 2× 10cc, 2× 10cc + 1× 5cc]
+                options_pt: [1× 5cc, 1× 10cc, 1× 10cc + 1× 5cc, 2× 10cc, 2× 10cc + 1× 5cc]
                 notes: "10cc and 5cc spacers. Maximum spacers in total: 6 at 160mm, 5 at 170mm, 4 at 180mm"
+                notes_de: "10-cc- und 5-cc-Spacer. Maximale Spacerzahl insgesamt: 6 bei 160mm, 5 bei 170mm, 4 bei 180mm"
+                notes_fr: "Entretoises de 10 cc et 5 cc. Nombre maximal d’entretoises au total : 6 à 160 mm, 5 à 170 mm, 4 à 180 mm"
+                notes_it: "Distanziali da 10 cc e 5 cc. Numero massimo di distanziali in totale: 6 a 160 mm, 5 a 170 mm, 4 a 180 mm"
+                notes_es: "Espaciadores de 10 cc y 5 cc. Máximo de espaciadores en total: 6 con 160 mm, 5 con 170 mm, 4 con 180 mm"
+                notes_pt: "Espaçadores de 10 cc e 5 cc. Máximo de espaçadores no total: 6 com 160 mm, 5 com 170 mm, 4 com 180 mm"
             options:
               damper: [grip_x2]
               travel_mm: [160, 170, 180]
               wheel_size: [29, 27.5]
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *fox_38_2027_float
             options:
               damper: [grip_x2]
@@ -1430,15 +1721,20 @@ nodes:
               wheel_size: [29, 27.5]
           - label: Rhythm
             level: trim
-            specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "6000-series alloy, black anodized", stanchion_de: "Aluminium der 6000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 6000, anodisé noir", stanchion_it: "Lega della serie 6000, anodizzato nero", stanchion_es: "Aleación de la serie 6000, anodizado negro", stanchion_pt: "Liga da série 6000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 6 bei 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 6 à 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 6 a 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 6 con 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 6 com 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip]
               travel_mm: [160, 170, 180]
               wheel_size: [29, 27.5]
             note: OEM complete bikes only
+            note_de: Nur für OEM-Komplettbikes
+            note_fr: Uniquement sur vélos complets en monte d’origine
+            note_it: Solo su bici complete di primo equipaggiamento
+            note_es: Solo en bicicletas completas de montaje original
+            note_pt: Somente em bikes completas de montagem original
       - label: "2025–2026"
         level: generation
         id: "2025"
@@ -1449,35 +1745,40 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 6 bei 150mm und 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 6 à 150 mm et 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 6 a 150 mm e 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 6 con 150 mm y 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 6 com 150 mm e 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip_x2]
               travel_mm: [160, 170, 180]
               wheel_size: [29, 27.5]
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 170mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 170mm travel", notes_de: Maximal 5 bei 170mm Federweg, notes_fr: Maximum 5 à 170 mm de débattement, notes_it: Massimo 5 a 170 mm di escursione, notes_es: Máximo 5 con 170 mm de recorrido, notes_pt: Máximo de 5 com 170 mm de curso }
             options:
               damper: [grip_x2]
               travel_mm: [170]
               wheel_size: [29, 27.5]
           - label: Rhythm
             level: trim
-            specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "6000-series alloy, black anodized", stanchion_de: "Aluminium der 6000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 6000, anodisé noir", stanchion_it: "Lega della serie 6000, anodizzato nero", stanchion_es: "Aleación de la serie 6000, anodizado negro", stanchion_pt: "Liga da série 6000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 7 bei 150mm, 6 bei 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 7 à 150 mm, 6 à 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 7 a 150 mm, 6 a 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 7 con 150 mm, 6 con 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 7 com 150 mm, 6 com 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip]
               travel_mm: [160, 170, 180]
               wheel_size: [29, 27.5]
             note: OEM complete bikes only
+            note_de: Nur für OEM-Komplettbikes
+            note_fr: Uniquement sur vélos complets en monte d’origine
+            note_it: Solo su bici complete di primo equipaggiamento
+            note_es: Solo en bicicletas completas de montaje original
+            note_pt: Somente em bikes completas de montagem original
       - label: "2021–2024"
         level: generation
         id: "2021"
@@ -1488,31 +1789,36 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 6 bei 150mm und 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 6 à 150 mm et 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 6 a 150 mm e 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 6 con 150 mm y 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 6 com 150 mm e 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip2_vvc_2021]
               travel_mm: [150, 160, 170, 180]
               wheel_size: [29, 27.5]
             note: First 38mm-stanchion FOX enduro chassis, launched for 2021.
+            note_de: Erstes FOX-Enduro-Chassis mit 38mm Standrohren, 2021 eingeführt.
+            note_fr: Premier châssis enduro FOX à tubes de 38 mm, lancé pour 2021.
+            note_it: Primo telaio enduro FOX con steli da 38 mm, lanciato per il 2021.
+            note_es: Primer chasis enduro de FOX con barras de 38 mm, lanzado para 2021.
+            note_pt: Primeiro chassi de enduro da FOX com bengalas de 38 mm, lançado para 2021.
           - label: Performance Elite
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 6 bei 150mm und 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 6 à 150 mm et 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 6 a 150 mm e 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 6 con 150 mm y 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 6 com 150 mm e 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip2_vvc_2021]
               travel_mm: [150, 160, 170, 180]
               wheel_size: [29, 27.5]
           - label: Performance
             level: trim
-            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 6 bei 150mm und 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 6 à 150 mm et 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 6 a 150 mm e 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 6 con 150 mm y 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 6 com 150 mm e 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip_2019]
               travel_mm: [150, 160, 170, 180]
@@ -1520,19 +1826,29 @@ nodes:
           - label: Rhythm
             level: trim
             years: "2023-2024"
-            specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
+            specs: { stanchion: "6000-series alloy, black anodized", stanchion_de: "Aluminium der 6000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 6000, anodisé noir", stanchion_it: "Lega della serie 6000, anodizzato nero", stanchion_es: "Aleación de la serie 6000, anodizado negro", stanchion_pt: "Liga da série 6000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 7, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm", notes_de: "Max. je Federweg: 7 bei 150mm, 6 bei 160mm, 5 bei 170mm, 4 bei 180mm", notes_fr: "Max. par débattement : 7 à 150 mm, 6 à 160 mm, 5 à 170 mm, 4 à 180 mm", notes_it: "Max. per escursione: 7 a 150 mm, 6 a 160 mm, 5 a 170 mm, 4 a 180 mm", notes_es: "Máx. por recorrido: 7 con 150 mm, 6 con 160 mm, 5 con 170 mm, 4 con 180 mm", notes_pt: "Máx. por curso: 7 com 150 mm, 6 com 160 mm, 5 com 170 mm, 4 com 180 mm" }
             options:
               damper: [grip_2019]
               travel_mm: [150, 160, 170, 180]
               wheel_size: [29, 27.5]
             note: OEM complete bikes only
+            note_de: Nur für OEM-Komplettbikes
+            note_fr: Uniquement sur vélos complets en monte d’origine
+            note_it: Solo su bici complete di primo equipaggiamento
+            note_es: Solo en bicicletas completas de montaje original
+            note_pt: Somente em bikes completas de montagem original
 
   - label: "40"
     level: model
     category: Downhill
+    category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     tasks: *fox_service
     children:
       - label: "2025–2027"
@@ -1545,10 +1861,10 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 203mm, 7 at 190mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 203mm, 7 at 190mm", notes_de: "Max. je Federweg: 5 bei 203mm, 7 bei 190mm", notes_fr: "Max. par débattement : 5 à 203 mm, 7 à 190 mm", notes_it: "Max. per escursione: 5 a 203 mm, 7 a 190 mm", notes_es: "Máx. por recorrido: 5 con 203 mm, 7 con 190 mm", notes_pt: "Máx. por curso: 5 com 203 mm, 7 com 190 mm" }
             options:
               damper: [grip_x2]
               travel_mm: [203]
@@ -1557,6 +1873,11 @@ nodes:
   - label: "Podium"
     level: model
     category: Enduro
+    category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     tasks: *fox_service
     children:
       - label: "2026–2027"
@@ -1570,10 +1891,10 @@ nodes:
         children:
           - label: Factory
             level: trim
-            specs: { stanchion: Kashima, spring: Air }
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
-              - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Maximum 8 at 150mm, 160mm and 170mm travel" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 130 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 8, visualization: stepper, notes: "Maximum 8 at 150mm, 160mm and 170mm travel", notes_de: "Maximal 8 bei 150mm, 160mm und 170mm Federweg", notes_fr: "Maximum 8 à 150 mm, 160 mm et 170 mm de débattement", notes_it: "Massimo 8 a 150 mm, 160 mm e 170 mm di escursione", notes_es: "Máximo 8 con 150 mm, 160 mm y 170 mm de recorrido", notes_pt: "Máximo de 8 com 150 mm, 160 mm e 170 mm de curso" }
             options:
               damper: [grip_x2]
               travel_mm: [150, 160, 170]
@@ -1583,10 +1904,40 @@ nodes:
               - Crown heights 58HT / 68HT, custom steel 20mm axle
               - Float EVOL GlideCore air spring, 130 psi maximum
               - GRIP X2 damper with an internal tune specific to the USD layout
+            note_de: |-
+              - Inverted-Chassis (USD) mit einer Brücke, 44mm Offset
+              - Brückenhöhen 58HT / 68HT, individuelle 20mm-Stahlachse
+              - Float-EVOL-GlideCore-Luftfeder, maximal 130 psi
+              - GRIP-X2-Dämpfer mit einer für das USD-Layout spezifischen internen Abstimmung
+            note_fr: |-
+              - Châssis inversé (USD) à té simple, déport de 44 mm
+              - Hauteurs de té 58HT / 68HT, axe en acier de 20 mm sur mesure
+              - Ressort pneumatique Float EVOL GlideCore, 130 psi maximum
+              - Amortisseur GRIP X2 avec un tarage interne propre à la configuration USD
+            note_it: |-
+              - Telaio invertito (USD) a piastra singola, offset di 44 mm
+              - Altezze della piastra 58HT / 68HT, perno in acciaio da 20 mm dedicato
+              - Molla pneumatica Float EVOL GlideCore, 130 psi al massimo
+              - Ammortizzatore GRIP X2 con una taratura interna specifica per la configurazione USD
+            note_es: |-
+              - Chasis invertido (USD) de corona simple, offset de 44 mm
+              - Alturas de corona 58HT / 68HT, eje de acero de 20 mm a medida
+              - Muelle neumático Float EVOL GlideCore, 130 psi como máximo
+              - Amortiguador GRIP X2 con un tarado interno específico para la configuración USD
+            note_pt: |-
+              - Chassi invertido (USD) de coroa simples, offset de 44 mm
+              - Alturas de coroa 58HT / 68HT, eixo de aço de 20 mm sob medida
+              - Mola a ar Float EVOL GlideCore, 130 psi no máximo
+              - Amortecedor GRIP X2 com uma calibragem interna específica para a configuração USD
 
   - label: "AWL"
     level: model
     category: Adventure / eMTB
+    category_de: Adventure / E-MTB
+    category_fr: Adventure / E-MTB
+    category_it: Adventure / E-MTB
+    category_es: Adventure / E-MTB
+    category_pt: Adventure / E-MTB
     tasks: *fox_service
     children:
       - label: "2025–2027"
@@ -1600,26 +1951,36 @@ nodes:
         children:
           - label: Standard
             level: trim
-            specs: { stanchion: 34mm, spring: Air }
+            specs: { stanchion: 34mm, stanchion_de: 34mm, stanchion_fr: 34mm, stanchion_it: 34mm, stanchion_es: 34mm, stanchion_pt: 34mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 100mm and 110mm, 5 at 120mm and 130mm, 4 at 140mm and 150mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 100mm and 110mm, 5 at 120mm and 130mm, 4 at 140mm and 150mm", notes_de: "Max. je Federweg: 6 bei 100mm und 110mm, 5 bei 120mm und 130mm, 4 bei 140mm und 150mm", notes_fr: "Max. par débattement : 6 à 100 mm et 110 mm, 5 à 120 mm et 130 mm, 4 à 140 mm et 150 mm", notes_it: "Max. per escursione: 6 a 100 mm e 110 mm, 5 a 120 mm e 130 mm, 4 a 140 mm e 150 mm", notes_es: "Máx. por recorrido: 6 con 100 mm y 110 mm, 5 con 120 mm y 130 mm, 4 con 140 mm y 150 mm", notes_pt: "Máx. por curso: 6 com 100 mm e 110 mm, 5 com 120 mm e 130 mm, 4 com 140 mm e 150 mm" }
             options:
               damper: [rail]
               travel_mm: [100, 110, 120, 130, 140, 150]
               wheel_size: [29, 27.5]
             note: Rated to 169kg system weight; fender/rack/light/ABS mounts.
+            note_de: Zugelassen bis 169kg Systemgewicht; Aufnahmen für Schutzblech, Gepäckträger, Licht und ABS.
+            note_fr: Homologuée jusqu’à 169 kg de poids système ; fixations de garde-boue/porte-bagages/éclairage/ABS.
+            note_it: Omologata fino a 169 kg di peso del sistema; attacchi per parafango/portapacchi/luci/ABS.
+            note_es: Homologada hasta 169 kg de peso del sistema; anclajes para guardabarros/portaequipajes/luces/ABS.
+            note_pt: Homologada até 169 kg de peso do sistema; fixações para paralama/bagageiro/luz/ABS.
           - label: HD
             level: trim
-            specs: { stanchion: 36mm, spring: Air }
+            specs: { stanchion: 36mm, stanchion_de: 36mm, stanchion_fr: 36mm, stanchion_it: 36mm, stanchion_es: 36mm, stanchion_pt: 36mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-              - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm", notes_de: "Max. je Federweg: 9 bei 130mm, 8 bei 140mm, 7 bei 150mm, 6 bei 160mm", notes_fr: "Max. par débattement : 9 à 130 mm, 8 à 140 mm, 7 à 150 mm, 6 à 160 mm", notes_it: "Max. per escursione: 9 a 130 mm, 8 a 140 mm, 7 a 150 mm, 6 a 160 mm", notes_es: "Máx. por recorrido: 9 con 130 mm, 8 con 140 mm, 7 con 150 mm, 6 con 160 mm", notes_pt: "Máx. por curso: 9 com 130 mm, 8 com 140 mm, 7 com 150 mm, 6 com 160 mm" }
             options:
               damper: [rail_hd]
               travel_mm: [130, 140, 150, 160]
               wheel_size: [29, 27.5]
             note: 29in only; higher-load chassis for e-bikes.
+            note_de: Nur 29in; belastbareres Chassis für E-Bikes.
+            note_fr: 29" uniquement ; châssis renforcé pour vélos électriques.
+            note_it: Solo 29"; telaio più robusto per e-bike.
+            note_es: Solo 29"; chasis reforzado para bicicletas eléctricas.
+            note_pt: Somente 29"; chassi reforçado para bikes elétricas.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

@@ -5,8 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../database/app_database.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/selected_data.dart';
+import '../../models/service_error.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/attachment_storage_service.dart';
 import '../../utils/file_import.dart';
@@ -55,9 +58,9 @@ Future<void> _runImport(BuildContext context, ImportResult importResult) async {
       AppSnackBar.success(
         context,
         switch (importResult.importMethod) {
-          ImportMethod.merge => 'Data merged successfully',
-          ImportMethod.overwrite => 'Data overwritten successfully',
-          ImportMethod.replace => 'Data replaced successfully',
+          ImportMethod.merge => context.l10n.importDoneMerge,
+          ImportMethod.overwrite => context.l10n.importDoneOverwrite,
+          ImportMethod.replace => context.l10n.importDoneReplace,
         },
       ),
     );
@@ -67,9 +70,9 @@ Future<void> _runImport(BuildContext context, ImportResult importResult) async {
       AppSnackBar.error(
         context,
         switch (importResult.importMethod) {
-          ImportMethod.merge => 'Merge failed: $e',
-          ImportMethod.overwrite => 'Overwriting failed: $e',
-          ImportMethod.replace => 'Overwriting failed: $e',
+          ImportMethod.merge => context.l10n.importFailedMerge(e.toString()),
+          ImportMethod.overwrite => context.l10n.importFailedOverwrite(e.toString()),
+          ImportMethod.replace => context.l10n.importFailedReplace(e.toString()),
         },
       ),
     );
@@ -228,11 +231,11 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
             onBack: _onBack,
           ),
           ImportSheetFlowSteps.step6Importing => SheetProgressContent(
-            title: 'Import Data',
+            title: context.l10n.importSheetTitle,
             message: switch (_importMethod!) {
-              ImportMethod.merge => "Merging data…",
-              ImportMethod.overwrite => "Overwriting data…",
-              ImportMethod.replace => "Replacing data…",
+              ImportMethod.merge => context.l10n.importProgressMerge,
+              ImportMethod.overwrite => context.l10n.importProgressOverwrite,
+              ImportMethod.replace => context.l10n.importProgressReplace,
             },
           ),
         },
@@ -256,7 +259,7 @@ class SelectImportSourceSheetContent extends StatefulWidget {
 }
 
 class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheetContent> {
-  String? _filePickingError;
+  DataError? _filePickingError;
   String? _readingMessage;
 
   @override
@@ -264,7 +267,7 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
     if (_readingMessage != null) {
       return PopScope(
         canPop: false,
-        child: SheetProgressContent(title: 'Import Data', message: _readingMessage!),
+        child: SheetProgressContent(title: context.l10n.importSheetTitle, message: _readingMessage!),
       );
     }
 
@@ -273,7 +276,7 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Import Data'),
+          SheetHeader(title: context.l10n.importSheetTitle),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -283,24 +286,24 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                   if (_filePickingError != null)
                     ListTile(
                       leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                      title: SelectableText(_filePickingError!),
+                      title: SelectableText(_filePickingError!.message(context.l10n)),
                       dense: true,
                     ),
                   ListTile(
                     leading: Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Import File"),
-                    subtitle: const Text("Select json file which contains data to import"),
+                    title: Text(context.l10n.importFile),
+                    subtitle: Text(context.l10n.importFileSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: () async {
                       final appDatabase = context.read<AppDatabase>();
                       final result = await FileImport.pickAndReadJsonFile(
                         appDatabase: appDatabase,
-                        onPicked: () => setState(() => _readingMessage = "Reading file…"),
+                        onPicked: () => setState(() => _readingMessage = context.l10n.importReadingFile),
                       );
                       if (!mounted) return;
                       setState(() => _readingMessage = null);
                       if (result.isError) {
-                        setState(() => _filePickingError = result.errorMessage);
+                        setState(() => _filePickingError = result.error);
                       } else {
                         widget.onFile(result.appData!);
                       }
@@ -308,26 +311,26 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                   ),
                   ListTile(
                     leading: Icon(Icons.file_present_sharp, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Restore Backup"),
-                    subtitle: const Text("Restore local or cloud Backup"),
+                    title: Text(context.l10n.importRestoreBackup),
+                    subtitle: Text(context.l10n.importRestoreBackupSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: widget.onBackup,
                   ),
                   if (context.read<AppSettings>().enableAttachments)
                     ListTile(
                       leading: Icon(Icons.attach_file, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Import Attachment Bundle"),
-                      subtitle: const Text("Restore data and attachments from a ZIP bundle"),
+                      title: Text(context.l10n.importAttachmentBundle),
+                      subtitle: Text(context.l10n.importAttachmentBundleSubtitle),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         final result = await AttachmentStorageService().importBundle(
-                          onPicked: () => setState(() => _readingMessage = "Unpacking data and attachments…"),
+                          onPicked: () => setState(() => _readingMessage = context.l10n.importUnpackingBundle),
                         );
                         if (!mounted) return;
                         setState(() => _readingMessage = null);
                         if (result.isCancelled) return;
                         if (result.isError) {
-                          setState(() => _filePickingError = result.errorMessage);
+                          setState(() => _filePickingError = result.error);
                         } else {
                           widget.onFile(result.data!);
                         }

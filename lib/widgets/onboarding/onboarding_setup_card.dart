@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
@@ -26,19 +28,30 @@ import 'onboarding_shared_element.dart';
 /// definitions and the already-saved snapshots are built here. The definitions
 /// carry fixed ids so the same adjustment addresses its value in every
 /// snapshot, exactly as a real component does.
-abstract final class OnboardingSetupExample {
-  static final NumericalAdjustment pressure = NumericalAdjustment(
-    id: 'onboarding-pressure',
-    name: "Pressure",
+class OnboardingSetupExample {
+  OnboardingSetupExample._(this.l10n);
+
+  /// One instance per language, so the adjustments keep their identity across
+  /// rebuilds: the rows hold state keyed on the adjustment they were given.
+  factory OnboardingSetupExample.of(AppLocalizations l10n) =>
+      _instances.putIfAbsent(l10n.localeName, () => OnboardingSetupExample._(l10n));
+
+  static final Map<String, OnboardingSetupExample> _instances = {};
+
+  final AppLocalizations l10n;
+
+  late final NumericalAdjustment pressure = NumericalAdjustment(
+    id: _pressureId,
+    name: l10n.onboardingExamplePressure,
     notes: null,
     unit: AdjustmentUnit.fromLegacy('psi'),
     min: 0,
     max: 300,
   );
 
-  static final StepAdjustment rebound = StepAdjustment(
-    id: 'onboarding-rebound',
-    name: "Rebound",
+  late final StepAdjustment rebound = StepAdjustment(
+    id: _reboundId,
+    name: l10n.onboardingExampleRebound,
     notes: null,
     unit: null,
     min: 0,
@@ -47,20 +60,24 @@ abstract final class OnboardingSetupExample {
     visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial,
   );
 
-  static final BooleanAdjustment lockout = BooleanAdjustment(
-    id: 'onboarding-lockout',
-    name: "Lockout",
+  late final BooleanAdjustment lockout = BooleanAdjustment(
+    id: _lockoutId,
+    name: l10n.onboardingExampleLockout,
     notes: null,
     unit: null,
   );
 
-  static final Component fork = Component(
+  late final Component fork = Component(
     id: 'onboarding-fork',
-    name: "Suspension Fork",
+    name: l10n.onboardingExampleFork,
     componentType: ComponentType.fork,
     installations: const [],
     adjustments: [pressure, rebound, lockout],
   );
+
+  static const String _pressureId = 'onboarding-pressure';
+  static const String _reboundId = 'onboarding-rebound';
+  static const String _lockoutId = 'onboarding-lockout';
 
   /// The values the new setup starts from — the ones the last ride was saved
   /// with — and where the scripted edits take them.
@@ -71,9 +88,9 @@ abstract final class OnboardingSetupExample {
   static const double editedRebound = 10;
 
   static Map<String, AdjustmentValue> _values(double pressureValue, double reboundValue, bool lockoutValue) => {
-    pressure.id: NumericalValue(pressureValue),
-    rebound.id: StepValue(reboundValue.round()),
-    lockout.id: BooleanValue(lockoutValue),
+    _pressureId: NumericalValue(pressureValue),
+    _reboundId: StepValue(reboundValue.round()),
+    _lockoutId: BooleanValue(lockoutValue),
   };
 
   static Setup _setup({
@@ -94,9 +111,9 @@ abstract final class OnboardingSetupExample {
   }
 
   /// The setup the slide records, stamped with [now].
-  static OnboardingSnapshot newSetup(DateTime now) => OnboardingSnapshot(
+  OnboardingSnapshot newSetup(DateTime now) => OnboardingSnapshot(
     setup: _setup(
-      name: "My new Setup",
+      name: l10n.onboardingExampleNewSetup,
       at: now,
       values: _values(editedPressure, editedRebound, startLockout),
     ),
@@ -106,14 +123,14 @@ abstract final class OnboardingSetupExample {
   );
 
   /// The snapshots already in the diary, newest first.
-  static List<OnboardingSnapshot> olderSnapshots(DateTime now) {
+  List<OnboardingSnapshot> olderSnapshots(DateTime now) {
     final lastRide = _values(startPressure, startRebound, startLockout);
     final firstRide = _values(72, 4, true);
 
     return [
       OnboardingSnapshot(
         setup: _setup(
-          name: "Enduro Day",
+          name: l10n.onboardingExampleSetupEnduro,
           at: now.subtract(const Duration(days: 6)),
           values: lastRide,
         ),
@@ -123,7 +140,7 @@ abstract final class OnboardingSetupExample {
       ),
       OnboardingSnapshot(
         setup: _setup(
-          name: "Bikepark Day",
+          name: l10n.onboardingExampleSetupBikepark,
           at: now.subtract(const Duration(days: 20)),
           values: firstRide,
         ),
@@ -237,6 +254,8 @@ class OnboardingSetupRows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final example = OnboardingSetupExample.of(context.l10n);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -244,14 +263,14 @@ class OnboardingSetupRows extends StatelessWidget {
         // competing for a tap: the script dials it in, the user does not.
         DisplayNumericalAdjustmentWidget(
           key: const ValueKey('onboarding_pressure_row'),
-          adjustment: OnboardingSetupExample.pressure,
+          adjustment: example.pressure,
           initialValue: const NumericalValue(OnboardingSetupExample.startPressure),
           value: NumericalValue(pressure),
           showFill: true,
         ),
         SetStepAdjustmentWidget(
           key: const ValueKey('onboarding_rebound_row'),
-          adjustment: OnboardingSetupExample.rebound,
+          adjustment: example.rebound,
           initialValue: StepValue(OnboardingSetupExample.startRebound.round()),
           value: StepValue(rebound.round()),
           onChanged: (value) => (onReboundChanged ?? _ignore)(value?.value.toDouble()),
@@ -259,7 +278,7 @@ class OnboardingSetupRows extends StatelessWidget {
         ),
         SetBooleanAdjustmentWidget(
           key: const ValueKey('onboarding_lockout_row'),
-          adjustment: OnboardingSetupExample.lockout,
+          adjustment: example.lockout,
           initialValue: const BooleanValue(OnboardingSetupExample.startLockout),
           value: BooleanValue(lockout),
           onChanged: (value) => (onLockoutChanged ?? _ignore)(value?.value),
@@ -308,7 +327,7 @@ class OnboardingSetupSnapshotCard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: AdjustmentCompactDisplayList(
-                  components: [OnboardingSetupExample.fork],
+                  components: [OnboardingSetupExample.of(context.l10n).fork],
                   adjustmentValues: snapshot.setup.bikeAdjustmentValues,
                   previousAdjustmentValues: snapshot.previousValues,
                   showRowIcons: true,
@@ -339,8 +358,8 @@ Widget onboardingSetupCardHeader({
 }) {
   final appSettings = context.watch<AppSettings>();
   final condition = snapshot.condition;
-  final dateText = DateFormat(appSettings.dateFormat).format(snapshot.setup.datetimeLocal);
-  final timeText = DateFormat(appSettings.timeFormat).format(snapshot.setup.datetimeLocal);
+  final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(snapshot.setup.datetimeLocal);
+  final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(snapshot.setup.datetimeLocal);
 
   return Padding(
     padding: _headerPadding,
@@ -363,7 +382,7 @@ Widget onboardingSetupCardHeader({
                 TileMetaRow(icon: Icons.location_pin, text: snapshot.place, muted: true),
                 TileMetaRow(
                   icon: condition.iconData,
-                  text: condition.value,
+                  text: condition.label(context.l10n),
                   iconColor: condition.color,
                   muted: true,
                 ),

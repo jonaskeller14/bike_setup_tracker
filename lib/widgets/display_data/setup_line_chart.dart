@@ -7,11 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/entity_names.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/table_column.dart';
 import '../empty_state_placeholder.dart';
 
@@ -65,24 +69,24 @@ class _SetupLineChartState extends State<SetupLineChart> {
     }).toList();
 
     if (activeChartColumns.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No adjustments selected",
-        subtitle: "Select numerical or step adjustment columns to visualize trends",
+        title: context.l10n.chartNoAdjustmentsTitle,
+        subtitle: context.l10n.chartTrendNoColumnsSubtitle,
       );
     }
     if (widget.setups.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No data",
-        subtitle: "No setup data available",
+        title: context.l10n.chartNoDataTitle,
+        subtitle: context.l10n.chartNoDataSubtitle,
       );
     }
     if (widget.selectedSetups.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No setups selected",
-        subtitle: "Select setups in the table above to visualize the chart",
+        title: context.l10n.chartNoSetupsSelectedTitle,
+        subtitle: context.l10n.chartNoSetupsSelectedSubtitle,
       );
     }
 
@@ -91,20 +95,20 @@ class _SetupLineChartState extends State<SetupLineChart> {
     }).toList();
 
     if (validColumns.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No numerical data",
-        subtitle: "The selected columns do not contain numerical data to plot",
+        title: context.l10n.chartNoNumericalTitle,
+        subtitle: context.l10n.chartNoNumericalSubtitle,
       );
     }
 
     final chartSetups = widget.selectedSetups;
 
     if (chartSetups.length < 2) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "Not enough setups",
-        subtitle: "Select at least two setups in the table to visualize a trend",
+        title: context.l10n.chartLineNotEnoughTitle,
+        subtitle: context.l10n.chartLineNotEnoughSubtitle,
       );
     }
 
@@ -154,7 +158,7 @@ class _SetupLineChartState extends State<SetupLineChart> {
                               child: FractionalTranslation(
                                 translation: Offset(index == 0 ? 0.5 : -0.5, 0),
                                 child: Text(
-                                  DateFormat(appSettings.dateFormat).format(chartSetups[index].datetimeLocal),
+                                  DateFormat(appSettings.dateFormat, context.l10n.localeName).format(chartSetups[index].datetimeLocal),
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ),
@@ -175,7 +179,7 @@ class _SetupLineChartState extends State<SetupLineChart> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
-                          value.truncateToDouble() == value ? value.toInt().toString() : value.toStringAsFixed(1),
+                          value.truncateToDouble() == value ? value.toInt().toString() : formatLocalizedDouble(value, fractionDigits: 1, locale: context.l10n.localeName),
                           style: Theme.of(context).textTheme.bodySmall,
                           textAlign: TextAlign.right,
                         ),
@@ -241,7 +245,7 @@ class _SetupLineChartState extends State<SetupLineChart> {
                       final adjustment = widget.adjustmentFor(column);
                       final columnName = widget.columnLabel(column);
                       final unit = adjustment?.unit?.label ?? "";
-                      final formattedY = NumericalValue(barSpot.y).display;
+                      final formattedY = NumericalValue(barSpot.y).displayText(context.l10n);
 
                       final tooltipStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
                         color: barSpot.bar.color ?? Theme.of(context).colorScheme.onSurface,
@@ -250,9 +254,9 @@ class _SetupLineChartState extends State<SetupLineChart> {
 
                       if (barSpot.barIndex == 0) {
                         final setup = chartSetups[barSpot.x.toInt()];
-                        final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+                        final dateStr = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal);
                         return LineTooltipItem(
-                          '${setup.displayName}\n',
+                          '${setup.label(context.l10n)}\n',
                           tooltipStyle.copyWith(color: Theme.of(context).colorScheme.onSurface),
                           children: [
                             TextSpan(

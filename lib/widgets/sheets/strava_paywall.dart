@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/markup_text.dart';
 import '../../models/strava/strava_plan.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/app_info.dart';
@@ -20,32 +23,9 @@ class StravaPaywall extends StatefulWidget {
 class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProviderStateMixin {
   StravaPlan _selectedPlan = StravaPlan.yearly;
 
-  static const bullets = [
-    'Strava is a third-party service. Strava and the Strava logo are registered trademarks of Strava, Inc. — Bike Setup Tracker is not affiliated with or endorsed by Strava.',
-    'Your subscription covers the server costs of syncing activities between Strava and your device.',
-    'We only store the activity fields needed to match a ride to a setup (date, name, location, gear). You can disconnect Strava at any time.',
-  ];
-
-  static const features = [
-    (
-      icon: Icons.show_chart_rounded,
-      title: 'Activities as context',
-      body: 'See which setup you ran on every ride — automatically linked by date and gear.',
-    ),
-    (
-      icon: Icons.map_outlined,
-      title: 'Setups on the map',
-      body: 'Activity start points and saved setups together, so you can revisit what worked at a spot.',
-    ),
-    (
-      icon: Icons.sync_rounded,
-      title: 'Real-time auto-sync',
-      body: 'New, updated and deleted Strava activities import within seconds.',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final subscription = context.watch<SubscriptionService>();
     final isBusy = subscription.isBusy;
     final selectedOffer = subscription.offerFor(_selectedPlan);
@@ -53,7 +33,13 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
     final yearlySavingsPercent = subscription.yearlySavingsPercent;
 
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
-    final storeSettings = isIOS ? 'App Store settings' : 'Google Play settings';
+    final storeSettings = isIOS ? l10n.paywallStoreSettingsIos : l10n.paywallStoreSettingsAndroid;
+    final bullets = [l10n.paywallNoteAffiliation, l10n.paywallNoteCosts, l10n.paywallNoteData];
+    final features = [
+      (icon: Icons.show_chart_rounded, title: l10n.paywallFeature1Title, body: l10n.paywallFeature1Body),
+      (icon: Icons.map_outlined, title: l10n.paywallFeature2Title, body: l10n.paywallFeature2Body),
+      (icon: Icons.sync_rounded, title: l10n.paywallFeature3Title, body: l10n.paywallFeature3Body),
+    ];
     final manageSubscriptionUrl = isIOS
         ? 'https://apps.apple.com/account/subscriptions'
         : 'https://play.google.com/store/account/subscriptions'
@@ -70,13 +56,25 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
         launchMode: LaunchMode.externalApplication,
       );
 
+    TextSpan linkSpan(String text, GestureRecognizer recognizer) => TextSpan(
+      text: text,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: Theme.of(context).colorScheme.primary,
+        fontWeight: FontWeight.bold,
+        decoration: TextDecoration.underline,
+        decorationColor: Theme.of(context).colorScheme.primary,
+        letterSpacing: 0.4,
+      ),
+      recognizer: recognizer,
+    );
+
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(
-            title: 'Strava Sync',
-            leadingIcon: Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
+          SheetHeader(
+            title: l10n.stravaSheetTitle,
+            leadingIcon: const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
           ),
           const SizedBox(height: 16),
           Flexible(
@@ -106,9 +104,9 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
-                                  'Pair every setup with the ride you actually rode.',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.paywallHeroTitle,
+                                  style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -117,7 +115,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Connect Strava and your activities flow in automatically.',
+                                  l10n.paywallHeroSubtitle,
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Colors.white.withAlpha(235),
                                     height: 1.5,
@@ -134,7 +132,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                   Padding(
                     padding: const EdgeInsets.only(left: 4),
                     child: Text(
-                      'CHOOSE A PLAN',
+                      l10n.paywallChoosePlan.toUpperCase(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.bold,
@@ -176,7 +174,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                     children: [
                                       Flexible(
                                         child: Text(
-                                          plan.label,
+                                          plan.label(context.l10n),
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                             fontWeight: FontWeight.bold,
@@ -194,7 +192,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                             borderRadius: BorderRadius.circular(100),
                                           ),
                                           child: Text(
-                                            'SAVE $yearlySavingsPercent%',
+                                            l10n.paywallSavePercent(yearlySavingsPercent),
                                             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -204,7 +202,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                     ],
                                   ),
                                   subtitle: Text(
-                                    plan.tagline,
+                                    plan.tagline(context.l10n),
                                     overflow: TextOverflow.ellipsis,
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -219,24 +217,28 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                         crossAxisAlignment: CrossAxisAlignment.baseline,
                                         textBaseline: TextBaseline.alphabetic,
                                         children: [
-                                          Text(
-                                            subscription.localizedPrice(plan) ?? '—',
-                                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                              letterSpacing: -0.3,
+                                          Flexible(
+                                            child: Text(
+                                              subscription.localizedPrice(plan) ?? '—',
+                                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                                letterSpacing: -0.3,
+                                              ),
                                             ),
                                           ),
                                           const SizedBox(width: 3),
-                                          Text(
-                                            plan.period.replaceAll('/ ', '/'),
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          Flexible(
+                                            child: Text(
+                                              plan.period(context.l10n).replaceAll('/ ', '/'),
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                       if (subscription.offerFor(plan)?.isTrialEligible == true)
                                         Text(
-                                          '7 days free',
+                                          l10n.paywallTrialBadge,
                                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                             color: Theme.of(context).colorScheme.primary,
                                             fontWeight: FontWeight.bold,
@@ -297,7 +299,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'HOW THIS WORKS',
+                                l10n.paywallHowItWorks.toUpperCase(),
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.bold,
@@ -368,49 +370,19 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 children: [
-                  TextSpan(
-                    text: selectedOffer?.isTrialEligible == true
-                        ? '7 days free, then ${selectedOffer!.localizedRecurringPrice}${_selectedPlan.period}. '
-                              'Cancel before the trial ends to avoid a charge. Manage or cancel anytime in your '
-                        : 'Auto-renewable subscription. Manage or cancel anytime in your ',
-                  ),
-                  TextSpan(
-                    text: storeSettings,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Theme.of(context).colorScheme.primary,
-                      letterSpacing: 0.4,
-                    ),
-                    recognizer: storeSettingsRecognizer,
-                  ),
-                  const TextSpan(text: '. By subscribing you agree to '),
-                  TextSpan(
-                    text: 'Terms of Use',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Theme.of(context).colorScheme.primary,
-                      letterSpacing: 0.4,
-                    ),
-                    recognizer: eulaRecognizer,
-                  ),
-                  const TextSpan(text: ' and '),
-                  TextSpan(
-                    text: 'Privacy Policy',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Theme.of(context).colorScheme.primary,
-                      letterSpacing: 0.4,
-                    ),
-                    recognizer: privacyRecognizer,
-                  ),
-                  const TextSpan(
-                    text: '.',
+                  markupTextSpan(
+                    selectedOffer?.isTrialEligible == true
+                        ? l10n.paywallLegalTrial(
+                            selectedOffer!.localizedRecurringPrice,
+                            _selectedPlan.period(l10n),
+                            storeSettings,
+                          )
+                        : l10n.paywallLegalAuto(storeSettings),
+                    tags: {
+                      'store': (text) => linkSpan(text, storeSettingsRecognizer),
+                      'terms': (text) => linkSpan(text, eulaRecognizer),
+                      'privacy': (text) => linkSpan(text, privacyRecognizer),
+                    },
                   ),
                 ],
               ),
@@ -418,11 +390,11 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
             ),
           ),
           const SizedBox(height: 12),
-          if (subscription.state is SubscriptionError && subscription.errorMessage != null)
+          if (subscription.failure != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
               child: SelectableText(
-                subscription.errorMessage ?? "",
+                subscription.failure!.message(l10n),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.error,
@@ -446,10 +418,13 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                   : const Icon(Icons.auto_awesome),
               label: Text(
                 selectedOffer == null
-                    ? 'Loading store price…'
+                    ? l10n.paywallLoadingPrice
                     : selectedOffer.isTrialEligible
-                    ? 'Start 7-day free trial'
-                    : 'Subscribe — ${selectedOffer.localizedRecurringPrice}${_selectedPlan.period.replaceAll('/ ', '/')}',
+                    ? l10n.paywallStartTrial
+                    : l10n.paywallSubscribe(
+                        selectedOffer.localizedRecurringPrice,
+                        _selectedPlan.period(l10n).replaceAll('/ ', '/'),
+                      ),
               ),
               onPressed: isBusy || !offersReady ? null : () => subscription.buy(_selectedPlan),
               style: FilledButton.styleFrom(
@@ -466,7 +441,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
             child: TextButton.icon(
               onPressed: isBusy ? null : () => subscription.restorePurchases(),
               icon: const Icon(Icons.history_rounded),
-              label: const Text('Restore previous purchase'),
+              label: Text(l10n.paywallRestore),
             ),
           ),
         ],

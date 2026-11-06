@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/enum_labels.dart';
 import '../models/component/component.dart';
 import '../models/component/component_ancestor.dart';
 import 'component_hierarchy_resolver.dart';
@@ -13,7 +15,8 @@ class ComponentSlot {
 
   const ComponentSlot({required this.type, this.parentType});
 
-  String get label => parentType == null ? type.label : '${type.label} (${parentType!.label})';
+  String label(AppLocalizations l10n) =>
+      parentType == null ? type.label(l10n) : '${type.label(l10n)} (${parentType!.label(l10n)})';
 
   @override
   bool operator ==(Object other) => other is ComponentSlot && other.type == type && other.parentType == parentType;

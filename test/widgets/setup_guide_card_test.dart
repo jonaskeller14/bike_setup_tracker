@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
@@ -9,6 +10,7 @@ import 'package:bike_setup_tracker/utils/setup_guide_actions.dart';
 import 'package:bike_setup_tracker/widgets/setup_guide_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 const _catalog = '''
 brand: Acme
@@ -37,7 +39,7 @@ void main() {
   final preset = catalogProducts(parseCatalogFile(_catalog)).single;
 
   GuidedComponent guided({String? name}) {
-    final application = buildCatalogApplication(preset);
+    final application = buildCatalogApplication(preset, englishL10n);
     return GuidedComponent(
       Component(
         name: name ?? application.name,
@@ -63,12 +65,12 @@ void main() {
     ThemeData? theme,
   }) {
     return tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: Scaffold(
           body: SingleChildScrollView(
             child: SetupGuideCard(
-              sections: [SetupGuideSection(guided, guided.evaluate(inputs, current))],
+              sections: [SetupGuideSection(guided, guided.evaluate(inputs, current, englishL10n))],
               inputs: inputs,
               onApply: onApply ?? (_) {},
               onApplyAll: onApplyAll,
@@ -92,7 +94,7 @@ void main() {
     expect(find.text('4'), findsOneWidget);
     expect(find.text('Fixed value'), findsOneWidget);
     expect(find.text('Not set'), findsNWidgets(2));
-    expect(find.text('A starting point, check your manual.'), findsOneWidget);
+    expect(find.text('A starting point. Check your manual.'), findsOneWidget);
   });
 
   testWidgets('tapping a row applies that value', (tester) async {
@@ -201,7 +203,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Recommended values'), findsOneWidget);
-    expect(find.textContaining('check your manual'), findsWidgets);
+    expect(find.textContaining('Check your manual'), findsWidgets);
     expect(find.text('In range'), findsOneWidget);
     expect(find.text("Acme owner's manual (2027)"), findsOneWidget);
     expect(find.textContaining('For Acme'), findsOneWidget);

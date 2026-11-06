@@ -13,7 +13,7 @@ Bike Setup Tracker
 Mobile (iOS, Android).
 
 ## Screenshots
-Android frames from `docs/store/play-store/phone/` (1080 × 1920, the size the form asks for).
+Android frames from `docs/store/play-store/phone/en-US/` (1080 × 1920, the size the form asks for).
 
 | Slot | File |
 |---|---|

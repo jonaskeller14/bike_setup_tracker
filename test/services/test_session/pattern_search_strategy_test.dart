@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session_method.dart';
 import 'package:bike_setup_tracker/services/test_session/pattern_search_strategy.dart';
@@ -122,7 +124,7 @@ void main() {
 
       expect(proposal.values, {'b': const StepValue(13), 'a': const StepValue(10)});
       expect(proposal.referenceSetupId, 'r0');
-      expect(proposal.rationale, contains('b +3'));
+      expect(proposal.rationale.text(englishL10n), contains('b +3'));
     });
 
     test('never moves a locked knob', () {

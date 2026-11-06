@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/value_delta.dart';
@@ -82,7 +84,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
                       ),
                     ),
                     if (previous != null && value != null)
-                      ValueDeltaChip(label: formatValueDelta(previous, value)!, color: changeColor),
+                      ValueDeltaChip(label: formatValueDelta(previous, value, context.l10n)!, color: changeColor),
                   ],
                 ),
                 StepPips(
@@ -130,7 +132,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
       TextSpan(
         children: [
           if (previous != null) ...[
-            TextSpan(text: previous.display, style: previousStyle),
+            TextSpan(text: previous.displayText(context.l10n), style: previousStyle),
             WidgetSpan(
               alignment: PlaceholderAlignment.middle,
               child: Padding(
@@ -143,7 +145,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
               ),
             ),
           ],
-          TextSpan(text: value?.display ?? '-', style: valueStyle),
+          TextSpan(text: value?.displayText(context.l10n) ?? '-', style: valueStyle),
         ],
       ),
       maxLines: 1,

@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../services/google_drive_service.dart';
 import 'sheet_header.dart';
@@ -31,7 +33,7 @@ class GoogleDriveSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SheetHeader(
-            title: 'Google Drive Sync',
+            title: context.l10n.driveSheetTitle,
             leadingIcon: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.onSurface),
           ),
           const SizedBox(height: 16),
@@ -50,10 +52,10 @@ class GoogleDriveSheet extends StatelessWidget {
                         _accountListTile(context),
                         if (isSignedIn)
                           _buildSyncInfoSection(context, googleDriveService),
-                        if (googleDriveService.errorMessage.isNotEmpty)
+                        if (googleDriveService.error != null)
                           ListTile(
                             leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                            title: SelectableText(googleDriveService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                            title: SelectableText(googleDriveService.error!.message(context.l10n), style: TextStyle(color: Theme.of(context).colorScheme.error)),
                             dense: true,
                             contentPadding: EdgeInsets.zero,
                           ),
@@ -72,7 +74,7 @@ class GoogleDriveSheet extends StatelessWidget {
                         onPressed: !isSyncing ? () async {
                           await googleDriveService.signOut();
                         } : null,
-                        label: const Text("Sign out"),
+                        label: Text(context.l10n.driveSheetSignOut),
                       ),
                       Expanded(
                         flex: 2,
@@ -87,7 +89,7 @@ class GoogleDriveSheet extends StatelessWidget {
                               width: 16,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ) : const Icon(Icons.sync),
-                            label: const Text("Sync"),
+                            label: Text(context.l10n.driveSheetSync),
                           ),
                         ),
                       ),
@@ -100,7 +102,7 @@ class GoogleDriveSheet extends StatelessWidget {
                               await googleDriveService.interactiveSignIn();
                             } : null,
                             icon: const Icon(Icons.login),
-                            label: const Text("Sign in to Google Drive"),
+                            label: Text(context.l10n.driveSheetSignIn),
                           ),
                         ),
                       ),
@@ -133,15 +135,15 @@ class GoogleDriveSheet extends StatelessWidget {
       ),
       title: Text(
         isSignedIn
-            ? (googleDriveService.displayName ?? 'Unknown User')
-            : 'Not signed in',
+            ? (googleDriveService.displayName ?? context.l10n.driveSheetUnknownUser)
+            : context.l10n.driveSheetNotSignedIn,
         style: const TextStyle(fontWeight: FontWeight.bold),
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
         isSignedIn
             ? (googleDriveService.email ?? '')
-            : 'Sign in to sync your data',
+            : context.l10n.driveSheetSignInHint,
         overflow: TextOverflow.ellipsis,
       ),
       contentPadding: EdgeInsets.zero,
@@ -154,8 +156,8 @@ class GoogleDriveSheet extends StatelessWidget {
 
     return ListTile(
       leading: const Icon(Icons.sync_alt),
-      title: const Text("Auto-sync is active"),
-      subtitle: const Text("Changes automatically sync with Google Drive."),
+      title: Text(context.l10n.driveSheetAutoSyncTitle),
+      subtitle: Text(context.l10n.driveSheetAutoSyncSubtitle),
       dense: true,
       contentPadding: EdgeInsets.zero,
       trailing: Tooltip(
@@ -173,18 +175,18 @@ class GoogleDriveSheet extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 4,
             children: [
-              Text("Bike Setup Tracker automatically syncs changes with your private Google Drive Cloud. "
-                  "Additionally daily backups are created which can be restored via 'Import Data -> Backup'. "
-                  "Backups are permanently deleted after 30 days. "
-                  "You can also trigger a manual sync.", 
+              Text(context.l10n.driveSheetInfo,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondary,
                   )),
               const SizedBox(height: 6),
               Text(
                 lastSync != null
-                    ? "Last sync: ${DateFormat(appSettings.dateFormat).format(lastSync)} ${DateFormat(appSettings.timeFormat).format(lastSync)}"
-                    : "No sync history found.",
+                    ? context.l10n.driveSheetLastSync(
+                        DateFormat(appSettings.dateFormat, context.l10n.localeName).format(lastSync),
+                        DateFormat(appSettings.timeFormat, context.l10n.localeName).format(lastSync),
+                      )
+                    : context.l10n.driveSheetNoSyncHistory,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSecondary,
                 ),

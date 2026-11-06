@@ -84,9 +84,15 @@ copy `02_showcase.json` or `03_features.json` as the starting point.
 - Time each clip's `segments`, `captions` and `callouts` from a contact sheet of the recording:
   `ffmpeg -i <clip>.mp4 -vf "fps=1,scale=200:-2,tile=6x5" -frames:v 2 sheet_%d.png` into the
   scratchpad, never next to the recordings.
-- Each Short: a problem hook (≤1.5 s) from the bank, the action, an on-screen payoff, the end card;
+- Each Short: a problem hook from the bank (about 1.5 s, longer if the line needs it to be clear), the action, an on-screen payoff, the end card;
   at least one callout where a single control is the point.
-- Images (release mode): `release` and `changed` slides in `carousel` and `square`, a thumbnail.
+- Every new Short sets `motion` (read `docs/marketing/motion/README.md`; look in `brand.md`, Motion):
+  `standard.html` when the screen explains itself, a custom composition when a concept needs explaining
+  before the phone. Time a custom one to the voice after the MP3s exist. Needs
+  `npm ci --prefix tool/marketing` once per machine.
+- Images (release mode): `release` and `changed` slides in `carousel` and `square`, a thumbnail. The
+  `release` slide opens `carousel`, `square` and `vertical`, because it is the preview image; its
+  `version` is `X.Y.Z`, without the `v`.
 - Voiceover is optional. If the kit uses it, write `<kit>.vo.md` and the `batch-N.md` texts in
   `tool/marketing/assets/voice/<kit>/` (style rules in `03_features.vo.md`), then **stop**: the
   maintainer generates the MP3s in speechma. Continue after they say the batches exist; check

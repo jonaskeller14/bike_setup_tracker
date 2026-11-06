@@ -37,7 +37,6 @@ post; Strava Sync is the only paid part and is named wherever a topic needs it.
 | Topic | Pillar | Audience | Hook | Shows | Notes |
 |---|---|---|---|---|---|
 | Maintenance reminders | S | Maint | S5 | Interval types and the due prediction, with callouts on the interval choice; the garage indicator for what's due | Phase 9 of #77. Needs a flow and a scenario. Tasks are opt-in; km intervals need Strava Sync |
-| Step adjustments | R | MTB | new | A clicks dial whose color and size match the real dial | Phase 9. Check the dial setting in release builds |
 | Attachments | D | Maint | new | A manual or photo on a component or setup | Phase 9. Seed the attachments in the scenario; the file picker can't be automated |
 | Installation timeline | R | Maint | new | Usage tracking per part and its history on the timeline | Phase 9. Pairs with the subcomponents rows; check which flag each part needs |
 | Subcomponents | R | Maint | new | The hierarchy; swapping a parent moves its children | Phase 9. `swap` (batch 2) moved a part between bikes; this moves one between components |
@@ -66,6 +65,14 @@ post; Strava Sync is the only paid part and is named wherever a topic needs it.
 |---|---|---|
 | Pressure check | Not shipped (developer mode only) | Wait until released |
 | Setup guides | Not shipped (developer mode only) | Wait until released |
+
+## Production ideas
+
+- **Two-voice voiceover (speechma interviews).** speechma can voice a dialogue: start each line
+  with `A:` or `B:` (or two names, like `Host:` and `Guest:`), then pick a voice for each. Could
+  suit a Short built as a conversation between two riders (e.g. "Which clicks did you ride?"). Before
+  using it, check that `tool/marketing/voice.py` still splits the batch into lines, since speaker
+  prefixes are new to it. Noted 2026-10-29; not used in `04_v1.6.4`.
 
 ## Reminders
 

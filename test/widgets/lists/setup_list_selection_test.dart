@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/entity_names.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
@@ -76,7 +78,7 @@ void main() {
       find.descendant(of: find.byType(SetupTile), matching: find.byIcon(Setup.iconData)),
     );
     final title = tester.widget<Text>(
-      find.descendant(of: find.byType(SetupTile), matching: find.text(setup.displayName)),
+      find.descendant(of: find.byType(SetupTile), matching: find.text(setup.label(englishL10n))),
     );
     expect(leadingIcon.color, primary);
     expect(title.style?.color, primary);

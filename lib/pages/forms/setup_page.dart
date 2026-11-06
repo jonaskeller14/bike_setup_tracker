@@ -8,6 +8,9 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
@@ -33,6 +36,7 @@ import '../../services/setup_resolution_service.dart';
 import '../../services/test_session_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
+import '../../utils/adjustment_presets.dart';
 import '../../utils/adjustment_role.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
@@ -47,7 +51,6 @@ import '../../widgets/setup_guide_card.dart';
 import '../../widgets/setup_guide_scope.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
-import '../../widgets/sheets/person_add_adjustment.dart';
 import '../../widgets/sheets/set_condition.dart';
 import '../../widgets/sheets/set_location_place.dart';
 import '../../widgets/sheets/set_tags.dart';
@@ -305,7 +308,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _showRunStartError() {
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.error(context, 'A run must be after the previous run of its test session.'),
+      AppSnackBar.error(context, context.l10n.setupFormRunOrder),
     );
   }
 
@@ -501,11 +504,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (!mounted) return false;
     if (newLocation == null) {
       final message = switch (_locationService.status) {
-        LocationStatus.noService => 'Location services are disabled.',
-        LocationStatus.noPermission => 'Location permission was not granted.',
-        LocationStatus.permissionDeniedForever => 'Location permission is permanently denied.',
-        LocationStatus.timeout => 'Location request timed out.',
-        _ => 'Error fetching location.',
+        LocationStatus.noService => context.l10n.setupFormLocationDisabled,
+        LocationStatus.noPermission => context.l10n.setupFormLocationNoPermission,
+        LocationStatus.permissionDeniedForever => context.l10n.setupFormLocationDeniedForever,
+        LocationStatus.timeout => context.l10n.setupFormLocationTimeout,
+        _ => context.l10n.setupFormLocationError,
       };
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
@@ -521,7 +524,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<void> updateAddress() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Cannot update address without location.'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormAddressNeedsLocation));
       
       return;
     }
@@ -534,7 +537,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (!mounted) return;
     if (newAddress == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.error(context, 'Error fetching address.', duration: const Duration(seconds: 2)),
+        AppSnackBar.error(context, context.l10n.setupFormAddressError, duration: const Duration(seconds: 2)),
       );
       return;
     }
@@ -647,10 +650,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     final result = await showConfirmationDialog(
       context,
-      title: "Previous Setup has changed. Reset Values?",
-      content: "Your current unsaved adjustments were based on the old setup. Resetting the values will discard these changes.",
-      trueText: "Yes",
-      falseText: "No",
+      title: context.l10n.setupFormResetTitle,
+      content: context.l10n.setupFormResetBody,
+      trueText: context.l10n.yes,
+      falseText: context.l10n.no,
     );
     if (!result || !mounted) return;
 
@@ -664,8 +667,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     final pickedDate = await showDatePicker(
       context: context,
-      helpText: "Select Setup Date",
-      errorInvalidText: "Date cannot be in the future",
+      helpText: context.l10n.setupFormPickDate,
+      errorInvalidText: context.l10n.setupFormDateInFuture,
       selectableDayPredicate: (DateTime pickedDate) => !_selectedDateTimeLocal.copyWith(
         day: pickedDate.day,
         month: pickedDate.month,
@@ -711,7 +714,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      helpText: "Select Setup Time",
+      helpText: context.l10n.setupFormPickTime,
       initialTime: TimeOfDay.fromDateTime(_selectedDateTimeLocal),
     );
 
@@ -720,7 +723,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Date and Time cannot be in the future.'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormDateTimeInFuture));
       return;
     }
     if (_isBeforeRunStart(newDateTimeLocal.toUtc())) {
@@ -750,10 +753,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (_currentWeather.value != null) {
       final result = await showConfirmationDialog(
         context,
-        title: 'Update Weather?',
-        content: 'Do you want to fetch the latest weather data for this location, date and time?',
-        trueText: "Yes",
-        falseText: "No",
+        title: context.l10n.updateWeatherTitle,
+        content: context.l10n.updateWeatherBody,
+        trueText: context.l10n.yes,
+        falseText: context.l10n.no,
       );
       if (!result) return;
     }
@@ -763,7 +766,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Future<void> updateWeather() async {
     if (_currentLocation.value == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.error(context, 'Cannot update weather without location.', duration: const Duration(seconds: 2)),
+        AppSnackBar.error(context, context.l10n.setupFormWeatherNeedsLocation, duration: const Duration(seconds: 2)),
       );
       return;
     }
@@ -778,7 +781,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (currentWeather == null) {
 
       ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.error(context, 'Error fetching weather.', duration: const Duration(seconds: 2)),
+        AppSnackBar.error(context, context.l10n.setupFormWeatherError, duration: const Duration(seconds: 2)),
       );
       return;
     }
@@ -955,9 +958,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         setState(() {});
       },
       decoration: InputDecoration(
-        labelText: 'Setup Name',
+        labelText: context.l10n.setupFormNameLabel,
         border: const OutlineInputBorder(),
-        hintText: 'Enter setup name',
+        hintText: context.l10n.setupFormNameHint,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == SetupPageMode.edit && _nameController.text.trim() != (widget.setup?.name ?? ''),
       ),
@@ -974,9 +977,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       },
       maxLines: null,
       decoration: InputDecoration(
-        labelText: 'Notes (optional)',
+        labelText: context.l10n.notesOptionalLabel,
         border: const OutlineInputBorder(),
-        hintText: 'Add notes (optional)',
+        hintText: context.l10n.setupFormNotesHint,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == SetupPageMode.edit && (_notesController.text.trim() != (widget.setup?.notes ?? '')),
       ),
@@ -1003,7 +1006,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.calendar_month),
               label: Text(
-                DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
+                DateFormat(appSettings.dateFormat, context.l10n.localeName).format(_selectedDateTimeLocal),
               ),
               backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day)
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
@@ -1014,7 +1017,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.access_time),
               label: Text(
-                DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
+                DateFormat(appSettings.timeFormat, context.l10n.localeName).format(_selectedDateTimeLocal),
               ),
               backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute)
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
@@ -1075,7 +1078,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       : const Text("-"),
                   AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
-                      : const Text("Address Error"),
+                      : Text(context.l10n.setupFormChipAddressError),
                 },
                 LocationStatus.searching => switch (_addressService.status) {
                   _ => const ChipLoadingIndicator(),
@@ -1084,25 +1087,25 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
-                      : const Text("No GPS Service"),
+                      : Text(context.l10n.setupFormChipNoGpsService),
                 },
                 LocationStatus.noPermission || LocationStatus.permissionDeniedForever => switch (_addressService.status) {
                   AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
-                      : const Text("No GPS Permission"),
+                      : Text(context.l10n.setupFormChipNoGpsPermission),
                 },
                 LocationStatus.timeout => switch (_addressService.status) {
                   AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
-                      : const Text("GPS Timeout"),
+                      : Text(context.l10n.setupFormChipGpsTimeout),
                 },
                 LocationStatus.error => switch (_addressService.status) {
                   AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
-                      : const Text("Location Error"),
+                      : Text(context.l10n.setupFormChipLocationError),
                 },
               }
             ),
@@ -1115,10 +1118,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 WeatherError() => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
               },
               label: switch (_weatherService.status) {
-                WeatherIdle() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
+                WeatherIdle() => Text(_currentWeather.value?.getWeatherCodeLabel(context.l10n) ?? "-"),
                 WeatherSearching() => const ChipLoadingIndicator(),
-                WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
-                WeatherError() => const Text("Weather Error"),
+                WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel(context.l10n) ?? "-"),
+                WeatherError() => Text(context.l10n.setupFormChipWeatherError),
               },
               backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.withoutCondition() != widget.setup?.weather?.withoutCondition()
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
@@ -1148,7 +1151,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
                 ? const ChipLoadingIndicator()
-                : Text(_currentWeather.value?.condition?.value ?? "-"),
+                : Text(_currentWeather.value?.condition?.label(context.l10n) ?? "-"),
               backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.condition != widget.setup?.weather?.condition
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                   : null,
@@ -1177,7 +1180,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 labelPadding: const EdgeInsets.symmetric(vertical: 2),
                 padding: EdgeInsets.zero,
                 avatar: Icon(_isBookmarked ? Icons.bookmark : Icons.bookmark_border),
-                tooltip: _isBookmarked ? 'Remove Bookmark' : 'Bookmark',
+                tooltip: _isBookmarked ? context.l10n.setupTooltipRemoveBookmark : context.l10n.setupTooltipBookmark,
                 showCheckmark: false,
                 selected: _isBookmarked,
                 backgroundColor: widget.mode == SetupPageMode.edit && _isBookmarked != _initialIsBookmarked
@@ -1217,14 +1220,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   labelPadding: const EdgeInsets.symmetric(vertical: 2),
                   padding: EdgeInsets.zero,
                   avatar: const Icon(Icons.tag),
-                  tooltip: 'Add Tags',
+                  tooltip: context.l10n.setupFormAddTags,
                   onPressed: () async {
                     await showSetTagsSheet(
                       context: context,
                       tags: _tags,
                       availableTags: context.read<AppRepository>().setupTags,
-                      title: 'Add Tags',
-                      subtitle: "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
+                      title: context.l10n.setupFormAddTags,
+                      subtitle: context.l10n.setupTagsSubtitle,
                       onChanged: (Set<String> newTags) {
                         setState(() => _tags = newTags);
                         _changeListener();
@@ -1241,7 +1244,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 labelPadding: const EdgeInsets.symmetric(vertical: 2),
                 padding: EdgeInsets.zero,
                 avatar: const Icon(Icons.attach_file),
-                tooltip: 'Add Attachment',
+                tooltip: context.l10n.addAttachmentTooltip,
                 backgroundColor: widget.mode == SetupPageMode.edit && !listEquals(_attachments, _initialAttachments)
                     ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                     : null,
@@ -1261,11 +1264,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       final disabled = Theme.of(context).disabledColor;
       return InputDecorator(
         isEmpty: false,
-        decoration: const InputDecoration(
-          labelText: 'Bike',
+        decoration: InputDecoration(
+          labelText: context.l10n.setupFormBikeLabel,
           enabled: false,
-          border: OutlineInputBorder(),
-          suffixIcon: Icon(Icons.lock_outline),
+          border: const OutlineInputBorder(),
+          suffixIcon: const Icon(Icons.lock_outline),
         ),
         child: Row(
           spacing: 8,
@@ -1273,7 +1276,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             Icon(Bike.iconData, color: disabled),
             Expanded(
               child: Text(
-                bikes[_bike]?.name ?? 'BIKE NOT FOUND',
+                bikes[_bike]?.name ?? context.l10n.bikeNotFound,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: bikes.containsKey(_bike) ? disabled : scheme.error),
               ),
@@ -1289,24 +1292,24 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final appRepository = context.read<AppRepository>();
     bool isRunning(String bikeId) => appRepository.runningSessionFor(bikeId) != null;
     final runningError = widget.mode == SetupPageMode.edit
-        ? 'A test session is running on this bike. End it before editing its setups.'
-        : 'A test session is running on this bike. End it before recording a setup.';
+        ? context.l10n.setupFormSessionRunningEdit
+        : context.l10n.setupFormSessionRunningRecord;
     return DropdownButtonFormField<String>(
       initialValue: _bike,
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       forceErrorText: isRunning(_bike) ? runningError : null,
       decoration: InputDecoration(
-        labelText: 'Bike',
+        labelText: context.l10n.setupFormBikeLabel,
         errorMaxLines: 2,
         border: const OutlineInputBorder(),
-        hintText: "Choose a bike for this component",
+        hintText: context.l10n.setupFormBikeHint,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == SetupPageMode.edit && _bike != widget.setup?.bike,
       ),
       validator: (String? newBike) {
-        if (newBike == null) return "Bike cannot be empty.";
-        if (!bikes.keys.contains(newBike)) return "Please select valid bike";
+        if (newBike == null) return context.l10n.setupFormBikeEmpty;
+        if (!bikes.keys.contains(newBike)) return context.l10n.setupFormBikeInvalid;
         return null;
       },
       items: bikes.values.map((b) {
@@ -1322,7 +1325,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             ),
             if (running) ...[
               const Icon(TestSession.iconData, size: 16),
-              Text('Session running', style: Theme.of(context).textTheme.bodySmall),
+              Text(context.l10n.setupFormSessionRunning, style: Theme.of(context).textTheme.bodySmall),
             ],
           ],
         );
@@ -1340,7 +1343,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             spacing: 8,
             children: [
               Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
-              Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+              Expanded(child: Text(context.l10n.bikeNotFound, overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
             ],
           ),
         ),
@@ -1352,20 +1355,16 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Widget _sessionNotice(TestSession session) {
     final scheme = Theme.of(context).colorScheme;
     final source = context.read<AppRepository>().setups[widget.setup?.sourceSetupId];
-    final from = source == null ? 'the setup to compare' : "'${source.displayName}'";
+    final l10n = context.l10n;
+    final from = source == null
+        ? l10n.setupFormSessionFromFallback
+        : l10n.setupFormSessionFromSetup(source.label(context.l10n));
     // Starting a session lands here unexpectedly, so the first run says what to do.
     final explanation = switch ((session.method, _isFirstRun)) {
-      (Tournament(), true) =>
-        'The first run rides $from. Its adjustments are locked so the setups stay comparable. '
-            'Set the date, weather and notes of this ride, then save to start the session.',
-      (Tournament(), false) =>
-        'This run rides $from. Its adjustments are locked so the setups stay comparable.',
-      (_, true) =>
-        'This is the base setup the session starts from. If your bike is set up like this, just save. '
-            "Otherwise change the session's adjustments to match your bike.",
-      _ =>
-        'Only the adjustments of the session can change, locked ones stay as they are. '
-            'Everything else is copied from the previous run.',
+      (Tournament(), true) => l10n.setupFormSessionFirstTournament(from),
+      (Tournament(), false) => l10n.setupFormSessionNextTournament(from),
+      (_, true) => l10n.setupFormSessionFirstBase,
+      _ => l10n.setupFormSessionNextBase,
     };
     return Card(
       margin: EdgeInsets.zero,
@@ -1374,7 +1373,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         dense: true,
         leading: Icon(TestSession.iconData, color: scheme.onSecondaryContainer),
         title: Text(
-          _isFirstRun ? "First run of '${session.displayName}'" : "Run of '${session.displayName}'",
+          _isFirstRun
+              ? l10n.setupFormSessionFirstRunTitle(session.label(context.l10n))
+              : l10n.setupFormSessionRunTitle(session.label(context.l10n)),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(color: scheme.onSecondaryContainer, fontWeight: FontWeight.bold),
@@ -1436,7 +1437,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         final inputs = _guideInputs();
         final sections = [
           for (final component in guided)
-            if (component.evaluate(inputs, _bikeAdjustmentValues) case final recommendations
+            if (component.evaluate(inputs, _bikeAdjustmentValues, context.l10n) case final recommendations
                 when recommendations.isNotEmpty)
               SetupGuideSection(component, recommendations),
         ];
@@ -1472,7 +1473,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         return SetupGuideScope(
           sections: [
             for (final component in guided)
-              SetupGuideSection(component, component.evaluate(inputs, _bikeAdjustmentValues)),
+              SetupGuideSection(component, component.evaluate(inputs, _bikeAdjustmentValues, context.l10n)),
           ],
           child: child!,
         );
@@ -1501,7 +1502,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       return GuideWeightInput(
         weight: _personAdjustmentValues[attribute.id]?.asNum?.toDouble(),
         unit: unit,
-        hint: "Saved with this setup as ${rider.name}'s riding weight",
+        hint: context.l10n.setupFormGuideWeightSaved(rider.name),
         onChanged: (weight) {
           setState(() => _guideWeightRevision++);
           if (weight == null) {
@@ -1515,13 +1516,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     return GuideWeightInput(
       weight: _guideFallbackWeight,
       unit: const GuideInputs().riderWeightUnit,
-      hint: "Only used for these recommendations",
+      hint: context.l10n.setupFormGuideWeightLocal,
       onChanged: (weight) {
         _guideFallbackWeight = weight;
         _adjustmentValuesRevision.value++;
       },
       onAddToRider: person != null && weightAdjustment == null ? () => unawaited(_addRidingWeightTo(person)) : null,
-      addToRiderLabel: person == null ? null : "Add riding weight to ${person.name}",
+      addToRiderLabel: person == null ? null : context.l10n.setupFormGuideAddWeight(person.name),
     );
   }
 
@@ -1529,7 +1530,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   /// this setup's value of it.
   Future<void> _addRidingWeightTo(Person person) async {
     unawaited(HapticFeedback.selectionClick());
-    final adjustment = ridingWeightPreset.deepCopy();
+    final adjustment = ridingWeightPresetFor(context.l10n).deepCopy();
     await context.read<AppRepository>().editPerson(
       person.copyWith(adjustments: [...person.adjustments, adjustment]),
     );
@@ -1543,7 +1544,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _onPersonAdjustmentValueChanged(adjustment: adjustment, newValue: NumericalValue(weight));
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, "Added riding weight to ${person.name}"),
+      AppSnackBar.success(context, context.l10n.setupFormGuideWeightAdded(person.name)),
     );
   }
 
@@ -1555,7 +1556,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _applyAllGuideValues(List<SetupGuideSection> sections, GuideInputs inputs) {
     final values = {
-      for (final section in sections) ...guideValuesToApply(section.guided, inputs, _bikeAdjustmentValues),
+      for (final section in sections) ...guideValuesToApply(section.guided, inputs, _bikeAdjustmentValues, context.l10n),
     };
     if (values.isEmpty) return;
     unawaited(HapticFeedback.mediumImpact());
@@ -1563,14 +1564,21 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     for (final MapEntry(key: adjustment, value: value) in values.entries) {
       _onBikeAdjustmentValueChanged(adjustment: adjustment, newValue: value);
     }
+    final guides = sections.map((section) => section.guided.guide).toList();
     _notesController.text = appendNotesLine(
       _notesController.text,
-      guideNotesLine(sections.map((section) => section.guided.guide), inputs),
+      guideNotesLine(guides, inputs, context.l10n),
+      // Apply all after a language switch must not add a second line.
+      equivalents: [
+        for (final locale in AppLocalizations.supportedLocales)
+          for (final sourceLabels in const [false, true])
+            guideNotesLine(guides, inputs, lookupAppLocalizations(locale), sourceLabels: sourceLabels),
+      ],
     );
     ScaffoldMessenger.of(context).showSnackBar(
       AppSnackBar.success(
         context,
-        Intl.plural(values.length, one: 'Applied 1 recommended value', other: 'Applied ${values.length} recommended values'),
+        context.l10n.setupFormGuideApplied(values.length),
       ),
     );
   }
@@ -1668,9 +1676,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            SetupPageMode.add || SetupPageMode.restore => const Text('Add Setup'),
-            SetupPageMode.edit => const Text('Edit Setup'),
-            SetupPageMode.nextRun => Text(_isFirstRun ? 'First Run' : 'Next Run'),
+            SetupPageMode.add || SetupPageMode.restore => Text(context.l10n.homeAddSetup),
+            SetupPageMode.edit => Text(context.l10n.setupFormEditTitle),
+            SetupPageMode.nextRun => Text(_isFirstRun ? context.l10n.setupFormFirstRun : context.l10n.setupFormNextRun),
           },
           actions: [
             Semantics(

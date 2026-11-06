@@ -1,13 +1,18 @@
+import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_template.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/utils/task_preset_resolver.dart';
+import 'package:bike_setup_tracker/utils/task_presets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/german_l10n.dart';
+
 Component component(ComponentType type, {String id = 'c1'}) =>
-    Component(id: id, name: type.label, installations: const [], componentType: type);
+    Component(id: id, name: type.label(englishL10n), installations: const [], componentType: type);
 
 TaskRule rule({required String name, String? presetKey, String componentId = 'c1', bool isDeleted = false}) => TaskRule(
   name: name,
@@ -41,8 +46,30 @@ void main() {
   group('taskSuggestionsFor', () {
     final chain = component(ComponentType.chain);
 
+    test('names and notes follow the app language, and stay English otherwise', () {
+      final german = taskSuggestionsFor(chain, germanL10n, existingRules: const [], hasStravaEntitlement: true);
+      final english = taskSuggestionsFor(chain, englishL10n, existingRules: const [], hasStravaEntitlement: true);
+
+      expect([for (final s in german) s.name], ['Kettenverschleiß prüfen', 'Kette ersetzen', 'Kette reinigen & schmieren']);
+      expect(german.first.notes, startsWith('Die Kettenlängung'));
+      expect(german[1].notes, isNull);
+      expect(english.first.name, 'Check chain wear');
+    });
+
+    test('every generic template has the same texts in every language', () {
+      final english = taskPresetsFor(englishL10n);
+      final german = taskPresetsFor(germanL10n);
+      for (final MapEntry(:key, :value) in german.entries) {
+        for (final (index, template) in value.indexed) {
+          final counterpart = english[key]![index];
+          expect(template.name.trim(), isNotEmpty, reason: template.key);
+          expect(template.notes == null, counterpart.notes == null, reason: template.key);
+        }
+      }
+    });
+
     test('with Strava, activity intervals are used', () {
-      final suggestions = taskSuggestionsFor(chain, existingRules: const [], hasStravaEntitlement: true);
+      final suggestions = taskSuggestionsFor(chain, englishL10n, existingRules: const [], hasStravaEntitlement: true);
 
       expect(keys(suggestions), ['chain:wear_check', 'chain:replace', 'chain:lube']);
       expect(suggestions.first.interval, const DistanceThreshold(500000));
@@ -50,7 +77,7 @@ void main() {
     });
 
     test('without Strava, fallbacks are used and templates without one are hidden', () {
-      final suggestions = taskSuggestionsFor(chain, existingRules: const [], hasStravaEntitlement: false);
+      final suggestions = taskSuggestionsFor(chain, englishL10n, existingRules: const [], hasStravaEntitlement: false);
 
       expect(keys(suggestions), ['chain:wear_check']);
       expect(suggestions.single.interval, const DurationThreshold(Duration(days: 30)));
@@ -59,25 +86,25 @@ void main() {
     });
 
     test('a time-based template is used as is without Strava', () {
-      final suggestions = taskSuggestionsFor(component(ComponentType.tire), existingRules: const [], hasStravaEntitlement: false);
+      final suggestions = taskSuggestionsFor(component(ComponentType.tire), englishL10n, existingRules: const [], hasStravaEntitlement: false);
 
       expect(keys(suggestions), ['tire:sealant']);
       expect(suggestions.single.isFallback, isFalse);
     });
 
     test('a component type without templates has no suggestions', () {
-      expect(taskSuggestionsFor(component(ComponentType.saddle), existingRules: const [], hasStravaEntitlement: true), isEmpty);
+      expect(taskSuggestionsFor(component(ComponentType.saddle), englishL10n, existingRules: const [], hasStravaEntitlement: true), isEmpty);
     });
 
     test('carries the preselected flag', () {
-      final suggestions = taskSuggestionsFor(chain, existingRules: const [], hasStravaEntitlement: true);
+      final suggestions = taskSuggestionsFor(chain, englishL10n, existingRules: const [], hasStravaEntitlement: true);
 
       expect({for (final s in suggestions) s.key: s.preselected}, {'chain:wear_check': true, 'chain:replace': false, 'chain:lube': false});
     });
 
     test('front and rear wheels share their templates', () {
-      final front = taskSuggestionsFor(component(ComponentType.wheelFront), existingRules: const [], hasStravaEntitlement: true);
-      final rear = taskSuggestionsFor(component(ComponentType.wheelRear), existingRules: const [], hasStravaEntitlement: true);
+      final front = taskSuggestionsFor(component(ComponentType.wheelFront), englishL10n, existingRules: const [], hasStravaEntitlement: true);
+      final rear = taskSuggestionsFor(component(ComponentType.wheelRear), englishL10n, existingRules: const [], hasStravaEntitlement: true);
 
       expect(keys(front), ['wheel:spoke_tension', 'wheel:hub_bearing']);
       expect(keys(rear), keys(front));
@@ -86,7 +113,7 @@ void main() {
     group('consumption', () {
       test('consumed keys disappear, even when the rule was renamed', () {
         final suggestions = taskSuggestionsFor(
-          chain,
+          chain, englishL10n,
           existingRules: [rule(name: 'Kette tauschen', presetKey: 'chain:replace')],
           hasStravaEntitlement: true,
         );
@@ -96,7 +123,7 @@ void main() {
 
       test('deleted rules do not consume', () {
         final suggestions = taskSuggestionsFor(
-          chain,
+          chain, englishL10n,
           existingRules: [rule(name: 'Replace chain', presetKey: 'chain:replace', isDeleted: true)],
           hasStravaEntitlement: true,
         );
@@ -106,7 +133,7 @@ void main() {
 
       test("another component's rules do not consume", () {
         final suggestions = taskSuggestionsFor(
-          chain,
+          chain, englishL10n,
           existingRules: [rule(name: 'Replace chain', presetKey: 'chain:replace', componentId: 'c2')],
           hasStravaEntitlement: true,
         );
@@ -121,7 +148,7 @@ void main() {
 
       test('replace the interval and the source of a generic key', () {
         final suggestions = taskSuggestionsFor(
-          fork,
+          fork, englishL10n,
           existingRules: const [],
           hasStravaEntitlement: true,
           overrides: const {
@@ -138,7 +165,7 @@ void main() {
 
       test('without Strava, an override without fallback leaves the generic template unchanged', () {
         final suggestions = taskSuggestionsFor(
-          fork,
+          fork, englishL10n,
           existingRules: const [],
           hasStravaEntitlement: false,
           overrides: const {
@@ -150,12 +177,12 @@ void main() {
         expect(lowerLeg.interval, const DurationThreshold(Duration(days: 180)));
         expect(lowerLeg.stravaInterval, const MovingTimeThreshold(Duration(hours: 50)));
         expect(lowerLeg.source, isNull);
-        expect(lowerLeg.toTaskRule('c1').notes, endsWith('Recommended interval: every 6 months (time-based; every 50 h with Strava)'));
+        expect(lowerLeg.toTaskRule('c1', englishL10n).notes, endsWith('Recommended interval: every 6 months (time-based; every 50 h with Strava)'));
       });
 
       test("without Strava, an override's own fallback applies with its source", () {
         final suggestions = taskSuggestionsFor(
-          fork,
+          fork, englishL10n,
           existingRules: const [],
           hasStravaEntitlement: false,
           overrides: const {
@@ -175,7 +202,7 @@ void main() {
 
       test('a brand-only key is added after the generic templates', () {
         final suggestions = taskSuggestionsFor(
-          fork,
+          fork, englishL10n,
           existingRules: const [],
           hasStravaEntitlement: true,
           overrides: const {
@@ -196,7 +223,7 @@ void main() {
 
       test('a brand-only key without fallback is hidden without Strava', () {
         final suggestions = taskSuggestionsFor(
-          fork,
+          fork, englishL10n,
           existingRules: const [],
           hasStravaEntitlement: false,
           overrides: const {
@@ -213,7 +240,7 @@ void main() {
 
       test('a brand-only key without a name is ignored', () {
         final suggestions = taskSuggestionsFor(
-          fork,
+          fork, englishL10n,
           existingRules: const [],
           hasStravaEntitlement: true,
           overrides: const {
@@ -229,12 +256,12 @@ void main() {
   group('TaskSuggestion.toTaskRule', () {
     test('sets the association, the preset key and the generic source line', () {
       final suggestion = taskSuggestionsFor(
-        component(ComponentType.chain),
+        component(ComponentType.chain), englishL10n,
         existingRules: const [],
         hasStravaEntitlement: true,
       ).firstWhere((s) => s.key == 'chain:replace');
 
-      final created = suggestion.toTaskRule('c9');
+      final created = suggestion.toTaskRule('c9', englishL10n);
 
       expect(created.association, const ComponentTaskAssociation('c9'));
       expect(created.presetKey, 'chain:replace');
@@ -247,26 +274,35 @@ void main() {
 
     test('keeps the template notes without an interval line for a generic interval', () {
       final suggestion = taskSuggestionsFor(
-        component(ComponentType.chain),
+        component(ComponentType.chain), englishL10n,
         existingRules: const [],
         hasStravaEntitlement: true,
       ).firstWhere((s) => s.key == 'chain:wear_check');
 
-      expect(suggestion.toTaskRule('c1').notes, suggestion.notes);
+      expect(suggestion.toTaskRule('c1', englishL10n).notes, suggestion.notes);
     });
 
     test('uses the fallback wording without Strava', () {
-      final suggestion = taskSuggestionsFor(component(ComponentType.chain), existingRules: const [], hasStravaEntitlement: false).single;
+      final suggestion = taskSuggestionsFor(component(ComponentType.chain), englishL10n, existingRules: const [], hasStravaEntitlement: false).single;
 
-      final created = suggestion.toTaskRule('c1');
+      final created = suggestion.toTaskRule('c1', englishL10n);
 
       expect(created.interval, const DurationThreshold(Duration(days: 30)));
       expect(created.notes, endsWith('Recommended interval: every month (time-based; every 500 km with Strava)'));
     });
 
+    test('writes the interval line in the app language, once, when the rule is created', () {
+      final suggestion = taskSuggestionsFor(component(ComponentType.chain), englishL10n, existingRules: const [], hasStravaEntitlement: false).single;
+
+      final created = suggestion.toTaskRule('c1', germanL10n);
+
+      expect(created.notes, endsWith('Empfohlenes Intervall: jeden Monat (zeitbasiert; alle 500 km mit Strava)'));
+      expect(suggestion.toTaskRule('c1', englishL10n).notes, endsWith('Recommended interval: every month (time-based; every 500 km with Strava)'));
+    });
+
     test('names the override source', () {
       final suggestion = taskSuggestionsFor(
-        component(ComponentType.fork),
+        component(ComponentType.fork), englishL10n,
         existingRules: const [],
         hasStravaEntitlement: true,
         overrides: const {
@@ -278,15 +314,15 @@ void main() {
       ).first;
 
       expect(
-        suggestion.toTaskRule('c1').notes,
+        suggestion.toTaskRule('c1', englishL10n).notes,
         endsWith("Recommended interval: every 125 h — FOX 36 owner's manual https://example.com/fox36"),
       );
     });
 
     test('formats the source line in the given distance unit', () {
-      final suggestion = taskSuggestionsFor(component(ComponentType.chain), existingRules: const [], hasStravaEntitlement: false).single;
+      final suggestion = taskSuggestionsFor(component(ComponentType.chain), englishL10n, existingRules: const [], hasStravaEntitlement: false).single;
 
-      expect(suggestion.toTaskRule('c1', distanceUnit: 'mi').notes, contains('every 310.7 mi with Strava'));
+      expect(suggestion.toTaskRule('c1', englishL10n, distanceUnit: 'mi').notes, contains('every 310.7 mi with Strava'));
     });
   });
 }

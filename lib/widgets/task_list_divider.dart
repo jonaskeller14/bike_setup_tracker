@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 class TaskListDivider extends StatelessWidget {
   final String title;
   final int count;
@@ -15,7 +17,7 @@ class TaskListDivider extends StatelessWidget {
     return Semantics(
       button: true,
       header: true,
-      label: '$label. Scroll to section',
+      label: context.l10n.taskListScrollToSection(label),
       excludeSemantics: true,
       onTap: onTap,
       // The color sits on the Material so the ripple paints above it.

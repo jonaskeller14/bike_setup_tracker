@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -24,6 +25,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class _MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -280,7 +282,7 @@ class _Harness {
     required bool preloadCatalog,
   }) async {
     final brand = parseCatalogFile(_catalog);
-    final application = buildCatalogApplication(catalogProducts(brand).single);
+    final application = buildCatalogApplication(catalogProducts(brand).single, englishL10n);
     final fork = Component(
       name: application.name,
       componentType: application.componentType,
@@ -356,7 +358,7 @@ class _Harness {
         ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
         Provider.value(value: catalog),
       ],
-      child: MaterialApp(theme: materialAppTheme, home: home),
+      child: localizedTestApp(theme: materialAppTheme, home: home),
     );
   }
 

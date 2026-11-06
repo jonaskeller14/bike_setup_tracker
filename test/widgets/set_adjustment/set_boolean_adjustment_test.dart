@@ -3,10 +3,11 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_boolean_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   Widget buildWidget({required bool? initialValue, required bool? value, required Key formKey}) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: materialAppTheme,
       home: Scaffold(
         body: Form(

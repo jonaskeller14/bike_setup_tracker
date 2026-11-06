@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/l10n.dart';
 import '../../../models/adjustment/adjustment.dart';
 import '../../../models/component/component.dart';
 import '../../../models/component/component_ancestor.dart';
@@ -17,7 +18,7 @@ sealed class AdjustmentDisplayItem {
   List<Adjustment> get adjustments;
   String get name;
   String? get notes;
-  String? get errorDescription;
+  String? errorDescription(AppLocalizations l10n);
 
   Widget buildIcon(BuildContext context);
 
@@ -31,7 +32,7 @@ class ComponentDisplayItem extends AdjustmentDisplayItem {
   @override List<Adjustment> get adjustments => _component.adjustments;
   @override String get name => _component.name;
   @override String? get notes => _component.notes;
-  @override String? get errorDescription => isError ? "Component was not installed at setup time" : null;
+  @override String? errorDescription(AppLocalizations l10n) => isError ? l10n.setupComponentNotInstalled : null;
   @override
   Widget buildIcon(BuildContext context) {
     final icon = Icon(
@@ -57,7 +58,7 @@ class PersonDisplayItem extends AdjustmentDisplayItem {
   @override List<Adjustment> get adjustments => _person.adjustments;
   @override String get name => _person.name;
   @override String? get notes => _person.notes;
-  @override String? get errorDescription => isError ? "Rider is not linked to this setup" : null;
+  @override String? errorDescription(AppLocalizations l10n) => isError ? l10n.setupRiderNotLinked : null;
   @override
   Widget buildIcon(BuildContext context) {
     final icon = Icon(

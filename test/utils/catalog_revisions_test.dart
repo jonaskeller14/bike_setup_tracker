@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
@@ -73,7 +74,7 @@ Component _component(BrandCatalog catalog, {String damper = 'grip_x2'}) {
   final product = catalogProducts(catalog).single;
   final axis = product.axes.singleOrNull;
   final app = buildCatalogApplication(
-    axis == null ? product : product.select(axis, axis.values.firstWhere((value) => value.id == damper)),
+    axis == null ? product : product.select(axis, axis.values.firstWhere((value) => value.id == damper)), englishL10n,
   );
   return Component(
     id: 'fork',

@@ -27,6 +27,7 @@ work; `ok` is approved; `not reviewed` stays open (list them in the summary).
    | Key | Change it in |
    |---|---|
    | `short:<name>` | the kit's `shorts.<name>` (title, hook, clips) and its clips' `segments`/`captions`/`callouts`; layout notes → `docs/marketing/templates/video_9x16.html` + `brand.md` + `brand/reference/reference.html` |
+   | `short:<name>` with `motion` | the same kit fields, and for a custom composition its file in `docs/marketing/motion/` (`README.md` there, timed to the voice); check it again with `build_kit.py <kit> preview` |
    | `hook:<id>` | the headline bank in `docs/marketing/messaging.md`, then every kit that uses the line |
    | `posts:<group>` | `docs/marketing/kits/<kit>.posts.md` |
    | `gif:<clip>`, `web:<clip>` | the clip in the kit; quality settings in `tool/marketing/render_video.py` (`GIF_*`, `WEB_*`) and limits in `build_kit.py` |

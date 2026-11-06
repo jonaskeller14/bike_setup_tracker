@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import 'sheet.dart';
@@ -89,7 +90,7 @@ class _SetCategoricalSheetState extends State<_SetCategoricalSheet> {
   /// adjustment's mode). Returns an error message to show inline, or null on
   /// success.
   Future<String?> _handleAddOption(String value) async {
-    if (_optionList.contains(value)) return 'Already exists';
+    if (_optionList.contains(value)) return context.l10n.setCategoricalDuplicate;
     await widget.onAddOption?.call(value);
     if (!mounted) return null;
     unawaited(HapticFeedback.selectionClick());
@@ -192,7 +193,7 @@ class _SetCategoricalSheetState extends State<_SetCategoricalSheet> {
                           dense: true,
                           leading: Icon(Icons.error_outline, color: scheme.error),
                           title: Text(
-                            'Some selected options no longer exist.',
+                            context.l10n.setCategoricalDanglingError,
                             style: TextStyle(color: scheme.error),
                           ),
                         ),
@@ -209,7 +210,7 @@ class _SetCategoricalSheetState extends State<_SetCategoricalSheet> {
                           dense: true,
                           leading: Icon(Icons.error_outline, color: scheme.error),
                           title: Text(
-                            'Multiple options selected, but only one is allowed.',
+                            context.l10n.setCategoricalMultipleError,
                             style: TextStyle(color: scheme.error),
                           ),
                         ),
@@ -221,10 +222,10 @@ class _SetCategoricalSheetState extends State<_SetCategoricalSheet> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: SheetFilterEmptyHint(
                     icon: CategoricalAdjustment.iconData,
-                    title: 'No options yet',
+                    title: context.l10n.setCategoricalEmptyTitle,
                     hint: widget.onAddOption == null
-                        ? 'Edit this adjustment to add options.'
-                        : 'Tap + below to add the first option.',
+                        ? context.l10n.setCategoricalEmptyEdit
+                        : context.l10n.setCategoricalEmptyAdd,
                   ),
                 ),
               Wrap(
@@ -341,7 +342,7 @@ class _OptionChip extends StatelessWidget {
             onSelected: (_) => onTap(),
           );
 
-    return isPrevious ? Tooltip(message: 'Previous value', child: chip) : chip;
+    return isPrevious ? Tooltip(message: context.l10n.previousValueTooltip, child: chip) : chip;
   }
 }
 
@@ -393,7 +394,7 @@ class _CountedOptionChip extends StatelessWidget {
       onPressed: onTap,
     );
 
-    return isPrevious ? Tooltip(message: 'Previous value', child: chip) : chip;
+    return isPrevious ? Tooltip(message: context.l10n.previousValueTooltip, child: chip) : chip;
   }
 }
 
@@ -467,7 +468,7 @@ class _AddOptionChipState extends State<_AddOptionChip> {
         offset: const Offset(-8, 0),
         child: IconButton(
           icon: const Icon(Icons.add),
-          tooltip: 'Add option',
+          tooltip: context.l10n.setCategoricalAddTooltip,
           color: scheme.primary,
           visualDensity: VisualDensity.compact,
           padding: EdgeInsets.zero,
@@ -501,7 +502,7 @@ class _AddOptionChipState extends State<_AddOptionChip> {
         },
         decoration: InputDecoration(
           isDense: true,
-          hintText: 'New option',
+          hintText: context.l10n.setCategoricalNewHint,
           errorText: _error,
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           border: const OutlineInputBorder(
@@ -519,7 +520,7 @@ class _AddOptionChipState extends State<_AddOptionChip> {
                 )
               : IconButton(
                   icon: const Icon(Icons.check, size: 18),
-                  tooltip: 'Add',
+                  tooltip: context.l10n.addLabel,
                   visualDensity: VisualDensity.compact,
                   onPressed: _submit,
                 ),
@@ -539,14 +540,14 @@ class _DanglingChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Tooltip(
-      message: 'This option no longer exists',
+      message: context.l10n.setCategoricalDanglingTooltip,
       child: InputChip(
         avatar: Icon(Icons.error_outline, size: 18, color: scheme.onErrorContainer),
         label: Text(label, style: TextStyle(color: scheme.onErrorContainer)),
         backgroundColor: scheme.errorContainer,
         side: BorderSide(color: scheme.error),
         deleteIcon: Icon(Icons.close, size: 18, color: scheme.onErrorContainer),
-        deleteButtonTooltipMessage: 'Remove',
+        deleteButtonTooltipMessage: context.l10n.remove,
         onDeleted: onDeleted,
         onPressed: onDeleted,
       ),

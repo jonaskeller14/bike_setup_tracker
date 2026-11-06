@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
@@ -38,17 +40,19 @@ class InstallationListTile extends StatelessWidget {
     InstallationParentType type,
     String? parentId,
     AppRepository appRepository,
+    AppLocalizations l10n,
   ) => switch (type) {
-        InstallationParentType.bike => appRepository.bikes[parentId]?.name ?? 'BIKE NOT FOUND',
-        InstallationParentType.component => appRepository.components[parentId]?.name ?? 'COMPONENT NOT FOUND',
-        InstallationParentType.none => 'Uninstalled',
-        InstallationParentType.archived => 'Archive',
+        InstallationParentType.bike => appRepository.bikes[parentId]?.name ?? l10n.bikeNotFound,
+        InstallationParentType.component => appRepository.components[parentId]?.name ?? l10n.componentNotFound,
+        InstallationParentType.none => l10n.timelineUninstalled,
+        InstallationParentType.archived => l10n.timelineArchive,
       };
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final l10n = context.l10n;
     final originParentType = componentInstallation.originParentType ?? InstallationParentType.none;
     final targetParentType = componentInstallation.installation.parentType;
 
@@ -68,8 +72,8 @@ class InstallationListTile extends StatelessWidget {
       InstallationParentType.none || InstallationParentType.archived => false,
     };
 
-    final timeText = DateFormat(appSettings.timeFormat).format(componentInstallation.installation.dateTimeLocal);
-    final dateText = DateFormat(appSettings.dateFormat).format(componentInstallation.installation.dateTimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(componentInstallation.installation.dateTimeLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(componentInstallation.installation.dateTimeLocal);
 
     return ListTile(
       onTap: onTap,
@@ -84,7 +88,7 @@ class InstallationListTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        componentInstallation.label,
+        componentInstallation.label(l10n),
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontWeight: FontWeight.bold),
         maxLines: 1,
@@ -108,7 +112,7 @@ class InstallationListTile extends StatelessWidget {
               if (showBikeInfo)
                 TileMetaRow(
                   icon: _parentIcon(displayParentType, displayParentId, appRepository),
-                  text: _parentLabel(displayParentType, displayParentId, appRepository),
+                  text: _parentLabel(displayParentType, displayParentId, appRepository, l10n),
                   isError: isDisplayError,
                 ),
             ],

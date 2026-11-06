@@ -4,6 +4,8 @@ Do you keep your suspension clicks, tire pressures, and geometry settings scatte
 
 Bike Setup Tracker is the ultimate digital logbook for your mountain bike suspension, tire pressure, and bike maintenance, built for cyclists, mechanics, and racers who want to get the most out of their equipment. Whether you are a Downhill racer, an Enduro enthusiast, or a Road cyclist, this app brings professional structure to your bike adjustments.
 
+The app is available in English, German, French, Italian, Spanish and Portuguese and follows your device language.
+
 Key Features:
 
 🚲 Manage Your Garage: Add as many bikes as you want to your virtual garage. Whether you have a gravel bike, a dedicated downhill rig, or a cross-country racer, keep them all organized in one place. Move components between bikes without losing their history.

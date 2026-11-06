@@ -1,3 +1,5 @@
+import '../../../l10n/adjustment_value_text.dart';
+import '../../../l10n/l10n.dart';
 import '../../../models/adjustment/adjustment.dart';
 import 'adjustment_display_item.dart';
 
@@ -29,15 +31,15 @@ sealed class AdjustmentCell {
   /// Values of dangling owners already render as errors, so they are not flagged.
   bool get isOutdated => this is! ErrorCell && value != null && !adjustment.isValidValue(value!);
 
-  CellDisplayText get displayText {
+  CellDisplayText displayText(AppLocalizations l10n) {
     final cell = this;
-    if (cell is! ChangedCell) return CellDisplayText(value: _normalize(value?.display ?? '-'));
+    if (cell is! ChangedCell) return CellDisplayText(value: _normalize(value?.displayText(l10n) ?? '-'));
 
     final previousValue = cell.previousValue;
     final (valueText, previousText) = switch ((value, previousValue)) {
       (DurationValue(value: final current), DurationValue(value: final previous)) =>
         _formatDurationPair(current, previous),
-      _ => (value?.display ?? '-', previousValue.display),
+      _ => (value?.displayText(l10n) ?? '-', previousValue.displayText(l10n)),
     };
 
     final previous = _normalize(previousText);
@@ -74,7 +76,7 @@ String _boundPreviousText(String text, AdjustmentValue value) {
   if (text.length <= _previousValueCharBudget) return text;
   if (value is! CategoricalValue) return _truncateChars(text);
 
-  // `display` joins the counted options with `multiValueSeparator`, so
+  // `displayText` joins the counted options with `multiValueSeparator`, so
   // splitting on it recovers them; an option containing the separator itself
   // only truncates earlier, never at a wrong place.
   final options = text.split(Adjustment.multiValueSeparator);
@@ -106,7 +108,7 @@ String _boundPreviousText(String text, AdjustmentValue value) {
     String hoursMinutes(Duration d) => '${d.inHours}:${twoDigits(d.inMinutes.remainder(60))}';
     return (hoursMinutes(value), hoursMinutes(previousValue));
   }
-  return (DurationValue(value).display, DurationValue(previousValue).display);
+  return (formatDuration(value), formatDuration(previousValue));
 }
 
 final class ConstantCell extends AdjustmentCell {

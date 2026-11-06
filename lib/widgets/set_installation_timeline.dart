@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
@@ -14,7 +16,7 @@ import 'installation_parent_field.dart';
 import 'text/section_title.dart';
 
 class SetInstallationTimeline extends StatefulWidget {
-  final String title;
+  final String? title;
   final String? componentId;  // The component being edited if existing
   final ComponentType? componentType;
   final List<Installation> initialInstallations;
@@ -24,7 +26,7 @@ class SetInstallationTimeline extends StatefulWidget {
 
   const SetInstallationTimeline({
     super.key,
-    this.title = 'Installation Timeline',
+    this.title,
     this.componentId,
     this.componentType,
     required this.initialInstallations,
@@ -147,13 +149,14 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final appSettings = context.watch<AppSettings>();
+    final l10n = context.l10n;
     final hierarchy = appRepository.componentHierarchy;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return FormField<List<Installation>>(
       initialValue: _installations,
-      validator: (value) => _issue(appRepository)?.message,
+      validator: (value) => _issue(appRepository)?.problem.label(l10n),
       builder: (state) {
         final issue = state.hasError ? _issue(appRepository) : null;
         final invalidBorder = OutlineInputBorder(
@@ -164,12 +167,12 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SectionTitle(
-              title: widget.title,
+              title: widget.title ?? l10n.installationTimelineTitle,
               trailing: widget.isEntryEditable == null
                   ? IconButton(
                       icon: const Icon(Icons.add, size: 20),
                       onPressed: _addEntry,
-                      tooltip: 'Add Timeline Entry',
+                      tooltip: l10n.timelineAddEntryTooltip,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     )
@@ -184,7 +187,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Text(
-                        issue.message,
+                        issue.problem.label(l10n),
                         style: TextStyle(color: theme.colorScheme.error, fontSize: 12),
                       ),
                     ),
@@ -207,11 +210,11 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                         final installation = _installations[index];
                         final isFromBeginning = installation.dateTimeUTC.millisecondsSinceEpoch == 0;
                         final dateStr = isFromBeginning
-                            ? 'From beginning'
-                            : DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal);
+                            ? l10n.timelineFromBeginning
+                            : DateFormat(appSettings.dateFormat, context.l10n.localeName).format(installation.dateTimeLocal);
                         final timeStr = isFromBeginning
                             ? null
-                            : DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal);
+                            : DateFormat(appSettings.timeFormat, context.l10n.localeName).format(installation.dateTimeLocal);
 
                         final originalInstallation = (_originalInstallations != null && index < _originalInstallations!.length)
                             ? _originalInstallations![index]
@@ -277,10 +280,10 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                         PopupMenuItem(
                                           value: 'beginning',
                                           enabled: !othersHaveIt,
-                                          child: Text('From beginning', style: TextStyle(color: othersHaveIt ? theme.disabledColor : null)),
+                                          child: Text(l10n.timelineFromBeginning, style: TextStyle(color: othersHaveIt ? theme.disabledColor : null)),
                                         ),
-                                        const PopupMenuItem(value: 'now', child: Text('Now')),
-                                        const PopupMenuItem(value: 'select', child: Text('Select date & time...')),
+                                        PopupMenuItem(value: 'now', child: Text(l10n.timelineNow)),
+                                        PopupMenuItem(value: 'select', child: Text(l10n.timelineSelectDateTime)),
                                       ];
                                     },
                                     child: InputDecorator(

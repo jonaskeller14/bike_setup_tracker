@@ -20,6 +20,10 @@ class ScreenshotSeed {
   static const sampleDataAsset = 'assets/data/20260925_sample_simple.json';
   static const stravaDataAsset = 'assets/data/20260925_sample_simple_strava.json';
 
+  /// Written by the run scripts into the app's documents folder: the language
+  /// code of the store locale being recorded (`de` for de-DE).
+  static const localeMarkerFile = 'screenshot_locale';
+
   /// Written under AppSettings' `app_settings.` key prefix. Tags are off:
   /// they add noise, so only [DemoScenario.tags] shows them.
   static const Map<String, Object> settings = {
@@ -50,10 +54,12 @@ class ScreenshotSeed {
   }
 
   /// Replaces all preferences with a fresh install that has finished
-  /// onboarding and dismissed every hint.
+  /// onboarding and dismissed every hint. [localeCode] pins the app language;
+  /// without it the app follows the device.
   static Future<void> resetPreferences(
     AppHintService appHintService, {
     DemoScenario scenario = DemoScenario.full,
+    String? localeCode,
   }) async {
     final preferences = await SharedPreferences.getInstance();
     await preferences.clear();
@@ -66,6 +72,7 @@ class ScreenshotSeed {
           await preferences.setString(prefKey, value);
       }
     }
+    if (localeCode != null) await preferences.setString('app_settings.localeCode', localeCode);
     for (final hint in AppHint.values) {
       await appHintService.dismiss(hint);
     }

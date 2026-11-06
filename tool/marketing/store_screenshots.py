@@ -6,11 +6,12 @@ Usage: python tool/marketing/render_images.py store-screenshots [device ...] [sc
   screens   screen numbers, e.g. 4 or 3,7; default all captions of the locale
   --out D   write under D (laid out like docs/store/) instead of docs/store/, e.g. for a dry run
   --captions-dir D   captions files, one <locale>.md each; default docs/store/captions
+  --locale L   only this locale's captions file, e.g. de-DE
   --safe    also write the safe-area overlays to build/marketing/safe/
 
 One file per screen, device and locale, into the paths the uploads read (tool/store/ios.sh
 screenshots, the Play `screenshots` lane). The locales are the captions files present. A locale's
-raws are read from <raw folder>/<locale>/0N_raw.png when that exists, else <raw folder>/0N_raw.png.
+raws are read from <raw folder>/<locale>/0N_raw.png when that exists, else from the en-US ones.
 Also writes the review page build/marketing/store-screenshots/sheet.html: every render, with the
 export from before the first render next to it. Exits 1 if a caption doesn't fit or text leaves
 the safe area; a caption that had to shrink only prints a WARN (rewrite it, so a set keeps one size).
@@ -56,16 +57,21 @@ def safe_area(size):
 
 def raw_path(folder, locale, n):
     localized = STORE / folder / locale / f"{n}_raw.png"
-    return localized if localized.is_file() else STORE / folder / f"{n}_raw.png"
+    return localized if localized.is_file() else STORE / folder / "en-US" / f"{n}_raw.png"
 
 
 def export_path(root, key, locale, n):
+    # App Store Connect knows Italian as "it", the tooling and Play as "it-IT".
+    if key in ("iphone", "ipad"):
+        locale = render_images.APP_STORE_LOCALES.get(locale, locale)
     return root / DEVICES[key][3].format(locale=locale, n=n)
 
 
 def render_set(chrome, key, locale, rows, root, safe):
     """Renders one device set of a locale; returns (problems, [(n, label, caption, file)])."""
     device, folder, size, _ = DEVICES[key]
+    if locale != "en-US" and not (STORE / folder / locale).is_dir():
+        print(f"WARN {key} {locale}: no raws in {folder}/{locale}/, the screens show the en-US UI")
     outputs, done = {}, []
     for n, (label, caption) in rows.items():
         out = export_path(root, key, locale, n)
@@ -136,13 +142,15 @@ def write_sheet(root, results):
 
 
 def main(argv):
-    keys, screens, root, captions_dir, safe = [], [], STORE, STORE / "captions", False
+    keys, screens, root, captions_dir, safe, only_locale = [], [], STORE, STORE / "captions", False, None
     args = iter(argv)
     for arg in args:
         if arg == "--out":
             root = (REPO_ROOT / next(args)).resolve()
         elif arg == "--captions-dir":
             captions_dir = (REPO_ROOT / next(args)).resolve()
+        elif arg == "--locale":
+            only_locale = next(args)
         elif arg == "--safe":
             safe = True
         elif arg in DEVICES:
@@ -159,8 +167,10 @@ def main(argv):
         print("Chrome not found. Install Google Chrome or set CHROME to its binary.")
         return 1
     files = sorted(captions_dir.glob("*.md"))
+    if only_locale:
+        files = [file for file in files if file.stem == only_locale]
     if not files:
-        print(f"No captions files in {captions_dir}")
+        print(f"No captions files in {captions_dir}" + (f" for {only_locale}" if only_locale else ""))
         return 1
 
     locales = [file.stem for file in files]

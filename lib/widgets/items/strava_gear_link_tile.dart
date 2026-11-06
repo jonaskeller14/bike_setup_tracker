@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/strava/strava_gear.dart';
 import '../../theme.dart';
@@ -65,7 +66,7 @@ class StravaGearLinkTile extends StatelessWidget {
             ),
             Flexible(
               child: Text(
-                _isLinked ? linkedBikes.map((b) => b.name).join(', ') : "Not linked to a bike",
+                _isLinked ? linkedBikes.map((b) => b.name).join(', ') : context.l10n.stravaGearNotLinked,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 13,
@@ -89,7 +90,7 @@ class StravaGearLinkTile extends StatelessWidget {
   Widget _optionsButton(BuildContext context) {
     return _menuButton(
       context,
-      tooltip: "Options for '${gear.name}'",
+      tooltip: context.l10n.stravaGearOptionsTooltip(gear.name),
       icon: const Icon(Icons.more_vert),
     );
   }
@@ -103,7 +104,7 @@ class StravaGearLinkTile extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: _menuButton(
         context,
-        tooltip: "Link '${gear.name}' to a bike",
+        tooltip: context.l10n.stravaGearLinkTooltip(gear.name),
         borderRadius: const BorderRadius.all(Radius.circular(100)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -112,12 +113,14 @@ class StravaGearLinkTile extends StatelessWidget {
             spacing: 4,
             children: [
               Icon(Icons.add_link, size: 16, color: colorScheme.onSecondaryContainer),
-              Text(
-                "Link",
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSecondaryContainer,
+              Flexible(
+                child: Text(
+                  context.l10n.stravaGearLink,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSecondaryContainer,
+                  ),
                 ),
               ),
             ],
@@ -160,7 +163,7 @@ class StravaGearLinkTile extends StatelessWidget {
                   spacing: 8,
                   children: [
                     const Icon(Icons.link_off),
-                    Expanded(child: Text("Unlink Bike '${linkedBike.name}'", overflow: TextOverflow.ellipsis)),
+                    Expanded(child: Text(context.l10n.stravaGearUnlinkBike(linkedBike.name), overflow: TextOverflow.ellipsis)),
                   ],
                 ),
               );
@@ -174,20 +177,20 @@ class StravaGearLinkTile extends StatelessWidget {
                     spacing: 8,
                     children: [
                       const Icon(Icons.link),
-                      Expanded(child: Text("Link to '${bike.name}'", overflow: TextOverflow.ellipsis)),
+                      Expanded(child: Text(context.l10n.stravaGearLinkToBike(bike.name), overflow: TextOverflow.ellipsis)),
                     ],
                   ),
                 );
               }),
               const PopupMenuDivider(),
             ],
-            const PopupMenuItem<_StravaGearMenuOption>(
-              value: _AddNewBike(),
+            PopupMenuItem<_StravaGearMenuOption>(
+              value: const _AddNewBike(),
               child: Row(
                 spacing: 8,
                 children: [
-                  Icon(Icons.add),
-                  Text("Add as new Bike"),
+                  const Icon(Icons.add),
+                  Flexible(child: Text(context.l10n.stravaGearAddAsBike)),
                 ],
               ),
             ),

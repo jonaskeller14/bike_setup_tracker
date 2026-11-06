@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../database/app_database.dart';
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/selected_data.dart';
 import '../services/attachment_storage_service.dart';
@@ -73,7 +74,7 @@ class FileExport {
         final latestBackup = await _latestBackupFile();
         if (latestBackup == null) {
           if (!context.mounted) return FileSaveOutcome.cancelled;
-          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'No backup found yet.'));
+          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.exportNoBackup));
           return FileSaveOutcome.cancelled;
         }
 
@@ -99,7 +100,7 @@ class FileExport {
         final latestBackup = await _latestBackupFile();
         if (latestBackup == null) {
           if (!context.mounted) return FileSaveOutcome.cancelled;
-          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'No backup found yet.'));
+          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.exportNoBackup));
           return FileSaveOutcome.cancelled;
         }
 
@@ -157,12 +158,12 @@ class FileExport {
       final result = await save();
       if (result == FileSaveOutcome.saved) {
         if (!context.mounted) return;
-        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, 'File saved'));
+        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, context.l10n.exportFileSaved));
       }
     } catch (e, st) {
       debugPrint('Export failed: $e\n$st');
       if (!context.mounted) return;
-      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'Export failed: $e'));
+      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.exportFailed(e.toString())));
     }
   }
 
@@ -184,12 +185,12 @@ class FileExport {
       await ShareService.shareFile(
         context: context,
         filePath: filePath,
-        text: 'Here is my bike setup data!',
-        errorMessage: 'Error sharing file',
+        text: context.l10n.shareMessageJson,
+        errorMessage: context.l10n.shareErrorFile,
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Error preparing JSON: $e'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareJsonFailed(e.toString())));
     }
   }
 
@@ -200,7 +201,7 @@ class FileExport {
     final settings = context.read<AppSettings>();
 
     try {
-      final bytes = SpreadsheetExport.toExcel(data, settings);
+      final bytes = SpreadsheetExport.toExcel(data, settings, context.l10n);
       if (bytes == null) throw Exception("Failed to encode Excel file");
 
       final Directory tempDir = await getTemporaryDirectory();
@@ -212,12 +213,12 @@ class FileExport {
       await ShareService.shareFile(
         context: context,
         filePath: filePath,
-        text: 'Here is my bike setup data in Excel format!',
-        errorMessage: 'Error sharing Excel file',
+        text: context.l10n.shareMessageExcel,
+        errorMessage: context.l10n.shareErrorExcel,
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Error preparing Excel: $e'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareExcelFailed(e.toString())));
     }
   }
 
@@ -228,23 +229,24 @@ class FileExport {
     final settings = context.read<AppSettings>();
 
     try {
-      final csvString = SpreadsheetExport.toCsv(data, settings);
+      final csvString = SpreadsheetExport.toCsv(data, settings, context.l10n);
 
       final Directory tempDir = await getTemporaryDirectory();
       final String filePath = '${tempDir.path}/bike_setup_tracker.csv';
       final File file = File(filePath);
-      await file.writeAsString(csvString);
+      // The BOM makes Excel read the file as UTF-8 instead of ANSI (umlauts).
+      await file.writeAsString('\uFEFF$csvString');
 
       if (!context.mounted) return;
       await ShareService.shareFile(
         context: context,
         filePath: filePath,
-        text: 'Here is my bike setup data in CSV format!',
-        errorMessage: 'Error sharing CSV file',
+        text: context.l10n.shareMessageCsv,
+        errorMessage: context.l10n.shareErrorCsv,
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Error preparing CSV: $e'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareCsvFailed(e.toString())));
     }
   }
 
@@ -252,7 +254,7 @@ class FileExport {
     await ShareService.shareText(
       context: context,
       text: content,
-      errorMessage: 'Error sharing text',
+      errorMessage: context.l10n.shareErrorText,
     );
   }
 }

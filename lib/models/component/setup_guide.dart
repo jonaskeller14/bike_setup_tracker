@@ -5,6 +5,10 @@ import '../adjustment/adjustment.dart';
 class SetupGuide {
   final String id;
   final String label;
+
+  /// [label] in English, whatever the catalog language, for recognising a notes
+  /// line written before a language switch.
+  final String sourceLabel;
   final String source;
 
   /// In dependency order: a rule reading another adjuster as its input comes
@@ -14,9 +18,10 @@ class SetupGuide {
   const SetupGuide({
     required this.id,
     required this.label,
+    String? sourceLabel,
     required this.source,
     required this.rules,
-  });
+  }) : sourceLabel = sourceLabel ?? label;
 }
 
 class GuideRule {
@@ -56,16 +61,9 @@ class GuideRule {
 /// The rider-side `when:` key and [GuideInputKey.ridingStyle]'s values.
 const String kRidingStyleKey = 'riding_style';
 
-/// Brand vocabularies are mapped onto these in the YAML. [label] is the
-/// matching option of the `person:riding_style` template.
-enum GuideRidingStyle {
-  comfort('Comfort'),
-  balanced('Balanced'),
-  race('Race');
-
-  final String label;
-  const GuideRidingStyle(this.label);
-}
+/// Brand vocabularies are mapped onto these in the YAML. Each is the matching
+/// option of the `person:riding_style` template, see `GuideRidingStyleLabel`.
+enum GuideRidingStyle { comfort, balanced, race }
 
 sealed class GuideInput {
   const GuideInput();

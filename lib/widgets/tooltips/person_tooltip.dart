@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/person.dart';
 import 'entity_tooltip_content.dart';
 import 'info_tooltip.dart';
@@ -33,7 +34,7 @@ class PersonTooltip extends StatelessWidget {
         style: resolvedStyle,
         name: person.name,
         notes: person.notes,
-        errorDescription: isError ? "Rider is not linked to this setup" : null,
+        errorDescription: isError ? context.l10n.setupRiderNotLinked : null,
       ),
       child: child,
     );

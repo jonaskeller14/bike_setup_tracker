@@ -5,13 +5,6 @@ import '../widgets/component_ancestor_display.dart';
 
 enum InstallationIssue { missingBike, missingParent }
 
-extension InstallationIssueDisplay on InstallationIssue {
-  String get label => switch (this) {
-    InstallationIssue.missingBike => 'Bike not found',
-    InstallationIssue.missingParent => 'Parent component not found',
-  };
-}
-
 InstallationIssue? installationIssueOf(
   String componentId, {
   required ComponentHierarchyResolver hierarchy,

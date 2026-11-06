@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/app_hint.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
@@ -168,14 +170,14 @@ class InstallationParentField extends StatelessWidget {
         isSuggested: isSuggested(component, value.parentComponentId),
         isEnabled: isKept || (!carriesParts && !isNested),
         disabledReason: !isKept && !carriesParts && isNested
-            ? 'Mounted on a component itself'
+            ? context.l10n.parentFieldMountedOnComponent
             : null,
         value: value,
         icon: component?.componentType.getIconData() ?? Component.iconData,
-        label: component?.name ?? 'COMPONENT NOT FOUND',
-        subtitle: ancestors.isEmpty ? null : ancestors.map((a) => a.label(bikes)).join(' · '),
+        label: component?.name ?? context.l10n.componentNotFound,
+        subtitle: ancestors.isEmpty ? null : ancestors.map((a) => a.label(bikes, context.l10n)).join(' · '),
         subtitleColor: ancestors.any((a) => a.isMissing(bikes)) ? errorColor : null,
-        typeLabel: component?.componentType.label,
+        typeLabel: component?.componentType.label(context.l10n),
         color: component == null ? errorColor : null,
         ancestors: ancestors,
         isMissing: component == null,
@@ -185,7 +187,7 @@ class InstallationParentField extends StatelessWidget {
     InstallationParentOption missingBikeOption(BikeInstallation value) => InstallationParentOption(
       value: value,
       icon: Bike.iconData,
-      label: 'BIKE NOT FOUND',
+      label: context.l10n.bikeNotFound,
       color: errorColor,
       isMissing: true,
     );
@@ -200,7 +202,7 @@ class InstallationParentField extends StatelessWidget {
           dateTimeLocal: installation.dateTimeLocal,
         ),
         icon: Icons.shelves,
-        label: 'UNINSTALLED',
+        label: context.l10n.parentFieldUninstalled,
       ),
       if (allowArchive || installation is Archival)
         InstallationParentOption(
@@ -210,7 +212,7 @@ class InstallationParentField extends StatelessWidget {
             dateTimeLocal: installation.dateTimeLocal,
           ),
           icon: Icons.inventory_2_outlined,
-          label: 'ARCHIVED',
+          label: context.l10n.parentFieldArchived,
         ),
       for (final bike in bikes.values)
         InstallationParentOption(
@@ -285,9 +287,7 @@ class InstallationParentField extends StatelessWidget {
     final saved = timelineOfferInstallations;
     if (saved != null && hintService.shouldOfferInstallationTimelineOnMove(saved)) {
       return InstallationTimelineHint(
-        message:
-            'Keep a dated history of where this part was installed, so setups and ride stats match '
-            'the parts that were really on the bike.',
+        message: context.l10n.parentFieldTimelineHint,
         onDismiss: () => unawaited(hintService.dismiss(AppHint.installationTimelineV1)),
         onActivate: () async {
           final navigator = Navigator.of(context);
@@ -318,8 +318,8 @@ class InstallationParentField extends StatelessWidget {
       currentBikeId: currentBikeId,
       depthCapHint: descendantCount == 0
           ? null
-          : "Can't mount on a component while it carries $descendantCount ${descendantCount == 1 ? 'part' : 'parts'}",
-      componentTypeLabel: componentType?.label,
+          : context.l10n.parentFieldDepthCap(descendantCount),
+      componentTypeLabel: componentType?.label(context.l10n),
     );
     if (picked == null || !context.mounted) return;
     onChanged(picked);
@@ -355,7 +355,7 @@ class InstallationParentField extends StatelessWidget {
               Expanded(
                 child:
                     option?.fieldContent(context, tint: tint) ??
-                    Text('Select Bike', style: TextStyle(color: theme.hintColor)),
+                    Text(context.l10n.parentFieldSelectBike, style: TextStyle(color: theme.hintColor)),
               ),
               Icon(Icons.arrow_drop_down, size: 24, color: tint ?? theme.colorScheme.onSurfaceVariant),
             ],

@@ -70,10 +70,30 @@ option_values:
         - Twin-tube air shock with a nitrogen-charged piggyback reservoir
         - Twin-tube flow keeps damping steady as shaft speed rises
         - High-speed compression is a three-position dial: Soft, Medium and Pedal
+      description_de: |-
+        - Zweirohr-Luftdämpfer mit stickstoffgefülltem Piggyback-Ausgleichsbehälter
+        - Der Zweirohr-Durchfluss hält die Dämpfung auch bei steigender Kolbenstangengeschwindigkeit gleichmäßig
+        - Die High-Speed-Druckstufe ist ein Rad mit drei Positionen: Soft, Medium und Pedal
+      description_fr: |-
+        - Amortisseur pneumatique bitube avec un réservoir piggyback chargé à l’azote
+        - Le flux bitube garde un amortissement stable quand la vitesse de tige augmente
+        - La compression haute vitesse est une molette à trois positions : Soft, Medium et Pedal
+      description_it: |-
+        - Ammortizzatore pneumatico bitubo con un serbatoio piggyback caricato ad azoto
+        - Il flusso bitubo mantiene stabile lo smorzamento all’aumentare della velocità dello stelo
+        - La compressione ad alta velocità è una manopola a tre posizioni: Soft, Medium e Pedal
+      description_es: |-
+        - Amortiguador neumático bitubo con un depósito piggyback cargado con nitrógeno
+        - El flujo bitubo mantiene estable la amortiguación cuando aumenta la velocidad del vástago
+        - La compresión de alta velocidad es una rueda de tres posiciones: Soft, Medium y Pedal
+      description_pt: |-
+        - Amortecedor a ar bitubo com um reservatório piggyback carregado com nitrogênio
+        - O fluxo bitubo mantém o amortecimento estável quando a velocidade da haste aumenta
+        - A compressão de alta velocidade é um seletor de três posições: Soft, Medium e Pedal
       adjustments:
-        - { name: HSC, type: categorical, options: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform" }
-        - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: categorical, options: ["1", "2", P], options_de: ["1", "2", P], options_fr: ["1", "2", P], options_it: ["1", "2", P], options_es: ["1", "2", P], options_pt: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform", notes_de: "High-Speed-Druckstufe; 1 Soft, 2 Medium, P Pedalplattform", notes_fr: "Compression haute vitesse ; 1 Souple, 2 Moyen, P plateforme Pedal", notes_it: "Compressione ad alta velocità; 1 Morbida, 2 Media, P piattaforma Pedal", notes_es: "Compresión de alta velocidad; 1 Blanda, 2 Media, P plataforma Pedal", notes_pt: "Compressão de alta velocidade; 1 Macia, 2 Média, P plataforma Pedal" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 10, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 12, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange }
       source: https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
       note: >-
         TTX1Air listing: "12-fach verstellbare Low-Speed-Zugstufendämpfung",
@@ -89,10 +109,30 @@ option_values:
         - Twin-tube air shock, m.2 generation, with a volume-spacer air can
         - Far finer low-speed compression than the first generation, but coarser rebound
         - High-speed compression is a three-position dial: Soft, Medium and Pedal
+      description_de: |-
+        - Zweirohr-Luftdämpfer, Generation m.2, mit Luftkammer für Volumenspacer
+        - Deutlich feinere Low-Speed-Druckstufe als bei der ersten Generation, aber gröbere Zugstufe
+        - Die High-Speed-Druckstufe ist ein Rad mit drei Positionen: Soft, Medium und Pedal
+      description_fr: |-
+        - Amortisseur pneumatique bitube, génération m.2, avec une chambre à air à tokens de volume
+        - Compression basse vitesse bien plus fine qu’en première génération, mais détente plus grossière
+        - La compression haute vitesse est une molette à trois positions : Soft, Medium et Pedal
+      description_it: |-
+        - Ammortizzatore pneumatico bitubo, generazione m.2, con una camera d’aria a token di volume
+        - Compressione a bassa velocità molto più fine rispetto alla prima generazione, ma ritorno più grossolano
+        - La compressione ad alta velocità è una manopola a tre posizioni: Soft, Medium e Pedal
+      description_es: |-
+        - Amortiguador neumático bitubo, generación m.2, con una cámara de aire con tokens de volumen
+        - Compresión de baja velocidad mucho más fina que la de la primera generación, pero rebote más grueso
+        - La compresión de alta velocidad es una rueda de tres posiciones: Soft, Medium y Pedal
+      description_pt: |-
+        - Amortecedor a ar bitubo, geração m.2, com uma câmara de ar com tokens de volume
+        - Compressão de baixa velocidade bem mais fina que a da primeira geração, mas retorno mais grosso
+        - A compressão de alta velocidade é um seletor de três posições: Soft, Medium e Pedal
       adjustments:
-        - { name: HSC, type: categorical, options: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform" }
-        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: categorical, options: ["1", "2", P], options_de: ["1", "2", P], options_fr: ["1", "2", P], options_it: ["1", "2", P], options_es: ["1", "2", P], options_pt: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform", notes_de: "High-Speed-Druckstufe; 1 Soft, 2 Medium, P Pedalplattform", notes_fr: "Compression haute vitesse ; 1 Souple, 2 Moyen, P plateforme Pedal", notes_it: "Compressione ad alta velocità; 1 Morbida, 2 Media, P piattaforma Pedal", notes_es: "Compresión de alta velocidad; 1 Blanda, 2 Media, P plataforma Pedal", notes_pt: "Compressão de alta velocidade; 1 Macia, 2 Média, P plataforma Pedal" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 7, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange }
       source: https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
       note: >-
         TTX1Air m.2 listing: "7-fach verstellbare Low-Speed-Zugstufendämpfung",
@@ -105,10 +145,30 @@ option_values:
         - Twin-tube air shock built around a larger-volume can than the TTX1Air
         - Twin-tube flow keeps damping steady as shaft speed rises
         - High-speed compression is a three-position dial: Soft, Medium and Pedal
+      description_de: |-
+        - Zweirohr-Luftdämpfer mit größerer Kammer als beim TTX1Air
+        - Der Zweirohr-Durchfluss hält die Dämpfung auch bei steigender Kolbenstangengeschwindigkeit gleichmäßig
+        - Die High-Speed-Druckstufe ist ein Rad mit drei Positionen: Soft, Medium und Pedal
+      description_fr: |-
+        - Amortisseur pneumatique bitube construit autour d’une chambre de plus grand volume que le TTX1Air
+        - Le flux bitube garde un amortissement stable quand la vitesse de tige augmente
+        - La compression haute vitesse est une molette à trois positions : Soft, Medium et Pedal
+      description_it: |-
+        - Ammortizzatore pneumatico bitubo costruito attorno a una camera di volume maggiore rispetto al TTX1Air
+        - Il flusso bitubo mantiene stabile lo smorzamento all’aumentare della velocità dello stelo
+        - La compressione ad alta velocità è una manopola a tre posizioni: Soft, Medium e Pedal
+      description_es: |-
+        - Amortiguador neumático bitubo construido en torno a una cámara de mayor volumen que el TTX1Air
+        - El flujo bitubo mantiene estable la amortiguación cuando aumenta la velocidad del vástago
+        - La compresión de alta velocidad es una rueda de tres posiciones: Soft, Medium y Pedal
+      description_pt: |-
+        - Amortecedor a ar bitubo construído em torno de uma câmara de maior volume que a do TTX1Air
+        - O fluxo bitubo mantém o amortecimento estável quando a velocidade da haste aumenta
+        - A compressão de alta velocidade é um seletor de três posições: Soft, Medium e Pedal
       adjustments:
-        - { name: HSC, type: categorical, options: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform" }
-        - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: categorical, options: ["1", "2", P], options_de: ["1", "2", P], options_fr: ["1", "2", P], options_it: ["1", "2", P], options_es: ["1", "2", P], options_pt: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Pedal platform", notes_de: "High-Speed-Druckstufe; 1 Soft, 2 Medium, P Pedalplattform", notes_fr: "Compression haute vitesse ; 1 Souple, 2 Moyen, P plateforme Pedal", notes_it: "Compressione ad alta velocità; 1 Morbida, 2 Media, P piattaforma Pedal", notes_es: "Compresión de alta velocidad; 1 Blanda, 2 Media, P plataforma Pedal", notes_pt: "Compressão de alta velocidade; 1 Macia, 2 Média, P plataforma Pedal" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 10, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 12, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange }
       source: https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
       note: >-
         TTX2Air listing: "12-fach verstellbare Low-Speed-Zugstufendämpfung",
@@ -122,10 +182,30 @@ option_values:
         - Twin-tube air shock, m.2 generation, with a double-can high-volume air spring
         - Rebound is a coarse four-position dial rather than a fine click range
         - High-speed compression is a three-position dial: Soft, Medium and Climb
+      description_de: |-
+        - Zweirohr-Luftdämpfer, Generation m.2, mit großvolumiger Doppelkammer-Luftfeder
+        - Die Zugstufe ist ein grobes Rad mit vier Positionen statt eines feinen Klickbereichs
+        - Die High-Speed-Druckstufe ist ein Rad mit drei Positionen: Soft, Medium und Climb
+      description_fr: |-
+        - Amortisseur pneumatique bitube, génération m.2, avec un ressort pneumatique grand volume à double chambre
+        - La détente est une molette grossière à quatre positions plutôt qu’une plage fine de clics
+        - La compression haute vitesse est une molette à trois positions : Soft, Medium et Climb
+      description_it: |-
+        - Ammortizzatore pneumatico bitubo, generazione m.2, con una molla pneumatica ad alto volume a doppia camera
+        - Il ritorno è una manopola grossolana a quattro posizioni invece di una gamma fine di scatti
+        - La compressione ad alta velocità è una manopola a tre posizioni: Soft, Medium e Climb
+      description_es: |-
+        - Amortiguador neumático bitubo, generación m.2, con un muelle neumático de gran volumen y doble cámara
+        - El rebote es una rueda gruesa de cuatro posiciones en lugar de un rango fino de clics
+        - La compresión de alta velocidad es una rueda de tres posiciones: Soft, Medium y Climb
+      description_pt: |-
+        - Amortecedor a ar bitubo, geração m.2, com uma mola a ar de alto volume e câmara dupla
+        - O retorno é um seletor grosso de quatro posições em vez de uma faixa fina de cliques
+        - A compressão de alta velocidade é um seletor de três posições: Soft, Medium e Climb
       adjustments:
-        - { name: HSC, type: categorical, options: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Climb platform" }
-        - { name: LSC, type: step, max: 12, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 3, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: categorical, options: ["1", "2", P], options_de: ["1", "2", P], options_fr: ["1", "2", P], options_it: ["1", "2", P], options_es: ["1", "2", P], options_pt: ["1", "2", P], notes: "High-Speed Compression; 1 Soft, 2 Medium, P Climb platform", notes_de: "High-Speed-Druckstufe; 1 Soft, 2 Medium, P Climb-Plattform", notes_fr: "Compression haute vitesse ; 1 Souple, 2 Moyen, P plateforme Climb", notes_it: "Compressione ad alta velocità; 1 Morbida, 2 Media, P piattaforma Climb", notes_es: "Compresión de alta velocidad; 1 Blanda, 2 Media, P plataforma Climb", notes_pt: "Compressão de alta velocidade; 1 Macia, 2 Média, P plataforma Climb" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 12, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 3, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange }
       source: https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
       note: >-
         TTX2Air m.2 listing: "3-fach einstellbare Low-Speed-Zugstufendämpfung",
@@ -139,9 +219,29 @@ option_values:
         - Cross-country air shock, the rear half of the RXC34 package
         - A three-position lever steps between Open, Pedal and Lockout
         - Rebound is the only click adjuster; compression is set by the lever alone
+      description_de: |-
+        - Cross-Country-Luftdämpfer, die hintere Hälfte des RXC34-Pakets
+        - Ein Drei-Positionen-Hebel schaltet zwischen Open, Pedal und Lockout
+        - Die Zugstufe ist der einzige Klickversteller; die Druckstufe wird allein über den Hebel eingestellt
+      description_fr: |-
+        - Amortisseur pneumatique cross-country, moitié arrière de l’ensemble RXC34
+        - Un levier à trois positions passe entre Open, Pedal et Lockout
+        - La détente est le seul réglage à clics ; la compression se règle uniquement avec le levier
+      description_it: |-
+        - Ammortizzatore pneumatico cross-country, metà posteriore del pacchetto RXC34
+        - Una leva a tre posizioni passa tra Open, Pedal e Lockout
+        - Il ritorno è l’unico regolatore a scatti; la compressione si imposta solo con la leva
+      description_es: |-
+        - Amortiguador neumático cross-country, mitad trasera del paquete RXC34
+        - Una palanca de tres posiciones alterna entre Open, Pedal y Lockout
+        - El rebote es el único ajuste por clics; la compresión se regula solo con la palanca
+      description_pt: |-
+        - Amortecedor a ar cross-country, metade traseira do conjunto RXC34
+        - Uma alavanca de três posições alterna entre Open, Pedal e Lockout
+        - O retorno é o único ajuste por cliques; a compressão é definida só pela alavanca
       adjustments:
-        - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
-        - { name: Ride Mode, type: categorical, options: [Open, Pedal, Lockout], notes: "Bar remote at 7.5mm cable pull per click, 5.5mm/click adapter available" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 12, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
+        - { name: Ride Mode, name_de: Fahrmodus, name_fr: Mode de conduite, name_it: Modalità di guida, name_es: Modo de conducción, name_pt: Modo de pilotagem, type: categorical, options: [Open, Pedal, Lockout], options_de: [Offen, Pedal, Lockout], options_fr: [Ouvert, Pedal, Lockout], options_it: [Aperto, Pedal, Lockout], options_es: [Abierto, Pedal, Lockout], options_pt: [Aberto, Pedal, Lockout], notes: "Bar remote at 7.5mm cable pull per click, 5.5mm/click adapter available", notes_de: "Lenkerfernbedienung mit 7,5mm Seilzug pro Klick, Adapter mit 5,5mm/Klick erhältlich", notes_fr: "Commande au guidon à 7,5 mm de course de câble par clic, adaptateur de 5,5 mm/clic disponible", notes_it: "Comando al manubrio con 7,5 mm di corsa del cavo per scatto, adattatore da 5,5 mm/scatto disponibile", notes_es: "Mando de manillar con 7,5 mm de recorrido de cable por clic, adaptador de 5,5 mm/clic disponible", notes_pt: "Comando no guidão com 7,5 mm de puxada de cabo por clique, adaptador de 5,5 mm/clique disponível" }
       source: https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
       note: >-
         TXC1Air listing gives "12 Klicks Zugstufendämpfung" and "drei
@@ -157,10 +257,30 @@ option_values:
         - Cross-country air shock from 255g, with a three-position lever
         - Open, Pedal and Lockout are selectable at the shock or by bar remote
         - The 16-click low-speed compression range works within Open mode
+      description_de: |-
+        - Cross-Country-Luftdämpfer ab 255g mit Drei-Positionen-Hebel
+        - Open, Pedal und Lockout sind am Dämpfer oder per Lenkerfernbedienung wählbar
+        - Der Low-Speed-Druckstufenbereich mit 16 Klicks wirkt im Open-Modus
+      description_fr: |-
+        - Amortisseur pneumatique cross-country à partir de 255 g, avec un levier à trois positions
+        - Open, Pedal et Lockout se sélectionnent sur l’amortisseur ou par commande au guidon
+        - La plage de compression basse vitesse de 16 clics agit en mode Open
+      description_it: |-
+        - Ammortizzatore pneumatico cross-country da 255 g, con una leva a tre posizioni
+        - Open, Pedal e Lockout si selezionano sull’ammortizzatore o con il comando al manubrio
+        - La gamma di compressione a bassa velocità a 16 scatti agisce in modalità Open
+      description_es: |-
+        - Amortiguador neumático cross-country desde 255 g, con una palanca de tres posiciones
+        - Open, Pedal y Lockout se seleccionan en el amortiguador o con el mando de manillar
+        - El rango de compresión de baja velocidad de 16 clics actúa dentro del modo Open
+      description_pt: |-
+        - Amortecedor a ar cross-country a partir de 255 g, com uma alavanca de três posições
+        - Open, Pedal e Lockout são selecionados no amortecedor ou pelo comando no guidão
+        - A faixa de compressão de baixa velocidade de 16 cliques atua dentro do modo Open
       adjustments:
-        - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; operates within Open mode", dialColor: blue }
-        - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
-        - { name: Ride Mode, type: categorical, options: [Open, Pedal, Lockout], notes: "Lever at the shock or a three-position bar remote; 5.5mm/click cable-pull adapter available" }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 16, notes: "Low-Speed Compression; operates within Open mode", notes_de: Low-Speed-Druckstufe; wirkt im offenen Modus, notes_fr: Compression basse vitesse ; agit en mode Open, notes_it: Compressione a bassa velocità; agisce in modalità Open, notes_es: Compresión de baja velocidad; actúa dentro del modo Open, notes_pt: Compressão de baixa velocidade; atua dentro do modo Open, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 12, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
+        - { name: Ride Mode, name_de: Fahrmodus, name_fr: Mode de conduite, name_it: Modalità di guida, name_es: Modo de conducción, name_pt: Modo de pilotagem, type: categorical, options: [Open, Pedal, Lockout], options_de: [Offen, Pedal, Lockout], options_fr: [Ouvert, Pedal, Lockout], options_it: [Aperto, Pedal, Lockout], options_es: [Abierto, Pedal, Lockout], options_pt: [Aberto, Pedal, Lockout], notes: "Lever at the shock or a three-position bar remote; 5.5mm/click cable-pull adapter available", notes_de: "Hebel am Dämpfer oder Lenkerfernbedienung mit drei Positionen; Seilzugadapter mit 5,5mm/Klick erhältlich", notes_fr: "Levier sur l’amortisseur ou commande au guidon à trois positions ; adaptateur de course de câble de 5,5 mm/clic disponible", notes_it: "Leva sull’ammortizzatore o comando al manubrio a tre posizioni; adattatore da 5,5 mm/scatto per la corsa del cavo disponibile", notes_es: "Palanca en el amortiguador o mando de manillar de tres posiciones; adaptador de recorrido de cable de 5,5 mm/clic disponible", notes_pt: "Alavanca no amortecedor ou comando no guidão de três posições; adaptador de puxada de cabo de 5,5 mm/clique disponível" }
       source:
         - https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
         - https://nsmb.com/articles/ohlins-txc2air-and-rxc34-m1-suspension/
@@ -177,10 +297,30 @@ option_values:
         - Twin-tube coil shock for gravity riding, with a nitrogen bladder reservoir
         - The same cartridge sits in every Piggyback, Side-by-side and Trunnion variant
         - Threaded preload collar sets spring preload independently of the clicks
+      description_de: |-
+        - Zweirohr-Stahlfederdämpfer für den Gravity-Einsatz mit Stickstoff-Bladder-Ausgleichsbehälter
+        - Dieselbe Kartusche sitzt in jeder Piggyback-, Side-by-side- und Trunnion-Variante
+        - Ein Federteller mit Gewinde stellt die Federvorspannung unabhängig von den Klicks ein
+      description_fr: |-
+        - Amortisseur à ressort bitube pour la pratique gravity, avec un réservoir à bladder d’azote
+        - La même cartouche équipe toutes les variantes Piggyback, Side-by-side et Trunnion
+        - Un collier de précontrainte fileté règle la précontrainte du ressort indépendamment des clics
+      description_it: |-
+        - Ammortizzatore a molla bitubo per il gravity, con un serbatoio a bladder d’azoto
+        - La stessa cartuccia equipaggia tutte le varianti Piggyback, Side-by-side e Trunnion
+        - Una ghiera di precarico filettata regola il precarico della molla indipendentemente dagli scatti
+      description_es: |-
+        - Amortiguador de muelle bitubo para gravity, con un depósito de bladder de nitrógeno
+        - El mismo cartucho va en todas las variantes Piggyback, Side-by-side y Trunnion
+        - Un collarín de precarga roscado regula la precarga del muelle con independencia de los clics
+      description_pt: |-
+        - Amortecedor a mola bitubo para gravity, com um reservatório de bladder de nitrogênio
+        - O mesmo cartucho equipa todas as variantes Piggyback, Side-by-side e Trunnion
+        - Um colar de pré-carga roscado define a pré-carga da mola independentemente dos cliques
       adjustments:
-        - { name: HSC, type: categorical, options: [I, II, III], notes: "High-Speed Compression; I Soft, II Medium, III Hard" }
-        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: categorical, options: [I, II, III], options_de: [I, II, III], options_fr: [I, II, III], options_it: [I, II, III], options_es: [I, II, III], options_pt: [I, II, III], notes: "High-Speed Compression; I Soft, II Medium, III Hard", notes_de: "High-Speed-Druckstufe; I Soft, II Medium, III Hard", notes_fr: "Compression haute vitesse ; I Souple, II Moyen, III Dur", notes_it: "Compressione ad alta velocità; I Morbida, II Media, III Dura", notes_es: "Compresión de alta velocidad; I Blanda, II Media, III Dura", notes_pt: "Compressão de alta velocidade; I Macia, II Média, III Dura" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 7, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange }
       source:
         - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
         - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-side-by-side--7681/
@@ -200,10 +340,25 @@ option_values:
       description: |-
         - Original twin-tube coil shock for gravity riding, a universal side-by-side design
         - Same click counts as the TTX22 m.2
+      description_de: |-
+        - Ursprünglicher Zweirohr-Stahlfederdämpfer für den Gravity-Einsatz, ein universelles Side-by-side-Design
+        - Gleiche Klickzahlen wie beim TTX22 m.2
+      description_fr: |-
+        - Amortisseur à ressort bitube d’origine pour la pratique gravity, de conception universelle côte à côte
+        - Mêmes nombres de clics que le TTX22 m.2
+      description_it: |-
+        - Ammortizzatore a molla bitubo originale per il gravity, di progetto universale side-by-side
+        - Stesso numero di scatti del TTX22 m.2
+      description_es: |-
+        - Amortiguador de muelle bitubo original para gravity, de diseño universal side-by-side
+        - Mismo número de clics que el TTX22 m.2
+      description_pt: |-
+        - Amortecedor a mola bitubo original para gravity, de projeto universal side-by-side
+        - Mesmo número de cliques do TTX22 m.2
       adjustments:
-        - { name: HSC, type: step, max: 3, notes: High-Speed Compression, dialColor: grey }
-        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 3, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: grey }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 7, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange }
       source:
         - https://www.ohlins.eu/de/products/packages/mtbm-1893-210x55mm--102/
         - https://www.ohlins.eu/de/products/mountainbike/230x575mm-mtbm-1894--6314/
@@ -231,18 +386,28 @@ option_values:
 guides:
   ohlins_ttx_air_m1_2020:
     label: Öhlins TTX Air owner's manual (2020)
+    label_de: Öhlins TTX Air Bedienungsanleitung (2020)
+    label_fr: Manuel d’utilisation Öhlins TTX Air (2020)
+    label_it: Manuale d’uso Öhlins TTX Air (2020)
+    label_es: Manual del usuario Öhlins TTX Air (2020)
+    label_pt: Manual do usuário Öhlins TTX Air (2020)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00002997.pdf
     rules:
-      - &ohlins_ttx_air_pressure { target: pressure, unit: psi, value: 170, note: Starting pressure; adjust it until the sag is right }
-      - &ohlins_ttx_air_hsc { target: hsc, value: "2", note: "Delivery setting; set sag in 1 or 2, not P" }
+      - &ohlins_ttx_air_pressure { target: pressure, unit: psi, value: 170, note: Starting pressure; adjust it until the sag is right, note_de: "Startdruck; so lange anpassen, bis der SAG stimmt", note_fr: Pression de départ ; ajustez-la jusqu’à obtenir le bon SAG, note_it: Pressione iniziale; regolala finché il SAG non è giusto, note_es: Presión inicial; ajústala hasta que el SAG sea el correcto, note_pt: Pressão inicial; ajuste até o SAG ficar certo }
+      - &ohlins_ttx_air_hsc { target: hsc, value: "2", note: "Delivery setting; set sag in 1 or 2, not P", note_de: "Auslieferungseinstellung; den SAG in 1 oder 2 einstellen, nicht in P", note_fr: "Réglage d’usine ; réglez le SAG en 1 ou 2, pas en P", note_it: "Impostazione di fabbrica; regola il SAG in 1 o 2, non in P", note_es: "Ajuste de fábrica; ajusta el SAG en 1 o 2, no en P", note_pt: "Ajuste de fábrica; regule o SAG em 1 ou 2, não em P" }
       - &ohlins_ttx_sag { target: sag, range: [25, 35], comfort_at: max }
       # TTX1Air = MTBM 1950-1955, all delivered with reducer A. The TTX2Air
       # production volume depends on a part number the catalog sizes don't map.
-      - { target: volume_spacers, value: A, when: { damper: ttx1air_m1 }, note: Production setting }
+      - { target: volume_spacers, value: A, when: { damper: ttx1air_m1 }, note: Production setting, note_de: Serieneinstellung, note_fr: Réglage de série, note_it: Impostazione di serie, note_es: Ajuste de serie, note_pt: Ajuste de série }
       # The Specialized OEM sag table (SBC article numbers) has no catalog node.
 
   ohlins_ttx_air_m2_2025:
     label: Öhlins TTXAir m.2 owner's manual (2025)
+    label_de: Öhlins TTXAir m.2 Bedienungsanleitung (2025)
+    label_fr: Manuel d’utilisation Öhlins TTXAir m.2 (2025)
+    label_it: Manuale d’uso Öhlins TTXAir m.2 (2025)
+    label_es: Manual del usuario Öhlins TTXAir m.2 (2025)
+    label_pt: Manual do usuário Öhlins TTXAir m.2 (2025)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00004276.pdf
     rules:
       - *ohlins_ttx_air_pressure
@@ -250,22 +415,32 @@ guides:
       - *ohlins_ttx_sag
       # TTX2Air m.2: 5 or 6 spacers by part number (MTBM 2565/2585 vs
       # 2569/2589), which the catalog sizes don't map.
-      - { target: volume_spacers, value: 1, when: { damper: ttx1air_m2 }, note: Production setting }
+      - { target: volume_spacers, value: 1, when: { damper: ttx1air_m2 }, note: Production setting, note_de: Serieneinstellung, note_fr: Réglage de série, note_it: Impostazione di serie, note_es: Ajuste de serie, note_pt: Ajuste de série }
 
   ohlins_txc_air_2023:
     label: Öhlins TXC Air owner's manual (2023)
+    label_de: Öhlins TXC Air Bedienungsanleitung (2023)
+    label_fr: Manuel d’utilisation Öhlins TXC Air (2023)
+    label_it: Manuale d’uso Öhlins TXC Air (2023)
+    label_es: Manual del usuario Öhlins TXC Air (2023)
+    label_pt: Manual do usuário Öhlins TXC Air (2023)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
     rules:
-      - { target: pressure, unit: psi, value: 200, note: Starting pressure; set sag with the lever in Open }
+      - { target: pressure, unit: psi, value: 200, note: Starting pressure; set sag with the lever in Open, note_de: Startdruck; den SAG mit dem Hebel in Open einstellen, note_fr: Pression de départ ; réglez le SAG avec le levier en Open, note_it: Pressione iniziale; imposta il SAG con la leva in Open, note_es: Presión inicial; ajusta el SAG con la palanca en Open, note_pt: Pressão inicial; defina o SAG com a alavanca em Open }
       - { target: sag, range: [20, 30], comfort_at: max }
       # The manual gives spacer maxima per stroke only, no production count.
 
   ohlins_ttx22_m2_2022:
     label: Öhlins TTX22m.2 owner's manual (2022)
+    label_de: Öhlins TTX22m.2 Bedienungsanleitung (2022)
+    label_fr: Manuel d’utilisation Öhlins TTX22m.2 (2022)
+    label_it: Manuale d’uso Öhlins TTX22m.2 (2022)
+    label_es: Manual del usuario Öhlins TTX22m.2 (2022)
+    label_pt: Manual do usuário Öhlins TTX22m.2 (2022)
     source: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx22m2-englisch--00003682.pdf
     rules:
-      - { target: hsc, value: II, note: Delivery setting }
-      - { target: sag, range: [25, 35], comfort_at: max, note: The right sag depends on the bike }
+      - { target: hsc, value: II, note: Delivery setting, note_de: Auslieferungseinstellung, note_fr: Réglage d’usine, note_it: Impostazione di fabbrica, note_es: Ajuste de fábrica, note_pt: Ajuste de fábrica }
+      - { target: sag, range: [25, 35], comfort_at: max, note: The right sag depends on the bike, note_de: Der richtige SAG hängt vom Bike ab, note_fr: Le bon SAG dépend du vélo, note_it: Il SAG giusto dipende dalla bici, note_es: El SAG correcto depende de la bici, note_pt: O SAG certo depende da bike }
 
 # --------------------------------------------------------------------------
 # Shocks — current Öhlins MTB lineup, both generations of each air shock.
@@ -282,9 +457,14 @@ nodes:
   - label: TTX1Air
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     tasks: &ohlins_service
-      shock:air_can_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual }
-      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 730 }, source: Öhlins owner's manual }
+      shock:air_can_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch, source_fr: Manuel d’utilisation Öhlins, source_it: Manuale d’uso Öhlins, source_es: Manual del usuario Öhlins, source_pt: Manual do usuário Öhlins }
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 730 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch, source_fr: Manuel d’utilisation Öhlins, source_it: Manuale d’uso Öhlins, source_es: Manual del usuario Öhlins, source_pt: Manual do usuário Öhlins }
     children:
       - label: First generation
         level: version
@@ -293,17 +473,22 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00002997.pdf
         guide: ohlins_ttx_air_m1_2020
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         children:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300, notes: 300 psi maximum }
-              - { name: Volume Spacers, type: categorical, options: [A, B, C, D, E], notes: "Sized volume reducers, from A (2000 mm3) to E (12000 mm3)" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300, notes: 300 psi maximum, notes_de: Maximal 300 psi, notes_fr: 300 psi maximum, notes_it: Massimo 300 psi, notes_es: Máximo 300 psi, notes_pt: Máximo 300 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: categorical, options: [A, B, C, D, E], options_de: [A, B, C, D, E], options_fr: [A, B, C, D, E], options_it: [A, B, C, D, E], options_es: [A, B, C, D, E], options_pt: [A, B, C, D, E], notes: "Sized volume reducers, from A (2000 mm3) to E (12000 mm3)", notes_de: "Volumenreduzierer in gestuften Größen, von A (2000 mm3) bis E (12000 mm3)", notes_fr: "Réducteurs de volume calibrés, de A (2000 mm3) à E (12000 mm3)", notes_it: "Riduttori di volume calibrati, da A (2000 mm3) a E (12000 mm3)", notes_es: "Reductores de volumen dimensionados, de A (2000 mm3) a E (12000 mm3)", notes_pt: "Redutores de volume dimensionados, de A (2000 mm3) a E (12000 mm3)" }
             options:
               damper: [ttx1air_m1]
               size: [{ size: "190x40/42.5/45", mount: Standard eyelet }, { size: "210x50/52.5/55", mount: Standard eyelet }, { size: "230x60/62.5/65", mount: Standard eyelet }, { size: "165x40/42.5/45", mount: Trunnion }, { size: "185x50/52.5/55", mount: Trunnion }, { size: "205x60/62.5/65", mount: Trunnion }]
             note: First-generation TTX1Air, from 390g. Its click table differs from the m.2 on every circuit.
+            note_de: TTX1Air der ersten Generation, ab 390g. Die Klicktabelle weicht bei jedem Kreis von der m.2 ab.
+            note_fr: TTX1Air de première génération, à partir de 390 g. Sa table de clics diffère de celle du m.2 sur chaque circuit.
+            note_it: TTX1Air di prima generazione, da 390 g. La sua tabella degli scatti differisce da quella del m.2 su ogni circuito.
+            note_es: TTX1Air de primera generación, desde 390 g. Su tabla de clics difiere de la del m.2 en todos los circuitos.
+            note_pt: TTX1Air de primeira geração, a partir de 390 g. A tabela de cliques dele difere da do m.2 em todos os circuitos.
       - label: m.2
         level: version
         id: m2
@@ -311,23 +496,43 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00004276.pdf
         guide: ohlins_ttx_air_m2_2025
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         children:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300, notes: 300 psi maximum }
-              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "2000 mm3 spacers on the spacer holder" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300, notes: 300 psi maximum, notes_de: Maximal 300 psi, notes_fr: 300 psi maximum, notes_it: Massimo 300 psi, notes_es: Máximo 300 psi, notes_pt: Máximo 300 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "2000 mm3 spacers on the spacer holder", notes_de: 2000-mm3-Spacer auf dem Spacerhalter, notes_fr: Entretoises de 2000 mm3 sur le porte-entretoises, notes_it: Distanziali da 2000 mm3 sul supporto dei distanziali, notes_es: Espaciadores de 2000 mm3 en el portaespaciadores, notes_pt: Espaçadores de 2000 mm3 no suporte dos espaçadores }
             options:
               damper: [ttx1air_m2]
               size: [{ size: "165x45/42.5/40/37.5", mount: Trunnion }, { size: "185x55/52.5/50/47.5", mount: Trunnion }, { size: "190x45/42.5/40/37.5", mount: Standard eyelet }, { size: "210x55/52.5/50/47.5", mount: Standard eyelet }]
             note: |-
               - Air-spring progression is tuned with volume spacers, supplied with the shock
               - From 390g in 190x45
+            note_de: |-
+              - Die Progression der Luftfeder wird über mitgelieferte Volumenspacer abgestimmt
+              - Ab 390g in 190x45
+            note_fr: |-
+              - La progressivité du ressort pneumatique se règle avec des tokens de volume, fournis avec l’amortisseur
+              - À partir de 390 g en 190x45
+            note_it: |-
+              - La progressività della molla pneumatica si regola con token di volume, forniti con l’ammortizzatore
+              - Da 390 g nella 190x45
+            note_es: |-
+              - La progresividad del muelle neumático se ajusta con tokens de volumen, incluidos con el amortiguador
+              - Desde 390 g en 190x45
+            note_pt: |-
+              - A progressividade da mola a ar é ajustada com tokens de volume, fornecidos com o amortecedor
+              - A partir de 390 g no 190x45
 
   - label: TTX2Air
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     tasks: *ohlins_service
     children:
       - label: First generation
@@ -337,16 +542,21 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00002997.pdf
         guide: ohlins_ttx_air_m1_2020
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         children:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 325, notes: 325 psi maximum }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 325, notes: 325 psi maximum, notes_de: Maximal 325 psi, notes_fr: 325 psi maximum, notes_it: Massimo 325 psi, notes_es: Máximo 325 psi, notes_pt: Máximo 325 psi }
             options:
               damper: [ttx2air_m1]
               size: [{ size: "190x40/42.5/45", mount: Standard eyelet (15 x 12.7mm) }, { size: "185x50/52.5/55", mount: Trunnion }, { size: "205x60/62.5/65", mount: Trunnion }]
             note: First-generation TTX2Air, from 390g. Its click table differs from the m.2 on every circuit.
+            note_de: TTX2Air der ersten Generation, ab 390g. Die Klicktabelle weicht bei jedem Kreis von der m.2 ab.
+            note_fr: TTX2Air de première génération, à partir de 390 g. Sa table de clics diffère de celle du m.2 sur chaque circuit.
+            note_it: TTX2Air di prima generazione, da 390 g. La sua tabella degli scatti differisce da quella del m.2 su ogni circuito.
+            note_es: TTX2Air de primera generación, desde 390 g. Su tabla de clics difiere de la del m.2 en todos los circuitos.
+            note_pt: TTX2Air de primeira geração, a partir de 390 g. A tabela de cliques dele difere da do m.2 em todos os circuitos.
       - label: m.2
         level: version
         id: m2
@@ -354,24 +564,44 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00004276.pdf
         guide: ohlins_ttx_air_m2_2025
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         children:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 325, notes: 325 psi maximum }
-              - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "2000 mm3 spacers on the spacer holder. Maximum depends on the size: 185x55 and 210x55 8, 205x65 and 230x65 9" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 325, notes: 325 psi maximum, notes_de: Maximal 325 psi, notes_fr: 325 psi maximum, notes_it: Massimo 325 psi, notes_es: Máximo 325 psi, notes_pt: Máximo 325 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 9, visualization: stepper, notes: "2000 mm3 spacers on the spacer holder. Maximum depends on the size: 185x55 and 210x55 8, 205x65 and 230x65 9", notes_de: "2000-mm3-Spacer auf dem Spacerhalter. Das Maximum hängt von der Größe ab: 185x55 und 210x55 8, 205x65 und 230x65 9", notes_fr: "Entretoises de 2000 mm3 sur le porte-entretoises. Le maximum dépend de la taille : 185x55 et 210x55 8, 205x65 et 230x65 9", notes_it: "Distanziali da 2000 mm3 sul supporto dei distanziali. Il massimo dipende dalla misura: 185x55 e 210x55 8, 205x65 e 230x65 9", notes_es: "Espaciadores de 2000 mm3 en el portaespaciadores. El máximo depende de la medida: 185x55 y 210x55 8, 205x65 y 230x65 9", notes_pt: "Espaçadores de 2000 mm3 no suporte dos espaçadores. O máximo depende do tamanho: 185x55 e 210x55 8, 205x65 e 230x65 9" }
             options:
               damper: [ttx2air_m2]
               size: [{ size: "185x55/52.5/50/47.5", mount: Trunnion }, { size: "205x65/62.5/60/57.5", mount: Trunnion }, { size: "210x55/52.5/50/47.5", mount: Metric }, { size: "230x65/62.5/60/57.5", mount: Metric }]
             note: |-
               - Double-can air spring with more volume in both chambers
               - Takes up to 325 psi, and ships with volume spacers for progression
+            note_de: |-
+              - Doppelkammer-Luftfeder mit mehr Volumen in beiden Kammern
+              - Verträgt bis zu 325 psi und wird mit Volumenspacern für Progression geliefert
+            note_fr: |-
+              - Ressort pneumatique à double chambre avec plus de volume dans les deux chambres
+              - Supporte jusqu’à 325 psi et est livré avec des tokens de volume pour la progressivité
+            note_it: |-
+              - Molla pneumatica a doppia camera con più volume in entrambe le camere
+              - Sopporta fino a 325 psi e viene fornita con token di volume per la progressività
+            note_es: |-
+              - Muelle neumático de doble cámara con más volumen en ambas cámaras
+              - Admite hasta 325 psi y se entrega con tokens de volumen para la progresividad
+            note_pt: |-
+              - Mola a ar de câmara dupla com mais volume nas duas câmaras
+              - Suporta até 325 psi e acompanha tokens de volume para a progressividade
 
   - label: "TXC1Air"
     level: model
     category: XC
-    specs: { spring: Air }
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *ohlins_service
     children:
       - label: "2025–2026"
@@ -385,19 +615,39 @@ nodes:
           - label: Universal
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "1 ml spacers: up to 4 on the spacer holder plus 2 smaller 0.7 ml spacers on the end eye" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum, notes_de: Maximal 350 psi, notes_fr: 350 psi maximum, notes_it: Massimo 350 psi, notes_es: Máximo 350 psi, notes_pt: Máximo 350 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "1 ml spacers: up to 4 on the spacer holder plus 2 smaller 0.7 ml spacers on the end eye", notes_de: "1-ml-Spacer: bis zu 4 auf dem Spacerhalter plus 2 kleinere 0,7-ml-Spacer am Dämpferauge", notes_fr: "Entretoises de 1 ml : jusqu’à 4 sur le porte-entretoises plus 2 entretoises plus petites de 0,7 ml sur l’œil d’extrémité", notes_it: "Distanziali da 1 ml: fino a 4 sul supporto dei distanziali più 2 distanziali più piccoli da 0,7 ml sull’occhio terminale", notes_es: "Espaciadores de 1 ml: hasta 4 en el portaespaciadores más 2 espaciadores más pequeños de 0,7 ml en el ojo del extremo", notes_pt: "Espaçadores de 1 ml: até 4 no suporte dos espaçadores mais 2 espaçadores menores de 0,7 ml no olhal da ponta" }
             options:
               damper: [txc1air]
               size: [{ size: "165x37.5/40", mount: Trunnion Remote }, { size: "185x47.5/50", mount: Trunnion Remote }, { size: "190x37.5/40", mount: Remote }, { size: "210x47.5/50", mount: Remote }]
             note: |-
               - Cross-country tune, from 245g, and the rear half of the RXC34 package
               - Volume spacers tune air-spring progression; travel is adjustable
+            note_de: |-
+              - Cross-Country-Abstimmung, ab 245g, und die hintere Hälfte des RXC34-Pakets
+              - Volumenspacer stimmen die Progression der Luftfeder ab; der Federweg ist einstellbar
+            note_fr: |-
+              - Réglage cross-country, à partir de 245 g, et moitié arrière de l’ensemble RXC34
+              - Les tokens de volume règlent la progressivité du ressort pneumatique ; le débattement est réglable
+            note_it: |-
+              - Taratura cross-country, da 245 g, e metà posteriore del pacchetto RXC34
+              - I token di volume regolano la progressività della molla pneumatica; l’escursione è regolabile
+            note_es: |-
+              - Tarado cross-country, desde 245 g, y mitad trasera del paquete RXC34
+              - Los tokens de volumen ajustan la progresividad del muelle neumático; el recorrido es ajustable
+            note_pt: |-
+              - Calibragem cross-country, a partir de 245 g, e metade traseira do conjunto RXC34
+              - Os tokens de volume ajustam a progressividade da mola a ar; o curso é ajustável
 
   - label: "TXC2Air"
     level: model
     category: XC
-    specs: { spring: Air }
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *ohlins_service
     children:
       - label: "2025–2026"
@@ -412,18 +662,28 @@ nodes:
             level: trim
             mounts: [Standard eyelet, "Remote (5.5mm cable pull adapter)"]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Up to 3 on the spacer holder plus smaller 0.7 ml spacers on the end eye. Maximum depends on the stroke: 55/45 mm 3, 52.5/42.5 mm 4, 50/40 mm 5, 47.5/37.5 mm 6" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 350, notes: 350 psi maximum, notes_de: Maximal 350 psi, notes_fr: 350 psi maximum, notes_it: Massimo 350 psi, notes_es: Máximo 350 psi, notes_pt: Máximo 350 psi }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Up to 3 on the spacer holder plus smaller 0.7 ml spacers on the end eye. Maximum depends on the stroke: 55/45 mm 3, 52.5/42.5 mm 4, 50/40 mm 5, 47.5/37.5 mm 6", notes_de: "Bis zu 3 auf dem Spacerhalter plus kleinere 0,7-ml-Spacer am Dämpferauge. Das Maximum hängt vom Hub ab: 55/45 mm 3, 52,5/42,5 mm 4, 50/40 mm 5, 47,5/37,5 mm 6", notes_fr: "Jusqu’à 3 sur le porte-entretoises plus des entretoises plus petites de 0,7 ml sur l’œil d’extrémité. Le maximum dépend de la course : 55/45 mm 3, 52,5/42,5 mm 4, 50/40 mm 5, 47,5/37,5 mm 6", notes_it: "Fino a 3 sul supporto dei distanziali più distanziali più piccoli da 0,7 ml sull’occhio terminale. Il massimo dipende dalla corsa: 55/45 mm 3, 52,5/42,5 mm 4, 50/40 mm 5, 47,5/37,5 mm 6", notes_es: "Hasta 3 en el portaespaciadores más espaciadores más pequeños de 0,7 ml en el ojo del extremo. El máximo depende de la carrera: 55/45 mm 3, 52,5/42,5 mm 4, 50/40 mm 5, 47,5/37,5 mm 6", notes_pt: "Até 3 no suporte dos espaçadores mais espaçadores menores de 0,7 ml no olhal da ponta. O máximo depende do curso: 55/45 mm 3, 52,5/42,5 mm 4, 50/40 mm 5, 47,5/37,5 mm 6" }
             options:
               damper: [txc2air]
               size: ["165x37.5/40/42.5/45", "185x47.5/50/52.5/55", "190x37.5/40/42.5/45", "210x47.5/50/52.5/55"]
             note: Cross-country tune from 255g, with low-speed compression clicks on top of the three-mode lever.
+            note_de: Cross-Country-Abstimmung ab 255g, mit Low-Speed-Druckstufenklicks zusätzlich zum Hebel mit drei Modi.
+            note_fr: Réglage cross-country à partir de 255 g, avec des clics de compression basse vitesse en plus du levier à trois modes.
+            note_it: Taratura cross-country da 255 g, con scatti di compressione a bassa velocità in aggiunta alla leva a tre modalità.
+            note_es: Tarado cross-country desde 255 g, con clics de compresión de baja velocidad además de la palanca de tres modos.
+            note_pt: Calibragem cross-country a partir de 255 g, com cliques de compressão de baixa velocidade além da alavanca de três modos.
 
   - label: TTX22
     level: model
     category: Enduro / Downhill
+    category_de: Enduro / Downhill
+    category_fr: Enduro / Downhill
+    category_it: Enduro / Downhill
+    category_es: Enduro / Downhill
+    category_pt: Enduro / Downhill
     tasks:
-      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual }
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual, source_de: Öhlins-Handbuch, source_fr: Manuel d’utilisation Öhlins, source_it: Manuale d’uso Öhlins, source_es: Manual del usuario Öhlins, source_pt: Manual do usuário Öhlins }
     children:
       - label: m.2
         level: version
@@ -432,20 +692,40 @@ nodes:
         url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
         setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx22m2-englisch--00003682.pdf
         guide: ohlins_ttx22_m2_2022
-        specs: { spring: Coil }
+        specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         note: |-
           - The coil spring is bought separately, from the Öhlins 18075 series
           - Sixteen rates run 64 to 136 N/mm, one series covering every shock size
+        note_de: |-
+          - Die Stahlfeder wird separat gekauft, aus der Öhlins-Serie 18075
+          - Sechzehn Federraten von 64 bis 136 N/mm, eine Serie deckt jede Dämpfergröße ab
+        note_fr: |-
+          - Le ressort s’achète séparément, dans la série Öhlins 18075
+          - Seize raideurs de 64 à 136 N/mm, une seule série couvrant toutes les tailles d’amortisseur
+        note_it: |-
+          - La molla si acquista separatamente, dalla serie Öhlins 18075
+          - Sedici rigidità da 64 a 136 N/mm, una sola serie per tutte le misure di ammortizzatore
+        note_es: |-
+          - El muelle se compra por separado, de la serie Öhlins 18075
+          - Dieciséis rigideces de 64 a 136 N/mm, una sola serie que cubre todas las medidas de amortiguador
+        note_pt: |-
+          - A mola é comprada separadamente, da série Öhlins 18075
+          - Dezesseis rigidezes de 64 a 136 N/mm, uma única série para todos os tamanhos de amortecedor
         children:
           - label: Piggyback
             level: trim
             adjustments: &coil_spring
-              - { name: Spring Rate, type: numerical, unit: N/mm, min: 0 }
-              - { name: Preload, type: numerical, unit: turns, min: 0, max: 2, notes: Maximum 2 full turns }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: N/mm, min: 0 }
+              - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: turns, min: 0, max: 2, notes: Maximum 2 full turns, notes_de: Maximal 2 volle Umdrehungen, notes_fr: Maximum 2 tours complets, notes_it: Massimo 2 giri completi, notes_es: Máximo 2 vueltas completas, notes_pt: Máximo 2 voltas completas }
             options:
               damper: [ttx22_m2]
               size: [{ size: "267x89", label: "267x89 (10.5x3.5in)" }]
             note: 425-460g without the spring.
+            note_de: 425-460g ohne Feder.
+            note_fr: 425-460 g sans le ressort.
+            note_it: 425-460 g senza la molla.
+            note_es: 425-460 g sin el muelle.
+            note_pt: 425-460 g sem a mola.
           - label: Side-by-side
             level: trim
             url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-side-by-side--7681/
@@ -476,18 +756,33 @@ nodes:
         level: version
         id: m1
         url: https://www.ohlins.eu/en/products/mountainbike/coil-shocks/?show_unavailable=1
-        specs: { spring: Coil }
+        specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         tasks:
           shock:full_service: ~
         note: |-
           - Original TTX22 generation, discontinued; the coil spring is bought separately
           - Universal side-by-side body, with a trunnion mount only on the separate TTX22M Custom
+        note_de: |-
+          - Ursprüngliche TTX22-Generation, eingestellt; die Stahlfeder wird separat gekauft
+          - Universelles Side-by-side-Gehäuse, Trunnion-Aufnahme nur beim separaten TTX22M Custom
+        note_fr: |-
+          - Génération TTX22 d’origine, abandonnée ; le ressort s’achète séparément
+          - Corps universel côte à côte, avec une fixation trunnion uniquement sur le TTX22M Custom, vendu à part
+        note_it: |-
+          - Generazione TTX22 originale, fuori produzione; la molla si acquista separatamente
+          - Corpo universale side-by-side, con attacco trunnion solo sul TTX22M Custom, venduto a parte
+        note_es: |-
+          - Generación TTX22 original, descatalogada; el muelle se compra por separado
+          - Cuerpo universal side-by-side, con anclaje trunnion solo en el TTX22M Custom, que se vende aparte
+        note_pt: |-
+          - Geração TTX22 original, descontinuada; a mola é comprada separadamente
+          - Corpo universal side-by-side, com fixação trunnion somente no TTX22M Custom, vendido à parte
         children:
           - label: Side-by-side
             level: trim
             adjustments:
-              - { name: Spring Rate, type: numerical, unit: N/mm, min: 0 }
-              - { name: Preload, type: numerical, unit: turns, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: N/mm, min: 0 }
+              - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: turns, min: 0 }
             options:
               damper: [ttx22m_m1]
               size:

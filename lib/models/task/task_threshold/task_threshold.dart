@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../task_progress_context.dart';
 
 part 'distance_threshold.dart';
@@ -30,8 +29,6 @@ sealed class TaskThreshold {
   bool get isPositive;
 
   IconData get iconData;
-
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'});
 
   Map<String, dynamic> toJson();
 

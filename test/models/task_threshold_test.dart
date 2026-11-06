@@ -1,8 +1,12 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
+import 'package:bike_setup_tracker/l10n/task_threshold_text.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/models/task/task_progress_context.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/german_l10n.dart';
 
 void main() {
   const baselineStats = ComponentStats(
@@ -19,6 +23,42 @@ void main() {
         now: DateTime(2023, 1, 10),
         baselineDate: DateTime(2023, 1, 1),
       );
+
+  group('toDisplayValue follows the app language', () {
+    test('distance has thousands and decimal separators', () {
+      const threshold = DistanceThreshold(2500500);
+      expect(threshold.toDisplayValue(englishL10n), '2,500.5 km');
+      expect(threshold.toDisplayValue(germanL10n), '2.500,5 km');
+    });
+
+    test('elevation has thousands separators', () {
+      const threshold = ElevationThreshold(12345);
+      expect(threshold.toDisplayValue(englishL10n), '12,345 m');
+      expect(threshold.toDisplayValue(germanL10n), '12.345 m');
+    });
+
+    test('kilojoules have thousands separators', () {
+      const threshold = KilojoulesThreshold(12345);
+      expect(threshold.toDisplayValue(englishL10n), '12,345 kJ');
+      expect(threshold.toDisplayValue(germanL10n), '12.345 kJ');
+    });
+
+    test('days and rides take the unit word of the language', () {
+      expect(const DurationThreshold(Duration(days: 1)).toDisplayValue(englishL10n), '1 day');
+      expect(const DurationThreshold(Duration(days: 3)).toDisplayValue(englishL10n), '3 days');
+      expect(const ActivityCountThreshold(1).toDisplayValue(englishL10n), '1 ride');
+      expect(const ActivityCountThreshold(5).toDisplayValue(englishL10n), '5 rides');
+      expect(const DurationThreshold(Duration(days: 1)).toDisplayValue(germanL10n), '1 Tag');
+      expect(const DurationThreshold(Duration(days: 3)).toDisplayValue(germanL10n), '3 Tage');
+      expect(const ActivityCountThreshold(1).toDisplayValue(germanL10n), '1 Fahrt');
+      expect(const ActivityCountThreshold(1500).toDisplayValue(germanL10n), '1.500 Fahrten');
+    });
+
+    test('the stored threshold does not change', () {
+      const threshold = DistanceThreshold(2500.5);
+      expect(threshold.toJson(), threshold.toJson());
+    });
+  });
 
   group('ElevationThreshold', () {
     final context = contextWith(const ComponentStats(
@@ -54,7 +94,7 @@ void main() {
       final parsed = TaskThreshold.fromJson(json) as ElevationThreshold;
       expect(parsed.meters, 250);
       expect(parsed.iconData, Icons.terrain);
-      expect(parsed.toDisplayValue(), '250 m');
+      expect(parsed.toDisplayValue(englishL10n), '250 m');
       expect(parsed.isPositive, isTrue);
       expect(parsed, threshold);
     });
@@ -108,7 +148,7 @@ void main() {
       final parsed = TaskThreshold.fromJson(json) as KilojoulesThreshold;
       expect(parsed.kilojoules, 350);
       expect(parsed.iconData, Icons.bolt);
-      expect(parsed.toDisplayValue(), '350 kJ');
+      expect(parsed.toDisplayValue(englishL10n), '350 kJ');
       expect(parsed.isPositive, isTrue);
       expect(parsed, threshold);
     });
@@ -161,7 +201,7 @@ void main() {
       final parsed = TaskThreshold.fromJson(json) as ElapsedTimeThreshold;
       expect(parsed.hours, const Duration(hours: 10));
       expect(parsed.iconData, Icons.timelapse);
-      expect(parsed.toDisplayValue(), '10 h');
+      expect(parsed.toDisplayValue(englishL10n), '10 h');
       expect(parsed.isPositive, isTrue);
       expect(parsed, threshold);
     });

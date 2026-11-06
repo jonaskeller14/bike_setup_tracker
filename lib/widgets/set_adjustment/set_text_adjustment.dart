@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
@@ -115,7 +116,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
                     isDense: true,
-                    hintText: 'Enter Text',
+                    hintText: context.l10n.setTextHint,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     suffixStyle: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
@@ -136,10 +137,10 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                   ),
                   validator: (String? newValue) {
                     if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
-                      return 'Please enter a value';
+                      return context.l10n.setValueRequired;
                     }
                     if (DurationAdjustment.tryParseDurationString(newValue) != null) {
-                      return "Pure Duration Format not allowed. Add characters or use Duration Adjustment type.";
+                      return context.l10n.setTextPureDuration;
                     }
                     return null;
                   },

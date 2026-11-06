@@ -41,10 +41,30 @@ option_values:
         - Bladder-backed damper with a three-position compression switch: Open, Platform, Firm
         - Compression Tuning System (CTS) valves swap in for larger changes
         - Very wide rebound range so one tune suits many frames
+      description_de: |-
+        - Dämpfer mit Bladder und Drei-Positionen-Druckstufenschalter: Open, Platform, Firm
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
+        - Sehr großer Zugstufenbereich, sodass eine Abstimmung zu vielen Rahmen passt
+      description_fr: |-
+        - Amortisseur à bladder avec un commutateur de compression à trois positions : Open, Platform, Firm
+        - Les valves Compression Tuning System (CTS) s’échangent pour des changements plus importants
+        - Plage de détente très large, pour qu’un seul réglage convienne à de nombreux cadres
+      description_it: |-
+        - Ammortizzatore a bladder con un selettore di compressione a tre posizioni: Open, Platform, Firm
+        - Le valvole Compression Tuning System (CTS) si sostituiscono per cambiamenti più importanti
+        - Gamma del ritorno molto ampia, così una sola taratura va bene per molti telai
+      description_es: |-
+        - Amortiguador con bladder y un selector de compresión de tres posiciones: Open, Platform, Firm
+        - Las válvulas Compression Tuning System (CTS) se cambian para modificaciones más grandes
+        - Rango de rebote muy amplio, de modo que un solo tarado sirve para muchos cuadros
+      description_pt: |-
+        - Amortecedor com bladder e um seletor de compressão de três posições: Open, Platform, Firm
+        - As válvulas Compression Tuning System (CTS) são trocadas para mudanças maiores
+        - Faixa de retorno bem ampla, de modo que uma única calibragem serve para muitos quadros
       adjustments:
-        - { name: Compression, type: step, max: 21, dialColor: blue }
-        - { name: Rebound, type: step, max: 23 }
-        - { name: Compression Mode, type: categorical, options: [Open, Platform, Firm] }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 21, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 23 }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Platform, Firm], options_de: [Offen, Platform, Fest], options_fr: [Ouvert, Platform, Ferme], options_it: [Aperto, Platform, Rigido], options_es: [Abierto, Platform, Firme], options_pt: [Aberto, Platform, Firme] }
       source: https://www.rideformula.com/products/mtb-shocks/nebbia/
       note: >-
         Nebbia page: "Compression: 21 Click Adjustment", "Rebound: 23 Click
@@ -57,10 +77,30 @@ option_values:
         - Single-tube damper with a 30mm piston and a large-volume bladder reservoir
         - Two-position compression switch: Open or Firm
         - Compression Tuning System (CTS) valves swap in for larger changes
+      description_de: |-
+        - Eirohr-Dämpfer mit 30mm-Kolben und großvolumigem Bladder-Ausgleichsbehälter
+        - Zwei-Positionen-Druckstufenschalter: Open oder Firm
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
+      description_fr: |-
+        - Amortisseur monotube avec un piston de 30 mm et un grand réservoir à bladder
+        - Commutateur de compression à deux positions : Open ou Firm
+        - Les valves Compression Tuning System (CTS) s’échangent pour des changements plus importants
+      description_it: |-
+        - Ammortizzatore monotubo con pistone da 30 mm e un serbatoio a bladder di grande volume
+        - Selettore di compressione a due posizioni: Open o Firm
+        - Le valvole Compression Tuning System (CTS) si sostituiscono per cambiamenti più importanti
+      description_es: |-
+        - Amortiguador monotubo con un pistón de 30 mm y un gran depósito de bladder
+        - Selector de compresión de dos posiciones: Open o Firm
+        - Las válvulas Compression Tuning System (CTS) se cambian para modificaciones más grandes
+      description_pt: |-
+        - Amortecedor monotubo com um pistão de 30 mm e um grande reservatório de bladder
+        - Seletor de compressão de duas posições: Open ou Firm
+        - As válvulas Compression Tuning System (CTS) são trocadas para mudanças maiores
       adjustments:
-        - { name: Compression, type: step, max: 17, dialColor: blue }
-        - { name: Rebound, type: step, max: 13, dialColor: red }
-        - { name: Compression Mode, type: categorical, options: [Open, Firm] }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 17, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 13, dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], options_fr: [Ouvert, Ferme], options_it: [Aperto, Rigido], options_es: [Abierto, Firme], options_pt: [Aberto, Firme] }
       source: https://www.rideformula.com/products/mtb-shocks/mod/
       note: >-
         MOD page: "Compression: 17 Click Adjustment", "Rebound: 13 Click
@@ -73,9 +113,29 @@ option_values:
         - Downhill version of the MOD damper, without a climb switch
         - Single-tube damper with a 30mm piston and a large-volume bladder reservoir
         - Compression Tuning System (CTS) valves swap in for larger changes
+      description_de: |-
+        - Downhill-Version des MOD-Dämpfers, ohne Climb-Schalter
+        - Eirohr-Dämpfer mit 30mm-Kolben und großvolumigem Bladder-Ausgleichsbehälter
+        - Ventile des Compression Tuning System (CTS) werden für größere Änderungen getauscht
+      description_fr: |-
+        - Version descente de l’amortisseur MOD, sans climb switch
+        - Amortisseur monotube avec un piston de 30 mm et un grand réservoir à bladder
+        - Les valves Compression Tuning System (CTS) s’échangent pour des changements plus importants
+      description_it: |-
+        - Versione downhill dell’ammortizzatore MOD, senza climb switch
+        - Ammortizzatore monotubo con pistone da 30 mm e un serbatoio a bladder di grande volume
+        - Le valvole Compression Tuning System (CTS) si sostituiscono per cambiamenti più importanti
+      description_es: |-
+        - Versión de descenso del amortiguador MOD, sin climb switch
+        - Amortiguador monotubo con un pistón de 30 mm y un gran depósito de bladder
+        - Las válvulas Compression Tuning System (CTS) se cambian para modificaciones más grandes
+      description_pt: |-
+        - Versão downhill do amortecedor MOD, sem climb switch
+        - Amortecedor monotubo com um pistão de 30 mm e um grande reservatório de bladder
+        - As válvulas Compression Tuning System (CTS) são trocadas para mudanças maiores
       adjustments:
-        - { name: Compression, type: step, max: 17, dialColor: blue }
-        - { name: Rebound, type: step, max: 13, dialColor: red }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 17, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 13, dialColor: red }
       source: https://www.rideformula.com/products/mtb-shocks/mod-dh/
       note: >-
         MOD DH page: "Compression: 17 Click Adjustment", "Rebound: 13 Click
@@ -96,6 +156,11 @@ option_values:
 guides:
   formula_nebbia_2024:
     label: Formula Nebbia user manual
+    label_de: Formula Nebbia Bedienungsanleitung
+    label_fr: Manuel d’utilisation Formula Nebbia
+    label_it: Manuale d’uso Formula Nebbia
+    label_es: Manual del usuario Formula Nebbia
+    label_pt: Manual do usuário Formula Nebbia
     source: https://www.rideformula.com/wp-content/uploads/2024/07/Manuale-Utente-Nebbia-ENG.pdf
     rules:
       - target: pressure
@@ -107,16 +172,26 @@ guides:
           80-90: [150, 170], 90-100: [170, 190], 100+: [190, 210]
         }
         note: Frames can differ by up to 30 psi; set the final pressure by SAG
+        note_de: Rahmen können um bis zu 30 psi abweichen; den endgültigen Druck über den SAG einstellen
+        note_fr: Les cadres peuvent différer jusqu’à 30 psi ; réglez la pression finale au SAG
+        note_it: I telai possono differire fino a 30 psi; regola la pressione finale in base al SAG
+        note_es: Los cuadros pueden diferir hasta 30 psi; ajusta la presión final según el SAG
+        note_pt: Os quadros podem diferir em até 30 psi; defina a pressão final pelo SAG
       - { target: rebound, value: 12 }
       - { target: compression, value: 10 }
 
   formula_mod_2020:
     label: Formula MOD owner's manual
+    label_de: Formula MOD Bedienungsanleitung
+    label_fr: Manuel d’utilisation Formula MOD
+    label_it: Manuale d’uso Formula MOD
+    label_es: Manual del usuario Formula MOD
+    label_pt: Manual do usuário Formula MOD
     source: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Owner-Manual.pdf
     rules:
-      - { target: rebound, value: 6, note: "A stiffer spring needs a little more: 1-2 clicks going from 400 to 450 lbs/in" }
+      - { target: rebound, value: 6, note: "A stiffer spring needs a little more: 1-2 clicks going from 400 to 450 lbs/in", note_de: "Eine härtere Feder braucht etwas mehr: 1-2 Klicks beim Wechsel von 400 auf 450 lbs/in", note_fr: "Un ressort plus dur en demande un peu plus : 1-2 clics en passant de 400 à 450 lbs/in", note_it: "Una molla più dura ne richiede un po’ di più: 1-2 scatti passando da 400 a 450 lbs/in", note_es: "Un muelle más duro pide un poco más: 1-2 clics al pasar de 400 a 450 lbs/in", note_pt: "Uma mola mais dura pede um pouco mais: 1-2 cliques ao passar de 400 para 450 lbs/in" }
       - { target: compression, value: 9 }
-      - { target: sag, value: 30, note: "Set with preload between 2 and 5 mm; beyond that, change the spring" }
+      - { target: sag, value: 30, note: "Set with preload between 2 and 5 mm; beyond that, change the spring", note_de: Mit Vorspannung zwischen 2 und 5 mm einstellen; darüber hinaus die Feder wechseln, note_fr: "À régler avec une précontrainte entre 2 et 5 mm ; au-delà, changez de ressort", note_it: "Da impostare con un precarico tra 2 e 5 mm; oltre, cambia la molla", note_es: "Se ajusta con una precarga de entre 2 y 5 mm; si te pasas, cambia el muelle", note_pt: "Defina com uma pré-carga entre 2 e 5 mm; acima disso, troque a mola" }
 
 # --------------------------------------------------------------------------
 # Shocks
@@ -125,10 +200,15 @@ nodes:
   - label: "Nebbia"
     level: model
     category: Trail / Enduro / All-Mountain
-    specs: { spring: Air }
+    category_de: Trail / Enduro / All-Mountain
+    category_fr: Trail / Enduro / All-Mountain
+    category_it: Trail / Enduro / All-Mountain
+    category_es: Trail / Enduro / All-Mountain
+    category_pt: Trail / Enduro / All-Mountain
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks:
-      shock:air_can_service: { interval: { moving_time_h: 60 }, fallback: { days: 180 }, source: Formula owner's manual }
-      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Formula owner's manual }
+      shock:air_can_service: { interval: { moving_time_h: 60 }, fallback: { days: 180 }, source: Formula owner's manual, source_de: Formula-Handbuch, source_fr: Manuel d’utilisation Formula, source_it: Manuale d’uso Formula, source_es: Manual del usuario Formula, source_pt: Manual do usuário Formula }
+      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Formula owner's manual, source_de: Formula-Handbuch, source_fr: Manuel d’utilisation Formula, source_it: Manuale d’uso Formula, source_es: Manual del usuario Formula, source_pt: Manual do usuário Formula }
     children:
       - label: "2024–2026"
         level: generation
@@ -141,7 +221,7 @@ nodes:
           - label: Air
             level: trim
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
             options:
               damper: [nebbia_2024]
               size: [{ size: "190x37.5/40/42.5/45", mount: Standard }, { size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "250x67.5/70/72.5/75", mount: Standard }, { size: "165x37.5/40/42.5/45", mount: Trunnion }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65/67.5", mount: Trunnion }, { size: "225x70/72.5/75", mount: Trunnion }]
@@ -149,13 +229,38 @@ nodes:
               - Coil and air hybrid negative spring with a bladder oil reservoir
               - Volume spacers tune the mid- and end-stroke
               - Clip-in spacers cut the stroke by 2.5, 5 or 7.5mm without tools
+            note_de: |-
+              - Negativfeder als Mischung aus Stahlfeder und Luft mit Bladder-Ölbehälter
+              - Volumenspacer stimmen den mittleren Federweg und das Federwegsende ab
+              - Einklick-Spacer verkürzen den Hub werkzeuglos um 2,5, 5 oder 7,5mm
+            note_fr: |-
+              - Ressort négatif hybride hélicoïdal et pneumatique avec un réservoir d’huile à bladder
+              - Les tokens de volume règlent le milieu et la fin de course
+              - Des entretoises à clipser réduisent la course de 2,5, 5 ou 7,5 mm sans outil
+            note_it: |-
+              - Molla negativa ibrida elicoidale e pneumatica con serbatoio dell’olio a bladder
+              - I token di volume regolano la parte centrale e il finale della corsa
+              - Distanziali a clip riducono la corsa di 2,5, 5 o 7,5 mm senza attrezzi
+            note_es: |-
+              - Muelle negativo híbrido helicoidal y neumático con depósito de aceite de bladder
+              - Los tokens de volumen ajustan la parte media y el final del recorrido
+              - Espaciadores de clip reducen la carrera en 2,5, 5 o 7,5 mm sin herramientas
+            note_pt: |-
+              - Mola negativa híbrida helicoidal e a ar com reservatório de óleo de bladder
+              - Os tokens de volume ajustam o meio e o fim do curso
+              - Espaçadores de encaixe reduzem o curso em 2,5, 5 ou 7,5 mm sem ferramentas
 
   - label: "MOD"
     level: model
     category: Enduro / All-Mountain
-    specs: { spring: Coil }
+    category_de: Enduro / All-Mountain
+    category_fr: Enduro / All-Mountain
+    category_it: Enduro / All-Mountain
+    category_es: Enduro / All-Mountain
+    category_pt: Enduro / All-Mountain
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: &formula_mod_service
-      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Formula owner's manual }
+      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Formula owner's manual, source_de: Formula-Handbuch, source_fr: Manuel d’utilisation Formula, source_it: Manuale d’uso Formula, source_es: Manual del usuario Formula, source_pt: Manual do usuário Formula }
     children:
       - label: "2020–2026"
         level: generation
@@ -168,8 +273,8 @@ nodes:
           - label: Coil
             level: trim
             adjustments:
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-              - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn", notes_de: "Ringmutter, 1,25mm pro Umdrehung", notes_fr: "Écrou à bague, 1,25 mm par tour", notes_it: "Ghiera, 1,25 mm per giro", notes_es: "Tuerca de anillo, 1,25 mm por vuelta", notes_pt: "Porca de anel, 1,25 mm por volta" }
             options:
               damper: [mod_2020]
               size: [{ size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65", mount: Trunnion }]
@@ -177,21 +282,46 @@ nodes:
               - Steel coil springs from 300 to 700 lbs/in
               - Yoke-mount compatible version available
               - Major service interval of 200 hours
+            note_de: |-
+              - Stahlfedern von 300 bis 700 lbs/in
+              - Version mit Yoke-Mount-Kompatibilität erhältlich
+              - Großer Serviceintervall von 200 Stunden
+            note_fr: |-
+              - Ressorts hélicoïdaux en acier de 300 à 700 lbs/in
+              - Version compatible avec la fixation à chape disponible
+              - Intervalle de révision majeure de 200 heures
+            note_it: |-
+              - Molle elicoidali in acciaio da 300 a 700 lbs/in
+              - Disponibile una versione compatibile con l’attacco a forcella
+              - Intervallo di revisione completa di 200 ore
+            note_es: |-
+              - Muelles helicoidales de acero de 300 a 700 lbs/in
+              - Hay disponible una versión compatible con anclaje de horquilla
+              - Intervalo de revisión mayor de 200 horas
+            note_pt: |-
+              - Molas helicoidais de aço de 300 a 700 lbs/in
+              - Versão compatível com fixação de garfo disponível
+              - Intervalo de revisão geral de 200 horas
 
   - label: "MOD DH"
     level: model
     category: Downhill
+    category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     url: https://www.rideformula.com/products/mtb-shocks/mod-dh/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Manuale-utente.pdf
     guide: formula_mod_2020
-    specs: { spring: Coil }
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *formula_mod_service
     children:
       - label: Coil
         level: trim
         adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
+          - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn", notes_de: "Ringmutter, 1,25mm pro Umdrehung", notes_fr: "Écrou à bague, 1,25 mm par tour", notes_it: "Ghiera, 1,25 mm per giro", notes_es: "Tuerca de anillo, 1,25 mm por vuelta", notes_pt: "Porca de anel, 1,25 mm por volta" }
         options:
           damper: [mod_dh]
           size: [{ size: "250x67.5/70/72.5/75", mount: Standard }, { size: "225x67.5/70/72.5/75", mount: Trunnion }]
@@ -199,6 +329,26 @@ nodes:
           - Steel coil springs from 250 to 550 lbs/in
           - Same internals as the MOD, without the climb switch
           - Major service interval of 200 hours
+        note_de: |-
+          - Stahlfedern von 250 bis 550 lbs/in
+          - Gleiches Innenleben wie der MOD, ohne den Climb-Schalter
+          - Großer Serviceintervall von 200 Stunden
+        note_fr: |-
+          - Ressorts hélicoïdaux en acier de 250 à 550 lbs/in
+          - Mêmes composants internes que le MOD, sans le climb switch
+          - Intervalle de révision majeure de 200 heures
+        note_it: |-
+          - Molle elicoidali in acciaio da 250 a 550 lbs/in
+          - Stessi componenti interni del MOD, senza il climb switch
+          - Intervallo di revisione completa di 200 ore
+        note_es: |-
+          - Muelles helicoidales de acero de 250 a 550 lbs/in
+          - Mismos componentes internos que el MOD, sin el climb switch
+          - Intervalo de revisión mayor de 200 horas
+        note_pt: |-
+          - Molas helicoidais de aço de 250 a 550 lbs/in
+          - Mesmos componentes internos do MOD, sem o climb switch
+          - Intervalo de revisão geral de 200 horas
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

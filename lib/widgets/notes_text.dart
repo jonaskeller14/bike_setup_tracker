@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:readmore/readmore.dart';
 
+import '../l10n/l10n.dart';
 import '../utils/url.dart';
 
 final RegExp _urlPattern = RegExp(r'https?://[^\s<>"]+', caseSensitive: false);
@@ -38,8 +39,8 @@ class NotesText extends StatelessWidget {
       notes,
       trimMode: TrimMode.Line,
       trimLines: maxLines,
-      trimCollapsedText: 'Show more',
-      trimExpandedText: ' Show less',
+      trimCollapsedText: context.l10n.notesShowMore,
+      trimExpandedText: ' ${context.l10n.taskListShowLess}',
       moreStyle: toggleStyle,
       lessStyle: toggleStyle,
       style: TextStyle(fontSize: fontSize, color: color),

@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
@@ -44,8 +45,8 @@ void main() {
         const ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelFront).hashCode,
       );
       expect(front, isNot(rear));
-      expect(front.label, 'Tire (Front Wheel)');
-      expect(fork.label, 'Fork');
+      expect(front.label(englishL10n), 'Tire (Front Wheel)');
+      expect(fork.label(englishL10n), 'Fork');
     });
   });
 

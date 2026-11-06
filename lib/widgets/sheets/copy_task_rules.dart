@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/task_threshold_text.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_template.dart';
 import '../../repositories/app_repository.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/task_preset_resolver.dart';
 import '../app_snackbar.dart';
 import '../items/task_rule_sheet_tile.dart';
@@ -151,30 +155,38 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
   }
 
   String get _title => switch (_mode) {
-    _Mode.copy => 'Copy tasks?',
-    _Mode.recommend => "Recommended tasks for '${widget.componentName}'",
-    _Mode.merged => "Tasks for '${widget.componentName}'",
+    _Mode.copy => context.l10n.taskSheetCopyTitle,
+    _Mode.recommend => context.l10n.taskSheetRecommendTitle(widget.componentName),
+    _Mode.merged => context.l10n.taskSheetMergedTitle(widget.componentName),
   };
 
-  String get _description => switch (_mode) {
-    _Mode.copy =>
-      "Pick the tasks to copy to '${widget.componentName}'. Copies start fresh — the completion history stays with the original component.",
-    _Mode.recommend => 'Pick the tasks to add. Each one becomes a normal task you can edit later.',
-    _Mode.merged =>
-      "Copies start fresh — the completion history stays with '${widget.copyFrom}'. Recommended tasks become normal tasks you can edit later.",
-  };
+  String _description({required bool optional}) {
+    final l10n = context.l10n;
+    final copyFrom = widget.copyFrom ?? '';
+    return switch (_mode) {
+      _Mode.copy => optional
+          ? l10n.taskSheetCopyDescriptionOptional(widget.componentName)
+          : l10n.taskSheetCopyDescription(widget.componentName),
+      _Mode.recommend =>
+        optional ? l10n.taskSheetRecommendDescriptionOptional : l10n.taskSheetRecommendDescription,
+      _Mode.merged => optional
+          ? l10n.taskSheetMergedDescriptionOptional(copyFrom)
+          : l10n.taskSheetMergedDescription(copyFrom),
+    };
+  }
 
   String _successTitle(TaskRulesTrigger trigger) => switch (trigger) {
-    TaskRulesTrigger.added || TaskRulesTrigger.duplicated => "'${widget.componentName}' added",
-    TaskRulesTrigger.replaced => "'${widget.copyFrom ?? widget.componentName}' replaced",
+    TaskRulesTrigger.added || TaskRulesTrigger.duplicated => context.l10n.taskSheetAdded(widget.componentName),
+    TaskRulesTrigger.replaced => context.l10n.taskSheetReplaced(widget.copyFrom ?? widget.componentName),
   };
 
   String get _prompt {
-    final type = widget.componentType?.label.toLowerCase() ?? 'component';
+    final l10n = context.l10n;
+    final type = widget.componentType?.labelInSentence(l10n) ?? l10n.taskComponentTypeFallback;
     return switch (_mode) {
-      _Mode.copy => "Copy tasks from '${widget.copyFrom}'?",
-      _Mode.recommend => 'Add tasks for this $type?',
-      _Mode.merged => 'Set up tasks for this $type?',
+      _Mode.copy => l10n.taskSheetPromptCopy(widget.copyFrom ?? ''),
+      _Mode.recommend => l10n.taskSheetPromptRecommend(type),
+      _Mode.merged => l10n.taskSheetPromptMerged(type),
     };
   }
 
@@ -185,8 +197,8 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
     // Built before the sheet can pop, while its context is still active.
     final snackBar = AppSnackBar.info(
       context,
-      'Task recommendations turned off. Turn them back on in Settings › Features › Task Presets.',
-      action: AppSnackBarAction(label: 'UNDO', onPressed: () => appSettings.enableTaskPresets = true),
+      context.l10n.taskSheetRecommendationsOff,
+      action: AppSnackBarAction(label: context.l10n.undo, onPressed: () => appSettings.enableTaskPresets = true),
     );
     appSettings.enableTaskPresets = false;
     messenger.showSnackBar(snackBar);
@@ -218,7 +230,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(
-          title: _mode == _Mode.merged ? "Copy from '${widget.copyFrom}'" : 'Tasks',
+          title: _mode == _Mode.merged ? context.l10n.taskSheetCopyFrom(widget.copyFrom ?? '') : context.l10n.taskSheetTasks,
           selected: _selectedCopies.length,
           total: allRules.length,
           onChanged: (selectAll) => setState(() {
@@ -235,23 +247,25 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
 
   Widget _suggestionSection(BuildContext context, List<TaskSuggestion> visible) {
     final appSettings = context.watch<AppSettings>();
-    final typeLabel = widget.componentType!.label;
+    final typeLabel = widget.componentType!.labelInSentence(context.l10n);
     final selectedVisible = visible.where(_selectedSuggestions.contains).length;
 
     String origin(TaskSuggestion suggestion) {
       final strava = suggestion.stravaInterval;
       final parts = [
         if (strava != null)
-          'Time-based · ${taskIntervalLabel(strava, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit)} with Strava',
+          context.l10n.taskSuggestionTimeBased(
+            taskIntervalLabel(strava, context.l10n, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit),
+          ),
         ?suggestion.source,
       ];
-      return parts.isEmpty ? 'Typical interval for ${typeLabel.toLowerCase()}' : parts.join(' · ');
+      return parts.isEmpty ? context.l10n.taskSuggestionTypical(typeLabel) : parts.join(' · ');
     }
 
     final presetName = widget.presetName;
     final recommendedFor = presetName != null && visible.any((suggestion) => suggestion.source != null)
         ? presetName
-        : typeLabel;
+        : widget.componentType!.label(context.l10n);
 
     final colors = Theme.of(context).colorScheme;
     // Tinted like the catalog card on the component form, so recommendations
@@ -265,7 +279,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _SectionHeader(
-              title: 'Recommended for $recommendedFor',
+              title: context.l10n.taskSheetRecommendedFor(recommendedFor),
               icon: Icons.auto_awesome,
               color: colors.onPrimaryContainer,
               maxLines: 2,
@@ -305,7 +319,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
                 style: TextButton.styleFrom(foregroundColor: colors.onPrimaryContainer),
                 onPressed: _turnOffRecommendations,
                 icon: const Icon(Icons.visibility_off_outlined, size: 18),
-                label: const Text('Turn off recommendations'),
+                label: Text(context.l10n.taskSheetTurnOff),
               ),
             ),
           ],
@@ -322,7 +336,6 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
       suggested: visibleSuggestions.where(_selectedSuggestions.contains).toList(),
     );
     final count = result.copied.length + result.suggested.length;
-    final taskLabel = "$count task${count == 1 ? '' : 's'}";
     final isCopyMode = _mode == _Mode.copy;
     final trigger = widget.trigger;
 
@@ -347,7 +360,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
                     const SizedBox(height: 4),
                   ],
                   Text(
-                    trigger == null ? _description : 'Optional — ${_description[0].toLowerCase()}${_description.substring(1)}',
+                    _description(optional: trigger != null),
                     style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 16),
@@ -369,14 +382,18 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 4,
               children: [
-                FilledButton.icon(
-                  icon: Icon(isCopyMode ? Icons.copy : Icons.add),
-                  onPressed: count == 0 ? null : () => Navigator.pop(context, result),
-                  label: Text(isCopyMode ? 'Copy $taskLabel' : 'Add $taskLabel'),
+                Semantics(
+                  container: true,
+                  identifier: AutomationIds.taskRulesSheetAdd,
+                  child: FilledButton.icon(
+                    icon: Icon(isCopyMode ? Icons.copy : Icons.add),
+                    onPressed: count == 0 ? null : () => Navigator.pop(context, result),
+                    label: Text(isCopyMode ? context.l10n.taskSheetCopyButton(count) : context.l10n.taskSheetAddButton(count)),
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(isCopyMode ? 'Continue without copying tasks' : 'Not now'),
+                  child: Text(isCopyMode ? context.l10n.taskSheetContinueWithoutCopy : context.l10n.taskSheetNotNow),
                 ),
               ],
             ),

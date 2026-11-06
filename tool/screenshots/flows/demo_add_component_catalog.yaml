@@ -1,0 +1,107 @@
+# scenario: one_bike_no_components
+# Demo: give the Hightower its fork from the catalog. The search finds the
+# Lyrik, the 2025–2026 Ultimate gets 160 mm, and every adjuster is filled in
+# with its range. The flow folds the catalog notes away again: they link the
+# manufacturer's setup guide, which content doesn't show. Tasks is on in the
+# seed, so saving offers the manufacturer's service tasks; the flow adds them
+# and opens the task list. Cut into two Shorts (04_v1.6.4 kit: catalog, tasks).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+# Without components the app opens on the garage, but only as the default
+# tab, which turns to the setups once a component exists. Picking the tab
+# keeps the garage on screen after saving.
+- tapOn:
+    id: nav.setups
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_add_component_catalog
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+
+# Santa Cruz Hightower
+- tapOn:
+    id: garage.addComponent.93f93d45-3a56-43ae-8936-5cfcbd768c9b
+- tapOn:
+    id: componentForm.type
+- tapOn:
+    id: componentType.fork
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+
+- tapOn:
+    id: componentForm.catalog
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: catalogPicker.search
+# Typing while the keyboard slides in can double the first letter.
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Lyrik
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# The first Charger 3.1 row is the 2025–2026 Ultimate.
+- tapOn:
+    text: ".*Charger 3.1.*"
+    index: 0
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn: "160 mm"
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+- tapOn:
+    id: catalogPicker.apply
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: componentForm.additionalFields
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+# Slow enough that Flutter doesn't fling: the form stops with Rebound, the
+# last adjuster, above Add Adjustment.
+- swipe:
+    start: 50%,80%
+    end: 50%,30%
+    duration: 2000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3500
+
+- tapOn:
+    id: componentForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+- tapOn:
+    id: taskRulesSheet.add
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: nav.tasks
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 3500

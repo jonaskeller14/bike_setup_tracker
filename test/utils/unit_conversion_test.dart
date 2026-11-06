@@ -1,6 +1,9 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/utils/unit_conversion.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/german_l10n.dart';
 
 const _epsilon = 1e-6;
 
@@ -114,8 +117,14 @@ void main() {
 
   group('formatConverted', () {
     test('rounds to 5 decimals, strips trailing zeros', () {
-      expect(formatConverted(4.480519), '4.48052');
-      expect(formatConverted(1.0), '1');
+      expect(formatConverted(4.480519, locale: englishL10n.localeName), '4.48052');
+      expect(formatConverted(1.0, locale: englishL10n.localeName), '1');
+    });
+
+    test('uses a decimal comma in German', () {
+      expect(formatConverted(4.480519, locale: germanL10n.localeName), '4,48052');
+      expect(formatConverted(1.0, locale: germanL10n.localeName), '1');
+      expect(formatConverted(-2.5, locale: germanL10n.localeName), '-2,5');
     });
   });
 

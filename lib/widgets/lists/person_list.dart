@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/person_actions.dart';
@@ -25,9 +26,9 @@ class PersonList extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: EmptyStatePlaceholder(
               icon: Person.iconData,
-              title: 'No rider yet',
-              subtitle: 'Add a rider to link to your bikes and setups.',
-              actionLabel: 'Add a rider',
+              title: context.l10n.riderListEmptyTitle,
+              subtitle: context.l10n.riderListEmptySubtitle,
+              actionLabel: context.l10n.riderListEmptyAction,
               onAction: () => PersonActions.addPerson(context),
             ),
           ),

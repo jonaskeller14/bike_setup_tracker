@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 
 void showSetDurationSheet({
@@ -40,7 +42,7 @@ void showSetDurationSheet({
                               color: isBelowMin ? Theme.of(context).colorScheme.error : null,
                             ),
                             title: Text(
-                              "Min: ${DurationValue(adjustment.min!).display}",
+                              context.l10n.setDurationMin(DurationValue(adjustment.min!).displayText(context.l10n)),
                               style: TextStyle(color: isBelowMin ? Theme.of(context).colorScheme.error : null),
                             ),
                             dense: true,
@@ -54,7 +56,7 @@ void showSetDurationSheet({
                               color: isAboveMax ? Theme.of(context).colorScheme.error : null,
                             ),
                             title: Text(
-                              "Max: ${DurationValue(adjustment.max!).display}",
+                              context.l10n.setDurationMax(DurationValue(adjustment.max!).displayText(context.l10n)),
                               style: TextStyle(color: isAboveMax ? Theme.of(context).colorScheme.error : null),
                             ),
                             dense: true,
@@ -68,7 +70,7 @@ void showSetDurationSheet({
                       ? ListTile(
                           leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
                           title: SelectableText(
-                            isBelowMin ? "Selected duration is below the minimum" : "Selected duration exceeds the maximum",
+                            isBelowMin ? context.l10n.setDurationBelowMin : context.l10n.setDurationAboveMax,
                             style: TextStyle(color: Theme.of(context).colorScheme.error),
                           ),
                           dense: true,
@@ -481,12 +483,14 @@ class _MaterialDurationPickerState extends State<_MaterialDurationPicker> {
           ),
         ),
         const SizedBox(width: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.primary,
+        Flexible(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.primary,
+            ),
           ),
         ),
       ],

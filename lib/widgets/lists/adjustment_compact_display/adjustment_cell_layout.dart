@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../l10n/l10n.dart';
 import 'adjustment_cell.dart';
 
 /// Horizontal padding applied on either side of a cell's content; kept here
@@ -107,7 +108,7 @@ double _measureValueAndUnitWidth(BuildContext context, AdjustmentCell cell) {
   var width = _measureTextWidth(
     context: context,
     role: 'value',
-    text: cell.displayText.value,
+    text: cell.displayText(context.l10n).value,
     style: _resolveTextStyle(context, CellTextStyles.value),
   );
   final unit = cell.adjustment.unit;
@@ -125,7 +126,7 @@ double _measureValueAndUnitWidth(BuildContext context, AdjustmentCell cell) {
 
 /// The width a cell needs to show its label and value line without scrolling.
 double measureCellNaturalWidth(BuildContext context, AdjustmentCell cell) {
-  final display = cell.displayText;
+  final display = cell.displayText(context.l10n);
 
   final labelWidth = _measureTextWidth(
     context: context,
@@ -154,7 +155,7 @@ double measureCellNaturalWidth(BuildContext context, AdjustmentCell cell) {
 /// [cellMinPreviousWidth] of a longer one; the value wins, so otherwise the
 /// cell drops the previous value.
 bool cellFitsPrevious(BuildContext context, AdjustmentCell cell, double width) {
-  final previous = cell.displayText.previous;
+  final previous = cell.displayText(context.l10n).previous;
   if (previous == null) return false;
   final fixedWidth = _measureValueAndUnitWidth(context, cell) +
       2 * cellValueRowSpacing +

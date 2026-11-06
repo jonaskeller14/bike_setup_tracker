@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
@@ -106,7 +108,7 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
                   ) 
                 : null,
             icon: const Icon(Icons.arrow_back),
-            label: const Text("Prev"),
+            label: Text(context.l10n.setupDetailsPrev),
             style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
           ),
 
@@ -135,7 +137,7 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
                   ) 
                 : null,
             icon: const Icon(Icons.arrow_forward),
-            label: const Text("Next"),
+            label: Text(context.l10n.setupDetailsNext),
             iconAlignment: IconAlignment.end,
             style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
           ),
@@ -210,7 +212,7 @@ class SetupDetailsPageContent extends StatelessWidget {
       case _SetupDetailsAction.viewOnMap:
         await MapActions.openSetupsOnMap(context, [setup]);
       case _SetupDetailsAction.openInMapsApp:
-        await launchLocationOnMap(context, setup.position!.latitude!, setup.position!.longitude!, setup.displayName);
+        await launchLocationOnMap(context, setup.position!.latitude!, setup.position!.longitude!, setup.label(context.l10n));
     }
   }
 
@@ -228,7 +230,7 @@ class SetupDetailsPageContent extends StatelessWidget {
       container: true,
       identifier: AutomationIds.setupDetailsActions,
       child: PopupMenuButton<_SetupDetailsAction>(
-        tooltip: 'Setup actions',
+        tooltip: context.l10n.setupDetailsActionsTooltip,
         onSelected: (action) => _onAction(context, action, setup: setup),
         itemBuilder: (context) => [
           for (final action in actions)
@@ -244,10 +246,10 @@ class SetupDetailsPageContent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(action.label),
+                        Text(action.label(context.l10n)),
                         if (!hasPosition && action.needsPosition)
                           Text(
-                            'Location not available',
+                            context.l10n.setupDetailsLocationUnavailable,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
@@ -304,7 +306,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                   children: [
                     Flexible(
                       child: SelectableText(
-                        setup.displayName,
+                        setup.label(context.l10n),
                         style: Theme.of(context).textTheme.titleLarge,
                         maxLines: 1,
                       ),
@@ -316,7 +318,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  "${DateFormat(appSettings.dateFormat).format(setup.datetimeLocal)} • ${DateFormat(appSettings.timeFormat).format(setup.datetimeLocal)}",
+                  "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(setup.datetimeLocal)}",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
@@ -367,7 +369,7 @@ class SetupDetailsPageContent extends StatelessWidget {
             ContextLocationWeatherCard(
               position: setup.position,
               place: setup.place,
-              displayName: setup.displayName,
+              displayName: setup.label(context.l10n),
               mapPin: SetupMapPin.icon(
                 isCurrent: context.watch<AppRepository>().setupHistory.isCurrent(setup.id),
                 isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
@@ -405,8 +407,8 @@ class SetupDetailsPageContent extends StatelessWidget {
         child: feedbacks.isEmpty
             ? EmptyStatePlaceholder2(
                 iconData: RideFeedback.iconData,
-                title: "No feedback yet",
-                subtitle: "Tap to note how this setup rode",
+                title: context.l10n.setupDetailsNoFeedbackTitle,
+                subtitle: context.l10n.setupDetailsNoFeedbackSubtitle,
                 onTap: () => FeedbackActions.addFeedbackForSetup(context, setup: setup),
               )
             : Column(
@@ -430,7 +432,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: () => FeedbackActions.addFeedbackForSetup(context, setup: setup),
                     icon: const Icon(Icons.add),
-                    label: const Text("Add Feedback"),
+                    label: Text(context.l10n.setupOptionAddFeedback),
                   ),
                 ],
               ),
@@ -482,7 +484,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                 ),
               ),
               title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-              subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
+              subtitle: Text(context.l10n.setupComponentNotInstalled, style: TextStyle(color: scheme.error)),
             ),
           ),
           AdjustmentDisplayList(
@@ -519,7 +521,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                 ),
               ),
               title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-              subtitle: Text("Rider is not linked to this setup", style: TextStyle(color: scheme.error)),
+              subtitle: Text(context.l10n.setupRiderNotLinked, style: TextStyle(color: scheme.error)),
             ),
           ),
           AdjustmentDisplayList(
@@ -584,10 +586,10 @@ class SetupDetailsPageContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (bikeComponents.isEmpty)
-              const EmptyStatePlaceholder2(
+              EmptyStatePlaceholder2(
                 iconData: Component.iconData,
-                title: "No components yet",
-                subtitle: "Add a component to this bike to start tracking adjustments",
+                title: context.l10n.noComponentsTitle,
+                subtitle: context.l10n.setupTabAddComponentSubtitle,
               )
             else
               ...bikeComponents.map((bikeComponent) {
@@ -614,12 +616,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                                   spacing: 2,
                                   textStyle: TextStyle(color: mutedColor, fontSize: 12),
                                 ),
-                              Text(Intl.plural(
-                                bikeComponent.adjustments.length,
-                                zero: "No adjustments yet.",
-                                one: "1 adjustment",
-                                other: '${bikeComponent.adjustments.length} adjustments',
-                              )),
+                              Text(context.l10n.setupAdjustmentCount(bikeComponent.adjustments.length)),
                             ],
                           ),
                           leading: ComponentTooltip(
@@ -647,8 +644,8 @@ class SetupDetailsPageContent extends StatelessWidget {
               _danglingValuesCard(
                 context,
                 values: danglingDeletedBikeAdjustmentValues,
-                title: "Dangling Adjustment Values",
-                cause: "Component with adjustment was deleted",
+                title: context.l10n.setupDanglingAdjustmentsTitle,
+                cause: context.l10n.setupDanglingAdjustmentsCause,
               ),            
 
             if (appSettings.enablePerson) ...[
@@ -664,12 +661,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                         color: Theme.of(context).colorScheme.outlineVariant,
                         child: ListTile(
                           title: SelectableText(person.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(Intl.plural(
-                            person.adjustments.length,
-                            zero: "No attributes yet.",
-                            one: "1 attribute",
-                            other: '${person.adjustments.length} attributes',
-                          )),
+                          subtitle: Text(context.l10n.setupAttributeCount(person.adjustments.length)),
                           leading: PersonTooltip(
                             person: person,
                             triggerMode: TooltipTriggerMode.tap,
@@ -695,8 +687,8 @@ class SetupDetailsPageContent extends StatelessWidget {
                 _danglingValuesCard(
                   context,
                   values: danglingDeletedPersonAdjustmentValues,
-                  title: "Dangling Attribute Values",
-                  cause: "Attribute was deleted",
+                  title: context.l10n.setupDanglingAttributesTitle,
+                  cause: context.l10n.setupDanglingAttributesCause,
                 ),
             ],
           ],
@@ -712,9 +704,9 @@ class SetupDetailsPageContent extends StatelessWidget {
 
     final Setup? setup = appRepository.setups[setupId];
     if (setup == null) {
-      return const EmptyStatePlaceholder.error(
-        title: "Setup not found",
-        subtitle: "This setup was deleted or is no longer available.",
+      return EmptyStatePlaceholder.error(
+        title: context.l10n.setupDetailsNotFoundTitle,
+        subtitle: context.l10n.setupDetailsNotFoundSubtitle,
       );
     }
 
@@ -747,14 +739,14 @@ class SetupDetailsPageContent extends StatelessWidget {
               slivers: [
                 SliverMainAxisGroup(
                   slivers: [
-                    _sectionTitle(context, setup: setup, title: "Context"),
+                    _sectionTitle(context, setup: setup, title: context.l10n.setupSectionContext),
                     _contextSection(context, setup: setup, bike: bike, person: person),
                   ],
                 ),
                 SliverMainAxisGroup(
                   slivers: [
                     const SliverToBoxAdapter(child: Divider(height: 8)),
-                    _sectionTitle(context, setup: setup, title: "Values"),
+                    _sectionTitle(context, setup: setup, title: context.l10n.setupSectionValues),
                     _valueSection(
                       context,
                       setup: setup,
@@ -772,7 +764,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                   SliverMainAxisGroup(
                     slivers: [
                       const SliverToBoxAdapter(child: Divider(height: 8)),
-                      _sectionTitle(context, setup: setup, title: "Feedback"),
+                      _sectionTitle(context, setup: setup, title: context.l10n.setupSectionFeedback),
                       _feedbackSection(context, setup: setup),
                     ],
                   ),
@@ -797,7 +789,7 @@ class _SetupBookmarkAction extends StatelessWidget {
 
     return IconButton.filled(
       iconSize: 20,
-      tooltip: setup.isBookmarked ? 'Remove Bookmark' : 'Bookmark',
+      tooltip: setup.isBookmarked ? context.l10n.setupTooltipRemoveBookmark : context.l10n.setupTooltipBookmark,
       style: IconButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         foregroundColor: setup.isBookmarked
@@ -812,17 +804,26 @@ class _SetupBookmarkAction extends StatelessWidget {
 }
 
 enum _SetupDetailsAction {
-  edit('Edit', Icons.edit),
-  share('Share', Icons.share),
-  compare('Compare', Icons.compare),
-  addFeedback('Add Feedback', RideFeedback.iconData),
-  restore('Restore', Icons.restore),
-  viewOnMap('View on map', Icons.map, needsPosition: true),
-  openInMapsApp('Open in maps app', Icons.directions, needsPosition: true);
+  edit(Icons.edit),
+  share(Icons.share),
+  compare(Icons.compare),
+  addFeedback(RideFeedback.iconData),
+  restore(Icons.restore),
+  viewOnMap(Icons.map, needsPosition: true),
+  openInMapsApp(Icons.directions, needsPosition: true);
 
-  final String label;
   final IconData icon;
   final bool needsPosition;
 
-  const _SetupDetailsAction(this.label, this.icon, {this.needsPosition = false});
+  const _SetupDetailsAction(this.icon, {this.needsPosition = false});
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    share => l10n.share,
+    compare => l10n.setupOptionCompare,
+    addFeedback => l10n.setupOptionAddFeedback,
+    restore => l10n.setupOptionRestore,
+    viewOnMap => l10n.setupOptionViewOnMap,
+    openInMapsApp => l10n.setupOptionOpenInMaps,
+  };
 }

@@ -2,17 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:units_converter/units_converter.dart';
 
 enum UnitQuantity {
-  pressure('Pressure'),
-  length('Length'),
-  mass('Mass'),
-  temperature('Temperature'),
-  speed('Speed'),
-  angle('Angle'),
-  torque('Torque'),
-  volume('Volume'),
-  springRate('Spring Rate');
-  final String label;
-  const UnitQuantity(this.label);
+  pressure,
+  length,
+  mass,
+  temperature,
+  speed,
+  angle,
+  torque,
+  volume,
+  springRate;
 }
 
 class UnitCatalogEntry {

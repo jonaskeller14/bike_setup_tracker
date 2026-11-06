@@ -1,5 +1,9 @@
 import 'package:collection/collection.dart';
 
+import '../l10n/adjustment_value_text.dart';
+import '../l10n/entity_names.dart';
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/feedback/test_session.dart';
@@ -22,7 +26,8 @@ Adjustment? adjustmentForColumn(
 };
 
 Comparator<Setup>? tableColumnComparator(
-  TableColumn column, {
+  TableColumn column,
+  AppLocalizations l10n, {
   required AdjustmentValue? Function(Setup setup, TableColumn column) valueFor,
   required Iterable<Adjustment> componentAdjustments,
   required Iterable<Adjustment> personAdjustments,
@@ -35,6 +40,7 @@ Comparator<Setup>? tableColumnComparator(
     case SetupTableColumn(column: final setupColumn):
       return setupColumnComparator(
         setupColumn,
+        l10n,
         bikes: bikes,
         setupActivityCounts: setupActivityCounts,
         testSessions: testSessions,
@@ -56,19 +62,20 @@ Comparator<Setup>? tableColumnComparator(
       return switch (adjustment) {
         BooleanAdjustment() || StepAdjustment() || DurationAdjustment() => _by((s) => value(s)?.asNum ?? 0),
         NumericalAdjustment() => _by((s) => value(s)?.asNum ?? double.negativeInfinity),
-        CategoricalAdjustment() || TextAdjustment() => _by((s) => value(s)?.display ?? ''),
+        CategoricalAdjustment() || TextAdjustment() => _by((s) => value(s)?.displayText(l10n) ?? ''),
       };
   }
 }
 
 Comparator<Setup> setupColumnComparator(
-  SetupColumn column, {
+  SetupColumn column,
+  AppLocalizations l10n, {
   required Map<String, Bike> bikes,
   required Map<String, int> setupActivityCounts,
   Map<String, TestSession> testSessions = const {},
 }) {
   return switch (column) {
-    SetupColumn.name => _by((s) => s.displayName),
+    SetupColumn.name => _by((s) => s.label(l10n)),
     SetupColumn.notes => _by((s) => s.notes ?? ''),
     SetupColumn.tags => _by((s) => s.tags.join('; ')),
     SetupColumn.date => _by((s) => s.datetime),
@@ -78,13 +85,13 @@ Comparator<Setup> setupColumnComparator(
     SetupColumn.bike => _by((s) => bikes[s.bike]?.name ?? ''),
     SetupColumn.bookmarked => _by((s) => s.isBookmarked ? 1 : 0),
     SetupColumn.activities => _by((s) => setupActivityCounts[s.id] ?? 0),
-    SetupColumn.weatherCode => _by((s) => s.weather?.getWeatherCodeLabel() ?? ''),
+    SetupColumn.weatherCode => _by((s) => s.weather?.getWeatherCodeLabel(l10n) ?? ''),
     SetupColumn.temperature => _by((s) => s.weather?.currentTemperature ?? double.negativeInfinity),
     SetupColumn.precipitation => _by((s) => s.weather?.dayAccumulatedPrecipitation ?? double.negativeInfinity),
     SetupColumn.humidity => _by((s) => s.weather?.currentHumidity ?? double.negativeInfinity),
     SetupColumn.windSpeed => _by((s) => s.weather?.currentWindSpeed ?? double.negativeInfinity),
     SetupColumn.soilMoisture => _by((s) => s.weather?.currentSoilMoisture0to7cm ?? double.negativeInfinity),
-    SetupColumn.condition => _by((s) => s.weather?.condition?.value ?? ''),
-    SetupColumn.testSession => _by((s) => testSessions[s.testSessionId]?.displayName ?? ''),
+    SetupColumn.condition => _by((s) => s.weather?.condition?.name ?? ''),
+    SetupColumn.testSession => _by((s) => testSessions[s.testSessionId]?.label(l10n) ?? ''),
   };
 }

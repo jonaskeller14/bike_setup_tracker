@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/component_stats.dart';
@@ -66,15 +67,15 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
     final taskRules = appRepository.taskRules;
 
     final String entryContextName = switch (taskEntry.association) {
-      ComponentTaskAssociation(:final id) => appRepository.components[id]?.name ?? "COMPONENT NOT FOUND",
-      BikeTaskAssociation(:final id) => appRepository.bikes[id]?.name ?? "BIKE NOT FOUND",
-      GeneralTaskAssociation() => "General Task",
+      ComponentTaskAssociation(:final id) => appRepository.components[id]?.name ?? context.l10n.componentNotFound,
+      BikeTaskAssociation(:final id) => appRepository.bikes[id]?.name ?? context.l10n.bikeNotFound,
+      GeneralTaskAssociation() => context.l10n.taskGeneral,
     };
 
     final taskRule = taskRules[taskEntry.taskRule];
 
-    final dateText = DateFormat(appSettings.dateFormat).format(taskEntry.dateTimeLocal);
-    final timeText = DateFormat(appSettings.timeFormat).format(taskEntry.dateTimeLocal);
+    final dateText = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(taskEntry.dateTimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(taskEntry.dateTimeLocal);
 
     final showLinkWarning =
         taskRules.containsKey(taskEntry.taskRule) &&
@@ -150,7 +151,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                               ),
                               Flexible(
                                 child: Text(
-                                  taskRule?.name ?? "TASK NOT FOUND",
+                                  taskRule?.name ?? context.l10n.taskNotFound,
                                   style: TextStyle(
                                     color: taskRules.containsKey(taskEntry.taskRule)
                                         ? colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
@@ -174,11 +175,13 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                                 size: 12,
                                 color: colorScheme.onSurfaceVariant,
                               ),
-                              Text(
-                                '${attachments.length}',
-                                style: TextStyle(
-                                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                  fontSize: 12,
+                              Flexible(
+                                child: Text(
+                                  '${attachments.length}',
+                                  style: TextStyle(
+                                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                             ],
@@ -216,7 +219,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                             spacing: 10,
                             children: [
                               Icon(option.iconData, size: 20),
-                              Text(option.label),
+                              Flexible(child: Text(option.label(context.l10n))),
                             ],
                           ),
                         ),
@@ -243,7 +246,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                             ),
                             Flexible(
                               child: Text(
-                                "Linked to $entryContextName",
+                                context.l10n.taskEntryLinkedTo(entryContextName),
                                 style: TextStyle(
                                   color: colorScheme.error,
                                   fontSize: 12,
@@ -338,11 +341,16 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
 }
 
 enum _TaskEntryListCardPopupMenuButtonOptions {
-  edit("Edit", Icons.edit),
-  dupliate("Duplicate", Icons.copy),
-  remove("Remove", Icons.delete);
+  edit(Icons.edit),
+  dupliate(Icons.copy),
+  remove(Icons.delete);
 
-  final String label;
   final IconData iconData;
-  const _TaskEntryListCardPopupMenuButtonOptions(this.label, this.iconData);
+  const _TaskEntryListCardPopupMenuButtonOptions(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    dupliate => l10n.duplicate,
+    remove => l10n.remove,
+  };
 }

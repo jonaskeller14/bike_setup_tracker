@@ -68,25 +68,24 @@ class FeedbackTimelineEntry extends TimelineEntry {
 
 class TestSessionTimelineEntry extends TimelineEntry {
   final TestSession session;
-  final List<Setup> runs; // Oldest first, never empty.
+  final List<Setup> runs; // Oldest first, empty once every run was removed.
 
   /// Run id → the feedbacks that rate it, oldest first.
   final Map<String, List<RideFeedback>> feedbacksByRun;
 
-  TestSessionTimelineEntry(this.session, {required this.runs, this.feedbacksByRun = const {}})
-    : assert(runs.isNotEmpty, 'a session item holds at least one run');
+  TestSessionTimelineEntry(this.session, {required this.runs, this.feedbacksByRun = const {}});
 
   @override
   String get id => 'session:${session.id}';
   @override
-  DateTime get dateUTC => runs.first.datetime;
+  DateTime get dateUTC => runs.firstOrNull?.datetime ?? session.startedAtUTC;
   @override
-  DateTime get dateLocal => runs.first.datetimeLocal;
+  DateTime get dateLocal => runs.firstOrNull?.datetimeLocal ?? session.startedAtLocal;
 
   /// When the session ended, or its latest run or feedback while it runs.
   DateTime get endLocal {
     if (session.endedAtLocal case final ended?) return ended;
-    var latest = runs.last.datetimeLocal;
+    var latest = runs.lastOrNull?.datetimeLocal ?? session.startedAtLocal;
     for (final feedback in feedbacksByRun.values.expand((feedbacks) => feedbacks)) {
       if (feedback.dateTimeLocal.isAfter(latest)) latest = feedback.dateTimeLocal;
     }

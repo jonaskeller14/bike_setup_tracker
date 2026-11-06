@@ -55,24 +55,23 @@ int compareCustomIssues(CustomIssue a, CustomIssue b) {
 class FeedbackIssue {
   /// [EndAspect] or [CustomAspect].
   final FeedbackAspect aspect;
-  final String label;
-  final String? hint;
 
-  const FeedbackIssue._(this.aspect, this.label, this.hint);
+  /// The rider's label of a custom issue; a built-in one is worded when shown.
+  final String? customLabel;
+
+  const FeedbackIssue._(this.aspect, this.customLabel);
 
   /// "Front: Harsh".
-  FeedbackIssue.end(EndAspect aspect)
-    : this._(aspect, '${aspect.end.label}: ${aspect.attribute.problemLabel}', aspect.attribute.hint);
+  const FeedbackIssue.end(EndAspect aspect) : this._(aspect, null);
 
-  FeedbackIssue.custom(CustomIssue issue) : this._(issue.aspect, issue.label, null);
-
-  @override
-  bool operator ==(Object other) =>
-      other is FeedbackIssue && other.aspect == aspect && other.label == label && other.hint == hint;
+  FeedbackIssue.custom(CustomIssue issue) : this._(issue.aspect, issue.label);
 
   @override
-  int get hashCode => Object.hash(aspect, label, hint);
+  bool operator ==(Object other) => other is FeedbackIssue && other.aspect == aspect && other.customLabel == customLabel;
 
   @override
-  String toString() => 'FeedbackIssue($aspect, $label)';
+  int get hashCode => Object.hash(aspect, customLabel);
+
+  @override
+  String toString() => 'FeedbackIssue($aspect, $customLabel)';
 }

@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/app_database.dart';
+import '../l10n/l10n.dart';
 import '../widgets/app_snackbar.dart';
 import 'data_export_service.dart';
 
@@ -60,14 +61,14 @@ class BackupService {
 
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, 'Saved backup at ${file.path}'));
+        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, context.l10n.backupSaved(file.path)));
       }
       // debugPrint('Saved backup at ${file.path}');
       return file;
     } catch (e, st) {
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'Error saving backup: $e'));
+        scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.backupSaveFailed(e.toString())));
       }
       debugPrint('Error saving backup: $e\n$st');
       return null;

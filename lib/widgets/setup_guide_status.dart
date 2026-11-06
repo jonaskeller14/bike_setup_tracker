@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/adjustment_value_text.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/setup_guide.dart';
 import '../theme.dart';
+import '../utils/localized_number.dart';
 
 /// How the rider's value relates to a recommendation.
 enum GuideStatusKind {
@@ -25,30 +28,45 @@ enum GuideStatusKind {
 class GuideStatus {
   final GuideStatusKind kind;
 
+  /// What the badge says instead of the word for [kind]: the distance, like
+  /// "+6 psi" or "-1.2 %".
+  final String? text;
+
+  /// "72–80 psi" for a value that is off, so the rider knows how far to go;
+  /// null where the label says it all.
+  final String? band;
+
+  const GuideStatus(this.kind, {this.text, this.band});
+
   /// "Matches", "In range", "+6 psi", "Not set", "Can't apply".
-  final String label;
+  String label(AppLocalizations l10n) =>
+      text ??
+      switch (kind) {
+        GuideStatusKind.matches => l10n.guideStatusMatches,
+        GuideStatusKind.inRange => l10n.guideStatusInRange,
+        GuideStatusKind.off => l10n.guideStatusDiffers,
+        GuideStatusKind.notSet => l10n.guideStatusNotSet,
+        GuideStatusKind.unavailable => l10n.guideStatusCantApply,
+      };
 
-  /// "In range: 72–80 psi" for a value that is off, so the rider knows how far
-  /// to go; null where [label] says it all.
-  final String? detail;
-
-  const GuideStatus(this.kind, this.label, {this.detail});
+  /// "In range: 72–80 psi".
+  String? detail(AppLocalizations l10n) => band == null ? null : l10n.guideStatusInRangeDetail(band!);
 
   /// Null for a recommendation without any value, whose reason the detail text
   /// already gives.
-  static GuideStatus? of(GuideRecommendation recommendation) {
+  static GuideStatus? of(GuideRecommendation recommendation, AppLocalizations l10n) {
     final adjustment = recommendation.adjustment;
     if (recommendation.value == null) {
-      return recommendation.unappliedValue == null ? null : const GuideStatus(GuideStatusKind.unavailable, "Can't apply");
+      return recommendation.unappliedValue == null ? null : const GuideStatus(GuideStatusKind.unavailable);
     }
     final deviation = recommendation.deviation;
-    if (deviation == null) return const GuideStatus(GuideStatusKind.notSet, "Not set");
-    if (deviation.exact) return const GuideStatus(GuideStatusKind.matches, "Matches");
+    if (deviation == null) return const GuideStatus(GuideStatusKind.notSet);
+    if (deviation.exact) return const GuideStatus(GuideStatusKind.matches);
 
-    final delta = deviation.delta == null ? null : "${guideSignedDelta(deviation.delta!)}${adjustment.unitSuffix()}";
-    final band = guideBandText(recommendation);
-    if (deviation.onGuide) return const GuideStatus(GuideStatusKind.inRange, "In range");
-    return GuideStatus(GuideStatusKind.off, delta ?? "Differs", detail: band == null ? null : "In range: $band");
+    final delta = deviation.delta == null ? null : "${guideSignedDelta(deviation.delta!, l10n)}${adjustment.unitSuffix()}";
+    final band = guideBandText(recommendation, l10n);
+    if (deviation.onGuide) return const GuideStatus(GuideStatusKind.inRange);
+    return GuideStatus(GuideStatusKind.off, text: delta, band: band);
   }
 
   IconData get icon => switch (kind) {
@@ -89,7 +107,7 @@ class GuideStatusBadge extends StatelessWidget {
       spacing: 4,
       children: [
         Icon(status.icon, size: (style?.fontSize ?? 12) + 2, color: color),
-        Flexible(child: Text(status.label, style: style, maxLines: 1, overflow: TextOverflow.ellipsis)),
+        Flexible(child: Text(status.label(context.l10n), style: style, maxLines: 1, overflow: TextOverflow.ellipsis)),
       ],
     );
   }
@@ -111,7 +129,7 @@ class GuideStatusPill extends StatelessWidget {
         child: ScaleTransition(scale: Tween(begin: 0.85, end: 1.0).animate(animation), child: child),
       ),
       child: Container(
-        key: ValueKey((status.kind, status.label)),
+        key: ValueKey((status.kind, status.text)),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(12)),
         child: GuideStatusBadge(status),
@@ -120,26 +138,22 @@ class GuideStatusPill extends StatelessWidget {
   }
 }
 
-String guideValueText(Adjustment adjustment, AdjustmentValue value) => switch (value) {
-  NumericalValue() || StepValue() => "${value.display}${adjustment.unitSuffix()}",
-  _ => value.display,
+String guideValueText(Adjustment adjustment, AdjustmentValue value, AppLocalizations l10n) => switch (value) {
+  NumericalValue() || StepValue() => "${value.displayText(l10n)}${adjustment.unitSuffix()}",
+  _ => value.displayText(l10n),
 };
 
-String guideSignedDelta(double delta) {
+String guideSignedDelta(double delta, AppLocalizations l10n) {
   final rounded = double.parse(delta.toStringAsFixed(1));
-  final text = rounded == rounded.roundToDouble() ? rounded.abs().round().toString() : rounded.abs().toString();
-  return "${rounded < 0 ? '-' : '+'}$text";
+  return "${rounded < 0 ? '-' : '+'}${formatLocalizedDouble(rounded.abs(), locale: l10n.localeName)}";
 }
 
 /// "72–80 psi": the values that count as on guide; null where only the
 /// recommended value does.
-String? guideBandText(GuideRecommendation recommendation) {
+String? guideBandText(GuideRecommendation recommendation, AppLocalizations l10n) {
   final band = recommendation.band;
   if (band == null) return null;
-  String number(double value) {
-    final rounded = double.parse(value.toStringAsFixed(1));
-    return rounded == rounded.roundToDouble() ? rounded.round().toString() : rounded.toString();
-  }
+  String number(double value) => formatLocalizedDouble(double.parse(value.toStringAsFixed(1)), locale: l10n.localeName);
 
   return "${number(band.min)}–${number(band.max)}${recommendation.adjustment.unitSuffix()}";
 }

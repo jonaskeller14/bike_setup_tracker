@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/feedback/ride_feedback.dart';
 import '../../models/setup.dart';
@@ -43,7 +44,7 @@ class SetupOptionsMenu extends StatelessWidget {
                   Flexible(
                     child: Semantics(
                       identifier: option == _SetupOption.compare ? AutomationIds.setupActionsCompare : null,
-                      child: Text(option.label, overflow: TextOverflow.ellipsis),
+                      child: Text(option.label(context.l10n), overflow: TextOverflow.ellipsis),
                     ),
                   ),
                 ],
@@ -93,16 +94,25 @@ class SetupOptionsMenu extends StatelessWidget {
 }
 
 enum _SetupOption {
-  edit('Edit', Icons.edit),
-  bookmark('Bookmark', Icons.bookmark_add_outlined),
-  share('Share', Icons.share),
-  restore('Restore', Icons.restore),
-  compare('Compare', Icons.compare),
-  addFeedback('Add Feedback', RideFeedback.iconData),
-  remove('Remove', Icons.delete);
+  edit(Icons.edit),
+  bookmark(Icons.bookmark_add_outlined),
+  share(Icons.share),
+  restore(Icons.restore),
+  compare(Icons.compare),
+  addFeedback(RideFeedback.iconData),
+  remove(Icons.delete);
 
-  final String label;
   final IconData iconData;
 
-  const _SetupOption(this.label, this.iconData);
+  const _SetupOption(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    bookmark => l10n.setupTooltipBookmark,
+    share => l10n.share,
+    restore => l10n.setupOptionRestore,
+    compare => l10n.setupOptionCompare,
+    addFeedback => l10n.setupOptionAddFeedback,
+    remove => l10n.remove,
+  };
 }

@@ -98,7 +98,7 @@ void main() {
 
       expect(proposal.baseSetupId, 'r0');
       expect(proposal.referenceSetupId, 'r5');
-      expect(proposal.rationale, contains('again'));
+      expect(proposal.rationale.kind, SuggestionNoteKind.rideAgainConfirm);
     });
 
     test('clamps the pattern at the end of the range', () {

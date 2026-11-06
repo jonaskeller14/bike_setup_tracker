@@ -1,5 +1,7 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/utils/adjustment_preset_consumption.dart';
 import 'package:bike_setup_tracker/utils/adjustment_role.dart';
@@ -7,6 +9,8 @@ import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/german_l10n.dart';
 
 /// [buildCatalogApplication] turns a resolved catalog selection into form-fill
 /// data. Fixtures are small inline YAML files run through the real
@@ -107,7 +111,7 @@ void main() {
     final resolved = _preset(_foxYaml, choices: {'damper': 'grip_x2', 'travel_mm': 160});
 
     test('name, type and preset map', () {
-      final app = buildCatalogApplication(resolved);
+      final app = buildCatalogApplication(resolved, englishL10n);
 
       expect(app.name, 'FOX 36 Factory GRIP X2');
       expect(app.componentType, ComponentType.fork);
@@ -123,7 +127,7 @@ void main() {
     });
 
     test('adjustments combine product → SAG → option values, with declared ranges', () {
-      final app = buildCatalogApplication(resolved);
+      final app = buildCatalogApplication(resolved, englishL10n);
 
       expect(_names(app.adjustments), ['Pressure', 'Volume Spacers', 'SAG', 'HSC', 'LSC']);
       final hsc = app.adjustments.firstWhere((a) => a.name == 'HSC') as StepAdjustment;
@@ -131,23 +135,23 @@ void main() {
     });
 
     test('the placeholder max and its warning reach the built adjustment', () {
-      final app = buildCatalogApplication(resolved);
+      final app = buildCatalogApplication(resolved, englishL10n);
 
       final lsc = app.adjustments.firstWhere((a) => a.name == 'LSC') as StepAdjustment;
       expect(lsc.max, StepAdjustment.unknownMaxPlaceholder);
-      expect(lsc.notes, 'Low-Speed Compression; ${StepAdjustment.unknownMaxWarning}');
+      expect(lsc.notes, 'Low-Speed Compression; ${englishL10n.stepUnknownMaxWarning}');
       expect(app.unknownMaxKeys, {lsc.presetKey});
     });
 
     test('the chosen travel becomes the SAG reference travel', () {
-      final sag = _sag(buildCatalogApplication(resolved).adjustments);
+      final sag = _sag(buildCatalogApplication(resolved, englishL10n).adjustments);
 
       expect(sag.referenceTravelMm, 160);
-      expect(sag.notes, kForkSagNotes);
+      expect(sag.notes, englishL10n.adjustmentTemplateForkSagNotes);
     });
 
     test('notes are a dash list of the chosen values and specs, then the setup guide', () {
-      final app = buildCatalogApplication(resolved);
+      final app = buildCatalogApplication(resolved, englishL10n);
 
       // The damper description, the skipped wheel size and the product page are left out.
       expect(app.notes.split('\n'), [
@@ -161,8 +165,24 @@ void main() {
       ]);
     });
 
+    test('notes are written in the app language of the moment', () {
+      final app = buildCatalogApplication(resolved, germanL10n);
+
+      expect(app.notes.split('\n'), [
+        '- Dämpfer: GRIP X2',
+        '- Federweg: 160 mm',
+        '- Standrohr: Kashima · Feder: Air',
+        '- Modelljahre: 2025-2026',
+        '- Trim note',
+        '',
+        'Setup-Anleitung: https://tech.ridefox.com/36',
+      ]);
+      final lsc = app.adjustments.firstWhere((a) => a.name == 'LSC') as StepAdjustment;
+      expect(lsc.notes, startsWith('Low-Speed Compression; Klickzahl nicht veröffentlicht.'));
+    });
+
     test('a chosen model year replaces the years in the notes', () {
-      final app = buildCatalogApplication(resolved.withYear(2026));
+      final app = buildCatalogApplication(resolved.withYear(2026), englishL10n);
 
       expect(app.notes, contains('- Model year: 2026'));
       expect(app.notes, isNot(contains('Model years')));
@@ -170,8 +190,8 @@ void main() {
     });
 
     test('fresh UUIDs on every adjustment', () {
-      final first = buildCatalogApplication(resolved).adjustments;
-      final second = buildCatalogApplication(resolved).adjustments;
+      final first = buildCatalogApplication(resolved, englishL10n).adjustments;
+      final second = buildCatalogApplication(resolved, englishL10n).adjustments;
 
       final ids = {...first.map((a) => a.id), ...second.map((a) => a.id)};
       expect(ids, hasLength(first.length + second.length));
@@ -182,7 +202,7 @@ void main() {
     final resolved = _preset(_foxYaml);
 
     test('an open required axis contributes no adjustments and no name', () {
-      final app = buildCatalogApplication(resolved);
+      final app = buildCatalogApplication(resolved, englishL10n);
 
       expect(app.name, 'FOX 36 Factory');
       expect(_names(app.adjustments), ['Pressure', 'Volume Spacers', 'SAG']);
@@ -190,11 +210,11 @@ void main() {
     });
 
     test('a skipped travel leaves the SAG reference travel unset', () {
-      expect(_sag(buildCatalogApplication(resolved).adjustments).referenceTravelMm, isNull);
+      expect(_sag(buildCatalogApplication(resolved, englishL10n).adjustments).referenceTravelMm, isNull);
     });
 
     test('notes leave out the options that are still open', () {
-      final notes = buildCatalogApplication(resolved).notes;
+      final notes = buildCatalogApplication(resolved, englishL10n).notes;
 
       expect(notes, isNot(contains('Damper')));
       expect(notes, isNot(contains('Travel')));
@@ -202,7 +222,7 @@ void main() {
   });
 
   group('single-value axes', () {
-    final app = buildCatalogApplication(_preset(_foxYaml, index: 1));
+    final app = buildCatalogApplication(_preset(_foxYaml, index: 1), englishL10n);
 
     test('are applied without a choice and stay out of the name', () {
       expect(app.name, 'FOX 36 Performance');
@@ -226,17 +246,17 @@ void main() {
 
   group('shock', () {
     test('the stroke of the chosen size becomes the SAG reference travel', () {
-      final app = buildCatalogApplication(_preset(_ohlinsYaml, choices: {'size': '210x55'}));
+      final app = buildCatalogApplication(_preset(_ohlinsYaml, choices: {'size': '210x55'}), englishL10n);
 
       expect(_names(app.adjustments), ['Spring Rate', 'SAG', 'Compression Mode']);
       final sag = _sag(app.adjustments);
       expect(sag.referenceTravelMm, 55);
-      expect(sag.notes, kShockSagNotes);
+      expect(sag.notes, englishL10n.adjustmentTemplateShockSagNotes);
       expect(app.preset['size'], '210x55');
     });
 
     test('a skipped size leaves the SAG reference travel unset', () {
-      final app = buildCatalogApplication(_preset(_ohlinsYaml));
+      final app = buildCatalogApplication(_preset(_ohlinsYaml), englishL10n);
 
       expect(_sag(app.adjustments).referenceTravelMm, isNull);
       expect(app.preset['size'], isNull);
@@ -244,7 +264,7 @@ void main() {
     });
 
     test('notes name the chosen size once, with its mount', () {
-      final app = buildCatalogApplication(_preset(_ohlinsYaml, choices: {'size': '185x55'}));
+      final app = buildCatalogApplication(_preset(_ohlinsYaml, choices: {'size': '185x55'}), englishL10n);
 
       expect(app.name, 'Öhlins TTX22 m.2');
       expect(app.notes.split('\n'), [
@@ -257,7 +277,7 @@ void main() {
 
   group('catalog adjuster ids', () {
     test('every adjustment, the injected SAG included, carries its catalog preset key', () {
-      final app = buildCatalogApplication(_preset(_foxYaml, choices: {'damper': 'grip_x2', 'travel_mm': 160}));
+      final app = buildCatalogApplication(_preset(_foxYaml, choices: {'damper': 'grip_x2', 'travel_mm': 160}), englishL10n);
 
       expect(
         {for (final adjustment in app.adjustments) adjustment.name: adjustment.presetKey},
@@ -272,7 +292,7 @@ void main() {
     });
 
     test('the id survives a rename, a JSON round trip and a copy', () {
-      final app = buildCatalogApplication(_preset(_foxYaml, choices: {'damper': 'grip_x'}));
+      final app = buildCatalogApplication(_preset(_foxYaml, choices: {'damper': 'grip_x'}), englishL10n);
       final rebound = app.adjustments.firstWhere((a) => a.name == 'Rebound') as StepAdjustment;
 
       final restored = Adjustment.fromJson(rebound.copyWith(name: 'Slow rebound').toJson());
@@ -283,11 +303,60 @@ void main() {
     });
 
     test('a catalog adjuster consumes the generic template of the same role', () {
-      final app = buildCatalogApplication(_preset(_foxYaml, choices: {'damper': 'grip_x2'}));
+      final app = buildCatalogApplication(_preset(_foxYaml, choices: {'damper': 'grip_x2'}), englishL10n);
       SagAdjustment template(String presetKey) => SagAdjustment(name: 'SAG', notes: null, presetKey: presetKey);
 
       expect(isAdjustmentPresetConsumed(template('fork:sag'), app.adjustments), isTrue);
       expect(isAdjustmentPresetConsumed(template('shock:sag'), app.adjustments), isFalse);
+    });
+  });
+
+  group('catalog text in German', () {
+    const yaml = '''
+brand: FOX
+component_type: fork
+option_values:
+  damper:
+    grip_x2:
+      name: GRIP X2
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest] }
+nodes:
+  - label: "36"
+    level: model
+    category: Trail
+    note: Stiff chassis
+    note_de: Steifes Fahrwerk
+    options:
+      damper: [grip_x2]
+''';
+
+    CatalogApplication build(String language, AppLocalizations l10n) {
+      final preset = catalogProducts(parseCatalogFile(yaml, languageCode: language)).single;
+      return buildCatalogApplication(preset.select(preset.axes.single, preset.axes.single.values.single), l10n);
+    }
+
+    test('a fork created in German stores German names, notes and options, and the preset key', () {
+      final app = build('de', germanL10n);
+
+      final rebound = app.adjustments.firstWhere((a) => a.presetKey == 'fork:rebound');
+      expect((rebound.name, rebound.notes), ('Zugstufe', 'Low-Speed-Zugstufe'));
+      final mode = app.adjustments.firstWhere((a) => a.presetKey == 'fork:compression_mode') as CategoricalAdjustment;
+      expect(mode.name, 'Druckstufenmodus');
+      expect(mode.options, {'Offen', 'Fest'});
+      expect(app.notes, contains('- Steifes Fahrwerk'));
+    });
+
+    test('the same fork created in English is the same component with English text', () {
+      final english = build('en', englishL10n);
+      final german = build('de', germanL10n);
+
+      expect(english.name, german.name);
+      expect(english.preset.toJson(), german.preset.toJson());
+      expect(english.adjustments.map((a) => a.presetKey), german.adjustments.map((a) => a.presetKey));
+      expect(english.adjustments.firstWhere((a) => a.presetKey == 'fork:rebound').name, 'Rebound');
+      expect(english.notes, contains('- Stiff chassis'));
     });
   });
 

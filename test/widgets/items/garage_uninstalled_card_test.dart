@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 Component _component(String id, List<Installation> installations, {int orderIndex = 0}) => Component(
   id: id,
@@ -83,7 +84,7 @@ void main() {
           ChangeNotifierProvider<AppSettings>.value(value: settings),
           ChangeNotifierProvider<AppRepository>.value(value: repository),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
           home: Scaffold(
             body: SingleChildScrollView(

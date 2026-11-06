@@ -1,64 +1,60 @@
 part of 'component.dart';
 
 enum ComponentTypeCategory {
-  frame('Frame'),
-  suspension('Suspension'),
-  cockpit('Cockpit'),
-  drivetrain('Drivetrain'),
-  brakes('Brakes'),
-  wheels('Wheels'),
-  seating('Seating'),
-  electronics('Electronics'),
-  others('Others');
-
-  final String label;
-  const ComponentTypeCategory(this.label);
+  frame,
+  suspension,
+  cockpit,
+  drivetrain,
+  brakes,
+  wheels,
+  seating,
+  electronics,
+  others;
 }
 
 enum ComponentType {
-  frame('Frame', ComponentTypeCategory.frame),
+  frame(ComponentTypeCategory.frame),
 
-  fork('Fork', ComponentTypeCategory.suspension),
-  shock('Shock', ComponentTypeCategory.suspension),
+  fork(ComponentTypeCategory.suspension),
+  shock(ComponentTypeCategory.suspension),
 
-  cockpit('Handlebar', ComponentTypeCategory.cockpit),
-  stem('Stem', ComponentTypeCategory.cockpit),
-  grip('Grip', ComponentTypeCategory.cockpit, maxCount: 2),
-  headset('Headset', ComponentTypeCategory.cockpit),
+  cockpit(ComponentTypeCategory.cockpit),
+  stem(ComponentTypeCategory.cockpit),
+  grip(ComponentTypeCategory.cockpit, maxCount: 2),
+  headset(ComponentTypeCategory.cockpit),
 
-  shifter('Shifter', ComponentTypeCategory.drivetrain, maxCount: 2),
-  bottomBracket('Bottom Bracket', ComponentTypeCategory.drivetrain),
-  crank('Crank', ComponentTypeCategory.drivetrain),
-  derailleur('Derailleur', ComponentTypeCategory.drivetrain, maxCount: 2),
-  chainring('Chainring', ComponentTypeCategory.drivetrain),
-  casette('Cassette', ComponentTypeCategory.drivetrain),
-  chain('Chain', ComponentTypeCategory.drivetrain),
-  pedal('Pedal', ComponentTypeCategory.drivetrain, maxCount: 2),
-  shiftInnerCable('Shift Inner Cable', ComponentTypeCategory.drivetrain, maxCount: 2),
+  shifter(ComponentTypeCategory.drivetrain, maxCount: 2),
+  bottomBracket(ComponentTypeCategory.drivetrain),
+  crank(ComponentTypeCategory.drivetrain),
+  derailleur(ComponentTypeCategory.drivetrain, maxCount: 2),
+  chainring(ComponentTypeCategory.drivetrain),
+  casette(ComponentTypeCategory.drivetrain),
+  chain(ComponentTypeCategory.drivetrain),
+  pedal(ComponentTypeCategory.drivetrain, maxCount: 2),
+  shiftInnerCable(ComponentTypeCategory.drivetrain, maxCount: 2),
 
-  brakeCalliper('Brake Calliper', ComponentTypeCategory.brakes, maxCount: 2),
-  brakeLever('Brake Lever', ComponentTypeCategory.brakes, maxCount: 2),
-  brakePad('Brake Pad', ComponentTypeCategory.brakes, maxCount: 2),
-  brakeDisc('Brake Disc', ComponentTypeCategory.brakes, maxCount: 2),
+  brakeCalliper(ComponentTypeCategory.brakes, maxCount: 2),
+  brakeLever(ComponentTypeCategory.brakes, maxCount: 2),
+  brakePad(ComponentTypeCategory.brakes, maxCount: 2),
+  brakeDisc(ComponentTypeCategory.brakes, maxCount: 2),
 
-  wheelFront('Front Wheel', ComponentTypeCategory.wheels),
-  wheelRear('Rear Wheel', ComponentTypeCategory.wheels),
-  tire('Tire', ComponentTypeCategory.wheels, maxCount: 2),
+  wheelFront(ComponentTypeCategory.wheels),
+  wheelRear(ComponentTypeCategory.wheels),
+  tire(ComponentTypeCategory.wheels, maxCount: 2),
 
-  saddle('Saddle', ComponentTypeCategory.seating),
-  seatpost('Seatpost', ComponentTypeCategory.seating),
+  saddle(ComponentTypeCategory.seating),
+  seatpost(ComponentTypeCategory.seating),
 
-  battery('Battery', ComponentTypeCategory.electronics, maxCount: 2),
-  motor('Motor', ComponentTypeCategory.electronics),
+  battery(ComponentTypeCategory.electronics, maxCount: 2),
+  motor(ComponentTypeCategory.electronics),
 
-  bearing('Bearing', ComponentTypeCategory.others),
-  equipment('Equipment', ComponentTypeCategory.others),
-  other('Other', ComponentTypeCategory.others);
+  bearing(ComponentTypeCategory.others),
+  equipment(ComponentTypeCategory.others),
+  other(ComponentTypeCategory.others);
 
-  final String label;
   final ComponentTypeCategory category;
   final int maxCount;
-  const ComponentType(this.label, this.category, {this.maxCount = 1});
+  const ComponentType(this.category, {this.maxCount = 1});
 
   IconData getIconData() {
     switch (this) {

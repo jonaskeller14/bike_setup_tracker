@@ -7,7 +7,7 @@
   layouts. The phone is the Android frame with the Play raws.
 
   URL parameters (and the shared ones in docs/marketing/templates/template.js):
-    ?lang=de   German texts (default: English)
+    ?lang=de|fr|it|es|pt   that language's texts (default: English)
 
   Render (Windows and macOS, repo root; --safe also writes the safe-area overlay):
     python tool/marketing/render_images.py play-feature
@@ -48,6 +48,10 @@
   const STRINGS = {
     en: { headline: 'Find the <em>fork setting</em> that works for you.', rebound: 'Rebound', pressure: 'Pressure' },
     de: { headline: 'Finde die <em>Gabel-Einstellung</em>, die zu dir passt.', rebound: 'Zugstufe', pressure: 'Druck' },
+    fr: { headline: 'Trouvez le <em>réglage de fourche</em> qui vous convient.', rebound: 'Détente', pressure: 'Pression' },
+    it: { headline: 'Trova la <em>regolazione della forcella</em> giusta per te.', rebound: 'Ritorno', pressure: 'Pressione' },
+    es: { headline: 'Encuentra el <em>ajuste de horquilla</em> que te funciona.', rebound: 'Rebote', pressure: 'Presión' },
+    pt: { headline: 'Encontre a <em>regulagem do garfo</em> que funciona para você.', rebound: 'Retorno', pressure: 'Pressão' },
   };
 </script>
 <script src="../../marketing/templates/template.js"></script>

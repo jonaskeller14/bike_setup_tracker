@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/widgets/lists/adjustment_set_list.dart';
 import 'package:bike_setup_tracker/widgets/sheets/set_categorical.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   Future<void> openSheet(
@@ -19,7 +20,7 @@ void main() {
       multiSelect: multiSelect,
     );
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         home: Builder(
           builder: (context) => Scaffold(
             body: Center(
@@ -118,7 +119,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         home: Scaffold(
           body: StatefulBuilder(
             builder: (context, setState) => AdjustmentSetList(

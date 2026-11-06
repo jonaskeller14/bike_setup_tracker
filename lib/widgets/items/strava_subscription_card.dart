@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/strava/strava_plan.dart';
 import '../../services/subscription_service.dart';
@@ -45,16 +47,16 @@ class StravaSubscriptionCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _header(context, label: 'NOT SUBSCRIBED', color: colors.onSurfaceVariant, bgColor: colors.surfaceContainerHighest),
+        _header(context, label: context.l10n.stravaCardNotSubscribed.toUpperCase(), color: colors.onSurfaceVariant, bgColor: colors.surfaceContainerHighest),
         const SizedBox(height: 8),
         Text(
-          'Automatically link your Strava rides to your setups and see them on the map.',
+          context.l10n.stravaCardPitch,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant, height: 1.4),
         ),
         const SizedBox(height: 10),
-        _priceRow(context, price: 'From $price', period: StravaPlan.monthly.period),
+        _priceRow(context, price: context.l10n.stravaCardFromPrice(price), period: StravaPlan.monthly.period(context.l10n)),
         const SizedBox(height: 14),
-        _viewPlansButton(context, 'View plans'),
+        _viewPlansButton(context, context.l10n.viewPlans),
       ],
     );
   }
@@ -72,27 +74,30 @@ class StravaSubscriptionCard extends StatelessWidget {
 
     final isTrial = entitlement.billingPhase == StravaBillingPhase.trial;
     final renewLabel = isTrial
-        ? entitlement.autoRenewing ? 'First charge' : 'Trial ends'
-        : entitlement.autoRenewing ? 'Renews' : 'Expires';
-    final renewDate = DateFormat(context.read<AppSettings>().developerMode ? '$dateFormat HH:mm:ss' : dateFormat).format(entitlement.expiresAt);
+        ? entitlement.autoRenewing ? context.l10n.stravaCardFirstCharge : context.l10n.stravaCardTrialEnds
+        : entitlement.autoRenewing ? context.l10n.stravaCardRenews : context.l10n.stravaCardExpires;
+    final renewDate = DateFormat(context.read<AppSettings>().developerMode ? '$dateFormat HH:mm:ss' : dateFormat, context.l10n.localeName).format(entitlement.expiresAt);
 
     return Column(
       children: [
         _header(
           context,
-          label: isActive ? isTrial ? 'TRIAL' : 'ACTIVE' : 'EXPIRED',
+          label: (isActive
+                  ? isTrial ? context.l10n.stravaCardTrial : context.l10n.stravaCardActive
+                  : context.l10n.stravaCardExpired)
+              .toUpperCase(),
           color: isActive ? activeColor : colors.error,
           bgColor: isActive ? activeBgColor : colors.errorContainer,
         ),
         const SizedBox(height: 6),
-        _priceRow(context, price: price, period: entitlement.plan.period),
+        _priceRow(context, price: price, period: entitlement.plan.period(context.l10n)),
         Divider(height: 24, color: colors.outlineVariant),
         _detailRow(context, label: renewLabel, value: renewDate),
         const SizedBox(height: 4),
-        _detailRow(context, label: 'Billing', value: entitlement.billingSource),
+        _detailRow(context, label: context.l10n.stravaCardBilling, value: entitlement.billingSource),
         if (!isActive) ...[
           const SizedBox(height: 14),
-          _viewPlansButton(context, 'View plans'),
+          _viewPlansButton(context, context.l10n.viewPlans),
         ],
       ],
     );
@@ -103,9 +108,11 @@ class StravaSubscriptionCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'STRAVA SYNC',
-          style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
+        Flexible(
+          child: Text(
+            context.l10n.stravaCardTitle.toUpperCase(),
+            style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
+          ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),

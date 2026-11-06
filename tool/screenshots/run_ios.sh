@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerates the App Store raw screenshots (docs/store/app-store/**/0N_raw.png).
+# Regenerates the App Store raw screenshots (docs/store/app-store/<device>/<locale>/0N_raw.png).
 #
 # Builds the screenshot entry point (lib/main_screenshots.dart) for the
 # simulator, boots each simulator, pins the status bar via `simctl status_bar`,
@@ -9,6 +9,8 @@
 #
 # Usage: tool/screenshots/run_ios.sh [iphone|ipad|all] [options]
 #   --screens 3,7         Screen numbers to capture. Default: all flows.
+#   --locale de-DE        Store locale to record (default en-US): the app runs in that
+#                         language and the raws go to <device>/<locale>/.
 #   --skip-build          Reuse the last built Runner.app.
 #   --keep-running        Leave simulators booted by this script running.
 #   --raw-only            Don't render the store screenshots from the new raws.
@@ -32,6 +34,7 @@ gps='44.1690,8.3439'
 
 device='all'
 screens=''
+locale='en-US'
 only_flows=''
 skip_build=0
 keep_running=0
@@ -43,6 +46,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     iphone | ipad | all) device="$1" ;;
     --screens) screens="$2"; shift ;;
+    --locale) locale="$2"; shift ;;
     --flows) only_flows="$2"; shift ;;
     --skip-build) skip_build=1 ;;
     --keep-running) keep_running=1 ;;
@@ -94,6 +98,7 @@ else
   done
 fi
 [ ${#flows[@]} -gt 0 ] || { echo 'No flows selected.' >&2; exit 1; }
+[[ "$locale" =~ ^[a-z]{2}-[A-Z]{2}$ ]] || { echo "Invalid --locale: $locale (expected e.g. de-DE)." >&2; exit 2; }
 
 # The newest available runtime wins if a name exists more than once.
 simulator_udid() {
@@ -147,11 +152,16 @@ for name in $selected; do
   xcrun simctl location "$udid" set "$gps"
 
   out_dir="$(mktemp -d -t "screenshots_$name")"
-  target_dir="$repo_root/docs/store/$folder"
+  target_dir="$repo_root/docs/store/$folder/$locale"
+  mkdir -p "$target_dir"
   # lib/main_screenshots.dart draws touch dots while this marker exists. It is
   # removed first, in case an aborted preview run left it behind.
   touch_marker="$(xcrun simctl get_app_container "$udid" "$app_id" data)/Documents/screenshot_show_touches"
   rm -f "$touch_marker"
+  # The app runs in this locale's language (its documents folder may not exist yet).
+  locale_marker="$(dirname "$touch_marker")/screenshot_locale"
+  mkdir -p "$(dirname "$touch_marker")"
+  printf '%s' "${locale%%-*}" > "$locale_marker"
   # The app seeds this demo scenario; without the marker it seeds the full sample.
   scenario_marker="$(dirname "$touch_marker")/demo_scenario"
   if [ "$record" -eq 1 ]; then
@@ -180,6 +190,7 @@ for name in $selected; do
         --test-output-dir "$out_dir" \
         -e "APP_ID=$app_id" \
         -e "DEVICE=$flow_device" \
+        -e "LOCALE=$locale" \
         -e "TILE_WAIT_MS=$tile_wait_ms"); then
         ok=1
         break
@@ -200,7 +211,7 @@ for name in $selected; do
   done
   checked_folders+=("$folder")
 
-  rm -f "$touch_marker" "$scenario_marker"
+  rm -f "$touch_marker" "$scenario_marker" "$locale_marker"
   xcrun simctl status_bar "$udid" clear || true
   if [ "$booted_here" -eq 1 ] && [ "$keep_running" -eq 0 ]; then
     xcrun simctl shutdown "$udid" || true
@@ -213,10 +224,10 @@ if [ "$demo" -eq 1 ]; then
 elif [ "$preview" -eq 1 ]; then
   echo "Recordings: $repo_root/build/store_previews"
 else
-  python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+  python3 "$script_dir/check_output.py" --locale "$locale" "${checked_folders[@]}" || check_exit=$?
   if [ "$raw_only" -eq 0 ]; then
     # shellcheck disable=SC2086 # $selected is a list of device names
-    python3 "$repo_root/tool/marketing/render_images.py" store-screenshots $selected ${screens:+"$screens"} || check_exit=$?
+    python3 "$repo_root/tool/marketing/render_images.py" store-screenshots $selected ${screens:+"$screens"} --locale "$locale" || check_exit=$?
   fi
 fi
 

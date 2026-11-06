@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/adjustment_value_text.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -63,11 +65,11 @@ void main() {
 
   group('display — count-grouped rendering', () {
     test('groups repeats into "Element (N)"', () {
-      expect(CategoricalValue(const ['Bar', 'Bar', 'Gel', 'Gel', 'Gel']).display, 'Bar (2), Gel (3)');
+      expect(CategoricalValue(const ['Bar', 'Bar', 'Gel', 'Gel', 'Gel']).displayText(englishL10n), 'Bar (2), Gel (3)');
     });
 
     test('a single occurrence omits the count', () {
-      expect(CategoricalValue(const ['Bottle']).display, 'Bottle');
+      expect(CategoricalValue(const ['Bottle']).displayText(englishL10n), 'Bottle');
     });
   });
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../services/strava_service.dart';
 import '../../services/subscription_service.dart';
 import '../items/strava_subscription_card.dart';
@@ -19,7 +20,7 @@ class StravaSuccess extends StatelessWidget {
   Widget build(BuildContext context) {
     final stravaService = context.watch<StravaService>();
     final subscription = context.watch<SubscriptionService>();
-    final authError = stravaService.errorMessage ?? '';
+    final failure = stravaService.failure;
     final justPurchased = subscription.justPurchasedStrava;
     final isTrial = subscription.entitlement?.billingPhase ==
         StravaBillingPhase.trial;
@@ -51,16 +52,14 @@ class StravaSuccess extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        isTrial ? 'Your trial has started.' : "You're in.",
+                        isTrial ? context.l10n.stravaSuccessTrialTitle : context.l10n.stravaSuccessTitle,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 6),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          isTrial
-                              ? 'Strava Sync is fully active for 7 days. Connect your Strava login next to import your history. Cancel in your store settings before the trial ends to avoid a charge.'
-                              : 'Strava Sync is active on this account. Connect your Strava login next so we can start importing activities.',
+                          isTrial ? context.l10n.stravaSuccessTrialBody : context.l10n.stravaSuccessBody,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -87,14 +86,14 @@ class StravaSuccess extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'Connect to Strava',
+                        context.l10n.stravaConnectTitle,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 6),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          'Sign in with your Strava account to sync activities.',
+                          context.l10n.stravaConnectBody,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -107,13 +106,13 @@ class StravaSuccess extends StatelessWidget {
               )
             ),
             const SizedBox(height: 16),
-            if (authError.isNotEmpty) StravaErrorTile(message: authError),
+            if (failure != null) StravaErrorTile(failure: failure),
             SizedBox(
               height: 56,
               width: double.infinity,
               child: ElevatedButton.icon(
                 icon: const Icon(SimpleIcons.strava),
-                label: const Text('Sign in to Strava'),
+                label: Text(context.l10n.stravaSignIn),
                 onPressed: () {
                   stravaService.clearError();
                   unawaited(stravaService.launchStravaLogin());
@@ -134,7 +133,7 @@ class StravaSuccess extends StatelessWidget {
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              child: const Text('Connect later'),
+              child: Text(context.l10n.stravaConnectLater),
             ),
             const SizedBox(height: 16),
           ],

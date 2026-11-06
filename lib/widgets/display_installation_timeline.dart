@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
@@ -172,17 +173,18 @@ class _InstallationContents extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
+    final l10n = context.l10n;
 
     final bikeName = switch (installation) {
-      BikeInstallation() => bikes[installation.parent]?.name ?? 'BIKE NOT FOUND',
+      BikeInstallation() => bikes[installation.parent]?.name ?? l10n.bikeNotFound,
       ComponentInstallation(:final parentComponentId) =>
-        components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
-      Uninstallation() => 'Uninstalled',
-      Archival() => 'Archived',
+        components[parentComponentId]?.name ?? l10n.componentNotFound,
+      Uninstallation() => l10n.timelineUninstalled,
+      Archival() => l10n.timelineArchived,
     };
     final dateStr = installation.dateTimeUTC.millisecondsSinceEpoch == 0
-        ? 'From beginning'
-        : "${DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal)}";
+        ? l10n.timelineFromBeginning
+        : "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(installation.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(installation.dateTimeLocal)}";
     final titleColor = switch (installation) {
       BikeInstallation() => bikes[installation.parent]?.name == null
           ? colorScheme.error
@@ -250,10 +252,10 @@ class _DerivedPlacementContents extends StatelessWidget {
 
     final root = change.root;
     final color = root.isMissing(bikes) ? colorScheme.error : colorScheme.onSurfaceVariant;
-    final parentName = components[change.viaParentId]?.name ?? 'COMPONENT NOT FOUND';
+    final parentName = components[change.viaParentId]?.name ?? context.l10n.componentNotFound;
     final dateTimeLocal = change.cause.dateTimeLocal;
     final dateStr =
-        "${DateFormat(appSettings.dateFormat).format(dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(dateTimeLocal)}";
+        "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(dateTimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(dateTimeLocal)}";
 
     return Container(
       padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
@@ -268,7 +270,7 @@ class _DerivedPlacementContents extends StatelessWidget {
               Icon(root.iconData, size: 16, color: color),
               Flexible(
                 child: Text(
-                  root.label(bikes),
+                  root.label(bikes, context.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.titleSmall?.copyWith(color: color),
@@ -277,7 +279,7 @@ class _DerivedPlacementContents extends StatelessWidget {
             ],
           ),
           Text(
-            "via $parentName",
+            context.l10n.timelineVia(parentName),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
@@ -301,7 +303,7 @@ class _TaskEntryContents extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     final dateStr =
-        "${DateFormat(appSettings.dateFormat).format(entry.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(entry.dateTimeLocal)}";
+        "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(entry.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(entry.dateTimeLocal)}";
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

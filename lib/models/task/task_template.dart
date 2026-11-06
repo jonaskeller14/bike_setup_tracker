@@ -1,15 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 
-import 'task_association.dart';
 import 'task_rule.dart';
 import 'task_threshold/task_threshold.dart';
 
-/// A ready-made task rule for a component type. Its [key] ends up in
-/// [TaskRule.presetKey] of every rule created from it.
 @immutable
 class TaskTemplate {
-  final String key;
+  final String key; // =TaskRule.presetKey
   final String name;
   final String? notes;
   final TaskThreshold interval;
@@ -92,48 +88,4 @@ class TaskSuggestion {
   });
 
   bool get isFallback => stravaInterval != null;
-
-  TaskRule toTaskRule(String componentId, {String distanceUnit = 'km', String altitudeUnit = 'm'}) {
-    final line = _recommendationLine(distanceUnit: distanceUnit, altitudeUnit: altitudeUnit);
-    return TaskRule(
-      name: name,
-      notes: line == null ? notes : (notes == null ? line : '$notes\n\n$line'),
-      priority: priority,
-      tags: const <String>{},
-      association: ComponentTaskAssociation(componentId),
-      interval: interval,
-      repeat: repeat,
-      presetKey: key,
-    );
-  }
-
-  /// `null` for a generic interval: the rule's own trigger already says it.
-  String? _recommendationLine({required String distanceUnit, required String altitudeUnit}) {
-    final strava = stravaInterval;
-    if (strava == null && source == null) return null;
-    final effective = taskIntervalLabel(interval, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit);
-    final origin = strava != null
-        ? ' (time-based; ${taskIntervalLabel(strava, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit)} with Strava)'
-        : '';
-    final sourceSuffix = source == null ? '' : ' — $source';
-    return 'Recommended interval: $effective$origin$sourceSuffix';
-  }
-}
-
-/// "every 2,000 km", "every 6 months", "every year".
-String taskIntervalLabel(TaskThreshold interval, {String distanceUnit = 'km', String altitudeUnit = 'm'}) {
-  if (interval is DurationThreshold) {
-    final days = interval.days.inDays;
-    for (final (dayCount, singular, plural) in const [
-      (365, 'year', 'years'),
-      (30, 'month', 'months'),
-      (7, 'week', 'weeks'),
-      (1, 'day', 'days'),
-    ]) {
-      if (days < dayCount || days % dayCount != 0) continue;
-      final count = days ~/ dayCount;
-      return count == 1 ? 'every $singular' : 'every ${NumberFormat.decimalPattern().format(count)} $plural';
-    }
-  }
-  return 'every ${interval.toDisplayValue(distanceUnit: distanceUnit, altitudeUnit: altitudeUnit)}';
 }

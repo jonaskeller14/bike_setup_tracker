@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'app_hint_deck.dart';
 
 /// Suggestion hint shown in the Setup timeline once the user has recorded at
@@ -12,16 +13,16 @@ class SetupTaskHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AppHintDeck(
       icon: Icons.checklist,
-      label: 'Suggestion',
+      label: l10n.hintLabelSuggestion,
       pages: [
         AppHintPage(
-          title: 'Organize your bike tasks',
-          action: AppHintAction(label: 'Activate Tasks', icon: Icons.add_task, onPressed: onActivate),
-          content: const Text(
-            'Turn on Task Management to note anything bike related — maintenance, tweaks to try, or trails to ride.',
-          ),
+          title: l10n.hintTasksTitle,
+          action: AppHintAction(label: l10n.hintTasksAction, icon: Icons.add_task, onPressed: onActivate),
+          content: Text(l10n.hintTasksBody),
         ),
       ],
       onDismiss: onDismiss,

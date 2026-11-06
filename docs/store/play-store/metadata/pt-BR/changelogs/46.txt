@@ -1,0 +1,5 @@
+• Use o app em português, inglês, alemão, francês, italiano ou espanhol
+• Ele segue o idioma do seu dispositivo, ou escolha outro em Configurações > Preferências > Idioma
+• O catálogo de garfos e amortecedores e suas exportações também estão traduzidos
+• Digite decimais com vírgula ou ponto, como preferir
+• Ao instalar o app pela primeira vez, ele começa com as unidades e o formato de hora da sua região

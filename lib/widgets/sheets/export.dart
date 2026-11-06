@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../database/app_database.dart';
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/selected_data.dart';
 import '../../repositories/app_repository.dart';
@@ -174,7 +175,7 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Export Data'),
+          SheetHeader(title: context.l10n.exportSheetTitle),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -183,31 +184,31 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Save File"),
-                    subtitle: const Text("Choose where to save the JSON file"),
+                    title: Text(context.l10n.exportSaveFile),
+                    subtitle: Text(context.l10n.exportSaveFileSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onFile,
                   ),
                   ListTile(
                     leading: Icon(Icons.file_present_sharp, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Save Backup"),
-                    subtitle: const Text("Save current state as a local backup"),
+                    title: Text(context.l10n.exportSaveBackup),
+                    subtitle: Text(context.l10n.exportSaveBackupSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onBackup,
                   ),
                   if (context.read<AppSettings>().enableGoogleDrive)
                     ListTile(
                       leading: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Save Google Drive Backup"),
-                      subtitle: const Text("Save current state as Backup in Google Drive"),
+                      title: Text(context.l10n.exportSaveDriveBackup),
+                      subtitle: Text(context.l10n.exportSaveDriveBackupSubtitle),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: onGoogleDriveBackup,
                     ),
                   if (context.read<AppSettings>().enableAttachments)
                     ListTile(
                       leading: Icon(Icons.attach_file, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Export Attachment Bundle"),
-                      subtitle: const Text("Export data and attachments as a ZIP bundle"),
+                      title: Text(context.l10n.exportAttachmentBundle),
+                      subtitle: Text(context.l10n.exportAttachmentBundleSubtitle),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: onAttachmentBundle,
                     ),
@@ -229,12 +230,12 @@ class ExportProgressSheetContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final message = switch (destination) {
-      ExportDestination.file => "Preparing JSON file…",
-      ExportDestination.backup => "Saving backup…",
-      ExportDestination.googleDriveBackup => "Uploading backup to Google Drive…",
-      ExportDestination.attachmentBundle => "Packing data and attachments…",
+      ExportDestination.file => context.l10n.exportProgressFile,
+      ExportDestination.backup => context.l10n.exportProgressBackup,
+      ExportDestination.googleDriveBackup => context.l10n.exportProgressDrive,
+      ExportDestination.attachmentBundle => context.l10n.exportProgressBundle,
     };
 
-    return SheetProgressContent(title: 'Export Data', message: message);
+    return SheetProgressContent(title: context.l10n.exportSheetTitle, message: message);
   }
 }

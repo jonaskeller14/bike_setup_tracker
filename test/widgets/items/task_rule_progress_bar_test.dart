@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/task_rule_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 /// The notch marks where the target sat before a delay pushed it out. It only
 /// earns its place when a delay actually moved the target, and it has to land
@@ -16,7 +17,7 @@ void main() {
     double progress = 0.5,
     ThemeData? theme,
   }) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: theme ?? materialAppTheme,
       home: Scaffold(
         body: Center(

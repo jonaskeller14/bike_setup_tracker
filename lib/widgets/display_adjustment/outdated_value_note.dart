@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 
 /// A one-line error note shown under a stored value that no longer fits its
@@ -9,10 +10,10 @@ class OutdatedValueNote extends StatelessWidget {
 
   const OutdatedValueNote({super.key, required this.adjustment});
 
-  static String messageFor(Adjustment adjustment) => switch (adjustment) {
-    CategoricalAdjustment() => "Doesn't match the current options",
-    StepAdjustment() => 'Outside the current range or step',
-    _ => 'Outside the current range',
+  static String messageFor(Adjustment adjustment, AppLocalizations l10n) => switch (adjustment) {
+    CategoricalAdjustment() => l10n.outdatedValueOptions,
+    StepAdjustment() => l10n.outdatedValueRangeOrStep,
+    _ => l10n.outdatedValueRange,
   };
 
   @override
@@ -26,7 +27,7 @@ class OutdatedValueNote extends StatelessWidget {
         Icon(Icons.error_outline, size: 14, color: color),
         Flexible(
           child: Text(
-            messageFor(adjustment),
+            messageFor(adjustment, context.l10n),
             style: theme.textTheme.bodySmall?.copyWith(color: color),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,

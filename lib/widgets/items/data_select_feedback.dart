@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/ride_feedback.dart';
@@ -31,13 +32,13 @@ class DataSelectFeedback extends StatelessWidget {
       child: CheckboxListTile(
         secondary: const Icon(RideFeedback.iconData),
         title: Text(
-          '${DateFormat(appSettings.dateFormat).format(item.dateTimeLocal)} • '
-          '${DateFormat(appSettings.timeFormat).format(item.dateTimeLocal)}',
+          '${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(item.dateTimeLocal)} • '
+          '${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(item.dateTimeLocal)}',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             decoration: item.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        subtitle: TileMetaRow(icon: Bike.iconData, text: bike?.name ?? "BIKE NOT FOUND", isError: bike == null),
+        subtitle: TileMetaRow(icon: Bike.iconData, text: bike?.name ?? context.l10n.bikeNotFound, isError: bike == null),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         dense: true,
         value: isSelected,

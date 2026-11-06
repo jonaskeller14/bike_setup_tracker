@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 /// Notifies like the real repository, so the section rebuilds on a filter change.
 class _FakeAppRepository extends ChangeNotifier implements AppRepository {
@@ -47,7 +49,7 @@ void main() {
         ChangeNotifierProvider.value(value: settings),
         ChangeNotifierProvider<AppRepository>.value(value: repository),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: const Scaffold(body: DateRangeFilterSection()),
       ),
@@ -191,7 +193,7 @@ void main() {
       await tester.pump();
       final start = DateTime(firstDay.year, firstDay.month, firstDay.day + 10);
       final end = DateTime(firstDay.year, firstDay.month, firstDay.day + 21);
-      final label = FilterActions.dateRangeLabel(LocalDateRange(start: start, end: end), dateFormat: 'yyyy-MM-dd')!;
+      final label = FilterActions.dateRangeLabel(LocalDateRange(start: start, end: end), englishL10n, dateFormat: 'yyyy-MM-dd')!;
       expect(find.text(label), findsOneWidget);
       expect(filters.dateRange, null);
 

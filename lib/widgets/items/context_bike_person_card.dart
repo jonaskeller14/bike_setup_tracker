@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/test_session.dart';
 import '../../models/person.dart';
@@ -38,7 +40,7 @@ class ContextBikePersonCard extends StatelessWidget {
           ListTile(
             leading: Icon(Bike.iconData, color: bike == null ? errorColor : null),
             title: Text(
-              bike?.name ?? 'BIKE NOT FOUND',
+              bike?.name ?? context.l10n.bikeNotFound,
               style: TextStyle(color: bike == null ? errorColor : null),
             ),
             dense: true,
@@ -47,7 +49,7 @@ class ContextBikePersonCard extends StatelessWidget {
             ListTile(
               leading: Icon(personLinked ? Person.iconData : Icons.person_off),
               title: Text(
-                person?.name ?? (personLinked ? 'RIDER NOT FOUND' : 'No rider linked to this setup.'),
+                person?.name ?? (personLinked ? context.l10n.riderNotFound : context.l10n.contextNoRiderLinked),
               ),
               dense: true,
             ),
@@ -59,7 +61,7 @@ class ContextBikePersonCard extends StatelessWidget {
                 children: [
                   Flexible(
                     child: Text(
-                      testSession?.displayName ?? 'TEST SESSION NOT FOUND',
+                      testSession?.label(context.l10n) ?? context.l10n.testSessionNotFound,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: testSession == null ? errorColor : null),

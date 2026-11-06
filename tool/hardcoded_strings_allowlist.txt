@@ -1,0 +1,30 @@
+# Literals tool/find_hardcoded_strings.dart does not report. One per line: path|literal|reason
+# The literal is written as the script prints it: `$…` stands for an interpolation.
+
+# Brand names and text the brand guidelines word
+lib/main.dart|Bike Setup Tracker|App name
+lib/pages/details/strava_activity_details_page.dart|VIEW ON STRAVA|Strava brand guidelines word the link in every language
+lib/widgets/items/strava_list_tile.dart|View on Strava|Strava brand guidelines word the link in every language
+lib/widgets/map/map_attribution.dart|Mapbox|Brand name
+lib/widgets/map/map_attribution.dart|Powered by Strava|Strava brand guidelines
+lib/widgets/map/map_attribution.dart|OpenStreetMap|Brand name
+lib/widgets/map/map_attribution.dart|OpenStreetMap | Cyclosm|Brand names
+lib/widgets/items/context_location_weather_card.dart|Mapbox|Brand name
+lib/widgets/items/context_location_weather_card.dart|OpenStreetMap|Brand name
+lib/widgets/items/context_location_weather_card.dart|OpenStreetMap | Cyclosm|Brand names
+lib/widgets/items/context_location_weather_card_diff.dart|Mapbox|Brand name
+lib/widgets/items/context_location_weather_card_diff.dart|OpenStreetMap | Cyclosm|Brand names
+
+# Unit symbols
+lib/pages/adjustment/sag_adjustment_page.dart|mm|Unit symbol
+lib/widgets/items/adjustment_properties.dart|$… mm|Unit symbol
+lib/widgets/sheets/set_initial_stats.dart|kJ|Unit symbol
+lib/widgets/sheets/setup_guide_info_sheet.dart|+6 psi|Example distance in the legend, with a unit symbol
+
+# Debug only: not reachable in release builds
+lib/pages/home_page.dart|Developer mode on|Debug only
+lib/pages/home_page.dart|Developer mode off|Debug only
+lib/pages/settings/about_page.dart|App Database|Debug only
+lib/pages/settings/about_page.dart|Schema v$…|Debug only
+lib/pages/settings/reset_page.dart|Show Loading Error Page|Debug only
+lib/pages/settings/reset_page.dart|Debug only: preview the page shown when the app fails to load|Debug only

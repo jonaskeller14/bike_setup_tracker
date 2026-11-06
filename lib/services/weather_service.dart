@@ -23,9 +23,22 @@ class WeatherSuccess extends WeatherStatus {
   const WeatherSuccess();
 }
 
+enum WeatherErrorKind { noInternet, timeout, rateLimit, failed }
+
+/// A failed fetch. The UI turns [kind] into a sentence in the app language.
 class WeatherError extends WeatherStatus {
-  final String message;
-  const WeatherError(this.message);
+  final WeatherErrorKind kind;
+
+  /// For [WeatherErrorKind.rateLimit]: the time of day the limit lifts, like "14:05".
+  final String? resetTime;
+
+  const WeatherError(this.kind, [this.resetTime]);
+}
+
+class _RateLimitException implements Exception {
+  final String resetTime;
+
+  const _RateLimitException(this.resetTime);
 }
 
 /// Creates the [WeatherService] of the setup form. Overridable for the
@@ -40,7 +53,7 @@ class WeatherService extends ChangeNotifier {
     precipitationUnit: PrecipitationUnit.mm,
   );
   
-  static const int _maxRequestsPerHour = 12;
+  static const int maxRequestsPerHour = 12;
   // open_meteo sets no timeout, so a stalled connection would stay "searching" forever.
   static const _requestTimeout = Duration(seconds: 20);
   final List<DateTime> _requestTimestamps = [];
@@ -48,10 +61,6 @@ class WeatherService extends ChangeNotifier {
   WeatherStatus _status = const WeatherIdle();
 
   WeatherStatus get status => _status;
-  String? get errorMessage {
-    final s = _status;
-    return s is WeatherError ? s.message : null;
-  }
 
   void setStatus(WeatherStatus newStatus) {
     _status = newStatus;
@@ -62,10 +71,10 @@ class WeatherService extends ChangeNotifier {
     final now = DateTime.now();
     _requestTimestamps.removeWhere((timestamp) => now.difference(timestamp).inHours >= 1);
 
-    if (_requestTimestamps.length >= _maxRequestsPerHour) {
+    if (_requestTimestamps.length >= maxRequestsPerHour) {
       final resetTime = _requestTimestamps.first.add(const Duration(hours: 1));
       final resetTimeString = "${resetTime.hour.toString().padLeft(2, '0')}:${resetTime.minute.toString().padLeft(2, '0')}";
-      throw Exception("Rate limit exceeded ($_maxRequestsPerHour/h). Try again after $resetTimeString");
+      throw _RateLimitException(resetTimeString);
     }
     _requestTimestamps.add(now);
   }
@@ -127,22 +136,18 @@ class WeatherService extends ChangeNotifier {
         currentIsDay: currentIsDay,
       );
     } on ClientException {
-      setStatus(const WeatherError("Network Error (No Internet)."));
+      setStatus(const WeatherError(WeatherErrorKind.noInternet));
       return null;
     } on SocketException {
-      setStatus(const WeatherError("Network Error (No Internet)."));
+      setStatus(const WeatherError(WeatherErrorKind.noInternet));
       return null;
     } on TimeoutException {
-      setStatus(const WeatherError("Network Error (Timeout)."));
+      setStatus(const WeatherError(WeatherErrorKind.timeout));
       return null;
     } catch (e) {
-      // Preserve the rate-limit message (thrown with the reset time); any other
-      // failure gets a generic message.
-      final isRateLimit = e.toString().contains("Rate limit exceeded");
-      final message = isRateLimit
-          ? e.toString().replaceFirst("Exception: ", "")
-          : "Error occurred during weather update.";
-      setStatus(WeatherError(message));
+      // The rate limit carries the reset time; any other failure is generic.
+      final isRateLimit = e is _RateLimitException;
+      setStatus(isRateLimit ? WeatherError(WeatherErrorKind.rateLimit, e.resetTime) : const WeatherError(WeatherErrorKind.failed));
 
       if (counter <= 2 && !isRateLimit) {
         setStatus(const WeatherSearching());

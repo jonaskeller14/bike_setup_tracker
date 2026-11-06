@@ -39,10 +39,10 @@ AdjustmentActivityHistogram _groupCategorical(
   ];
   return AdjustmentActivityHistogram(
     adjustmentId: adjustment.id,
+    unitLabel: adjustment.unit?.label,
     bars: List.unmodifiable(
       ordered.map(
         (option) => AdjustmentActivityHistogramBar.exact(
-          label: _withUnit(option, adjustment),
           activityCount: counts[option]!,
           exactValue: CategoricalValue([option]),
         ),
@@ -63,10 +63,10 @@ AdjustmentActivityHistogram _groupDiscrete(
   final ordered = counts.keys.toList()..sort(_compareExactValues);
   return AdjustmentActivityHistogram(
     adjustmentId: adjustment.id,
+    unitLabel: adjustment.unit?.label,
     bars: List.unmodifiable(
       ordered.map(
         (value) => AdjustmentActivityHistogramBar.exact(
-          label: _withUnit(value.display, adjustment),
           activityCount: counts[value]!,
           exactValue: value,
         ),
@@ -94,10 +94,10 @@ AdjustmentActivityHistogram _groupContinuous(
   if (ordered.length <= adjustmentHistogramMaxExactContinuousValues || ordered.first == ordered.last) {
     return AdjustmentActivityHistogram(
       adjustmentId: adjustment.id,
+      unitLabel: adjustment.unit?.label,
       bars: List.unmodifiable(
         ordered.map(
           (value) => AdjustmentActivityHistogramBar.exact(
-            label: _withUnit(originalValues[value]!.display, adjustment),
             activityCount: counts[value]!,
             exactValue: originalValues[value],
           ),
@@ -117,12 +117,12 @@ AdjustmentActivityHistogram _groupContinuous(
 
   return AdjustmentActivityHistogram(
     adjustmentId: adjustment.id,
+    unitLabel: adjustment.unit?.label,
     bars: List.unmodifiable(
       List.generate(adjustmentHistogramBinCount, (index) {
         final lower = min + width * index;
         final upper = index == adjustmentHistogramBinCount - 1 ? max : min + width * (index + 1);
         return AdjustmentActivityHistogramBar.range(
-          label: '${_formatBoundary(lower, adjustment)}–${_formatBoundary(upper, adjustment)}',
           activityCount: binCounts[index],
           lowerBound: lower,
           upperBound: upper,
@@ -131,6 +131,7 @@ AdjustmentActivityHistogram _groupContinuous(
       }),
     ),
     isBinned: true,
+    hasDurationBounds: adjustment is DurationAdjustment,
   );
 }
 
@@ -168,18 +169,5 @@ bool _isExactMatch(AdjustmentValue? barValue, AdjustmentValue value) {
 int _compareExactValues(AdjustmentValue left, AdjustmentValue right) {
   final (leftNum, rightNum) = (left.asNum, right.asNum);
   if (leftNum != null && rightNum != null) return leftNum.compareTo(rightNum);
-  return left.display.compareTo(right.display);
-}
-
-/// [value] is on the [AdjustmentValue.asNum] scale, i.e. seconds for durations.
-String _formatBoundary(double value, Adjustment adjustment) {
-  final AdjustmentValue displayValue = adjustment is DurationAdjustment
-      ? DurationValue(Duration(microseconds: (value * Duration.microsecondsPerSecond).round()))
-      : NumericalValue(value);
-  return _withUnit(displayValue.display, adjustment);
-}
-
-String _withUnit(String label, Adjustment adjustment) {
-  final unit = adjustment.unit;
-  return unit == null ? label : '$label ${unit.label}';
+  return left.encode().compareTo(right.encode());
 }

@@ -12,6 +12,7 @@ import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 
+import '../models/service_error.dart';
 import '../models/strava/strava_entitlement.dart';
 import '../models/strava/strava_plan.dart';
 import '../models/strava/strava_store_offer.dart';
@@ -44,8 +45,11 @@ class SubscriptionRestoring extends SubscriptionState {
 }
 
 class SubscriptionError extends SubscriptionState {
-  final String message;
-  const SubscriptionError(this.message);
+  final SubscriptionErrorKind kind;
+  final String? detail;
+  const SubscriptionError(this.kind, [this.detail]);
+
+  SubscriptionFailure get failure => ServiceError(kind, detail);
 }
 
 class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
@@ -96,9 +100,9 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   bool _userInitiatedRestore = false;
 
   SubscriptionState get state => _state;
-  String? get errorMessage {
+  SubscriptionFailure? get failure {
     final s = _state;
-    return s is SubscriptionError ? s.message : null;
+    return s is SubscriptionError ? s.failure : null;
   }
 
   bool get storeAvailable => _storeAvailable;
@@ -181,10 +185,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     // flight at 5s and we'd wrongly tell the user no purchase was found.
     if (_userInitiatedRestore && _state is SubscriptionRestoring && !hasStravaEntitlement) {
       _setState(
-        const SubscriptionError(
-          'No previous purchase found for this account. Make sure you are '
-          'signed in to the same Google/Apple account that bought the subscription.',
-        ),
+        const SubscriptionError(SubscriptionErrorKind.noPreviousPurchase),
       );
     }
     _endRestore();
@@ -216,7 +217,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         _onPurchaseUpdate,
         onError: (Object e, StackTrace s) {
           _report('purchaseStream', e, s);
-          _setState(SubscriptionError('Purchase stream error: $e'));
+          _setState(SubscriptionError(SubscriptionErrorKind.streamFailed, e.toString()));
         },
       );
 
@@ -246,7 +247,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       }
     } catch (e, s) {
       _report('initialize', e, s);
-      _setState(SubscriptionError('Subscription init failed: $e'));
+      _setState(SubscriptionError(SubscriptionErrorKind.initFailed, e.toString()));
       _isInitialized = false; // allow retry
     }
   }
@@ -283,7 +284,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       }
     }, onError: (Object e, StackTrace s) {
       _report('entitlementStream', e, s);
-      _setState(SubscriptionError('Entitlement stream error: $e'));
+      _setState(SubscriptionError(SubscriptionErrorKind.entitlementStreamFailed, e.toString()));
     });
   }
 
@@ -303,7 +304,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       final response = await _iap.queryProductDetails(ids);
       if (response.error != null) {
         _report('loadProducts', response.error!, StackTrace.current);
-        _setState(SubscriptionError('Could not load plans: ${response.error!.message}'));
+        _setState(SubscriptionError(SubscriptionErrorKind.plansLoadFailed, response.error!.message));
         return;
       }
       if (response.notFoundIDs.isNotEmpty) {
@@ -320,17 +321,13 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       if (!StravaPlan.values.every(_planOffers.containsKey)) {
         final missing = StravaPlan.values.where((p) => !_planOffers.containsKey(p));
         _report('loadProducts', StateError('Plans without offer: $missing'), StackTrace.current);
-        _setState(
-          const SubscriptionError(
-            'Subscription plans are not fully available. Please try again later.',
-          ),
-        );
+        _setState(const SubscriptionError(SubscriptionErrorKind.plansUnavailable));
         return;
       }
       _setState(const SubscriptionIdle());
     } catch (e, s) {
       _report('loadProducts', e, s);
-      _setState(SubscriptionError('Could not load plans: $e'));
+      _setState(SubscriptionError(SubscriptionErrorKind.plansLoadFailed, e.toString()));
     }
   }
 
@@ -399,12 +396,12 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   /// the result is delivered asynchronously via [purchaseStream]).
   Future<void> buy(StravaPlan plan) async {
     if (!_storeAvailable) {
-      _setState(const SubscriptionError('Store is not available on this device.'));
+      _setState(const SubscriptionError(SubscriptionErrorKind.storeUnavailable));
       return;
     }
     final offer = _planOffers[plan];
     if (offer == null || !offersReady) {
-      _setState(const SubscriptionError('Plan not loaded yet — try again in a moment.'));
+      _setState(const SubscriptionError(SubscriptionErrorKind.planNotLoaded));
       return;
     }
 
@@ -430,7 +427,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       }
     } catch (e, s) {
       _report('buy', e, s);
-      _setState(SubscriptionError('Purchase failed: $e'));
+      _setState(SubscriptionError(SubscriptionErrorKind.purchaseFailed, e.toString()));
     }
   }
 
@@ -438,7 +435,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   /// requires apps with non-consumable / subscription IAPs to offer this.
   Future<void> restorePurchases() async {
     if (!_storeAvailable) {
-      _setState(const SubscriptionError('Store is not available on this device.'));
+      _setState(const SubscriptionError(SubscriptionErrorKind.storeUnavailable));
       return;
     }
     if (_isRestoring) return;
@@ -457,7 +454,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     } catch (e, s) {
       _report('restorePurchases', e, s);
       _endRestore();
-      _setState(SubscriptionError('Restore failed: $e'));
+      _setState(SubscriptionError(SubscriptionErrorKind.restoreFailed, e.toString()));
     }
   }
 
@@ -496,7 +493,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
               StackTrace.current,
               detail: '${pd.productID} ${pd.status.name}',
             );
-            _setState(SubscriptionError('Purchase failed: ${pd.error?.message ?? 'unknown'}'));
+            _setState(SubscriptionError(SubscriptionErrorKind.purchaseFailed, pd.error?.message ?? 'unknown'));
           }
         case PurchaseStatus.canceled:
           _setState(const SubscriptionIdle());
@@ -549,7 +546,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
           StackTrace.current,
           detail: '${pd.productID} ${pd.status.name}',
         );
-        _setState(const SubscriptionError('Missing transaction id for iOS purchase.'));
+        _setState(const SubscriptionError(SubscriptionErrorKind.missingTransactionId));
         return false;
       }
       await functions.httpsCallable('verifySubscription').call<void>({
@@ -591,31 +588,32 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // permission-denied "Purchase is not active."). Terminal — no retry, and a
       // clear, non-alarming message rather than a raw verify error.
       if (e.code == 'permission-denied' && (e.message ?? '').toLowerCase().contains('not active')) {
-        _setState(
-          const SubscriptionError(
-            'This subscription is no longer active on your store account. '
-            'If you renewed recently, try again in a moment.',
-          ),
-        );
+        _setState(const SubscriptionError(SubscriptionErrorKind.subscriptionInactive));
         return false;
       }
       _report('verify', e, s, detail: '[${e.code}] ${pd.productID} ${pd.status.name}');
-      _setState(SubscriptionError(_friendlyVerifyError(e) ?? 'Could not verify purchase: [${e.code}] ${e.message}'));
+      final friendly = _friendlyVerifyError(e);
+      _setState(
+        SubscriptionError(
+          friendly ?? SubscriptionErrorKind.verifyFailed,
+          friendly == null ? '[${e.code}] ${e.message}' : null,
+        ),
+      );
       return false;
     } catch (e, s) {
       _report('verify', e, s, detail: '${pd.productID} ${pd.status.name}');
-      _setState(SubscriptionError('Could not verify purchase: $e'));
+      _setState(SubscriptionError(SubscriptionErrorKind.verifyFailed, e.toString()));
       return false;
     }
   }
 
-  String? _friendlyVerifyError(FirebaseFunctionsException e) {
+  SubscriptionErrorKind? _friendlyVerifyError(FirebaseFunctionsException e) {
     switch (e.code) {
       case 'deadline-exceeded':
       case 'unavailable':
-        return 'No internet connection. Please check your connection and try again.';
+        return SubscriptionErrorKind.noInternet;
       case 'unauthenticated':
-        return 'Authentication error. Please try again.';
+        return SubscriptionErrorKind.authentication;
       default:
         return null;
     }
@@ -623,9 +621,9 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
   void _setState(SubscriptionState newState) {
     if (_state == newState) return;
-    if (newState is SubscriptionError) debugPrint('SubscriptionService error: ${newState.message}');
+    if (newState is SubscriptionError) debugPrint('SubscriptionService error: ${newState.failure}');
     logBreadcrumb(
-      'Subscription: ${newState.runtimeType}${newState is SubscriptionError ? ' — ${newState.message}' : ''}',
+      'Subscription: ${newState.runtimeType}${newState is SubscriptionError ? ' — ${newState.failure}' : ''}',
     );
     _state = newState;
     notifyListeners();

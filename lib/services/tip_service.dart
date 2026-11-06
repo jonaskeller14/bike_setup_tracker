@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
+import '../models/service_error.dart';
 import '../models/tip_product.dart';
 
 sealed class TipState {
@@ -24,8 +25,11 @@ class TipPurchasing extends TipState {
 }
 
 class TipError extends TipState {
-  final String message;
-  const TipError(this.message);
+  final TipErrorKind kind;
+  final String? detail;
+  const TipError(this.kind, [this.detail]);
+
+  TipFailure get failure => ServiceError(kind, detail);
 }
 
 class TipService extends ChangeNotifier {
@@ -73,17 +77,17 @@ class TipService extends ChangeNotifier {
 
       _purchaseSub = _iap.purchaseStream.listen(
         _onPurchaseUpdate,
-        onError: (Object e) => _setState(TipError('Purchase stream error: $e')),
+        onError: (Object e) => _setState(TipError(TipErrorKind.streamFailed, e.toString())),
       );
 
       if (_storeAvailable) {
         await _loadProducts();
       } else {
-        _setState(const TipError('Store is not available on this device.'));
+        _setState(const TipError(TipErrorKind.storeUnavailable));
       }
     } catch (e) {
       debugPrint('TipService: init failed: $e');
-      _setState(TipError('Tip purchase initialization failed: $e'));
+      _setState(TipError(TipErrorKind.initFailed, e.toString()));
       _isInitialized = false; // allow retry
     }
   }
@@ -94,7 +98,7 @@ class TipService extends ChangeNotifier {
       final ids = TipProduct.values.map((t) => t.productId).toSet();
       final response = await _iap.queryProductDetails(ids);
       if (response.error != null) {
-        _setState(TipError('Could not load tips: ${response.error!.message}'));
+        _setState(TipError(TipErrorKind.loadFailed, response.error!.message));
         return;
       }
       if (response.notFoundIDs.isNotEmpty) {
@@ -108,24 +112,24 @@ class TipService extends ChangeNotifier {
       }
       if (!TipProduct.values.every(_products.containsKey)) {
         _setState(
-          const TipError('Tips are not fully available. Please try again later.'),
+          const TipError(TipErrorKind.tipsUnavailable),
         );
         return;
       }
       _setState(const TipIdle());
     } catch (e) {
-      _setState(TipError('Could not load tips: $e'));
+      _setState(TipError(TipErrorKind.loadFailed, e.toString()));
     }
   }
 
   Future<void> buyTip(TipProduct tip) async {
     if (!_storeAvailable) {
-      _setState(const TipError('Store is not available on this device.'));
+      _setState(const TipError(TipErrorKind.storeUnavailable));
       return;
     }
     final product = _products[tip];
     if (product == null) {
-      _setState(const TipError('Tip not loaded yet — try again in a moment.'));
+      _setState(const TipError(TipErrorKind.tipNotLoaded));
       return;
     }
 
@@ -143,7 +147,7 @@ class TipService extends ChangeNotifier {
         _setState(const TipIdle());
       }
     } catch (e) {
-      _setState(TipError('Tip purchase failed: $e'));
+      _setState(TipError(TipErrorKind.purchaseFailed, e.toString()));
     }
   }
 
@@ -172,7 +176,7 @@ class TipService extends ChangeNotifier {
           _setState(const TipIdle());
         case PurchaseStatus.error:
           _setState(
-            TipError('Tip purchase failed: ${pd.error?.message ?? 'unknown'}'),
+            TipError(TipErrorKind.purchaseFailed, pd.error?.message ?? 'unknown'),
           );
         case PurchaseStatus.canceled:
           _setState(const TipIdle());
@@ -198,7 +202,7 @@ class TipService extends ChangeNotifier {
 
   void _setState(TipState state) {
     if (state is TipError) {
-      debugPrint('TipService error: ${state.message}');
+      debugPrint('TipService error: ${state.failure}');
     }
     _state = state;
     notifyListeners();

@@ -45,10 +45,30 @@ option_values:
         - Pressurised closed three-way cartridge with the FCV valve
         - Separate low-speed compression, high-speed compression and rebound dials
         - Every click is counted from fully closed, opening counter-clockwise
+      description_de: |-
+        - Geschlossene Druckkartusche mit drei Einstellwegen und FCV-Ventil
+        - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
+        - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
+      description_fr: |-
+        - Cartouche à trois voies fermée et pressurisée avec la valve FCV
+        - Molettes séparées de compression basse vitesse, de compression haute vitesse et de détente
+        - Chaque clic est compté depuis la position entièrement fermée, en ouvrant dans le sens antihoraire
+      description_it: |-
+        - Cartuccia a tre vie chiusa e pressurizzata con la valvola FCV
+        - Manopole separate di compressione a bassa velocità, di compressione ad alta velocità e di ritorno
+        - Ogni scatto è contato a partire dalla posizione completamente chiusa, aprendo in senso antiorario
+      description_es: |-
+        - Cartucho de tres vías cerrado y presurizado con la válvula FCV
+        - Ruedas separadas de compresión de baja velocidad, de compresión de alta velocidad y de rebote
+        - Cada clic se cuenta desde la posición totalmente cerrada, abriendo en sentido antihorario
+      description_pt: |-
+        - Cartucho de três vias fechado e pressurizado com a válvula FCV
+        - Seletores separados de compressão de baixa velocidade, de compressão de alta velocidade e de retorno
+        - Cada clique é contado a partir da posição totalmente fechada, abrindo no sentido anti-horário
       adjustments:
-        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 27, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 27, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
       source:
         - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422873
         - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422386
@@ -66,10 +86,30 @@ option_values:
         - Downhill version of the pressurised closed three-way Grabber cartridge with FCV valve
         - Adds a hydraulic end-of-travel stop
         - Every click is counted from fully closed, opening counter-clockwise
+      description_de: |-
+        - Downhill-Version der geschlossenen Druckkartusche Grabber mit drei Einstellwegen und FCV-Ventil
+        - Mit hydraulischem Endanschlag am Ende des Federwegs
+        - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
+      description_fr: |-
+        - Version descente de la cartouche Grabber à trois voies, fermée et pressurisée, avec valve FCV
+        - Ajoute une butée hydraulique de fin de course
+        - Chaque clic est compté depuis la position entièrement fermée, en ouvrant dans le sens antihoraire
+      description_it: |-
+        - Versione downhill della cartuccia Grabber a tre vie, chiusa e pressurizzata, con valvola FCV
+        - Aggiunge un arresto idraulico di fine corsa
+        - Ogni scatto è contato a partire dalla posizione completamente chiusa, aprendo in senso antiorario
+      description_es: |-
+        - Versión de descenso del cartucho Grabber de tres vías, cerrado y presurizado, con válvula FCV
+        - Añade un tope hidráulico de final de recorrido
+        - Cada clic se cuenta desde la posición totalmente cerrada, abriendo en sentido antihorario
+      description_pt: |-
+        - Versão downhill do cartucho Grabber de três vias, fechado e pressurizado, com válvula FCV
+        - Acrescenta um batente hidráulico de fim de curso
+        - Cada clique é contado a partir da posição totalmente fechada, abrindo no sentido anti-horário
       adjustments:
-        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 27, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 27, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
       source:
         - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422364
         - https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
@@ -85,9 +125,29 @@ option_values:
         - Pressurised closed two-way downhill cartridge
         - One compression dial and one rebound dial
         - Progressive hydraulic end stop; every click is counted from fully closed
+      description_de: |-
+        - Geschlossene Downhill-Druckkartusche mit zwei Einstellwegen
+        - Ein Druckstufenrad und ein Zugstufenrad
+        - Progressiver hydraulischer Endanschlag; jeder Klick wird von ganz geschlossen gezählt
+      description_fr: |-
+        - Cartouche descente à deux voies fermée et pressurisée
+        - Une molette de compression et une molette de détente
+        - Butée hydraulique de fin de course progressive ; chaque clic est compté depuis la position entièrement fermée
+      description_it: |-
+        - Cartuccia da downhill a due vie chiusa e pressurizzata
+        - Una manopola di compressione e una di ritorno
+        - Arresto idraulico di fine corsa progressivo; ogni scatto è contato a partire dalla posizione completamente chiusa
+      description_es: |-
+        - Cartucho de descenso de dos vías cerrado y presurizado
+        - Una rueda de compresión y una de rebote
+        - Tope hidráulico de final de recorrido progresivo; cada clic se cuenta desde la posición totalmente cerrada
+      description_pt: |-
+        - Cartucho de downhill de duas vias fechado e pressurizado
+        - Um seletor de compressão e um de retorno
+        - Batente hidráulico de fim de curso progressivo; cada clique é contado a partir da posição totalmente fechada
       adjustments:
-        - { name: Compression, type: step, max: 20 }
-        - { name: Rebound, type: step, max: 28 }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 20 }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 28 }
       source:
         - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422906
         - https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
@@ -105,10 +165,30 @@ option_values:
         - Open three-way cartridge tuned for dirt jump
         - Separate low-speed compression, high-speed compression and rebound dials
         - Every click is counted from fully closed, opening counter-clockwise
+      description_de: |-
+        - Offene Kartusche mit drei Einstellwegen, auf Dirt Jump abgestimmt
+        - Getrennte Räder für Low-Speed-Druckstufe, High-Speed-Druckstufe und Zugstufe
+        - Jeder Klick wird von ganz geschlossen gezählt, Öffnen gegen den Uhrzeigersinn
+      description_fr: |-
+        - Cartouche ouverte à trois voies réglée pour le dirt jump
+        - Molettes séparées de compression basse vitesse, de compression haute vitesse et de détente
+        - Chaque clic est compté depuis la position entièrement fermée, en ouvrant dans le sens antihoraire
+      description_it: |-
+        - Cartuccia aperta a tre vie tarata per il dirt jump
+        - Manopole separate di compressione a bassa velocità, di compressione ad alta velocità e di ritorno
+        - Ogni scatto è contato a partire dalla posizione completamente chiusa, aprendo in senso antiorario
+      description_es: |-
+        - Cartucho abierto de tres vías tarado para dirt jump
+        - Ruedas separadas de compresión de baja velocidad, de compresión de alta velocidad y de rebote
+        - Cada clic se cuenta desde la posición totalmente cerrada, abriendo en sentido antihorario
+      description_pt: |-
+        - Cartucho aberto de três vias calibrado para dirt jump
+        - Seletores separados de compressão de baixa velocidade, de compressão de alta velocidade e de retorno
+        - Cada clique é contado a partir da posição totalmente fechada, abrindo no sentido anti-horário
       adjustments:
-        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 27, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 25, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 27, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 30, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
       source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422893
       note: >-
         Toxik product page: "Cartouche Ouverte 3 voies" with 27/25/30 clics, "Plus
@@ -131,6 +211,11 @@ option_values:
 guides:
   bos_kyll39_2025:
     label: BOS Kyll 39 Grabber Quickstart (2025)
+    label_de: BOS Kyll 39 Grabber Schnellstart (2025)
+    label_fr: Guide de démarrage rapide BOS Kyll 39 Grabber (2025)
+    label_it: Guida rapida BOS Kyll 39 Grabber (2025)
+    label_es: Guía de inicio rápido BOS Kyll 39 Grabber (2025)
+    label_pt: Guia rápido BOS Kyll 39 Grabber (2025)
     source: https://www.bos-suspension.com/Files/125448/Quickstart_KYLL_39_GRABBER_EN.pdf
     rules:
       - target: pressure
@@ -143,6 +228,11 @@ guides:
           90: 251, 95: 265, 100: 279, 105: 293, 110: 307
         }
         note: &bos_pressure_style Up to 5 psi more or less depending on use and riding style
+        note_de: &bos_pressure_style_de Bis zu 5 psi mehr oder weniger je nach Einsatz und Fahrstil
+        note_fr: &bos_pressure_style_fr Jusqu’à 5 psi de plus ou de moins selon l’usage et le style de pilotage
+        note_it: &bos_pressure_style_it Fino a 5 psi in più o in meno a seconda dell’uso e dello stile di guida
+        note_es: &bos_pressure_style_es Hasta 5 psi más o menos según el uso y el estilo de pilotaje
+        note_pt: &bos_pressure_style_pt Até 5 psi a mais ou a menos conforme o uso e o estilo de pilotagem
       - target: pressure
         unit: psi
         input: rider_weight
@@ -153,6 +243,11 @@ guides:
           90: 233, 95: 245, 100: 257, 105: 269, 110: 282
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
+        note_fr: *bos_pressure_style_fr
+        note_it: *bos_pressure_style_it
+        note_es: *bos_pressure_style_es
+        note_pt: *bos_pressure_style_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -163,6 +258,11 @@ guides:
           90: 220, 95: 231, 100: 243, 105: 255, 110: 266
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
+        note_fr: *bos_pressure_style_fr
+        note_it: *bos_pressure_style_it
+        note_es: *bos_pressure_style_es
+        note_pt: *bos_pressure_style_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -173,13 +273,23 @@ guides:
           90: 208, 95: 220, 100: 231, 105: 242, 110: 253
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
+        note_fr: *bos_pressure_style_fr
+        note_it: *bos_pressure_style_it
+        note_es: *bos_pressure_style_es
+        note_pt: *bos_pressure_style_pt
       - &grabber_lsc { target: lsc, value: 11 }
       - &grabber_hsc { target: hsc, value: 10 }
       - &grabber_rebound { target: rebound, value: 10 }
-      - &grabber_tokens { target: volume_spacers, value: 1, note: The factory-fitted token }
+      - &grabber_tokens { target: volume_spacers, value: 1, note: The factory-fitted token, note_de: Der werkseitig verbaute Token, note_fr: Le token monté en usine, note_it: Il token montato in fabbrica, note_es: El token montado de fábrica, note_pt: O token montado de fábrica }
 
   bos_idylle39_2025:
     label: BOS Idylle 39 Grabber Quickstart (2025)
+    label_de: BOS Idylle 39 Grabber Schnellstart (2025)
+    label_fr: Guide de démarrage rapide BOS Idylle 39 Grabber (2025)
+    label_it: Guida rapida BOS Idylle 39 Grabber (2025)
+    label_es: Guía de inicio rápido BOS Idylle 39 Grabber (2025)
+    label_pt: Guia rápido BOS Idylle 39 Grabber (2025)
     source: https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
     rules:
       - target: pressure
@@ -191,6 +301,11 @@ guides:
           90: 230, 95: 243, 100: 256, 105: 270, 110: 283
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
+        note_fr: *bos_pressure_style_fr
+        note_it: *bos_pressure_style_it
+        note_es: *bos_pressure_style_es
+        note_pt: *bos_pressure_style_pt
       - *grabber_lsc
       - *grabber_hsc
       - *grabber_rebound
@@ -198,6 +313,11 @@ guides:
 
   bos_obsys42_2025:
     label: BOS Obsys Quickstart
+    label_de: BOS Obsys Schnellstart
+    label_fr: Guide de démarrage rapide BOS Obsys
+    label_it: Guida rapida BOS Obsys
+    label_es: Guía de inicio rápido BOS Obsys
+    label_pt: Guia rápido BOS Obsys
     source: https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
     rules:
       - target: pressure
@@ -209,6 +329,11 @@ guides:
           90: 209, 95: 216, 100: 221, 105: 226, 110: 231, 115: 235, 120: 238
         }
         note: *bos_pressure_style
+        note_de: *bos_pressure_style_de
+        note_fr: *bos_pressure_style_fr
+        note_it: *bos_pressure_style_it
+        note_es: *bos_pressure_style_es
+        note_pt: *bos_pressure_style_pt
       - { target: compression, value: 20 }
       - { target: rebound, value: 13 }
 
@@ -223,6 +348,11 @@ nodes:
   - label: "Deville 35"
     level: model
     category: All-Mountain / Enduro
+    category_de: All-Mountain / Enduro
+    category_fr: All-Mountain / Enduro
+    category_it: All-Mountain / Enduro
+    category_es: All-Mountain / Enduro
+    category_pt: All-Mountain / Enduro
     children:
       - label: "2025–2026"
         level: generation
@@ -234,14 +364,34 @@ nodes:
           - Magnesium lowers, 35mm 7050 aluminium stanchions, from 2020g at 150mm
           - Air pressure range 115-350 psi
           - 15x110 or 20x110mm Boost axle, post-mount 180mm brakes
+        note_de: |-
+          - Magnesium-Tauchrohre, 35mm Standrohre aus Aluminium 7050, ab 2020g bei 150mm
+          - Luftdruckbereich 115-350 psi
+          - 15x110 oder 20x110mm Boost-Achse, Post-Mount-Bremse 180mm
+        note_fr: |-
+          - Fourreaux en magnésium, tubes de 35 mm en aluminium 7050, à partir de 2020 g à 150 mm
+          - Plage de pression d’air 115-350 psi
+          - Axe Boost 15x110 ou 20x110 mm, freins post mount de 180 mm
+        note_it: |-
+          - Foderi in magnesio, steli da 35 mm in alluminio 7050, da 2020 g a 150 mm
+          - Intervallo di pressione dell’aria 115-350 psi
+          - Perno Boost 15x110 o 20x110 mm, freni post mount da 180 mm
+        note_es: |-
+          - Botellas de magnesio, barras de 35 mm de aluminio 7050, desde 2020 g a 150 mm
+          - Rango de presión de aire 115-350 psi
+          - Eje Boost de 15x110 o 20x110 mm, frenos post mount de 180 mm
+        note_pt: |-
+          - Botas de magnésio, bengalas de 35 mm de alumínio 7050, a partir de 2020 g a 150 mm
+          - Faixa de pressão do ar 115-350 psi
+          - Eixo Boost 15x110 ou 20x110 mm, freios post mount de 180 mm
         children:
           - label: Grabber
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [48]
             adjustments: &air_spring_tokens
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
-              - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: Tokens clip onto the air-chamber cap; one stock token fitted }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 350 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, unit: tokens, visualization: stepper, notes: Tokens clip onto the air-chamber cap; one stock token fitted, notes_de: Tokens werden auf die Luftkammerkappe geklippt; ein Serien-Token ist verbaut, notes_fr: Les tokens se clipsent sur le bouchon de la chambre à air ; un token d’origine monté, notes_it: I token si fissano a clip sul tappo della camera d’aria; un token di serie montato, notes_es: Los tokens se sujetan a la tapa de la cámara de aire; viene montado un token de serie, notes_pt: Os tokens se prendem na tampa da câmara de ar; um token de série vem montado }
             options:
               damper: [grabber_2025]
               travel_mm: [140, 150, 160, 170]
@@ -250,6 +400,11 @@ nodes:
   - label: "Kyll 39"
     level: model
     category: Freeride / Enduro / E-Bike
+    category_de: Freeride / Enduro / E-Bike
+    category_fr: Freeride / Enduro / E-Bike
+    category_it: Freeride / Enduro / E-Bike
+    category_es: Freeride / Enduro / E-Bike
+    category_pt: Freeride / Enduro / E-Bike
     children:
       - label: "2025–2026"
         level: generation
@@ -263,10 +418,35 @@ nodes:
           - Tool-free air bleed valve
           - Air pressure range 115-350 psi
           - 15x110 or 20x110mm Boost axle, post-mount 200mm brakes
+        note_de: |-
+          - Magnesium-Tauchrohre, 39mm Standrohre aus Aluminium 7050, ab 2590g bei 170mm
+          - Werkzeugloses Luftablassventil
+          - Luftdruckbereich 115-350 psi
+          - 15x110 oder 20x110mm Boost-Achse, Post-Mount-Bremse 200mm
+        note_fr: |-
+          - Fourreaux en magnésium, tubes de 39 mm en aluminium 7050, à partir de 2590 g à 170 mm
+          - Valve de purge d’air sans outil
+          - Plage de pression d’air 115-350 psi
+          - Axe Boost 15x110 ou 20x110 mm, freins post mount de 200 mm
+        note_it: |-
+          - Foderi in magnesio, steli da 39 mm in alluminio 7050, da 2590 g a 170 mm
+          - Valvola di sfiato dell’aria senza attrezzi
+          - Intervallo di pressione dell’aria 115-350 psi
+          - Perno Boost 15x110 o 20x110 mm, freni post mount da 200 mm
+        note_es: |-
+          - Botellas de magnesio, barras de 39 mm de aluminio 7050, desde 2590 g a 170 mm
+          - Válvula de purga de aire sin herramientas
+          - Rango de presión de aire 115-350 psi
+          - Eje Boost de 15x110 o 20x110 mm, frenos post mount de 200 mm
+        note_pt: |-
+          - Botas de magnésio, bengalas de 39 mm de alumínio 7050, a partir de 2590 g a 170 mm
+          - Válvula de sangria de ar sem ferramentas
+          - Faixa de pressão do ar 115-350 psi
+          - Eixo Boost 15x110 ou 20x110 mm, freios post mount de 200 mm
         children:
           - label: Grabber
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44, 52]
             adjustments: *air_spring_tokens
             options:
@@ -277,6 +457,11 @@ nodes:
   - label: "Idylle 39"
     level: model
     category: Downhill
+    category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     children:
       - label: "2025–2026"
         level: generation
@@ -289,10 +474,30 @@ nodes:
           - Dual-crown chassis, 39mm 7050 aluminium stanchions, 2950g
           - Air pressure range 115-350 psi
           - 20x110mm Boost axle, post-mount 200mm brakes, straight 1 1/8" steerer
+        note_de: |-
+          - Doppelbrücken-Chassis, 39mm Standrohre aus Aluminium 7050, 2950g
+          - Luftdruckbereich 115-350 psi
+          - 20x110mm Boost-Achse, Post-Mount-Bremse 200mm, gerader 1 1/8"-Gabelschaft
+        note_fr: |-
+          - Châssis à double té, tubes de 39 mm en aluminium 7050, 2950 g
+          - Plage de pression d’air 115-350 psi
+          - Axe Boost 20x110 mm, disques de 200 mm en post mount, tube de direction droit 1 1/8"
+        note_it: |-
+          - Telaio a doppia piastra, steli da 39 mm in alluminio 7050, 2950 g
+          - Intervallo di pressione dell’aria 115-350 psi
+          - Perno Boost 20x110 mm, freni post mount da 200 mm, canotto sterzo dritto 1 1/8"
+        note_es: |-
+          - Chasis de doble corona, barras de 39 mm de aluminio 7050, 2950 g
+          - Rango de presión de aire 115-350 psi
+          - Eje Boost de 20x110 mm, frenos post mount de 200 mm, tubo de dirección recto de 1 1/8"
+        note_pt: |-
+          - Chassi de dupla coroa, bengalas de 39 mm de alumínio 7050, 2950 g
+          - Faixa de pressão do ar 115-350 psi
+          - Eixo Boost 20x110 mm, freios post mount de 200 mm, tubo de direção reto de 1 1/8"
         children:
           - label: Grabber
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [48]
             adjustments: *air_spring_tokens
             options:
@@ -303,6 +508,11 @@ nodes:
   - label: "Obsys 42"
     level: model
     category: Downhill
+    category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     children:
       - label: "2025–2026"
         level: generation
@@ -315,13 +525,33 @@ nodes:
           - Dual-crown chassis with aluminium lowers, 42mm 7050 aluminium stanchions, 3260g
           - Air pressure range 135-250 psi
           - 20x110mm Boost or standard axle, post-mount 200mm brakes
+        note_de: |-
+          - Doppelbrücken-Chassis mit Aluminium-Tauchrohren, 42mm Standrohre aus Aluminium 7050, 3260g
+          - Luftdruckbereich 135-250 psi
+          - 20x110mm Boost- oder Standardachse, Post-Mount-Bremse 200mm
+        note_fr: |-
+          - Châssis à double té avec fourreaux aluminium, tubes de 42 mm en aluminium 7050, 3260 g
+          - Plage de pression d’air 135-250 psi
+          - Axe Boost 20x110 mm ou standard, disques de 200 mm en post mount
+        note_it: |-
+          - Telaio a doppia piastra con foderi in alluminio, steli da 42 mm in alluminio 7050, 3260 g
+          - Intervallo di pressione dell’aria 135-250 psi
+          - Perno Boost 20x110 mm o standard, freni post mount da 200 mm
+        note_es: |-
+          - Chasis de doble corona con botellas de aluminio, barras de 42 mm de aluminio 7050, 3260 g
+          - Rango de presión de aire 135-250 psi
+          - Eje Boost de 20x110 mm o estándar, frenos post mount de 200 mm
+        note_pt: |-
+          - Chassi de dupla coroa com botas de alumínio, bengalas de 42 mm de alumínio 7050, 3260 g
+          - Faixa de pressão do ar 135-250 psi
+          - Eixo Boost 20x110 mm ou padrão, freios post mount de 200 mm
         children:
           - label: Air
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [48]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 250 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 250 }
             options:
               damper: [obsys_2025]
               travel_mm: [200]
@@ -330,6 +560,11 @@ nodes:
   - label: "Toxik"
     level: model
     category: Dirt Jump
+    category_de: Dirt Jump
+    category_fr: Dirt Jump
+    category_it: Dirt Jump
+    category_es: Dirt Jump
+    category_pt: Dirt Jump
     children:
       - label: "2025–2026"
         level: generation
@@ -339,13 +574,28 @@ nodes:
         note: |-
           - Magnesium lowers, 35mm 7050 aluminium stanchions, 1900g
           - 15x110 or 20x110mm Boost axle, post-mount 180mm brakes
+        note_de: |-
+          - Magnesium-Tauchrohre, 35mm Standrohre aus Aluminium 7050, 1900g
+          - 15x110 oder 20x110mm Boost-Achse, Post-Mount-Bremse 180mm
+        note_fr: |-
+          - Fourreaux en magnésium, tubes de 35 mm en aluminium 7050, 1900 g
+          - Axe Boost 15x110 ou 20x110 mm, freins post mount de 180 mm
+        note_it: |-
+          - Foderi in magnesio, steli da 35 mm in alluminio 7050, 1900 g
+          - Perno Boost 15x110 o 20x110 mm, freni post mount da 180 mm
+        note_es: |-
+          - Botellas de magnesio, barras de 35 mm de aluminio 7050, 1900 g
+          - Eje Boost de 15x110 o 20x110 mm, frenos post mount de 180 mm
+        note_pt: |-
+          - Botas de magnésio, bengalas de 35 mm de alumínio 7050, 1900 g
+          - Eixo Boost 15x110 ou 20x110 mm, freios post mount de 180 mm
         children:
           - label: Air
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [48]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
             options:
               damper: [toxik_open_2025]
               travel_mm: [100]

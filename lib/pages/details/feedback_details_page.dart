@@ -4,13 +4,16 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/entity_names.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/feedback_text.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/custom_issue.dart';
 import '../../models/feedback/feedback_comparison.dart';
 import '../../models/feedback/feedback_key.dart';
 import '../../models/feedback/feedback_summary.dart';
-import '../../models/feedback/feedback_vocabulary.dart';
 import '../../models/feedback/ride_feedback.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
@@ -50,9 +53,9 @@ class FeedbackDetailsContent extends StatelessWidget {
     final feedback = appRepository.feedbacks[feedbackId];
 
     if (feedback == null) {
-      return const EmptyStatePlaceholder.error(
-        title: "Feedback not found",
-        subtitle: "This feedback was deleted or is no longer available.",
+      return EmptyStatePlaceholder.error(
+        title: context.l10n.feedbackDetailsNotFoundTitle,
+        subtitle: context.l10n.feedbackDetailsNotFoundSubtitle,
       );
     }
 
@@ -75,7 +78,7 @@ class FeedbackDetailsContent extends StatelessWidget {
                 ContextLocationWeatherCard(
                   position: feedback.position,
                   place: feedback.place,
-                  displayName: 'Feedback',
+                  displayName: context.l10n.feedbackName,
                   mapPin: const FeedbackMapPin(),
                   weather: feedback.weather,
                   onViewOnMap: showViewOnMap ? () => MapActions.openFeedbackOnMap(context, feedback) : null,
@@ -104,13 +107,13 @@ class FeedbackDetailsContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  feedback.verdict(setups) ?? 'Feedback',
+                  feedback.verdict(setups, context.l10n) ?? context.l10n.feedbackName,
                   style: Theme.of(context).textTheme.titleLarge,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  "${DateFormat(appSettings.dateFormat).format(feedback.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(feedback.dateTimeLocal)}",
+                  "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(feedback.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(feedback.dateTimeLocal)}",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
@@ -153,7 +156,7 @@ class FeedbackDetailsContent extends StatelessWidget {
 
     final bike = appRepository.bikes[feedback.bike];
     final resolved = appRepository.resolvedSetupFor(feedback);
-    final storedName = appRepository.setups[feedback.setupId]?.displayName ?? 'a deleted setup';
+    final storedName = appRepository.setups[feedback.setupId]?.label(context.l10n) ?? context.l10n.feedbackDeletedSetup;
     final activityId = feedback.stravaActivityId;
     final activity = activityId == null ? null : appRepository.stravaActivities[activityId];
 
@@ -166,7 +169,7 @@ class FeedbackDetailsContent extends StatelessWidget {
           ListTile(
             leading: Icon(Bike.iconData, color: bike == null ? colorScheme.error : null),
             title: Text(
-              bike?.name ?? "BIKE NOT FOUND",
+              bike?.name ?? context.l10n.bikeNotFound,
               style: bike == null ? TextStyle(color: colorScheme.error) : null,
               overflow: TextOverflow.ellipsis,
             ),
@@ -175,13 +178,13 @@ class FeedbackDetailsContent extends StatelessWidget {
           ListTile(
             leading: Icon(Setup.iconData, color: resolved == null ? colorScheme.error : null),
             title: Text(
-              resolved?.displayName ?? "SETUP NOT FOUND",
+              resolved?.label(context.l10n) ?? context.l10n.setupNotFound,
               style: resolved == null ? TextStyle(color: colorScheme.error) : null,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             subtitle: appRepository.hasSetupDrift(feedback)
-                ? Text("Originally '$storedName'", style: TextStyle(color: colorScheme.error))
+                ? Text(context.l10n.feedbackDetailsOriginally(storedName), style: TextStyle(color: colorScheme.error))
                 : null,
             dense: true,
             trailing: resolved == null ? null : const Icon(Icons.chevron_right),
@@ -190,7 +193,7 @@ class FeedbackDetailsContent extends StatelessWidget {
           if (activityId != null)
             ListTile(
               leading: const Icon(SimpleIcons.strava),
-              title: Text(activity?.name ?? "Strava ride not synced", overflow: TextOverflow.ellipsis),
+              title: Text(activity?.name ?? context.l10n.feedbackDetailsStravaNotSynced, overflow: TextOverflow.ellipsis),
               dense: true,
               trailing: activity == null ? null : const Icon(Icons.chevron_right),
               onTap: activity == null
@@ -223,12 +226,12 @@ class FeedbackDetailsContent extends StatelessWidget {
         _compactCard(
           context,
           icon: Icons.compare_arrows,
-          overline: 'Compared to',
-          title: setups[referenceId]?.displayName ?? 'A deleted setup',
+          overline: context.l10n.feedbackFormComparedTo,
+          title: setups[referenceId]?.label(context.l10n) ?? context.l10n.feedbackDeletedSetupTitle,
           trailing: switch (byReference[referenceId]!.firstWhereOrNull((c) => c.aspect is OverallAspect)) {
             final overall? => _outcomePill(
               context,
-              FeedbackVocabulary.overallOutcomeLabels[overall.outcome]!,
+              FeedbackOutcomeLabels.overall(context.l10n)[overall.outcome]!,
               overall.outcome,
               large: true,
             ),
@@ -236,15 +239,15 @@ class FeedbackDetailsContent extends StatelessWidget {
           },
           children: [
             for (final comparison in byReference[referenceId]!.sorted(
-              (a, b) => _compareAspects(a.aspect, b.aspect, customIssues),
+              (a, b) => _compareAspects(a.aspect, b.aspect, customIssues, context.l10n),
             ))
-              if (_issueLabel(comparison.aspect, customIssues) case final label?)
+              if (_issueLabel(comparison.aspect, customIssues, context.l10n) case final label?)
                 _row(
                   context,
                   label: label,
                   value: _outcomePill(
                     context,
-                    FeedbackVocabulary.aspectOutcomeLabels[comparison.outcome]!,
+                    FeedbackOutcomeLabels.aspect(context.l10n)[comparison.outcome]!,
                     comparison.outcome,
                   ),
                 ),
@@ -254,14 +257,14 @@ class FeedbackDetailsContent extends StatelessWidget {
   }
 
   /// The label of an issue aspect, null for the others.
-  static String? _issueLabel(FeedbackAspect aspect, CustomIssueIndex customIssues) => switch (aspect) {
-    final EndAspect aspect => FeedbackIssue.end(aspect).label,
+  static String? _issueLabel(FeedbackAspect aspect, CustomIssueIndex customIssues, AppLocalizations l10n) => switch (aspect) {
+    final EndAspect aspect => FeedbackIssue.end(aspect).labelText(l10n),
     CustomAspect(:final slug) => customIssues.labelOf(slug),
     _ => null,
   };
 
   /// Built-in issues in vocabulary order, then custom ones by label.
-  static int _compareAspects(FeedbackAspect a, FeedbackAspect b, CustomIssueIndex customIssues) {
+  static int _compareAspects(FeedbackAspect a, FeedbackAspect b, CustomIssueIndex customIssues, AppLocalizations l10n) {
     int order(FeedbackAspect aspect) => switch (aspect) {
       OverallAspect() => -1,
       final EndAspect aspect => EndAspect.values.indexOf(aspect),
@@ -270,7 +273,7 @@ class FeedbackDetailsContent extends StatelessWidget {
     };
     final byOrder = order(a).compareTo(order(b));
     if (byOrder != 0) return byOrder;
-    return (_issueLabel(a, customIssues) ?? '').toLowerCase().compareTo((_issueLabel(b, customIssues) ?? '').toLowerCase());
+    return (_issueLabel(a, customIssues, l10n) ?? '').toLowerCase().compareTo((_issueLabel(b, customIssues, l10n) ?? '').toLowerCase());
   }
 
   /// [large] for the overall answer, so it stands out from the follow-ups.
@@ -386,10 +389,10 @@ class FeedbackDetailsContent extends StatelessWidget {
     return _compactCard(
       context,
       icon: Icons.flag_outlined,
-      title: 'Anything stand out?',
+      title: context.l10n.feedbackFormAnythingTitle,
       trailing: answered
           ? null
-          : Text('Not answered', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          : Text(context.l10n.feedbackDetailsNotAnswered, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       children: [if (answered) OpenIssuesChips(issues: issues)],
     );
   }

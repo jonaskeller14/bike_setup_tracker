@@ -7,12 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/catalog_labels.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_catalog.dart';
 import '../../models/component/preset_spec_keys.dart';
 import '../../models/component/year_span.dart';
 import '../../repositories/component_catalog_repository.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
@@ -370,10 +374,13 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   // --- build ----------------------------------------------------------------
 
   String get _title => switch (_stage) {
-    _Brands() => 'Choose from catalog',
-    _Nodes(:final catalog, :final parents) => _nodesTitle(_catalog?.childrenOf(catalog, parents) ?? const []),
-    final _RequiredAxis stage => 'Select ${stage.axis.key.label.toLowerCase()}',
-    _OptionalAxes() => 'Optional details',
+    _Brands() => context.l10n.catalogPickerTitle,
+    _Nodes(:final catalog, :final parents) => _nodesTitle(
+      _catalog?.childrenOf(catalog, parents) ?? const [],
+      context.l10n,
+    ),
+    final _RequiredAxis stage => context.l10n.catalogPickerSelect(stage.axis.key.inSentence(context.l10n)),
+    _OptionalAxes() => context.l10n.catalogPickerOptionalDetails,
   };
 
   /// Identity of the body on screen; the switcher animates whenever it changes.
@@ -473,16 +480,20 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   Widget _buildSearchField() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: TextField(
-        controller: _searchController,
-        textInputAction: TextInputAction.search,
-        onChanged: _onQueryChanged,
-        decoration: InputDecoration(
-          isDense: true,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: _query.isEmpty ? null : IconButton(icon: const Icon(Icons.clear), onPressed: _clearQuery),
-          hintText: 'Search ${widget.componentType.label.toLowerCase()}s…',
-          border: const OutlineInputBorder(),
+      child: Semantics(
+        container: true,
+        identifier: AutomationIds.catalogPickerSearch,
+        child: TextField(
+          controller: _searchController,
+          textInputAction: TextInputAction.search,
+          onChanged: _onQueryChanged,
+          decoration: InputDecoration(
+            isDense: true,
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: _query.isEmpty ? null : IconButton(icon: const Icon(Icons.clear), onPressed: _clearQuery),
+            hintText: context.l10n.catalogPickerSearchHint(widget.componentType.labelInSentence(context.l10n)),
+            border: const OutlineInputBorder(),
+          ),
         ),
       ),
     );
@@ -490,12 +501,10 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
 }
 
 /// `Select trim`, from the level the listed nodes sit on.
-String _nodesTitle(List<_NodeEntry> children) {
-  final levels = {for (final child in children) _levelLabel(child.node.level)};
-  return levels.isEmpty ? 'Select' : 'Select ${levels.join(' / ')}';
+String _nodesTitle(List<_NodeEntry> children, AppLocalizations l10n) {
+  final levels = {for (final child in children) catalogLevelInSentence(child.node.level, l10n)};
+  return levels.isEmpty ? l10n.catalogPickerSelectGeneric : l10n.catalogPickerSelect(levels.join(' / '));
 }
-
-String _levelLabel(String level) => level.replaceAll('_', ' ');
 
 // --- breadcrumb --------------------------------------------------------------
 
@@ -739,7 +748,7 @@ class _BrandList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (brands.isEmpty) {
-      return const _EmptyHint(text: 'No catalog entries available.');
+      return _EmptyHint(text: context.l10n.catalogPickerNoEntries);
     }
     return _TileList(
       itemCount: brands.length,
@@ -849,7 +858,7 @@ class _ProductTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subtitle = _productSubtitle(product);
+    final subtitle = _productSubtitle(product, context.l10n);
     return ListTile(
       title: _TileTitle(title, selected: selected),
       subtitle: subtitle == null ? null : _SubtitleText(subtitle),
@@ -880,10 +889,10 @@ class _Trailing extends StatelessWidget {
 
 /// `GRIP X2 / GRIP X · 150 / 160 mm · Kashima`: what the product can be had
 /// with, so siblings can be told apart before opening one.
-String? _productSubtitle(ResolvedPreset product) {
+String? _productSubtitle(ResolvedPreset product, AppLocalizations l10n) {
   final stanchion = product.effectiveSpecs.get(PresetSpecKeys.stanchion);
   final parts = [
-    for (final axis in product.axes) optionAxisSummary(axis),
+    for (final axis in product.axes) optionAxisSummary(axis, l10n),
     ?stanchion,
   ];
   return parts.isEmpty ? null : parts.join(' · ');
@@ -912,7 +921,7 @@ class _RequiredValueList extends StatelessWidget {
       itemCount: values.length,
       itemBuilder: (context, index) {
         final value = values[index];
-        final lines = _valueSubtitleLines(value);
+        final lines = _valueSubtitleLines(value, context.l10n);
         final selected = value.id == currentId;
         return ListTile(
           title: _TileTitle(value.label, selected: selected),
@@ -934,13 +943,13 @@ class _RequiredValueList extends StatelessWidget {
 
 /// Description above a summary of the value's click ranges, one line each, so
 /// each is cut short on its own rather than wrapping into the next.
-List<String> _valueSubtitleLines(OptionValue value) {
+List<String> _valueSubtitleLines(OptionValue value, AppLocalizations l10n) {
   final lines = <String>[];
   final description = value.description?.trim();
   if (description != null && description.isNotEmpty) lines.add(description);
   final adjustments = _adjustmentSummary(value);
   if (adjustments.isNotEmpty) lines.add(adjustments);
-  if (value.missingAdjustments.isNotEmpty) lines.add('Add by hand: ${value.missingAdjustments.join(', ')}');
+  if (value.missingAdjustments.isNotEmpty) lines.add(l10n.catalogPickerAddByHand(value.missingAdjustments.join(', ')));
   return lines;
 }
 
@@ -1027,11 +1036,15 @@ class _OptionalAxesStepState extends State<_OptionalAxesStep> {
         Container(
           padding: const EdgeInsets.all(16),
           width: double.infinity,
-          child: FilledButton.icon(
-            icon: Icon(_hasChoice ? Icons.check : Icons.arrow_forward),
-            // Unset axes stay unset: nothing is guessed for what is skipped.
-            onPressed: () => widget.onDone(_preset),
-            label: Text(_hasChoice ? 'Apply' : 'Skip'),
+          child: Semantics(
+            container: true,
+            identifier: AutomationIds.catalogPickerApply,
+            child: FilledButton.icon(
+              icon: Icon(_hasChoice ? Icons.check : Icons.arrow_forward),
+              // Unset axes stay unset: nothing is guessed for what is skipped.
+              onPressed: () => widget.onDone(_preset),
+              label: Text(_hasChoice ? context.l10n.catalogPickerApply : context.l10n.catalogPickerSkip),
+            ),
           ),
         ),
       ],
@@ -1048,11 +1061,11 @@ class _AxisChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final groups = _chipGroups(axis);
+    final groups = _chipGroups(axis, context.l10n);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SheetGroupTitle(title: axis.key.label),
+        SheetGroupTitle(title: axis.key.name(context.l10n)),
         for (final MapEntry(key: heading, value: values) in groups.entries) ...[
           if (heading != null)
             Padding(
@@ -1094,7 +1107,7 @@ class _YearChips extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SheetGroupTitle(title: 'Model year'),
+        SheetGroupTitle(title: context.l10n.catalogPickerModelYear),
         Wrap(
           spacing: 8,
           runSpacing: 4,
@@ -1115,15 +1128,15 @@ class _YearChips extends StatelessWidget {
 /// Shock sizes are grouped by eye-to-eye length, since that is what a frame
 /// fixes and the stroke is chosen within it. Every other axis is one group
 /// without a heading, as is a size axis that lists strokes only.
-Map<String?, List<OptionValue>> _chipGroups(OptionAxis axis) {
+Map<String?, List<OptionValue>> _chipGroups(OptionAxis axis, AppLocalizations l10n) {
   if (axis.id != PresetOptionAxes.size.id) return {null: axis.values};
   final byLength = groupBy(axis.values, (value) => value.specs.get(PresetSpecKeys.eyeToEyeMm));
   if (byLength.keys.every((length) => length == null)) return {null: axis.values};
   return {
     for (final MapEntry(key: length, value: values) in byLength.entries)
       length == null
-              ? _uncategorised
-              : '${PresetSpecKeys.eyeToEyeMm.label} ${PresetSpecKeys.eyeToEyeMm.format(length)}':
+              ? l10n.catalogPickerCategoryOther
+              : '${PresetSpecKeys.eyeToEyeMm.name(l10n)} ${PresetSpecKeys.eyeToEyeMm.format(length)}':
           values,
   };
 }
@@ -1189,7 +1202,7 @@ class _CategoryHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Text(
-        label.toUpperCase(),
+        (label == _uncategorised ? context.l10n.catalogPickerCategoryOther : label).toUpperCase(),
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
@@ -1236,8 +1249,8 @@ class _NoMatches extends StatelessWidget {
         children: [
           SheetFilterEmptyHint(
             icon: Icons.search_off,
-            title: 'No matches for "$query".',
-            hint: 'Check the spelling, or search for the model name only.',
+            title: context.l10n.catalogPickerNoMatches(query),
+            hint: context.l10n.catalogPickerNoMatchesHint,
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -1248,12 +1261,16 @@ class _NoMatches extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onEnterManually,
                   icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Enter manually'),
+                  label: Text(context.l10n.catalogPickerEnterManually),
                 ),
-              TextButton.icon(
-                onPressed: onRequest,
-                icon: Icon(requested ? Icons.check : Icons.playlist_add),
-                label: Text(requested ? 'Requested, thanks' : 'Request this product'),
+              Semantics(
+                container: true,
+                identifier: AutomationIds.catalogPickerRequest,
+                child: TextButton.icon(
+                  onPressed: onRequest,
+                  icon: Icon(requested ? Icons.check : Icons.playlist_add),
+                  label: Text(requested ? context.l10n.catalogPickerRequested : context.l10n.catalogPickerRequest),
+                ),
               ),
             ],
           ),
@@ -1280,9 +1297,9 @@ class _LoadFailure extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(24),
-      child: Text('Could not load the catalog.'),
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Text(context.l10n.catalogPickerLoadError),
     );
   }
 }

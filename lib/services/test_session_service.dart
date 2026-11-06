@@ -2,9 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show IconData;
 import 'package:intl/intl.dart';
 
+import '../l10n/entity_names.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
-import '../models/feedback/feedback_key.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/feedback/test_session.dart';
 import '../models/feedback/test_session_method.dart';
@@ -132,13 +133,46 @@ class TestSessionService {
     return session.adjustmentIds.toSet().difference(session.locks.keys.toSet());
   }
 
-  /// "Copy of 'Run 2' (1.10.2026)" below the notes of [source]. The notes of an
-  /// earlier run describe that ride, so only a source from outside the session
-  /// passes its notes on, and the copy lines don't pile up run after run.
-  static String runNotes({required Setup source, required TestSession session, required String dateFormat}) {
-    final copyLine = "Copy of '${source.displayName}' (${DateFormat(dateFormat).format(source.datetimeLocal)})";
+  /// Whether an ended [session] may run again: only while it is still the latest
+  /// thing on its bike, so no change slips in between its runs. Setups count from
+  /// the session's start, as one can be backdated between the runs, and other
+  /// sessions on their own, as a newer one may have lost all its runs.
+  static bool canResume(
+    TestSession session, {
+    required Iterable<TestSession> sessions,
+    required Iterable<Setup> setups,
+  }) {
+    if (session.isRunning) return false;
+    final blockedBySession = sessions.any(
+      (other) =>
+          other.id != session.id &&
+          other.bike == session.bike &&
+          (other.isRunning || other.startedAtUTC.isAfter(session.startedAtUTC)),
+    );
+    if (blockedBySession) return false;
+    return !setups.any(
+      (setup) =>
+          setup.bike == session.bike &&
+          setup.testSessionId != session.id &&
+          setup.datetime.isAfter(session.startedAtUTC),
+    );
+  }
+
+  /// Notes of [source], with "Copy of 'Run 2' (1.10.2026)" below (only Tournament)
+  static String? runNotes(
+    AppLocalizations l10n, {
+    required Setup source,
+    required TestSession session,
+    required String dateFormat,
+  }) {
     final notes = source.testSessionId == session.id ? null : source.notes?.trim();
-    return notes == null || notes.isEmpty ? copyLine : '$notes\n\n$copyLine';
+    final text = notes == null || notes.isEmpty ? null : notes;
+    if (session.method is! Tournament) return text;
+    final copyLine = l10n.testSessionCopyLine(
+      source.label(l10n),
+      DateFormat(dateFormat, l10n.localeName).format(source.datetimeLocal),
+    );
+    return text == null ? copyLine : '$text\n\n$copyLine';
   }
 
   /// Run 1 or a later run: a copy of [source] stamped [now] with [values] (a
@@ -146,7 +180,8 @@ class TestSessionService {
   /// even when [source] is an older run. A Compare run ignores locks: a locked
   /// value would turn the candidate into a different setup. A [carryOver]
   /// moves the values of replaced components to their successors first.
-  static Setup run({
+  static Setup run(
+    AppLocalizations l10n, {
     required Setup source,
     required TestSession session,
     required int number,
@@ -165,7 +200,7 @@ class TestSessionService {
         if (current.containsKey(key)) key: value,
     };
     return Setup(
-      name: 'Run $number',
+      name: l10n.testSessionRunName(number),
       notes: notes,
       datetime: stamp.toUtc(),
       datetimeLocal: stamp,
@@ -195,38 +230,5 @@ class TestSessionService {
       ],
     ];
     return ascending ? ordered : ordered.reversed.toList();
-  }
-
-  /// "Front · Calm".
-  static String goalLabel(FeedbackAspect aspect, String Function(String slug) customLabel) => switch (aspect) {
-    EndAspect(:final end, :final attribute) => '${end.label} · ${attribute.qualityLabel}',
-    CustomAspect(:final slug) => customLabel(slug),
-    _ => aspect.raw,
-  };
-
-  static String methodLabel(TestSessionMethod? method) => switch (method) {
-    PatternSearch() => 'Fine-tune',
-    OrthogonalArray() => 'Explore',
-    Tournament() => 'Compare',
-    null => 'Free',
-  };
-
-  static String methodDescription(TestSessionMethod? method) => switch (method) {
-    PatternSearch() => 'Move one knob at a time around your best run, in smaller and smaller steps.',
-    OrthogonalArray() => 'Change all knobs together in a planned pattern to learn what each one does.',
-    Tournament() => 'Ride 2–4 setups you already have against each other to find the best.',
-    null => 'Record the runs and compare them yourself. Nothing is proposed.',
-  };
-
-  /// A rough run count for [knobCount] knobs, or the number of candidates for a
-  /// Compare session.
-  static String? expectedRuns(TestSessionMethod? method, int knobCount) {
-    return switch (method) {
-      _ when knobCount <= 0 => null,
-      PatternSearch() => 'about ${knobCount * 4} runs',
-      OrthogonalArray() => 'about ${knobCount + 2} runs',
-      Tournament(:final candidateSetupIds) => 'about ${candidateSetupIds.length + 1} runs',
-      null => null,
-    };
   }
 }

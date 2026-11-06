@@ -99,6 +99,21 @@ class FilteredView {
     _testSessions.entries.where((entry) => _bikeId == null || entry.value.bike == _bikeId),
   );
 
+  /// The [testSessions] without a single run, which no setup can bring into the
+  /// timeline. One whose runs the filters merely hide is not among them. With
+  /// no runs to span days, the date range applies to its start.
+  late final Map<String, TestSession> emptyTestSessions = () {
+    final sessionsWithRuns = {for (final setup in _setups.values) setup.testSessionId};
+    return Map.fromEntries(
+      testSessions.entries.where(
+        (entry) =>
+            !sessionsWithRuns.contains(entry.key) &&
+            _inDateRange(entry.value.startedAtLocal) &&
+            _setupFilter.matchesEmptySession(entry.value),
+      ),
+    );
+  }();
+
   late final Map<String, Person> persons = _bikeId == null
       ? _persons
       : Map.fromEntries(_persons.entries.where((entry) => entry.value.id == _bikes[_bikeId]?.person));

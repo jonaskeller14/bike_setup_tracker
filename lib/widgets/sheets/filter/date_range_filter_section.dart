@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../l10n/l10n.dart';
 import '../../../models/app_settings.dart';
 import '../../../models/filters/local_date_range.dart';
 import '../../../repositories/app_repository.dart';
@@ -19,7 +20,7 @@ class DateRangeFilterSection extends StatelessWidget {
     final range = filters.dateRange;
     final picked = await showDateRangePicker(
       context: context,
-      helpText: "Select Date Range",
+      helpText: context.l10n.filterDateRangeHelp,
       initialDateRange: range == null ? null : DateTimeRange(start: range.start, end: range.end),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
@@ -35,7 +36,7 @@ class DateRangeFilterSection extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final filters = appRepository.filters;
     final dateFormat = context.select<AppSettings, String>((s) => s.dateFormat);
-    final label = FilterActions.dateRangeLabel(filters.dateRange, dateFormat: dateFormat);
+    final label = FilterActions.dateRangeLabel(filters.dateRange, context.l10n, dateFormat: dateFormat);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final firstDay = appRepository.firstEntryDay;
@@ -44,7 +45,7 @@ class DateRangeFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SheetSectionTitle(title: "Date"),
+        SheetSectionTitle(title: context.l10n.filterDateTitle),
         if (firstDay != null && firstDay.isBefore(today))
           _DateRangeSlider(
             firstDay: firstDay,
@@ -60,7 +61,7 @@ class DateRangeFilterSection extends StatelessWidget {
         else
           FilterChip(
             avatar: const Icon(Icons.calendar_month),
-            label: Text(label ?? "Any date", maxLines: 1, overflow: TextOverflow.ellipsis),
+            label: Text(label ?? context.l10n.filterAnyDate, maxLines: 1, overflow: TextOverflow.ellipsis),
             selected: label != null,
             showCheckmark: false,
             onSelected: (_) => _pickRange(context, filters),
@@ -120,11 +121,11 @@ class _DateRangeSlider extends StatelessWidget {
       // Day ticks only while they stay apart; a longer track is rounded to days on release.
       divisions: max <= 60 ? max.round() : null,
       valueLabel: (dragging) =>
-          FilterActions.dateRangeLabel(dragging == null ? range : _toRange(dragging, max), dateFormat: dateFormat) ??
-          "Any date",
+          FilterActions.dateRangeLabel(dragging == null ? range : _toRange(dragging, max), context.l10n, dateFormat: dateFormat) ??
+          context.l10n.filterAnyDate,
       trailing: IconButton(
         icon: const Icon(Icons.calendar_month),
-        tooltip: "Pick exact dates",
+        tooltip: context.l10n.filterPickDatesTooltip,
         visualDensity: VisualDensity.compact,
         onPressed: onPickExact,
       ),

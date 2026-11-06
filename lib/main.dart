@@ -9,11 +9,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'database/app_database.dart';
+import 'l10n/l10n.dart';
+import 'l10n/locale_resolution.dart';
 import 'models/app_settings.dart';
 import 'pages/home_page.dart';
 import 'pages/loading_error_page.dart';
@@ -36,6 +39,7 @@ import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
 import 'services/tip_service.dart';
 import 'theme.dart';
+import 'utils/regional_defaults.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -132,7 +136,9 @@ class LoadingGate extends StatefulWidget {
 
 class _LoadingGateState extends State<LoadingGate> {
   late final Future<void> _initialization;
-  final _catalogRepository = ComponentCatalogRepository();
+  late final _catalogRepository = ComponentCatalogRepository(
+    languageCode: () => appLocaleOf(widget.appSettings).languageCode,
+  );
 
   @override
   void initState() {
@@ -140,12 +146,20 @@ class _LoadingGateState extends State<LoadingGate> {
     _initialization = _initialize();
   }
 
+  RegionalDefaults _deviceRegionalDefaults() {
+    final dispatcher = PlatformDispatcher.instance;
+    return regionalDefaults(
+      deviceRegionCode(dispatcher.locales),
+      alwaysUse24HourFormat: dispatcher.alwaysUse24HourFormat,
+    );
+  }
+
   Future<void> _initialize() async {
     try {
       await Future.wait([
         // Settings load best-effort: whatever was read before the failure is
         // kept, the rest stays at its code default.
-        widget.appSettings.loadAppSettings().catchError(
+        widget.appSettings.loadAppSettings(regionalDefaults: _deviceRegionalDefaults()).catchError(
           (Object e, StackTrace s) => recordBootError(e, s, reason: 'App settings failed to load'),
         ),
         _loadAndMigrate(),
@@ -221,6 +235,9 @@ class _LoadingGateState extends State<LoadingGate> {
         if (snapshot.hasError) {
           return MaterialApp(
             theme: materialAppTheme,
+            locale: const Locale('en'),
+            localizationsDelegates: appLocalizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: const LoadingErrorPage(),
           );
         }
@@ -302,6 +319,9 @@ class _LoadingGateState extends State<LoadingGate> {
             theme: materialAppTheme,
             darkTheme: materialAppDarkTheme,
             themeMode: ThemeMode.system,
+            locale: const Locale('en'),
+            localizationsDelegates: appLocalizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: const Scaffold(body: Center(child: CircularProgressIndicator())),
             debugShowCheckedModeBanner: false,
           );
@@ -311,18 +331,53 @@ class _LoadingGateState extends State<LoadingGate> {
   }
 }
 
-class BikeSetupTrackerApp extends StatelessWidget {
+class BikeSetupTrackerApp extends StatefulWidget {
   const BikeSetupTrackerApp({super.key});
+
+  @override
+  State<BikeSetupTrackerApp> createState() => _BikeSetupTrackerAppState();
+}
+
+class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // The device language is an input to resolveAppLocale, so a system change has to rebuild.
+  @override
+  void didChangeLocales(List<Locale>? locales) => setState(() {});
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    final locale = appLocaleOf(appSettings);
 
     return MaterialApp(
       title: 'Bike Setup Tracker',
       theme: materialAppTheme,
       darkTheme: materialAppDarkTheme,
       themeMode: appSettings.themeMode,
+      locale: locale,
+      localeResolutionCallback: keepRegionLocale,
+      localizationsDelegates: appLocalizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      // For packages that format with the default locale, such as the calendar.
+      // Our own text takes the language from context.l10n, which rebuilds on a
+      // switch. Runs inside Localizations, so the date symbols are loaded first.
+      builder: (context, child) {
+        final loadedLocale = Localizations.localeOf(context);
+        Intl.defaultLocale = loadedLocale.toString();
+        unawaited(QuickActionsService().updateLocale(loadedLocale));
+        return child!;
+      },
       navigatorKey: NavigationService.navigatorKey,
       home: appSettings.showOnboarding ? const OnboardingPage() : const HomePage(),
       debugShowCheckedModeBanner: false,

@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
@@ -73,7 +74,7 @@ void main() {
   /// Sorts [setups] ascending by [column] and returns the resulting ids.
   List<String> sortedIds(SetupColumn column, List<Setup> setups, {Map<String, int> activityCounts = const {}}) {
     final sorted = setups.toList()
-      ..sort(setupColumnComparator(column, bikes: bikes, setupActivityCounts: activityCounts));
+      ..sort(setupColumnComparator(column, englishL10n, bikes: bikes, setupActivityCounts: activityCounts));
     return sorted.map((s) => s.id).toList();
   }
 
@@ -156,7 +157,7 @@ void main() {
       SetupColumn.precipitation,
       SetupColumn.soilMoisture,
     ]) {
-      test('${column.label} sorts by its own field', () {
+      test('${column.name} sorts by its own field', () {
         final low = setupWithOnly('low', column);
         final high = buildSetup(
           id: 'high',
@@ -171,7 +172,7 @@ void main() {
         expect(sortedIds(column, [high, low]), ['low', 'high']);
       });
 
-      test('${column.label} sorts setups without weather first', () {
+      test('${column.name} sorts setups without weather first', () {
         final setups = [setupWithOnly('weather', column), buildSetup(id: 'none')];
         expect(sortedIds(column, setups), ['none', 'weather']);
       });
@@ -208,7 +209,7 @@ void main() {
 
     List<String> sortedByColumn(TableColumn column, List<Setup> setups) {
       final comparator = tableColumnComparator(
-        column,
+        column, englishL10n,
         valueFor: (setup, column) => switch (column) {
           ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
           SetupRankColumn() => setup.bikeAdjustmentValues['rank'],
@@ -257,7 +258,7 @@ void main() {
 
     test('returns null for an adjustment column whose adjustment is gone', () {
       final comparator = tableColumnComparator(
-        ComponentAdjustmentColumn('deleted', active: true),
+        ComponentAdjustmentColumn('deleted', active: true), englishL10n,
         valueFor: (setup, column) => null,
         componentAdjustments: [numerical],
         personAdjustments: const [],
@@ -277,7 +278,7 @@ void main() {
 
       Comparator<Setup>? comparatorFor(Adjustment? Function(BikeAdjustmentColumn column)? bikeAdjustmentFor) =>
           tableColumnComparator(
-            column,
+            column, englishL10n,
             valueFor: (setup, column) => setup.bikeAdjustmentValues[valueIds[setup.id]],
             componentAdjustments: const [],
             personAdjustments: const [],

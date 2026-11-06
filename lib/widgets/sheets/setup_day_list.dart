@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/setup.dart';
@@ -81,14 +82,14 @@ class SetupPickTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat, context.l10n.localeName).format(setup.datetimeLocal);
     final isCurrent = appRepository.setupHistory.isCurrent(setup.id);
     final bike = appRepository.bikes[setup.bike];
 
     // The ripple paints on the nearest Material; the sheet's own sits outside
     // the scroll view, so it would draw over the header while scrolling.
     final tile = Material(
-      type: MaterialType.transparency,
+      color: selected ? Theme.of(context).colorScheme.secondaryContainer : Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -99,14 +100,14 @@ class SetupPickTile extends StatelessWidget {
                 child: SetupTileHeader(
                   setup: setup,
                   dateTimeText: timeText,
-                  metadata: SetupTileHeader.metadataOf(setup, appSettings),
+                  metadata: SetupTileHeader.metadataOf(setup, appSettings, context.l10n),
                   badge: badges.isNotEmpty || isCurrent
                       ? Wrap(spacing: 4, children: [...badges, if (isCurrent) const CurrentSetupBadge()])
                       : null,
                   showSetupIcon: true,
                   selected: selected,
                   secondaryMetadata: showBikeName
-                      ? TileMetaRow(icon: Bike.iconData, text: bike?.name ?? 'Unknown bike', isError: bike == null)
+                      ? TileMetaRow(icon: Bike.iconData, text: bike?.name ?? context.l10n.setupDayUnknownBike, isError: bike == null)
                       : null,
                 ),
               ),

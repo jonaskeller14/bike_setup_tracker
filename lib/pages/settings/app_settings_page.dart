@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../services/strava_service.dart';
 import '../../utils/url.dart';
@@ -21,18 +22,19 @@ import 'reset_page.dart';
 class AppSettingsPage extends StatelessWidget {
   const AppSettingsPage({super.key});
 
-  static const Map<bool, Text> _offOnOptionWidgets = {
-    false: Text('Off'),
-    true: Text('On'),
+  static Map<bool, Text> _offOnOptionWidgets(AppLocalizations l10n) => {
+    false: Text(l10n.valueOff),
+    true: Text(l10n.valueOn),
   };
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final appSettings = context.watch<AppSettings>();
     final strava = context.watch<StravaService>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -45,8 +47,8 @@ class AppSettingsPage extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.manage_accounts),
-                  title: const Text("Manage Subscription"),
-                  subtitle: const Text("Cancel or change your plan in the store"),
+                  title: Text(l10n.settingsManageSubscription),
+                  subtitle: Text(l10n.settingsManageSubscriptionSubtitle),
                   trailing: const Icon(Icons.open_in_new, size: 16.0),
                   onTap: () {
                     final url = Platform.isIOS
@@ -64,8 +66,8 @@ class AppSettingsPage extends StatelessWidget {
                 if (strava.isConnected) ...[
                   ListTile(
                     leading: const Icon(Icons.logout),
-                    title: const Text("Disconnect Strava"),
-                    subtitle: const Text("Revoke access and delete synced activities"),
+                    title: Text(l10n.settingsDisconnectStrava),
+                    subtitle: Text(l10n.settingsDisconnectStravaSubtitle),
                     onTap: () async {
                       final confirmed = await showStravaDisconnectDialog(context);
                       if (confirmed) await strava.disconnect();
@@ -73,21 +75,21 @@ class AppSettingsPage extends StatelessWidget {
                   ),
                   ListTile(
                     leading: const Icon(Icons.notifications_active),
-                    title: const Text("Strava Notifications"),
-                    subtitle: _offOnOptionWidgets[appSettings.enableStravaNotifications] ?? const Text("-"),
+                    title: Text(l10n.settingsStravaNotifications),
+                    subtitle: _offOnOptionWidgets(l10n)[appSettings.enableStravaNotifications] ?? const Text("-"),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: () => radioGroupSheet<bool>(
                       context: context,
-                      title: "Strava Notifications",
+                      title: l10n.settingsStravaNotifications,
                       value: appSettings.enableStravaNotifications,
-                      optionWidgets: _offOnOptionWidgets,
+                      optionWidgets: _offOnOptionWidgets(l10n),
                       onChanged: (bool? newValue) {
                         if (newValue == null) return;
                         appSettings.enableStravaNotifications = newValue;
                         unawaited(context.read<StravaService>().setStravaNotificationsEnabled(newValue));
                         Navigator.pop(context);
                       },
-                      infoText: 'Receive push notifications when Strava activities are imported.',
+                      infoText: l10n.settingsStravaNotificationsInfo,
                     ),
                   ),
                 ],
@@ -96,45 +98,45 @@ class AppSettingsPage extends StatelessWidget {
               // Category navigation (hub → sub-pages).
               ListTile(
                 leading: const Icon(Icons.tune),
-                title: const Text('Preferences'),
-                subtitle: const Text('Appearance, formats and units'),
+                title: Text(l10n.settingsPreferences),
+                subtitle: Text(l10n.settingsPreferencesSubtitle),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const PreferencesPage())),
               ),
               ListTile(
                 leading: const Icon(Icons.extension),
-                title: const Text('Features'),
-                subtitle: const Text('Enable or disable optional functionality'),
+                title: Text(l10n.settingsFeatures),
+                subtitle: Text(l10n.settingsFeaturesSubtitle),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const FeaturesPage())),
               ),
               if (appSettings.enableAttachments)
                 ListTile(
                   leading: const Icon(Icons.attach_file),
-                  title: const Text('Attachments'),
-                  subtitle: const Text('Images and files from setups, bikes, components and tasks'),
+                  title: Text(l10n.settingsAttachments),
+                  subtitle: Text(l10n.settingsAttachmentsSubtitle),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AttachmentsPage())),
                 ),
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text('About'),
-                subtitle: const Text('Version, privacy policy and agreements'),
+                title: Text(l10n.settingsAbout),
+                subtitle: Text(l10n.settingsAboutSubtitle),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage())),
               ),
               ListTile(
                 leading: const Icon(Icons.help_outline),
-                title: const Text('Help'),
-                subtitle: const Text('FAQ, onboarding and contact'),
+                title: Text(l10n.settingsHelp),
+                subtitle: Text(l10n.settingsHelpSubtitle),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const HelpPage())),
               ),
               const Divider(),
               ListTile(
                 leading: Icon(Icons.delete_forever_outlined, color: Theme.of(context).colorScheme.error),
-                title: const Text('Reset'),
-                subtitle: const Text('Reset settings, delete backups or clear data'),
+                title: Text(l10n.settingsReset),
+                subtitle: Text(l10n.settingsResetSubtitle),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const ResetPage())),
               ),

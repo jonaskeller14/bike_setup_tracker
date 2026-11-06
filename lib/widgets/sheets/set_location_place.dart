@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
@@ -12,6 +13,7 @@ import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
 import '../../services/location_service.dart';
 import '../../theme.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/number_input_formatters.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
@@ -101,11 +103,12 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   void _setFieldsFromLocationPlace() {
     final appSettings = context.read<AppSettings>();
 
-    _latitudeController.text = _currentLocation?.latitude?.toString() ?? "";
-    _longitudeController.text = _currentLocation?.longitude?.toString() ?? "";
-    _altitudeController.text =
-        ContextPosition.convertAltitudeFromMeters(_currentLocation?.altitude, appSettings.altitudeUnit)?.toString() ??
-        "";
+    _latitudeController.text = formatEditableDouble(_currentLocation?.latitude, locale: context.untrackedLocaleName);
+    _longitudeController.text = formatEditableDouble(_currentLocation?.longitude, locale: context.untrackedLocaleName);
+    _altitudeController.text = formatEditableDouble(
+      ContextPosition.convertAltitudeFromMeters(_currentLocation?.altitude, appSettings.altitudeUnit),
+      locale: context.untrackedLocaleName,
+    );
 
     _addressController.text = _formatAddress(_currentPlace);
   }
@@ -145,7 +148,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   Future<void> _updatePlace() async {
     if (_currentLocation?.latitude == null || _currentLocation?.longitude == null) {
       setState(() {
-        _addressTextFieldErrorText = "Could not find address without latitude and longitude";
+        _addressTextFieldErrorText = context.l10n.locationNoCoordinatesForAddress;
       });
       return;
     }
@@ -158,7 +161,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     setState(() {
       _currentPlace = newAddress;
       _setFieldsFromLocationPlace();
-      _addressTextFieldErrorText = newAddress == null ? "No Address found" : null;
+      _addressTextFieldErrorText = newAddress == null ? context.l10n.locationNoAddressFound : null;
     });
   }
 
@@ -168,7 +171,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     if (!mounted) return;
     if (newLocation == null) {
       setState(() {
-        _addressTextFieldErrorText = "Could not find location.";
+        _addressTextFieldErrorText = context.l10n.locationNotFound;
       });
       return;
     }
@@ -197,7 +200,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     final opened = await widget.locationService.openLocationSettings();
     if (!mounted) return;
     setState(() {
-      _settingsErrorMessage = opened ? null : 'Could not open location settings.';
+      _settingsErrorMessage = opened ? null : context.l10n.locationSettingsOpenFailed;
     });
   }
 
@@ -206,7 +209,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     final opened = await widget.locationService.openAppSettings();
     if (!mounted) return;
     setState(() {
-      _settingsErrorMessage = opened ? null : 'Could not open app settings.';
+      _settingsErrorMessage = opened ? null : context.l10n.locationAppSettingsOpenFailed;
     });
   }
 
@@ -268,7 +271,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SheetHeader(title: 'Location Context'),
+                    SheetHeader(title: context.l10n.locationSheetTitle),
                     const SizedBox(height: 16),
                     Flexible(
                       child: SingleChildScrollView(
@@ -280,11 +283,11 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               ListTile(
                                 key: const Key('location-service-disabled'),
                                 leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
-                                title: const Text("Location services are disabled"),
-                                subtitle: const Text("Enable location services, then try GPS again"),
+                                title: Text(context.l10n.locationServicesDisabled),
+                                subtitle: Text(context.l10n.locationServicesDisabledHint),
                                 trailing: TextButton(
                                   onPressed: _openLocationSettings,
-                                  child: const Text('Open settings'),
+                                  child: Text(context.l10n.locationOpenSettings),
                                 ),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
@@ -292,8 +295,8 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             if (widget.locationService.status == LocationStatus.noPermission)
                               ListTile(
                                 leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
-                                title: const Text("Location permission denied"),
-                                subtitle: const Text("Try GPS again to request permission"),
+                                title: Text(context.l10n.locationPermissionDenied),
+                                subtitle: Text(context.l10n.locationPermissionDeniedHint),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
@@ -301,11 +304,11 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               ListTile(
                                 key: const Key('location-permission-permanently-denied'),
                                 leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
-                                title: const Text("Location permission permanently denied"),
-                                subtitle: const Text("Allow location access in app settings, then try again"),
+                                title: Text(context.l10n.locationPermissionForever),
+                                subtitle: Text(context.l10n.locationPermissionForeverHint),
                                 trailing: TextButton(
                                   onPressed: _openAppSettings,
-                                  child: const Text('Open settings'),
+                                  child: Text(context.l10n.locationOpenSettings),
                                 ),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
@@ -313,32 +316,32 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             if (widget.locationService.status == LocationStatus.timeout)
                               ListTile(
                                 leading: Icon(Icons.timer_off_outlined, color: Theme.of(context).colorScheme.error),
-                                title: const Text("Location request timed out"),
-                                subtitle: const Text("Move to an open area and try GPS again"),
+                                title: Text(context.l10n.locationTimeout),
+                                subtitle: Text(context.l10n.locationTimeoutHint),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
                             if (widget.locationService.status == LocationStatus.error)
                               ListTile(
                                 leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                                title: const Text("Could not determine location"),
-                                subtitle: const Text("Check your connection and try GPS again"),
+                                title: Text(context.l10n.locationUndetermined),
+                                subtitle: Text(context.l10n.locationUndeterminedHint),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
                             if (_elevationService.status == ElevationStatus.error)
                               ListTile(
                                 leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                                title: const SelectableText("Fetching Elevation failed"),
-                                subtitle: const SelectableText("Check your internet connection"),
+                                title: SelectableText(context.l10n.locationElevationFailed),
+                                subtitle: SelectableText(context.l10n.locationElevationFailedHint),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
                             if (widget.addressService.status == AddressStatus.error)
                               ListTile(
                                 leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                                title: const SelectableText("Fetching Address failed"),
-                                subtitle: const SelectableText("Check your internet connection and spelling"),
+                                title: SelectableText(context.l10n.locationAddressFailed),
+                                subtitle: SelectableText(context.l10n.locationAddressFailedHint),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
@@ -362,10 +365,10 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               controller: _latitudeController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: "Latitude",
+                                labelText: context.l10n.locationLatitude,
                                 border: const OutlineInputBorder(),
                                 isDense: true,
-                                hintText: 'Latitude',
+                                hintText: context.l10n.locationLatitude,
                                 suffixText: "°",
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: _currentLocation?.latitude != widget.currentLocation?.latitude,
@@ -373,15 +376,15 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter a valid number";
-                                if (parsedValue.abs() > 90) return "Latitude must be between -90..90°";
+                                final parsedValue = parseLocalizedDouble(value);
+                                if (parsedValue == null) return context.l10n.setNumberInvalid;
+                                if (parsedValue.abs() > 90) return context.l10n.locationLatitudeRange;
                                 return null;
                               },
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
-                                    latitude: double.tryParse(newValue),
+                                    latitude: parseLocalizedDouble(newValue),
                                   );
                                 });
                               },
@@ -394,10 +397,10 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               controller: _longitudeController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: "Longitude",
+                                labelText: context.l10n.locationLongitude,
                                 border: const OutlineInputBorder(),
                                 isDense: true,
-                                hintText: 'Longitude',
+                                hintText: context.l10n.locationLongitude,
                                 suffixText: "°",
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: _currentLocation?.longitude != widget.currentLocation?.longitude,
@@ -405,15 +408,15 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter a valid number";
-                                if (parsedValue.abs() > 180) return "Longitude must be between -180..180°";
+                                final parsedValue = parseLocalizedDouble(value);
+                                if (parsedValue == null) return context.l10n.setNumberInvalid;
+                                if (parsedValue.abs() > 180) return context.l10n.locationLongitudeRange;
                                 return null;
                               },
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
-                                    longitude: double.tryParse(newValue),
+                                    longitude: parseLocalizedDouble(newValue),
                                   );
                                 });
                               },
@@ -426,10 +429,10 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               controller: _altitudeController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
-                                labelText: "Altitude in ${appSettings.altitudeUnit}",
+                                labelText: context.l10n.locationAltitudeLabel(appSettings.altitudeUnit),
                                 border: const OutlineInputBorder(),
                                 isDense: true,
-                                hintText: 'Altitude',
+                                hintText: context.l10n.locationAltitudeHint,
                                 suffixText: appSettings.altitudeUnit,
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: _currentLocation?.altitude != widget.currentLocation?.altitude,
@@ -437,15 +440,15 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
-                                final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter a valid number";
+                                final parsedValue = parseLocalizedDouble(value);
+                                if (parsedValue == null) return context.l10n.setNumberInvalid;
                                 return null;
                               },
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
                                     altitude: ContextPosition.convertAltitudeToMeters(
-                                      double.tryParse(newValue),
+                                      parseLocalizedDouble(newValue),
                                       appSettings.altitudeUnit,
                                     ),
                                   );
@@ -465,7 +468,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                         child: CircularProgressIndicator(strokeWidth: 2),
                                       )
                                     : null,
-                                label: const Text("Update Address from Latitude/Longitude"),
+                                label: Text(context.l10n.locationUpdateAddress),
                               ),
                             ),
                             TextFormField(
@@ -478,8 +481,8 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(),
                                 isDense: true,
-                                labelText: "Enter street, city, or landmark and press Search Icon",
-                                hintText: 'Address',
+                                labelText: context.l10n.locationAddressSearchLabel,
+                                hintText: context.l10n.locationAddressHint,
                                 contentPadding: const EdgeInsets.all(8),
                                 errorText: _addressTextFieldErrorText,
                                 icon: const Icon(Icons.location_city),
@@ -517,7 +520,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                       child: CircularProgressIndicator(strokeWidth: 2),
                                     )
                                   : const Icon(Icons.my_location),
-                              label: const Text("Find Location via GPS"),
+                              label: Text(context.l10n.locationFindByGps),
                             ),
                           ),
                           Flexible(
@@ -529,7 +532,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                       ContextPosition.equal(widget.currentLocation, _currentLocation)
                                   ? null
                                   : _save,
-                              child: const Text("Save"),
+                              child: Text(context.l10n.save),
                             ),
                           ),
                         ],

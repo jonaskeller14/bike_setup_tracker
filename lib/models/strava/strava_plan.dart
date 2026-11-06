@@ -4,23 +4,14 @@ import 'package:collection/collection.dart';
 
 enum StravaPlan {
   monthly(
-    label: 'Monthly',
-    tagline: 'Try it month to month',
-    period: '/ month',
     iosProductId: 'strava_sync_monthly',
     androidBasePlanId: 'monthly',
   ),
   yearly(
-    label: 'Yearly',
-    tagline: 'Best for the full season',
-    period: '/ year',
     iosProductId: 'strava_sync_yearly',
     androidBasePlanId: 'yearly',
   );
 
-  final String label;
-  final String tagline;
-  final String period;
   final String iosProductId;
   final String androidBasePlanId;
 
@@ -28,9 +19,6 @@ enum StravaPlan {
   static const String androidProductId = 'strava_sync';
 
   const StravaPlan({
-    required this.label,
-    required this.tagline,
-    required this.period,
     required this.iosProductId,
     required this.androidBasePlanId,
   });

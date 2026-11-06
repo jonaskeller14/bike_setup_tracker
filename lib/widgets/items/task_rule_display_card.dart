@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
@@ -15,16 +16,13 @@ import '../task_priority_badge.dart';
 import '../task_rule_progress_bar.dart';
 import 'task_rule_list_card.dart';
 
-String taskForecastDueLabel(DateTime dueLocal, DateTime nowLocal, String dateFormat) {
+String taskForecastDueLabel(AppLocalizations l10n, DateTime dueLocal, DateTime nowLocal, String dateFormat) {
   final days = DateUtils.dateOnly(dueLocal).difference(DateUtils.dateOnly(nowLocal)).inDays;
-  if (days <= 0) return 'today';
-  if (days == 1) return 'tomorrow';
-  if (days < 14) return 'in $days days';
-  if (days < 56) {
-    final weeks = days ~/ 7;
-    return 'in $weeks weeks';
-  }
-  return DateFormat(dateFormat).format(dueLocal);
+  if (days <= 0) return l10n.taskForecastToday;
+  if (days == 1) return l10n.taskForecastTomorrow;
+  if (days < 14) return l10n.taskForecastInDays(days);
+  if (days < 56) return l10n.taskForecastInWeeks(days ~/ 7);
+  return DateFormat(dateFormat, l10n.localeName).format(dueLocal);
 }
 
 class TaskRuleDisplayCard extends StatelessWidget {
@@ -57,16 +55,14 @@ class TaskRuleDisplayCard extends StatelessWidget {
     final now = DateTime.now();
     final due = forecast.dueDate.toLocal();
     if (!due.isAfter(now)) return null;
-    if (forecast.sample == null) return DateFormat(dateFormat).format(due);
+    if (forecast.sample == null) return DateFormat(dateFormat, context.l10n.localeName).format(due);
     if (!context.select<SubscriptionService, bool>((s) => s.hasStravaEntitlement)) return null;
-    return taskForecastDueLabel(due, now, dateFormat);
+    return taskForecastDueLabel(context.l10n, due, now, dateFormat);
   }
 
   Widget _forecastWidget(BuildContext context, String forecastLabel, Color statusColor) {
     return Tooltip(
-      message: 'Forecast for when this task will become due. Exact for date and duration '
-          'intervals; for other intervals it is estimated from recent riding activity and '
-          'needs a connected Strava subscription.',
+      message: context.l10n.taskForecastTooltip,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -193,7 +189,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
   }
 
   Widget _buildThresholdDetailRow(BuildContext context, TaskThreshold interval, TaskThreshold? delay, TaskStatus status, Color statusColor, String distanceUnit, String altitudeUnit) {
-    final detail = _thresholdDetail(interval, delay, status.progress, distanceUnit, altitudeUnit);
+    final detail = _thresholdDetail(context.l10n, interval, delay, status.progress, distanceUnit, altitudeUnit);
     if (detail == null) return const SizedBox.shrink();
     final isExceeded = status.isDue;
     return Row(
@@ -214,20 +210,16 @@ class TaskRuleDisplayCard extends StatelessWidget {
     );
   }
 
-  String _plural(int count, String singular, [String? plural]) =>
-      count == 1 ? singular : (plural ?? '${singular}s');
+  String? _thresholdDetail(AppLocalizations l10n, TaskThreshold interval, TaskThreshold? delay, double progress, String distanceUnit, String altitudeUnit) {
+    String amountLeft(String amount) => progress < 1.0 ? l10n.taskRemaining(amount) : l10n.taskExceeded(amount);
 
-  String? _thresholdDetail(TaskThreshold interval, TaskThreshold? delay, double progress, String distanceUnit, String altitudeUnit) {
     switch (interval) {
       case DistanceThreshold(:final meters):
         final totalM = meters + (delay is DistanceThreshold ? delay.meters : 0.0);
         if (totalM <= 0) return null;
         final diffM = (totalM - progress * totalM).abs();
         final converted = AppSettings.convertDistanceFromMeters(diffM, distanceUnit)!;
-        final fmt = NumberFormat.decimalPattern();
-        return progress < 1.0
-            ? '${fmt.format(converted.round())} $distanceUnit remaining'
-            : '${fmt.format(converted.round())} $distanceUnit exceeded';
+        return amountLeft('${NumberFormat.decimalPattern(l10n.localeName).format(converted.round())} $distanceUnit');
 
       case ElevationThreshold(:final meters):
         final totalM = meters + (delay is ElevationThreshold ? delay.meters : 0.0);
@@ -235,51 +227,43 @@ class TaskRuleDisplayCard extends StatelessWidget {
         final accumulatedM = progress * totalM;
         final diffM = (totalM - accumulatedM).abs();
         final converted = AppSettings.convertElevationFromMeters(diffM, altitudeUnit)!;
-        final fmt = NumberFormat.decimalPattern();
-        return progress < 1.0
-            ? '${fmt.format(converted.round())} $altitudeUnit remaining'
-            : '${fmt.format(converted.round())} $altitudeUnit exceeded';
+        return amountLeft('${NumberFormat.decimalPattern(l10n.localeName).format(converted.round())} $altitudeUnit');
 
       case MovingTimeThreshold(:final hours):
         final totalMicros = hours.inMicroseconds + (delay is MovingTimeThreshold ? delay.hours.inMicroseconds : 0);
         if (totalMicros <= 0) return null;
         final diff = Duration(microseconds: ((progress < 1.0 ? 1.0 - progress : progress - 1.0) * totalMicros).round());
-        final label = progress < 1.0 ? 'remaining' : 'exceeded';
         final h = diff.inHours;
         final m = diff.inMinutes.remainder(60);
-        return h > 0 ? '${h}h ${m}min $label' : '${m}min $label';
+        return amountLeft(h > 0 ? '${h}h ${m}min' : '${m}min');
 
       case ElapsedTimeThreshold(:final hours):
         final totalMicros = hours.inMicroseconds + (delay is ElapsedTimeThreshold ? delay.hours.inMicroseconds : 0);
         if (totalMicros <= 0) return null;
         final diff = Duration(microseconds: ((progress < 1.0 ? 1.0 - progress : progress - 1.0) * totalMicros).round());
-        final label = progress < 1.0 ? 'remaining' : 'exceeded';
         final h = diff.inHours;
         final m = diff.inMinutes.remainder(60);
-        return h > 0 ? '${h}h ${m}min $label' : '${m}min $label';
+        return amountLeft(h > 0 ? '${h}h ${m}min' : '${m}min');
 
       case DurationThreshold(:final days):
         final totalMicros = days.inMicroseconds + (delay is DurationThreshold ? delay.days.inMicroseconds : 0);
         if (totalMicros <= 0) return null;
         final diff = Duration(microseconds: ((progress < 1.0 ? 1.0 - progress : progress - 1.0) * totalMicros).round());
         final dayCount = diff.inDays;
-        return '$dayCount ${_plural(dayCount, 'day')} ${progress < 1.0 ? 'remaining' : 'exceeded'}';
+        return amountLeft('$dayCount ${l10n.taskUnitDays(dayCount)}');
 
       case ActivityCountThreshold(:final count):
         final total = count + (delay is ActivityCountThreshold ? delay.count : 0);
         if (total <= 0) return null;
         final accumulated = (progress * total).round();
         final rides = progress < 1.0 ? total - accumulated : accumulated - total;
-        return '$rides ${_plural(rides, 'ride')} ${progress < 1.0 ? 'remaining' : 'exceeded'}';
+        return amountLeft('$rides ${l10n.taskUnitRides(rides)}');
 
       case KilojoulesThreshold(:final kilojoules):
         final total = kilojoules + (delay is KilojoulesThreshold ? delay.kilojoules : 0.0);
         if (total <= 0) return null;
         final diff = (total - progress * total).abs();
-        final fmt = NumberFormat.decimalPattern();
-        return progress < 1.0
-            ? '${fmt.format(diff.round())} kJ remaining'
-            : '${fmt.format(diff.round())} kJ exceeded';
+        return amountLeft('${NumberFormat.decimalPattern(l10n.localeName).format(diff.round())} kJ');
 
       case DateTimeThreshold(:final deadline):
         final effectiveDeadline = deadline.add(delay is DurationThreshold ? delay.days : Duration.zero);
@@ -287,7 +271,8 @@ class TaskRuleDisplayCard extends StatelessWidget {
         final isBefore = now.isBefore(effectiveDeadline);
         final diff = isBefore ? effectiveDeadline.difference(now) : now.difference(effectiveDeadline);
         final days = diff.inDays;
-        return '$days ${_plural(days, 'day')} ${isBefore ? 'remaining' : 'exceeded'}';
+        final amount = '$days ${l10n.taskUnitDays(days)}';
+        return isBefore ? l10n.taskRemaining(amount) : l10n.taskExceeded(amount);
     }
   }
 }

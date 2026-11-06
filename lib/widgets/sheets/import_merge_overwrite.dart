@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'sheet_header.dart';
 
 class SelectImportMethodSheetContent extends StatelessWidget {
@@ -24,7 +25,7 @@ class SelectImportMethodSheetContent extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SheetHeader(
-            title: 'Import Data',
+            title: context.l10n.importSheetTitle,
             onBack: onBack,
           ),
           const SizedBox(height: 16),
@@ -35,22 +36,22 @@ class SelectImportMethodSheetContent extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: Icon(Icons.published_with_changes, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Overwrite data"),
-                    subtitle: const Text("Overwrite your local data with the imported data. Unique local data will remain."),
+                    title: Text(context.l10n.importMethodOverwrite),
+                    subtitle: Text(context.l10n.importMethodOverwriteSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onOverwrite,
                   ),
                   ListTile(
                     leading: Icon(Icons.merge, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Merge data"),
-                    subtitle: const Text("Add new items and update existing items when the imported version is newer (based on modification date)."),
+                    title: Text(context.l10n.importMethodMerge),
+                    subtitle: Text(context.l10n.importMethodMergeSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onMerge,
                   ),
                   ListTile(
                     leading: Icon(Icons.find_replace, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Replace data"),
-                    subtitle: const Text("Replace your local data with the imported data. This will permanently delete all existing data and cannot be undone."),
+                    title: Text(context.l10n.importMethodReplace),
+                    subtitle: Text(context.l10n.importMethodReplaceSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onReplace,
                   ),

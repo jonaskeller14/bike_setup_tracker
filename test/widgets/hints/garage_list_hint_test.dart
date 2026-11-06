@@ -1,13 +1,14 @@
 import 'package:bike_setup_tracker/widgets/hints/garage_list_hint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   testWidgets('calls its dismiss callback', (tester) async {
     var dismissed = false;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         home: Scaffold(
           body: GarageListHint(onDismiss: () => dismissed = true),
         ),

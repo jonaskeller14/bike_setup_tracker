@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
+import '../support/german_l10n.dart';
 
 /// Covers the quick delay editor reachable from TaskRuleListCard and the
 /// "delay follows the trigger type" behaviour on TaskRulePage.
@@ -49,14 +51,14 @@ void main() {
     await database.close();
   });
 
-  Widget wrap(Widget home) {
+  Widget wrap(Widget home, {Locale locale = const Locale('en')}) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
         ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
       ],
-      child: MaterialApp(theme: materialAppTheme, home: home),
+      child: localizedTestApp(locale: locale, theme: materialAppTheme, home: home),
     );
   }
 
@@ -93,7 +95,7 @@ void main() {
 
   TaskRule? popped;
 
-  Future<void> openEditPage(WidgetTester tester, TaskRule rule) async {
+  Future<void> openEditPage(WidgetTester tester, TaskRule rule, {Locale locale = const Locale('en')}) async {
     popped = null;
     await tester.runAsync(() async {
       await appRepository.addBikes([bike]);
@@ -116,6 +118,7 @@ void main() {
           ),
         ),
       ),
+      locale: locale,
     ));
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
@@ -177,13 +180,13 @@ void main() {
           matching: find.text(text),
         );
 
-    Future<void> pumpCardMenu(WidgetTester tester, TaskRule rule) async {
+    Future<void> pumpCardMenu(WidgetTester tester, TaskRule rule, {Locale locale = const Locale('en')}) async {
       await tester.runAsync(() async {
         await appRepository.addBikes([bike]);
         await appRepository.addTaskRules([rule]);
         await pumpEventQueue();
       });
-      await tester.pumpWidget(wrap(Scaffold(body: TaskRuleListCard(taskRuleId: rule.id))));
+      await tester.pumpWidget(wrap(Scaffold(body: TaskRuleListCard(taskRuleId: rule.id)), locale: locale));
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.more_vert));
       await tester.pumpAndSettle();
@@ -248,6 +251,34 @@ void main() {
       final saved = appRepository.taskRules[rule.id]?.delay;
       expect(saved, isA<DurationThreshold>());
       expect((saved as DurationThreshold).days, const Duration(days: 5));
+    });
+
+    testWidgets('saves a delay typed with a decimal comma', (tester) async {
+      final rule = ruleWith(interval: const ElevationThreshold(1000));
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Add Delay'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField), '12,5');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await waitForRepositoryUpdate(tester);
+
+      expect(appRepository.taskRules[rule.id]?.delay, const ElevationThreshold(12.5));
+    });
+
+    testWidgets('pre-fills a German delay with a decimal comma and keeps it on save', (tester) async {
+      final rule = ruleWith(interval: const ElevationThreshold(1000), delay: const ElevationThreshold(12.5));
+      await pumpCardMenu(tester, rule, locale: const Locale('de'));
+
+      await tester.tap(findMenuOption(germanL10n.taskDelayEdit));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(TextFormField, '12,5'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, germanL10n.save));
+      await tester.pumpAndSettle();
+
+      expect(appRepository.taskRules[rule.id]?.delay, const ElevationThreshold(12.5));
     });
 
     testWidgets('clears the delay when the value is emptied', (tester) async {
@@ -394,8 +425,22 @@ void main() {
       expect(appRepository.taskRules[rule.id]?.delay, const ActivityCountThreshold(-4));
     });
 
-    testWidgets('rejects a negative delay beyond the interval', (tester) async {
+    testWidgets('saves a negative delay typed with a keyboard minus variant', (tester) async {
       final rule = ruleWith(interval: const ActivityCountThreshold(10));
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Add Delay'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField), '−4');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await waitForRepositoryUpdate(tester);
+
+      expect(appRepository.taskRules[rule.id]?.delay, const ActivityCountThreshold(-4));
+    });
+
+    testWidgets('rejects a negative delay beyond the interval', (tester) async {
+      final rule =ruleWith(interval: const ActivityCountThreshold(10));
       await pumpCardMenu(tester, rule);
 
       await tester.tap(findMenuOption('Add Delay'));
@@ -560,6 +605,38 @@ void main() {
       expect((popped!.delay as ElevationThreshold).meters, 200);
     });
 
+    testWidgets('reads a trigger and a delay typed with a decimal comma', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const ElevationThreshold(1000)));
+
+      await tester.enterText(find.byKey(const Key('taskRuleIntervalValue')), '1250,5');
+      await tester.enterText(delayValueField(), '-200,5');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(popped, isNotNull);
+      expect(popped!.interval, const ElevationThreshold(1250.5));
+      expect(popped!.delay, const ElevationThreshold(-200.5));
+    });
+
+    testWidgets('pre-fills German values with a decimal comma and saves them unchanged', (tester) async {
+      await openEditPage(
+        tester,
+        ruleWith(interval: const ElevationThreshold(1250.5), delay: const ElevationThreshold(-200.5)),
+        locale: const Locale('de'),
+      );
+
+      expect(find.widgetWithText(TextFormField, '1250,5'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, '-200,5'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(popped, isNotNull);
+      expect(popped!.interval, const ElevationThreshold(1250.5));
+      expect(popped!.delay, const ElevationThreshold(-200.5));
+    });
+
     testWidgets('an empty delay value neither blocks saving nor becomes zero', (tester) async {
       await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
 
@@ -642,6 +719,18 @@ void main() {
       expect(popped, isNotNull);
       expect((popped!.interval as DurationThreshold).days, const Duration(days: 365));
       expect((popped!.delay as DurationThreshold).days, const Duration(days: 14));
+    });
+
+    testWidgets('accepts a negative delay typed with a keyboard minus variant', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
+
+      await tester.enterText(delayValueField(), '−7');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(popped, isNotNull);
+      expect((popped!.delay as DurationThreshold).days, const Duration(days: -7));
     });
 
     testWidgets('accepts a negative delay', (tester) async {

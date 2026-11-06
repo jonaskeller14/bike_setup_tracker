@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
@@ -37,8 +38,8 @@ class ContextBikePersonCardDiff extends StatelessWidget {
           if (showBike)
             _OwnerRow(
               icon: Bike.iconData,
-              valueA: bikeA?.name ?? 'BIKE NOT FOUND',
-              valueB: bikeB?.name ?? 'BIKE NOT FOUND',
+              valueA: bikeA?.name ?? context.l10n.bikeNotFound,
+              valueB: bikeB?.name ?? context.l10n.bikeNotFound,
               errorA: bikeA == null,
               errorB: bikeB == null,
             ),
@@ -46,9 +47,9 @@ class ContextBikePersonCardDiff extends StatelessWidget {
             _OwnerRow(
               icon: setupA.person == null && setupB.person == null ? Icons.person_off : Person.iconData,
               valueA:
-                  personA?.name ?? (setupA.person == null ? 'No rider linked to this setup.' : 'RIDER NOT FOUND'),
+                  personA?.name ?? (setupA.person == null ? context.l10n.contextNoRiderLinked : context.l10n.riderNotFound),
               valueB:
-                  personB?.name ?? (setupB.person == null ? 'No rider linked to this setup.' : 'RIDER NOT FOUND'),
+                  personB?.name ?? (setupB.person == null ? context.l10n.contextNoRiderLinked : context.l10n.riderNotFound),
               errorA: setupA.person != null && personA == null,
               errorB: setupB.person != null && personB == null,
             ),

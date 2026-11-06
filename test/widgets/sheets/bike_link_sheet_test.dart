@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   late AppDatabase database;
@@ -39,7 +40,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> openSheet(WidgetTester tester, {List<Person>? persons, List<Bike> bikes = const []}) async {
+  Future<void> openSheet(
+    WidgetTester tester, {
+    List<Person>? persons,
+    List<Bike> bikes = const [],
+    Locale locale = const Locale('en'),
+  }) async {
     await tester.runAsync(() async {
       await repository.addPersons(persons ?? [rider]);
       if (bikes.isNotEmpty) await repository.addBikes(bikes);
@@ -47,8 +53,9 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<AppRepository>.value(
         value: repository,
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
+          locale: locale,
           home: Scaffold(
             body: Builder(
               builder: (context) => TextButton(
@@ -105,6 +112,22 @@ void main() {
     await tester.tap(pill('Enduro', 'Unlink'));
     await tester.pumpAndSettle();
     expect(saveButton('Unlink 1 bike'), findsOneWidget);
+  });
+
+  testWidgets('is German, with the save button naming the change', (tester) async {
+    await openSheet(tester, bikes: twoBikes, locale: const Locale('de'));
+
+    expect(find.text('Bikes verknüpfen'), findsOneWidget);
+    expect(pill('Enduro', 'Trennen'), findsOneWidget);
+    expect(pill('Gravel', 'Verknüpfen'), findsOneWidget);
+
+    await tester.tap(pill('Gravel', 'Verknüpfen'));
+    await tester.pumpAndSettle();
+    expect(saveButton('1 Bike verknüpfen'), findsOneWidget);
+
+    await tester.tap(pill('Enduro', 'Trennen'));
+    await tester.pumpAndSettle();
+    expect(saveButton('1 verknüpfen · 1 trennen'), findsOneWidget);
   });
 
   testWidgets('changes are only drafted and written on confirm', (tester) async {

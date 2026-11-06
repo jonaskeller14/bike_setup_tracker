@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../utils/unit_conversion.dart';
 
@@ -66,8 +68,8 @@ class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
 
   String _formatInActive(AdjustmentValue? storageValue) {
     final number = storageValue?.asNum;
-    if (!_isConverting || number == null) return storageValue?.display ?? '-';
-    return formatConverted(_cycle[_activeIndex].fromStorage(number.toDouble()));
+    if (!_isConverting || number == null) return storageValue?.displayText(context.l10n) ?? '-';
+    return formatConverted(_cycle[_activeIndex].fromStorage(number.toDouble()), locale: context.l10n.localeName);
   }
 
   String get _activeSuffix {
@@ -137,7 +139,7 @@ class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
         ),
         if (_isConverting && widget.value != null)
           _alignedWithUnitText(Text(
-            '= ${widget.value!.display} $_storageLabel',
+            '= ${widget.value!.displayText(context.l10n)} $_storageLabel',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             ),

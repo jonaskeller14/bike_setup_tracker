@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../../theme.dart';
@@ -17,39 +18,34 @@ class Release45Hint extends StatelessWidget {
     // Someone who turned Task Presets off is not asked to turn on Tasks for them.
     final offerTasks = context.select<AppSettings, bool>((s) => s.enableTaskPresets && !s.showTaskPresets);
 
+    final l10n = context.l10n;
+
     return AppHintDeck(
       icon: Icons.new_releases_outlined,
-      label: "What's new",
+      label: l10n.hintLabelWhatsNew,
       onDismiss: onDismiss,
       pages: [
-        const AppHintPage(
-          title: 'Fork & shock catalog',
-          content: Text(
-            'Adding a fork or shock? Pick the model from the built-in catalog and its adjustments, like click '
-            'ranges, air pressure and SAG, are filled in for you. Everything stays editable.',
-          ),
+        AppHintPage(
+          title: l10n.hintRelease45CatalogTitle,
+          content: Text(l10n.hintRelease45CatalogBody),
         ),
         AppHintPage(
-          title: 'Recommended tasks',
+          title: l10n.hintRelease45TasksTitle,
           action: offerTasks
-              ? AppHintAction(label: 'Turn on Tasks', icon: Icons.add_task, onPressed: onEnableTasks)
+              ? AppHintAction(label: l10n.hintTurnOnTasks, icon: Icons.add_task, onPressed: onEnableTasks)
               : null,
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 8,
             children: [
-              Text(
-                'Whenever you add a component, matching maintenance tasks like a chain wear check or a fork '
-                'service are suggested. Catalog forks and shocks use the manufacturer’s service intervals.'
-                '${offerTasks ? ' Turn on Tasks to get them.' : ''}',
-              ),
+              Text(offerTasks ? l10n.hintRelease45TasksBodyOfferTasks : l10n.hintRelease45TasksBody),
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  _ExampleChip(ComponentType.chain.getIconData(), 'Check chain wear'),
-                  _ExampleChip(ComponentType.fork.getIconData(), 'Lower leg service'),
-                  _ExampleChip(ComponentType.shock.getIconData(), 'Air can service'),
+                  _ExampleChip(ComponentType.chain.getIconData(), l10n.taskTemplateChainWearCheckName),
+                  _ExampleChip(ComponentType.fork.getIconData(), l10n.taskTemplateForkLowerLegServiceName),
+                  _ExampleChip(ComponentType.shock.getIconData(), l10n.taskTemplateShockAirCanServiceName),
                 ],
               ),
             ],

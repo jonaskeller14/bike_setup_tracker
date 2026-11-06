@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/test_session.dart';
 import 'tile_meta_row.dart';
@@ -27,12 +29,12 @@ class DataSelectTestSession extends StatelessWidget {
       child: CheckboxListTile(
         secondary: const Icon(TestSession.iconData),
         title: Text(
-          item.displayName,
+          item.label(context.l10n),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             decoration: item.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        subtitle: TileMetaRow(icon: Bike.iconData, text: bike?.name ?? "BIKE NOT FOUND", isError: bike == null),
+        subtitle: TileMetaRow(icon: Bike.iconData, text: bike?.name ?? context.l10n.bikeNotFound, isError: bike == null),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         dense: true,
         value: isSelected,

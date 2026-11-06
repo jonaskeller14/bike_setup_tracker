@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/adjustment_value_text.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -125,13 +127,13 @@ void main() {
   group('display', () {
     for (final (value, _, display, _) in samples) {
       test('$value displays as $display', () {
-        expect(value.display, display);
+        expect(value.displayText(englishL10n), display);
       });
     }
 
-    test('counted categorical', () => expect(CategoricalValue(const ['A', 'A', 'B']).display, 'A (2), B'));
-    test('empty categorical', () => expect(CategoricalValue(const []).display, '-'));
-    test('unresolved shows raw', () => expect(const UnresolvedValue('{"x":1}').display, '{"x":1}'));
+    test('counted categorical', () => expect(CategoricalValue(const ['A', 'A', 'B']).displayText(englishL10n), 'A (2), B'));
+    test('empty categorical', () => expect(CategoricalValue(const []).displayText(englishL10n), '-'));
+    test('unresolved shows raw', () => expect(const UnresolvedValue('{"x":1}').displayText(englishL10n), '{"x":1}'));
   });
 
   group('asNum', () {

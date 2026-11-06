@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
@@ -48,7 +49,7 @@ class DataSelectBike extends StatelessWidget {
                   if (bike.person != null)
                     Flexible(
                       child: Text(
-                        persons[bike.person]?.name ?? "RIDER NOT FOUND",
+                        persons[bike.person]?.name ?? context.l10n.riderNotFound,
                         style: TextStyle(
                           color:
                               bike.person == null ||

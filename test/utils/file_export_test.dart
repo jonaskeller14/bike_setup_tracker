@@ -8,6 +8,7 @@ import 'package:bike_setup_tracker/utils/file_export.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class RecordingFileSaveService extends FileSaveService {
   final FileSaveOutcome outcome;
@@ -69,7 +70,7 @@ void main() {
   Future<BuildContext> pumpContext(WidgetTester tester) async {
     late BuildContext context;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: Builder(

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/onboarding/onboarding_component_card.dart';
@@ -13,6 +14,7 @@ import '../widgets/onboarding/onboarding_slide_3.dart';
 import '../widgets/onboarding/onboarding_slide_4.dart';
 import '../widgets/onboarding/onboarding_slide_5.dart';
 import '../widgets/onboarding/onboarding_slide_6.dart';
+import '../widgets/sheets/language_sheet.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -28,7 +30,11 @@ class OnboardingPage extends StatefulWidget {
 }
 
 /// One slide plus the secondary action the app bar offers while it is shown.
-typedef _OnboardingSlide = ({Widget Function() build, String? secondaryLabel, VoidCallback? onSecondary});
+typedef _OnboardingSlide = ({
+  Widget Function() build,
+  String Function(AppLocalizations l10n)? secondaryLabel,
+  VoidCallback? onSecondary,
+});
 
 class _OnboardingPageState extends State<OnboardingPage> {
   /// The rider slide exists only where the Person feature does; the rest of
@@ -96,7 +102,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     _slides = [
       (
         build: () => OnboardingSlide1(onNext: _next),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
       if (_showRiderSlide)
@@ -108,12 +114,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
             savedName: _savedRiderName,
             onSaved: (name) => setState(() => _savedRiderName = name),
           ),
-          secondaryLabel: "Not now",
+          secondaryLabel: (l10n) => l10n.onboardingNotNow,
           onSecondary: _next,
         ),
       (
         build: () => OnboardingSlide2(onNext: _next, forkKey: _forkSourceKey, forkHidden: _forkInFlight),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
       (
@@ -128,7 +134,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           rowsKey: _rowsSourceKey,
           rowsHidden: _rowsInFlight,
         ),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
       (
@@ -138,12 +144,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
           rowsKey: _rowsTargetKey,
           rowsHidden: _rowsInFlight,
         ),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
       (
         build: () => OnboardingSlide6(onFinish: _complete),
-        secondaryLabel: "Skip",
+        secondaryLabel: (l10n) => l10n.onboardingSkip,
         onSecondary: _complete,
       ),
     ];
@@ -180,10 +186,35 @@ class _OnboardingPageState extends State<OnboardingPage> {
     super.dispose();
   }
 
+  Widget _buildLanguageButton() {
+    final appSettings = context.read<AppSettings>();
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: TextButton.icon(
+            onPressed: () => languageSheet(
+              context: context,
+              localeCode: appSettings.localeCode,
+              onSelected: (newValue) => appSettings.localeCode = newValue,
+            ),
+            icon: const Icon(Icons.language),
+            label: Text(Localizations.localeOf(context).languageCode.toUpperCase()),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final showLanguageButton = _currentPage == 0;
+
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: showLanguageButton ? 96 : null,
         leading: _currentPage > 0
             ? IconButton(
                 onPressed: () async {
@@ -195,11 +226,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
                 tooltip: MaterialLocalizations.of(context).backButtonTooltip,
               )
+            : showLanguageButton
+            ? _buildLanguageButton()
             : const SizedBox.shrink(),
         centerTitle: true,
         title: Semantics(
           container: true,
-          label: "Step ${_currentPage + 1} of ${_slides.length}",
+          label: context.l10n.onboardingStepOfTotal(_currentPage + 1, _slides.length),
           child: ExcludeSemantics(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -209,7 +242,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         ),
         actions: [
           if (_slides[_currentPage].secondaryLabel case final label?)
-            TextButton(onPressed: _slides[_currentPage].onSecondary, child: Text(label)),
+            TextButton(onPressed: _slides[_currentPage].onSecondary, child: Text(label(context.l10n))),
         ],
       ),
       body: SafeArea(

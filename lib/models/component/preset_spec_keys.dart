@@ -31,10 +31,10 @@ class SpecKey<T extends Object> {
     return value;
   }
 
-  String format(T value) {
-    final text = value is num ? formatSpecNumber(value) : value.toString();
-    return unit == null ? text : '$text $unit';
-  }
+  /// Language-neutral: catalog labels are cached.
+  String format(T value) => withUnit(value is num ? formatSpecNumber(value) : value.toString());
+
+  String withUnit(String text) => unit == null ? text : '$text $unit';
 }
 
 /// A registered `options:` axis.

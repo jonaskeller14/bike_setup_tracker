@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/feedback/feedback_vocabulary.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
@@ -90,13 +92,13 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
                           textBaseline: TextBaseline.alphabetic,
                           spacing: 8,
                           children: [
-                            Text('What changed', style: theme.textTheme.titleSmall),
+                            Text(context.l10n.feedbackWhatChanged, style: theme.textTheme.titleSmall),
                             // A paragraph of its own, so the arrow centres on the small text,
                             // not on the taller title line.
                             Flexible(
                               child: Text.rich(
                                 TextSpan(
-                                  text: 'reference ',
+                                  text: '${context.l10n.feedbackReferenceShort} ',
                                   children: [
                                     // The icon the change cells below use; a "→" glyph sits low next to the text.
                                     WidgetSpan(
@@ -107,7 +109,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
                                         color: subtitleStyle?.color,
                                       ),
                                     ),
-                                    const TextSpan(text: ' rated setup'),
+                                    TextSpan(text: ' ${context.l10n.feedbackRatedSetupShort}'),
                                   ],
                                 ),
                                 style: subtitleStyle,
@@ -121,7 +123,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
                       if (reference != null)
                         IconButton(
                           icon: const Icon(Icons.compare, size: 20),
-                          tooltip: 'View comparison',
+                          tooltip: context.l10n.feedbackViewComparison,
                           visualDensity: VisualDensity.compact,
                           color: theme.colorScheme.onSurfaceVariant,
                           onPressed: () => showCompareSetupsSheet(context, setupA: reference, setupB: widget.rated),
@@ -141,12 +143,12 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
               if (_showChanges) _changes(context, reference),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text('How did it ride?', style: theme.textTheme.titleSmall),
+                child: Text(context.l10n.feedbackHowDidItRide, style: theme.textTheme.titleSmall),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: FeedbackOutcomeSelector(
-                  labels: FeedbackVocabulary.overallOutcomeLabels,
+                  labels: FeedbackOutcomeLabels.overall(context.l10n),
                   outcome: widget.outcome,
                   onChanged: widget.onOutcomeChanged,
                 ),
@@ -177,7 +179,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
           contentPadding: EdgeInsets.only(left: 16, right: widget.onRemove == null ? 16 : 4),
           leading: Icon(Setup.iconData, color: errorColor),
           title: Text(
-            reference?.displayName ?? 'SETUP NOT FOUND',
+            reference?.label(context.l10n) ?? context.l10n.setupNotFound,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontWeight: FontWeight.bold, color: errorColor),
@@ -185,8 +187,8 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
           subtitle: reference == null
               ? null
               : Text(
-                  '${DateFormat(appSettings.dateFormat).format(reference.datetimeLocal)} • '
-                  '${DateFormat(appSettings.timeFormat).format(reference.datetimeLocal)}',
+                  '${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(reference.datetimeLocal)} • '
+                  '${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(reference.datetimeLocal)}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -194,11 +196,11 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Tooltip(
-                message: 'Change reference setup',
+                message: context.l10n.feedbackChangeReference,
                 child: Icon(Icons.arrow_drop_down, color: scheme.onSurfaceVariant),
               ),
               if (widget.onRemove case final onRemove?)
-                IconButton(icon: const Icon(Icons.close), tooltip: 'Remove comparison', onPressed: onRemove),
+                IconButton(icon: const Icon(Icons.close), tooltip: context.l10n.feedbackRemoveComparison, onPressed: onRemove),
             ],
           ),
         ),
@@ -210,7 +212,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
     final candidates = widget.candidates;
     final picked = await showPickSetupSheet(
       context,
-      title: 'Reference setup',
+      title: context.l10n.feedbackReferenceSetupTitle,
       selectedId: reference?.id,
       options: [
         widget.rated,
@@ -220,7 +222,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
       ],
       // The rated setup is shown for orientation; it can't be its own reference.
       disabledIds: {...widget.usedReferenceIds, widget.rated.id},
-      sideLabels: {widget.rated.id: 'Rated'},
+      sideLabels: {widget.rated.id: context.l10n.feedbackRatedSideLabel},
     );
     if (picked != null && picked.id != widget.referenceId) widget.onReferenceChanged(picked.id);
   }
@@ -256,7 +258,7 @@ class _FeedbackComparisonFieldState extends State<FeedbackComparisonField> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(
-          reference == null ? 'Values of the reference are unavailable' : 'No values changed',
+          reference == null ? context.l10n.feedbackReferenceUnavailable : context.l10n.feedbackNoValuesChanged,
           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       );

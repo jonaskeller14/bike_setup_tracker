@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -13,6 +14,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../goldens/support/localized_test_app.dart';
 import '../../overflow_data_generator.dart' show loremIpsum;
 
 class MockSubscriptionService extends Mock implements SubscriptionService {
@@ -55,7 +57,7 @@ void main() {
             ChangeNotifierProvider.value(value: appRepository),
             ChangeNotifierProvider<SubscriptionService>(create: (_) => MockSubscriptionService()),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: theme ?? materialAppTheme,
             home: Scaffold(body: TaskRuleDisplayCard(taskRule: taskRule, showStatus: true)),
           ),
@@ -105,7 +107,9 @@ void main() {
   group('taskForecastDueLabel', () {
     final now = DateTime(2026, 9, 9, 14, 30);
 
-    String label(DateTime due) => taskForecastDueLabel(due, now, 'yyyy-MM-dd');
+    final de = lookupAppLocalizations(const Locale('de'));
+
+    String label(DateTime due) => taskForecastDueLabel(englishL10n, due, now, 'yyyy-MM-dd');
 
     test('reads as today for the rest of the current day', () {
       expect(label(DateTime(2026, 9, 9, 23, 59)), 'today');
@@ -131,13 +135,23 @@ void main() {
 
     test('honours the configured date format', () {
       expect(
-        taskForecastDueLabel(DateTime(2026, 11, 4), now, 'dd.MM.yyyy'),
+        taskForecastDueLabel(englishL10n, DateTime(2026, 11, 4), now, 'dd.MM.yyyy'),
         '04.11.2026',
       );
     });
 
     test('never counts backwards for a date that slipped into the past', () {
       expect(label(DateTime(2026, 9, 8)), 'today');
+    });
+
+    test('reads in German', () {
+      String german(DateTime due) => taskForecastDueLabel(de, due, now, 'dd.MM.yyyy');
+
+      expect(german(DateTime(2026, 9, 9, 23, 59)), 'heute');
+      expect(german(DateTime(2026, 9, 10)), 'morgen');
+      expect(german(DateTime(2026, 9, 12)), 'in 3 Tagen');
+      expect(german(DateTime(2026, 9, 23)), 'in 2 Wochen');
+      expect(german(DateTime(2026, 11, 4)), '04.11.2026');
     });
   });
 }

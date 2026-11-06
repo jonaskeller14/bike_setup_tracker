@@ -12,6 +12,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 class _PageCase {
   final String typeLabel;
@@ -100,7 +101,7 @@ Future<void> _pumpPage(WidgetTester tester, Widget page) async {
   await tester.pumpWidget(
     ChangeNotifierProvider<AppSettings>(
       create: (_) => AppSettings(),
-      child: MaterialApp(theme: materialAppTheme, home: page),
+      child: localizedTestApp(theme: materialAppTheme, home: page),
     ),
   );
   await tester.pumpAndSettle();

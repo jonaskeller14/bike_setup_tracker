@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/app_settings.dart';
+import '../models/service_error.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
@@ -34,8 +35,11 @@ class StravaDisconnecting extends StravaState {
 }
 
 class StravaFailed extends StravaState {
-  final String message;
-  const StravaFailed(this.message);
+  final StravaErrorKind kind;
+  final String? detail;
+  const StravaFailed(this.kind, [this.detail]);
+
+  StravaFailure get failure => ServiceError(kind, detail);
 }
 
 enum StravaAvailability { available, full, networkError }
@@ -59,9 +63,9 @@ class StravaService extends ChangeNotifier {
 
   bool get isDisconnecting => _state is StravaDisconnecting;
 
-  String? get errorMessage {
+  StravaFailure? get failure {
     final s = _state;
-    return s is StravaFailed ? s.message : null;
+    return s is StravaFailed ? s.failure : null;
   }
 
   void clearError() {
@@ -173,13 +177,13 @@ class StravaService extends ChangeNotifier {
     return null;
   }
 
-  void _handleError(String context, dynamic error, {String? userMessage}) {
+  void _handleError(String context, dynamic error, {StravaErrorKind? userError}) {
     if (error is FirebaseFunctionsException) {
       debugPrint("StravaService $context: [${error.code}] ${error.message}");
     } else {
       debugPrint("StravaService $context: $error");
     }
-    if (userMessage != null) _setState(StravaFailed(userMessage));
+    if (userError != null) _setState(StravaFailed(userError));
   }
 
   Future<void> _listenToUserDocument() async {
@@ -223,7 +227,7 @@ class StravaService extends ChangeNotifier {
         // Athlete unchanged but doc updated — check if subscription lapsed.
         _checkEntitlementExpiry(data);
       }
-    }, onError: (Object e) => _handleError("UserDoc", e, userMessage: "Connection verify failed"));
+    }, onError: (Object e) => _handleError("UserDoc", e, userError: StravaErrorKind.connectionVerifyFailed));
   }
 
   // Start and stop swap the subscription fields synchronously: callers fire
@@ -271,9 +275,11 @@ class StravaService extends ChangeNotifier {
           if (remoteStatus == 'syncing') {
             _setStateFromFirestore(const StravaSyncing());
           } else if (remoteStatus == 'error') {
-            _setStateFromFirestore(StravaFailed(
-              remoteError.isNotEmpty ? remoteError : 'Sync failed',
-            ));
+            _setStateFromFirestore(
+              remoteError.isNotEmpty
+                  ? StravaFailed(StravaErrorKind.serverMessage, remoteError)
+                  : const StravaFailed(StravaErrorKind.syncFailed),
+            );
           } else if (_state is StravaSyncing) {
             _setStateFromFirestore(const StravaIdle());
           } else {
@@ -350,7 +356,7 @@ class StravaService extends ChangeNotifier {
           toDelete: toDelete,
         ));
       }
-    }, onError: (Object e) => _handleError("SyncStream", e, userMessage: "Background sync error"));
+    }, onError: (Object e) => _handleError("SyncStream", e, userError: StravaErrorKind.backgroundSyncFailed));
   }
       
   static const Duration _renewalGracePeriod = Duration(hours: 4);
@@ -558,9 +564,7 @@ class StravaService extends ChangeNotifier {
     try {
       if (_userId == null) await _loadUserId();
       if (_userId == null) {
-        _setState(const StravaFailed(
-          "Couldn't reach our servers. Check your connection and try again.",
-        ));
+        _setState(const StravaFailed(StravaErrorKind.serverUnreachable));
         return;
       }
 
@@ -590,7 +594,7 @@ class StravaService extends ChangeNotifier {
         _handleError(
           "StravaAuth",
           Exception("Failed to launch authUrl: $authUrl"),
-          userMessage: "Could not find a program to launch the link.",
+          userError: StravaErrorKind.noBrowser,
         );
         return;
       }
@@ -601,7 +605,7 @@ class StravaService extends ChangeNotifier {
       // via [handleStravaAuthCallback]. If the user cancels in the browser
       // they can just retap the button.
     } catch (e) {
-      _setState(StravaFailed("Login failed: $e"));
+      _setState(StravaFailed(StravaErrorKind.loginFailed, e.toString()));
     }
   }
 
@@ -611,13 +615,13 @@ class StravaService extends ChangeNotifier {
   /// failure we surface the error inline on the sheet.
   void handleStravaAuthCallback({required bool success, String? error}) {
     if (success) return;
-    _setState(StravaFailed(
+    _setState(
       error == 'permission_denied'
-          ? 'An active Strava Sync subscription is required.'
+          ? const StravaFailed(StravaErrorKind.subscriptionRequired)
           : error != null && error.isNotEmpty
-          ? "Strava sign-in failed: $error"
-          : "Strava sign-in failed. Please try again.",
-    ));
+          ? StravaFailed(StravaErrorKind.signInFailed, error)
+          : const StravaFailed(StravaErrorKind.signInFailedGeneric),
+    );
   }
 
   Future<void> disconnect() async {
@@ -638,7 +642,7 @@ class StravaService extends ChangeNotifier {
 
       _setState(const StravaIdle());
     } catch (e) {
-      _setState(StravaFailed("Disconnection failed: $e"));
+      _setState(StravaFailed(StravaErrorKind.disconnectFailed, e.toString()));
     }
   }
 
@@ -661,11 +665,15 @@ class StravaService extends ChangeNotifier {
       }
       _setState(const StravaIdle());
     } on FirebaseFunctionsException catch (e) {
-      _setState(StravaFailed(
-        _friendlyFunctionError(e) ?? "Sync failed: [${e.code}] ${e.message}",
-      ));
+      final friendly = _friendlyFunctionError(e);
+      _setState(
+        StravaFailed(
+          friendly ?? StravaErrorKind.syncFailed,
+          friendly == null ? "[${e.code}] ${e.message}" : null,
+        ),
+      );
     } catch (e) {
-      _setState(StravaFailed("Sync failed: $e"));
+      _setState(StravaFailed(StravaErrorKind.syncFailed, e.toString()));
     }
   }
 
@@ -677,27 +685,31 @@ class StravaService extends ChangeNotifier {
       await functions.httpsCallable('syncFullHistory').call<void>();
       _setState(const StravaIdle());
     } on FirebaseFunctionsException catch (e) {
-      _setState(StravaFailed(
-        _friendlyFunctionError(e) ?? "Full history sync failed: [${e.code}] ${e.message}",
-      ));
+      final friendly = _friendlyFunctionError(e);
+      _setState(
+        StravaFailed(
+          friendly ?? StravaErrorKind.fullSyncFailed,
+          friendly == null ? "[${e.code}] ${e.message}" : null,
+        ),
+      );
     } catch (e) {
-      _setState(StravaFailed("Full history sync failed: $e"));
+      _setState(StravaFailed(StravaErrorKind.fullSyncFailed, e.toString()));
     }
   }
 
-  String? _friendlyFunctionError(FirebaseFunctionsException e) {
+  StravaErrorKind? _friendlyFunctionError(FirebaseFunctionsException e) {
     switch (e.code) {
       case 'deadline-exceeded':
       case 'unavailable':
       // On Android, a compound App Check + network failure surfaces as 'unknown'.
       case 'unknown':
-        return "No internet connection. Please check your connection and try again.";
+        return StravaErrorKind.noInternet;
       case 'unauthenticated':
-        return "Authentication error. Please try again or reconnect to Strava.";
+        return StravaErrorKind.authentication;
       case 'permission-denied':
-        return "An active Strava Sync subscription is required.";
+        return StravaErrorKind.subscriptionRequired;
       case 'resource-exhausted':
-        return "Too many requests. Please try again later.";
+        return StravaErrorKind.rateLimited;
       default:
         return null;
     }

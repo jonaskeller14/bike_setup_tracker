@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
@@ -17,6 +18,7 @@ import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/bike_link_sheet.dart';
 import '../widgets/sheets/person_add_adjustment.dart';
+import 'adjustment_presets.dart';
 import 'setup_actions.dart';
 
 class PersonActions {
@@ -52,7 +54,7 @@ class PersonActions {
 
     final bike = appRepository.bikes[bikeId];
     if (bike == null) {
-      messenger.showSnackBar(AppSnackBar.error(context, 'Bike not found.'));
+      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.riderBikeNotFoundMessage));
       return;
     }
 
@@ -60,7 +62,7 @@ class PersonActions {
 
     if (!context.mounted) return;
     messenger.showSnackBar(
-      AppSnackBar.success(context, "'${person.name}' is now the rider of '${bike.name}'."),
+      AppSnackBar.success(context, context.l10n.riderSetForBike(person.name, bike.name)),
     );
   }
 
@@ -68,7 +70,7 @@ class PersonActions {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return null;
 
-    final person = Person(name: trimmed, adjustments: [ridingWeightPreset.deepCopy()]);
+    final person = Person(name: trimmed, adjustments: [ridingWeightPresetFor(context.l10n).deepCopy()]);
     await context.read<AppRepository>().addPersons([person]);
     return person;
   }
@@ -144,10 +146,11 @@ class PersonActions {
   static Future<void> removePerson(BuildContext context, {required Person person}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     await appRepository.removePersons([person]);
 
-    final message = "Rider '${person.name}' moved to trash.";
+    final message = l10n.riderMovedToTrash(person.name);
     if (!context.mounted) return;
     messenger.showSnackBar(
       AppSnackBar.info(
@@ -155,7 +158,7 @@ class PersonActions {
         message,
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async {
             await appRepository.restorePersons([person]);
           },
@@ -167,6 +170,7 @@ class PersonActions {
   static Future<void> restorePerson(BuildContext context, {required Person person}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     await appRepository.restorePersons([person]);
 
@@ -174,10 +178,10 @@ class PersonActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Rider '${person.name}' restored from trash.",
+        l10n.riderRestoredFromTrash(person.name),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async => appRepository.removePersons([person]),
         ),
       ),

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/feedback_text.dart';
+import '../../l10n/l10n.dart';
 import '../../models/feedback/custom_issue.dart';
-import '../../models/feedback/feedback_vocabulary.dart';
 import '../../services/feedback_open_issues_service.dart';
 import '../../theme.dart';
 
-/// Flagged problems as small pills ("Front: Harsh"), or a single "Dialled in"
+/// Flagged problems as small pills ("Front: Harsh"), or a single "No issues"
 /// pill when [issues] is empty.
 class OpenIssuesChips extends StatelessWidget {
   final List<FeedbackIssue> issues;
@@ -21,13 +22,13 @@ class OpenIssuesChips extends StatelessWidget {
       spacing: 4,
       runSpacing: 4,
       children: issues.isEmpty
-          ? [_pill(color: colors.better, icon: Icons.check_circle, label: FeedbackVocabulary.dialledIn)]
+          ? [_pill(color: colors.better, icon: Icons.check_circle, label: context.l10n.feedbackNoIssues)]
           : [
               for (final issue in issues)
-                if (issue.hint case final hint?)
-                  Tooltip(message: hint, child: _pill(color: colors.worse, label: issue.label))
+                if (issue.hintText(context.l10n) case final hint?)
+                  Tooltip(message: hint, child: _pill(color: colors.worse, label: issue.labelText(context.l10n)))
                 else
-                  _pill(color: colors.worse, label: issue.label),
+                  _pill(color: colors.worse, label: issue.labelText(context.l10n)),
             ],
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/component_stats.dart';
 
@@ -43,7 +44,7 @@ class ComponentStatsBar extends StatelessWidget {
   @visibleForTesting
   static String formatAmount(num value, NumberFormat fmt) {
     final rounded = value.round();
-    return rounded.abs() >= 100000 ? NumberFormat.compact().format(rounded) : fmt.format(rounded);
+    return rounded.abs() >= 100000 ? NumberFormat.compact(locale: fmt.locale).format(rounded) : fmt.format(rounded);
   }
 
   @override
@@ -51,16 +52,18 @@ class ComponentStatsBar extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
     final colorScheme = Theme.of(context).colorScheme;
     final foreground = foregroundColor ?? colorScheme.onSurfaceVariant;
-    final fmt = NumberFormat.decimalPattern();
+    final fmt = NumberFormat.decimalPattern(context.l10n.localeName);
 
     Widget item(IconData icon, String text) => Row(
       mainAxisSize: MainAxisSize.min,
       spacing: 2,
       children: [
         Icon(icon, size: fontSize, color: foreground.withValues(alpha: 0.7)),
-        Text(
-          text,
-          style: TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: foreground),
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: foreground),
+          ),
         ),
       ],
     );

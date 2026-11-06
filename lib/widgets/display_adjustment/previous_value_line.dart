@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/value_delta.dart';
@@ -31,7 +33,7 @@ class PreviousValueLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final delta = formatValueDelta(previousValue, value);
+    final delta = formatValueDelta(previousValue, value, context.l10n);
     // The read-only rows set ordered values in monospace and words in the body
     // font; only the ordered types have a delta.
     final isOrdered = delta != null;
@@ -45,7 +47,7 @@ class PreviousValueLine extends StatelessWidget {
         Opacity(
           opacity: 0.7,
           child: Text(
-            previousValue.display + adjustment.unitSuffix(),
+            previousValue.displayText(context.l10n) + adjustment.unitSuffix(),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall?.copyWith(

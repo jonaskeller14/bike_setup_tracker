@@ -214,13 +214,61 @@ void main() {
         setups: setups,
         feedbacks: ratings,
         testSessions: testSessions,
-        setupFilter: SetupFilter(testSessionNames: {testSessions["t1"]!.displayName}),
+        setupFilter: const SetupFilter(testSessionNames: {SetupFilter.unnamedTestSession}),
       );
       expect(filtered.setups.keys, ["r1"]);
       expect(filtered.feedbacks.keys, ["onRun"]);
 
       final unfiltered = build(setups: setups, feedbacks: ratings, testSessions: testSessions);
       expect(unfiltered.feedbacks.keys, ["onRun", "onPlain", "onGone"], reason: 'no setup filter, nothing follows');
+    });
+
+    group("emptyTestSessions", () {
+      // t1 lost its runs, t2 still has one.
+      final run = Setup(
+        id: "r",
+        tags: const {"race"},
+        datetime: DateTime.utc(2024, 5, 20),
+        datetimeLocal: DateTime(2024, 5, 20),
+        bike: "b2",
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+        testSessionId: "t2",
+      );
+
+      FilteredView view({String? bikeId, LocalDateRange? dateRange, SetupFilter setupFilter = const SetupFilter()}) =>
+          build(setups: {"r": run}, testSessions: testSessions, bikeId: bikeId, dateRange: dateRange, setupFilter: setupFilter);
+
+      test("holds only sessions without any run", () {
+        expect(view().emptyTestSessions.keys, ["t1"]);
+      });
+
+      test("a session whose runs are filtered out is not empty", () {
+        final hidden = view(dateRange: LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12)));
+        expect(hidden.setups, isEmpty);
+        expect(hidden.emptyTestSessions.keys, ["t1"]);
+      });
+
+      test("the bike scope applies", () {
+        expect(view(bikeId: "b1").emptyTestSessions.keys, ["t1"]);
+        expect(view(bikeId: "b2").emptyTestSessions, isEmpty);
+      });
+
+      test("the date range applies to its start", () {
+        final outside = LocalDateRange(start: DateTime(2024, 5, 11), end: DateTime(2024, 5, 31));
+        expect(view(dateRange: outside).emptyTestSessions, isEmpty);
+      });
+
+      test("tags and bookmarks exclude it, the session filter goes by name", () {
+        expect(view(setupFilter: const SetupFilter(tags: {"race"})).emptyTestSessions, isEmpty);
+        expect(view(setupFilter: const SetupFilter(bookmarkedOnly: true)).emptyTestSessions, isEmpty);
+        expect(view(setupFilter: const SetupFilter(testSessionNames: {"Other"})).emptyTestSessions, isEmpty);
+        expect(
+          view(setupFilter: const SetupFilter(testSessionNames: {SetupFilter.unnamedTestSession})).emptyTestSessions.keys,
+          ["t1"],
+        );
+      });
     });
   });
 

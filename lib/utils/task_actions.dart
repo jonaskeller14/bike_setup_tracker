@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/attachment.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
@@ -62,14 +63,10 @@ class TaskActions {
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
-        Intl.plural(
-          renamedEntries.length,
-          one: 'Renamed 1 corresponding Task Entry.',
-          other: 'Renamed ${renamedEntries.length} corresponding Task Entries.',
-        ),
+        context.l10n.taskActionRenamedEntries(renamedEntries.length),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.editTaskEntry(renamedEntries),
         ),
       ),
@@ -132,14 +129,10 @@ class TaskActions {
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
-        Intl.plural(
-          updatedRules.length,
-          one: "Priority set to '${selectedPriority.label}' for 1 Task.",
-          other: "Priority set to '${selectedPriority.label}' for ${updatedRules.length} Tasks.",
-        ),
+        context.l10n.taskActionPrioritySet(updatedRules.length, selectedPriority.label(context.l10n)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.editTaskRules(originalRules),
         ),
       ),
@@ -158,13 +151,9 @@ class TaskActions {
       context: context,
       itemTags: taskRules.map((rule) => rule.tags).toList(),
       availableTags: appRepository.taskRuleTags,
-      title: 'Set Tags',
-      subtitle: 'Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)',
-      applyLabel: Intl.plural(
-        taskRules.length,
-        one: 'Apply to 1 Task',
-        other: 'Apply to ${taskRules.length} Tasks',
-      ),
+      title: context.l10n.taskSetTagsTitle,
+      subtitle: context.l10n.taskTagsSubtitle,
+      applyLabel: context.l10n.taskApplyTags(taskRules.length),
     );
     if (changes == null) return false;
 
@@ -184,14 +173,10 @@ class TaskActions {
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
-        Intl.plural(
-          updatedRules.length,
-          one: 'Tags updated for 1 Task.',
-          other: 'Tags updated for ${updatedRules.length} Tasks.',
-        ),
+        context.l10n.taskTagsUpdated(updatedRules.length),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.editTaskRules(originalRules),
         ),
       ),
@@ -238,14 +223,10 @@ class TaskActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        Intl.plural(
-          taskRules.length,
-          one: "Task '${taskRules[0].name}' and corresponding entries moved to trash.",
-          other: '${taskRules.length} Tasks and corresponding entries moved to trash.',
-        ),
+        context.l10n.taskRulesMovedToTrash(taskRules.length, taskRules[0].name),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async {
             await appRepository.restoreTaskRules(taskRules);
             await appRepository.restoreTaskEntries(obsoleteTaskEntries);
@@ -265,10 +246,10 @@ class TaskActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Task '${taskRule.name}' restored from trash.",
+        context.l10n.taskRestoredFromTrash(taskRule.name),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async {
             await appRepository.removeTaskRules([taskRule]);
           },
@@ -335,14 +316,10 @@ class TaskActions {
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
-        Intl.plural(
-          taskEntries.length,
-          one: "Task '${taskRules[0].name}' completed.",
-          other: '${taskEntries.length} Tasks completed.',
-        ),
+        context.l10n.taskCompleted(taskEntries.length, taskRules[0].name),
         duration: const Duration(seconds: 3),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.removeTaskEntries(taskEntries),
         ),
       ),
@@ -403,10 +380,10 @@ class TaskActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Task Entry '${taskEntry.name}' moved to trash.",
+        context.l10n.taskEntriesMovedToTrash(1, taskEntry.name),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.restoreTaskEntries([taskEntry]),
         ),
       ),
@@ -425,14 +402,10 @@ class TaskActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        Intl.plural(
-          taskEntries.length,
-          one: "Task Entry '${taskEntries[0].name}' moved to trash.",
-          other: "${taskEntries.length} Task Entries moved to trash.",
-        ),
+        context.l10n.taskEntriesMovedToTrash(taskEntries.length, taskEntries[0].name),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.restoreTaskEntries(taskEntries),
         ),
       ),
@@ -448,10 +421,10 @@ class TaskActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Task Entry '${taskEntry.name}' restored from trash.",
+        context.l10n.taskEntryRestoredFromTrash(taskEntry.name),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: context.l10n.undo,
           onPressed: () async => appRepository.removeTaskEntries([taskEntry]),
         ),
       ),

@@ -90,10 +90,30 @@ option_values:
         - Rebound, two independent compression circuits and a threshold climb setting
         - HSC and LSC are 5-position dials, centred on the shock's base tune
         - 15 clicks of rebound; LSC turns by hand, HSC takes a 3mm hex key
+      description_de: |-
+        - Zugstufe, zwei unabhängige Druckstufenkreise und eine Threshold-Climb-Einstellung
+        - HSC und LSC sind Räder mit 5 Positionen, zentriert auf die Grundabstimmung des Dämpfers
+        - 15 Klicks Zugstufe; LSC wird von Hand gedreht, HSC braucht einen 3-mm-Inbusschlüssel
+      description_fr: |-
+        - Détente, deux circuits de compression indépendants et un réglage threshold pour la montée
+        - HSC et LSC sont des molettes à 5 positions, centrées sur le réglage de base de l’amortisseur
+        - 15 clics de détente ; le LSC se tourne à la main, le HSC demande une clé hexagonale de 3 mm
+      description_it: |-
+        - Ritorno, due circuiti di compressione indipendenti e un’impostazione threshold per la salita
+        - HSC e LSC sono manopole a 5 posizioni, centrate sulla taratura base dell’ammortizzatore
+        - 15 scatti di ritorno; l’LSC si ruota a mano, l’HSC richiede una chiave a brugola da 3 mm
+      description_es: |-
+        - Rebote, dos circuitos de compresión independientes y un ajuste threshold para subir
+        - HSC y LSC son ruedas de 5 posiciones, centradas en el tarado base del amortiguador
+        - 15 clics de rebote; el LSC se gira a mano, el HSC requiere una llave Allen de 3 mm
+      description_pt: |-
+        - Retorno, dois circuitos de compressão independentes e um ajuste threshold para subir
+        - HSC e LSC são seletores de 5 posições, centrados na calibragem base do amortecedor
+        - 15 cliques de retorno; o LSC gira à mão, o HSC exige uma chave Allen de 3 mm
       adjustments:
-        - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle base tune; 3mm hex key", dialColor: blue, dialSize: small }
-        - { name: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle base tune; adjusted by hand", dialColor: blue }
-        - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle base tune; 3mm hex key", notes_de: High-Speed-Druckstufe; von der mittleren Grundabstimmung gezählt; 3-mm-Inbusschlüssel, notes_fr: Compression haute vitesse ; comptée depuis le réglage de base médian ; clé hexagonale de 3 mm, notes_it: Compressione ad alta velocità; contata a partire dalla taratura base centrale; chiave a brugola da 3 mm, notes_es: Compresión de alta velocidad; contada desde el tarado base central; llave Allen de 3 mm, notes_pt: Compressão de alta velocidade; contada a partir da calibragem base central; chave Allen de 3 mm, dialColor: blue, dialSize: small }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle base tune; adjusted by hand", notes_de: Low-Speed-Druckstufe; von der mittleren Grundabstimmung gezählt; von Hand verstellt, notes_fr: Compression basse vitesse ; comptée depuis le réglage de base médian ; réglée à la main, notes_it: Compressione a bassa velocità; contata a partire dalla taratura base centrale; regolata a mano, notes_es: Compresión de baja velocidad; contada desde el tarado base central; se ajusta a mano, notes_pt: Compressão de baixa velocidade; contada a partir da calibragem base central; ajustada à mão, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 15, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source:
         - https://support.rockshox.com/hc/en-us/articles/6004026399259-How-far-can-I-adjust-the-High-Speed-Compression-HSC-and-Low-Speed-Compression-LSC-on-Rockshox-RC2T-dampers
         - https://support.rockshox.com/hc/en-us/articles/6004236989083-How-do-I-adjust-Rebound-High-Speed-Compression-HSC-and-Low-Speed-Compression-LSC-on-the-RockShox-RC2T-damper
@@ -115,9 +135,21 @@ option_values:
       description: >-
         Piggyback damper of the 2027 Super Deluxe with a rebound dial, compression
         adjusters and a two-position lockout.
+      description_de: >-
+        Piggyback-Dämpfer des Super Deluxe 2027 mit Zugstufenrad,
+        Druckstufenverstellern und Zwei-Positionen-Lockout.
+      description_fr: Amortisseur piggyback du Super Deluxe 2027 avec une molette de détente, des réglages de compression et un lockout à deux positions.
+      description_it: Ammortizzatore piggyback del Super Deluxe 2027 con una manopola del ritorno, regolatori di compressione e un lockout a due posizioni.
+      description_es: Amortiguador piggyback del Super Deluxe 2027 con una rueda de rebote, ajustes de compresión y un lockout de dos posiciones.
+      description_pt: Amortecedor piggyback do Super Deluxe 2027 com um seletor de retorno, ajustes de compressão e um lockout de duas posições.
       missing_adjustments: [Compression, Lockout lever]
+      missing_adjustments_de: [Druckstufe, Lockout-Hebel]
+      missing_adjustments_fr: [Compression, Levier de lockout]
+      missing_adjustments_it: [Compressione, Leva di lockout]
+      missing_adjustments_es: [Compresión, Palanca de lockout]
+      missing_adjustments_pt: [Compressão, Alavanca de lockout]
       adjustments:
-        - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 15, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source:
         - https://support.rockshox.com/hc/en-us/articles/48154327224219-How-many-rebound-clicks-does-the-Super-Deluxe-D1-have
         - https://support.rockshox.com/hc/en-us/articles/48154123356571-Is-there-a-three-position-3P-variant-of-the-Super-Deluxe-D1
@@ -132,9 +164,21 @@ option_values:
       description: >-
         Downhill damper of the Super Deluxe Ultimate DH, with separate high- and
         low-speed compression and no climb switch.
+      description_de: >-
+        Downhill-Dämpfer des Super Deluxe Ultimate DH mit getrennter High- und
+        Low-Speed-Druckstufe und ohne Climb-Schalter.
+      description_fr: Amortisseur de descente du Super Deluxe Ultimate DH, avec compression haute et basse vitesse séparées et sans climb switch.
+      description_it: Ammortizzatore da discesa del Super Deluxe Ultimate DH, con compressione ad alta e bassa velocità separate e senza climb switch.
+      description_es: Amortiguador de descenso del Super Deluxe Ultimate DH, con compresión de alta y baja velocidad por separado y sin climb switch.
+      description_pt: Amortecedor de descida do Super Deluxe Ultimate DH, com compressão de alta e baixa velocidade separadas e sem climb switch.
       missing_adjustments: [HSC, LSC]
+      missing_adjustments_de: [HSC, LSC]
+      missing_adjustments_fr: [HSC, LSC]
+      missing_adjustments_it: [HSC, LSC]
+      missing_adjustments_es: [HSC, LSC]
+      missing_adjustments_pt: [HSC, LSC]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://support.rockshox.com/hc/en-us/articles/17938105283355-Will-Vivid-Ultimate-DH-replace-Super-Deluxe-Ultimate-DH
       note: >-
         SRAM publishes no click counts for the DH-specific RC2. The RC2T numbers
@@ -148,11 +192,31 @@ option_values:
         - Piggyback damper with five positions each of high- and low-speed compression
         - Twenty clicks of rebound
         - Five positions of adjustable hydraulic bottom-out to control the last of the stroke
+      description_de: |-
+        - Piggyback-Dämpfer mit je fünf Positionen für High- und Low-Speed-Druckstufe
+        - Zwanzig Klicks Zugstufe
+        - Fünf Positionen des einstellbaren hydraulischen Durchschlagschutzes, der das Ende des Federwegs kontrolliert
+      description_fr: |-
+        - Amortisseur piggyback avec cinq positions de compression haute vitesse et cinq de basse vitesse
+        - Vingt clics de détente
+        - Cinq positions de fin de course hydraulique réglable pour contrôler la fin de la course
+      description_it: |-
+        - Ammortizzatore piggyback con cinque posizioni di compressione ad alta velocità e cinque a bassa velocità
+        - Venti scatti di ritorno
+        - Cinque posizioni di fondocorsa idraulico regolabile per controllare l’ultimo tratto della corsa
+      description_es: |-
+        - Amortiguador piggyback con cinco posiciones de compresión de alta velocidad y cinco de baja velocidad
+        - Veinte clics de rebote
+        - Cinco posiciones de final de carrera hidráulico regulable para controlar el último tramo del recorrido
+      description_pt: |-
+        - Amortecedor piggyback com cinco posições de compressão de alta velocidade e cinco de baixa velocidade
+        - Vinte cliques de retorno
+        - Cinco posições de fim de curso hidráulico ajustável para controlar o final do curso
       adjustments:
-        - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent; 5 positions in total", dialSize: small }
-        - { name: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent; 5 positions in total" }
-        - { name: Rebound, type: step, max: 20, notes: Counted from fully open (fastest), dialColor: red }
-        - { name: Hydraulic Bottom Out, type: step, max: 4, notes: "Adjustable Hydraulic Bottom Out (AHBO); 5 positions in total; Counted from fully open", dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent; 5 positions in total", notes_de: High-Speed-Druckstufe; von der mittleren Raste gezählt; insgesamt 5 Positionen, notes_fr: Compression haute vitesse ; comptée depuis le cran médian ; 5 positions au total, notes_it: Compressione ad alta velocità; contata a partire dallo scatto centrale; 5 posizioni in totale, notes_es: Compresión de alta velocidad; contada desde la muesca central; 5 posiciones en total, notes_pt: Compressão de alta velocidade; contada a partir do clique central; 5 posições no total, dialSize: small }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent; 5 positions in total", notes_de: Low-Speed-Druckstufe; von der mittleren Raste gezählt; insgesamt 5 Positionen, notes_fr: Compression basse vitesse ; comptée depuis le cran médian ; 5 positions au total, notes_it: Compressione a bassa velocità; contata a partire dallo scatto centrale; 5 posizioni in totale, notes_es: Compresión de baja velocidad; contada desde la muesca central; 5 posiciones en total, notes_pt: Compressão de baixa velocidade; contada a partir do clique central; 5 posições no total }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 20, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Hydraulic Bottom Out, name_de: Hydraulischer Durchschlagschutz, name_fr: Fin de course hydraulique, name_it: Fondocorsa idraulico, name_es: Final de carrera hidráulico, name_pt: Fim de curso hidráulico, type: step, max: 4, notes: "Adjustable Hydraulic Bottom Out (AHBO); 5 positions in total; Counted from fully open", notes_de: Adjustable Hydraulic Bottom Out (AHBO); insgesamt 5 Positionen; von ganz offen gezählt, notes_fr: Fin de course hydraulique réglable (AHBO) ; 5 positions au total ; compté depuis la position entièrement ouverte, notes_it: Fondocorsa idraulico regolabile (AHBO); 5 posizioni in totale; contato a partire dalla posizione completamente aperta, notes_es: Final de carrera hidráulico regulable (AHBO); 5 posiciones en total; contado desde la posición totalmente abierta, notes_pt: Fim de curso hidráulico ajustável (AHBO); 5 posições no total; contado a partir da posição totalmente aberta, dialSize: small }
       source:
         - https://support.rockshox.com/hc/en-us/articles/17939326675867-How-many-positions-of-High-Speed-Compression-HSC-Low-Speed-Compression-LSC-Rebound-and-Adjustable-Hydraulic-Bottom-Out-AHBO-does-Vivid-Ultimate-have
         - https://support.rockshox.com/hc/en-us/articles/46640345306779-How-many-rebound-clicks-does-Vivid-Coil-D1-feature
@@ -182,9 +246,21 @@ option_values:
       description: >-
         Compact trail damper of the Deluxe and SIDLuxe, with compression damping,
         rebound and a climb lever.
+      description_de: >-
+        Kompakter Trail-Dämpfer des Deluxe und SIDLuxe mit Druckstufendämpfung,
+        Zugstufe und Climb-Hebel.
+      description_fr: Amortisseur trail compact des Deluxe et SIDLuxe, avec amortissement de compression, détente et un levier Climb.
+      description_it: Ammortizzatore trail compatto dei Deluxe e SIDLuxe, con smorzamento in compressione, ritorno e una leva Climb.
+      description_es: Amortiguador trail compacto de los Deluxe y SIDLuxe, con amortiguación de compresión, rebote y una palanca Climb.
+      description_pt: Amortecedor trail compacto dos Deluxe e SIDLuxe, com amortecimento de compressão, retorno e uma alavanca Climb.
       missing_adjustments: [Compression, Climb lever]
+      missing_adjustments_de: [Druckstufe, Climb-Hebel]
+      missing_adjustments_fr: [Compression, Levier Climb]
+      missing_adjustments_it: [Compressione, Leva Climb]
+      missing_adjustments_es: [Compresión, Palanca Climb]
+      missing_adjustments_pt: [Compressão, Alavanca Climb]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://www.sram.com/en/rockshox/products/shocks
       note: >-
         Previously carried RC2T's numbers by inference; that was wrong and has been
@@ -195,9 +271,20 @@ option_values:
       name: Monarch RT3
       description: >-
         Inline air damper with rebound and a three-position compression lever.
+      description_de: >-
+        Inline-Luftdämpfer mit Zugstufe und Drei-Positionen-Druckstufenhebel.
+      description_fr: Amortisseur pneumatique inline avec détente et un levier de compression à trois positions.
+      description_it: Ammortizzatore pneumatico inline con ritorno e una leva di compressione a tre posizioni.
+      description_es: Amortiguador neumático inline con rebote y una palanca de compresión de tres posiciones.
+      description_pt: Amortecedor a ar inline com retorno e uma alavanca de compressão de três posições.
       missing_adjustments: [Compression lever]
+      missing_adjustments_de: [Druckstufenhebel]
+      missing_adjustments_fr: [Levier de compression]
+      missing_adjustments_it: [Leva di compressione]
+      missing_adjustments_es: [Palanca de compresión]
+      missing_adjustments_pt: [Alavanca de compressão]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
       note: >-
         Model codes RS-MNR-RT3-C1..D2 in the Bottomless Tokens document confirm the
@@ -209,9 +296,21 @@ option_values:
       description: >-
         Piggyback air damper with rebound and a three-position compression lever for
         longer-travel bikes.
+      description_de: >-
+        Piggyback-Luftdämpfer mit Zugstufe und Drei-Positionen-Druckstufenhebel
+        für Bikes mit mehr Federweg.
+      description_fr: Amortisseur pneumatique piggyback avec détente et un levier de compression à trois positions pour les vélos à plus grand débattement.
+      description_it: Ammortizzatore pneumatico piggyback con ritorno e una leva di compressione a tre posizioni per bici a lunga escursione.
+      description_es: Amortiguador neumático piggyback con rebote y una palanca de compresión de tres posiciones para bicicletas de más recorrido.
+      description_pt: Amortecedor a ar piggyback com retorno e uma alavanca de compressão de três posições para bikes de mais curso.
       missing_adjustments: [Compression lever]
+      missing_adjustments_de: [Druckstufenhebel]
+      missing_adjustments_fr: [Levier de compression]
+      missing_adjustments_it: [Leva di compressione]
+      missing_adjustments_es: [Palanca de compresión]
+      missing_adjustments_pt: [Alavanca de compressão]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
       note: >-
         Model codes RS-MNRP-RC3-A2, B1-B4. No click counts published, so rebound
@@ -221,9 +320,20 @@ option_values:
       name: Deluxe RT3
       description: >-
         Inline trail damper with rebound and a three-position compression lever.
+      description_de: >-
+        Inline-Trail-Dämpfer mit Zugstufe und Drei-Positionen-Druckstufenhebel.
+      description_fr: Amortisseur trail inline avec détente et un levier de compression à trois positions.
+      description_it: Ammortizzatore trail inline con ritorno e una leva di compressione a tre posizioni.
+      description_es: Amortiguador trail inline con rebote y una palanca de compresión de tres posiciones.
+      description_pt: Amortecedor trail inline com retorno e uma alavanca de compressão de três posições.
       missing_adjustments: [Compression lever]
+      missing_adjustments_de: [Druckstufenhebel]
+      missing_adjustments_fr: [Levier de compression]
+      missing_adjustments_it: [Leva di compressione]
+      missing_adjustments_es: [Palanca de compresión]
+      missing_adjustments_pt: [Alavanca de compressão]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
       note: >-
         Model codes RS-DLX-RT3-A2, B1 (Deluxe <= 2022). No click counts
@@ -235,9 +345,21 @@ option_values:
       description: >-
         Piggyback damper of the 2017-2022 Super Deluxe, with rebound, compression and
         a threshold lever.
+      description_de: >-
+        Piggyback-Dämpfer des Super Deluxe 2017-2022 mit Zugstufe, Druckstufe
+        und Threshold-Hebel.
+      description_fr: Amortisseur piggyback du Super Deluxe 2017-2022, avec détente, compression et un levier threshold.
+      description_it: Ammortizzatore piggyback del Super Deluxe 2017-2022, con ritorno, compressione e una leva threshold.
+      description_es: Amortiguador piggyback del Super Deluxe 2017-2022, con rebote, compresión y una palanca threshold.
+      description_pt: Amortecedor piggyback do Super Deluxe 2017-2022, com retorno, compressão e uma alavanca threshold.
       missing_adjustments: [Compression, Threshold lever]
+      missing_adjustments_de: [Druckstufe, Threshold-Hebel]
+      missing_adjustments_fr: [Compression, Levier threshold]
+      missing_adjustments_it: [Compressione, Leva threshold]
+      missing_adjustments_es: [Compresión, Palanca threshold]
+      missing_adjustments_pt: [Compressão, Alavanca threshold]
       adjustments:
-        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
       note: >-
         Model codes RS-SDLX-RCT-A1, B1 and RS-SDLX-RC3-A2, B1 (Super Deluxe
@@ -249,10 +371,22 @@ option_values:
       description: >-
         Downhill air damper with separate beginning- and ending-stroke rebound
         adjusters.
+      description_de: >-
+        Downhill-Luftdämpfer mit getrennten Zugstufenverstellern für Beginn und
+        Ende des Hubs.
+      description_fr: Amortisseur pneumatique de descente avec des réglages de détente séparés pour le début et la fin de course.
+      description_it: Ammortizzatore pneumatico da discesa con regolatori del ritorno separati per l’inizio e la fine della corsa.
+      description_es: Amortiguador neumático de descenso con ajustes de rebote separados para el comienzo y el final del recorrido.
+      description_pt: Amortecedor a ar de descida com ajustes de retorno separados para o início e o fim do curso.
       missing_adjustments: [Compression]
+      missing_adjustments_de: [Druckstufe]
+      missing_adjustments_fr: [Compression]
+      missing_adjustments_it: [Compressione]
+      missing_adjustments_es: [Compresión]
+      missing_adjustments_pt: [Compressão]
       adjustments:
-        - { name: Beginning Stroke Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
-        - { name: Ending Stroke Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Beginning Stroke Rebound, name_de: Zugstufe zu Beginn des Hubs, name_fr: Détente en début de course, name_it: Ritorno a inizio corsa, name_es: Rebote al inicio del recorrido, name_pt: Retorno no início do curso, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Ending Stroke Rebound, name_de: Zugstufe am Ende des Hubs, name_fr: Détente en fin de course, name_it: Ritorno a fine corsa, name_es: Rebote al final del recorrido, name_pt: Retorno no fim do curso, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
       source: https://www.sram.com/en/rockshox/products/shocks
       note: >-
         The classic Vivid Air (pre-2017). SRAM's current documentation no longer
@@ -270,6 +404,11 @@ option_values:
 guides:
   rockshox_rear_shock_um:
     label: RockShox Suspension User Manual
+    label_de: RockShox Fahrwerk-Bedienungsanleitung
+    label_fr: Manuel d’utilisation des suspensions RockShox
+    label_it: Manuale d’uso delle sospensioni RockShox
+    label_es: Manual del usuario de las suspensiones RockShox
+    label_pt: Manual do usuário das suspensões RockShox
     source: https://docs.sram.com/en-US/publications/5ODr3E6BhL1uWDnWhq4ATB
     rules:
       - target: pressure
@@ -282,6 +421,11 @@ guides:
           100: 220, 105: 231, 110: 243, 115: 254, 120: 265
         }
         note: Calculated from RockShox's starting point (psi = rider weight in lb, with gear); set the final pressure by SAG
+        note_de: Berechnet aus dem Ausgangspunkt von RockShox (psi = Fahrergewicht in lb, mit Ausrüstung); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de RockShox (psi = poids du pilote équipé en lb) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di RockShox (psi = peso del rider con l’attrezzatura in lb); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de RockShox (psi = peso del rider con equipo en lb); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da RockShox (psi = peso do rider com equipamento em lb); defina a pressão final pelo SAG
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -292,6 +436,11 @@ guides:
           100: max-6, 105: max-6, 110: max-5, 115: max-5, 120: max-4
         }
         note: Calculated from RockShox TrailHead's formula
+        note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - target: rebound
         input: rider_weight
         input_unit: kg
@@ -302,16 +451,21 @@ guides:
           100: max-8, 105: max-8, 110: max-7, 115: max-6, 120: max-5
         }
         note: Calculated from RockShox TrailHead's formula
+        note_de: Berechnet nach der Formel von RockShox TrailHead
+        note_fr: Calculé selon la formule du TrailHead de RockShox
+        note_it: Calcolato con la formula del TrailHead di RockShox
+        note_es: Calculado con la fórmula del TrailHead de RockShox
+        note_pt: Calculado pela fórmula do TrailHead da RockShox
       - { target: hsc, value: 0, when: { damper: [rc2t, vivid_ultimate] } }
       - { target: lsc, value: 0, when: { damper: [rc2t, vivid_ultimate] } }
       # DebonAir, DebonAir+ and coil springs.
-      - { target: sag, range: [25, 35], comfort_at: max, note: "Around 30 %, ±5 %" }
+      - { target: sag, range: [25, 35], comfort_at: max, note: "Around 30 %, ±5 %", note_de: "Etwa 30 %, ±5 %", note_fr: "Environ 30 %, ±5 %", note_it: "Circa il 30 %, ±5 %", note_es: "Alrededor del 30 %, ±5 %", note_pt: "Cerca de 30 %, ±5 %" }
       # SoloAir springs, then the Linear XL Super Deluxe and the classic Vivid
       # Air, for which SRAM states only its general 20-30 % band.
-      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", when: { model: [monarch, monarch-plus], trim: [rt3, xx, r] } }
-      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", when: { model: [deluxe, super-deluxe], trim: [select, rl, rc3] } }
-      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", when: { model: super-deluxe, generation: "2027", trim: [ultimate, select-plus] } }
-      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", when: { model: vivid-air, generation: "2010" } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", note_de: "Etwa 25 %, ±5 %", note_fr: "Environ 25 %, ±5 %", note_it: "Circa il 25 %, ±5 %", note_es: "Alrededor del 25 %, ±5 %", note_pt: "Cerca de 25 %, ±5 %", when: { model: [monarch, monarch-plus], trim: [rt3, xx, r] } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", note_de: "Etwa 25 %, ±5 %", note_fr: "Environ 25 %, ±5 %", note_it: "Circa il 25 %, ±5 %", note_es: "Alrededor del 25 %, ±5 %", note_pt: "Cerca de 25 %, ±5 %", when: { model: [deluxe, super-deluxe], trim: [select, rl, rc3] } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", note_de: Allgemeines Band von RockShox für Luftdämpfer, note_fr: Plage générale de RockShox pour les amortisseurs pneumatiques, note_it: Fascia generale di RockShox per gli ammortizzatori pneumatici, note_es: Banda general de RockShox para amortiguadores neumáticos, note_pt: Faixa geral da RockShox para amortecedores a ar, when: { model: super-deluxe, generation: "2027", trim: [ultimate, select-plus] } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", note_de: Allgemeines Band von RockShox für Luftdämpfer, note_fr: Plage générale de RockShox pour les amortisseurs pneumatiques, note_it: Fascia generale di RockShox per gli ammortizzatori pneumatici, note_es: Banda general de RockShox para amortiguadores neumáticos, note_pt: Faixa geral da RockShox para amortecedores a ar, when: { model: vivid-air, generation: "2010" } }
       - { target: sag, value: 30, when: { model: vivid-air, generation: "2024" } }
 
 # --------------------------------------------------------------------------
@@ -339,10 +493,15 @@ nodes:
   - label: "Deluxe"
     level: model
     category: Trail
+    category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     guide: rockshox_rear_shock_um
     tasks: &rockshox_service
-      shock:air_can_service: &rockshox_air_can_service { interval: { moving_time_h: 50 }, source: RockShox service intervals }
-      shock:full_service: &rockshox_full_service { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: RockShox service intervals }
+      shock:air_can_service: &rockshox_air_can_service { interval: { moving_time_h: 50 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle, source_fr: Intervalles de révision RockShox, source_it: Intervalli di manutenzione RockShox, source_es: Intervalos de mantenimiento RockShox, source_pt: Intervalos de revisão RockShox }
+      shock:full_service: &rockshox_full_service { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle, source_fr: Intervalles de révision RockShox, source_it: Intervalli di manutenzione RockShox, source_es: Intervalos de mantenimiento RockShox, source_pt: Intervalos de revisão RockShox }
     children:
       - label: "2023–2026"
         level: generation
@@ -350,14 +509,14 @@ nodes:
         draft: true
         years: "2023-2026"
         url: https://www.sram.com/en/rockshox/series/deluxe
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+, spring_fr: DebonAir+, spring_it: DebonAir+, spring_es: DebonAir+, spring_pt: DebonAir+ }
             adjustments: &gen_c_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; a Linear XL air can takes up to 4 more air can tokens" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; a Linear XL air can takes up to 4 more air can tokens", notes_de: Bottomless Tokens; eine Linear-XL-Luftkammer nimmt bis zu 4 weitere Luftkammer-Tokens auf, notes_fr: Bottomless Tokens ; une chambre à air Linear XL accepte jusqu’à 4 tokens de chambre à air de plus, notes_it: Bottomless Token; una camera d’aria Linear XL accetta fino a 4 token della camera d’aria in più, notes_es: Bottomless Tokens; una cámara de aire Linear XL admite hasta 4 tokens de cámara de aire más, notes_pt: Bottomless Tokens; uma câmara de ar Linear XL aceita até 4 tokens de câmara de ar a mais }
             options:
               damper: [rct]
               size: &metric_sizes
@@ -371,35 +530,50 @@ nodes:
                 - { size: "250x67.5/70/72.5/75", mount: Standard }
           - label: Select+
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir, spring_fr: DebonAir, spring_it: DebonAir, spring_es: DebonAir, spring_pt: DebonAir }
             adjustments: *gen_c_air_spring
             options:
               damper: [rct]
               size: *metric_sizes
             note: OEM only
+            note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
           - label: Select
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir, spring_fr: SoloAir, spring_it: SoloAir, spring_es: SoloAir, spring_pt: SoloAir }
             adjustments: *gen_c_air_spring
             options:
               damper: [rct]
               size: *metric_sizes
             note: OEM only
+            note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2017–2022"
         level: generation
         id: "2017"
         draft: true
         years: "2017-2022"
         url: https://www.sram.com/en/rockshox/series/deluxe
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         note: Inline (no piggyback); model codes RS-DLX-*-A2/B1/B2
+        note_de: Inline (kein Piggyback); Modellcodes RS-DLX-*-A2/B1/B2
+        note_fr: Inline (sans piggyback) ; codes de modèle RS-DLX-*-A2/B1/B2
+        note_it: Inline (senza piggyback); codici modello RS-DLX-*-A2/B1/B2
+        note_es: Inline (sin piggyback); códigos de modelo RS-DLX-*-A2/B1/B2
+        note_pt: Inline (sem piggyback); códigos de modelo RS-DLX-*-A2/B1/B2
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir, spring_fr: DebonAir, spring_it: DebonAir, spring_es: DebonAir, spring_pt: DebonAir }
             adjustments: &gen_a_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
               damper: [deluxe_rt3]
               size: &gen_a_debonair_sizes
@@ -413,14 +587,14 @@ nodes:
                 - "250x67.5/70/72.5/75"
           - label: RT3
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir, spring_fr: DebonAir, spring_it: DebonAir, spring_es: DebonAir, spring_pt: DebonAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [deluxe_rt3]
               size: *gen_a_debonair_sizes
           - label: RL
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir, spring_fr: SoloAir, spring_it: SoloAir, spring_es: SoloAir, spring_pt: SoloAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [deluxe_rt3]
@@ -437,6 +611,11 @@ nodes:
   - label: "Super Deluxe"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     guide: rockshox_rear_shock_um
     tasks: *rockshox_service
     children:
@@ -446,14 +625,14 @@ nodes:
         years: "2027"
         url: https://www.sram.com/en/rockshox/series/super-deluxe
         setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: Linear XL }
+            specs: { spring: Linear XL, spring_de: Linear XL, spring_fr: Linear XL, spring_it: Linear XL, spring_es: Linear XL, spring_pt: Linear XL }
             adjustments: &super_deluxe_d1_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 400 }
-              - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; Maximum depends on the size: 37.5-45mm stroke 4, 47.5-55mm stroke 5, 57.5-65mm stroke 6" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 400 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; Maximum depends on the size: 37.5-45mm stroke 4, 47.5-55mm stroke 5, 57.5-65mm stroke 6", notes_de: "Bottomless Tokens; das Maximum hängt von der Größe ab: 37,5-45mm Hub 4, 47,5-55mm Hub 5, 57,5-65mm Hub 6", notes_fr: "Bottomless Tokens ; le maximum dépend de la taille : course de 37,5-45 mm 4, course de 47,5-55 mm 5, course de 57,5-65 mm 6", notes_it: "Bottomless Token; il massimo dipende dalla misura: corsa 37,5-45 mm 4, corsa 47,5-55 mm 5, corsa 57,5-65 mm 6", notes_es: "Bottomless Tokens; el máximo depende de la medida: carrera de 37,5-45 mm 4, carrera de 47,5-55 mm 5, carrera de 57,5-65 mm 6", notes_pt: "Bottomless Tokens; o máximo depende do tamanho: curso de 37,5-45 mm 4, curso de 47,5-55 mm 5, curso de 57,5-65 mm 6" }
             options:
               damper: [super_deluxe_d1]
               size: &super_deluxe_d1_strokes
@@ -471,77 +650,102 @@ nodes:
                 - 65
           - label: Select+
             level: trim
-            specs: { spring: Linear XL }
+            specs: { spring: Linear XL, spring_de: Linear XL, spring_fr: Linear XL, spring_it: Linear XL, spring_es: Linear XL, spring_pt: Linear XL }
             adjustments: *super_deluxe_d1_air_spring
             options:
               damper: [super_deluxe_d1]
               size: *super_deluxe_d1_strokes
             note: OEM only
+            note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
           - label: Select
             level: trim
-            specs: { spring: Linear XL }
+            specs: { spring: Linear XL, spring_de: Linear XL, spring_fr: Linear XL, spring_it: Linear XL, spring_es: Linear XL, spring_pt: Linear XL }
             adjustments: *super_deluxe_d1_air_spring
             options:
               damper: [super_deluxe_d1]
               size: *super_deluxe_d1_strokes
             note: OEM only
+            note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2023–2026"
         level: generation
         id: "2023"
         years: "2023-2026"
         url: https://www.sram.com/en/rockshox/series/super-deluxe
         setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+, spring_fr: DebonAir+, spring_it: DebonAir+, spring_es: DebonAir+, spring_pt: DebonAir+ }
             adjustments: *gen_c_air_spring
             options:
               damper: [rc2t]
               size: *metric_sizes
           - label: Select+
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir, spring_fr: DebonAir, spring_it: DebonAir, spring_es: DebonAir, spring_pt: DebonAir }
             adjustments: *gen_c_air_spring
             options:
               damper: [rc2t]
               size: *metric_sizes
             note: OEM only
+            note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
           - label: Select
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir, spring_fr: SoloAir, spring_it: SoloAir, spring_es: SoloAir, spring_pt: SoloAir }
             adjustments: *gen_c_air_spring
             options:
               damper: [rc2t]
               size: *metric_sizes
             note: OEM only
+            note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2017–2022"
         level: generation
         id: "2017"
         draft: true
         years: "2017-2022"
         url: https://www.sram.com/en/rockshox/series/super-deluxe
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         note: Piggyback reservoir; model codes RS-SDLX-*-A1/A2/B1/B2
+        note_de: Piggyback-Ausgleichsbehälter; Modellcodes RS-SDLX-*-A1/A2/B1/B2
+        note_fr: Réservoir piggyback ; codes de modèle RS-SDLX-*-A1/A2/B1/B2
+        note_it: Serbatoio piggyback; codici modello RS-SDLX-*-A1/A2/B1/B2
+        note_es: Depósito piggyback; códigos de modelo RS-SDLX-*-A1/A2/B1/B2
+        note_pt: Reservatório piggyback; códigos de modelo RS-SDLX-*-A1/A2/B1/B2
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir, spring_fr: DebonAir, spring_it: DebonAir, spring_es: DebonAir, spring_pt: DebonAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [super_deluxe_rct]
               size: *gen_a_debonair_sizes
           - label: RCT
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir, spring_fr: DebonAir, spring_it: DebonAir, spring_es: DebonAir, spring_pt: DebonAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [super_deluxe_rct]
               size: *gen_a_debonair_sizes
           - label: RC3
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir, spring_fr: SoloAir, spring_it: SoloAir, spring_es: SoloAir, spring_pt: SoloAir }
             adjustments: *gen_a_air_spring
             options:
               damper: [super_deluxe_rct]
@@ -556,6 +760,11 @@ nodes:
   - label: "Super Deluxe Coil"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     guide: rockshox_rear_shock_um
     tasks:
       shock:full_service: *rockshox_full_service
@@ -566,13 +775,13 @@ nodes:
         years: "2023-2026"
         url: https://www.sram.com/en/rockshox/series/super-deluxe-coil
         setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
-        specs: { spring: Coil }
+        specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         mounts: [Standard, Trunnion]
         children:
           - label: Ultimate
             level: trim
             adjustments: &coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [rc2t]
               size: &coil_strokes
@@ -599,6 +808,11 @@ nodes:
               damper: [rc2t]
               size: *coil_strokes
             note: OEM only
+            note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
           - label: Select
             level: trim
             adjustments: *coil_spring
@@ -606,13 +820,18 @@ nodes:
               damper: [rc2t]
               size: *coil_strokes
             note: OEM only
+            note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
       - label: "2017–2022"
         level: generation
         id: "2017"
         draft: true
         years: "2017-2022"
         url: https://www.sram.com/en/rockshox/series/super-deluxe-coil
-        specs: { spring: Coil }
+        specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         children:
           - label: Ultimate
             level: trim
@@ -628,7 +847,12 @@ nodes:
   - label: "Super Deluxe Ultimate DH"
     level: model
     category: Downhill
-    specs: { spring: Air }
+    category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *rockshox_service
     children:
       - label: "2023–2026"
@@ -642,16 +866,26 @@ nodes:
           - label: Ultimate DH
             level: trim
             draft: true
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+, spring_fr: DebonAir+, spring_it: DebonAir+, spring_es: DebonAir+, spring_pt: DebonAir+ }
             adjustments: &air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
             options:
               damper: [rc2]
             note: Gravity-specific tune with a narrower damping window than the trail Super Deluxe
+            note_de: Gravity-spezifische Abstimmung mit engerem Dämpfungsfenster als beim Trail-Super-Deluxe
+            note_fr: Réglage spécifique gravity avec une plage d’amortissement plus étroite que le Super Deluxe trail
+            note_it: Taratura specifica per il gravity con una finestra di smorzamento più stretta rispetto al Super Deluxe trail
+            note_es: Tarado específico para gravity con una ventana de amortiguación más estrecha que el Super Deluxe trail
+            note_pt: Calibragem específica para gravity com uma janela de amortecimento mais estreita que a do Super Deluxe trail
 
   - label: "Vivid Air"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     guide: rockshox_rear_shock_um
     children:
       - label: "2024–2026"
@@ -660,17 +894,17 @@ nodes:
         years: "2024-2026"
         url: https://www.sram.com/en/rockshox/series/vivid-air
         setup_guide: https://www.sram.com/en/rockshox/learn/vivid-air-setup
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         tasks:
-          shock:air_can_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals }
+          shock:air_can_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle, source_fr: Intervalles de révision RockShox, source_it: Intervalli di manutenzione RockShox, source_es: Intervalos de mantenimiento RockShox, source_pt: Intervalos de revisão RockShox }
           shock:full_service: *rockshox_full_service
         children:
           - label: Ultimate
             level: trim
-            specs: { spring: Vivid Air Spring }
+            specs: { spring: Vivid Air Spring, spring_de: Vivid-Luftfeder, spring_fr: Ressort pneumatique Vivid, spring_it: Molla pneumatica Vivid, spring_es: Muelle neumático Vivid, spring_pt: Mola a ar Vivid }
             adjustments: &vivid_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 360, notes: "Maximum 360 psi with 0-4 Bottomless Tokens, 300 psi with 5-6 Tokens or 67.5-75mm stroke" }
-              - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; snap onto the inner air can; Maximum depends on the size: 37.5-45mm stroke 4, 47.5-65mm stroke 6, 67.5-75mm stroke 4" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 360, notes: "Maximum 360 psi with 0-4 Bottomless Tokens, 300 psi with 5-6 Tokens or 67.5-75mm stroke", notes_de: "Maximal 360 psi mit 0-4 Bottomless Tokens, 300 psi mit 5-6 Tokens oder 67,5-75mm Hub", notes_fr: "Maximum 360 psi avec 0-4 Bottomless Tokens, 300 psi avec 5-6 tokens ou une course de 67,5-75 mm", notes_it: "Massimo 360 psi con 0-4 Bottomless Token, 300 psi con 5-6 token o corsa di 67,5-75 mm", notes_es: "Máximo 360 psi con 0-4 Bottomless Tokens, 300 psi con 5-6 tokens o carrera de 67,5-75 mm", notes_pt: "Máximo 360 psi com 0-4 Bottomless Tokens, 300 psi com 5-6 tokens ou curso de 67,5-75 mm" }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; snap onto the inner air can; Maximum depends on the size: 37.5-45mm stroke 4, 47.5-65mm stroke 6, 67.5-75mm stroke 4", notes_de: "Bottomless Tokens; rasten in der inneren Luftkammer ein; das Maximum hängt von der Größe ab: 37,5-45mm Hub 4, 47,5-65mm Hub 6, 67,5-75mm Hub 4", notes_fr: "Bottomless Tokens ; s’encliquettent sur la chambre à air interne ; le maximum dépend de la taille : course de 37,5-45 mm 4, course de 47,5-65 mm 6, course de 67,5-75 mm 4", notes_it: "Bottomless Token; si innestano sulla camera d’aria interna; il massimo dipende dalla misura: corsa 37,5-45 mm 4, corsa 47,5-65 mm 6, corsa 67,5-75 mm 4", notes_es: "Bottomless Tokens; encajan en la cámara de aire interior; el máximo depende de la medida: carrera de 37,5-45 mm 4, carrera de 47,5-65 mm 6, carrera de 67,5-75 mm 4", notes_pt: "Bottomless Tokens; encaixam na câmara de ar interna; o máximo depende do tamanho: curso de 37,5-45 mm 4, curso de 47,5-65 mm 6, curso de 67,5-75 mm 4" }
             options:
               damper: [vivid_ultimate]
               size: &vivid_air_sizes
@@ -684,11 +918,16 @@ nodes:
                 - { size: "250x67.5/70/72.5/75", mount: Standard }
           - label: Ultimate DH
             level: trim
-            specs: { spring: Vivid Air Spring }
+            specs: { spring: Vivid Air Spring, spring_de: Vivid-Luftfeder, spring_fr: Ressort pneumatique Vivid, spring_it: Molla pneumatica Vivid, spring_es: Muelle neumático Vivid, spring_pt: Mola a ar Vivid }
             adjustments: *vivid_air_spring
             options:
               damper: [vivid_ultimate]
             note: Downhill build of the Vivid Air
+            note_de: Downhill-Ausführung des Vivid Air
+            note_fr: Version descente du Vivid Air
+            note_it: Versione downhill del Vivid Air
+            note_es: Versión de descenso del Vivid Air
+            note_pt: Versão downhill do Vivid Air
       - label: "2010–2016"
         level: generation
         id: "2010"
@@ -696,11 +935,16 @@ nodes:
         # whole nameplate — this generation was sold as a pure DH/freeride shock.
         years: "2010-2016"
         url: https://www.sram.com/en/rockshox/series/vivid-air
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         note: Separate beginning- and ending-stroke rebound adjusters
+        note_de: Getrennte Zugstufenversteller für Beginn und Ende des Hubs
+        note_fr: Réglages de détente séparés pour le début et la fin de course
+        note_it: Regolatori del ritorno separati per l’inizio e la fine della corsa
+        note_es: Ajustes de rebote separados para el comienzo y el final del recorrido
+        note_pt: Ajustes de retorno separados para o início e o fim do curso
         tasks: &rockshox_100h_service
           shock:air_can_service: *rockshox_air_can_service
-          shock:full_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals }
+          shock:full_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle, source_fr: Intervalles de révision RockShox, source_it: Intervalli di manutenzione RockShox, source_es: Intervalos de mantenimiento RockShox, source_pt: Intervalos de revisão RockShox }
         children:
           - label: R2C
             level: trim
@@ -712,7 +956,12 @@ nodes:
   - label: "Vivid Coil"
     level: model
     category: Trail / Enduro
-    specs: { spring: Coil }
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     mounts: [Standard, Trunnion]
     tasks:
       shock:full_service: *rockshox_full_service
@@ -735,11 +984,36 @@ nodes:
               - Five positions each of high- and low-speed compression
               - Twenty clicks of rebound and five positions of hydraulic bottom-out
               - LSC turns by hand, HSC takes a 3mm hex key
+            note_de: |-
+              - Je fünf Positionen für High- und Low-Speed-Druckstufe
+              - Zwanzig Klicks Zugstufe und fünf Positionen des hydraulischen Durchschlagschutzes
+              - LSC wird von Hand gedreht, HSC braucht einen 3-mm-Inbusschlüssel
+            note_fr: |-
+              - Cinq positions de compression haute et basse vitesse chacune
+              - Vingt clics de détente et cinq positions de fin de course hydraulique
+              - Le LSC se tourne à la main, le HSC demande une clé hexagonale de 3 mm
+            note_it: |-
+              - Cinque posizioni di compressione sia ad alta sia a bassa velocità
+              - Venti scatti di ritorno e cinque posizioni di fondocorsa idraulico
+              - L’LSC si ruota a mano, l’HSC richiede una chiave a brugola da 3 mm
+            note_es: |-
+              - Cinco posiciones de compresión de alta y de baja velocidad cada una
+              - Veinte clics de rebote y cinco posiciones de final de carrera hidráulico
+              - El LSC se gira a mano, el HSC requiere una llave Allen de 3 mm
+            note_pt: |-
+              - Cinco posições de compressão de alta e de baixa velocidade cada uma
+              - Vinte cliques de retorno e cinco posições de fim de curso hidráulico
+              - O LSC gira à mão, o HSC exige uma chave Allen de 3 mm
 
   - label: "Vivid Coil Ultimate DH"
     level: model
     category: Downhill
-    specs: { spring: Coil }
+    category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks:
       shock:full_service: *rockshox_full_service
     children:
@@ -757,12 +1031,22 @@ nodes:
             options:
               damper: [vivid_ultimate]
             note: Downhill build of the Vivid Coil
+            note_de: Downhill-Ausführung des Vivid Coil
+            note_fr: Version descente du Vivid Coil
+            note_it: Versione downhill del Vivid Coil
+            note_es: Versión de descenso del Vivid Coil
+            note_pt: Versão downhill do Vivid Coil
 
   - label: "SIDLuxe"
     level: model
     draft: true
     category: XC
-    specs: { spring: Air }
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     mounts: [Standard, Trunnion]
     tasks: *rockshox_service
     children:
@@ -775,10 +1059,10 @@ nodes:
         children:
           - label: Ultimate Flight Attendant
             level: trim
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+, spring_fr: DebonAir+, spring_it: DebonAir+, spring_es: DebonAir+, spring_pt: DebonAir+ }
             adjustments: &sidluxe_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, type: step, max: 1, unit: tokens, visualization: stepper, notes: "Bottomless Token clamps onto the sealhead in a large or small size; only one fits at a time" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 1, unit: tokens, visualization: stepper, notes: "Bottomless Token clamps onto the sealhead in a large or small size; only one fits at a time", notes_de: Der Bottomless Token wird in großer oder kleiner Größe auf den Sealhead geklemmt; es passt immer nur einer, notes_fr: Le Bottomless Token se clipse sur la tête de joint en taille grande ou petite ; un seul à la fois, notes_it: Il Bottomless Token si fissa alla testa di tenuta in misura grande o piccola; ne entra uno solo alla volta, notes_es: El Bottomless Token se sujeta a la cabeza del sello en tamaño grande o pequeño; solo cabe uno a la vez, notes_pt: O Bottomless Token se prende na cabeça de vedação em tamanho grande ou pequeno; só cabe um por vez }
             options:
               damper: [rct]
               size: &sidluxe_sizes
@@ -789,27 +1073,42 @@ nodes:
                 - "185x47.5/50/52.5/55"
                 - "210x47.5/50/52.5/55"
             note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
+            note_de: Die Druckstufe wird elektronisch vom Flight Attendant eingestellt; das Zugstufenrad bleibt manuell
+            note_fr: La compression est réglée électroniquement par Flight Attendant ; la molette de détente reste manuelle
+            note_it: La compressione è regolata elettronicamente da Flight Attendant; la manopola del ritorno resta manuale
+            note_es: La compresión la regula electrónicamente Flight Attendant; la rueda de rebote sigue siendo manual
+            note_pt: A compressão é ajustada eletronicamente pelo Flight Attendant; o seletor de retorno continua manual
           - label: Ultimate
             level: trim
-            specs: { spring: DebonAir+ }
+            specs: { spring: DebonAir+, spring_de: DebonAir+, spring_fr: DebonAir+, spring_it: DebonAir+, spring_es: DebonAir+, spring_pt: DebonAir+ }
             adjustments: *sidluxe_air_spring
             options:
               damper: [rct]
               size: *sidluxe_sizes
           - label: Select+
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir, spring_fr: DebonAir, spring_it: DebonAir, spring_es: DebonAir, spring_pt: DebonAir }
             adjustments: *sidluxe_air_spring
             options:
               damper: [rct]
               size: *sidluxe_sizes
             note: OEM only
+            note_de: Nur OEM
+            note_fr: Uniquement en monte d’origine
+            note_it: Solo primo equipaggiamento
+            note_es: Solo para montaje original
+            note_pt: Somente para montagem original
 
   - label: "Monarch"
     level: model
     draft: true
     category: XC / Trail
-    specs: { spring: Air }
+    category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *rockshox_100h_service
     children:
       - label: "2013–2018"
@@ -819,13 +1118,18 @@ nodes:
         url: https://www.sram.com/en/rockshox/series/monarch
         guide: rockshox_rear_shock_um
         note: Inline air shock; Bottomless Rings tune the air can volume
+        note_de: Inline-Luftdämpfer; Bottomless Rings stimmen das Volumen der Luftkammer ab
+        note_fr: Amortisseur pneumatique inline ; les Bottomless Rings règlent le volume de la chambre à air
+        note_it: Ammortizzatore pneumatico inline; i Bottomless Rings regolano il volume della camera d’aria
+        note_es: Amortiguador neumático inline; los Bottomless Rings ajustan el volumen de la cámara de aire
+        note_pt: Amortecedor a ar inline; os Bottomless Rings ajustam o volume da câmara de ar
         children:
           - label: RT3
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir, spring_fr: SoloAir, spring_it: SoloAir, spring_es: SoloAir, spring_pt: SoloAir }
             adjustments: &monarch_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
-              - { name: Volume Spacers, type: step, max: 9, unit: tokens, visualization: stepper, notes: "Bottomless Rings; Maximum depends on the stroke: 38mm 4, 44.5mm 5, 51-63.5mm 8, 66mm 9" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 9, unit: tokens, visualization: stepper, notes: "Bottomless Rings; Maximum depends on the stroke: 38mm 4, 44.5mm 5, 51-63.5mm 8, 66mm 9", notes_de: "Bottomless Rings; das Maximum hängt vom Hub ab: 38mm 4, 44,5mm 5, 51-63,5mm 8, 66mm 9", notes_fr: "Bottomless Rings ; le maximum dépend de la course : 38 mm 4, 44,5 mm 5, 51-63,5 mm 8, 66 mm 9", notes_it: "Bottomless Rings; il massimo dipende dalla corsa: 38 mm 4, 44,5 mm 5, 51-63,5 mm 8, 66 mm 9", notes_es: "Bottomless Rings; el máximo depende de la carrera: 38 mm 4, 44,5 mm 5, 51-63,5 mm 8, 66 mm 9", notes_pt: "Bottomless Rings; o máximo depende do curso: 38 mm 4, 44,5 mm 5, 51-63,5 mm 8, 66 mm 9" }
             options:
               damper: [monarch_rt3]
               size: &monarch_sizes
@@ -838,22 +1142,27 @@ nodes:
                 - "216x63"
           - label: RL
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir, spring_fr: DebonAir, spring_it: DebonAir, spring_es: DebonAir, spring_pt: DebonAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_rt3]
               size: *monarch_sizes
           - label: XX
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir, spring_fr: SoloAir, spring_it: SoloAir, spring_es: SoloAir, spring_pt: SoloAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_rt3]
               size: *monarch_sizes
             note: XLoc remote lockout
+            note_de: XLoc-Fernbedienungs-Lockout
+            note_fr: Lockout déporté XLoc
+            note_it: Lockout remoto XLoc
+            note_es: Lockout remoto XLoc
+            note_pt: Lockout remoto XLoc
           - label: R
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir, spring_fr: SoloAir, spring_it: SoloAir, spring_es: SoloAir, spring_pt: SoloAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_rt3]
@@ -863,7 +1172,12 @@ nodes:
     level: model
     draft: true
     category: Enduro / Gravity
-    specs: { spring: Air }
+    category_de: Enduro / Gravity
+    category_fr: Enduro / Gravity
+    category_it: Enduro / Gravity
+    category_es: Enduro / Gravity
+    category_pt: Enduro / Gravity
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *rockshox_100h_service
     children:
       - label: "2013–2018"
@@ -873,17 +1187,22 @@ nodes:
         url: https://www.sram.com/en/rockshox/series/monarch-plus
         guide: rockshox_rear_shock_um
         note: Piggyback reservoir version of the Monarch
+        note_de: Piggyback-Ausgleichsbehälter-Version des Monarch
+        note_fr: Version à réservoir piggyback du Monarch
+        note_it: Versione con serbatoio piggyback del Monarch
+        note_es: Versión con depósito piggyback del Monarch
+        note_pt: Versão com reservatório piggyback do Monarch
         children:
           - label: RC3
             level: trim
-            specs: { spring: DebonAir }
+            specs: { spring: DebonAir, spring_de: DebonAir, spring_fr: DebonAir, spring_it: DebonAir, spring_es: DebonAir, spring_pt: DebonAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_plus_rc3]
               size: *monarch_sizes
           - label: R
             level: trim
-            specs: { spring: SoloAir }
+            specs: { spring: SoloAir, spring_de: SoloAir, spring_fr: SoloAir, spring_it: SoloAir, spring_es: SoloAir, spring_pt: SoloAir }
             adjustments: *monarch_air_spring
             options:
               damper: [monarch_plus_rc3]

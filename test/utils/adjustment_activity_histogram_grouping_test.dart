@@ -1,3 +1,6 @@
+import 'package:bike_setup_tracker/l10n/adjustment_value_text.dart';
+import 'package:bike_setup_tracker/l10n/histogram_text.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/adjustment_activity_histogram.dart';
 import 'package:bike_setup_tracker/utils/adjustment_activity_histogram_grouping.dart';
@@ -37,14 +40,14 @@ void main() {
       groupAdjustmentActivityHistogram(
         adjustment: boolean,
         values: [value(const BooleanValue(true), 2), value(const BooleanValue(false), 1)],
-      ).bars.map((bar) => bar.label),
+      ).labels,
       ['Off', 'On'],
     );
     expect(
       groupAdjustmentActivityHistogram(
         adjustment: text,
         values: [value(TextValue.orNull('Beta'), 2), value(TextValue.orNull('Alpha'), 1), value(TextValue.orNull('Beta'), 3, 'other')],
-      ).bars.map((bar) => (bar.label, bar.activityCount)),
+      ).labelsAndCounts,
       [('Alpha', 1), ('Beta', 5)],
     );
   });
@@ -67,7 +70,7 @@ void main() {
       ],
     );
 
-    expect(result.bars.map((bar) => (bar.label, bar.activityCount)), [('Rear', 4), ('Front', 6)]);
+    expect(result.labelsAndCounts, [('Rear', 4), ('Front', 6)]);
   });
 
   test('keeps twelve numerical values exact with unit-aware labels', () {
@@ -84,8 +87,8 @@ void main() {
 
     expect(result.isBinned, isFalse);
     expect(result.bars, hasLength(12));
-    expect(result.bars.first.label, '0 psi');
-    expect(result.bars.last.label, '5.5 psi');
+    expect(result.labels.first, '0 psi');
+    expect(result.labels.last, '5.5 psi');
   });
 
   test('bins thirteen values into eight stable half-open ranges', () {
@@ -114,7 +117,7 @@ void main() {
     );
 
     expect(result.isBinned, isTrue);
-    expect(result.bars.first.label, startsWith('00:00:00–00:00:15'));
+    expect(result.labels.first, startsWith('00:00:00–00:00:15'));
   });
 
   test('handles SAG as continuous numerical data', () {
@@ -124,7 +127,7 @@ void main() {
       values: [value(const NumericalValue(20.0), 2), value(const NumericalValue(25.0), 3, 'other')],
     );
 
-    expect(result.bars.map((bar) => bar.label), ['20 %', '25 %']);
+    expect(result.labels, ['20 %', '25 %']);
   });
 
   test('ignores absent and zero-weight values and returns empty when none remain', () {
@@ -191,7 +194,7 @@ void main() {
       final ridden = [for (var index = -6; index <= 6; index++) NumericalValue(index.toDouble())];
       final histogram = groupAdjustmentActivityHistogram(
         adjustment: adjustment,
-        values: [for (final entry in ridden) value(entry, 1, entry.display)],
+        values: [for (final entry in ridden) value(entry, 1, entry.displayText(englishL10n))],
       );
 
       final perBar = List<int>.filled(histogram.bars.length, 0);
@@ -205,4 +208,10 @@ void main() {
       expect(adjustmentHistogramBarIndexesFor(histogram, const NumericalValue(-6.5)), isEmpty);
     });
   });
+}
+
+extension on AdjustmentActivityHistogram {
+  List<String> get labels => [for (final bar in bars) barLabel(bar, englishL10n)];
+
+  List<(String, int)> get labelsAndCounts => [for (final bar in bars) (barLabel(bar, englishL10n), bar.activityCount)];
 }

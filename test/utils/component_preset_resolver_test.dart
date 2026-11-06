@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
@@ -557,13 +558,13 @@ nodes:
 
     test('reach the created rule through the suggestions', () {
       final suggestion = taskSuggestionsFor(
-        Component(id: 'c1', name: 'FOX 36', installations: const [], componentType: ComponentType.fork),
+        Component(id: 'c1', name: 'FOX 36', installations: const [], componentType: ComponentType.fork), englishL10n,
         existingRules: const [],
         hasStravaEntitlement: true,
         overrides: factory.taskOverrides,
       ).firstWhere((suggestion) => suggestion.key == 'fork:lower_leg_service');
 
-      final created = suggestion.toTaskRule('c1');
+      final created = suggestion.toTaskRule('c1', englishL10n);
       expect(created.interval, const MovingTimeThreshold(Duration(hours: 125)));
       expect(created.notes, endsWith("Recommended interval: every 125 h — FOX 36 owner's manual"));
     });

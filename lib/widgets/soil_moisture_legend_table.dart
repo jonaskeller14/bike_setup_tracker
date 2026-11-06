@@ -1,32 +1,34 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/context/context_weather.dart';
 
 class SoilMoistureLegendTable extends StatelessWidget {
   const SoilMoistureLegendTable({super.key});
 
-  static final List<Map<String, dynamic>> _conditionsData = [
+  static List<Map<String, dynamic>> _conditionsData(AppLocalizations l10n) => [
     {
       'range': '0.00 - 0.09',
-      'label': Condition.dry.value,
+      'label': Condition.dry.label(l10n),
       'icon': Condition.dry.iconData,
       'color': Condition.dry.color,
     },
     {
       'range': '0.10 - 0.19',
-      'label': Condition.moist.value,
+      'label': Condition.moist.label(l10n),
       'icon': Condition.moist.iconData,
       'color': Condition.moist.color,
     },
     {
       'range': '0.20 - 0.34',
-      'label': Condition.wet.value,
+      'label': Condition.wet.label(l10n),
       'icon': Condition.wet.iconData,
       'color': Condition.wet.color,
     },
     {
       'range': '0.35+',
-      'label': Condition.muddy.value,
+      'label': Condition.muddy.label(l10n),
       'icon': Condition.muddy.iconData,
       'color': Condition.muddy.color,
     },
@@ -46,19 +48,19 @@ class SoilMoistureLegendTable extends StatelessWidget {
         columns: [
           DataColumn(
             label: Text(
-              'Soil Moisture [m³/m³]',
+              context.l10n.soilMoistureLegendColumn,
               style: Theme.of(context).textTheme.labelMedium,
             ),
           ),
           DataColumn(
             label: Text(
-              'Condition',
+              context.l10n.setupColumnCondition,
               style: Theme.of(context).textTheme.labelMedium,
             ),
           ),
         ],
 
-        rows: _conditionsData.map((data) {
+        rows: _conditionsData(context.l10n).map((data) {
           return DataRow(
             cells: [
               DataCell(
@@ -77,9 +79,11 @@ class SoilMoistureLegendTable extends StatelessWidget {
                       size: 14,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      data['label']! as String,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: data['color'] as Color),
+                    Flexible(
+                      child: Text(
+                        data['label']! as String,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: data['color'] as Color),
+                      ),
                     ),
                   ],
                 ),

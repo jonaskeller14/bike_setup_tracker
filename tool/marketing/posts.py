@@ -30,7 +30,7 @@ LIMITS = {
     "reddit": {"Title": 300, "Body": 40000},
     "youtube": {"Title": 100, "Description": 5000, "Tags": 500, "Post": 5000, "Pinned comment": 10000},
     "instagram": {"Bio": 150, "Caption": 2200},
-    "tiktok": {"Bio": 80, "Caption": 2200},
+    "tiktok": {"Bio": 80, "Title": 90, "Caption": 2200},
 }
 # Platform: max hashtags per post (all fields of a section).
 MAX_HASHTAGS = {"instagram": 5, "youtube": 60}

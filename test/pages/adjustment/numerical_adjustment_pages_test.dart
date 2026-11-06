@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../goldens/support/localized_test_app.dart';
 import '../value_migration_test_utils.dart';
 import 'preset_key_test_utils.dart';
 
@@ -24,7 +25,7 @@ void main() {
     AdjustmentEditResult<Adjustment>? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -53,11 +54,55 @@ void main() {
     expect(result!.migrations, isEmpty);
   });
 
+  testWidgets('pre-fills German bounds with a decimal comma and saves them unchanged', (WidgetTester tester) async {
+    final initial = NumericalAdjustment(name: 'Volume', notes: null, unit: null, min: 0.5, max: 99.123456);
+    final saved = savedAdjustment(await pushAndSave(
+      tester,
+      NumericalAdjustmentPage.edit(adjustment: initial),
+      locale: const Locale('de'),
+      interact: () async {
+        expect(find.widgetWithText(TextFormField, '0,5'), findsOneWidget);
+        expect(find.widgetWithText(TextFormField, '99,123456'), findsOneWidget);
+      },
+    ));
+
+    expect(saved, initial);
+  });
+
+  testWidgets('reads min and max typed with a decimal comma', (WidgetTester tester) async {
+    final saved = savedAdjustment(await pushAndSave(
+      tester,
+      NumericalAdjustmentPage.edit(adjustment: NumericalAdjustment(name: 'Volume', notes: null, unit: null, min: 0, max: 100)),
+      interact: () async {
+        await tester.enterText(find.widgetWithText(TextFormField, 'Min Value (optional)'), '-0,5');
+        await tester.enterText(find.widgetWithText(TextFormField, 'Max Value (optional)'), '2,5');
+        await tester.pumpAndSettle();
+      },
+    )) as NumericalAdjustment;
+
+    expect(saved.min, -0.5);
+    expect(saved.max, 2.5);
+  });
+
+  testWidgets('compares max and min typed with a decimal comma', (WidgetTester tester) async {
+    await pushAndSave(
+      tester,
+      NumericalAdjustmentPage.edit(adjustment: NumericalAdjustment(name: 'Volume', notes: null, unit: null, min: 0, max: 100)),
+      interact: () async {
+        await tester.enterText(find.widgetWithText(TextFormField, 'Min Value (optional)'), '2,5');
+        await tester.enterText(find.widgetWithText(TextFormField, 'Max Value (optional)'), '1,5');
+        await tester.pumpAndSettle();
+      },
+    );
+
+    expect(find.text('Max must be greater than min'), findsOneWidget);
+  });
+
   testWidgets('Can create numerical adjustment without bounds', (WidgetTester tester) async {
     NumericalAdjustment? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -94,7 +139,7 @@ void main() {
     NumericalAdjustment? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -143,7 +188,7 @@ void main() {
     AdjustmentEditResult<Adjustment>? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -183,7 +228,7 @@ void main() {
     NumericalAdjustment? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -224,7 +269,7 @@ void main() {
     NumericalAdjustment? result;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(

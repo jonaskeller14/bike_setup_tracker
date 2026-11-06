@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../sheets/subcomponents_hint_sheet.dart';
 import 'app_hint_deck.dart';
@@ -17,44 +18,42 @@ class Release44Hint extends StatelessWidget {
   final Future<void> Function() onEnableSubcomponents;
   final Future<void> Function() onEnableAttachments;
 
-  static const _turnOnHere = ' Turn it on here or anytime in Settings › Features.';
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final subcomponentsOn = context.select<AppSettings, bool>((s) => s.enableInstallOnComponent);
     final attachmentsOn = context.select<AppSettings, bool>((s) => s.enableAttachments);
 
     return AppHintDeck(
       icon: Icons.new_releases_outlined,
-      label: "What's new",
+      label: l10n.hintLabelWhatsNew,
       onDismiss: onDismiss,
       pages: [
-        const AppHintPage(
-          title: 'Your filters are remembered',
-          content: Text(
-            'The selected bike and filters now stay applied when you reopen the app. '
-            'Prefer a fresh start? Turn off Remember Filters in Settings › Preferences.',
-          ),
+        AppHintPage(
+          title: l10n.hintReleaseFiltersTitle,
+          content: Text(l10n.hintReleaseFiltersBody),
         ),
         AppHintPage(
-          title: 'Subcomponents',
+          title: l10n.hintReleaseSubcomponentsTitle,
           onLearnMore: () => showSubcomponentsSettingSheet(context, value: subcomponentsOn),
           action: subcomponentsOn
               ? null
-              : AppHintAction(label: 'Turn on', icon: Icons.account_tree_outlined, onPressed: onEnableSubcomponents),
+              : AppHintAction(
+                  label: l10n.hintReleaseTurnOn,
+                  icon: Icons.account_tree_outlined,
+                  onPressed: onEnableSubcomponents,
+                ),
           content: Text(
-            'Install parts on other parts, like a tire on a wheel. They move between bikes along with their parent.'
-            '${subcomponentsOn ? '' : _turnOnHere}',
+            '${l10n.hintReleaseSubcomponentsBody}${subcomponentsOn ? '' : l10n.hintReleaseTurnOnHere}',
           ),
         ),
         AppHintPage(
-          title: 'Attachments',
+          title: l10n.hintReleaseAttachmentsTitle,
           action: attachmentsOn
               ? null
-              : AppHintAction(label: 'Turn on', icon: Icons.attach_file, onPressed: onEnableAttachments),
+              : AppHintAction(label: l10n.hintReleaseTurnOn, icon: Icons.attach_file, onPressed: onEnableAttachments),
           content: Text(
-            'Add photos and files to bikes, components, setups and tasks. They are stored on this device only '
-            'and are not included in backups.${attachmentsOn ? '' : _turnOnHere}',
+            '${l10n.hintReleaseAttachmentsBody}${attachmentsOn ? '' : l10n.hintReleaseTurnOnHere}',
           ),
         ),
       ],

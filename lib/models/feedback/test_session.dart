@@ -33,8 +33,6 @@ class TestSession {
 
   static const IconData iconData = Icons.science;
   static const int maxGoalAspects = 3;
-  static const String namePlaceholder = 'Test session';
-  String get displayName => name ?? namePlaceholder;
   bool get isRunning => endedAtUTC == null;
 
   TestSession({

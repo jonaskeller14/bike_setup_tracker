@@ -78,11 +78,31 @@ option_values:
         - Four independent damping adjusters: high- and low-speed compression, high- and low-speed rebound
         - Air-backed bladder cartridge for low breakaway friction
         - Non-adjustable hydraulic bottom-out over the last 30 mm of travel
+      description_de: |-
+        - Vier unabhängige Dämpfungsversteller: High- und Low-Speed-Druckstufe, High- und Low-Speed-Zugstufe
+        - Luftunterstützte Bladder-Kartusche für geringe Losbrechreibung
+        - Nicht einstellbarer hydraulischer Durchschlagschutz auf den letzten 30 mm des Federwegs
+      description_fr: |-
+        - Quatre réglages d’amortissement indépendants : compression haute et basse vitesse, détente haute et basse vitesse
+        - Cartouche à bladder à contre-pression d’air pour un faible frottement de décollage
+        - Fin de course hydraulique non réglable sur les 30 derniers mm de débattement
+      description_it: |-
+        - Quattro regolatori di smorzamento indipendenti: compressione ad alta e bassa velocità, ritorno ad alta e bassa velocità
+        - Cartuccia a bladder con contropressione d’aria per un basso attrito di primo movimento
+        - Fondocorsa idraulico non regolabile negli ultimi 30 mm di escursione
+      description_es: |-
+        - Cuatro ajustes de amortiguación independientes: compresión de alta y baja velocidad, rebote de alta y baja velocidad
+        - Cartucho de bladder con respaldo de aire para una baja fricción de arranque
+        - Final de carrera hidráulico no ajustable en los últimos 30 mm de recorrido
+      description_pt: |-
+        - Quatro ajustes de amortecimento independentes: compressão de alta e baixa velocidade, retorno de alta e baixa velocidade
+        - Cartucho de bladder com contrapressão de ar para baixo atrito de partida
+        - Fim de curso hidráulico não ajustável nos últimos 30 mm de curso
       adjustments:
-        - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
-        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; Counted from fully closed (slowest)" }
-        - { name: LSR, type: step, max: 10, notes: "Low-Speed Rebound; Counted from fully closed (slowest)" }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 8, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 10, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: step, max: 8, notes: "High-Speed Rebound; Counted from fully closed (slowest)", notes_de: High-Speed-Zugstufe; von ganz geschlossen (am langsamsten) gezählt, notes_fr: Détente haute vitesse ; comptée depuis la position entièrement fermée (la plus lente), notes_it: Ritorno ad alta velocità; contato a partire dalla posizione completamente chiusa (il più lento), notes_es: Rebote de alta velocidad; contado desde la posición totalmente cerrada (el más lento), notes_pt: Retorno de alta velocidade; contado a partir da posição totalmente fechada (o mais lento) }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 10, notes: "Low-Speed Rebound; Counted from fully closed (slowest)", notes_de: Low-Speed-Zugstufe; von ganz geschlossen (am langsamsten) gezählt, notes_fr: Détente basse vitesse ; comptée depuis la position entièrement fermée (la plus lente), notes_it: Ritorno a bassa velocità; contato a partire dalla posizione completamente chiusa (il più lento), notes_es: Rebote de baja velocidad; contado desde la posición totalmente cerrada (el más lento), notes_pt: Retorno de baixa velocidade; contado a partir da posição totalmente fechada (o mais lento) }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
         - https://www.pinkbike.com/news/first-ride-the-manitou-mezzer-lt-class-leading-sensitivity.html
@@ -97,10 +117,30 @@ option_values:
         - Bladder cartridge with independent high- and low-speed compression
         - Single rebound adjuster
         - Non-adjustable hydraulic bottom-out over the final stretch of travel
+      description_de: |-
+        - Bladder-Kartusche mit unabhängiger High- und Low-Speed-Druckstufe
+        - Einzelner Zugstufenversteller
+        - Nicht einstellbarer hydraulischer Durchschlagschutz auf dem letzten Abschnitt des Federwegs
+      description_fr: |-
+        - Cartouche à bladder avec compression haute et basse vitesse indépendantes
+        - Un seul réglage de détente
+        - Fin de course hydraulique non réglable sur la dernière partie du débattement
+      description_it: |-
+        - Cartuccia a bladder con compressione ad alta e bassa velocità indipendenti
+        - Un solo regolatore del ritorno
+        - Fondocorsa idraulico non regolabile nell’ultimo tratto dell’escursione
+      description_es: |-
+        - Cartucho de bladder con compresión de alta y de baja velocidad independientes
+        - Un único ajuste de rebote
+        - Final de carrera hidráulico no ajustable en el último tramo del recorrido
+      description_pt: |-
+        - Cartucho de bladder com compressão de alta e de baixa velocidade independentes
+        - Um único ajuste de retorno
+        - Fim de curso hidráulico não ajustável no último trecho do curso
       adjustments:
-        - { name: HSC, type: step, max: 4, notes: "High-Speed Compression; Outer knob" }
-        - { name: LSC, type: step, max: 10, notes: "Low-Speed Compression; Inner knob" }
-        - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest) }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 4, notes: "High-Speed Compression; Outer knob", notes_de: High-Speed-Druckstufe; äußerer Knopf, notes_fr: Compression haute vitesse ; molette extérieure, notes_it: Compressione ad alta velocità; manopola esterna, notes_es: Compresión de alta velocidad; rueda exterior, notes_pt: Compressão de alta velocidade; seletor externo }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 10, notes: "Low-Speed Compression; Inner knob", notes_de: Low-Speed-Druckstufe; innerer Knopf, notes_fr: Compression basse vitesse ; molette intérieure, notes_it: Compressione a bassa velocità; manopola interna, notes_es: Compresión de baja velocidad; rueda interior, notes_pt: Compressão de baixa velocidade; seletor interno }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 10, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742473560727
       note: >-
         Mezzer Pro (Gen 1) set-up guide Rev A 3/2019: rebound "10-0"; the row for
@@ -112,9 +152,24 @@ option_values:
       description: |-
         - Single six-position compression dial that shapes high- and low-speed damping together
         - Separate rebound dial
+      description_de: |-
+        - Einzelnes Druckstufenrad mit sechs Positionen, das High- und Low-Speed-Dämpfung gemeinsam formt
+        - Separates Zugstufenrad
+      description_fr: |-
+        - Une seule molette de compression à six positions qui façonne ensemble l’amortissement haute et basse vitesse
+        - Molette de détente séparée
+      description_it: |-
+        - Un’unica manopola di compressione a sei posizioni che modella insieme lo smorzamento ad alta e bassa velocità
+        - Manopola del ritorno separata
+      description_es: |-
+        - Una sola rueda de compresión de seis posiciones que modela a la vez la amortiguación de alta y baja velocidad
+        - Rueda de rebote separada
+      description_pt: |-
+        - Um único seletor de compressão de seis posições que molda juntos o amortecimento de alta e baixa velocidade
+        - Seletor de retorno separado
       adjustments:
-        - { name: Compression, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together" }
-        - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest) }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together", notes_de: VTT-6-Position; im Uhrzeigersinn von Position 1 (Minimum) gezählt; verstellt High- und Low-Speed-Dämpfung gemeinsam, notes_fr: Position VTT-6 ; comptée dans le sens horaire depuis la position 1 (minimum) ; règle ensemble la compression et la détente haute et basse vitesse, notes_it: Posizione VTT-6; contata in senso orario a partire dalla posizione 1 (minimo); regola insieme smorzamento ad alta e bassa velocità, notes_es: Posición VTT-6; contada en sentido horario desde la posición 1 (mínimo); ajusta a la vez la amortiguación de alta y de baja velocidad, notes_pt: Posição VTT-6; contada no sentido horário a partir da posição 1 (mínimo); ajusta juntos o amortecimento de alta e de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 10, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742488803479
       note: Mezzer Expert (Gen 1) set-up guide Rev A 5/2021 — VTT "1-6", TPC rebound "10-0".
 
@@ -123,9 +178,24 @@ option_values:
       description: |-
         - Single six-position compression dial that shapes high- and low-speed damping together
         - Separate rebound dial with 12 clicks
+      description_de: |-
+        - Einzelnes Druckstufenrad mit sechs Positionen, das High- und Low-Speed-Dämpfung gemeinsam formt
+        - Separates Zugstufenrad mit 12 Klicks
+      description_fr: |-
+        - Une seule molette de compression à six positions qui façonne ensemble l’amortissement haute et basse vitesse
+        - Molette de détente séparée à 12 clics
+      description_it: |-
+        - Un’unica manopola di compressione a sei posizioni che modella insieme lo smorzamento ad alta e bassa velocità
+        - Manopola del ritorno separata con 12 scatti
+      description_es: |-
+        - Una sola rueda de compresión de seis posiciones que modela a la vez la amortiguación de alta y baja velocidad
+        - Rueda de rebote separada con 12 clics
+      description_pt: |-
+        - Um único seletor de compressão de seis posições que molda juntos o amortecimento de alta e baixa velocidade
+        - Seletor de retorno separado com 12 cliques
       adjustments:
-        - { name: Compression, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together" }
-        - { name: Rebound, type: step, max: 12, notes: Counted from fully closed (slowest) }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together", notes_de: VTT-6-Position; im Uhrzeigersinn von Position 1 (Minimum) gezählt; verstellt High- und Low-Speed-Dämpfung gemeinsam, notes_fr: Position VTT-6 ; comptée dans le sens horaire depuis la position 1 (minimum) ; règle ensemble la compression et la détente haute et basse vitesse, notes_it: Posizione VTT-6; contata in senso orario a partire dalla posizione 1 (minimo); regola insieme smorzamento ad alta e bassa velocità, notes_es: Posición VTT-6; contada en sentido horario desde la posición 1 (mínimo); ajusta a la vez la amortiguación de alta y de baja velocidad, notes_pt: Posição VTT-6; contada no sentido horário a partir da posição 1 (mínimo); ajusta juntos o amortecimento de alta e de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 12, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
       note: Mezzer G2 Expert set-up guide (2025) — VTT-6 "1-6", TPC rebound "12-0".
 
@@ -134,9 +204,24 @@ option_values:
       description: |-
         - Simple single-knob compression adjustment
         - Separate rebound knob with 10 clicks
+      description_de: |-
+        - Einfache Druckstufenverstellung mit einem Knopf
+        - Separater Zugstufenknopf mit 10 Klicks
+      description_fr: |-
+        - Réglage de compression simple à une seule molette
+        - Molette de détente séparée à 10 clics
+      description_it: |-
+        - Regolazione semplice della compressione con una sola manopola
+        - Manopola del ritorno separata con 10 scatti
+      description_es: |-
+        - Ajuste de compresión sencillo con una sola rueda
+        - Rueda de rebote separada con 10 clics
+      description_pt: |-
+        - Ajuste de compressão simples com um único seletor
+        - Seletor de retorno separado com 10 cliques
       adjustments:
-        - { name: Compression, type: step, max: 10, notes: Counted from fully closed (firmest) }
-        - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest) }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 10, notes: Counted from fully closed (firmest), notes_de: Von ganz geschlossen (am festesten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus ferme), notes_it: Contato a partire dalla posizione completamente chiusa (la più rigida), notes_es: Contado desde la posición totalmente cerrada (la más firme), notes_pt: Contado a partir da posição totalmente fechada (a mais firme) }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 10, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
       note: Mezzer G2 LT Comp set-up guide — ABS+ "10-0", TPC rebound "10-0".
 
@@ -146,10 +231,30 @@ option_values:
         - Sealed bladder cartridge with independent high- and low-speed compression
         - Rebound adjuster on the bottom of the leg with 20 clicks
         - Non-adjustable hydraulic bottom-out over the last 30 mm of travel
+      description_de: |-
+        - Geschlossene Bladder-Kartusche mit unabhängiger High- und Low-Speed-Druckstufe
+        - Zugstufenversteller am unteren Ende des Gabelbeins mit 20 Klicks
+        - Nicht einstellbarer hydraulischer Durchschlagschutz auf den letzten 30 mm des Federwegs
+      description_fr: |-
+        - Cartouche à bladder scellée avec compression haute et basse vitesse indépendantes
+        - Réglage de détente en bas de la jambe avec 20 clics
+        - Fin de course hydraulique non réglable sur les 30 derniers mm de débattement
+      description_it: |-
+        - Cartuccia a bladder sigillata con compressione ad alta e bassa velocità indipendenti
+        - Regolatore del ritorno nella parte bassa dello stelo con 20 scatti
+        - Fondocorsa idraulico non regolabile negli ultimi 30 mm di escursione
+      description_es: |-
+        - Cartucho de bladder sellado con compresión de alta y baja velocidad independientes
+        - Ajuste de rebote en la parte inferior de la pierna con 20 clics
+        - Final de carrera hidráulico no ajustable en los últimos 30 mm de recorrido
+      description_pt: |-
+        - Cartucho de bladder selado com compressão de alta e baixa velocidade independentes
+        - Ajuste de retorno na parte inferior da perna com 20 cliques
+        - Fim de curso hidráulico não ajustável nos últimos 30 mm de curso
       adjustments:
-        - { name: HSC, type: step, max: 4, notes: "High-Speed Compression; Outer knob" }
-        - { name: LSC, type: step, max: 10, notes: "Low-Speed Compression; Inner knob" }
-        - { name: Rebound, type: step, max: 20, notes: Counted from fully closed (slowest) }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 4, notes: "High-Speed Compression; Outer knob", notes_de: High-Speed-Druckstufe; äußerer Knopf, notes_fr: Compression haute vitesse ; molette extérieure, notes_it: Compressione ad alta velocità; manopola esterna, notes_es: Compresión de alta velocidad; rueda exterior, notes_pt: Compressão de alta velocidade; seletor externo }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 10, notes: "Low-Speed Compression; Inner knob", notes_de: Low-Speed-Druckstufe; innerer Knopf, notes_fr: Compression basse vitesse ; molette intérieure, notes_it: Compressione a bassa velocità; manopola interna, notes_es: Compresión de baja velocidad; rueda interior, notes_pt: Compressão de baixa velocidade; seletor interno }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 20, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
       note: Mattoc Pro set-up guide Rev 1 2/2023 — rebound "20-0", Hi-speed "4-0", Lo-speed "10-0".
 
@@ -158,9 +263,24 @@ option_values:
       description: |-
         - Single six-position compression dial that shapes high- and low-speed damping together
         - Separate rebound dial with 20 clicks
+      description_de: |-
+        - Einzelnes Druckstufenrad mit sechs Positionen, das High- und Low-Speed-Dämpfung gemeinsam formt
+        - Separates Zugstufenrad mit 20 Klicks
+      description_fr: |-
+        - Une seule molette de compression à six positions qui façonne ensemble l’amortissement haute et basse vitesse
+        - Molette de détente séparée à 20 clics
+      description_it: |-
+        - Un’unica manopola di compressione a sei posizioni che modella insieme lo smorzamento ad alta e bassa velocità
+        - Manopola del ritorno separata con 20 scatti
+      description_es: |-
+        - Una sola rueda de compresión de seis posiciones que modela a la vez la amortiguación de alta y baja velocidad
+        - Rueda de rebote separada con 20 clics
+      description_pt: |-
+        - Um único seletor de compressão de seis posições que molda juntos o amortecimento de alta e baixa velocidade
+        - Seletor de retorno separado com 20 cliques
       adjustments:
-        - { name: Compression, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together" }
-        - { name: Rebound, type: step, max: 20, notes: Counted from fully closed (slowest) }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together", notes_de: VTT-6-Position; im Uhrzeigersinn von Position 1 (Minimum) gezählt; verstellt High- und Low-Speed-Dämpfung gemeinsam, notes_fr: Position VTT-6 ; comptée dans le sens horaire depuis la position 1 (minimum) ; règle ensemble la compression et la détente haute et basse vitesse, notes_it: Posizione VTT-6; contata in senso orario a partire dalla posizione 1 (minimo); regola insieme smorzamento ad alta e bassa velocità, notes_es: Posición VTT-6; contada en sentido horario desde la posición 1 (mínimo); ajusta a la vez la amortiguación de alta y de baja velocidad, notes_pt: Posição VTT-6; contada no sentido horário a partir da posição 1 (mínimo); ajusta juntos o amortecimento de alta e de baixa velocidade }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 20, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
         - https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
@@ -171,9 +291,24 @@ option_values:
       description: |-
         - Simple single-knob compression adjustment with 9 clicks
         - Rebound knob has no click stops
+      description_de: |-
+        - Einfache Druckstufenverstellung mit einem Knopf und 9 Klicks
+        - Der Zugstufenknopf hat keine Rasten
+      description_fr: |-
+        - Réglage de compression simple à une seule molette, avec 9 clics
+        - La molette de détente n’a pas de crans
+      description_it: |-
+        - Regolazione semplice della compressione con una sola manopola, con 9 scatti
+        - La manopola del ritorno non ha scatti
+      description_es: |-
+        - Ajuste de compresión sencillo con una sola rueda, con 9 clics
+        - La rueda de rebote no tiene muescas
+      description_pt: |-
+        - Ajuste de compressão simples com um único seletor, com 9 cliques
+        - O seletor de retorno não tem cliques
       adjustments:
-        - { name: Compression, type: step, max: 9, notes: Counted from fully closed (firmest) }
-        - { name: Rebound, type: categorical, options: ["12 o'clock", "1 o'clock", "2 o'clock", "3 o'clock", "4 o'clock", "5 o'clock", "6 o'clock"], notes: "Not detented; set by clock position from 12 o'clock (minimum) to 6 o'clock (maximum)" }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 9, notes: Counted from fully closed (firmest), notes_de: Von ganz geschlossen (am festesten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus ferme), notes_it: Contato a partire dalla posizione completamente chiusa (la più rigida), notes_es: Contado desde la posición totalmente cerrada (la más firme), notes_pt: Contado a partir da posição totalmente fechada (a mais firme) }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: categorical, options: ["12 o'clock", "1 o'clock", "2 o'clock", "3 o'clock", "4 o'clock", "5 o'clock", "6 o'clock"], options_de: [12 Uhr, 1 Uhr, 2 Uhr, 3 Uhr, 4 Uhr, 5 Uhr, 6 Uhr], options_fr: [12 h, 1 h, 2 h, 3 h, 4 h, 5 h, 6 h], options_it: [ore 12, ore 1, ore 2, ore 3, ore 4, ore 5, ore 6], options_es: [12 h, 1 h, 2 h, 3 h, 4 h, 5 h, 6 h], options_pt: [12 h, 1 h, 2 h, 3 h, 4 h, 5 h, 6 h], notes: "Not detented; set by clock position from 12 o'clock (minimum) to 6 o'clock (maximum)", notes_de: Ohne Rasten; eingestellt über die Uhrposition von 12 Uhr (Minimum) bis 6 Uhr (Maximum), notes_fr: "Sans crans ; réglé par position d’horloge, de 12 heures (minimum) à 6 heures (maximum)", notes_it: "Senza scatti; si regola con la posizione dell’orologio, dalle 12 (minimo) alle 6 (massimo)", notes_es: "Sin muescas; se ajusta por posición de reloj, de las 12 (mínimo) a las 6 (máximo)", notes_pt: "Sem cliques; ajustado pela posição do relógio, das 12 horas (mínimo) às 6 horas (máximo)" }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
         - https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
@@ -185,10 +320,30 @@ option_values:
         - Three factory-tuned compression modes: Open, Firm and Lock
         - Open-mode adjuster fine-tunes the Open setting with a 3 mm hex key
         - Compatible with the Deuce remote lockout
+      description_de: |-
+        - Drei werkseitig abgestimmte Druckstufenmodi: Open, Firm und Lock
+        - Der Open-Modus-Versteller stimmt die Open-Einstellung mit einem 3-mm-Inbusschlüssel fein ab
+        - Kompatibel mit der Deuce-Lockout-Fernbedienung
+      description_fr: |-
+        - Trois modes de compression réglés en usine : Open, Firm et Lock
+        - Le réglage du mode ouvert affine le réglage Open avec une clé hexagonale de 3 mm
+        - Compatible avec le lockout déporté Deuce
+      description_it: |-
+        - Tre modalità di compressione tarate in fabbrica: Open, Firm e Lock
+        - Il regolatore della modalità aperta rifinisce l’impostazione Open con una chiave a brugola da 3 mm
+        - Compatibile con il lockout remoto Deuce
+      description_es: |-
+        - Tres modos de compresión tarados de fábrica: Open, Firm y Lock
+        - El ajuste del modo abierto afina el ajuste Open con una llave Allen de 3 mm
+        - Compatible con el lockout remoto Deuce
+      description_pt: |-
+        - Três modos de compressão calibrados de fábrica: Open, Firm e Lock
+        - O ajuste do modo aberto refina o ajuste Open com uma chave Allen de 3 mm
+        - Compatível com o lockout remoto Deuce
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Firm, Lock] }
-        - { name: Open Mode Compression, type: step, max: 20, notes: Counted from fully closed (firmest); only affects Open mode }
-        - { name: Rebound, type: step, max: 18, notes: Counted from fully closed (slowest) }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm, Lock], options_de: [Offen, Fest, Lock], options_fr: [Ouvert, Ferme, Lock], options_it: [Aperto, Rigido, Lock], options_es: [Abierto, Firme, Lock], options_pt: [Aberto, Firme, Lock] }
+        - { name: Open Mode Compression, name_de: Druckstufe im offenen Modus, name_fr: Compression en mode ouvert, name_it: Compressione in modalità aperta, name_es: Compresión en modo abierto, name_pt: Compressão no modo aberto, type: step, max: 20, notes: Counted from fully closed (firmest); only affects Open mode, notes_de: Von ganz geschlossen (am festesten) gezählt; wirkt nur im offenen Modus, notes_fr: Compté depuis la position entièrement fermée (la plus ferme) ; n’agit qu’en mode Open, notes_it: Contato a partire dalla posizione completamente chiusa (la più rigida); agisce solo in modalità Open, notes_es: Contado desde la posición totalmente cerrada (la más firme); solo actúa en modo Open, notes_pt: Contado a partir da posição totalmente fechada (a mais firme); só atua no modo Open }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 18, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
       note: R8 Pro set-up guide (2024) — rebound "18-0", open-mode adjust "20-0".
 
@@ -197,10 +352,25 @@ option_values:
       description: |-
         - Independent high-speed (outer) and low-speed (inner) compression, plus rebound
         - Non-adjustable hydraulic bottom-out over the last 30 mm of travel
+      description_de: |-
+        - Unabhängige High-Speed- (außen) und Low-Speed-Druckstufe (innen) sowie Zugstufe
+        - Nicht einstellbarer hydraulischer Durchschlagschutz auf den letzten 30 mm des Federwegs
+      description_fr: |-
+        - Compression haute vitesse (extérieur) et basse vitesse (intérieur) indépendantes, plus détente
+        - Fin de course hydraulique non réglable sur les 30 derniers mm de débattement
+      description_it: |-
+        - Compressione ad alta velocità (esterna) e a bassa velocità (interna) indipendenti, più ritorno
+        - Fondocorsa idraulico non regolabile negli ultimi 30 mm di escursione
+      description_es: |-
+        - Compresión de alta velocidad (exterior) y de baja velocidad (interior) independientes, más rebote
+        - Final de carrera hidráulico no ajustable en los últimos 30 mm de recorrido
+      description_pt: |-
+        - Compressão de alta velocidade (externa) e de baixa velocidade (interna) independentes, mais retorno
+        - Fim de curso hidráulico não ajustável nos últimos 30 mm de curso
       adjustments:
-        - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Outer knob" }
-        - { name: LSC, type: step, max: 15, notes: "Low-Speed Compression; TPC+ inner knob" }
-        - { name: Rebound, type: step, max: 24, notes: Counted from fully closed (slowest) }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 15, notes: "High-Speed Compression; Outer knob", notes_de: High-Speed-Druckstufe; äußerer Knopf, notes_fr: Compression haute vitesse ; molette extérieure, notes_it: Compressione ad alta velocità; manopola esterna, notes_es: Compresión de alta velocidad; rueda exterior, notes_pt: Compressão de alta velocidade; seletor externo }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 15, notes: "Low-Speed Compression; TPC+ inner knob", notes_de: Low-Speed-Druckstufe; innerer TPC+-Knopf, notes_fr: Compression basse vitesse ; molette intérieure TPC+, notes_it: Compressione a bassa velocità; manopola interna TPC+, notes_es: Compresión de baja velocidad; rueda interior TPC+, notes_pt: Compressão de baixa velocidade; seletor interno TPC+ }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 24, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
         - https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
@@ -211,9 +381,24 @@ option_values:
       description: |-
         - Single-knob compression adjustment with 20 clicks
         - Separate rebound knob with 20 clicks
+      description_de: |-
+        - Einfache Druckstufenverstellung mit einem Knopf und 20 Klicks
+        - Separater Zugstufenknopf mit 20 Klicks
+      description_fr: |-
+        - Réglage de compression à une seule molette avec 20 clics
+        - Molette de détente séparée avec 20 clics
+      description_it: |-
+        - Regolazione della compressione con una sola manopola a 20 scatti
+        - Manopola del ritorno separata con 20 scatti
+      description_es: |-
+        - Ajuste de compresión con una sola rueda de 20 clics
+        - Rueda de rebote separada con 20 clics
+      description_pt: |-
+        - Ajuste de compressão com um único seletor de 20 cliques
+        - Seletor de retorno separado com 20 cliques
       adjustments:
-        - { name: Compression, type: step, max: 20, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
-        - { name: Rebound, type: step, max: 20, notes: Counted from fully closed (slowest) }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 20, notes: "Low-Speed Compression; Counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt, notes_fr: Compression basse vitesse ; comptée depuis la position entièrement fermée (la plus ferme), notes_it: Compressione a bassa velocità; contata a partire dalla posizione completamente chiusa (la più rigida), notes_es: Compresión de baja velocidad; contada desde la posición totalmente cerrada (la más firme), notes_pt: Compressão de baixa velocidade; contada a partir da posição totalmente fechada (a mais firme) }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 20, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta) }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
         - https://hayesbicycle.com/products/new-dorado-coil
@@ -241,6 +426,11 @@ option_values:
 guides:
   manitou_mezzer_g2_pro_2025:
     label: Manitou Mezzer G2 Pro & LT Pro set-up guide (2025)
+    label_de: Manitou Mezzer G2 Pro & LT Pro Setup-Anleitung (2025)
+    label_fr: Guide de setup Manitou Mezzer G2 Pro et LT Pro (2025)
+    label_it: Guida al setup Manitou Mezzer G2 Pro e LT Pro (2025)
+    label_es: Guía de setup Manitou Mezzer G2 Pro y LT Pro (2025)
+    label_pt: Guia de setup Manitou Mezzer G2 Pro e LT Pro (2025)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
     rules:
       # 140 mm is the Mezzer Pro only; 180 and 190 mm are the Mezzer LT Pro only.
@@ -251,6 +441,11 @@ guides:
         when: { travel_mm: 140 }
         rows: { 120-140: 40, 140-160: 49, 160-180: 59, 180-200: 68, 200-220: 77, 220-240: 86, 240-260: 95 }
         note: &mezzer_g2_pro_main_offset E-bike or downhill riding takes 3-4 psi more, trail riding 3-4 psi less
+        note_de: &mezzer_g2_pro_main_offset_de Bei E-Bike- oder Downhill-Einsatz 3-4 psi mehr, bei Trail-Einsatz 3-4 psi weniger
+        note_fr: &mezzer_g2_pro_main_offset_fr En vélo électrique ou en descente, comptez 3-4 psi de plus ; en trail, 3-4 psi de moins
+        note_it: &mezzer_g2_pro_main_offset_it Con l’e-bike o in downhill servono 3-4 psi in più, nel trail 3-4 psi in meno
+        note_es: &mezzer_g2_pro_main_offset_es En bicicleta eléctrica o en descenso se necesitan 3-4 psi más; en trail, 3-4 psi menos
+        note_pt: &mezzer_g2_pro_main_offset_pt Na bike elétrica ou no downhill, 3-4 psi a mais; no trail, 3-4 psi a menos
       - target: pressure
         unit: psi
         input: rider_weight
@@ -258,6 +453,11 @@ guides:
         when: { travel_mm: 150 }
         rows: { 120-140: 39, 140-160: 48, 160-180: 57, 180-200: 66, 200-220: 75, 220-240: 84, 240-260: 93 }
         note: *mezzer_g2_pro_main_offset
+        note_de: *mezzer_g2_pro_main_offset_de
+        note_fr: *mezzer_g2_pro_main_offset_fr
+        note_it: *mezzer_g2_pro_main_offset_it
+        note_es: *mezzer_g2_pro_main_offset_es
+        note_pt: *mezzer_g2_pro_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -265,6 +465,11 @@ guides:
         when: { travel_mm: 160 }
         rows: { 120-140: 38, 140-160: 47, 160-180: 55, 180-200: 64, 200-220: 73, 220-240: 82, 240-260: 91 }
         note: *mezzer_g2_pro_main_offset
+        note_de: *mezzer_g2_pro_main_offset_de
+        note_fr: *mezzer_g2_pro_main_offset_fr
+        note_it: *mezzer_g2_pro_main_offset_it
+        note_es: *mezzer_g2_pro_main_offset_es
+        note_pt: *mezzer_g2_pro_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -272,6 +477,11 @@ guides:
         when: { travel_mm: 170 }
         rows: { 120-140: 37, 140-160: 45, 160-180: 54, 180-200: 62, 200-220: 71, 220-240: 80, 240-260: 88 }
         note: *mezzer_g2_pro_main_offset
+        note_de: *mezzer_g2_pro_main_offset_de
+        note_fr: *mezzer_g2_pro_main_offset_fr
+        note_it: *mezzer_g2_pro_main_offset_it
+        note_es: *mezzer_g2_pro_main_offset_es
+        note_pt: *mezzer_g2_pro_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -279,6 +489,11 @@ guides:
         when: { travel_mm: 180 }
         rows: { 120-140: 35, 140-160: 44, 160-180: 52, 180-200: 61, 200-220: 69, 220-240: 77, 240-260: 86 }
         note: *mezzer_g2_pro_main_offset
+        note_de: *mezzer_g2_pro_main_offset_de
+        note_fr: *mezzer_g2_pro_main_offset_fr
+        note_it: *mezzer_g2_pro_main_offset_it
+        note_es: *mezzer_g2_pro_main_offset_es
+        note_pt: *mezzer_g2_pro_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -286,6 +501,11 @@ guides:
         when: { travel_mm: 190 }
         rows: { 120-140: 34, 140-160: 42, 160-180: 51, 180-200: 59, 200-220: 67, 220-240: 75, 240-260: 83 }
         note: *mezzer_g2_pro_main_offset
+        note_de: *mezzer_g2_pro_main_offset_de
+        note_fr: *mezzer_g2_pro_main_offset_fr
+        note_it: *mezzer_g2_pro_main_offset_it
+        note_es: *mezzer_g2_pro_main_offset_es
+        note_pt: *mezzer_g2_pro_main_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -293,6 +513,11 @@ guides:
         when: { travel_mm: 140 }
         rows: { 120-140: 61, 140-160: 74, 160-180: 87, 180-200: 100, 200-220: 113, 220-240: 126, 240-260: 139 }
         note: &mezzer_g2_pro_irt_offset E-bike or downhill riding takes 5-10 psi more, trail riding 5-10 psi less
+        note_de: &mezzer_g2_pro_irt_offset_de Bei E-Bike- oder Downhill-Einsatz 5-10 psi mehr, bei Trail-Einsatz 5-10 psi weniger
+        note_fr: &mezzer_g2_pro_irt_offset_fr En vélo électrique ou en descente, comptez 5-10 psi de plus ; en trail, 5-10 psi de moins
+        note_it: &mezzer_g2_pro_irt_offset_it Con l’e-bike o in downhill servono 5-10 psi in più, nel trail 5-10 psi in meno
+        note_es: &mezzer_g2_pro_irt_offset_es En bicicleta eléctrica o en descenso se necesitan 5-10 psi más; en trail, 5-10 psi menos
+        note_pt: &mezzer_g2_pro_irt_offset_pt Na bike elétrica ou no downhill, 5-10 psi a mais; no trail, 5-10 psi a menos
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -300,6 +525,11 @@ guides:
         when: { travel_mm: 150 }
         rows: { 120-140: 59, 140-160: 72, 160-180: 85, 180-200: 98, 200-220: 111, 220-240: 124, 240-260: 137 }
         note: *mezzer_g2_pro_irt_offset
+        note_de: *mezzer_g2_pro_irt_offset_de
+        note_fr: *mezzer_g2_pro_irt_offset_fr
+        note_it: *mezzer_g2_pro_irt_offset_it
+        note_es: *mezzer_g2_pro_irt_offset_es
+        note_pt: *mezzer_g2_pro_irt_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -307,6 +537,11 @@ guides:
         when: { travel_mm: 160 }
         rows: { 120-140: 57, 140-160: 70, 160-180: 83, 180-200: 96, 200-220: 109, 220-240: 122, 240-260: 135 }
         note: *mezzer_g2_pro_irt_offset
+        note_de: *mezzer_g2_pro_irt_offset_de
+        note_fr: *mezzer_g2_pro_irt_offset_fr
+        note_it: *mezzer_g2_pro_irt_offset_it
+        note_es: *mezzer_g2_pro_irt_offset_es
+        note_pt: *mezzer_g2_pro_irt_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -314,6 +549,11 @@ guides:
         when: { travel_mm: 170 }
         rows: { 120-140: 55, 140-160: 68, 160-180: 81, 180-200: 94, 200-220: 107, 220-240: 120, 240-260: 133 }
         note: *mezzer_g2_pro_irt_offset
+        note_de: *mezzer_g2_pro_irt_offset_de
+        note_fr: *mezzer_g2_pro_irt_offset_fr
+        note_it: *mezzer_g2_pro_irt_offset_it
+        note_es: *mezzer_g2_pro_irt_offset_es
+        note_pt: *mezzer_g2_pro_irt_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -321,6 +561,11 @@ guides:
         when: { travel_mm: 180 }
         rows: { 120-140: 53, 140-160: 66, 160-180: 79, 180-200: 92, 200-220: 105, 220-240: 118, 240-260: 131 }
         note: *mezzer_g2_pro_irt_offset
+        note_de: *mezzer_g2_pro_irt_offset_de
+        note_fr: *mezzer_g2_pro_irt_offset_fr
+        note_it: *mezzer_g2_pro_irt_offset_it
+        note_es: *mezzer_g2_pro_irt_offset_es
+        note_pt: *mezzer_g2_pro_irt_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -328,6 +573,11 @@ guides:
         when: { travel_mm: 190 }
         rows: { 120-140: 51, 140-160: 64, 160-180: 77, 180-200: 90, 200-220: 103, 220-240: 116, 240-260: 129 }
         note: *mezzer_g2_pro_irt_offset
+        note_de: *mezzer_g2_pro_irt_offset_de
+        note_fr: *mezzer_g2_pro_irt_offset_fr
+        note_it: *mezzer_g2_pro_irt_offset_it
+        note_es: *mezzer_g2_pro_irt_offset_es
+        note_pt: *mezzer_g2_pro_irt_offset_pt
       - target: lsr
         input: rider_weight
         input_unit: lb
@@ -342,16 +592,21 @@ guides:
           120-140: [7, 8], 140-160: [6, 8], 160-180: [5, 7], 180-200: [4, 6],
           200-220: [3, 6], 220-240: [2, 5], 240-260: [1, 4]
         }
-      - { target: lsc, range: [6, 9], when: { riding_style: comfort }, note: Plush Natural }
-      - { target: lsc, range: [4, 6], when: { riding_style: balanced }, note: Mid Mixed }
-      - { target: lsc, range: [2, 4], when: { riding_style: race }, note: Firm Park }
-      - { target: hsc, range: [5, 7], when: { riding_style: comfort }, note: Plush Natural }
-      - { target: hsc, range: [4, 6], when: { riding_style: balanced }, note: Mid Mixed }
-      - { target: hsc, range: [2, 4], when: { riding_style: race }, note: Firm Park }
+      - { target: lsc, range: [6, 9], when: { riding_style: comfort }, note: Plush Natural, note_de: Komfortabel – Natural, note_fr: Souple – Natural, note_it: Morbida – Natural, note_es: Blanda – Natural, note_pt: Macia – Natural }
+      - { target: lsc, range: [4, 6], when: { riding_style: balanced }, note: Mid Mixed, note_de: Mittel – Mixed, note_fr: Moyenne – Mixed, note_it: Media – Mixed, note_es: Media – Mixed, note_pt: Média – Mixed }
+      - { target: lsc, range: [2, 4], when: { riding_style: race }, note: Firm Park, note_de: Fest – Park, note_fr: Ferme – Park, note_it: Rigida – Park, note_es: Firme – Park, note_pt: Firme – Park }
+      - { target: hsc, range: [5, 7], when: { riding_style: comfort }, note: Plush Natural, note_de: Komfortabel – Natural, note_fr: Souple – Natural, note_it: Morbida – Natural, note_es: Blanda – Natural, note_pt: Macia – Natural }
+      - { target: hsc, range: [4, 6], when: { riding_style: balanced }, note: Mid Mixed, note_de: Mittel – Mixed, note_fr: Moyenne – Mixed, note_it: Media – Mixed, note_es: Media – Mixed, note_pt: Média – Mixed }
+      - { target: hsc, range: [2, 4], when: { riding_style: race }, note: Firm Park, note_de: Fest – Park, note_fr: Ferme – Park, note_it: Rigida – Park, note_es: Firme – Park, note_pt: Firme – Park }
       - &manitou_fork_sag_20_25 { target: sag, range: [20, 25], comfort_at: max }
 
   manitou_mezzer_g2_expert_2025:
     label: Manitou Mezzer G2 Expert set-up guide (2025)
+    label_de: Manitou Mezzer G2 Expert Setup-Anleitung (2025)
+    label_fr: Guide de setup Manitou Mezzer G2 Expert (2025)
+    label_it: Guida al setup Manitou Mezzer G2 Expert (2025)
+    label_es: Guía de setup Manitou Mezzer G2 Expert (2025)
+    label_pt: Guia de setup Manitou Mezzer G2 Expert (2025)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
     rules:
       - target: pressure
@@ -361,6 +616,11 @@ guides:
         when: { travel_mm: 140 }
         rows: { 120-140: 46, 140-160: 57, 160-180: 68, 180-200: 79, 200-220: 90, 220-240: 101, 240-260: 112 }
         note: *mezzer_g2_pro_main_offset
+        note_de: *mezzer_g2_pro_main_offset_de
+        note_fr: *mezzer_g2_pro_main_offset_fr
+        note_it: *mezzer_g2_pro_main_offset_it
+        note_es: *mezzer_g2_pro_main_offset_es
+        note_pt: *mezzer_g2_pro_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -368,6 +628,11 @@ guides:
         when: { travel_mm: 150 }
         rows: { 120-140: 44, 140-160: 54, 160-180: 64, 180-200: 74, 200-220: 84, 220-240: 94, 240-260: 104 }
         note: *mezzer_g2_pro_main_offset
+        note_de: *mezzer_g2_pro_main_offset_de
+        note_fr: *mezzer_g2_pro_main_offset_fr
+        note_it: *mezzer_g2_pro_main_offset_it
+        note_es: *mezzer_g2_pro_main_offset_es
+        note_pt: *mezzer_g2_pro_main_offset_pt
       # The 160 mm column is above the 150 mm one in every row, as printed.
       - target: pressure
         unit: psi
@@ -376,6 +641,11 @@ guides:
         when: { travel_mm: 160 }
         rows: { 120-140: 44, 140-160: 55, 160-180: 65, 180-200: 75, 200-220: 85, 220-240: 96, 240-260: 106 }
         note: *mezzer_g2_pro_main_offset
+        note_de: *mezzer_g2_pro_main_offset_de
+        note_fr: *mezzer_g2_pro_main_offset_fr
+        note_it: *mezzer_g2_pro_main_offset_it
+        note_es: *mezzer_g2_pro_main_offset_es
+        note_pt: *mezzer_g2_pro_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -383,19 +653,29 @@ guides:
         when: { travel_mm: 170 }
         rows: { 120-140: 40, 140-160: 50, 160-180: 59, 180-200: 69, 200-220: 78, 220-240: 88, 240-260: 97 }
         note: *mezzer_g2_pro_main_offset
+        note_de: *mezzer_g2_pro_main_offset_de
+        note_fr: *mezzer_g2_pro_main_offset_fr
+        note_it: *mezzer_g2_pro_main_offset_it
+        note_es: *mezzer_g2_pro_main_offset_es
+        note_pt: *mezzer_g2_pro_main_offset_pt
       - { target: iva_position, value: 4, when: { travel_mm: [140, 150] } }
       - { target: iva_position, value: 3, when: { travel_mm: [160, 170] } }
       - target: rebound
         input: rider_weight
         input_unit: lb
         rows: *mezzer_g2_rebound
-      - { target: compression, range: [1, 2], when: { riding_style: comfort }, note: Plush Comfort }
-      - { target: compression, range: [3, 4], when: { riding_style: balanced }, note: Balanced Performance }
-      - { target: compression, range: [5, 6], when: { riding_style: race }, note: Firm Support }
+      - { target: compression, range: [1, 2], when: { riding_style: comfort }, note: Plush Comfort, note_de: Komfortabel – Komfort, note_fr: Souple – Confort, note_it: Morbida – Comfort, note_es: Blanda – Comodidad, note_pt: Macia – Conforto }
+      - { target: compression, range: [3, 4], when: { riding_style: balanced }, note: Balanced Performance, note_de: Ausgewogen – Performance, note_fr: Performances équilibrées, note_it: Prestazioni bilanciate, note_es: Rendimiento equilibrado, note_pt: Desempenho equilibrado }
+      - { target: compression, range: [5, 6], when: { riding_style: race }, note: Firm Support, note_de: Fest – Gegenhalt, note_fr: Ferme – Soutien, note_it: Rigida – Sostegno, note_es: Firme – Apoyo, note_pt: Firme – Apoio }
       - *manitou_fork_sag_20_25
 
   manitou_mezzer_g2_ltcomp_2025:
     label: Manitou Mezzer G2 LT Comp set-up guide (2025)
+    label_de: Manitou Mezzer G2 LT Comp Setup-Anleitung (2025)
+    label_fr: Guide de setup Manitou Mezzer G2 LT Comp (2025)
+    label_it: Guida al setup Manitou Mezzer G2 LT Comp (2025)
+    label_es: Guía de setup Manitou Mezzer G2 LT Comp (2025)
+    label_pt: Guia de setup Manitou Mezzer G2 LT Comp (2025)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
     rules:
       - target: pressure
@@ -405,6 +685,11 @@ guides:
         when: { travel_mm: 140 }
         rows: { 120-140: 56, 140-160: 67, 160-180: 77, 180-200: 88, 200-220: 98, 220-240: 108, 240-260: 119 }
         note: &mezzer_ltcomp_main_offset E-bike or downhill riding takes 3-5 psi more, trail riding 3-5 psi less
+        note_de: &mezzer_ltcomp_main_offset_de Bei E-Bike- oder Downhill-Einsatz 3-5 psi mehr, bei Trail-Einsatz 3-5 psi weniger
+        note_fr: &mezzer_ltcomp_main_offset_fr En vélo électrique ou en descente, comptez 3-5 psi de plus ; en trail, 3-5 psi de moins
+        note_it: &mezzer_ltcomp_main_offset_it Con l’e-bike o in downhill servono 3-5 psi in più, nel trail 3-5 psi in meno
+        note_es: &mezzer_ltcomp_main_offset_es En bicicleta eléctrica o en descenso se necesitan 3-5 psi más; en trail, 3-5 psi menos
+        note_pt: &mezzer_ltcomp_main_offset_pt Na bike elétrica ou no downhill, 3-5 psi a mais; no trail, 3-5 psi a menos
       - target: pressure
         unit: psi
         input: rider_weight
@@ -412,6 +697,11 @@ guides:
         when: { travel_mm: 150 }
         rows: { 120-140: 55, 140-160: 65, 160-180: 76, 180-200: 86, 200-220: 96, 220-240: 106, 240-260: 116 }
         note: *mezzer_ltcomp_main_offset
+        note_de: *mezzer_ltcomp_main_offset_de
+        note_fr: *mezzer_ltcomp_main_offset_fr
+        note_it: *mezzer_ltcomp_main_offset_it
+        note_es: *mezzer_ltcomp_main_offset_es
+        note_pt: *mezzer_ltcomp_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -419,6 +709,11 @@ guides:
         when: { travel_mm: 160 }
         rows: { 120-140: 54, 140-160: 64, 160-180: 74, 180-200: 84, 200-220: 94, 220-240: 104, 240-260: 114 }
         note: *mezzer_ltcomp_main_offset
+        note_de: *mezzer_ltcomp_main_offset_de
+        note_fr: *mezzer_ltcomp_main_offset_fr
+        note_it: *mezzer_ltcomp_main_offset_it
+        note_es: *mezzer_ltcomp_main_offset_es
+        note_pt: *mezzer_ltcomp_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -426,6 +721,11 @@ guides:
         when: { travel_mm: 170 }
         rows: { 120-140: 51, 140-160: 61, 160-180: 71, 180-200: 81, 200-220: 91, 220-240: 100, 240-260: 110 }
         note: *mezzer_ltcomp_main_offset
+        note_de: *mezzer_ltcomp_main_offset_de
+        note_fr: *mezzer_ltcomp_main_offset_fr
+        note_it: *mezzer_ltcomp_main_offset_it
+        note_es: *mezzer_ltcomp_main_offset_es
+        note_pt: *mezzer_ltcomp_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -433,6 +733,11 @@ guides:
         when: { travel_mm: 180 }
         rows: { 120-140: 49, 140-160: 59, 160-180: 68, 180-200: 78, 200-220: 88, 220-240: 97, 240-260: 107 }
         note: *mezzer_ltcomp_main_offset
+        note_de: *mezzer_ltcomp_main_offset_de
+        note_fr: *mezzer_ltcomp_main_offset_fr
+        note_it: *mezzer_ltcomp_main_offset_it
+        note_es: *mezzer_ltcomp_main_offset_es
+        note_pt: *mezzer_ltcomp_main_offset_pt
       - target: pressure
         unit: psi
         input: rider_weight
@@ -440,6 +745,11 @@ guides:
         when: { travel_mm: 190 }
         rows: { 120-140: 46, 140-160: 56, 160-180: 65, 180-200: 74, 200-220: 83, 220-240: 92, 240-260: 102 }
         note: *mezzer_ltcomp_main_offset
+        note_de: *mezzer_ltcomp_main_offset_de
+        note_fr: *mezzer_ltcomp_main_offset_fr
+        note_it: *mezzer_ltcomp_main_offset_it
+        note_es: *mezzer_ltcomp_main_offset_es
+        note_pt: *mezzer_ltcomp_main_offset_pt
       - { target: iva_position, value: 3, when: { travel_mm: [140, 150] } }
       - { target: iva_position, value: 2, when: { travel_mm: [160, 170] } }
       - { target: iva_position, value: 1, when: { travel_mm: [180, 190] } }
@@ -450,15 +760,20 @@ guides:
           120-140: [8, 10], 140-160: [7, 10], 160-180: [6, 9], 180-200: [5, 8],
           200-220: [4, 7], 220-240: [3, 6], 240-260: [2, 5]
         }
-      - { target: compression, range: [6, 9], when: { riding_style: comfort }, note: Plush Comfort }
-      - { target: compression, range: [3, 6], when: { riding_style: balanced }, note: Balanced Performance }
-      - { target: compression, range: [1, 3], when: { riding_style: race }, note: Firm Support }
+      - { target: compression, range: [6, 9], when: { riding_style: comfort }, note: Plush Comfort, note_de: Komfortabel – Komfort, note_fr: Souple – Confort, note_it: Morbida – Comfort, note_es: Blanda – Comodidad, note_pt: Macia – Conforto }
+      - { target: compression, range: [3, 6], when: { riding_style: balanced }, note: Balanced Performance, note_de: Ausgewogen – Performance, note_fr: Performances équilibrées, note_it: Prestazioni bilanciate, note_es: Rendimiento equilibrado, note_pt: Desempenho equilibrado }
+      - { target: compression, range: [1, 3], when: { riding_style: race }, note: Firm Support, note_de: Fest – Gegenhalt, note_fr: Ferme – Soutien, note_it: Rigida – Sostegno, note_es: Firme – Apoyo, note_pt: Firme – Apoio }
       - *manitou_fork_sag_20_25
 
   # Damping by discipline (Downhill / Enduro / Trail, for a 170 lb rider), not
   # encoded: rebound 3-6 / 4-7 / 5-8, HSC 1-2 / 2-3 / 3-4, LSC 2-5 / 3-7 / 1-4.
   manitou_mezzer_pro_2019:
     label: Manitou Mezzer Pro set-up guide (2019)
+    label_de: Manitou Mezzer Pro Setup-Anleitung (2019)
+    label_fr: Guide de setup Manitou Mezzer Pro (2019)
+    label_it: Guida al setup Manitou Mezzer Pro (2019)
+    label_es: Guía de setup Manitou Mezzer Pro (2019)
+    label_pt: Guia de setup Manitou Mezzer Pro (2019)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742473560727
     rules:
       - target: pressure
@@ -498,6 +813,11 @@ guides:
         when: { travel_mm: 140 }
         rows: { 120: 79, 140: 84, 160: 90, 180: 97, 200: 107 }
         note: &mezzer_g1_irt_offset Downhill riding takes about 10 psi more, trail riding about 10 psi less
+        note_de: &mezzer_g1_irt_offset_de Bei Downhill-Einsatz etwa 10 psi mehr, bei Trail-Einsatz etwa 10 psi weniger
+        note_fr: &mezzer_g1_irt_offset_fr En descente, comptez environ 10 psi de plus ; en trail, environ 10 psi de moins
+        note_it: &mezzer_g1_irt_offset_it In downhill servono circa 10 psi in più, nel trail circa 10 psi in meno
+        note_es: &mezzer_g1_irt_offset_es En descenso se necesitan unos 10 psi más; en trail, unos 10 psi menos
+        note_pt: &mezzer_g1_irt_offset_pt No downhill, cerca de 10 psi a mais; no trail, cerca de 10 psi a menos
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -505,6 +825,11 @@ guides:
         when: { travel_mm: 150 }
         rows: { 120: 72, 140: 77, 160: 85, 180: 93, 200: 101 }
         note: *mezzer_g1_irt_offset
+        note_de: *mezzer_g1_irt_offset_de
+        note_fr: *mezzer_g1_irt_offset_fr
+        note_it: *mezzer_g1_irt_offset_it
+        note_es: *mezzer_g1_irt_offset_es
+        note_pt: *mezzer_g1_irt_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -512,6 +837,11 @@ guides:
         when: { travel_mm: 160 }
         rows: { 120: 70, 140: 76, 160: 84, 180: 90, 200: 97 }
         note: *mezzer_g1_irt_offset
+        note_de: *mezzer_g1_irt_offset_de
+        note_fr: *mezzer_g1_irt_offset_fr
+        note_it: *mezzer_g1_irt_offset_it
+        note_es: *mezzer_g1_irt_offset_es
+        note_pt: *mezzer_g1_irt_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -519,6 +849,11 @@ guides:
         when: { travel_mm: 170 }
         rows: { 120: 65, 140: 71, 160: 77, 180: 83, 200: 91 }
         note: *mezzer_g1_irt_offset
+        note_de: *mezzer_g1_irt_offset_de
+        note_fr: *mezzer_g1_irt_offset_fr
+        note_it: *mezzer_g1_irt_offset_it
+        note_es: *mezzer_g1_irt_offset_es
+        note_pt: *mezzer_g1_irt_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -526,12 +861,22 @@ guides:
         when: { travel_mm: 180 }
         rows: { 120: 60, 140: 67, 160: 73, 180: 78, 200: 85 }
         note: *mezzer_g1_irt_offset
+        note_de: *mezzer_g1_irt_offset_de
+        note_fr: *mezzer_g1_irt_offset_fr
+        note_it: *mezzer_g1_irt_offset_it
+        note_es: *mezzer_g1_irt_offset_es
+        note_pt: *mezzer_g1_irt_offset_pt
       - *manitou_fork_sag_20_25
 
   # Rebound by discipline (Downhill / Enduro / Trail, for a 170 lb rider), not
   # encoded: 3-6 / 4-7 / 5-8.
   manitou_mezzer_expert_2021:
     label: Manitou Mezzer Expert set-up guide (2021)
+    label_de: Manitou Mezzer Expert Setup-Anleitung (2021)
+    label_fr: Guide de setup Manitou Mezzer Expert (2021)
+    label_it: Guida al setup Manitou Mezzer Expert (2021)
+    label_es: Guía de setup Manitou Mezzer Expert (2021)
+    label_pt: Guia de setup Manitou Mezzer Expert (2021)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742488803479
     rules:
       - target: pressure
@@ -568,15 +913,20 @@ guides:
       - { target: iva_position, value: 4, when: { travel_mm: [140, 150] } }
       - { target: iva_position, value: 3, when: { travel_mm: [160, 170] } }
       - { target: iva_position, value: 2, when: { travel_mm: 180 } }
-      - &vtt6_comfort { target: compression, range: [1, 2], when: { riding_style: comfort }, note: Maximum Comfort }
-      - &vtt6_balanced { target: compression, range: [3, 4], when: { riding_style: balanced }, note: Increased Support }
-      - &vtt6_race { target: compression, range: [5, 6], when: { riding_style: race }, note: Maximum Support }
+      - &vtt6_comfort { target: compression, range: [1, 2], when: { riding_style: comfort }, note: Maximum Comfort, note_de: Maximaler Komfort, note_fr: Confort maximal, note_it: Comfort massimo, note_es: Máxima comodidad, note_pt: Conforto máximo }
+      - &vtt6_balanced { target: compression, range: [3, 4], when: { riding_style: balanced }, note: Increased Support, note_de: Mehr Gegenhalt, note_fr: Soutien accru, note_it: Sostegno maggiore, note_es: Más apoyo, note_pt: Mais apoio }
+      - &vtt6_race { target: compression, range: [5, 6], when: { riding_style: race }, note: Maximum Support, note_de: Maximaler Gegenhalt, note_fr: Soutien maximal, note_it: Sostegno massimo, note_es: Máximo apoyo, note_pt: Apoio máximo }
       - *manitou_fork_sag_20_25
 
   # Compression by tune (two-way, not encoded): Aggressive HSC 1-2 / LSC 0-5,
   # Compliant HSC 4-5 (above the printed 4-0 range) / LSC 6-10.
   manitou_mattoc_pro_2023:
     label: Manitou Mattoc Pro set-up guide (2023)
+    label_de: Manitou Mattoc Pro Setup-Anleitung (2023)
+    label_fr: Guide de setup Manitou Mattoc Pro (2023)
+    label_it: Guida al setup Manitou Mattoc Pro (2023)
+    label_es: Guía de setup Manitou Mattoc Pro (2023)
+    label_pt: Guia de setup Manitou Mattoc Pro (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
     rules:
       - target: pressure
@@ -610,6 +960,11 @@ guides:
         when: { travel_mm: 110 }
         rows: { 120: 59, 140: 74, 160: 90, 180: 101, 200: 124, 220: 141, 240: 150 }
         note: &mattoc_irt_offset About 10 % more for extra mid- and end-stroke support, 10 % less for a more linear feel
+        note_de: &mattoc_irt_offset_de Etwa 10 % mehr für zusätzlichen Halt im mittleren und im Endfederweg, 10 % weniger für ein linearers Gefühl
+        note_fr: &mattoc_irt_offset_fr Environ 10 % de plus pour un meilleur soutien en milieu et fin de course, 10 % de moins pour une sensation plus linéaire
+        note_it: &mattoc_irt_offset_it Circa il 10 % in più per un maggior sostegno a metà e fine corsa, il 10 % in meno per una sensazione più lineare
+        note_es: &mattoc_irt_offset_es Alrededor de un 10 % más para tener más apoyo en la parte media y final del recorrido, un 10 % menos para una sensación más lineal
+        note_pt: &mattoc_irt_offset_pt Cerca de 10 % a mais para ter mais apoio no meio e no fim do curso, 10 % a menos para uma sensação mais linear
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -617,6 +972,11 @@ guides:
         when: { travel_mm: 120 }
         rows: { 120: 56, 140: 70, 160: 85, 180: 95, 200: 116, 220: 132, 240: 148 }
         note: *mattoc_irt_offset
+        note_de: *mattoc_irt_offset_de
+        note_fr: *mattoc_irt_offset_fr
+        note_it: *mattoc_irt_offset_it
+        note_es: *mattoc_irt_offset_es
+        note_pt: *mattoc_irt_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -624,6 +984,11 @@ guides:
         when: { travel_mm: 130 }
         rows: { 120: 56, 140: 72, 160: 86, 180: 96, 200: 117, 220: 134, 240: 150 }
         note: *mattoc_irt_offset
+        note_de: *mattoc_irt_offset_de
+        note_fr: *mattoc_irt_offset_fr
+        note_it: *mattoc_irt_offset_it
+        note_es: *mattoc_irt_offset_es
+        note_pt: *mattoc_irt_offset_pt
       - target: irt_pressure
         unit: psi
         input: rider_weight
@@ -631,6 +996,11 @@ guides:
         when: { travel_mm: [140, 150] }
         rows: { 120: 51, 140: 65, 160: 78, 180: 88, 200: 107, 220: 123, 240: 138 }
         note: *mattoc_irt_offset
+        note_de: *mattoc_irt_offset_de
+        note_fr: *mattoc_irt_offset_fr
+        note_it: *mattoc_irt_offset_it
+        note_es: *mattoc_irt_offset_es
+        note_pt: *mattoc_irt_offset_pt
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -639,6 +1009,11 @@ guides:
 
   manitou_mattoc_expert_2023:
     label: Manitou Mattoc Expert set-up guide (2023)
+    label_de: Manitou Mattoc Expert Setup-Anleitung (2023)
+    label_fr: Guide de setup Manitou Mattoc Expert (2023)
+    label_it: Guida al setup Manitou Mattoc Expert (2023)
+    label_es: Guía de setup Manitou Mattoc Expert (2023)
+    label_pt: Guia de setup Manitou Mattoc Expert (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
     rules:
       - &mattoc_expert_air_110
@@ -684,6 +1059,11 @@ guides:
   # Pressure and IVA are the Mattoc Expert's table, cell for cell.
   manitou_mattoc_comp_2023:
     label: Manitou Mattoc Comp set-up guide (2023)
+    label_de: Manitou Mattoc Comp Setup-Anleitung (2023)
+    label_fr: Guide de setup Manitou Mattoc Comp (2023)
+    label_it: Guida al setup Manitou Mattoc Comp (2023)
+    label_es: Guía de setup Manitou Mattoc Comp (2023)
+    label_pt: Guia de setup Manitou Mattoc Comp (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
     rules:
       - *mattoc_expert_air_110
@@ -700,15 +1080,20 @@ guides:
           120: "12 o'clock", 140: "1 o'clock", 160: "2 o'clock", 180: "3 o'clock",
           200: "4 o'clock", 220: "5 o'clock", 240: "6 o'clock"
         }
-      - &abs_plus_9_comfort { target: compression, range: [6, 9], when: { riding_style: comfort }, note: Maximum Comfort }
-      - &abs_plus_9_balanced { target: compression, range: [3, 5], when: { riding_style: balanced }, note: Increased Support }
-      - &abs_plus_9_race { target: compression, range: [0, 2], when: { riding_style: race }, note: Maximum Support }
+      - &abs_plus_9_comfort { target: compression, range: [6, 9], when: { riding_style: comfort }, note: Maximum Comfort, note_de: Maximaler Komfort, note_fr: Confort maximal, note_it: Comfort massimo, note_es: Máxima comodidad, note_pt: Conforto máximo }
+      - &abs_plus_9_balanced { target: compression, range: [3, 5], when: { riding_style: balanced }, note: Increased Support, note_de: Mehr Gegenhalt, note_fr: Soutien accru, note_it: Sostegno maggiore, note_es: Más apoyo, note_pt: Mais apoio }
+      - &abs_plus_9_race { target: compression, range: [0, 2], when: { riding_style: race }, note: Maximum Support, note_de: Maximaler Gegenhalt, note_fr: Soutien maximal, note_it: Sostegno massimo, note_es: Máximo apoyo, note_pt: Apoio máximo }
       - *manitou_fork_sag_20_25
 
   # The "120 mm, no IVA" column (riders up to 160 lb) and the Open / Firm / Lock
   # mode by terrain are not encoded; Open Mode Compression has no start value.
   manitou_r8_pro_2024:
     label: Manitou R8 Pro set-up guide (2024)
+    label_de: Manitou R8 Pro Setup-Anleitung (2024)
+    label_fr: Guide de setup Manitou R8 Pro (2024)
+    label_it: Guida al setup Manitou R8 Pro (2024)
+    label_es: Guía de setup Manitou R8 Pro (2024)
+    label_pt: Guia de setup Manitou R8 Pro (2024)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
     rules:
       - target: pressure
@@ -724,7 +1109,7 @@ guides:
         when: { travel_mm: 120 }
         rows: { 100: 46, 120: 56, 140: 66, 160: 76, 180: 87, 200: 97, 220: 108 }
       - { target: iva_position, value: 2, when: { travel_mm: 100 } }
-      - { target: iva_position, value: 1, when: { travel_mm: 120 }, note: Lighter riders can also run 120 mm without the IVA piston }
+      - { target: iva_position, value: 1, when: { travel_mm: 120 }, note: Lighter riders can also run 120 mm without the IVA piston, note_de: Leichtere Fahrer können auch 120 mm ohne den IVA-Kolben fahren, note_fr: Les pilotes plus légers peuvent aussi rouler en 120 mm sans le piston IVA, note_it: I rider più leggeri possono usare anche 120 mm senza il pistone IVA, note_es: Los riders más ligeros también pueden usar 120 mm sin el pistón IVA, note_pt: Riders mais leves também podem usar 120 mm sem o pistão IVA }
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -738,6 +1123,11 @@ guides:
   # rider): rebound 6-10 / 7-12 / 5-9, HSC 10-15 / 6-12 / 4-7, LSC 5-10 / 4-7 / 3-5.
   manitou_dorado_pro_2021:
     label: Manitou Dorado Pro set-up guide (2021)
+    label_de: Manitou Dorado Pro Setup-Anleitung (2021)
+    label_fr: Guide de setup Manitou Dorado Pro (2021)
+    label_it: Guida al setup Manitou Dorado Pro (2021)
+    label_es: Guía de setup Manitou Dorado Pro (2021)
+    label_pt: Guia de setup Manitou Dorado Pro (2021)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
     rules:
       - target: pressure
@@ -746,12 +1136,22 @@ guides:
         input_unit: lb
         rows: { 120: 45, 140: 50, 160: 55, 180: 60, 200: 65 }
         note: &dorado_mid_prog Mid-progressive setting; Manitou also lists a more linear and a more progressive one
+        note_de: &dorado_mid_prog_de Mittelprogressive Einstellung; Manitou nennt auch eine linearere und eine progressivere
+        note_fr: &dorado_mid_prog_fr Réglage moyennement progressif ; Manitou en indique aussi un plus linéaire et un plus progressif
+        note_it: &dorado_mid_prog_it Impostazione mediamente progressiva; Manitou ne indica anche una più lineare e una più progressiva
+        note_es: &dorado_mid_prog_es Ajuste medianamente progresivo; Manitou indica también uno más lineal y otro más progresivo
+        note_pt: &dorado_mid_prog_pt Ajuste medianamente progressivo; a Manitou indica também um mais linear e um mais progressivo
       - target: irt_pressure
         unit: psi
         input: rider_weight
         input_unit: lb
         rows: { 120: 70, 140: 77, 160: 84, 180: 91, 200: 98 }
         note: *dorado_mid_prog
+        note_de: *dorado_mid_prog_de
+        note_fr: *dorado_mid_prog_fr
+        note_it: *dorado_mid_prog_it
+        note_es: *dorado_mid_prog_es
+        note_pt: *dorado_mid_prog_pt
       - &manitou_fork_sag_20_30 { target: sag, range: [20, 30], comfort_at: max }
 
   # Only the Mid-Progressive column is encoded (IVA 2). Not encoded:
@@ -760,6 +1160,11 @@ guides:
   # Dorado Pro's.
   manitou_dorado_expert_2020:
     label: Manitou Dorado Expert set-up guide (2020)
+    label_de: Manitou Dorado Expert Setup-Anleitung (2020)
+    label_fr: Guide de setup Manitou Dorado Expert (2020)
+    label_it: Guida al setup Manitou Dorado Expert (2020)
+    label_es: Guía de setup Manitou Dorado Expert (2020)
+    label_pt: Guia de setup Manitou Dorado Expert (2020)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
     rules:
       - target: pressure
@@ -768,13 +1173,23 @@ guides:
         input_unit: lb
         rows: { 120: 38, 140: 48, 160: 59, 180: 69, 200: 78 }
         note: *dorado_mid_prog
-      - { target: iva_position, value: 2, note: "Mid-progressive setting; 1 is more linear, 3 more progressive" }
+        note_de: *dorado_mid_prog_de
+        note_fr: *dorado_mid_prog_fr
+        note_it: *dorado_mid_prog_it
+        note_es: *dorado_mid_prog_es
+        note_pt: *dorado_mid_prog_pt
+      - { target: iva_position, value: 2, note: "Mid-progressive setting; 1 is more linear, 3 more progressive", note_de: "Mittelprogressive Einstellung; 1 ist linearer, 3 progressiver", note_fr: "Réglage moyennement progressif ; 1 est plus linéaire, 3 plus progressif", note_it: "Impostazione mediamente progressiva; 1 è più lineare, 3 più progressivo", note_es: "Ajuste medianamente progresivo; 1 es más lineal, 3 más progresivo", note_pt: "Ajuste medianamente progressivo; 1 é mais linear, 3 mais progressivo" }
       - *manitou_fork_sag_20_30
 
   # Damping by discipline (Standard / DH Race / Park), not encoded: rebound
   # 6-10 / 6-10 / 4-8, compression 13-17 / 9-13 / 6-10.
   manitou_dorado_comp_2021:
     label: Manitou Dorado Comp set-up guide (2021)
+    label_de: Manitou Dorado Comp Setup-Anleitung (2021)
+    label_fr: Guide de setup Manitou Dorado Comp (2021)
+    label_it: Guida al setup Manitou Dorado Comp (2021)
+    label_es: Guía de setup Manitou Dorado Comp (2021)
+    label_pt: Guia de setup Manitou Dorado Comp (2021)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
     rules:
       - target: spring_rate
@@ -786,6 +1201,11 @@ guides:
 
   manitou_mastodon_pro_2023:
     label: Manitou Mastodon Pro set-up guide (2023)
+    label_de: Manitou Mastodon Pro Setup-Anleitung (2023)
+    label_fr: Guide de setup Manitou Mastodon Pro (2023)
+    label_it: Guida al setup Manitou Mastodon Pro (2023)
+    label_es: Guía de setup Manitou Mastodon Pro (2023)
+    label_pt: Guia de setup Manitou Mastodon Pro (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
     rules:
       - target: pressure
@@ -840,6 +1260,11 @@ guides:
 
   manitou_mastodon_comp_2023:
     label: Manitou Mastodon Comp set-up guide (2023)
+    label_de: Manitou Mastodon Comp Setup-Anleitung (2023)
+    label_fr: Guide de setup Manitou Mastodon Comp (2023)
+    label_it: Guida al setup Manitou Mastodon Comp (2023)
+    label_es: Guía de setup Manitou Mastodon Comp (2023)
+    label_pt: Guia de setup Manitou Mastodon Comp (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
     rules:
       # The 240 lb / 80 mm cell is "-": the pressure would exceed the 150 psi limit.
@@ -894,9 +1319,14 @@ nodes:
   - label: "Mezzer"
     level: model
     category: Enduro
+    category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     tasks: &manitou_service
-      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Manitou maintenance schedule }
-      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Manitou maintenance schedule }
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Manitou maintenance schedule, source_de: Manitou-Wartungsplan, source_fr: Plan d’entretien Manitou, source_it: Piano di manutenzione Manitou, source_es: Plan de mantenimiento Manitou, source_pt: Plano de manutenção Manitou }
+      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Manitou maintenance schedule, source_de: Manitou-Wartungsplan, source_fr: Plan d’entretien Manitou, source_it: Piano di manutenzione Manitou, source_es: Plan de mantenimiento Manitou, source_pt: Plano de manutenção Manitou }
     children:
       - label: "2026"
         level: generation
@@ -908,11 +1338,11 @@ nodes:
             url: https://hayesbicycle.com/products/mezzer-pro-g2
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
             guide: manitou_mezzer_g2_pro_2025
-            specs: { stanchion: 37mm, spring: Air }
+            specs: { stanchion: 37mm, stanchion_de: 37mm, stanchion_fr: 37mm, stanchion_it: 37mm, stanchion_es: 37mm, stanchion_pt: 37mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: &mezzer_irt_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi, notes_de: Max. 120 psi, notes_fr: Max. 120 psi, notes_it: Max. 120 psi, notes_es: Máx. 120 psi, notes_pt: Máx. 120 psi }
+              - { name: IRT Pressure, name_de: IRT-Druck, name_fr: Pression IRT, name_it: Pressione IRT, name_es: Presión IRT, name_pt: Pressão IRT, type: numerical, unit: psi, min: 0, max: 150, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi", notes_de: Infinite-Rate-Tune-Kammer; vor der Hauptkammer befüllen; max. 150 psi, notes_fr: Chambre Infinite Rate Tune ; à gonfler avant la chambre principale ; max. 150 psi, notes_it: Camera Infinite Rate Tune; da gonfiare prima della camera principale; max. 150 psi, notes_es: Cámara Infinite Rate Tune; se infla antes que la cámara principal; máx. 150 psi, notes_pt: Câmara Infinite Rate Tune; encha antes da câmara principal; máx. 150 psi }
             options:
               damper: [mc2_pro_x_2026]
               travel_mm: [140, 150, 160, 170]
@@ -921,16 +1351,36 @@ nodes:
               - Reverse Arch 37mm chassis, 44mm offset
               - Dorado Air spring with Active Spring Piston (ASP) and IRT
               - Travel adjusted internally with the supplied 10mm spacers
+            note_de: |-
+              - Reverse-Arch-Chassis mit 37mm, 44mm Offset
+              - Dorado-Luftfeder mit Active Spring Piston (ASP) und IRT
+              - Der Federweg wird intern mit den mitgelieferten 10mm-Spacern eingestellt
+            note_fr: |-
+              - Châssis Reverse Arch de 37 mm, déport de 44 mm
+              - Ressort pneumatique Dorado avec Active Spring Piston (ASP) et IRT
+              - Débattement réglé en interne avec les entretoises de 10 mm fournies
+            note_it: |-
+              - Telaio Reverse Arch da 37 mm, offset di 44 mm
+              - Molla pneumatica Dorado con Active Spring Piston (ASP) e IRT
+              - Escursione regolata internamente con i distanziali da 10 mm in dotazione
+            note_es: |-
+              - Chasis Reverse Arch de 37 mm, offset de 44 mm
+              - Muelle neumático Dorado con Active Spring Piston (ASP) e IRT
+              - Recorrido ajustado internamente con los espaciadores de 10 mm incluidos
+            note_pt: |-
+              - Chassi Reverse Arch de 37 mm, offset de 44 mm
+              - Mola a ar Dorado com Active Spring Piston (ASP) e IRT
+              - Curso ajustado internamente com os espaçadores de 10 mm fornecidos
           - label: Expert
             level: trim
             url: https://hayesbicycle.com/products/mezzer-expert-1
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
             guide: manitou_mezzer_g2_expert_2025
-            specs: { stanchion: 37mm, spring: Air }
+            specs: { stanchion: 37mm, stanchion_de: 37mm, stanchion_fr: 37mm, stanchion_it: 37mm, stanchion_es: 37mm, stanchion_pt: 37mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: &expert_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-              - { name: IVA Position, type: step, min: 1, max: 4, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi, notes_de: Max. 120 psi, notes_fr: Max. 120 psi, notes_it: Max. 120 psi, notes_es: Máx. 120 psi, notes_pt: Máx. 120 psi }
+              - { name: IVA Position, name_de: IVA-Position, name_fr: Position IVA, name_it: Posizione IVA, name_es: Posición IVA, name_pt: Posição IVA, type: step, min: 1, max: 4, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs", notes_de: "Position des Incremental Volume Adjust; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Position Incremental Volume Adjust ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Posizione Incremental Volume Adjust; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Posición Incremental Volume Adjust; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Posição Incremental Volume Adjust; máximo estimado, confira o seu seletor e edite-o se for diferente" }
             options:
               damper: [vtt6_mezzer_g2]
               travel_mm: [140, 150, 160, 170]
@@ -939,6 +1389,26 @@ nodes:
               - Reverse Arch 37mm chassis, 44mm offset
               - Expert Air spring with Incremental Volume Adjust (IVA)
               - IRT is available as an option
+            note_de: |-
+              - Reverse-Arch-Chassis mit 37mm, 44mm Offset
+              - Expert-Luftfeder mit Incremental Volume Adjust (IVA)
+              - IRT ist optional erhältlich
+            note_fr: |-
+              - Châssis Reverse Arch de 37 mm, déport de 44 mm
+              - Ressort pneumatique Expert Air avec Incremental Volume Adjust (IVA)
+              - L’IRT est disponible en option
+            note_it: |-
+              - Telaio Reverse Arch da 37 mm, offset di 44 mm
+              - Molla pneumatica Expert Air con Incremental Volume Adjust (IVA)
+              - L’IRT è disponibile come optional
+            note_es: |-
+              - Chasis Reverse Arch de 37 mm, offset de 44 mm
+              - Muelle neumático Expert Air con Incremental Volume Adjust (IVA)
+              - El IRT está disponible como opción
+            note_pt: |-
+              - Chassi Reverse Arch de 37 mm, offset de 44 mm
+              - Mola a ar Expert Air com Incremental Volume Adjust (IVA)
+              - O IRT está disponível como opcional
       - label: "2019–2025"
         level: generation
         id: "2019"
@@ -949,11 +1419,11 @@ nodes:
             level: trim
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742473560727
             guide: manitou_mezzer_pro_2019
-            specs: { stanchion: 37mm, spring: Air }
+            specs: { stanchion: 37mm, stanchion_de: 37mm, stanchion_fr: 37mm, stanchion_it: 37mm, stanchion_es: 37mm, stanchion_pt: 37mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [37, 44, 51]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 200, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi, notes_de: Max. 120 psi, notes_fr: Max. 120 psi, notes_it: Max. 120 psi, notes_es: Máx. 120 psi, notes_pt: Máx. 120 psi }
+              - { name: IRT Pressure, name_de: IRT-Druck, name_fr: Pression IRT, name_it: Pressione IRT, name_es: Presión IRT, name_pt: Pressão IRT, type: numerical, unit: psi, min: 0, max: 200, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi", notes_de: Infinite-Rate-Tune-Kammer; vor der Hauptkammer befüllen; max. 200 psi, notes_fr: Chambre Infinite Rate Tune ; à gonfler avant la chambre principale ; max. 200 psi, notes_it: Camera Infinite Rate Tune; da gonfiare prima della camera principale; max. 200 psi, notes_es: Cámara Infinite Rate Tune; se infla antes que la cámara principal; máx. 200 psi, notes_pt: Câmara Infinite Rate Tune; encha antes da câmara principal; máx. 200 psi }
             options:
               damper: [mc2_mezzer_2019]
               travel_mm: [140, 150, 160, 170, 180]
@@ -962,11 +1432,31 @@ nodes:
               - Reverse Arch 37mm chassis, Boost only
               - Dorado Air spring with Infinite Rate Tune (IRT)
               - Travel adjusted internally with spacer clips
+            note_de: |-
+              - Reverse-Arch-Chassis mit 37mm, nur Boost
+              - Dorado-Luftfeder mit Infinite Rate Tune (IRT)
+              - Der Federweg wird intern mit Spacer-Clips eingestellt
+            note_fr: |-
+              - Châssis Reverse Arch de 37 mm, Boost uniquement
+              - Ressort pneumatique Dorado avec Infinite Rate Tune (IRT)
+              - Débattement réglé en interne avec des clips d’entretoise
+            note_it: |-
+              - Telaio Reverse Arch da 37 mm, solo Boost
+              - Molla pneumatica Dorado con Infinite Rate Tune (IRT)
+              - Escursione regolata internamente con clip distanziali
+            note_es: |-
+              - Chasis Reverse Arch de 37 mm, solo Boost
+              - Muelle neumático Dorado con Infinite Rate Tune (IRT)
+              - Recorrido ajustado internamente con clips espaciadores
+            note_pt: |-
+              - Chassi Reverse Arch de 37 mm, somente Boost
+              - Mola a ar Dorado com Infinite Rate Tune (IRT)
+              - Curso ajustado internamente com clipes espaçadores
           - label: Expert
             level: trim
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742488803479
             guide: manitou_mezzer_expert_2021
-            specs: { stanchion: 37mm, spring: Air }
+            specs: { stanchion: 37mm, stanchion_de: 37mm, stanchion_fr: 37mm, stanchion_it: 37mm, stanchion_es: 37mm, stanchion_pt: 37mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [37, 44, 51]
             adjustments: *expert_air_spring
             options:
@@ -976,10 +1466,30 @@ nodes:
             note: |-
               - Reverse Arch 37mm chassis, Boost only
               - Expert Air spring with Incremental Volume Adjust (IVA)
+            note_de: |-
+              - Reverse-Arch-Chassis mit 37mm, nur Boost
+              - Expert-Luftfeder mit Incremental Volume Adjust (IVA)
+            note_fr: |-
+              - Châssis Reverse Arch de 37 mm, Boost uniquement
+              - Ressort pneumatique Expert Air avec Incremental Volume Adjust (IVA)
+            note_it: |-
+              - Telaio Reverse Arch da 37 mm, solo Boost
+              - Molla pneumatica Expert Air con Incremental Volume Adjust (IVA)
+            note_es: |-
+              - Chasis Reverse Arch de 37 mm, solo Boost
+              - Muelle neumático Expert Air con Incremental Volume Adjust (IVA)
+            note_pt: |-
+              - Chassi Reverse Arch de 37 mm, somente Boost
+              - Mola a ar Expert Air com Incremental Volume Adjust (IVA)
 
   - label: "Mezzer LT"
     level: model
     category: Enduro
+    category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     tasks: *manitou_service
     children:
       - label: "2026"
@@ -992,7 +1502,7 @@ nodes:
             url: https://hayesbicycle.com/products/mezzer-lt-pro-g2
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
             guide: manitou_mezzer_g2_pro_2025
-            specs: { stanchion: 37mm, spring: Air }
+            specs: { stanchion: 37mm, stanchion_de: 37mm, stanchion_fr: 37mm, stanchion_it: 37mm, stanchion_es: 37mm, stanchion_pt: 37mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *mezzer_irt_spring
             options:
@@ -1002,16 +1512,31 @@ nodes:
             note: |-
               - Reinforced LT crown and thick-wall legs for up to 190mm travel
               - Dorado Air spring with Active Spring Piston (ASP) and IRT
+            note_de: |-
+              - Verstärkte LT-Gabelbrücke und dickwandige Tauchrohre für bis zu 190mm Federweg
+              - Dorado-Luftfeder mit Active Spring Piston (ASP) und IRT
+            note_fr: |-
+              - Té LT renforcé et fourreaux à paroi épaisse pour jusqu’à 190 mm de débattement
+              - Ressort pneumatique Dorado avec Active Spring Piston (ASP) et IRT
+            note_it: |-
+              - Piastra LT rinforzata e foderi a parete spessa per fino a 190 mm di escursione
+              - Molla pneumatica Dorado con Active Spring Piston (ASP) e IRT
+            note_es: |-
+              - Corona LT reforzada y botellas de pared gruesa para hasta 190 mm de recorrido
+              - Muelle neumático Dorado con Active Spring Piston (ASP) e IRT
+            note_pt: |-
+              - Coroa LT reforçada e botas de parede grossa para até 190 mm de curso
+              - Mola a ar Dorado com Active Spring Piston (ASP) e IRT
           - label: Comp
             level: trim
             url: https://hayesbicycle.com/products/mezzer-lt-comp-g2
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
             guide: manitou_mezzer_g2_ltcomp_2025
-            specs: { stanchion: 37mm, spring: Air }
+            specs: { stanchion: 37mm, stanchion_de: 37mm, stanchion_fr: 37mm, stanchion_it: 37mm, stanchion_es: 37mm, stanchion_pt: 37mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: &iva3_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-              - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi, notes_de: Max. 120 psi, notes_fr: Max. 120 psi, notes_it: Max. 120 psi, notes_es: Máx. 120 psi, notes_pt: Máx. 120 psi }
+              - { name: IVA Position, name_de: IVA-Position, name_fr: Position IVA, name_it: Posizione IVA, name_es: Posición IVA, name_pt: Posição IVA, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs", notes_de: "Position des Incremental Volume Adjust; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Position Incremental Volume Adjust ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Posizione Incremental Volume Adjust; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Posición Incremental Volume Adjust; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Posição Incremental Volume Adjust; máximo estimado, confira o seu seletor e edite-o se for diferente" }
             options:
               damper: [abs_plus_mezzer_lt_2026]
               travel_mm: [140, 150, 160, 170, 180, 190]
@@ -1019,10 +1544,30 @@ nodes:
             note: |-
               - Straight-wall LT legs for higher-GVWR e-bike use, up to 190mm travel
               - Expert Air spring with Incremental Volume Adjust (IVA)
+            note_de: |-
+              - Geradwandige LT-Tauchrohre für E-Bikes mit höherem zulässigem Gesamtgewicht, bis zu 190mm Federweg
+              - Expert-Luftfeder mit Incremental Volume Adjust (IVA)
+            note_fr: |-
+              - Fourreaux LT droits pour un usage vélo électrique à PTAC plus élevé, jusqu’à 190 mm de débattement
+              - Ressort pneumatique Expert Air avec Incremental Volume Adjust (IVA)
+            note_it: |-
+              - Foderi LT a parete dritta per uso su e-bike con GVWR più elevato, fino a 190 mm di escursione
+              - Molla pneumatica Expert Air con Incremental Volume Adjust (IVA)
+            note_es: |-
+              - Botellas LT de pared recta para uso en bicicleta eléctrica con PMA más alto, hasta 190 mm de recorrido
+              - Muelle neumático Expert Air con Incremental Volume Adjust (IVA)
+            note_pt: |-
+              - Botas LT de parede reta para uso em bike elétrica com PBT mais alto, até 190 mm de curso
+              - Mola a ar Expert Air com Incremental Volume Adjust (IVA)
 
   - label: "Mattoc"
     level: model
     category: Trail
+    category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
     tasks: *manitou_service
     children:
       - label: "2023–2026"
@@ -1036,10 +1581,10 @@ nodes:
             url: https://hayesbicycle.com/products/mattoc-pro
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
             guide: manitou_mattoc_pro_2023
-            specs: { stanchion: 34mm, spring: Air }
+            specs: { stanchion: 34mm, stanchion_de: 34mm, stanchion_fr: 34mm, stanchion_it: 34mm, stanchion_es: 34mm, stanchion_pt: 34mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi, notes_de: Max. 120 psi, notes_fr: Max. 120 psi, notes_it: Max. 120 psi, notes_es: Máx. 120 psi, notes_pt: Máx. 120 psi }
+              - { name: IRT Pressure, name_de: IRT-Druck, name_fr: Pression IRT, name_it: Pressione IRT, name_es: Presión IRT, name_pt: Pressão IRT, type: numerical, unit: psi, min: 0, max: 150, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi", notes_de: Infinite-Rate-Tune-Kammer; vor der Hauptkammer befüllen; max. 150 psi, notes_fr: Chambre Infinite Rate Tune ; à gonfler avant la chambre principale ; max. 150 psi, notes_it: Camera Infinite Rate Tune; da gonfiare prima della camera principale; max. 150 psi, notes_es: Cámara Infinite Rate Tune; se infla antes que la cámara principal; máx. 150 psi, notes_pt: Câmara Infinite Rate Tune; encha antes da câmara principal; máx. 150 psi }
             options:
               damper: [mc2_mattoc_2023]
               travel_mm: [110, 120, 130, 140, 150]
@@ -1048,12 +1593,32 @@ nodes:
               - Reverse Arch 34mm chassis, 44mm offset (37mm also offered on 27.5")
               - Dorado Air spring with Infinite Rate Tune (IRT)
               - Travel adjusted internally in 10mm steps
+            note_de: |-
+              - Reverse-Arch-Chassis mit 34mm, 44mm Offset (37mm bei 27.5" ebenfalls erhältlich)
+              - Dorado-Luftfeder mit Infinite Rate Tune (IRT)
+              - Der Federweg wird intern in 10mm-Schritten eingestellt
+            note_fr: |-
+              - Châssis Reverse Arch de 34 mm, déport de 44 mm (37 mm aussi proposé en 27,5")
+              - Ressort pneumatique Dorado avec Infinite Rate Tune (IRT)
+              - Débattement réglé en interne par paliers de 10 mm
+            note_it: |-
+              - Telaio Reverse Arch da 34 mm, offset di 44 mm (37 mm disponibile anche sul 27,5")
+              - Molla pneumatica Dorado con Infinite Rate Tune (IRT)
+              - Escursione regolata internamente a passi da 10 mm
+            note_es: |-
+              - Chasis Reverse Arch de 34 mm, offset de 44 mm (también hay 37 mm en 27,5")
+              - Muelle neumático Dorado con Infinite Rate Tune (IRT)
+              - Recorrido ajustado internamente en pasos de 10 mm
+            note_pt: |-
+              - Chassi Reverse Arch de 34 mm, offset de 44 mm (37 mm também disponível no 27,5")
+              - Mola a ar Dorado com Infinite Rate Tune (IRT)
+              - Curso ajustado internamente em passos de 10 mm
           - label: Expert
             level: trim
             url: https://hayesbicycle.com/products/mattoc-expert
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
             guide: manitou_mattoc_expert_2023
-            specs: { stanchion: 34mm, spring: Air }
+            specs: { stanchion: 34mm, stanchion_de: 34mm, stanchion_fr: 34mm, stanchion_it: 34mm, stanchion_es: 34mm, stanchion_pt: 34mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *iva3_air_spring
             options:
               damper: [vtt6_2023]
@@ -1062,12 +1627,27 @@ nodes:
             note: |-
               - Expert Air spring with Incremental Volume Adjust (IVA)
               - IRT is available as an aftermarket upgrade
+            note_de: |-
+              - Expert-Luftfeder mit Incremental Volume Adjust (IVA)
+              - IRT ist als Nachrüst-Upgrade erhältlich
+            note_fr: |-
+              - Ressort pneumatique Expert Air avec Incremental Volume Adjust (IVA)
+              - L’IRT est disponible en mise à niveau ultérieure
+            note_it: |-
+              - Molla pneumatica Expert Air con Incremental Volume Adjust (IVA)
+              - L’IRT è disponibile come aggiornamento successivo
+            note_es: |-
+              - Muelle neumático Expert Air con Incremental Volume Adjust (IVA)
+              - El IRT está disponible como mejora posterior
+            note_pt: |-
+              - Mola a ar Expert Air com Incremental Volume Adjust (IVA)
+              - O IRT está disponível como atualização posterior
           - label: Comp
             level: trim
             url: https://hayesbicycle.com/products/mattoc-comp
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
             guide: manitou_mattoc_comp_2023
-            specs: { stanchion: 34mm, spring: Air }
+            specs: { stanchion: 34mm, stanchion_de: 34mm, stanchion_fr: 34mm, stanchion_it: 34mm, stanchion_es: 34mm, stanchion_pt: 34mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *iva3_air_spring
             options:
               damper: [abs_plus_2023]
@@ -1077,10 +1657,35 @@ nodes:
               - Straight-wall 6000-series legs
               - Expert Air spring with Incremental Volume Adjust (IVA)
               - IRT is available as an aftermarket upgrade
+            note_de: |-
+              - Geradwandige Tauchrohre der 6000er-Serie
+              - Expert-Luftfeder mit Incremental Volume Adjust (IVA)
+              - IRT ist als Nachrüst-Upgrade erhältlich
+            note_fr: |-
+              - Fourreaux droits de la série 6000
+              - Ressort pneumatique Expert Air avec Incremental Volume Adjust (IVA)
+              - L’IRT est disponible en mise à niveau ultérieure
+            note_it: |-
+              - Foderi a parete dritta della serie 6000
+              - Molla pneumatica Expert Air con Incremental Volume Adjust (IVA)
+              - L’IRT è disponibile come aggiornamento successivo
+            note_es: |-
+              - Botellas de pared recta de la serie 6000
+              - Muelle neumático Expert Air con Incremental Volume Adjust (IVA)
+              - El IRT está disponible como mejora posterior
+            note_pt: |-
+              - Botas de parede reta da série 6000
+              - Mola a ar Expert Air com Incremental Volume Adjust (IVA)
+              - O IRT está disponível como atualização posterior
 
   - label: "R8"
     level: model
     category: XC
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
     tasks: *manitou_service
     children:
       - label: "2024–2026"
@@ -1093,11 +1698,11 @@ nodes:
         children:
           - label: Pro
             level: trim
-            specs: { stanchion: 34mm, spring: Air }
+            specs: { stanchion: 34mm, stanchion_de: 34mm, stanchion_fr: 34mm, stanchion_it: 34mm, stanchion_es: 34mm, stanchion_pt: 34mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi }
-              - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = most linear, 3 = most progressive" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi, notes_de: Max. 150 psi, notes_fr: Max. 150 psi, notes_it: Max. 150 psi, notes_es: Máx. 150 psi, notes_pt: Máx. 150 psi }
+              - { name: IVA Position, name_de: IVA-Position, name_fr: Position IVA, name_it: Posizione IVA, name_es: Posición IVA, name_pt: Posição IVA, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = most linear, 3 = most progressive", notes_de: "Incremental-Volume-Adjust-Kolben; 1 = am linearsten, 3 = am progressivsten", notes_fr: "Piston Incremental Volume Adjust ; 1 = le plus linéaire, 3 = le plus progressif", notes_it: "Pistone Incremental Volume Adjust; 1 = più lineare, 3 = più progressivo", notes_es: "Pistón Incremental Volume Adjust; 1 = más lineal, 3 = más progresivo", notes_pt: "Pistão Incremental Volume Adjust; 1 = mais linear, 3 = mais progressivo" }
             options:
               damper: [vtt_pro_x_r8]
               travel_mm: [80, 90, 100, 110, 120]
@@ -1106,10 +1711,35 @@ nodes:
               - Hyperlite 34mm chassis, 1450g
               - Dorado Air spring with Incremental Volume Adjust (IVA XC)
               - Manual knob or Deuce remote lockout
+            note_de: |-
+              - Hyperlite-Chassis mit 34mm, 1450g
+              - Dorado-Luftfeder mit Incremental Volume Adjust (IVA XC)
+              - Lockout per Knopf oder Deuce-Fernbedienung
+            note_fr: |-
+              - Châssis Hyperlite de 34 mm, 1450 g
+              - Ressort pneumatique Dorado avec Incremental Volume Adjust (IVA XC)
+              - Molette manuelle ou lockout à distance Deuce
+            note_it: |-
+              - Telaio Hyperlite da 34 mm, 1450 g
+              - Molla pneumatica Dorado con Incremental Volume Adjust (IVA XC)
+              - Manopola manuale o lockout remoto Deuce
+            note_es: |-
+              - Chasis Hyperlite de 34 mm, 1450 g
+              - Muelle neumático Dorado con Incremental Volume Adjust (IVA XC)
+              - Rueda manual o lockout remoto Deuce
+            note_pt: |-
+              - Chassi Hyperlite de 34 mm, 1450 g
+              - Mola a ar Dorado com Incremental Volume Adjust (IVA XC)
+              - Seletor manual ou lockout remoto Deuce
 
   - label: "Dorado"
     level: model
     category: Downhill
+    category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
     tasks: *manitou_service
     children:
       - label: "2022–2026"
@@ -1123,11 +1753,11 @@ nodes:
             url: https://hayesbicycle.com/products/my22-dorado-pro
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
             guide: manitou_dorado_pro_2021
-            specs: { stanchion: 37mm, spring: Air }
+            specs: { stanchion: 37mm, stanchion_de: 37mm, stanchion_fr: 37mm, stanchion_it: 37mm, stanchion_es: 37mm, stanchion_pt: 37mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [47, 57]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 200, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi, notes_de: Max. 120 psi, notes_fr: Max. 120 psi, notes_it: Max. 120 psi, notes_es: Máx. 120 psi, notes_pt: Máx. 120 psi }
+              - { name: IRT Pressure, name_de: IRT-Druck, name_fr: Pression IRT, name_it: Pressione IRT, name_es: Presión IRT, name_pt: Pressão IRT, type: numerical, unit: psi, min: 0, max: 200, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi", notes_de: Infinite-Rate-Tune-Kammer; vor der Hauptkammer befüllen; max. 200 psi, notes_fr: Chambre Infinite Rate Tune ; à gonfler avant la chambre principale ; max. 200 psi, notes_it: Camera Infinite Rate Tune; da gonfiare prima della camera principale; max. 200 psi, notes_es: Cámara Infinite Rate Tune; se infla antes que la cámara principal; máx. 200 psi, notes_pt: Câmara Infinite Rate Tune; encha antes da câmara principal; máx. 200 psi }
             options:
               damper: [tpc_plus_dorado_2022]
               travel_mm: [180, 190, 203]
@@ -1136,16 +1766,36 @@ nodes:
               - 37mm downhill chassis with carbon outer legs, 20mm x 110mm Boost axle
               - Dorado Air spring with Infinite Rate Tune (IRT)
               - Trail Side Relief (TSR) button equalizes casting pressure
+            note_de: |-
+              - Downhill-Chassis mit 37mm und Carbon-Außenrohren, 20mm x 110mm Boost-Achse
+              - Dorado-Luftfeder mit Infinite Rate Tune (IRT)
+              - Der Trail-Side-Relief-Knopf (TSR) gleicht den Druck im Gehäuse aus
+            note_fr: |-
+              - Châssis descente de 37 mm avec fourreaux en carbone, axe Boost de 20 mm x 110 mm
+              - Ressort pneumatique Dorado avec Infinite Rate Tune (IRT)
+              - Le bouton Trail Side Relief (TSR) équilibre la pression dans le fourreau
+            note_it: |-
+              - Telaio da downhill da 37 mm con foderi in carbonio, perno Boost da 20 mm x 110 mm
+              - Molla pneumatica Dorado con Infinite Rate Tune (IRT)
+              - Il pulsante Trail Side Relief (TSR) equalizza la pressione nel fodero
+            note_es: |-
+              - Chasis de descenso de 37 mm con botellas de carbono, eje Boost de 20 mm x 110 mm
+              - Muelle neumático Dorado con Infinite Rate Tune (IRT)
+              - El botón Trail Side Relief (TSR) iguala la presión de la botella
+            note_pt: |-
+              - Chassi de downhill de 37 mm com botas de carbono, eixo Boost de 20 mm x 110 mm
+              - Mola a ar Dorado com Infinite Rate Tune (IRT)
+              - O botão Trail Side Relief (TSR) equaliza a pressão da bota
           - label: Expert
             level: trim
             url: https://hayesbicycle.com/products/new-my22-dorado-expert
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
             guide: manitou_dorado_expert_2020
-            specs: { stanchion: 37mm, spring: Air }
+            specs: { stanchion: 37mm, stanchion_de: 37mm, stanchion_fr: 37mm, stanchion_it: 37mm, stanchion_es: 37mm, stanchion_pt: 37mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [47, 57]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
-              - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = largest volume (most linear), 3 = smallest volume (most progressive)" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi, notes_de: Max. 120 psi, notes_fr: Max. 120 psi, notes_it: Max. 120 psi, notes_es: Máx. 120 psi, notes_pt: Máx. 120 psi }
+              - { name: IVA Position, name_de: IVA-Position, name_fr: Position IVA, name_it: Posizione IVA, name_es: Posición IVA, name_pt: Posição IVA, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = largest volume (most linear), 3 = smallest volume (most progressive)", notes_de: "Incremental-Volume-Adjust-Kolben; 1 = größtes Volumen (am linearsten), 3 = kleinstes Volumen (am progressivsten)", notes_fr: "Piston Incremental Volume Adjust ; 1 = volume le plus grand (le plus linéaire), 3 = volume le plus petit (le plus progressif)", notes_it: "Pistone Incremental Volume Adjust; 1 = volume maggiore (più lineare), 3 = volume minore (più progressivo)", notes_es: "Pistón Incremental Volume Adjust; 1 = mayor volumen (más lineal), 3 = menor volumen (más progresivo)", notes_pt: "Pistão Incremental Volume Adjust; 1 = maior volume (mais linear), 3 = menor volume (mais progressivo)" }
             options:
               damper: [tpc_plus_dorado_2022]
               travel_mm: [180, 190, 203]
@@ -1153,25 +1803,60 @@ nodes:
             note: |-
               - 37mm downhill chassis, 20mm x 110mm Boost axle
               - Dorado Air spring with Incremental Volume Adjust (IVA)
+            note_de: |-
+              - Downhill-Chassis mit 37mm, 20mm x 110mm Boost-Achse
+              - Dorado-Luftfeder mit Incremental Volume Adjust (IVA)
+            note_fr: |-
+              - Châssis descente de 37 mm, axe Boost de 20 mm x 110 mm
+              - Ressort pneumatique Dorado avec Incremental Volume Adjust (IVA)
+            note_it: |-
+              - Telaio da downhill da 37 mm, perno Boost da 20 mm x 110 mm
+              - Molla pneumatica Dorado con Incremental Volume Adjust (IVA)
+            note_es: |-
+              - Chasis de descenso de 37 mm, eje Boost de 20 mm x 110 mm
+              - Muelle neumático Dorado con Incremental Volume Adjust (IVA)
+            note_pt: |-
+              - Chassi de downhill de 37 mm, eixo Boost de 20 mm x 110 mm
+              - Mola a ar Dorado com Incremental Volume Adjust (IVA)
           - label: Comp Coil
             level: trim
             url: https://hayesbicycle.com/products/new-dorado-coil
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
             guide: manitou_dorado_comp_2021
-            specs: { stanchion: 37mm, spring: Coil }
+            specs: { stanchion: 37mm, stanchion_de: 37mm, stanchion_fr: 37mm, stanchion_it: 37mm, stanchion_es: 37mm, stanchion_pt: 37mm, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             offset_mm: [47, 57]
             adjustments:
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: "Six rates offered, 25-52 lb/in; ships with the Medium (35 lb/in) spring" }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0, notes: "Six rates offered, 25-52 lb/in; ships with the Medium (35 lb/in) spring", notes_de: "Sechs Federraten erhältlich, 25-52 lb/in; ausgeliefert mit der Medium-Feder (35 lb/in)", notes_fr: "Six raideurs proposées, 25-52 lb/in ; livré avec le ressort Medium (35 lb/in)", notes_it: "Sei rigidità disponibili, 25-52 lb/in; fornita con la molla Medium (35 lb/in)", notes_es: "Seis rigideces disponibles, 25-52 lb/in; se entrega con el muelle Medium (35 lb/in)", notes_pt: "Seis rigidezes disponíveis, 25-52 lb/in; acompanha a mola Medium (35 lb/in)" }
             options:
               damper: [abs_plus_dorado_2022]
               wheel_size: [29, 27.5]
             note: |-
               - Fixed-travel coil fork on the 37mm downhill chassis
               - Preload adjuster on the bottom of the spring leg
+            note_de: |-
+              - Stahlfedergabel mit festem Federweg auf dem 37mm-Downhill-Chassis
+              - Vorspannungsversteller am unteren Ende des Federbeins
+            note_fr: |-
+              - Fourche à ressort à débattement fixe sur le châssis descente de 37 mm
+              - Réglage de précontrainte en bas de la jambe du ressort
+            note_it: |-
+              - Forcella a molla a escursione fissa sul telaio da downhill da 37 mm
+              - Regolatore del precarico nella parte inferiore dello stelo della molla
+            note_es: |-
+              - Horquilla de muelle de recorrido fijo sobre el chasis de descenso de 37 mm
+              - Ajuste de precarga en la parte inferior de la pierna del muelle
+            note_pt: |-
+              - Garfo a mola de curso fixo sobre o chassi de downhill de 37 mm
+              - Regulagem de pré-carga na parte inferior da perna da mola
 
   - label: "Mastodon"
     level: model
     category: Fat Bike
+    category_de: Fatbike
+    category_fr: Fat bike
+    category_it: Fat bike
+    category_es: Fat bike
+    category_pt: Fat bike
     tasks: *manitou_service
     children:
       - label: "2023–2026"
@@ -1185,11 +1870,11 @@ nodes:
             url: https://hayesbicycle.com/products/mastodon-pro
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
             guide: manitou_mastodon_pro_2023
-            specs: { stanchion: 34mm, spring: Air }
+            specs: { stanchion: 34mm, stanchion_de: 34mm, stanchion_fr: 34mm, stanchion_it: 34mm, stanchion_es: 34mm, stanchion_pt: 34mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: &mastodon_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi }
-              - { name: IVA Position, type: step, min: 1, max: 5, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi, notes_de: Max. 150 psi, notes_fr: Max. 150 psi, notes_it: Max. 150 psi, notes_es: Máx. 150 psi, notes_pt: Máx. 150 psi }
+              - { name: IVA Position, name_de: IVA-Position, name_fr: Position IVA, name_it: Posizione IVA, name_es: Posición IVA, name_pt: Posição IVA, type: step, min: 1, max: 5, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs", notes_de: "Position des Incremental Volume Adjust; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Position Incremental Volume Adjust ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Posizione Incremental Volume Adjust; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Posición Incremental Volume Adjust; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Posição Incremental Volume Adjust; máximo estimado, confira o seu seletor e edite-o se for diferente" }
             options:
               damper: [vtt6_2023]
               travel_mm: [80, 90, 100, 110, 120, 130, 140, 150, 160]
@@ -1197,12 +1882,27 @@ nodes:
             note: |-
               - Gen 3 fat-bike fork with 15mm x 150mm Hexlock SL axle
               - Dorado Air spring with Incremental Volume Adjust (IVA)
+            note_de: |-
+              - Fatbike-Gabel der Gen 3 mit 15mm x 150mm Hexlock-SL-Achse
+              - Dorado-Luftfeder mit Incremental Volume Adjust (IVA)
+            note_fr: |-
+              - Fourche fat bike de 3e génération avec axe Hexlock SL de 15 mm x 150 mm
+              - Ressort pneumatique Dorado avec Incremental Volume Adjust (IVA)
+            note_it: |-
+              - Forcella fat bike di 3ª generazione con perno Hexlock SL da 15 mm x 150 mm
+              - Molla pneumatica Dorado con Incremental Volume Adjust (IVA)
+            note_es: |-
+              - Horquilla fat bike de 3.ª generación con eje Hexlock SL de 15 mm x 150 mm
+              - Muelle neumático Dorado con Incremental Volume Adjust (IVA)
+            note_pt: |-
+              - Garfo de fat bike de 3ª geração com eixo Hexlock SL de 15 mm x 150 mm
+              - Mola a ar Dorado com Incremental Volume Adjust (IVA)
           - label: Comp
             level: trim
             url: https://hayesbicycle.com/products/mastodon-comp
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
             guide: manitou_mastodon_comp_2023
-            specs: { stanchion: 34mm, spring: Air }
+            specs: { stanchion: 34mm, stanchion_de: 34mm, stanchion_fr: 34mm, stanchion_it: 34mm, stanchion_es: 34mm, stanchion_pt: 34mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *mastodon_air_spring
             options:
@@ -1212,6 +1912,21 @@ nodes:
             note: |-
               - Gen 3 fat-bike fork with straight-wall legs and 15mm x 150mm Hexlock SL axle
               - Expert Air spring with Incremental Volume Adjust (IVA)
+            note_de: |-
+              - Fatbike-Gabel der Gen 3 mit geradwandigen Tauchrohren und 15mm x 150mm Hexlock-SL-Achse
+              - Expert-Luftfeder mit Incremental Volume Adjust (IVA)
+            note_fr: |-
+              - Fourche fat bike de 3e génération à fourreaux droits et axe Hexlock SL de 15 mm x 150 mm
+              - Ressort pneumatique Expert Air avec Incremental Volume Adjust (IVA)
+            note_it: |-
+              - Forcella fat bike di 3ª generazione con foderi a parete dritta e perno Hexlock SL da 15 mm x 150 mm
+              - Molla pneumatica Expert Air con Incremental Volume Adjust (IVA)
+            note_es: |-
+              - Horquilla fat bike de 3.ª generación con botellas de pared recta y eje Hexlock SL de 15 mm x 150 mm
+              - Muelle neumático Expert Air con Incremental Volume Adjust (IVA)
+            note_pt: |-
+              - Garfo de fat bike de 3ª geração com botas de parede reta e eixo Hexlock SL de 15 mm x 150 mm
+              - Mola a ar Expert Air com Incremental Volume Adjust (IVA)
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

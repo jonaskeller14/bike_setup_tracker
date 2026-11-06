@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
+import '../../goldens/support/localized_test_app.dart';
 import '../value_migration_test_utils.dart';
 import 'preset_key_test_utils.dart';
 
@@ -31,7 +32,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -64,7 +65,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -107,7 +108,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -144,6 +145,23 @@ void main() {
     expect(result!.max, 10);
   });
 
+  testWidgets('Min and max read a keyboard minus variant and survive a stray key', (WidgetTester tester) async {
+    await tester.pumpWidget(wrap(localizedTestApp(theme: materialAppTheme, home: StepAdjustmentPage.add())));
+    await tester.pumpAndSettle();
+
+    final min = find.widgetWithText(TextFormField, 'Min Value');
+    final max = find.widgetWithText(TextFormField, 'Max Value');
+    String text(Finder field) => tester.widget<TextFormField>(field).controller!.text;
+
+    await tester.enterText(min, '−10');
+    await tester.enterText(max, '10');
+    await tester.enterText(max, '1-0');
+    await tester.pump();
+
+    expect(text(min), '-10');
+    expect(text(max), '10');
+  });
+
   testWidgets('Can edit existing adjustment', (WidgetTester tester) async {
     final initial = StepAdjustment(
       id: 'test-id',
@@ -159,7 +177,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -200,7 +218,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -254,7 +272,7 @@ void main() {
     StepAdjustment? result;
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -313,7 +331,7 @@ void main() {
     );
 
     await tester.pumpWidget(wrap(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: StepAdjustmentPage.edit(adjustment: initial),
       ),

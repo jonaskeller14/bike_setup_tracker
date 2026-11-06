@@ -3,13 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/feedback/custom_issue.dart';
 import '../../models/feedback/feedback_key.dart';
 import '../../models/feedback/feedback_vocabulary.dart';
 import '../../services/custom_issue_service.dart';
 
 /// "Anything stand out?": the problem chips per end of the bike, the rider's
-/// own issues, plus "Nothing stood out", which excludes every chip and vice
+/// own issues, plus "No issues", which excludes every chip and vice
 /// versa.
 class FeedbackIssueChips extends StatelessWidget {
   final Set<IssueKey> issues;
@@ -71,7 +73,7 @@ class FeedbackIssueChips extends StatelessWidget {
         FilterChip(
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           avatar: nothingStoodOut ? null : const Icon(Icons.check_circle_outline),
-          label: const Text(FeedbackVocabulary.nothingStoodOut),
+          label: Text(context.l10n.feedbackNoIssues),
           selected: nothingStoodOut,
           onSelected: _toggleNothingStoodOut,
         ),
@@ -104,7 +106,7 @@ class FeedbackIssueChips extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Other', style: Theme.of(context).textTheme.titleSmall),
+        Text(context.l10n.feedbackIssueOther, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 4),
         Wrap(
           spacing: 8,
@@ -120,13 +122,13 @@ class FeedbackIssueChips extends StatelessWidget {
             ActionChip(
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.add),
-              label: const Text('Add issue'),
+              label: Text(context.l10n.feedbackAddIssue),
               onPressed: () => onOpenCustomIssues(addIssue: true),
             ),
             if (knownIssues.usages.length > maxCustomChips)
               ActionChip(
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                label: const Text('All issues'),
+                label: Text(context.l10n.feedbackAllIssues),
                 onPressed: () => onOpenCustomIssues(addIssue: false),
               ),
           ],
@@ -145,7 +147,7 @@ class FeedbackIssueChips extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(end.label, style: theme.textTheme.titleSmall),
+        Text(end.label(context.l10n), style: theme.textTheme.titleSmall),
         const SizedBox(height: 4),
         Wrap(
           spacing: 8,
@@ -154,8 +156,8 @@ class FeedbackIssueChips extends StatelessWidget {
             for (final attribute in FeedbackAttribute.values)
               FilterChip(
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                label: Text(attribute.problemLabel),
-                tooltip: attribute.hint,
+                label: Text(attribute.problemLabel(context.l10n)),
+                tooltip: attribute.hint(context.l10n),
                 selected: selected.contains(attribute),
                 onSelected: (value) => _toggleIssue(IssueKey(end, attribute), value),
               ),
@@ -169,10 +171,10 @@ class FeedbackIssueChips extends StatelessWidget {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: '${attribute.problemLabel}: ',
+                    text: '${attribute.problemLabel(context.l10n)}: ',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  TextSpan(text: attribute.hint),
+                  TextSpan(text: attribute.hint(context.l10n)),
                 ],
               ),
               style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),

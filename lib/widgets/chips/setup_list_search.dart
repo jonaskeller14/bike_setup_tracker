@@ -3,6 +3,11 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/feedback_text.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/test_session_text.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
 import '../../models/feedback/feedback_summary.dart';
@@ -11,7 +16,6 @@ import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
-import '../../services/test_session_service.dart';
 import '../../utils/text_search.dart';
 import '../../utils/timeline_grouping.dart';
 import '../items/feedback_list_tile.dart';
@@ -84,7 +88,7 @@ class SetupListSearch extends StatelessWidget {
             setups
                 .where(
                   (s) => searchFieldsMatch([
-                    s.displayName,
+                    s.label(context.l10n),
                     s.notes,
                     ...ContextPlace.searchableFields(s.place),
                   ], searchTokens),
@@ -119,7 +123,8 @@ class SetupListSearch extends StatelessWidget {
                 .where(
                   (ci) => searchFieldsMatch([
                     ci.component.name,
-                    ci.component.componentType.label,
+                    ci.component.componentType.label(context.l10n),
+                    ci.component.componentType.label(englishL10n),
                   ], searchTokens),
                 )
                 .map((ci) => InstallationEntry(ci)),
@@ -133,7 +138,7 @@ class SetupListSearch extends StatelessWidget {
                 .where(
                   (f) => searchFieldsMatch([
                     f.notes,
-                    ...f.orderedIssues.map((issue) => issue.label),
+                    ...f.orderedIssues.map((issue) => issue.labelText(context.l10n)),
                     ...ContextPlace.searchableFields(f.place),
                   ], searchTokens),
                 )
@@ -155,7 +160,7 @@ class SetupListSearch extends StatelessWidget {
             for (final session in sessions.values)
               if (searchFieldsMatch([
                 session.name,
-                ...session.goal.map((aspect) => TestSessionService.goalLabel(aspect, appRepository.customIssues.labelOf)),
+                ...session.goal.map((aspect) => testSessionGoalLabel(aspect, appRepository.customIssues.labelOf, context.l10n)),
               ], searchTokens))
                 session.id,
             for (final entry in matchingEntries)
@@ -166,10 +171,13 @@ class SetupListSearch extends StatelessWidget {
             if (layers.shows(TimelineLayer.feedback))
               ...appRepository.view.feedbacks.values.map((f) => FeedbackTimelineEntry(f)),
           ].where((entry) => matchedIds.contains(sessionIdOf(entry)));
+          final emptySessions = appRepository.view.emptyTestSessions.values
+              .where((session) => matchedIds.contains(session.id))
+              .map((session) => TestSessionTimelineEntry(session, runs: const []));
           // A run or feedback can match on its own and through its session.
           final seen = <String>{};
           final bundled = bundleTestSessions(
-            [...matchingEntries, ...contents].where((entry) => seen.add(entry.id)).toList(),
+            [...matchingEntries, ...contents, ...emptySessions].where((entry) => seen.add(entry.id)).toList(),
             sessions: {for (final id in matchedIds) id: sessions[id]!},
             ratedSetupIdOf: appRepository.resolvedSetupIdFor,
           );

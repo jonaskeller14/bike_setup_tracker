@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/set_bike_person.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   late ({String? person})? result;
@@ -18,7 +19,7 @@ void main() {
   });
 
   Widget harness(List<String?> bikePersons, {Map<String, Person>? personsOverride}) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: materialAppTheme,
       home: Scaffold(
         body: Builder(

@@ -1,12 +1,13 @@
 import 'package:bike_setup_tracker/utils/map_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   group('showOpenMapMenu', () {
     Future<void> openMenu(WidgetTester tester, {required VoidCallback? onViewOnMap}) async {
       await tester.pumpWidget(
-        MaterialApp(
+        localizedTestApp(
           home: Scaffold(
             body: Builder(
               builder: (context) => TextButton(

@@ -18,6 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'localized_test_app.dart';
 
 const goldenViewport = Size(390, 844);
 const goldenScenarioConstraints = BoxConstraints.tightFor(
@@ -264,11 +265,13 @@ class GoldenTestHarness {
     required Brightness brightness,
     required Widget child,
     Size viewport = goldenViewport,
+    Locale locale = const Locale('en'),
+    TextScaler textScaler = TextScaler.noScaling,
   }) {
     final mediaQueryData = MediaQueryData(
       size: viewport,
       devicePixelRatio: 1,
-      textScaler: TextScaler.noScaling,
+      textScaler: textScaler,
       disableAnimations: true,
     );
 
@@ -284,7 +287,8 @@ class GoldenTestHarness {
       child: SizedBox(
         width: viewport.width,
         height: viewport.height,
-        child: MaterialApp(
+        child: localizedTestApp(
+          locale: locale,
           debugShowCheckedModeBanner: false,
           theme: brightness == Brightness.light ? materialAppTheme : materialAppDarkTheme,
           builder: (context, child) => MediaQuery(

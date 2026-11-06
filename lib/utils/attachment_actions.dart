@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/attachment.dart';
 import '../repositories/app_repository.dart';
 import '../services/attachment_storage_service.dart';
@@ -61,7 +62,7 @@ class AttachmentActions {
     } catch (e) {
       // The pickers throw when camera, photo or file access is denied.
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Could not pick attachments: $e'));
+        ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.attachmentPickError('$e')));
       }
       return [];
     }
@@ -75,13 +76,13 @@ class AttachmentActions {
         ScaffoldMessenger.of(context).showSnackBar(
           AppSnackBar.error(
             context,
-            '"${e.name}" is larger than ${AttachmentStorageService.maxFileBytes ~/ (1024 * 1024)} MB and was not attached.',
+            context.l10n.attachmentTooLarge(e.name, AttachmentStorageService.maxFileBytes ~/ (1024 * 1024)),
           ),
         );
       } catch (_) {
         if (!context.mounted) continue;
         ScaffoldMessenger.of(context).showSnackBar(
-          AppSnackBar.error(context, '"${import.name}" could not be attached.'),
+          AppSnackBar.error(context, context.l10n.attachmentImportFailed(import.name)),
         );
       }
     }
@@ -94,11 +95,9 @@ class AttachmentActions {
 
     final confirmed = await showConfirmationDialog(
       context,
-      title: filenames.length == 1 ? 'Delete attachment?' : 'Delete ${filenames.length} attachments?',
-      content:
-          'The attachments are permanently deleted and removed from their setups, bikes, components and tasks. '
-          'This action cannot be undone.',
-      trueText: 'Delete',
+      title: context.l10n.attachmentDeleteTitle(filenames.length),
+      content: context.l10n.attachmentDeleteBody,
+      trueText: context.l10n.delete,
       isDestructive: true,
     );
     if (!confirmed) return false;
@@ -109,10 +108,7 @@ class AttachmentActions {
 
     if (!context.mounted) return true;
     messenger.showSnackBar(
-      AppSnackBar.info(
-        context,
-        filenames.length == 1 ? 'Attachment deleted.' : '${filenames.length} attachments deleted.',
-      ),
+      AppSnackBar.info(context, context.l10n.attachmentDeletedSnack(filenames.length)),
     );
     return true;
   }

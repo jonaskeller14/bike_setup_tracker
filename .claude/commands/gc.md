@@ -24,7 +24,6 @@ Commit the changes that are **already staged**. Do not stage anything yourself.
 
 ## Constraints
 - Never `git add`, `git push`, or `git commit --amend`.
-- Never add a `Co-Authored-By` line.
 - Use multiple `-m` flags for multi-paragraph messages (avoid PowerShell here-strings).
 - If the current branch is `main` or `master`, warn the user and ask for confirmation before committing.
 - Do NOT include "coauthored by claude" or similar notes in commit messages.

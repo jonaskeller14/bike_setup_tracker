@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/filters/layer_filter.dart';
@@ -36,6 +37,7 @@ class SetupList extends StatelessWidget {
 
   bool _hasAnyContent(AppRepository appRepository) {
     return appRepository.setups.isNotEmpty ||
+        appRepository.testSessions.isNotEmpty ||
         appRepository.taskEntries.isNotEmpty ||
         appRepository.feedbacks.isNotEmpty ||
         appRepository.components.values.any((c) => c.installations.isNotEmpty);
@@ -59,17 +61,17 @@ class SetupList extends StatelessWidget {
             child: filtered
                 ? EmptyStatePlaceholder(
                     icon: Icons.filter_alt_off,
-                    title: 'Nothing matches this filter',
-                    subtitle: 'Your filters are hiding all entries.',
-                    actionLabel: 'Clear filters',
+                    title: context.l10n.setupListFilteredTitle,
+                    subtitle: context.l10n.setupListFilteredSubtitle,
+                    actionLabel: context.l10n.clearFilters,
                     actionIcon: Icons.filter_alt_off,
                     onAction: () => FilterActions.clear(context, FilterSheetChip.setupList.sections),
                   )
                 : EmptyStatePlaceholder(
                     icon: Setup.iconData,
-                    title: 'No entries yet',
-                    subtitle: 'Record your first setup to start tracking your adjustments.',
-                    actionLabel: 'Record a setup',
+                    title: context.l10n.setupListEmptyTitle,
+                    subtitle: context.l10n.setupListEmptySubtitle,
+                    actionLabel: context.l10n.setupListEmptyAction,
                     onAction: () => SetupActions.addSetup(context),
                   ),
           ),
@@ -133,6 +135,15 @@ class SetupList extends StatelessWidget {
                   : !s.datetime.isBefore(horizonDate); // DESC: hide older than horizon
             })
             .map((s) => SetupEntry(s)),
+      if (appSettings.enableRating && layers.shows(TimelineLayer.setups))
+        ...appRepository.view.emptyTestSessions.values
+            .where((session) {
+              if (horizonDate == null || !appRepository.hasMoreStrava) return true;
+              return sortAscending
+                  ? !session.startedAtUTC.isAfter(horizonDate) // ASC: hide newer than horizon
+                  : !session.startedAtUTC.isBefore(horizonDate); // DESC: hide older than horizon
+            })
+            .map((session) => TestSessionTimelineEntry(session, runs: const [])),
       if (showingStrava) ...stravaActivities.map((a) => StravaEntry(a)),
       if (layers.shows(TimelineLayer.tasks))
         ...taskEntries

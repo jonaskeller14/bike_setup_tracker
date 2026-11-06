@@ -1,10 +1,11 @@
 """Renders the HTML image templates to PNG with headless Chrome (Windows and macOS).
 
-Usage: python tool/marketing/render_images.py [--safe] [asset ...]
+Usage: python tool/marketing/render_images.py [--safe] [--locale L] [asset ...]
        python tool/marketing/render_images.py store-screenshots [options] (see store_screenshots.py)
 
 Assets are keys of ASSETS (e.g. appstore-search); default is all. --safe also writes each output
-with its safe-area overlay to build/marketing/safe/. Set CHROME to the browser binary if it isn't
+with its safe-area overlay to build/marketing/safe/. --locale L renders only the outputs of that
+locale (tooling code such as it-IT, or the file's own, such as it). Set CHROME to the browser binary if it isn't
 found automatically. Templates load Google Fonts, so rendering needs network access.
 Exits 1 if Chrome fails, an output has an unexpected size or format, or text sits outside the
 format's safe area (SAFE_AREAS, checked by template.js).
@@ -19,10 +20,14 @@ import shutil
 import struct
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SAFE_OUT = REPO_ROOT / "build/marketing/safe"
+# A profile that outlives the runs keeps the downloaded Archivo in Chrome's cache, so only the first render
+# needs Google Fonts (a fresh profile asks for it every time, and the request fails in bursts).
+CHROME_PROFILE = REPO_ROOT / "build/marketing/chrome-profile"
 
 # Safe areas per format (brand.md, Grid and safe areas), all (x, y, width, height). Text must sit
 # inside "safe" and outside every "avoid" area (what a platform covers); "guides" are only drawn.
@@ -49,17 +54,37 @@ SAFE_AREAS = {
     (800, 800): {"safe": (117, 117, 566, 566)},
 }
 
+# App Store Connect knows Italian as "it"; the store tooling and Play call it "it-IT".
+APP_STORE_LOCALES = {"it-IT": "it"}
+
+# Locale of the tooling (raws, captions, Play folders) -> template language (?lang=).
+LANGS = {"en-US": "en", "de-DE": "de", "fr-FR": "fr", "it-IT": "it", "es-ES": "es", "pt-BR": "pt"}
+
+
+def localized(path_format, raw_folder, app_store=False):
+    """{output file: URL query} per locale. A locale that has its own raw 04 (docs/store/<raw_folder>/<locale>/)
+    shows it in the phone, so the screen matches the language; else the template's en-US raw stays."""
+    outputs = {}
+    for locale, lang in LANGS.items():
+        query = f"?lang={lang}"
+        raw = REPO_ROOT / "docs/store" / raw_folder / locale / "04_raw.png" if raw_folder else None
+        if raw and raw.is_file():
+            query += "&shots=" + raw.relative_to(REPO_ROOT).as_posix()
+        outputs[path_format.format(locale=APP_STORE_LOCALES.get(locale, locale) if app_store else locale)] = query
+    return outputs
+
+
 # name: (template, (width, height), {output file name: URL query})
 ASSETS = {
     "appstore-search": (
         "docs/store/app-store/creative/search_3x2.html",
         (3840, 2560),
-        {"search_en-US.png": "?lang=en", "search_de-DE.png": "?lang=de"},
+        localized("search_{locale}.png", "app-store/iPhone-17-Pro-Max", app_store=True),
     ),
     "appstore-header": (
         "docs/store/app-store/creative/header_21x9.html",
         (3840, 1646),
-        {"header_en-US.png": "?lang=en", "header_de-DE.png": "?lang=de"},
+        localized("header_{locale}.png", None, app_store=True),
     ),
     # The device frame for Android recordings and raws; transparent outside the phone.
     "android-frame": (
@@ -71,10 +96,7 @@ ASSETS = {
     "play-feature": (
         "docs/store/play-store/feature_graphic.html",
         (1024, 500),
-        {
-            "metadata/en-US/images/featureGraphic.png": "?lang=en",
-            "metadata/de-DE/images/featureGraphic.png": "?lang=de",
-        },
+        localized("metadata/{locale}/images/featureGraphic.png", "play-store/phone"),
     ),
 }
 
@@ -139,7 +161,7 @@ def page_url(template, size, query=""):
 
 def chrome_args(chrome, size):
     return [str(chrome), "--headless", "--hide-scrollbars", "--force-device-scale-factor=1",
-            f"--window-size={size[0]},{size[1]}",
+            f"--window-size={size[0]},{size[1]}", f"--user-data-dir={CHROME_PROFILE}",
             # Gives the web fonts time to load before the screenshot.
             "--virtual-time-budget=5000"]
 
@@ -157,17 +179,28 @@ def screenshot(chrome, size, url, out, alpha=False, flags=()):
             out.unlink(missing_ok=True)
 
 
+# What template.js reports when the Google Fonts request failed (the screenshot then has a fallback font).
+FONT_PROBLEM = "the Archivo web font did not load"
+
+
+def dump_dom(chrome, size, url):
+    """The page's DOM once it has rendered, or "" if Chrome keeps timing out."""
+    for _ in range(2):
+        try:
+            return subprocess.run([*chrome_args(chrome, size), "--dump-dom", url],
+                                  capture_output=True, text=True, timeout=60).stdout
+        except subprocess.TimeoutExpired:
+            pass
+    return ""
+
+
 def page_problems(chrome, size, url):
     """What template.js reports with &check: (problems, warnings). Problems are text outside the
     safe area or that doesn't fit; warnings are text that fit only after shrinking."""
-    dom = ""
-    for _ in range(2):
-        try:
-            dom = subprocess.run([*chrome_args(chrome, size), "--dump-dom", url],
-                                 capture_output=True, text=True, timeout=60).stdout
-            break
-        except subprocess.TimeoutExpired:
-            pass
+    return dom_problems(dump_dom(chrome, size, url))
+
+
+def dom_problems(dom):
     match = re.search(r'data-problems="([^"]*)"', dom)
     if not match:
         return ["the page set no data-problems; does it load template.js?"], []
@@ -209,6 +242,13 @@ def render(chrome, template, size, outputs, alpha=False, safe=False, safe_area=N
         if uses_template_js:
             check = with_query(query, f"{overlay}&check" if overlay else "check")
             found, warnings = page_problems(chrome, size, url(check))
+            # The font request fails now and then, mostly for a few minutes at a time: render again.
+            for _ in range(3):
+                if not any(FONT_PROBLEM in problem for problem in found):
+                    break
+                time.sleep(5)
+                screenshot(chrome, size, url(query), out, alpha, flags)
+                found, warnings = page_problems(chrome, size, url(check))
             problems += [f"{rel}: {problem}" for problem in found]
             if warn:
                 for warning in warnings:
@@ -229,6 +269,11 @@ def main(argv):
         return store_screenshots.main(argv[1:])
     safe = "--safe" in argv
     argv = [arg for arg in argv if arg != "--safe"]
+    only_locale = None
+    if "--locale" in argv:
+        index = argv.index("--locale")
+        only_locale = argv[index + 1]
+        argv = argv[:index] + argv[index + 2:]
     names = argv or list(ASSETS)
     unknown = [name for name in names if name not in ASSETS]
     if unknown:
@@ -243,7 +288,12 @@ def main(argv):
     problems = []
     for name in names:
         template, size, outputs, *options = ASSETS[name]
-        problems += render(chrome, template, size, outputs, safe=safe, **(options[0] if options else {}))
+        if only_locale:
+            names = {only_locale, APP_STORE_LOCALES.get(only_locale, only_locale)}
+            outputs = {file: query for file, query in outputs.items() if any(f"_{n}." in file or f"/{n}/" in file for n in names)}
+            if not outputs:
+                continue
+        problems += render(chrome, template, size, outputs, safe=safe, warn=True, **(options[0] if options else {}))
     for problem in problems:
         print(f"FAIL {problem}")
     return 1 if problems else 0

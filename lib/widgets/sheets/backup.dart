@@ -6,8 +6,11 @@ import 'package:provider/provider.dart';
 
 import '../../database/app_database.dart';
 import '../../icons/simple_icons.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/selected_data.dart';
+import '../../models/service_error.dart';
 import '../../services/google_drive_service.dart';
 import '../../utils/backup.dart';
 import '../../utils/file_import.dart';
@@ -28,9 +31,9 @@ class BackupSheetContent extends StatefulWidget {
 class _BackupSheetContentState extends State<BackupSheetContent> {
   late Future<List<Backup>> _backups;
 
-  String? _localBackupError;
-  String? _googleDriveBackupError;
-  String? _readBackupError;
+  DataError? _localBackupError;
+  DataError? _googleDriveBackupError;
+  DataError? _readBackupError;
   Backup? _restoringBackup;
 
   ListTile _backupListTile({
@@ -45,15 +48,15 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
         GoogleDriveBackup() => const Icon(SimpleIcons.googledrive),
       },
       title: switch (backup) {
-        LocalBackup() => const Text("Local Backup"),
-        GoogleDriveBackup() => const Text("Google Drive Backup"),
+        LocalBackup() => Text(context.l10n.backupLocal),
+        GoogleDriveBackup() => Text(context.l10n.backupGoogleDrive),
       },
       subtitle: Text(isRestoring
           ? switch (backup) {
-              LocalBackup() => "Reading backup…",
-              GoogleDriveBackup() => "Downloading backup…",
+              LocalBackup() => context.l10n.backupReading,
+              GoogleDriveBackup() => context.l10n.backupDownloading,
             }
-          : "Created at: ${timeFormat.format(backup.createdAt.toLocal())}"),
+          : context.l10n.backupCreatedAt(timeFormat.format(backup.createdAt.toLocal()))),
       trailing: isRestoring ? const Padding(
         padding: EdgeInsets.all(12),
         child: SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2)),
@@ -67,7 +70,7 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
               if (!mounted) return;
               setState(() => _restoringBackup = null);
               if (result.isError) {
-                setState(() => _readBackupError = result.errorMessage);
+                setState(() => _readBackupError = result.error);
               } else {
                 widget.onRestore(result.appData!);
               }
@@ -77,14 +80,14 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
               if (!mounted) return;
               setState(() => _restoringBackup = null);
               if (result.isError) {
-                setState(() => _readBackupError = result.errorMessage);
+                setState(() => _readBackupError = result.error);
               } else {
                 widget.onRestore(result.appData!);
               }
           }
         },
         icon: const Icon(Icons.upload),
-        tooltip: 'Restore backup',
+        tooltip: context.l10n.backupRestoreTooltip,
       ),
     );
   }
@@ -138,20 +141,20 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
 
   Future<List<LocalBackup>> _fetchLocalBackups() async {
     final result = await FileImport.getBackups();
-    if (result.isError) _localBackupError = result.errorMessage;
+    if (result.isError) _localBackupError = result.error;
     return result.backups;
   }
   
   Future<List<GoogleDriveBackup>> _fetchGoogleDriveBackups() async {
     final result = await context.read<GoogleDriveService>().getBackups();
-    if (result.isError) _googleDriveBackupError = result.errorMessage;
+    if (result.isError) _googleDriveBackupError = result.error;
     return result.backups;
   }
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
-    final timeFormat = DateFormat(appSettings.timeFormat);
+    final timeFormat = DateFormat(appSettings.timeFormat, context.l10n.localeName);
 
     return SafeArea(
       child: Column(
@@ -159,7 +162,7 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SheetHeader(
-            title: 'Import Backup',
+            title: context.l10n.backupSheetTitle,
             onBack: widget.onBack,
           ),
           const SizedBox(height: 16),
@@ -169,32 +172,32 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const ListTile(
-                    leading: Icon(Icons.info_outline),
-                    title: Text('Backups are created once per day. To restore a backup, you can choose to overwrite current data or merge backup data into existing data.'),
+                  ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: Text(context.l10n.backupInfoDaily),
                     dense: true,
                   ),
-                  const ListTile(
-                    leading: Icon(Icons.info_outline),
-                    title: Text('Backups older than 30 days are permanently deleted and cannot be restored.'),
+                  ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: Text(context.l10n.backupInfoRetention),
                     dense: true,
                   ),
                   if (_localBackupError != null)
                     ListTile(
                       leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                      title: SelectableText(_localBackupError!),
+                      title: SelectableText(_localBackupError!.message(context.l10n)),
                       dense: true,
                     ),
                   if (_googleDriveBackupError != null)
                     ListTile(
                       leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                      title: SelectableText(_googleDriveBackupError!),
+                      title: SelectableText(_googleDriveBackupError!.message(context.l10n)),
                       dense: true,
                     ),
                   if (_readBackupError != null)
                     ListTile(
                       leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                      title: SelectableText(_readBackupError!),
+                      title: SelectableText(_readBackupError!.message(context.l10n)),
                       dense: true,
                     ),
                   FutureBuilder<List<Backup>>(
@@ -205,7 +208,7 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
                       }
 
                       if (snapshot.hasError) {
-                        return const ListTile(title: Text("Error loading backups"));
+                        return ListTile(title: Text(context.l10n.backupLoadError));
                       }
 
                       if (snapshot.hasData && snapshot.data!.isNotEmpty) {
@@ -236,9 +239,9 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
                         );
                       }
 
-                      return const ListTile(
-                        title: Text('No backups found.'),
-                        leading: Icon(Icons.search_off),
+                      return ListTile(
+                        title: Text(context.l10n.backupNone),
+                        leading: const Icon(Icons.search_off),
                       );
                     },
                   ),

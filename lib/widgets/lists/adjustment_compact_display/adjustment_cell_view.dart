@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/adjustment_value_text.dart';
+import '../../../l10n/l10n.dart';
 import '../../../models/adjustment/adjustment.dart';
 import '../../../theme.dart';
 import '../../display_adjustment/outdated_value_note.dart';
@@ -38,15 +40,15 @@ class AdjustmentCellView extends StatelessWidget {
 
   /// What a screen reader announces for [cell]; the rendered `previous →
   /// current` line would otherwise be read out with the arrow glyph.
-  String get _semanticsLabel {
+  String _semanticsLabel(AppLocalizations l10n) {
     final adjustment = cell.adjustment;
-    final value = (cell.value?.display ?? '-') + adjustment.unitSuffix();
+    final value = (cell.value?.displayText(l10n) ?? '-') + adjustment.unitSuffix();
     final label = switch (cell) {
       ChangedCell(:final previousValue) =>
-        '${adjustment.name}, changed from ${previousValue.display} to $value',
+        l10n.adjustmentChangedFromTo(adjustment.name, previousValue.displayText(l10n), value),
       _ => '${adjustment.name}, $value',
     };
-    return cell.isOutdated ? '$label, ${OutdatedValueNote.messageFor(adjustment)}' : label;
+    return cell.isOutdated ? '$label, ${OutdatedValueNote.messageFor(adjustment, l10n)}' : label;
   }
 
   Widget _tooltipMessage(BuildContext context) {
@@ -107,7 +109,7 @@ class AdjustmentCellView extends StatelessWidget {
               // the arrow icon, but with both values untruncated — this is
               // where a bounded previous value is recovered in full.
               if (cell case ChangedCell(:final previousValue)) ...[
-                TextSpan(text: previousValue.display, style: previousStyle),
+                TextSpan(text: previousValue.displayText(context.l10n), style: previousStyle),
                 WidgetSpan(
                   // Aligns the glyph with the middle of the text run, the
                   // tooltip's equivalent of the cell row's centred segments.
@@ -123,7 +125,7 @@ class AdjustmentCellView extends StatelessWidget {
                 ),
               ],
               TextSpan(
-                text: cell.value?.display ?? '-',
+                text: cell.value?.displayText(context.l10n) ?? '-',
                 style: valueLine?.copyWith(color: valueColor, fontWeight: FontWeight.bold),
               ),
               TextSpan(
@@ -139,9 +141,11 @@ class AdjustmentCellView extends StatelessWidget {
             spacing: 4,
             children: [
               Icon(Icons.error_outline, size: 14, color: onInverse),
-              Text(
-                OutdatedValueNote.messageFor(adjustment),
-                style: theme.textTheme.bodySmall?.copyWith(color: onInverse),
+              Flexible(
+                child: Text(
+                  OutdatedValueNote.messageFor(adjustment, context.l10n),
+                  style: theme.textTheme.bodySmall?.copyWith(color: onInverse),
+                ),
               ),
             ],
           ),
@@ -153,7 +157,7 @@ class AdjustmentCellView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final display = cell.displayText;
+    final display = cell.displayText(context.l10n);
     final bool isError = cell is ErrorCell;
     final highlights = theme.extension<ValueHighlightColors>() ?? ValueHighlightColors.light;
     final Color? valueColor = _valueColor(
@@ -196,7 +200,7 @@ class AdjustmentCellView extends StatelessWidget {
 
     return Semantics(
       container: true,
-      label: _semanticsLabel,
+      label: _semanticsLabel(context.l10n),
       excludeSemantics: true,
       child: infoTooltip(
         context: context,

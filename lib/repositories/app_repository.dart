@@ -19,6 +19,7 @@ import '../models/context/context_position.dart';
 import '../models/feedback/custom_issue.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/feedback/test_session.dart';
+import '../models/filters/setup_filter.dart';
 import '../models/person.dart';
 import '../models/recorded_value.dart';
 import '../models/selected_data.dart';
@@ -248,27 +249,27 @@ class AppRepository extends ChangeNotifier {
       if (value == null || value is UnresolvedValue) continue;
       recorded.add(RecordedValue(
         recordId: setup.id,
-        label: setup.displayName,
+        name: setup.name,
         dateTimeLocal: setup.datetimeLocal,
         value: value,
         isDeleted: false,
       ));
     }
 
-    void addDeleted(String placeholder, List<DeletedRecordValue> rows) {
+    void addDeleted(List<DeletedRecordValue> rows) {
       for (final row in rows) {
         final value = AdjustmentValue.decode(row.rawValue, type);
         if (value == null || value is UnresolvedValue) continue;
         recorded.add(RecordedValue(
           recordId: row.recordId,
-          label: row.name ?? placeholder,
+          name: row.name,
           dateTimeLocal: row.dateTimeLocal,
           value: value,
           isDeleted: true,
         ));
       }
     }
-    addDeleted(Setup.namePlaceholder, await database.setupsDao.getDeletedValuesFor(adjustmentId));
+    addDeleted(await database.setupsDao.getDeletedValuesFor(adjustmentId));
 
     return recorded..sort((a, b) => b.dateTimeLocal.compareTo(a.dateTimeLocal));
   }
@@ -513,7 +514,9 @@ class AppRepository extends ChangeNotifier {
     _testSessions = {for (final row in _testSessionRows) row.id: row.toModel(adjustmentTypes: adjustmentTypes)};
 
     _setupTags = SetupResolutionService.extractAllTags(_setups.values);
-    _testSessionNames = (_testSessions.values.map((session) => session.displayName).toSet().toList()..sort()).toSet();
+    _testSessionNames =
+        (_testSessions.values.map((session) => session.name ?? SetupFilter.unnamedTestSession).toSet().toList()..sort())
+            .toSet();
     _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();
   }
 
@@ -1599,6 +1602,12 @@ class AppRepository extends ChangeNotifier {
     final when = at ?? DateTime.now();
     return editTestSession(session.copyWith(endedAtUTC: when.toUtc(), endedAtLocal: when));
   }
+
+  bool canResumeTestSession(TestSession session) =>
+      TestSessionService.canResume(session, sessions: _testSessions.values, setups: _setups.values);
+
+  Future<void> resumeTestSession(TestSession session) =>
+      editTestSession(session.copyWith(endedAtUTC: null, endedAtLocal: null));
 
   Future<void> addComponents(Iterable<Component> components) async {
     if (components.isEmpty) return;

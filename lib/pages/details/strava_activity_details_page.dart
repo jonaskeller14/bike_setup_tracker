@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
@@ -17,6 +20,7 @@ import '../../services/strava_service.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/feedback_actions.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/url.dart';
 import '../../widgets/empty_state_placeholder2.dart';
@@ -36,7 +40,7 @@ class StravaActivityDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Activity"),
+        title: Text(context.l10n.stravaActivityTitle),
         centerTitle: true,
         actions: [
           Semantics(
@@ -65,10 +69,10 @@ class StravaActivityPageContent extends StatelessWidget {
     this.showViewOnMap = true,
   });
 
-  String _formatDistance(double? meters, String distanceUnit) {
+  String _formatDistance(double? meters, String distanceUnit, String locale) {
     if (meters == null) return "-";
     final value = AppSettings.convertDistanceFromMeters(meters, distanceUnit)!;
-    return "${value.toStringAsFixed(2)} $distanceUnit";
+    return "${formatLocalizedDouble(value, fractionDigits: 2, locale: locale)} $distanceUnit";
   }
 
   String _formatElevation(double? meters, String altitudeUnit) {
@@ -77,11 +81,11 @@ class StravaActivityPageContent extends StatelessWidget {
     return "${value.round()} $altitudeUnit";
   }
 
-  String _formatSpeed(double? meters, Duration duration, String distanceUnit) {
+  String _formatSpeed(double? meters, Duration duration, String distanceUnit, String locale) {
     if (meters == null || duration.inSeconds == 0) return "-";
     final dist = AppSettings.convertDistanceFromMeters(meters, distanceUnit)!;
     final hours = duration.inSeconds / 3600;
-    return "${(dist / hours).toStringAsFixed(1)} ${AppSettings.speedUnitForDistance(distanceUnit)}";
+    return "${formatLocalizedDouble(dist / hours, fractionDigits: 1, locale: locale)} ${AppSettings.speedUnitForDistance(distanceUnit)}";
   }
 
   String _formatDuration(Duration duration) {
@@ -143,11 +147,11 @@ class StravaActivityPageContent extends StatelessWidget {
                     child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   title: Text(
-                    athlete != null ? "${athlete.firstname ?? ""} ${athlete.lastname ?? ""}".trim() : "Strava Athlete",
+                    athlete != null ? "${athlete.firstname ?? ""} ${athlete.lastname ?? ""}".trim() : context.l10n.stravaActivityAthleteFallback,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    "${DateFormat(appSettings.dateFormat).format(stravaActivity.startDateLocal)} • ${DateFormat(appSettings.timeFormat).format(stravaActivity.startDateLocal)}",
+                    "${DateFormat(appSettings.dateFormat, context.l10n.localeName).format(stravaActivity.startDateLocal)} • ${DateFormat(appSettings.timeFormat, context.l10n.localeName).format(stravaActivity.startDateLocal)}",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -193,7 +197,7 @@ class StravaActivityPageContent extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          stravaActivity.sportType.label,
+                          stravaActivity.sportType.label(context.l10n),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
@@ -212,7 +216,7 @@ class StravaActivityPageContent extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            stravaActivity.workout.label,
+                            stravaActivity.workout.label(context.l10n),
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w500,
@@ -230,9 +234,9 @@ class StravaActivityPageContent extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                _statWidget(context, "Distance", _formatDistance(stravaActivity.distance, appSettings.distanceUnit)),
-                _statWidget(context, "Elev Gain", _formatElevation(stravaActivity.totalElevationGain, appSettings.altitudeUnit)),
-                _statWidget(context, "Avg Speed", _formatSpeed(stravaActivity.distance, stravaActivity.movingTime, appSettings.distanceUnit)),
+                _statWidget(context, context.l10n.initialStatsDistance, _formatDistance(stravaActivity.distance, appSettings.distanceUnit, context.l10n.localeName)),
+                _statWidget(context, context.l10n.stravaActivityElevGain, _formatElevation(stravaActivity.totalElevationGain, appSettings.altitudeUnit)),
+                _statWidget(context, context.l10n.stravaActivityAvgSpeed, _formatSpeed(stravaActivity.distance, stravaActivity.movingTime, appSettings.distanceUnit, context.l10n.localeName)),
               ],
             ),
           ),
@@ -240,8 +244,8 @@ class StravaActivityPageContent extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                _statWidget(context, "Moving Time", _formatDuration(stravaActivity.movingTime)),
-                _statWidget(context, "Elapsed Time", _formatDuration(stravaActivity.elapsedTime)),
+                _statWidget(context, context.l10n.initialStatsMovingTime, _formatDuration(stravaActivity.movingTime)),
+                _statWidget(context, context.l10n.initialStatsElapsedTime, _formatDuration(stravaActivity.elapsedTime)),
                 _PowerStatTile(averageWatts: stravaActivity.averageWatts, kilojoules: stravaActivity.kilojoules),
               ],
             ),
@@ -263,7 +267,7 @@ class StravaActivityPageContent extends StatelessWidget {
                   collapsedShape: const Border(),
                   leading: const Icon(Icons.pedal_bike),
                   title: Text(
-                    linkedBike?.name ?? "No Bike linked to this Strava gear",
+                    linkedBike?.name ?? context.l10n.stravaActivityNoBikeLinked,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -276,10 +280,10 @@ class StravaActivityPageContent extends StatelessWidget {
                     if (linkedBike == null) ...[
                       EmptyStatePlaceholder2(
                         iconData: Icons.pedal_bike,
-                        title: 'No Bike linked to this Strava gear',
+                        title: context.l10n.stravaActivityNoBikeLinked,
                         subtitle: unlinkedBikes.isEmpty
-                            ? 'Add a new bike to link this gear automatically'
-                            : 'Link an existing bike or add a new bike for this gear',
+                            ? context.l10n.stravaActivityAddBikeHint
+                            : context.l10n.stravaActivityLinkBikeHint,
                       ),
                       const SizedBox(height: 8),
                       Row(
@@ -304,7 +308,7 @@ class StravaActivityPageContent extends StatelessWidget {
                                 builder: (context, controller, child) => FilledButton.icon(
                                   onPressed: controller.open,
                                   icon: const Icon(Icons.link),
-                                  label: const Text('Link Bike'),
+                                  label: Text(context.l10n.stravaActivityLinkBike),
                                 ),
                               ),
                             ),
@@ -314,7 +318,7 @@ class StravaActivityPageContent extends StatelessWidget {
                                 [Bike(name: stravaGear.name, person: appRepository.persons.values.firstOrNull?.id, stravaGear: stravaGear.id)],
                               ),
                               icon: const Icon(Icons.add),
-                              label: const Text('Add New'),
+                              label: Text(context.l10n.stravaActivityAddNew),
                             ),
                           ),
                         ],
@@ -322,8 +326,8 @@ class StravaActivityPageContent extends StatelessWidget {
                     ] else if (installedComponents.isEmpty) ...[
                       EmptyStatePlaceholder2(
                         iconData: Component.iconData,
-                        title: 'No components yet',
-                        subtitle: 'Add a component to this bike',
+                        title: context.l10n.noComponentsTitle,
+                        subtitle: context.l10n.bikeDetailsNoComponentsSubtitle,
                         onTap: () => ComponentActions.addComponent(context, initialBike: linkedBike.id)
                       ),
                       const SizedBox(height: 8),
@@ -332,7 +336,7 @@ class StravaActivityPageContent extends StatelessWidget {
                         child: FilledButton.icon(
                           onPressed: () => ComponentActions.addComponent(context, initialBike: linkedBike.id),
                           icon: const Icon(Icons.add),
-                          label: const Text('Add Component'),
+                          label: Text(context.l10n.addComponent),
                         ),
                       ),
                     ] else ...[
@@ -346,7 +350,7 @@ class StravaActivityPageContent extends StatelessWidget {
                         child: TextButton.icon(
                           onPressed: () => ComponentActions.addComponent(context, initialBike: linkedBike.id),
                           icon: const Icon(Icons.add),
-                          label: const Text('Add Component'),
+                          label: Text(context.l10n.addComponent),
                         ),
                       ),
                     ],
@@ -409,7 +413,7 @@ class StravaActivityPageContent extends StatelessWidget {
                 final VoidCallback? addSetup = running == null ? () => _addSetup(context, appRepository) : null;
                 final runningHint = running == null
                     ? null
-                    : "Test session '${running.displayName}' is running on this bike. End it to add a setup.";
+                    : context.l10n.stravaActivitySessionRunning(running.label(context.l10n));
 
                 return ExpansionTile(
                   leading: const Icon(Setup.iconData),
@@ -419,13 +423,13 @@ class StravaActivityPageContent extends StatelessWidget {
                   title: Semantics(
                     identifier: AutomationIds.stravaActivitySetups,
                     child: Text(
-                      "Setups (${uniqueSetups.length})",
+                      context.l10n.stravaActivitySetupsTitle(uniqueSetups.length),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
                   subtitle: feedbacks.isEmpty
                       ? null
-                      : Text(Intl.plural(feedbacks.length, one: '1 feedback', other: '${feedbacks.length} feedbacks')),
+                      : Text(context.l10n.stravaActivityFeedbackCount(feedbacks.length)),
                   childrenPadding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
                     if (uniqueSetups.isEmpty) ...[
@@ -433,8 +437,8 @@ class StravaActivityPageContent extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: EmptyStatePlaceholder2(
                           iconData: Setup.iconData,
-                          title: 'No setups for this activity',
-                          subtitle: runningHint ?? 'Add a setup to record your bike configuration',
+                          title: context.l10n.stravaActivityNoSetupsTitle,
+                          subtitle: runningHint ?? context.l10n.stravaActivityNoSetupsSubtitle,
                           onTap: addSetup,
                         ),
                       ),
@@ -446,7 +450,7 @@ class StravaActivityPageContent extends StatelessWidget {
                           child: FilledButton.icon(
                             onPressed: addSetup,
                             icon: const Icon(Icons.add),
-                            label: const Text('Add Setup'),
+                            label: Text(context.l10n.homeAddSetup),
                           ),
                         ),
                       ),
@@ -470,7 +474,7 @@ class StravaActivityPageContent extends StatelessWidget {
                           TextButton.icon(
                             onPressed: addSetup,
                             icon: const Icon(Icons.add),
-                            label: const Text('Add Setup'),
+                            label: Text(context.l10n.homeAddSetup),
                           ),
                           if (appSettings.enableRating)
                             TextButton.icon(
@@ -478,7 +482,7 @@ class StravaActivityPageContent extends StatelessWidget {
                                 FeedbackActions.addFeedbackFromStravaActivity(context, stravaActivity: stravaActivity),
                               ),
                               icon: const Icon(Icons.add),
-                              label: const Text('Add Feedback'),
+                              label: Text(context.l10n.setupOptionAddFeedback),
                             ),
                         ],
                       ),
@@ -579,7 +583,7 @@ class StravaActivityActionsMenu extends StatelessWidget {
       _StravaActivityAction.viewOnStrava,
     ];
     return PopupMenuButton<_StravaActivityAction>(
-      tooltip: 'Activity actions',
+      tooltip: context.l10n.stravaActivityActionsTooltip,
       onSelected: (action) => _onSelected(context, action),
       itemBuilder: (context) => [
         for (final action in actions)
@@ -597,11 +601,11 @@ class StravaActivityActionsMenu extends StatelessWidget {
                     children: [
                       Semantics(
                         identifier: action == _StravaActivityAction.viewOnMap ? AutomationIds.stravaActivityViewOnMap : null,
-                        child: Text(action.label),
+                        child: Text(action.label(context.l10n)),
                       ),
                       if (!hasStartPosition && action.needsStartPosition)
                         Text(
-                          'Start location not available',
+                          context.l10n.stravaActivityNoStartLocation,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -632,15 +636,21 @@ class StravaActivityActionsMenu extends StatelessWidget {
 }
 
 enum _StravaActivityAction {
-  viewOnMap('View on map', Icons.map, needsStartPosition: true),
-  openInMapsApp('Open in maps app', Icons.directions, needsStartPosition: true),
-  viewOnStrava('View on Strava', Icons.open_in_new, needsStartPosition: false);
+  viewOnMap(Icons.map, needsStartPosition: true),
+  openInMapsApp(Icons.directions, needsStartPosition: true),
+  viewOnStrava(Icons.open_in_new, needsStartPosition: false);
 
-  final String label;
   final IconData icon;
   final bool needsStartPosition;
 
-  const _StravaActivityAction(this.label, this.icon, {required this.needsStartPosition});
+  const _StravaActivityAction(this.icon, {required this.needsStartPosition});
+
+  /// "View on Strava" stays as Strava's brand guidelines word it.
+  String label(AppLocalizations l10n) => switch (this) {
+    viewOnMap => l10n.setupOptionViewOnMap,
+    openInMapsApp => l10n.setupOptionOpenInMaps,
+    viewOnStrava => 'View on Strava',
+  };
 }
 
 class _PowerStatTile extends StatefulWidget {
@@ -679,7 +689,7 @@ class _PowerStatTileState extends State<_PowerStatTile> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _showKilojoules ? "Energy" : "Avg Power",
+              _showKilojoules ? context.l10n.stravaActivityEnergy : context.l10n.stravaActivityAvgPower,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 letterSpacing: 0.5,

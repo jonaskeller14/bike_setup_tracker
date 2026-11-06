@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 
+import '../l10n/l10n.dart';
 import '../theme.dart';
 
 class InitialChangedValueLegend extends StatelessWidget {
@@ -19,9 +20,11 @@ class InitialChangedValueLegend extends StatelessWidget {
           height: 12,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        Text(
-          text,
-          style: Theme.of(context).textTheme.bodySmall,
+        Flexible(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ),
       ],
     );
@@ -40,18 +43,18 @@ class InitialChangedValueLegend extends StatelessWidget {
             _buildLegendItem(
               context,
               highlights?.initial ?? Colors.green,
-              'Initial Value',
+              context.l10n.legendInitialValue,
             ),
             _buildLegendItem(
               context,
               highlights?.changed ?? Colors.orange,
-              'Changed Value',
+              context.l10n.legendChangedValue,
             ),
             if (showDangling)
               _buildLegendItem(
                 context,
                 Theme.of(context).colorScheme.error,
-                'Dangling Value',
+                context.l10n.legendDanglingValue,
               ),
           ],
         ),

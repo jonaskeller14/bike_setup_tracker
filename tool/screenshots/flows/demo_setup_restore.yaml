@@ -1,0 +1,42 @@
+# scenario: restore
+# Demo: going back to the setup that felt right. The history, then "Finale Ligure
+# - DH Men" restored from its tile's menu: pressure, LSC and rebound go back on the
+# form, and the copy is saved as the newest setup while the old one stays listed.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.setups
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_setup_restore
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 6000
+- tapOn:
+    id: setup.actions.aef06f55-8000-42f0-b9e9-d6d71ec2716b
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn: Restore
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3500
+# Along the row labels: a drag that starts on a slider would change its value.
+- swipe:
+    start: 10%, 75%
+    end: 10%, 62%
+    duration: 1000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+- tapOn:
+    id: setupForm.save
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 7000

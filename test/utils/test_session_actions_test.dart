@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -32,6 +33,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class _MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -202,7 +204,7 @@ void main() {
           ChangeNotifierProvider.value(value: appRepository),
           ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
           home: Scaffold(
             body: Builder(
@@ -234,7 +236,7 @@ void main() {
       await tester.tap(find.text('No adjustments yet'));
       await settle(tester);
       expect(find.text('Fork'), findsOneWidget, reason: 'adjustments are grouped by component');
-      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
+      await tester.tap(find.text('Rebound'));
       await settle(tester);
       await tester.tapAt(const Offset(10, 10)); // closing the sheet keeps the selection
       await settle(tester);
@@ -264,7 +266,7 @@ void main() {
       expect(runs.single.bikeAdjustmentValues, baseSetup().bikeAdjustmentValues);
       expect(runs.single.sourceSetupId, 's1');
       expect(runs.single.sourceKind, SetupSourceKind.testSessionRun);
-      expect(runs.single.notes, "Copy of 'Base' (2026-05-01)");
+      expect(runs.single.notes, isNull, reason: 'only Tournament runs carry a copy line');
       expect(appRepository.runningSessionFor(_bikeId)?.id, started.id);
     });
 
@@ -273,7 +275,7 @@ void main() {
       await pumpButton(tester, (context) => TestSessionActions.startSession(context));
       await tester.tap(find.text('No adjustments yet'));
       await settle(tester);
-      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
+      await tester.tap(find.text('Rebound'));
       await settle(tester);
       await tester.tapAt(const Offset(10, 10));
       await settle(tester);
@@ -295,7 +297,7 @@ void main() {
 
       await tester.tap(find.text('No adjustments yet'));
       await settle(tester);
-      await tester.tap(find.widgetWithText(FilterChip, 'Rebound'));
+      await tester.tap(find.text('Rebound'));
       await settle(tester);
       await tester.tapAt(const Offset(10, 10));
       await settle(tester);
@@ -319,7 +321,7 @@ void main() {
             ChangeNotifierProvider.value(value: appSettings),
             ChangeNotifierProvider.value(value: appRepository),
           ],
-          child: MaterialApp(theme: theme, home: const TestSessionPage()),
+          child: localizedTestApp(theme: theme, home: const TestSessionPage()),
         ),
       );
       await tester.enterText(find.widgetWithText(TextField, 'Name (optional)'), 'A very long session name ' * 8);
@@ -438,7 +440,7 @@ void main() {
 
     testWidgets('refuses a run that is not after the previous run', (tester) async {
       await seed(tester, session: session(), runs: [run(1)]);
-      final early = TestSessionService.run(
+      final early = TestSessionService.run(englishL10n, 
         source: run(1),
         session: appRepository.testSessions['ts']!,
         number: 2,
@@ -451,7 +453,7 @@ void main() {
             ChangeNotifierProvider.value(value: appRepository),
             ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: SetupPage.nextRun(run: early, session: appRepository.testSessions['ts']!),
           ),
@@ -527,7 +529,7 @@ void main() {
       expect(runs.last.name, 'Run 3');
       expect(runs.last.bikeAdjustmentValues[_reboundId], const StepValue(7), reason: 'the earlier run is ridden again');
       expect(runs.last.sourceSetupId, 'r1');
-      expect(runs.last.notes, "Copy of 'Run 1' (2026-05-02)", reason: 'notes of a run describe its ride');
+      expect(runs.last.notes, isNull, reason: 'notes of a run describe its ride');
     });
 
     testWidgets('after the session ended it is a normal setup without a session', (tester) async {
@@ -564,7 +566,7 @@ void main() {
     testWidgets('the next step is the next run once the latest run is rated', (tester) async {
       await seed(tester, session: session(), runs: [run(1)]);
 
-      final step = TestSessionActions.nextStepFor(appRepository)!;
+      final step = TestSessionActions.nextStepFor(appRepository, englishL10n)!;
       expect(step.label, 'Next run');
 
       await pumpButton(tester, step.run);
@@ -574,7 +576,7 @@ void main() {
     testWidgets('the next step is feedback while the latest run is unrated', (tester) async {
       await seed(tester, session: session(), runs: [run(1)], rated: false);
 
-      final step = TestSessionActions.nextStepFor(appRepository)!;
+      final step = TestSessionActions.nextStepFor(appRepository, englishL10n)!;
       expect(step.label, 'Add Feedback');
 
       await pumpButton(tester, step.run);
@@ -584,7 +586,7 @@ void main() {
     testWidgets('there is no next step without a running session', (tester) async {
       await seed(tester, session: session(ended: true), runs: [run(1)]);
 
-      expect(TestSessionActions.nextStepFor(appRepository), isNull);
+      expect(TestSessionActions.nextStepFor(appRepository, englishL10n), isNull);
     });
 
     testWidgets('an unrated latest run is rated first, even with an empty feedback', (tester) async {
@@ -646,7 +648,7 @@ void main() {
             ChangeNotifierProvider.value(value: appRepository),
             ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
           ],
-          child: MaterialApp(theme: materialAppTheme, home: SetupPage.add(initialBike: appRepository.bikes[_bikeId])),
+          child: localizedTestApp(theme: materialAppTheme, home: SetupPage.add(initialBike: appRepository.bikes[_bikeId])),
         ),
       );
       await settle(tester);
@@ -668,7 +670,7 @@ void main() {
             ChangeNotifierProvider.value(value: appRepository),
             ChangeNotifierProvider<SubscriptionService>.value(value: _MockSubscriptionService()),
           ],
-          child: MaterialApp(theme: materialAppTheme, home: SetupPage.edit(setup: appRepository.setups[setupId]!)),
+          child: localizedTestApp(theme: materialAppTheme, home: SetupPage.edit(setup: appRepository.setups[setupId]!)),
         ),
       );
       await settle(tester);
@@ -744,12 +746,45 @@ void main() {
       expect(ended.isRunning, isFalse);
       expect(ended.endedAtLocal, isNotNull);
       expect(appRepository.runningSessionFor(_bikeId), isNull);
-      expect(find.text("Test session 'Test session' ended."), findsOneWidget);
+      expect(find.text("Test session 'Unnamed Test Session' ended."), findsOneWidget);
 
       await tester.tap(find.text('UNDO'));
       await settle(tester);
       await awaitData(tester, () => appRepository.testSessions['ts']!.isRunning);
       expect(appRepository.runningSessionFor(_bikeId)?.id, 'ts');
+    });
+
+    testWidgets('Resume clears the end without a snackbar', (tester) async {
+      await seed(tester, session: session(ended: true), runs: [run(1)]);
+      final ended = appRepository.testSessions['ts']!;
+      await pumpButton(tester, (context) => TestSessionActions.resumeSession(context, session: ended));
+      await awaitData(tester, () => appRepository.testSessions['ts']!.isRunning);
+
+      final resumed = appRepository.testSessions['ts']!;
+      expect(resumed.endedAtUTC, isNull);
+      expect(resumed.endedAtLocal, isNull);
+      expect(appRepository.runningSessionFor(_bikeId)?.id, 'ts');
+      expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets('Resume is refused with a reason once a newer setup exists', (tester) async {
+      final later = DateTime(2026, 5, 3, 9);
+      await seed(
+        tester,
+        session: session(ended: true),
+        runs: [
+          run(1),
+          baseSetup().copyWith(id: 'newer', datetime: later.toUtc(), datetimeLocal: later),
+        ],
+      );
+      final ended = appRepository.testSessions['ts']!;
+      await pumpButton(tester, (context) => TestSessionActions.resumeSession(context, session: ended));
+
+      expect(
+        find.text('Only the latest session on a bike can be resumed, and only if no setup was added since.'),
+        findsOneWidget,
+      );
+      expect(appRepository.testSessions['ts']!.endedAtUTC, ended.endedAtUTC);
     });
   });
 
@@ -797,7 +832,7 @@ void main() {
 
       expect(appRepository.setups.keys, ['s1']);
       expect(appRepository.feedbacks.keys, ['outside']);
-      expect(find.text("Test session 'Test session' moved to trash."), findsOneWidget);
+      expect(find.text("Test session 'Unnamed Test Session' moved to trash."), findsOneWidget);
 
       await tester.tap(find.text('UNDO'));
       await settle(tester);
@@ -881,17 +916,18 @@ void main() {
       expect(find.textContaining('Suggested'), findsNothing);
     });
 
-    testWidgets('a running session opens scrolled to its next step', (tester) async {
+    testWidgets('a running session keeps its next step in view outside the scrolling runs', (tester) async {
       await seed(tester, session: session(), runs: [for (var number = 1; number <= 20; number++) run(number)]);
       await pumpButton(tester, (context) => showTestSessionSheet(context: context, sessionId: 'ts'));
 
       final scrollable = tester.state<ScrollableState>(
         find.descendant(of: find.byType(TestSessionSheetContent), matching: find.byType(Scrollable)).first,
       );
-      expect(scrollable.position.pixels, greaterThan(0));
+      expect(scrollable.position.maxScrollExtent, greaterThan(0));
       final nextRun = tester.getRect(find.text('Next run'));
       final viewport = tester.getRect(find.byWidget(scrollable.widget));
-      expect(viewport.contains(nextRun.topLeft) && viewport.contains(nextRun.bottomRight), isTrue);
+      expect(viewport.overlaps(nextRun), isFalse, reason: 'pinned below the scroll area, not scrolled with it');
+      expect(nextRun.bottom, lessThanOrEqualTo(tester.view.physicalSize.height / tester.view.devicePixelRatio));
     });
 
     testWidgets('an ended session shows its adjustments without lock actions', (tester) async {

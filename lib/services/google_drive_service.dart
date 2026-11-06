@@ -10,7 +10,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/app_database.dart';
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/selected_data.dart';
+import '../models/service_error.dart';
 import '../repositories/app_repository.dart';
 import '../utils/backup.dart';
 import '../utils/file_import.dart';
@@ -34,7 +37,7 @@ class GoogleDriveService extends ChangeNotifier {
   bool _isInitialized = false;
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
-  String _errorMessage = '';
+  GoogleDriveError? _error;
   GoogleDriveServiceStatus _status = GoogleDriveServiceStatus.idle;
   drive.DriveApi? _driveApi;
 
@@ -50,7 +53,7 @@ class GoogleDriveService extends ChangeNotifier {
   String? get email => _currentUser?.email;
   String? get photoUrl => _currentUser?.photoUrl;
   bool get isAuthorized => _isAuthorized;
-  String get errorMessage => _errorMessage;
+  GoogleDriveError? get error => _error;
   GoogleDriveServiceStatus get status => _status;
 
   GoogleDriveService(AppRepository _, this.appDatabase);
@@ -75,8 +78,8 @@ class GoogleDriveService extends ChangeNotifier {
     }
   }
       
-  void _setErrorMessage(String message) {
-    _errorMessage = message;
+  void _setError(GoogleDriveError? error) {
+    _error = error;
     notifyListeners();
   }
     
@@ -98,7 +101,7 @@ class GoogleDriveService extends ChangeNotifier {
 
       await signIn.attemptLightweightAuthentication(); // Silent Sign in
     } catch (error) {
-      _setErrorMessage("Google Sign In Setup Failed: $error");
+      _setError(GoogleDriveError(GoogleDriveErrorKind.setupFailed, error.toString()));
     } finally {
       _isInitialized = true; // even if it has failed, silentSetup does not need to be called again, manual interactiveSignIn() instead
     }
@@ -114,7 +117,7 @@ class GoogleDriveService extends ChangeNotifier {
     
     _currentUser = user;
     _isAuthorized = authorization != null;
-    _errorMessage = '';
+    _error = null;
 
     notifyListeners();
 
@@ -127,15 +130,15 @@ class GoogleDriveService extends ChangeNotifier {
   Future<void> _handleAuthenticationError(Object e) async {
     _currentUser = null;
     _isAuthorized = false;
-    _errorMessage = e is GoogleSignInException ? _errorMessageFromSignInException(e) : 'Unknown error: $e';
+    _error = e is GoogleSignInException ? _errorFromSignInException(e) : GoogleDriveError(GoogleDriveErrorKind.unknown, e.toString());
     notifyListeners(); // Notify UI of sign-out/error
   }
 
-  String _errorMessageFromSignInException(GoogleSignInException e) {
+  GoogleDriveError _errorFromSignInException(GoogleSignInException e) {
     return switch (e.code) {
-      GoogleSignInExceptionCode.canceled => 'Sign in canceled by user',
-      GoogleSignInExceptionCode.interrupted => "Sign in interrupted",
-      _ => 'GoogleSignInException ${e.code}: ${e.description}',
+      GoogleSignInExceptionCode.canceled => const GoogleDriveError(GoogleDriveErrorKind.signInCanceled),
+      GoogleSignInExceptionCode.interrupted => const GoogleDriveError(GoogleDriveErrorKind.signInInterrupted),
+      _ => GoogleDriveError(GoogleDriveErrorKind.signInFailed, '${e.code}: ${e.description}'),
     };
   }
 
@@ -145,11 +148,11 @@ class GoogleDriveService extends ChangeNotifier {
     try {
       await _currentUser!.authorizationClient.authorizeScopes(_scopes);
       _isAuthorized = true;
-      _errorMessage = '';
+      _error = null;
       notifyListeners();
     } on GoogleSignInException catch (e) {
       _isAuthorized = false;
-      _setErrorMessage(_errorMessageFromSignInException(e));
+      _setError(_errorFromSignInException(e));
     }
   }
 
@@ -172,12 +175,12 @@ class GoogleDriveService extends ChangeNotifier {
   Future<void> interactiveSignIn() async {
     _setStatus(GoogleDriveServiceStatus.syncing);
     if (!GoogleSignIn.instance.supportsAuthenticate()) {
-      _setErrorMessage("Current Platform does not support Authentication");
+      _setError(const GoogleDriveError(GoogleDriveErrorKind.platformUnsupported));
       _setStatus(GoogleDriveServiceStatus.idle);
       return;
     }
 
-    _setErrorMessage('');
+    _setError(null);
 
     try {
       _currentUser = await GoogleSignIn.instance.authenticate();
@@ -187,9 +190,9 @@ class GoogleDriveService extends ChangeNotifier {
       } // User cancelled
       await _initializeDriveApi(); // Initialize API immediately after sign-in
     } on GoogleSignInException catch (e) {
-      _setErrorMessage("Sign in error: ${_errorMessageFromSignInException(e)}");
+      _setError(_errorFromSignInException(e));
     } catch (e) {
-      _setErrorMessage("Sign in error: $e");
+      _setError(GoogleDriveError(GoogleDriveErrorKind.signInFailed, e.toString()));
     }
     notifyListeners(); // Update UI after sign-in attempt
     _setStatus(GoogleDriveServiceStatus.idle);
@@ -197,7 +200,7 @@ class GoogleDriveService extends ChangeNotifier {
 
   Future<void> interactiveSync() async {
     _setStatus(GoogleDriveServiceStatus.syncing);
-    _setErrorMessage('');
+    _setError(null);
 
     if (_currentUser == null) await interactiveSignIn();
     if (_currentUser == null) {
@@ -210,7 +213,7 @@ class GoogleDriveService extends ChangeNotifier {
     if (_driveApi == null || !_isAuthorized) await _initializeDriveApi();
     if (_driveApi == null || !_isAuthorized) {
       _setStatus(GoogleDriveServiceStatus.idle);
-      _setErrorMessage("Drive access requires re-authorization.");
+      _setError(const GoogleDriveError(GoogleDriveErrorKind.reauthRequired));
       return;
     }
     
@@ -236,15 +239,15 @@ class GoogleDriveService extends ChangeNotifier {
           await _upload();
           lastSync = DateTime.now().toUtc();
         } catch (e) {
-          _setErrorMessage("Error after re-authorization: $e");
+          _setError(GoogleDriveError(GoogleDriveErrorKind.reauthFailed, e.toString()));
         }
       } else {
-        _setErrorMessage('API Error: ${e.message}');
+        _setError(GoogleDriveError(GoogleDriveErrorKind.api, e.message));
       }
     } on SocketException {
-      _setErrorMessage('No internet connection. Please connect to a network.');
+      _setError(const GoogleDriveError(GoogleDriveErrorKind.noInternet));
     } catch (e) {
-      _setErrorMessage('General Sync Error: $e');
+      _setError(GoogleDriveError(GoogleDriveErrorKind.syncFailed, e.toString()));
     }
 
     _setStatus(GoogleDriveServiceStatus.idle);
@@ -269,7 +272,7 @@ class GoogleDriveService extends ChangeNotifier {
         debugPrint("Silent Sync Failed: 401 Unauthorized (Refresh Token Expired).");
         await clearToken();
         _isAuthorized = false;
-        _setErrorMessage("Sync failed: Authorization expired. Please tap 'Sync' to re-authorize.");
+        _setError(const GoogleDriveError(GoogleDriveErrorKind.authExpired));
         notifyListeners();
       } else {
         debugPrint('Silent Sync API Error: Status ${e.status}, Message: ${e.message}');
@@ -385,7 +388,7 @@ class GoogleDriveService extends ChangeNotifier {
       _currentUser = null;
       _driveApi = null;
       _isAuthorized = false;
-      _errorMessage = '';
+      _error = null;
 
       _setStatus(GoogleDriveServiceStatus.idle);
       notifyListeners();
@@ -445,14 +448,15 @@ class GoogleDriveService extends ChangeNotifier {
       debugPrint('Successfully backed up to Google Drive: $backupFileName');
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, 'Successfully created Google Drive Backup'));
+        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, context.l10n.driveBackupCreated));
       }
     } catch (e) {
       debugPrint('Error backing up to Google Drive: $e');
-      _setErrorMessage('Error backing up to Google Drive: $e');
+      final error = GoogleDriveError(GoogleDriveErrorKind.backupFailed, e.toString());
+      _setError(error);
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'Error backing up to Google Drive: $e'));
+        scaffoldMessenger.showSnackBar(AppSnackBar.error(context, error.message(context.l10n)));
       }
     }
   }
@@ -502,11 +506,11 @@ class GoogleDriveService extends ChangeNotifier {
       }
       return GetGoogleDriveBackupsResult.success(backups);
     } on SocketException {
-      return GetGoogleDriveBackupsResult.failure("Getting Google Drive backups failed: No internet connection. Please connect to a network.");
+      return GetGoogleDriveBackupsResult.failure(const DataError(DataErrorKind.driveNoInternet));
     } on DetailedApiRequestError catch (e) {
-      return GetGoogleDriveBackupsResult.failure("Google Drive Error: ${e.message}");
+      return GetGoogleDriveBackupsResult.failure(DataError(DataErrorKind.driveApi, e.message));
     } catch (e) {
-      return GetGoogleDriveBackupsResult.failure("An unexpected error occurred.");
+      return GetGoogleDriveBackupsResult.failure(const DataError(DataErrorKind.driveUnexpected));
     }
   }
 
@@ -530,7 +534,7 @@ class GoogleDriveService extends ChangeNotifier {
       return ReadGoogleDriveBackupResult.success(SelectedData.fromJson(jsonData));
     } catch (e) {
       debugPrint('Reading Google Drive backup failed: $fileId: $e');
-      return ReadGoogleDriveBackupResult.failure("Reading Google Drive backup failed: $e");
+      return ReadGoogleDriveBackupResult.failure(DataError(DataErrorKind.readDriveBackup, e.toString()));
     }
   }
 
@@ -587,18 +591,18 @@ class AuthenticatedClient extends http.BaseClient {
 
 class GetGoogleDriveBackupsResult {
   final List<GoogleDriveBackup> backups;
-  final String? errorMessage;
+  final DataError? error;
   final bool isError;
 
-  GetGoogleDriveBackupsResult.success(this.backups) : errorMessage = null, isError = false;
-  GetGoogleDriveBackupsResult.failure(this.errorMessage) : backups = [], isError = true;
+  GetGoogleDriveBackupsResult.success(this.backups) : error = null, isError = false;
+  GetGoogleDriveBackupsResult.failure(this.error) : backups = [], isError = true;
 }
 
 class ReadGoogleDriveBackupResult {
   final SelectedData? appData;
-  final String? errorMessage;
+  final DataError? error;
   final bool isError;
 
-  ReadGoogleDriveBackupResult.success(this.appData) : errorMessage = null, isError = false;
-  ReadGoogleDriveBackupResult.failure(this.errorMessage) : appData = null, isError = true;
+  ReadGoogleDriveBackupResult.success(this.appData) : error = null, isError = false;
+  ReadGoogleDriveBackupResult.failure(this.error) : appData = null, isError = true;
 }

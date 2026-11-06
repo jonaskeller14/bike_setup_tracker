@@ -17,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 class MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -55,7 +56,7 @@ void main() {
         ChangeNotifierProvider<SubscriptionService>.value(value: subscription),
         ChangeNotifierProvider<AppHintService>.value(value: hintService),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: materialAppTheme,
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(

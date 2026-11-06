@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/value_migration_proposal.dart';
 import '../notes_text.dart';
 import '../sheets/value_migration_sheet.dart';
@@ -51,14 +54,14 @@ class AdjustmentListCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          "not scored",
+          context.l10n.adjustmentNotScored,
           style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w500),
         ),
       );
     }
 
     final abs = weight.abs();
-    final w = abs == abs.roundToDouble() ? abs.toStringAsFixed(0) : abs.toStringAsFixed(1);
+    final w = formatLocalizedDouble(abs, fractionDigits: abs == abs.roundToDouble() ? 0 : 1, locale: context.l10n.localeName);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
@@ -148,26 +151,33 @@ class AdjustmentListCard extends StatelessWidget {
               index: index,
               child: const Icon(Icons.drag_handle),
             ),
-            PopupMenuButton<_AdjustmentOptions>(
-              onSelected: (_AdjustmentOptions value) {
-                switch (value) {
-                  case _AdjustmentOptions.edit: editAdjustment(adjustment);
-                  case _AdjustmentOptions.duplicate: duplicateAdjustment(adjustment);
-                  case _AdjustmentOptions.remove: removeAdjustment(adjustment);
-                }
-              },
-              itemBuilder: (BuildContext context) => _AdjustmentOptions.values.map((option) {
-                return PopupMenuItem<_AdjustmentOptions>(
-                  value: option,
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      Icon(option.iconData, size: 20),
-                      Text(option.label),
-                    ],
-                  ),
-                );
-              }).toList(),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.adjustmentActions(adjustment.id),
+              child: PopupMenuButton<_AdjustmentOptions>(
+                onSelected: (_AdjustmentOptions value) {
+                  switch (value) {
+                    case _AdjustmentOptions.edit: editAdjustment(adjustment);
+                    case _AdjustmentOptions.duplicate: duplicateAdjustment(adjustment);
+                    case _AdjustmentOptions.remove: removeAdjustment(adjustment);
+                  }
+                },
+                itemBuilder: (BuildContext context) => _AdjustmentOptions.values.map((option) {
+                  return PopupMenuItem<_AdjustmentOptions>(
+                    value: option,
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        Icon(option.iconData, size: 20),
+                        Semantics(
+                          identifier: option == _AdjustmentOptions.edit ? AutomationIds.adjustmentActionsEdit : null,
+                          child: Text(option.label(context.l10n)),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ),
@@ -188,9 +198,9 @@ class _PendingMigrationLine extends StatelessWidget {
     final color = pending.clearsValues ? scheme.error : scheme.primary;
     final cleared = pending.cleared;
     final text = [
-      'Updates ${affectedRecordsLabel(pending.affected)} on save',
+      context.l10n.valueMigrationPendingUpdates(affectedRecordsLabel(pending.affected, context.l10n)),
       if (cleared.live + cleared.deleted > 0)
-        '${affectedRecordsLabel(cleared)} ${cleared.isSingular ? 'loses its' : 'lose their'} value',
+        context.l10n.valueMigrationPendingClears(affectedRecordsLabel(cleared, context.l10n), '${cleared.isSingular}'),
     ].join(' · ');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,10 +224,15 @@ class _PendingMigrationLine extends StatelessWidget {
 }
 
 enum _AdjustmentOptions {
-  edit("Edit", Icons.edit),
-  duplicate("Duplicate", Icons.copy),
-  remove("Remove", Icons.delete);
-  final String label;
+  edit(Icons.edit),
+  duplicate(Icons.copy),
+  remove(Icons.delete);
   final IconData iconData;
-  const _AdjustmentOptions(this.label, this.iconData);
+  const _AdjustmentOptions(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    duplicate => l10n.duplicate,
+    remove => l10n.remove,
+  };
 }

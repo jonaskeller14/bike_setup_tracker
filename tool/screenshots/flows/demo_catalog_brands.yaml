@@ -1,0 +1,101 @@
+# scenario: one_bike_no_components
+# Demo: the fork catalog's brands. The list scrolls to the end and back, three
+# brands open on their models, and a fork that isn't listed yet (RockShox Judy)
+# gets requested. Short: 04_v1.6.4 kit, brands. Brand and model names are
+# catalog data, so the flow selects them by text.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.setups
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+# Santa Cruz Hightower
+- tapOn:
+    id: garage.addComponent.93f93d45-3a56-43ae-8936-5cfcbd768c9b
+- tapOn:
+    id: componentForm.type
+- tapOn:
+    id: componentType.fork
+- waitForAnimationToEnd:
+    timeout: 3000
+- startRecording: demo_catalog_brands
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+
+- tapOn:
+    id: componentForm.catalog
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- swipe:
+    start: 50%,85%
+    end: 50%,25%
+    duration: 2500
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn: "(?s)Öhlins.*"
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1800
+- tapOn:
+    id: sheet.back
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 600
+- swipe:
+    start: 50%,30%
+    end: 50%,90%
+    duration: 1500
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 600
+- tapOn: "(?s)FOX.*"
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1800
+- tapOn:
+    id: sheet.back
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 600
+- tapOn: "(?s)RockShox.*"
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1800
+- tapOn:
+    id: sheet.back
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+
+- tapOn:
+    id: catalogPicker.search
+# Typing while the keyboard slides in can double the first letter.
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Judy
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: catalogPicker.request
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 3000

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
@@ -134,7 +135,7 @@ class PersonListCard extends StatelessWidget {
                           spacing: 10,
                           children: [
                             Icon(option.iconData, size: 20),
-                            Text(option.label),
+                            Text(option.label(context.l10n)),
                           ],
                         ),
                       );
@@ -162,11 +163,17 @@ class PersonListCard extends StatelessWidget {
 }
 
 enum _PersonOptions {
-  edit("Edit", Icons.edit),
-  linkBikes("Link bikes", Icons.link),
-  duplicate("Duplicate", Icons.copy),
-  remove("Remove", Icons.delete);
-  final String label;
+  edit(Icons.edit),
+  linkBikes(Icons.link),
+  duplicate(Icons.copy),
+  remove(Icons.delete);
   final IconData iconData;
-  const _PersonOptions(this.label, this.iconData);
+  const _PersonOptions(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    linkBikes => l10n.riderOptionLinkBikes,
+    duplicate => l10n.duplicate,
+    remove => l10n.remove,
+  };
 }

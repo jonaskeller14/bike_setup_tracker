@@ -58,9 +58,27 @@ option_values:
         compression valve as standard equipment on Hero/Edge/Flash 35/Flash
         38/Infinity EN/Bandit (not on Samurai or Essential, and not on older
         units — retrofittable separately).
+      description_de: >
+        INTENDs Standard-Dämpfer mit geschlossener Kartusche, verbaut in Samurai
+        Super TR, Hero, Edge, Flash 35, Flash 38, Infinity EN und Bandit. Ein
+        einzelnes externes Zugstufenrad und ein einzelnes externes
+        Druckstufenrad (keine HS/LS-Aufteilung). Aktuelle Serienmodelle werden
+        bei Hero/Edge/Flash 35/Flash 38/Infinity EN/Bandit serienmäßig mit dem
+        nachrüstbaren „Smooth Operator“-Druckstufenventil ausgeliefert (nicht
+        bei Samurai oder Essential und nicht bei älteren Modellen — dort separat
+        nachrüstbar).
+      description_fr: Amortisseur standard à cartouche fermée d’INTEND, partagé entre les Samurai Super TR, Hero, Edge, Flash 35, Flash 38, Infinity EN et Bandit. Une seule molette externe de détente et une seule molette externe de compression (pas de séparation HS/LS). Les exemplaires de production actuelle sont livrés avec la valve de compression « Smooth Operator » en équipement de série sur les Hero/Edge/Flash 35/Flash 38/Infinity EN/Bandit (pas sur les Samurai ni Essential, ni sur les anciens exemplaires — montable séparément).
+      description_it: Ammortizzatore standard a cartuccia chiusa di INTEND, condiviso tra Samurai Super TR, Hero, Edge, Flash 35, Flash 38, Infinity EN e Bandit. Una sola manopola esterna del ritorno e una sola manopola esterna di compressione (nessuna divisione HS/LS). Gli esemplari di produzione attuale hanno di serie la valvola di compressione «Smooth Operator» su Hero/Edge/Flash 35/Flash 38/Infinity EN/Bandit (non su Samurai ed Essential, né sugli esemplari più vecchi — montabile a parte).
+      description_es: Amortiguador estándar de cartucho cerrado de INTEND, compartido por las Samurai Super TR, Hero, Edge, Flash 35, Flash 38, Infinity EN y Bandit. Una sola rueda externa de rebote y una sola rueda externa de compresión (sin separación HS/LS). Las unidades de producción actual llevan de serie la válvula de compresión «Smooth Operator» en las Hero/Edge/Flash 35/Flash 38/Infinity EN/Bandit (no en las Samurai ni Essential, ni en unidades antiguas — se puede montar aparte).
+      description_pt: Amortecedor padrão de cartucho fechado da INTEND, compartilhado entre as Samurai Super TR, Hero, Edge, Flash 35, Flash 38, Infinity EN e Bandit. Um único seletor externo de retorno e um único seletor externo de compressão (sem divisão HS/LS). As unidades de produção atual trazem de série a válvula de compressão “Smooth Operator” nas Hero/Edge/Flash 35/Flash 38/Infinity EN/Bandit (não nas Samurai nem Essential, nem em unidades mais antigas — instalável à parte).
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments:
-        - { name: Compression, type: step, max: ~, notes: Counted from fully closed (firmest) }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: ~, notes: Counted from fully closed (firmest), notes_de: Von ganz geschlossen (am festesten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus ferme), notes_it: Contato a partire dalla posizione completamente chiusa (la più rigida), notes_es: Contado desde la posición totalmente cerrada (la más firme), notes_pt: Contado a partir da posição totalmente fechada (a mais firme) }
       source: https://www.intend-bc.com/fork-setup/
       note: Fork setup guide describes compression clicks counted from fully closed (1-6 coarse zone, then a finer zone to fully open) with no total.
 
@@ -69,9 +87,21 @@ option_values:
       description: >
         Essential's entry-level open-bath damper. External Low-Speed Rebound and
         Low-Speed Compression dials.
+      description_de: >
+        Essentials Einstiegsdämpfer mit offenem Ölbad. Externe Räder für
+        Low-Speed-Zugstufe und Low-Speed-Druckstufe.
+      description_fr: Amortisseur à bain d’huile ouvert d’entrée de gamme d’Essential. Molettes externes de détente basse vitesse et de compression basse vitesse.
+      description_it: Ammortizzatore a bagno d’olio aperto entry-level di Essential. Manopole esterne di ritorno a bassa velocità e di compressione a bassa velocità.
+      description_es: Amortiguador de baño de aceite abierto de gama de entrada de Essential. Ruedas externas de rebote de baja velocidad y de compresión de baja velocidad.
+      description_pt: Amortecedor de banho de óleo aberto de entrada da Essential. Seletores externos de retorno de baixa velocidade e de compressão de baixa velocidade.
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments:
-        - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: ~, notes: "Low-Speed Compression; Counted from fully closed (firmest)", notes_de: Low-Speed-Druckstufe; von ganz geschlossen (am festesten) gezählt, notes_fr: Compression basse vitesse ; comptée depuis la position entièrement fermée (la plus ferme), notes_it: Compressione a bassa velocità; contata a partire dalla posizione completamente chiusa (la più rigida), notes_es: Compresión de baja velocidad; contada desde la posición totalmente cerrada (la más firme), notes_pt: Compressão de baixa velocidade; contada a partir da posição totalmente fechada (a mais firme) }
       source: https://www.intend-bc.com/fork-setup/
       note: Same compression counting as the closed cartridge per the fork setup guide; no total published.
 
@@ -81,8 +111,17 @@ option_values:
         3-position lockout cartridge offered on the Samurai XC (29" and 32").
         Open / Gravel / Road modes; Road is ~99% firm and lets the fork sink
         slowly into sag for a climbing position. Optional remote available.
+      description_de: >
+        3-Positionen-Lockout-Kartusche für die Samurai XC (29" und 32"). Modi
+        Open / Gravel / Road; Road ist zu ca. 99 % fest und lässt die Gabel
+        langsam in den SAG einsinken, für eine Kletterposition. Optional mit
+        Fernbedienung.
+      description_fr: Cartouche de lockout à 3 positions proposée sur la Samurai XC (29" et 32"). Modes Open / Gravel / Road ; Road est ferme à ~99 % et laisse la fourche s’enfoncer lentement dans le SAG pour une position de montée. Commande déportée disponible en option.
+      description_it: Cartuccia di lockout a 3 posizioni offerta sulla Samurai XC (29" e 32"). Modalità Open / Gravel / Road; Road è rigida al ~99 % e lascia che la forcella affondi lentamente nel SAG per una posizione da salita. Comando remoto disponibile come optional.
+      description_es: Cartucho de lockout de 3 posiciones que se ofrece en la Samurai XC (29" y 32"). Modos Open / Gravel / Road; Road es firme al ~99 % y deja que la horquilla se hunda despacio en el SAG para una posición de subida. Mando remoto disponible como opción.
+      description_pt: Cartucho de lockout de 3 posições oferecido na Samurai XC (29" e 32"). Modos Open / Gravel / Road; Road é firme a ~99 % e deixa o garfo afundar devagar no SAG para uma posição de subida. Comando remoto disponível como opcional.
       adjustments:
-        - { name: Mode, type: categorical, options: [Open, Gravel, Road] }
+        - { name: Mode, name_de: Modus, name_fr: Mode, name_it: Modalità, name_es: Modo, name_pt: Modo, type: categorical, options: [Open, Gravel, Road], options_de: [Offen, Gravel, Straße], options_fr: [Ouvert, Gravel, Route], options_it: [Aperto, Gravel, Strada], options_es: [Abierto, Gravel, Carretera], options_pt: [Aberto, Gravel, Estrada] }
 
     rs_charger_raceday:
       name: RockShox Charger Raceday (OEM)
@@ -93,6 +132,17 @@ option_values:
         fork to 120mm max travel. 2- or 3-position lockout, with or without
         remote. Its click/damping specs are RockShox's own and are out of scope
         for this INTEND brand file — not modelled here.
+      description_de: >
+        RockShox-Charger-Raceday-Kartusche eines Drittanbieters (Generation
+        Raceday 1 oder 2), als Alternative zum Energizer für die Samurai XC
+        (29"/32") für Fahrer, die auf RockShox-Dämpfung setzen; begrenzt die
+        Gabel auf maximal 120mm Federweg. 2- oder 3-Positionen-Lockout, mit oder
+        ohne Fernbedienung. Die Klick- und Dämpfungswerte stammen von RockShox
+        und gehören nicht in diese INTEND-Markendatei — hier nicht abgebildet.
+      description_fr: Cartouche RockShox Charger Raceday tierce (génération Raceday 1 ou 2), proposée comme alternative à l’Energizer sur la Samurai XC (29"/32") pour les pilotes qui s’alignent sur l’amortissement RockShox ; limite la fourche à 120 mm de débattement max. Lockout à 2 ou 3 positions, avec ou sans commande déportée. Ses caractéristiques de clics/amortissement sont celles de RockShox et sortent du périmètre de ce fichier de marque INTEND — non modélisées ici.
+      description_it: Cartuccia RockShox Charger Raceday di terzi (generazione Raceday 1 o 2), offerta come alternativa all’Energizer sulla Samurai XC (29"/32") per i rider che puntano sullo smorzamento RockShox; limita la forcella a 120 mm di escursione massima. Lockout a 2 o 3 posizioni, con o senza comando remoto. Le sue specifiche di scatti/smorzamento sono quelle di RockShox e non rientrano in questo file del marchio INTEND — non modellate qui.
+      description_es: Cartucho RockShox Charger Raceday de terceros (generación Raceday 1 o 2), que se ofrece como alternativa al Energizer en la Samurai XC (29"/32") para riders que apuestan por la amortiguación RockShox; limita la horquilla a 120 mm de recorrido máximo. Lockout de 2 o 3 posiciones, con o sin mando remoto. Sus datos de clics/amortiguación son los propios de RockShox y quedan fuera de este archivo de la marca INTEND — no se modelan aquí.
+      description_pt: Cartucho RockShox Charger Raceday de terceiros (geração Raceday 1 ou 2), oferecido como alternativa ao Energizer na Samurai XC (29"/32") para riders que padronizam o amortecimento RockShox; limita o garfo a 120 mm de curso máximo. Lockout de 2 ou 3 posições, com ou sem comando remoto. As especificações de cliques/amortecimento são as da própria RockShox e ficam fora deste arquivo da marca INTEND — não modeladas aqui.
       adjustments: []
 
 # --------------------------------------------------------------------------
@@ -109,6 +159,11 @@ option_values:
 guides:
   intend_fork_setup_2025:
     label: INTEND fork setup guide (2025)
+    label_de: INTEND Gabel-Setup-Anleitung (2025)
+    label_fr: Guide de setup de la fourche INTEND (2025)
+    label_it: Guida al setup della forcella INTEND (2025)
+    label_es: Guía de setup de la horquilla INTEND (2025)
+    label_pt: Guia de setup do garfo INTEND (2025)
     source: https://www.intend-bc.com/fork-setup/
     rules:
       - target: pressure
@@ -122,6 +177,11 @@ guides:
           100: 100, 105: 105, 110: 110, 115: 115, 120: 120
         }
         note: "Calculated from INTEND's formula: 1.0 psi per kg of rider weight"
+        note_de: "Berechnet nach der Formel von INTEND: 1,0 psi pro kg Fahrergewicht"
+        note_fr: "Calculé selon la formule d’INTEND : 1,0 psi par kg de poids du pilote"
+        note_it: "Calcolato con la formula di INTEND: 1,0 psi per kg di peso del rider"
+        note_es: "Calculado con la fórmula de INTEND: 1,0 psi por kg de peso del rider"
+        note_pt: "Calculado pela fórmula da INTEND: 1,0 psi por kg de peso do rider"
       - target: pressure
         unit: psi
         input: rider_weight
@@ -133,10 +193,20 @@ guides:
           100: 130, 105: 136.5, 110: 143, 115: 149.5, 120: 156
         }
         note: "Calculated from INTEND's formula: 1.3 psi per kg of rider weight"
+        note_de: "Berechnet nach der Formel von INTEND: 1,3 psi pro kg Fahrergewicht"
+        note_fr: "Calculé selon la formule d’INTEND : 1,3 psi par kg de poids du pilote"
+        note_it: "Calcolato con la formula di INTEND: 1,3 psi per kg di peso del rider"
+        note_es: "Calculado con la fórmula de INTEND: 1,3 psi por kg de peso del rider"
+        note_pt: "Calculado pela fórmula da INTEND: 1,3 psi por kg de peso do rider"
       - target: compression
         value: 6
         when: { damper: [closed_cartridge, open_bath] }
         note: Clicks 1-6 are coarse steps for race support; past 6 they get finer for comfort
+        note_de: Die Klicks 1-6 sind grobe Schritte für Halt im Rennen; ab 6 werden sie für mehr Komfort feiner
+        note_fr: Les clics 1 à 6 sont des paliers grossiers pour le soutien en course ; au-delà de 6 ils deviennent plus fins pour le confort
+        note_it: Gli scatti da 1 a 6 sono passi grossolani per il sostegno in gara; oltre il 6 diventano più fini per il comfort
+        note_es: Los clics 1 a 6 son pasos gruesos para el apoyo en carrera; a partir del 6 son más finos para el confort
+        note_pt: Os cliques 1 a 6 são passos grossos para o apoio em competição; a partir do 6 ficam mais finos para o conforto
 
 # --------------------------------------------------------------------------
 # Forks — current INTEND lineup (all inverted, all air-sprung).
@@ -149,8 +219,13 @@ nodes:
   - label: "Samurai XC 29"
     level: model
     category: XC / Down-country
+    category_de: XC / Downcountry
+    category_fr: XC / Downcountry
+    category_it: XC / Downcountry
+    category_es: XC / Downcountry
+    category_pt: XC / Downcountry
     tasks: &intend_service
-      fork:upper_leg_service: { name: Upper leg service, interval: { days: 365 }, preselected: true, source: Intend fork setup guide }
+      fork:upper_leg_service: { name: Upper leg service, name_de: Tauchrohr-Service, name_fr: Révision de la jambe supérieure, name_it: Manutenzione dello stelo superiore, name_es: Mantenimiento de la pierna superior, name_pt: Revisão da perna superior, interval: { days: 365 }, preselected: true, source: Intend fork setup guide, source_de: Intend-Gabel-Setup-Anleitung, source_fr: Guide de setup de la fourche Intend, source_it: Guida al setup della forcella Intend, source_es: Guía de setup de la horquilla Intend, source_pt: Guia de setup do garfo Intend }
     children:
       - label: "2025–2026"
         level: generation
@@ -163,10 +238,10 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: &air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
             options:
               damper: [energizer, rs_charger_raceday]
               travel_mm: [100, 110, 120, 130]
@@ -174,10 +249,22 @@ nodes:
             note: >
               Max travel is 130mm with the Energizer cartridge but only 120mm
               when fitted with the RockShox Charger Raceday cartridge.
+            note_de: >
+              Der maximale Federweg beträgt 130mm mit der Energizer-Kartusche,
+              aber nur 120mm mit der RockShox-Charger-Raceday-Kartusche.
+            note_fr: Le débattement max. est de 130 mm avec la cartouche Energizer, mais de 120 mm seulement avec la cartouche RockShox Charger Raceday.
+            note_it: L’escursione massima è di 130 mm con la cartuccia Energizer, ma solo 120 mm con la cartuccia RockShox Charger Raceday.
+            note_es: El recorrido máximo es de 130 mm con el cartucho Energizer, pero solo de 120 mm con el cartucho RockShox Charger Raceday.
+            note_pt: O curso máximo é de 130 mm com o cartucho Energizer, mas de apenas 120 mm com o cartucho RockShox Charger Raceday.
 
   - label: "Samurai XC 32"
     level: model
     category: XC
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -191,7 +278,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [46, 48] # 46mm at sag, 48mm fully extended
             adjustments: *air_spring
             options:
@@ -201,10 +288,22 @@ nodes:
             note: >
               Max travel is 130mm with the Energizer cartridge but only 120mm
               when fitted with the RockShox Charger Raceday cartridge.
+            note_de: >
+              Der maximale Federweg beträgt 130mm mit der Energizer-Kartusche,
+              aber nur 120mm mit der RockShox-Charger-Raceday-Kartusche.
+            note_fr: Le débattement max. est de 130 mm avec la cartouche Energizer, mais de 120 mm seulement avec la cartouche RockShox Charger Raceday.
+            note_it: L’escursione massima è di 130 mm con la cartuccia Energizer, ma solo 120 mm con la cartuccia RockShox Charger Raceday.
+            note_es: El recorrido máximo es de 130 mm con el cartucho Energizer, pero solo de 120 mm con el cartucho RockShox Charger Raceday.
+            note_pt: O curso máximo é de 130 mm com o cartucho Energizer, mas de apenas 120 mm com o cartucho RockShox Charger Raceday.
 
   - label: "Samurai Super TR"
     level: model
     category: Downcountry / Trail / Enduro
+    category_de: Downcountry / Trail / Enduro
+    category_fr: Downcountry / Trail / Enduro
+    category_it: Downcountry / Trail / Enduro
+    category_es: Downcountry / Trail / Enduro
+    category_pt: Downcountry / Trail / Enduro
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -218,7 +317,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -229,6 +328,11 @@ nodes:
   - label: "Hero"
     level: model
     category: Trail / All-Mountain / Enduro
+    category_de: Trail / All-Mountain / Enduro
+    category_fr: Trail / All-Mountain / Enduro
+    category_it: Trail / All-Mountain / Enduro
+    category_es: Trail / All-Mountain / Enduro
+    category_pt: Trail / All-Mountain / Enduro
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -242,7 +346,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 44mm upper / 35mm lower (inverted), spring: Air }
+            specs: { stanchion: 44mm upper / 35mm lower (inverted), stanchion_de: 44mm oben / 35mm unten (Upside-down), stanchion_fr: 44mm en haut / 35mm en bas (inversée), stanchion_it: 44mm sopra / 35mm sotto (invertita), stanchion_es: 44mm arriba / 35mm abajo (invertida), stanchion_pt: 44mm em cima / 35mm embaixo (invertida), spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -250,10 +354,20 @@ nodes:
               travel_mm: [140, 150, 160, 170]
               wheel_size: [29]
             note: No TorqueCap compatibility from April 2025 on.
+            note_de: Ab April 2025 keine TorqueCap-Kompatibilität.
+            note_fr: Plus de compatibilité TorqueCap à partir d’avril 2025.
+            note_it: Nessuna compatibilità TorqueCap da aprile 2025.
+            note_es: Sin compatibilidad con TorqueCap desde abril de 2025.
+            note_pt: Sem compatibilidade com TorqueCap a partir de abril de 2025.
 
   - label: "Essential"
     level: model
     category: Trail / All-Mountain / Enduro
+    category_de: Trail / All-Mountain / Enduro
+    category_fr: Trail / All-Mountain / Enduro
+    category_it: Trail / All-Mountain / Enduro
+    category_es: Trail / All-Mountain / Enduro
+    category_pt: Trail / All-Mountain / Enduro
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -267,7 +381,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -278,10 +392,23 @@ nodes:
               Budget-line model. Early first-production-batch units are not
               compatible with a retrofit Linearizer or the current TravelRanger
               air unit.
+            note_de: >
+              Modell der Budget-Linie. Frühe Einheiten der ersten
+              Produktionscharge sind nicht mit einem nachgerüsteten Linearizer
+              oder der aktuellen TravelRanger-Lufteinheit kompatibel.
+            note_fr: Modèle d’entrée de gamme. Les premiers exemplaires du premier lot de production ne sont pas compatibles avec un Linearizer en kit ni avec l’unité pneumatique TravelRanger actuelle.
+            note_it: Modello entry-level. Gli esemplari della prima serie di produzione non sono compatibili con un Linearizer in kit né con l’attuale unità pneumatica TravelRanger.
+            note_es: Modelo de gama de entrada. Las primeras unidades del primer lote de producción no son compatibles con un Linearizer de reequipamiento ni con la unidad neumática TravelRanger actual.
+            note_pt: Modelo de entrada. As primeiras unidades do primeiro lote de produção não são compatíveis com um Linearizer de retrofit nem com a unidade a ar TravelRanger atual.
 
   - label: "Edge"
     level: model
     category: Enduro
+    category_de: Enduro
+    category_fr: Enduro
+    category_it: Enduro
+    category_es: Enduro
+    category_pt: Enduro
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -295,7 +422,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -306,6 +433,11 @@ nodes:
   - label: "Flash 35"
     level: model
     category: Enduro / Freeride
+    category_de: Enduro / Freeride
+    category_fr: Enduro / Freeride
+    category_it: Enduro / Freeride
+    category_es: Enduro / Freeride
+    category_pt: Enduro / Freeride
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -319,7 +451,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -330,6 +462,11 @@ nodes:
   - label: "Flash 38"
     level: model
     category: Enduro / Freeride / DH
+    category_de: Enduro / Freeride / DH
+    category_fr: Enduro / Freeride / DH
+    category_it: Enduro / Freeride / DH
+    category_es: Enduro / Freeride / DH
+    category_pt: Enduro / Freeride / DH
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -343,7 +480,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 38mm, spring: Air }
+            specs: { stanchion: 38mm, stanchion_de: 38mm, stanchion_fr: 38mm, stanchion_it: 38mm, stanchion_es: 38mm, stanchion_pt: 38mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -351,10 +488,20 @@ nodes:
               travel_mm: [160, 170, 180, 190]
               wheel_size: [29]
             note: Swappable axle design — 15x110 or 20x110 Boost.
+            note_de: Austauschbares Achskonzept — 15x110 oder 20x110 Boost.
+            note_fr: Axe interchangeable — Boost 15x110 ou 20x110.
+            note_it: Perno intercambiabile — Boost 15x110 o 20x110.
+            note_es: Eje intercambiable — Boost 15x110 o 20x110.
+            note_pt: Eixo intercambiável — Boost 15x110 ou 20x110.
 
   - label: "Infinity EN"
     level: model
     category: Enduro / Freeride / DH (Dual Crown)
+    category_de: Enduro / Freeride / DH (Doppelbrücke)
+    category_fr: Enduro / Freeride / DH (double té)
+    category_it: Enduro / Freeride / DH (doppia piastra)
+    category_es: Enduro / Freeride / DH (doble corona)
+    category_pt: Enduro / Freeride / DH (dupla coroa)
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -368,7 +515,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *air_spring
             options:
@@ -376,10 +523,20 @@ nodes:
               travel_mm: [160, 170, 180, 190]
               wheel_size: [29]
             note: Dual-crown chassis.
+            note_de: Chassis mit Doppelbrücke.
+            note_fr: Châssis à double té.
+            note_it: Telaio a doppia piastra.
+            note_es: Chasis de doble corona.
+            note_pt: Chassi de dupla coroa.
 
   - label: "Bandit"
     level: model
     category: Enduro / Freeride
+    category_de: Enduro / Freeride
+    category_fr: Enduro / Freeride
+    category_it: Enduro / Freeride
+    category_es: Enduro / Freeride
+    category_pt: Enduro / Freeride
     tasks: *intend_service
     children:
       - label: "2025–2026"
@@ -393,7 +550,7 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44]
             adjustments: *air_spring
             options:

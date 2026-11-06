@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/component/component.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
@@ -90,7 +91,7 @@ class _DeleteTaskRulesSheetState extends State<_DeleteTaskRulesSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Delete related tasks?'),
+          SheetHeader(title: context.l10n.taskDeleteTitle),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -99,7 +100,7 @@ class _DeleteTaskRulesSheetState extends State<_DeleteTaskRulesSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Deleting a task also deletes its corresponding task entries.',
+                    context.l10n.taskDeleteBody,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -111,7 +112,7 @@ class _DeleteTaskRulesSheetState extends State<_DeleteTaskRulesSheet> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Tasks (${_selected.length} / ${widget.taskRules.length})',
+                            context.l10n.taskDeleteCount(_selected.length, widget.taskRules.length),
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -152,8 +153,8 @@ class _DeleteTaskRulesSheetState extends State<_DeleteTaskRulesSheet> {
               onPressed: () => Navigator.pop(context, _selected),
               label: Text(
                 _selected.isEmpty
-                    ? 'Continue without deleting tasks'
-                    : 'Delete ${_selected.length} task${_selected.length == 1 ? '' : 's'}',
+                    ? context.l10n.taskDeleteContinue
+                    : context.l10n.taskDeleteButton(_selected.length),
               ),
             ),
           ),
@@ -182,13 +183,13 @@ class _ComponentGroupHeader extends StatelessWidget {
           Icon(component?.componentType.getIconData() ?? Component.iconData, size: 18, color: cs.onSurfaceVariant),
           Expanded(
             child: Text(
-              component?.name ?? 'Component not found',
+              component?.name ?? context.l10n.taskGroupComponentNotFound,
               style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
-            isRoot ? 'This component' : 'Subcomponent',
+            isRoot ? context.l10n.taskGroupThisComponent : context.l10n.taskGroupSubcomponent,
             style: textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
           ),
         ],

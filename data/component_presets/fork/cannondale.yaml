@@ -72,9 +72,29 @@ option_values:
         - Self-bleeding Chamber damper with an external Low Speed Compression knob on top of the crown
         - Low Speed Rebound dial at the bottom of the leg, counted in clicks out from fully closed
         - Handlebar remote lockout with Descend and Climb modes
+      description_de: |-
+        - Selbstentlüftender Chamber-Dämpfer mit externem Low-Speed-Druckstufenknopf oben an der Gabelbrücke
+        - Low-Speed-Zugstufenrad unten am Gabelbein, in Klicks von ganz geschlossen aus gezählt
+        - Lockout per Lenkerfernbedienung mit den Modi Descend und Climb
+      description_fr: |-
+        - Amortisseur Chamber à purge automatique avec une molette externe de compression basse vitesse sur le dessus du té
+        - Molette de détente basse vitesse en bas de la jambe, comptée en clics depuis la position entièrement fermée
+        - Lockout déporté au guidon avec modes Descend et Climb
+      description_it: |-
+        - Ammortizzatore Chamber a spurgo automatico con una manopola esterna di compressione a bassa velocità sopra la piastra
+        - Manopola del ritorno a bassa velocità in basso sullo stelo, contata in scatti a partire dalla posizione completamente chiusa
+        - Lockout remoto al manubrio con modalità Descend e Climb
+      description_es: |-
+        - Amortiguador Chamber de purga automática con una rueda externa de compresión de baja velocidad en la parte superior de la corona
+        - Rueda de rebote de baja velocidad en la parte inferior de la pierna, contada en clics desde la posición totalmente cerrada
+        - Lockout remoto en el manillar con modos Descend y Climb
+      description_pt: |-
+        - Amortecedor Chamber de sangria automática com um seletor externo de compressão de baixa velocidade no alto da coroa
+        - Seletor de retorno de baixa velocidade na parte inferior da perna, contado em cliques a partir da posição totalmente fechada
+        - Lockout remoto no guidão com modos Descend e Climb
       adjustments:
-        - { name: Compression, type: step, max: 6, notes: "Low-Speed Compression; black knob on top of the crown, clockwise (+) = harder to compress; do not force past the stops" }
-        - { name: Rebound, type: step, max: 23, notes: "Low-Speed Rebound; dial at the bottom of the leg, counted in clicks out from fully closed (slowest)" }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 6, notes: "Low-Speed Compression; black knob on top of the crown, clockwise (+) = harder to compress; do not force past the stops", notes_de: "Low-Speed-Druckstufe; schwarzer Knopf oben auf der Gabelbrücke, im Uhrzeigersinn (+) = schwerer einfedernd; nicht über die Anschläge hinaus drehen", notes_fr: "Compression basse vitesse ; molette noire sur le dessus du té, sens horaire (+) = plus dur à comprimer ; ne forcez pas au-delà des butées", notes_it: "Compressione a bassa velocità; manopola nera sopra la piastra, senso orario (+) = più dura da comprimere; non forzare oltre i fine corsa", notes_es: "Compresión de baja velocidad; rueda negra en la parte superior de la corona, sentido horario (+) = más dura de comprimir; no fuerces más allá de los topes", notes_pt: "Compressão de baixa velocidade; seletor preto no alto da coroa, sentido horário (+) = mais dura de comprimir; não force além dos batentes" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 23, notes: "Low-Speed Rebound; dial at the bottom of the leg, counted in clicks out from fully closed (slowest)", notes_de: "Low-Speed-Zugstufe; Rad unten am Gabelbein, in Klicks von ganz geschlossen (am langsamsten) aus gezählt", notes_fr: "Détente basse vitesse ; molette en bas de la jambe, comptée en clics depuis la position entièrement fermée (la plus lente)", notes_it: "Ritorno a bassa velocità; manopola in basso sullo stelo, contato in scatti a partire dalla posizione completamente chiusa (il più lento)", notes_es: "Rebote de baja velocidad; rueda en la parte inferior de la pierna, contado en clics desde la posición totalmente cerrada (el más lento)", notes_pt: "Retorno de baixa velocidade; seletor na parte inferior da perna, contado em cliques a partir da posição totalmente fechada (o mais lento)" }
       source:
         - https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
         - https://www.bikeradar.com/news/everything-you-need-to-know-about-the-new-cannondale-lefty-ocho-fork
@@ -96,9 +116,17 @@ option_values:
       description: >-
         High-flow Chamber damper with a crown-top Low Speed Compression dial, a
         rebound dial at the bottom of the leg and a remote lockout.
+      description_de: >-
+        Chamber-Dämpfer mit hohem Durchfluss, Low-Speed-Druckstufenrad oben an
+        der Gabelbrücke, Zugstufenrad unten am Gabelbein und
+        Fernbedienungs-Lockout.
+      description_fr: Amortisseur Chamber à fort débit avec une molette de compression basse vitesse sur le dessus du té, une molette de détente en bas de la jambe et un lockout déporté.
+      description_it: Ammortizzatore Chamber ad alto flusso con una manopola di compressione a bassa velocità sopra la piastra, una manopola del ritorno in basso sullo stelo e un lockout remoto.
+      description_es: Amortiguador Chamber de alto flujo con una rueda de compresión de baja velocidad en la parte superior de la corona, una rueda de rebote en la parte inferior de la pierna y un lockout remoto.
+      description_pt: Amortecedor Chamber de alto fluxo com um seletor de compressão de baixa velocidade no alto da coroa, um seletor de retorno na parte inferior da perna e um lockout remoto.
       adjustments:
-        - { name: Compression, type: step, max: 7, notes: "Low-Speed Compression; black knob on top of the crown, clockwise (+) = harder to compress; do not force past the stops" }
-        - { name: Rebound, type: step, max: 21, notes: "Low-Speed Rebound; counted in clicks out from fully closed (slowest)" }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 7, notes: "Low-Speed Compression; black knob on top of the crown, clockwise (+) = harder to compress; do not force past the stops", notes_de: "Low-Speed-Druckstufe; schwarzer Knopf oben auf der Gabelbrücke, im Uhrzeigersinn (+) = schwerer einfedernd; nicht über die Anschläge hinaus drehen", notes_fr: "Compression basse vitesse ; molette noire sur le dessus du té, sens horaire (+) = plus dur à comprimer ; ne forcez pas au-delà des butées", notes_it: "Compressione a bassa velocità; manopola nera sopra la piastra, senso orario (+) = più dura da comprimere; non forzare oltre i fine corsa", notes_es: "Compresión de baja velocidad; rueda negra en la parte superior de la corona, sentido horario (+) = más dura de comprimir; no fuerces más allá de los topes", notes_pt: "Compressão de baixa velocidade; seletor preto no alto da coroa, sentido horário (+) = mais dura de comprimir; não force além dos batentes" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 21, notes: "Low-Speed Rebound; counted in clicks out from fully closed (slowest)", notes_de: Low-Speed-Zugstufe; in Klicks von ganz geschlossen (am langsamsten) aus gezählt, notes_fr: Détente basse vitesse ; comptée en clics depuis la position entièrement fermée (la plus lente), notes_it: Ritorno a bassa velocità; contato in scatti a partire dalla posizione completamente chiusa (il più lento), notes_es: Rebote de baja velocidad; contado en clics desde la posición totalmente cerrada (el más lento), notes_pt: Retorno de baixa velocidade; contado em cliques a partir da posição totalmente fechada (o mais lento) }
       source:
         - https://www.cannondale.com/en/gear/components/suspension/lefty-ocho/lefty-ocho-120-carbon
         - https://www.cannondale.com/en-gb/owners-manuals/-/media/files/manual-uploads/my21/021_138227_oms_lefty%20ocho_120_pdfs_021_138227_oms_lefty%20ocho_en.pdf
@@ -115,8 +143,16 @@ option_values:
       description: >-
         Gravel-specific damper with a rebound knob at the bottom of the leg and a
         top-of-leg lockout that blows off if you hit an obstacle while locked.
+      description_de: >-
+        Gravel-spezifischer Dämpfer mit Zugstufenknopf unten am Gabelbein und
+        einem Lockout oben am Gabelbein, der bei einem Hindernis im gesperrten
+        Zustand durchschlägt (Blow-off).
+      description_fr: Amortisseur spécifique gravel avec une molette de détente en bas de la jambe et un lockout en haut de la jambe qui se relâche si vous heurtez un obstacle en position verrouillée.
+      description_it: Ammortizzatore specifico per il gravel con una manopola del ritorno in basso sullo stelo e un lockout in cima allo stelo che si sblocca se colpisci un ostacolo mentre è bloccato.
+      description_es: Amortiguador específico para gravel con una rueda de rebote en la parte inferior de la pierna y un lockout en la parte superior que se libera si golpeas un obstáculo con él bloqueado.
+      description_pt: Amortecedor específico para gravel com um seletor de retorno na parte inferior da perna e um lockout no alto da perna que se libera se você bater em um obstáculo com ele travado.
       adjustments:
-        - { name: Rebound, type: step, max: 11, notes: "Counted in clicks out from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 11, notes: "Counted in clicks out from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", notes_de: "In Klicks von ganz geschlossen (am langsamsten) aus gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compté en clics depuis la position entièrement fermée (la plus lente) ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Contato in scatti a partire dalla posizione completamente chiusa (la più lenta); massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Contado en clics desde la posición totalmente cerrada (la más lenta); máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Contado em cliques a partir da posição totalmente fechada (a mais lenta); máximo estimado, confira o seu seletor e edite-o se for diferente" }
       source:
         - https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
         - https://www.bikeradar.com/reviews/components/forks/suspension-forks/cannondale-oliver-lefty-carbon-gravel-fork-review
@@ -135,7 +171,20 @@ option_values:
       description: >-
         Rebound dial on top of the leg. Climb mode comes from a push button under the
         dial (PBR) or from a handlebar RockShox XLoc remote (XLR).
+      description_de: >-
+        Zugstufenrad oben am Gabelbein. Der Climb-Modus kommt von einem
+        Druckknopf unter dem Rad (PBR) oder von einer
+        RockShox-XLoc-Fernbedienung am Lenker (XLR).
+      description_fr: Molette de détente sur le dessus de la jambe. Le mode Climb vient d’un bouton-poussoir sous la molette (PBR) ou d’une commande déportée RockShox XLoc au guidon (XLR).
+      description_it: Manopola del ritorno in cima allo stelo. La modalità Climb si attiva con un pulsante sotto la manopola (PBR) o con un comando remoto RockShox XLoc al manubrio (XLR).
+      description_es: Rueda de rebote en la parte superior de la pierna. El modo Climb viene de un pulsador bajo la rueda (PBR) o de un mando remoto RockShox XLoc en el manillar (XLR).
+      description_pt: Seletor de retorno no alto da perna. O modo Climb vem de um botão sob o seletor (PBR) ou de um comando remoto RockShox XLoc no guidão (XLR).
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments: []
       source:
         - https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
@@ -160,6 +209,11 @@ option_values:
 guides:
   cannondale_lefty_ocho_2018:
     label: Lefty Ocho owner's manual supplement (2018)
+    label_de: Lefty Ocho Bedienungsanleitung, Nachtrag (2018)
+    label_fr: Supplément au manuel d’utilisation Lefty Ocho (2018)
+    label_it: Supplemento al manuale d’uso Lefty Ocho (2018)
+    label_es: Suplemento del manual del usuario Lefty Ocho (2018)
+    label_pt: Suplemento do manual do usuário Lefty Ocho (2018)
     source: https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
     rules:
       - target: pressure
@@ -171,6 +225,11 @@ guides:
           170: 136, 180: 143, 190: 151, 200: 159, 210: 167, 220: 174, 230: 182
         }
         note: Rider weight including riding gear
+        note_de: Fahrergewicht inklusive Fahrausrüstung
+        note_fr: Poids du pilote équipement compris
+        note_it: Peso del rider compresa l’attrezzatura da guida
+        note_es: Peso del rider incluido el equipo de pilotaje
+        note_pt: Peso do rider incluindo o equipamento de pilotagem
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -182,6 +241,11 @@ guides:
 
   cannondale_lefty_oliver_2020:
     label: Lefty Oliver owner's manual supplement (2020)
+    label_de: Lefty Oliver Bedienungsanleitung, Nachtrag (2020)
+    label_fr: Supplément au manuel d’utilisation Lefty Oliver (2020)
+    label_it: Supplemento al manuale d’uso Lefty Oliver (2020)
+    label_es: Suplemento del manual del usuario Lefty Oliver (2020)
+    label_pt: Suplemento do manual do usuário Lefty Oliver (2020)
     source: https://www.cannondale.com/-/media/files/manual-uploads/MY21/137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver%20Folder_137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver_EU_EN.pdf
     rules:
       - target: pressure
@@ -193,6 +257,11 @@ guides:
           190: 102, 200: 106, 210: 111, 220: 115, 230: 120, 240: 124, 250: 129
         }
         note: Rider weight including riding gear
+        note_de: Fahrergewicht inklusive Fahrausrüstung
+        note_fr: Poids du pilote équipement compris
+        note_it: Peso del rider compresa l’attrezzatura da guida
+        note_es: Peso del rider incluido el equipo de pilotaje
+        note_pt: Peso do rider incluindo o equipamento de pilotagem
       - target: rebound
         input: rider_weight
         input_unit: lb
@@ -200,12 +269,17 @@ guides:
           120: 10, 130: 9, 140: 9, 150: 8, 160: 8, 170: 7, 180: 7,
           190: 6, 200: 6, 210: 5, 220: 5, 230: 4, 240: 4, 250: 4
         }
-      - { target: sag, value: 0, note: The fork is set up to ride at the top of its travel }
+      - { target: sag, value: 0, note: The fork is set up to ride at the top of its travel, note_de: "Die Gabel ist so abgestimmt, dass sie im oberen Bereich ihres Federwegs fährt", note_fr: La fourche est réglée pour rouler en haut de son débattement, note_it: La forcella è impostata per lavorare nella parte alta dell’escursione, note_es: La horquilla está ajustada para rodar en la parte alta de su recorrido, note_pt: O garfo é ajustado para rodar na parte alta do curso }
       # Stock Ramp Ring count at 30mm travel (650b and 700c).
       - { target: volume_spacers, value: 3 }
 
   cannondale_lefty_2_0_2016:
     label: Lefty owner's manual supplement (2016)
+    label_de: Lefty Bedienungsanleitung, Nachtrag (2016)
+    label_fr: Supplément au manuel d’utilisation Lefty (2016)
+    label_it: Supplemento al manuale d’uso Lefty (2016)
+    label_es: Suplemento del manual del usuario Lefty (2016)
+    label_pt: Suplemento do manual do usuário Lefty (2016)
     source: https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
     rules:
       # One column per printed travel / wheel combination; 120 and 130mm on
@@ -223,6 +297,11 @@ guides:
           180: 117, 190: 125, 200: 132, 210: 140, 220: 147, 230: 155, 240: 162
         }
         note: Rider weight including riding gear
+        note_de: Fahrergewicht inklusive Fahrausrüstung
+        note_fr: Poids du pilote équipement compris
+        note_it: Peso del rider compresa l’attrezzatura da guida
+        note_es: Peso del rider incluido el equipo de pilotaje
+        note_pt: Peso do rider incluindo o equipamento de pilotagem
       - target: pressure
         unit: psi
         input: rider_weight
@@ -233,6 +312,11 @@ guides:
           180: 109, 190: 115, 200: 121, 210: 128, 220: 134, 230: 140, 240: 147
         }
         note: Rider weight including riding gear
+        note_de: Fahrergewicht inklusive Fahrausrüstung
+        note_fr: Poids du pilote équipement compris
+        note_it: Peso del rider compresa l’attrezzatura da guida
+        note_es: Peso del rider incluido el equipo de pilotaje
+        note_pt: Peso do rider incluindo o equipamento de pilotagem
       - { target: sag, unit: mm, range: [25, 30], when: { travel_mm: 100 } }
       - { target: sag, unit: mm, range: [30, 35], when: { travel_mm: [120, 130], wheel_size: "27.5" } }
 
@@ -243,17 +327,32 @@ nodes:
   - label: Lefty Ocho 120
     level: model
     category: Cross-Country
+    category_de: Cross-Country
+    category_fr: Cross-Country
+    category_it: Cross-Country
+    category_es: Cross-Country
+    category_pt: Cross-Country
     source:
       - https://www.cannondale.com/en-gb/owners-manuals/-/media/files/manual-uploads/my21/021_138227_oms_lefty%20ocho_120_pdfs_021_138227_oms_lefty%20ocho_en.pdf
       - https://www.bikeradar.com/news/lefty-ocho-120-fork-debuts-on-cannondale-scalpel-se-ltd
     tasks: &lefty_ocho_service
       fork:telescope_service:
         name: Telescope service
+        name_de: Teleskop-Service
+        name_fr: Révision du système télescopique
+        name_it: Manutenzione del sistema telescopico
+        name_es: Mantenimiento del sistema telescópico
+        name_pt: Revisão do sistema telescópico
         interval: { moving_time_h: 100 }
         fallback: { days: 365 }
         preselected: true
         source: Lefty Ocho owner's manual
-      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 730 }, source: Lefty Ocho owner's manual }
+        source_de: Lefty-Ocho-Handbuch
+        source_fr: Manuel d’utilisation Lefty Ocho
+        source_it: Manuale d’uso Lefty Ocho
+        source_es: Manual del usuario Lefty Ocho
+        source_pt: Manual do usuário Lefty Ocho
+      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 730 }, source: Lefty Ocho owner's manual, source_de: Lefty-Ocho-Handbuch, source_fr: Manuel d’utilisation Lefty Ocho, source_it: Manuale d’uso Lefty Ocho, source_es: Manual del usuario Lefty Ocho, source_pt: Manual do usuário Lefty Ocho }
     children:
       - label: "2021–2026"
         level: generation
@@ -267,10 +366,10 @@ nodes:
         children:
           - label: Carbon
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 50 }
-              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Ramp Clamps on the air-piston carrier; four are fitted as standard" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 50 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Ramp Clamps on the air-piston carrier; four are fitted as standard", notes_de: Ramp Clamps am Luftkolbenträger; vier sind serienmäßig verbaut, notes_fr: Ramp Clamps sur le support du piston pneumatique ; quatre sont montés de série, notes_it: Ramp Clamps sul supporto del pistone pneumatico; quattro sono montati di serie, notes_es: Ramp Clamps en el soporte del pistón neumático; cuatro vienen montados de serie, notes_pt: Ramp Clamps no suporte do pistão a ar; quatro vêm montados de série }
             options:
               damper: [chamber_ocho120_2021]
               travel_mm: [110, 120]
@@ -281,10 +380,45 @@ nodes:
               - One SideCar valve charges the air spring and the negative chamber equalizes itself
               - Ramp Clamps tune how progressive the end of the stroke feels
               - Remote or crown-mounted lockout, StopLock quick-release brake mount
+            note_de: |-
+              - Einbein-Gabel mit einer Brücke auf triangulierten Nadellagern; benötigt eine Lefty-60-Nabe
+              - Obere Beinhälfte aus Carbon, untere aus Aluminium, 50mm Offset, 29in-Laufräder
+              - Ein SideCar-Ventil befüllt die Luftfeder und die Negativkammer gleicht sich selbst aus
+              - Ramp Clamps bestimmen, wie progressiv sich das Ende des Federwegs anfühlt
+              - Lockout per Fernbedienung oder an der Gabelbrücke, StopLock-Schnellspann-Bremsaufnahme
+            note_fr: |-
+              - Fourche monobras à té simple sur roulements à aiguilles triangulés ; nécessite un moyeu Lefty 60
+              - Jambe supérieure en carbone, jambe inférieure en aluminium, déport de 50 mm, roues de 29"
+              - Une seule valve SideCar gonfle le ressort pneumatique et la chambre négative s’équilibre toute seule
+              - Les Ramp Clamps règlent la progressivité de la fin de course
+              - Lockout à distance ou sur le té, fixation de frein à démontage rapide StopLock
+            note_it: |-
+              - Forcella monostelo a piastra singola su cuscinetti a rullini triangolati; richiede un mozzo Lefty 60
+              - Stelo superiore in carbonio, stelo inferiore in alluminio, offset di 50 mm, ruote da 29"
+              - Una sola valvola SideCar carica la molla pneumatica e la camera negativa si equilibra da sola
+              - I Ramp Clamps regolano quanto è progressivo il finale della corsa
+              - Lockout remoto o sulla piastra, attacco freno a sgancio rapido StopLock
+            note_es: |-
+              - Horquilla de una sola pierna y corona simple sobre rodamientos de agujas triangulados; necesita un buje Lefty 60
+              - Pierna superior de carbono, pierna inferior de aluminio, offset de 50 mm, ruedas de 29"
+              - Una sola válvula SideCar carga el muelle neumático y la cámara negativa se equilibra sola
+              - Los Ramp Clamps regulan lo progresivo que se siente el final del recorrido
+              - Lockout remoto o en la corona, anclaje de freno de liberación rápida StopLock
+            note_pt: |-
+              - Garfo de uma perna só e coroa simples sobre rolamentos de agulhas triangulados; exige um cubo Lefty 60
+              - Perna superior de carbono, perna inferior de alumínio, offset de 50 mm, rodas de 29"
+              - Uma única válvula SideCar carrega a mola a ar e a câmara negativa se equaliza sozinha
+              - Os Ramp Clamps regulam o quanto o fim do curso é progressivo
+              - Lockout remoto ou na coroa, fixação de freio de liberação rápida StopLock
 
   - label: Lefty Ocho
     level: model
     category: Cross-Country
+    category_de: Cross-Country
+    category_fr: Cross-Country
+    category_it: Cross-Country
+    category_es: Cross-Country
+    category_pt: Cross-Country
     source:
       - https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
       - https://www.bikeradar.com/news/everything-you-need-to-know-about-the-new-cannondale-lefty-ocho-fork
@@ -303,9 +437,9 @@ nodes:
         children:
           - label: Carbon
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &ocho_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 50, max: 250 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 50, max: 250 }
             options:
               damper: [chamber_ocho_2018]
               travel_mm: [100]
@@ -316,9 +450,39 @@ nodes:
               - One SideCar valve charges the air spring and the negative chamber equalizes itself
               - Optional Ramp Clamps add progression near the end of the stroke
               - Remote lockout with Descend and Climb modes, StopLock quick-release brake mount
+            note_de: |-
+              - Einbein-XC-Gabel mit einer Brücke auf triangulierten Nadellagern; benötigt eine Lefty-60-Nabe
+              - Carbon-Chassis, 50mm Offset bei 27.5in und 55mm bei 29in
+              - Ein SideCar-Ventil befüllt die Luftfeder und die Negativkammer gleicht sich selbst aus
+              - Optionale Ramp Clamps sorgen für mehr Progression gegen Ende des Federwegs
+              - Fernbedienungs-Lockout mit den Modi Descend und Climb, StopLock-Schnellspann-Bremsaufnahme
+            note_fr: |-
+              - Fourche XC monobras à té simple sur roulements à aiguilles triangulés ; nécessite un moyeu Lefty 60
+              - Châssis carbone, déport de 50 mm en 27,5" et de 55 mm en 29"
+              - Une seule valve SideCar gonfle le ressort pneumatique et la chambre négative s’équilibre toute seule
+              - Les Ramp Clamps en option ajoutent de la progressivité en fin de course
+              - Lockout à distance avec modes Descend et Climb, fixation de frein à démontage rapide StopLock
+            note_it: |-
+              - Forcella XC monostelo a piastra singola su cuscinetti a rullini triangolati; richiede un mozzo Lefty 60
+              - Telaio in carbonio, offset di 50 mm sul 27,5" e di 55 mm sul 29"
+              - Una sola valvola SideCar carica la molla pneumatica e la camera negativa si equilibra da sola
+              - I Ramp Clamps opzionali aggiungono progressività a fine corsa
+              - Lockout remoto con modalità Descend e Climb, attacco freno a sgancio rapido StopLock
+            note_es: |-
+              - Horquilla XC de una sola pierna y corona simple sobre rodamientos de agujas triangulados; necesita un buje Lefty 60
+              - Chasis de carbono, offset de 50 mm en 27,5" y de 55 mm en 29"
+              - Una sola válvula SideCar carga el muelle neumático y la cámara negativa se equilibra sola
+              - Los Ramp Clamps opcionales añaden progresividad al final del recorrido
+              - Lockout remoto con modos Descend y Climb, anclaje de freno de liberación rápida StopLock
+            note_pt: |-
+              - Garfo XC de uma perna só e coroa simples sobre rolamentos de agulhas triangulados; exige um cubo Lefty 60
+              - Chassi de carbono, offset de 50 mm no 27,5" e de 55 mm no 29"
+              - Uma única válvula SideCar carrega a mola a ar e a câmara negativa se equaliza sozinha
+              - Os Ramp Clamps opcionais acrescentam progressividade no fim do curso
+              - Lockout remoto com modos Descend e Climb, fixação de freio de liberação rápida StopLock
           - label: Alloy
             level: trim
-            specs: { spring: Air }
+            specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *ocho_air_spring
             options:
               damper: [chamber_ocho_2018]
@@ -327,10 +491,30 @@ nodes:
             note: |-
               - Aluminum-chassis version of the Ocho with the same air spring and damper
               - Heavier than the carbon fork, otherwise adjusted identically
+            note_de: |-
+              - Aluminium-Chassis-Version der Ocho mit derselben Luftfeder und demselben Dämpfer
+              - Schwerer als die Carbon-Gabel, ansonsten identisch einzustellen
+            note_fr: |-
+              - Version à châssis aluminium de l’Ocho, avec le même ressort pneumatique et le même amortisseur
+              - Plus lourde que la fourche carbone, sinon réglée de la même façon
+            note_it: |-
+              - Versione con telaio in alluminio dell’Ocho, con la stessa molla pneumatica e lo stesso ammortizzatore
+              - Più pesante della forcella in carbonio, per il resto regolata allo stesso modo
+            note_es: |-
+              - Versión con chasis de aluminio de la Ocho, con el mismo muelle neumático y el mismo amortiguador
+              - Más pesada que la horquilla de carbono, por lo demás se ajusta igual
+            note_pt: |-
+              - Versão com chassi de alumínio da Ocho, com a mesma mola a ar e o mesmo amortecedor
+              - Mais pesado que o garfo de carbono, no mais é ajustado da mesma forma
 
   - label: Lefty Oliver
     level: model
     category: Gravel
+    category_de: Gravel
+    category_fr: Gravel
+    category_it: Gravel
+    category_es: Gravel
+    category_pt: Gravel
     url: https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
     setup_guide: https://www.cannondale.com/-/media/files/manual-uploads/MY21/137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver%20Folder_137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver_EU_EN.pdf
     guide: cannondale_lefty_oliver_2020
@@ -342,16 +526,16 @@ nodes:
       - https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
       - https://www.bikeradar.com/reviews/components/forks/suspension-forks/cannondale-oliver-lefty-carbon-gravel-fork-review
     tasks:
-      fork:telescope_service: { name: Telescope service, preselected: true, interval: { moving_time_h: 100 }, source: Lefty Oliver owner's manual }
-      fork:damper_inspection: { name: "Air spring & damper inspection", preselected: true, interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Lefty Oliver owner's manual }
-      fork:full_service: { interval: { moving_time_h: 200 }, source: Lefty Oliver owner's manual }
+      fork:telescope_service: { name: Telescope service, name_de: Teleskop-Service, name_fr: Révision du système télescopique, name_it: Manutenzione del sistema telescopico, name_es: Mantenimiento del sistema telescópico, name_pt: Revisão do sistema telescópico, preselected: true, interval: { moving_time_h: 100 }, source: Lefty Oliver owner's manual, source_de: Lefty-Oliver-Handbuch, source_fr: Manuel d’utilisation Lefty Oliver, source_it: Manuale d’uso Lefty Oliver, source_es: Manual del usuario Lefty Oliver, source_pt: Manual do usuário Lefty Oliver }
+      fork:damper_inspection: { name: "Air spring & damper inspection", name_de: Luftfeder- und Dämpferkontrolle, name_fr: Contrôle du ressort pneumatique et de l’amortisseur, name_it: Controllo di molla pneumatica e ammortizzatore, name_es: Revisión del muelle neumático y del amortiguador, name_pt: Inspeção da mola a ar e do amortecedor, preselected: true, interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Lefty Oliver owner's manual, source_de: Lefty-Oliver-Handbuch, source_fr: Manuel d’utilisation Lefty Oliver, source_it: Manuale d’uso Lefty Oliver, source_es: Manual del usuario Lefty Oliver, source_pt: Manual do usuário Lefty Oliver }
+      fork:full_service: { interval: { moving_time_h: 200 }, source: Lefty Oliver owner's manual, source_de: Lefty-Oliver-Handbuch, source_fr: Manuel d’utilisation Lefty Oliver, source_it: Manuale d’uso Lefty Oliver, source_es: Manual del usuario Lefty Oliver, source_pt: Manual do usuário Lefty Oliver }
     children:
       - label: Carbon
         level: trim
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 50, max: 200 }
-          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Ramp Rings on the air-piston carrier; three are fitted as standard" }
+          - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 50, max: 200 }
+          - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 6, visualization: stepper, notes: "Ramp Rings on the air-piston carrier; three are fitted as standard", notes_de: Ramp Rings am Luftkolbenträger; drei sind serienmäßig verbaut, notes_fr: Ramp Rings sur le support du piston pneumatique ; trois sont montés de série, notes_it: Ramp Rings sul supporto del pistone pneumatico; tre sono montati di serie, notes_es: Ramp Rings en el soporte del pistón neumático; tres vienen montados de serie, notes_pt: Ramp Rings no suporte do pistão a ar; três vêm montados de série }
         options:
           damper: [oliver]
           travel_mm: [30]
@@ -361,12 +545,42 @@ nodes:
           - Air spring volume is tuned with Ramp Rings on the carrier (a special tool is needed)
           - Add air in small steps and cycle the fork through its travel between each step
           - Lockout on top of the leg with blow-off
+        note_de: |-
+          - Einbein-Gravel-Gabel mit 30mm Federweg und 55mm Offset; benötigt eine Lefty-50-Nabe
+          - Das Luftfedervolumen wird mit Ramp Rings am Träger abgestimmt (ein Spezialwerkzeug ist nötig)
+          - Luft in kleinen Schritten nachfüllen und die Gabel zwischen den Schritten durch den Federweg bewegen
+          - Lockout oben am Gabelbein mit Blow-off
+        note_fr: |-
+          - Fourche gravel monobras à débattement de 30 mm et déport de 55 mm ; nécessite un moyeu Lefty 50
+          - Le volume du ressort pneumatique se règle avec des Ramp Rings sur le support (un outil spécial est nécessaire)
+          - Ajoutez de l’air par petites étapes et faites travailler la fourche sur toute sa course entre chaque étape
+          - Lockout en haut de la jambe avec blow-off
+        note_it: |-
+          - Forcella gravel monostelo con 30 mm di escursione e offset di 55 mm; richiede un mozzo Lefty 50
+          - Il volume della molla pneumatica si regola con Ramp Rings sul supporto (serve un attrezzo speciale)
+          - Aggiungi aria a piccoli passi e fai lavorare la forcella su tutta l’escursione tra un passo e l’altro
+          - Lockout sulla parte alta dello stelo con blow-off
+        note_es: |-
+          - Horquilla gravel de una sola pierna con 30 mm de recorrido y offset de 55 mm; necesita un buje Lefty 50
+          - El volumen del muelle neumático se ajusta con Ramp Rings en el soporte (hace falta una herramienta especial)
+          - Añade aire en pequeños pasos y comprime la horquilla por todo su recorrido entre un paso y otro
+          - Lockout en la parte superior de la pierna con blow-off
+        note_pt: |-
+          - Garfo gravel de uma perna só com 30 mm de curso e offset de 55 mm; exige um cubo Lefty 50
+          - O volume da mola a ar é ajustado com Ramp Rings no suporte (é preciso uma ferramenta especial)
+          - Adicione ar em pequenos passos e comprima o garfo por todo o curso entre um passo e outro
+          - Lockout na parte superior da perna com blow-off
 
   # ---------------- Legacy ----------------
   - label: Lefty 2.0
     level: model
     draft: true
     category: Cross-Country
+    category_de: Cross-Country
+    category_fr: Cross-Country
+    category_it: Cross-Country
+    category_es: Cross-Country
+    category_pt: Cross-Country
     url: https://www.cannondale.com/en-us/owners-manuals/lefty
     setup_guide: https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
     guide: cannondale_lefty_2_0_2016
@@ -374,15 +588,15 @@ nodes:
     # 50-225 psi pressure limits: 2016 Lefty Owner's Manual Supplement 133095 p.2, p.15.
     source: https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
     tasks:
-      fork:telescope_service: { name: Telescope service, preselected: true, interval: { moving_time_h: 100 }, source: Lefty owner's manual }
-      fork:damper_inspection: { name: "Air spring & damper inspection", preselected: true, interval: { moving_time_h: 50 }, fallback: { days: 365 }, source: Lefty owner's manual }
-      fork:full_service: { interval: { moving_time_h: 200 }, source: Lefty owner's manual }
+      fork:telescope_service: { name: Telescope service, name_de: Teleskop-Service, name_fr: Révision du système télescopique, name_it: Manutenzione del sistema telescopico, name_es: Mantenimiento del sistema telescópico, name_pt: Revisão do sistema telescópico, preselected: true, interval: { moving_time_h: 100 }, source: Lefty owner's manual, source_de: Lefty-Handbuch, source_fr: Manuel d’utilisation Lefty, source_it: Manuale d’uso Lefty, source_es: Manual del usuario Lefty, source_pt: Manual do usuário Lefty }
+      fork:damper_inspection: { name: "Air spring & damper inspection", name_de: Luftfeder- und Dämpferkontrolle, name_fr: Contrôle du ressort pneumatique et de l’amortisseur, name_it: Controllo di molla pneumatica e ammortizzatore, name_es: Revisión del muelle neumático y del amortiguador, name_pt: Inspeção da mola a ar e do amortecedor, preselected: true, interval: { moving_time_h: 50 }, fallback: { days: 365 }, source: Lefty owner's manual, source_de: Lefty-Handbuch, source_fr: Manuel d’utilisation Lefty, source_it: Manuale d’uso Lefty, source_es: Manual del usuario Lefty, source_pt: Manual do usuário Lefty }
+      fork:full_service: { interval: { moving_time_h: 200 }, source: Lefty owner's manual, source_de: Lefty-Handbuch, source_fr: Manuel d’utilisation Lefty, source_it: Manuale d’uso Lefty, source_es: Manual del usuario Lefty, source_pt: Manual do usuário Lefty }
     children:
       - label: PBR
         level: trim
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         adjustments: &lefty2_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 50, max: 225 }
+          - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 50, max: 225 }
         options:
           damper: [lefty_2_2016]
           travel_mm: [100, 120, 130]
@@ -390,9 +604,24 @@ nodes:
         note: |-
           - Push Button Rebound: press the centre button to pop the rebound dial up for Climb mode
           - Press the dial back down to return to Descend mode
+        note_de: |-
+          - Push Button Rebound: den mittleren Knopf drücken, damit das Zugstufenrad für den Climb-Modus hochspringt
+          - Das Rad wieder nach unten drücken, um zum Descend-Modus zurückzukehren
+        note_fr: |-
+          - Push Button Rebound : appuyez sur le bouton central pour faire ressortir la molette de détente en mode Climb
+          - Renfoncez la molette pour revenir au mode Descend
+        note_it: |-
+          - Push Button Rebound: premi il pulsante centrale per far uscire la manopola del ritorno in modalità Climb
+          - Premi di nuovo la manopola per tornare alla modalità Descend
+        note_es: |-
+          - Push Button Rebound: pulsa el botón central para que la rueda de rebote salga en modo Climb
+          - Vuelve a pulsar la rueda para volver al modo Descend
+        note_pt: |-
+          - Push Button Rebound: pressione o botão central para fazer o seletor de retorno saltar no modo Climb
+          - Pressione o seletor de volta para voltar ao modo Descend
       - label: XLR
         level: trim
-        specs: { spring: Air }
+        specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
         adjustments: *lefty2_air_spring
         options:
           damper: [lefty_2_2016]
@@ -401,6 +630,21 @@ nodes:
         note: |-
           - XLoc with Rebound: Climb and Descend modes come from a handlebar RockShox XLoc remote
           - The rebound dial sits on top of the fork
+        note_de: |-
+          - XLoc mit Zugstufe: Die Modi Climb und Descend kommen von einer RockShox-XLoc-Fernbedienung am Lenker
+          - Das Zugstufenrad sitzt oben an der Gabel
+        note_fr: |-
+          - XLoc with Rebound : les modes Climb et Descend viennent d’une commande déportée RockShox XLoc au guidon
+          - La molette de détente se trouve sur le dessus de la fourche
+        note_it: |-
+          - XLoc with Rebound: i modi Climb e Descend arrivano da un comando remoto RockShox XLoc al manubrio
+          - La manopola del ritorno si trova sulla parte alta della forcella
+        note_es: |-
+          - XLoc with Rebound: los modos Climb y Descend vienen de un mando remoto RockShox XLoc en el manillar
+          - La rueda de rebote está en la parte superior de la horquilla
+        note_pt: |-
+          - XLoc with Rebound: os modos Climb e Descend vêm de um comando remoto RockShox XLoc no guidão
+          - O seletor de retorno fica na parte de cima do garfo
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

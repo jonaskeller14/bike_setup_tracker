@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
@@ -11,10 +12,10 @@ import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/adjustment_presets.dart';
 import 'package:bike_setup_tracker/widgets/items/person_list_card.dart';
 import 'package:bike_setup_tracker/widgets/rider_name_form.dart';
 import 'package:bike_setup_tracker/widgets/sheets/bike_link_sheet.dart';
-import 'package:bike_setup_tracker/widgets/sheets/person_add_adjustment.dart';
 import 'package:bike_setup_tracker/widgets/sheets/rider_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -23,6 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 class _MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -83,7 +85,7 @@ void main() {
           ChangeNotifierProvider<AppRepository>.value(value: repository),
           ChangeNotifierProvider<SubscriptionService>.value(value: subscriptionService),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
           home: Scaffold(
             body: Builder(
@@ -239,7 +241,7 @@ void main() {
       messenger.setMockMethodCallHandler(pathProviderChannel, (call) async => Directory.systemTemp.path);
       addTearDown(() => messenger.setMockMethodCallHandler(pathProviderChannel, null));
 
-      final rider = Person(id: 'jonas', name: 'Jonas', adjustments: [ridingWeightPreset.deepCopy()]);
+      final rider = Person(id: 'jonas', name: 'Jonas', adjustments: [ridingWeightPresetFor(englishL10n).deepCopy()]);
       await openSheet(
         tester,
         persons: [rider],

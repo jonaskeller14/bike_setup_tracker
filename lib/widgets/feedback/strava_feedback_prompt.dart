@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/feedback/ride_feedback.dart';
 import '../../models/strava/strava_activity.dart';
@@ -37,7 +38,7 @@ class StravaFeedbackPrompt extends StatelessWidget {
       return TextButton.icon(
         onPressed: onPressed,
         icon: const Icon(RideFeedback.iconData, size: 14),
-        label: const Text('Add feedback'),
+        label: Text(context.l10n.feedbackAddButton),
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 2),
           minimumSize: Size.zero,
@@ -53,7 +54,7 @@ class StravaFeedbackPrompt extends StatelessWidget {
         child: FilledButton.tonalIcon(
           onPressed: onPressed,
           icon: const Icon(RideFeedback.iconData),
-          label: const Text('Add feedback for this ride'),
+          label: Text(context.l10n.feedbackAddForRide),
         ),
       ),
     );

@@ -45,8 +45,15 @@ option_values:
       description: >
         Rebound-only cartridge on the EDGE Evo/EDGE X shocks. External low-speed
         rebound dial; no user compression adjustment.
+      description_de: >
+        Reine Zugstufenkartusche der EDGE-Evo-/EDGE-X-Dämpfer. Externes
+        Low-Speed-Zugstufenrad; keine Druckstufenverstellung durch den Fahrer.
+      description_fr: Cartouche de détente seule des amortisseurs EDGE Evo/EDGE X. Molette externe de détente basse vitesse ; pas de réglage de compression pour l’utilisateur.
+      description_it: Cartuccia solo ritorno degli ammortizzatori EDGE Evo/EDGE X. Manopola esterna del ritorno a bassa velocità; nessuna regolazione della compressione per l’utente.
+      description_es: Cartucho solo de rebote de los amortiguadores EDGE Evo/EDGE X. Rueda externa de rebote de baja velocidad; sin ajuste de compresión para el usuario.
+      description_pt: Cartucho somente de retorno dos amortecedores EDGE Evo/EDGE X. Seletor externo de retorno de baixa velocidade; sem ajuste de compressão para o usuário.
       adjustments:
-        - { name: Rebound, type: step, max: 8 }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 8 }
       source:
         - https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
         - https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-R-METRIC-8196.html
@@ -58,9 +65,18 @@ option_values:
         2-position on-the-fly compression lever (Open, Firm settings) plus a low-speed
         rebound dial. Shared cartridge naming/function across both EDGE Evo (XC/Trail)
         and EDGE X (reinforced eMTB) shocks.
+      description_de: >
+        2-Positionen-Druckstufenhebel zum Umschalten während der Fahrt
+        (Einstellungen Open, Firm) plus Low-Speed-Zugstufenrad. Gleiche
+        Kartuschenbezeichnung und -funktion bei EDGE Evo (XC/Trail) und EDGE X
+        (verstärkter E-MTB).
+      description_fr: Levier de compression à 2 positions utilisable en roulant (réglages Open, Firm) plus une molette de détente basse vitesse. Nom et fonction de cartouche partagés par les amortisseurs EDGE Evo (XC/Trail) et EDGE X (eMTB renforcé).
+      description_it: Leva di compressione a 2 posizioni azionabile in marcia (impostazioni Open, Firm) più una manopola del ritorno a bassa velocità. Nome e funzione della cartuccia in comune tra gli ammortizzatori EDGE Evo (XC/Trail) ed EDGE X (e-MTB rinforzata).
+      description_es: Palanca de compresión de 2 posiciones accionable en marcha (ajustes Open, Firm) más una rueda de rebote de baja velocidad. Nombre y función del cartucho compartidos por los amortiguadores EDGE Evo (XC/Trail) y EDGE X (e-MTB reforzada).
+      description_pt: Alavanca de compressão de 2 posições acionável em movimento (ajustes Open, Firm) mais um seletor de retorno de baixa velocidade. Nome e função do cartucho compartilhados pelos amortecedores EDGE Evo (XC/Trail) e EDGE X (e-MTB reforçada).
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-position on-the-fly lever }
-        - { name: Rebound, type: step, max: 8 }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], options_fr: [Ouvert, Ferme], options_it: [Aperto, Rigido], options_es: [Abierto, Firme], options_pt: [Aberto, Firme], notes: 2-position on-the-fly lever, notes_de: 2-Positionen-Hebel zum Umschalten während der Fahrt, notes_fr: "Levier à 2 positions, utilisable en roulant", notes_it: "Leva a 2 posizioni, azionabile in marcia", notes_es: "Palanca de 2 posiciones, accionable en marcha", notes_pt: "Alavanca de 2 posições, acionável em movimento" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 8 }
       source:
         - https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
         - https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
@@ -71,9 +87,17 @@ option_values:
       description: >
         Handlebar-remote version of EDGE 2CR: a remote-actuated 2-position compression
         lever (Open, Firm settings) plus a low-speed rebound dial.
+      description_de: >
+        Lenkerfernbedienungs-Version der EDGE 2CR: ein ferngesteuerter
+        2-Positionen-Druckstufenhebel (Einstellungen Open, Firm) plus
+        Low-Speed-Zugstufenrad.
+      description_fr: "Version à commande au guidon de l’EDGE 2CR : un levier de compression à 2 positions télécommandé (réglages Open, Firm) plus une molette de détente basse vitesse."
+      description_it: "Versione con comando al manubrio dell’EDGE 2CR: una leva di compressione a 2 posizioni con comando remoto (impostazioni Open, Firm) più una manopola del ritorno a bassa velocità."
+      description_es: "Versión con mando de manillar del EDGE 2CR: una palanca de compresión de 2 posiciones con control remoto (ajustes Open, Firm) más una rueda de rebote de baja velocidad."
+      description_pt: "Versão com comando no guidão do EDGE 2CR: uma alavanca de compressão de 2 posições com controle remoto (ajustes Open, Firm) mais um seletor de retorno de baixa velocidade."
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: Handlebar-remote 2-position lever }
-        - { name: Rebound, type: step, max: 8 }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], options_fr: [Ouvert, Ferme], options_it: [Aperto, Rigido], options_es: [Abierto, Firme], options_pt: [Aberto, Firme], notes: Handlebar-remote 2-position lever, notes_de: 2-Positionen-Hebel mit Lenkerfernbedienung, notes_fr: Levier à 2 positions déporté au guidon, notes_it: Leva a 2 posizioni remota al manubrio, notes_es: Palanca de 2 posiciones remota en el manillar, notes_pt: Alavanca de 2 posições remota no guidão }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 8 }
       source: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
       note: The EDGE Evo family page (R / 2CR / R-2CR) lists "8 click rebound"; the R-2CR page itself could not be loaded.
 
@@ -83,17 +107,33 @@ option_values:
         Rebound-only cartridge on the TRIAIR2 piggyback shock. Officially
         published spec: 8 clicks of rebound. Also features an air-backed IFP
         and volume-spacer spring-curve adjustment.
+      description_de: >
+        Reine Zugstufenkartusche des TRIAIR2-Piggyback-Dämpfers. Offiziell
+        veröffentlichte Angabe: 8 Klicks Zugstufe. Mit luftunterstütztem IFP und
+        Anpassung der Federkennlinie über Volumenspacer.
+      description_fr: "Cartouche de détente seule de l’amortisseur piggyback TRIAIR2. Caractéristique officielle publiée : 8 clics de détente. Comporte aussi un IFP à contre-pression d’air et un réglage de la courbe du ressort par tokens de volume."
+      description_it: "Cartuccia solo ritorno dell’ammortizzatore piggyback TRIAIR2. Specifica ufficiale pubblicata: 8 scatti di ritorno. Ha anche un IFP con contropressione d’aria e la regolazione della curva della molla con token di volume."
+      description_es: "Cartucho solo de rebote del amortiguador piggyback TRIAIR2. Dato oficial publicado: 8 clics de rebote. También incluye un IFP con respaldo de aire y ajuste de la curva del muelle con tokens de volumen."
+      description_pt: "Cartucho somente de retorno do amortecedor piggyback TRIAIR2. Especificação oficial publicada: 8 cliques de retorno. Também traz um IFP com contrapressão de ar e ajuste da curva da mola com tokens de volume."
       adjustments:
-        - { name: Rebound, type: step, max: 8 }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 8 }
 
     triair2_2cr:
       name: TRIAIR2 2CR
       description: >
         TRIAIR2 cartridge with a 2-position on-the-fly compression lever (Open,
         Firm settings) plus the same 8-click rebound dial as the R variant.
+      description_de: >
+        TRIAIR2-Kartusche mit 2-Positionen-Druckstufenhebel zum Umschalten
+        während der Fahrt (Einstellungen Open, Firm) plus demselben Zugstufenrad
+        mit 8 Klicks wie die R-Variante.
+      description_fr: Cartouche TRIAIR2 avec un levier de compression à 2 positions utilisable en roulant (réglages Open, Firm) plus la même molette de détente à 8 clics que la variante R.
+      description_it: Cartuccia TRIAIR2 con una leva di compressione a 2 posizioni azionabile in marcia (impostazioni Open, Firm) più la stessa manopola del ritorno a 8 scatti della variante R.
+      description_es: Cartucho TRIAIR2 con una palanca de compresión de 2 posiciones accionable en marcha (ajustes Open, Firm) más la misma rueda de rebote de 8 clics que la variante R.
+      description_pt: Cartucho TRIAIR2 com uma alavanca de compressão de 2 posições acionável em movimento (ajustes Open, Firm) mais o mesmo seletor de retorno de 8 cliques da variante R.
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-position on-the-fly lever }
-        - { name: Rebound, type: step, max: 8 }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], options_fr: [Ouvert, Ferme], options_it: [Aperto, Rigido], options_es: [Abierto, Firme], options_pt: [Aberto, Firme], notes: 2-position on-the-fly lever, notes_de: 2-Positionen-Hebel zum Umschalten während der Fahrt, notes_fr: "Levier à 2 positions, utilisable en roulant", notes_it: "Leva a 2 posizioni, azionabile in marcia", notes_es: "Palanca de 2 posiciones, accionable en marcha", notes_pt: "Alavanca de 2 posições, acionável em movimento" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 8 }
 
     triair2_3cr:
       name: TRIAIR2 3CR
@@ -101,16 +141,36 @@ option_values:
         TRIAIR2 cartridge with a 3-position on-the-fly compression lever (Open,
         Medium, Firm settings) plus the same 8-click rebound dial as the R
         variant.
+      description_de: >
+        TRIAIR2-Kartusche mit 3-Positionen-Druckstufenhebel zum Umschalten
+        während der Fahrt (Einstellungen Open, Medium, Firm) plus demselben
+        Zugstufenrad mit 8 Klicks wie die R-Variante.
+      description_fr: Cartouche TRIAIR2 avec un levier de compression à 3 positions utilisable en roulant (réglages Open, Medium, Firm) plus la même molette de détente à 8 clics que la variante R.
+      description_it: Cartuccia TRIAIR2 con una leva di compressione a 3 posizioni azionabile in marcia (impostazioni Open, Medium, Firm) più la stessa manopola del ritorno a 8 scatti della variante R.
+      description_es: Cartucho TRIAIR2 con una palanca de compresión de 3 posiciones accionable en marcha (ajustes Open, Medium, Firm) más la misma rueda de rebote de 8 clics que la variante R.
+      description_pt: Cartucho TRIAIR2 com uma alavanca de compressão de 3 posições acionável em movimento (ajustes Open, Medium, Firm) mais o mesmo seletor de retorno de 8 cliques da variante R.
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm], notes: 3-position on-the-fly lever }
-        - { name: Rebound, type: step, max: 8 }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Medium, Firm], options_de: [Offen, Medium, Fest], options_fr: [Ouvert, Medium, Ferme], options_it: [Aperto, Medium, Rigido], options_es: [Abierto, Medium, Firme], options_pt: [Aberto, Medium, Firme], notes: 3-position on-the-fly lever, notes_de: 3-Positionen-Hebel zum Umschalten während der Fahrt, notes_fr: "Levier à 3 positions, utilisable en roulant", notes_it: "Leva a 3 posizioni, azionabile in marcia", notes_es: "Palanca de 3 posiciones, accionable en marcha", notes_pt: "Alavanca de 3 posições, acionável em movimento" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 8 }
 
     raidon_shock_r:
       name: RAIDON R
       description: >
         Rebound-only cartridge on the RAIDON XC/Trail shock. External low-speed
         rebound dial; no user compression adjustment.
+      description_de: >
+        Reine Zugstufenkartusche des RAIDON-XC/Trail-Dämpfers. Externes
+        Low-Speed-Zugstufenrad; keine Druckstufenverstellung durch den Fahrer.
+      description_fr: Cartouche de détente seule de l’amortisseur RAIDON XC/Trail. Molette externe de détente basse vitesse ; pas de réglage de compression pour l’utilisateur.
+      description_it: Cartuccia solo ritorno dell’ammortizzatore RAIDON XC/Trail. Manopola esterna del ritorno a bassa velocità; nessuna regolazione della compressione per l’utente.
+      description_es: Cartucho solo de rebote del amortiguador RAIDON XC/Trail. Rueda externa de rebote de baja velocidad; sin ajuste de compresión para el usuario.
+      description_pt: Cartucho somente de retorno do amortecedor RAIDON XC/Trail. Seletor externo de retorno de baixa velocidade; sem ajuste de compressão para o usuário.
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments: []
       note: Rebound click count is not published by SR SUNTOUR.
 
@@ -119,8 +179,15 @@ option_values:
       description: >
         Hydraulic lockout variant of the RAIDON shock (fixed-rate damping when
         unlocked).
+      description_de: >
+        Variante des RAIDON-Dämpfers mit hydraulischem Lockout (feste
+        Dämpfungsrate im entsperrten Zustand).
+      description_fr: Variante à lockout hydraulique de l’amortisseur RAIDON (amortissement à taux fixe lorsqu’il est déverrouillé).
+      description_it: Variante con lockout idraulico dell’ammortizzatore RAIDON (smorzamento a rapporto fisso quando è sbloccato).
+      description_es: Variante de lockout hidráulico del amortiguador RAIDON (amortiguación de tasa fija cuando está desbloqueado).
+      description_pt: Variante com lockout hidráulico do amortecedor RAIDON (amortecimento de taxa fixa quando destravado).
       adjustments:
-        - { name: Lockout, type: boolean, notes: Hydraulic lockout lever }
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean, notes: Hydraulic lockout lever, notes_de: Hydraulischer Lockout-Hebel, notes_fr: Levier de lockout hydraulique, notes_it: Leva di lockout idraulico, notes_es: Palanca de lockout hidráulico, notes_pt: Alavanca de lockout hidráulico }
 
 # --------------------------------------------------------------------------
 # Setup guides — transcribed from docs/research/setup_guides/suntour.md.
@@ -134,6 +201,11 @@ option_values:
 guides:
   suntour_shocks_my27:
     label: SR SUNTOUR general rear shock manual (MY27)
+    label_de: SR SUNTOUR Allgemeine Dämpferanleitung (MY27)
+    label_fr: Manuel général des amortisseurs arrière SR SUNTOUR (MY27)
+    label_it: Manuale generale degli ammortizzatori posteriori SR SUNTOUR (MY27)
+    label_es: Manual general de amortiguadores traseros SR SUNTOUR (MY27)
+    label_pt: Manual geral de amortecedores traseiros SR SUNTOUR (MY27)
     source: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
     rules:
       - target: sag
@@ -143,6 +215,11 @@ guides:
           55: [25, 30], 60: [25, 35], 65: [25, 35], 70: [25, 35], 75: [25, 35]
         }
         note: Measured with the compression open
+        note_de: Bei geöffneter Druckstufe gemessen
+        note_fr: Mesuré avec la compression ouverte
+        note_it: Misurato con la compressione aperta
+        note_es: Medido con la compresión abierta
+        note_pt: Medido com a compressão aberta
 
 # --------------------------------------------------------------------------
 # Shocks — current (2025/2026) SR SUNTOUR MTB lineup. Shocks are sold by
@@ -155,9 +232,14 @@ nodes:
   - label: "EDGE Evo"
     level: model
     category: XC / Trail
-    specs: { spring: Air }
+    category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: &suntour_service
-      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual }
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual, source_de: SR-Suntour-Handbuch, source_fr: Manuel d’utilisation SR Suntour, source_it: Manuale d’uso SR Suntour, source_es: Manual del usuario SR Suntour, source_pt: Manual do usuário SR Suntour }
     children:
       - label: "2025–2026"
         level: generation
@@ -171,11 +253,16 @@ nodes:
             level: trim
             mounts: [Metric, Trunnion, Standard eyelet]
             adjustments: &air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300 }
             options:
               damper: [edge_2cr]
               size: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
             note: Glide ring; air-volume-spacer spring-curve adjustment.
+            note_de: Gleitring; Anpassung der Federkennlinie über Luftvolumenspacer.
+            note_fr: Bague de glissement ; réglage de la courbe du ressort par tokens de volume d’air.
+            note_it: Anello di scorrimento; regolazione della curva della molla con token di volume dell’aria.
+            note_es: Anillo deslizante; ajuste de la curva del muelle con tokens de volumen de aire.
+            note_pt: Anel de deslizamento; ajuste da curva da mola com tokens de volume de ar.
           - label: R
             level: trim
             url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
@@ -193,11 +280,21 @@ nodes:
               damper: [edge_evo_r_2cr]
               size: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
             note: Handlebar-remote compression lever.
+            note_de: Druckstufenhebel mit Lenkerfernbedienung.
+            note_fr: Levier de compression déporté au guidon.
+            note_it: Leva di compressione remota al manubrio.
+            note_es: Palanca de compresión remota en el manillar.
+            note_pt: Alavanca de compressão remota no guidão.
 
   - label: "EDGE X"
     level: model
     category: Trail (eMTB, reinforced)
-    specs: { spring: Air }
+    category_de: Trail (E-MTB, verstärkt)
+    category_fr: Trail (E-MTB, renforcé)
+    category_it: Trail (E-MTB, rinforzata)
+    category_es: Trail (E-MTB, reforzada)
+    category_pt: Trail (E-MTB, reforçada)
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *suntour_service
     children:
       - label: "2024–2026"
@@ -216,6 +313,11 @@ nodes:
               damper: [edge_2cr]
               size: ["210x47.5/50/52.5/55", "190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
             note: Reinforced/updated structure for demands of modern full-suspension e-MTBs.
+            note_de: Verstärkte/überarbeitete Struktur für die Anforderungen moderner Fully-E-MTBs.
+            note_fr: Structure renforcée/mise à jour pour les exigences des VTT électriques tout-suspendus modernes.
+            note_it: Struttura rinforzata/aggiornata per le esigenze delle moderne e-MTB full suspension.
+            note_es: Estructura reforzada/actualizada para las exigencias de las e-MTB de doble suspensión actuales.
+            note_pt: Estrutura reforçada/atualizada para as exigências das e-MTB full suspension modernas.
           - label: R
             level: trim
             url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-R-METRIC-8196.html
@@ -228,7 +330,12 @@ nodes:
   - label: "TRIAIR2"
     level: model
     category: Enduro (eMTB)
-    specs: { spring: Air }
+    category_de: Enduro (E-MTB)
+    category_fr: Enduro (E-MTB)
+    category_it: Enduro (E-MTB)
+    category_es: Enduro (E-MTB)
+    category_pt: Enduro (E-MTB)
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *suntour_service
     children:
       - label: "2024–2026"
@@ -243,12 +350,17 @@ nodes:
             level: trim
             mounts: [Metric, Trunnion, Standard eyelet]
             adjustments: &triair2_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
-              - { name: Reservoir Pressure, type: numerical, unit: psi, min: 170, max: 200, notes: "Air-backed piggyback reservoir (IFP); ships at 180 psi" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Reservoir Pressure, name_de: Reservoirdruck, name_fr: Pression du réservoir, name_it: Pressione del serbatoio, name_es: Presión del depósito, name_pt: Pressão do reservatório, type: numerical, unit: psi, min: 170, max: 200, notes: "Air-backed piggyback reservoir (IFP); ships at 180 psi", notes_de: Luftunterstützter Piggyback-Ausgleichsbehälter (IFP); wird mit 180 psi ausgeliefert, notes_fr: Réservoir piggyback à contre-pression d’air (IFP) ; livré à 180 psi, notes_it: Serbatoio piggyback con contropressione d’aria (IFP); fornito a 180 psi, notes_es: Depósito piggyback con respaldo de aire (IFP); se entrega a 180 psi, notes_pt: Reservatório piggyback com contrapressão de ar (IFP); entregue com 180 psi }
             options:
               damper: [triair2_3cr]
               size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
             note: Redesigned piggyback for better oil flow/clearance; air-backed IFP; volume-spacer spring-curve adjustment; glide ring.
+            note_de: Neu gestalteter Piggyback für besseren Ölfluss/Freiraum; luftunterstützter IFP; Anpassung der Federkennlinie über Volumenspacer; Gleitring.
+            note_fr: Piggyback redessiné pour un meilleur débit d’huile et un meilleur dégagement ; IFP à contre-pression d’air ; réglage de la courbe du ressort par tokens de volume ; bague de glissement.
+            note_it: Piggyback ridisegnato per un migliore flusso d’olio e maggiore spazio libero; IFP con contropressione d’aria; regolazione della curva della molla con token di volume; anello di scorrimento.
+            note_es: Piggyback rediseñado para mejorar el flujo de aceite y el espacio libre; IFP con respaldo de aire; ajuste de la curva del muelle con tokens de volumen; anillo deslizante.
+            note_pt: Piggyback redesenhado para melhor fluxo de óleo e folga; IFP com contrapressão de ar; ajuste da curva da mola com tokens de volume; anel de deslizamento.
           - label: 2CR
             level: trim
             url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-2CR-METRIC-8205.html
@@ -269,7 +381,12 @@ nodes:
   - label: "RAIDON"
     level: model
     category: XC / Trail
-    specs: { spring: Air }
+    category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *suntour_service
     children:
       - label: "2025–2026"

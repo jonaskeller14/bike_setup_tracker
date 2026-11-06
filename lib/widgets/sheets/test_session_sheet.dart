@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/test_session_text.dart';
 import '../../models/feedback/test_session.dart';
 import '../../models/feedback/test_session_method.dart';
 import '../../pages/details/setup_details_page.dart';
@@ -11,10 +13,13 @@ import '../../repositories/app_repository.dart';
 import '../../services/bike_adjustment_column_service.dart';
 import '../../services/test_session_service.dart';
 import '../../utils/test_session_actions.dart';
+import '../display_data/test_session_run_table.dart';
+import '../empty_state_placeholder.dart';
 import '../items/feedback_list_tile.dart';
 import '../items/setup_tile.dart';
 import '../items/tile_meta_row.dart';
 import '../running_badge.dart';
+import '../sticky_section.dart';
 import '../test_session_next_step.dart';
 import '../test_session_suggestion.dart';
 import '../text/section_title.dart';
@@ -29,106 +34,117 @@ Future<void> showTestSessionSheet({required BuildContext context, required Strin
   );
 }
 
-/// The session's details: method and goal, the adjustments it tunes (tap one
-/// to lock it) or, comparing setups, those they differ in, every run with its values and feedbacks, the suggested next
-/// run, and the next step.
-/// A running session opens scrolled to its next step.
-class TestSessionSheetContent extends StatefulWidget {
+class TestSessionSheetContent extends StatelessWidget {
   final String sessionId;
 
   const TestSessionSheetContent({super.key, required this.sessionId});
 
   @override
-  State<TestSessionSheetContent> createState() => _TestSessionSheetContentState();
-}
-
-class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
-  final _nextStepKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final nextStep = _nextStepKey.currentContext;
-      if (nextStep != null) unawaited(Scrollable.ensureVisible(nextStep, alignment: 1));
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final session = appRepository.testSessions[widget.sessionId];
+    final session = appRepository.testSessions[sessionId];
     if (session == null) {
-      return const Padding(padding: EdgeInsets.all(24), child: Text('This test session no longer exists.'));
+      return Padding(padding: const EdgeInsets.all(24), child: Text(context.l10n.testSessionGone));
     }
     final theme = Theme.of(context);
     final runs = appRepository.setupsInSession(session.id);
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SheetHeader(
-              title: session.displayName,
-              leadingIcon: const Icon(TestSession.iconData),
-              titleMaxLines: 2,
-              onEdit: () => unawaited(TestSessionActions.editSession(context, session: session)),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  if (session.isRunning)
-                    const RunningBadge()
-                  else
-                    const TileMetaRow(icon: Icons.stop_circle_outlined, text: 'Ended'),
-                  TileMetaRow(icon: Icons.tune, text: TestSessionService.methodLabel(session.method)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SheetHeader(
+            title: session.label(context.l10n),
+            leadingIcon: const Icon(TestSession.iconData),
+            titleMaxLines: 2,
+            onEdit: () => unawaited(TestSessionActions.editSession(context, session: session)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (session.isRunning)
+                  const RunningBadge()
+                else
+                  TileMetaRow(icon: Icons.stop_circle_outlined, text: context.l10n.testSessionEnded),
+                TileMetaRow(icon: Icons.psychology, text: testSessionMethodLabel(session.method, context.l10n)),
+                TileMetaRow(
+                  icon: Icons.repeat,
+                  text: context.l10n.testSessionRunsCount(runs.length),
+                ),
+                for (final aspect in session.goal)
                   TileMetaRow(
-                    icon: Icons.directions_bike,
-                    text: Intl.plural(runs.length, one: '1 run', other: '${runs.length} runs'),
+                    icon: Icons.track_changes,
+                    text: testSessionGoalLabel(aspect, appRepository.customIssues.labelOf, context.l10n),
                   ),
-                  for (final aspect in session.goal)
-                    TileMetaRow(
-                      icon: Icons.track_changes,
-                      text: TestSessionService.goalLabel(aspect, appRepository.customIssues.labelOf),
+              ],
+            ),
+          ),
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: Text(
+                      testSessionMethodDescription(session.method, context.l10n),
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
+                  ),
+                  _section(
+                    context,
+                    title: context.l10n.componentFormAdjustmentsTitle,
+                    children: [
+                      if (session.isRunning && session.method is! Tournament)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                          child: Text(
+                            context.l10n.testSessionLockInfo,
+                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: _knobs(context, appRepository, session),
+                      ),
+                    ],
+                  ),
+                  if (runs.isNotEmpty)
+                    _section(
+                      context,
+                      title: context.l10n.testSessionRunTableTitle,
+                      children: [TestSessionRunTable(session: session)],
+                    ),
+                  _section(
+                    context,
+                    title: context.l10n.testSessionRunsTitle,
+                    children: [..._runs(context, appRepository, session), TestSessionSuggestion(session: session)],
+                  ),
                 ],
               ),
             ),
+          ),
+          if (session.isRunning)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(
-                TestSessionService.methodDescription(session.method),
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              ),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: TestSessionNextStep(session: session),
             ),
-            SectionTitle(
-              title: 'Adjustments',
-              infoText: session.isRunning && session.method is! Tournament
-                  ? 'Tap an adjustment to lock it at its value in the latest run. The next runs keep that value.'
-                  : null,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _knobs(context, appRepository, session),
-            ),
-            const SectionTitle(title: 'Runs'),
-            ..._runs(context, appRepository, session),
-            TestSessionSuggestion(session: session),
-            if (session.isRunning)
-              Padding(
-                key: _nextStepKey,
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: TestSessionNextStep(session: session),
-              ),
-          ],
-        ),
+        ],
       ),
+    );
+  }
+
+  /// A section whose title stays pinned to the top while its content scrolls.
+  Widget _section(BuildContext context, {required String title, required List<Widget> children}) {
+    return StickySection(
+      header: ColoredBox(color: Theme.of(context).colorScheme.surface, child: SectionTitle(title: title)),
+      content: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
     );
   }
 
@@ -148,7 +164,7 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
     final names = session.adjustmentIds.map((id) => knobs[id]?.adjustment.name).nonNulls.toList();
     String labelOf(String id) {
       final knob = knobs[id];
-      if (knob == null) return 'ADJUSTMENT NOT FOUND';
+      if (knob == null) return context.l10n.testSessionAdjustmentNotFoundCaps;
       final name = knob.adjustment.name;
       return names.where((other) => other == name).length > 1 ? '${knob.ownerName} · $name' : name;
     }
@@ -167,14 +183,14 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
       );
       final labels = [
         for (final column in TestSessionService.columnsOf(session.adjustmentIds, projection))
-          projection.columnLabel(column),
+          projection.columnLabel(column, context.l10n),
         for (final id in session.adjustmentIds)
           if (knobs[id]?.isRider ?? false) labelOf(id),
       ];
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('The adjustments your setups differ in:', style: style),
+          Text(context.l10n.testSessionDiffering, style: style),
           for (final label in labels) Text('•  $label', style: style),
         ],
       );
@@ -193,8 +209,8 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
             tooltip: !session.isRunning
                 ? null
                 : session.locks.containsKey(id)
-                ? 'Locked at its value. Tap to unlock.'
-                : 'Tap to lock it at its value in the latest run.',
+                ? context.l10n.testSessionLockedTooltip
+                : context.l10n.testSessionLockTooltip,
             selected: session.locks.containsKey(id),
             onSelected: session.isRunning
                 ? (_) => unawaited(TestSessionActions.toggleLock(context, session: session, adjustmentId: id))
@@ -208,7 +224,16 @@ class _TestSessionSheetContentState extends State<TestSessionSheetContent> {
   /// Collapsed, a run shows the session's adjustments so the runs compare.
   List<Widget> _runs(BuildContext context, AppRepository appRepository, TestSession session) {
     final runs = appRepository.setupsInSession(session.id);
-    if (runs.isEmpty) return const [ListTile(title: Text('No runs yet.'))];
+    if (runs.isEmpty) {
+      return [
+        EmptyStatePlaceholder(
+          icon: Icons.repeat,
+          title: context.l10n.testSessionNoRunsTitle,
+          // The next step below already offers the action to a running session.
+          subtitle: session.isRunning ? context.l10n.testSessionNoRunsSubtitle : null,
+        ),
+      ];
+    }
 
     final adjustmentIds = session.adjustmentIds.toSet();
     return [

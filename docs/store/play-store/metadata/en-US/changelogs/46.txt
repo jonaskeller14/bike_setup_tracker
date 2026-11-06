@@ -1,0 +1,5 @@
+• Use the app in English, German, French, Italian, Spanish or Portuguese
+• It follows your device language, or pick another one under Settings > Preferences > Language
+• The fork and shock catalog and your exports come in your language too
+• Type decimals with a comma or a dot, whichever you're used to
+• Installing the app for the first time? It starts with your region's units and time format

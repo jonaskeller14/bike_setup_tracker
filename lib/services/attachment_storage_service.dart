@@ -13,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import '../database/app_database.dart';
 import '../models/attachment.dart';
 import '../models/selected_data.dart';
+import '../models/service_error.dart';
 import 'data_export_service.dart';
 
 class AttachmentTooLargeException implements Exception {
@@ -72,7 +73,7 @@ class AttachmentStorageService {
     await ensureDir();
     final ext = p.extension(picked.path).isNotEmpty ? p.extension(picked.path) : '.jpg';
     final name = _generatedPickerName.hasMatch(picked.name)
-        ? 'Photo ${DateFormat('yyyy-MM-dd HH.mm').format(now ?? DateTime.now())}'
+        ? 'Photo ${DateFormat('yyyy-MM-dd HH.mm', 'en_US').format(now ?? DateTime.now())}'
         : picked.name;
     final attachment = Attachment(extension: ext, name: name);
     final dest = await resolve(attachment.filename);
@@ -270,13 +271,13 @@ class AttachmentStorageService {
       }
 
       if (jsonString == null) {
-        return ImportBundleResult.failure('No data.json found in bundle.');
+        return ImportBundleResult.failure(const DataError(DataErrorKind.bundleWithoutData));
       }
 
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
       return ImportBundleResult.success(SelectedData.fromJson(jsonData), attachmentCount);
     } catch (e) {
-      return ImportBundleResult.failure('Import failed: $e');
+      return ImportBundleResult.failure(DataError(DataErrorKind.importFile, e.toString()));
     }
   }
 
@@ -293,17 +294,17 @@ class AttachmentStorageService {
 
 class ImportBundleResult {
   final SelectedData? data;
-  final String? errorMessage;
+  final DataError? error;
   final bool isError;
   final bool isCancelled;
   final int attachmentCount;
 
   ImportBundleResult.success(this.data, this.attachmentCount)
-      : errorMessage = null,
+      : error = null,
         isError = false,
         isCancelled = false;
 
-  ImportBundleResult.failure(this.errorMessage)
+  ImportBundleResult.failure(this.error)
       : data = null,
         isError = true,
         isCancelled = false,
@@ -311,7 +312,7 @@ class ImportBundleResult {
 
   ImportBundleResult.cancelled()
       : data = null,
-        errorMessage = null,
+        error = null,
         isError = false,
         isCancelled = true,
         attachmentCount = 0;

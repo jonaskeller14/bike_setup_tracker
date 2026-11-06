@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
@@ -9,6 +10,8 @@ import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/utils/setup_guide_evaluator.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
+
+import '../support/german_l10n.dart';
 
 /// [evaluateSetupGuide] over small inline catalogs run through the real
 /// parser, so every rule shape is exercised as authored.
@@ -153,11 +156,12 @@ List<GuideRecommendation> _evaluate(
   GuideInputs inputs = const GuideInputs(),
   Map<String, AdjustmentValue> current = const {},
   List<Adjustment>? adjustments,
+  AppLocalizations? l10n,
 }) {
-  final built = adjustments ?? buildCatalogApplication(preset).adjustments;
+  final built = adjustments ?? buildCatalogApplication(preset, englishL10n).adjustments;
   return evaluateSetupGuide(preset, built, inputs, {
     for (final adjustment in built) adjustment.id: ?current[adjustment.name],
-  });
+  }, l10n ?? englishL10n);
 }
 
 GuideRecommendation _of(List<GuideRecommendation> results, String target) =>
@@ -174,10 +178,11 @@ void main() {
   });
 
   group('lookup', () {
-    GuideRecommendation pressureAt(double weight, {KnownUnit unit = _kg}) => _of(
+    GuideRecommendation pressureAt(double weight, {KnownUnit unit = _kg, AppLocalizations? l10n}) => _of(
       _evaluate(
         factoryX2,
         inputs: GuideInputs(riderWeight: weight, riderWeightUnit: unit),
+        l10n: l10n,
       ),
       'pressure',
     );
@@ -213,6 +218,11 @@ void main() {
       // 183 lb = 83.0 kg
       expect(pressureAt(183, unit: _lb).value, const NumericalValue(78));
       expect(pressureAt(183, unit: _lb).inputText, '183 lb');
+    });
+
+    test('writes the rider weight in the app language', () {
+      expect(pressureAt(82.5).inputText, '82.5 kg');
+      expect(pressureAt(82.5, l10n: germanL10n).inputText, '82,5 kg');
     });
 
     test('converts the output unit and rounds pressure to 0.1 bar', () {
@@ -400,7 +410,7 @@ void main() {
     });
 
     test('results follow the adjustment order', () {
-      final adjustments = buildCatalogApplication(factoryX2).adjustments;
+      final adjustments = buildCatalogApplication(factoryX2, englishL10n).adjustments;
       final results = _evaluate(factoryX2, inputs: const GuideInputs(riderWeight: 80));
       final order = [for (final result in results) adjustments.indexOf(result.adjustment)];
       expect(order, [...order]..sort());
@@ -434,14 +444,14 @@ void main() {
 
     test('follow an edited max', () {
       final adjustments = [
-        for (final adjustment in buildCatalogApplication(factoryX2).adjustments)
+        for (final adjustment in buildCatalogApplication(factoryX2, englishL10n).adjustments)
           adjustment is StepAdjustment && adjustment.name == 'HSC' ? adjustment.copyWith(max: 12) : adjustment,
       ];
       expect(_of(_evaluate(factoryX2, adjustments: adjustments), 'hsc').value, const StepValue(7));
     });
 
     test('a placeholder max gives no value until the rider enters the real one', () {
-      final adjustments = buildCatalogApplication(factoryX2).adjustments;
+      final adjustments = buildCatalogApplication(factoryX2, englishL10n).adjustments;
       expect(_of(_evaluate(factoryX2, adjustments: adjustments), 'lsc').issue, GuideIssue.placeholderMax);
 
       final edited = [
@@ -485,7 +495,7 @@ void main() {
       expect(_of(_evaluate(factoryX2, adjustments: narrow), 'hsc').value, const StepValue(4));
 
       final short = [
-        for (final adjustment in buildCatalogApplication(factoryX2).adjustments)
+        for (final adjustment in buildCatalogApplication(factoryX2, englishL10n).adjustments)
           adjustment is StepAdjustment && adjustment.name == 'LSR' ? adjustment.copyWith(max: 10) : adjustment,
       ];
       final lsr = _of(_evaluate(factoryX2, adjustments: short, current: {'Pressure': const NumericalValue(40)}), 'lsr');
@@ -496,7 +506,7 @@ void main() {
 
     test('a numerical value above the adjuster max is not applied', () {
       final low = [
-        for (final adjustment in buildCatalogApplication(factoryX2).adjustments)
+        for (final adjustment in buildCatalogApplication(factoryX2, englishL10n).adjustments)
           adjustment is NumericalAdjustment && adjustment.name == 'Pressure'
               ? adjustment.copyWith(max: 75.0)
               : adjustment,
@@ -514,7 +524,7 @@ void main() {
   group('dial counting', () {
     /// The catalog adjustments with [name]'s step adjuster edited.
     List<Adjustment> withStep(String name, StepAdjustment Function(StepAdjustment) edit) => [
-      for (final adjustment in buildCatalogApplication(factoryX2).adjustments)
+      for (final adjustment in buildCatalogApplication(factoryX2, englishL10n).adjustments)
         adjustment is StepAdjustment && adjustment.name == name ? edit(adjustment) : adjustment,
     ];
 
@@ -546,7 +556,7 @@ void main() {
     });
 
     test('the catalog\'s own dial is not converted', () {
-      final lsr = lsrAt(75, buildCatalogApplication(factoryX2).adjustments);
+      final lsr = lsrAt(75, buildCatalogApplication(factoryX2, englishL10n).adjustments);
       expect(lsr.value, const StepValue(12));
       expect(lsr.converted, isFalse);
     });
@@ -613,6 +623,65 @@ void main() {
       expect(_of(results, 'compression_mode').deviation!.onGuide, isFalse);
       expect(_of(results, 'compression_mode').deviation!.delta, isNull);
       expect(_of(results, 'lockout').deviation!.onGuide, isTrue);
+    });
+  });
+
+  group('across catalog languages', () {
+    const bilingual = '''
+brand: FOX
+component_type: fork
+guides:
+  g:
+    label: Manual
+    source: https://example.com
+    rules:
+      - { target: compression_mode, value: Firm }
+option_values:
+  damper:
+    d:
+      name: D
+      adjustments:
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest] }
+nodes:
+  - label: "36"
+    level: model
+    guide: g
+    options:
+      damper: [d]
+''';
+
+    ResolvedPreset presetIn(String language) {
+      final preset = catalogProducts(parseCatalogFile(bilingual, languageCode: language)).single;
+      final axis = preset.axes.single;
+      return preset.select(axis, axis.values.single);
+    }
+
+    CategoricalValue? recommendedFor(String componentLanguage, String catalogLanguage) {
+      final l10n = componentLanguage == 'de' ? germanL10n : englishL10n;
+      final built = buildCatalogApplication(presetIn(componentLanguage), l10n).adjustments;
+      final results = evaluateSetupGuide(presetIn(catalogLanguage), built, const GuideInputs(), const {}, englishL10n);
+      return results.single.value as CategoricalValue?;
+    }
+
+    test('a component made in English is evaluated in German', () {
+      expect(recommendedFor('en', 'de'), CategoricalValue(const ['Firm']));
+    });
+
+    test('a component made in German is evaluated in English', () {
+      expect(recommendedFor('de', 'en'), CategoricalValue(const ['Fest']));
+    });
+
+    test('a component evaluated in its own language keeps its text', () {
+      expect(recommendedFor('de', 'de'), CategoricalValue(const ['Fest']));
+      expect(recommendedFor('en', 'en'), CategoricalValue(const ['Firm']));
+    });
+
+    test('an adjustment with other options and no catalog key is incompatible', () {
+      final edited = [
+        CategoricalAdjustment(name: 'Compression Mode', notes: null, unit: null, options: const {'Auf', 'Zu'}),
+      ];
+      final result = evaluateSetupGuide(presetIn('de'), edited, const GuideInputs(), const {}, germanL10n).single;
+      expect(result.issue, GuideIssue.incompatible);
     });
   });
 
@@ -736,7 +805,7 @@ nodes:
     expect(group.node.guide, isNotNull);
 
     expect(
-      _evaluate(group, adjustments: buildCatalogApplication(factoryX2).adjustments, inputs: const GuideInputs(riderWeight: 82)),
+      _evaluate(group, adjustments: buildCatalogApplication(factoryX2, englishL10n).adjustments, inputs: const GuideInputs(riderWeight: 82)),
       isEmpty,
     );
   });

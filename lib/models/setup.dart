@@ -42,8 +42,6 @@ class Setup {
 
   static const IconData iconData = Icons.tune;
 
-  static const String namePlaceholder = 'Unnamed Setup';
-  String get displayName => name ?? namePlaceholder;
 
   Setup({
     String? id,

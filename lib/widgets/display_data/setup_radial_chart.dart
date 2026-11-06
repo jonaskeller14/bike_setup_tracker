@@ -7,6 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/entity_names.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
@@ -64,24 +67,24 @@ class _SetupRadialChartState extends State<SetupRadialChart> {
     }).toList();
 
     if (activeChartColumns.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No adjustments selected",
-        subtitle: "Select numerical or step adjustment columns to visualize trends",
+        title: context.l10n.chartNoAdjustmentsTitle,
+        subtitle: context.l10n.chartTrendNoColumnsSubtitle,
       );
     }
     if (widget.setups.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No data",
-        subtitle: "No setup data available",
+        title: context.l10n.chartNoDataTitle,
+        subtitle: context.l10n.chartNoDataSubtitle,
       );
     }
     if (widget.selectedSetups.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No setups selected",
-        subtitle: "Select setups in the table above to visualize the chart",
+        title: context.l10n.chartNoSetupsSelectedTitle,
+        subtitle: context.l10n.chartNoSetupsSelectedSubtitle,
       );
     }
 
@@ -90,18 +93,18 @@ class _SetupRadialChartState extends State<SetupRadialChart> {
     }).toList();
 
     if (validColumns.isEmpty) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "No numerical data",
-        subtitle: "The selected columns do not contain numerical data to plot",
+        title: context.l10n.chartNoNumericalTitle,
+        subtitle: context.l10n.chartNoNumericalSubtitle,
       );
     }
 
     if (validColumns.length < 3) {
-      return const EmptyStatePlaceholder(
+      return EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
-        title: "Not enough columns",
-        subtitle: "At least 3 numerical columns are required to generate a radar chart",
+        title: context.l10n.chartRadialNotEnoughTitle,
+        subtitle: context.l10n.chartRadialNotEnoughSubtitle,
       );
     }
 
@@ -249,8 +252,8 @@ class _SetupRadialChartState extends State<SetupRadialChart> {
                         );
                         if (setup == null || def == null) return const SizedBox.shrink();
                         final rawValue = widget.valueFor(setup, def.column);
-                        final formattedVal = rawValue?.display ?? '-';
-                        final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+                        final formattedVal = rawValue?.displayText(context.l10n) ?? '-';
+                        final dateStr = DateFormat(appSettings.dateFormat, context.l10n.localeName).format(setup.datetimeLocal);
                         return Positioned(
                           left: _touchedRadarValue!.offset.dx > constraints.maxWidth / 2
                               ? null
@@ -270,7 +273,7 @@ class _SetupRadialChartState extends State<SetupRadialChart> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    setup.displayName,
+                                    setup.label(context.l10n),
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
@@ -358,7 +361,7 @@ class _SetupRadialChartState extends State<SetupRadialChart> {
                                 child: Opacity(
                                   opacity: isDimmed ? 0.3 : 1.0,
                                   child: Text(
-                                    setup.displayName,
+                                    setup.label(context.l10n),
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                       color: isSelected ? color : null,

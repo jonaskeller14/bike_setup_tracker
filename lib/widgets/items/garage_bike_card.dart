@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
@@ -20,6 +21,7 @@ import '../../utils/garage_component_grouping.dart';
 import '../dashed_border_painter.dart';
 import '../notes_text.dart';
 import 'component_list_card.dart';
+import 'garage_add_component_button.dart';
 import 'garage_component_cell.dart';
 import 'garage_component_group.dart';
 import 'garage_component_icon_card.dart';
@@ -260,7 +262,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                     if (widget.bike.person != null)
                                       Flexible(
                                         child: Text(
-                                          persons[widget.bike.person]?.name ?? "RIDER NOT FOUND",
+                                          persons[widget.bike.person]?.name ?? context.l10n.riderNotFound,
                                           style: TextStyle(
                                             color: widget.bike.person == null || persons.containsKey(widget.bike.person)
                                                 ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
@@ -307,11 +309,13 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                   size: 13,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
-                                Text(
-                                  '$attachmentCount',
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                    fontSize: 13,
+                                Flexible(
+                                  child: Text(
+                                    '$attachmentCount',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -346,7 +350,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                             spacing: 10,
                             children: [
                               Icon(option.iconData, size: 20),
-                              Text(option.label),
+                              Flexible(child: Text(option.label(context.l10n))),
                             ],
                           ),
                         );
@@ -410,44 +414,13 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                   buildDraggableFeedback: buildGarageDraggableFeedback,
                                   runSpacing: spacing,
                                   spacing: spacing,
-                                  footer: Container(
+                                  footer: GarageAddComponentButton(
                                     width: bikeComponents.isEmpty
                                         ? double.infinity
                                         : itemWidth,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Theme.of(context).colorScheme.outlineVariant,
-                                        width: 1.0,
-                                      ),
-                                    ),
-                                    child: Semantics(
-                                      container: true,
-                                      identifier: AutomationIds.garageAddComponent(widget.bike.id),
-                                      child: InkWell(
-                                        onTap: () => ComponentActions.addComponent(context, initialBike: widget.bike.id),
-                                        borderRadius: BorderRadius.circular(12),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            mainAxisSize: MainAxisSize.min,
-                                            spacing: 8,
-                                            children: [
-                                              Icon(Icons.add, size: 24, color: Theme.of(context).colorScheme.primary),
-                                              if (bikeComponents.isEmpty)
-                                                Text(
-                                                  "Add Component",
-                                                  style: TextStyle(
-                                                    color: Theme.of(context).colorScheme.primary,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    label: bikeComponents.isEmpty ? context.l10n.addComponent : null,
+                                    semanticsIdentifier: AutomationIds.garageAddComponent(widget.bike.id),
+                                    onTap: () => ComponentActions.addComponent(context, initialBike: widget.bike.id),
                                   ),
                                   children: groups.map((group) => group.isGroup
                                     ? GarageComponentGroup(
@@ -478,14 +451,14 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                           Positioned.fill(
                             child: _dragHintToBikeWidget(
                               context,
-                              message: "Drag here to install on ${widget.bike.name}",
+                              message: context.l10n.garageDragToInstall(widget.bike.name),
                             ),
                           ),
                         if (showDropZone)
                           Positioned.fill(
                             child: _releaseToBikeWidget(
                               context,
-                              message: "Release to install to ${widget.bike.name}",
+                              message: context.l10n.garageReleaseToInstall(widget.bike.name),
                             ),
                           ),
                       ],
@@ -561,10 +534,15 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
 }
 
 enum _BikeOptions {
-  edit("Edit", Icons.edit),
-  duplicate("Duplicate", Icons.copy),
-  remove("Remove", Icons.delete);
-  final String label;
+  edit(Icons.edit),
+  duplicate(Icons.copy),
+  remove(Icons.delete);
   final IconData iconData;
-  const _BikeOptions(this.label, this.iconData);
+  const _BikeOptions(this.iconData);
+
+  String label(AppLocalizations l10n) => switch (this) {
+    edit => l10n.edit,
+    duplicate => l10n.duplicate,
+    remove => l10n.remove,
+  };
 }

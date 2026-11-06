@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_key.dart';
@@ -18,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 const _bikeId = 'bike';
 
@@ -90,7 +92,7 @@ void main() {
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appRepository),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: materialAppTheme,
           home: Scaffold(
             body: Builder(
@@ -184,7 +186,7 @@ void main() {
     await settle(tester);
     expect(find.byType(FeedbackPage), findsOneWidget);
 
-    final chip = find.widgetWithText(FilterChip, FeedbackVocabulary.nothingStoodOut);
+    final chip = find.widgetWithText(FilterChip, englishL10n.feedbackNoIssues);
     await tester.ensureVisible(chip);
     await tester.tap(chip);
     await settle(tester);

@@ -1,14 +1,19 @@
+import 'dart:ui';
+
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
 import 'package:bike_setup_tracker/models/person.dart';
+import 'package:bike_setup_tracker/utils/adjustment_presets.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/utils/setup_guide_actions.dart';
-import 'package:bike_setup_tracker/widgets/sheets/person_add_adjustment.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/german_l10n.dart';
 
 const _catalog = '''
 brand: Acme
@@ -46,7 +51,7 @@ void main() {
   final products = catalogProducts(parseCatalogFile(_catalog)).toList();
 
   Component component(String model) {
-    final application = buildCatalogApplication(products.firstWhere((p) => p.node.id == model));
+    final application = buildCatalogApplication(products.firstWhere((p) => p.node.id == model), englishL10n);
     return Component(
       name: application.name,
       componentType: application.componentType,
@@ -120,7 +125,7 @@ nodes:
   });
 
   group('guideInputsFor', () {
-    final weight = ridingWeightPreset;
+    final weight = ridingWeightPresetFor(englishL10n);
     final style = CategoricalAdjustment(
       name: 'Riding style',
       unit: null,
@@ -151,6 +156,32 @@ nodes:
       );
       expect(inputs.riderWeight, 75);
       expect(inputs.ridingStyle, GuideRidingStyle.race);
+    });
+
+    test('reads the style a German rider stored', () {
+      final germanStyle = personAdjustmentPresetsFor(germanL10n).whereType<CategoricalAdjustment>().single;
+      final germanPerson = Person(name: 'Rider', adjustments: [ridingWeightPresetFor(germanL10n), germanStyle]);
+      for (final (stored, expected) in [
+        ('Komfort', GuideRidingStyle.comfort),
+        ('Ausgewogen', GuideRidingStyle.balanced),
+        ('Race', GuideRidingStyle.race),
+      ]) {
+        final inputs = guideInputsFor(
+          germanPerson,
+          values: {germanStyle.id: CategoricalValue([stored])},
+          previousValues: {},
+        );
+        expect(inputs.ridingStyle, expected, reason: stored);
+      }
+    });
+
+    test('has no style for an option that is none of the three', () {
+      final inputs = guideInputsFor(
+        person,
+        values: {style.id: CategoricalValue(const ['Gravel'])},
+        previousValues: {},
+      );
+      expect(inputs.ridingStyle, isNull);
     });
 
     test('uses the card weight, in kg, only while no weight is entered or recorded', () {
@@ -191,10 +222,10 @@ nodes:
 
       // With 92 psi entered, rebound alone would be looked up for 92 psi.
       final current = {pressure.id: const NumericalValue(92)};
-      final shown = guided.evaluate(inputs, current).firstWhere((r) => r.adjustment.name == 'Rebound');
+      final shown = guided.evaluate(inputs, current, englishL10n).firstWhere((r) => r.adjustment.name == 'Rebound');
       expect(shown.value, const StepValue(6));
 
-      final applied = guideValuesToApply(guided, inputs, current);
+      final applied = guideValuesToApply(guided, inputs, current, englishL10n);
       final byName = {for (final entry in applied.entries) entry.key.name: entry.value};
       expect(byName, {
         'Pressure': const NumericalValue(70),
@@ -206,7 +237,7 @@ nodes:
     test('leaves out values that cannot be applied', () {
       final guided = GuidedComponent(component('guided'), resolve(component('guided'))!);
 
-      final applied = guideValuesToApply(guided, const GuideInputs(), {});
+      final applied = guideValuesToApply(guided, const GuideInputs(), {}, englishL10n);
 
       expect(applied.keys.map((a) => a.name), ['LSC']);
     });
@@ -217,12 +248,48 @@ nodes:
 
     test('names the guides once and the weight used', () {
       expect(
-        guideNotesLine([guide, guide], const GuideInputs(riderWeight: 82.04)),
+        guideNotesLine([guide, guide], const GuideInputs(riderWeight: 82.04), englishL10n),
         "Started from recommended values (Acme owner's manual (2027)) · 82 kg",
       );
       expect(
-        guideNotesLine([guide], const GuideInputs()),
+        guideNotesLine([guide], const GuideInputs(), englishL10n),
         "Started from recommended values (Acme owner's manual (2027))",
+      );
+    });
+
+    test('follows the language, with a decimal comma for the weight', () {
+      expect(
+        guideNotesLine([guide], const GuideInputs(riderWeight: 82.5), lookupAppLocalizations(const Locale('de'))),
+        "Ausgehend von empfohlenen Werten (Acme owner's manual (2027)) · 82,5 kg",
+      );
+    });
+
+    test('is not added again in another language', () {
+      final de = lookupAppLocalizations(const Locale('de'));
+      const inputs = GuideInputs(riderWeight: 82.5);
+      final english = guideNotesLine([guide], inputs, englishL10n);
+      final german = guideNotesLine([guide], inputs, de);
+      final notes = 'Dry\n$english';
+      expect(appendNotesLine(notes, german, equivalents: [english, german]), notes);
+      expect(appendNotesLine(notes, german), '$notes\n$german');
+    });
+
+    test('names the guides by their English label on request', () {
+      const german = SetupGuide(
+        id: 'g',
+        label: 'FOX Bedienungsanleitung (2027)',
+        sourceLabel: "FOX owner's manual (2027)",
+        source: 'https://example.com',
+        rules: [],
+      );
+
+      expect(
+        guideNotesLine([german], const GuideInputs(), englishL10n),
+        'Started from recommended values (FOX Bedienungsanleitung (2027))',
+      );
+      expect(
+        guideNotesLine([german], const GuideInputs(), englishL10n, sourceLabels: true),
+        "Started from recommended values (FOX owner's manual (2027))",
       );
     });
 
@@ -236,7 +303,7 @@ nodes:
   test('a guided component without the catalog adjusters yields nothing to apply', () {
     final handBuilt = component('guided').copyWith(adjustments: <Adjustment>[]);
     final guided = GuidedComponent(handBuilt, resolve(handBuilt)!);
-    expect(guideValuesToApply(guided, const GuideInputs(riderWeight: 82), {}), isEmpty);
-    expect(guided.evaluate(const GuideInputs(riderWeight: 82), {}), isEmpty);
+    expect(guideValuesToApply(guided, const GuideInputs(riderWeight: 82), {}, englishL10n), isEmpty);
+    expect(guided.evaluate(const GuideInputs(riderWeight: 82), {}, englishL10n), isEmpty);
   });
 }

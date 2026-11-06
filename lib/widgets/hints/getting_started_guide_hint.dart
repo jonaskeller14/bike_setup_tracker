@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 
+import '../../l10n/l10n.dart';
 import '../../repositories/app_repository.dart';
 import '../../theme.dart';
 import '../../utils/bike_actions.dart';
@@ -16,12 +17,13 @@ class GettingStartedGuideHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final appRepository = context.watch<AppRepository>();
 
     final steps = [
-      _GuidedStep(label: 'Add your bike', isCompleted: appRepository.bikes.isNotEmpty),
-      _GuidedStep(label: 'Add a component', isCompleted: appRepository.components.isNotEmpty),
-      _GuidedStep(label: 'Record a setup', isCompleted: appRepository.setups.isNotEmpty),
+      _GuidedStep(label: l10n.hintGuideAddBike, isCompleted: appRepository.bikes.isNotEmpty),
+      _GuidedStep(label: l10n.hintGuideAddComponent, isCompleted: appRepository.components.isNotEmpty),
+      _GuidedStep(label: l10n.hintGuideRecordSetup, isCompleted: appRepository.setups.isNotEmpty),
     ];
 
     if (steps.every((step) => step.isCompleted)) return const SizedBox.shrink();
@@ -40,9 +42,9 @@ class GettingStartedGuideHint extends StatelessWidget {
 
     return AppHintDeck(
       icon: Icons.flag_outlined,
-      label: 'Steps to get started',
+      label: l10n.hintGuideLabel,
       onDismiss: onDismiss,
-      dismissLabel: 'Hide guide',
+      dismissLabel: l10n.hintGuideHide,
       pages: [
         AppHintPage(
           action: AppHintAction(

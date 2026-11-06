@@ -1,0 +1,42 @@
+Chega de chute. Comece a registrar.
+
+Seus cliques de suspensão, pressões de pneu e ajustes de geometria estão espalhados por um app de notas bagunçado? Não lembra exatamente qual setup funcionou perfeitamente naquele dia de chuva no bike park, na temporada passada?
+
+O Bike Setup Tracker é o diário digital da suspensão da sua mountain bike, da pressão dos pneus e da manutenção da sua bike, feito para ciclistas, mecânicos e pilotos que querem tirar o máximo do seu equipamento. Seja no downhill, no enduro ou na estrada, o app traz estrutura profissional para as regulagens da sua bike.
+
+O app está disponível em alemão, inglês, francês, italiano, espanhol e português e segue o idioma do seu aparelho.
+
+Os principais recursos:
+
+🚲 Sua garagem: Adicione quantas bikes quiser à sua garagem virtual. Gravel, bike de downhill ou de XC: tudo organizado em um só lugar. Mude componentes de uma bike para outra sem perder o histórico deles.
+
+🔧 Componentes totalmente personalizáveis: Não existem duas bikes iguais. Crie componentes próprios com as regulagens exatas que você quer registrar.
+- Suspensão: pressão de ar (PSI), retorno (rebound), compressão (HSC/LSC), espaçadores de volume (Tokens) e SAG de garfo e amortecedor.
+- Pneus: pressões (PSI/bar) e compostos.
+- Cockpit: altura do selim, rotação do guidão e ângulo das manetes.
+- Quadro: posições do flip-chip e ajustes de geometria.
+- Entradas flexíveis: controles deslizantes, interruptores, listas de seleção ou campos numéricos, como os seletores de ajuste reais da sua bike.
+
+🌤️ Clima e local automáticos: O contexto faz toda a diferença. Ao criar um novo setup, o app busca automaticamente o clima, a temperatura e o local.
+- A trilha estava seca e empoeirada?
+- Foi uma descida de corrida molhada e enlameada?
+- Agora você pode relacionar suas regulagens com as condições reais da trilha.
+
+📝 Histórico de setups: Nunca mais perca um bom setup. No histórico você vê exatamente o que mudou e quando, por exemplo “Rebound 9 → 10”. Gráficos mostram como cada regulagem evoluiu, para você comparar o setup atual com os anteriores (por ex., “Viagem a Finale Ligure” vs. “Trilhas de casa”).
+
+✅ Manutenção e lista de tarefas: Crie tarefas de manutenção e lembretes e vá marcando como concluídas: nunca mais esqueça a revisão do garfo ou a troca da corrente.
+
+📅 Calendário: Pedaladas, setups, montagens de componentes e tarefas de manutenção em uma única linha do tempo.
+
+📊 Strava Sync (complemento opcional): Quer suas pedaladas vinculadas automaticamente? Conecte o Strava e cada setup é associado à atividade que você realmente pedalou, por data e bike. Veja setups e pedaladas juntos no mapa. Distância e tempo de movimento são registrados por componente, e as tarefas podem vencer por quilômetros rodados. É o único extra pago (opcional); todo o resto é totalmente gratuito.
+
+🔒 Seus dados são seus: Suas regulagens ficam salvas localmente ou na sua nuvem privada. Sem conta, sem anúncios e sem nenhum acesso aos seus dados da nossa parte.
+- Grátis para sempre: o app básico continua gratuito, então você sempre terá acesso ao histórico dos seus setups.
+- Portabilidade total: exporte seus dados para Excel, CSV ou JSON quando quiser; você nunca fica preso.
+
+Para quem é o app?
+- Mountain bikers (MTB): encontre o ponto ideal de suspensões complexas.
+- Ciclistas de estrada e gravel: registro preciso da pressão dos pneus e dos ajustes de posição.
+- Pilotos e mecânicos: um diário profissional para setups de corrida e regulagens base.
+
+Largue o caderno. Baixe o Bike Setup Tracker e regule sua bike com precisão.

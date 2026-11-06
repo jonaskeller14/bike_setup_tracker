@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
@@ -26,10 +27,10 @@ class PersonDetailsPage extends StatelessWidget {
     if (person == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const SafeArea(
+        body: SafeArea(
           child: EmptyStatePlaceholder.error(
-            title: "Rider not found",
-            subtitle: "This rider was deleted or is no longer available.",
+            title: context.l10n.riderDetailsNotFoundTitle,
+            subtitle: context.l10n.riderDetailsNotFoundSubtitle,
           ),
         ),
       );
@@ -82,8 +83,8 @@ class PersonDetailsPage extends StatelessWidget {
                     stravaAthlete != null
                         ? "${stravaAthlete.firstname} ${stravaAthlete.lastname}"
                         : (person.stravaAthlete == null
-                            ? "No Strava Athlete linked to this rider."
-                            : "STRAVA ATHLETE NOT FOUND"),
+                            ? context.l10n.riderDetailsNoStrava
+                            : context.l10n.riderDetailsStravaNotFound),
                     style: TextStyle(
                       color: person.stravaAthlete == null || stravaAthlete != null
                           ? null
@@ -93,9 +94,9 @@ class PersonDetailsPage extends StatelessWidget {
                   dense: true,
                 ),
               if (linkedBikes.isEmpty)
-                const ListTile(
-                  leading: Icon(Bike.iconData),
-                  title: Text("No bikes linked to this rider."),
+                ListTile(
+                  leading: const Icon(Bike.iconData),
+                  title: Text(context.l10n.riderDetailsNoBikes),
                   dense: true,
                   enabled: false,
                 )

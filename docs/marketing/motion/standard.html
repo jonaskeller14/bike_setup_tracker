@@ -1,0 +1,56 @@
+<!doctype html>
+<!--
+  The standard Short (README.md): brand row, captions word by word above the whole phone, lift
+  callouts. Generated from the kit, so a Short needs no animation code of its own: build_kit.py fills
+  in the {{…}} from its clips, voice, captions and callouts. The layout is video_9x16.html's.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, height=1920">
+<link rel="stylesheet" href="assets/marketing.css">
+<link rel="stylesheet" href="assets/motion.css">
+<script src="assets/gsap.min.js"></script>
+<script src="assets/motion.js"></script>
+<style>
+  .caption { top: 262px; width: 960px; height: 350px; }
+  #move { left: 230px; top: 640px; width: 620px; height: 1266px; }
+  #move .phone { --pw: 620; }
+  .lift video { position: absolute; max-width: none; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="{{LENGTH}}" data-width="1080" data-height="1920">
+  <div id="top">
+    <div class="brand" data-decor>
+      <img src="assets/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="rule"></div>
+  </div>
+{{CAPTIONS}}
+  <div id="move">
+    <div class="phone">
+      <div class="screen">
+        <video id="recording" class="clip" src="assets/recording.mp4" muted playsinline data-start="0" data-duration="{{LENGTH}}" data-track-index="1"></video>
+      </div>
+      <img class="frame" src="assets/frame.png" alt="">
+    </div>
+  </div>
+{{LIFTS}}
+</div>
+<script>
+  const motion = Motion.create();
+  document.querySelectorAll('.caption').forEach((el) => motion.caption(el, Number(el.dataset.from), Number(el.dataset.to)));
+  // Grows from its size in the phone while it fades in (brand.md, Callouts).
+  document.querySelectorAll('.lift').forEach((el) => {
+    const from = Number(el.dataset.from);
+    const to = Number(el.dataset.to);
+    gsap.set(el, { opacity: 0 });
+    motion.tl.fromTo(el, { opacity: 0, scale: Number(el.dataset.shrink) }, { opacity: 1, scale: 1, duration: .4, ease: 'power2.inOut' }, from);
+    motion.tl.to(el, { opacity: 0, duration: .4, ease: 'power2.inOut' }, to - .4);
+  });
+  motion.finish();
+</script>
+</body>
+</html>

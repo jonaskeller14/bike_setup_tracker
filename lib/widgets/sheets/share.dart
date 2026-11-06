@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../database/app_database.dart';
+import '../../l10n/l10n.dart';
 import '../../models/selected_data.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/share_service.dart';
@@ -166,12 +167,12 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
             onBack: _onBack,
           ),
           ShareSheetFlowSteps.step4Sharing => SheetProgressContent(
-            title: 'Share Data',
+            title: context.l10n.shareSheetTitle,
             message: switch (_shareFormat!) {
-              ShareFormats.json => "Preparing JSON file…",
-              ShareFormats.text => "Preparing text…",
-              ShareFormats.csv => "Preparing CSV file…",
-              ShareFormats.xlsx => "Preparing Excel file…",
+              ShareFormats.json => context.l10n.exportProgressFile,
+              ShareFormats.text => context.l10n.shareProgressText,
+              ShareFormats.csv => context.l10n.shareProgressCsv,
+              ShareFormats.xlsx => context.l10n.shareProgressExcel,
             },
           ),
         },

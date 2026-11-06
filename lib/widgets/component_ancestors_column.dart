@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/bike.dart';
 import '../models/component/component_ancestor.dart';
 import 'component_ancestor_display.dart';
@@ -29,6 +30,7 @@ class ComponentAncestorsColumn extends StatelessWidget {
     final theme = Theme.of(context);
     final variantColor = color ?? theme.colorScheme.onSurfaceVariant;
     final errorColor = theme.colorScheme.error;
+    final l10n = context.l10n;
     final style = textStyle ?? theme.textTheme.bodySmall?.copyWith(color: variantColor);
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -43,8 +45,8 @@ class ComponentAncestorsColumn extends StatelessWidget {
               Flexible(
                 child: Text(
                   switch (ancestor) {
-                    ArchivedAncestor() || UninstalledAncestor() => ancestor.label(bikes).toUpperCase(),
-                    _ => ancestor.label(bikes),
+                    ArchivedAncestor() || UninstalledAncestor() => ancestor.label(bikes, l10n).toUpperCase(),
+                    _ => ancestor.label(bikes, l10n),
                   },
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

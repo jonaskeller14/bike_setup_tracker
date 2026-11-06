@@ -56,9 +56,12 @@ class OrthogonalArrayStrategy extends TestSessionStrategy {
         baseSetupId: baseline.id,
         values: TestSessionStrategy.valuesAt(knobs, target),
         referenceSetupId: runs.last.id,
-        rationale:
-            'Pattern ${done + 1} of ${design.length}: ${TestSessionStrategy.describeMove(knobs, base, target)} '
-            'from ${baseline.displayName}. Every adjustment moves, so their effects can be told apart.',
+        rationale: SuggestionNote(SuggestionNoteKind.patternStep, [
+          TextArg('${done + 1}'),
+          TextArg('${design.length}'),
+          TestSessionStrategy.describeMove(knobs, base, target),
+          SetupArg(baseline.name),
+        ]),
       );
     }
 
@@ -87,9 +90,10 @@ class OrthogonalArrayStrategy extends TestSessionStrategy {
           baseSetupId: baseline.id,
           values: TestSessionStrategy.valuesAt(knobs, estimate),
           referenceSetupId: runs.last.id,
-          rationale:
-              'Ride the estimated best: ${TestSessionStrategy.describeMove(knobs, base, estimate)} '
-              'from ${baseline.displayName}.',
+          rationale: SuggestionNote(SuggestionNoteKind.estimatedBest, [
+            TestSessionStrategy.describeMove(knobs, base, estimate),
+            SetupArg(baseline.name),
+          ]),
         );
       }
     }
@@ -126,7 +130,7 @@ class OrthogonalArrayStrategy extends TestSessionStrategy {
       baseSetupId: repeat.id,
       values: TestSessionStrategy.valuesAt(knobs, positions[repeat.id] ?? base),
       referenceSetupId: runs.last.id,
-      rationale: 'Ride ${repeat.displayName} again to confirm the result.',
+      rationale: SuggestionNote(SuggestionNoteKind.rideAgainConfirm, [SetupArg(repeat.name)]),
     );
   }
 

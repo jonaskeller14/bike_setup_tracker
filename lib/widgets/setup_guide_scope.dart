@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../l10n/l10n.dart';
 import '../models/component/component.dart';
 import '../models/component/setup_guide.dart';
 import 'setup_guide_card.dart';
@@ -33,11 +34,11 @@ class SetupGuideScope extends InheritedWidget {
 /// "Recommended: 76 psi", or with the reason it can't be applied:
 /// "Recommended: – · Outside the published range", "Recommended: 18 · Above
 /// this adjuster's maximum". [GuideStatus] says how the current value relates.
-String recommendedValueLine(GuideRecommendation recommendation, Component component) {
+String recommendedValueLine(GuideRecommendation recommendation, Component component, AppLocalizations l10n) {
   final adjustment = recommendation.adjustment;
   final value = recommendation.value;
-  if (value != null) return "Recommended: ${guideValueText(adjustment, value)}";
+  if (value != null) return l10n.guideRecommended(guideValueText(adjustment, value, l10n));
   final unapplied = recommendation.unappliedValue;
-  final shown = unapplied == null ? "–" : guideValueText(adjustment, unapplied);
-  return "Recommended: $shown · ${guideDetailText(recommendation, component)}";
+  final shown = unapplied == null ? "–" : guideValueText(adjustment, unapplied, l10n);
+  return l10n.guideRecommendedWithIssue(shown, guideDetailText(recommendation, component, l10n));
 }

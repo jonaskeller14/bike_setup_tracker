@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/l10n.dart';
 import '../widgets/app_snackbar.dart';
 
 /// Returns a shortened, human-readable form of [url] for display purposes,
@@ -28,11 +29,11 @@ Future<void> launchAppUrl(BuildContext context, {
       return;
     } else {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Failed to open link: $url'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.urlOpenFailed(url)));
     }
   } else {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Could not find a program to launch the link.'));
+    ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.urlNoProgram));
   }
 }
 
@@ -76,11 +77,11 @@ Future<void> launchAppEmail(BuildContext context, String email, {String? subject
       return;
     } else {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Failed to open email client for: $email'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.urlEmailFailed(email)));
     }
   } else {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Could not find an email app on your device.'));
+    ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.urlNoEmailApp));
   }
 }
 
@@ -97,6 +98,6 @@ Future<void> launchLocationOnMap(BuildContext context, double latitude, double l
 
   if (!context.mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
-    AppSnackBar.error(context, 'No maps app found. Please install Apple Maps, Google Maps, or another maps application.'),
+    AppSnackBar.error(context, context.l10n.urlNoMapsApp),
   );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'dialog_action.dart';
 
 Future<bool> showDiscardChangesDialog(BuildContext context) async {
@@ -7,19 +8,19 @@ Future<bool> showDiscardChangesDialog(BuildContext context) async {
     context: context,
     builder: (context) {
       return AlertDialog.adaptive(
-        title: const Text('Discard Changes?'),
-        content: const Text('You have unsaved changes. Are you sure you want to exit without saving?'),
+        title: Text(context.l10n.discardChangesTitle),
+        content: Text(context.l10n.discardChangesBody),
         actions: [
           adaptiveAction(
             context: context,
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           adaptiveAction(
             context: context,
             isDestructive: true,
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Discard Changes'),
+            child: Text(context.l10n.discardChangesConfirm),
           ),
         ],
       );

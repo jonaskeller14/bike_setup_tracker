@@ -6,9 +6,12 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../env/env.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/map_actions.dart';
 import '../map_pins.dart';
 
@@ -36,6 +39,9 @@ class ContextLocationWeatherCard extends StatelessWidget {
 
   bool get _hasCondition => weather?.condition != null;
 
+  static String _coordinate(double? value, String locale) =>
+      value == null ? '-' : formatLocalizedDouble(value, fractionDigits: 4, locale: locale);
+
   @override
   Widget build(BuildContext context) {
     final hasLocation = _hasLocation;
@@ -47,8 +53,8 @@ class ContextLocationWeatherCard extends StatelessWidget {
 
     final sections = <Widget>[
       if (hasLocation) _locationSection(context, appSettings, isLast: !hasWeather && !hasCondition),
-      if (hasWeather) _weatherSection(appSettings),
-      if (hasCondition) _conditionSection(),
+      if (hasWeather) _weatherSection(context, appSettings),
+      if (hasCondition) _conditionSection(context),
     ];
 
     return Card.outlined(
@@ -73,7 +79,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
       collapsedShape: const Border(),
       leading: const Icon(Icons.location_city),
       title: place == null
-          ? const Text("No Address available")
+          ? Text(context.l10n.contextNoAddress)
           : SelectableText(
               "${place!.thoroughfare ?? ''} ${place!.subThoroughfare ?? ''}, "
               "${place!.locality ?? ''}, ${place!.isoCountryCode ?? ''}"
@@ -84,7 +90,10 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.my_location),
           title: SelectableText(
-            "Latitude/Longitude: ${position?.latitude?.toStringAsFixed(4) ?? '-'}°/${position?.longitude?.toStringAsFixed(4) ?? '-'}°",
+            context.l10n.contextLatLon(
+              _coordinate(position?.latitude, context.l10n.localeName),
+              _coordinate(position?.longitude, context.l10n.localeName),
+            ),
           ),
           dense: true,
           enabled: position?.latitude != null || position?.longitude != null,
@@ -92,7 +101,9 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.arrow_upward),
           title: SelectableText(
-            "Altitude: ${ContextPosition.convertAltitudeFromMeters(position?.altitude, appSettings.altitudeUnit)?.round() ?? "-"} ${appSettings.altitudeUnit}",
+            context.l10n.contextAltitude(
+              '${ContextPosition.convertAltitudeFromMeters(position?.altitude, appSettings.altitudeUnit)?.round() ?? "-"} ${appSettings.altitudeUnit}',
+            ),
           ),
           dense: true,
           enabled: position?.altitude != null,
@@ -116,7 +127,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
                     onViewOnMap: onViewOnMap,
                     externalTargets: [
                       (
-                        label: 'Open in maps app',
+                        label: context.l10n.setupOptionOpenInMaps,
                         latitude: position!.latitude!,
                         longitude: position!.longitude!,
                         displayName: displayName,
@@ -191,7 +202,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
                         ),
                         TextSourceAttribution(
                           prependCopyright: false,
-                          'Improve this map',
+                          context.l10n.mapAttributionImprove,
                           onTap: () => launchUrlString('https://www.mapbox.com/map-feedback/'),
                         ),
                       ] else ...[
@@ -210,18 +221,20 @@ class ContextLocationWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _weatherSection(AppSettings appSettings) {
+  Widget _weatherSection(BuildContext context, AppSettings appSettings) {
     return ExpansionTile(
       dense: true,
       shape: const Border(),
       collapsedShape: const Border(),
       leading: Icon(weather!.getIconData()),
-      title: Text("Weather: ${weather!.getWeatherCodeLabel() ?? '-'}"),
+      title: Text(context.l10n.contextWeather(weather!.getWeatherCodeLabel(context.l10n) ?? '-')),
       children: [
         ListTile(
           leading: const Icon(ContextWeather.currentTemperatureIconData),
           title: SelectableText(
-            "Temperature: ${ContextWeather.convertTemperatureFromCelsius(weather!.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}",
+            context.l10n.contextTemperature(
+              '${ContextWeather.convertTemperatureFromCelsius(weather!.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}',
+            ),
           ),
           dense: true,
           enabled: weather!.currentTemperature != null,
@@ -229,21 +242,25 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
           title: SelectableText(
-            "Precipitation: ${ContextWeather.convertPrecipitationFromMm(weather!.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}",
+            context.l10n.contextPrecipitation(
+              '${ContextWeather.convertPrecipitationFromMm(weather!.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}',
+            ),
           ),
           dense: true,
           enabled: weather!.dayAccumulatedPrecipitation != null,
         ),
         ListTile(
           leading: const Icon(ContextWeather.currentHumidityIconData),
-          title: SelectableText("Humidity: ${weather!.currentHumidity?.round() ?? '-'} %"),
+          title: SelectableText(context.l10n.contextHumidity('${weather!.currentHumidity?.round() ?? '-'} %')),
           dense: true,
           enabled: weather!.currentHumidity != null,
         ),
         ListTile(
           leading: const Icon(ContextWeather.currentWindSpeedIconData),
           title: SelectableText(
-            "Windspeed: ${ContextWeather.convertWindSpeedFromKmh(weather!.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}",
+            context.l10n.contextWindSpeed(
+              '${ContextWeather.convertWindSpeedFromKmh(weather!.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}',
+            ),
           ),
           dense: true,
           enabled: weather!.currentWindSpeed != null,
@@ -251,7 +268,9 @@ class ContextLocationWeatherCard extends StatelessWidget {
         ListTile(
           leading: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
           title: SelectableText(
-            "Soil Moisture: ${weather!.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '-'} m³/m³",
+            context.l10n.contextSoilMoisture(
+              '${weather!.currentSoilMoisture0to7cm == null ? '-' : formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2, locale: context.l10n.localeName)} m³/m³',
+            ),
           ),
           dense: true,
           enabled: weather!.currentSoilMoisture0to7cm != null,
@@ -260,10 +279,10 @@ class ContextLocationWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _conditionSection() {
+  Widget _conditionSection(BuildContext context) {
     return ListTile(
       leading: Icon(weather!.condition!.iconData, color: weather!.condition!.color),
-      title: SelectableText('Condition: ${weather!.condition!.value}'),
+      title: SelectableText(context.l10n.contextCondition(weather!.condition!.label(context.l10n))),
       dense: true,
     );
   }

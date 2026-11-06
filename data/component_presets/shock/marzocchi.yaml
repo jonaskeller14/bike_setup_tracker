@@ -36,9 +36,16 @@ option_values:
       description: >
         Air shock with a 10-click rebound dial and a tool-free low-speed
         compression sweep between Open and Firm.
+      description_de: >
+        Luftdämpfer mit Zugstufenrad mit 10 Klicks und werkzeuglosem
+        Low-Speed-Druckstufen-Sweep zwischen Open und Firm.
+      description_fr: Amortisseur pneumatique avec une molette de détente à 10 clics et un balayage de compression basse vitesse sans outil entre Open et Firm.
+      description_it: Ammortizzatore pneumatico con una manopola del ritorno a 10 scatti e una corsa continua di compressione a bassa velocità senza attrezzi tra Open e Firm.
+      description_es: Amortiguador neumático con una rueda de rebote de 10 clics y un barrido de compresión de baja velocidad sin herramientas entre Open y Firm.
+      description_pt: Amortecedor a ar com um seletor de retorno de 10 cliques e uma varredura de compressão de baixa velocidade sem ferramentas entre Open e Firm.
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: "Low-Speed Compression; non-indexed sweep, clockwise is firmer" }
-        - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest), dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Firm], options_de: [Offen, Fest], options_fr: [Ouvert, Ferme], options_it: [Aperto, Rigido], options_es: [Abierto, Firme], options_pt: [Aberto, Firme], notes: "Low-Speed Compression; non-indexed sweep, clockwise is firmer", notes_de: "Low-Speed-Druckstufe; nicht indexiertes Sweep-Rad, im Uhrzeigersinn ist fester", notes_fr: "Compression basse vitesse ; balayage non indexé, le sens horaire est plus ferme", notes_it: "Compressione a bassa velocità; corsa continua non indicizzata, il senso orario è più rigido", notes_es: "Compresión de baja velocidad; barrido no indexado, el sentido horario es más firme", notes_pt: "Compressão de baixa velocidade; varredura não indexada, o sentido horário é mais firme" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 10, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
       source:
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
         - https://flowmountainbike.com/tests/marzocchi-bomber-air-shock-review/
@@ -56,10 +63,22 @@ option_values:
       description: >
         Coil shock with indexed low-speed compression and rebound adjusters and
         adjustable spring preload.
+      description_de: >
+        Stahlfederdämpfer mit indexierten Verstellern für Low-Speed-Druckstufe
+        und Zugstufe sowie einstellbarer Federvorspannung.
+      description_fr: Amortisseur à ressort avec réglages indexés de compression basse vitesse et de détente et précontrainte de ressort réglable.
+      description_it: Ammortizzatore a molla con regolatori indicizzati di compressione a bassa velocità e di ritorno e precarico della molla regolabile.
+      description_es: Amortiguador de muelle con ajustes indexados de compresión de baja velocidad y de rebote y precarga del muelle ajustable.
+      description_pt: Amortecedor a mola com ajustes indexados de compressão de baixa velocidade e de retorno e pré-carga da mola ajustável.
       missing_adjustments: [Preload]
+      missing_adjustments_de: [Vorspannung]
+      missing_adjustments_fr: [Précontrainte]
+      missing_adjustments_it: [Precarico]
+      missing_adjustments_es: [Precarga]
+      missing_adjustments_pt: [Pré-carga]
       adjustments:
-        - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; clockwise is firmer" }
-        - { name: Rebound, type: step, max: 16, notes: "Clockwise is slower; some units may have 15 clicks, check your dial and edit the maximum if it differs" }
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 16, notes: "Low-Speed Compression; clockwise is firmer", notes_de: Low-Speed-Druckstufe; im Uhrzeigersinn ist fester, notes_fr: Compression basse vitesse ; le sens horaire est plus ferme, notes_it: Compressione a bassa velocità; il senso orario è più rigido, notes_es: Compresión de baja velocidad; el sentido horario es más firme, notes_pt: Compressão de baixa velocidade; o sentido horário é mais firme }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: "Clockwise is slower; some units may have 15 clicks, check your dial and edit the maximum if it differs", notes_de: "Im Uhrzeigersinn ist langsamer; manche Dämpfer haben evtl. 15 Klicks, am Drehrad prüfen und das Maximum bei Abweichung anpassen", notes_fr: "Le sens horaire est plus lent ; certains exemplaires ont peut-être 15 clics, vérifiez votre cadran et modifiez le maximum s’il diffère", notes_it: "Il senso orario è più lento; alcuni esemplari potrebbero avere 15 scatti, controlla la tua manopola e modifica il massimo se è diverso", notes_es: "El sentido horario es más lento; algunas unidades pueden tener 15 clics, comprueba tu dial y edita el máximo si es distinto", notes_pt: "O sentido horário é mais lento; algumas unidades podem ter 15 cliques, confira o seu seletor e edite o máximo se for diferente" }
       source:
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
         - https://www.mtb-mag.com/en/tested-marzocchi-bomber-cr/
@@ -84,6 +103,11 @@ option_values:
 guides:
   marzocchi_bomber_air_2022:
     label: Marzocchi Bomber Air shock owner's guide (2022)
+    label_de: Marzocchi Bomber Luftdämpfer Bedienungsanleitung (2022)
+    label_fr: Manuel d’utilisation de l’amortisseur pneumatique Marzocchi Bomber Air (2022)
+    label_it: Manuale d’uso dell’ammortizzatore pneumatico Marzocchi Bomber Air (2022)
+    label_es: Manual del usuario del amortiguador neumático Marzocchi Bomber Air (2022)
+    label_pt: Manual do usuário do amortecedor a ar Marzocchi Bomber Air (2022)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
     rules:
       - target: pressure
@@ -96,6 +120,11 @@ guides:
           100: 220, 105: 231, 110: 243, 115: 254, 120: 265
         }
         note: Calculated from Marzocchi's starting point (psi = rider weight in lb); set the final pressure by SAG
+        note_de: Berechnet aus dem Ausgangspunkt von Marzocchi (psi = Fahrergewicht in lb); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de Marzocchi (psi = poids du pilote en lb) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di Marzocchi (psi = peso del rider in lb); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de Marzocchi (psi = peso del rider en lb); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da Marzocchi (psi = peso do rider em lb); defina a pressão final pelo SAG
       # Counted from fully closed, the catalog's direction.
       - target: rebound
         input: pressure
@@ -106,10 +135,15 @@ guides:
           280-300: 1
         }
       - { target: compression_mode, value: Open }
-      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is Marzocchi's firm end, 30 % the plush end" }
+      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is Marzocchi's firm end, 30 % the plush end", note_de: "25 % ist das feste Ende von Marzocchi, 30 % das komfortable Ende", note_fr: "25 % est la limite ferme de Marzocchi, 30 % la limite confortable", note_it: "25 % è il limite rigido di Marzocchi, 30 % quello confortevole", note_es: 25 % es el extremo firme de Marzocchi y 30 % el cómodo, note_pt: 25 % é o extremo firme da Marzocchi e 30 % o confortável }
 
   marzocchi_bomber_cr_2018:
     label: Marzocchi Bomber CR tuning guide (2018)
+    label_de: Marzocchi Bomber CR Tuning-Anleitung (2018)
+    label_fr: Guide de réglage Marzocchi Bomber CR (2018)
+    label_it: Guida alla taratura Marzocchi Bomber CR (2018)
+    label_es: Guía de tarado Marzocchi Bomber CR (2018)
+    label_pt: Guia de calibragem Marzocchi Bomber CR (2018)
     source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
     # The guide prints no click starting points. Marzocchi's web spring
     # calculator needs the bike's rear wheel travel, so its rate is not
@@ -127,9 +161,14 @@ nodes:
   - label: "Bomber Air"
     level: model
     category: Trail / Enduro
-    specs: { spring: Air }
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: &marzocchi_service
-      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide }
+      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide, source_de: Marzocchi-Handbuch, source_fr: Manuel d’utilisation Marzocchi, source_it: Manuale d’uso Marzocchi, source_es: Manual del usuario Marzocchi, source_pt: Manual do usuário Marzocchi }
     children:
       - label: "2025–2026"
         level: generation
@@ -143,13 +182,20 @@ nodes:
             level: trim
             specs: { mount: Metric (compatible with FOX bearing mounts) }
             adjustments: &air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 350 }
             options:
               damper: [bomber_air]
               size: ["190x45", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x65", "250x75"]
             note: >
               Max air pressure 350psi. Adjustable volume spacers in 0.1 in³
               increments.
+            note_de: >
+              Maximaler Luftdruck 350psi. Einstellbare Volumenspacer in
+              Schritten von 0,1 in³.
+            note_fr: Pression d’air max. 350 psi. Tokens de volume réglables par paliers de 0,1 in³.
+            note_it: Pressione dell’aria max. 350 psi. Token di volume regolabili a passi da 0,1 in³.
+            note_es: Presión de aire máx. 350 psi. Tokens de volumen ajustables en pasos de 0,1 in³.
+            note_pt: Pressão de ar máx. 350 psi. Tokens de volume ajustáveis em passos de 0,1 in³.
           - label: Trunnion
             level: trim
             specs: { mount: Trunnion }
@@ -161,7 +207,12 @@ nodes:
   - label: "Bomber CR"
     level: model
     category: Enduro / Downhill
-    specs: { spring: Coil }
+    category_de: Enduro / Downhill
+    category_fr: Enduro / Downhill
+    category_it: Enduro / Downhill
+    category_es: Enduro / Downhill
+    category_pt: Enduro / Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *marzocchi_service
     children:
       - label: "2025–2026"
@@ -176,7 +227,7 @@ nodes:
             level: trim
             specs: { mount: Standard eyelet }
             adjustments: &coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [bomber_cr]
               size: ["210x50", "210x55", "230x60", "230x65", "250x75", { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: "7.5x2.0in" }, { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: "7.875x2.0in" }, { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: "7.875x2.25in" }, { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: "8.5x2.5in" }, { eye_to_eye_mm: 222.25, stroke_mm: 69.85, label: "8.75x2.75in" }]
@@ -184,6 +235,14 @@ nodes:
               Coil spring sold separately, color-coded to rider weight
               (Purple/Blue/Green/Yellow ~ Soft/Medium/Firm/X-Firm); Marzocchi
               does not publish the actual lbs/in rate per color.
+            note_de: >
+              Stahlfeder separat erhältlich, nach Fahrergewicht farbcodiert
+              (Violett/Blau/Grün/Gelb ~ Weich/Medium/Fest/Extrafest); Marzocchi
+              gibt die tatsächliche Federrate in lbs/in je Farbe nicht an.
+            note_fr: Ressort vendu séparément, repéré par couleur selon le poids du pilote (Violet/Bleu/Vert/Jaune ~ Souple/Moyen/Ferme/X-Ferme) ; Marzocchi ne publie pas la raideur réelle en lbs/in de chaque couleur.
+            note_it: Molla venduta separatamente, identificata dal colore in base al peso del rider (Viola/Blu/Verde/Giallo ~ Morbida/Media/Rigida/X-Rigida); Marzocchi non pubblica la rigidità reale in lbs/in di ciascun colore.
+            note_es: Muelle vendido por separado, identificado por color según el peso del rider (Morado/Azul/Verde/Amarillo ~ Blando/Medio/Firme/X-Firme); Marzocchi no publica la rigidez real en lbs/in de cada color.
+            note_pt: Mola vendida separadamente, identificada por cor conforme o peso do rider (Roxo/Azul/Verde/Amarelo ~ Macia/Média/Firme/X-Firme); a Marzocchi não publica a rigidez real em lbs/in de cada cor.
           - label: Trunnion
             level: trim
             specs: { mount: Trunnion (threaded reservoir end) }

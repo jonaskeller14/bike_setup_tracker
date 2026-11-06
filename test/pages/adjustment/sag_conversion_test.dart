@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
+import '../../goldens/support/localized_test_app.dart';
 import '../value_migration_test_utils.dart';
 import 'preset_key_test_utils.dart';
 
@@ -34,7 +35,7 @@ void main() {
   }) async {
     Object? result;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -95,7 +96,7 @@ void main() {
       (tester) async {
     Object? result;
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -151,7 +152,7 @@ void main() {
       presetKey: testPresetKey,
     );
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -200,7 +201,7 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider<AppRepository>.value(
           value: repositoryWithRecorded([for (final value in values) recordedValue(value)]),
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Builder(
               builder: (context) => ElevatedButton(
@@ -262,6 +263,19 @@ void main() {
       expect(edit.migrations.single.apply(const NumericalValue(120)), const NumericalValue(100));
       expect(edit.migrations.single.apply(const NumericalValue(30)), const NumericalValue(30));
     });
+  });
+
+  testWidgets('SAG page reads a travel typed with a decimal comma', (tester) async {
+    final saved = savedAdjustment(await pushAndSave(
+      tester,
+      SagAdjustmentPage.edit(adjustment: SagAdjustment(name: 'SAG', notes: null), componentType: ComponentType.fork),
+      interact: () async {
+        await tester.enterText(find.widgetWithText(TextFormField, 'e.g. 160'), '160,5');
+        await tester.pumpAndSettle();
+      },
+    )) as SagAdjustment;
+
+    expect(saved.referenceTravelMm, 160.5);
   });
 
   final sagPreset = SagAdjustment(name: 'Preset', notes: null, presetKey: testPresetKey);

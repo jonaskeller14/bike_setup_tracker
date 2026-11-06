@@ -1131,6 +1131,71 @@ collapses newlines into spaces and would run the bullets together on one line.
 Use `>-` (or a plain scalar) only for flowing prose that is meant to be a
 single paragraph.
 
+## Translations
+
+The text a rider reads is translated **inline**: a translatable field `x` gets a
+sibling `x_<lang>` right next to it, so one entry holds all its text and a data
+update happens in one place. The app reads English plus the language it runs in
+and ignores the other siblings; a missing sibling shows the English text. Every
+language the app ships needs its sibling (`_de`, `_fr`, `_it`, `_es`, `_pt`, see
+`shippedCatalogLanguages`); the examples below show German only.
+
+```yaml
+option_values:
+  damper:
+    float_x:
+      name: FLOAT X damper
+      description: All-mountain air shock damper.
+      description_de: Air-Dämpfer für All-Mountain.
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, type: step, max: 16, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe }
+        - { name: Compression Mode, name_de: Druckstufenmodus, type: categorical, options: [Open, Firm], options_de: [Offen, Fest] }
+```
+
+| Translated | Field |
+|---|---|
+| Adjuster | `name`, `notes`, `options` (categorical) |
+| Damper (option value) | `description`, `missing_adjustments` |
+| Node | `note`, `category`, `missing_adjustments`, and `stanchion` / `spring` inside `specs` |
+| Guide | `label`, and `note` of a rule |
+| Task override | `source`, and `name` of a brand-only task |
+| `changes:` entry | `review`, and `from` / `to` of a `fix` on `name` or `notes` |
+
+Not translated, because they are names, identifiers or matched by the app:
+`brand`, a node's `label`, a damper's `name`, size labels and `mount`,
+`wheel_size`, every `id`, `level`, `target` / `when` / `input`, units, `url`,
+`source` of a guide, the freeform `note` / `source` of a damper, and the guide
+cells (`value: Open` names the adjuster's **English** option; the app finds the
+translated one by its place in the `options` list).
+
+The sibling rule:
+
+- A scalar `x` gets `x_de`. A list gets a list of the **same length**
+  (`options_de`, `missing_adjustments_de`); an option appears once.
+- A spec value is translated inside `specs` (`stanchion_de`).
+- A dash-list description keeps its form (`|-` with `- ` bullets).
+- An identical term is written out (`name_de: HSC`), so "missing" and "the same"
+  can be told apart. The coverage test needs every translatable text to have its
+  sibling for each shipped language.
+- A fix on `name` or `notes` needs `from_de` / `to_de` next to `from` / `to`. The
+  fix compares with the text built in the active language, so a component that
+  was created in another language is skipped, like one the rider edited.
+- A catalog adjuster whose id is also a generic template (`rebound`, `hsc`,
+  `volume_spacers`) takes the template's name, so the same part is not called two
+  things (`Zugstufe`, never `Rebound`, next to a hand-added `Zugstufe`).
+- Ids, preset keys and `ids.lock` / `adjusters.lock` are always built from the
+  English text, so they do not change with the language.
+
+The parser rejects a sibling of a field that is not translated, one in a language
+the app does not have, a sibling without its English field, and a list of
+another length.
+
+`dart run tool/catalog_l10n.dart missing <lang>` (for example `missing fr`) lists every text without its
+translation as `file:line field (path) English`, with a suggestion where the same
+English text is translated elsewhere. `dart run tool/catalog_l10n.dart stats`
+counts the texts and words per language. The tool only reads, it never rewrites a
+file, because anchors and comments would be lost.
+
 ## Optional fields / escape hatches
 
 The formats above aren't rigid — small deviations are expected as brands don't
@@ -1191,3 +1256,9 @@ cannot take, a last fix that does not end at what the data builds, or a `step`
 that is not registered.
 `test/component_catalog_adjusters_test.dart` guards `adjusters.lock`, see
 [Catalog revisions](#catalog-revisions-revision-and-changes).
+
+`test/component_catalog_l10n_test.dart` fails when a text lacks its translation
+for a language in `shippedCatalogLanguages`, has a list of another length or a
+repeated option, is translated two ways for one English text, is named differently
+from its generic template, or carries research wording in German
+(see [Translations](#translations)).

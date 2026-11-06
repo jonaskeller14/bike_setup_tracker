@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
+import '../goldens/support/localized_test_app.dart';
 
 Component component(String id, ComponentType type, List<Installation> installations, {String? name}) =>
     Component(id: id, name: name ?? id, installations: installations, componentType: type);
@@ -39,7 +40,7 @@ void main() {
   Widget createWidgetUnderTest(List<Component> components, {ThemeData? theme, double width = 800}) {
     return ChangeNotifierProvider.value(
       value: appSettings,
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: Scaffold(
           body: Center(

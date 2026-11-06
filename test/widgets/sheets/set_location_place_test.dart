@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:provider/provider.dart';
+import '../../goldens/support/localized_test_app.dart';
+import '../../support/german_l10n.dart';
 
 void main() {
   late AppSettings settings;
@@ -24,6 +26,7 @@ void main() {
     ContextPosition? currentLocation,
     geo.Placemark? currentPlace,
     MediaQueryData? mediaQueryData,
+    Locale locale = const Locale('en'),
   }) {
     final child = MultiProvider(
       providers: [
@@ -39,7 +42,8 @@ void main() {
         ),
       ),
     );
-    return MaterialApp(
+    return localizedTestApp(
+      locale: locale,
       theme: materialAppTheme,
       home: mediaQueryData == null ? child : MediaQuery(data: mediaQueryData, child: child),
     );
@@ -67,6 +71,38 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       service.dispose();
     }
+  });
+
+  testWidgets('reads coordinates typed with a decimal comma', (tester) async {
+    const rangeError = 'Latitude must be between -90..90°';
+    final service = LocationService(provider: FakeSheetLocationProvider());
+    await tester.pumpWidget(buildSheet(service: service));
+    final latitude = find.widgetWithText(TextFormField, 'Latitude');
+
+    await tester.enterText(latitude, '91,5');
+    await tester.pump();
+    expect(find.text(rangeError), findsOneWidget);
+
+    await tester.enterText(latitude, '47,5');
+    await tester.pump();
+    expect(find.text(rangeError), findsNothing);
+    expect(find.text('Please enter a valid number'), findsNothing);
+  });
+
+  testWidgets('pre-fills German coordinates with a decimal comma, digit for digit', (tester) async {
+    const saved = ContextPosition(latitude: 47.376887123, longitude: 8.541694, altitude: 408.5);
+    await tester.pumpWidget(
+      buildSheet(
+        service: LocationService(provider: FakeSheetLocationProvider()),
+        currentLocation: saved,
+        locale: const Locale('de'),
+      ),
+    );
+
+    expect(find.widgetWithText(TextFormField, '47,376887123'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, '8,541694'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, '408,5'), findsOneWidget);
+    expect(find.text(germanL10n.setNumberInvalid), findsNothing);
   });
 
   testWidgets('opens location settings for disabled services', (tester) async {

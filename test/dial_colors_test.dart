@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_step_adjustment_dial.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'goldens/support/localized_test_app.dart';
 
 /// Value guard for the dial palette.
 ///
@@ -50,7 +51,7 @@ void main() {
       late Color fromAppTheme;
       late Color fromForeignTheme;
 
-      Widget probe(ThemeData theme, ValueSetter<Color> onResolved) => MaterialApp(
+      Widget probe(ThemeData theme, ValueSetter<Color> onResolved) => localizedTestApp(
             theme: theme,
             home: Builder(
               builder: (context) {
@@ -75,7 +76,7 @@ void main() {
 
     testWidgets('a theme without the extension still resolves per brightness', (WidgetTester tester) async {
       late Color resolved;
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(localizedTestApp(
         theme: ThemeData(brightness: Brightness.dark),
         home: Builder(
           builder: (context) {

@@ -14,6 +14,15 @@
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
+		<key>CFBundleLocalizations</key>
+		<array>
+			<string>en</string>
+			<string>de</string>
+			<string>fr</string>
+			<string>it</string>
+			<string>es</string>
+			<string>pt</string>
+		</array>
 		<key>CFBundleName</key>
 		<string>Bike Setup Tracker</string>
 		<key>CFBundlePackageType</key>

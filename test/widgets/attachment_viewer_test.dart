@@ -10,6 +10,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../goldens/support/localized_test_app.dart';
 import '../overflow_data_generator.dart' show loremIpsum;
 
 void main() {
@@ -31,10 +32,12 @@ void main() {
     AttachmentOwner? Function(Attachment attachment)? ownerForAttachment,
     FileSaveService? fileSaveService,
     ThemeData? theme,
+    Locale locale = const Locale('en'),
   }) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         theme: theme ?? materialAppTheme,
+        locale: locale,
         home: AttachmentViewer(
           attachments: attachments,
           attachmentsDir: dir.path,
@@ -54,6 +57,16 @@ void main() {
       tester.widget<PopupMenuButton<Object?>>(find.byWidgetPredicate((w) => w is PopupMenuButton));
 
   group('AttachmentViewer', () {
+    testWidgets('writes the file size with a decimal comma in German', (tester) async {
+      await pumpViewer(
+        tester,
+        locale: const Locale('de'),
+        attachments: [stored(Attachment(extension: '.pdf', name: 'Handbuch'), bytes: List.filled(2560, 0))],
+      );
+
+      expect(find.text('2,5 KB'), findsOneWidget);
+    });
+
     testWidgets('shows a file card with size and actions for a PDF', (tester) async {
       await pumpViewer(
         tester,

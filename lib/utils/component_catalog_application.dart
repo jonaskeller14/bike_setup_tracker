@@ -1,15 +1,11 @@
+import '../l10n/catalog_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/preset_spec_keys.dart';
+import 'adjustment_presets.dart';
 import 'component_preset_resolver.dart';
-
-const String kForkSagNotes =
-    'Travel used with you and your gear on the bike in riding position. '
-    'Targets: XC 15%, Trail 15-20%, Enduro 20%, DH 20-25%';
-const String kShockSagNotes =
-    'Travel used with you and your gear on the bike in riding position. '
-    'Targets: XC 20-25%, Trail 25-30%, Enduro 30%, DH 30-35%';
 
 /// A generation's label is its year span, which the `Year:` note line and the
 /// year badge already carry.
@@ -26,12 +22,15 @@ const String _generationLevel = 'generation';
 ///
 /// A required axis that is still open contributes no adjustments, and an
 /// optional axis that was skipped leaves its spec (e.g. the SAG travel) unset.
-CatalogApplication buildCatalogApplication(ResolvedPreset resolved) {
+///
+/// The notes are in the language of [l10n] and stored as written, so a later
+/// language switch leaves them alone.
+CatalogApplication buildCatalogApplication(ResolvedPreset resolved, AppLocalizations l10n) {
   return CatalogApplication(
     name: presetDisplayName(resolved),
     componentType: resolved.catalog.componentType,
-    notes: _buildNotes(resolved),
-    adjustments: _buildAdjustments(resolved),
+    notes: _buildNotes(resolved, l10n),
+    adjustments: _buildAdjustments(resolved, l10n),
     unknownMaxKeys: _unknownMaxKeys(resolved),
     preset: toComponentPreset(resolved),
   );
@@ -53,7 +52,7 @@ String presetDisplayName(ResolvedPreset resolved) {
 /// configuration, the spring, the model years, the product note and any
 /// adjuster to add by hand, then the setup guide link. Options the rider skipped
 /// and the damper's internals are left out.
-String _buildNotes(ResolvedPreset resolved) {
+String _buildNotes(ResolvedPreset resolved, AppLocalizations l10n) {
   final node = resolved.node;
   final chosen = [
     for (final axis in resolved.axes) ?resolved.selections[axis.id],
@@ -65,44 +64,44 @@ String _buildNotes(ResolvedPreset resolved) {
   ];
   final setupGuide = node.setupGuide;
   final bullets = [
-    if (damper != null) 'Damper: ${damper.label}',
+    if (damper != null) '${PresetOptionAxes.damper.name(l10n)}: ${damper.label}',
     _joined([
       for (final axis in resolved.axes)
-        if (axis.id != PresetOptionAxes.damper.id) ?_chosenText(axis, resolved.selections[axis.id]),
+        if (axis.id != PresetOptionAxes.damper.id) ?_chosenText(axis, resolved.selections[axis.id], l10n),
     ]),
-    _joined(_specTexts(resolved, chosen)),
+    _joined(_specTexts(resolved, chosen, l10n)),
     if (resolved.year case final year?)
-      'Model year: $year'
+      l10n.catalogNoteModelYear('$year')
     else if (node.years case final years?)
-      'Model years: $years',
+      l10n.catalogNoteModelYears('$years'),
     ..._noteLines(node.note),
-    if (missing.isNotEmpty) 'Not in the catalog yet, add by hand: ${missing.join(', ')}',
+    if (missing.isNotEmpty) l10n.catalogNoteMissing(missing.join(', ')),
   ].where(_isNotBlank).map((line) => line!.startsWith('- ') ? line : '- $line');
   return [
     bullets.join('\n'),
-    if (_isNotBlank(setupGuide)) 'Setup guide: $setupGuide',
+    if (_isNotBlank(setupGuide)) l10n.catalogNoteSetupGuide(setupGuide!),
   ].where(_isNotBlank).join('\n\n');
 }
 
-String? _chosenText(OptionAxis axis, OptionValue? selected) =>
-    selected == null ? null : '${axis.key.label}: ${selected.label}';
+String? _chosenText(OptionAxis axis, OptionValue? selected, AppLocalizations l10n) =>
+    selected == null ? null : '${axis.key.name(l10n)}: ${selected.label}';
 
 /// Spec facts the chosen values do not already name. A size's label carries
 /// its lengths but not its mount, so the mount stays.
-List<String> _specTexts(ResolvedPreset resolved, List<OptionValue> chosen) {
+List<String> _specTexts(ResolvedPreset resolved, List<OptionValue> chosen, AppLocalizations l10n) {
   final covered = {
     for (final value in chosen) ...value.specs.keys,
   }..remove(PresetSpecKeys.mount.id);
   final specs = resolved.effectiveSpecs;
   return [
     for (final key in PresetSpecKeys.values)
-      if (!covered.contains(key.id)) ?_specText(key, specs),
+      if (!covered.contains(key.id)) ?_specText(key, specs, l10n),
   ];
 }
 
-String? _specText(SpecKey<Object> key, Specs specs) {
+String? _specText(SpecKey<Object> key, Specs specs, AppLocalizations l10n) {
   final value = specs.get(key);
-  return value == null ? null : '${key.label}: ${key.format(value)}';
+  return value == null ? null : '${key.name(l10n)}: ${key.display(value, l10n)}';
 }
 
 /// A note authored as a dash list keeps its lines; prose becomes one bullet.
@@ -114,13 +113,24 @@ List<String> _noteLines(String? note) {
 
 String? _joined(List<String> parts) => parts.isEmpty ? null : parts.join(' · ');
 
-List<Adjustment> _buildAdjustments(ResolvedPreset resolved) {
+List<Adjustment> _buildAdjustments(ResolvedPreset resolved, AppLocalizations l10n) {
   return [
-    ...?resolved.product?.adjustments.map((spec) => spec.build()),
-    if (_takesSag(resolved.catalog.componentType)) _buildSag(resolved),
+    ...?resolved.product?.adjustments.map((spec) => buildCatalogAdjustment(spec, l10n)),
+    if (_takesSag(resolved.catalog.componentType)) _buildSag(resolved, l10n),
     for (final value in resolved.selections.values)
-      for (final spec in value.adjustments) spec.build(),
+      for (final spec in value.adjustments) buildCatalogAdjustment(spec, l10n),
   ];
+}
+
+/// The adjustment as the rider gets it. A placeholder max gets a warning in the
+/// notes, for the rider only: notes are theirs to edit, so code asks
+/// [PresetAdjustmentSpec.hasUnknownMax].
+Adjustment buildCatalogAdjustment(PresetAdjustmentSpec spec, AppLocalizations l10n) {
+  final adjustment = spec.build();
+  if (!spec.hasUnknownMax) return adjustment;
+  final warning = l10n.stepUnknownMaxWarning;
+  final notes = adjustment.notes;
+  return adjustment.copyWith(notes: notes == null ? warning : '$notes; $warning');
 }
 
 Set<String> _unknownMaxKeys(ResolvedPreset resolved) => {
@@ -133,17 +143,12 @@ Set<String> _unknownMaxKeys(ResolvedPreset resolved) => {
 
 bool _takesSag(ComponentType type) => type == ComponentType.fork || type == ComponentType.shock;
 
-SagAdjustment _buildSag(ResolvedPreset resolved) {
-  final isShock = resolved.catalog.componentType == ComponentType.shock;
+SagAdjustment _buildSag(ResolvedPreset resolved, AppLocalizations l10n) {
+  final type = resolved.catalog.componentType;
   // Set by the chosen travel (fork) or size (shock); a one-time copy the user
   // edits on the SAG adjustment afterwards.
-  final travel = resolved.effectiveSpecs.get(isShock ? PresetSpecKeys.strokeMm : PresetSpecKeys.travelMm);
-  return SagAdjustment(
-    name: 'SAG',
-    notes: isShock ? kShockSagNotes : kForkSagNotes,
-    referenceTravelMm: travel?.toDouble(),
-    presetKey: '${resolved.catalog.componentType.name}:$kSagAdjusterId',
-  );
+  final travel = resolved.effectiveSpecs.get(type == ComponentType.shock ? PresetSpecKeys.strokeMm : PresetSpecKeys.travelMm);
+  return sagPresetFor(l10n, type).copyWith(referenceTravelMm: travel?.toDouble());
 }
 
 bool _isNotBlank(String? value) => value != null && value.isNotEmpty;

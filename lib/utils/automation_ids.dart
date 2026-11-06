@@ -34,6 +34,7 @@ abstract final class AutomationIds {
   static const componentActions = 'component.actions';
   static const componentActionsDuplicate = 'component.actions.duplicate';
 
+  static const componentDetailsEdit = 'componentDetails.edit';
   static const componentDetailsAdjustmentHistory = 'componentDetails.adjustmentHistory';
   static const componentDetailsColumns = 'componentDetails.columns';
   static const componentDetailsLineChart = 'componentDetails.lineChart';
@@ -57,6 +58,25 @@ abstract final class AutomationIds {
   static String componentType(String typeName) => 'componentType.$typeName';
   static String adjustmentPreset(String presetKey) => 'adjustmentPreset.$presetKey';
   static const adjustmentFormSave = 'adjustmentForm.save';
+  static const adjustmentFormDialStyle = 'adjustmentForm.dialStyle';
+
+  /// The options menu of an adjustment in the component form, and its edit item.
+  static String adjustmentActions(String adjustmentId) => 'adjustment.actions.$adjustmentId';
+  static const adjustmentActionsEdit = 'adjustment.actions.edit';
+
+  /// Dial style sheet options, by enum name, e.g. `dialStyle.color.red`.
+  static String dialStyleColor(String color) => 'dialStyle.color.$color';
+  static String dialStyleSize(String size) => 'dialStyle.size.$size';
+
+  /// The back button of a multi-stage sheet's header.
+  static const sheetBack = 'sheet.back';
+
+  static const componentFormCatalog = 'componentForm.catalog';
+  static const catalogPickerSearch = 'catalogPicker.search';
+  static const catalogPickerApply = 'catalogPicker.apply';
+  static const catalogPickerRequest = 'catalogPicker.request';
+
+  static const taskRulesSheetAdd = 'taskRulesSheet.add';
 
   static const setupFormSave = 'setupForm.save';
   static const setupFormName = 'setupForm.name';

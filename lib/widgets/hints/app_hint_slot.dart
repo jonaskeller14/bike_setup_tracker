@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../services/app_hint_service.dart';
 import '../app_snackbar.dart';
+import '../sheets/language_sheet.dart';
 import 'garage_list_hint.dart';
 import 'getting_started_guide_hint.dart';
 import 'release_44_hint.dart';
 import 'release_45_hint.dart';
+import 'release_46_hint.dart';
 import 'setup_calendar_hint.dart';
 import 'setup_comparison_hint.dart';
 import 'setup_task_hint.dart';
@@ -20,8 +23,6 @@ import 'task_list_hint.dart';
 
 class AppHintSlot extends StatelessWidget {
   static const _sizeAnimationDuration = Duration(milliseconds: 200);
-  static const _subcomponentsEnabledMessage =
-      'Subcomponents enabled — edit a part and pick its parent under "Installed on"';
   final EdgeInsetsGeometry padding;
 
   const AppHintSlot({super.key, required this.placement, this.padding = EdgeInsetsGeometry.zero});
@@ -73,6 +74,10 @@ class AppHintSlot extends StatelessWidget {
         onDismiss: () => unawaited(hintService.dismiss(AppHint.release45)),
         onEnableTasks: () => _enableTaskPresets(context, hintService),
       ),
+      AppHint.release46 => Release46Hint(
+        onDismiss: () => unawaited(hintService.dismiss(AppHint.release46)),
+        onChooseLanguage: () => _chooseLanguage(context, hintService),
+      ),
     };
 
     return AnimatedSize(
@@ -91,7 +96,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.setupTasksV1);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, 'Tasks enabled — find it in the home bottom navigation bar'),
+      AppSnackBar.success(context, context.l10n.hintTasksEnabled),
     );
   }
 
@@ -103,7 +108,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.setupCalendarV1);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, 'Calendar enabled — find it next to the search button on the Setups tab'),
+      AppSnackBar.success(context, context.l10n.hintCalendarEnabled),
     );
   }
 
@@ -115,7 +120,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.subcomponentsV1);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, _subcomponentsEnabledMessage),
+      AppSnackBar.success(context, context.l10n.hintSubcomponentsEnabled),
     );
   }
 
@@ -123,7 +128,7 @@ class AppHintSlot extends StatelessWidget {
   void _turnOnSubcomponents(BuildContext context) {
     context.read<AppSettings>().enableInstallOnComponent = true;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, _subcomponentsEnabledMessage),
+      AppSnackBar.success(context, context.l10n.hintSubcomponentsEnabled),
     );
   }
 
@@ -135,7 +140,22 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.release44);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, 'Attachments enabled — add photos and files to bikes, components, setups and tasks'),
+      AppSnackBar.success(context, context.l10n.hintAttachmentsEnabled),
+    );
+  }
+
+  Future<void> _chooseLanguage(
+    BuildContext context,
+    AppHintService hintService,
+  ) {
+    final settings = context.read<AppSettings>();
+    return languageSheet(
+      context: context,
+      localeCode: settings.localeCode,
+      onSelected: (code) {
+        settings.localeCode = code;
+        unawaited(hintService.complete(AppHint.release46));
+      },
     );
   }
 
@@ -149,7 +169,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.release45);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, 'Tasks enabled — recommended tasks are offered when you add a component'),
+      AppSnackBar.success(context, context.l10n.hintTaskPresetsEnabled),
     );
   }
 }

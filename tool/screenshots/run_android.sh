@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Regenerates the Play Store raw screenshots (docs/store/play-store/**/0N_raw.png).
+# Regenerates the Play Store raw screenshots (docs/store/play-store/<device>/<locale>/0N_raw.png).
 # macOS/Linux counterpart of run_android.ps1: builds lib/main_screenshots.dart,
 # boots each dedicated AVD (see create_avds.sh), pins the status bar via
 # SystemUI demo mode, runs the Maestro flows and overwrites the raws in place,
 # runs check_output.py, then renders the store screenshots (raw screen in the
 # device frame with its caption) from the new raws.
 #
-# Usage: run_android.sh [phone|tablet|all] [--screens 3,7] [--skip-build]
+# Usage: run_android.sh [phone|tablet|all] [--screens 3,7] [--locale de-DE] [--skip-build]
 #                       [--keep-running] [--raw-only] [--tile-wait-ms N] [--demo]
 #   --screens N,N         Screen numbers to capture. Default: all flows.
+#   --locale de-DE        Store locale to record (default en-US): the app runs in that
+#                         language and the raws go to <device>/<locale>/.
 #   --skip-build          Reuse the last built APK.
 #   --keep-running        Leave the emulators running (faster reruns).
 #   --raw-only            Don't render the store screenshots from the new raws.
@@ -29,6 +31,7 @@ gps_lat='44.1690'
 
 device='all'
 screens=''
+locale='en-US'
 skip_build=0
 keep_running=0
 raw_only=0
@@ -38,6 +41,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     phone | tablet | all) device="$1" ;;
     --screens) screens="$2"; shift ;;
+    --locale) locale="$2"; shift ;;
     --skip-build) skip_build=1 ;;
     --keep-running) keep_running=1 ;;
     --raw-only) raw_only=1 ;;
@@ -90,6 +94,7 @@ else
   done
 fi
 [ ${#flows[@]} -gt 0 ] || { echo 'No flows selected.' >&2; exit 1; }
+[[ "$locale" =~ ^[a-z]{2}-[A-Z]{2}$ ]] || { echo "Invalid --locale: $locale (expected e.g. de-DE)." >&2; exit 2; }
 
 start_avd() {
   local avd="$1" port="$2" serial="emulator-$2"
@@ -161,6 +166,17 @@ set_scenario() {
   fi
 }
 
+# The app runs in the language of this marker's content (see lib/screenshots/screenshot_seed.dart).
+locale_marker='app_flutter/screenshot_locale'
+set_locale() {
+  local serial="$1" language="$2"
+  if [ -n "$language" ]; then
+    "$adb" -s "$serial" shell run-as "$app_id" sh -c "'mkdir -p app_flutter && printf %s $language > $locale_marker'"
+  else
+    "$adb" -s "$serial" shell run-as "$app_id" rm -f "$locale_marker"
+  fi
+}
+
 # Prints the flow's `# scenario: <name>` (see lib/screenshots/demo_scenario.dart), if any.
 flow_scenario() {
   sed -n 's/^# scenario: *\([a-z_]*\).*/\1/p' "$flows_dir/$1" | head -n 1
@@ -188,7 +204,8 @@ for name in $selected; do
   serial="$(start_avd "$avd" "$port")"
 
   out_dir="$(mktemp -d -t "screenshots_$name")"
-  target_dir="$repo_root/docs/store/$folder"
+  target_dir="$repo_root/docs/store/$folder/$locale"
+  mkdir -p "$target_dir"
   if [ "$demo" -eq 1 ]; then
     target_dir="$repo_root/build/marketing/raw"
     mkdir -p "$target_dir"
@@ -198,6 +215,7 @@ for name in $selected; do
   # Cleared first, in case an aborted demo run left the marker behind.
   set_touch_dots "$serial" 0
   set_touch_dots "$serial" "$demo"
+  set_locale "$serial" "${locale%%-*}"
   for flow in "${flows[@]}"; do
     ok=0
     # The emulator's adb transport can drop briefly (seen right after
@@ -212,6 +230,7 @@ for name in $selected; do
         --test-output-dir "$out_dir" \
         -e "APP_ID=$app_id" \
         -e "DEVICE=$name" \
+        -e "LOCALE=$locale" \
         -e "TILE_WAIT_MS=$tile_wait_ms"); then
         ok=1
         break
@@ -235,6 +254,7 @@ for name in $selected; do
   # Best effort: a dropped adb transport here must not abort the next device.
   set_touch_dots "$serial" 0 || true
   set_scenario "$serial" '' || true
+  set_locale "$serial" '' || true
   "$adb" -s "$serial" shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null 2>&1 || true
   if [ "$keep_running" -eq 0 ]; then "$adb" -s "$serial" emu kill > /dev/null 2>&1 || true; fi
 done
@@ -243,10 +263,10 @@ check_exit=0
 if [ "$demo" -eq 1 ]; then
   echo "Recordings: $repo_root/build/marketing/raw"
 else
-  python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+  python3 "$script_dir/check_output.py" --locale "$locale" "${checked_folders[@]}" || check_exit=$?
   if [ "$raw_only" -eq 0 ]; then
     # shellcheck disable=SC2086 # $selected is a list of device names
-    python3 "$repo_root/tool/marketing/render_images.py" store-screenshots $selected ${screens:+"$screens"} || check_exit=$?
+    python3 "$repo_root/tool/marketing/render_images.py" store-screenshots $selected ${screens:+"$screens"} --locale "$locale" || check_exit=$?
   fi
 fi
 

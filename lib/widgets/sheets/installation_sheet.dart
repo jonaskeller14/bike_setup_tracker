@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_ancestor.dart';
@@ -120,6 +121,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
       installations: _installations,
     );
     final appRepository = context.read<AppRepository>();
+    final l10n = context.l10n;
     var subcomponentEdits = const <Component>[];
     if (!widget.component.isArchived && updatedComponent.isArchived) {
       final edits = await ComponentActions.archiveSubcomponentEdits(
@@ -140,7 +142,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
       final messengerContext = messenger.context;
       if (!messengerContext.mounted) return;
       messenger.showSnackBar(
-        AppSnackBar.error(messengerContext, 'Not saved: this would create a loop of components.'),
+        AppSnackBar.error(messengerContext, l10n.installationNotSavedLoop),
       );
     }
   }
@@ -151,6 +153,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final l10n = context.l10n;
 
     // Origin is the state before this event. In edit mode that is the entry's
     // recorded origin; in add mode it is the component's latest installation.
@@ -205,15 +208,17 @@ class _InstallationSheetState extends State<InstallationSheet> {
                             ? null
                             : _parentPreview(
                                 appRepository,
+                                l10n,
                                 originParentType ?? InstallationParentType.none,
                                 originParentId,
                                 ancestorsOf,
                               ),
-                        target: _parentPreview(appRepository, targetParentType, targetParentId, ancestorsOf),
+                        target: _parentPreview(appRepository, l10n, targetParentType, targetParentId, ancestorsOf),
                         end: _editableEnd == null
                             ? null
                             : _parentPreview(
                                 appRepository,
+                                l10n,
                                 _editableEnd!.parentType,
                                 _editableEnd!.parent,
                                 ancestorsAt(_editableEnd!.dateTimeUTC),
@@ -251,7 +256,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
               width: double.infinity,
               child: FilledButton(
                 onPressed: _hasChanges ? _onConfirm : null,
-                child: const Text('Save'),
+                child: Text(l10n.save),
               ),
             ),
           ],
@@ -263,29 +268,30 @@ class _InstallationSheetState extends State<InstallationSheet> {
 
 _ParentPreview _parentPreview(
   AppRepository appRepository,
+  AppLocalizations l10n,
   InstallationParentType parentType,
   String? parentId,
   List<ComponentAncestor> Function(String componentId) ancestorsOf,
 ) => switch (parentType) {
       InstallationParentType.bike => _ParentPreview(
         icon: Bike.iconData,
-        label: appRepository.bikes[parentId]?.name ?? 'BIKE NOT FOUND',
+        label: appRepository.bikes[parentId]?.name ?? l10n.bikeNotFound,
         isError: !appRepository.bikes.containsKey(parentId),
       ),
       InstallationParentType.component => _ParentPreview(
         icon: appRepository.components[parentId]?.componentType.getIconData() ?? Component.iconData,
-        label: appRepository.components[parentId]?.name ?? 'COMPONENT NOT FOUND',
+        label: appRepository.components[parentId]?.name ?? l10n.componentNotFound,
         isError: !appRepository.components.containsKey(parentId),
         ancestors: parentId == null ? const [] : ancestorsOf(parentId),
         bikes: appRepository.bikes,
       ),
-      InstallationParentType.none => const _ParentPreview(
+      InstallationParentType.none => _ParentPreview(
         icon: Icons.shelves,
-        label: 'Uninstalled',
+        label: l10n.timelineUninstalled,
       ),
-      InstallationParentType.archived => const _ParentPreview(
+      InstallationParentType.archived => _ParentPreview(
         icon: Icons.inventory_2_outlined,
-        label: 'Archive',
+        label: l10n.timelineArchive,
       ),
     };
 

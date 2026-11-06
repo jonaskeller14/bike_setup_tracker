@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/component/component.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
@@ -72,7 +74,7 @@ class _ComponentTypePickerSheetState extends State<_ComponentTypePickerSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Select Component Type'),
+          SheetHeader(title: context.l10n.componentTypePickerTitle),
           const SizedBox(height: 8),
           Flexible(
             child: SingleChildScrollView(
@@ -89,7 +91,7 @@ class _ComponentTypePickerSheetState extends State<_ComponentTypePickerSheet> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SheetSectionTitle(title: category.label),
+                      SheetSectionTitle(title: category.label(context.l10n)),
                       Wrap(
                         spacing: 6,
                         children: typesInCategory.map((type) {
@@ -154,7 +156,7 @@ class _TypeChip extends StatelessWidget {
         : (isPrevious ? BorderSide(color: scheme.outline) : null);
 
     final Widget chip = ChoiceChip(
-      label: Text(componentType.label),
+      label: Text(componentType.label(context.l10n)),
       selected: selected,
       avatar: selected
           ? null
@@ -175,6 +177,6 @@ class _TypeChip extends StatelessWidget {
       identifier: AutomationIds.componentType(componentType.name),
       child: chip,
     );
-    return isPrevious ? Tooltip(message: 'Previous value', child: identified) : identified;
+    return isPrevious ? Tooltip(message: context.l10n.previousValueTooltip, child: identified) : identified;
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
 import '../../utils/automation_ids.dart';
@@ -26,7 +28,7 @@ class SetupComparisonHeader extends StatelessWidget {
       automaticallyImplyLeading: false,
       backgroundColor: scheme.surface,
       surfaceTintColor: scheme.surface,
-      title: sheetTitle(context, 'Setup comparison'),
+      title: sheetTitle(context, context.l10n.compareTitle),
       actions: [
         const SizedBox(width: 8),
         sheetCloseButton(context),
@@ -167,7 +169,7 @@ class _SwapSidesButton extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return IconButton.filled(
       key: const Key('compare-swap-sides'),
-      tooltip: 'Swap A and B',
+      tooltip: context.l10n.compareSwapTooltip,
       iconSize: 18,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints.tightFor(width: size, height: size),
@@ -215,7 +217,7 @@ class _SetupIdentity extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final dateTime =
-        '${DateFormat(dateFormat).format(setup.datetimeLocal)} • ${DateFormat(timeFormat).format(setup.datetimeLocal)}';
+        '${DateFormat(dateFormat, context.l10n.localeName).format(setup.datetimeLocal)} • ${DateFormat(timeFormat, context.l10n.localeName).format(setup.datetimeLocal)}';
     // The swap button straddles the seam, so each side keeps its inner edge clear.
     final content = Padding(
       padding: _isLeading ? const EdgeInsets.fromLTRB(8, 8, 16, 8) : const EdgeInsets.fromLTRB(16, 8, 8, 8),
@@ -234,7 +236,7 @@ class _SetupIdentity extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  setup.displayName,
+                  setup.label(context.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleSmall,
@@ -288,8 +290,9 @@ class _SetupIdentity extends StatelessWidget {
     final otherSide = _isLeading ? 'B' : 'A';
     final picked = await showPickSetupSheet(
       context,
-      title: 'Choose setup $side',
+      title: context.l10n.compareChooseSetup(side),
       options: setups!.toList(),
+      selectedId: setup.id,
       // Comparing a setup with itself shows nothing, so the other side's is taken.
       disabledIds: {?highlightedSetupId},
       sideLabels: {

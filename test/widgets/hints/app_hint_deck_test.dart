@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/widgets/hints/app_hint_deck.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   Widget buildDeck({
@@ -8,7 +9,7 @@ void main() {
     VoidCallback? onDismiss,
     AppHintAction? action,
     Future<bool?> Function()? onLearnMore,
-  }) => MaterialApp(
+  }) => localizedTestApp(
     home: Scaffold(
       body: AppHintDeck(
         icon: Icons.lightbulb_outline,

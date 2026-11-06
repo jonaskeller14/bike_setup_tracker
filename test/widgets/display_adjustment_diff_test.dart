@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/display_adjustment/display_adjustment_diff.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   DisplayAdjustmentDiff rowFor({
@@ -29,7 +30,7 @@ void main() {
     );
   }
 
-  Widget host(Widget child) => MaterialApp(
+  Widget host(Widget child) => localizedTestApp(
     theme: materialAppTheme,
     home: Scaffold(body: SizedBox(width: 390, child: child)),
   );

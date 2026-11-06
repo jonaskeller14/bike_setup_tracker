@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class _StravaSubscriptionService extends Mock implements SubscriptionService {
   @override
@@ -52,7 +53,7 @@ void main() {
         else
           ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
       ],
-      child: MaterialApp(theme: materialAppTheme, home: home),
+      child: localizedTestApp(theme: materialAppTheme, home: home),
     );
   }
 

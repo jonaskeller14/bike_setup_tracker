@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../icons/bike_icons.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import 'onboarding_motion.dart';
 import 'onboarding_setup_card.dart';
@@ -62,7 +63,7 @@ class OnboardingComponentCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 12),
               child: Text(
-                "Suspension Fork",
+                context.l10n.onboardingExampleFork,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
@@ -101,6 +102,8 @@ class OnboardingComponentCardRows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -108,33 +111,33 @@ class OnboardingComponentCardRows extends StatelessWidget {
         _staged(
           start: 0,
           end: 0.5,
-          child: const _AdjustmentPreview(
+          child: _AdjustmentPreview(
             icon: NumericalAdjustment.iconData,
-            name: "Pressure",
-            type: "Numerical Adjustment",
-            detail: "in PSI",
+            name: l10n.onboardingExamplePressure,
+            type: l10n.onboardingExampleNumericalType,
+            detail: l10n.onboardingExampleNumericalDetail,
           ),
         ),
         const SizedBox(height: 8),
         _staged(
           start: 0.25,
           end: 0.75,
-          child: const _AdjustmentPreview(
+          child: _AdjustmentPreview(
             icon: StepAdjustment.iconData,
-            name: "Rebound",
-            type: "Step Adjustment",
-            detail: "0 to 12 Clicks",
+            name: l10n.onboardingExampleRebound,
+            type: l10n.onboardingExampleStepType,
+            detail: l10n.onboardingExampleStepDetail,
           ),
         ),
         const SizedBox(height: 8),
         _staged(
           start: 0.5,
           end: 1,
-          child: const _AdjustmentPreview(
+          child: _AdjustmentPreview(
             icon: BooleanAdjustment.iconData,
-            name: "Lockout",
-            type: "On/Off Adjustment",
-            detail: "Open or Firm",
+            name: l10n.onboardingExampleLockout,
+            type: l10n.onboardingExampleBooleanType,
+            detail: l10n.onboardingExampleBooleanDetail,
           ),
         ),
       ],

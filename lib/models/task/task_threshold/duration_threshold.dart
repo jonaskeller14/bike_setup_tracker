@@ -17,10 +17,6 @@ class DurationThreshold extends AccumulatingThreshold {
   IconData get iconData => Icons.calendar_today;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) =>
-      '${NumberFormat.decimalPattern().format(days.inDays)} ${days.inDays == 1 ? 'day' : 'days'}';
-
-  @override
   Map<String, dynamic> toJson() => {
         'type': 'duration',
         'microseconds': days.inMicroseconds,

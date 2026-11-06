@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
@@ -54,10 +55,11 @@ class DataSelectComponent extends StatelessWidget {
             Flexible(
               child: Text(
                 switch (component.latestInstallation) {
-                  Archival() => "Archived",
-                  BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-                  ComponentInstallation(:final parentComponentId) => components[parentComponentId]?.name ?? "COMPONENT NOT FOUND",
-                  Uninstallation() || null => "Not installed",
+                  Archival() => context.l10n.timelineArchived,
+                  BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? context.l10n.bikeNotFound,
+                  ComponentInstallation(:final parentComponentId) =>
+                    components[parentComponentId]?.name ?? context.l10n.componentNotFound,
+                  Uninstallation() || null => context.l10n.timelineNotInstalled,
                 },
                 style: TextStyle(
                   color: switch (component.latestInstallation) {

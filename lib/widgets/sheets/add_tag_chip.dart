@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
+
 /// Bare "+" affordance that expands into an inline field for a new tag,
 /// mirroring the add-option chip of the categorical sheet.
 class AddTagChip extends StatefulWidget {
@@ -14,8 +16,9 @@ class AddTagChip extends StatefulWidget {
 
   final ValueChanged<bool>? onEditingChanged;
 
-  /// What the chip adds, for the tooltip and the field's hint.
-  final String noun;
+  /// The tooltip and the field's hint, for what the chip adds. Tags by default.
+  final String? tooltip;
+  final String? hint;
   final IconData icon;
 
   /// Returns an error message to show inline, or null once the tag was added.
@@ -26,7 +29,8 @@ class AddTagChip extends StatefulWidget {
     this.autofocus = false,
     this.prominent = false,
     this.onEditingChanged,
-    this.noun = 'tag',
+    this.tooltip,
+    this.hint,
     this.icon = Icons.tag,
     required this.onSubmit,
   });
@@ -95,7 +99,7 @@ class _AddTagChipState extends State<AddTagChip> {
     if (!_editing) {
       return IconButton(
         icon: const Icon(Icons.add),
-        tooltip: 'Add ${widget.noun}',
+        tooltip: widget.tooltip ?? context.l10n.addTagTooltip,
         color: theme.colorScheme.primary,
         visualDensity: VisualDensity.compact,
         padding: EdgeInsets.zero,
@@ -113,7 +117,8 @@ class _AddTagChipState extends State<AddTagChip> {
 
     // Prefix slot + content padding + the suffix button's own tap target.
     final double chrome = 32 + horizontalPadding * 2 + 40;
-    final double minWidth = _widthFor('New ${widget.noun}', style, chrome);
+    final String hint = widget.hint ?? context.l10n.addTagHint;
+    final double minWidth = _widthFor(hint, style, chrome);
 
     return LayoutBuilder(builder: (context, constraints) {
       // Grows with the text until it fills the row it sits in; past that the
@@ -141,7 +146,7 @@ class _AddTagChipState extends State<AddTagChip> {
           },
           decoration: InputDecoration(
             isDense: true,
-            hintText: 'New ${widget.noun}',
+            hintText: hint,
             errorText: _error,
             prefixIcon: Icon(widget.icon, size: iconSize),
             prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 0),
@@ -152,7 +157,7 @@ class _AddTagChipState extends State<AddTagChip> {
             suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
             suffixIcon: IconButton(
               icon: Icon(Icons.check, size: iconSize),
-              tooltip: 'Add',
+              tooltip: context.l10n.addTagConfirm,
               visualDensity: VisualDensity.compact,
               onPressed: _submit,
             ),

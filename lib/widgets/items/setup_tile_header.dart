@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/entity_names.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
@@ -34,7 +37,7 @@ class SetupTileHeader extends StatelessWidget {
   });
 
   /// The [metadata] rows of a setup tile: place, weather, tags, attachments.
-  static List<Widget> metadataOf(Setup setup, AppSettings appSettings, {bool hidePlace = false}) => [
+  static List<Widget> metadataOf(Setup setup, AppSettings appSettings, AppLocalizations l10n, {bool hidePlace = false}) => [
     if (setup.place != null && !hidePlace)
       TileMetaRow(
         icon: Icons.location_pin,
@@ -51,7 +54,7 @@ class SetupTileHeader extends StatelessWidget {
     if (setup.weather?.condition != null)
       TileMetaRow(
         icon: setup.weather?.condition?.iconData ?? Icons.question_mark,
-        text: setup.weather?.condition?.value ?? "-",
+        text: setup.weather?.condition?.label(l10n) ?? "-",
         iconColor: setup.weather?.condition?.color,
         muted: true,
       ),
@@ -76,7 +79,7 @@ class SetupTileHeader extends StatelessWidget {
   /// clear they earn the space; setup details always show them.
   static const bool showOpenIssuesInTiles = false;
 
-  /// The setup's open issues or "Dialled in", for the [footer]. Null while Feedback is off.
+  /// The setup's open issues or "No issues", for the [footer]. Null while Feedback is off.
   static Widget? openIssuesOf(Setup setup, AppSettings appSettings, AppRepository appRepository) => switch (
     appSettings.enableRating ? appRepository.openIssuesFor(setup.id) : null
   ) {
@@ -118,7 +121,7 @@ class SetupTileHeader extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          setup.displayName,
+                          setup.label(context.l10n),
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: selectedColor,

@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/widgets/lists/list_scroll_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -8,7 +9,7 @@ void main() {
   testWidgets('tracks and resets a list scroll', (tester) async {
     final controller = ListScrollController();
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         home: CustomScrollView(
           controller: controller.scrollController,
           slivers: const [

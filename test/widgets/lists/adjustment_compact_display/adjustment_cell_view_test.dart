@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adju
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../../goldens/support/localized_test_app.dart';
 
 void main() {
   final pressure = NumericalAdjustment(
@@ -18,7 +19,7 @@ void main() {
   );
 
   Future<void> pumpCell(WidgetTester tester, AdjustmentCell cell, {double? width}) => tester.pumpWidget(
-    MaterialApp(
+    localizedTestApp(
       theme: materialAppTheme,
       home: Scaffold(
         body: Center(
@@ -85,7 +86,7 @@ void main() {
       final cell = ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16));
       late double measured;
       await tester.pumpWidget(
-        MaterialApp(
+        localizedTestApp(
           theme: materialAppTheme,
           home: Scaffold(
             body: Builder(
@@ -140,7 +141,7 @@ void main() {
 
     testWidgets('is left out when showPrevious is false', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        localizedTestApp(
           theme: materialAppTheme,
           home: Scaffold(
             body: Center(
@@ -164,7 +165,7 @@ void main() {
       late bool fitsNarrow;
       late bool fitsWide;
       await tester.pumpWidget(
-        MaterialApp(
+        localizedTestApp(
           theme: materialAppTheme,
           home: Builder(
             builder: (context) {
@@ -185,7 +186,7 @@ void main() {
       final shortChange = ChangedCell(rebound, const NumericalValue(-7), const NumericalValue(-8));
       late bool fits;
       await tester.pumpWidget(
-        MaterialApp(
+        localizedTestApp(
           theme: materialAppTheme,
           home: Builder(
             builder: (context) {

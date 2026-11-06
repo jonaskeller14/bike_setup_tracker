@@ -5,9 +5,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../../env/env.dart';
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/map_actions.dart';
 import '../map_pins.dart';
 
@@ -43,9 +46,9 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
     if (!hasLocation && !hasWeather && !hasCondition) return const SizedBox.shrink();
 
     final sections = <Widget>[
-      if (hasLocation) _locationSection(),
+      if (hasLocation) _locationSection(context.l10n),
       if (hasWeather) _weatherSection(context),
-      if (hasCondition) _conditionSection(),
+      if (hasCondition) _conditionSection(context),
     ];
 
     return Card.outlined(
@@ -63,7 +66,7 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
     );
   }
 
-  Widget _locationSection() {
+  Widget _locationSection(AppLocalizations l10n) {
     return ExpansionTile(
       key: const Key('compare-disclosure-location'),
       dense: true,
@@ -78,8 +81,8 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.my_location),
           title: _ComparisonTextRow(
-            valueA: _coordinates(positionA),
-            valueB: _coordinates(positionB),
+            valueA: _coordinates(positionA, l10n.localeName),
+            valueB: _coordinates(positionB, l10n.localeName),
           ),
           dense: true,
         ),
@@ -97,7 +100,7 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
 
   Widget _weatherSection(BuildContext context) {
     final settings = context.watch<AppSettings>();
-    final weatherCodeDiffer = weatherA?.getWeatherCodeLabel() != weatherB?.getWeatherCodeLabel();
+    final weatherCodeDiffer = weatherA?.getWeatherCodeLabel(context.l10n) != weatherB?.getWeatherCodeLabel(context.l10n);
 
     String temperature(ContextWeather? weather) {
       final value = ContextWeather.convertTemperatureFromCelsius(
@@ -125,7 +128,7 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
 
     String soilMoisture(ContextWeather? weather) => weather?.currentSoilMoisture0to7cm == null
         ? '-'
-        : '${weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)} m³/m³';
+        : '${formatLocalizedDouble(weather!.currentSoilMoisture0to7cm!, fractionDigits: 2, locale: context.l10n.localeName)} m³/m³';
 
     return ExpansionTile(
       key: const Key('compare-disclosure-conditions'),
@@ -138,8 +141,8 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
         different: weatherCodeDiffer,
       ),
       title: _ComparisonTextRow(
-        valueA: weatherA?.getWeatherCodeLabel() ?? '-',
-        valueB: weatherB?.getWeatherCodeLabel() ?? '-',
+        valueA: weatherA?.getWeatherCodeLabel(context.l10n) ?? '-',
+        valueB: weatherB?.getWeatherCodeLabel(context.l10n) ?? '-',
       ),
       children: [
         _WeatherRow(
@@ -171,12 +174,12 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
     );
   }
 
-  Widget _conditionSection() {
+  Widget _conditionSection(BuildContext context) {
     return ListTile(
       leading: _conditionDifferenceLeading(),
       title: _ComparisonTextRow(
-        valueA: weatherA?.condition?.value ?? '-',
-        valueB: weatherB?.condition?.value ?? '-',
+        valueA: weatherA?.condition?.label(context.l10n) ?? '-',
+        valueB: weatherB?.condition?.label(context.l10n) ?? '-',
       ),
       dense: true,
     );
@@ -210,10 +213,10 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
     return address.isEmpty ? '-' : address;
   }
 
-  static String _coordinates(ContextPosition? position) {
+  static String _coordinates(ContextPosition? position, String locale) {
     if (position?.latitude == null && position?.longitude == null) return '-';
-    return '${position?.latitude?.toStringAsFixed(4) ?? '-'}°/'
-        '${position?.longitude?.toStringAsFixed(4) ?? '-'}°';
+    String coordinate(double? value) => value == null ? '-' : formatLocalizedDouble(value, fractionDigits: 4, locale: locale);
+    return '${coordinate(position?.latitude)}°/${coordinate(position?.longitude)}°';
   }
 }
 
@@ -407,7 +410,7 @@ class _ComparisonMapState extends State<_ComparisonMap> {
             externalTargets: [
               for (final point in points)
                 (
-                  label: 'Open ${point.label} in maps app',
+                  label: context.l10n.contextOpenPointInMaps(point.label),
                   latitude: point.point.latitude,
                   longitude: point.point.longitude,
                   displayName: point.displayName,

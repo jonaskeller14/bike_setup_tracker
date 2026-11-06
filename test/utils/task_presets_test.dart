@@ -1,10 +1,15 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
+import 'package:bike_setup_tracker/l10n/task_threshold_text.dart';
 import 'package:bike_setup_tracker/models/task/task_template.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/utils/task_presets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/german_l10n.dart';
+
 void main() {
-  group('taskPresets', () {
+  group('taskPresetsFor', () {
+    final taskPresets = taskPresetsFor(englishL10n);
     final templatesByKey = <String, List<TaskTemplate>>{};
     for (final templates in taskPresets.values) {
       for (final template in templates) {
@@ -71,18 +76,28 @@ void main() {
 
   group('taskIntervalLabel', () {
     test('uses the largest whole duration unit', () {
-      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 30))), 'every month');
-      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 180))), 'every 6 months');
-      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 365))), 'every year');
-      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 14))), 'every 2 weeks');
-      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 1))), 'every day');
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 30)), englishL10n), 'every month');
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 180)), englishL10n), 'every 6 months');
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 365)), englishL10n), 'every year');
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 14)), englishL10n), 'every 2 weeks');
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 1)), englishL10n), 'every day');
     });
 
     test('ride-based thresholds use their display value in the given unit', () {
-      expect(taskIntervalLabel(const DistanceThreshold(2000000)), 'every 2,000 km');
-      expect(taskIntervalLabel(const DistanceThreshold(1609344), distanceUnit: 'mi'), 'every 1,000 mi');
-      expect(taskIntervalLabel(const MovingTimeThreshold(Duration(hours: 125))), 'every 125 h');
-      expect(taskIntervalLabel(const ActivityCountThreshold(5)), 'every 5 rides');
+      expect(taskIntervalLabel(const DistanceThreshold(2000000), englishL10n), 'every 2,000 km');
+      expect(taskIntervalLabel(const DistanceThreshold(1609344), englishL10n, distanceUnit: 'mi'), 'every 1,000 mi');
+      expect(taskIntervalLabel(const MovingTimeThreshold(Duration(hours: 125)), englishL10n), 'every 125 h');
+      expect(taskIntervalLabel(const ActivityCountThreshold(5), englishL10n), 'every 5 rides');
+    });
+
+    test('reads in German', () {
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 1)), germanL10n), 'jeden Tag');
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 14)), germanL10n), 'alle 2 Wochen');
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 30)), germanL10n), 'jeden Monat');
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 180)), germanL10n), 'alle 6 Monate');
+      expect(taskIntervalLabel(const DurationThreshold(Duration(days: 365)), germanL10n), 'jedes Jahr');
+      expect(taskIntervalLabel(const DistanceThreshold(2000000), germanL10n), 'alle 2.000 km');
+      expect(taskIntervalLabel(const ActivityCountThreshold(5), germanL10n), 'alle 5 Fahrten');
     });
   });
 }

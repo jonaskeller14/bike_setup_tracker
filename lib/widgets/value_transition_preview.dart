@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 /// One example value and the stages it goes through: "5.8 bar → 84 psi → 10 psi".
 /// A `null` stage is a cleared value.
 class ValueTransitionRow {
@@ -17,8 +19,6 @@ class ValueTransitionPreview extends StatelessWidget {
 
   const ValueTransitionPreview({super.key, required this.rows});
 
-  static const String clearedLabel = 'No value';
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -34,7 +34,7 @@ class ValueTransitionPreview extends StatelessWidget {
         spacing: 12,
         children: [
           Text(
-            rows.length == 1 ? 'Example' : 'Examples',
+            rows.length == 1 ? context.l10n.valueTransitionExample : context.l10n.valueTransitionExamples,
             style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           for (final row in rows) _Row(row: row),
@@ -86,7 +86,7 @@ class _Row extends StatelessWidget {
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: constraints.maxWidth),
                   child: Text(
-                    stage ?? ValueTransitionPreview.clearedLabel,
+                    stage ?? context.l10n.valueTransitionCleared,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: _stageStyle(theme, i, stage),

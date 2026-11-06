@@ -27,6 +27,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 class MockSubscriptionService extends Mock implements SubscriptionService {
   @override
@@ -80,7 +81,7 @@ void main() {
         ChangeNotifierProvider.value(value: setupActivityAnalysisService),
         ChangeNotifierProvider<SubscriptionService>.value(value: MockSubscriptionService()),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: ComponentDetailsPage(
@@ -109,7 +110,7 @@ void main() {
 
     return ChangeNotifierProvider.value(
       value: appSettings,
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: SetupTable(

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:quick_actions/quick_actions.dart';
 
+import '../l10n/l10n.dart';
 import '../utils/setup_actions.dart';
 import 'navigation_service.dart';
 
@@ -14,6 +15,7 @@ class QuickActionsService {
 
   final QuickActions _quickActions = const QuickActions();
   bool _isInitialized = false;
+  Locale? _registeredLocale;
 
   Future<void> init() async {
     if (_isInitialized) return;
@@ -22,12 +24,19 @@ class QuickActionsService {
     await _quickActions.initialize((String shortcutType) {
       unawaited(_handleShortcut(shortcutType));
     });
+  }
+
+  /// Registers the shortcuts with titles in [locale]; the launcher keeps showing
+  /// the registered text, so this runs again whenever the app language changes.
+  Future<void> updateLocale(Locale locale) async {
+    if (_registeredLocale == locale) return;
+    _registeredLocale = locale;
 
     try {
-      await _quickActions.setShortcutItems(const <ShortcutItem>[
+      await _quickActions.setShortcutItems(<ShortcutItem>[
         ShortcutItem(
           type: 'add_setup',
-          localizedTitle: 'Add New Setup',
+          localizedTitle: lookupAppLocalizations(locale).quickActionAddSetup,
           icon: 'ic_add',
           // For anroid: android\app\src\main\res\raw\keep.xml
         ),

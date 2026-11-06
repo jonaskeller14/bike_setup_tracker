@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/setup.dart';
 
 class SetupGroupHeader extends StatelessWidget {
@@ -65,7 +66,7 @@ class SetupGroupHeader extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            title ?? '$setupCount Setups',
+                            title ?? context.l10n.setupGroupTitle(setupCount),
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: selectedColor),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,

@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../theme.dart';
 
 class AppHintAction {
@@ -43,14 +44,14 @@ class AppHintDeck extends StatefulWidget {
     required this.label,
     required this.pages,
     this.onDismiss,
-    this.dismissLabel = 'No thanks',
+    this.dismissLabel,
   }) : assert(pages.length > 0);
 
   final IconData icon;
   final String label;
   final List<AppHintPage> pages;
   final VoidCallback? onDismiss;
-  final String dismissLabel;
+  final String? dismissLabel;
 
   @override
   State<AppHintDeck> createState() => _AppHintDeckState();
@@ -291,7 +292,7 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
               right: 4,
               child: IconButton(
                 onPressed: () => unawaited(_learnMore()),
-                tooltip: 'Learn more',
+                tooltip: context.l10n.hintLearnMore,
                 icon: const Icon(Icons.info_outline_rounded),
                 iconSize: 18,
                 color: hint.accent,
@@ -364,6 +365,7 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
   }
 
   List<Widget> _buildButtons(bool isLast, AppHintAction? action, HintColors hint) {
+    final l10n = context.l10n;
     final canDismiss = widget.onDismiss != null;
     final filledStyle = FilledButton.styleFrom(
       backgroundColor: hint.accent,
@@ -389,23 +391,23 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
     return [
       // "Next" doubles as "not now" here; a third "Skip" button would crowd out the action.
       if (!isLast && actionButton != null) ...[
-        TextButton(onPressed: () => unawaited(_fly(forward: true)), style: textStyle, child: const Text('Next')),
+        TextButton(onPressed: () => unawaited(_fly(forward: true)), style: textStyle, child: Text(l10n.hintNext)),
         actionButton,
       ] else if (!isLast) ...[
-        if (canDismiss) TextButton(onPressed: _fadeOut, style: textStyle, child: const Text('Skip')),
+        if (canDismiss) TextButton(onPressed: _fadeOut, style: textStyle, child: Text(l10n.hintSkip)),
         FilledButton(
           onPressed: () => unawaited(_fly(forward: true)),
           style: filledStyle,
-          child: const Text('Next'),
+          child: Text(l10n.hintNext),
         ),
       ] else if (actionButton != null) ...[
-        if (canDismiss) TextButton(onPressed: _fadeOut, style: textStyle, child: Text(widget.dismissLabel)),
+        if (canDismiss) TextButton(onPressed: _fadeOut, style: textStyle, child: Text(widget.dismissLabel ?? l10n.hintNoThanks)),
         actionButton,
       ] else if (canDismiss)
         FilledButton(
           onPressed: () => unawaited(_flyAway(() async => widget.onDismiss?.call())),
           style: filledStyle,
-          child: const Text('Got it'),
+          child: Text(l10n.hintGotIt),
         ),
     ];
   }
@@ -418,7 +420,7 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
           Semantics(
             button: true,
             selected: d == index,
-            label: '${widget.label} ${d + 1} of $_count',
+            label: context.l10n.hintPageDot(widget.label, d + 1, _count),
             child: GestureDetector(
               onTap: () => _jumpTo(d),
               behavior: HitTestBehavior.opaque,

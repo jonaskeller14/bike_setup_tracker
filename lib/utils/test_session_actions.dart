@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/entity_names.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
@@ -35,7 +37,7 @@ class TestSessionActions {
   /// What a button that adds a setup does instead while a session runs on the
   /// active bike, so it never opens a different form than its label says. Null
   /// without a running session.
-  static SessionStep? nextStepFor(AppRepository appRepository) {
+  static SessionStep? nextStepFor(AppRepository appRepository, AppLocalizations l10n) {
     final bikeId = activeBikeId(appRepository);
     final session = bikeId == null ? null : appRepository.runningSessionFor(bikeId);
     if (session == null) return null;
@@ -43,12 +45,12 @@ class TestSessionActions {
     final latest = appRepository.setupsInSession(session.id).lastOrNull;
     if (latest != null && appRepository.feedbacksForSetup(latest.id).isEmpty) {
       return (
-        label: 'Add Feedback',
+        label: l10n.setupOptionAddFeedback,
         icon: RideFeedback.iconData,
         run: (context) => addRunFeedback(context, session: session),
       );
     }
-    return (label: 'Next run', icon: Icons.add, run: (context) => addRun(context, session: session));
+    return (label: l10n.testSessionNextRun, icon: Icons.add, run: (context) => addRun(context, session: session));
   }
 
   /// Opens the create form, then the form of the first run: a copy of the
@@ -59,12 +61,12 @@ class TestSessionActions {
     final messenger = ScaffoldMessenger.of(context);
 
     if (appRepository.bikes.isEmpty) {
-      messenger.showSnackBar(AppSnackBar.error(context, 'A bike is required to start a test session'));
+      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.testSessionBikeRequired));
       return;
     }
     if (!appRepository.components.values.any((component) => component.adjustments.isNotEmpty) &&
         !appRepository.persons.values.any((person) => person.adjustments.isNotEmpty)) {
-      messenger.showSnackBar(AppSnackBar.error(context, 'Add an adjustment to a component first'));
+      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.testSessionAdjustmentRequired));
       return;
     }
 
@@ -107,13 +109,15 @@ class TestSessionActions {
     SetupCarryOver? carryOver,
   }) {
     final dateFormat = context.read<AppSettings>().dateFormat;
+    final l10n = context.l10n;
     return TestSessionService.run(
+      l10n,
       source: source,
       session: session,
       number: number,
       values: values,
       carryOver: carryOver,
-      notes: TestSessionService.runNotes(source: source, session: session, dateFormat: dateFormat),
+      notes: TestSessionService.runNotes(l10n, source: source, session: session, dateFormat: dateFormat),
     );
   }
 
@@ -187,7 +191,7 @@ class TestSessionActions {
     ];
     return showPickSetupSheet(
       context,
-      title: 'Which setup for the next run?',
+      title: context.l10n.testSessionPickNextSetup,
       options: candidates,
       suggestedId: suggestedId,
     );
@@ -219,7 +223,7 @@ class TestSessionActions {
     final run = appRepository.setupsInSession(session.id).lastOrNull;
     final AdjustmentValue? value = run?.bikeAdjustmentValues[adjustmentId] ?? run?.personAdjustmentValues[adjustmentId];
     if (value == null) {
-      messenger.showSnackBar(AppSnackBar.error(context, 'The latest run has no value to lock for this adjustment.'));
+      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.testSessionNoValueToLock));
       return;
     }
     await appRepository.setTestSessionLock(session, adjustmentId, value);
@@ -228,6 +232,7 @@ class TestSessionActions {
   static Future<void> endSession(BuildContext context, {required TestSession session}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     unawaited(HapticFeedback.mediumImpact());
     await appRepository.endTestSession(session);
@@ -236,14 +241,26 @@ class TestSessionActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Test session '${session.displayName}' ended.",
+        l10n.testSessionEndedSnack(session.label(l10n)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async => appRepository.editTestSession(session),
         ),
       ),
     );
+  }
+
+  static Future<void> resumeSession(BuildContext context, {required TestSession session}) async {
+    final appRepository = context.read<AppRepository>();
+
+    if (!appRepository.canResumeTestSession(session)) {
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.testSessionResumeBlocked));
+      return;
+    }
+
+    unawaited(HapticFeedback.mediumImpact());
+    await appRepository.resumeTestSession(session);
   }
 
   /// Only the name changes: the runs already depend on everything else.
@@ -263,6 +280,7 @@ class TestSessionActions {
   static Future<void> removeSession(BuildContext context, {required TestSession session}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     unawaited(HapticFeedback.mediumImpact());
     final removed = await appRepository.removeTestSessions([session]);
@@ -271,10 +289,10 @@ class TestSessionActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Test session '${session.displayName}' moved to trash.",
+        l10n.testSessionMovedToTrash(session.label(l10n)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async =>
               appRepository.restoreTestSessions([session], runs: removed.runs, feedbacks: removed.feedbacks),
         ),
@@ -291,11 +309,9 @@ class TestSessionActions {
 
     final end = await showConfirmationDialog(
       context,
-      title: 'End the session first?',
-      content:
-          "'${session.displayName}' is running on this bike. A setup recorded now would confuse its runs. "
-          'Use Next run to continue the session.',
-      trueText: 'End session',
+      title: context.l10n.testSessionEndFirstTitle,
+      content: context.l10n.testSessionEndFirstBody(session.label(context.l10n)),
+      trueText: context.l10n.testSessionEndSession,
     );
     if (!end) return false;
 
@@ -306,16 +322,17 @@ class TestSessionActions {
   static Future<void> restoreTestSession(BuildContext context, {required TestSession session}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     await appRepository.restoreTestSessions([session]);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Test session '${session.displayName}' restored from trash.",
+        l10n.testSessionRestoredFromTrash(session.label(l10n)),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () async => appRepository.removeTestSessions([session]),
         ),
       ),

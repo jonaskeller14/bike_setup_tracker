@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 /// "Running" with a pulsing red dot, so a live test session reads as live.
 /// Holds still with reduced motion.
 class RunningBadge extends StatefulWidget {
@@ -52,10 +54,16 @@ class _RunningBadgeState extends State<RunningBadge> with SingleTickerProviderSt
             scale: _scale,
             child: FadeTransition(
               opacity: _opacity,
-              child: Icon(Icons.circle, size: 9, color: scheme.error),
+              child: Icon(
+                Icons.circle,
+                size: 9,
+                color: Theme.of(context).brightness == Brightness.dark ? scheme.errorContainer : scheme.error,
+              ),
             ),
           ),
-          Text('Running', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant)),
+          Flexible(
+            child: Text(context.l10n.badgeRunning, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant)),
+          ),
         ],
       ),
     );

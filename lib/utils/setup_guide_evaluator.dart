@@ -1,12 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:units_converter/units_converter.dart';
 
+import '../l10n/adjustment_value_text.dart';
+import '../l10n/catalog_labels.dart';
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/preset_spec_keys.dart';
 import '../models/component/setup_guide.dart';
 import 'adjustment_role.dart';
 import 'component_preset_resolver.dart';
+import 'localized_number.dart';
 import 'unit_conversion.dart';
 
 /// Targets whose values are parts you fit, so a value between two rows
@@ -31,6 +36,7 @@ List<GuideRecommendation> evaluateSetupGuide(
   List<Adjustment> adjustments,
   GuideInputs inputs,
   Map<String, AdjustmentValue> currentValues,
+  AppLocalizations l10n,
 ) {
   final guide = preset.product?.guide;
   if (guide == null) return const [];
@@ -56,6 +62,7 @@ List<GuideRecommendation> evaluateSetupGuide(
       adjustment: adjustment,
       preset: preset,
       inputs: inputs,
+      l10n: l10n,
       current: currentValues[adjustment.id],
       readAdjuster: (id) {
         final input = adjustmentFor(id);
@@ -149,6 +156,7 @@ class _RuleEvaluation {
   final Adjustment adjustment;
   final ResolvedPreset preset;
   final GuideInputs inputs;
+  final AppLocalizations l10n;
   final AdjustmentValue? current;
   final (Adjustment, AdjustmentValue)? Function(String adjusterId) readAdjuster;
 
@@ -158,6 +166,7 @@ class _RuleEvaluation {
     required this.adjustment,
     required this.preset,
     required this.inputs,
+    required this.l10n,
     required this.current,
     required this.readAdjuster,
   });
@@ -381,7 +390,7 @@ class _RuleEvaluation {
     if (value == null) throw const _Failure(GuideIssue.missingInput);
     _inputText = switch (input) {
       PresetGuideInput(:final id) => preset.selections[id]!.label,
-      _ => inputs.ridingStyle!.label,
+      _ => inputs.ridingStyle!.label(l10n),
     };
     return value is num ? formatSpecNumber(value) : value;
   }
@@ -392,18 +401,18 @@ class _RuleEvaluation {
       case RiderGuideInput(key: GuideInputKey.riderWeight):
         final weight = inputs.riderWeight;
         if (weight == null) throw const _Failure(GuideIssue.missingInput);
-        _inputText = '${formatSpecNumber(_round(weight, 1))} ${inputs.riderWeightUnit.label}';
+        _inputText = '${formatLocalizedDouble(_round(weight, 1), locale: l10n.localeName)} ${inputs.riderWeightUnit.label}';
         return convertUnit(weight, inputs.riderWeightUnit, rule.inputUnit!);
       case PresetGuideInput(:final id):
         final spec = PresetSpecKeys.byId(id);
         final value = spec == null ? null : preset.effectiveSpecs.get(spec);
         if (spec == null || value is! num) throw const _Failure(GuideIssue.missingInput);
-        _inputText = spec.format(value);
+        _inputText = spec.display(value, l10n);
         return value.toDouble();
       case AdjusterGuideInput(:final adjusterId):
         final (input, value) = readAdjuster(adjusterId) ?? (throw const _Failure(GuideIssue.missingInput));
         final number = value.asNum?.toDouble() ?? (throw const _Failure(GuideIssue.missingInput));
-        _inputText = '${input.name} ${value.display}${input.unitSuffix()}';
+        _inputText = '${input.name} ${value.displayText(l10n)}${input.unitSuffix()}';
         return switch ((input.unit, rule.inputUnit)) {
           (final KnownUnit from, final KnownUnit to) when from.quantity == to.quantity => convertUnit(number, from, to),
           (_, KnownUnit()) => throw const _Failure(GuideIssue.incompatible),
@@ -425,7 +434,10 @@ class _RuleEvaluation {
     }(),
     GuideBand(:final min, :final max) => _bandCell(_resolveScalar(min), _resolveScalar(max)),
     GuideOption(:final option) => switch (adjustment) {
-      CategoricalAdjustment(:final options) when options.contains(option) => _DiscreteCell(CategoricalValue([option])),
+      CategoricalAdjustment(:final options) => switch (_storedOption(option, options)) {
+        final stored? => _DiscreteCell(CategoricalValue([stored])),
+        null => throw const _Failure(GuideIssue.incompatible),
+      },
       _ => throw const _Failure(GuideIssue.incompatible),
     },
     GuideBoolean(:final value) => switch (adjustment) {
@@ -433,6 +445,22 @@ class _RuleEvaluation {
       _ => throw const _Failure(GuideIssue.incompatible),
     },
   };
+
+  /// The option of the rider's adjuster that the guide's English [option] means.
+  /// The component may have been built in another language than the catalog is
+  /// in now, so beyond the text in the catalog language and in English, an
+  /// adjuster built from this catalog adjuster is matched by the option's place.
+  String? _storedOption(String option, Set<String> stored) {
+    if (stored.contains(option)) return option;
+    final spec = _catalogSpec;
+    final index = spec?.sourceOptions.indexOf(option) ?? -1;
+    if (spec == null || index < 0) return null;
+
+    final catalogOptions = (spec.build() as CategoricalAdjustment).options.toList();
+    if (stored.contains(catalogOptions[index])) return catalogOptions[index];
+    if (adjustment.presetKey == spec.presetKey && stored.length == catalogOptions.length) return stored.elementAt(index);
+    return null;
+  }
 
   /// A step band with its ends on the nearest clicks, as the value is rounded;
   /// otherwise a click the band reaches by less than half could count as off.

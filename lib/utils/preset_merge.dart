@@ -102,6 +102,10 @@ MergedAdjustment mergeAdjustment(
       min: c.min,
       max: c.max,
     ),
+    // Same catalog adjuster with as many options: the same options in another
+    // language, which must not be appended as new ones.
+    (final CategoricalAdjustment own, final CategoricalAdjustment c)
+        when existing.presetKey == c.presetKey && own.options.length == c.options.length => null,
     (final CategoricalAdjustment own, final CategoricalAdjustment c) => own.copyWith(
       options: {...own.options, ...c.options},
     ),

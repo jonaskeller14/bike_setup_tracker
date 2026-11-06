@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/subcomponent_detach.dart';
@@ -38,17 +39,22 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
   bool _withSubcomponents = true;
   SubcomponentDetach _detach = SubcomponentDetach.uninstall;
 
-  ComponentOutcome? _outcomeFor({required int depth, required SubcomponentDetach detach, required Bike? bike}) {
-    const trash = ComponentOutcome(icon: Icons.delete_outline, label: 'Trash', isDestructive: true);
+  ComponentOutcome? _outcomeFor({
+    required int depth,
+    required SubcomponentDetach detach,
+    required Bike? bike,
+    required AppLocalizations l10n,
+  }) {
+    final trash = ComponentOutcome(icon: Icons.delete_outline, label: l10n.removeOutcomeTrash, isDestructive: true);
     if (depth == 0 || _withSubcomponents) return trash;
     // Deeper levels stay on their own parent and follow it.
     if (depth > 1) return null;
     return switch (detach) {
-      SubcomponentDetach.uninstall => const ComponentOutcome(icon: Icons.shelves, label: 'Uninstalled'),
+      SubcomponentDetach.uninstall => ComponentOutcome(icon: Icons.shelves, label: l10n.timelineUninstalled),
       SubcomponentDetach.installOnBike => ComponentOutcome(icon: Bike.iconData, label: bike?.name ?? ''),
-      SubcomponentDetach.keepLinked => const ComponentOutcome(
+      SubcomponentDetach.keepLinked => ComponentOutcome(
         icon: Icons.error_outline,
-        label: 'Missing parent',
+        label: l10n.removeOutcomeMissingParent,
         isDestructive: true,
       ),
     };
@@ -57,6 +63,7 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final l10n = context.l10n;
     final hierarchy = appRepository.componentHierarchy;
     final name = widget.component.name;
     final bike = appRepository.bikes[hierarchy.currentBike(widget.component.id)];
@@ -71,7 +78,7 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SheetHeader(title: "Remove '$name'"),
+          SheetHeader(title: l10n.removeComponentTitle(name)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -80,7 +87,7 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Other components are mounted on '$name'. Choose what happens to them.",
+                    l10n.removeComponentIntro(name),
                     style: textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   const SizedBox(height: 16),
@@ -88,7 +95,7 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
                     root: widget.component,
                     components: appRepository.components,
                     childrenOf: hierarchy.childrenOf,
-                    outcomeForDepth: (depth) => _outcomeFor(depth: depth, detach: detach, bike: bike),
+                    outcomeForDepth: (depth) => _outcomeFor(depth: depth, detach: detach, bike: bike, l10n: l10n),
                   ),
                   const SizedBox(height: 16),
                   Column(
@@ -97,14 +104,14 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
                       RadioOptionCard(
                         selected: _withSubcomponents,
                         onTap: () => setState(() => _withSubcomponents = true),
-                        title: "Remove with subcomponents",
-                        subtitle: "All ${subcomponentCount + 1} components are moved to the trash.",
+                        title: l10n.removeWithSubcomponents,
+                        subtitle: l10n.removeWithSubcomponentsHint(subcomponentCount + 1),
                       ),
                       RadioOptionCard(
                         selected: !_withSubcomponents,
                         onTap: () => setState(() => _withSubcomponents = false),
-                        title: "Remove only '$name'",
-                        subtitle: "Subcomponents are kept. Choose what happens to them below.",
+                        title: l10n.removeOnly(name),
+                        subtitle: l10n.subcomponentsKeepHint,
                       ),
                       AnimatedSize(
                         duration: const Duration(milliseconds: 200),
@@ -120,25 +127,23 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
                                       compact: true,
                                       selected: detach == SubcomponentDetach.uninstall,
                                       onTap: () => setState(() => _detach = SubcomponentDetach.uninstall),
-                                      title: "Uninstall subcomponents",
-                                      subtitle: "They move to your uninstalled components.",
+                                      title: l10n.uninstallSubcomponents,
+                                      subtitle: l10n.uninstallSubcomponentsHint,
                                     ),
                                     if (bike != null)
                                       RadioOptionCard(
                                         compact: true,
                                         selected: detach == SubcomponentDetach.installOnBike,
                                         onTap: () => setState(() => _detach = SubcomponentDetach.installOnBike),
-                                        title: "Install subcomponents on '${bike.name}'",
-                                        subtitle: "They are installed directly on the bike.",
+                                        title: l10n.installSubcomponentsOnBike(bike.name),
+                                        subtitle: l10n.installSubcomponentsOnBikeHint,
                                       ),
                                     RadioOptionCard(
                                       compact: true,
                                       selected: detach == SubcomponentDetach.keepLinked,
                                       onTap: () => setState(() => _detach = SubcomponentDetach.keepLinked),
-                                      title: "Keep subcomponents linked",
-                                      subtitle:
-                                          "They stay mounted on '$name' and return with it when restored from the trash. "
-                                          "Until then they are shown under uninstalled components with a missing parent.",
+                                      title: l10n.removeKeepLinked,
+                                      subtitle: l10n.removeKeepLinkedHint(name),
                                     ),
                                   ],
                                 ),
@@ -157,7 +162,7 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
               icon: const Icon(Icons.delete_outline),
               onPressed: () => Navigator.pop(context, (withSubcomponents: _withSubcomponents, detach: detach)),
               label: Text(
-                _withSubcomponents ? 'Move ${subcomponentCount + 1} components to trash' : 'Move to trash',
+                _withSubcomponents ? l10n.removeMoveToTrashMany(subcomponentCount + 1) : l10n.removeMoveToTrash,
               ),
             ),
           ),

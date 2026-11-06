@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/adjustment_value_text.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
@@ -86,19 +88,19 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                   validator: (_) {
                     final selection = value?.options ?? const <String>[];
                     if (selection.any((e) => !adjustment.options.contains(e))) {
-                      return 'Contains options that no longer exist';
+                      return context.l10n.setCategoricalMissingOptions;
                     }
                     final distinct = selection.toSet();
                     if (!adjustment.multiSelect && distinct.length > 1) {
-                      return 'Only one option can be selected';
+                      return context.l10n.setCategoricalSingleOnly;
                     }
                     if (!adjustment.counted && selection.length != distinct.length) {
-                      return 'An option cannot be selected more than once';
+                      return context.l10n.setCategoricalNoDuplicates;
                     }
                     // Only an explicitly emptied selection is flagged; an unset
                     // (null) value stays allowed, as for the other adjustment types.
                     if (!adjustment.multiSelect && !adjustment.counted && value != null && selection.isEmpty) {
-                      return 'Please select an option';
+                      return context.l10n.setCategoricalSelectOption;
                     }
                     return null;
                   },
@@ -139,15 +141,15 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                                   },
                                   icon: const Icon(Icons.replay),
                                   visualDensity: VisualDensity.compact,
-                                  tooltip: 'Revert',
+                                  tooltip: context.l10n.revertTooltip,
                                 ),
                             ],
                           ),
                         ),
                         child: Text(
                           isOutdated
-                              ? value!.display
-                              : hasValidValue ? CategoricalValue(validSelected).display : "Please select",
+                              ? value!.displayText(context.l10n)
+                              : hasValidValue ? CategoricalValue(validSelected).displayText(context.l10n) : context.l10n.setCategoricalPlaceholder,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: isOutdated

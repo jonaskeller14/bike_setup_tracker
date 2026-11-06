@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:yaml/yaml.dart';
 
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
@@ -12,6 +14,7 @@ import '../models/task/task_rule.dart';
 import '../models/task/task_template.dart';
 import '../models/task/task_threshold/task_threshold.dart';
 import 'catalog_migration_steps.dart';
+import 'catalog_translations.dart';
 import 'task_presets.dart';
 import 'unit_conversion.dart';
 
@@ -23,9 +26,14 @@ import 'unit_conversion.dart';
 /// `yaml` package before this parser sees them. Throws a descriptive
 /// [FormatException] on malformed data. A `fix: { step: … }` resolves against
 /// [steps].
+///
+/// Text fields with a `<field>_<lang>` sibling come out in [languageCode]; a
+/// missing sibling falls back to the English field. Ids, level names and every
+/// text a stored component is matched by stay English in every language.
 BrandCatalog parseCatalogFile(
   String yamlSource, {
   Map<String, CatalogMigrationStep> steps = catalogMigrationSteps,
+  String languageCode = 'en',
 }) {
   final doc = loadYaml(yamlSource);
   if (doc is! YamlMap) {
@@ -39,7 +47,7 @@ BrandCatalog parseCatalogFile(
     orElse: () => throw FormatException('Unknown component_type "$typeString"'),
   );
 
-  final parser = _CatalogParser(brand, componentType, steps)
+  final parser = _CatalogParser(brand, componentType, steps, languageCode)
     ..parseOptionValues(doc['option_values'])
     ..parseGuides(doc['guides']);
 
@@ -114,7 +122,13 @@ typedef _Attachment = ({Map<String, String> levels, CatalogProduct product});
 
 /// A guide rule's target as the rider gets it. [unknownMax] marks a step
 /// adjuster authored with `max: ~`, whose built max is only a placeholder.
-typedef _Target = ({Adjustment adjustment, bool unknownMax});
+typedef _Target = ({Adjustment adjustment, bool unknownMax, List<String> sourceOptions});
+
+/// The languages a `<field>_<lang>` sibling may be written in.
+final Set<String> _translationLanguages = {
+  for (final locale in AppLocalizations.supportedLocales)
+    if (locale.languageCode != 'en') locale.languageCode,
+};
 
 class _CatalogParser {
   final String brand;
@@ -129,7 +143,11 @@ class _CatalogParser {
   /// The registered Dart corrections a `fix: { step: … }` may name.
   final Map<String, CatalogMigrationStep> _steps;
 
-  _CatalogParser(this.brand, this.componentType, this._steps);
+  /// `en`, or a language of [_translationLanguages] whose siblings are read.
+  final String _language;
+
+  _CatalogParser(this.brand, this.componentType, this._steps, String languageCode)
+    : _language = _translationLanguages.contains(languageCode) ? languageCode : 'en';
 
   static final _levelPattern = RegExp(r'^[a-z][a-z0-9_]*$');
   static final _sizeShorthand = RegExp(
@@ -145,7 +163,7 @@ class _CatalogParser {
 
   /// A `tasks:` key outside these is brand-only.
   late final Set<String> _genericTaskKeys = {
-    for (final template in taskPresets[componentType] ?? const <TaskTemplate>[]) template.key,
+    for (final template in taskPresetsFor(englishL10n)[componentType] ?? const <TaskTemplate>[]) template.key,
   };
 
   /// The `<type>` part of an adjuster preset key, e.g. `fork` in `fork:hsc`.
@@ -158,6 +176,40 @@ class _CatalogParser {
       : {for (final key in _genericTaskKeys) key.substring(0, key.indexOf(':'))};
 
   FormatException _error(String message) => FormatException('$message ($brand)');
+
+  /// [key] of [raw] in the catalog language, else in English. A translation has
+  /// the shape of the English value: a text, or a list of as many items.
+  Object? _localized(Map<Object?, Object?> raw, String key, String where) {
+    final english = raw[key];
+    if (_language == 'en' || english == null) return english;
+    final translated = raw['${key}_$_language'];
+    if (translated == null) return english;
+    if (english is List) {
+      if (translated is! List || translated.length != english.length) {
+        throw _error('"${key}_$_language" of $where needs as many items as "$key"');
+      }
+    } else if (translated is List || translated is Map) {
+      throw _error('"${key}_$_language" of $where is not a text');
+    }
+    return translated;
+  }
+
+  String? _inheritLocalized(YamlMap raw, String key, String? inherited, String where) =>
+      raw.containsKey(key) ? _localized(raw, key, where)?.toString() : inherited;
+
+  /// Rejects a `<field>_<lang>` key that cannot work: another language than
+  /// the app has, a field [translatable] leaves out here, or no English field.
+  void _checkLanguageKeys(Map<Object?, Object?> raw, Set<String> translatable, String where) {
+    for (final key in raw.keys.map((key) => key.toString())) {
+      final split = splitLanguageKey(key);
+      if (split == null) continue;
+      if (!_translationLanguages.contains(split.language)) {
+        throw _error('"$key" of $where is in the unknown language "${split.language}"');
+      }
+      if (!translatable.contains(split.field)) throw _error('"${split.field}" of $where is not translated; remove "$key"');
+      if (raw[split.field] == null) throw _error('"$key" of $where has no English "${split.field}"');
+    }
+  }
 
   void parseOptionValues(Object? raw) {
     if (raw == null) return;
@@ -188,13 +240,17 @@ class _CatalogParser {
   OptionValue _parseOptionValue(String axisId, String id, Object? raw) {
     final where = 'option value "$axisId.$id"';
     if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
+    _checkLanguageKeys(raw, const {'description', 'missing_adjustments'}, where);
     return OptionValue(
       id: id,
       label: raw['name']?.toString() ?? id,
-      description: raw['description']?.toString(),
+      description: _localized(raw, 'description', where)?.toString(),
       specs: _parseSpecs(raw['specs'], where),
       adjustments: _parseAdjustmentSpecs(raw['adjustments'], where),
-      missingAdjustments: _parseNames(raw['missing_adjustments'], '"missing_adjustments" of $where'),
+      missingAdjustments: _parseNames(
+        _localized(raw, 'missing_adjustments', where),
+        '"missing_adjustments" of $where',
+      ),
       tasks: raw.containsKey('tasks') ? _parseTasks(raw['tasks'], where) : const {},
     );
   }
@@ -302,7 +358,7 @@ class _CatalogParser {
 
   CatalogChange _parseChange(Object? raw, List<_Attachment> products, String where) {
     if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
-    _rejectUnknownKeys(raw, const {'revision', 'when', 'fix', 'review'}, where);
+    _rejectUnknownKeys(raw, const {'revision', 'when', 'fix', 'review'}, where, translatable: const {'review'});
     final revision = raw['revision'];
     if (revision is! int) throw _error('${_capitalize(where)} needs a whole-number "revision"');
 
@@ -325,7 +381,7 @@ class _CatalogParser {
     final kinds = const ['fix', 'review'].where(raw.containsKey).toList();
     if (kinds.length != 1) throw _error('${_capitalize(where)} needs exactly one of "fix" or "review"');
     if (kinds.single == 'fix') return _parseFix(raw['fix'], revision, when, matching, '"fix" of $where');
-    final summary = raw['review'];
+    final summary = _localized(raw, 'review', where);
     if (summary is! String || summary.trim().isEmpty) throw _error('"review" of $where is not a text');
     return CatalogReview(revision: revision, when: when, summary: summary.trim());
   }
@@ -339,7 +395,14 @@ class _CatalogParser {
   ) {
     if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
     final isStep = raw.containsKey('step');
-    _rejectUnknownKeys(raw, isStep ? const {'adjuster', 'step'} : const {'adjuster', 'field', 'from', 'to'}, where);
+    // Only a fix of a text field has text to translate.
+    final isText = raw['field'] == CatalogFixField.displayName.key || raw['field'] == CatalogFixField.notes.key;
+    _rejectUnknownKeys(
+      raw,
+      isStep ? const {'adjuster', 'step'} : const {'adjuster', 'field', 'from', 'to'},
+      where,
+      translatable: isText ? const {'from', 'to'} : const {},
+    );
     final adjuster = raw['adjuster'];
     if (adjuster is! String || !_levelPattern.hasMatch(adjuster)) {
       throw _error('${_capitalize(where)} needs a lower_snake_case "adjuster" id');
@@ -359,8 +422,8 @@ class _CatalogParser {
       throw _error('"field" of $where is not one of ${CatalogFixField.values.map((field) => field.key).join(', ')}');
     }
     if (!raw.containsKey('from') || !raw.containsKey('to')) throw _error('${_capitalize(where)} needs "from" and "to"');
-    final from = _normalize(raw['from']);
-    final to = _normalize(raw['to']);
+    final from = _normalize(_localized(raw, 'from', where));
+    final to = _normalize(_localized(raw, 'to', where));
     if (from == to) throw _error('"from" and "to" of $where are the same');
 
     for (final spec in specs) {
@@ -434,6 +497,7 @@ class _CatalogParser {
     }
     final path = parent.path.isEmpty ? label : '${parent.path} › $label';
     final where = '"$path"';
+    _checkLanguageKeys(raw, const {'note', 'category', 'missing_adjustments'}, where);
 
     final level = raw['level']?.toString();
     if (level == null || !_levelPattern.hasMatch(level)) {
@@ -462,14 +526,14 @@ class _CatalogParser {
       path: path,
       draft: draft,
       specs: parent.specs.mergedWith(_parseSpecs(raw['specs'], where)),
-      category: _inheritText(raw, 'category', parent.category),
+      category: _inheritLocalized(raw, 'category', parent.category, where),
       years: raw.containsKey('years') ? _parseYears(raw['years'], where) : parent.years,
       url: _inheritText(raw, 'url', parent.url),
       setupGuide: _inheritText(raw, 'setup_guide', parent.setupGuide),
       guide: raw.containsKey('guide') ? _guideReference(raw['guide'], where) : parent.guide,
-      note: _inheritText(raw, 'note', parent.note),
+      note: _inheritLocalized(raw, 'note', parent.note, where),
       missingAdjustments: raw.containsKey('missing_adjustments')
-          ? _parseNames(raw['missing_adjustments'], '"missing_adjustments" of $where')
+          ? _parseNames(_localized(raw, 'missing_adjustments', where), '"missing_adjustments" of $where')
           : parent.missingAdjustments,
       tasks: raw.containsKey('tasks') ? mergeTaskOverrides(parent.tasks, _parseTasks(raw['tasks'], where)) : parent.tasks,
       adjustments: raw.containsKey('adjustments') ? raw['adjustments'] : parent.adjustments,
@@ -686,15 +750,18 @@ class _CatalogParser {
   Specs _parseSpecs(Object? raw, String where) {
     if (raw == null) return Specs.empty;
     if (raw is! YamlMap) throw _error('"specs" of $where is not a map');
+    // The spec values shown as text; a mount or wheel size is part of an id.
+    _checkLanguageKeys(raw, const {'stanchion', 'spring'}, where);
     final values = <String, Object>{};
     for (final entry in raw.entries) {
       final id = entry.key.toString();
+      if (splitLanguageKey(id) != null) continue;
       final key = PresetSpecKeys.byId(id);
       if (key == null) throw _error('Unknown spec key "$id" in $where');
       if (!key.componentTypes.contains(componentType)) {
         throw _error('Spec key "$id" in $where does not apply to a ${componentType.name}');
       }
-      values[id] = _specValue(key, entry.value, where);
+      values[id] = _specValue(key, _localized(raw, id, where), where);
     }
     return Specs(values);
   }
@@ -735,20 +802,22 @@ class _CatalogParser {
   TaskTemplateOverride _parseTask(String key, Object? raw, String where) {
     if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
     const templateFields = {'name', 'priority', 'preselected'};
-    final unknown = raw.keys
-        .map((key) => key.toString())
-        .where((key) => !const {'interval', 'fallback', 'source', ...templateFields}.contains(key));
-    if (unknown.isNotEmpty) throw _error('Unknown key(s) ${unknown.join(', ')} in $where');
-
     final generic = _genericTaskKeys.contains(key);
+    _rejectUnknownKeys(
+      raw,
+      const {'interval', 'fallback', 'source', ...templateFields},
+      where,
+      translatable: generic ? const {'source'} : const {'name', 'source'},
+    );
+
     if (generic && raw.keys.any((field) => templateFields.contains(field.toString()))) {
       throw _error('${_capitalize(where)} overrides a generic task, which keeps its name, priority and preselection');
     }
-    final name = raw['name']?.toString();
+    final name = _localized(raw, 'name', where)?.toString();
     if (!generic && (name == null || name.isEmpty)) {
       throw _error('${_capitalize(where)} is no generic ${componentType.name} task, so it needs a "name"');
     }
-    final source = raw['source']?.toString();
+    final source = _localized(raw, 'source', where)?.toString();
     if (source == null || source.isEmpty) throw _error('${_capitalize(where)} needs a "source"');
 
     final interval = _parseThreshold(raw['interval'], '"interval" of $where');
@@ -820,9 +889,27 @@ class _CatalogParser {
       if (normalized is! Map<String, dynamic>) {
         throw _error('An adjustment of $where is not a map');
       }
-      return PresetAdjustmentSpec(normalized, presetKey: '$_adjusterKeyPrefix:${_adjusterId(normalized, where)}');
+      // The id comes from the English name, so it is the same in every language.
+      final presetKey = '$_adjusterKeyPrefix:${_adjusterId(normalized, where)}';
+      final adjustmentWhere = 'adjustment "${normalized['name']}" in $where';
+      _checkLanguageKeys(normalized, const {'name', 'notes', 'options'}, adjustmentWhere);
+      return PresetAdjustmentSpec(
+        _localizedAdjustment(normalized, adjustmentWhere),
+        presetKey: presetKey,
+        sourceOptions: [
+          if (normalized['options'] case final List<dynamic> options) ...options.map((option) => option.toString()),
+        ],
+      );
     }).toList();
   }
+
+  /// [raw] without its `_<lang>` keys, with the catalog language's name, notes
+  /// and options in place of the English ones.
+  Map<String, dynamic> _localizedAdjustment(Map<String, dynamic> raw, String where) => {
+    for (final MapEntry(:key, :value) in raw.entries)
+      if (splitLanguageKey(key) == null)
+        key: const {'name', 'notes', 'options'}.contains(key) ? _localized(raw, key, where) : value,
+  };
 
   /// The explicit `id:`, else the slug of `name` with underscores, which is the
   /// id space of the generic template keys (`fork:volume_spacers`).
@@ -883,8 +970,9 @@ class _CatalogParser {
   SetupGuide _parseGuide(String id, Object? raw) {
     final where = 'guide "$id"';
     if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
-    _rejectUnknownKeys(raw, const {'label', 'source', 'rules'}, where);
-    final label = raw['label'];
+    _rejectUnknownKeys(raw, const {'label', 'source', 'rules'}, where, translatable: const {'label'});
+    final sourceLabel = raw['label'];
+    final label = _localized(raw, 'label', where);
     if (label is! String || label.isEmpty) throw _error('${_capitalize(where)} needs a "label"');
     final source = raw['source'];
     if (source is! String || source.isEmpty) throw _error('${_capitalize(where)} needs a "source"');
@@ -893,11 +981,21 @@ class _CatalogParser {
 
     final rules = [for (final (index, rule) in rawRules.indexed) _parseRule(rule, 'rule ${index + 1} of $where')];
     _checkSpecificity(rules, where);
-    return SetupGuide(id: id, label: label, source: source, rules: _dependencyOrder(rules, where));
+    return SetupGuide(
+      id: id,
+      label: label,
+      sourceLabel: sourceLabel as String,
+      source: source,
+      rules: _dependencyOrder(rules, where),
+    );
   }
 
-  void _rejectUnknownKeys(YamlMap raw, Set<String> allowed, String where) {
-    final unknown = raw.keys.map((key) => key.toString()).where((key) => !allowed.contains(key));
+  /// Keys of [translatable] may also come with a `_<lang>` sibling.
+  void _rejectUnknownKeys(YamlMap raw, Set<String> allowed, String where, {Set<String> translatable = const {}}) {
+    _checkLanguageKeys(raw, translatable, where);
+    final unknown = raw.keys
+        .map((key) => key.toString())
+        .where((key) => !allowed.contains(key) && !translatable.contains(splitLanguageKey(key)?.field));
     if (unknown.isNotEmpty) throw _error('Unknown key(s) ${unknown.join(', ')} in $where');
   }
 
@@ -907,6 +1005,7 @@ class _CatalogParser {
       raw,
       const {'target', 'unit', 'input', 'input_unit', 'when', 'value', 'rows', 'range', 'comfort_at', 'note'},
       where,
+      translatable: const {'note'},
     );
 
     final target = raw['target'];
@@ -935,7 +1034,7 @@ class _CatalogParser {
       _ => LookupOutput(_parseRows(raw['rows'], input!, where)),
     };
 
-    final note = raw['note'];
+    final note = _localized(raw, 'note', where);
     if (note != null && (note is! String || note.isEmpty)) throw _error('"note" of $where is not a text');
 
     return GuideRule(
@@ -988,7 +1087,7 @@ class _CatalogParser {
       throw _error('Input "${input!.id}" of $where takes no "input_unit"');
     }
     if (quantity != null && (unit as KnownUnit?)?.quantity != quantity) {
-      throw _error('Input "${input!.id}" of $where needs an "input_unit" of ${quantity.label.toLowerCase()}');
+      throw _error('Input "${input!.id}" of $where needs an "input_unit" of ${_quantityName(quantity)}');
     }
     return unit as KnownUnit?;
   }
@@ -1282,8 +1381,9 @@ class _CatalogParser {
       case (StepAdjustment() || NumericalAdjustment(), GuideBand(:final min, :final max)):
         _checkCell(min, target, rule, where);
         _checkCell(max, target, rule, where);
-      case (CategoricalAdjustment(:final options), GuideOption(:final option)):
-        if (!options.contains(option)) {
+      case (CategoricalAdjustment(), GuideOption(:final option)):
+        // A cell names the English option, whatever language the options are in.
+        if (!target.sourceOptions.contains(option)) {
           throw _error('${_capitalize(where)} recommends "$option", which is no option of "${adjustment.name}"');
         }
       case (BooleanAdjustment(), GuideBoolean()):
@@ -1380,11 +1480,11 @@ class _CatalogParser {
   /// against the GRIP X adjuster and not against another damper's.
   List<_Target> _adjusters(CatalogProduct product, String id, Map<String, List<Object>> when) {
     if (id == kSagAdjusterId && _injectsSag) {
-      return [(adjustment: SagAdjustment(name: 'SAG', notes: null), unknownMax: false)];
+      return [(adjustment: SagAdjustment(name: 'SAG', notes: null), unknownMax: false, sourceOptions: const <String>[])];
     }
     return [
       for (final spec in _specs(product, id, when))
-        (adjustment: spec.build(), unknownMax: spec.hasUnknownMax),
+        (adjustment: spec.build(), unknownMax: spec.hasUnknownMax, sourceOptions: spec.sourceOptions),
     ];
   }
 
@@ -1407,7 +1507,7 @@ class _CatalogParser {
     }
     if (adjuster is KnownUnit) {
       if (authored is KnownUnit && authored.quantity == adjuster.quantity) return;
-      throw _error('$where needs a unit of ${adjuster.quantity.label.toLowerCase()}, like the adjuster\'s ${adjuster.label}');
+      throw _error('$where needs a unit of ${_quantityName(adjuster.quantity)}, like the adjuster\'s ${adjuster.label}');
     }
     if (authored is KnownUnit) throw _error('$where is ${authored.label}, but adjuster "$adjusterId" has no convertible unit');
   }
@@ -1421,6 +1521,10 @@ String _sizeId(_Size size) {
 
 String? _inheritText(YamlMap raw, String key, String? inherited) =>
     raw.containsKey(key) ? raw[key]?.toString() : inherited;
+
+/// Catalog errors are for the people writing the YAML, so they stay English.
+String _quantityName(UnitQuantity quantity) =>
+    quantity.label(englishL10n).toLowerCase();
 
 String _capitalize(String text) => text[0].toUpperCase() + text.substring(1);
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'app_hint_deck.dart';
 
 /// Suggestion hint shown in the Setup timeline once the user has a few setups or
@@ -12,14 +13,16 @@ class SetupCalendarHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AppHintDeck(
       icon: Icons.event,
-      label: 'Suggestion',
+      label: l10n.hintLabelSuggestion,
       pages: [
         AppHintPage(
-          title: 'See your history at a glance',
-          action: AppHintAction(label: 'Turn on Calendar', icon: Icons.calendar_month, onPressed: onActivate),
-          content: const Text('Turn on the Calendar to browse your setups and entries by date.'),
+          title: l10n.hintCalendarTitle,
+          action: AppHintAction(label: l10n.hintCalendarAction, icon: Icons.calendar_month, onPressed: onActivate),
+          content: Text(l10n.hintCalendarBody),
         ),
       ],
       onDismiss: onDismiss,

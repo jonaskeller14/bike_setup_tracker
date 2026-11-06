@@ -38,9 +38,22 @@ option_values:
         Air-shock damper with a three-position lockout knob: Downhill (maximum
         absorption), Pedal (reduced force while pedalling) and Uphill (firmer for
         climbing), plus an external rebound adjuster.
+      description_de: >-
+        Luftdämpfer mit Drei-Positionen-Lockout-Knopf: Downhill (maximale
+        Absorption), Pedal (reduzierte Kraft beim Treten) und Uphill (fester zum
+        Klettern), plus externem Zugstufenversteller.
+      description_fr: "Amortisseur pneumatique avec une molette de lockout à trois positions : Downhill (absorption maximale), Pedal (force réduite en pédalant) et Uphill (plus ferme pour grimper), plus un réglage de détente externe."
+      description_it: "Ammortizzatore pneumatico con una manopola di lockout a tre posizioni: Downhill (assorbimento massimo), Pedal (forza ridotta pedalando) e Uphill (più rigido per salire), più un regolatore esterno del ritorno."
+      description_es: "Amortiguador neumático con una rueda de lockout de tres posiciones: Downhill (máxima absorción), Pedal (fuerza reducida al pedalear) y Uphill (más firme para subir), más un ajuste de rebote externo."
+      description_pt: "Amortecedor a ar com um seletor de lockout de três posições: Downhill (absorção máxima), Pedal (força reduzida ao pedalar) e Uphill (mais firme para subir), mais um ajuste de retorno externo."
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments:
-        - { name: Compression Mode, type: categorical, options: [Downhill, Pedal, Uphill], notes: 3-position lockout knob (D / P / U) }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Downhill, Pedal, Uphill], options_de: [Downhill, Pedal, Bergauf], options_fr: [Downhill, Pedal, Montée], options_it: [Downhill, Pedal, In salita], options_es: [Downhill, Pedal, Cuesta arriba], options_pt: [Downhill, Pedal, Subida], notes: 3-position lockout knob (D / P / U), notes_de: 3-Positionen-Lockout-Knopf (D / P / U), notes_fr: Molette de lockout à 3 positions (D / P / U), notes_it: Manopola di lockout a 3 posizioni (D / P / U), notes_es: Rueda de lockout de 3 posiciones (D / P / U), notes_pt: Seletor de lockout de 3 posições (D / P / U) }
       source:
         - https://rstsuspension.com/products/mono-dpu-standard/
         - https://rstsuspension.com/products/mono-dpu-trunnion/
@@ -51,7 +64,18 @@ option_values:
       name: MONO R
       description: >-
         Air-shock damper with an external rebound adjuster.
+      description_de: >-
+        Luftdämpfer mit externem Zugstufenversteller.
+      description_fr: Amortisseur pneumatique avec un réglage de détente externe.
+      description_it: Ammortizzatore pneumatico con un regolatore esterno del ritorno.
+      description_es: Amortiguador neumático con un ajuste de rebote externo.
+      description_pt: Amortecedor a ar com um ajuste de retorno externo.
       missing_adjustments: [Rebound]
+      missing_adjustments_de: [Zugstufe]
+      missing_adjustments_fr: [Détente]
+      missing_adjustments_it: [Ritorno]
+      missing_adjustments_es: [Rebote]
+      missing_adjustments_pt: [Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/elementor-12676/
@@ -62,7 +86,18 @@ option_values:
       name: MEZZO
       description: >-
         Coil-shock damper with external compression and rebound adjusters.
+      description_de: >-
+        Stahlfederdämpfer mit externen Verstellern für Druckstufe und Zugstufe.
+      description_fr: Amortisseur à ressort avec réglages externes de compression et de détente.
+      description_it: Ammortizzatore a molla con regolatori esterni di compressione e di ritorno.
+      description_es: Amortiguador de muelle con ajustes externos de compresión y de rebote.
+      description_pt: Amortecedor a mola com ajustes externos de compressão e de retorno.
       missing_adjustments: [Compression, Rebound]
+      missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
       adjustments: []
       source:
         - https://rstsuspension.com/products/elementor-12887/
@@ -75,19 +110,29 @@ nodes:
     level: model
     draft: true
     category: All-Mountain
+    category_de: All-Mountain
+    category_fr: All-Mountain
+    category_it: All-Mountain
+    category_es: All-Mountain
+    category_pt: All-Mountain
     url: https://rstsuspension.com/products/mono-dpu-standard/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-301%E5%BE%8C%E9%81%BF%E9%9C%87-MONO-%E8%8B%B1%E6%96%87ENGLISH_A4-1.pdf
-    specs: { spring: Air }
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     children:
       - label: DPU Standard
         level: trim
         specs: { mount: Standard eyelet }
         adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
         options:
           damper: [mono_dpu]
           size: ["170x30/35", "190x40/45", "210x50/55", "230x60/65"]
         note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric and legacy sizes.
+        note_de: Leichter Luftdämpfer für aggressive Trail-/AM-Bikes und Rennstrecken; metrische und ältere Größen.
+        note_fr: Amortisseur pneumatique léger pour vélos trail/AM sportifs et pistes de course ; tailles métriques et anciennes.
+        note_it: Ammortizzatore pneumatico leggero per bici trail/AM aggressive e piste da gara; misure metriche e tradizionali.
+        note_es: Amortiguador neumático ligero para bicicletas trail/AM agresivas y pistas de competición; medidas métricas y tradicionales.
+        note_pt: Amortecedor a ar leve para bikes trail/AM agressivas e pistas de competição; tamanhos métricos e antigos.
       - label: DPU Trunnion
         level: trim
         url: https://rstsuspension.com/products/mono-dpu-trunnion/
@@ -97,6 +142,11 @@ nodes:
           damper: [mono_dpu]
           size: ["145x30/35", "165x40/45", "185x50/55", "205x60/65"]
         note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric trunnion sizes.
+        note_de: Leichter Luftdämpfer für aggressive Trail-/AM-Bikes und Rennstrecken; metrische Trunnion-Größen.
+        note_fr: Amortisseur pneumatique léger pour vélos trail/AM sportifs et pistes de course ; tailles trunnion métriques.
+        note_it: Ammortizzatore pneumatico leggero per bici trail/AM aggressive e piste da gara; misure trunnion metriche.
+        note_es: Amortiguador neumático ligero para bicicletas trail/AM agresivas y pistas de competición; medidas trunnion métricas.
+        note_pt: Amortecedor a ar leve para bikes trail/AM agressivas e pistas de competição; tamanhos trunnion métricos.
       - label: R Standard
         level: trim
         url: https://rstsuspension.com/products/elementor-12676/
@@ -106,6 +156,11 @@ nodes:
           damper: [mono_r]
           size: ["170x30/35", "190x40/45", "210x50/55", "230x60/65"]
         note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric and legacy sizes.
+        note_de: Leichter Luftdämpfer für aggressive Trail-/AM-Bikes und Rennstrecken; metrische und ältere Größen.
+        note_fr: Amortisseur pneumatique léger pour vélos trail/AM sportifs et pistes de course ; tailles métriques et anciennes.
+        note_it: Ammortizzatore pneumatico leggero per bici trail/AM aggressive e piste da gara; misure metriche e tradizionali.
+        note_es: Amortiguador neumático ligero para bicicletas trail/AM agresivas y pistas de competición; medidas métricas y tradicionales.
+        note_pt: Amortecedor a ar leve para bikes trail/AM agressivas e pistas de competição; tamanhos métricos e antigos.
       - label: R Trunnion
         level: trim
         url: https://rstsuspension.com/products/elementor-12687/
@@ -115,25 +170,50 @@ nodes:
           damper: [mono_r]
           size: ["145x30/35", "165x40/45", "185x50/55", "205x60/65"]
         note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric trunnion sizes.
+        note_de: Leichter Luftdämpfer für aggressive Trail-/AM-Bikes und Rennstrecken; metrische Trunnion-Größen.
+        note_fr: Amortisseur pneumatique léger pour vélos trail/AM sportifs et pistes de course ; tailles trunnion métriques.
+        note_it: Ammortizzatore pneumatico leggero per bici trail/AM aggressive e piste da gara; misure trunnion metriche.
+        note_es: Amortiguador neumático ligero para bicicletas trail/AM agresivas y pistas de competición; medidas trunnion métricas.
+        note_pt: Amortecedor a ar leve para bikes trail/AM agressivas e pistas de competição; tamanhos trunnion métricos.
 
   - label: "MEZZO"
     level: model
     category: E-Moto / Freeride
+    category_de: E-Moto / Freeride
+    category_fr: E-Moto / Freeride
+    category_it: E-Moto / Freeride
+    category_es: E-Moto / Freeride
+    category_pt: E-Moto / Freeride
     url: https://rstsuspension.com/products/elementor-12887/
-    specs: { spring: Coil }
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     children:
       - label: Coil
         level: trim
         draft: true
         adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, type: numerical, min: 0 }
+          - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, min: 0 }
         options:
           damper: [mezzo_coil]
           size: ["265x85", "210x55", "190x50"]
         note: |-
           - Coil shock for AM / FR / DH / e-moto use
           - Springs offered at 350, 400, 450, 500 and 550 lb
+        note_de: |-
+          - Stahlfederdämpfer für AM / FR / DH / E-Moto
+          - Federn mit 350, 400, 450, 500 und 550 lb erhältlich
+        note_fr: |-
+          - Amortisseur à ressort pour AM / FR / DH / e-moto
+          - Ressorts proposés en 350, 400, 450, 500 et 550 lb
+        note_it: |-
+          - Ammortizzatore a molla per AM / FR / DH / e-moto
+          - Molle disponibili da 350, 400, 450, 500 e 550 lb
+        note_es: |-
+          - Amortiguador de muelle para AM / FR / DH / e-moto
+          - Muelles disponibles de 350, 400, 450, 500 y 550 lb
+        note_pt: |-
+          - Amortecedor a mola para AM / FR / DH / e-moto
+          - Molas disponíveis de 350, 400, 450, 500 e 550 lb
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

@@ -336,6 +336,9 @@ final class _FakePlatformFile extends PlatformFile {
   XFile get xFile => XFile.fromData(_bytes, name: name);
 
   @override
+  int? lengthSync() => _length;
+
+  @override
   Future<int> length() async => _length;
 
   @override

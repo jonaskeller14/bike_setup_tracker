@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/enum_labels.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -13,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class MockAppRepository extends Mock implements AppRepository {}
 
@@ -79,7 +82,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AppHintService(appRepository: mockRepository, appSettings: appSettings)),
         ChangeNotifierProvider<SubscriptionService>.value(value: MockSubscriptionService()),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: Builder(
@@ -190,7 +193,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(DropdownButtonFormField<String>), findsNothing);
-      expect(find.text('No uninstalled ${ComponentType.fork.label} available'), findsOneWidget);
+      expect(find.text('No uninstalled ${ComponentType.fork.label(englishL10n)} available'), findsOneWidget);
       final continueButton = tester.widget<ButtonStyleButton>(
         find.ancestor(of: find.text('Continue'), matching: find.byWidgetPredicate((w) => w is ButtonStyleButton)),
       );

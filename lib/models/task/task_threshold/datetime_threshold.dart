@@ -35,10 +35,6 @@ class DateTimeThreshold extends TaskThreshold {
   IconData get iconData => Icons.event;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) =>
-      DateFormat(dateFormat).format(deadline.toLocal());
-
-  @override
   Map<String, dynamic> toJson() => {
         'type': 'dateTime',
         'deadline': deadline.toUtc().toIso8601String(),

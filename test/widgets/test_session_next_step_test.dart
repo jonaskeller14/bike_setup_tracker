@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
@@ -118,7 +119,7 @@ void main() {
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appRepository),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: theme ?? materialAppTheme,
           home: Scaffold(body: SingleChildScrollView(child: child)),
         ),

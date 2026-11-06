@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'dialog_action.dart';
 
 enum PresetAdjustmentChoice { replace, keepBoth, cancel }
@@ -12,27 +13,23 @@ Future<PresetAdjustmentChoice?> showApplyPresetAdjustmentsDialog(
     context: context,
     builder: (context) {
       return AlertDialog.adaptive(
-        title: const Text('Apply preset adjustments?'),
-        content: Text(
-          'This component already has $existingCount '
-          '${existingCount == 1 ? 'adjustment' : 'adjustments'}. '
-          'Replace them with the preset, or keep both?',
-        ),
+        title: Text(context.l10n.applyPresetTitle),
+        content: Text(context.l10n.applyPresetBody(existingCount)),
         actions: [
           adaptiveAction(
             context: context,
             onPressed: () => Navigator.pop(context, PresetAdjustmentChoice.cancel),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           adaptiveAction(
             context: context,
             onPressed: () => Navigator.pop(context, PresetAdjustmentChoice.keepBoth),
-            child: const Text('Keep both'),
+            child: Text(context.l10n.applyPresetKeepBoth),
           ),
           adaptiveAction(
             context: context,
             onPressed: () => Navigator.pop(context, PresetAdjustmentChoice.replace),
-            child: const Text('Replace'),
+            child: Text(context.l10n.replace),
           ),
         ],
       );

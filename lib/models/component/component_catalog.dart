@@ -6,10 +6,8 @@ import 'preset_spec_keys.dart';
 import 'setup_guide.dart';
 import 'year_span.dart';
 
-/// In-memory model of the generic component catalog (`data/component_presets/`):
-/// a node tree names the product, option axes configure it.
+// In-memory model of the generic component catalog (`data/component_presets/`)
 
-/// The id of the SAG adjuster the application injects for forks and shocks.
 const String kSagAdjusterId = 'sag';
 
 /// Defers instantiation to selection time
@@ -21,7 +19,12 @@ class PresetAdjustmentSpec {
   /// built adjustment as [Adjustment.presetKey].
   final String presetKey;
 
-  const PresetAdjustmentSpec(this.raw, {required this.presetKey});
+  /// The English options of a categorical adjuster, whatever language [raw] is
+  /// in. Guide cells name an option in English, and its index here finds the
+  /// option in any language.
+  final List<String> sourceOptions;
+
+  const PresetAdjustmentSpec(this.raw, {required this.presetKey, this.sourceOptions = const []});
 
   String get id => presetKey.substring(presetKey.indexOf(':') + 1);
 

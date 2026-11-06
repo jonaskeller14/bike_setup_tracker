@@ -185,6 +185,23 @@ For a single control that is the point (#77 decision H):
 - **Label** next to it: a caps label (`Fork · Rebound`) above the value (`9→10`), the new value
   in `changed`.
 
+## Motion
+
+Every new Short renders from `docs/marketing/motion/` (its `README.md`). The medium is still paper and
+ink: type is set, rules are drawn, and nothing glows.
+
+- **Words arrive one by one:** a 26 px rise and a fade over 0.14 s. In a hook they follow the voice; in a
+  caption they follow each other, 0.13 s apart. Once a line is complete it holds still until it leaves.
+- **Frame 0 is never empty:** the hook's first word is already on it.
+- **One move at a time:** a scene enters, holds, and leaves upward in 0.16 s. The phone slides up from
+  below once. Then the camera pushes on the phone (about 1.3×, 0.45 s) to the rows or tile the voice names.
+- **Headline never covered:** when the phone pushes up, it passes behind a paper band under the caption.
+- **Drawn explainers show ideas, never UI:** values and setup names as type on rules, or a plain line. The
+  numbers come from the sample. Orange is for the changed value, teal for one key phrase, as everywhere.
+- **Marking something in the recording:** a square ink outline around it. Don't redraw it. A plain ink
+  arrow may connect two marks.
+- No gradients, glows, particles, blur, rounded shapes or bouncing type. A changed value may overshoot once.
+
 ## Screens
 
 - Always real screenshots or recordings from the screenshot build; never mocked or AI-drawn.

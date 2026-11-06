@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/attachment.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/attachment_storage_service.dart';
@@ -119,9 +120,7 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
     return ListTile(
       leading: Icon(Icons.error_outline, color: colorScheme.error),
       title: Text(
-        count == 1
-            ? '1 attachment is no longer linked to a setup, bike, component or task. It is removed the next time the app starts.'
-            : '$count attachments are no longer linked to a setup, bike, component or task. They are removed the next time the app starts.',
+        context.l10n.attachmentsUnlinkedHint(count),
         style: TextStyle(color: colorScheme.error),
       ),
       dense: true,
@@ -195,6 +194,7 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final appRepository = context.watch<AppRepository>();
 
     return PopScope(
@@ -211,18 +211,18 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
                     icon: const Icon(Icons.close),
                     onPressed: _clearSelection,
                   ),
-                  title: Text('${_selectedAttachments.length} selected'),
+                  title: Text(l10n.selectionCount(_selectedAttachments.length)),
                   actions: [
                     IconButton(
                       onPressed: _isDeleting ? null : _deleteSelectedAttachments,
                       icon: const Icon(Icons.delete),
-                      tooltip: 'Delete selected',
+                      tooltip: l10n.deleteSelectedTooltip,
                     ),
                   ],
                 )
               : AppBar(
                   key: const ValueKey('attachments-app-bar'),
-                  title: const Text('Attachments'),
+                  title: Text(l10n.attachmentsTitle),
                 ),
         ),
         body: SafeArea(
@@ -230,10 +230,10 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
             future: _folder,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return const EmptyStatePlaceholder(
+                return EmptyStatePlaceholder(
                   icon: Icons.folder_off_outlined,
-                  title: 'Attachments unavailable',
-                  subtitle: 'The attachments folder could not be opened.',
+                  title: l10n.attachmentsUnavailableTitle,
+                  subtitle: l10n.attachmentsUnavailableSubtitle,
                 );
               }
               if (!snapshot.hasData) {
@@ -243,10 +243,10 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
               final folder = snapshot.data!;
               final entries = _entries(appRepository, folder.filenames);
               if (entries.isEmpty) {
-                return const EmptyStatePlaceholder(
+                return EmptyStatePlaceholder(
                   icon: Icons.attach_file,
-                  title: 'No attachments yet',
-                  subtitle: 'Images and files you add to a setup, bike, component or task appear here.',
+                  title: l10n.attachmentsEmptyTitle,
+                  subtitle: l10n.attachmentsEmptySubtitle,
                 );
               }
 

@@ -9,7 +9,7 @@ import '../models/feedback/ride_feedback.dart';
 @immutable
 class OpenIssues {
   /// Built-in ones front before rear in vocabulary order, then custom ones by
-  /// label. Empty means "Dialled in".
+  /// label. Empty means "No issues".
   final List<FeedbackIssue> issues;
 
   /// The feedback the issues come from.
@@ -36,7 +36,7 @@ class FeedbackOpenIssuesService {
   const FeedbackOpenIssuesService._();
 
   /// The open issues of the setup that [feedbacks] resolve to, or null when
-  /// none of them flagged a problem or "Nothing stood out". A feedback that
+  /// none of them flagged a problem or "No issues". A feedback that
   /// answered neither doesn't clear earlier issues.
   static OpenIssues? openIssues(Iterable<RideFeedback> feedbacks) {
     RideFeedback? latest;

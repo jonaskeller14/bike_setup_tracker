@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/filters/activity_filter.dart';
 import '../models/filters/layer_filter.dart';
@@ -68,6 +69,7 @@ class FilterActions {
     appRepository: appRepository,
     appSettings: appSettings,
     stravaActive: stravaActive,
+    l10n: englishL10n, // only whether a label exists matters
   ).isNotEmpty;
 
   /// One label per active criterion of the [sections], in chip order. A
@@ -77,6 +79,7 @@ class FilterActions {
     required AppRepository appRepository,
     required AppSettings appSettings,
     required bool stravaActive,
+    required AppLocalizations l10n,
   }) {
     final filters = appRepository.filters;
     final enabled = enabledSections(sections, appSettings: appSettings, stravaActive: stravaActive);
@@ -84,6 +87,7 @@ class FilterActions {
 
     final dateLabel = dateRangeLabel(
       enabled.contains(FilterSection.dateRange) ? filters.dateRange : null,
+      l10n,
       dateFormat: appSettings.dateFormat,
     );
     final setupTagCount = setups && appSettings.enableSetupTags ? filters.setup.tags.length : 0;
@@ -94,11 +98,13 @@ class FilterActions {
     final activity = enabled.contains(FilterSection.activity) ? filters.activity : const ActivityFilter();
     final distanceLabel = rangeLabel(
       activity.distance,
+      l10n,
       unit: appSettings.distanceUnit,
       fromMeters: AppSettings.convertDistanceFromMeters,
     );
     final elevationGainLabel = rangeLabel(
       activity.elevationGain,
+      l10n,
       unit: appSettings.altitudeUnit,
       fromMeters: AppSettings.convertElevationFromMeters,
     );
@@ -108,25 +114,26 @@ class FilterActions {
       if (enabled.contains(FilterSection.bike) && filters.bikeId != null)
         appRepository.bikes[filters.bikeId]?.name ?? '',
       ?dateLabel,
-      if (setups && appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) "Bookmarked",
-      if (tagCount > 0) "$tagCount ${tagCount != 1 ? 'Tags' : 'Tag'}",
-      if (testSessionCount > 0) "$testSessionCount ${testSessionCount != 1 ? 'Test sessions' : 'Test session'}",
+      if (setups && appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) l10n.setupColumnBookmarked,
+      if (tagCount > 0) l10n.filterCountTags(tagCount),
+      if (testSessionCount > 0) l10n.filterCountTestSessions(testSessionCount),
       if (enabled.contains(FilterSection.taskPriority) && filters.taskRule.hasActivePriorities)
-        "$priorityCount ${priorityCount != 1 ? 'Priorities' : 'Priority'}",
+        l10n.filterCountPriorities(priorityCount),
       ?distanceLabel,
       ?elevationGainLabel,
-      if (filters.layers.isActiveFor(layers)) "1 Filter",
+      if (filters.layers.isActiveFor(layers)) l10n.filterLayersActive,
     ];
   }
 
   /// [range] (in metres) in the user's [unit]: "10–50 km", "≥ 10 km" or
   /// "≤ 50 km". `null` while the range is open at both ends.
   static String? rangeLabel(
-    NumericRange range, {
+    NumericRange range,
+    AppLocalizations l10n, {
     required String unit,
     required double? Function(double? meters, String unit) fromMeters,
   }) {
-    final format = NumberFormat.decimalPattern()..maximumFractionDigits = 1;
+    final format = NumberFormat.decimalPattern(l10n.localeName)..maximumFractionDigits = 1;
     final min = range.min == null ? null : format.format(fromMeters(range.min, unit));
     final max = range.max == null ? null : format.format(fromMeters(range.max, unit));
 
@@ -138,9 +145,9 @@ class FilterActions {
 
   /// [range] with its days in the user's [dateFormat]: "2024-05-01 – 2024-05-31",
   /// or the one date of a single day. `null` without a range.
-  static String? dateRangeLabel(LocalDateRange? range, {required String dateFormat}) {
+  static String? dateRangeLabel(LocalDateRange? range, AppLocalizations l10n, {required String dateFormat}) {
     if (range == null) return null;
-    final format = DateFormat(dateFormat);
+    final format = DateFormat(dateFormat, l10n.localeName);
     final start = format.format(range.start);
     return range.start == range.end ? start : "$start – ${format.format(range.end)}";
   }

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
@@ -168,8 +169,8 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
       context: context,
-      helpText: "Select Task Entry Date",
-      errorInvalidText: "Date cannot be in the future",
+      helpText: context.l10n.taskEntryPickDate,
+      errorInvalidText: context.l10n.setupFormDateInFuture,
       selectableDayPredicate: (DateTime pickedDate) => !_selectedDateTimeLocal.copyWith(
         day: pickedDate.day,
         month: pickedDate.month,
@@ -198,7 +199,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   Future<void> _pickTime() async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      helpText: "Select Task Entry Time",
+      helpText: context.l10n.taskEntryPickTime,
       initialTime: TimeOfDay.fromDateTime(_selectedDateTimeLocal),
     );
 
@@ -207,7 +208,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Date and Time cannot be in the future.'));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormDateTimeInFuture));
       return;
     }
 
@@ -270,22 +271,22 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   }
 
   String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
+    if (value == null || value.trim().isEmpty) return context.l10n.taskEntryFormNameRequired;
     return null;
   }
 
   String _describeAssociation(TaskAssociation association, Map<String, Bike> bikes, Map<String, Component> components) {
     return switch (association) {
-      ComponentTaskAssociation(:final id) => components[id]?.name ?? "a deleted component",
-      BikeTaskAssociation(:final id) => bikes[id]?.name ?? "a deleted bike",
-      GeneralTaskAssociation() => "a general task",
+      ComponentTaskAssociation(:final id) => components[id]?.name ?? context.l10n.taskEntryDeletedComponent,
+      BikeTaskAssociation(:final id) => bikes[id]?.name ?? context.l10n.taskEntryDeletedBike,
+      GeneralTaskAssociation() => context.l10n.taskEntryGeneralTask,
     };
   }
 
   String? _linkMismatchWarning(Map<String, Bike> bikes, Map<String, Component> components) {
     final ruleAssociation = widget.taskRule.association;
     if (_association == ruleAssociation) return null;
-    return 'WARNING: Differs from the task rule, which is linked to ${_describeAssociation(ruleAssociation, bikes, components)}.';
+    return context.l10n.taskEntryLinkMismatch(_describeAssociation(ruleAssociation, bikes, components));
   }
 
   Widget _associationDisplay(Map<String, Bike> bikes, Map<String, Component> components, ComponentHierarchyResolver hierarchy) {
@@ -299,17 +300,18 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     switch (_association) {
       case GeneralTaskAssociation():
         icon = Icons.circle_outlined;
-        primary = "General Task";
+        primary = context.l10n.taskGeneral;
+        secondary = context.l10n.taskAssociationGeneralTooltip;
       case BikeTaskAssociation(:final id):
         final bike = bikes[id];
         icon = Bike.iconData;
-        primary = bike?.name ?? "BIKE NOT FOUND";
+        primary = bike?.name ?? context.l10n.bikeNotFound;
         errorColor = bike == null ? scheme.error : null;
       case ComponentTaskAssociation(:final id):
         final component = components[id];
         if (component == null) {
           icon = Component.iconData;
-          primary = "COMPONENT NOT FOUND";
+          primary = context.l10n.componentNotFound;
           errorColor = scheme.error;
           break;
         }
@@ -318,7 +320,9 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
         // Resolved at the entry's date: the entry records what happened then,
         // and the same date drives its stats snapshot.
         final root = hierarchy.rootAt(component.id, _selectedDateTimeUtc);
-        secondary = root is BikeAncestor && !root.isMissing(bikes) ? "on ${root.label(bikes)}" : root.label(bikes);
+        secondary = root is BikeAncestor && !root.isMissing(bikes)
+            ? context.l10n.taskFormOnBike(root.label(bikes, context.l10n))
+            : root.label(bikes, context.l10n);
         if (root.isMissing(bikes)) errorColor = scheme.error;
     }
 
@@ -361,7 +365,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     final parts = <String>[];
     if (_association is ComponentTaskAssociation &&
         components[_association.componentId]?.isArchived == true) {
-      parts.add('WARNING: Tasks of archived components are hidden in the task list.');
+      parts.add(context.l10n.taskFormArchivedWarning);
     }
     final mismatch = _linkMismatchWarning(bikes, components);
     if (mismatch != null) parts.add(mismatch);
@@ -382,8 +386,8 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            TaskEntryPageMode.add || TaskEntryPageMode.duplicate => const Text('Add Task Entry'),
-            TaskEntryPageMode.edit => const Text('Edit Task Entry'),
+            TaskEntryPageMode.add || TaskEntryPageMode.duplicate => Text(context.l10n.taskEntryFormAddTitle),
+            TaskEntryPageMode.edit => Text(context.l10n.taskEntryFormEditTitle),
           },
           actions: [
             if (_isSaving)
@@ -423,9 +427,9 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                           autofocus: widget.mode == TaskEntryPageMode.add,
                           onChanged: (value) => setState(() {}),
                           decoration: InputDecoration(
-                            labelText: 'Task Entry Name',
+                            labelText: context.l10n.taskEntryFormNameLabel,
                             border: const OutlineInputBorder(),
-                            hintText: 'Enter task entry name',
+                            hintText: context.l10n.taskEntryFormNameHint,
                             fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                             filled: widget.mode == TaskEntryPageMode.edit && _nameController.text.trim() != widget.taskEntry?.name,
                           ),
@@ -439,8 +443,8 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                           maxLines: null,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           decoration: InputDecoration(
-                            labelText: 'Notes (optional)',
-                            hintText: 'Add additional details...',
+                            labelText: context.l10n.notesOptionalLabel,
+                            hintText: context.l10n.taskEntryFormNotesHint,
                             border: const OutlineInputBorder(),
                             fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                             filled: widget.mode == TaskEntryPageMode.edit && _notesController.text.trim() != (widget.taskEntry?.notes ?? ""),
@@ -466,7 +470,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                                 },
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Linked To',
+                                    labelText: context.l10n.taskFormLinkedTo,
                                     border: const OutlineInputBorder(),
                                     suffixIcon: Icon(
                                       Icons.arrow_drop_down,
@@ -494,7 +498,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               avatar: const Icon(Icons.calendar_month),
                               label: Text(
-                                DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
+                                DateFormat(appSettings.dateFormat, context.l10n.localeName).format(_selectedDateTimeLocal),
                               ),
                               backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
                               onPressed: _pickDate,
@@ -503,7 +507,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               avatar: const Icon(Icons.access_time),
                               label: Text(
-                                DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
+                                DateFormat(appSettings.timeFormat, context.l10n.localeName).format(_selectedDateTimeLocal),
                               ),
                               backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
                               onPressed: _pickTime,
@@ -515,7 +519,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                                 labelPadding: const EdgeInsets.symmetric(vertical: 2),
                                 padding: EdgeInsets.zero,
                                 avatar: const Icon(Icons.attach_file),
-                                tooltip: 'Add Attachment',
+                                tooltip: context.l10n.addAttachmentTooltip,
                                 backgroundColor: widget.mode == TaskEntryPageMode.edit && !listEquals(_attachments, widget.taskEntry!.attachments) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
                                 onPressed: _importingAttachments ? null : _addAttachments,
                               ),

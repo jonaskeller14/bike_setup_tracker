@@ -24,6 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 class MockSubscriptionService extends Mock implements SubscriptionService {
   MockSubscriptionService({this.hasStravaEntitlement = false});
@@ -90,7 +91,7 @@ void main() {
           ChangeNotifierProvider<SubscriptionService>(create: (_) => MockSubscriptionService(hasStravaEntitlement: hasStravaEntitlement)),
           Provider.value(value: catalogRepository),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: theme ?? materialAppTheme,
           home: Builder(
             builder: (context) => TextButton(
@@ -301,7 +302,12 @@ void main() {
     Future<void> pickAssociation(WidgetTester tester, String label) async {
       await tester.tap(find.ancestor(of: find.text('Linked To'), matching: find.byType(InkWell)).first);
       await tester.pumpAndSettle();
-      await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text(label)).last);
+      // By title: a component tile's subtitle can repeat its bike's name.
+      final tile = find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.byWidgetPredicate((w) => w is ListTile && w.title is Text && (w.title! as Text).data == label),
+      );
+      await tester.tap(tile);
       // The picker closes after a short delay that shows the selection.
       await tester.pump(const Duration(milliseconds: 250));
       await tester.pumpAndSettle();

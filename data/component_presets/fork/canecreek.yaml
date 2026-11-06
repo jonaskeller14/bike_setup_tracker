@@ -54,10 +54,30 @@ option_values:
         - Independent High-Speed Compression, Low-Speed Compression and rebound circuits, all externally adjustable
         - 10 positions per adjuster, counted from fully closed
         - Clockwise adds damping, counter-clockwise takes it away
+      description_de: |-
+        - Unabhängige Kreise für High-Speed-Druckstufe, Low-Speed-Druckstufe und Zugstufe, alle extern einstellbar
+        - 10 Positionen pro Versteller, von ganz geschlossen gezählt
+        - Im Uhrzeigersinn erhöht die Dämpfung, gegen den Uhrzeigersinn verringert sie
+      description_fr: |-
+        - Circuits indépendants de compression haute vitesse, de compression basse vitesse et de détente, tous réglables de l’extérieur
+        - 10 positions par réglage, comptées depuis la position entièrement fermée
+        - Le sens horaire ajoute de l’amortissement, le sens antihoraire en retire
+      description_it: |-
+        - Circuiti indipendenti di compressione ad alta velocità, di compressione a bassa velocità e di ritorno, tutti regolabili dall’esterno
+        - 10 posizioni per regolatore, contate a partire dalla posizione completamente chiusa
+        - Il senso orario aumenta lo smorzamento, il senso antiorario lo riduce
+      description_es: |-
+        - Circuitos independientes de compresión de alta velocidad, de compresión de baja velocidad y de rebote, todos ajustables desde el exterior
+        - 10 posiciones por ajuste, contadas desde la posición totalmente cerrada
+        - El sentido horario añade amortiguación y el antihorario la quita
+      description_pt: |-
+        - Circuitos independentes de compressão de alta velocidade, de compressão de baixa velocidade e de retorno, todos ajustáveis externamente
+        - 10 posições por ajuste, contadas a partir da posição totalmente fechada
+        - O sentido horário aumenta o amortecimento e o anti-horário o reduz
       adjustments:
-        - { name: HSC, type: step, max: 10, notes: High-Speed Compression, dialColor: grey }
-        - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
-        - { name: Rebound, type: step, max: 10, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 10, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: grey }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 10, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: orange, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 10, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
       note: >-
         Helm MKII instruction manual (rev. 04/03/2025), "Fork Features Overview
@@ -75,10 +95,30 @@ option_values:
         - First-generation Helm cartridge: separate High-Speed and Low-Speed Compression plus a single rebound circuit
         - 17 positions of Low-Speed Compression, 10 each of High-Speed Compression and rebound
         - Clockwise adds damping, counter-clockwise takes it away
+      description_de: |-
+        - Helm-Kartusche der ersten Generation: getrennte High-Speed- und Low-Speed-Druckstufe plus ein einzelner Zugstufenkreis
+        - 17 Positionen für die Low-Speed-Druckstufe, je 10 für High-Speed-Druckstufe und Zugstufe
+        - Im Uhrzeigersinn erhöht die Dämpfung, gegen den Uhrzeigersinn verringert sie
+      description_fr: |-
+        - Cartouche Helm de première génération : compression haute vitesse et compression basse vitesse séparées, plus un seul circuit de détente
+        - 17 positions de compression basse vitesse, 10 pour la compression haute vitesse et 10 pour la détente
+        - Le sens horaire ajoute de l’amortissement, le sens antihoraire en retire
+      description_it: |-
+        - Cartuccia Helm di prima generazione: compressione ad alta e a bassa velocità separate, più un solo circuito di ritorno
+        - 17 posizioni di compressione a bassa velocità, 10 sia per la compressione ad alta velocità sia per il ritorno
+        - Il senso orario aumenta lo smorzamento, il senso antiorario lo riduce
+      description_es: |-
+        - Cartucho Helm de primera generación: compresión de alta y de baja velocidad por separado, más un único circuito de rebote
+        - 17 posiciones de compresión de baja velocidad, 10 de compresión de alta velocidad y 10 de rebote
+        - El sentido horario añade amortiguación y el antihorario la quita
+      description_pt: |-
+        - Cartucho Helm de primeira geração: compressão de alta e de baixa velocidade separadas, mais um único circuito de retorno
+        - 17 posições de compressão de baixa velocidade, 10 de compressão de alta velocidade e 10 de retorno
+        - O sentido horário aumenta o amortecimento e o anti-horário o reduz
       adjustments:
-        - { name: HSC, type: step, max: 10, notes: High-Speed Compression, dialColor: grey }
-        - { name: LSC, type: step, max: 17, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
-        - { name: Rebound, type: step, max: 10, notes: Low-Speed Rebound, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 10, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: grey }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 17, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: orange, dialSize: small }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 10, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
       note: >-
         Helm (original) instruction manual, rev. 01/12/2018, "Damping
@@ -91,9 +131,21 @@ option_values:
       name: Helm DJ Damper
       description: >-
         Dirt-jump tune of the Helm cartridge, set up firm for repeated hard landings.
+      description_de: >-
+        Dirt-Jump-Abstimmung der Helm-Kartusche, fest ausgelegt für wiederholte
+        harte Landungen.
+      description_fr: Réglage dirt jump de la cartouche Helm, réglée ferme pour les atterrissages durs répétés.
+      description_it: Taratura dirt jump della cartuccia Helm, impostata rigida per ripetuti atterraggi duri.
+      description_es: Tarado dirt jump del cartucho Helm, ajustado firme para aterrizajes duros repetidos.
+      description_pt: Calibragem dirt jump do cartucho Helm, ajustada firme para aterrissagens duras repetidas.
       missing_adjustments: [Compression]
+      missing_adjustments_de: [Druckstufe]
+      missing_adjustments_fr: [Compression]
+      missing_adjustments_it: [Compressione]
+      missing_adjustments_es: [Compresión]
+      missing_adjustments_pt: [Compressão]
       adjustments:
-        - { name: Rebound, type: step, max: 10, notes: "Counted from fully closed; estimated maximum, check your dial and edit it if it differs" }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 10, notes: "Counted from fully closed; estimated maximum, check your dial and edit it if it differs", notes_de: "Von ganz geschlossen gezählt; geschätztes Maximum, am Drehrad prüfen und bei Abweichung anpassen", notes_fr: "Compté depuis la position entièrement fermée ; maximum estimé, vérifiez votre cadran et modifiez-le s’il diffère", notes_it: "Contato a partire dalla posizione completamente chiusa; massimo stimato, controlla la tua manopola e modificalo se è diverso", notes_es: "Contado desde la posición totalmente cerrada; máximo estimado, comprueba tu dial y edítalo si es distinto", notes_pt: "Contado a partir da posição totalmente fechada; máximo estimado, confira o seu seletor e edite-o se for diferente" }
       source: https://www.canecreek.com/products/helm-dj
       note: >-
         canecreek.com/products/helm-dj documents only a recommended rebound
@@ -114,6 +166,11 @@ option_values:
 guides:
   canecreek_helm_mkii_2025:
     label: Cane Creek Helm MKII user manual (2025)
+    label_de: Cane Creek Helm MKII Bedienungsanleitung (2025)
+    label_fr: Manuel d’utilisation Cane Creek Helm MKII (2025)
+    label_it: Manuale d’uso Cane Creek Helm MKII (2025)
+    label_es: Manual del usuario Cane Creek Helm MKII (2025)
+    label_pt: Manual do usuário Cane Creek Helm MKII (2025)
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
     rules:
       - target: pressure
@@ -126,6 +183,11 @@ guides:
           100: [66, 88], 105: [69, 93], 110: [73, 97], 115: [76, 101], 120: [79, 106]
         }
         note: Calculated from Cane Creek's starting point (30-40 % of rider weight in lb, as psi); set the final pressure by SAG
+        note_de: Berechnet aus dem Ausgangspunkt von Cane Creek (30-40 % des Fahrergewichts in lb, als psi); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de Cane Creek (30-40 % du poids du pilote en lb, en psi) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di Cane Creek (30-40 % del peso del rider in lb, come psi); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de Cane Creek (30-40 % del peso del rider en lb, como psi); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da Cane Creek (30-40 % do peso do rider em lb, como psi); defina a pressão final pelo SAG
       # Rider weight to spring from the Helm MKII Coil product page. Its bounds
       # overlap as printed (90-120, 120-160 ...), read as half-open brackets.
       - target: spring_rate
@@ -140,6 +202,11 @@ guides:
 
   canecreek_helm_mk1_2018:
     label: Cane Creek Helm user manual (2018)
+    label_de: Cane Creek Helm Bedienungsanleitung (2018)
+    label_fr: Manuel d’utilisation Cane Creek Helm (2018)
+    label_it: Manuale d’uso Cane Creek Helm (2018)
+    label_es: Manual del usuario Cane Creek Helm (2018)
+    label_pt: Manual do usuário Cane Creek Helm (2018)
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
     # The manual maps no spring rate to rider weight; the Helm MKII Coil chart
     # is not applied to the MK1.
@@ -154,15 +221,25 @@ guides:
           100: 110, 105: 116, 110: 121, 115: 127, 120: 132
         }
         note: Calculated from Cane Creek's starting point (half the rider weight in lb, as psi); set the final pressure by SAG
+        note_de: Berechnet aus dem Ausgangspunkt von Cane Creek (halbes Fahrergewicht in lb, als psi); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de Cane Creek (la moitié du poids du pilote en lb, en psi) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di Cane Creek (metà del peso del rider in lb, come psi); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de Cane Creek (la mitad del peso del rider en lb, como psi); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da Cane Creek (metade do peso do rider em lb, como psi); defina a pressão final pelo SAG
       - { target: sag, range: [15, 25], comfort_at: max, when: { trim: air } }
       - { target: sag, range: [10, 25], comfort_at: max, when: { trim: coil } }
 
   canecreek_helm_dj_2025:
     label: Cane Creek Helm DJ setup recommendations
+    label_de: Cane Creek Helm DJ Setup-Empfehlungen
+    label_fr: Recommandations de setup Cane Creek Helm DJ
+    label_it: Consigli per il setup Cane Creek Helm DJ
+    label_es: Recomendaciones de setup Cane Creek Helm DJ
+    label_pt: Recomendações de setup Cane Creek Helm DJ
     source: https://www.canecreek.com/products/helm-dj
     # Windows without a rider weight mapping: the midpoint is applied.
     rules:
-      - { target: pressure, unit: psi, value: [95, 125], note: Pick the end that suits your weight and preferred ride height }
+      - { target: pressure, unit: psi, value: [95, 125], note: Pick the end that suits your weight and preferred ride height, note_de: "Das Ende wählen, das zu deinem Gewicht und deiner bevorzugten Fahrhöhe passt", note_fr: Choisissez l’extrémité qui convient à votre poids et à la hauteur de conduite que vous préférez, note_it: Scegli l’estremo che si adatta al tuo peso e all’altezza di guida che preferisci, note_es: Elige el extremo que se adapte a tu peso y a la altura de conducción que prefieras, note_pt: Escolha o extremo que combina com o seu peso e com a altura de pilotagem que prefere }
       - { target: rebound, value: [5, 10] }
 
 # --------------------------------------------------------------------------
@@ -174,9 +251,14 @@ nodes:
   - label: "Helm MKII"
     level: model
     category: Downcountry / Trail / Enduro
+    category_de: Downcountry / Trail / Enduro
+    category_fr: Downcountry / Trail / Enduro
+    category_it: Downcountry / Trail / Enduro
+    category_es: Downcountry / Trail / Enduro
+    category_pt: Downcountry / Trail / Enduro
     tasks: &helm_service
-      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Cane Creek Helm manual }
-      fork:full_service: { interval: { moving_time_h: 100 }, source: Cane Creek Helm manual }
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Cane Creek Helm manual, source_de: Cane-Creek-Helm-Handbuch, source_fr: Manuel Cane Creek Helm, source_it: Manuale Cane Creek Helm, source_es: Manual Cane Creek Helm, source_pt: Manual Cane Creek Helm }
+      fork:full_service: { interval: { moving_time_h: 100 }, source: Cane Creek Helm manual, source_de: Cane-Creek-Helm-Handbuch, source_fr: Manuel Cane Creek Helm, source_it: Manuale Cane Creek Helm, source_es: Manual Cane Creek Helm, source_pt: Manual Cane Creek Helm }
     children:
       - label: "2020–2026"
         level: generation
@@ -188,30 +270,45 @@ nodes:
         children:
           - label: Air
             level: trim
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: &helm_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 30, max: 150, notes: "30 psi minimum, 150 psi maximum; Cane Creek recommends 15-25% sag" }
-              - { name: Volume Adjustment, type: step, max: 8, visualization: stepper, notes: Indexed rod/piston (not stackable spacers) — higher notch count = more progressive. Factory default is 2 of 8 notches down. }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 30, max: 150, notes: "30 psi minimum, 150 psi maximum; Cane Creek recommends 15-25% sag", notes_de: "Minimum 30 psi, Maximum 150 psi; Cane Creek empfiehlt 15-25 % SAG", notes_fr: "30 psi minimum, 150 psi maximum ; Cane Creek recommande 15-25 % de SAG", notes_it: "Minimo 30 psi, massimo 150 psi; Cane Creek consiglia un SAG del 15-25 %", notes_es: "Mínimo 30 psi, máximo 150 psi; Cane Creek recomienda un SAG del 15-25 %", notes_pt: "Mínimo 30 psi, máximo 150 psi; a Cane Creek recomenda 15-25 % de SAG" }
+              - { name: Volume Adjustment, name_de: Volumenanpassung, name_fr: Réglage du volume, name_it: Regolazione del volume, name_es: Ajuste del volumen, name_pt: Ajuste de volume, type: step, max: 8, visualization: stepper, notes: Indexed rod/piston (not stackable spacers) — higher notch count = more progressive. Factory default is 2 of 8 notches down., notes_de: "Indexierte Stange/Kolben (keine stapelbaren Spacer) — mehr Rasten = progressiver. Werkseinstellung: 2 von 8 Rasten abgesenkt.", notes_fr: "Tige/piston indexé (pas d’entretoises empilables) — plus il y a de crans, plus c’est progressif. Réglage d’usine : 2 crans sur 8.", notes_it: "Asta/pistone indicizzato (non distanziali impilabili) — più scatti, più progressività. Impostazione di fabbrica: 2 scatti su 8.", notes_es: "Varilla/pistón indexado (no espaciadores apilables) — cuantas más muescas, más progresivo. De fábrica: 2 de 8 muescas.", notes_pt: "Haste/pistão indexado (não espaçadores empilháveis) — quanto mais cliques, mais progressivo. Padrão de fábrica: 2 de 8 cliques." }
             options:
               damper: [helm_mkii_damper]
               travel_mm: [100, 110, 120, 130, 140, 150, 160, 170]
               wheel_size: [29, 27.5]
             note: 29in offered in 120-160mm; 27.5in offered in 130-170mm (10mm internal increments, no extra parts required). Up to seven 10mm travel reducers allow settings down to 100mm.
+            note_de: 29in in 120-160mm erhältlich; 27.5in in 130-170mm erhältlich (10mm-Schritte intern, keine zusätzlichen Teile nötig). Bis zu sieben 10mm-Federwegreduzierer erlauben Einstellungen bis hinunter auf 100mm.
+            note_fr: 29" proposé en 120-160 mm ; 27,5" proposé en 130-170 mm (paliers internes de 10 mm, aucune pièce supplémentaire requise). Jusqu’à sept réducteurs de débattement de 10 mm permettent des réglages jusqu’à 100 mm.
+            note_it: 29" disponibile in 120-160 mm; 27,5" disponibile in 130-170 mm (passi interni da 10 mm, nessun componente aggiuntivo necessario). Fino a sette riduttori di escursione da 10 mm permettono regolazioni fino a 100 mm.
+            note_es: 29" disponible en 120-160 mm; 27,5" disponible en 130-170 mm (pasos internos de 10 mm, sin piezas adicionales). Hasta siete reductores de recorrido de 10 mm permiten ajustes hasta 100 mm.
+            note_pt: 29" disponível em 120-160 mm; 27,5" disponível em 130-170 mm (passos internos de 10 mm, sem peças adicionais). Até sete redutores de curso de 10 mm permitem ajustes até 100 mm.
           - label: Coil
             level: trim
             url: https://www.canecreek.com/products/helm-mkii-coil
-            specs: { stanchion: 35mm, spring: Coil }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             adjustments: &helm_coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: "Published rates: 35 extra-soft (red), 45 soft (black), 55 medium (green), 65 firm (blue)" }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0, notes: "Published rates: 35 extra-soft (red), 45 soft (black), 55 medium (green), 65 firm (blue)", notes_de: "Erhältliche Federraten: 35 extraweich (rot), 45 weich (schwarz), 55 mittel (grün), 65 fest (blau)", notes_fr: "Raideurs publiées : 35 extra-souple (rouge), 45 souple (noir), 55 moyen (vert), 65 ferme (bleu)", notes_it: "Rigidità pubblicate: 35 extra-morbida (rosso), 45 morbida (nero), 55 media (verde), 65 rigida (blu)", notes_es: "Rigideces publicadas: 35 extrablando (rojo), 45 blando (negro), 55 medio (verde), 65 firme (azul)", notes_pt: "Rigidezes publicadas: 35 extramacia (vermelho), 45 macia (preto), 55 média (verde), 65 firme (azul)" }
             options:
               damper: [helm_mkii_damper]
               travel_mm: [120, 130, 140, 150, 160, 170]
               wheel_size: [29, 27.5]
             note: 29in offered in 120-160mm; 27.5in offered in 130-170mm.
+            note_de: 29in in 120-160mm erhältlich; 27.5in in 130-170mm erhältlich.
+            note_fr: 29" proposé en 120-160 mm ; 27,5" proposé en 130-170 mm.
+            note_it: 29" disponibile in 120-160 mm; 27,5" disponibile in 130-170 mm.
+            note_es: 29" disponible en 120-160 mm; 27,5" disponible en 130-170 mm.
+            note_pt: 29" disponível em 120-160 mm; 27,5" disponível em 130-170 mm.
 
   - label: "Helm Works Series"
     level: model
     category: Downcountry
+    category_de: Downcountry
+    category_fr: Downcountry
+    category_it: Downcountry
+    category_es: Downcountry
+    category_pt: Downcountry
     tasks: *helm_service
     children:
       - label: "2023–2026"
@@ -224,7 +321,7 @@ nodes:
         children:
           - label: Air
             level: trim
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *helm_air_spring
             options:
               damper: [helm_mkii_damper]
@@ -234,10 +331,35 @@ nodes:
               - Limited-run special edition of the Helm MKII, 29in only
               - Hollow-anodized shorter-offset crown and bolt-on D-Loc axle
               - Around 100g lighter than a standard Helm MKII
+            note_de: |-
+              - Limitierte Sonderedition der Helm MKII, nur 29in
+              - Hohl eloxierte Gabelbrücke mit kürzerem Offset und verschraubte D-Loc-Achse
+              - Etwa 100g leichter als eine Standard-Helm-MKII
+            note_fr: |-
+              - Édition spéciale en série limitée de la Helm MKII, en 29" uniquement
+              - Té creux anodisé à déport réduit et axe D-Loc vissé
+              - Environ 100 g plus légère qu’une Helm MKII standard
+            note_it: |-
+              - Edizione speciale a tiratura limitata della Helm MKII, solo 29"
+              - Piastra cava anodizzata con offset ridotto e perno D-Loc avvitato
+              - Circa 100 g più leggera di una Helm MKII standard
+            note_es: |-
+              - Edición especial de tirada limitada de la Helm MKII, solo en 29"
+              - Corona hueca anodizada con offset más corto y eje D-Loc atornillado
+              - Unos 100 g más ligera que una Helm MKII estándar
+            note_pt: |-
+              - Edição especial de tiragem limitada da Helm MKII, somente em 29"
+              - Coroa oca anodizada com offset menor e eixo D-Loc parafusado
+              - Cerca de 100 g mais leve que uma Helm MKII padrão
 
   - label: "Helm DJ"
     level: model
     category: Dirt Jump / Dual Slalom / Street
+    category_de: Dirt Jump / Dual Slalom / Street
+    category_fr: Dirt Jump / Dual Slalom / Street
+    category_it: Dirt Jump / Dual Slalom / Street
+    category_es: Dirt Jump / Dual Slalom / Street
+    category_pt: Dirt Jump / Dual Slalom / Street
     children:
       - label: "2025–2026"
         level: generation
@@ -249,9 +371,9 @@ nodes:
           - label: Standard
             level: trim
             draft: true
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Cane Creek recommends 95-125 psi based on rider weight and sag/ride-height preference }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, notes: Cane Creek recommends 95-125 psi based on rider weight and sag/ride-height preference, notes_de: Cane Creek empfiehlt 95-125 psi je nach Fahrergewicht und gewünschtem SAG bzw. gewünschter Fahrhöhe, notes_fr: Cane Creek recommande 95-125 psi selon le poids du pilote et la préférence de SAG/hauteur de conduite, notes_it: Cane Creek consiglia 95-125 psi in base al peso del rider e alla preferenza di SAG/altezza di guida, notes_es: Cane Creek recomienda 95-125 psi según el peso del rider y la preferencia de SAG/altura de conducción, notes_pt: A Cane Creek recomenda 95-125 psi conforme o peso do rider e a preferência de SAG/altura de pilotagem }
             options:
               damper: [helm_dj_damper]
               travel_mm: [90]
@@ -259,12 +381,32 @@ nodes:
             note: |-
               - 27.5in-crown chassis built around a 26in wheel for dirt jump, dual slalom and street
               - Travel fixed at 90mm by an internal spacer stack (5 large + 3 standard), not rider-adjustable
+            note_de: |-
+              - Chassis mit 27.5in-Gabelbrücke für ein 26in-Rad, für Dirt Jump, Dual Slalom und Street
+              - Der Federweg ist durch einen internen Spacer-Stapel (5 große + 3 Standard) auf 90mm festgelegt und nicht vom Fahrer einstellbar
+            note_fr: |-
+              - Châssis à té de 27,5" construit autour d’une roue de 26" pour le dirt jump, le dual slalom et le street
+              - Débattement fixé à 90 mm par une pile d’entretoises internes (5 grandes + 3 standard), non réglable par le pilote
+            note_it: |-
+              - Telaio con piastra da 27,5" costruito attorno a una ruota da 26" per dirt jump, dual slalom e street
+              - Escursione fissata a 90 mm da una pila di distanziali interni (5 grandi + 3 standard), non regolabile dal rider
+            note_es: |-
+              - Chasis con corona de 27,5" construido en torno a una rueda de 26" para dirt jump, dual slalom y street
+              - Recorrido fijado en 90 mm mediante una pila de espaciadores internos (5 grandes + 3 estándar), no ajustable por el rider
+            note_pt: |-
+              - Chassi com coroa de 27,5" construído em torno de uma roda de 26" para dirt jump, dual slalom e street
+              - Curso fixado em 90 mm por uma pilha de espaçadores internos (5 grandes + 3 padrão), não ajustável pelo rider
 
       # Legacy — first-generation Helm. Its own manual, its own damper id: the
       # MK1 runs 17 clicks of LSC where the MKII runs 10.
   - label: "Helm MK1"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     tasks: *helm_service
     children:
       - label: "2017–2019"
@@ -280,7 +422,7 @@ nodes:
         children:
           - label: Air
             level: trim
-            specs: { stanchion: 35mm, spring: Air }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *helm_air_spring
             options:
               damper: [helm_mk1_damper]
@@ -289,15 +431,35 @@ nodes:
             note: |-
               - 27.5in runs 100-170mm, 29in/27.5+ runs 100-160mm, set with 10mm internal travel reducers
               - Air volume is set by a static piston on an indexed rod, 8 positions
+            note_de: |-
+              - 27.5in reicht von 100-170mm, 29in/27.5+ von 100-160mm, eingestellt mit internen 10mm-Federwegreduzierern
+              - Das Luftvolumen wird durch einen statischen Kolben auf einer indexierten Stange mit 8 Positionen eingestellt
+            note_fr: |-
+              - Le 27,5" couvre 100-170 mm, le 29"/27,5+ couvre 100-160 mm, réglé avec des réducteurs de débattement internes de 10 mm
+              - Le volume d’air se règle avec un piston fixe sur une tige crantée, 8 positions
+            note_it: |-
+              - Il 27,5" copre 100-170 mm, il 29"/27,5+ copre 100-160 mm, regolati con riduttori di escursione interni da 10 mm
+              - Il volume d’aria si regola con un pistone fisso su un’asta a scatti, 8 posizioni
+            note_es: |-
+              - El 27,5" cubre 100-170 mm y el 29"/27,5+ cubre 100-160 mm, ajustados con reductores de recorrido internos de 10 mm
+              - El volumen de aire se regula con un pistón estático sobre una varilla con muescas, 8 posiciones
+            note_pt: |-
+              - O 27,5" cobre 100-170 mm e o 29"/27,5+ cobre 100-160 mm, ajustados com redutores de curso internos de 10 mm
+              - O volume de ar é ajustado por um pistão estático em uma haste indexada, 8 posições
           - label: Coil
             level: trim
-            specs: { stanchion: 35mm, spring: Coil }
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
             adjustments: *helm_coil_spring
             options:
               damper: [helm_mk1_damper]
               travel_mm: [130, 140, 150, 160]
               wheel_size: [29, 27.5]
             note: Travel adjusts between 130mm and 160mm in 10mm increments on the compression rod, no extra parts needed.
+            note_de: Der Federweg lässt sich an der Druckstufenstange in 10mm-Schritten zwischen 130mm und 160mm einstellen, ohne zusätzliche Teile.
+            note_fr: Le débattement se règle de 130 mm à 160 mm par paliers de 10 mm sur la tige de compression, sans pièce supplémentaire.
+            note_it: L’escursione si regola da 130 mm a 160 mm a passi da 10 mm sull’asta di compressione, senza componenti aggiuntivi.
+            note_es: El recorrido se ajusta de 130 mm a 160 mm en pasos de 10 mm en la varilla de compresión, sin piezas adicionales.
+            note_pt: O curso é ajustável de 130 mm a 160 mm em passos de 10 mm na haste de compressão, sem peças adicionais.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

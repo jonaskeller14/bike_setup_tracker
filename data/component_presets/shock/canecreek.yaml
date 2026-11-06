@@ -65,12 +65,32 @@ option_values:
         - Four independent circuits: High- and Low-Speed Compression, High- and Low-Speed Rebound
         - Low-speed adjusters run 25 clicks; the high-speed adjusters are continuous, 4.5 turns end to end
         - Climb Switch lever with a 3mm adjustment tool nested inside it
+      description_de: |-
+        - Vier unabhängige Kreise: High- und Low-Speed-Druckstufe, High- und Low-Speed-Zugstufe
+        - Die Low-Speed-Versteller haben 25 Klicks; die High-Speed-Versteller sind stufenlos, 4,5 Umdrehungen von Anschlag zu Anschlag
+        - Climb-Switch-Hebel mit einem darin verstauten 3-mm-Einstellwerkzeug
+      description_fr: |-
+        - Quatre circuits indépendants : compression haute et basse vitesse, détente haute et basse vitesse
+        - Les réglages basse vitesse font 25 clics ; les réglages haute vitesse sont continus, 4,5 tours de bout en bout
+        - Levier Climb Switch avec un outil de réglage de 3 mm logé à l’intérieur
+      description_it: |-
+        - Quattro circuiti indipendenti: compressione ad alta e bassa velocità, ritorno ad alta e bassa velocità
+        - I regolatori a bassa velocità hanno 25 scatti; quelli ad alta velocità sono continui, 4,5 giri da un estremo all’altro
+        - Leva Climb Switch con un attrezzo di regolazione da 3 mm alloggiato all’interno
+      description_es: |-
+        - Cuatro circuitos independientes: compresión de alta y baja velocidad, rebote de alta y baja velocidad
+        - Los ajustes de baja velocidad tienen 25 clics; los de alta velocidad son continuos, 4,5 vueltas de extremo a extremo
+        - Palanca Climb Switch con una herramienta de ajuste de 3 mm alojada en su interior
+      description_pt: |-
+        - Quatro circuitos independentes: compressão de alta e baixa velocidade, retorno de alta e baixa velocidade
+        - Os ajustes de baixa velocidade têm 25 cliques; os de alta velocidade são contínuos, 4,5 voltas de ponta a ponta
+        - Alavanca Climb Switch com uma ferramenta de ajuste de 3 mm alojada dentro dela
       adjustments:
-        - { name: LSC, type: step, max: 25, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
-        - { name: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-        - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound, dialColor: orange, dialSize: small }
-        - { name: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
-        - { name: Climb Switch, type: categorical, options: [Open, Climb] }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 25, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: orange, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Druckstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Compression haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Compressione ad alta velocità; continua (senza scatti); contata a partire dalla posizione completamente chiusa, notes_es: Compresión de alta velocidad; continua (sin clics); contada desde la posición totalmente cerrada, notes_pt: Compressão de alta velocidade; contínua (sem cliques); contada a partir da posição totalmente fechada }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 25, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange, dialSize: small }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Zugstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Détente haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Ritorno ad alta velocità; continuo (senza scatti); contato a partire dalla posizione completamente chiusa, notes_es: Rebote de alta velocidad; continuo (sin clics); contado desde la posición totalmente cerrada, notes_pt: Retorno de alta velocidade; contínuo (sem cliques); contado a partir da posição totalmente fechada }
+        - { name: Climb Switch, name_de: Climb-Schalter, name_fr: Levier Climb, name_it: Leva Climb, name_es: Palanca Climb, name_pt: Alavanca Climb, type: categorical, options: [Open, Climb], options_de: [Offen, Climb], options_fr: [Ouvert, Climb], options_it: [Aperto, Climb], options_es: [Abierto, Climb], options_pt: [Aberto, Climb] }
       valves: twin-tube; 2 high-speed + 2 low-speed damping circuits
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
       note: >-
@@ -86,12 +106,32 @@ option_values:
         - Tool-free twin-tube gravity damper with four independent circuits (HSC/LSC/HSR/LSR)
         - 11 positions on each of the four adjusters
         - Three-position Climb Switch: Open, Climb (closes the low-speed circuit) and Firm (closes both)
+      description_de: |-
+        - Werkzeuglos einstellbarer Zweirohr-Gravity-Dämpfer mit vier unabhängigen Kreisen (HSC/LSC/HSR/LSR)
+        - 11 Positionen an jedem der vier Versteller
+        - Drei-Positionen-Climb-Switch: Open, Climb (schließt den Low-Speed-Kreis) und Firm (schließt beide)
+      description_fr: |-
+        - Amortisseur gravity bitube sans outil avec quatre circuits indépendants (HSC/LSC/HSR/LSR)
+        - 11 positions sur chacun des quatre réglages
+        - Climb Switch à trois positions : Open, Climb (ferme le circuit basse vitesse) et Firm (ferme les deux)
+      description_it: |-
+        - Ammortizzatore gravity bitubo senza attrezzi con quattro circuiti indipendenti (HSC/LSC/HSR/LSR)
+        - 11 posizioni su ciascuno dei quattro regolatori
+        - Climb Switch a tre posizioni: Open, Climb (chiude il circuito a bassa velocità) e Firm (chiude entrambi)
+      description_es: |-
+        - Amortiguador gravity bitubo sin herramientas con cuatro circuitos independientes (HSC/LSC/HSR/LSR)
+        - 11 posiciones en cada uno de los cuatro ajustes
+        - Climb Switch de tres posiciones: Open, Climb (cierra el circuito de baja velocidad) y Firm (cierra ambos)
+      description_pt: |-
+        - Amortecedor gravity bitubo sem ferramentas com quatro circuitos independentes (HSC/LSC/HSR/LSR)
+        - 11 posições em cada um dos quatro ajustes
+        - Climb Switch de três posições: Open, Climb (fecha o circuito de baixa velocidade) e Firm (fecha os dois)
       adjustments:
-        - { name: LSC, type: step, max: 11, notes: Low-Speed Compression, dialColor: grey }
-        - { name: HSC, type: step, max: 11, notes: High-Speed Compression, dialColor: grey }
-        - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound, dialColor: grey }
-        - { name: HSR, type: step, max: 11, notes: High-Speed Rebound, dialColor: grey }
-        - { name: Climb Switch, type: categorical, options: [Open, Climb, Firm] }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 11, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: grey }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 11, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: grey }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 11, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: grey }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: step, max: 11, notes: High-Speed Rebound, notes_de: High-Speed-Zugstufe, notes_fr: Détente haute vitesse, notes_it: Ritorno ad alta velocità, notes_es: Rebote de alta velocidad, notes_pt: Retorno de alta velocidade, dialColor: grey }
+        - { name: Climb Switch, name_de: Climb-Schalter, name_fr: Levier Climb, name_it: Leva Climb, name_es: Palanca Climb, name_pt: Alavanca Climb, type: categorical, options: [Open, Climb, Firm], options_de: [Offen, Climb, Fest], options_fr: [Ouvert, Climb, Ferme], options_it: [Aperto, Climb, Rigido], options_es: [Abierto, Climb, Firme], options_pt: [Aberto, Climb, Firme] }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
       note: >-
         Kitsuma (G2) instruction manual, rev. 04/01/2025, "Features Overview →
@@ -107,11 +147,31 @@ option_values:
         - Twin-tube damper for the coil-plus-air Tigon: separate High- and Low-Speed Compression, single rebound circuit
         - 12 positions of Low-Speed Compression, 15 of rebound, and one full turn of High-Speed Compression
         - Two-position Climb Switch with a 3mm tool nested in the lever
+      description_de: |-
+        - Zweirohr-Dämpfer für den Tigon mit Stahlfeder plus Luft: getrennte High- und Low-Speed-Druckstufe, ein einzelner Zugstufenkreis
+        - 12 Positionen Low-Speed-Druckstufe, 15 Zugstufe und eine volle Umdrehung High-Speed-Druckstufe
+        - Zwei-Positionen-Climb-Switch mit einem 3-mm-Werkzeug im Hebel
+      description_fr: |-
+        - Amortisseur bitube pour le Tigon ressort + air : compression haute vitesse et basse vitesse séparées, un seul circuit de détente
+        - 12 positions de compression basse vitesse, 15 de détente et un tour complet de compression haute vitesse
+        - Climb Switch à deux positions avec un outil de 3 mm logé dans le levier
+      description_it: |-
+        - Ammortizzatore bitubo per il Tigon molla + aria: compressione ad alta e a bassa velocità separate, un solo circuito di ritorno
+        - 12 posizioni di compressione a bassa velocità, 15 di ritorno e un giro completo di compressione ad alta velocità
+        - Climb Switch a due posizioni con un attrezzo da 3 mm alloggiato nella leva
+      description_es: |-
+        - Amortiguador bitubo para el Tigon de muelle más aire: compresión de alta y de baja velocidad por separado, un único circuito de rebote
+        - 12 posiciones de compresión de baja velocidad, 15 de rebote y una vuelta completa de compresión de alta velocidad
+        - Climb Switch de dos posiciones con una herramienta de 3 mm alojada en la palanca
+      description_pt: |-
+        - Amortecedor bitubo para o Tigon de mola mais ar: compressão de alta e de baixa velocidade separadas, um único circuito de retorno
+        - 12 posições de compressão de baixa velocidade, 15 de retorno e uma volta completa de compressão de alta velocidade
+        - Climb Switch de duas posições com uma ferramenta de 3 mm alojada na alavanca
       adjustments:
-        - { name: LSC, type: step, max: 12, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
-        - { name: HSC, type: numerical, unit: turns, min: 0, max: 1, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-        - { name: Rebound, type: step, max: 15, notes: Low-Speed Rebound, dialColor: orange, dialSize: small }
-        - { name: Climb Switch, type: categorical, options: [Open, Climb] }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 12, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: orange, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: numerical, unit: turns, min: 0, max: 1, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Druckstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Compression haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Compressione ad alta velocità; continua (senza scatti); contata a partire dalla posizione completamente chiusa, notes_es: Compresión de alta velocidad; continua (sin clics); contada desde la posición totalmente cerrada, notes_pt: Compressão de alta velocidade; contínua (sem cliques); contada a partir da posição totalmente fechada }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 15, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange, dialSize: small }
+        - { name: Climb Switch, name_de: Climb-Schalter, name_fr: Levier Climb, name_it: Leva Climb, name_es: Palanca Climb, name_pt: Alavanca Climb, type: categorical, options: [Open, Climb], options_de: [Offen, Climb], options_fr: [Ouvert, Climb], options_it: [Aperto, Climb], options_es: [Abierto, Climb], options_pt: [Aberto, Climb] }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Tigon_Manual_2025_04_01.pdf
       note: >-
         Tigon instruction manual, rev. 04/01/2025, "Features Overview → Damper
@@ -125,12 +185,32 @@ option_values:
         - First-generation inline Double Barrel damper with four independent circuits
         - Low-speed adjusters run 18 clicks; the high-speed adjusters are continuous, 4.5 turns end to end
         - Two-position Climb Switch with a 3mm adjustment tool nested in the lever
+      description_de: |-
+        - Inline-Double-Barrel-Dämpfer der ersten Generation mit vier unabhängigen Kreisen
+        - Die Low-Speed-Versteller haben 18 Klicks; die High-Speed-Versteller sind stufenlos, 4,5 Umdrehungen von Anschlag zu Anschlag
+        - Zwei-Positionen-Climb-Switch mit einem 3-mm-Einstellwerkzeug im Hebel
+      description_fr: |-
+        - Amortisseur Double Barrel inline de première génération avec quatre circuits indépendants
+        - Les réglages basse vitesse font 18 clics ; les réglages haute vitesse sont continus, 4,5 tours de bout en bout
+        - Climb Switch à deux positions avec un outil de réglage de 3 mm logé dans le levier
+      description_it: |-
+        - Ammortizzatore Double Barrel inline di prima generazione con quattro circuiti indipendenti
+        - I regolatori a bassa velocità hanno 18 scatti; quelli ad alta velocità sono continui, 4,5 giri da un estremo all’altro
+        - Climb Switch a due posizioni con un attrezzo di regolazione da 3 mm alloggiato nella leva
+      description_es: |-
+        - Amortiguador Double Barrel inline de primera generación con cuatro circuitos independientes
+        - Los ajustes de baja velocidad tienen 18 clics; los de alta velocidad son continuos, 4,5 vueltas de extremo a extremo
+        - Climb Switch de dos posiciones con una herramienta de ajuste de 3 mm alojada en la palanca
+      description_pt: |-
+        - Amortecedor Double Barrel inline de primeira geração com quatro circuitos independentes
+        - Os ajustes de baixa velocidade têm 18 cliques; os de alta velocidade são contínuos, 4,5 voltas de ponta a ponta
+        - Climb Switch de duas posições com uma ferramenta de ajuste de 3 mm alojada na alavanca
       adjustments:
-        - { name: LSC, type: step, max: 18, notes: Low-Speed Compression }
-        - { name: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-        - { name: LSR, type: step, max: 18, notes: Low-Speed Rebound }
-        - { name: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
-        - { name: Climb Switch, type: categorical, options: [Open, Climb] }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 18, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Druckstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Compression haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Compressione ad alta velocità; continua (senza scatti); contata a partire dalla posizione completamente chiusa, notes_es: Compresión de alta velocidad; continua (sin clics); contada desde la posición totalmente cerrada, notes_pt: Compressão de alta velocidade; contínua (sem cliques); contada a partir da posição totalmente fechada }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 18, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Zugstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Détente haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Ritorno ad alta velocità; continuo (senza scatti); contato a partire dalla posizione completamente chiusa, notes_es: Rebote de alta velocidad; continuo (sin clics); contado desde la posición totalmente cerrada, notes_pt: Retorno de alta velocidade; contínuo (sem cliques); contado a partir da posição totalmente fechada }
+        - { name: Climb Switch, name_de: Climb-Schalter, name_fr: Levier Climb, name_it: Leva Climb, name_es: Palanca Climb, name_pt: Alavanca Climb, type: categorical, options: [Open, Climb], options_de: [Offen, Climb], options_fr: [Ouvert, Climb], options_it: [Aperto, Climb], options_es: [Abierto, Climb], options_pt: [Aberto, Climb] }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB-IL-Manual_2022_02_25_1_d8229608-3c4e-406c-bf6f-5b97afc6b6f8.pdf
       note: >-
         DB Air IL / DBcoil IL (G1) instruction manual, rev. 02/25/2022,
@@ -145,12 +225,32 @@ option_values:
         - First-generation Kitsuma twin-tube gravity damper with four independent circuits
         - 11 positions of low-speed adjustment per circuit, 13 positions of high-speed
         - Three-position Climb Switch: Open, Climb (closes the low-speed circuit) and Firm (closes both)
+      description_de: |-
+        - Zweirohr-Gravity-Dämpfer Kitsuma der ersten Generation mit vier unabhängigen Kreisen
+        - 11 Positionen Low-Speed-Verstellung pro Kreis, 13 Positionen High-Speed
+        - Drei-Positionen-Climb-Switch: Open, Climb (schließt den Low-Speed-Kreis) und Firm (schließt beide)
+      description_fr: |-
+        - Amortisseur gravity bitube Kitsuma de première génération avec quatre circuits indépendants
+        - 11 positions de réglage basse vitesse par circuit, 13 positions haute vitesse
+        - Climb Switch à trois positions : Open, Climb (ferme le circuit basse vitesse) et Firm (ferme les deux)
+      description_it: |-
+        - Ammortizzatore gravity bitubo Kitsuma di prima generazione con quattro circuiti indipendenti
+        - 11 posizioni di regolazione a bassa velocità per circuito, 13 posizioni ad alta velocità
+        - Climb Switch a tre posizioni: Open, Climb (chiude il circuito a bassa velocità) e Firm (chiude entrambi)
+      description_es: |-
+        - Amortiguador gravity bitubo Kitsuma de primera generación con cuatro circuitos independientes
+        - 11 posiciones de ajuste de baja velocidad por circuito, 13 posiciones de alta velocidad
+        - Climb Switch de tres posiciones: Open, Climb (cierra el circuito de baja velocidad) y Firm (cierra ambos)
+      description_pt: |-
+        - Amortecedor gravity bitubo Kitsuma de primeira geração com quatro circuitos independentes
+        - 11 posições de ajuste de baixa velocidade por circuito, 13 posições de alta velocidade
+        - Climb Switch de três posições: Open, Climb (fecha o circuito de baixa velocidade) e Firm (fecha os dois)
       adjustments:
-        - { name: LSC, type: step, max: 11, notes: Low-Speed Compression, dialColor: grey }
-        - { name: HSC, type: step, max: 13, notes: High-Speed Compression, dialColor: grey }
-        - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound, dialColor: grey }
-        - { name: HSR, type: step, max: 13, notes: High-Speed Rebound, dialColor: grey }
-        - { name: Climb Switch, type: categorical, options: [Open, Climb, Firm] }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 11, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: grey }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 13, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade, dialColor: grey }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 11, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: grey }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: step, max: 13, notes: High-Speed Rebound, notes_de: High-Speed-Zugstufe, notes_fr: Détente haute vitesse, notes_it: Ritorno ad alta velocità, notes_es: Rebote de alta velocidad, notes_pt: Retorno de alta velocidade, dialColor: grey }
+        - { name: Climb Switch, name_de: Climb-Schalter, name_fr: Levier Climb, name_it: Leva Climb, name_es: Palanca Climb, name_pt: Alavanca Climb, type: categorical, options: [Open, Climb, Firm], options_de: [Offen, Climb, Fest], options_fr: [Ouvert, Climb, Ferme], options_it: [Aperto, Climb, Rigido], options_es: [Abierto, Climb, Firme], options_pt: [Aberto, Climb, Firme] }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
       note: >-
         DB Kitsuma (G1) instruction manual, rev. 02/25/2022, "Features Overview
@@ -164,11 +264,31 @@ option_values:
         - The original four-way Double Barrel twin-tube damper
         - Low-speed compression and rebound run 25 clicks each
         - High-speed compression and rebound are continuous, 4 turns end to end
+      description_de: |-
+        - Der ursprüngliche Vierwege-Zweirohr-Dämpfer Double Barrel
+        - Low-Speed-Druckstufe und Zugstufe haben je 25 Klicks
+        - High-Speed-Druckstufe und Zugstufe sind stufenlos, 4 Umdrehungen von Anschlag zu Anschlag
+      description_fr: |-
+        - L’amortisseur bitube Double Barrel à quatre voies d’origine
+        - La compression et la détente basse vitesse font 25 clics chacune
+        - La compression et la détente haute vitesse sont continues, 4 tours de bout en bout
+      description_it: |-
+        - L’ammortizzatore bitubo Double Barrel a quattro vie originale
+        - Compressione e ritorno a bassa velocità hanno 25 scatti ciascuno
+        - Compressione e ritorno ad alta velocità sono continui, 4 giri da un estremo all’altro
+      description_es: |-
+        - El amortiguador bitubo Double Barrel de cuatro vías original
+        - La compresión y el rebote de baja velocidad tienen 25 clics cada uno
+        - La compresión y el rebote de alta velocidad son continuos, 4 vueltas de extremo a extremo
+      description_pt: |-
+        - O amortecedor bitubo Double Barrel de quatro vias original
+        - A compressão e o retorno de baixa velocidade têm 25 cliques cada um
+        - A compressão e o retorno de alta velocidade são contínuos, 4 voltas de ponta a ponta
       adjustments:
-        - { name: LSC, type: step, max: 25, notes: Low-Speed Compression, dialColor: orange }
-        - { name: HSC, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-        - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound, dialColor: orange }
-        - { name: HSR, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 25, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: orange }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Druckstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Compression haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Compressione ad alta velocità; continua (senza scatti); contata a partire dalla posizione completamente chiusa, notes_es: Compresión de alta velocidad; continua (sin clics); contada desde la posición totalmente cerrada, notes_pt: Compressão de alta velocidade; contínua (sem cliques); contada a partir da posição totalmente fechada }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 25, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: orange }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Zugstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Détente haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Ritorno ad alta velocità; continuo (senza scatti); contato a partire dalla posizione completamente chiusa, notes_es: Rebote de alta velocidad; continuo (sin clics); contado desde la posición totalmente cerrada, notes_pt: Retorno de alta velocidade; contínuo (sem cliques); contado a partir da posição totalmente fechada }
       source:
         - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
         - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/tfg_english_30a0cfe9-1830-4f4f-8436-09f3bfd14390.pdf
@@ -184,12 +304,32 @@ option_values:
         - The original four-way Double Barrel twin-tube damper plus the Climb Switch lever
         - Low-speed compression and rebound run 25 clicks each; high-speed adjusters are continuous, 4 turns end to end
         - Flipping the Climb Switch on firms up the low-speed circuits for climbing
+      description_de: |-
+        - Der ursprüngliche Vierwege-Zweirohr-Dämpfer Double Barrel plus Climb-Switch-Hebel
+        - Low-Speed-Druckstufe und Zugstufe haben je 25 Klicks; die High-Speed-Versteller sind stufenlos, 4 Umdrehungen von Anschlag zu Anschlag
+        - Der eingeschaltete Climb Switch strafft die Low-Speed-Kreise für Anstiege
+      description_fr: |-
+        - L’amortisseur bitube Double Barrel à quatre voies d’origine plus le levier Climb Switch
+        - La compression et la détente basse vitesse font 25 clics chacune ; les réglages haute vitesse sont continus, 4 tours de bout en bout
+        - Activer le Climb Switch raffermit les circuits basse vitesse pour la montée
+      description_it: |-
+        - L’ammortizzatore bitubo Double Barrel a quattro vie originale più la leva Climb Switch
+        - Compressione e ritorno a bassa velocità hanno 25 scatti ciascuno; i regolatori ad alta velocità sono continui, 4 giri da un estremo all’altro
+        - Attivare il Climb Switch irrigidisce i circuiti a bassa velocità per la salita
+      description_es: |-
+        - El amortiguador bitubo Double Barrel de cuatro vías original más la palanca Climb Switch
+        - La compresión y el rebote de baja velocidad tienen 25 clics cada uno; los ajustes de alta velocidad son continuos, 4 vueltas de extremo a extremo
+        - Activar el Climb Switch endurece los circuitos de baja velocidad para subir
+      description_pt: |-
+        - O amortecedor bitubo Double Barrel de quatro vias original mais a alavanca Climb Switch
+        - A compressão e o retorno de baixa velocidade têm 25 cliques cada um; os ajustes de alta velocidade são contínuos, 4 voltas de ponta a ponta
+        - Acionar o Climb Switch endurece os circuitos de baixa velocidade para a subida
       adjustments:
-        - { name: LSC, type: step, max: 25, notes: Low-Speed Compression, dialColor: grey, dialSize: small }
-        - { name: HSC, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-        - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound, dialColor: grey, dialSize: small }
-        - { name: HSR, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
-        - { name: Climb Switch, type: categorical, options: ["Off", "On"], notes: "On engages climb mode (firmer low-speed damping)" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 25, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: grey, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Druckstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Compression haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Compressione ad alta velocità; continua (senza scatti); contata a partire dalla posizione completamente chiusa, notes_es: Compresión de alta velocidad; continua (sin clics); contada desde la posición totalmente cerrada, notes_pt: Compressão de alta velocidade; contínua (sem cliques); contada a partir da posição totalmente fechada }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 25, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: grey, dialSize: small }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Zugstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Détente haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Ritorno ad alta velocità; continuo (senza scatti); contato a partire dalla posizione completamente chiusa, notes_es: Rebote de alta velocidad; continuo (sin clics); contado desde la posición totalmente cerrada, notes_pt: Retorno de alta velocidade; contínuo (sem cliques); contado a partir da posição totalmente fechada }
+        - { name: Climb Switch, name_de: Climb-Schalter, name_fr: Levier Climb, name_it: Leva Climb, name_es: Palanca Climb, name_pt: Alavanca Climb, type: categorical, options: ["Off", "On"], options_de: [Aus, An], options_fr: [Désactivé, Activé], options_it: [Disattivo, Attivo], options_es: [Desactivado, Activado], options_pt: [Desativado, Ativado], notes: "On engages climb mode (firmer low-speed damping)", notes_de: An aktiviert den Climb-Modus (festere Low-Speed-Dämpfung), notes_fr: On enclenche le mode Climb (amortissement basse vitesse plus ferme), notes_it: On attiva la modalità Climb (smorzamento a bassa velocità più rigido), notes_es: On activa el modo Climb (amortiguación de baja velocidad más firme), notes_pt: On ativa o modo Climb (amortecimento de baixa velocidade mais firme) }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
       note: >-
         Same range chart as db_classic (2014 v11 manual, p. 36). The CS lever is
@@ -201,12 +341,27 @@ option_values:
       description: |-
         - The original four-way Double Barrel damper in an inline body, plus the Climb Switch lever
         - Low-speed compression and rebound run 18 clicks each; high-speed adjusters are continuous, 4.5 turns end to end
+      description_de: |-
+        - Der ursprüngliche Vierwege-Dämpfer Double Barrel im Inline-Gehäuse, plus Climb-Switch-Hebel
+        - Low-Speed-Druckstufe und Zugstufe haben je 18 Klicks; die High-Speed-Versteller sind stufenlos, 4,5 Umdrehungen von Anschlag zu Anschlag
+      description_fr: |-
+        - L’amortisseur Double Barrel à quatre voies d’origine dans un corps inline, plus le levier Climb Switch
+        - La compression et la détente basse vitesse font 18 clics chacune ; les réglages haute vitesse sont continus, 4,5 tours de bout en bout
+      description_it: |-
+        - L’ammortizzatore Double Barrel a quattro vie originale in un corpo inline, più la leva Climb Switch
+        - Compressione e ritorno a bassa velocità hanno 18 scatti ciascuno; i regolatori ad alta velocità sono continui, 4,5 giri da un estremo all’altro
+      description_es: |-
+        - El amortiguador Double Barrel de cuatro vías original en un cuerpo inline, más la palanca Climb Switch
+        - La compresión y el rebote de baja velocidad tienen 18 clics cada uno; los ajustes de alta velocidad son continuos, 4,5 vueltas de extremo a extremo
+      description_pt: |-
+        - O amortecedor Double Barrel de quatro vias original em um corpo inline, mais a alavanca Climb Switch
+        - A compressão e o retorno de baixa velocidade têm 18 cliques cada um; os ajustes de alta velocidade são contínuos, 4,5 voltas de ponta a ponta
       adjustments:
-        - { name: LSC, type: step, max: 18, notes: Low-Speed Compression, dialColor: grey, dialSize: small }
-        - { name: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-        - { name: LSR, type: step, max: 18, notes: Low-Speed Rebound, dialColor: grey, dialSize: small }
-        - { name: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
-        - { name: Climb Switch, type: categorical, options: ["Off", "On"], notes: "On engages climb mode (firmer low-speed damping)" }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 18, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: grey, dialSize: small }
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Druckstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Compression haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Compressione ad alta velocità; continua (senza scatti); contata a partire dalla posizione completamente chiusa, notes_es: Compresión de alta velocidad; continua (sin clics); contada desde la posición totalmente cerrada, notes_pt: Compressão de alta velocidade; contínua (sem cliques); contada a partir da posição totalmente fechada }
+        - { name: LSR, name_de: LSR, name_fr: LSR, name_it: LSR, name_es: LSR, name_pt: LSR, type: step, max: 18, notes: Low-Speed Rebound, notes_de: Low-Speed-Zugstufe, notes_fr: Détente basse vitesse, notes_it: Ritorno a bassa velocità, notes_es: Rebote de baja velocidad, notes_pt: Retorno de baixa velocidade, dialColor: grey, dialSize: small }
+        - { name: HSR, name_de: HSR, name_fr: HSR, name_it: HSR, name_es: HSR, name_pt: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed", notes_de: High-Speed-Zugstufe; stufenlos (ohne Klicks); von ganz geschlossen gezählt, notes_fr: Détente haute vitesse ; continue (sans clics) ; comptée depuis la position entièrement fermée, notes_it: Ritorno ad alta velocità; continuo (senza scatti); contato a partire dalla posizione completamente chiusa, notes_es: Rebote de alta velocidad; continuo (sin clics); contado desde la posición totalmente cerrada, notes_pt: Retorno de alta velocidade; contínuo (sem cliques); contado a partir da posição totalmente fechada }
+        - { name: Climb Switch, name_de: Climb-Schalter, name_fr: Levier Climb, name_it: Leva Climb, name_es: Palanca Climb, name_pt: Alavanca Climb, type: categorical, options: ["Off", "On"], options_de: [Aus, An], options_fr: [Désactivé, Activé], options_it: [Disattivo, Attivo], options_es: [Desactivado, Activado], options_pt: [Desativado, Ativado], notes: "On engages climb mode (firmer low-speed damping)", notes_de: An aktiviert den Climb-Modus (festere Low-Speed-Dämpfung), notes_fr: On enclenche le mode Climb (amortissement basse vitesse plus ferme), notes_it: On attiva la modalità Climb (smorzamento a bassa velocità più rigido), notes_es: On activa el modo Climb (amortiguación de baja velocidad más firme), notes_pt: On ativa o modo Climb (amortecimento de baixa velocidade mais firme) }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/tfg_english_30a0cfe9-1830-4f4f-8436-09f3bfd14390.pdf
       note: >-
         Own id because the Tuning Field Guide's DBinline range bars run 0-18
@@ -229,6 +384,11 @@ option_values:
 guides:
   canecreek_air_coil_il_g2_2025:
     label: Cane Creek Air IL and Coil IL manual (2025)
+    label_de: Cane Creek Air IL und Coil IL Handbuch (2025)
+    label_fr: Manuel Cane Creek Air IL et Coil IL (2025)
+    label_it: Manuale Cane Creek Air IL e Coil IL (2025)
+    label_es: Manual Cane Creek Air IL y Coil IL (2025)
+    label_pt: Manual Cane Creek Air IL e Coil IL (2025)
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
     rules:
       - target: pressure
@@ -241,10 +401,20 @@ guides:
           100: 265, 105: 278, 110: 291, 115: 304, 120: 317
         }
         note: Calculated from Cane Creek's starting point (120 % of rider weight in lb, as psi); set the final pressure by SAG
-      - &canecreek_sag { target: sag, range: [25, 35], comfort_at: max, note: "Cane Creek starts at 30 %" }
+        note_de: Berechnet aus dem Ausgangspunkt von Cane Creek (120 % des Fahrergewichts in lb, als psi); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de Cane Creek (120 % du poids du pilote en lb, en psi) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di Cane Creek (120 % del peso del rider in lb, come psi); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de Cane Creek (120 % del peso del rider en lb, como psi); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da Cane Creek (120 % do peso do rider em lb, como psi); defina a pressão final pelo SAG
+      - &canecreek_sag { target: sag, range: [25, 35], comfort_at: max, note: "Cane Creek starts at 30 %", note_de: Cane Creek beginnt bei 30 %, note_fr: Cane Creek part de 30 %, note_it: Cane Creek parte da 30 %, note_es: Cane Creek parte de un 30 %, note_pt: A Cane Creek parte de 30 % }
 
   canecreek_kitsuma_g2_2025:
     label: Cane Creek Kitsuma manual (2025)
+    label_de: Cane Creek Kitsuma Handbuch (2025)
+    label_fr: Manuel Cane Creek Kitsuma (2025)
+    label_it: Manuale Cane Creek Kitsuma (2025)
+    label_es: Manual Cane Creek Kitsuma (2025)
+    label_pt: Manual Cane Creek Kitsuma (2025)
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
     rules:
       - &canecreek_kitsuma_pressure
@@ -258,19 +428,34 @@ guides:
           100: [165, 220], 105: [174, 231], 110: [182, 243], 115: [190, 254], 120: [198, 265]
         }
         note: Calculated from Cane Creek's starting point (75-100 % of rider weight in lb, as psi); set the final pressure by SAG
+        note_de: Berechnet aus dem Ausgangspunkt von Cane Creek (75-100 % des Fahrergewichts in lb, als psi); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de Cane Creek (75-100 % du poids du pilote en lb, en psi) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di Cane Creek (75-100 % del peso del rider in lb, come psi); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de Cane Creek (75-100 % del peso del rider en lb, como psi); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da Cane Creek (75-100 % do peso do rider em lb, como psi); defina a pressão final pelo SAG
       - *canecreek_sag
       # Five volume spacer strips ship with the shock, but the manual doesn't
       # say they are installed, so there is no factory count.
 
   canecreek_tigon_2025:
     label: Cane Creek Tigon manual and set-up procedure (2025)
+    label_de: Cane Creek Tigon Handbuch und Einstellvorgang (2025)
+    label_fr: Manuel et procédure de réglage Cane Creek Tigon (2025)
+    label_it: Manuale e procedura di regolazione Cane Creek Tigon (2025)
+    label_es: Manual y procedimiento de ajuste Cane Creek Tigon (2025)
+    label_pt: Manual e procedimento de ajuste Cane Creek Tigon (2025)
     source: https://www.canecreek.com/pages/tigon-set-up-procedure
     rules:
-      - { target: ramp_tube_pressure, unit: psi, value: 0, note: "Set SAG and damping first, then add 5-10 psi at a time" }
+      - { target: ramp_tube_pressure, unit: psi, value: 0, note: "Set SAG and damping first, then add 5-10 psi at a time", note_de: "Zuerst SAG und Dämpfung einstellen, dann jeweils 5-10 psi hinzufügen", note_fr: "Réglez d’abord le SAG et l’amortissement, puis ajoutez 5-10 psi à la fois", note_it: "Imposta prima SAG e smorzamento, poi aggiungi 5-10 psi alla volta", note_es: Ajusta primero el SAG y la amortiguación y añade después 5-10 psi cada vez, note_pt: Ajuste primeiro o SAG e o amortecimento e depois acrescente 5-10 psi de cada vez }
       - *canecreek_sag
 
   canecreek_db_il_g1_2022:
     label: Cane Creek DB Air IL and DBcoil IL manual (2022)
+    label_de: Cane Creek DB Air IL und DBcoil IL Handbuch (2022)
+    label_fr: Manuel Cane Creek DB Air IL et DBcoil IL (2022)
+    label_it: Manuale Cane Creek DB Air IL e DBcoil IL (2022)
+    label_es: Manual Cane Creek DB Air IL y DBcoil IL (2022)
+    label_pt: Manual Cane Creek DB Air IL e DBcoil IL (2022)
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB-IL-Manual_2022_02_25_1_d8229608-3c4e-406c-bf6f-5b97afc6b6f8.pdf
     rules:
       - target: pressure
@@ -283,10 +468,20 @@ guides:
           100: 220, 105: 231, 110: 243, 115: 254, 120: 265
         }
         note: Calculated from Cane Creek's starting point (psi = rider weight in lb); set the final pressure by SAG
+        note_de: Berechnet aus dem Ausgangspunkt von Cane Creek (psi = Fahrergewicht in lb); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de Cane Creek (psi = poids du pilote en lb) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di Cane Creek (psi = peso del rider in lb); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de Cane Creek (psi = peso del rider en lb); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da Cane Creek (psi = peso do rider em lb); defina a pressão final pelo SAG
       - *canecreek_sag
 
   canecreek_db_kitsuma_g1_2022:
     label: Cane Creek DB Kitsuma manual (2022)
+    label_de: Cane Creek DB Kitsuma Handbuch (2022)
+    label_fr: Manuel Cane Creek DB Kitsuma (2022)
+    label_it: Manuale Cane Creek DB Kitsuma (2022)
+    label_es: Manual Cane Creek DB Kitsuma (2022)
+    label_pt: Manual Cane Creek DB Kitsuma (2022)
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
     rules:
       - *canecreek_kitsuma_pressure
@@ -294,6 +489,11 @@ guides:
 
   canecreek_double_barrel_tfg:
     label: Cane Creek Double Barrel Tuning Field Guide
+    label_de: Cane Creek Double Barrel Tuning-Leitfaden
+    label_fr: Guide pratique de réglage Cane Creek Double Barrel
+    label_it: Guida pratica alla taratura Cane Creek Double Barrel
+    label_es: Guía práctica de tarado Cane Creek Double Barrel
+    label_pt: Guia prático de calibragem Cane Creek Double Barrel
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/tfg_english_30a0cfe9-1830-4f4f-8436-09f3bfd14390.pdf
     # The factory base tune counts turns and clicks from fully open, so it is
     # written as range references from the catalog's closed end. The guide's
@@ -309,6 +509,11 @@ guides:
           100: 200, 105: 211, 110: 223, 115: 234, 120: 245
         }
         note: Calculated from Cane Creek's starting point (rider weight with gear in lb, minus 20, as psi); set the final pressure by SAG
+        note_de: Berechnet aus dem Ausgangspunkt von Cane Creek (Fahrergewicht mit Ausrüstung in lb, minus 20, als psi); den endgültigen Druck über den SAG einstellen
+        note_fr: Calculé à partir du point de départ de Cane Creek (poids du pilote équipé en lb, moins 20, en psi) ; réglez la pression finale au SAG
+        note_it: Calcolato dal punto di partenza di Cane Creek (peso del rider con l’attrezzatura in lb, meno 20, come psi); regola la pressione finale in base al SAG
+        note_es: Calculado a partir del punto de partida de Cane Creek (peso del rider con equipo en lb, menos 20, como psi); ajusta la presión final según el SAG
+        note_pt: Calculado a partir do ponto de partida da Cane Creek (peso do rider com equipamento em lb, menos 20, como psi); defina a pressão final pelo SAG
       - { target: hsc, value: max-2, when: { damper: db_classic } }
       - { target: lsc, value: max-12, when: { damper: db_classic } }
       - { target: hsr, value: max-2, when: { damper: db_classic } }
@@ -336,9 +541,14 @@ nodes:
   - label: "Air IL"
     level: model
     category: XC / Downcountry
-    specs: { spring: Air }
+    category_de: XC / Downcountry
+    category_fr: XC / Downcountry
+    category_it: XC / Downcountry
+    category_es: XC / Downcountry
+    category_pt: XC / Downcountry
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: &canecreek_service
-      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Cane Creek owner's manual }
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Cane Creek owner's manual, source_de: Cane-Creek-Handbuch, source_fr: Manuel d’utilisation Cane Creek, source_it: Manuale d’uso Cane Creek, source_es: Manual del usuario Cane Creek, source_pt: Manual do usuário Cane Creek }
     children:
       - label: "2025–2026"
         level: generation
@@ -348,12 +558,17 @@ nodes:
         setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
         guide: canecreek_air_coil_il_g2_2025
         note: For bikes with 100-140mm rear travel; ~385g. Lightest shock in the Cane Creek lineup.
+        note_de: Für Bikes mit 100-140mm Hinterbau-Federweg; ca. 385g. Leichtester Dämpfer im Cane-Creek-Programm.
+        note_fr: Pour les vélos de 100-140 mm de débattement arrière ; ~385 g. L’amortisseur le plus léger de la gamme Cane Creek.
+        note_it: Per bici con 100-140 mm di escursione posteriore; ~385 g. L’ammortizzatore più leggero della gamma Cane Creek.
+        note_es: Para bicicletas con 100-140 mm de recorrido trasero; ~385 g. El amortiguador más ligero de la gama Cane Creek.
+        note_pt: Para bikes com 100-140 mm de curso traseiro; ~385 g. O amortecedor mais leve da linha Cane Creek.
         children:
           - label: Standard
             level: mount
             specs: { mount: Standard }
             adjustments: &il_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 50, max: 350, notes: "50 psi minimum, 350 psi maximum; Cane Creek recommends 25-35% sag" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 50, max: 350, notes: "50 psi minimum, 350 psi maximum; Cane Creek recommends 25-35% sag", notes_de: "Minimum 50 psi, Maximum 350 psi; Cane Creek empfiehlt 25-35 % SAG", notes_fr: "50 psi minimum, 350 psi maximum ; Cane Creek recommande 25-35 % de SAG", notes_it: "Minimo 50 psi, massimo 350 psi; Cane Creek consiglia un SAG del 25-35 %", notes_es: "Mínimo 50 psi, máximo 350 psi; Cane Creek recomienda un SAG del 25-35 %", notes_pt: "Mínimo 50 psi, máximo 350 psi; a Cane Creek recomenda 25-35 % de SAG" }
             options:
               damper: [il_twin_tube]
               size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
@@ -368,7 +583,12 @@ nodes:
   - label: "Coil IL"
     level: model
     category: XC / Trail
-    specs: { spring: Coil }
+    category_de: XC / Trail
+    category_fr: XC / Trail
+    category_it: XC / Trail
+    category_es: XC / Trail
+    category_pt: XC / Trail
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *canecreek_service
     children:
       - label: "2025–2026"
@@ -382,13 +602,33 @@ nodes:
           - ~280g without a spring
           - Not recommended for "clevis"-style suspension designs
           - Not compatible with the Specialized Stumpjumper or Turbo Levo
+        note_de: |-
+          - Ca. 280g ohne Feder
+          - Nicht empfohlen für Fahrwerke mit „Clevis“-Anbindung
+          - Nicht kompatibel mit Specialized Stumpjumper oder Turbo Levo
+        note_fr: |-
+          - ~280 g sans ressort
+          - Déconseillé pour les suspensions de type « clevis »
+          - Non compatible avec le Specialized Stumpjumper ni le Turbo Levo
+        note_it: |-
+          - ~280 g senza molla
+          - Sconsigliato per le sospensioni di tipo «clevis»
+          - Non compatibile con Specialized Stumpjumper e Turbo Levo
+        note_es: |-
+          - ~280 g sin muelle
+          - No se recomienda para suspensiones de tipo «clevis»
+          - No es compatible con la Specialized Stumpjumper ni con la Turbo Levo
+        note_pt: |-
+          - ~280 g sem mola
+          - Não recomendado para suspensões do tipo “clevis”
+          - Não é compatível com a Specialized Stumpjumper nem com a Turbo Levo
         children:
           - label: Standard
             level: mount
             specs: { mount: Standard }
             adjustments: &il_coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT linear or progressive spring sold separately — see Cane Creek's spring-rate guide }
-              - { name: Preload, type: step, min: 3, max: 18, visualization: stepper, unit: clicks, notes: "Detented preload collar, 3 clicks per full turn. Keep at least 1 turn (3 clicks) engaged; 6 turns (18 clicks) is the maximum." }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT linear or progressive spring sold separately — see Cane Creek's spring-rate guide, notes_de: Lineare oder progressive Cane-Creek-VALT-Feder separat erhältlich — siehe Federraten-Leitfaden von Cane Creek, notes_fr: Ressort Cane Creek VALT linéaire ou progressif vendu séparément — voir le guide des raideurs de Cane Creek, notes_it: Molla Cane Creek VALT lineare o progressiva venduta separatamente — vedi la guida alla rigidità delle molle di Cane Creek, notes_es: Muelle Cane Creek VALT lineal o progresivo vendido por separado — consulta la guía de rigidez de muelles de Cane Creek, notes_pt: Mola Cane Creek VALT linear ou progressiva vendida separadamente — veja o guia de rigidez de molas da Cane Creek }
+              - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: step, min: 3, max: 18, visualization: stepper, unit: clicks, notes: "Detented preload collar, 3 clicks per full turn. Keep at least 1 turn (3 clicks) engaged; 6 turns (18 clicks) is the maximum.", notes_de: "Vorspannungsring mit Rasten, 3 Klicks pro volle Umdrehung. Mindestens 1 Umdrehung (3 Klicks) eingedreht lassen; 6 Umdrehungen (18 Klicks) sind das Maximum.", notes_fr: "Collier de précontrainte à crans, 3 clics par tour complet. Gardez au moins 1 tour (3 clics) engagé ; 6 tours (18 clics) est le maximum.", notes_it: "Ghiera di precarico a scatti, 3 scatti per giro completo. Tieni almeno 1 giro (3 scatti) impegnato; 6 giri (18 scatti) è il massimo.", notes_es: "Collarín de precarga con muescas, 3 clics por vuelta completa. Mantén al menos 1 vuelta (3 clics) engranada; 6 vueltas (18 clics) es el máximo.", notes_pt: "Colar de pré-carga com cliques, 3 cliques por volta completa. Mantenha pelo menos 1 volta (3 cliques) engatada; 6 voltas (18 cliques) é o máximo." }
             options:
               damper: [il_twin_tube]
               size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
@@ -403,7 +643,12 @@ nodes:
   - label: "Kitsuma"
     level: model
     category: Enduro / Downhill
-    specs: { spring: Air }
+    category_de: Enduro / Downhill
+    category_fr: Enduro / Downhill
+    category_it: Enduro / Downhill
+    category_es: Enduro / Downhill
+    category_pt: Enduro / Downhill
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *canecreek_service
     children:
       - label: "2025–2026"
@@ -414,13 +659,18 @@ nodes:
         setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
         guide: canecreek_kitsuma_g2_2025
         note: "~585g. \"Gravity-first\" shock for long-travel trail/enduro/DH bikes; 2nd generation (G2)."
+        note_de: Ca. 585g. „Gravity-first“-Dämpfer für Trail-/Enduro-/DH-Bikes mit langem Federweg; 2. Generation (G2).
+        note_fr: ~585 g. Amortisseur « gravity-first » pour vélos trail/enduro/DH à grand débattement ; 2e génération (G2).
+        note_it: ~585 g. Ammortizzatore «gravity-first» per bici trail/enduro/DH a lunga escursione; 2ª generazione (G2).
+        note_es: ~585 g. Amortiguador «gravity-first» para bicicletas trail/enduro/DH de mucho recorrido; 2.ª generación (G2).
+        note_pt: ~585 g. Amortecedor “gravity-first” para bikes trail/enduro/DH de longo curso; 2ª geração (G2).
         children:
           - label: Standard
             level: mount
             specs: { mount: Standard }
             adjustments: &kitsuma_g2_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; Cane Creek recommends 25-35% sag" }
-              - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Single-width strips, 5 included with the shock. Maximum depends on the size: 185, 205, 210 and 230 mm 9, 225 and 250 mm 11" }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; Cane Creek recommends 25-35% sag", notes_de: "Minimum 50 psi, Maximum 300 psi; Cane Creek empfiehlt 25-35 % SAG", notes_fr: "50 psi minimum, 300 psi maximum ; Cane Creek recommande 25-35 % de SAG", notes_it: "Minimo 50 psi, massimo 300 psi; Cane Creek consiglia un SAG del 25-35 %", notes_es: "Mínimo 50 psi, máximo 300 psi; Cane Creek recomienda un SAG del 25-35 %", notes_pt: "Mínimo 50 psi, máximo 300 psi; a Cane Creek recomenda 25-35 % de SAG" }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 11, visualization: stepper, notes: "Single-width strips, 5 included with the shock. Maximum depends on the size: 185, 205, 210 and 230 mm 9, 225 and 250 mm 11", notes_de: "Einzelbreite Streifen, 5 sind im Dämpfer enthalten. Das Maximum hängt von der Größe ab: 185, 205, 210 und 230 mm 9, 225 und 250 mm 11", notes_fr: "Bandes de largeur simple, 5 fournies avec l’amortisseur. Le maximum dépend de la taille : 185, 205, 210 et 230 mm 9, 225 et 250 mm 11", notes_it: "Strisce a larghezza singola, 5 incluse nell’ammortizzatore. Il massimo dipende dalla misura: 185, 205, 210 e 230 mm 9, 225 e 250 mm 11", notes_es: "Tiras de ancho simple, 5 incluidas con el amortiguador. El máximo depende de la medida: 185, 205, 210 y 230 mm 9, 225 y 250 mm 11", notes_pt: "Tiras de largura simples, 5 incluídas com o amortecedor. O máximo depende do tamanho: 185, 205, 210 e 230 mm 9, 225 e 250 mm 11" }
             options:
               damper: [kitsuma_g2]
               size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x75"]
@@ -435,7 +685,12 @@ nodes:
   - label: "Kitsuma Coil"
     level: model
     category: Enduro / Downhill
-    specs: { spring: Coil }
+    category_de: Enduro / Downhill
+    category_fr: Enduro / Downhill
+    category_it: Enduro / Downhill
+    category_es: Enduro / Downhill
+    category_pt: Enduro / Downhill
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     tasks: *canecreek_service
     children:
       - label: "2025–2026"
@@ -446,13 +701,18 @@ nodes:
         setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
         guide: canecreek_kitsuma_g2_2025
         note: ~417g without spring; 2nd generation (G2).
+        note_de: Ca. 417g ohne Feder; 2. Generation (G2).
+        note_fr: ~417 g sans ressort ; 2e génération (G2).
+        note_it: ~417 g senza molla; 2ª generazione (G2).
+        note_es: ~417 g sin muelle; 2.ª generación (G2).
+        note_pt: ~417 g sem mola; 2ª geração (G2).
         children:
           - label: Standard
             level: mount
             specs: { mount: Standard }
             adjustments: &kitsuma_g2_coil_spring
-              - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide }
-              - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum" }
+              - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide, notes_de: Stahlfeder separat erhältlich — siehe VALT-Federraten-Leitfaden von Cane Creek, notes_fr: Ressort vendu séparément — voir le guide des raideurs VALT de Cane Creek, notes_it: Molla venduta separatamente — vedi la guida alla rigidità delle molle VALT di Cane Creek, notes_es: Muelle vendido por separado — consulta la guía de rigidez de muelles VALT de Cane Creek, notes_pt: Mola vendida separadamente — veja o guia de rigidez de molas VALT da Cane Creek }
+              - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum", notes_de: Mindestens 1 volle Umdrehung Vorspannung eingedreht lassen; 6 Umdrehungen sind das Maximum, notes_fr: Gardez au moins 1 tour complet de précontrainte engagé ; 6 tours est le maximum, notes_it: Tieni almeno 1 giro completo di precarico impegnato; 6 giri è il massimo, notes_es: Mantén al menos 1 vuelta completa de precarga engranada; 6 vueltas es el máximo, notes_pt: Mantenha pelo menos 1 volta completa de pré-carga engatada; 6 voltas é o máximo }
             options:
               damper: [kitsuma_g2]
               size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x72.5", "250x75"]
@@ -467,6 +727,11 @@ nodes:
   - label: "Tigon"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     tasks: *canecreek_service
     children:
       - label: "2025–2026"
@@ -476,11 +741,11 @@ nodes:
         url: https://www.canecreek.com/products/tigon
         setup_guide: https://www.canecreek.com/pages/tigon-set-up-procedure
         guide: canecreek_tigon_2025
-        specs: { spring: Coil }
+        specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
         adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 350, max: 650, notes: Cane Creek VALT linear coil spring only — not compatible with progressive or third-party springs }
-          - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Set sag with 0 psi in the RAMP Tube; keep at least 1 full turn engaged, 6 turns maximum" }
-          - { name: RAMP Tube Pressure, type: numerical, unit: psi, min: 0, max: 30, notes: "Air-assist chamber that adds mid-stroke/end-stroke support alongside the VALT coil spring, independent of coil preload. Add in 5-10psi increments." }
+          - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 350, max: 650, notes: Cane Creek VALT linear coil spring only — not compatible with progressive or third-party springs, notes_de: Nur lineare Cane-Creek-VALT-Stahlfeder — nicht kompatibel mit progressiven oder fremden Federn, notes_fr: Uniquement le ressort hélicoïdal linéaire Cane Creek VALT — non compatible avec les ressorts progressifs ou de marques tierces, notes_it: Solo la molla elicoidale lineare Cane Creek VALT — non compatibile con molle progressive o di terzi, notes_es: Solo el muelle helicoidal lineal Cane Creek VALT — no compatible con muelles progresivos ni de terceros, notes_pt: Somente a mola helicoidal linear Cane Creek VALT — não compatível com molas progressivas nem de terceiros }
+          - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: turns, min: 1, max: 6, notes: "Set sag with 0 psi in the RAMP Tube; keep at least 1 full turn engaged, 6 turns maximum", notes_de: "SAG mit 0 psi im RAMP-Rohr einstellen; mindestens 1 volle Umdrehung eingedreht lassen, maximal 6 Umdrehungen", notes_fr: "Réglez le SAG avec 0 psi dans le RAMP Tube ; gardez au moins 1 tour complet engagé, 6 tours maximum", notes_it: "Imposta il SAG con 0 psi nel RAMP Tube; tieni almeno 1 giro completo impegnato, 6 giri al massimo", notes_es: "Ajusta el SAG con 0 psi en el RAMP Tube; mantén al menos 1 vuelta completa engranada, 6 vueltas como máximo", notes_pt: "Defina o SAG com 0 psi no RAMP Tube; mantenha pelo menos 1 volta completa engatada, 6 voltas no máximo" }
+          - { name: RAMP Tube Pressure, name_de: RAMP-Rohr-Druck, name_fr: Pression du RAMP Tube, name_it: Pressione del RAMP Tube, name_es: Presión del RAMP Tube, name_pt: Pressão do RAMP Tube, type: numerical, unit: psi, min: 0, max: 30, notes: "Air-assist chamber that adds mid-stroke/end-stroke support alongside the VALT coil spring, independent of coil preload. Add in 5-10psi increments.", notes_de: "Luftunterstützungskammer, die zusätzlich zur VALT-Stahlfeder Halt im mittleren Federweg und am Ende des Federwegs bietet, unabhängig von der Federvorspannung. In Schritten von 5-10 psi erhöhen.", notes_fr: "Chambre d’assistance pneumatique qui ajoute du soutien en milieu et en fin de course en complément du ressort hélicoïdal VALT, indépendamment de sa précontrainte. Ajoutez par paliers de 5-10 psi.", notes_it: "Camera di assistenza pneumatica che aggiunge sostegno a metà e a fine corsa insieme alla molla elicoidale VALT, indipendentemente dal suo precarico. Aggiungi a passi da 5-10 psi.", notes_es: "Cámara de asistencia neumática que añade apoyo en la parte media y final del recorrido junto con el muelle helicoidal VALT, independientemente de su precarga. Añade en pasos de 5-10 psi.", notes_pt: "Câmara de assistência a ar que acrescenta apoio no meio e no fim do curso junto com a mola helicoidal VALT, independentemente da pré-carga dela. Acrescente em passos de 5-10 psi." }
         options:
           damper: [tigon_damper]
           size:
@@ -492,55 +757,110 @@ nodes:
           - "Air-charged coil": a RAMP Tube air spring supplements the coil spring for tunable progression
           - 441g in the 210 size, without a spring
           - 12.7mm shaft
+        note_de: |-
+          - „Air-charged coil“: Eine RAMP-Rohr-Luftfeder ergänzt die Stahlfeder für abstimmbare Progression
+          - 441g in Größe 210, ohne Feder
+          - 12,7mm-Dämpferstange
+        note_fr: |-
+          - « Air-charged coil » : un ressort pneumatique RAMP Tube complète le ressort hélicoïdal pour une progressivité réglable
+          - 441 g en taille 210, sans ressort
+          - Axe de 12,7 mm
+        note_it: |-
+          - «Air-charged coil»: una molla pneumatica RAMP Tube integra la molla elicoidale per una progressività regolabile
+          - 441 g nella misura 210, senza molla
+          - Stelo da 12,7 mm
+        note_es: |-
+          - «Air-charged coil»: un muelle neumático RAMP Tube complementa el muelle helicoidal para una progresividad ajustable
+          - 441 g en la medida 210, sin muelle
+          - Eje de 12,7 mm
+        note_pt: |-
+          - “Air-charged coil”: uma mola a ar RAMP Tube complementa a mola helicoidal para uma progressividade ajustável
+          - 441 g no tamanho 210, sem mola
+          - Eixo de 12,7 mm
 
   # ---- Legacy generations ------------------------------------------------
   - label: "DB Air IL G1"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB-IL-Manual_2022_02_25_1_d8229608-3c4e-406c-bf6f-5b97afc6b6f8.pdf
     guide: canecreek_db_il_g1_2022
     tasks: *canecreek_service
-    specs: { spring: Air }
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     mounts: [Standard, Trunnion]
     # Manual: cdn.shopify.com/.../DB-IL-Manual_2022_02_25_1_...pdf (covers
     # both DB Air IL and DBcoil IL). Trunnion versions exist — Cane Creek
     # publishes a separate trunnion 100-hour service guide for this shock.
     adjustments:
-      - { name: Pressure, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; Cane Creek recommends 25-35% sag" }
+      - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; Cane Creek recommends 25-35% sag", notes_de: "Minimum 50 psi, Maximum 300 psi; Cane Creek empfiehlt 25-35 % SAG", notes_fr: "50 psi minimum, 300 psi maximum ; Cane Creek recommande 25-35 % de SAG", notes_it: "Minimo 50 psi, massimo 300 psi; Cane Creek consiglia un SAG del 25-35 %", notes_es: "Mínimo 50 psi, máximo 300 psi; Cane Creek recomienda un SAG del 25-35 %", notes_pt: "Mínimo 50 psi, máximo 300 psi; a Cane Creek recomenda 25-35 % de SAG" }
     options:
       damper: [il_twin_tube_g1]
     note: |-
       - First-generation inline Double Barrel air shock, with the LinEair air spring
       - Starting air pressure is roughly the rider's weight in lbs, read as psi
+    note_de: |-
+      - Inline-Luftdämpfer Double Barrel der ersten Generation mit LinEair-Luftfeder
+      - Der Anfangsluftdruck entspricht etwa dem Fahrergewicht in lbs, als psi gelesen
+    note_fr: |-
+      - Amortisseur pneumatique Double Barrel inline de première génération, avec le ressort pneumatique LinEair
+      - La pression d’air de départ correspond à peu près au poids du pilote en lb, lu en psi
+    note_it: |-
+      - Ammortizzatore pneumatico Double Barrel inline di prima generazione, con la molla pneumatica LinEair
+      - La pressione dell’aria iniziale corrisponde più o meno al peso del rider in lb, letto come psi
+    note_es: |-
+      - Amortiguador neumático Double Barrel inline de primera generación, con el muelle neumático LinEair
+      - La presión de aire inicial equivale aproximadamente al peso del rider en lb, leído como psi
+    note_pt: |-
+      - Amortecedor a ar Double Barrel inline de primeira geração, com a mola a ar LinEair
+      - A pressão de ar inicial equivale aproximadamente ao peso do rider em lb, lido como psi
 
   - label: "DBcoil IL G1"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB-IL-Manual_2022_02_25_1_d8229608-3c4e-406c-bf6f-5b97afc6b6f8.pdf
     guide: canecreek_db_il_g1_2022
     tasks: *canecreek_service
-    specs: { spring: Coil }
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     mounts: [Standard, Trunnion]
     adjustments:
-      - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT spring sold separately — see Cane Creek's spring-rate guide }
-      - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum" }
+      - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT spring sold separately — see Cane Creek's spring-rate guide, notes_de: Cane-Creek-VALT-Feder separat erhältlich — siehe Federraten-Leitfaden von Cane Creek, notes_fr: Ressort Cane Creek VALT vendu séparément — voir le guide des raideurs de Cane Creek, notes_it: Molla Cane Creek VALT venduta separatamente — vedi la guida alla rigidità delle molle di Cane Creek, notes_es: Muelle Cane Creek VALT vendido por separado — consulta la guía de rigidez de muelles de Cane Creek, notes_pt: Mola Cane Creek VALT vendida separadamente — veja o guia de rigidez de molas da Cane Creek }
+      - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum", notes_de: Mindestens 1 volle Umdrehung Vorspannung eingedreht lassen; 6 Umdrehungen sind das Maximum, notes_fr: Gardez au moins 1 tour complet de précontrainte engagé ; 6 tours est le maximum, notes_it: Tieni almeno 1 giro completo di precarico impegnato; 6 giri è il massimo, notes_es: Mantén al menos 1 vuelta completa de precarga engranada; 6 vueltas es el máximo, notes_pt: Mantenha pelo menos 1 volta completa de pré-carga engatada; 6 voltas é o máximo }
     options:
       damper: [il_twin_tube_g1]
     note: First-generation inline coil Double Barrel — a piggyback-style twin-tube damper in an inline body.
+    note_de: Inline-Stahlfeder-Double-Barrel der ersten Generation — ein Zweirohr-Dämpfer im Piggyback-Stil in einem Inline-Gehäuse.
+    note_fr: Double Barrel à ressort inline de première génération — un amortisseur bitube de type piggyback dans un corps inline.
+    note_it: Double Barrel a molla inline di prima generazione — un ammortizzatore bitubo di tipo piggyback in un corpo inline.
+    note_es: Double Barrel de muelle inline de primera generación — un amortiguador bitubo de tipo piggyback en un cuerpo inline.
+    note_pt: Double Barrel a mola inline de primeira geração — um amortecedor bitubo do tipo piggyback em um corpo inline.
 
   - label: "DB Kitsuma Air G1"
     level: model
     category: Enduro / Downhill
+    category_de: Enduro / Downhill
+    category_fr: Enduro / Downhill
+    category_it: Enduro / Downhill
+    category_es: Enduro / Downhill
+    category_pt: Enduro / Downhill
     url: https://www.canecreek.com/blogs/journal/introducing-db-kitsuma
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
     guide: canecreek_db_kitsuma_g1_2022
     tasks: *canecreek_service
-    specs: { spring: Air }
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     # Manual: cdn.shopify.com/.../DBKitsuma-Manual_2022_02_25_1_...pdf
     adjustments:
-      - { name: Pressure, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; starting point is 75-100% of rider weight in lbs read as psi" }
+      - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; starting point is 75-100% of rider weight in lbs read as psi", notes_de: "Minimum 50 psi, Maximum 300 psi; Ausgangspunkt sind 75-100 % des Fahrergewichts in lbs, als psi gelesen", notes_fr: "50 psi minimum, 300 psi maximum ; le point de départ est de 75-100 % du poids du pilote en lb, lu en psi", notes_it: "Minimo 50 psi, massimo 300 psi; il punto di partenza è il 75-100 % del peso del rider in lb, letto come psi", notes_es: "Mínimo 50 psi, máximo 300 psi; el punto de partida es el 75-100 % del peso del rider en lb, leído como psi", notes_pt: "Mínimo 50 psi, máximo 300 psi; o ponto de partida é 75-100 % do peso do rider em lb, lido como psi" }
     options:
       damper: [kitsuma_g1]
       size:
@@ -549,18 +869,28 @@ nodes:
         - { size: "185x50/55", mount: Trunnion }
         - { size: "205x60/62.5/65", mount: Trunnion }
     note: First-generation Kitsuma piggyback air shock for long-travel enduro and downhill bikes.
+    note_de: Piggyback-Luftdämpfer Kitsuma der ersten Generation für Enduro- und Downhill-Bikes mit langem Federweg.
+    note_fr: Amortisseur pneumatique piggyback Kitsuma de première génération pour vélos d’enduro et de descente à grand débattement.
+    note_it: Ammortizzatore pneumatico piggyback Kitsuma di prima generazione per bici enduro e downhill a lunga escursione.
+    note_es: Amortiguador neumático piggyback Kitsuma de primera generación para bicicletas de enduro y descenso de mucho recorrido.
+    note_pt: Amortecedor a ar piggyback Kitsuma de primeira geração para bikes de enduro e downhill de longo curso.
 
   - label: "DB Kitsuma Coil G1"
     level: model
     category: Enduro / Downhill
+    category_de: Enduro / Downhill
+    category_fr: Enduro / Downhill
+    category_it: Enduro / Downhill
+    category_es: Enduro / Downhill
+    category_pt: Enduro / Downhill
     url: https://www.canecreek.com/blogs/journal/introducing-db-kitsuma
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
     guide: canecreek_db_kitsuma_g1_2022
     tasks: *canecreek_service
-    specs: { spring: Coil }
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     adjustments:
-      - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide }
-      - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum" }
+      - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide, notes_de: Stahlfeder separat erhältlich — siehe VALT-Federraten-Leitfaden von Cane Creek, notes_fr: Ressort vendu séparément — voir le guide des raideurs VALT de Cane Creek, notes_it: Molla venduta separatamente — vedi la guida alla rigidità delle molle VALT di Cane Creek, notes_es: Muelle vendido por separado — consulta la guía de rigidez de muelles VALT de Cane Creek, notes_pt: Mola vendida separadamente — veja o guia de rigidez de molas VALT da Cane Creek }
+      - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum", notes_de: Mindestens 1 volle Umdrehung Vorspannung eingedreht lassen; 6 Umdrehungen sind das Maximum, notes_fr: Gardez au moins 1 tour complet de précontrainte engagé ; 6 tours est le maximum, notes_it: Tieni almeno 1 giro completo di precarico impegnato; 6 giri è il massimo, notes_es: Mantén al menos 1 vuelta completa de precarga engranada; 6 vueltas es el máximo, notes_pt: Mantenha pelo menos 1 volta completa de pré-carga engatada; 6 voltas é o máximo }
     options:
       damper: [kitsuma_g1]
       size:
@@ -571,14 +901,24 @@ nodes:
         - { size: "205x65", mount: Trunnion }
         - { size: "225x75", mount: Trunnion }
     note: First-generation Kitsuma piggyback coil shock for long-travel enduro and downhill bikes.
+    note_de: Piggyback-Stahlfederdämpfer Kitsuma der ersten Generation für Enduro- und Downhill-Bikes mit langem Federweg.
+    note_fr: Amortisseur à ressort piggyback Kitsuma de première génération pour vélos d’enduro et de descente à grand débattement.
+    note_it: Ammortizzatore a molla piggyback Kitsuma di prima generazione per bici enduro e downhill a lunga escursione.
+    note_es: Amortiguador de muelle piggyback Kitsuma de primera generación para bicicletas de enduro y descenso de mucho recorrido.
+    note_pt: Amortecedor a mola piggyback Kitsuma de primeira geração para bikes de enduro e downhill de longo curso.
 
   - label: "DB Inline"
     level: model
     category: Trail / All-Mountain
-    specs: { spring: Air }
+    category_de: Trail / All-Mountain
+    category_fr: Trail / All-Mountain
+    category_it: Trail / All-Mountain
+    category_es: Trail / All-Mountain
+    category_pt: Trail / All-Mountain
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: &double_barrel_air_service
-      shock:air_can_service: { interval: { moving_time_h: 100 }, fallback: { days: 180 }, source: Cane Creek Double Barrel owner's manual }
-      shock:full_service: &double_barrel_full_service { interval: { moving_time_h: 100 }, source: Cane Creek Double Barrel owner's manual }
+      shock:air_can_service: { interval: { moving_time_h: 100 }, fallback: { days: 180 }, source: Cane Creek Double Barrel owner's manual, source_de: Cane-Creek-Double-Barrel-Handbuch, source_fr: Manuel d’utilisation Cane Creek Double Barrel, source_it: Manuale d’uso Cane Creek Double Barrel, source_es: Manual del usuario Cane Creek Double Barrel, source_pt: Manual do usuário Cane Creek Double Barrel }
+      shock:full_service: &double_barrel_full_service { interval: { moving_time_h: 100 }, source: Cane Creek Double Barrel owner's manual, source_de: Cane-Creek-Double-Barrel-Handbuch, source_fr: Manuel d’utilisation Cane Creek Double Barrel, source_it: Manuale d’uso Cane Creek Double Barrel, source_es: Manual del usuario Cane Creek Double Barrel, source_pt: Manual do usuário Cane Creek Double Barrel }
     children:
       - label: "2014–2019"
         level: generation
@@ -591,6 +931,26 @@ nodes:
           - The Double Barrel packed into an inline body, no piggyback reservoir
           - Air volume is tuned with clip-in spacers inside the air can
           - Adding a large volume spacer usually wants about 1/4 turn more High-Speed Rebound
+        note_de: |-
+          - Der Double Barrel in einem Inline-Gehäuse, ohne Piggyback-Ausgleichsbehälter
+          - Das Luftvolumen wird mit Einklick-Spacern in der Luftkammer abgestimmt
+          - Ein großer Volumenspacer erfordert in der Regel etwa 1/4 Umdrehung mehr High-Speed-Zugstufe
+        note_fr: |-
+          - Le Double Barrel logé dans un corps inline, sans réservoir piggyback
+          - Le volume d’air se règle avec des entretoises à clipser dans la chambre à air
+          - Ajouter une grande entretoise de volume demande en général environ 1/4 de tour de détente haute vitesse en plus
+        note_it: |-
+          - Il Double Barrel in un corpo inline, senza serbatoio piggyback
+          - Il volume d’aria si regola con distanziali a clip dentro la camera d’aria
+          - Aggiungere un distanziale di volume grande richiede in genere circa 1/4 di giro di ritorno ad alta velocità in più
+        note_es: |-
+          - El Double Barrel en un cuerpo inline, sin depósito piggyback
+          - El volumen de aire se ajusta con espaciadores de clip dentro de la cámara de aire
+          - Añadir un espaciador de volumen grande suele pedir aproximadamente 1/4 de vuelta más de rebote de alta velocidad
+        note_pt: |-
+          - O Double Barrel em um corpo inline, sem reservatório piggyback
+          - O volume de ar é ajustado com espaçadores de encaixe dentro da câmara de ar
+          - Acrescentar um espaçador de volume grande normalmente pede cerca de 1/4 de volta a mais de retorno de alta velocidade
         # Manual: cdn.shopify.com/.../DB_owners-manual_2014_v11-web_...pdf
         # 2014 introduction per canecreek.com's own company-history journal post.
         children:
@@ -598,39 +958,74 @@ nodes:
             level: mount
             specs: { mount: Standard }
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
             options:
               damper: [db_inline]
 
   - label: "DB Air CS"
     level: model
     category: Trail / Enduro
+    category_de: Trail / Enduro
+    category_fr: Trail / Enduro
+    category_it: Trail / Enduro
+    category_es: Trail / Enduro
+    category_pt: Trail / Enduro
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
     guide: canecreek_double_barrel_tfg
-    specs: { spring: Air }
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
     tasks: *double_barrel_air_service
     children:
       - label: Standard
         level: mount
         specs: { mount: Standard }
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
         options:
           damper: [db_classic_cs]
         note: |-
           - Piggyback air Double Barrel with the Climb Switch lever
           - Air volume is tuned with spacers inside the air can
           - The XV version adds an extra-volume air can for a more linear spring
+        note_de: |-
+          - Piggyback-Luft-Double-Barrel mit Climb-Switch-Hebel
+          - Das Luftvolumen wird mit Spacern in der Luftkammer abgestimmt
+          - Die XV-Version ergänzt eine Luftkammer mit zusätzlichem Volumen für eine linearere Feder
+        note_fr: |-
+          - Double Barrel pneumatique piggyback avec le levier Climb Switch
+          - Le volume d’air se règle avec des entretoises à l’intérieur de la chambre à air
+          - La version XV ajoute une chambre à air de volume supplémentaire pour un ressort plus linéaire
+        note_it: |-
+          - Double Barrel pneumatico piggyback con la leva Climb Switch
+          - Il volume d’aria si regola con distanziali all’interno della camera d’aria
+          - La versione XV aggiunge una camera d’aria di volume extra per una molla più lineare
+        note_es: |-
+          - Double Barrel neumático piggyback con la palanca Climb Switch
+          - El volumen de aire se ajusta con espaciadores dentro de la cámara de aire
+          - La versión XV añade una cámara de aire de volumen extra para un muelle más lineal
+        note_pt: |-
+          - Double Barrel a ar piggyback com a alavanca Climb Switch
+          - O volume de ar é ajustado com espaçadores dentro da câmara de ar
+          - A versão XV acrescenta uma câmara de ar de volume extra para uma mola mais linear
 
   - label: "DBcoil"
     level: model
     category: Enduro / Downhill
+    category_de: Enduro / Downhill
+    category_fr: Enduro / Downhill
+    category_it: Enduro / Downhill
+    category_es: Enduro / Downhill
+    category_pt: Enduro / Downhill
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
     guide: canecreek_double_barrel_tfg
-    specs: { spring: Coil }
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
     note: Piggyback coil Double Barrel, four-way adjustable, without a Climb Switch lever.
+    note_de: Piggyback-Stahlfeder-Double-Barrel, vierfach einstellbar, ohne Climb-Switch-Hebel.
+    note_fr: Double Barrel à ressort piggyback, réglable sur quatre voies, sans levier Climb Switch.
+    note_it: Double Barrel a molla piggyback, regolabile in quattro vie, senza leva Climb Switch.
+    note_es: Double Barrel de muelle piggyback, ajustable en cuatro vías, sin palanca Climb Switch.
+    note_pt: Double Barrel a mola piggyback, ajustável em quatro vias, sem alavanca Climb Switch.
     tasks:
       shock:full_service: *double_barrel_full_service
     children:
@@ -638,8 +1033,8 @@ nodes:
         level: mount
         specs: { mount: Standard }
         adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately }
-          - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum" }
+          - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately, notes_de: Stahlfeder separat erhältlich, notes_fr: Ressort vendu séparément, notes_it: Molla venduta separatamente, notes_es: Muelle vendido por separado, notes_pt: Mola vendida separadamente }
+          - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum", notes_de: Mindestens 1 volle Umdrehung Vorspannung eingedreht lassen; 6 Umdrehungen sind das Maximum, notes_fr: Gardez au moins 1 tour complet de précontrainte engagé ; 6 tours est le maximum, notes_it: Tieni almeno 1 giro completo di precarico impegnato; 6 giri è il massimo, notes_es: Mantén al menos 1 vuelta completa de precarga engranada; 6 vueltas es el máximo, notes_pt: Mantenha pelo menos 1 volta completa de pré-carga engatada; 6 voltas é o máximo }
         options:
           damper: [db_classic]
 

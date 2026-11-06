@@ -1,15 +1,12 @@
 part of 'adjustment.dart';
 
 enum StepAdjustmentVisualization {
-  minusButtonValuePlusButton('Plus/Minus Buttons'),
-  minusButtonValuePlusButtonClockwiseDial('Buttons with Clockwise Dial'),
-  minusButtonValuePlusButtonCounterclockwiseDial('Buttons with Counterclockwise Dial'),
-  slider('Slider'),
-  sliderWithClockwiseDial('Slider with Clockwise Dial'),
-  sliderWithCounterclockwiseDial('Slider with Counterclockwise Dial');
-  
-  final String value;
-  const StepAdjustmentVisualization(this.value);
+  minusButtonValuePlusButton,
+  minusButtonValuePlusButtonClockwiseDial,
+  minusButtonValuePlusButtonCounterclockwiseDial,
+  slider,
+  sliderWithClockwiseDial,
+  sliderWithCounterclockwiseDial;
 
   bool get hasDial =>
       this != StepAdjustmentVisualization.slider &&
@@ -44,11 +41,6 @@ class StepAdjustment extends Adjustment {
 
   /// Stand-in for a catalog range authored as `max: ~` (see [StepAdjustment.fromYaml]).
   static const int unknownMaxPlaceholder = 20;
-
-  /// For the rider only; notes are theirs to edit, so code asks
-  /// [PresetAdjustmentSpec.hasUnknownMax] instead.
-  static const String unknownMaxWarning =
-      'Click count not published. Max is a placeholder, edit it to match your component.';
 
   StepAdjustment({
     super.id,
@@ -199,7 +191,6 @@ class StepAdjustment extends Adjustment {
     });
     final min = (map['min'] as num?)?.toInt() ?? 0;
     var max = (map['max'] as num?)?.toInt();
-    var notes = map['notes'] as String?;
     if (max == null) {
       // `max: ~` declares a range the manufacturer does not publish; a missing
       // key is still a data bug.
@@ -210,11 +201,10 @@ class StepAdjustment extends Adjustment {
         throw ArgumentError('Step adjustment "${map['name']}" has an unknown "max", which needs a range counted from 0');
       }
       max = unknownMaxPlaceholder;
-      notes = notes == null ? unknownMaxWarning : '$notes; $unknownMaxWarning';
     }
     return StepAdjustment(
       name: _requirePresetName(map),
-      notes: notes,
+      notes: map['notes'] as String?,
       unit: AdjustmentUnit.fromLegacy(map['unit'] as String?),
       min: min,
       max: max,

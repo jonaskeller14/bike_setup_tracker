@@ -4,35 +4,20 @@ import '../setup.dart';
 import 'custom_issue.dart';
 import 'feedback_comparison.dart';
 import 'feedback_key.dart';
-import 'feedback_vocabulary.dart';
 import 'ride_feedback.dart';
 
 extension RideFeedbackSummary on RideFeedback {
   FeedbackComparison? get overallComparison =>
       comparisons.firstWhereOrNull((c) => c.aspect is OverallAspect && c.isValid);
 
-  /// "Slightly better than S5", from the overall comparison.
-  String? verdict(Map<String, Setup> setups) {
-    final comparison = overallComparison;
-    if (comparison == null) return null;
-    return _verdictOf(comparison, setups);
-  }
-
-  /// One verdict per overall comparison, the most recent reference first.
-  List<String> verdicts(Map<String, Setup> setups) => comparisons
+  /// The valid overall comparisons, the most recent reference first.
+  List<FeedbackComparison> overallComparisons(Map<String, Setup> setups) => comparisons
       .where((c) => c.aspect is OverallAspect && c.isValid)
       .sortedBy<DateTime>(
         (c) => setups[c.referenceSetupId]?.datetime ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
       )
       .reversed
-      .map((c) => _verdictOf(c, setups))
       .toList();
-
-  static String _verdictOf(FeedbackComparison comparison, Map<String, Setup> setups) {
-    final reference = setups[comparison.referenceSetupId]?.displayName ?? 'a deleted setup';
-    final label = FeedbackVocabulary.overallOutcomeLabels[comparison.outcome]!;
-    return comparison.outcome == 0 ? '$label as $reference' : '$label than $reference';
-  }
 
   /// The flagged problems: built-in ones front before rear in vocabulary
   /// order, then custom ones by label.
@@ -43,14 +28,6 @@ extension RideFeedbackSummary on RideFeedback {
         if (flagged.contains(aspect.issueKey)) FeedbackIssue.end(aspect),
       for (final issue in customIssues) FeedbackIssue.custom(issue),
     ];
-  }
-
-  /// "Front: Harsh · Rear: Low grip · Wet roots", or "Dialled in".
-  String? get issuesSummary {
-    if (nothingStoodOut) return FeedbackVocabulary.dialledIn;
-    final ordered = orderedIssues;
-    if (ordered.isEmpty) return null;
-    return ordered.map((issue) => issue.label).join(' · ');
   }
 
   /// The setup active on the bike at the feedback's time among [setups], for

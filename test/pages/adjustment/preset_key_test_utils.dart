@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/utils/value_migration_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 const testPresetKey = 'test:preset';
 
@@ -19,6 +20,7 @@ Future<Object?> pushAndSave(
   Future<void> Function()? afterSave,
   AppRepository? repository,
   AppSettings? settings,
+  Locale locale = const Locale('en'),
 }) async {
   Object? result;
   await tester.pumpWidget(
@@ -30,7 +32,8 @@ Future<Object?> pushAndSave(
           ChangeNotifierProvider<AppSettings>(create: (_) => AppSettings()),
         if (repository != null) ChangeNotifierProvider<AppRepository>.value(value: repository),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
+        locale: locale,
         theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(

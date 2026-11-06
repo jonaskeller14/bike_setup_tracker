@@ -14,10 +14,6 @@ class KilojoulesThreshold extends AccumulatingThreshold {
   IconData get iconData => Icons.bolt;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) =>
-      '${NumberFormat.decimalPattern().format(kilojoules.round())} kJ';
-
-  @override
   Map<String, dynamic> toJson() => {
         'type': 'kilojoules',
         'kilojoules': kilojoules,

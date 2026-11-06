@@ -1,3 +1,5 @@
+import 'package:bike_setup_tracker/l10n/l10n.dart';
+import 'package:bike_setup_tracker/l10n/test_session_text.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -13,6 +15,8 @@ import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/setup_carry_over.dart';
 import 'package:bike_setup_tracker/services/test_session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/german_l10n.dart';
 
 StepAdjustment step(String id) => StepAdjustment(
   id: id,
@@ -188,13 +192,86 @@ void main() {
     });
   });
 
+  group('canResume', () {
+    final ended = session(ended: true);
+
+    Setup at(DateTime local, {String bike = 'bike', String? testSessionId}) => Setup(
+      id: '$local$bike',
+      datetime: local.toUtc(),
+      datetimeLocal: local,
+      tags: const {},
+      bike: bike,
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      testSessionId: testSessionId,
+    );
+
+    TestSession other(DateTime startedLocal, {String bike = 'bike', bool running = false}) => TestSession(
+      id: 'other',
+      bike: bike,
+      adjustmentIds: const ['a'],
+      startedAtUTC: startedLocal.toUtc(),
+      startedAtLocal: startedLocal,
+      endedAtUTC: running ? null : startedLocal.toUtc(),
+      endedAtLocal: running ? null : startedLocal,
+    );
+
+    bool canResume({TestSession? session, List<TestSession> sessions = const [], List<Setup> setups = const []}) {
+      final target = session ?? ended;
+      return TestSessionService.canResume(target, sessions: [target, ...sessions], setups: setups);
+    }
+
+    final before = DateTime(2026, 5, 1, 9);
+    final during = DateTime(2026, 5, 2, 10);
+    final after = DateTime(2026, 5, 3, 9);
+
+    test('an ended session with only its own runs and older setups may', () {
+      expect(canResume(setups: [at(before), at(during, testSessionId: 'ts'), at(after, testSessionId: 'ts')]), isTrue);
+    });
+
+    test('a running session may not', () {
+      expect(canResume(session: session()), isFalse);
+    });
+
+    test('an older session on the bike that has ended does not block', () {
+      expect(canResume(sessions: [other(before)]), isTrue);
+    });
+
+    test('another running session on the bike blocks, even an older one', () {
+      expect(canResume(sessions: [other(before, running: true)]), isFalse);
+    });
+
+    test('a newer session blocks, even without any runs left', () {
+      expect(canResume(sessions: [other(after)]), isFalse);
+    });
+
+    test('a newer setup blocks', () {
+      expect(canResume(setups: [at(after)]), isFalse);
+    });
+
+    test('a setup backdated between the runs blocks', () {
+      expect(canResume(setups: [at(during), at(after, testSessionId: 'ts')]), isFalse);
+    });
+
+    test("another bike's setups and sessions don't block", () {
+      expect(
+        canResume(
+          sessions: [other(after, bike: 'other bike', running: true)],
+          setups: [at(after, bike: 'other bike')],
+        ),
+        isTrue,
+      );
+    });
+  });
+
   group('run', () {
     final now = DateTime(2026, 5, 3, 14, 30);
 
     test('copies the values, stamps now and joins the session', () {
       final source = setup('s1', bike: {'a': const StepValue(1), 'x': const StepValue(9)}, person: {'p': const StepValue(4)});
 
-      final run = TestSessionService.run(source: source, session: session(), number: 2, now: now);
+      final run = TestSessionService.run(englishL10n, source: source, session: session(), number: 2, now: now);
 
       expect(run.id, isNot(source.id));
       expect(run.name, 'Run 2');
@@ -214,7 +291,7 @@ void main() {
     test('puts the locked values on top, also when copying an older run', () {
       final source = setup('s1', bike: {'a': const StepValue(1), 'x': const StepValue(9)}, person: {'p': const StepValue(4)});
 
-      final run = TestSessionService.run(
+      final run = TestSessionService.run(englishL10n, 
         source: source,
         session: session(locks: {'a': const StepValue(7), 'p': const StepValue(6), 'unknown': const StepValue(1)}),
         number: 3,
@@ -237,7 +314,7 @@ void main() {
         startedAtLocal: DateTime(2026, 5, 2, 9),
       );
 
-      final run = TestSessionService.run(source: candidate, session: compare, number: 2, now: now);
+      final run = TestSessionService.run(englishL10n, source: candidate, session: compare, number: 2, now: now);
 
       expect(run.bikeAdjustmentValues, {'a': const StepValue(1)});
     });
@@ -263,7 +340,7 @@ void main() {
         ),
       ]);
 
-      final run = TestSessionService.run(
+      final run = TestSessionService.run(englishL10n, 
         source: candidate,
         session: session(),
         number: 2,
@@ -277,11 +354,13 @@ void main() {
   });
 
   group('runNotes', () {
-    test("keeps the notes of a setup from outside the session and adds where it's from", () {
+    final tournament = session().copyWith(method: const Tournament(candidateSetupIds: ['s1', 's2']));
+
+    test("keeps the notes of a candidate and adds where it's from", () {
       final source = setup('s1').copyWith(name: 'Base');
 
       expect(
-        TestSessionService.runNotes(source: source, session: session(), dateFormat: 'yyyy-MM-dd'),
+        TestSessionService.runNotes(englishL10n, source: source, session: tournament, dateFormat: 'yyyy-MM-dd'),
         "notes\n\nCopy of 'Base' (2026-05-01)",
       );
     });
@@ -290,30 +369,56 @@ void main() {
       final earlier = setup('r1').copyWith(name: 'Run 1', notes: "Felt harsh\n\nCopy of 'Base' (2026-05-01)", testSessionId: 'ts');
 
       expect(
-        TestSessionService.runNotes(source: earlier, session: session(), dateFormat: 'dd.MM.yyyy'),
+        TestSessionService.runNotes(englishL10n, source: earlier, session: tournament, dateFormat: 'dd.MM.yyyy'),
         "Copy of 'Run 1' (01.05.2026)",
+      );
+    });
+
+    test('adds no copy line outside a Compare session, as its runs change values', () {
+      final earlier = setup('r1').copyWith(name: 'Run 1', notes: 'Felt harsh', testSessionId: 'ts');
+
+      expect(
+        TestSessionService.runNotes(englishL10n, source: earlier, session: session(), dateFormat: 'dd.MM.yyyy'),
+        isNull,
+      );
+    });
+
+    test('still passes on the notes of a setup from outside the session', () {
+      expect(
+        TestSessionService.runNotes(englishL10n, source: setup('s1'), session: session(), dateFormat: 'yyyy-MM-dd'),
+        'notes',
       );
     });
   });
 
   test('goalLabel names the end and the quality, and falls back to the slug for custom issues', () {
     expect(
-      TestSessionService.goalLabel(const EndAspect(FeedbackEnd.front, FeedbackAttribute.calm), (slug) => slug),
+      testSessionGoalLabel(const EndAspect(FeedbackEnd.front, FeedbackAttribute.calm), (slug) => slug, englishL10n),
       'Front · Calm',
     );
-    expect(TestSessionService.goalLabel(const CustomAspect('arm-pump'), (slug) => 'Arm pump'), 'Arm pump');
+    expect(testSessionGoalLabel(const CustomAspect('arm-pump'), (slug) => 'Arm pump', englishL10n), 'Arm pump');
+  });
+
+  test('labels follow the language', () {
+    expect(testSessionMethodLabel(const PatternSearch(), germanL10n), 'Feinjustieren');
+    expect(
+      testSessionGoalLabel(const EndAspect(FeedbackEnd.rear, FeedbackAttribute.calm), (slug) => slug, germanL10n),
+      'Hinten · Ruhe',
+    );
+    expect(testSessionExpectedRuns(const PatternSearch(), 2, germanL10n), 'etwa 8 Läufe');
+    expect(germanL10n.testSessionUnnamed, 'Unbenannte Testsession');
   });
 
   group('expectedRuns', () {
     test('scales with the knobs for Fine-tune and Explore', () {
-      expect(TestSessionService.expectedRuns(const PatternSearch(), 2), 'about 8 runs');
-      expect(TestSessionService.expectedRuns(const OrthogonalArray(), 4), 'about 6 runs');
+      expect(testSessionExpectedRuns(const PatternSearch(), 2, englishL10n), 'about 8 runs');
+      expect(testSessionExpectedRuns(const OrthogonalArray(), 4, englishL10n), 'about 6 runs');
     });
 
     test('follows the candidates for Compare, and says nothing for Free or without knobs', () {
-      expect(TestSessionService.expectedRuns(const Tournament(candidateSetupIds: ['a', 'b', 'c']), 2), 'about 4 runs');
-      expect(TestSessionService.expectedRuns(null, 3), isNull);
-      expect(TestSessionService.expectedRuns(const PatternSearch(), 0), isNull);
+      expect(testSessionExpectedRuns(const Tournament(candidateSetupIds: ['a', 'b', 'c']), 2, englishL10n), 'about 4 runs');
+      expect(testSessionExpectedRuns(null, 3, englishL10n), isNull);
+      expect(testSessionExpectedRuns(const PatternSearch(), 0, englishL10n), isNull);
     });
   });
 }

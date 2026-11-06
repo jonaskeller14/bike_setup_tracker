@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../repositories/app_repository.dart';
@@ -84,18 +85,18 @@ class _TaskRuleDetailsPageState extends State<TaskRuleDetailsPage> {
                     icon: const Icon(Icons.close),
                     onPressed: _clearTaskEntrySelection,
                   ),
-                  title: Text('${_selectedTaskEntries.length} selected'),
+                  title: Text(context.l10n.selectionCount(_selectedTaskEntries.length)),
                   actions: [
                     IconButton(
                       onPressed: _isDeleting ? null : _deleteSelectedTaskEntries,
                       icon: const Icon(Icons.delete),
-                      tooltip: 'Delete selected',
+                      tooltip: context.l10n.deleteSelectedTooltip,
                     ),
                   ],
                 )
               : AppBar(
                   key: const ValueKey('task-details-app-bar'),
-                  title: const Text("Task"),
+                  title: Text(context.l10n.taskDetailsTitle),
                   actions: [
                     IconButton(
                       onPressed: () async {
@@ -189,9 +190,9 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
 
     final taskRule = appRepository.taskRules[widget.taskRuleId];
     if (taskRule == null) {
-      return const EmptyStatePlaceholder.error(
-        title: "Task not found",
-        subtitle: "This task was deleted or is no longer available.",
+      return EmptyStatePlaceholder.error(
+        title: context.l10n.taskDetailsNotFoundTitle,
+        subtitle: context.l10n.taskDetailsNotFoundSubtitle,
       );
     }
     final attachments = enableAttachments ? taskRule.attachments : const <Attachment>[];
@@ -230,20 +231,17 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
           else
             const SizedBox(height: 16),
 
-          const SectionTitle(
-            title: "Entries",
-            infoText:
-                "The card above is the Task — the rule defining what to do and when it's due. "
-                "Each time you complete it, an entry is logged below. "
-                "A recurring task collects multiple entries, one per completion.",
+          SectionTitle(
+            title: context.l10n.taskDetailsEntriesTitle,
+            infoText: context.l10n.taskDetailsEntriesInfo,
           ),
 
           if (taskEntries.isEmpty)
             EmptyStatePlaceholder(
               icon: Icons.history,
-              title: 'No entries yet',
-              subtitle: 'Complete this task to log your first entry.',
-              actionLabel: 'Add entry',
+              title: context.l10n.taskDetailsEmptyTitle,
+              subtitle: context.l10n.taskDetailsEmptySubtitle,
+              actionLabel: context.l10n.taskDetailsEmptyAction,
               onAction: () => TaskActions.addTaskEntry(
                 context,
                 taskRule: taskRule,

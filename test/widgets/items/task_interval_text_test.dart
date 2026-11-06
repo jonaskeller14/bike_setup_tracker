@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 /// A delay supersedes the interval for one cycle, so the interval is struck
 /// through and the combined target — the number the progress bar measures
@@ -27,11 +28,13 @@ void main() {
     bool repeat = true,
     ThemeData? theme,
     double width = 400,
+    Locale locale = const Locale('en'),
   }) {
     return ChangeNotifierProvider.value(
       value: appSettings,
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: theme ?? materialAppTheme,
+        locale: locale,
         home: Scaffold(
           body: Align(
             alignment: Alignment.topLeft,
@@ -70,6 +73,32 @@ void main() {
     expect(spanStyle(tester, ' 22')?.decoration, isNull);
   });
 
+  testWidgets('reads in German, with the German unit words', (tester) async {
+    const de = Locale('de');
+
+    await tester.pumpWidget(wrap(const ActivityCountThreshold(10), delay: const ActivityCountThreshold(12), locale: de));
+    expect(find.text('Alle 10 22 Fahrten', findRichText: true), findsOneWidget);
+
+    await tester.pumpWidget(wrap(const DistanceThreshold(2500000), locale: de));
+    expect(find.text('Alle 2.500 km'), findsOneWidget);
+
+    await tester.pumpWidget(wrap(const DurationThreshold(Duration(days: 30)), repeat: false, locale: de));
+    expect(find.text('Einmalig: 30 Tage'), findsOneWidget);
+  });
+
+  testWidgets('says Jeden Tag and Jede Fahrt for a single unit in German', (tester) async {
+    const de = Locale('de');
+
+    await tester.pumpWidget(wrap(const DurationThreshold(Duration(days: 1)), locale: de));
+    expect(find.text('Jeden Tag'), findsOneWidget);
+
+    await tester.pumpWidget(wrap(const ActivityCountThreshold(1), locale: de));
+    expect(find.text('Jede Fahrt'), findsOneWidget);
+
+    await tester.pumpWidget(wrap(const DurationThreshold(Duration(days: 1)), repeat: false, locale: de));
+    expect(find.text('Einmalig: 1 Tag'), findsOneWidget);
+  });
+
   testWidgets('strikes the interval for a negative delay too', (tester) async {
     // "Make Due Now" with nothing ridden yet: the cycle now runs to 0.
     await tester.pumpWidget(wrap(const ActivityCountThreshold(25), delay: const ActivityCountThreshold(-25)));
@@ -85,7 +114,7 @@ void main() {
     expect(find.text('Every 1 2 rides', findRichText: true), findsOneWidget);
 
     await tester.pumpWidget(wrap(const ActivityCountThreshold(1)));
-    expect(find.text('Every 1 ride'), findsOneWidget);
+    expect(find.text('Every ride'), findsOneWidget);
   });
 
   testWidgets('keeps the "After" prefix for a one-off rule', (tester) async {

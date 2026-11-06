@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
@@ -29,6 +30,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 class _StravaSubscriptionService extends Mock implements SubscriptionService {
   @override
@@ -111,7 +113,7 @@ nodes:
           ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
         Provider<ComponentCatalogRepository>.value(value: presetRepository),
       ],
-      child: MaterialApp(
+      child: localizedTestApp(
         theme: theme ?? materialAppTheme,
         home: Builder(
           builder: (context) {
@@ -616,7 +618,7 @@ nodes:
             ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Builder(
               builder: (context) => TextButton(
@@ -706,7 +708,7 @@ nodes:
       appSettings.enableComponentPresets = true;
       presetRepository = ComponentCatalogRepository.withCatalogs([parseCatalogFile(revision2)]);
       await tester.runAsync(() => presetRepository.all());
-      final app = buildCatalogApplication(catalogProducts(parseCatalogFile(revision1)).single);
+      final app = buildCatalogApplication(catalogProducts(parseCatalogFile(revision1)).single, englishL10n);
       final component = Component(
         id: 'c1',
         name: app.name,
@@ -726,7 +728,7 @@ nodes:
             ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Builder(
               builder: (context) => TextButton(
@@ -829,7 +831,7 @@ nodes:
             ChangeNotifierProvider<SubscriptionService>.value(value: _StravaSubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Builder(
               builder: (context) => TextButton(
@@ -1090,7 +1092,7 @@ nodes:
             ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
-          child: MaterialApp(
+          child: localizedTestApp(
             theme: materialAppTheme,
             home: Builder(
               builder: (context) => TextButton(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
@@ -128,6 +130,98 @@ void main() {
       await expectLater(repository.forType(ComponentType.fork), throwsStateError);
       expect(await repository.forType(ComponentType.fork), hasLength(1));
       expect(reads, 2);
+    });
+  });
+
+  group('language', () {
+    const yaml = '''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "36"
+    level: model
+    category: Trail
+    category_de: Trail-Gabeln
+''';
+    final preset = ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36'});
+
+    late String language;
+    late List<String> reads;
+    late Completer<void>? hold;
+    late ComponentCatalogRepository repository;
+
+    setUp(() {
+      language = 'en';
+      reads = [];
+      hold = null;
+      repository = ComponentCatalogRepository.withLanguageLoader((type, code) async {
+        reads.add('${type.name}:$code');
+        if (code == 'en') await hold?.future;
+        return [if (type == ComponentType.fork) parseCatalogFile(yaml, languageCode: code)];
+      }, languageCode: () => language);
+    });
+
+    Future<String?> category() async => (await repository.forType(ComponentType.fork)).single.node.category;
+
+    test('follows the language it is asked for on the next async read, without anyone telling it', () async {
+      expect(await category(), 'Trail');
+
+      language = 'de';
+
+      expect(await category(), 'Trail-Gabeln');
+      expect((await repository.resolve(preset))?.node.category, 'Trail-Gabeln');
+      expect(repository.loadedPreset(preset)?.node.category, 'Trail-Gabeln');
+      expect(reads, ['fork:en', 'fork:de']);
+    });
+
+    test('parses only the types that are loaded', () async {
+      await category();
+
+      language = 'de';
+      await category();
+
+      expect(reads, ['fork:en', 'fork:de']);
+    });
+
+    test('loads a type that was not loaded yet in the new language', () async {
+      language = 'de';
+
+      expect(await category(), 'Trail-Gabeln');
+      expect(reads, ['fork:de']);
+    });
+
+    test('does not parse again while the language stays', () async {
+      await category();
+      await repository.resolve(preset);
+      repository.loadedPreset(preset);
+
+      expect(reads, ['fork:en']);
+    });
+
+    test('keeps answering a cache read while it parses, then answers in the new language', () async {
+      await category();
+
+      language = 'de';
+      final switching = category();
+
+      expect(repository.loadedPreset(preset)?.node.category, 'Trail');
+      await switching;
+      expect(repository.loadedPreset(preset)?.node.category, 'Trail-Gabeln');
+    });
+
+    test('discards a load that was still running for the old language', () async {
+      hold = Completer();
+      final stale = category();
+      await Future<void>.delayed(Duration.zero);
+
+      language = 'de';
+      final fresh = category();
+      hold!.complete();
+
+      expect(await stale, 'Trail-Gabeln');
+      expect(await fresh, 'Trail-Gabeln');
+      expect(await category(), 'Trail-Gabeln');
+      expect(reads, ['fork:en', 'fork:de']);
     });
   });
 

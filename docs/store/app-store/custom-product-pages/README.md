@@ -19,7 +19,7 @@ search-results assets are in [`../creative/`](../creative/README.md).
 <page>/
   page.txt                       reference_name, url, linked_from (not per locale)
   media_order.txt                iPhone and iPad order as default file names
-  <locale>/                      en-US, de-DE
+  <locale>/                      en-US, de-DE, fr-FR, it, es-ES, pt-BR
     keywords.txt                 comma-separated, empty for a link-only page
     promotional_text.txt
   en-US/screenshots/             iphone_NN.png, ipad_NN.png (generated, gitignored)
@@ -49,7 +49,7 @@ tool/store/ios.sh page-screenshots [--dry-run]   # upload them to each page's ed
 
 - The copies are renamed to `iphone_01`, `ipad_01`, `preview_1`, ... in page order, because App
   Store Connect uploads in filename order.
-- Only `en-US` holds media; `de-DE` shows it as well while the screens are English
+- Only `en-US` holds media; the other locales show it as well until their screens are recorded
   ([#18](https://github.com/jonaskeller14/bike_setup_tracker/issues/18)).
 - `ios.sh page-screenshots` fills the 6.1″ iPhone and the 13″ iPad slots and empties every other set
   (the 6.5″ slot, or previews a page no longer lists). It needs an editable page version:

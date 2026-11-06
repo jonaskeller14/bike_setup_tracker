@@ -3,13 +3,14 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_text_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   const validValue = "Valid Value";
   final invalidValue = Duration.zero.toString();
 
   Widget buildWidget({required String? initialValue, required String? value, required Key formKey}) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: materialAppTheme,
       home: Scaffold(
         body: Form(
@@ -45,7 +46,7 @@ void main() {
 
   group("SetTextAdjustmentWidget reset button visibility", () {
     Widget buildWidget({required String? initialValue, required String? value, bool optional = false}) {
-      return MaterialApp(
+      return localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(
           body: SetTextAdjustmentWidget(

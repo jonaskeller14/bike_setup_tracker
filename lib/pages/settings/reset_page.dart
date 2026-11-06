@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/backup_service.dart';
@@ -40,11 +41,12 @@ class _ResetPageState extends State<ResetPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final errorColor = Theme.of(context).colorScheme.error;
     final hasDefaultSettings = context.select<AppSettings, bool>((settings) => settings.hasDefaultValues);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset')),
+      appBar: AppBar(title: Text(l10n.resetTitle)),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -53,21 +55,15 @@ class _ResetPageState extends State<ResetPage> {
               ListTile(
                 enabled: !hasDefaultSettings,
                 leading: const Icon(Icons.settings_backup_restore),
-                title: const Text('Reset Settings'),
-                subtitle: Text(
-                  hasDefaultSettings
-                      ? 'All settings are at their defaults'
-                      : 'Restore all preferences and features to their defaults',
-                ),
+                title: Text(l10n.resetSettings),
+                subtitle: Text(hasDefaultSettings ? l10n.resetSettingsDefaults : l10n.resetSettingsRestore),
                 onTap: () => DataActions.resetAppSettings(context),
               ),
               ListTile(
                 enabled: _hasBackups,
                 leading: const Icon(Icons.folder_delete_outlined),
-                title: const Text('Delete All Backups'),
-                subtitle: Text(
-                  _hasBackups ? 'Remove all automatic backups stored on this device' : 'No backups on this device',
-                ),
+                title: Text(l10n.resetDeleteBackups),
+                subtitle: Text(_hasBackups ? l10n.resetDeleteBackupsSubtitle : l10n.resetNoBackups),
                 onTap: () => _runAndRefresh(DataActions.deleteAllBackups),
               ),
               StreamBuilder<bool>(
@@ -78,10 +74,8 @@ class _ResetPageState extends State<ResetPage> {
                   return ListTile(
                     enabled: hasUserData,
                     leading: Icon(Icons.delete_forever, color: color),
-                    title: const Text('Clear Database'),
-                    subtitle: Text(
-                      hasUserData ? 'Delete all bikes, components, setups and other data' : 'The database is empty',
-                    ),
+                    title: Text(l10n.resetClearDatabase),
+                    subtitle: Text(hasUserData ? l10n.resetClearDatabaseSubtitle : l10n.resetDatabaseEmpty),
                     onTap: () => _runAndRefresh(DataActions.clearDatabase),
                   );
                 },

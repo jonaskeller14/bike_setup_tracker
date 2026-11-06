@@ -4,52 +4,72 @@
 import '../services/bike_adjustment_column_service.dart';
 
 enum TableColumnSection {
-  generalContext("General Context"),
-  weatherContext("Weather Context"),
-  componentAdjustments("Component Adjustments"),
-  personAttributes("Rider Attributes"),
-  feedback("Feedback");
-
-  final String label;
-  const TableColumnSection(this.label);
+  generalContext,
+  weatherContext,
+  componentAdjustments,
+  personAttributes,
+  feedback,
 }
 
 enum SetupColumn {
-  name(TableColumnSection.generalContext, "Name", defaultActive: true),
-  notes(TableColumnSection.generalContext, "Notes"),
-  tags(TableColumnSection.generalContext, "Tags"),
-  date(TableColumnSection.generalContext, "Date", defaultActive: true),
-  time(TableColumnSection.generalContext, "Time"),
-  place(TableColumnSection.generalContext, "Place"),
-  altitude(TableColumnSection.generalContext, "Altitude"),
-  bike(TableColumnSection.generalContext, "Bike"),
-  bookmarked(TableColumnSection.generalContext, "Bookmarked"),
-  activities(TableColumnSection.generalContext, "Activities"),
+  name(TableColumnSection.generalContext, defaultActive: true),
+  notes(TableColumnSection.generalContext),
+  tags(TableColumnSection.generalContext),
+  date(TableColumnSection.generalContext, defaultActive: true),
+  time(TableColumnSection.generalContext),
+  place(TableColumnSection.generalContext),
+  altitude(TableColumnSection.generalContext),
+  bike(TableColumnSection.generalContext),
+  bookmarked(TableColumnSection.generalContext),
+  activities(TableColumnSection.generalContext),
 
-  weatherCode(TableColumnSection.weatherContext, "Weather Code"),
-  temperature(TableColumnSection.weatherContext, "Temperature"),
-  precipitation(TableColumnSection.weatherContext, "Precipitation"),
-  humidity(TableColumnSection.weatherContext, "Humidity"),
-  windSpeed(TableColumnSection.weatherContext, "Windspeed"),
-  soilMoisture(TableColumnSection.weatherContext, "Soil Moisture"),
-  condition(TableColumnSection.weatherContext, "Condition"),
+  weatherCode(TableColumnSection.weatherContext),
+  temperature(TableColumnSection.weatherContext),
+  precipitation(TableColumnSection.weatherContext),
+  humidity(TableColumnSection.weatherContext),
+  windSpeed(TableColumnSection.weatherContext),
+  soilMoisture(TableColumnSection.weatherContext),
+  condition(TableColumnSection.weatherContext),
 
-  testSession(TableColumnSection.feedback, "Test session");
+  testSession(TableColumnSection.feedback);
 
   final TableColumnSection section;
-  final String label;
   final bool defaultActive;
 
-  const SetupColumn(this.section, this.label, {this.defaultActive = false});
+  const SetupColumn(this.section, {this.defaultActive = false});
 }
 
+/// What the column sheet switches on and off.
 /// [active] is mutable. Equality/Hash ignores it
-sealed class TableColumn {
+sealed class SelectableColumn {
   bool active;
 
-  TableColumn({required this.active});
+  SelectableColumn({required this.active});
 
   TableColumnSection get section;
+}
+
+/// A column of the setup tables of the details pages.
+sealed class TableColumn extends SelectableColumn {
+  TableColumn({required super.active});
+}
+
+enum RunFeedbackField { issues, evaluation, notes }
+
+/// A column of the run table of a test session: what the feedbacks on a run say.
+class RunFeedbackColumn extends SelectableColumn {
+  final RunFeedbackField field;
+
+  RunFeedbackColumn(this.field, {required super.active});
+
+  @override
+  TableColumnSection get section => TableColumnSection.feedback;
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || other is RunFeedbackColumn && other.field == field;
+
+  @override
+  int get hashCode => Object.hash(section, field);
 }
 
 class SetupTableColumn extends TableColumn {

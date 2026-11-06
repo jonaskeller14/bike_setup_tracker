@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/task/task_entry.dart';
 import '../../models/task/task_rule.dart';
 
@@ -42,7 +43,7 @@ class DataSelectTaskEntry extends StatelessWidget {
             ),
             Flexible(
               child: Text(
-                taskRules[item.taskRule]?.name ?? "TASK NOT FOUND",
+                taskRules[item.taskRule]?.name ?? context.l10n.taskNotFound,
                 style: TextStyle(
                   color: taskRules.containsKey(item.taskRule)
                       ? Theme.of(

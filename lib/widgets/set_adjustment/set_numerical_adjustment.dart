@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/localized_number.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../utils/unit_conversion.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
@@ -44,6 +46,11 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   int _index = 0;
   NumericalValue? _lastReported;
 
+  // The exact storage value behind the text a unit switch wrote, so cycling
+  // through the units again doesn't pile up the rounding of the shown text.
+  double? _cycledStorage;
+  String? _cycledText;
+
   // Recomputed, not cached: a cycle's conversions close over widget state (e.g.
   // a sag adjustment's travel), so a stale copy would convert with old inputs.
   List<UnitCycleEntry> get _cycle => widget.cycle ?? knownUnitCycle(widget.adjustment.unit);
@@ -61,7 +68,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.value?.value.toString() ?? '');
+    _controller = TextEditingController(text: formatEditableDouble(widget.value?.value, locale: context.untrackedLocaleName));
     _lastReported = widget.value;
   }
 
@@ -93,8 +100,8 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
 
   String _displayTextForStorage(NumericalValue? storageValue) {
     if (storageValue == null) return '';
-    if (!_isConverting) return storageValue.value.toString();
-    return formatConverted(_toDisplay(storageValue.value));
+    if (!_isConverting) return formatEditableDouble(storageValue.value, locale: context.l10n.localeName);
+    return formatConverted(_toDisplay(storageValue.value), locale: context.l10n.localeName);
   }
 
   double _boundInActiveUnit(double bound) => bound.isFinite ? _toDisplay(bound) : bound;
@@ -112,7 +119,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   }
 
   void _handleChanged(String displayText) {
-    final parsed = double.tryParse(displayText);
+    final parsed = parseLocalizedDouble(displayText);
     _report(parsed == null ? null : NumericalValue(_toStorage(parsed)));
   }
 
@@ -132,10 +139,18 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     final nextIndex = (_activeIndex + 1) % _cycle.length;
     final next = _cycle[nextIndex];
     unawaited(HapticFeedback.selectionClick());
-    final parsed = double.tryParse(_controller.text.trim());
+    final parsed = parseLocalizedDouble(_controller.text);
+    final storage = _controller.text == _cycledText
+        ? _cycledStorage
+        : (parsed == null ? null : active.toStorage(parsed));
     setState(() {
       _index = nextIndex;
-      if (parsed != null) _setText(formatConverted(next.fromStorage(active.toStorage(parsed))));
+      if (storage != null) {
+        final text = formatConverted(next.fromStorage(storage), locale: context.l10n.localeName);
+        _cycledStorage = storage;
+        _cycledText = text;
+        _setText(text);
+      }
     });
   }
 
@@ -157,7 +172,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                       mainAxisSize: MainAxisSize.min,
                       spacing: 2,
                       children: [
-                        Text(label, style: TextStyle(color: suffixColor)),
+                        Flexible(child: Text(label, style: TextStyle(color: suffixColor))),
                         // Icon(Icons.unfold_more, size: 16, color: suffixColor),
                       ],
                     ),
@@ -198,7 +213,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     if (_isConverting) {
       final storageVal = widget.value?.value;
       if (storageVal != null) {
-        helperText = '= ${formatConverted(storageVal)} $_storageLabel';
+        helperText = '= ${formatConverted(storageVal, locale: context.l10n.localeName)} $_storageLabel';
       }
     }
 
@@ -236,7 +251,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       isDense: true,
-                      hintText: 'Please enter',
+                      hintText: context.l10n.setNumericalHint,
                       helperText: helperText,
                       helperMaxLines: 2,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -245,17 +260,17 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                     ),
                     validator: (String? newValue) {
                       if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
-                        return 'Please enter a value';
+                        return context.l10n.setValueRequired;
                       }
                       if (newValue != null && newValue.trim().isNotEmpty) {
-                        final parsedValue = double.tryParse(newValue);
-                        if (parsedValue == null) return "Please enter a valid number";
+                        final parsedValue = parseLocalizedDouble(newValue);
+                        if (parsedValue == null) return context.l10n.setNumberInvalid;
                         final unitLabel = _activeLabel;
                         final unitSuffix = unitLabel == null ? "" : " $unitLabel";
                         final max = _boundInActiveUnit(widget.adjustment.max);
-                        if (parsedValue > max) return "Max ${formatConverted(max)}$unitSuffix";
+                        if (parsedValue > max) return context.l10n.setNumericalMax('${formatConverted(max, locale: context.l10n.localeName)}$unitSuffix');
                         final min = _boundInActiveUnit(widget.adjustment.min);
-                        if (parsedValue < min) return "Min ${formatConverted(min)}$unitSuffix";
+                        if (parsedValue < min) return context.l10n.setNumericalMin('${formatConverted(min, locale: context.l10n.localeName)}$unitSuffix');
                       }
                       return null;
                     },

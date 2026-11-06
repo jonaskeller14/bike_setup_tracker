@@ -1,17 +1,19 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/pages/forms/person_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/adjustment_presets.dart';
 import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
-import 'package:bike_setup_tracker/widgets/sheets/person_add_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 class _MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -48,7 +50,7 @@ void main() {
           ChangeNotifierProvider<AppRepository>.value(value: repository),
           ChangeNotifierProvider<SubscriptionService>.value(value: subscriptionService),
         ],
-        child: MaterialApp(theme: materialAppTheme, home: page),
+        child: localizedTestApp(theme: materialAppTheme, home: page),
       ),
     );
     await tester.pumpAndSettle();
@@ -88,7 +90,7 @@ void main() {
     });
 
     testWidgets('editing an attribute opens "Edit … Attribute"', (tester) async {
-      final person = Person(id: 'rider', name: 'Rider', adjustments: [ridingWeightPreset.deepCopy()]);
+      final person = Person(id: 'rider', name: 'Rider', adjustments: [ridingWeightPresetFor(englishL10n).deepCopy()]);
       await pumpPage(tester, PersonPage.edit(person: person));
 
       final menuButton = find.descendant(

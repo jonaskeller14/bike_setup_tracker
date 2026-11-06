@@ -3,6 +3,8 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/context/context_weather.dart';
@@ -94,7 +96,7 @@ class SetupGroupSection extends StatelessWidget {
     final localTimes = setups.map((s) => s.datetimeLocal).toList();
     final earliest = localTimes.reduce((a, b) => a.isBefore(b) ? a : b);
     final latest = localTimes.reduce((a, b) => a.isAfter(b) ? a : b);
-    final timeFormat = DateFormat(appSettings.timeFormat);
+    final timeFormat = DateFormat(appSettings.timeFormat, context.l10n.localeName);
     final startText = timeFormat.format(earliest);
     final endText = timeFormat.format(latest);
     final dateTimeText = startText == endText ? startText : "$startText – $endText";
@@ -111,7 +113,7 @@ class SetupGroupSection extends StatelessWidget {
       if (weather?.condition != null)
         TileMetaRow(
           icon: weather?.condition?.iconData ?? Icons.question_mark,
-          text: weather?.condition?.value ?? "-",
+          text: weather?.condition?.label(context.l10n) ?? "-",
           iconColor: weather?.condition?.color,
           muted: true,
         ),
@@ -135,7 +137,7 @@ class SetupGroupSection extends StatelessWidget {
           dateTimeText: dateTimeText,
           bikeMetadata: TileMetaRow(
             icon: Bike.iconData,
-            text: bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+            text: bikes[bikeId]?.name ?? context.l10n.bikeNotFound,
             isError: !bikeFound,
           ),
           contextMetadata: metadataRows,

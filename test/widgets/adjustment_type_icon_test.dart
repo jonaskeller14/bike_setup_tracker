@@ -3,11 +3,12 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/items/adjustment_type_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../goldens/support/localized_test_app.dart';
 
 /// Phase 3: sag's type icon is the numerical base plus a small travel badge, so
 /// it reads as "a specialized numerical". See doc/20260715_sag_adjustment_type.md §6.4.
 void main() {
-  Widget host(Adjustment adjustment) => MaterialApp(
+  Widget host(Adjustment adjustment) => localizedTestApp(
         theme: materialAppTheme,
         home: Scaffold(body: AdjustmentTypeIcon(adjustment)),
       );

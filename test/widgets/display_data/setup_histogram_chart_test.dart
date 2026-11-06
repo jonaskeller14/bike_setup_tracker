@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../goldens/support/localized_test_app.dart';
 
 void main() {
   final pressure = NumericalAdjustment(
@@ -61,7 +62,7 @@ void main() {
     ValueChanged<TableColumn>? onSelected,
     ThemeData? theme,
   }) {
-    return MaterialApp(
+    return localizedTestApp(
       theme: theme ?? materialAppTheme,
       home: Scaffold(
         body: SingleChildScrollView(

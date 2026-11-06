@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/enum_labels.dart';
+import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/number_input_formatters.dart';
 import '../../utils/value_migration_actions.dart';
 import '../../utils/value_migration_proposal.dart';
 import '../../widgets/dialogs/discard_changes.dart';
@@ -190,27 +193,27 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
           widget.term != AdjustmentTerm.attribute || !v.hasDial || v == widget.adjustment?.visualization);
 
   String? _validateStep(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Step is required';
+    if (value == null || value.trim().isEmpty) return context.l10n.adjustmentStepRequired;
     final v = int.tryParse(value);
-    if (v == null || v <= 0) return 'Valid step greater than zero is required';
+    if (v == null || v <= 0) return context.l10n.adjustmentStepInvalid;
     return null;
   }
 
   String? _validateMin(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Min is required';
+    if (value == null || value.trim().isEmpty) return context.l10n.adjustmentMinRequired;
     final v = int.tryParse(value);
-    if (v == null) return 'Valid min value is required';
+    if (v == null) return context.l10n.adjustmentMinInvalid;
     return null;
   }
 
   String? _validateMax(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Max is required';
+    if (value == null || value.trim().isEmpty) return context.l10n.adjustmentMaxRequired;
     final v = int.tryParse(value);
     final minValue = int.tryParse(_minController.text.trim());
     final stepValue = int.tryParse(_stepController.text.trim());
-    if (v == null) return 'Valid max value is required';
-    if (minValue != null && v <= minValue) return 'Max must be greater than min';
-    if (minValue != null && stepValue != null && minValue + stepValue > v) return "Max must be greater than min+step ";
+    if (v == null) return context.l10n.adjustmentMaxInvalid;
+    if (minValue != null && v <= minValue) return context.l10n.adjustmentMaxGreaterThanMin;
+    if (minValue != null && stepValue != null && minValue + stepValue > v) return context.l10n.adjustmentMaxGreaterThanMinStep;
     return null;
   }
 
@@ -293,25 +296,29 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   }
 
   Widget _buildDialStyleButton(BuildContext context) {
-    return Tooltip(
-      message: 'Change dial color and size',
-      child: InkWell(
-        onTap: _openDialStyleSheet,
-        borderRadius: BorderRadius.circular(4),
-        // The decorator lays out against its incoming width, which is unbounded
-        // inside the Row, so the knob's own width has to be handed to it.
-        child: SizedBox(
-          width: _dialFieldWidth,
-          child: InputDecorator(
-            decoration: InputDecoration(
-              labelText: 'Dial',
-              border: const OutlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-              filled: widget.mode == AdjustmentPageMode.edit &&
-                  (dialColor != widget.adjustment?.dialColor || dialSize != widget.adjustment?.dialSize),
+    return Semantics(
+      container: true,
+      identifier: AutomationIds.adjustmentFormDialStyle,
+      child: Tooltip(
+        message: context.l10n.adjustmentDialTooltip,
+        child: InkWell(
+          onTap: _openDialStyleSheet,
+          borderRadius: BorderRadius.circular(4),
+          // The decorator lays out against its incoming width, which is unbounded
+          // inside the Row, so the knob's own width has to be handed to it.
+          child: SizedBox(
+            width: _dialFieldWidth,
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: context.l10n.adjustmentDialLabel,
+                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                filled: widget.mode == AdjustmentPageMode.edit &&
+                    (dialColor != widget.adjustment?.dialColor || dialSize != widget.adjustment?.dialSize),
+              ),
+              child: _buildKnob(context, dialColor, dialSize, key: const ValueKey('DialStyle')),
             ),
-            child: _buildKnob(context, dialColor, dialSize, key: const ValueKey('DialStyle')),
           ),
         ),
       ),
@@ -328,8 +335,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => Text('Add Step ${widget.term.label}'),
-            AdjustmentPageMode.edit => Text('Edit Step ${widget.term.label}'),
+            AdjustmentPageMode.template => Text(context.l10n.adjustmentPageAddStep(widget.term.name)),
+            AdjustmentPageMode.edit => Text(context.l10n.adjustmentPageEditStep(widget.term.name)),
           },
           actions: [
             Semantics(
@@ -359,14 +366,14 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: '${widget.term.label} Name',
-                              hintText: 'Enter ${widget.term.label} Name',
+                              labelText: context.l10n.adjustmentNameLabel(widget.term.name),
+                              hintText: context.l10n.adjustmentNameHint(widget.term.name),
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
-                            validator: validateAdjustmentName,
+                            validator: (value) => validateAdjustmentName(context, value),
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
@@ -376,8 +383,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             keyboardType: TextInputType.number,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             decoration: InputDecoration(
-                              labelText: 'Step',
-                              hintText: 'Enter step value',
+                              labelText: context.l10n.adjustmentStepLabel,
+                              hintText: context.l10n.adjustmentStepHint,
                               prefixIcon: const Icon(StepAdjustment.iconData),
                               border: const OutlineInputBorder(),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -392,10 +399,10 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             textInputAction: TextInputAction.next,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
+                            inputFormatters: const [SignedIntegerInputFormatter()],
                             decoration: InputDecoration(
-                              labelText: 'Min Value',
-                              hintText: 'Enter minimum value',
+                              labelText: context.l10n.adjustmentMinValueLabel,
+                              hintText: context.l10n.adjustmentMinValueHint,
                               border: const OutlineInputBorder(),
                               prefixIcon: const Icon(Icons.vertical_align_bottom),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -410,10 +417,10 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             onFieldSubmitted: (_) => _saveStepAdjustment(),
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
+                            inputFormatters: const [SignedIntegerInputFormatter()],
                             decoration: InputDecoration(
-                              labelText: 'Max Value',
-                              hintText: 'Enter maximum value',
+                              labelText: context.l10n.adjustmentMaxValueLabel,
+                              hintText: context.l10n.adjustmentMaxValueHint,
                               border: const OutlineInputBorder(),
                               prefixIcon: const Icon(Icons.vertical_align_top),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -430,8 +437,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                   : Icons.expand_more,
                               ),
                               label: Text(_expanded
-                                  ? "Hide Additional Fields"
-                                  : "Show Additional Fields"
+                                  ? context.l10n.hideAdditionalFields
+                                  : context.l10n.showAdditionalFields
                               ),
                             ),
                           ),
@@ -448,11 +455,11 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                         initialValue: visualization,
                                         isExpanded: true,
                                         autovalidateMode: AutovalidateMode.onUserInteraction,
-                                        hint: const Text("Please select visualization"),
+                                        hint: Text(context.l10n.adjustmentVisualizationPlaceholder),
                                         decoration: InputDecoration(
-                                          labelText: 'Visualization',
+                                          labelText: context.l10n.adjustmentVisualizationLabel,
                                           border: const OutlineInputBorder(),
-                                          hintText: "Choose a visualization for this ${widget.term.label.toLowerCase()}",
+                                          hintText: context.l10n.adjustmentVisualizationHint(widget.term.name),
                                           fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                           filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
                                         ),
@@ -484,7 +491,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                                   const Icon(Icons.rotate_left),
                                                 ],
                                                 const SizedBox(width: 8),
-                                                Expanded(child: Text(v.value)),
+                                                Expanded(child: Text(v.label(context.l10n))),
                                               ],
                                             ),
                                           );
@@ -497,7 +504,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                         },
                                         validator: (value) {
                                           if (value == null) {
-                                            return 'Component type cannot be empty';
+                                            return context.l10n.adjustmentVisualizationRequired;
                                           }
                                           return null;
                                         },
@@ -517,9 +524,9 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                   onChanged: (_) => _updatePreview(),
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
-                                    labelText: 'Notes (optional)',
-                                    hintText: 'Enter measuring procedure/instrument/...',
-                                    helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                    labelText: context.l10n.notesOptionalLabel,
+                                    hintText: context.l10n.adjustmentNotesHint,
+                                    helperText: _notesController.text.trim().isEmpty ? null : context.l10n.adjustmentNotesHelper,
                                     helperMaxLines: 2,
                                     border: const OutlineInputBorder(),
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
@@ -9,6 +8,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../env/env.dart';
+import '../l10n/enum_labels.dart';
+import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/feedback/ride_feedback.dart';
@@ -106,15 +107,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             accuracy: position.accuracy ?? 0,
           ),
         );
-    // flutter_rotation_sensor 0.2.0 starts Core Motion without a north
-    // reference, so on iOS the azimuth is offset by an arbitrary constant and
-    // the heading cone points the wrong way. Leave it off there. The fix needs
-    // flutter_map_location_marker 10.3.0, which requires AGP 9.
     _headings =
         widget.headingStream ??
-        (defaultTargetPlatform == TargetPlatform.iOS
-            ? const Stream<LocationMarkerHeading?>.empty()
-            : const LocationMarkerDataStreamFactory().fromRotationSensorHeadingStream());
+        const LocationMarkerDataStreamFactory().fromRotationSensorHeadingStream();
     _mapEventSubscription = _mapController.mapEventStream.listen((event) {
       _rotation.value = _mapController.camera.rotation;
       if (!_programmaticCameraSources.contains(event.source)) _cameraTouchedByUser = true;
@@ -254,18 +249,18 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final status = _locationService.status;
     final AppSnackBarAction? action = switch (status) {
       LocationStatus.noService => AppSnackBarAction(
-        label: 'Settings',
+        label: context.l10n.settingsTitle,
         onPressed: _locationService.openLocationSettings,
       ),
       LocationStatus.permissionDeniedForever => AppSnackBarAction(
-        label: 'Settings',
+        label: context.l10n.settingsTitle,
         onPressed: _locationService.openAppSettings,
       ),
       _ => null,
     };
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(AppSnackBar.error(context, status.errorMessage, action: action));
+      ..showSnackBar(AppSnackBar.error(context, status.errorMessage(context.l10n), action: action));
   }
 
   Future<void> _zoomBy(double delta) =>

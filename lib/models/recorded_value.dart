@@ -6,14 +6,15 @@ import 'adjustment/adjustment.dart';
 @immutable
 class RecordedValue {
   final String recordId;
-  final String label;
+  /// The setup's name, `null` for an unnamed one.
+  final String? name;
   final DateTime dateTimeLocal;
   final AdjustmentValue value;
   final bool isDeleted;
 
   const RecordedValue({
     required this.recordId,
-    required this.label,
+    required this.name,
     required this.dateTimeLocal,
     required this.value,
     required this.isDeleted,

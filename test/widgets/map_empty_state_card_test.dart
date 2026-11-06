@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../goldens/support/localized_test_app.dart';
 
 void main() {
   late MockAppRepository repository;
@@ -49,7 +50,7 @@ void main() {
           ListenableProvider<AppRepository>.value(value: repository),
           ListenableProvider<SubscriptionService>.value(value: subscriptionService),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           theme: theme,
           home: Scaffold(
             // Mirrors the map's chrome column: full width offered, the card

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/component/setup_guide.dart';
 import '../../utils/url.dart';
 import '../setup_guide_card.dart';
@@ -22,18 +23,12 @@ class _SetupGuideInfoSheet extends StatelessWidget {
 
   const _SetupGuideInfoSheet({required this.sections});
 
-  static const _legend = [
-    (GuideStatus(GuideStatusKind.matches, "Matches"), "Your value is the recommended value."),
-    (
-      GuideStatus(GuideStatusKind.inRange, "In range"),
-      "Close to the recommendation: inside the range the manual gives, or less than halfway to the next weight step.",
-    ),
-    (GuideStatus(GuideStatusKind.off, "+6 psi"), "Further off. Shows how far your value is from the recommendation."),
-    (GuideStatus(GuideStatusKind.notSet, "Not set"), "No value entered yet. Tap the row to use the recommendation."),
-    (
-      GuideStatus(GuideStatusKind.unavailable, "Can't apply"),
-      "The recommendation doesn't fit your adjuster, e.g. it is beyond its range. Edit the adjuster first.",
-    ),
+  static List<(GuideStatus, String)> _legend(AppLocalizations l10n) => [
+    (const GuideStatus(GuideStatusKind.matches), l10n.guideLegendMatches),
+    (const GuideStatus(GuideStatusKind.inRange), l10n.guideLegendInRange),
+    (const GuideStatus(GuideStatusKind.off, text: "+6 psi"), l10n.guideLegendOff),
+    (const GuideStatus(GuideStatusKind.notSet), l10n.guideLegendNotSet),
+    (const GuideStatus(GuideStatusKind.unavailable), l10n.guideLegendUnavailable),
   ];
 
   @override
@@ -52,7 +47,7 @@ class _SetupGuideInfoSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: "Recommended values"),
+          SheetHeader(title: context.l10n.guideInfoTitle),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -62,24 +57,20 @@ class _SetupGuideInfoSheet extends StatelessWidget {
                 spacing: 8,
                 children: [
                   Text(
-                    "Each value comes from the manufacturer's setup guide for your exact model and riding weight. "
-                    "It is a starting point, check your manual.",
+                    context.l10n.guideInfoIntro,
                     style: muted,
                   ),
-                  _heading(context, "How values are found"),
+                  _heading(context, context.l10n.guideInfoHowHeading),
                   Text(
-                    "Manuals list settings per weight step, for example 70–80 kg and 80–90 kg. If your weight "
-                    "falls between two steps, the value is worked out in between. Outside the weights a manual "
-                    "covers, there is no recommendation.",
+                    context.l10n.guideInfoHowSteps,
                     style: muted,
                   ),
                   Text(
-                    "Clicks are counted from the end the manual counts from. If your adjuster counts the other "
-                    "way, the value is converted to your dial.",
+                    context.l10n.guideInfoClicks,
                     style: muted,
                   ),
-                  _heading(context, "Status"),
-                  for (final (status, meaning) in _legend)
+                  _heading(context, context.l10n.guideInfoStatusHeading),
+                  for (final (status, meaning) in _legend(context.l10n))
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 12,
@@ -91,7 +82,7 @@ class _SetupGuideInfoSheet extends StatelessWidget {
                         Expanded(child: Text(meaning, style: muted)),
                       ],
                     ),
-                  _heading(context, guides.length == 1 ? "Source" : "Sources"),
+                  _heading(context, guides.length == 1 ? context.l10n.guideInfoSource : context.l10n.guideInfoSources),
                   for (final (guide, components) in guides.values)
                     Material(
                       type: MaterialType.transparency,
@@ -102,7 +93,7 @@ class _SetupGuideInfoSheet extends StatelessWidget {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("For ${components.join(', ')}"),
+                            Text(context.l10n.guideInfoFor(components.join(', '))),
                             Text(
                               shortenUrlForDisplay(guide.source),
                               style: TextStyle(color: theme.colorScheme.primary),

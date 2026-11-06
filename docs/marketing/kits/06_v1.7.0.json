@@ -1,0 +1,282 @@
+{
+  "music": "the_mountain-app-184141.mp3",
+  "voice": "06_v1.7.0",
+  "recordings": "build/marketing/raw/ios",
+  "clips": {
+    "demo_language": {
+      "title": "Switch the app's language",
+      "segments": [
+        [
+          13.4,
+          16.2,
+          0.3122
+        ],
+        [
+          2.6,
+          13.0,
+          3.467
+        ],
+        [
+          16.1,
+          17.24,
+          1
+        ],
+        [
+          23.2,
+          24.24,
+          1
+        ],
+        [
+          29.4,
+          30.64,
+          1
+        ],
+        [
+          35.4,
+          36.59,
+          1
+        ],
+        [
+          41.4,
+          43.2,
+          1
+        ],
+        [
+          44.0,
+          47.4,
+          4.4
+        ],
+        [
+          50.4,
+          54.9,
+          5
+        ],
+        [
+          56.6,
+          70.3,
+          5.5
+        ],
+        [
+          75.8,
+          78.6,
+          3
+        ],
+        [
+          78.7,
+          84.0,
+          1.05
+        ]
+      ],
+      "callouts": [
+        {
+          "t0": 15.2,
+          "t1": 16.15,
+          "rect": [
+            60,
+            1335,
+            600,
+            190
+          ],
+          "mode": "lift"
+        },
+        {
+          "t0": 81.1,
+          "t1": 83.9,
+          "rect": [
+            100,
+            2195,
+            530,
+            190
+          ],
+          "mode": "lift"
+        }
+      ]
+    }
+  },
+  "shorts": {
+    "languages": {
+      "title": "What language are you speaking?",
+      "clips": [
+        "demo_language"
+      ],
+      "hook": "What *language* are you speaking?",
+      "motion": "standard.html",
+      "voice": {
+        "lines": [
+          "batch-2#2"
+        ],
+        "at": [
+          0.3,
+          2.36,
+          5.74,
+          8.97,
+          12.27,
+          17.34,
+          19.15,
+          23.48
+        ],
+        "captions": [
+          null,
+          "Now in *six languages*",
+          "Follows your phone, or *pick one*",
+          "Settings, Preferences, *Language*",
+          "One tap, *another language*",
+          "The app *switches* right away",
+          "A fork from the catalog, *in your language*",
+          "Pressure, tokens, rebound: *all in German*"
+        ]
+      }
+    }
+  },
+  "images": {
+    "carousel": [
+      {
+        "kind": "release",
+        "version": "1.7.0",
+        "note": "iOS · Android",
+        "item1": "English, German, French, Italian, Spanish, Portuguese",
+        "item2": "Follows your device, or pick one in Settings",
+        "item3": "Catalog and exports in your language",
+        "item4": "Decimals with a comma or a dot",
+        "footer": "Update in your app store"
+      },
+      {
+        "kind": "cover",
+        "title": "Rebound, *Zugstufe* or détente: what do you call it?",
+        "sub": "Bike Setup Tracker 1.7.0 comes in six languages.",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form.png"
+      },
+      {
+        "title": "Settings, Preferences, *Language*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/sheet.png"
+      },
+      {
+        "title": "Deutsch: *Zugstufe*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_de-DE.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Français: *Détente*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_fr-FR.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Italiano: *Ritorno*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_it-IT.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Español: *Rebote*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_es-ES.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Português: *Retorno*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_pt-BR.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "kind": "endcard"
+      }
+    ],
+    "square": [
+      {
+        "kind": "release",
+        "version": "1.7.0",
+        "note": "iOS · Android",
+        "item1": "English, German, French, Italian, Spanish, Portuguese",
+        "item2": "Follows your device, or pick one in Settings",
+        "item3": "Catalog and exports in your language",
+        "item4": "Decimals with a comma or a dot",
+        "footer": "Update in your app store"
+      },
+      {
+        "title": "Settings, Preferences, *Language*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/sheet.png"
+      },
+      {
+        "title": "Deutsch: *Zugstufe*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_de-DE.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Français: *Détente*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_fr-FR.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Italiano: *Ritorno*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_it-IT.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Español: *Rebote*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_es-ES.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Português: *Retorno*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_pt-BR.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "kind": "endcard"
+      }
+    ],
+    "vertical": [
+      {
+        "kind": "release",
+        "version": "1.7.0",
+        "note": "iOS · Android",
+        "item1": "English, German, French, Italian, Spanish, Portuguese",
+        "item2": "Follows your device, or pick one in Settings",
+        "item3": "Catalog and exports in your language",
+        "item4": "Decimals with a comma or a dot",
+        "footer": "Update in your app store"
+      },
+      {
+        "kind": "cover",
+        "title": "Rebound, *Zugstufe* or détente: what do you call it?",
+        "sub": "Bike Setup Tracker 1.7.0 comes in six languages.",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form.png"
+      },
+      {
+        "title": "Settings, Preferences, *Language*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/sheet.png"
+      },
+      {
+        "title": "Deutsch: *Zugstufe*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_de-DE.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Français: *Détente*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_fr-FR.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Italiano: *Ritorno*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_it-IT.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Español: *Rebote*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_es-ES.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "title": "Português: *Retorno*",
+        "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form_pt-BR.png",
+        "lift": "100,2195,530,190"
+      },
+      {
+        "kind": "endcard"
+      }
+    ],
+    "thumbnail": {
+      "title": "Rebound or *Zugstufe*?",
+      "shots": "build/marketing/raw/ios/stills/06_v1.7.0/form.png",
+      "lift": "100,2195,530,190"
+    }
+  }
+}

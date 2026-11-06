@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../services/strava_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/url.dart';
 import '../../widgets/dialogs/strava_disconnect.dart';
 import '../../widgets/items/strava_subscription_card.dart';
@@ -96,12 +97,16 @@ class AppSettingsPage extends StatelessWidget {
                 const Divider(),
               ],
               // Category navigation (hub → sub-pages).
-              ListTile(
-                leading: const Icon(Icons.tune),
-                title: Text(l10n.settingsPreferences),
-                subtitle: Text(l10n.settingsPreferencesSubtitle),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const PreferencesPage())),
+              Semantics(
+                container: true,
+                identifier: AutomationIds.settingsPreferences,
+                child: ListTile(
+                  leading: const Icon(Icons.tune),
+                  title: Text(l10n.settingsPreferences),
+                  subtitle: Text(l10n.settingsPreferencesSubtitle),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const PreferencesPage())),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.extension),

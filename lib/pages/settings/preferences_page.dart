@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_weather.dart';
+import '../../utils/automation_ids.dart';
 import '../../widgets/sheets/language_sheet.dart';
 import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/text/section_title.dart';
@@ -106,15 +107,19 @@ class PreferencesPage extends StatelessWidget {
                   },
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.language),
-                title: Text(l10n.preferencesLanguage),
-                subtitle: Text(languageName(l10n, appSettings.localeCode)),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => languageSheet(
-                  context: context,
-                  localeCode: appSettings.localeCode,
-                  onSelected: (newValue) => appSettings.localeCode = newValue,
+              Semantics(
+                container: true,
+                identifier: AutomationIds.preferencesLanguage,
+                child: ListTile(
+                  leading: const Icon(Icons.language),
+                  title: Text(l10n.preferencesLanguage),
+                  subtitle: Text(languageName(l10n, appSettings.localeCode)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => languageSheet(
+                    context: context,
+                    localeCode: appSettings.localeCode,
+                    onSelected: (newValue) => appSettings.localeCode = newValue,
+                  ),
                 ),
               ),
               const Divider(),

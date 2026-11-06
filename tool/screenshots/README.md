@@ -208,6 +208,7 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_dial_style` | `dial_style` | The Lyrik's rebound dial turned red and LSC small, then a new setup showing them |
 | `demo_catalog_brands` | `one_bike_no_components` | The catalog's brands, three of them opened, and a request for a fork that isn't listed |
 | `demo_setup_restore` | `restore` | The Hightower's history, an older setup restored from its tile's menu (pressure, LSC and rebound go back), and the copy saved as the newest setup |
+| `demo_language` | `one_bike_no_components` | Settings → Preferences → Language, the page relabelling itself through French, Italian, Spanish, Portuguese and German, then the Hightower's fork from the catalog with its adjusters in German |
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.
 - **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.

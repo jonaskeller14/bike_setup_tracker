@@ -12,6 +12,13 @@ abstract final class AutomationIds {
   static const appBarRider = 'appBar.rider';
   static const appBarStrava = 'appBar.strava';
   static const appBarOptions = 'appBar.options';
+  static const appBarOptionsSettings = 'appBar.options.settings';
+
+  static const settingsPreferences = 'settings.preferences';
+  static const preferencesLanguage = 'preferences.language';
+
+  /// The language sheet's options, by language code, e.g. `language.option.de`.
+  static String languageOption(String code) => 'language.option.$code';
 
   static const addSetupFab = 'setups.add';
   static const setupListCalendar = 'setups.calendar';

@@ -46,7 +46,8 @@ build.
 
 - **Bike context in every headline.** Each one names the bike, a part or a bike unit: MTB, fork,
   shock, suspension, tire pressure, clicks, psi (DE: MTB, Federgabel, Dämpfer, Fahrwerk,
-  Reifendruck, Klicks). "Setup" or "Fahrwerk" alone is too generic.
+  Reifendruck, Klicks). "Setup" or "Fahrwerk" alone is too generic. One exception, the maintainer's
+  call: R20, for the v1.7.0 languages Short, where the next line and the screen give the context.
 - **One headline per store-funnel surface.** The search asset, header, Play feature graphic and
   screenshot 1 each use a different headline (table below). The OG image and Shorts sit outside
   the funnel and may repeat a funnel headline.
@@ -54,7 +55,7 @@ build.
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
   never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
-- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R18, C5–C8, S4–S8, D4, D5) open Shorts and
+- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R20, C5–C8, S4–S8, D4, D5) open Shorts and
   posts; store assets use statements.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
@@ -86,6 +87,8 @@ German riders, not translated word for word.
 | R16 | Thinking about upgrading your fork? | Überlegst du, deine Gabel aufzurüsten? |
 | R17 | Red dial or blue dial: which one was rebound? | Rotes oder blaues Rad: Welches war die Zugstufe? |
 | R18 | You changed your fork settings. But you liked it better before? | Du hast deine Gabel verstellt. Aber vorher war es besser? |
+| R19 | Rebound, Zugstufe or détente: what do you call it? | Rebound, Zugstufe oder Détente: Wie sagst du dazu? |
+| R20 | What language are you speaking? | Welche Sprache sprichst du? |
 
 ### C — See what changed
 

@@ -380,7 +380,12 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               Icon(appOption.iconData),
                               const SizedBox(width: 8),
-                              Flexible(child: Text(appOption.label(l10n), overflow: TextOverflow.ellipsis)),
+                              Flexible(
+                                child: Semantics(
+                                  identifier: appOption == _AppOptions.settings ? AutomationIds.appBarOptionsSettings : null,
+                                  child: Text(appOption.label(l10n), overflow: TextOverflow.ellipsis),
+                                ),
+                              ),
                             ],
                           ),
                         );

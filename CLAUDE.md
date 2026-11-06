@@ -125,6 +125,12 @@ Pages (`lib/pages/`) are thin — they `watch` the repository and delegate to ac
 
 App startup goes through `LoadingGate` (async init: AppSettings load, DB migration check) before the main navigation shell (`home_page.dart`).
 
+### Backend
+
+The Firebase backend (Cloud Functions, Firestore rules and indexes, project `bike-setup-tracker-strava`) lives in the private repo `jonaskeller14/bike_setup_tracker_backend`, cloned next to this one at `../bike_setup_tracker_backend`. Issues stay in this repo.
+
+It is not part of worktrees. For any task that touches Strava, subscriptions, Firestore rules or the document schema, add `../bike_setup_tracker_backend` as an additional working directory and read it. The client entry points are `lib/services/strava_service.dart`, `lib/services/subscription_service.dart` and `lib/models/strava/*`. The code on both sides is the contract; there is no separate interface document.
+
 ### Environment / Secrets
 
 Secrets (e.g., `MAPBOX_TOKEN`) are stored in `.env` and obfuscated via `envied`. Generated output lands in `lib/env/env.g.dart` (gitignored). Do not hardcode tokens in source.

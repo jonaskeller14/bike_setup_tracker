@@ -64,26 +64,6 @@
             }
         },
         {
-            "label": "Firebase: Deploy Functions (Strava Backend)",
-            "type": "shell",
-            "command": "firebase deploy --only functions",
-            "options": {
-                "cwd": "${workspaceFolder}/backend_strava"
-            },
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "label": "Firebase: Deploy All (Rules & Functions)",
-            "type": "shell",
-            "command": "firebase deploy",
-            "options": {
-                "cwd": "${workspaceFolder}/backend_strava"
-            },
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
             "label": "Build & Upload IPA (App Store, Transporter)",
             "type": "shell",
             "command": "flutter build ipa --release && open -a Transporter build/ios/ipa/*.ipa",

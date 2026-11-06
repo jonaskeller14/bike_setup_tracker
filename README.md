@@ -46,9 +46,9 @@ Here are the current development goals and their status:
 - [x] **Sub-components**: infinitely deep component hierarchy, Strava stats inherited from the parent ➡️ **Live, opt-in**
 - [x] Add **URL support for bike/components** ➡️ **URLs are recognized in notes**
 - [x] **Component & task presets** for the most common forks and shocks ➡️ **Live since v1.6.4**
+- [x] **Multiple languages** ➡️ **Live since v1.7.0** (English, German, Spanish, French, Italian, Portuguese)
 - [ ] **Rating procedure** to distinguish good setups from bad ➡️ **In development**
 - [ ] **Marketing** push to grow the user base ➡️ **In progress**
-- [ ] **Multiple languages** ➡️ **Planned**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
 

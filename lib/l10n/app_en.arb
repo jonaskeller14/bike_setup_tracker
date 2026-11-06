@@ -12105,7 +12105,7 @@
       }
     }
   },
-  "stepUnknownMaxWarning": "Click count not published. Max is a placeholder. Edit it to match your component.",
+  "stepUnknownMaxWarning": "Click count not published. Max is a placeholder, edit it to match your component.",
   "@stepUnknownMaxWarning": {
     "description": "Note of a step adjustment created from the catalog whose maximum the manufacturer does not publish. It is stored with the note."
   },

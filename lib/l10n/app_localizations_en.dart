@@ -8962,7 +8962,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stepUnknownMaxWarning =>
-      'Click count not published. Max is a placeholder. Edit it to match your component.';
+      'Click count not published. Max is a placeholder, edit it to match your component.';
 
   @override
   String catalogSizesCount(int count) {

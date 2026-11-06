@@ -14488,7 +14488,7 @@ abstract class AppLocalizations {
   /// Note of a step adjustment created from the catalog whose maximum the manufacturer does not publish. It is stored with the note.
   ///
   /// In en, this message translates to:
-  /// **'Click count not published. Max is a placeholder. Edit it to match your component.'**
+  /// **'Click count not published. Max is a placeholder, edit it to match your component.'**
   String get stepUnknownMaxWarning;
 
   /// Summary of a shock that comes in several sizes, where listing them all would not fit a row. {count} is the number of sizes.

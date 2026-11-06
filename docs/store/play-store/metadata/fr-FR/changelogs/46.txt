@@ -1,0 +1,5 @@
+• L’application est disponible en français, anglais, allemand, italien, espagnol et portugais
+• Elle suit la langue de votre appareil, ou choisissez-en une autre dans Paramètres > Préférences > Langue
+• Le catalogue de fourches et d’amortisseurs et vos exports sont aussi traduits
+• Saisissez les décimales avec une virgule ou un point, comme vous préférez
+• Si vous installez l’application pour la première fois, elle démarre avec les unités et le format d’heure de votre région

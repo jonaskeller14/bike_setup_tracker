@@ -1,0 +1,5 @@
+• Die App gibt es jetzt auf Deutsch, Englisch, Französisch, Italienisch, Spanisch und Portugiesisch
+• Sie folgt der Sprache deines Geräts, oder du wählst unter Einstellungen > Voreinstellungen > Sprache eine andere
+• Auch der Katalog für Gabeln und Dämpfer und deine Exporte sind übersetzt
+• Dezimalzahlen tippst du mit Komma oder Punkt, ganz wie du magst
+• Installierst du die App zum ersten Mal, startet sie mit den Einheiten und dem Zeitformat deiner Region

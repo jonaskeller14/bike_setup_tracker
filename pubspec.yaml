@@ -12,7 +12,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 
-version: 1.6.4+45 # TODO: Update AppInfo (lib/utils/app_info.dart)
+version: 1.7.0+46 # TODO: Update AppInfo (lib/utils/app_info.dart)
 
 environment:
   # Floor raised to Flutter 3.47 (Dart 3.13), which needs Java 17 / AGP 9.1 / Gradle 9.3.1

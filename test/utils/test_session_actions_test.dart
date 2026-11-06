@@ -266,7 +266,7 @@ void main() {
       expect(runs.single.bikeAdjustmentValues, baseSetup().bikeAdjustmentValues);
       expect(runs.single.sourceSetupId, 's1');
       expect(runs.single.sourceKind, SetupSourceKind.testSessionRun);
-      expect(runs.single.notes, "Copy of 'Base' (2026-05-01)");
+      expect(runs.single.notes, isNull, reason: 'only Tournament runs carry a copy line');
       expect(appRepository.runningSessionFor(_bikeId)?.id, started.id);
     });
 
@@ -529,7 +529,7 @@ void main() {
       expect(runs.last.name, 'Run 3');
       expect(runs.last.bikeAdjustmentValues[_reboundId], const StepValue(7), reason: 'the earlier run is ridden again');
       expect(runs.last.sourceSetupId, 'r1');
-      expect(runs.last.notes, "Copy of 'Run 1' (2026-05-02)", reason: 'notes of a run describe its ride');
+      expect(runs.last.notes, isNull, reason: 'notes of a run describe its ride');
     });
 
     testWidgets('after the session ended it is a normal setup without a session', (tester) async {

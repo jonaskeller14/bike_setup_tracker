@@ -15,6 +15,7 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/backup_service.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
+import 'package:bike_setup_tracker/services/navigation_service.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
@@ -303,6 +304,49 @@ void main() {
 
     expect(appSettings.showOnboarding, isTrue);
     expect(find.byType(OnboardingPage), findsOneWidget);
+  });
+
+  group('Tasks tab request', () {
+    int selectedTab(WidgetTester tester) => tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
+
+    setUp(() => addTearDown(() => NavigationService.tasksTabRequested.value = false));
+
+    testWidgets('brings the Tasks tab to the front', (tester) async {
+      appSettings.enableTask = true;
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+      expect(selectedTab(tester), 0);
+
+      NavigationService.tasksTabRequested.value = true;
+      await tester.pumpAndSettle();
+
+      expect(selectedTab(tester), 2);
+      expect(NavigationService.tasksTabRequested.value, isFalse);
+    });
+
+    testWidgets('waits for the home page when made before it exists', (tester) async {
+      appSettings.enableTask = true;
+      NavigationService.tasksTabRequested.value = true;
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(selectedTab(tester), 2);
+      expect(NavigationService.tasksTabRequested.value, isFalse);
+    });
+
+    testWidgets('is dropped while tasks are off', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      NavigationService.tasksTabRequested.value = true;
+      await tester.pumpAndSettle();
+      appSettings.enableTask = true;
+      await tester.pumpAndSettle();
+
+      expect(selectedTab(tester), 0);
+      expect(NavigationService.tasksTabRequested.value, isFalse);
+    });
   });
 
   testWidgets('Tasks badge stays hidden for empty and upcoming-only scopes', (tester) async {

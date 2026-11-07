@@ -357,14 +357,19 @@ class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsB
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
-    final locale = appLocaleOf(appSettings);
+    final (themeMode, localeCode, showOnboarding) = context.select<AppSettings, (ThemeMode, String?, bool)>(
+      (settings) => (settings.themeMode, settings.localeCode, settings.showOnboarding),
+    );
+    final locale = resolveAppLocale(
+      override: localeCode,
+      deviceLocales: WidgetsBinding.instance.platformDispatcher.locales,
+    );
 
     return MaterialApp(
       title: 'Bike Setup Tracker',
       theme: materialAppTheme,
       darkTheme: materialAppDarkTheme,
-      themeMode: appSettings.themeMode,
+      themeMode: themeMode,
       locale: locale,
       localeResolutionCallback: keepRegionLocale,
       localizationsDelegates: appLocalizationsDelegates,
@@ -376,10 +381,11 @@ class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsB
         final loadedLocale = Localizations.localeOf(context);
         Intl.defaultLocale = loadedLocale.toString();
         unawaited(QuickActionsService().updateLocale(loadedLocale));
+        unawaited(context.read<StravaService>().updateNotificationLanguage(loadedLocale.languageCode));
         return child!;
       },
       navigatorKey: NavigationService.navigatorKey,
-      home: appSettings.showOnboarding ? const OnboardingPage() : const HomePage(),
+      home: showOnboarding ? const OnboardingPage() : const HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }

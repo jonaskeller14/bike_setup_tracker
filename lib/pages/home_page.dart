@@ -15,6 +15,7 @@ import '../models/setup.dart';
 import '../models/task/task_rule.dart';
 import '../models/timeline_selection.dart';
 import '../repositories/app_repository.dart';
+import '../services/navigation_service.dart';
 import '../utils/automation_ids.dart';
 import '../utils/bike_actions.dart';
 import '../utils/person_actions.dart';
@@ -62,10 +63,25 @@ class _HomePageState extends State<HomePage> {
     _bikeSelection.addListener(_selectionChanged);
     _taskRuleSelection.addListener(_selectionChanged);
     _timelineSelection.addListener(_selectionChanged);
+    NavigationService.tasksTabRequested.addListener(_showRequestedTasksTab);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showRequestedTasksTab());
   }
 
   void _selectionChanged() {
     if (mounted) setState(() {});
+  }
+
+  static int _taskPageIndexOf(AppSettings appSettings) => 2 + (appSettings.showAdvancedPersonUi ? 1 : 0);
+
+  void _showRequestedTasksTab() {
+    if (!mounted || !NavigationService.tasksTabRequested.value) return;
+    NavigationService.tasksTabRequested.value = false;
+    final appSettings = context.read<AppSettings>();
+    if (!appSettings.enableTask) return;
+    setState(() => _currentPageIndex = _taskPageIndexOf(appSettings));
+    _taskRuleSelection.clear();
+    _bikeSelection.clear();
+    _timelineSelection.clear();
   }
 
   void _toggleDeveloperMode() {
@@ -187,6 +203,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    NavigationService.tasksTabRequested.removeListener(_showRequestedTasksTab);
     _garageListController.dispose();
     _setupListController.dispose();
     _taskListController.dispose();
@@ -214,7 +231,7 @@ class _HomePageState extends State<HomePage> {
       0,
       1 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
     );
-    final taskPageIndex = 2 + (appSettings.showAdvancedPersonUi ? 1 : 0);
+    final taskPageIndex = _taskPageIndexOf(appSettings);
     final showTaskSelectionAppBar =
         appSettings.enableTask && pageIndex == taskPageIndex && _taskRuleSelection.isSelectionMode;
     final showBikeSelectionAppBar = pageIndex == 0 && _bikeSelection.isSelectionMode;

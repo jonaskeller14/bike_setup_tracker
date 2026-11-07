@@ -119,6 +119,8 @@ class StravaService extends ChangeNotifier {
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _athleteSubscription;
   bool _isDisposed = false;
   bool _wasEntitled = false;
+  bool _hasFcmToken = false;
+  String? _notificationLanguage;
 
   DateTime? _lastRecentSync;
   DateTime? _lastFullSync;
@@ -419,10 +421,33 @@ class StravaService extends ChangeNotifier {
           }
 
           await FirebaseFirestore.instance.collection('users').doc(_userId).set(data, SetOptions(merge: true));
+          _hasFcmToken = true;
+          await _writeNotificationLanguage();
         }
       }
     } catch (e) {
       _handleError("FcmToken", e);
+    }
+  }
+
+  /// The backend writes the import notifications, so it needs the app's
+  /// language, which can differ from the device's.
+  Future<void> updateNotificationLanguage(String languageCode) async {
+    if (languageCode == _notificationLanguage) return;
+    _notificationLanguage = languageCode;
+    if (_hasFcmToken) await _writeNotificationLanguage();
+  }
+
+  // Separate from the token write, so a rejected language never costs the token.
+  Future<void> _writeNotificationLanguage() async {
+    final language = _notificationLanguage;
+    if (_userId == null || language == null) return;
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(_userId).set({
+        'language': language,
+      }, SetOptions(merge: true));
+    } catch (e) {
+      _handleError("NotificationLanguage", e);
     }
   }
 

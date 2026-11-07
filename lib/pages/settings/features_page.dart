@@ -13,10 +13,10 @@ import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../widgets/sheets/checkbox_group.dart';
+import '../../widgets/sheets/feature_setting_sheet.dart';
 import '../../widgets/sheets/installation_timeline_hint_sheet.dart';
 import '../../widgets/sheets/presets_setting_sheets.dart';
 import '../../widgets/sheets/pressure_check_setting_sheet.dart';
-import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/sheets/subcomponents_hint_sheet.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -400,17 +400,9 @@ class _FeatureToggleTile extends StatelessWidget {
       title: Text(title),
       subtitle: !enabled && disabledSubtitle != null ? Text(disabledSubtitle!) : offOnOptionWidgets[value],
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-      onTap: () => sheet != null ? _openSheet(context, sheet!) : radioGroupSheet<bool>(
-        context: context,
-        title: title,
-        value: value,
-        optionWidgets: offOnOptionWidgets,
-        onChanged: (bool? newValue) {
-          if (newValue == null) return;
-          onChanged(newValue);
-          Navigator.pop(context);
-        },
-        infoText: infoText,
+      onTap: () => _openSheet(
+        context,
+        sheet ?? (context, value) => showFeatureSettingSheet(context, title: title, value: value, infoText: infoText),
       ),
     );
   }

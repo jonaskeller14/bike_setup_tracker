@@ -9,17 +9,24 @@ import '../models/context/context_weather.dart';
 import '../services/pressure_drift_service.dart';
 import '../theme.dart';
 import '../utils/localized_number.dart';
+import 'hint_card_parts.dart';
 import 'setup_guide_status.dart';
 import 'sheets/pressure_check_info_sheet.dart';
 
 /// Tells the rider whether the pressures pre-filled from history still read the
 /// same on a pump under today's temperature and altitude — that is, whether it
 /// is worth unpacking the pump at all. Styled like the app hints, and collapsed
-/// while every pressure stays within the threshold.
+/// while every pressure stays within the threshold or there is nothing to compare.
 class PressureDriftCard extends StatefulWidget {
   final List<PressureDriftEntry> entries;
 
-  const PressureDriftCard({super.key, required this.entries});
+  /// Why [entries] is empty; the card hides while both are empty.
+  final PressureDriftGap? gap;
+
+  /// Whether the current location or weather is still being fetched.
+  final bool loading;
+
+  const PressureDriftCard({super.key, required this.entries, this.gap, this.loading = false});
 
   @override
   State<PressureDriftCard> createState() => _PressureDriftCardState();
@@ -32,16 +39,19 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
   @override
   Widget build(BuildContext context) {
     final entries = widget.entries;
-    if (entries.isEmpty) return const SizedBox.shrink();
+    final gap = widget.gap;
+    if (entries.isEmpty && gap == null) return const SizedBox.shrink();
 
     final appSettings = context.watch<AppSettings>();
     final hint = HintColors.of(context);
     final textTheme = Theme.of(context).textTheme;
     final driftedCount = entries.where((e) => e.isSignificant).length;
     final expanded = _expanded ?? driftedCount > 0;
-    final summary = driftedCount > 0
-        ? const GuideStatus(GuideStatusKind.off)
-        : const GuideStatus(GuideStatusKind.inRange);
+    final summary = switch ((entries.isEmpty, driftedCount > 0)) {
+      (true, _) => const GuideStatus(GuideStatusKind.unavailable),
+      (false, true) => const GuideStatus(GuideStatusKind.off),
+      (false, false) => const GuideStatus(GuideStatusKind.inRange),
+    };
     final threshold = "${appSettings.pressureCheckThresholdPercent} %";
     final divider = Divider(height: 1, indent: 16, endIndent: 16, color: hint.onContainer.withValues(alpha: 0.15));
 
@@ -58,38 +68,29 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              InkWell(
-                onTap: () => setState(() => _expanded = !expanded),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 4, top: 4, bottom: 4),
-                  child: Row(
-                    spacing: 6,
-                    children: [
-                      Icon(Icons.compress, size: 16, color: hint.accent),
-                      Expanded(
-                        child: Text(
-                          context.l10n.featuresPressureCheck.toUpperCase(),
-                          style: textTheme.labelSmall?.copyWith(
-                            color: hint.accent,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+              HintCardHeader(
+                status: widget.loading
+                    ? const HintCardLoadingIndicator()
+                    : Icon(
+                        summary.icon,
+                        size: 18,
+                        color: summary.color(context),
+                        semanticLabel: entries.isEmpty ? null : summary.label(context.l10n),
                       ),
-                      Icon(summary.icon, size: 20, color: summary.color(context)),
-                      IconButton(
-                        onPressed: () => setState(() => _expanded = !expanded),
-                        icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
-                        color: hint.accent,
-                        tooltip: expanded ? context.l10n.collapse : context.l10n.expand,
-                      ),
-                    ],
-                  ),
-                ),
+                title: context.l10n.featuresPressureCheck,
+                expanded: expanded,
+                onToggle: () => setState(() => _expanded = !expanded),
               ),
-              if (expanded) ...[
+              if (expanded && entries.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: HintLearnMoreText(
+                    text: widget.loading ? context.l10n.pressureCheckLoading : _gapText(gap!, context.l10n),
+                    style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
+                    onLearnMore: () => showPressureCheckInfoSheet(context),
+                  ),
+                )
+              else if (expanded) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
@@ -120,27 +121,13 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                 ],
                 divider,
                 Padding(
-                  // Right inset matches the header, so the info button sits under the chevron.
-                  padding: const EdgeInsets.fromLTRB(16, 4, 4, 4),
-                  child: Row(
-                    spacing: 6,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          driftedCount > 0
-                              ? context.l10n.pressureCheckFooterDrifted
-                              : context.l10n.pressureCheckFooterOk(threshold),
-                          style: textTheme.bodySmall?.copyWith(color: hint.onContainer),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => showPressureCheckInfoSheet(context),
-                        icon: const Icon(Icons.info_outline_rounded),
-                        iconSize: 18,
-                        color: hint.accent,
-                        tooltip: context.l10n.pressureCheckInfoTooltip,
-                      ),
-                    ],
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                  child: HintLearnMoreText(
+                    text: driftedCount > 0
+                        ? context.l10n.pressureCheckFooterDrifted
+                        : context.l10n.pressureCheckFooterOk(threshold),
+                    style: textTheme.bodySmall?.copyWith(color: hint.onContainer),
+                    onLearnMore: () => showPressureCheckInfoSheet(context),
                   ),
                 ),
               ],
@@ -151,6 +138,12 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
     );
   }
 }
+
+String _gapText(PressureDriftGap gap, AppLocalizations l10n) => switch (gap) {
+  PressureDriftGap.noRecordedPressure => l10n.pressureCheckNoRecordedPressure,
+  PressureDriftGap.noRecordedConditions => l10n.pressureCheckNoRecordedConditions,
+  PressureDriftGap.noCurrentConditions => l10n.pressureCheckNoCurrentConditions,
+};
 
 class _PressureDriftRow extends StatelessWidget {
   final PressureDriftEntry entry;

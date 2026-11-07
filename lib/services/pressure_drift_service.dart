@@ -75,6 +75,18 @@ class PressureDriftEntry {
   double get altitudeDeltaM => currentAltitudeM - referenceAltitudeM;
 }
 
+/// Why [PressureDriftService.compute] finds no pressure to compare.
+enum PressureDriftGap {
+  /// No earlier setup recorded any of the pressures.
+  noRecordedPressure,
+
+  /// The setups that last set the pressures have no temperature or altitude.
+  noRecordedConditions,
+
+  /// The current temperature or altitude is missing.
+  noCurrentConditions,
+}
+
 /// Predicts what a pump will read for pressures that were set under different
 /// ambient conditions.
 ///
@@ -202,6 +214,38 @@ class PressureDriftService {
       }
     }
     return entries;
+  }
+
+  static bool hasPressureAdjustment(Iterable<Component> components) =>
+      components.any((component) => component.adjustments.any((adjustment) => pressureUnitOf(adjustment) != null));
+
+  /// Why [compute] returns nothing for the same arguments, or null where it
+  /// returns entries. A gap the rider cannot fix on this page comes first.
+  static PressureDriftGap? gapOf({
+    required Iterable<Component> components,
+    required Map<String, AdjustmentProvenance> provenance,
+    required ContextWeather? currentWeather,
+    required ContextPosition? currentPosition,
+  }) {
+    final sources = [
+      for (final component in components)
+        for (final adjustment in component.adjustments)
+          if (pressureUnitOf(adjustment) != null)
+            if (provenance[adjustment.id] case final source?
+                when source.value is NumericalValue && (source.value as NumericalValue).value > 0)
+              source,
+    ];
+    if (sources.isEmpty) return PressureDriftGap.noRecordedPressure;
+    if (!sources.any((source) => _hasConditions(source.setup.weather, source.setup.position))) {
+      return PressureDriftGap.noRecordedConditions;
+    }
+    if (!_hasConditions(currentWeather, currentPosition)) return PressureDriftGap.noCurrentConditions;
+    return null;
+  }
+
+  static bool _hasConditions(ContextWeather? weather, ContextPosition? position) {
+    final temperatureC = weather?.currentTemperature;
+    return temperatureC != null && _kelvin(temperatureC) > 0 && position?.altitude != null;
   }
 
   static double _kelvin(double celsius) => celsius + 273.15;

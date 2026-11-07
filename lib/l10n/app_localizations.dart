@@ -13075,11 +13075,29 @@ abstract class AppLocalizations {
   /// **'Every pressure stays within {threshold} of the value you last set.'**
   String pressureCheckFooterOk(String threshold);
 
-  /// Tooltip of the info button on the pressure check card.
+  /// Body of the collapsed pressure check card while the current location or weather is still being fetched.
   ///
   /// In en, this message translates to:
-  /// **'How this is calculated'**
-  String get pressureCheckInfoTooltip;
+  /// **'Getting the current temperature and altitude…'**
+  String get pressureCheckLoading;
+
+  /// Body of the pressure check card when no earlier setup recorded a pressure of the bike.
+  ///
+  /// In en, this message translates to:
+  /// **'No pressure recorded for this bike yet, so there is nothing to compare.'**
+  String get pressureCheckNoRecordedPressure;
+
+  /// Body of the pressure check card when the setups that last set the pressures have no temperature or altitude.
+  ///
+  /// In en, this message translates to:
+  /// **'The pressures you last set were saved without a temperature or altitude, so there is nothing to compare.'**
+  String get pressureCheckNoRecordedConditions;
+
+  /// Body of the pressure check card when the current temperature or altitude is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the current temperature and altitude. Set the location and weather above.'**
+  String get pressureCheckNoCurrentConditions;
 
   /// Row of the pressure check card: the value that was last set. {value} is the pressure, {unit} its unit, {date} the setup date, {conditions} the temperature and altitude then.
   ///
@@ -13252,7 +13270,7 @@ abstract class AppLocalizations {
   /// Introduction of the pressure check settings sheet.
   ///
   /// In en, this message translates to:
-  /// **'When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently.'**
+  /// **'When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently. Only shown for bikes with a pressure adjustment.'**
   String get pressureCheckSettingIntro;
 
   /// Switch in the pressure check settings sheet.
@@ -13290,12 +13308,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Setup guide'**
   String get guideCardTitle;
-
-  /// Tooltip of the info button on the setup guide card.
-  ///
-  /// In en, this message translates to:
-  /// **'About recommended values'**
-  String get guideCardInfoTooltip;
 
   /// Headline of the setup guide card.
   ///

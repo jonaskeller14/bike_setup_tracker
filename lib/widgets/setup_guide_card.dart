@@ -12,6 +12,7 @@ import '../utils/adjustment_role.dart';
 import '../utils/localized_number.dart';
 import '../utils/number_input_formatters.dart';
 import '../utils/setup_guide_actions.dart';
+import 'hint_card_parts.dart';
 import 'setup_guide_status.dart';
 import 'sheets/setup_guide_info_sheet.dart';
 
@@ -47,10 +48,11 @@ class GuideWeightInput {
   });
 }
 
-/// Recommended first values for components linked to a catalog product with a
-/// setup guide, styled like the app hints since it only shows until values are
-/// recorded. Tapping a row applies its value; [onApplyAll] applies every one.
-class SetupGuideCard extends StatelessWidget {
+/// Recommended values for components linked to a catalog product with a setup
+/// guide, styled like the app hints. Collapsed unless [initiallyExpanded],
+/// with the header icon in the badges' orange while a value differs from the guide. Tapping a
+/// row applies its value; [onApplyAll] applies every one.
+class SetupGuideCard extends StatefulWidget {
   final List<SetupGuideSection> sections;
   final GuideInputs inputs;
   final void Function(GuideRecommendation recommendation) onApply;
@@ -60,6 +62,7 @@ class SetupGuideCard extends StatelessWidget {
 
   /// Shown in place of the weight line while no riding weight is recorded.
   final GuideWeightInput? weightInput;
+  final bool initiallyExpanded;
 
   const SetupGuideCard({
     super.key,
@@ -68,98 +71,118 @@ class SetupGuideCard extends StatelessWidget {
     required this.onApply,
     required this.onApplyAll,
     this.weightInput,
+    this.initiallyExpanded = true,
   });
 
   @override
+  State<SetupGuideCard> createState() => _SetupGuideCardState();
+}
+
+class _SetupGuideCardState extends State<SetupGuideCard> {
+  /// Null until the rider toggles the card; until then it follows [SetupGuideCard.initiallyExpanded].
+  bool? _expanded;
+
+  @override
   Widget build(BuildContext context) {
+    final sections = widget.sections;
     if (sections.isEmpty) return const SizedBox.shrink();
 
     final hint = HintColors.of(context);
     final textTheme = Theme.of(context).textTheme;
     final onContainer = TextStyle(color: hint.onContainer);
-    final weightInput = this.weightInput;
+    final inputs = widget.inputs;
+    final weightInput = widget.weightInput;
+    final expanded = _expanded ?? widget.initiallyExpanded;
+    final differs = sections.any(
+      (section) => section.recommendations.any((r) => GuideStatus.of(r, context.l10n)?.kind == GuideStatusKind.off),
+    );
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(color: hint.container, borderRadius: BorderRadius.circular(18)),
-      padding: const EdgeInsets.only(top: 4, bottom: 12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 4),
-            child: Row(
-              spacing: 6,
-              children: [
-                Icon(Icons.tips_and_updates_outlined, size: 16, color: hint.accent),
-                Expanded(
-                  child: Text(
-                    context.l10n.guideCardTitle.toUpperCase(),
-                    style: textTheme.labelSmall?.copyWith(
-                      color: hint.accent,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Material(
+        color: hint.container,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        clipBehavior: Clip.antiAlias,
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          alignment: Alignment.topCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              HintCardHeader(
+                status: Icon(
+                  Icons.tips_and_updates_outlined,
+                  size: 18,
+                  color: differs ? const GuideStatus(GuideStatusKind.off).color(context) : hint.accent,
+                  semanticLabel: differs ? context.l10n.guideStatusDiffers : null,
+                ),
+                title: context.l10n.guideCardTitle,
+                expanded: expanded,
+                onToggle: () => setState(() => _expanded = !expanded),
+              ),
+              if (expanded) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.l10n.guideCardHeadline,
+                        style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
+                      ),
+                      if (weightInput == null)
+                        Text(_inputsText(inputs, context.l10n), style: textTheme.bodyMedium?.merge(onContainer))
+                      else
+                        _WeightField(input: weightInput, ridingStyle: inputs.ridingStyle),
+                    ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () => showSetupGuideInfoSheet(context, sections: sections),
-                  icon: const Icon(Icons.info_outline_rounded),
-                  iconSize: 18,
-                  color: hint.accent,
-                  tooltip: context.l10n.guideCardInfoTooltip,
+                for (final (i, section) in sections.indexed) ...[
+                  _SectionHeader(section: section, first: i == 0),
+                  for (final recommendation in section.recommendations)
+                    _RecommendationRow(
+                      recommendation: recommendation,
+                      component: section.guided.component,
+                      hasRiderWeight: inputs.riderWeight != null,
+                      riderWeightUnit: inputs.riderWeightUnit,
+                      onApply: widget.onApply,
+                    ),
+                ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    spacing: 12,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: HintLearnMoreText(
+                          text: context.l10n.guideCardStartingPoint,
+                          style: textTheme.bodySmall?.merge(onContainer),
+                          onLearnMore: () => showSetupGuideInfoSheet(context, sections: sections),
+                        ),
+                      ),
+                      // Shrinks only where a long label or large text would squeeze the text out.
+                      Flexible(
+                        flex: 2,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: FilledButton.icon(
+                            style: FilledButton.styleFrom(backgroundColor: hint.accent, foregroundColor: hint.onAccent),
+                            onPressed: widget.onApplyAll,
+                            icon: const Icon(Icons.done_all),
+                            label: Text(context.l10n.guideCardApplyAll),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.guideCardHeadline,
-                  style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
-                ),
-                if (weightInput == null)
-                  Text(_inputsText(inputs, context.l10n), style: textTheme.bodyMedium?.merge(onContainer))
-                else
-                  _WeightField(input: weightInput, ridingStyle: inputs.ridingStyle),
-              ],
-            ),
-          ),
-          for (final (i, section) in sections.indexed) ...[
-            _SectionHeader(section: section, first: i == 0),
-            for (final recommendation in section.recommendations)
-              _RecommendationRow(
-                recommendation: recommendation,
-                component: section.guided.component,
-                hasRiderWeight: inputs.riderWeight != null,
-                riderWeightUnit: inputs.riderWeightUnit,
-                onApply: onApply,
-              ),
-          ],
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text(context.l10n.guideCardStartingPoint, style: textTheme.bodySmall?.merge(onContainer)),
-                FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: hint.accent, foregroundColor: hint.onAccent),
-                  onPressed: onApplyAll,
-                  icon: const Icon(Icons.done_all),
-                  label: Text(context.l10n.guideCardApplyAll),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

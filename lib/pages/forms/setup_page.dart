@@ -1403,18 +1403,44 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (provenance == null) return null;
     final appSettings = context.read<AppSettings>();
     final hiddenTypes = appSettings.pressureCheckHiddenComponentTypes;
+    final components = bikeComponents.where((component) => !hiddenTypes.contains(component.componentType)).toList();
+    if (!PressureDriftService.hasPressureAdjustment(components)) return null;
 
     return ListenableBuilder(
-      listenable: Listenable.merge([_currentLocation, _currentWeather]),
-      builder: (context, child) => PressureDriftCard(
-        entries: PressureDriftService.compute(
-          components: bikeComponents.where((component) => !hiddenTypes.contains(component.componentType)),
+      listenable: Listenable.merge([
+        _currentLocation,
+        _currentWeather,
+        _locationService,
+        _elevationService,
+        _weatherService,
+      ]),
+      builder: (context, child) {
+        final entries = PressureDriftService.compute(
+          components: components,
           provenance: provenance,
           currentWeather: _currentWeather.value,
           currentPosition: _currentLocation.value,
           significanceThreshold: appSettings.pressureCheckThreshold,
-        ),
-      ),
+        );
+        final gap = entries.isNotEmpty
+            ? null
+            : PressureDriftService.gapOf(
+                components: components,
+                provenance: provenance,
+                currentWeather: _currentWeather.value,
+                currentPosition: _currentLocation.value,
+              );
+        final fetching =
+            _locationService.status == LocationStatus.searching ||
+            _elevationService.status == ElevationStatus.searching ||
+            _weatherService.status is WeatherSearching;
+        return PressureDriftCard(
+          entries: entries,
+          gap: gap,
+          // A fetch only matters while the current conditions are what's missing.
+          loading: fetching && (gap == null || gap == PressureDriftGap.noCurrentConditions),
+        );
+      },
     );
   }
 
@@ -1422,14 +1448,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final appSettings = context.read<AppSettings>();
     if (!appSettings.enableSetupGuides) return null;
     final catalog = context.read<ComponentCatalogRepository>();
-    final guided = appSettings.developerMode
-        ? guidedComponents(bikeComponents, resolve: (component) => catalog.loadedPreset(component.preset!))
-        : guidedComponentsWithoutValues(
-            bikeComponents,
-            resolve: (component) => catalog.loadedPreset(component.preset!),
-            previousValues: _previousBikeAdjustmentValues,
-          );
+    final guided = guidedComponents(bikeComponents, resolve: (component) => catalog.loadedPreset(component.preset!));
     if (guided.isEmpty) return null;
+    final firstSetup = guidedComponentsWithoutValues(
+      bikeComponents,
+      resolve: (component) => catalog.loadedPreset(component.preset!),
+      previousValues: _previousBikeAdjustmentValues,
+    ).isNotEmpty;
 
     return ListenableBuilder(
       listenable: _adjustmentValuesRevision,
@@ -1450,6 +1475,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           weightInput: _guideWeightInput(),
           onApply: _applyGuideValue,
           onApplyAll: canApplyAll ? () => _applyAllGuideValues(sections, inputs) : null,
+          initiallyExpanded: firstSetup,
         );
       },
     );

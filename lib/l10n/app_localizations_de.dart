@@ -7995,7 +7995,19 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get pressureCheckInfoTooltip => 'So wird das berechnet';
+  String get pressureCheckLoading => 'Aktuelle Temperatur und Höhe werden abgerufen…';
+
+  @override
+  String get pressureCheckNoRecordedPressure =>
+      'Für dieses Bike ist noch kein Druck erfasst, es gibt also nichts zu vergleichen.';
+
+  @override
+  String get pressureCheckNoRecordedConditions =>
+      'Die zuletzt eingestellten Drücke wurden ohne Temperatur oder Höhe gespeichert, es gibt also nichts zu vergleichen.';
+
+  @override
+  String get pressureCheckNoCurrentConditions =>
+      'Braucht die aktuelle Temperatur und Höhe. Setze oben Standort und Wetter.';
 
   @override
   String pressureCheckSetOn(String value, String unit, String date, String conditions) {
@@ -8104,7 +8116,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pressureCheckSettingIntro =>
-      'Prüft beim Hinzufügen eines Setups, ob deine Pumpe die zuletzt eingestellten Drücke noch anzeigen würde. Kältere oder dünnere Luft lässt dieselbe geschlossene Kammer anders anzeigen.';
+      'Prüft beim Hinzufügen eines Setups, ob deine Pumpe die zuletzt eingestellten Drücke noch anzeigen würde. Kältere oder dünnere Luft lässt dieselbe geschlossene Kammer anders anzeigen. Wird nur für Bikes mit einer Druck-Einstellung angezeigt.';
 
   @override
   String get pressureCheckEnabled => 'Aktiviert';
@@ -8124,9 +8136,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get guideCardTitle => 'Setup-Guide';
-
-  @override
-  String get guideCardInfoTooltip => 'Zu den empfohlenen Werten';
 
   @override
   String get guideCardHeadline => 'Empfohlene Startwerte';

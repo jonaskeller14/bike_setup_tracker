@@ -1,7 +1,14 @@
 import 'package:bike_setup_tracker/l10n/l10n.dart';
+import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/services/pressure_drift_service.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/pressure_drift_card.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../goldens/support/localized_test_app.dart';
 import '../support/german_l10n.dart';
 
 void main() {
@@ -35,6 +42,57 @@ void main() {
 
     test('uses a decimal comma in German', () {
       expect(signedPercent(0.055, germanL10n), '+5,5 %');
+    });
+  });
+
+  group('PressureDriftCard', () {
+    setUp(() => SharedPreferences.setMockInitialValues({}));
+
+    Future<void> pumpCard(WidgetTester tester, {PressureDriftGap? gap, bool loading = false}) {
+      return tester.pumpWidget(
+        ChangeNotifierProvider<AppSettings>.value(
+          value: AppSettings(),
+          child: localizedTestApp(
+            theme: materialAppTheme,
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: PressureDriftCard(entries: const [], gap: gap, loading: loading),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('hides while there is neither a reading nor a reason', (tester) async {
+      await pumpCard(tester);
+
+      expect(find.text('PRESSURE CHECK'), findsNothing);
+    });
+
+    testWidgets('a gap shows collapsed and explains itself once expanded', (tester) async {
+      await pumpCard(tester, gap: PressureDriftGap.noRecordedConditions);
+
+      expect(find.text('PRESSURE CHECK'), findsOneWidget);
+      expect(find.textContaining('saved without a temperature'), findsNothing);
+
+      await tester.tap(find.text('PRESSURE CHECK'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('saved without a temperature'), findsOneWidget);
+
+      await tester.tap(find.textContaining('Learn more'));
+      await tester.pumpAndSettle();
+      expect(find.text('Why the reading changes'), findsOneWidget);
+    });
+
+    testWidgets('shows a spinner while the conditions are being fetched', (tester) async {
+      await pumpCard(tester, gap: PressureDriftGap.noCurrentConditions, loading: true);
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      await tester.tap(find.text('PRESSURE CHECK'));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.textContaining('Getting the current temperature'), findsOneWidget);
     });
   });
 }

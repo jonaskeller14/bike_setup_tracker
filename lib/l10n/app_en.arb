@@ -10623,9 +10623,21 @@
       }
     }
   },
-  "pressureCheckInfoTooltip": "How this is calculated",
-  "@pressureCheckInfoTooltip": {
-    "description": "Tooltip of the info button on the pressure check card."
+  "pressureCheckLoading": "Getting the current temperature and altitude…",
+  "@pressureCheckLoading": {
+    "description": "Body of the collapsed pressure check card while the current location or weather is still being fetched."
+  },
+  "pressureCheckNoRecordedPressure": "No pressure recorded for this bike yet, so there is nothing to compare.",
+  "@pressureCheckNoRecordedPressure": {
+    "description": "Body of the pressure check card when no earlier setup recorded a pressure of the bike."
+  },
+  "pressureCheckNoRecordedConditions": "The pressures you last set were saved without a temperature or altitude, so there is nothing to compare.",
+  "@pressureCheckNoRecordedConditions": {
+    "description": "Body of the pressure check card when the setups that last set the pressures have no temperature or altitude."
+  },
+  "pressureCheckNoCurrentConditions": "Needs the current temperature and altitude. Set the location and weather above.",
+  "@pressureCheckNoCurrentConditions": {
+    "description": "Body of the pressure check card when the current temperature or altitude is missing."
   },
   "pressureCheckSetOn": "Set {value} {unit} on {date} · {conditions}",
   "@pressureCheckSetOn": {
@@ -10791,7 +10803,7 @@
       }
     }
   },
-  "pressureCheckSettingIntro": "When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently.",
+  "pressureCheckSettingIntro": "When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently. Only shown for bikes with a pressure adjustment.",
   "@pressureCheckSettingIntro": {
     "description": "Introduction of the pressure check settings sheet."
   },
@@ -10818,10 +10830,6 @@
   "guideCardTitle": "Setup guide",
   "@guideCardTitle": {
     "description": "Title of the setup guide card, shown in capitals."
-  },
-  "guideCardInfoTooltip": "About recommended values",
-  "@guideCardInfoTooltip": {
-    "description": "Tooltip of the info button on the setup guide card."
   },
   "guideCardHeadline": "Recommended first values",
   "@guideCardHeadline": {

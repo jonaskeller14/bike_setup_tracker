@@ -7973,7 +7973,19 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get pressureCheckInfoTooltip => 'Cómo se calcula';
+  String get pressureCheckLoading => 'Obteniendo la temperatura y la altitud actuales…';
+
+  @override
+  String get pressureCheckNoRecordedPressure =>
+      'Aún no hay ninguna presión registrada para esta bici, así que no hay nada que comparar.';
+
+  @override
+  String get pressureCheckNoRecordedConditions =>
+      'Las últimas presiones que ajustaste se guardaron sin temperatura ni altitud, así que no hay nada que comparar.';
+
+  @override
+  String get pressureCheckNoCurrentConditions =>
+      'Necesita la temperatura y la altitud actuales. Indica arriba la ubicación y el tiempo.';
 
   @override
   String pressureCheckSetOn(String value, String unit, String date, String conditions) {
@@ -8082,7 +8094,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get pressureCheckSettingIntro =>
-      'Al añadir un setup, comprueba si tu bomba seguiría marcando las presiones que ajustaste por última vez. El aire más frío o más fino hace que la misma cámara cerrada marque otro valor.';
+      'Al añadir un setup, comprueba si tu bomba seguiría marcando las presiones que ajustaste por última vez. El aire más frío o más fino hace que la misma cámara cerrada marque otro valor. Solo se muestra en bicis con un ajuste de presión.';
 
   @override
   String get pressureCheckEnabled => 'Activado';
@@ -8103,9 +8115,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideCardTitle => 'Guía de setup';
-
-  @override
-  String get guideCardInfoTooltip => 'Sobre los valores recomendados';
 
   @override
   String get guideCardHeadline => 'Valores iniciales recomendados';

@@ -382,4 +382,78 @@ void main() {
       expect(computeWith(), hasLength(1));
     });
   });
+
+  group('PressureDriftService gap', () {
+    late NumericalAdjustment forkPressure;
+    late Component fork;
+    late DateTime referenceDateTime;
+
+    setUp(() {
+      forkPressure = _pressureAdjustment(id: 'adj_fork_pressure', name: 'Air Pressure');
+      fork = _component(name: 'Fork', adjustments: [forkPressure]);
+      referenceDateTime = DateTime(2025, 4, 2).toUtc();
+    });
+
+    PressureDriftGap? gapWith({
+      AdjustmentValue? recorded = const NumericalValue(80.0),
+      double? referenceTemperatureC = _referenceTemperatureC,
+      double? referenceAltitudeM = _referenceAltitudeM,
+      ContextWeather? weather,
+      ContextPosition? position,
+    }) {
+      return PressureDriftService.gapOf(
+        components: [fork],
+        provenance: SetupResolutionService.resolveHistoricalProvenanceAt(
+          datetime: DateTime(2025, 4, 20).toUtc(),
+          setups: [
+            _setup(
+              id: 's1',
+              datetime: referenceDateTime,
+              bikeAdjustmentValues: {forkPressure.id: ?recorded},
+              temperatureC: referenceTemperatureC,
+              altitudeM: referenceAltitudeM,
+            ),
+          ],
+        ),
+        currentWeather: weather ?? _currentWeather(),
+        currentPosition: position ?? _currentPosition(),
+      );
+    }
+
+    test('there is no gap while a drift can be computed', () {
+      expect(gapWith(), isNull);
+    });
+
+    test('a pressure never recorded, or recorded empty, has nothing to compare', () {
+      expect(gapWith(recorded: null), PressureDriftGap.noRecordedPressure);
+      expect(gapWith(recorded: const NumericalValue(0.0)), PressureDriftGap.noRecordedPressure);
+    });
+
+    test('a pressure recorded without conditions cannot be compared', () {
+      expect(gapWith(referenceTemperatureC: null), PressureDriftGap.noRecordedConditions);
+      expect(gapWith(referenceAltitudeM: null), PressureDriftGap.noRecordedConditions);
+    });
+
+    test('missing current conditions come last, since the rider can still add them', () {
+      // Intention: The page shows a loading state for this gap while fetching,
+      // so it must not hide a gap that no fetch can close.
+      expect(gapWith(weather: _currentWeather(temperatureC: null)), PressureDriftGap.noCurrentConditions);
+      expect(gapWith(position: _currentPosition(altitudeM: null)), PressureDriftGap.noCurrentConditions);
+      expect(
+        gapWith(recorded: null, weather: _currentWeather(temperatureC: null)),
+        PressureDriftGap.noRecordedPressure,
+      );
+    });
+
+    test('a bike needs a pressure adjustment for the check', () {
+      expect(PressureDriftService.hasPressureAdjustment([fork]), isTrue);
+      final shock = _component(
+        name: 'Shock',
+        adjustments: [
+          NumericalAdjustment(id: 'adj_travel', name: 'Travel', notes: null, unit: AdjustmentUnit.fromLegacy('mm')),
+        ],
+      );
+      expect(PressureDriftService.hasPressureAdjustment([shock]), isFalse);
+    });
+  });
 }

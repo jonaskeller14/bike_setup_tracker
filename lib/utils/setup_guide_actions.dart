@@ -36,8 +36,8 @@ List<GuidedComponent> guidedComponents(
       if (resolve(component) case final preset? when preset.product?.guide != null) GuidedComponent(component, preset),
 ];
 
-/// The [guidedComponents] that get the setup guide card: those without any
-/// recorded value yet, since the card is for setting the first values.
+/// The [guidedComponents] without any recorded value yet; while there is one,
+/// the setup guide card opens expanded to help set the first values.
 List<GuidedComponent> guidedComponentsWithoutValues(
   Iterable<Component> components, {
   required ResolvedPreset? Function(Component component) resolve,

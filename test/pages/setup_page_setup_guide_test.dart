@@ -70,7 +70,6 @@ void main() {
     bool weightRecorded = true,
     bool weightAttribute = true,
     bool enablePerson = true,
-    bool developerMode = false,
     DateTime? forkInstalledAt,
     bool preloadCatalog = true,
     DateTime? openedAt,
@@ -78,7 +77,6 @@ void main() {
     final harness = (await tester.runAsync(
       () => _Harness.create(
         enabled: enabled,
-        developerMode: developerMode,
         forkHasValues: forkHasValues,
         weightRecorded: weightRecorded,
         weightAttribute: weightAttribute,
@@ -135,21 +133,24 @@ void main() {
     expect(find.byType(SetupGuideCard), findsNothing);
   });
 
-  testWidgets('is hidden once the guided component has recorded values', (tester) async {
+  testWidgets('collapses once the guided component has recorded values', (tester) async {
     await open(tester, forkHasValues: true);
 
-    expect(find.byType(SetupGuideCard), findsNothing);
-  });
-
-  testWidgets('shows for components with recorded values in developer mode', (tester) async {
-    await open(tester, forkHasValues: true, developerMode: true);
-
     expect(find.byType(SetupGuideCard), findsOneWidget);
+    expect(find.text('77 psi'), findsNothing);
+
+    await tester.tap(find.text('SETUP GUIDE'));
+    await _settle(tester);
+
+    expect(find.text('77 psi'), findsOneWidget);
   });
 
   testWidgets('the adjuster tooltip shows the recommendation once values are recorded', (tester) async {
     await open(tester, forkHasValues: true);
 
+    // The collapsed guide card above pushes the field down.
+    await Scrollable.ensureVisible(tester.element(find.text('Pressure', findRichText: true)), alignment: 0.5);
+    await _settle(tester);
     await tester.tap(find.text('Pressure', findRichText: true));
     await _settle(tester);
 
@@ -277,7 +278,6 @@ class _Harness {
     required bool weightRecorded,
     required bool weightAttribute,
     required bool enablePerson,
-    required bool developerMode,
     required DateTime? forkInstalledAt,
     required bool preloadCatalog,
   }) async {
@@ -337,7 +337,6 @@ class _Harness {
     final settings = AppSettings()
       ..showOnboarding = false
       ..enablePerson = enablePerson
-      ..developerMode = developerMode
       ..enableComponentPresets = enabled
       ..enableSetupGuides = enabled;
     return _Harness(

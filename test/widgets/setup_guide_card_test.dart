@@ -63,6 +63,7 @@ void main() {
     VoidCallback? onApplyAll,
     GuideWeightInput? weightInput,
     ThemeData? theme,
+    bool initiallyExpanded = true,
   }) {
     return tester.pumpWidget(
       localizedTestApp(
@@ -75,6 +76,7 @@ void main() {
               onApply: onApply ?? (_) {},
               onApplyAll: onApplyAll,
               weightInput: weightInput,
+              initiallyExpanded: initiallyExpanded,
             ),
           ),
         ),
@@ -94,7 +96,7 @@ void main() {
     expect(find.text('4'), findsOneWidget);
     expect(find.text('Fixed value'), findsOneWidget);
     expect(find.text('Not set'), findsNWidgets(2));
-    expect(find.text('A starting point. Check your manual.'), findsOneWidget);
+    expect(find.textContaining('A starting point. Check your manual.'), findsOneWidget);
   });
 
   testWidgets('tapping a row applies that value', (tester) async {
@@ -129,6 +131,28 @@ void main() {
 
     expect(find.text('+13 psi'), findsOneWidget);
     expect(find.textContaining('Now 90 psi'), findsOneWidget);
+  });
+
+  testWidgets('collapsed, its icon turns orange like the badges while a value differs from the guide', (tester) async {
+    final component = guided();
+    final differs = materialAppTheme.extension<ValueHighlightColors>()!.changed;
+    Color? iconColor() => tester.widget<Icon>(find.byIcon(Icons.tips_and_updates_outlined)).color;
+
+    await pumpCard(tester, guided: component, initiallyExpanded: false);
+    expect(find.text('77 psi'), findsNothing);
+    expect(iconColor(), isNot(differs), reason: 'Nothing is set yet');
+
+    await pumpCard(
+      tester,
+      guided: component,
+      current: {pressureOf(component).id: const NumericalValue(90)},
+      initiallyExpanded: false,
+    );
+    expect(iconColor(), differs);
+
+    await tester.tap(find.text('SETUP GUIDE'));
+    await tester.pumpAndSettle();
+    expect(find.text('+13 psi'), findsOneWidget);
   });
 
   testWidgets('a value within the tolerance is in range, not a match', (tester) async {
@@ -199,7 +223,7 @@ void main() {
   testWidgets('the info sheet explains the statuses and cites the guide', (tester) async {
     await pumpCard(tester, guided: guided());
 
-    await tester.tap(find.byTooltip('About recommended values'));
+    await tester.tap(find.textContaining('Learn more'));
     await tester.pumpAndSettle();
 
     expect(find.text('Recommended values'), findsOneWidget);

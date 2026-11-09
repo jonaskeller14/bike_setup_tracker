@@ -327,7 +327,7 @@ final class _FakePlatformFile extends PlatformFile {
   final String name;
   final Uint8List _bytes;
   final int _length;
-  final Object? streamError;
+  final Exception? streamError;
 
   @override
   Uri get uri => Uri.parse('content://fake/$name');

@@ -1,7 +1,7 @@
 import 'component_stats.dart';
 
 /// One activity credited to a component or bike, with the values its stats
-/// sum. [wattSeconds] is average watts × moving time; kilojoules divide the
+/// sum. `wattSeconds` is average watts × moving time; kilojoules divide the
 /// sum, like the stats queries do.
 typedef CreditedActivity = ({
   int startSeconds,

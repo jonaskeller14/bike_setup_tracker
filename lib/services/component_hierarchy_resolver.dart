@@ -45,7 +45,7 @@ class ComponentPlacement {
 }
 
 /// A change of a component's root caused by an ancestor moving while the
-/// component sits on [viaParentId]; [cause] is the ancestor's installation.
+/// component sits on `viaParentId`; `cause` is the ancestor's installation.
 typedef InheritedRootChange = ({Installation cause, ComponentAncestor root, String viaParentId});
 
 /// Resolves a component's effective placement through component parents.

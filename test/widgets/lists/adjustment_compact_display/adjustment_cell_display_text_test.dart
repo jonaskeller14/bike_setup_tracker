@@ -4,8 +4,8 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_cell.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// [valueText] and [previousText] are what a *changed* cell prints for
-/// [value] and [previousValue] — untruncated and, for Duration, pairwise
+/// `valueText` and `previousText` are what a *changed* cell prints for
+/// `value` and `previousValue` — untruncated and, for Duration, pairwise
 /// shortened. The `→` is not part of either: it is a styled span
 /// the cell widget adds (`previousSegmentSpan`).
 typedef _Case = ({

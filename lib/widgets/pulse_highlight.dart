@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// pulse — the tint gently breathes in and out continuously to keep drawing
 /// the eye to the row (e.g. when navigating to a specific task entry).
 ///
-/// Drop-in alternative to [FlashHighlight]: same constructor shape, so you can
+/// Drop-in alternative to `FlashHighlight`: same constructor shape, so you can
 /// swap the widget name (and import) to compare the two effects. Unlike the
 /// one-shot flash, this never settles while [highlighted] stays true.
 ///

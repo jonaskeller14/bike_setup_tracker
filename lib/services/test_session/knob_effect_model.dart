@@ -11,7 +11,7 @@ import 'test_session_strategy.dart';
 /// the answered comparisons with a ridge prior towards "no effect".
 ///
 /// It works with any pair of runs and pools every session on the bike.
-/// Comparisons of runs that also differ in an adjustment outside [knobs] are
+/// Comparisons of runs that also differ in an adjustment outside `knobs` are
 /// left out, since that change could explain the answer.
 @immutable
 class KnobEffectModel {

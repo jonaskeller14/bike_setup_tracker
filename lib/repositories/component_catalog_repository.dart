@@ -74,7 +74,7 @@ class ComponentCatalogRepository {
     : _wantedLanguage = (() => 'en'),
       _read = ((type, _) => read(type));
 
-  /// [withLoader] for a test that follows the language too.
+  /// `withLoader` for a test that follows the language too.
   @visibleForTesting
   ComponentCatalogRepository.withLanguageLoader(
     Future<List<BrandCatalog>> Function(ComponentType type, String languageCode) read, {

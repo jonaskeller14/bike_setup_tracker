@@ -365,7 +365,7 @@ class StravaService extends ChangeNotifier {
           
   /// Called whenever the user doc updates while the athlete is still linked.
   /// If the subscription has lapsed, stops data listeners and wipes local
-  /// Strava data. Keeps [linked_athletes] in Firestore and Bike/Person Strava
+  /// Strava data. Keeps `linked_athletes` in Firestore and Bike/Person Strava
   /// links in SQLite so reconnecting after resubscribing needs no manual setup.
   void _checkEntitlementExpiry(Map<String, dynamic> data) {
     final entitlementData = data['entitlement']?['strava'] as Map<String, dynamic>?;

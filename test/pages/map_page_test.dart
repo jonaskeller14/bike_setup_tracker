@@ -799,9 +799,10 @@ void main() {
 
 class FakeMapLocationProvider implements LocationProvider {
   final ContextPosition? position;
+  // ignore: close_sinks, a test fake that lives for one test and is never reused
   final StreamController<ContextPosition> positionController = StreamController<ContextPosition>.broadcast();
   Future<ContextPosition>? pendingPosition;
-  Object? error;
+  Error? error;
   int getCurrentPositionCalls = 0;
   int openAppSettingsCalls = 0;
   int openLocationSettingsCalls = 0;

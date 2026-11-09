@@ -270,7 +270,7 @@ abstract class TestSessionStrategy {
     return before != null && after != null && before > 0 && after < 0;
   }
 
-  /// The smallest change of [knob] the rider notices. It starts at one unit;
+  /// The smallest change of `knob` the rider notices. It starts at one unit;
   /// a change size answered "same" at least [repeatsToRaise] times, and never
   /// otherwise, raises it above that size. Only comparisons of runs (of any of
   /// the bike's sessions) that differ in this knob alone count.

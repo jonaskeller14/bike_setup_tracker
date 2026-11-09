@@ -393,7 +393,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Initiates a purchase for the given plan. Resolves when the platform
   /// purchase dialog has been launched (not when the purchase completes —
-  /// the result is delivered asynchronously via [purchaseStream]).
+  /// the result is delivered asynchronously via `purchaseStream`).
   Future<void> buy(StravaPlan plan) async {
     if (!_storeAvailable) {
       _setState(const SubscriptionError(SubscriptionErrorKind.storeUnavailable));
@@ -431,7 +431,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Re-emits past purchases on [purchaseStream] (status: restored). Apple
+  /// Re-emits past purchases on `purchaseStream` (status: restored). Apple
   /// requires apps with non-consumable / subscription IAPs to offer this.
   Future<void> restorePurchases() async {
     if (!_storeAvailable) {
@@ -659,7 +659,7 @@ class _StoreKitPaymentQueueDelegate implements SKPaymentQueueDelegateWrapper {
   bool shouldShowPriceConsent() => false;
 }
 
-/// Multiple services ([StravaService], [SubscriptionService]) need the same
+/// Multiple services (`StravaService`, [SubscriptionService]) need the same
 /// anonymous UID at startup. If each calls [FirebaseAuth.signInAnonymously]
 /// independently, concurrent calls on a fresh install create *two* anonymous
 /// users — the captured UID then mismatches the token the Firestore SDK uses,

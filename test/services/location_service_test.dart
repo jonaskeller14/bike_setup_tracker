@@ -341,6 +341,7 @@ class FakeElevationService extends ElevationService {
 
 class FakeLocationProvider implements LocationProvider {
   bool serviceEnabled = true;
+  // ignore: close_sinks, a test fake that lives for one test and is never reused
   final StreamController<ContextPosition> positionController = StreamController<ContextPosition>.broadcast();
   LocationProviderPermission checkedPermission = LocationProviderPermission.whileInUse;
   LocationProviderPermission requestedPermission = LocationProviderPermission.whileInUse;
@@ -360,7 +361,7 @@ class FakeLocationProvider implements LocationProvider {
   @override
   Future<ContextPosition> getCurrentPosition() async {
     getCurrentPositionCalls++;
-    if (currentPositionError != null) throw currentPositionError!;
+    if (currentPositionError != null) Error.throwWithStackTrace(currentPositionError!, StackTrace.current);
     return currentPosition?.call() ?? position;
   }
 

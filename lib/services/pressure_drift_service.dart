@@ -95,7 +95,7 @@ enum PressureDriftGap {
 /// whatever the ambient air is doing:
 ///
 ///   P_abs(set)  = P_gauge(set) + P_atm(altitude when set)
-///   P_abs(now)  = P_abs(set) · T(now) / T(set)        [Kelvin]
+///   P_abs(now)  = P_abs(set) · T(now) / T(set)        (Kelvin)
 ///   P_gauge(now) = P_abs(now) − P_atm(altitude now)
 ///
 /// Spring force follows the gauge pressure at ride time, so restoring the

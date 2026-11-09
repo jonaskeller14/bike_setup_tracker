@@ -120,7 +120,7 @@ typedef _Size = ({num? eyeToEyeMm, num strokeMm, String? mount, String? label});
 /// A product a guide is attached to, with the node id of each level on its path.
 typedef _Attachment = ({Map<String, String> levels, CatalogProduct product});
 
-/// A guide rule's target as the rider gets it. [unknownMax] marks a step
+/// A guide rule's target as the rider gets it. `unknownMax` marks a step
 /// adjuster authored with `max: ~`, whose built max is only a placeholder.
 typedef _Target = ({Adjustment adjustment, bool unknownMax, List<String> sourceOptions});
 

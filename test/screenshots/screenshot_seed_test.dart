@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
@@ -17,24 +15,25 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final today = DateTime(2026, 9, 26);
+  final sample = ScreenshotSeed.readSample();
 
   group('buildSeedJson', () {
     late Map<String, dynamic> json;
 
     setUp(() {
       json = ScreenshotSeed.buildSeedJson(
-        sampleJson: File(ScreenshotSeed.sampleDataAsset).readAsStringSync(),
-        stravaJson: File(ScreenshotSeed.stravaDataAsset).readAsStringSync(),
+        sampleJson: sample.sample,
+        stravaJson: sample.strava,
         today: today,
       );
     });
 
     test('contains the sample and its Strava companion', () {
       expect(json['bikes'], hasLength(5));
-      expect(json['setups'], hasLength(24));
+      expect(json['setups'], hasLength(29));
       expect(json['stravaAthletes'], hasLength(1));
       expect(json['stravaGears'], hasLength(5));
-      expect(json['stravaActivities'], hasLength(16));
+      expect(json['stravaActivities'], hasLength(23));
     });
 
     test('every Strava gear belongs to a sample bike', () {
@@ -48,10 +47,10 @@ void main() {
 
     test('shifts activities together with the setups of the same ride', () {
       final setup = (json['setups'] as List).cast<Map<String, dynamic>>().firstWhere(
-        (s) => s['name'] == 'Hometrails - Season Opener',
+        (s) => s['name'] == 'Season Opener',
       );
       final activity = (json['stravaActivities'] as List).cast<Map<String, dynamic>>().firstWhere(
-        (a) => a['name'] == 'Hometrails - Season Opener',
+        (a) => a['id'] == 18000000001,
       );
 
       final setupTime = DateTime.parse(setup['datetime'] as String);
@@ -79,7 +78,7 @@ void main() {
       await repository.initialDataLoaded;
 
       expect(await database.bikesDao.getAllBikesBypass(), hasLength(5));
-      expect(await database.stravaDao.getAllActivitiesBypass(), hasLength(16));
+      expect(await database.stravaDao.getAllActivitiesBypass(), hasLength(23));
 
       final newest = repository.setups.values.map((s) => s.datetime).reduce((a, b) => a.isAfter(b) ? a : b);
       expect(newest.isBefore(today), isTrue);
@@ -100,7 +99,7 @@ void main() {
       await ScreenshotSeed.seedDatabase(repository, today: today.add(const Duration(days: 7)));
 
       expect(await database.bikesDao.getAllBikesBypass(), hasLength(5));
-      expect(await database.stravaDao.getAllActivitiesBypass(), hasLength(16));
+      expect(await database.stravaDao.getAllActivitiesBypass(), hasLength(23));
     });
   });
 

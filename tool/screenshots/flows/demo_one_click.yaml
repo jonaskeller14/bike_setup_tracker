@@ -33,7 +33,7 @@ appId: ${APP_ID}
     id: setupForm.name
 - waitForAnimationToEnd:
     timeout: 3000
-- inputText: Hometrails - faster rebound
+- inputText: Faster rebound
 - runFlow: _hide_keyboard_android.yaml
 - runFlow:
     file: _pause.yaml

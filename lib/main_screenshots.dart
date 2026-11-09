@@ -17,6 +17,7 @@ import 'main.dart';
 import 'models/app_settings.dart';
 import 'repositories/app_repository.dart';
 import 'screenshots/demo_scenario.dart';
+import 'screenshots/sample_localization.dart';
 import 'screenshots/screenshot_seed.dart';
 import 'screenshots/screenshot_services.dart';
 import 'screenshots/touch_indicator.dart';
@@ -50,8 +51,20 @@ void main() async {
   final localeMarker = File('${documents.path}/${ScreenshotSeed.localeMarkerFile}');
   final localeCode = localeMarker.existsSync() ? localeMarker.readAsStringSync().trim() : null;
 
+  // The sample isn't bundled with the app either: the run scripts copy it here.
+  final sampleDirectory = '${documents.path}/${ScreenshotSeed.sampleFolder}';
+  if (!Directory(sampleDirectory).existsSync()) {
+    throw StateError('$sampleDirectory is missing. Start the app with tool/screenshots/run_android or run_ios, which copy the sample there.');
+  }
+
   await ScreenshotSeed.resetPreferences(appHintService, scenario: scenario, localeCode: localeCode);
-  await ScreenshotSeed.seedDatabase(appRepository, today: DateTime.now(), scenario: scenario);
+  await ScreenshotSeed.seedDatabase(
+    appRepository,
+    today: DateTime.now(),
+    scenario: scenario,
+    sampleDirectory: sampleDirectory,
+    localization: await SampleLocalization.load(localeCode, directory: sampleDirectory),
+  );
 
   final app = LoadingGate(
     appSettings: appSettings,

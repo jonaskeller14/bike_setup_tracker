@@ -129,9 +129,21 @@ set_demo_status_bar() {
   demo notifications -e visible false
 }
 
+# The app doesn't bundle the sample: it reads this copy from its documents
+# directory (ScreenshotSeed.sampleFolder), staged here without the other files
+# of assets/data.
+sample_stage="$(mktemp -d)/screenshot_sample"
+mkdir -p "$sample_stage"
+cp -R "$repo_root/assets/data/20260925_sample_simple.json" "$repo_root/assets/data/20260925_sample_simple_strava.json"   "$repo_root/assets/data/sample_l10n" "$sample_stage/"
+
 initialize_device() {
   local serial="$1"
   "$adb" -s "$serial" install -r "$apk" > /dev/null
+  # `run-as` can't read the host's files, so the copy goes through a shared folder.
+  "$adb" -s "$serial" shell rm -rf /data/local/tmp/screenshot_sample
+  "$adb" -s "$serial" push "$sample_stage" /data/local/tmp/ > /dev/null
+  "$adb" -s "$serial" shell run-as "$app_id" sh -c "'mkdir -p app_flutter && rm -rf app_flutter/screenshot_sample && cp -R /data/local/tmp/screenshot_sample app_flutter/'"
+  "$adb" -s "$serial" shell rm -rf /data/local/tmp/screenshot_sample
   for permission in ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION; do
     "$adb" -s "$serial" shell pm grant "$app_id" "android.permission.$permission"
   done

@@ -26,7 +26,7 @@ appId: ${APP_ID}
     duration: 1500
 - waitForAnimationToEnd:
     timeout: 3000
-- tapOn: "(?s).*Hometrails - back to neutral.*"
+- tapOn: "(?s).*Back to baseline.*"
 - runFlow:
     file: _pause.yaml
     env:

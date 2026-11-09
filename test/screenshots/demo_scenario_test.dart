@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
@@ -81,10 +79,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final today = DateTime(2026, 9, 26);
+  final sample = ScreenshotSeed.readSample();
 
   Map<String, dynamic> seedJson(DemoScenario scenario) => ScreenshotSeed.buildSeedJson(
-    sampleJson: File(ScreenshotSeed.sampleDataAsset).readAsStringSync(),
-    stravaJson: File(ScreenshotSeed.stravaDataAsset).readAsStringSync(),
+    sampleJson: sample.sample,
+    stravaJson: sample.strava,
     today: today,
     scenario: scenario,
   );
@@ -267,7 +266,7 @@ void main() {
         'Flowtrail Stromberg',
         'Bikepark Lac Blanc',
         'Finale Ligure - DH Men',
-        'Hometrails - firmer fork',
+        'Firmer fork',
       ]);
       expect(json['stravaActivities'], isEmpty);
       expect(json['taskRules'], isEmpty);
@@ -314,7 +313,7 @@ void main() {
       expect(seedJson(DemoScenario.oneClick)['taskRules'], isEmpty);
       final setups = (seedJson(DemoScenario.oneClick)['setups'] as List).cast<Map<String, dynamic>>()
         ..sort((a, b) => (a['datetime'] as String).compareTo(b['datetime'] as String));
-      expect(setups.last['name'], 'Hometrails - end of May reference');
+      expect(setups.last['name'], 'New baseline');
       expect((setups.last['bikeAdjustmentValues'] as Map)['aefea436-580a-479b-bcd4-943a93c8e2fb'], 9);
     });
 

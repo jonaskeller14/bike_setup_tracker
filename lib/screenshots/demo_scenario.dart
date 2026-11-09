@@ -174,7 +174,7 @@ const String _lyrikReboundId = 'aefea436-580a-479b-bcd4-943a93c8e2fb';
 const String _strombergSetupId = '665a7021-6bbc-4502-ad85-2f44ad17b087';
 const String _lacBlancSetupId = '60546389-6a03-4f2a-86ff-ef00779c5340';
 const String _finaleSetupId = 'aef06f55-8000-42f0-b9e9-d6d71ec2716b';
-const String _anglesetSetupId = '2e44d8eb-2141-4845-9b53-6ef7d3c17bc1';
+const String _steepChuteSetupId = '2e44d8eb-2141-4845-9b53-6ef7d3c17bc1';
 // Clicks count from closed: fewer LSC clicks are firmer, more rebound clicks are faster.
 const _restoreChange = {_lyrikPressureId: 88, _lyrikLscId: 6, _lyrikReboundId: 11};
 
@@ -262,7 +262,7 @@ _Json _addHightowerRides(
     rides.add({
       'id': firstId + i,
       'lastModified': start.add(Duration(seconds: seconds * 2)).toIso8601String(),
-      'name': i.isEven ? 'Hometrails - evening lap' : 'Afternoon Ride',
+      'name': i.isEven ? 'Evening Mountain Bike Ride' : 'Afternoon Mountain Bike Ride',
       'athleteId': 100000001,
       'sportType': 'MountainBikeRide',
       'startDate': start.toIso8601String(),
@@ -356,7 +356,7 @@ _Json _withBikeFit(_Json json) {
 }
 
 /// Reduces the Hightower's history to Stromberg, Lac Blanc and Finale, then a
-/// firmer fork that didn't work out: the Hometrails setup, 3 fork values from Finale.
+/// firmer fork that didn't work out: the steep chute setup, 3 fork values from Finale.
 _Json _withRestoreHistory(_Json json) {
   final hightower = _dropBikes(json, _ids(json, 'bikes').difference({_hightowerId}));
   _Json setup(String id) => _list(hightower, 'setups').firstWhere((s) => s['id'] == id);
@@ -377,8 +377,8 @@ _Json _withRestoreHistory(_Json json) {
         'bikeAdjustmentValues': finaleValues,
       },
       {
-        ...setup(_anglesetSetupId),
-        'name': 'Hometrails - firmer fork',
+        ...setup(_steepChuteSetupId),
+        'name': 'Firmer fork',
         'notes': 'More pressure, firmer LSC, faster rebound. Harsh on the roots now.',
         'bikeAdjustmentValues': {...finaleValues, ..._restoreChange},
         'personAdjustmentValues': setup(_finaleSetupId)['personAdjustmentValues'],
@@ -391,7 +391,7 @@ _Json _oneClick(_Json json) {
   final hightower = _dropBikes(json, _ids(json, 'bikes').difference({_hightowerId}));
   return _dropSetups(
     _where(_dropTaskRules(hightower, _ids(hightower, 'taskRules')), 'stravaActivities', (_) => false),
-    (s) => const {_anglesetSetupId, _backToNeutralSetupId}.contains(s['id']),
+    (s) => const {_steepChuteSetupId, _backToNeutralSetupId}.contains(s['id']),
   );
 }
 
@@ -499,7 +499,7 @@ _Json _forecast(_Json json, {required int gapDays, int idleDays = 0, int moreRid
   final rides = _addHightowerRides(
     _dropSetups(
       _where(result, 'stravaActivities', (_) => false),
-      (s) => const {_anglesetSetupId, _backToNeutralSetupId}.contains(s['id']),
+      (s) => const {_steepChuteSetupId, _backToNeutralSetupId}.contains(s['id']),
     ),
     from: newest.subtract(Duration(days: 17 * gapDays)),
     to: newest,

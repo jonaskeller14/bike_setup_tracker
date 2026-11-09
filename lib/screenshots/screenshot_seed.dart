@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/app_hint.dart';
@@ -13,12 +13,19 @@ import '../services/app_hint_service.dart';
 import '../utils/file_import.dart';
 import 'demo_scenario.dart';
 import 'sample_date_shift.dart';
+import 'sample_localization.dart';
 
 /// Deterministic app state for store screenshots: the curated sample data,
 /// moved to the current date, plus preferences that skip first-run UI.
 class ScreenshotSeed {
-  static const sampleDataAsset = 'assets/data/20260925_sample_simple.json';
-  static const stravaDataAsset = 'assets/data/20260925_sample_simple_strava.json';
+  static const sampleFile = '20260925_sample_simple.json';
+  static const stravaFile = '20260925_sample_simple_strava.json';
+
+  /// Where the tests read the sample files. The app doesn't bundle them: the
+  /// run scripts copy these files and `sample_l10n/` into [sampleFolder] of the
+  /// app's documents folder, and `lib/main_screenshots.dart` reads them there.
+  static const repoDirectory = 'assets/data';
+  static const sampleFolder = 'screenshot_sample';
 
   /// Written by the run scripts into the app's documents folder: the language
   /// code of the store locale being recorded (`de` for de-DE).
@@ -35,22 +42,31 @@ class ScreenshotSeed {
     'enableCalendar': true,
   };
 
+  /// The sample export and its Strava companion in [directory].
+  static ({String sample, String strava}) readSample({String directory = repoDirectory}) => (
+    sample: File('$directory/$sampleFile').readAsStringSync(),
+    strava: File('$directory/$stravaFile').readAsStringSync(),
+  );
+
   /// Merges the sample export and its Strava companion (their keys are
   /// disjoint) and shifts both by the same number of days, so activities stay
   /// aligned with the setups recorded on the same rides. The shift is taken
-  /// from the whole master, so every [scenario] shares one calendar.
+  /// from the whole master, so every [scenario] shares one calendar. The text is
+  /// translated last, so the scenarios can rely on the English names.
   static Map<String, dynamic> buildSeedJson({
     required String sampleJson,
     required String stravaJson,
     required DateTime today,
     DemoScenario scenario = DemoScenario.full,
+    SampleLocalization? localization,
   }) {
     final merged = <String, dynamic>{
       ...jsonDecode(sampleJson) as Map<String, dynamic>,
       ...jsonDecode(stravaJson) as Map<String, dynamic>,
     };
     final days = sampleShiftDays(merged, today: today);
-    return scenario.apply(shiftSampleDates(merged, days) as Map<String, dynamic>);
+    final seed = scenario.apply(shiftSampleDates(merged, days) as Map<String, dynamic>);
+    return localization?.apply(seed) ?? seed;
   }
 
   /// Replaces all preferences with a fresh install that has finished
@@ -78,17 +94,22 @@ class ScreenshotSeed {
     }
   }
 
-  /// Wipes all user and Strava data and imports the shifted sample.
+  /// Wipes all user and Strava data and imports the shifted sample from
+  /// [sampleDirectory], in the language of [localization] (English without one).
   static Future<void> seedDatabase(
     AppRepository appRepository, {
     required DateTime today,
     DemoScenario scenario = DemoScenario.full,
+    String sampleDirectory = repoDirectory,
+    SampleLocalization? localization,
   }) async {
+    final files = readSample(directory: sampleDirectory);
     final json = buildSeedJson(
-      sampleJson: await rootBundle.loadString(sampleDataAsset),
-      stravaJson: await rootBundle.loadString(stravaDataAsset),
+      sampleJson: files.sample,
+      stravaJson: files.strava,
       today: today,
       scenario: scenario,
+      localization: localization,
     );
 
     await FileImport.replace(remoteData: SelectedData.fromJson(json), database: appRepository.database);

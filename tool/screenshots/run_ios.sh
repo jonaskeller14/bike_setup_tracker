@@ -129,6 +129,13 @@ if [ "$skip_build" -eq 0 ]; then
 fi
 [ -d "$app" ] || { echo "App not found: $app" >&2; exit 1; }
 
+# The app doesn't bundle the sample: it reads this copy from its documents
+# directory (ScreenshotSeed.sampleFolder), staged here without the other files
+# of assets/data.
+sample_stage="$(mktemp -d)/screenshot_sample"
+mkdir -p "$sample_stage"
+cp -R "$repo_root/assets/data/20260925_sample_simple.json" "$repo_root/assets/data/20260925_sample_simple_strava.json"   "$repo_root/assets/data/sample_l10n" "$sample_stage/"
+
 failed=()
 checked_folders=()
 for name in $selected; do
@@ -162,6 +169,8 @@ for name in $selected; do
   locale_marker="$(dirname "$touch_marker")/screenshot_locale"
   mkdir -p "$(dirname "$touch_marker")"
   printf '%s' "${locale%%-*}" > "$locale_marker"
+  rm -rf "$(dirname "$touch_marker")/screenshot_sample"
+  cp -R "$sample_stage" "$(dirname "$touch_marker")/screenshot_sample"
   # The app seeds this demo scenario; without the marker it seeds the full sample.
   scenario_marker="$(dirname "$touch_marker")/demo_scenario"
   if [ "$record" -eq 1 ]; then

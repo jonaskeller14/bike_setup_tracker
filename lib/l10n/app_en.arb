@@ -565,10 +565,6 @@
   "@homeTitleSetupHistory": {
     "description": "App bar title of the Setups tab."
   },
-  "homeTitleRiders": "Riders",
-  "@homeTitleRiders": {
-    "description": "App bar title of the Riders tab."
-  },
   "homeTitleTasks": "Tasks",
   "@homeTitleTasks": {
     "description": "App bar title of the Tasks tab."
@@ -580,10 +576,6 @@
   "homeNavSetups": "Setups",
   "@homeNavSetups": {
     "description": "Label of the Setups destination in the bottom navigation bar."
-  },
-  "homeNavRiders": "Riders",
-  "@homeNavRiders": {
-    "description": "Label of the Riders destination in the bottom navigation bar."
   },
   "homeNavTasks": "Tasks",
   "@homeNavTasks": {
@@ -636,10 +628,6 @@
   "homeTooltipAddBike": "Add Bike",
   "@homeTooltipAddBike": {
     "description": "Tooltip of the floating button that adds a bike."
-  },
-  "homeTooltipAddRider": "Add Rider",
-  "@homeTooltipAddRider": {
-    "description": "Tooltip of the floating button that adds a rider."
   },
   "homeTooltipAddTask": "Add Task",
   "@homeTooltipAddTask": {

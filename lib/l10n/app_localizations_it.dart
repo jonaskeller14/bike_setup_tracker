@@ -433,9 +433,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get homeTitleSetupHistory => 'Cronologia dei setup';
 
   @override
-  String get homeTitleRiders => 'Rider';
-
-  @override
   String get homeTitleTasks => 'Interventi';
 
   @override
@@ -443,9 +440,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get homeNavSetups => 'Setup';
-
-  @override
-  String get homeNavRiders => 'Rider';
 
   @override
   String get homeNavTasks => 'Interventi';
@@ -485,9 +479,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get homeTooltipAddBike => 'Aggiungi bici';
-
-  @override
-  String get homeTooltipAddRider => 'Aggiungi rider';
 
   @override
   String get homeTooltipAddTask => 'Aggiungi intervento';

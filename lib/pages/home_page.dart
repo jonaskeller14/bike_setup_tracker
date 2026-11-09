@@ -18,7 +18,6 @@ import '../repositories/app_repository.dart';
 import '../services/navigation_service.dart';
 import '../utils/automation_ids.dart';
 import '../utils/bike_actions.dart';
-import '../utils/person_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
 import '../utils/test_session_actions.dart';
@@ -29,7 +28,6 @@ import '../widgets/google_drive_sync_button.dart';
 import '../widgets/lists/garage_list.dart';
 import '../widgets/lists/list_scroll_controller.dart';
 import '../widgets/lists/list_selection_controller.dart';
-import '../widgets/lists/person_list.dart';
 import '../widgets/lists/setup_list.dart';
 import '../widgets/lists/task_list.dart';
 import '../widgets/sheets/export.dart';
@@ -71,14 +69,14 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() {});
   }
 
-  static int _taskPageIndexOf(AppSettings appSettings) => 2 + (appSettings.showAdvancedPersonUi ? 1 : 0);
+  static const int _taskPageIndex = 2;
 
   void _showRequestedTasksTab() {
     if (!mounted || !NavigationService.tasksTabRequested.value) return;
     NavigationService.tasksTabRequested.value = false;
     final appSettings = context.read<AppSettings>();
     if (!appSettings.enableTask) return;
-    setState(() => _currentPageIndex = _taskPageIndexOf(appSettings));
+    setState(() => _currentPageIndex = _taskPageIndex);
     _taskRuleSelection.clear();
     _bikeSelection.clear();
     _timelineSelection.clear();
@@ -227,13 +225,9 @@ class _HomePageState extends State<HomePage> {
     final actionableTaskRulesCount = appRepository.actionableTaskRulesCount;
 
     final defaultIndex = appRepository.bikes.isEmpty || appRepository.components.isEmpty ? 0 : 1;
-    final pageIndex = (_currentPageIndex ?? defaultIndex).clamp(
-      0,
-      1 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
-    );
-    final taskPageIndex = _taskPageIndexOf(appSettings);
+    final pageIndex = (_currentPageIndex ?? defaultIndex).clamp(0, appSettings.enableTask ? _taskPageIndex : 1);
     final showTaskSelectionAppBar =
-        appSettings.enableTask && pageIndex == taskPageIndex && _taskRuleSelection.isSelectionMode;
+        appSettings.enableTask && pageIndex == _taskPageIndex && _taskRuleSelection.isSelectionMode;
     final showBikeSelectionAppBar = pageIndex == 0 && _bikeSelection.isSelectionMode;
     final showTimelineSelectionAppBar = pageIndex == 1 && _timelineSelection.isSelectionMode;
 
@@ -352,7 +346,6 @@ class _HomePageState extends State<HomePage> {
                 title: <Text>[
                   Text(l10n.homeTitleBikes),
                   Text(l10n.homeTitleSetupHistory),
-                  if (appSettings.showAdvancedPersonUi) Text(l10n.homeTitleRiders),
                   if (appSettings.enableTask) Text(l10n.homeTitleTasks),
                 ][pageIndex],
                 actions: [
@@ -426,7 +419,7 @@ class _HomePageState extends State<HomePage> {
               unawaited(_setupListController.scrollBackToTop());
               return;
             }
-            if (index == taskPageIndex) {
+            if (index == _taskPageIndex) {
               unawaited(_taskListController.scrollBackToTop());
               return;
             }
@@ -456,8 +449,6 @@ class _HomePageState extends State<HomePage> {
             identifier: AutomationIds.navSetups,
             child: NavigationDestination(icon: const Icon(Setup.iconData), label: l10n.homeNavSetups),
           ),
-          if (appSettings.showAdvancedPersonUi)
-            NavigationDestination(icon: const Icon(Person.iconData), label: l10n.homeNavRiders),
           if (appSettings.enableTask)
             Semantics(
               container: true,
@@ -489,7 +480,6 @@ class _HomePageState extends State<HomePage> {
               selection: _timelineSelection.selected,
               onSelectionChanged: _timelineSelection.isBusy ? null : _timelineSelection.toggle,
             ),
-            if (appSettings.showAdvancedPersonUi) const PersonList(),
             if (appSettings.enableTask)
               TaskList(
                 controller: _taskListController,
@@ -565,15 +555,6 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        if (appSettings.showAdvancedPersonUi)
-          FloatingActionButton(
-            heroTag: "addPerson",
-            onPressed: () async {
-              await PersonActions.addPerson(context);
-            },
-            tooltip: l10n.homeTooltipAddRider,
-            child: const Icon(Icons.add),
-          ),
         if (appSettings.enableTask)
           ListenableBuilder(
             listenable: _taskListController,

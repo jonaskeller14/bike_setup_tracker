@@ -943,12 +943,6 @@ abstract class AppLocalizations {
   /// **'Setup History'**
   String get homeTitleSetupHistory;
 
-  /// App bar title of the Riders tab.
-  ///
-  /// In en, this message translates to:
-  /// **'Riders'**
-  String get homeTitleRiders;
-
   /// App bar title of the Tasks tab.
   ///
   /// In en, this message translates to:
@@ -966,12 +960,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Setups'**
   String get homeNavSetups;
-
-  /// Label of the Riders destination in the bottom navigation bar.
-  ///
-  /// In en, this message translates to:
-  /// **'Riders'**
-  String get homeNavRiders;
 
   /// Label of the Tasks destination in the bottom navigation bar.
   ///
@@ -1050,12 +1038,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add Bike'**
   String get homeTooltipAddBike;
-
-  /// Tooltip of the floating button that adds a rider.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Rider'**
-  String get homeTooltipAddRider;
 
   /// Tooltip of the floating button that adds a task.
   ///

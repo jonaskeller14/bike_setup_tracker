@@ -12757,6 +12757,30 @@ abstract class AppLocalizations {
   /// **'None of the setups with a \'{column}\' value were used on an activity'**
   String chartHistogramNoLinkedSubtitle(String column);
 
+  /// Hint in the adjustment tooltip, instead of the activity histogram, when the user has no Strava Sync subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe to Strava Sync to see which values you rode most. Tap the Strava icon on the home screen to get started.'**
+  String get chartHistogramHintSubscribe;
+
+  /// Hint in the adjustment tooltip, instead of the activity histogram, when no Strava activity is synced.
+  ///
+  /// In en, this message translates to:
+  /// **'No Strava activities synced yet. Sync your activities to see which values you rode most.'**
+  String get chartHistogramHintNoActivities;
+
+  /// Hint in the adjustment tooltip, instead of the activity histogram, when no activity used a setup with this adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity has used a setup with this adjustment yet.'**
+  String get chartHistogramHintNoLinked;
+
+  /// Hint in the adjustment tooltip, instead of the activity histogram, when loading it failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the activity distribution.'**
+  String get chartHistogramHintLoadFailed;
+
   /// Empty state title of a chart when no adjustment column is shown.
   ///
   /// In en, this message translates to:

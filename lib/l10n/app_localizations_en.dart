@@ -7761,6 +7761,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get chartHistogramHintSubscribe =>
+      'Subscribe to Strava Sync to see which values you rode most. Tap the Strava icon on the home screen to get started.';
+
+  @override
+  String get chartHistogramHintNoActivities =>
+      'No Strava activities synced yet. Sync your activities to see which values you rode most.';
+
+  @override
+  String get chartHistogramHintNoLinked => 'No activity has used a setup with this adjustment yet.';
+
+  @override
+  String get chartHistogramHintLoadFailed => 'Could not load the activity distribution.';
+
+  @override
   String get chartNoAdjustmentsTitle => 'No adjustments selected';
 
   @override

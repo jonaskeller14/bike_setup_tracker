@@ -10349,6 +10349,22 @@
       }
     }
   },
+  "chartHistogramHintSubscribe": "Subscribe to Strava Sync to see which values you rode most. Tap the Strava icon on the home screen to get started.",
+  "@chartHistogramHintSubscribe": {
+    "description": "Hint in the adjustment tooltip, instead of the activity histogram, when the user has no Strava Sync subscription."
+  },
+  "chartHistogramHintNoActivities": "No Strava activities synced yet. Sync your activities to see which values you rode most.",
+  "@chartHistogramHintNoActivities": {
+    "description": "Hint in the adjustment tooltip, instead of the activity histogram, when no Strava activity is synced."
+  },
+  "chartHistogramHintNoLinked": "No activity has used a setup with this adjustment yet.",
+  "@chartHistogramHintNoLinked": {
+    "description": "Hint in the adjustment tooltip, instead of the activity histogram, when no activity used a setup with this adjustment."
+  },
+  "chartHistogramHintLoadFailed": "Could not load the activity distribution.",
+  "@chartHistogramHintLoadFailed": {
+    "description": "Hint in the adjustment tooltip, instead of the activity histogram, when loading it failed."
+  },
   "chartNoAdjustmentsTitle": "No adjustments selected",
   "@chartNoAdjustmentsTitle": {
     "description": "Empty state title of a chart when no adjustment column is shown."

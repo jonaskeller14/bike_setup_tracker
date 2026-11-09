@@ -7808,6 +7808,20 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get chartHistogramHintSubscribe =>
+      'Abonnez-vous à Strava Sync pour voir quelles valeurs vous avez le plus roulées. Touchez l’icône Strava sur l’écran d’accueil pour commencer.';
+
+  @override
+  String get chartHistogramHintNoActivities =>
+      'Aucune activité Strava synchronisée pour l’instant. Synchronisez vos activités pour voir quelles valeurs vous avez le plus roulées.';
+
+  @override
+  String get chartHistogramHintNoLinked => 'Aucune activité n’a encore utilisé un setup avec ce réglage.';
+
+  @override
+  String get chartHistogramHintLoadFailed => 'Impossible de charger la répartition des activités.';
+
+  @override
   String get chartNoAdjustmentsTitle => 'Aucun réglage sélectionné';
 
   @override

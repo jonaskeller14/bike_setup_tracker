@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/adjustment_activity_histogram.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
+import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
@@ -21,6 +22,24 @@ import 'package:provider/provider.dart';
 import '../goldens/support/localized_test_app.dart';
 
 class MockSetupActivityAnalysisService extends Mock implements SetupActivityAnalysisService {}
+
+class _FakeSubscriptionService extends Mock implements SubscriptionService {
+  _FakeSubscriptionService({required this.hasStravaEntitlement});
+
+  @override
+  final bool hasStravaEntitlement;
+}
+
+Widget _withServices(Widget child, {SetupActivityAnalysisService? service, bool entitled = true}) {
+  if (service == null) return child;
+  return MultiProvider(
+    providers: [
+      ListenableProvider<SetupActivityAnalysisService>.value(value: service),
+      ChangeNotifierProvider<SubscriptionService>.value(value: _FakeSubscriptionService(hasStravaEntitlement: entitled)),
+    ],
+    child: child,
+  );
+}
 
 void main() {
   final adjustment = StepAdjustment(
@@ -41,7 +60,7 @@ void main() {
     isBinned: false,
   );
 
-  Widget harness({SetupActivityAnalysisService? service}) {
+  Widget harness({SetupActivityAnalysisService? service, bool entitled = true}) {
     final child = localizedTestApp(
       home: Scaffold(
         body: SizedBox(
@@ -50,9 +69,7 @@ void main() {
         ),
       ),
     );
-    return service == null
-        ? child
-        : ListenableProvider<SetupActivityAnalysisService>.value(value: service, child: child);
+    return _withServices(child, service: service, entitled: entitled);
   }
 
   MockSetupActivityAnalysisService serviceWith({
@@ -129,6 +146,85 @@ void main() {
     expect(find.text('Start from fully closed'), findsOneWidget);
   });
 
+  group('explains why there is no histogram', () {
+    Future<void> openTooltip(WidgetTester tester, Widget widget) async {
+      await tester.pumpWidget(widget);
+      await tester.tap(find.byType(Tooltip));
+      await tester.pump();
+    }
+
+    testWidgets('without a subscription, pointing to Strava Sync', (tester) async {
+      final service = serviceWith(gate: true, load: () async => populated);
+      await openTooltip(tester, harness(service: service, entitled: false));
+
+      expect(find.textContaining('Subscribe to Strava Sync'), findsOneWidget);
+      verifyNever(() => service.getAdjustmentHistogram(any()));
+      expect(find.byKey(const ValueKey('adjustment-activity-histogram')), findsNothing);
+    });
+
+    testWidgets('without synced activities', (tester) async {
+      final service = serviceWith(gate: false, load: () async => populated);
+      await openTooltip(tester, harness(service: service));
+
+      expect(find.textContaining('No Strava activities synced yet'), findsOneWidget);
+      expect(find.textContaining('Subscribe to Strava Sync'), findsNothing);
+    });
+
+    testWidgets('when no activity used the adjustment', (tester) async {
+      final service = serviceWith(gate: true, load: () async => AdjustmentActivityHistogram.empty(adjustment.id));
+      await openTooltip(tester, harness(service: service));
+      await tester.pump();
+
+      expect(find.text('No activity has used a setup with this adjustment yet.'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
+
+    testWidgets('when loading fails', (tester) async {
+      final previousDebugPrint = debugPrint;
+      debugPrint = (message, {wrapWidth}) {};
+      final service = serviceWith(gate: true, load: () => Future.error(StateError('failed')));
+      await openTooltip(tester, harness(service: service));
+      await tester.pump();
+      debugPrint = previousDebugPrint;
+
+      expect(find.text('Could not load the activity distribution.'), findsOneWidget);
+    });
+
+    testWidgets('not while loading or once the histogram shows', (tester) async {
+      final completer = Completer<AdjustmentActivityHistogram>();
+      final service = serviceWith(gate: true, load: () => completer.future);
+      await openTooltip(tester, harness(service: service));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.textContaining('No activity has used'), findsNothing);
+
+      completer.complete(populated);
+      await tester.pump();
+      expect(find.byKey(const ValueKey('adjustment-activity-histogram')), findsOneWidget);
+      expect(find.textContaining('No activity has used'), findsNothing);
+    });
+
+    testWidgets('not for free text', (tester) async {
+      final text = TextAdjustment(name: 'Setup note', notes: null, unit: null);
+      final service = serviceWith(gate: true, load: () async => populated);
+      await tester.pumpWidget(
+        _withServices(
+          localizedTestApp(
+            home: Scaffold(
+              body: SizedBox(width: 400, child: AdjustmentIconNameNotes(adjustment: text)),
+            ),
+          ),
+          service: service,
+          entitled: false,
+        ),
+      );
+      await tester.tap(find.byType(Tooltip));
+      await tester.pump();
+
+      expect(find.textContaining('Subscribe to Strava Sync'), findsNothing);
+      verifyNever(() => service.getAdjustmentHistogram(any()));
+    });
+  });
+
   testWidgets('reuses service futures on repeat and ignores completion after disposal', (tester) async {
     final cachedFuture = Future.value(populated);
     final cachedService = serviceWith(gate: true, load: () => cachedFuture);
@@ -185,9 +281,7 @@ void main() {
           ),
         ),
       );
-      return service == null
-          ? child
-          : ListenableProvider<SetupActivityAnalysisService>.value(value: service, child: child);
+      return _withServices(child, service: service);
     }
 
     Future<void> openTooltip(WidgetTester tester, Widget widget) async {

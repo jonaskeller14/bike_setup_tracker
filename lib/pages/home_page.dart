@@ -357,7 +357,7 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () => showRiderSheet(context),
                         icon: Badge(
                           isLabelVisible: appRepository.persons.isEmpty,
-                          backgroundColor: Theme.of(context).primaryColor,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           child: const Icon(Person.iconData),
                         ),
                         tooltip: l10n.homeTooltipRider,
@@ -438,7 +438,7 @@ class _HomePageState extends State<HomePage> {
             child: NavigationDestination(
               icon: Badge(
                 isLabelVisible: appRepository.filters.bikeId != null,
-                backgroundColor: Theme.of(context).primaryColor,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 child: const Icon(Bike.iconData),
               ),
               label: l10n.homeNavBikes,

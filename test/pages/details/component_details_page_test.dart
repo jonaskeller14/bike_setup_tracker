@@ -22,6 +22,7 @@ import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
 import 'package:bike_setup_tracker/widgets/display_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
 import 'package:drift/drift.dart' show Value;
+import 'package:fl_chart/fl_chart.dart' show RadarChart;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -1250,6 +1251,51 @@ void main() {
     );
     await tester.ensureVisible(reselectedRadarSetup);
     expect(tester.widget<Text>(reselectedRadarSetup).style?.fontWeight, FontWeight.normal);
+  });
+
+  testWidgets('radar setups with equal charted values share one line and highlight together', (WidgetTester tester) async {
+    final adjustments = [
+      StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+      StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+      StepAdjustment(id: 'adj3', name: 'Volume Spacers', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+    ];
+    await seedRepository(tester, () async {
+      await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
+      await appRepository.addComponents([Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: adjustments,
+      )]);
+      await appRepository.addSetups([
+        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: const {}, bike: 'bike1', person: null, bikeAdjustmentValues: const {'adj1': StepValue(3), 'adj2': StepValue(4), 'adj3': StepValue(5)}, personAdjustmentValues: const {}),
+        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: const {}, bike: 'bike1', person: null, bikeAdjustmentValues: const {'adj1': StepValue(3), 'adj2': StepValue(4), 'adj3': StepValue(5)}, personAdjustmentValues: const {}),
+        Setup(id: 's3', name: 'Setup 3', datetime: DateTime(2024, 1, 3).toUtc(), datetimeLocal: DateTime(2024, 1, 3), tags: const {}, bike: 'bike1', person: null, bikeAdjustmentValues: const {'adj1': StepValue(3), 'adj2': StepValue(6), 'adj3': StepValue(7)}, personAdjustmentValues: const {}),
+      ]);
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await _waitForComponent(tester, appRepository);
+
+    final radarChart = tester.widget<RadarChart>(
+      find.descendant(of: find.byType(SetupRadialChart), matching: find.byType(RadarChart)),
+    );
+    expect(radarChart.data.dataSets, hasLength(2));
+
+    Finder legendEntry(String name) => find.descendant(of: find.byType(SetupRadialChart), matching: find.text(name));
+    await tester.ensureVisible(legendEntry('Setup 1'));
+    await tester.tap(legendEntry('Setup 1'));
+    await tester.pumpAndSettle();
+
+    final setup1 = tester.widget<Text>(legendEntry('Setup 1')).style;
+    final setup2 = tester.widget<Text>(legendEntry('Setup 2')).style;
+    final setup3 = tester.widget<Text>(legendEntry('Setup 3')).style;
+    expect(setup1?.fontWeight, FontWeight.bold);
+    expect(setup2?.fontWeight, FontWeight.bold);
+    expect(setup3?.fontWeight, FontWeight.normal);
+    expect(setup1?.color, isNotNull);
+    expect(setup2?.color, setup1?.color);
   });
 
   testWidgets('re-enabling a removed line-chart column does not restore its highlight', (WidgetTester tester) async {

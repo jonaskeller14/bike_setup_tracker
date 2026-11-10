@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../models/feedback/ride_feedback.dart';
 import '../models/strava/strava_activity.dart';
+import '../theme.dart';
 
 /// Anchors a pin marker at the pin's tip rather than its centre, for markers
 /// the pin fills exactly. The location_pin glyph ends 2/24 above its box's
@@ -125,13 +126,12 @@ class StravaActivityMapPin extends StatelessWidget {
   }
 }
 
-/// A setup-coloured pin with the feedback glyph: feedback is always about a setup.
 class FeedbackMapPin extends StatelessWidget {
   const FeedbackMapPin({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final color = Theme.of(context).extension<FeedbackOutcomeColors>()!.pin;
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -139,7 +139,7 @@ class FeedbackMapPin extends StatelessWidget {
           imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
           child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
         ),
-        Icon(Icons.location_pin, size: 40, color: primary),
+        Icon(Icons.location_pin, size: 40, color: color),
         Align(
           alignment: const Alignment(0, -0.4),
           child: Container(
@@ -150,7 +150,7 @@ class FeedbackMapPin extends StatelessWidget {
               color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: Icon(RideFeedback.iconData, size: 11, color: primary),
+            child: Icon(RideFeedback.iconData, size: 11, color: color),
           ),
         ),
       ],

@@ -130,11 +130,16 @@ class FeedbackOutcomeColors extends ThemeExtension<FeedbackOutcomeColors> {
   /// Text on a full [better] or [worse] fill.
   final Color onOutcome;
 
+  /// Map pin: purple, so feedback stands apart from setups (primary), Strava (orange)
+  /// and the semantic red/orange/green.
+  final Color pin;
+
   const FeedbackOutcomeColors({
     required this.better,
     required this.worse,
     required this.neutral,
     required this.onOutcome,
+    required this.pin,
   });
 
   static const light = FeedbackOutcomeColors(
@@ -142,6 +147,7 @@ class FeedbackOutcomeColors extends ThemeExtension<FeedbackOutcomeColors> {
     worse: Color(0xFFC62828), // red 800 — matches TaskStatusColors.overdue
     neutral: Color(0xFF757575), // grey 600
     onOutcome: Colors.white,
+    pin: Color(0xFF6A1B9A), // purple 800
   );
 
   static const dark = FeedbackOutcomeColors(
@@ -149,15 +155,17 @@ class FeedbackOutcomeColors extends ThemeExtension<FeedbackOutcomeColors> {
     worse: Color(0xFFE57373), // red 300
     neutral: Color(0xFFBDBDBD), // grey 400
     onOutcome: Colors.black,
+    pin: Color(0xFFBA68C8), // purple 300
   );
 
   @override
-  FeedbackOutcomeColors copyWith({Color? better, Color? worse, Color? neutral, Color? onOutcome}) {
+  FeedbackOutcomeColors copyWith({Color? better, Color? worse, Color? neutral, Color? onOutcome, Color? pin}) {
     return FeedbackOutcomeColors(
       better: better ?? this.better,
       worse: worse ?? this.worse,
       neutral: neutral ?? this.neutral,
       onOutcome: onOutcome ?? this.onOutcome,
+      pin: pin ?? this.pin,
     );
   }
 
@@ -169,6 +177,7 @@ class FeedbackOutcomeColors extends ThemeExtension<FeedbackOutcomeColors> {
       worse: Color.lerp(worse, other.worse, t)!,
       neutral: Color.lerp(neutral, other.neutral, t)!,
       onOutcome: Color.lerp(onOutcome, other.onOutcome, t)!,
+      pin: Color.lerp(pin, other.pin, t)!,
     );
   }
 }

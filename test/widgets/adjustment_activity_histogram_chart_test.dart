@@ -1,7 +1,10 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/adjustment_activity_histogram.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/services/component_slot.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/display_data/adjustment_activity_histogram_chart.dart';
+import 'package:bike_setup_tracker/widgets/display_data/histogram_slot_stack.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -180,5 +183,86 @@ void main() {
   testWidgets('empty histogram renders no chart', (tester) async {
     await tester.pumpWidget(harness(AdjustmentActivityHistogram.empty('empty')));
     expect(find.byType(BarChart), findsNothing);
+  });
+
+  group('slot stacking', () {
+    const frontTire = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelFront);
+    const rearTire = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelRear);
+    const stacked = AdjustmentActivityHistogram(
+      adjustmentId: 'pressure',
+      bars: [
+        AdjustmentActivityHistogramBar.exact(
+          activityCount: 5,
+          exactValue: NumericalValue(1.8),
+          segments: [(slot: frontTire, activityCount: 4), (slot: null, activityCount: 1)],
+        ),
+        AdjustmentActivityHistogramBar.exact(
+          activityCount: 3,
+          exactValue: NumericalValue(2.1),
+          segments: [(slot: rearTire, activityCount: 3)],
+        ),
+      ],
+      isBinned: false,
+      unitLabel: 'bar',
+      slots: [frontTire, rearTire, null],
+    );
+
+    testWidgets('stacks bars by slot with a slot legend', (tester) async {
+      await tester.pumpWidget(harness(stacked));
+      final rods = tester.widget<BarChart>(find.byType(BarChart)).data.barGroups.map((group) => group.barRods.single);
+
+      expect(rods.map((rod) => rod.rodStackItems.map((item) => (item.fromY, item.toY))), [
+        [(0.0, 4.0), (4.0, 5.0)],
+        [(0.0, 3.0)],
+      ]);
+      expect(find.text('Tire (Front Wheel)'), findsOneWidget);
+      expect(find.text('Tire (Rear Wheel)'), findsOneWidget);
+      expect(find.text('Not installed'), findsOneWidget);
+    });
+
+    testWidgets('fills each slot with its own pattern of the bar color', (tester) async {
+      await tester.pumpWidget(harness(stacked, currentValue: const NumericalValue(2.1)));
+      final colorScheme = materialAppTheme.colorScheme;
+      final rods = tester.widget<BarChart>(find.byType(BarChart)).data.barGroups.map((group) => group.barRods.single);
+      List<SlotPatternFill> fills(BarChartRodData rod) => [
+        for (final item in rod.rodStackItems) item.gradient! as SlotPatternFill,
+      ];
+
+      expect(rods.map((rod) => rod.color), everyElement(Colors.transparent), reason: 'fl_chart paints the rod under its parts');
+      expect(rods.map((rod) => fills(rod).map((fill) => fill.pattern)), [
+        [SlotPattern.solid, SlotPattern.horizontal], // front wheel, not installed
+        [SlotPattern.diagonal], // rear wheel
+      ]);
+      expect(fills(rods.first).map((fill) => fill.fill), everyElement(colorScheme.primaryContainer.withValues(alpha: 0.4)));
+      expect(fills(rods.last).single.fill, colorScheme.primaryContainer);
+    });
+
+    testWidgets('names the slot counts in tooltip and semantics', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(harness(stacked));
+      final chart = tester.widget<BarChart>(find.byType(BarChart));
+      final group = chart.data.barGroups.first;
+
+      expect(
+        chart.data.barTouchData.touchTooltipData.getTooltipItem(group, 0, group.barRods.single, 0)?.text,
+        '1.8 bar\n5 activities\nTire (Front Wheel): 4 activities\nNot installed: 1 activity',
+      );
+      expect(
+        find.bySemanticsLabel(
+          'Activity distribution. 1.8 bar: 5 activities (Tire (Front Wheel): 4 activities, Not installed: 1 activity), '
+          '2.1 bar: 3 activities (Tire (Rear Wheel): 3 activities)',
+        ),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('renders without overflow in light and dark on narrow widths', (tester) async {
+      for (final theme in [materialAppTheme, materialAppDarkTheme]) {
+        await tester.pumpWidget(harness(stacked, theme: theme, width: 140, textScale: 2));
+        expect(find.byType(BarChart), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
+    });
   });
 }

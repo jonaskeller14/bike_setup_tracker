@@ -3298,7 +3298,7 @@
   "@componentDetailsLineChartInfo": {
     "description": "Info text of the line chart section on the component details."
   },
-  "componentDetailsHistogramInfo": "• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.",
+  "componentDetailsHistogramInfo": "• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Bars are split by where the component was mounted, e.g. front or rear wheel. Touch a bar to see the activities per mount.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.",
   "@componentDetailsHistogramInfo": {
     "description": "Info text of the activity histogram section on the component details."
   },
@@ -10292,6 +10292,18 @@
       },
       "recommended": {
         "type": "String"
+      }
+    }
+  },
+  "chartHistogramSegment": "{slot}: {count, plural, =1{1 activity} other{{count} activities}}",
+  "@chartHistogramSegment": {
+    "description": "One stacked part of a histogram bar, in its tooltip and screen reader text. {slot} is where the component was mounted, e.g. 'Tire (Rear wheel)'.",
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
       }
     }
   },

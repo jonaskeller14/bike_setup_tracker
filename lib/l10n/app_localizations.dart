@@ -4654,7 +4654,7 @@ abstract class AppLocalizations {
   /// Info text of the activity histogram section on the component details.
   ///
   /// In en, this message translates to:
-  /// **'• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.'**
+  /// **'• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Bars are split by where the component was mounted, e.g. front or rear wheel. Touch a bar to see the activities per mount.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.'**
   String get componentDetailsHistogramInfo;
 
   /// Snackbar action that starts adding the missing item.
@@ -12690,6 +12690,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{label}\n{count, plural, =1{1 activity} other{{count} activities}}{current, select, true{\nCurrent value} other{}}{recommended, select, true{\nRecommended value} other{}}'**
   String chartHistogramBarTooltip(String label, int count, String current, String recommended);
+
+  /// One stacked part of a histogram bar, in its tooltip and screen reader text. {slot} is where the component was mounted, e.g. 'Tire (Rear wheel)'.
+  ///
+  /// In en, this message translates to:
+  /// **'{slot}: {count, plural, =1{1 activity} other{{count} activities}}'**
+  String chartHistogramSegment(String slot, int count);
 
   /// Label of the vertical axis of the activity histogram.
   ///

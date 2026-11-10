@@ -8,6 +8,7 @@ import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
 import '../../utils/adjustment_activity_histogram_grouping.dart';
+import 'histogram_slot_stack.dart';
 
 class AdjustmentActivityHistogramChart extends StatelessWidget {
   final AdjustmentActivityHistogram histogram;
@@ -32,14 +33,20 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
     final highlighted = adjustmentHistogramBarIndexesFor(histogram, currentValue);
     final recommended = adjustmentHistogramBarIndexesFor(histogram, guideValue);
     final labelStyle = textTheme.labelSmall?.copyWith(color: colorScheme.onSecondary);
+    Color barColor(int index) => highlighted.isEmpty || highlighted.contains(index)
+        ? colorScheme.primaryContainer
+        : colorScheme.primaryContainer.withValues(alpha: 0.4);
     final summary = [
       for (var index = 0; index < bars.length; index++)
-        l10n.chartHistogramBarSemantics(
-          histogram.barLabel(bars[index], l10n),
-          bars[index].activityCount,
-          '${highlighted.contains(index)}',
-          '${recommended.contains(index)}',
-        ),
+        [
+          l10n.chartHistogramBarSemantics(
+            histogram.barLabel(bars[index], l10n),
+            bars[index].activityCount,
+            '${highlighted.contains(index)}',
+            '${recommended.contains(index)}',
+          ),
+          if (histogram.isStacked) '(${histogram.segmentLines(bars[index], l10n).join(', ')})',
+        ].join(' '),
     ].join(', ');
 
     return Semantics(
@@ -49,9 +56,10 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final availableWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 300.0;
-            return SizedBox(
+            final width = math.min(availableWidth, 320.0);
+            final chart = SizedBox(
               key: const ValueKey('adjustment-activity-histogram'),
-              width: math.min(availableWidth, 320),
+              width: width,
               height: 190,
               child: BarChart(
                 BarChartData(
@@ -131,16 +139,21 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                   barTouchData: BarTouchData(
                     enabled: true,
                     touchTooltipData: BarTouchTooltipData(
+                      fitInsideHorizontally: true,
+                      fitInsideVertically: true,
                       getTooltipColor: (_) => colorScheme.secondaryContainer,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         final bar = bars[group.x];
                         return BarTooltipItem(
-                          l10n.chartHistogramBarTooltip(
-                            histogram.barLabel(bar, l10n),
-                            bar.activityCount,
-                            '${highlighted.contains(group.x)}',
-                            '${recommended.contains(group.x)}',
-                          ),
+                          [
+                            l10n.chartHistogramBarTooltip(
+                              histogram.barLabel(bar, l10n),
+                              bar.activityCount,
+                              '${highlighted.contains(group.x)}',
+                              '${recommended.contains(group.x)}',
+                            ),
+                            ...histogram.segmentLines(bar, l10n),
+                          ].join('\n'),
                           textTheme.labelSmall?.copyWith(color: colorScheme.onSecondaryContainer) ??
                               TextStyle(color: colorScheme.onSecondaryContainer),
                         );
@@ -155,9 +168,16 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                           BarChartRodData(
                             toY: bars[index].activityCount.toDouble(),
                             width: math.max(6, math.min(18, 180 / bars.length)),
-                            color: highlighted.isEmpty || highlighted.contains(index)
-                                ? colorScheme.primaryContainer
-                                : colorScheme.primaryContainer.withValues(alpha: 0.4),
+                            color: histogram.isStacked ? Colors.transparent : barColor(index),
+                            rodStackItems: histogram.isStacked
+                                ? histogramStackItems(
+                                    histogram,
+                                    bars[index],
+                                    color: barColor(index),
+                                    // The adjustment tooltip's background.
+                                    stroke: colorScheme.onSecondaryContainer,
+                                  )
+                                : const [],
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
                           ),
                         ],
@@ -166,6 +186,23 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                 ),
                 duration: Duration.zero,
               ),
+            );
+            if (!histogram.isStacked) return chart;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 8,
+              children: [
+                chart,
+                SizedBox(
+                  width: width,
+                  child: HistogramSlotLegend(
+                    histogram: histogram,
+                    color: colorScheme.primaryContainer,
+                    stroke: colorScheme.onSecondaryContainer,
+                    style: labelStyle,
+                  ),
+                ),
+              ],
             );
           },
         ),

@@ -2594,7 +2594,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get componentDetailsHistogramInfo =>
-      '• Zeigt, wie viele Strava-Aktivitäten mit jedem Einstellwert gefahren wurden.\n• Zählt alle Setups der Tabelle oben, nicht nur die ausgewählten.\n• Numerische Werte werden zu Bereichen zusammengefasst, wenn es viele verschiedene Werte gibt.\n• Tippe auf einen Legendeneintrag, um eine andere Einstellung anzuzeigen.\n• Halte einen Legendeneintrag gedrückt, um seine Spalte zu entfernen.';
+      '• Zeigt, wie viele Strava-Aktivitäten mit jedem Einstellwert gefahren wurden.\n• Zählt alle Setups der Tabelle oben, nicht nur die ausgewählten.\n• Numerische Werte werden zu Bereichen zusammengefasst, wenn es viele verschiedene Werte gibt.\n• Balken sind danach aufgeteilt, wo die Komponente montiert war, z. B. Vorder- oder Hinterrad. Tippe auf einen Balken, um die Aktivitäten je Montageort zu sehen.\n• Tippe auf einen Legendeneintrag, um eine andere Einstellung anzuzeigen.\n• Halte einen Legendeneintrag gedrückt, um seine Spalte zu entfernen.';
 
   @override
   String get snackbarAdd => 'HINZUFÜGEN';
@@ -7772,6 +7772,17 @@ class AppLocalizationsDe extends AppLocalizations {
       },
     );
     return '$label\n$_temp0$_temp1$_temp2';
+  }
+
+  @override
+  String chartHistogramSegment(String slot, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aktivitäten',
+      one: '1 Aktivität',
+    );
+    return '$slot: $_temp0';
   }
 
   @override

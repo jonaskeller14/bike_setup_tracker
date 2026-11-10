@@ -1,5 +1,6 @@
 import '../models/adjustment/adjustment.dart';
 import '../models/adjustment_activity_histogram.dart';
+import '../services/component_slot.dart';
 import 'adjustment_value_text.dart';
 import 'app_localizations.dart';
 
@@ -19,4 +20,12 @@ extension AdjustmentActivityHistogramText on AdjustmentActivityHistogram {
   }
 
   String _withUnit(String label) => unitLabel == null ? label : '$label $unitLabel';
+
+  /// Where the component of a stacked bar part was mounted.
+  String slotLabel(ComponentSlot? slot, AppLocalizations l10n) => slot?.label(l10n) ?? l10n.timelineNotInstalled;
+
+  /// "Tire (Rear wheel): 12 activities" for each stacked part of [bar].
+  List<String> segmentLines(AdjustmentActivityHistogramBar bar, AppLocalizations l10n) => [
+    for (final segment in bar.segments) l10n.chartHistogramSegment(slotLabel(segment.slot, l10n), segment.activityCount),
+  ];
 }

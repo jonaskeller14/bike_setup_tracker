@@ -117,7 +117,7 @@ class BikeAdjustmentColumnService {
 
     final lanes = <SlotLane>[];
     final laneAtSetup = <(String componentId, int setupIndex), SlotLane>{};
-    for (final slot in occurrences.keys.toList()..sort(_compareSlots)) {
+    for (final slot in occurrences.keys.toList()..sort(compareSlots)) {
       final slotLanes = _assignLanes(occurrences[slot]!);
       for (final (index, members) in slotLanes.indexed) {
         final lane = SlotLane(
@@ -229,12 +229,6 @@ class BikeAdjustmentColumnService {
       if (laneAtSetup[(componentId, i)] case final lane?) return lane;
     }
     return null;
-  }
-
-  static int _compareSlots(ComponentSlot a, ComponentSlot b) {
-    final byType = a.type.index.compareTo(b.type.index);
-    if (byType != 0) return byType;
-    return (a.parentType?.index ?? -1).compareTo(b.parentType?.index ?? -1);
   }
 }
 

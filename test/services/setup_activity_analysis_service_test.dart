@@ -1,9 +1,12 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
+import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
+import 'package:bike_setup_tracker/services/component_slot.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide Component;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -11,7 +14,7 @@ void main() {
   late SetupActivityAnalysisService service;
   final baseTime = DateTime.utc(2025, 1, 1, 12);
 
-  Future<void> insertSetup(String id, double adjustmentValue) async {
+  Future<void> insertSetup(String id, double adjustmentValue, {DateTime? at}) async {
     await db
         .into(db.setups)
         .insert(
@@ -19,8 +22,8 @@ void main() {
             id: id,
             bikeId: 'bike',
             lastModified: baseTime,
-            datetime: baseTime,
-            datetimeLocal: baseTime,
+            datetime: at ?? baseTime,
+            datetimeLocal: at ?? baseTime,
             tags: const {},
           ),
         );
@@ -177,6 +180,40 @@ void main() {
     await insertActivity(3);
     await settle();
     expect(service.hasAnyActivity, isTrue);
+  });
+
+  test('splits histogram bars by where the component was mounted', () async {
+    final installedAt = baseTime.subtract(const Duration(days: 1));
+    final rotatedAt = baseTime.add(const Duration(days: 2));
+    Component part(String id, ComponentType type, List<Installation> installations) =>
+        Component(id: id, name: id, componentType: type, installations: installations, adjustments: const []);
+    final onBike = BikeInstallation(bikeId: 'bike', dateTimeUTC: installedAt, dateTimeLocal: installedAt);
+    final hierarchy = ComponentHierarchyResolver({
+      for (final component in [
+        part('front', ComponentType.wheelFront, [onBike]),
+        part('rear', ComponentType.wheelRear, [onBike]),
+        part('component', ComponentType.tire, [
+          ComponentInstallation(parentComponentId: 'front', dateTimeUTC: installedAt, dateTimeLocal: installedAt),
+          ComponentInstallation(parentComponentId: 'rear', dateTimeUTC: rotatedAt, dateTimeLocal: rotatedAt),
+        ]),
+      ])
+        component.id: component,
+    });
+    final stackedService = SetupActivityAnalysisService(db, hierarchy: () => hierarchy);
+    addTearDown(stackedService.dispose);
+    await insertSetup('rear-setup', 25, at: baseTime.add(const Duration(days: 3)));
+    await insertActivity(100);
+    await settle();
+
+    final histogram = await stackedService.getAdjustmentHistogram('adjustment');
+    const frontTire = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelFront);
+    const rearTire = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelRear);
+    expect(histogram.slots, [frontTire, rearTire]);
+    expect(histogram.bars.map((bar) => bar.segments), [
+      [(slot: frontTire, activityCount: 1)],
+      [(slot: rearTire, activityCount: 1)],
+    ]);
+    expect((await service.getAdjustmentHistogram('adjustment')).isStacked, isFalse);
   });
 
   test('disposes safely while a read is in flight', () async {

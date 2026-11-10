@@ -247,7 +247,10 @@ class _LoadingGateState extends State<LoadingGate> {
             providers: [
               Provider<AppDatabase>.value(value: widget.appRepository.database),
               ChangeNotifierProvider<SetupActivityAnalysisService>(
-                create: (_) => SetupActivityAnalysisService(widget.appRepository.database),
+                create: (_) => SetupActivityAnalysisService(
+                  widget.appRepository.database,
+                  hierarchy: () => widget.appRepository.componentHierarchy,
+                ),
               ),
               Provider<ComponentCatalogRepository>.value(value: _catalogRepository),
               ChangeNotifierProvider.value(value: widget.appSettings),

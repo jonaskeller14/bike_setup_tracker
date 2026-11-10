@@ -2572,7 +2572,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get componentDetailsHistogramInfo =>
-      '• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.';
+      '• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Bars are split by where the component was mounted, e.g. front or rear wheel. Touch a bar to see the activities per mount.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.';
 
   @override
   String get snackbarAdd => 'ADD';
@@ -7721,6 +7721,17 @@ class AppLocalizationsEn extends AppLocalizations {
       },
     );
     return '$label\n$_temp0$_temp1$_temp2';
+  }
+
+  @override
+  String chartHistogramSegment(String slot, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count activities',
+      one: '1 activity',
+    );
+    return '$slot: $_temp0';
   }
 
   @override

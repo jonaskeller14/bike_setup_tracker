@@ -1,5 +1,6 @@
 import '../models/adjustment/adjustment.dart';
 import '../models/adjustment_activity_histogram.dart';
+import '../services/component_slot.dart';
 
 const int adjustmentHistogramMaxExactContinuousValues = 12;
 const int adjustmentHistogramBinCount = 8;
@@ -25,13 +26,16 @@ AdjustmentActivityHistogram _groupCategorical(
   List<AdjustmentActivityValue> values,
 ) {
   final counts = <String, int>{};
+  final slotCounts = <String, Map<ComponentSlot?, int>>{};
   for (final entry in values) {
     final value = entry.value;
     if (value is! CategoricalValue) continue;
     for (final option in value.options.toSet()) {
       counts[option] = (counts[option] ?? 0) + entry.activityCount;
+      _addSlotCount(slotCounts, option, entry);
     }
   }
+  final slots = _stackSlots(slotCounts);
 
   final ordered = <String>[
     ...adjustment.options.where(counts.containsKey),
@@ -45,10 +49,12 @@ AdjustmentActivityHistogram _groupCategorical(
         (option) => AdjustmentActivityHistogramBar.exact(
           activityCount: counts[option]!,
           exactValue: CategoricalValue([option]),
+          segments: _segments(slots, slotCounts[option]),
         ),
       ),
     ),
     isBinned: false,
+    slots: slots,
   );
 }
 
@@ -57,9 +63,12 @@ AdjustmentActivityHistogram _groupDiscrete(
   List<AdjustmentActivityValue> values,
 ) {
   final counts = <AdjustmentValue, int>{};
+  final slotCounts = <AdjustmentValue, Map<ComponentSlot?, int>>{};
   for (final entry in values) {
     counts[entry.value!] = (counts[entry.value] ?? 0) + entry.activityCount;
+    _addSlotCount(slotCounts, entry.value!, entry);
   }
+  final slots = _stackSlots(slotCounts);
   final ordered = counts.keys.toList()..sort(_compareExactValues);
   return AdjustmentActivityHistogram(
     adjustmentId: adjustment.id,
@@ -69,10 +78,12 @@ AdjustmentActivityHistogram _groupDiscrete(
         (value) => AdjustmentActivityHistogramBar.exact(
           activityCount: counts[value]!,
           exactValue: value,
+          segments: _segments(slots, slotCounts[value]),
         ),
       ),
     ),
     isBinned: false,
+    slots: slots,
   );
 }
 
@@ -81,14 +92,17 @@ AdjustmentActivityHistogram _groupContinuous(
   List<AdjustmentActivityValue> values,
 ) {
   final counts = <num, int>{};
+  final slotCounts = <num, Map<ComponentSlot?, int>>{};
   final originalValues = <num, AdjustmentValue>{};
   for (final entry in values) {
     final numeric = entry.value!.asNum;
     if (numeric == null || !numeric.isFinite) continue;
     counts[numeric] = (counts[numeric] ?? 0) + entry.activityCount;
+    _addSlotCount(slotCounts, numeric, entry);
     originalValues[numeric] = entry.value!;
   }
   if (counts.isEmpty) return AdjustmentActivityHistogram.empty(adjustment.id);
+  final slots = _stackSlots(slotCounts);
 
   final ordered = counts.keys.toList()..sort();
   if (ordered.length <= adjustmentHistogramMaxExactContinuousValues || ordered.first == ordered.last) {
@@ -100,10 +114,12 @@ AdjustmentActivityHistogram _groupContinuous(
           (value) => AdjustmentActivityHistogramBar.exact(
             activityCount: counts[value]!,
             exactValue: originalValues[value],
+            segments: _segments(slots, slotCounts[value]),
           ),
         ),
       ),
       isBinned: false,
+      slots: slots,
     );
   }
 
@@ -111,8 +127,13 @@ AdjustmentActivityHistogram _groupContinuous(
   final max = ordered.last.toDouble();
   final width = (max - min) / adjustmentHistogramBinCount;
   final binCounts = List<int>.filled(adjustmentHistogramBinCount, 0);
+  final binSlotCounts = List.generate(adjustmentHistogramBinCount, (_) => <ComponentSlot?, int>{});
   for (final entry in counts.entries) {
-    binCounts[_binIndex(entry.key, min, width, adjustmentHistogramBinCount)] += entry.value;
+    final bin = _binIndex(entry.key, min, width, adjustmentHistogramBinCount);
+    binCounts[bin] += entry.value;
+    for (final MapEntry(key: slot, value: count) in slotCounts[entry.key]!.entries) {
+      binSlotCounts[bin][slot] = (binSlotCounts[bin][slot] ?? 0) + count;
+    }
   }
 
   return AdjustmentActivityHistogram(
@@ -127,12 +148,34 @@ AdjustmentActivityHistogram _groupContinuous(
           lowerBound: lower,
           upperBound: upper,
           includesUpperBound: index == adjustmentHistogramBinCount - 1,
+          segments: _segments(slots, binSlotCounts[index]),
         );
       }),
     ),
     isBinned: true,
     hasDurationBounds: adjustment is DurationAdjustment,
+    slots: slots,
   );
+}
+
+void _addSlotCount<K>(Map<K, Map<ComponentSlot?, int>> slotCounts, K key, AdjustmentActivityValue entry) {
+  final counts = slotCounts[key] ??= {};
+  counts[entry.slot] = (counts[entry.slot] ?? 0) + entry.activityCount;
+}
+
+/// The slots to stack bars by, ordered like the bike's slot lanes with
+/// unknown last; empty when every activity shares one slot.
+List<ComponentSlot?> _stackSlots(Map<Object, Map<ComponentSlot?, int>> slotCounts) {
+  final slots = {for (final counts in slotCounts.values) ...counts.keys};
+  if (slots.length < 2) return const [];
+  return List.unmodifiable([...slots.nonNulls.toList()..sort(compareSlots), if (slots.contains(null)) null]);
+}
+
+List<AdjustmentActivityHistogramSegment> _segments(List<ComponentSlot?> slots, Map<ComponentSlot?, int>? counts) {
+  return List.unmodifiable([
+    for (final slot in slots)
+      if (counts?[slot] case final count? when count > 0) (slot: slot, activityCount: count),
+  ]);
 }
 
 int _binIndex(num value, double min, double width, int binCount) {

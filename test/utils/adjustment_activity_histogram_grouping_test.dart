@@ -3,6 +3,8 @@ import 'package:bike_setup_tracker/l10n/histogram_text.dart';
 import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/adjustment_activity_histogram.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/services/component_slot.dart';
 import 'package:bike_setup_tracker/utils/adjustment_activity_histogram_grouping.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -138,6 +140,116 @@ void main() {
     );
 
     expect(result.isEmpty, isTrue);
+  });
+
+  group('slot stacking', () {
+    const frontTire = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelFront);
+    const rearTire = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelRear);
+    final pressure = NumericalAdjustment(id: 'pressure', name: 'Pressure', notes: null, unit: null);
+
+    AdjustmentActivityValue mounted(AdjustmentValue value, int count, ComponentSlot? slot, String id) =>
+        AdjustmentActivityValue(setupId: id, value: value, activityCount: count, slot: slot);
+
+    void expectSegmentsSumToBars(AdjustmentActivityHistogram histogram) {
+      for (final bar in histogram.bars) {
+        expect(bar.segments.fold<int>(0, (sum, segment) => sum + segment.activityCount), bar.activityCount);
+      }
+    }
+
+    test('stays unstacked when every activity shares one slot', () {
+      final result = groupAdjustmentActivityHistogram(
+        adjustment: pressure,
+        values: [
+          mounted(const NumericalValue(1.8), 2, rearTire, 'a'),
+          mounted(const NumericalValue(2.1), 3, rearTire, 'b'),
+        ],
+      );
+
+      expect(result.isStacked, isFalse);
+      expect(result.bars.every((bar) => bar.segments.isEmpty), isTrue);
+    });
+
+    test('splits exact bars by slot, ordered front before rear and unknown last', () {
+      final result = groupAdjustmentActivityHistogram(
+        adjustment: pressure,
+        values: [
+          mounted(const NumericalValue(2.1), 4, rearTire, 'rear'),
+          mounted(const NumericalValue(1.8), 3, frontTire, 'front'),
+          mounted(const NumericalValue(1.8), 1, rearTire, 'rear-low'),
+          mounted(const NumericalValue(2.1), 2, null, 'loose'),
+        ],
+      );
+
+      expect(result.slots, [frontTire, rearTire, null]);
+      expect(result.labelsAndCounts, [('1.8', 4), ('2.1', 6)]);
+      expect(result.bars.first.segments, [(slot: frontTire, activityCount: 3), (slot: rearTire, activityCount: 1)]);
+      expect(result.bars.last.segments, [(slot: rearTire, activityCount: 4), (slot: null, activityCount: 2)]);
+      expect(englishL10n.chartHistogramSegment(result.slotLabel(null, englishL10n), 2), 'Not installed: 2 activities');
+      expect(result.segmentLines(result.bars.first, englishL10n), [
+        'Tire (Front Wheel): 3 activities',
+        'Tire (Rear Wheel): 1 activity',
+      ]);
+    });
+
+    test('keeps bins of the totals and splits each bin by slot', () {
+      final result = groupAdjustmentActivityHistogram(
+        adjustment: pressure,
+        values: [
+          for (var index = 0; index <= 12; index++)
+            mounted(NumericalValue(index.toDouble()), 1, index < 6 ? frontTire : rearTire, '$index'),
+        ],
+      );
+      final unstacked = groupAdjustmentActivityHistogram(
+        adjustment: pressure,
+        values: [for (var index = 0; index <= 12; index++) value(NumericalValue(index.toDouble()), 1, '$index')],
+      );
+
+      expect(result.isBinned, isTrue);
+      expect(result.slots, [frontTire, rearTire]);
+      expect(result.labelsAndCounts, unstacked.labelsAndCounts);
+      expectSegmentsSumToBars(result);
+    });
+
+    test('counts each selected categorical option for its slot', () {
+      final adjustment = CategoricalAdjustment(
+        id: 'insert',
+        name: 'Insert',
+        notes: null,
+        unit: null,
+        options: const {'Foam', 'None'},
+        multiSelect: true,
+      );
+      final result = groupAdjustmentActivityHistogram(
+        adjustment: adjustment,
+        values: [
+          mounted(CategoricalValue(const ['Foam', 'None']), 2, frontTire, 'front'),
+          mounted(CategoricalValue(const ['Foam']), 5, rearTire, 'rear'),
+        ],
+      );
+
+      expect(result.labelsAndCounts, [('Foam', 7), ('None', 2)]);
+      expect(result.bars.last.segments, [(slot: frontTire, activityCount: 2)]);
+      expectSegmentsSumToBars(result);
+    });
+
+    test('splits discrete bars by slot', () {
+      final rebound = StepAdjustment(
+        id: 'step',
+        name: 'Rebound',
+        notes: null,
+        unit: null,
+        step: 1,
+        min: 0,
+        max: 10,
+        visualization: StepAdjustmentVisualization.slider,
+      );
+      final result = groupAdjustmentActivityHistogram(
+        adjustment: rebound,
+        values: [mounted(const StepValue(3), 2, frontTire, 'front'), mounted(const StepValue(3), 1, rearTire, 'rear')],
+      );
+
+      expect(result.bars.single.segments, [(slot: frontTire, activityCount: 2), (slot: rearTire, activityCount: 1)]);
+    });
   });
 
   group('adjustmentHistogramBarIndexesFor', () {

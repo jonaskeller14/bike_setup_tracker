@@ -15,6 +15,7 @@ import '../../models/component/installation.dart';
 import '../../models/feedback/test_session.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/component_slot.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
@@ -593,6 +594,14 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       componentAdjustments,
                       personAdjustments,
                     ),
+                    slotFor: (setup, column) => column is ComponentAdjustmentColumn
+                        ? slotOnBikeAt(
+                            appRepository.componentHierarchy,
+                            component,
+                            bikeId: setup.bike,
+                            atUTC: setup.datetimeLocal.toUtc(),
+                          )
+                        : null,
                     columnLabel: (column) => _columnLabel(
                       column,
                       componentAdjustments,

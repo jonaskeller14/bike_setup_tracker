@@ -161,6 +161,7 @@ class TaskRuleListCard extends StatelessWidget {
 
   static Widget notesWidget(BuildContext context, {required String notes}) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 2,
       children: [
@@ -172,7 +173,7 @@ class TaskRuleListCard extends StatelessWidget {
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
-        Expanded(
+        Flexible(
           child: NotesText(
             notes,
             fontSize: 13,
@@ -361,10 +362,17 @@ class TaskRuleListCard extends StatelessWidget {
               ),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
                 tagsWidget(context, tags: taskRule.tags),
-              if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
-                notesWidget(context, notes: taskRule.notes!),
-              if (appSettings.enableAttachments && taskRule.attachments.isNotEmpty)
-                attachmentsWidget(context, count: taskRule.attachments.length),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [
+                  if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
+                    Flexible(child: notesWidget(context, notes: taskRule.notes!)),
+                  if (appSettings.enableAttachments && taskRule.attachments.isNotEmpty)
+                    attachmentsWidget(context, count: taskRule.attachments.length),
+                ]
+              ),
               if (taskRule.interval != null)
                 TaskIntervalText(
                   interval: taskRule.interval!,

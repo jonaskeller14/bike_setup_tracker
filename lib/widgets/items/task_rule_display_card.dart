@@ -142,10 +142,17 @@ class TaskRuleDisplayCard extends StatelessWidget {
               TaskRuleListCard.filterWidget(context, taskRule: taskRule, component: component, bikes: appRepository.bikes, hierarchy: appRepository.componentHierarchy),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
                 TaskRuleListCard.tagsWidget(context, tags: taskRule.tags),
-              if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
-                TaskRuleListCard.notesWidget(context, notes: taskRule.notes!),
-              if (appSettings.enableAttachments && taskRule.attachments.isNotEmpty)
-                TaskRuleListCard.attachmentsWidget(context, count: taskRule.attachments.length),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [
+                  if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
+                    Flexible(child: TaskRuleListCard.notesWidget(context, notes: taskRule.notes!)),
+                  if (appSettings.enableAttachments && taskRule.attachments.isNotEmpty)
+                    TaskRuleListCard.attachmentsWidget(context, count: taskRule.attachments.length),
+                ],
+              ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -277,49 +277,59 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                 ),
                               ],
                             ),
-                          if (widget.bike.notes != null && widget.bike.notes!.isNotEmpty)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 3), // tweak to match font size
-                                  child: Icon(
-                                    Icons.notes,
-                                    size: 13,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                Expanded(
-                                  child: NotesText(
-                                    widget.bike.notes!,
-                                    fontSize: 13,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          if (attachmentCount > 0)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              spacing: 2,
-                              children: [
-                                Icon(
-                                  Icons.attach_file,
-                                  size: 13,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 8,
+                            children: [
+                              if (widget.bike.notes != null && widget.bike.notes!.isNotEmpty)
                                 Flexible(
-                                  child: Text(
-                                    '$attachmentCount',
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                      fontSize: 13,
-                                    ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    spacing: 2,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                                        child: Icon(
+                                          Icons.notes,
+                                          size: 13,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                      Flexible(
+                                        child: NotesText(
+                                          widget.bike.notes!,
+                                          fontSize: 13,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              if (attachmentCount > 0)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  spacing: 2,
+                                  children: [
+                                    Icon(
+                                      Icons.attach_file,
+                                      size: 13,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                        '$attachmentCount',
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
                         ],
                       )
                     : null,

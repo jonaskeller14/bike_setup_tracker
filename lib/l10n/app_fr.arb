@@ -1514,6 +1514,7 @@
   "mapEmptyErrorSubtitle": "Les setups et les feedbacks s’affichent toujours.",
   "mapEmptyErrorPill": "Échec des activités",
   "mapEmptyRetry": "Réessayer",
+  "mapClusterSemantics": "Groupe de {count} repères",
   "mapEmptyFilteredTitle": "Rien sur la carte dans cette vue",
   "mapEmptyFilteredSubtitle": "Vos filtres actuels masquent tous les repères.",
   "mapEmptyNoPins": "Aucun repère",

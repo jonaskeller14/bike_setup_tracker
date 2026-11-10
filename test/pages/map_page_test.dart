@@ -18,11 +18,14 @@ import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/location_provider.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/map_empty_state.dart';
+import 'package:bike_setup_tracker/widgets/map/map_cluster_bubble.dart';
 import 'package:bike_setup_tracker/widgets/map/map_control_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mocktail/mocktail.dart';
@@ -106,6 +109,7 @@ void main() {
         ListenableProvider<SubscriptionService>.value(value: subscriptionService),
       ],
       child: localizedTestApp(
+        theme: materialAppTheme,
         home: MapPage(
           locationService: service,
           headingStream: headingStream,
@@ -686,6 +690,118 @@ void main() {
       }
       await tester.pump();
       expect(pinState(), MapPinState.none);
+    });
+  });
+
+  group('Cluster layer', () {
+    Setup setupAt(double latitude, double longitude) => Setup(
+      datetime: DateTime(2025, 6, 1).toUtc(),
+      datetimeLocal: DateTime(2025, 6, 1),
+      tags: const {},
+      bike: 'bike-1',
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      position: ContextPosition(latitude: latitude, longitude: longitude),
+    );
+
+    RideFeedback feedbackAt(double latitude, double longitude) => RideFeedback(
+      bike: 'bike-1',
+      setupId: 'setup-1',
+      dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
+      dateTimeLocal: DateTime(2025, 6, 1),
+      position: ContextPosition(latitude: latitude, longitude: longitude),
+    );
+
+    List<Marker> clusterMarkers(WidgetTester tester) =>
+        tester.widget<MarkerClusterLayerWidget>(find.byType(MarkerClusterLayerWidget)).options.markers;
+
+    testWidgets('keeps its markers across a rebuild that changes no pin', (tester) async {
+      final setup = setupAt(46.5, 9.8);
+      stubView(setups: {setup.id: setup});
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+
+      final before = clusterMarkers(tester);
+      expect(before, hasLength(1));
+
+      settings.enableCalendar = true;
+      await tester.pump();
+
+      expect(clusterMarkers(tester), same(before));
+    });
+
+    testWidgets('keeps its markers when a notify reloads the same pins', (tester) async {
+      final setup = setupAt(46.5, 9.8);
+      stubView(setups: {setup.id: setup});
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+      final before = clusterMarkers(tester);
+
+      // A fresh view and activity list with the same content, as after a sync.
+      stubView(setups: {setup.id: setup});
+      for (final listener in repositoryListeners) {
+        listener();
+      }
+      await tester.pump();
+      await tester.pump();
+
+      expect(clusterMarkers(tester), same(before));
+    });
+
+    testWidgets('rebuilds its markers when a pin changes how it looks', (tester) async {
+      final setup = setupAt(46.5, 9.8);
+      stubView(setups: {setup.id: setup});
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+      final before = clusterMarkers(tester);
+
+      when(() => repository.setupHistory).thenReturn(SetupHistory(currentSetupIds: {setup.id}));
+      for (final listener in repositoryListeners) {
+        listener();
+      }
+      await tester.pump();
+      await tester.pump();
+
+      expect(clusterMarkers(tester), isNot(same(before)));
+    });
+
+    testWidgets('rebuilds its markers when a layer is hidden', (tester) async {
+      final setup = setupAt(46.5, 9.8);
+      stubView(setups: {setup.id: setup});
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+      expect(clusterMarkers(tester), hasLength(1));
+
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.setups});
+      for (final listener in repositoryListeners) {
+        listener();
+      }
+      await tester.pump();
+      await tester.pump();
+
+      expect(clusterMarkers(tester), isEmpty);
+    });
+
+    testWidgets('counts a cluster\'s pins by kind', (tester) async {
+      final setupA = setupAt(46.5, 9.8);
+      final setupB = setupAt(46.5, 9.8);
+      stubView(setups: {setupA.id: setupA, setupB.id: setupB});
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+
+      final bubble = tester.widget<MapClusterBubble>(find.byType(MapClusterBubble));
+      expect(bubble.counts, {MapPinKind.setup: 2});
+
+      final feedback = feedbackAt(46.5, 9.8);
+      stubView(setups: {setupA.id: setupA, setupB.id: setupB}, feedbacks: {feedback.id: feedback});
+      settings.enableRating = true;
+      await tester.pump();
+      await tester.pump();
+
+      final mixed = tester.widget<MapClusterBubble>(find.byType(MapClusterBubble));
+      expect(mixed.counts, {MapPinKind.setup: 2, MapPinKind.feedback: 1});
+      expect(mixed.count, 3);
     });
   });
 

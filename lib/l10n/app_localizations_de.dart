@@ -5624,6 +5624,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mapEmptyRetry => 'Erneut versuchen';
 
   @override
+  String mapClusterSemantics(int count) {
+    return 'Gruppe von $count Markierungen';
+  }
+
+  @override
   String get mapEmptyFilteredTitle => 'In dieser Ansicht ist nichts auf der Karte';
 
   @override

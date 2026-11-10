@@ -5611,6 +5611,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get mapEmptyRetry => 'Tentar de novo';
 
   @override
+  String mapClusterSemantics(int count) {
+    return 'Grupo de $count marcadores';
+  }
+
+  @override
   String get mapEmptyFilteredTitle => 'Nada no mapa nesta visualização';
 
   @override

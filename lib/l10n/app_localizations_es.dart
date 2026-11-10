@@ -5610,6 +5610,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get mapEmptyRetry => 'Reintentar';
 
   @override
+  String mapClusterSemantics(int count) {
+    return 'Grupo de $count chinchetas';
+  }
+
+  @override
   String get mapEmptyFilteredTitle => 'Nada en el mapa en esta vista';
 
   @override

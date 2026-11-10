@@ -5589,6 +5589,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapEmptyRetry => 'Retry';
 
   @override
+  String mapClusterSemantics(int count) {
+    return 'Cluster of $count pins';
+  }
+
+  @override
   String get mapEmptyFilteredTitle => 'Nothing on the map in this view';
 
   @override

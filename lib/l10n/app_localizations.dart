@@ -9187,6 +9187,12 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get mapEmptyRetry;
 
+  /// Screen reader label of a map cluster bubble. {count} is the number of pins it groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Cluster of {count} pins'**
+  String mapClusterSemantics(int count);
+
   /// Title of the map card shown when filters hide every pin.
   ///
   /// In en, this message translates to:

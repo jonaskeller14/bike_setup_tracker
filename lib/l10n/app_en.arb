@@ -7248,6 +7248,15 @@
   "@mapEmptyRetry": {
     "description": "Button that reloads the Strava activities for the map."
   },
+  "mapClusterSemantics": "Cluster of {count} pins",
+  "@mapClusterSemantics": {
+    "description": "Screen reader label of a map cluster bubble. {count} is the number of pins it groups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "mapEmptyFilteredTitle": "Nothing on the map in this view",
   "@mapEmptyFilteredTitle": {
     "description": "Title of the map card shown when filters hide every pin."

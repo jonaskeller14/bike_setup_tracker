@@ -5615,6 +5615,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get mapEmptyRetry => 'Riprova';
 
   @override
+  String mapClusterSemantics(int count) {
+    return 'Gruppo di $count segnaposto';
+  }
+
+  @override
   String get mapEmptyFilteredTitle => 'Niente sulla mappa in questa vista';
 
   @override

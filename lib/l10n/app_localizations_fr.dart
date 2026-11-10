@@ -5622,6 +5622,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mapEmptyRetry => 'Réessayer';
 
   @override
+  String mapClusterSemantics(int count) {
+    return 'Groupe de $count repères';
+  }
+
+  @override
   String get mapEmptyFilteredTitle => 'Rien sur la carte dans cette vue';
 
   @override

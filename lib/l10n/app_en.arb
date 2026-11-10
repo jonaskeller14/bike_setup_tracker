@@ -5278,13 +5278,14 @@
   "@setupFormEditTitle": {
     "description": "App bar title of the setup form in edit mode."
   },
-  "setupFormFirstRun": "First Run",
-  "@setupFormFirstRun": {
-    "description": "App bar title of the setup form for the first run of a test session."
-  },
-  "setupFormNextRun": "Next Run",
-  "@setupFormNextRun": {
-    "description": "App bar title of the setup form for a later run of a test session."
+  "setupFormRunTitle": "Setup for run {number}",
+  "@setupFormRunTitle": {
+    "description": "App bar title of the setup form for a run of a test session. {number} counts the runs, starting at 1.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
   },
   "setupFormNameLabel": "Setup Name",
   "@setupFormNameLabel": {
@@ -5464,24 +5465,6 @@
   "setupFormSessionNextBase": "Only the adjustments of the session can change; locked ones stay as they are. Everything else is copied from the previous run.",
   "@setupFormSessionNextBase": {
     "description": "Notice on a later run of a non-tournament test session."
-  },
-  "setupFormSessionFirstRunTitle": "First run of '{name}'",
-  "@setupFormSessionFirstRunTitle": {
-    "description": "Title of the test session notice on the first run. {name} is the session name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "setupFormSessionRunTitle": "Run of '{name}'",
-  "@setupFormSessionRunTitle": {
-    "description": "Title of the test session notice on a later run. {name} is the session name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
   },
   "setupFormGuideWeightSaved": "Saved with this setup as {name}'s riding weight",
   "@setupFormGuideWeightSaved": {

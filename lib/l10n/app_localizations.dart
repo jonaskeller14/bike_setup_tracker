@@ -7027,17 +7027,11 @@ abstract class AppLocalizations {
   /// **'Edit Setup'**
   String get setupFormEditTitle;
 
-  /// App bar title of the setup form for the first run of a test session.
+  /// App bar title of the setup form for a run of a test session. {number} counts the runs, starting at 1.
   ///
   /// In en, this message translates to:
-  /// **'First Run'**
-  String get setupFormFirstRun;
-
-  /// App bar title of the setup form for a later run of a test session.
-  ///
-  /// In en, this message translates to:
-  /// **'Next Run'**
-  String get setupFormNextRun;
+  /// **'Setup for run {number}'**
+  String setupFormRunTitle(int number);
 
   /// Label of the setup name field.
   ///
@@ -7284,18 +7278,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only the adjustments of the session can change; locked ones stay as they are. Everything else is copied from the previous run.'**
   String get setupFormSessionNextBase;
-
-  /// Title of the test session notice on the first run. {name} is the session name.
-  ///
-  /// In en, this message translates to:
-  /// **'First run of \'{name}\''**
-  String setupFormSessionFirstRunTitle(String name);
-
-  /// Title of the test session notice on a later run. {name} is the session name.
-  ///
-  /// In en, this message translates to:
-  /// **'Run of \'{name}\''**
-  String setupFormSessionRunTitle(String name);
 
   /// Hint under the weight field of the setup guide card. {name} is the rider.
   ///

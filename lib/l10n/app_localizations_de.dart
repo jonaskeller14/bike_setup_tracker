@@ -4154,10 +4154,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get setupFormEditTitle => 'Setup bearbeiten';
 
   @override
-  String get setupFormFirstRun => 'Erster Lauf';
-
-  @override
-  String get setupFormNextRun => 'Nächster Lauf';
+  String setupFormRunTitle(int number) {
+    return 'Setup für Lauf $number';
+  }
 
   @override
   String get setupFormNameLabel => 'Setup-Name';
@@ -4293,16 +4292,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get setupFormSessionNextBase =>
       'Nur die Einstellungen der Session können sich ändern, gesperrte bleiben unverändert. Alles andere wird vom vorherigen Lauf übernommen.';
-
-  @override
-  String setupFormSessionFirstRunTitle(String name) {
-    return 'Erster Lauf von „$name“';
-  }
-
-  @override
-  String setupFormSessionRunTitle(String name) {
-    return 'Lauf von „$name“';
-  }
 
   @override
   String setupFormGuideWeightSaved(String name) {

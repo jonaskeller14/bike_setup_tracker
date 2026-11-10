@@ -4128,10 +4128,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupFormEditTitle => 'Edit Setup';
 
   @override
-  String get setupFormFirstRun => 'First Run';
-
-  @override
-  String get setupFormNextRun => 'Next Run';
+  String setupFormRunTitle(int number) {
+    return 'Setup for run $number';
+  }
 
   @override
   String get setupFormNameLabel => 'Setup Name';
@@ -4265,16 +4264,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get setupFormSessionNextBase =>
       'Only the adjustments of the session can change; locked ones stay as they are. Everything else is copied from the previous run.';
-
-  @override
-  String setupFormSessionFirstRunTitle(String name) {
-    return 'First run of \'$name\'';
-  }
-
-  @override
-  String setupFormSessionRunTitle(String name) {
-    return 'Run of \'$name\'';
-  }
 
   @override
   String setupFormGuideWeightSaved(String name) {

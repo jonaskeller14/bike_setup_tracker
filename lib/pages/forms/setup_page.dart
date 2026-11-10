@@ -46,6 +46,7 @@ import '../../widgets/attachment_strip.dart';
 import '../../widgets/chips/utils.dart';
 import '../../widgets/dialogs/confirmation.dart';
 import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/items/test_session_scope_card.dart';
 import '../../widgets/pressure_drift_card.dart';
 import '../../widgets/setup_guide_card.dart';
 import '../../widgets/setup_guide_scope.dart';
@@ -1352,37 +1353,19 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _sessionNotice(TestSession session) {
-    final scheme = Theme.of(context).colorScheme;
+  String _sessionExplanation(TestSession session) {
     final source = context.read<AppRepository>().setups[widget.setup?.sourceSetupId];
     final l10n = context.l10n;
     final from = source == null
         ? l10n.setupFormSessionFromFallback
         : l10n.setupFormSessionFromSetup(source.label(context.l10n));
     // Starting a session lands here unexpectedly, so the first run says what to do.
-    final explanation = switch ((session.method, _isFirstRun)) {
+    return switch ((session.method, _isFirstRun)) {
       (Tournament(), true) => l10n.setupFormSessionFirstTournament(from),
       (Tournament(), false) => l10n.setupFormSessionNextTournament(from),
       (_, true) => l10n.setupFormSessionFirstBase,
       _ => l10n.setupFormSessionNextBase,
     };
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.secondaryContainer,
-      child: ListTile(
-        dense: true,
-        leading: Icon(TestSession.iconData, color: scheme.onSecondaryContainer),
-        title: Text(
-          _isFirstRun
-              ? l10n.setupFormSessionFirstRunTitle(session.label(context.l10n))
-              : l10n.setupFormSessionRunTitle(session.label(context.l10n)),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: scheme.onSecondaryContainer, fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(explanation, style: TextStyle(color: scheme.onSecondaryContainer)),
-      ),
-    );
   }
 
   Widget _tabBar() {
@@ -1704,7 +1687,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           title: switch (widget.mode) {
             SetupPageMode.add || SetupPageMode.restore => Text(context.l10n.homeAddSetup),
             SetupPageMode.edit => Text(context.l10n.setupFormEditTitle),
-            SetupPageMode.nextRun => Text(_isFirstRun ? context.l10n.setupFormFirstRun : context.l10n.setupFormNextRun),
+            SetupPageMode.nextRun => Text(
+              context.l10n.setupFormRunTitle(appRepository.setupsInSession(widget.session!.id).length + 1),
+            ),
           },
           actions: [
             Semantics(
@@ -1725,6 +1710,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (_runSession case final session?) ...[
+                          TestSessionScopeCard(session: session, explanation: _sessionExplanation(session)),
+                          const SizedBox(height: 16),
+                        ],
                         Semantics(
                           container: true,
                           identifier: AutomationIds.setupFormName,
@@ -1738,10 +1727,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         ),
                         const SizedBox(height: 12),
                         _wrap(),
-                        if (_runSession case final session?) ...[
-                          const SizedBox(height: 12),
-                          _sessionNotice(session),
-                        ],
                       ],
                     ),
                   ),

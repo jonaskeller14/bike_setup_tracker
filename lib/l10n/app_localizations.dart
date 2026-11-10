@@ -9973,42 +9973,6 @@ abstract class AppLocalizations {
   /// **'Feedback restored from trash.'**
   String get feedbackRestoredFromTrash;
 
-  /// Title of the dialog that renames a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'Rename issue'**
-  String get customIssueRenameTitle;
-
-  /// Snackbar after renaming a problem to the name of another one.
-  ///
-  /// In en, this message translates to:
-  /// **'Merged into \"{label}\".'**
-  String customIssueMerged(String label);
-
-  /// Snackbar after renaming a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'Issue renamed.'**
-  String get customIssueRenamed;
-
-  /// Title of the dialog that confirms removing a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove \"{label}\"?'**
-  String customIssueRemoveTitle(String label);
-
-  /// Body of the dialog that confirms removing a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'It is removed from every feedback and test session goal, including the trash. This cannot be undone.'**
-  String get customIssueRemoveBody;
-
-  /// Snackbar after removing a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'Issue removed.'**
-  String get customIssueRemoved;
-
   /// Title of the sheet with the rider-defined problems.
   ///
   /// In en, this message translates to:
@@ -10018,7 +9982,7 @@ abstract class AppLocalizations {
   /// Info line of the sheet with the rider-defined problems.
   ///
   /// In en, this message translates to:
-  /// **'Your own problems, beside the built-in ones. Long-press an issue to rename or remove it.'**
+  /// **'Your own problems, beside the built-in ones. An issue disappears once no feedback uses it.'**
   String get customIssuesInfo;
 
   /// Validation error when adding a problem without a name.

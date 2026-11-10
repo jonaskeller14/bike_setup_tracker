@@ -6041,34 +6041,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackRestoredFromTrash => 'Feedback restored from trash.';
 
   @override
-  String get customIssueRenameTitle => 'Rename issue';
-
-  @override
-  String customIssueMerged(String label) {
-    return 'Merged into \"$label\".';
-  }
-
-  @override
-  String get customIssueRenamed => 'Issue renamed.';
-
-  @override
-  String customIssueRemoveTitle(String label) {
-    return 'Remove \"$label\"?';
-  }
-
-  @override
-  String get customIssueRemoveBody =>
-      'It is removed from every feedback and test session goal, including the trash. This cannot be undone.';
-
-  @override
-  String get customIssueRemoved => 'Issue removed.';
-
-  @override
   String get customIssuesTitle => 'Issues';
 
   @override
   String get customIssuesInfo =>
-      'Your own problems, beside the built-in ones. Long-press an issue to rename or remove it.';
+      'Your own problems, beside the built-in ones. An issue disappears once no feedback uses it.';
 
   @override
   String get customIssueEnterName => 'Enter a name';

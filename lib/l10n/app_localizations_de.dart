@@ -6076,34 +6076,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get feedbackRestoredFromTrash => 'Feedback aus dem Papierkorb wiederhergestellt.';
 
   @override
-  String get customIssueRenameTitle => 'Problem umbenennen';
-
-  @override
-  String customIssueMerged(String label) {
-    return 'Mit „$label“ zusammengeführt.';
-  }
-
-  @override
-  String get customIssueRenamed => 'Problem umbenannt.';
-
-  @override
-  String customIssueRemoveTitle(String label) {
-    return '„$label“ entfernen?';
-  }
-
-  @override
-  String get customIssueRemoveBody =>
-      'Es wird aus jedem Feedback und jedem Testsession-Ziel entfernt, auch aus dem Papierkorb. Das lässt sich nicht rückgängig machen.';
-
-  @override
-  String get customIssueRemoved => 'Problem entfernt.';
-
-  @override
   String get customIssuesTitle => 'Probleme';
 
   @override
   String get customIssuesInfo =>
-      'Deine eigenen Probleme neben den vorgegebenen. Halte ein Problem gedrückt, um es umzubenennen oder zu entfernen.';
+      'Deine eigenen Probleme neben den vorgegebenen. Ein Problem verschwindet, sobald kein Feedback es mehr verwendet.';
 
   @override
   String get customIssueEnterName => 'Gib einen Namen ein';

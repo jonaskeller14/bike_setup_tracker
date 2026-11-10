@@ -6063,34 +6063,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get feedbackRestoredFromTrash => 'Feedback restaurado da lixeira.';
 
   @override
-  String get customIssueRenameTitle => 'Renomear problema';
-
-  @override
-  String customIssueMerged(String label) {
-    return 'Mesclado com “$label”.';
-  }
-
-  @override
-  String get customIssueRenamed => 'Problema renomeado.';
-
-  @override
-  String customIssueRemoveTitle(String label) {
-    return 'Remover “$label”?';
-  }
-
-  @override
-  String get customIssueRemoveBody =>
-      'Ele é removido de todos os feedbacks e objetivos de sessão de teste, inclusive da lixeira. Isso não pode ser desfeito.';
-
-  @override
-  String get customIssueRemoved => 'Problema removido.';
-
-  @override
   String get customIssuesTitle => 'Problemas';
 
   @override
   String get customIssuesInfo =>
-      'Seus próprios problemas, além dos predefinidos. Mantenha pressionado um problema para renomeá-lo ou removê-lo.';
+      'Seus próprios problemas, além dos predefinidos. Um problema desaparece quando nenhum feedback o usa.';
 
   @override
   String get customIssueEnterName => 'Digite um nome';

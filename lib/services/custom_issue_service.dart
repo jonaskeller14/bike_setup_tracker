@@ -1,11 +1,7 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/feedback/custom_issue.dart';
-import '../models/feedback/feedback_comparison.dart';
-import '../models/feedback/feedback_key.dart';
 import '../models/feedback/ride_feedback.dart';
-import '../models/feedback/test_session.dart';
 
 /// A [CustomIssue] with how often and how recently live feedbacks used it.
 @immutable
@@ -73,57 +69,5 @@ class CustomIssueService {
       return byLastUse != 0 ? byLastUse : compareCustomIssues(a.issue, b.issue);
     });
     return CustomIssueIndex(usages);
-  }
-
-  /// [feedback] with the issue [fromSlug] rewritten to [to], or null when
-  /// nothing changes. When the feedback already has [to], the two merge; a
-  /// comparison the merge would double keeps the existing answer.
-  static RideFeedback? rename(RideFeedback feedback, String fromSlug, CustomIssue to) {
-    bool isEither(FeedbackKey key) => key is CustomIssueKey && (key.slug == fromSlug || key.slug == to.slug);
-
-    final observations = feedback.observations.any((o) => isEither(o.key))
-        ? {...feedback.observations.whereNot((o) => isEither(o.key)), to.toObservation()}
-        : feedback.observations;
-
-    final from = CustomAspect(fromSlug);
-    final comparisons = <FeedbackComparison>{};
-    for (final comparison in feedback.comparisons) {
-      if (comparison.aspect != from || fromSlug == to.slug) {
-        comparisons.add(comparison);
-      } else if (!feedback.comparisons.any(
-        (other) => other.referenceSetupId == comparison.referenceSetupId && other.aspect == to.aspect,
-      )) {
-        comparisons.add(comparison.copyWith(aspect: to.aspect));
-      }
-    }
-
-    if (setEquals(observations, feedback.observations) && setEquals(comparisons, feedback.comparisons)) return null;
-    return feedback.copyWith(observations: observations, comparisons: comparisons);
-  }
-
-  /// [feedback] without the issue [slug], or null when it doesn't use it.
-  static RideFeedback? remove(RideFeedback feedback, String slug) {
-    final aspect = CustomAspect(slug);
-    final observations = feedback.observations.where((o) => o.key != CustomIssueKey(slug)).toSet();
-    final comparisons = feedback.comparisons.where((c) => c.aspect != aspect).toSet();
-    if (observations.length == feedback.observations.length && comparisons.length == feedback.comparisons.length) {
-      return null;
-    }
-    return feedback.copyWith(observations: observations, comparisons: comparisons);
-  }
-
-  /// [session] with the goal [fromSlug] rewritten to [to], or null when it
-  /// isn't a goal. A goal that already names [to] isn't doubled.
-  static TestSession? renameGoal(TestSession session, String fromSlug, CustomIssue to) {
-    final from = CustomAspect(fromSlug);
-    if (!session.goal.contains(from)) return null;
-    return session.copyWith(goal: session.goal.map((aspect) => aspect == from ? to.aspect : aspect).toSet().toList());
-  }
-
-  /// [session] without the goal [slug], or null when it isn't a goal.
-  static TestSession? removeGoal(TestSession session, String slug) {
-    final aspect = CustomAspect(slug);
-    if (!session.goal.contains(aspect)) return null;
-    return session.copyWith(goal: session.goal.where((goal) => goal != aspect).toList());
   }
 }

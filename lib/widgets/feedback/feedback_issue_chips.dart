@@ -9,6 +9,7 @@ import '../../models/feedback/custom_issue.dart';
 import '../../models/feedback/feedback_key.dart';
 import '../../models/feedback/feedback_vocabulary.dart';
 import '../../services/custom_issue_service.dart';
+import 'issue_filter_chip.dart';
 
 /// "Anything stand out?": the problem chips per end of the bike, the rider's
 /// own issues, plus "No issues", which excludes every chip and vice
@@ -70,10 +71,10 @@ class FeedbackIssueChips extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Answers for the whole bike, so it comes before the per-end chips.
-        FilterChip(
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        IssueFilterChip(
+          noIssues: true,
           avatar: nothingStoodOut ? null : const Icon(Icons.check_circle_outline),
-          label: Text(context.l10n.feedbackNoIssues),
+          label: context.l10n.feedbackNoIssues,
           selected: nothingStoodOut,
           onSelected: _toggleNothingStoodOut,
         ),
@@ -113,11 +114,11 @@ class FeedbackIssueChips extends StatelessWidget {
           runSpacing: 4,
           children: [
             for (final issue in shown)
-              FilterChip(
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                label: Text(issue.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+              IssueFilterChip(
+                label: issue.label,
                 selected: selected.containsKey(issue.slug),
                 onSelected: (value) => _toggleCustomIssue(selected[issue.slug] ?? issue, value),
+                onDeleted: selected.containsKey(issue.slug) ? () => _toggleCustomIssue(issue, false) : null,
               ),
             ActionChip(
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -154,12 +155,12 @@ class FeedbackIssueChips extends StatelessWidget {
           runSpacing: 4,
           children: [
             for (final attribute in FeedbackAttribute.values)
-              FilterChip(
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                label: Text(attribute.problemLabel(context.l10n)),
+              IssueFilterChip(
+                label: attribute.problemLabel(context.l10n),
                 tooltip: attribute.hint(context.l10n),
                 selected: selected.contains(attribute),
                 onSelected: (value) => _toggleIssue(IssueKey(end, attribute), value),
+                onDeleted: selected.contains(attribute) ? () => _toggleIssue(IssueKey(end, attribute), false) : null,
               ),
           ],
         ),

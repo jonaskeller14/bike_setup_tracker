@@ -6062,34 +6062,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get feedbackRestoredFromTrash => 'Feedback restaurado desde la papelera.';
 
   @override
-  String get customIssueRenameTitle => 'Renombrar problema';
-
-  @override
-  String customIssueMerged(String label) {
-    return 'Combinado con “$label”.';
-  }
-
-  @override
-  String get customIssueRenamed => 'Problema renombrado.';
-
-  @override
-  String customIssueRemoveTitle(String label) {
-    return '¿Quitar “$label”?';
-  }
-
-  @override
-  String get customIssueRemoveBody =>
-      'Se quita de todos los feedbacks y objetivos de sesión de pruebas, incluida la papelera. No se puede deshacer.';
-
-  @override
-  String get customIssueRemoved => 'Problema quitado.';
-
-  @override
   String get customIssuesTitle => 'Problemas';
 
   @override
   String get customIssuesInfo =>
-      'Tus propios problemas, junto a los predefinidos. Mantén pulsado un problema para renombrarlo o quitarlo.';
+      'Tus propios problemas, junto a los predefinidos. Un problema desaparece cuando ningún feedback lo usa.';
 
   @override
   String get customIssueEnterName => 'Introduce un nombre';

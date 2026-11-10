@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,7 +5,8 @@ import '../../l10n/l10n.dart';
 import '../../models/feedback/custom_issue.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/custom_issue_service.dart';
-import '../../utils/custom_issue_actions.dart';
+import '../../theme.dart';
+import '../feedback/issue_filter_chip.dart';
 import 'add_tag_chip.dart';
 import 'sheet_header.dart';
 
@@ -18,8 +17,6 @@ Future<void> showCustomIssuesSheet({
   required List<CustomIssue> selected,
   required bool addIssue,
   required ValueChanged<List<CustomIssue>> onChanged,
-  required void Function(String from, CustomIssue to) onRenamed,
-  required ValueChanged<String> onRemoved,
 }) {
   return showModalBottomSheet(
     useSafeArea: true,
@@ -29,28 +26,20 @@ Future<void> showCustomIssuesSheet({
       selected: selected,
       addIssue: addIssue,
       onChanged: onChanged,
-      onRenamed: onRenamed,
-      onRemoved: onRemoved,
     ),
   );
 }
-
-enum _IssueMenuAction { rename, remove }
 
 class CustomIssuesSheetContent extends StatefulWidget {
   final List<CustomIssue> selected;
   final bool addIssue;
   final ValueChanged<List<CustomIssue>> onChanged;
-  final void Function(String from, CustomIssue to) onRenamed;
-  final ValueChanged<String> onRemoved;
 
   const CustomIssuesSheetContent({
     super.key,
     required this.selected,
     required this.addIssue,
     required this.onChanged,
-    required this.onRenamed,
-    required this.onRemoved,
   });
 
   @override
@@ -96,57 +85,6 @@ class _CustomIssuesSheetContentState extends State<CustomIssuesSheetContent> {
     return null;
   }
 
-  Future<void> _showMenu(BuildContext chipContext, CustomIssue issue) async {
-    final box = chipContext.findRenderObject()! as RenderBox;
-    final overlay = Overlay.of(chipContext).context.findRenderObject()! as RenderBox;
-    final action = await showMenu<_IssueMenuAction>(
-      context: chipContext,
-      position: RelativeRect.fromRect(
-        box.localToGlobal(Offset.zero, ancestor: overlay) & box.size,
-        Offset.zero & overlay.size,
-      ),
-      items: [
-        PopupMenuItem(
-          value: _IssueMenuAction.rename,
-          child: ListTile(
-            leading: const Icon(Icons.edit),
-            title: Text(context.l10n.renameConfirm),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
-        PopupMenuItem(
-          value: _IssueMenuAction.remove,
-          child: ListTile(
-            leading: const Icon(Icons.delete),
-            title: Text(context.l10n.remove),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
-      ],
-    );
-    if (action == null || !mounted) return;
-
-    switch (action) {
-      case _IssueMenuAction.rename:
-        final renamed = await CustomIssueActions.rename(context, issue: issue);
-        if (renamed == null || !mounted) return;
-        setState(() {
-          if (_selected.remove(issue.slug) != null) _selected[renamed.slug] = renamed;
-          if (_added.remove(issue.slug) != null) _added[renamed.slug] = renamed;
-        });
-        widget.onRenamed(issue.slug, renamed);
-        _notify();
-      case _IssueMenuAction.remove:
-        if (!await CustomIssueActions.remove(context, issue: issue) || !mounted) return;
-        setState(() {
-          _selected.remove(issue.slug);
-          _added.remove(issue.slug);
-        });
-        widget.onRemoved(issue.slug);
-        _notify();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final index = context.select<AppRepository, CustomIssueIndex>((repository) => repository.customIssues);
@@ -175,24 +113,19 @@ class _CustomIssuesSheetContentState extends State<CustomIssuesSheetContent> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     for (final issue in available)
-                      Builder(
-                        builder: (chipContext) => GestureDetector(
-                          onLongPress: () => unawaited(_showMenu(chipContext, issue)),
-                          child: FilterChip(
-                            label: Text(issue.label, maxLines: 1, overflow: TextOverflow.ellipsis),
-                            selected: _selected.containsKey(issue.slug),
-                            showCheckmark: false,
-                            avatar: const Icon(Icons.flag_outlined),
-                            onSelected: (value) => _toggle(issue, value),
-                          ),
-                        ),
+                      IssueFilterChip(
+                        label: issue.label,
+                        selected: _selected.containsKey(issue.slug),
+                        onSelected: (value) => _toggle(issue, value),
+                        onDeleted: _selected.containsKey(issue.slug) ? () => _toggle(issue, false) : null,
                       ),
                     AddTagChip(
                       autofocus: widget.addIssue || available.isEmpty,
                       prominent: available.isEmpty,
                       tooltip: context.l10n.feedbackAddIssue,
                       hint: context.l10n.addIssueHint,
-                      icon: Icons.flag_outlined,
+                      icon: null,
+                      color: Theme.of(context).extension<FeedbackOutcomeColors>()!.worse,
                       onSubmit: (value) => _addIssue(value, index),
                     ),
                   ],

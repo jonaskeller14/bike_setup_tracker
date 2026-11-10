@@ -416,48 +416,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
         // Flagging an issue answers the question, so "Nothing stood out" goes.
         onChanged: (customIssues) =>
             _setIssues(_issues, customIssues, _nothingStoodOut && customIssues.isEmpty),
-        onRenamed: _onCustomIssueRenamed,
-        onRemoved: _onCustomIssueRemoved,
       ),
     );
-  }
-
-  /// The sheet rewrote the saved feedbacks; this form's unsaved answers follow,
-  /// or saving would bring the old issue back.
-  void _onCustomIssueRenamed(String from, CustomIssue to) {
-    final fromAspect = CustomAspect(from);
-    FeedbackAspect renamed(FeedbackAspect aspect) => aspect == fromAspect ? to.aspect : aspect;
-    setState(() {
-      for (final draft in _drafts) {
-        // On a merge the answer the target already has wins.
-        final outcomes = <FeedbackAspect, int>{
-          for (final MapEntry(:key, :value) in draft.aspectOutcomes.entries)
-            if (key != fromAspect) key: value,
-        };
-        if (draft.aspectOutcomes[fromAspect] case final outcome?) outcomes.putIfAbsent(to.aspect, () => outcome);
-        draft.aspectOutcomes
-          ..clear()
-          ..addAll(outcomes);
-        final stored = draft.storedAspects.map(renamed).toSet();
-        draft.storedAspects
-          ..clear()
-          ..addAll(stored);
-      }
-      _otherComparisons = _otherComparisons.map((c) => c.copyWith(aspect: renamed(c.aspect))).toSet();
-    });
-    _changeListener();
-  }
-
-  void _onCustomIssueRemoved(String slug) {
-    final aspect = CustomAspect(slug);
-    setState(() {
-      for (final draft in _drafts) {
-        draft.aspectOutcomes.remove(aspect);
-        draft.storedAspects.remove(aspect);
-      }
-      _otherComparisons = _otherComparisons.where((c) => c.aspect != aspect).toSet();
-    });
-    _changeListener();
   }
 
   Set<FeedbackObservation> _observations() => {

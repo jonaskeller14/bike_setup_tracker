@@ -6074,34 +6074,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get feedbackRestoredFromTrash => 'Feedback restauré depuis la corbeille.';
 
   @override
-  String get customIssueRenameTitle => 'Renommer le problème';
-
-  @override
-  String customIssueMerged(String label) {
-    return 'Fusionné avec « $label ».';
-  }
-
-  @override
-  String get customIssueRenamed => 'Problème renommé.';
-
-  @override
-  String customIssueRemoveTitle(String label) {
-    return 'Supprimer « $label » ?';
-  }
-
-  @override
-  String get customIssueRemoveBody =>
-      'Il est retiré de tous les feedbacks et objectifs de session de test, y compris de la corbeille. Cette action est irréversible.';
-
-  @override
-  String get customIssueRemoved => 'Problème supprimé.';
-
-  @override
   String get customIssuesTitle => 'Problèmes';
 
   @override
   String get customIssuesInfo =>
-      'Vos propres problèmes, en plus de ceux qui sont intégrés. Appuyez longuement sur un problème pour le renommer ou le supprimer.';
+      'Vos propres problèmes, en plus de ceux qui sont intégrés. Un problème disparaît dès qu\'aucun feedback ne l\'utilise.';
 
   @override
   String get customIssueEnterName => 'Saisissez un nom';

@@ -6067,34 +6067,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get feedbackRestoredFromTrash => 'Feedback ripristinato dal cestino.';
 
   @override
-  String get customIssueRenameTitle => 'Rinomina problema';
-
-  @override
-  String customIssueMerged(String label) {
-    return 'Unito a “$label”.';
-  }
-
-  @override
-  String get customIssueRenamed => 'Problema rinominato.';
-
-  @override
-  String customIssueRemoveTitle(String label) {
-    return 'Rimuovere “$label”?';
-  }
-
-  @override
-  String get customIssueRemoveBody =>
-      'Viene rimosso da ogni feedback e da ogni obiettivo di sessione di test, cestino compreso. Non può essere annullato.';
-
-  @override
-  String get customIssueRemoved => 'Problema rimosso.';
-
-  @override
   String get customIssuesTitle => 'Problemi';
 
   @override
   String get customIssuesInfo =>
-      'I tuoi problemi personalizzati, accanto a quelli predefiniti. Tieni premuto un problema per rinominarlo o rimuoverlo.';
+      'I tuoi problemi personalizzati, accanto a quelli predefiniti. Un problema scompare quando nessun feedback lo usa più.';
 
   @override
   String get customIssueEnterName => 'Inserisci un nome';

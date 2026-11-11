@@ -179,7 +179,9 @@ List<AdjustmentActivityHistogramSegment> _segments(List<ComponentSlot?> slots, M
 }
 
 int _binIndex(num value, double min, double width, int binCount) {
-  return ((value.toDouble() - min) / width).floor().clamp(0, binCount - 1);
+  // The nudge keeps a value on a bin edge out of the bin below: `width` is
+  // rarely exact (1.6..2.4 gives 0.09999999999999998), so 1.7 would land at 0.9999999999999989.
+  return ((value.toDouble() - min) / width + 1e-9).floor().clamp(0, binCount - 1);
 }
 
 /// Indexes of the [histogram] bars that [value] falls into. Empty when the

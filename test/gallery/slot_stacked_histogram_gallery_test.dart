@@ -174,6 +174,7 @@ final _rides = <String, List<_Ride>>{
   'zero-rear': _threeSlots(weight: (activities) => activities)
     ..[4] = _ride(22, 0, pressure: 2.1)
     ..[5] = _ride(24, 0, pressure: 1.9),
+  'unridden-current': [_ride(2, 3, pressure: 1.8), _ride(12, 2, pressure: 1.9), _ride(22, 0, pressure: 2.1)],
   'empty': _threeSlots(weight: (_) => 0),
   'many': [
     _ride(2, 2, pressure: 2.0),
@@ -198,7 +199,8 @@ class _Case {
   final Locale locale;
   final int? touchBar;
 
-  /// Tooltip only.
+  /// The adjustment's value right now: every other bar is dimmed. Null for a
+  /// component that is not mounted.
   final AdjustmentValue? current;
   final AdjustmentValue? recommended;
 
@@ -247,6 +249,66 @@ final _pageCases = [
     adjustment: _pressure,
     width: _pageWidth,
     touchBar: 1,
+  ),
+  _Case(
+    'current',
+    'Current 1.9 bar: other bars dimmed (stacked)',
+    rides: 'three',
+    adjustment: _pressure,
+    width: _pageWidth,
+    current: const NumericalValue(1.9),
+  ),
+  _Case(
+    'current_touched',
+    'Current 1.9 bar, touched 1.8 bar bar',
+    rides: 'three',
+    adjustment: _pressure,
+    width: _pageWidth,
+    current: const NumericalValue(1.9),
+    touchBar: 0,
+  ),
+  _Case(
+    'current_single',
+    'Current value highlighted (unstacked)',
+    rides: 'single',
+    tireId: 'tire-3',
+    adjustment: _pressure,
+    width: _pageWidth,
+    current: const NumericalValue(1.8),
+  ),
+  _Case(
+    'current_binned',
+    'Current 1.95 bar highlighted (binned)',
+    rides: 'binned',
+    adjustment: _pressure,
+    width: _pageWidth,
+    current: const NumericalValue(1.95),
+  ),
+  _Case(
+    'current_categorical',
+    'Current value highlighted (categorical, 2 bars)',
+    rides: 'three',
+    adjustment: _insert,
+    width: _pageWidth,
+    current: CategoricalValue(const ['myOption1', 'myOption2']),
+  ),
+  _Case(
+    'current_unridden',
+    'Current value has no activities: nothing dimmed',
+    rides: 'unridden-current',
+    adjustment: _pressure,
+    width: _pageWidth,
+    current: const NumericalValue(2.1),
+  ),
+  _Case(
+    'current_narrow',
+    'Current value highlighted, 320 px, text 2x',
+    rides: 'many',
+    tireId: 'tire-2',
+    adjustment: _pressure,
+    width: 320,
+    textScale: 2,
+    current: const NumericalValue(2.0),
   ),
   _Case(
     'single',
@@ -477,6 +539,7 @@ Widget _pageChart(
     activityCountsLoaded: true,
     activityCountsFailed: false,
     selectedHistogramColumn: columns.firstWhere((column) => _adjustmentIdOf(column) == c.adjustment.id),
+    currentValueFor: (_) => c.current,
     valueFor: (setup, column) => switch (column) {
       ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
       PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],

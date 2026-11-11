@@ -589,6 +589,15 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     activityCountsFailed: setupActivityCountsFailed,
                     selectedHistogramColumn: _selectedHistogramColumn,
                     valueFor: _rawValue,
+                    currentValueFor: (column) => switch (column) {
+                      // Not mounted (uninstalled, archived, deleted): no current value to show.
+                      ComponentAdjustmentColumn(:final adjustmentId) =>
+                        appRepository.componentHierarchy.currentBike(component.id) == null
+                            ? null
+                            : appRepository.currentAdjustmentValues[adjustmentId],
+                      PersonAttributeColumn(:final adjustmentId) => appRepository.currentAdjustmentValues[adjustmentId],
+                      _ => null,
+                    },
                     adjustmentFor: (column) => adjustmentForColumn(
                       column,
                       componentAdjustments,

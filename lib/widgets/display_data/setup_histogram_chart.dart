@@ -36,6 +36,10 @@ class SetupHistogramChart extends StatefulWidget {
   final ValueChanged<TableColumn> onSelectedColumnChanged;
   final ValueChanged<TableColumn> onColumnRemoved;
 
+  /// The column's value right now. Dims every bar but the one holding it;
+  /// null (or a value without a bar) dims nothing.
+  final AdjustmentValue? Function(TableColumn column)? currentValueFor;
+
   const SetupHistogramChart({
     super.key,
     required this.activeColumns,
@@ -51,6 +55,7 @@ class SetupHistogramChart extends StatefulWidget {
     required this.columnLabel,
     required this.onSelectedColumnChanged,
     required this.onColumnRemoved,
+    this.currentValueFor,
   });
 
   @override
@@ -122,6 +127,7 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
     final colors = chartColors(Theme.of(context).colorScheme.primary, chartColumns.length);
     final color = colors[chartColumns.indexOf(selectedColumn)];
     final histogram = _histogramFor(selectedColumn, widget.adjustmentFor(selectedColumn)!);
+    final highlighted = adjustmentHistogramBarIndexesFor(histogram, widget.currentValueFor?.call(selectedColumn));
 
     return Column(
       children: [
@@ -133,7 +139,7 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
             subtitle: context.l10n.chartHistogramNoLinkedSubtitle(widget.columnLabel(selectedColumn)),
           )
         else ...[
-          _buildChart(context, histogram, color),
+          _buildChart(context, histogram, color, highlighted),
           if (histogram.isStacked)
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
@@ -155,7 +161,12 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
     );
   }
 
-  Widget _buildChart(BuildContext context, AdjustmentActivityHistogram histogram, Color color) {
+  Widget _buildChart(
+    BuildContext context,
+    AdjustmentActivityHistogram histogram,
+    Color color,
+    Set<int> highlighted,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final labelStyle = theme.textTheme.bodySmall;
@@ -168,9 +179,15 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
     return Semantics(
       container: true,
       label: context.l10n.chartActivityDistribution(
-        bars
-            .map((bar) {
-              final semantics = context.l10n.chartHistogramBarSemantics(histogram.barLabel(bar, context.l10n), bar.activityCount, 'false', 'false');
+        bars.indexed
+            .map((entry) {
+              final (index, bar) = entry;
+              final semantics = context.l10n.chartHistogramBarSemantics(
+                histogram.barLabel(bar, context.l10n),
+                bar.activityCount,
+                '${highlighted.contains(index)}',
+                'false',
+              );
               if (!histogram.isStacked) return semantics;
               return '$semantics (${histogram.segmentLines(bar, context.l10n).join(', ')})';
             })
@@ -190,7 +207,14 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
                   alignment: BarChartAlignment.spaceAround,
                   barGroups: bars.mapIndexed((index, bar) {
                     final isTouched = _touchedBarIndex == index;
-                    final barColor = isTouched ? color : color.withValues(alpha: 0.75);
+                    final alpha = isTouched
+                        ? 1.0
+                        : highlighted.isEmpty
+                        ? 0.75
+                        : highlighted.contains(index)
+                        ? 1.0
+                        : 0.5;
+                    final barColor = color.withValues(alpha: alpha);
                     return BarChartGroupData(
                       x: index,
                       barRods: [
@@ -235,7 +259,9 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
                               _abbreviate(histogram.barLabel(bars[index], context.l10n)),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: labelStyle,
+                              style: highlighted.contains(index)
+                                  ? labelStyle?.copyWith(fontWeight: FontWeight.bold)
+                                  : labelStyle,
                             ),
                           );
                         },
@@ -286,6 +312,11 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
                               text: context.l10n.initialStatsActivities(bar.activityCount),
                               style: style.copyWith(color: color),
                             ),
+                            if (highlighted.contains(group.x))
+                              TextSpan(
+                                text: '\n${context.l10n.badgeCurrentSetup}',
+                                style: style.copyWith(fontWeight: FontWeight.normal),
+                              ),
                             if (histogram.isStacked)
                               TextSpan(
                                 text: '\n${histogram.segmentLines(bar, context.l10n).join('\n')}',

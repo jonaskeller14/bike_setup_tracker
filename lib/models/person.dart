@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import 'adjustment/adjustment.dart';
+import 'syncable.dart';
 
 @immutable
-class Person {
+class Person implements Syncable {
+  @override
   final String id;
+  @override
   final bool isDeleted;
+  @override
   final DateTime lastModified;
   final String name;
   final String? notes;
@@ -40,6 +44,7 @@ class Person {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
     'version': 1,
     'id': id,

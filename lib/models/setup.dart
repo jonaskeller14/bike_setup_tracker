@@ -11,6 +11,7 @@ import 'attachment.dart';
 import 'context/context_place.dart';
 import 'context/context_position.dart';
 import 'context/context_weather.dart';
+import 'syncable.dart';
 
 enum SetupSourceKind {
   restore,
@@ -18,9 +19,12 @@ enum SetupSourceKind {
 }
 
 @immutable
-class Setup {
+class Setup implements Syncable {
+  @override
   final String id;
+  @override
   final bool isDeleted;
+  @override
   final DateTime lastModified;
   final String? name;
   final bool isBookmarked;
@@ -71,6 +75,7 @@ class Setup {
        datetime = datetime.toUtc(),
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
+  @override
   Map<String, dynamic> toJson() => {
     'version': 9,
     'id': id,

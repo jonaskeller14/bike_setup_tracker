@@ -6,15 +6,19 @@ import '../../icons/bike_icons.dart';
 import '../adjustment/adjustment.dart';
 import '../attachment.dart';
 import '../component_stats.dart';
+import '../syncable.dart';
 import 'component_preset.dart';
 import 'installation.dart';
 
 part 'component_type.dart';
 
 @immutable
-class Component {
+class Component implements Syncable {
+  @override
   final String id;
+  @override
   final bool isDeleted;
+  @override
   final DateTime lastModified;
   final String name;
   final ComponentType componentType; 
@@ -154,6 +158,7 @@ class Component {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
     'version': 6,
     'id': id,

@@ -4322,6 +4322,11 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String setupFormGuideAppliedOne(String name, String value) {
+    return '$name réglé sur $value';
+  }
+
+  @override
   String guideNotesLine(String guides) {
     return 'Point de départ : valeurs recommandées ($guides)';
   }
@@ -8134,6 +8139,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get guideCardApplyAll => 'Tout appliquer';
 
   @override
+  String get guideCardColumnNow => 'Actuel';
+
+  @override
+  String get guideCardColumnGuide => 'Guide';
+
+  @override
   String get guideCardRidingWeight => 'Poids du pilote';
 
   @override
@@ -8142,16 +8153,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String guideCardBasedOn(String guide) {
     return 'Basé sur : $guide';
-  }
-
-  @override
-  String guideCardNow(String value) {
-    return 'Actuel : $value';
-  }
-
-  @override
-  String guideCardInRange(String band) {
-    return 'dans la plage $band';
   }
 
   @override
@@ -8263,7 +8264,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les clics sont comptés à partir de l’extrémité utilisée par le manuel. Si votre réglage compte dans l’autre sens, la valeur est convertie pour votre cadran.';
 
   @override
-  String get guideInfoStatusHeading => 'Statut';
+  String get guideInfoReadHeading => 'Lire la carte';
+
+  @override
+  String get guideInfoReadColumns =>
+      'Actuel est la valeur de votre setup, Guide celle que recommande le manuel, avec sa plage en dessous. Touchez une ligne pour utiliser sa recommandation, ou Tout appliquer pour toutes les lignes. Vous pouvez ensuite l’annuler.';
+
+  @override
+  String get guideInfoStatusHeading => 'Légende des statuts';
 
   @override
   String get guideLegendMatches => 'Votre valeur est la valeur recommandée.';
@@ -8273,7 +8281,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'Proche de la recommandation : dans la plage donnée par le manuel, ou à moins de la moitié du chemin vers la tranche de poids suivante.';
 
   @override
-  String get guideLegendOff => 'Plus éloigné. Indique de combien votre valeur s’écarte de la recommandation.';
+  String get guideLegendOff =>
+      'Plus éloigné. La flèche indique dans quel sens déplacer votre valeur : une flèche pour un petit pas, deux pour un grand. Maintenez-la appuyée pour voir l’écart exact.';
 
   @override
   String get guideLegendNotSet => 'Aucune valeur saisie. Touchez la ligne pour utiliser la recommandation.';

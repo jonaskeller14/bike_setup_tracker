@@ -4323,6 +4323,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String setupFormGuideAppliedOne(String name, String value) {
+    return '$name auf $value gesetzt';
+  }
+
+  @override
   String guideNotesLine(String guides) {
     return 'Ausgehend von empfohlenen Werten ($guides)';
   }
@@ -8135,6 +8140,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get guideCardApplyAll => 'Alle anwenden';
 
   @override
+  String get guideCardColumnNow => 'Aktuell';
+
+  @override
+  String get guideCardColumnGuide => 'Guide';
+
+  @override
   String get guideCardRidingWeight => 'Fahrergewicht';
 
   @override
@@ -8143,16 +8154,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String guideCardBasedOn(String guide) {
     return 'Basierend auf: $guide';
-  }
-
-  @override
-  String guideCardNow(String value) {
-    return 'Aktuell: $value';
-  }
-
-  @override
-  String guideCardInRange(String band) {
-    return 'im Bereich $band';
   }
 
   @override
@@ -8265,7 +8266,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Klicks werden von dem Ende gezählt, von dem die Anleitung zählt. Zählt dein Drehrad andersherum, wird der Wert auf dein Drehrad umgerechnet.';
 
   @override
-  String get guideInfoStatusHeading => 'Status';
+  String get guideInfoReadHeading => 'So liest du die Karte';
+
+  @override
+  String get guideInfoReadColumns =>
+      'Aktuell ist der Wert in deinem Setup, Guide der Wert aus der Anleitung, darunter sein Bereich. Tippe auf eine Zeile, um die Empfehlung zu übernehmen, oder auf Alle anwenden für jede Zeile. Direkt danach kannst du es rückgängig machen.';
+
+  @override
+  String get guideInfoStatusHeading => 'Statuslegende';
 
   @override
   String get guideLegendMatches => 'Dein Wert ist der empfohlene Wert.';
@@ -8275,7 +8283,8 @@ class AppLocalizationsDe extends AppLocalizations {
       'Nah an der Empfehlung: innerhalb des Bereichs der Anleitung oder weniger als halb bis zur nächsten Gewichtsstufe.';
 
   @override
-  String get guideLegendOff => 'Weiter entfernt. Zeigt, wie weit dein Wert von der Empfehlung abweicht.';
+  String get guideLegendOff =>
+      'Weiter entfernt. Der Pfeil zeigt, in welche Richtung du deinen Wert ändern musst: ein Pfeil für einen kleinen Schritt, zwei für einen großen. Halte ihn gedrückt, um den genauen Abstand zu sehen.';
 
   @override
   String get guideLegendNotSet => 'Noch kein Wert eingegeben. Tippe auf die Zeile, um die Empfehlung zu übernehmen.';

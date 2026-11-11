@@ -50,6 +50,7 @@ import '../../widgets/items/test_session_scope_card.dart';
 import '../../widgets/pressure_drift_card.dart';
 import '../../widgets/setup_guide_card.dart';
 import '../../widgets/setup_guide_scope.dart';
+import '../../widgets/setup_guide_status.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
 import '../../widgets/sheets/set_condition.dart';
@@ -1558,9 +1559,16 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _applyGuideValue(GuideRecommendation recommendation) {
+    final adjustment = recommendation.adjustment;
+    final value = recommendation.value!;
+    final l10n = context.l10n;
+    final previous = {adjustment: _bikeAdjustmentValues[adjustment.id]};
     unawaited(HapticFeedback.selectionClick());
-    setState(() => _appliedGuideRevision++);
-    _onBikeAdjustmentValueChanged(adjustment: recommendation.adjustment, newValue: recommendation.value!);
+    _setBikeAdjustmentValues({adjustment: value});
+    _showGuideAppliedSnackBar(
+      l10n.setupFormGuideAppliedOne(adjustment.name, guideValueText(adjustment, value, l10n)),
+      onUndo: () => _setBikeAdjustmentValues(previous),
+    );
   }
 
   void _applyAllGuideValues(List<SetupGuideSection> sections, GuideInputs inputs) {
@@ -1569,13 +1577,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     };
     if (values.isEmpty) return;
     unawaited(HapticFeedback.mediumImpact());
-    setState(() => _appliedGuideRevision++);
-    for (final MapEntry(key: adjustment, value: value) in values.entries) {
-      _onBikeAdjustmentValueChanged(adjustment: adjustment, newValue: value);
-    }
+    final previous = {for (final adjustment in values.keys) adjustment: _bikeAdjustmentValues[adjustment.id]};
+    final previousNotes = _notesController.text;
+    _setBikeAdjustmentValues(values);
     final guides = sections.map((section) => section.guided.guide).toList();
     _notesController.text = appendNotesLine(
-      _notesController.text,
+      previousNotes,
       guideNotesLine(guides, inputs, context.l10n),
       // Apply all after a language switch must not add a second line.
       equivalents: [
@@ -1584,12 +1591,47 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             guideNotesLine(guides, inputs, lookupAppLocalizations(locale), sourceLabels: sourceLabels),
       ],
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(
-        context,
-        context.l10n.setupFormGuideApplied(values.length),
-      ),
+    final appliedNotes = _notesController.text;
+    _showGuideAppliedSnackBar(
+      context.l10n.setupFormGuideApplied(values.length),
+      onUndo: () {
+        _setBikeAdjustmentValues(previous);
+        // Notes the rider has edited since stay as they are.
+        if (_notesController.text == appliedNotes) _notesController.text = previousNotes;
+      },
     );
+  }
+
+  /// Sets or, for a null value, clears the values and makes the bike tab's
+  /// fields read them again.
+  void _setBikeAdjustmentValues(Map<Adjustment, AdjustmentValue?> values) {
+    setState(() => _appliedGuideRevision++);
+    for (final MapEntry(key: adjustment, value: value) in values.entries) {
+      if (value == null) {
+        _removeFromBikeAdjustmentValues(adjustment: adjustment);
+      } else {
+        _onBikeAdjustmentValueChanged(adjustment: adjustment, newValue: value);
+      }
+    }
+  }
+
+  /// Replaces any earlier one, so tapping several rows leaves only the latest
+  /// undo instead of a queue.
+  void _showGuideAppliedSnackBar(String message, {required VoidCallback onUndo}) {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        AppSnackBar.success(
+          context,
+          message,
+          action: AppSnackBarAction(
+            label: context.l10n.undo,
+            onPressed: () {
+              if (mounted) onUndo();
+            },
+          ),
+        ),
+      );
   }
 
   Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {

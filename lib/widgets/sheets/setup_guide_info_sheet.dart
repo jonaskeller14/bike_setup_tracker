@@ -7,8 +7,8 @@ import '../setup_guide_card.dart';
 import '../setup_guide_status.dart';
 import 'sheet_header.dart';
 
-/// How the setup guide card finds its values, what its status pills mean, and
-/// the guide behind each component.
+/// How the setup guide card finds its values, how to read its columns and
+/// status icons, and the guide behind each component.
 Future<void> showSetupGuideInfoSheet(BuildContext context, {required List<SetupGuideSection> sections}) {
   return showModalBottomSheet<void>(
     useSafeArea: true,
@@ -23,13 +23,26 @@ class _SetupGuideInfoSheet extends StatelessWidget {
 
   const _SetupGuideInfoSheet({required this.sections});
 
-  static List<(GuideStatus, String)> _legend(AppLocalizations l10n) => [
-    (const GuideStatus(GuideStatusKind.matches), l10n.guideLegendMatches),
-    (const GuideStatus(GuideStatusKind.inRange), l10n.guideLegendInRange),
-    (const GuideStatus(GuideStatusKind.off, text: "+6 psi"), l10n.guideLegendOff),
-    (const GuideStatus(GuideStatusKind.notSet), l10n.guideLegendNotSet),
-    (const GuideStatus(GuideStatusKind.unavailable), l10n.guideLegendUnavailable),
-  ];
+  /// The icons the card shows for each status; a value that is off shows an
+  /// arrow, up or down, one for a small step and two for a large one.
+  static List<(GuideStatus, List<IconData>, String)> _legend(AppLocalizations l10n) {
+    (GuideStatus, List<IconData>, String) entry(GuideStatusKind kind, String meaning, {List<IconData>? icons}) {
+      final status = GuideStatus(kind);
+      return (status, icons ?? [status.icon], meaning);
+    }
+
+    return [
+      entry(GuideStatusKind.matches, l10n.guideLegendMatches),
+      entry(GuideStatusKind.inRange, l10n.guideLegendInRange),
+      entry(
+        GuideStatusKind.off,
+        l10n.guideLegendOff,
+        icons: const [Icons.keyboard_arrow_up, Icons.keyboard_double_arrow_down],
+      ),
+      entry(GuideStatusKind.notSet, l10n.guideLegendNotSet),
+      entry(GuideStatusKind.unavailable, l10n.guideLegendUnavailable),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,16 +82,18 @@ class _SetupGuideInfoSheet extends StatelessWidget {
                     context.l10n.guideInfoClicks,
                     style: muted,
                   ),
+                  _heading(context, context.l10n.guideInfoReadHeading),
+                  Text(
+                    context.l10n.guideInfoReadColumns,
+                    style: muted,
+                  ),
                   _heading(context, context.l10n.guideInfoStatusHeading),
-                  for (final (status, meaning) in _legend(context.l10n))
+                  for (final (status, icons, meaning) in _legend(context.l10n))
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 12,
                       children: [
-                        SizedBox(
-                          width: 112,
-                          child: Align(alignment: Alignment.centerLeft, child: GuideStatusPill(status)),
-                        ),
+                        SizedBox(width: 112, child: _LegendMark(status: status, icons: icons)),
                         Expanded(child: Text(meaning, style: muted)),
                       ],
                     ),
@@ -116,4 +131,31 @@ class _SetupGuideInfoSheet extends StatelessWidget {
     padding: const EdgeInsets.only(top: 12),
     child: Text(text, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
   );
+}
+
+/// A status' icon or icons, as the card draws them, with its name.
+class _LegendMark extends StatelessWidget {
+  final GuideStatus status;
+  final List<IconData> icons;
+
+  const _LegendMark({required this.status, required this.icons});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = status.color(context);
+    return Row(
+      spacing: 4,
+      children: [
+        for (final icon in icons) Icon(icon, size: 20, color: color),
+        Flexible(
+          child: Text(
+            status.label(context.l10n),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color, fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
 }

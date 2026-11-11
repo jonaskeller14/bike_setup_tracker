@@ -4317,6 +4317,11 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String setupFormGuideAppliedOne(String name, String value) {
+    return '$name impostato su $value';
+  }
+
+  @override
   String guideNotesLine(String guides) {
     return 'Partenza dai valori consigliati ($guides)';
   }
@@ -8117,6 +8122,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get guideCardApplyAll => 'Applica tutti';
 
   @override
+  String get guideCardColumnNow => 'Ora';
+
+  @override
+  String get guideCardColumnGuide => 'Guida';
+
+  @override
   String get guideCardRidingWeight => 'Peso del rider';
 
   @override
@@ -8125,16 +8136,6 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String guideCardBasedOn(String guide) {
     return 'Basato su: $guide';
-  }
-
-  @override
-  String guideCardNow(String value) {
-    return 'Ora: $value';
-  }
-
-  @override
-  String guideCardInRange(String band) {
-    return 'nell’intervallo $band';
   }
 
   @override
@@ -8246,7 +8247,14 @@ class AppLocalizationsIt extends AppLocalizations {
       'Gli scatti si contano dall’estremità da cui conta il manuale. Se la tua regolazione conta al contrario, il valore viene convertito per la tua manopola.';
 
   @override
-  String get guideInfoStatusHeading => 'Stato';
+  String get guideInfoReadHeading => 'Come leggere la scheda';
+
+  @override
+  String get guideInfoReadColumns =>
+      'Ora è il valore del tuo setup, Guida quello consigliato dal manuale, con il suo intervallo sotto. Tocca una riga per usare il suo consiglio, o Applica tutti per ogni riga. Subito dopo puoi annullare.';
+
+  @override
+  String get guideInfoStatusHeading => 'Legenda degli stati';
 
   @override
   String get guideLegendMatches => 'Il tuo valore è quello consigliato.';
@@ -8256,7 +8264,8 @@ class AppLocalizationsIt extends AppLocalizations {
       'Vicino al consiglio: dentro l’intervallo indicato dal manuale o a meno di metà strada dalla fascia di peso successiva.';
 
   @override
-  String get guideLegendOff => 'Più lontano. Mostra quanto il tuo valore si discosta dal consiglio.';
+  String get guideLegendOff =>
+      'Più lontano. La freccia indica in che direzione spostare il tuo valore: una freccia per un passo piccolo, due per uno grande. Tieni premuto per vedere la distanza esatta.';
 
   @override
   String get guideLegendNotSet => 'Nessun valore inserito. Tocca la riga per usare il consiglio.';

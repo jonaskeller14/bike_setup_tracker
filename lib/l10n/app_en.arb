@@ -5506,6 +5506,18 @@
       }
     }
   },
+  "setupFormGuideAppliedOne": "{name} set to {value}",
+  "@setupFormGuideAppliedOne": {
+    "description": "Snackbar after applying one recommended value. {name} is the adjuster, {value} the formatted value.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "guideNotesLine": "Started from recommended values ({guides})",
   "@guideNotesLine": {
     "description": "Line added to the setup notes after applying all recommended values. {guides} lists the guide names.",
@@ -10817,6 +10829,14 @@
   "@guideCardApplyAll": {
     "description": "Button that applies every recommended value of the setup guide card."
   },
+  "guideCardColumnNow": "Now",
+  "@guideCardColumnNow": {
+    "description": "Caption of the column with the value currently set, in the setup guide card."
+  },
+  "guideCardColumnGuide": "Guide",
+  "@guideCardColumnGuide": {
+    "description": "Caption of the column with the value the setup guide recommends."
+  },
   "guideCardRidingWeight": "Riding weight",
   "@guideCardRidingWeight": {
     "description": "Label of the riding weight field of the setup guide card."
@@ -10830,24 +10850,6 @@
     "description": "Line under a component name in the setup guide card. {guide} is the name of the guide.",
     "placeholders": {
       "guide": {
-        "type": "String"
-      }
-    }
-  },
-  "guideCardNow": "Now {value}",
-  "@guideCardNow": {
-    "description": "Current value of an adjustment in the setup guide card. {value} is the formatted value.",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "guideCardInRange": "in range {band}",
-  "@guideCardInRange": {
-    "description": "Part of the status line of a setup guide row. {band} is the range such as 72–80 psi.",
-    "placeholders": {
-      "band": {
         "type": "String"
       }
     }
@@ -11013,7 +11015,15 @@
   "@guideInfoClicks": {
     "description": "Explanation in the setup guide info sheet."
   },
-  "guideInfoStatusHeading": "Status",
+  "guideInfoReadHeading": "Reading the card",
+  "@guideInfoReadHeading": {
+    "description": "Heading in the setup guide info sheet."
+  },
+  "guideInfoReadColumns": "Now is what your setup has, Guide what the manual recommends, with its range below. Tap a row to use its recommendation, or Apply all for every row. You can undo it right afterwards.",
+  "@guideInfoReadColumns": {
+    "description": "Explanation of the columns and of tapping a row in the setup guide info sheet."
+  },
+  "guideInfoStatusHeading": "Status legend",
   "@guideInfoStatusHeading": {
     "description": "Heading of the status legend in the setup guide info sheet."
   },
@@ -11025,7 +11035,7 @@
   "@guideLegendInRange": {
     "description": "Legend entry for the In range status."
   },
-  "guideLegendOff": "Further off. Shows how far your value is from the recommendation.",
+  "guideLegendOff": "Further off. The arrow shows which way to move your value: one arrow for a small step, two for a large one. Press and hold it for the exact distance.",
   "@guideLegendOff": {
     "description": "Legend entry for a status that shows a distance."
   },

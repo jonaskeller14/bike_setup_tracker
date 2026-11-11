@@ -4315,6 +4315,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String setupFormGuideAppliedOne(String name, String value) {
+    return '$name ajustado a $value';
+  }
+
+  @override
   String guideNotesLine(String guides) {
     return 'Punto de partida: valores recomendados ($guides)';
   }
@@ -8113,6 +8118,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get guideCardApplyAll => 'Aplicar todos';
 
   @override
+  String get guideCardColumnNow => 'Ahora';
+
+  @override
+  String get guideCardColumnGuide => 'Guía';
+
+  @override
   String get guideCardRidingWeight => 'Peso del rider';
 
   @override
@@ -8121,16 +8132,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String guideCardBasedOn(String guide) {
     return 'Basado en: $guide';
-  }
-
-  @override
-  String guideCardNow(String value) {
-    return 'Ahora: $value';
-  }
-
-  @override
-  String guideCardInRange(String band) {
-    return 'en el rango $band';
   }
 
   @override
@@ -8242,7 +8243,14 @@ class AppLocalizationsEs extends AppLocalizations {
       'Los clics se cuentan desde el extremo desde el que cuenta el manual. Si tu ajuste cuenta al revés, el valor se convierte para tu dial.';
 
   @override
-  String get guideInfoStatusHeading => 'Estado';
+  String get guideInfoReadHeading => 'Cómo leer la tarjeta';
+
+  @override
+  String get guideInfoReadColumns =>
+      'Ahora es el valor de tu setup y Guía lo que recomienda el manual, con su rango debajo. Toca una fila para usar su recomendación, o Aplicar todos para todas las filas. Justo después puedes deshacerlo.';
+
+  @override
+  String get guideInfoStatusHeading => 'Leyenda de estados';
 
   @override
   String get guideLegendMatches => 'Tu valor es el valor recomendado.';
@@ -8252,7 +8260,8 @@ class AppLocalizationsEs extends AppLocalizations {
       'Cerca de la recomendación: dentro del rango que da el manual o a menos de la mitad del camino hasta el siguiente tramo de peso.';
 
   @override
-  String get guideLegendOff => 'Más alejado. Muestra cuánto se aleja tu valor de la recomendación.';
+  String get guideLegendOff =>
+      'Más alejado. La flecha indica hacia dónde mover tu valor: una flecha para un paso pequeño, dos para uno grande. Mantén pulsado para ver la distancia exacta.';
 
   @override
   String get guideLegendNotSet => 'Aún no has introducido ningún valor. Toca la fila para usar la recomendación.';

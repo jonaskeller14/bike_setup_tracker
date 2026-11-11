@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -50,8 +52,9 @@ class GuideWeightInput {
 
 /// Recommended values for components linked to a catalog product with a setup
 /// guide, styled like the app hints. Collapsed unless [initiallyExpanded],
-/// with the header icon in the badges' orange while a value differs from the guide. Tapping a
-/// row applies its value; [onApplyAll] applies every one.
+/// with the header icon in the status colours: orange while a value differs from
+/// the guide, green while every value that has a recommendation follows it.
+/// Tapping a row applies its value; [onApplyAll] applies every one.
 class SetupGuideCard extends StatefulWidget {
   final List<SetupGuideSection> sections;
   final GuideInputs inputs;
@@ -93,9 +96,17 @@ class _SetupGuideCardState extends State<SetupGuideCard> {
     final inputs = widget.inputs;
     final weightInput = widget.weightInput;
     final expanded = _expanded ?? widget.initiallyExpanded;
-    final differs = sections.any(
-      (section) => section.recommendations.any((r) => GuideStatus.of(r, context.l10n)?.kind == GuideStatusKind.off),
-    );
+    final statuses = [
+      for (final section in sections)
+        for (final recommendation in section.recommendations) ?GuideStatus.of(recommendation, context.l10n),
+    ];
+    final summary = switch (statuses) {
+      _ when statuses.any((s) => s.kind == GuideStatusKind.off) => const GuideStatus(GuideStatusKind.off),
+      _ when statuses.isNotEmpty && statuses.every((s) => s.kind.isOnGuide) => const GuideStatus(
+        GuideStatusKind.matches,
+      ),
+      _ => null,
+    };
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -114,8 +125,8 @@ class _SetupGuideCardState extends State<SetupGuideCard> {
                 status: Icon(
                   Icons.tips_and_updates_outlined,
                   size: 18,
-                  color: differs ? const GuideStatus(GuideStatusKind.off).color(context) : hint.accent,
-                  semanticLabel: differs ? context.l10n.guideStatusDiffers : null,
+                  color: summary?.color(context) ?? hint.accent,
+                  semanticLabel: summary?.label(context.l10n),
                 ),
                 title: context.l10n.guideCardTitle,
                 expanded: expanded,
@@ -140,6 +151,7 @@ class _SetupGuideCardState extends State<SetupGuideCard> {
                 ),
                 for (final (i, section) in sections.indexed) ...[
                   _SectionHeader(section: section, first: i == 0),
+                  const _ColumnsHeader(),
                   for (final recommendation in section.recommendations)
                     _RecommendationRow(
                       recommendation: recommendation,
@@ -324,6 +336,8 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
+/// One adjuster: what it is, what is set now, what the guide recommends and
+/// whether the two agree. Tapping applies the recommendation.
 class _RecommendationRow extends StatelessWidget {
   final GuideRecommendation recommendation;
   final Component component;
@@ -347,83 +361,183 @@ class _RecommendationRow extends StatelessWidget {
     final adjustment = recommendation.adjustment;
     final value = recommendation.value;
     final shown = value ?? recommendation.unappliedValue;
-    final canApply = value != null && recommendation.current != value;
+    final current = recommendation.current;
+    final canApply = value != null && current != value;
     final note = recommendation.rule.note;
     final reverseLookup = hasRiderWeight ? null : _reverseLookupText(recommendation, riderWeightUnit, context.l10n);
-    final status = GuideStatus.of(recommendation, context.l10n);
-    final current = recommendation.current;
-    final band = guideBandText(recommendation, context.l10n);
-    final statusDetail = switch (status?.kind) {
-      GuideStatusKind.inRange || GuideStatusKind.off when current != null => [
-        context.l10n.guideCardNow(guideValueText(adjustment, current, context.l10n)),
-        if (band != null) context.l10n.guideCardInRange(band),
-      ].join(" · "),
-      _ => null,
-    };
+    final band = _bandText(recommendation, context.l10n);
 
     return InkWell(
       onTap: canApply ? () => onApply(recommendation) : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          spacing: 12,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    adjustment.name,
-                    style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    guideDetailText(recommendation, component, context.l10n),
-                    style: mutedStyle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (reverseLookup != null)
-                    Text(reverseLookup, style: mutedStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  if (note != null) Text(note, style: mutedStyle, maxLines: 2, overflow: TextOverflow.ellipsis),
-                ],
+        child: _ColumnsLayout(
+          name: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                adjustment.name,
+                style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 2,
-                children: [
-                  Text(
-                    shown == null ? "–" : guideValueText(adjustment, shown, context.l10n),
-                    style: textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: value == null ? hint.onContainer.withValues(alpha: 0.6) : hint.onContainer,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (status != null) GuideStatusPill(status),
-                  if (statusDetail != null)
-                    Text(
-                      statusDetail,
-                      style: mutedStyle,
-                      maxLines: 2,
-                      textAlign: TextAlign.end,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                ],
+              Text(
+                guideDetailText(recommendation, component, context.l10n),
+                style: mutedStyle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+              if (reverseLookup != null)
+                Text(reverseLookup, style: mutedStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
+              if (note != null) Text(note, style: mutedStyle, maxLines: 2, overflow: TextOverflow.ellipsis),
+            ],
+          ),
+          now: Text(
+            current == null ? "–" : guideValueText(adjustment, current, context.l10n),
+            style: textTheme.bodyMedium?.copyWith(color: hint.onContainer.withValues(alpha: 0.75)),
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          guide: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                shown == null ? "–" : guideValueText(adjustment, shown, context.l10n),
+                style: textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: value == null ? hint.onContainer.withValues(alpha: 0.6) : hint.onContainer,
+                ),
+                textAlign: TextAlign.end,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (band != null)
+                Text(band, style: mutedStyle, textAlign: TextAlign.end, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ],
+          ),
+          status: _StatusIcon(recommendation: recommendation),
         ),
       ),
     );
   }
+}
+
+/// The "Now" and "Guide" captions above a section's rows.
+class _ColumnsHeader extends StatelessWidget {
+  const _ColumnsHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final hint = HintColors.of(context);
+    final style = Theme.of(context).textTheme.labelMedium?.copyWith(
+      color: hint.onContainer.withValues(alpha: 0.75),
+      fontWeight: FontWeight.w600,
+    );
+    Widget caption(String text) =>
+        Text(text, style: style, textAlign: TextAlign.end, maxLines: 1, overflow: TextOverflow.ellipsis);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      child: _ColumnsLayout(
+        now: caption(context.l10n.guideCardColumnNow),
+        guide: caption(context.l10n.guideCardColumnGuide),
+      ),
+    );
+  }
+}
+
+/// Shared by [_ColumnsHeader] and [_RecommendationRow] so the columns line up.
+class _ColumnsLayout extends StatelessWidget {
+  final Widget? name;
+  final Widget now;
+  final Widget guide;
+  final Widget? status;
+
+  const _ColumnsLayout({this.name, required this.now, required this.guide, this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      spacing: 8,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 4, child: name ?? const SizedBox.shrink()),
+        Expanded(flex: 2, child: now),
+        Expanded(flex: 2, child: guide),
+        SizedBox(width: 24, child: status),
+      ],
+    );
+  }
+}
+
+/// The status icon, or for a value that is off, which way to move it: one
+/// chevron for a small step, two for a large one, measured against the row's
+/// scale. The tooltip keeps the exact distance.
+class _StatusIcon extends StatelessWidget {
+  final GuideRecommendation recommendation;
+
+  const _StatusIcon({required this.recommendation});
+
+  /// Up to this share of the scale counts as a small step.
+  static const _smallShare = 0.15;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = GuideStatus.of(recommendation, context.l10n);
+    if (status == null) return const SizedBox.shrink();
+    final delta = recommendation.deviation?.delta;
+    final span = _scaleSpan(recommendation);
+    final icon = switch ((status.kind, delta, span)) {
+      (GuideStatusKind.off, final delta?, final span?) => switch ((delta < 0, delta.abs() / span <= _smallShare)) {
+        (true, true) => Icons.keyboard_arrow_up,
+        (true, false) => Icons.keyboard_double_arrow_up,
+        (false, true) => Icons.keyboard_arrow_down,
+        (false, false) => Icons.keyboard_double_arrow_down,
+      },
+      _ => status.icon,
+    };
+    return Tooltip(
+      message: status.label(context.l10n),
+      child: Icon(icon, size: 20, color: status.color(context), semanticLabel: status.label(context.l10n)),
+    );
+  }
+}
+
+/// How wide the scale is that a row's values are compared on: the adjuster's
+/// range, widened to every value shown, or padded around the values where the
+/// adjuster has no bounds. Null for options and switches, which have no scale.
+double? _scaleSpan(GuideRecommendation recommendation) {
+  final adjustment = recommendation.adjustment;
+  if (adjustment is! StepAdjustment && adjustment is! NumericalAdjustment) return null;
+  final current = recommendation.current?.asNum?.toDouble();
+  final recommended = (recommendation.value ?? recommendation.unappliedValue)?.asNum?.toDouble();
+  final band = recommendation.band;
+  final points = [?current, ?recommended, ?band?.min, ?band?.max];
+  if (points.isEmpty) return null;
+
+  var low = points.reduce(math.min);
+  var high = points.reduce(math.max);
+  final pad = math.max((high - low) * 0.5, math.max(low.abs(), high.abs()) * 0.1);
+  final (min, max) = switch (adjustment) {
+    StepAdjustment(:final min, :final max) => (min.toDouble(), max.toDouble()),
+    NumericalAdjustment(:final min, :final max) => (min, max),
+    _ => (double.negativeInfinity, double.infinity),
+  };
+  final bounded = min.isFinite && max.isFinite && max > min;
+  low = bounded ? math.min(low, min) : low - pad;
+  high = bounded ? math.max(high, max) : high + pad;
+  return high - low < 1e-9 ? 2 : high - low;
+}
+
+/// "−4 … −3 clicks": an ellipsis, so negative ends don't run into a dash.
+String? _bandText(GuideRecommendation recommendation, AppLocalizations l10n) {
+  final band = recommendation.band;
+  if (band == null) return null;
+  String number(double value) =>
+      formatLocalizedDouble(double.parse(value.toStringAsFixed(1)), locale: l10n.localeName);
+
+  return "${number(band.min)} … ${number(band.max)}${recommendation.adjustment.unitSuffix()}";
 }
 
 String _inputsText(GuideInputs inputs, AppLocalizations l10n) {

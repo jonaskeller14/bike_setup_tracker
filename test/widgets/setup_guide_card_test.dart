@@ -95,7 +95,9 @@ void main() {
     expect(find.text('LSC'), findsOneWidget);
     expect(find.text('4'), findsOneWidget);
     expect(find.text('Fixed value'), findsOneWidget);
-    expect(find.text('Not set'), findsNWidgets(2));
+    expect(find.byTooltip('Not set'), findsNWidgets(2));
+    expect(find.text('Now'), findsOneWidget);
+    expect(find.text('Guide'), findsOneWidget);
     expect(find.textContaining('A starting point. Check your manual.'), findsOneWidget);
   });
 
@@ -120,22 +122,40 @@ void main() {
       onApply: (r) => applied = r,
     );
 
-    expect(find.text('Matches'), findsOneWidget);
+    expect(find.byTooltip('Matches'), findsOneWidget);
     await tester.tap(find.text('Pressure'));
     expect(applied, isNull);
   });
 
-  testWidgets('a deviating value shows its delta', (tester) async {
+  testWidgets('a deviating value shows what is set, and its distance on the icon', (tester) async {
     final component = guided();
     await pumpCard(tester, guided: component, current: {pressureOf(component).id: const NumericalValue(90)});
 
-    expect(find.text('+13 psi'), findsOneWidget);
-    expect(find.textContaining('Now 90 psi'), findsOneWidget);
+    expect(find.text('90 psi'), findsOneWidget);
+    expect(find.text('77 psi'), findsOneWidget);
+    expect(find.byTooltip('+13 psi'), findsOneWidget);
   });
 
-  testWidgets('collapsed, its icon turns orange like the badges while a value differs from the guide', (tester) async {
+  testWidgets('a value that is off points the way to move it', (tester) async {
+    final component = guided();
+    final down = {Icons.keyboard_arrow_down, Icons.keyboard_double_arrow_down};
+    final up = {Icons.keyboard_arrow_up, Icons.keyboard_double_arrow_up};
+    Finder arrow(Set<IconData> icons) => find.byWidgetPredicate((w) => w is Icon && icons.contains(w.icon));
+
+    await pumpCard(tester, guided: component, current: {pressureOf(component).id: const NumericalValue(90)});
+    expect(arrow(down), findsOneWidget, reason: 'Above the guide: move down');
+    expect(arrow(up), findsNothing);
+
+    await pumpCard(tester, guided: component, current: {pressureOf(component).id: const NumericalValue(60)});
+    expect(arrow(up), findsOneWidget, reason: 'Below the guide: move up');
+    expect(arrow(down), findsNothing);
+  });
+
+  testWidgets('collapsed, its icon is orange while a value differs and green while all follow the guide', (tester) async {
     final component = guided();
     final differs = materialAppTheme.extension<ValueHighlightColors>()!.changed;
+    final follows = materialAppTheme.extension<ValueHighlightColors>()!.initial;
+    final lsc = component.component.adjustments.firstWhere((a) => a.name == 'LSC');
     Color? iconColor() => tester.widget<Icon>(find.byIcon(Icons.tips_and_updates_outlined)).color;
 
     await pumpCard(tester, guided: component, initiallyExpanded: false);
@@ -150,17 +170,40 @@ void main() {
     );
     expect(iconColor(), differs);
 
+    await pumpCard(
+      tester,
+      guided: component,
+      current: {pressureOf(component).id: const NumericalValue(80), lsc.id: const StepValue(4)},
+      initiallyExpanded: false,
+    );
+    expect(iconColor(), follows, reason: 'In range and matching both follow the guide');
+
+    await pumpCard(
+      tester,
+      guided: component,
+      current: {pressureOf(component).id: const NumericalValue(77)},
+      initiallyExpanded: false,
+    );
+    expect(iconColor(), isNot(follows), reason: 'The other value is not set yet');
+
+    await pumpCard(
+      tester,
+      guided: component,
+      current: {pressureOf(component).id: const NumericalValue(90)},
+      initiallyExpanded: false,
+    );
     await tester.tap(find.text('SETUP GUIDE'));
     await tester.pumpAndSettle();
-    expect(find.text('+13 psi'), findsOneWidget);
+    expect(find.byTooltip('+13 psi'), findsOneWidget);
   });
 
   testWidgets('a value within the tolerance is in range, not a match', (tester) async {
     final component = guided();
     await pumpCard(tester, guided: component, current: {pressureOf(component).id: const NumericalValue(80)});
 
-    expect(find.text('In range'), findsOneWidget);
-    expect(find.text('Now 80 psi · in range 72–82 psi'), findsOneWidget);
+    expect(find.byTooltip('In range'), findsOneWidget);
+    expect(find.text('80 psi'), findsOneWidget);
+    expect(find.text('72 … 82 psi'), findsOneWidget);
   });
 
   testWidgets('a value beyond the adjuster range shows but does not apply', (tester) async {
@@ -178,7 +221,7 @@ void main() {
     await pumpCard(tester, guided: component, onApply: (r) => applied = r);
 
     expect(find.text('77 psi'), findsOneWidget);
-    expect(find.text("Can't apply"), findsOneWidget);
+    expect(find.byTooltip("Can't apply"), findsOneWidget);
     expect(find.text("Above this adjuster's maximum"), findsOneWidget);
     await tester.tap(find.text('Pressure'));
     expect(applied, isNull);
@@ -228,7 +271,11 @@ void main() {
 
     expect(find.text('Recommended values'), findsOneWidget);
     expect(find.textContaining('Check your manual'), findsWidgets);
+    expect(find.text('Reading the card'), findsOneWidget);
     expect(find.text('In range'), findsOneWidget);
+    expect(find.text('Differs'), findsOneWidget);
+    expect(find.byIcon(Icons.keyboard_arrow_up), findsOneWidget);
+    expect(find.byIcon(Icons.keyboard_double_arrow_down), findsOneWidget);
     expect(find.text("Acme owner's manual (2027)"), findsOneWidget);
     expect(find.textContaining('For Acme'), findsOneWidget);
     expect(find.text('example.com/acme'), findsOneWidget);

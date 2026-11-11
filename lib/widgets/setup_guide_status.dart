@@ -22,7 +22,10 @@ enum GuideStatusKind {
   notSet,
 
   /// The guide's value doesn't fit the rider's adjuster.
-  unavailable,
+  unavailable;
+
+  /// The value follows the guide, exactly or within its tolerance.
+  bool get isOnGuide => this == matches || this == inRange;
 }
 
 class GuideStatus {

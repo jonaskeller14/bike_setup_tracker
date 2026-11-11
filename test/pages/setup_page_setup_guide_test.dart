@@ -248,9 +248,95 @@ void main() {
     final notes = tester.widget<TextField>(find.widgetWithText(TextField, 'Notes (optional)'));
     expect(notes.controller!.text, "Started from recommended values (Acme owner's manual (2027)) · 82 kg");
     expect(find.text('Applied 2 recommended values'), findsOneWidget);
-    expect(find.text('Matches'), findsNWidgets(2));
+    expect(find.byTooltip('Matches'), findsNWidgets(2));
     expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
   });
+
+  testWidgets('Apply all can be undone, restoring the values and the notes', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+    Finder notesField() => find.widgetWithText(TextField, 'Notes (optional)');
+
+    await tester.tap(find.text('Apply all'));
+    await _settle(tester);
+    expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+
+    await _undo(tester);
+    await _settle(tester);
+
+    expect(find.widgetWithText(TextField, '77.0'), findsNothing);
+    expect(find.byTooltip('Not set'), findsNWidgets(2));
+    expect(tester.widget<TextField>(notesField()).controller!.text, isEmpty);
+  });
+
+  testWidgets('undoing Apply all keeps notes the rider wrote since', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+    Finder notesField() => find.widgetWithText(TextField, 'Notes (optional)');
+
+    await tester.tap(find.text('Apply all'));
+    await _settle(tester);
+    await tester.enterText(notesField(), 'myNotes');
+    await _undo(tester);
+    await _settle(tester);
+
+    expect(tester.widget<TextField>(notesField()).controller!.text, 'myNotes');
+    expect(find.widgetWithText(TextField, '77.0'), findsNothing);
+  });
+
+  testWidgets('tapping a row applies its value and offers to undo it', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+
+    await tester.tap(find.descendant(of: find.byType(SetupGuideCard), matching: find.text('Pressure')));
+    await _settle(tester);
+
+    expect(find.text('Pressure set to 77 psi'), findsOneWidget);
+    expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+    expect(find.byTooltip('Matches'), findsOneWidget);
+
+    await _undo(tester);
+    await _settle(tester);
+
+    expect(find.widgetWithText(TextField, '77.0'), findsNothing);
+    expect(find.byTooltip('Not set'), findsNWidgets(2));
+  });
+
+  testWidgets('undoing a row restores the value it replaced', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester, forkHasValues: true);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+    await tester.tap(find.text('SETUP GUIDE'));
+    await _settle(tester);
+
+    await tester.tap(find.descendant(of: find.byType(SetupGuideCard), matching: find.text('Pressure')));
+    await _settle(tester);
+    expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+
+    await _undo(tester);
+    await _settle(tester);
+
+    expect(find.widgetWithText(TextField, '70.0'), findsOneWidget);
+    expect(find.widgetWithText(TextField, '77.0'), findsNothing);
+  });
+}
+
+/// The snackbar sits below the page's test viewport, out of reach of a tap.
+Future<void> _undo(WidgetTester tester) async {
+  expect(find.text('UNDO'), findsOneWidget);
+  tester.widget<SnackBarAction>(find.byType(SnackBarAction)).onPressed();
+  await _settle(tester);
 }
 
 /// [SetupPage.add] fetches the location on open, leaving the location chip

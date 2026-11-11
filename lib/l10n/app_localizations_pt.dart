@@ -4314,6 +4314,11 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String setupFormGuideAppliedOne(String name, String value) {
+    return '$name definido como $value';
+  }
+
+  @override
   String guideNotesLine(String guides) {
     return 'Ponto de partida: valores recomendados ($guides)';
   }
@@ -8110,6 +8115,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get guideCardApplyAll => 'Aplicar todos';
 
   @override
+  String get guideCardColumnNow => 'Agora';
+
+  @override
+  String get guideCardColumnGuide => 'Guia';
+
+  @override
   String get guideCardRidingWeight => 'Peso do rider';
 
   @override
@@ -8118,16 +8129,6 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String guideCardBasedOn(String guide) {
     return 'Baseado em: $guide';
-  }
-
-  @override
-  String guideCardNow(String value) {
-    return 'Agora: $value';
-  }
-
-  @override
-  String guideCardInRange(String band) {
-    return 'na faixa $band';
   }
 
   @override
@@ -8239,7 +8240,14 @@ class AppLocalizationsPt extends AppLocalizations {
       'Os cliques são contados a partir da extremidade usada pelo manual. Se a sua regulagem conta ao contrário, o valor é convertido para o seu seletor.';
 
   @override
-  String get guideInfoStatusHeading => 'Status';
+  String get guideInfoReadHeading => 'Como ler o cartão';
+
+  @override
+  String get guideInfoReadColumns =>
+      'Agora é o valor do seu setup e Guia o que o manual recomenda, com a faixa abaixo. Toque em uma linha para usar a recomendação, ou em Aplicar todos para todas as linhas. Logo depois você pode desfazer.';
+
+  @override
+  String get guideInfoStatusHeading => 'Legenda de status';
 
   @override
   String get guideLegendMatches => 'Seu valor é o valor recomendado.';
@@ -8249,7 +8257,8 @@ class AppLocalizationsPt extends AppLocalizations {
       'Perto da recomendação: dentro da faixa dada pelo manual ou a menos da metade do caminho até a próxima faixa de peso.';
 
   @override
-  String get guideLegendOff => 'Mais distante. Mostra o quanto o seu valor se afasta da recomendação.';
+  String get guideLegendOff =>
+      'Mais distante. A seta mostra para que lado mover o seu valor: uma seta para um passo pequeno, duas para um grande. Mantenha pressionado para ver a distância exata.';
 
   @override
   String get guideLegendNotSet => 'Nenhum valor digitado. Toque na linha para usar a recomendação.';

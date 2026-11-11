@@ -4295,6 +4295,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String setupFormGuideAppliedOne(String name, String value) {
+    return '$name set to $value';
+  }
+
+  @override
   String guideNotesLine(String guides) {
     return 'Started from recommended values ($guides)';
   }
@@ -8080,6 +8085,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideCardApplyAll => 'Apply all';
 
   @override
+  String get guideCardColumnNow => 'Now';
+
+  @override
+  String get guideCardColumnGuide => 'Guide';
+
+  @override
   String get guideCardRidingWeight => 'Riding weight';
 
   @override
@@ -8088,16 +8099,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String guideCardBasedOn(String guide) {
     return 'Based on: $guide';
-  }
-
-  @override
-  String guideCardNow(String value) {
-    return 'Now $value';
-  }
-
-  @override
-  String guideCardInRange(String band) {
-    return 'in range $band';
   }
 
   @override
@@ -8209,7 +8210,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Clicks are counted from the end the manual counts from. If your adjuster counts the other way, the value is converted to your dial.';
 
   @override
-  String get guideInfoStatusHeading => 'Status';
+  String get guideInfoReadHeading => 'Reading the card';
+
+  @override
+  String get guideInfoReadColumns =>
+      'Now is what your setup has, Guide what the manual recommends, with its range below. Tap a row to use its recommendation, or Apply all for every row. You can undo it right afterwards.';
+
+  @override
+  String get guideInfoStatusHeading => 'Status legend';
 
   @override
   String get guideLegendMatches => 'Your value is the recommended value.';
@@ -8219,7 +8227,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Close to the recommendation: inside the range the manual gives, or less than halfway to the next weight step.';
 
   @override
-  String get guideLegendOff => 'Further off. Shows how far your value is from the recommendation.';
+  String get guideLegendOff =>
+      'Further off. The arrow shows which way to move your value: one arrow for a small step, two for a large one. Press and hold it for the exact distance.';
 
   @override
   String get guideLegendNotSet => 'No value entered yet. Tap the row to use the recommendation.';

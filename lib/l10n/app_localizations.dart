@@ -7309,6 +7309,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{Applied 1 recommended value} other{Applied {count} recommended values}}'**
   String setupFormGuideApplied(int count);
 
+  /// Snackbar after applying one recommended value. {name} is the adjuster, {value} the formatted value.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} set to {value}'**
+  String setupFormGuideAppliedOne(String name, String value);
+
   /// Line added to the setup notes after applying all recommended values. {guides} lists the guide names.
   ///
   /// In en, this message translates to:
@@ -13291,6 +13297,18 @@ abstract class AppLocalizations {
   /// **'Apply all'**
   String get guideCardApplyAll;
 
+  /// Caption of the column with the value currently set, in the setup guide card.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get guideCardColumnNow;
+
+  /// Caption of the column with the value the setup guide recommends.
+  ///
+  /// In en, this message translates to:
+  /// **'Guide'**
+  String get guideCardColumnGuide;
+
   /// Label of the riding weight field of the setup guide card.
   ///
   /// In en, this message translates to:
@@ -13308,18 +13326,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Based on: {guide}'**
   String guideCardBasedOn(String guide);
-
-  /// Current value of an adjustment in the setup guide card. {value} is the formatted value.
-  ///
-  /// In en, this message translates to:
-  /// **'Now {value}'**
-  String guideCardNow(String value);
-
-  /// Part of the status line of a setup guide row. {band} is the range such as 72–80 psi.
-  ///
-  /// In en, this message translates to:
-  /// **'in range {band}'**
-  String guideCardInRange(String band);
 
   /// Hint of the setup guide card when no riding weight is known. The tab name must match the app's own label.
   ///
@@ -13501,10 +13507,22 @@ abstract class AppLocalizations {
   /// **'Clicks are counted from the end the manual counts from. If your adjuster counts the other way, the value is converted to your dial.'**
   String get guideInfoClicks;
 
+  /// Heading in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the card'**
+  String get guideInfoReadHeading;
+
+  /// Explanation of the columns and of tapping a row in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Now is what your setup has, Guide what the manual recommends, with its range below. Tap a row to use its recommendation, or Apply all for every row. You can undo it right afterwards.'**
+  String get guideInfoReadColumns;
+
   /// Heading of the status legend in the setup guide info sheet.
   ///
   /// In en, this message translates to:
-  /// **'Status'**
+  /// **'Status legend'**
   String get guideInfoStatusHeading;
 
   /// Legend entry for the Matches status.
@@ -13522,7 +13540,7 @@ abstract class AppLocalizations {
   /// Legend entry for a status that shows a distance.
   ///
   /// In en, this message translates to:
-  /// **'Further off. Shows how far your value is from the recommendation.'**
+  /// **'Further off. The arrow shows which way to move your value: one arrow for a small step, two for a large one. Press and hold it for the exact distance.'**
   String get guideLegendOff;
 
   /// Legend entry for the Not set status.

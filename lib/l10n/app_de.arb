@@ -2215,6 +2215,7 @@
   "guideIssueNeedsSpec": "Braucht die Angabe „{spec}“ der Komponente",
   "guideIssueNeedsMore": "Braucht weitere Angaben",
   "guideIssueOutsideRange": "Außerhalb des veröffentlichten Bereichs",
+  "guideIssueOutsideRangeFor": "{input} liegt außerhalb des veröffentlichten Bereichs",
   "guideIssuePlaceholderMax": "Gib zuerst die Klickanzahl (Max) deines Drehrads ein",
   "guideIssueAboveMax": "Über dem Maximum dieser Einstellung",
   "guideIssueBelowMin": "Unter dem Minimum dieser Einstellung",

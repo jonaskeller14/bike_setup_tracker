@@ -10916,6 +10916,15 @@
   "@guideIssueOutsideRange": {
     "description": "Reason a setup guide row has no value."
   },
+  "guideIssueOutsideRangeFor": "{input} is outside the published range",
+  "@guideIssueOutsideRangeFor": {
+    "description": "Reason a setup guide row has no value. {input} is the input the guide looks up with its value, such as \"Riding weight 140 kg\" or \"Pressure 120 psi\".",
+    "placeholders": {
+      "input": {
+        "type": "String"
+      }
+    }
+  },
   "guideIssuePlaceholderMax": "Enter your dial's click count (max) first",
   "@guideIssuePlaceholderMax": {
     "description": "Reason a setup guide row can't be applied."

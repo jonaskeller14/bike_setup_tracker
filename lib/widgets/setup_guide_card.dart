@@ -570,12 +570,27 @@ String guideDetailText(GuideRecommendation recommendation, Component component, 
       PresetGuideInput(:final id) => l10n.guideIssueNeedsSpec(id.replaceAll('_', ' ')),
       null => l10n.guideIssueNeedsMore,
     },
-    GuideIssue.outsideRange => l10n.guideIssueOutsideRange,
+    GuideIssue.outsideRange => switch (_outsideRangeInput(recommendation, l10n)) {
+      final input? => l10n.guideIssueOutsideRangeFor(input),
+      null => l10n.guideIssueOutsideRange,
+    },
     GuideIssue.placeholderMax => l10n.guideIssuePlaceholderMax,
     GuideIssue.aboveMax => l10n.guideIssueAboveMax,
     GuideIssue.belowMin => l10n.guideIssueBelowMin,
     GuideIssue.incompatible => l10n.guideIssueIncompatible,
     GuideIssue.directionUnknown => l10n.guideIssueDirectionUnknown,
+  };
+}
+
+/// The looked-up input with its name, e.g. "Riding weight 140 kg" or
+/// "Pressure 120 psi"; an adjuster's [GuideRecommendation.inputText] has its name already.
+String? _outsideRangeInput(GuideRecommendation recommendation, AppLocalizations l10n) {
+  final text = recommendation.inputText;
+  if (text == null) return null;
+  return switch (recommendation.rule.input) {
+    RiderGuideInput(key: GuideInputKey.riderWeight) => "${l10n.guideCardRidingWeight} $text",
+    PresetGuideInput(:final id) => "${id.replaceAll('_', ' ')} $text",
+    _ => text,
   };
 }
 

@@ -8178,6 +8178,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get guideIssueOutsideRange => 'Fuori dall’intervallo pubblicato';
 
   @override
+  String guideIssueOutsideRangeFor(String input) {
+    return '$input è fuori dall’intervallo pubblicato';
+  }
+
+  @override
   String get guideIssuePlaceholderMax => 'Inserisci prima il numero di scatti (max) della tua manopola';
 
   @override

@@ -8197,6 +8197,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get guideIssueOutsideRange => 'Außerhalb des veröffentlichten Bereichs';
 
   @override
+  String guideIssueOutsideRangeFor(String input) {
+    return '$input liegt außerhalb des veröffentlichten Bereichs';
+  }
+
+  @override
   String get guideIssuePlaceholderMax => 'Gib zuerst die Klickanzahl (Max) deines Drehrads ein';
 
   @override

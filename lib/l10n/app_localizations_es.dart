@@ -8174,6 +8174,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get guideIssueOutsideRange => 'Fuera del rango publicado';
 
   @override
+  String guideIssueOutsideRangeFor(String input) {
+    return '$input está fuera del rango publicado';
+  }
+
+  @override
   String get guideIssuePlaceholderMax => 'Introduce primero el número de clics (máx.) de tu dial';
 
   @override

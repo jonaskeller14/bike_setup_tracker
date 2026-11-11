@@ -13393,6 +13393,12 @@ abstract class AppLocalizations {
   /// **'Outside the published range'**
   String get guideIssueOutsideRange;
 
+  /// Reason a setup guide row has no value. {input} is the input the guide looks up with its value, such as "Riding weight 140 kg" or "Pressure 120 psi".
+  ///
+  /// In en, this message translates to:
+  /// **'{input} is outside the published range'**
+  String guideIssueOutsideRangeFor(String input);
+
   /// Reason a setup guide row can't be applied.
   ///
   /// In en, this message translates to:

@@ -2214,6 +2214,7 @@
   "guideIssueNeedsSpec": "Precisa do dado “{spec}” do componente",
   "guideIssueNeedsMore": "Precisa de mais informações",
   "guideIssueOutsideRange": "Fora da faixa publicada",
+  "guideIssueOutsideRangeFor": "{input} está fora da faixa publicada",
   "guideIssuePlaceholderMax": "Digite primeiro o número de cliques (máx.) do seu seletor",
   "guideIssueAboveMax": "Acima do máximo desta regulagem",
   "guideIssueBelowMin": "Abaixo do mínimo desta regulagem",

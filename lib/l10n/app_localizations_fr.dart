@@ -8195,6 +8195,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get guideIssueOutsideRange => 'Hors de la plage publiée';
 
   @override
+  String guideIssueOutsideRangeFor(String input) {
+    return '$input est hors de la plage publiée';
+  }
+
+  @override
   String get guideIssuePlaceholderMax => 'Saisissez d’abord le nombre de clics (max) de votre cadran';
 
   @override

@@ -2214,6 +2214,7 @@
   "guideIssueNeedsSpec": "Necesita el dato “{spec}” del componente",
   "guideIssueNeedsMore": "Necesita más información",
   "guideIssueOutsideRange": "Fuera del rango publicado",
+  "guideIssueOutsideRangeFor": "{input} está fuera del rango publicado",
   "guideIssuePlaceholderMax": "Introduce primero el número de clics (máx.) de tu dial",
   "guideIssueAboveMax": "Por encima del máximo de este ajuste",
   "guideIssueBelowMin": "Por debajo del mínimo de este ajuste",

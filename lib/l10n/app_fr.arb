@@ -2214,6 +2214,7 @@
   "guideIssueNeedsSpec": "Nécessite la caractéristique « {spec} » du composant",
   "guideIssueNeedsMore": "Nécessite plus d’informations",
   "guideIssueOutsideRange": "Hors de la plage publiée",
+  "guideIssueOutsideRangeFor": "{input} est hors de la plage publiée",
   "guideIssuePlaceholderMax": "Saisissez d’abord le nombre de clics (max) de votre cadran",
   "guideIssueAboveMax": "Au-dessus du maximum de ce réglage",
   "guideIssueBelowMin": "En dessous du minimum de ce réglage",

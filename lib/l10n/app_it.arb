@@ -2214,6 +2214,7 @@
   "guideIssueNeedsSpec": "Serve l’attributo “{spec}” del componente",
   "guideIssueNeedsMore": "Servono più informazioni",
   "guideIssueOutsideRange": "Fuori dall’intervallo pubblicato",
+  "guideIssueOutsideRangeFor": "{input} è fuori dall’intervallo pubblicato",
   "guideIssuePlaceholderMax": "Inserisci prima il numero di scatti (max) della tua manopola",
   "guideIssueAboveMax": "Sopra il massimo di questa regolazione",
   "guideIssueBelowMin": "Sotto il minimo di questa regolazione",

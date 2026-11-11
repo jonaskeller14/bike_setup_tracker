@@ -8171,6 +8171,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get guideIssueOutsideRange => 'Fora da faixa publicada';
 
   @override
+  String guideIssueOutsideRangeFor(String input) {
+    return '$input está fora da faixa publicada';
+  }
+
+  @override
   String get guideIssuePlaceholderMax => 'Digite primeiro o número de cliques (máx.) do seu seletor';
 
   @override

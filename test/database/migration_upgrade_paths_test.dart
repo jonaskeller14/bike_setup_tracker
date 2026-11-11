@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/database/tables/sync_outbox.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -36,6 +37,15 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 28) {
+      // v28 added the sync outbox, its triggers and the sync state tables.
+      for (final trigger in syncOutboxTriggers) {
+        await db.customStatement('DROP TRIGGER ${trigger.entityName}');
+      }
+      for (final table in _syncTables) {
+        await db.customStatement('DROP TABLE $table');
+      }
+    }
     if (version < 27) {
       // v27 added where a setup was copied from.
       await db.customStatement('ALTER TABLE setups DROP COLUMN source_setup_id');
@@ -229,7 +239,7 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -358,6 +368,18 @@ void main() {
         for (final table in _feedbackTables) {
           expect(await columnNames(db, table), isNotEmpty, reason: '$table missing after v$startVersion upgrade');
         }
+
+        // The v28 step adds the sync tables and triggers last, so no earlier
+        // step's rewrites (or the seed rows) end up in the outbox.
+        for (final table in _syncTables) {
+          expect(await columnNames(db, table), isNotEmpty, reason: '$table missing after v$startVersion upgrade');
+        }
+        final triggers = await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'trigger'").get();
+        expect(
+          triggers.map((r) => r.read<String>('name')).toSet(),
+          {for (final trigger in syncOutboxTriggers) trigger.entityName},
+        );
+        expect(await db.syncDao.pendingBatch(10), isEmpty);
       });
     }
   });
@@ -403,6 +425,12 @@ const _feedbackTables = [
   'feedback_observations',
   'feedback_comparisons',
   'test_sessions',
+];
+
+const _syncTables = [
+  'sync_outbox',
+  'sync_state',
+  'sync_cursors',
 ];
 
 const _bikeInitialStatsColumns = [

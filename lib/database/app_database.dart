@@ -14,6 +14,7 @@ import '../models/component/installation.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
+import '../services/sync/sync_collection.dart';
 import 'converters/attachment_list_converter.dart';
 import 'converters/component_preset_converter.dart';
 import 'converters/context_position_converter.dart';
@@ -29,6 +30,7 @@ import 'daos/feedback_dao.dart';
 import 'daos/persons_dao.dart';
 import 'daos/setups_dao.dart';
 import 'daos/strava_dao.dart';
+import 'daos/sync_dao.dart';
 import 'daos/task_dao.dart';
 import 'tables/adjustments.dart';
 import 'tables/bikes.dart';
@@ -43,6 +45,9 @@ import 'tables/setups.dart';
 import 'tables/strava/strava_activities.dart';
 import 'tables/strava/strava_athletes.dart';
 import 'tables/strava/strava_gears.dart';
+import 'tables/sync_cursors.dart';
+import 'tables/sync_outbox.dart';
+import 'tables/sync_state.dart';
 import 'tables/task_entries.dart';
 import 'tables/task_rules.dart';
 import 'tables/test_sessions.dart';
@@ -67,6 +72,9 @@ part 'app_database.g.dart';
     FeedbackObservations,
     FeedbackComparisons,
     TestSessions,
+    SyncOutbox,
+    SyncState,
+    SyncCursors,
   ],
   daos: [
     BikesDao,
@@ -76,6 +84,7 @@ part 'app_database.g.dart';
     TaskDao,
     StravaDao,
     FeedbackDao,
+    SyncDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -89,7 +98,22 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 27;
+  int get schemaVersion => 28;
+
+  @override
+  late final List<DatabaseSchemaEntity> allSchemaEntities = [...super.allSchemaEntities, ...syncOutboxTriggers];
+
+  // Drift can't see writes made by triggers; these tell outbox watchers.
+  @override
+  late final StreamQueryUpdateRules streamUpdateRules = StreamQueryUpdateRules([
+    ...super.streamUpdateRules.rules,
+    for (final collection in SyncCollection.values)
+      for (final kind in const [UpdateKind.insert, UpdateKind.update])
+        WritePropagation(
+          on: TableUpdateQuery.onTableName(collection.collectionName, limitUpdateKind: kind),
+          result: [TableUpdate(syncOutbox.actualTableName)],
+        ),
+  ]);
 
   @override
   MigrationStrategy get migration {
@@ -330,6 +354,17 @@ class AppDatabase extends _$AppDatabase {
           }
           if (!await _columnExists('setups', 'source_kind')) {
             await m.addColumn(setups, setups.sourceKind);
+          }
+        }
+        if (from < 28) {
+          // Cloud sync: the outbox with its triggers on the root tables, and
+          // the pull state. Existing rows aren't enqueued; the first sync on
+          // a device enqueues everything.
+          await m.createTable(syncOutbox);
+          await m.createTable(syncState);
+          await m.createTable(syncCursors);
+          for (final trigger in syncOutboxTriggers) {
+            await m.createTrigger(trigger);
           }
         }
       }),

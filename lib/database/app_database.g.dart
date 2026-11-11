@@ -10016,6 +10016,860 @@ class TestSessionsCompanion extends UpdateCompanion<TestSessionDb> {
   }
 }
 
+class $SyncOutboxTable extends SyncOutbox
+    with TableInfo<$SyncOutboxTable, SyncOutboxDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncOutboxTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _collectionMeta = const VerificationMeta(
+    'collection',
+  );
+  @override
+  late final GeneratedColumn<String> collection = GeneratedColumn<String>(
+    'collection',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rowIdMeta = const VerificationMeta('rowId');
+  @override
+  late final GeneratedColumn<String> rowId = GeneratedColumn<String>(
+    'row_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> enqueuedAt =
+      GeneratedColumn<DateTime>(
+        'enqueued_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($SyncOutboxTable.$converterenqueuedAt);
+  @override
+  List<GeneratedColumn> get $columns => [id, collection, rowId, enqueuedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_outbox';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncOutboxDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('collection')) {
+      context.handle(
+        _collectionMeta,
+        collection.isAcceptableOrUnknown(data['collection']!, _collectionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_collectionMeta);
+    }
+    if (data.containsKey('row_id')) {
+      context.handle(
+        _rowIdMeta,
+        rowId.isAcceptableOrUnknown(data['row_id']!, _rowIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rowIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {collection, rowId},
+  ];
+  @override
+  SyncOutboxDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncOutboxDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      collection: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collection'],
+      )!,
+      rowId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}row_id'],
+      )!,
+      enqueuedAt: $SyncOutboxTable.$converterenqueuedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}enqueued_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $SyncOutboxTable createAlias(String alias) {
+    return $SyncOutboxTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, DateTime> $converterenqueuedAt =
+      const UtcDateTimeConverter();
+}
+
+class SyncOutboxDb extends DataClass implements Insertable<SyncOutboxDb> {
+  final int id;
+  final String collection;
+  final String rowId;
+  final DateTime enqueuedAt;
+  const SyncOutboxDb({
+    required this.id,
+    required this.collection,
+    required this.rowId,
+    required this.enqueuedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['collection'] = Variable<String>(collection);
+    map['row_id'] = Variable<String>(rowId);
+    {
+      map['enqueued_at'] = Variable<DateTime>(
+        $SyncOutboxTable.$converterenqueuedAt.toSql(enqueuedAt),
+      );
+    }
+    return map;
+  }
+
+  SyncOutboxCompanion toCompanion(bool nullToAbsent) {
+    return SyncOutboxCompanion(
+      id: Value(id),
+      collection: Value(collection),
+      rowId: Value(rowId),
+      enqueuedAt: Value(enqueuedAt),
+    );
+  }
+
+  factory SyncOutboxDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncOutboxDb(
+      id: serializer.fromJson<int>(json['id']),
+      collection: serializer.fromJson<String>(json['collection']),
+      rowId: serializer.fromJson<String>(json['rowId']),
+      enqueuedAt: serializer.fromJson<DateTime>(json['enqueuedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'collection': serializer.toJson<String>(collection),
+      'rowId': serializer.toJson<String>(rowId),
+      'enqueuedAt': serializer.toJson<DateTime>(enqueuedAt),
+    };
+  }
+
+  SyncOutboxDb copyWith({
+    int? id,
+    String? collection,
+    String? rowId,
+    DateTime? enqueuedAt,
+  }) => SyncOutboxDb(
+    id: id ?? this.id,
+    collection: collection ?? this.collection,
+    rowId: rowId ?? this.rowId,
+    enqueuedAt: enqueuedAt ?? this.enqueuedAt,
+  );
+  SyncOutboxDb copyWithCompanion(SyncOutboxCompanion data) {
+    return SyncOutboxDb(
+      id: data.id.present ? data.id.value : this.id,
+      collection: data.collection.present
+          ? data.collection.value
+          : this.collection,
+      rowId: data.rowId.present ? data.rowId.value : this.rowId,
+      enqueuedAt: data.enqueuedAt.present
+          ? data.enqueuedAt.value
+          : this.enqueuedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncOutboxDb(')
+          ..write('id: $id, ')
+          ..write('collection: $collection, ')
+          ..write('rowId: $rowId, ')
+          ..write('enqueuedAt: $enqueuedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, collection, rowId, enqueuedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncOutboxDb &&
+          other.id == this.id &&
+          other.collection == this.collection &&
+          other.rowId == this.rowId &&
+          other.enqueuedAt == this.enqueuedAt);
+}
+
+class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxDb> {
+  final Value<int> id;
+  final Value<String> collection;
+  final Value<String> rowId;
+  final Value<DateTime> enqueuedAt;
+  const SyncOutboxCompanion({
+    this.id = const Value.absent(),
+    this.collection = const Value.absent(),
+    this.rowId = const Value.absent(),
+    this.enqueuedAt = const Value.absent(),
+  });
+  SyncOutboxCompanion.insert({
+    this.id = const Value.absent(),
+    required String collection,
+    required String rowId,
+    required DateTime enqueuedAt,
+  }) : collection = Value(collection),
+       rowId = Value(rowId),
+       enqueuedAt = Value(enqueuedAt);
+  static Insertable<SyncOutboxDb> custom({
+    Expression<int>? id,
+    Expression<String>? collection,
+    Expression<String>? rowId,
+    Expression<DateTime>? enqueuedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (collection != null) 'collection': collection,
+      if (rowId != null) 'row_id': rowId,
+      if (enqueuedAt != null) 'enqueued_at': enqueuedAt,
+    });
+  }
+
+  SyncOutboxCompanion copyWith({
+    Value<int>? id,
+    Value<String>? collection,
+    Value<String>? rowId,
+    Value<DateTime>? enqueuedAt,
+  }) {
+    return SyncOutboxCompanion(
+      id: id ?? this.id,
+      collection: collection ?? this.collection,
+      rowId: rowId ?? this.rowId,
+      enqueuedAt: enqueuedAt ?? this.enqueuedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (collection.present) {
+      map['collection'] = Variable<String>(collection.value);
+    }
+    if (rowId.present) {
+      map['row_id'] = Variable<String>(rowId.value);
+    }
+    if (enqueuedAt.present) {
+      map['enqueued_at'] = Variable<DateTime>(
+        $SyncOutboxTable.$converterenqueuedAt.toSql(enqueuedAt.value),
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncOutboxCompanion(')
+          ..write('id: $id, ')
+          ..write('collection: $collection, ')
+          ..write('rowId: $rowId, ')
+          ..write('enqueuedAt: $enqueuedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncStateTable extends SyncState
+    with TableInfo<$SyncStateTable, SyncStateDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncStateTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _applyingRemoteMeta = const VerificationMeta(
+    'applyingRemote',
+  );
+  @override
+  late final GeneratedColumn<bool> applyingRemote = GeneratedColumn<bool>(
+    'applying_remote',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("applying_remote" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, DateTime> lastPushAt =
+      GeneratedColumn<DateTime>(
+        'last_push_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($SyncStateTable.$converterlastPushAtn);
+  @override
+  List<GeneratedColumn> get $columns => [id, applyingRemote, lastPushAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_state';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncStateDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('applying_remote')) {
+      context.handle(
+        _applyingRemoteMeta,
+        applyingRemote.isAcceptableOrUnknown(
+          data['applying_remote']!,
+          _applyingRemoteMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SyncStateDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncStateDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      applyingRemote: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}applying_remote'],
+      )!,
+      lastPushAt: $SyncStateTable.$converterlastPushAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_push_at'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $SyncStateTable createAlias(String alias) {
+    return $SyncStateTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, DateTime> $converterlastPushAt =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime?, DateTime?> $converterlastPushAtn =
+      NullAwareTypeConverter.wrap($converterlastPushAt);
+}
+
+class SyncStateDb extends DataClass implements Insertable<SyncStateDb> {
+  final int id;
+  final bool applyingRemote;
+  final DateTime? lastPushAt;
+  const SyncStateDb({
+    required this.id,
+    required this.applyingRemote,
+    this.lastPushAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['applying_remote'] = Variable<bool>(applyingRemote);
+    if (!nullToAbsent || lastPushAt != null) {
+      map['last_push_at'] = Variable<DateTime>(
+        $SyncStateTable.$converterlastPushAtn.toSql(lastPushAt),
+      );
+    }
+    return map;
+  }
+
+  SyncStateCompanion toCompanion(bool nullToAbsent) {
+    return SyncStateCompanion(
+      id: Value(id),
+      applyingRemote: Value(applyingRemote),
+      lastPushAt: lastPushAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastPushAt),
+    );
+  }
+
+  factory SyncStateDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncStateDb(
+      id: serializer.fromJson<int>(json['id']),
+      applyingRemote: serializer.fromJson<bool>(json['applyingRemote']),
+      lastPushAt: serializer.fromJson<DateTime?>(json['lastPushAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'applyingRemote': serializer.toJson<bool>(applyingRemote),
+      'lastPushAt': serializer.toJson<DateTime?>(lastPushAt),
+    };
+  }
+
+  SyncStateDb copyWith({
+    int? id,
+    bool? applyingRemote,
+    Value<DateTime?> lastPushAt = const Value.absent(),
+  }) => SyncStateDb(
+    id: id ?? this.id,
+    applyingRemote: applyingRemote ?? this.applyingRemote,
+    lastPushAt: lastPushAt.present ? lastPushAt.value : this.lastPushAt,
+  );
+  SyncStateDb copyWithCompanion(SyncStateCompanion data) {
+    return SyncStateDb(
+      id: data.id.present ? data.id.value : this.id,
+      applyingRemote: data.applyingRemote.present
+          ? data.applyingRemote.value
+          : this.applyingRemote,
+      lastPushAt: data.lastPushAt.present
+          ? data.lastPushAt.value
+          : this.lastPushAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStateDb(')
+          ..write('id: $id, ')
+          ..write('applyingRemote: $applyingRemote, ')
+          ..write('lastPushAt: $lastPushAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, applyingRemote, lastPushAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncStateDb &&
+          other.id == this.id &&
+          other.applyingRemote == this.applyingRemote &&
+          other.lastPushAt == this.lastPushAt);
+}
+
+class SyncStateCompanion extends UpdateCompanion<SyncStateDb> {
+  final Value<int> id;
+  final Value<bool> applyingRemote;
+  final Value<DateTime?> lastPushAt;
+  const SyncStateCompanion({
+    this.id = const Value.absent(),
+    this.applyingRemote = const Value.absent(),
+    this.lastPushAt = const Value.absent(),
+  });
+  SyncStateCompanion.insert({
+    this.id = const Value.absent(),
+    this.applyingRemote = const Value.absent(),
+    this.lastPushAt = const Value.absent(),
+  });
+  static Insertable<SyncStateDb> custom({
+    Expression<int>? id,
+    Expression<bool>? applyingRemote,
+    Expression<DateTime>? lastPushAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (applyingRemote != null) 'applying_remote': applyingRemote,
+      if (lastPushAt != null) 'last_push_at': lastPushAt,
+    });
+  }
+
+  SyncStateCompanion copyWith({
+    Value<int>? id,
+    Value<bool>? applyingRemote,
+    Value<DateTime?>? lastPushAt,
+  }) {
+    return SyncStateCompanion(
+      id: id ?? this.id,
+      applyingRemote: applyingRemote ?? this.applyingRemote,
+      lastPushAt: lastPushAt ?? this.lastPushAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (applyingRemote.present) {
+      map['applying_remote'] = Variable<bool>(applyingRemote.value);
+    }
+    if (lastPushAt.present) {
+      map['last_push_at'] = Variable<DateTime>(
+        $SyncStateTable.$converterlastPushAtn.toSql(lastPushAt.value),
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStateCompanion(')
+          ..write('id: $id, ')
+          ..write('applyingRemote: $applyingRemote, ')
+          ..write('lastPushAt: $lastPushAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncCursorsTable extends SyncCursors
+    with TableInfo<$SyncCursorsTable, SyncCursorDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncCursorsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _collectionMeta = const VerificationMeta(
+    'collection',
+  );
+  @override
+  late final GeneratedColumn<String> collection = GeneratedColumn<String>(
+    'collection',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serverUpdatedAtMicrosMeta =
+      const VerificationMeta('serverUpdatedAtMicros');
+  @override
+  late final GeneratedColumn<int> serverUpdatedAtMicros = GeneratedColumn<int>(
+    'server_updated_at_micros',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _docIdMeta = const VerificationMeta('docId');
+  @override
+  late final GeneratedColumn<String> docId = GeneratedColumn<String>(
+    'doc_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    collection,
+    serverUpdatedAtMicros,
+    docId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_cursors';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncCursorDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('collection')) {
+      context.handle(
+        _collectionMeta,
+        collection.isAcceptableOrUnknown(data['collection']!, _collectionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_collectionMeta);
+    }
+    if (data.containsKey('server_updated_at_micros')) {
+      context.handle(
+        _serverUpdatedAtMicrosMeta,
+        serverUpdatedAtMicros.isAcceptableOrUnknown(
+          data['server_updated_at_micros']!,
+          _serverUpdatedAtMicrosMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_serverUpdatedAtMicrosMeta);
+    }
+    if (data.containsKey('doc_id')) {
+      context.handle(
+        _docIdMeta,
+        docId.isAcceptableOrUnknown(data['doc_id']!, _docIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_docIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {collection};
+  @override
+  SyncCursorDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncCursorDb(
+      collection: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}collection'],
+      )!,
+      serverUpdatedAtMicros: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_updated_at_micros'],
+      )!,
+      docId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}doc_id'],
+      )!,
+    );
+  }
+
+  @override
+  $SyncCursorsTable createAlias(String alias) {
+    return $SyncCursorsTable(attachedDatabase, alias);
+  }
+}
+
+class SyncCursorDb extends DataClass implements Insertable<SyncCursorDb> {
+  final String collection;
+  final int serverUpdatedAtMicros;
+  final String docId;
+  const SyncCursorDb({
+    required this.collection,
+    required this.serverUpdatedAtMicros,
+    required this.docId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['collection'] = Variable<String>(collection);
+    map['server_updated_at_micros'] = Variable<int>(serverUpdatedAtMicros);
+    map['doc_id'] = Variable<String>(docId);
+    return map;
+  }
+
+  SyncCursorsCompanion toCompanion(bool nullToAbsent) {
+    return SyncCursorsCompanion(
+      collection: Value(collection),
+      serverUpdatedAtMicros: Value(serverUpdatedAtMicros),
+      docId: Value(docId),
+    );
+  }
+
+  factory SyncCursorDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncCursorDb(
+      collection: serializer.fromJson<String>(json['collection']),
+      serverUpdatedAtMicros: serializer.fromJson<int>(
+        json['serverUpdatedAtMicros'],
+      ),
+      docId: serializer.fromJson<String>(json['docId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'collection': serializer.toJson<String>(collection),
+      'serverUpdatedAtMicros': serializer.toJson<int>(serverUpdatedAtMicros),
+      'docId': serializer.toJson<String>(docId),
+    };
+  }
+
+  SyncCursorDb copyWith({
+    String? collection,
+    int? serverUpdatedAtMicros,
+    String? docId,
+  }) => SyncCursorDb(
+    collection: collection ?? this.collection,
+    serverUpdatedAtMicros: serverUpdatedAtMicros ?? this.serverUpdatedAtMicros,
+    docId: docId ?? this.docId,
+  );
+  SyncCursorDb copyWithCompanion(SyncCursorsCompanion data) {
+    return SyncCursorDb(
+      collection: data.collection.present
+          ? data.collection.value
+          : this.collection,
+      serverUpdatedAtMicros: data.serverUpdatedAtMicros.present
+          ? data.serverUpdatedAtMicros.value
+          : this.serverUpdatedAtMicros,
+      docId: data.docId.present ? data.docId.value : this.docId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncCursorDb(')
+          ..write('collection: $collection, ')
+          ..write('serverUpdatedAtMicros: $serverUpdatedAtMicros, ')
+          ..write('docId: $docId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(collection, serverUpdatedAtMicros, docId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncCursorDb &&
+          other.collection == this.collection &&
+          other.serverUpdatedAtMicros == this.serverUpdatedAtMicros &&
+          other.docId == this.docId);
+}
+
+class SyncCursorsCompanion extends UpdateCompanion<SyncCursorDb> {
+  final Value<String> collection;
+  final Value<int> serverUpdatedAtMicros;
+  final Value<String> docId;
+  final Value<int> rowid;
+  const SyncCursorsCompanion({
+    this.collection = const Value.absent(),
+    this.serverUpdatedAtMicros = const Value.absent(),
+    this.docId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncCursorsCompanion.insert({
+    required String collection,
+    required int serverUpdatedAtMicros,
+    required String docId,
+    this.rowid = const Value.absent(),
+  }) : collection = Value(collection),
+       serverUpdatedAtMicros = Value(serverUpdatedAtMicros),
+       docId = Value(docId);
+  static Insertable<SyncCursorDb> custom({
+    Expression<String>? collection,
+    Expression<int>? serverUpdatedAtMicros,
+    Expression<String>? docId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (collection != null) 'collection': collection,
+      if (serverUpdatedAtMicros != null)
+        'server_updated_at_micros': serverUpdatedAtMicros,
+      if (docId != null) 'doc_id': docId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncCursorsCompanion copyWith({
+    Value<String>? collection,
+    Value<int>? serverUpdatedAtMicros,
+    Value<String>? docId,
+    Value<int>? rowid,
+  }) {
+    return SyncCursorsCompanion(
+      collection: collection ?? this.collection,
+      serverUpdatedAtMicros:
+          serverUpdatedAtMicros ?? this.serverUpdatedAtMicros,
+      docId: docId ?? this.docId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (collection.present) {
+      map['collection'] = Variable<String>(collection.value);
+    }
+    if (serverUpdatedAtMicros.present) {
+      map['server_updated_at_micros'] = Variable<int>(
+        serverUpdatedAtMicros.value,
+      );
+    }
+    if (docId.present) {
+      map['doc_id'] = Variable<String>(docId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncCursorsCompanion(')
+          ..write('collection: $collection, ')
+          ..write('serverUpdatedAtMicros: $serverUpdatedAtMicros, ')
+          ..write('docId: $docId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -10040,6 +10894,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $FeedbackComparisonsTable feedbackComparisons =
       $FeedbackComparisonsTable(this);
   late final $TestSessionsTable testSessions = $TestSessionsTable(this);
+  late final $SyncOutboxTable syncOutbox = $SyncOutboxTable(this);
+  late final $SyncStateTable syncState = $SyncStateTable(this);
+  late final $SyncCursorsTable syncCursors = $SyncCursorsTable(this);
   late final Index installationsComponentDateIdx = Index(
     'installations_component_date_idx',
     'CREATE INDEX installations_component_date_idx ON installations (component_id, date_time_u_t_c)',
@@ -10059,6 +10916,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final TaskDao taskDao = TaskDao(this as AppDatabase);
   late final StravaDao stravaDao = StravaDao(this as AppDatabase);
   late final FeedbackDao feedbackDao = FeedbackDao(this as AppDatabase);
+  late final SyncDao syncDao = SyncDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10080,6 +10938,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     feedbackObservations,
     feedbackComparisons,
     testSessions,
+    syncOutbox,
+    syncState,
+    syncCursors,
     installationsComponentDateIdx,
     installationsParentLookupIdx,
     stravaActivitiesGearDateIdx,
@@ -10173,44 +11034,42 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ]);
 }
 
-typedef $$ComponentsTableCreateCompanionBuilder =
-    ComponentsCompanion Function({
-      required String id,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      required String name,
-      required ComponentType componentType,
-      Value<String?> notes,
-      Value<int> orderIndex,
-      Value<double> initialDistance,
-      Value<double> initialElevationGain,
-      Value<Duration> initialMovingTime,
-      Value<Duration> initialElapsedTime,
-      Value<int> initialActivityCount,
-      Value<double> initialKilojoules,
-      Value<ComponentPreset?> preset,
-      Value<List<Attachment>> attachments,
-      Value<int> rowid,
-    });
-typedef $$ComponentsTableUpdateCompanionBuilder =
-    ComponentsCompanion Function({
-      Value<String> id,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<String> name,
-      Value<ComponentType> componentType,
-      Value<String?> notes,
-      Value<int> orderIndex,
-      Value<double> initialDistance,
-      Value<double> initialElevationGain,
-      Value<Duration> initialMovingTime,
-      Value<Duration> initialElapsedTime,
-      Value<int> initialActivityCount,
-      Value<double> initialKilojoules,
-      Value<ComponentPreset?> preset,
-      Value<List<Attachment>> attachments,
-      Value<int> rowid,
-    });
+typedef $$ComponentsTableCreateCompanionBuilder = ComponentsCompanion Function({
+  required String id,
+  Value<bool> isDeleted,
+  required DateTime lastModified,
+  required String name,
+  required ComponentType componentType,
+  Value<String?> notes,
+  Value<int> orderIndex,
+  Value<double> initialDistance,
+  Value<double> initialElevationGain,
+  Value<Duration> initialMovingTime,
+  Value<Duration> initialElapsedTime,
+  Value<int> initialActivityCount,
+  Value<double> initialKilojoules,
+  Value<ComponentPreset?> preset,
+  Value<List<Attachment>> attachments,
+  Value<int> rowid,
+});
+typedef $$ComponentsTableUpdateCompanionBuilder = ComponentsCompanion Function({
+  Value<String> id,
+  Value<bool> isDeleted,
+  Value<DateTime> lastModified,
+  Value<String> name,
+  Value<ComponentType> componentType,
+  Value<String?> notes,
+  Value<int> orderIndex,
+  Value<double> initialDistance,
+  Value<double> initialElevationGain,
+  Value<Duration> initialMovingTime,
+  Value<Duration> initialElapsedTime,
+  Value<int> initialActivityCount,
+  Value<double> initialKilojoules,
+  Value<ComponentPreset?> preset,
+  Value<List<Attachment>> attachments,
+  Value<int> rowid,
+});
 
 final class $$ComponentsTableReferences
     extends BaseReferences<_$AppDatabase, $ComponentsTable, ComponentDb> {
@@ -10851,7 +11710,7 @@ class $$ComponentsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$ComponentsTable, ComponentDb>(table),
                   $$ComponentsTableReferences(db, table, e),
                 ),
               )
@@ -10875,10 +11734,11 @@ class $$ComponentsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (taskRulesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ComponentDb,
                           $ComponentsTable,
-                          TaskRuleDb
+                          TaskRuleDb,
+                          $TaskRulesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ComponentsTableReferences
@@ -10889,17 +11749,16 @@ class $$ComponentsTableTableManager
                                 table,
                                 p0,
                               ).taskRulesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.componentId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'component_id',
                           typedResults: items,
                         ),
                       if (taskEntriesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ComponentDb,
                           $ComponentsTable,
-                          TaskEntryDb
+                          TaskEntryDb,
+                          $TaskEntriesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ComponentsTableReferences
@@ -10910,17 +11769,16 @@ class $$ComponentsTableTableManager
                                 table,
                                 p0,
                               ).taskEntriesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.componentId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'component_id',
                           typedResults: items,
                         ),
                       if (adjustmentsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ComponentDb,
                           $ComponentsTable,
-                          AdjustmentDb
+                          AdjustmentDb,
+                          $AdjustmentsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ComponentsTableReferences
@@ -10931,17 +11789,16 @@ class $$ComponentsTableTableManager
                                 table,
                                 p0,
                               ).adjustmentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.componentId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'component_id',
                           typedResults: items,
                         ),
                       if (installationsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ComponentDb,
                           $ComponentsTable,
-                          InstallationDb
+                          InstallationDb,
+                          $InstallationsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ComponentsTableReferences
@@ -10952,10 +11809,8 @@ class $$ComponentsTableTableManager
                                 table,
                                 p0,
                               ).installationsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.componentId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'component_id',
                           typedResults: items,
                         ),
                     ];
@@ -10985,44 +11840,42 @@ typedef $$ComponentsTableProcessedTableManager =
         bool installationsRefs,
       })
     >;
-typedef $$BikesTableCreateCompanionBuilder =
-    BikesCompanion Function({
-      required String id,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      required String name,
-      Value<String?> notes,
-      Value<String?> person,
-      Value<String?> stravaGear,
-      Value<int> orderIndex,
-      Value<double> initialDistance,
-      Value<double> initialElevationGain,
-      Value<Duration> initialMovingTime,
-      Value<Duration> initialElapsedTime,
-      Value<int> initialActivityCount,
-      Value<double> initialKilojoules,
-      Value<List<Attachment>> attachments,
-      Value<int> rowid,
-    });
-typedef $$BikesTableUpdateCompanionBuilder =
-    BikesCompanion Function({
-      Value<String> id,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<String> name,
-      Value<String?> notes,
-      Value<String?> person,
-      Value<String?> stravaGear,
-      Value<int> orderIndex,
-      Value<double> initialDistance,
-      Value<double> initialElevationGain,
-      Value<Duration> initialMovingTime,
-      Value<Duration> initialElapsedTime,
-      Value<int> initialActivityCount,
-      Value<double> initialKilojoules,
-      Value<List<Attachment>> attachments,
-      Value<int> rowid,
-    });
+typedef $$BikesTableCreateCompanionBuilder = BikesCompanion Function({
+  required String id,
+  Value<bool> isDeleted,
+  required DateTime lastModified,
+  required String name,
+  Value<String?> notes,
+  Value<String?> person,
+  Value<String?> stravaGear,
+  Value<int> orderIndex,
+  Value<double> initialDistance,
+  Value<double> initialElevationGain,
+  Value<Duration> initialMovingTime,
+  Value<Duration> initialElapsedTime,
+  Value<int> initialActivityCount,
+  Value<double> initialKilojoules,
+  Value<List<Attachment>> attachments,
+  Value<int> rowid,
+});
+typedef $$BikesTableUpdateCompanionBuilder = BikesCompanion Function({
+  Value<String> id,
+  Value<bool> isDeleted,
+  Value<DateTime> lastModified,
+  Value<String> name,
+  Value<String?> notes,
+  Value<String?> person,
+  Value<String?> stravaGear,
+  Value<int> orderIndex,
+  Value<double> initialDistance,
+  Value<double> initialElevationGain,
+  Value<Duration> initialMovingTime,
+  Value<Duration> initialElapsedTime,
+  Value<int> initialActivityCount,
+  Value<double> initialKilojoules,
+  Value<List<Attachment>> attachments,
+  Value<int> rowid,
+});
 
 final class $$BikesTableReferences
     extends BaseReferences<_$AppDatabase, $BikesTable, BikeDb> {
@@ -11728,8 +12581,10 @@ class $$BikesTableTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) =>
-                    (e.readTable(table), $$BikesTableReferences(db, table, e)),
+                (e) => (
+                  e.readTable<$BikesTable, BikeDb>(table),
+                  $$BikesTableReferences(db, table, e),
+                ),
               )
               .toList(),
           prefetchHooksCallback:
@@ -11753,10 +12608,11 @@ class $$BikesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (taskRulesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           BikeDb,
                           $BikesTable,
-                          TaskRuleDb
+                          TaskRuleDb,
+                          $TaskRulesTable
                         >(
                           currentTable: table,
                           referencedTable: $$BikesTableReferences
@@ -11767,17 +12623,16 @@ class $$BikesTableTableManager
                                 table,
                                 p0,
                               ).taskRulesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.bikeId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'bike_id',
                           typedResults: items,
                         ),
                       if (taskEntriesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           BikeDb,
                           $BikesTable,
-                          TaskEntryDb
+                          TaskEntryDb,
+                          $TaskEntriesTable
                         >(
                           currentTable: table,
                           referencedTable: $$BikesTableReferences
@@ -11788,30 +12643,32 @@ class $$BikesTableTableManager
                                 table,
                                 p0,
                               ).taskEntriesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.bikeId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'bike_id',
                           typedResults: items,
                         ),
                       if (setupsRefs)
-                        await $_getPrefetchedData<BikeDb, $BikesTable, SetupDb>(
+                        await $_getPrefetchedDataByColumns<
+                          BikeDb,
+                          $BikesTable,
+                          SetupDb,
+                          $SetupsTable
+                        >(
                           currentTable: table,
                           referencedTable: $$BikesTableReferences
                               ._setupsRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$BikesTableReferences(db, table, p0).setupsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.bikeId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'bike_id',
                           typedResults: items,
                         ),
                       if (feedbacksRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           BikeDb,
                           $BikesTable,
-                          FeedbackDb
+                          FeedbackDb,
+                          $FeedbacksTable
                         >(
                           currentTable: table,
                           referencedTable: $$BikesTableReferences
@@ -11822,17 +12679,16 @@ class $$BikesTableTableManager
                                 table,
                                 p0,
                               ).feedbacksRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.bikeId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'bike_id',
                           typedResults: items,
                         ),
                       if (testSessionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           BikeDb,
                           $BikesTable,
-                          TestSessionDb
+                          TestSessionDb,
+                          $TestSessionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$BikesTableReferences
@@ -11843,10 +12699,8 @@ class $$BikesTableTableManager
                                 table,
                                 p0,
                               ).testSessionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.bikeId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'bike_id',
                           typedResults: items,
                         ),
                     ];
@@ -11877,42 +12731,40 @@ typedef $$BikesTableProcessedTableManager =
         bool testSessionsRefs,
       })
     >;
-typedef $$TaskRulesTableCreateCompanionBuilder =
-    TaskRulesCompanion Function({
-      required String id,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      Value<String?> componentId,
-      Value<String?> bikeId,
-      required String name,
-      Value<String?> notes,
-      Value<TaskPriority> priority,
-      Value<Set<String>> tags,
-      Value<String?> interval,
-      Value<String?> delay,
-      Value<bool> repeat,
-      Value<List<Attachment>> attachments,
-      Value<String?> presetKey,
-      Value<int> rowid,
-    });
-typedef $$TaskRulesTableUpdateCompanionBuilder =
-    TaskRulesCompanion Function({
-      Value<String> id,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<String?> componentId,
-      Value<String?> bikeId,
-      Value<String> name,
-      Value<String?> notes,
-      Value<TaskPriority> priority,
-      Value<Set<String>> tags,
-      Value<String?> interval,
-      Value<String?> delay,
-      Value<bool> repeat,
-      Value<List<Attachment>> attachments,
-      Value<String?> presetKey,
-      Value<int> rowid,
-    });
+typedef $$TaskRulesTableCreateCompanionBuilder = TaskRulesCompanion Function({
+  required String id,
+  Value<bool> isDeleted,
+  required DateTime lastModified,
+  Value<String?> componentId,
+  Value<String?> bikeId,
+  required String name,
+  Value<String?> notes,
+  Value<TaskPriority> priority,
+  Value<Set<String>> tags,
+  Value<String?> interval,
+  Value<String?> delay,
+  Value<bool> repeat,
+  Value<List<Attachment>> attachments,
+  Value<String?> presetKey,
+  Value<int> rowid,
+});
+typedef $$TaskRulesTableUpdateCompanionBuilder = TaskRulesCompanion Function({
+  Value<String> id,
+  Value<bool> isDeleted,
+  Value<DateTime> lastModified,
+  Value<String?> componentId,
+  Value<String?> bikeId,
+  Value<String> name,
+  Value<String?> notes,
+  Value<TaskPriority> priority,
+  Value<Set<String>> tags,
+  Value<String?> interval,
+  Value<String?> delay,
+  Value<bool> repeat,
+  Value<List<Attachment>> attachments,
+  Value<String?> presetKey,
+  Value<int> rowid,
+});
 
 final class $$TaskRulesTableReferences
     extends BaseReferences<_$AppDatabase, $TaskRulesTable, TaskRuleDb> {
@@ -12456,7 +13308,7 @@ class $$TaskRulesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$TaskRulesTable, TaskRuleDb>(table),
                   $$TaskRulesTableReferences(db, table, e),
                 ),
               )
@@ -12485,30 +13337,26 @@ class $$TaskRulesTableTableManager
                         >
                       >(state) {
                         if (componentId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.componentId,
-                                    referencedTable: $$TaskRulesTableReferences
-                                        ._componentIdTable(db),
-                                    referencedColumn: $$TaskRulesTableReferences
-                                        ._componentIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.componentId,
+                            referencedTable: $$TaskRulesTableReferences
+                                ._componentIdTable(db),
+                            referencedColumn: $$TaskRulesTableReferences
+                                ._componentIdTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (bikeId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.bikeId,
-                                    referencedTable: $$TaskRulesTableReferences
-                                        ._bikeIdTable(db),
-                                    referencedColumn: $$TaskRulesTableReferences
-                                        ._bikeIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.bikeId,
+                            referencedTable: $$TaskRulesTableReferences
+                                ._bikeIdTable(db),
+                            referencedColumn: $$TaskRulesTableReferences
+                                ._bikeIdTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -12516,10 +13364,11 @@ class $$TaskRulesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (taskEntriesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           TaskRuleDb,
                           $TaskRulesTable,
-                          TaskEntryDb
+                          TaskEntryDb,
+                          $TaskEntriesTable
                         >(
                           currentTable: table,
                           referencedTable: $$TaskRulesTableReferences
@@ -12530,10 +13379,8 @@ class $$TaskRulesTableTableManager
                                 table,
                                 p0,
                               ).taskEntriesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.taskRule == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'task_rule',
                           typedResults: items,
                         ),
                     ];
@@ -13110,7 +13957,7 @@ class $$TaskEntriesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$TaskEntriesTable, TaskEntryDb>(table),
                   $$TaskEntriesTableReferences(db, table, e),
                 ),
               )
@@ -13137,49 +13984,37 @@ class $$TaskEntriesTableTableManager
                         >
                       >(state) {
                         if (taskRule) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.taskRule,
-                                    referencedTable:
-                                        $$TaskEntriesTableReferences
-                                            ._taskRuleTable(db),
-                                    referencedColumn:
-                                        $$TaskEntriesTableReferences
-                                            ._taskRuleTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.taskRule,
+                            referencedTable: $$TaskEntriesTableReferences
+                                ._taskRuleTable(db),
+                            referencedColumn: $$TaskEntriesTableReferences
+                                ._taskRuleTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (componentId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.componentId,
-                                    referencedTable:
-                                        $$TaskEntriesTableReferences
-                                            ._componentIdTable(db),
-                                    referencedColumn:
-                                        $$TaskEntriesTableReferences
-                                            ._componentIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.componentId,
+                            referencedTable: $$TaskEntriesTableReferences
+                                ._componentIdTable(db),
+                            referencedColumn: $$TaskEntriesTableReferences
+                                ._componentIdTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (bikeId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.bikeId,
-                                    referencedTable:
-                                        $$TaskEntriesTableReferences
-                                            ._bikeIdTable(db),
-                                    referencedColumn:
-                                        $$TaskEntriesTableReferences
-                                            ._bikeIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.bikeId,
+                            referencedTable: $$TaskEntriesTableReferences
+                                ._bikeIdTable(db),
+                            referencedColumn: $$TaskEntriesTableReferences
+                                ._bikeIdTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -13207,28 +14042,26 @@ typedef $$TaskEntriesTableProcessedTableManager =
       TaskEntryDb,
       PrefetchHooks Function({bool taskRule, bool componentId, bool bikeId})
     >;
-typedef $$PersonsTableCreateCompanionBuilder =
-    PersonsCompanion Function({
-      required String id,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      required String name,
-      Value<String?> notes,
-      Value<int?> stravaAthlete,
-      Value<int> orderIndex,
-      Value<int> rowid,
-    });
-typedef $$PersonsTableUpdateCompanionBuilder =
-    PersonsCompanion Function({
-      Value<String> id,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<String> name,
-      Value<String?> notes,
-      Value<int?> stravaAthlete,
-      Value<int> orderIndex,
-      Value<int> rowid,
-    });
+typedef $$PersonsTableCreateCompanionBuilder = PersonsCompanion Function({
+  required String id,
+  Value<bool> isDeleted,
+  required DateTime lastModified,
+  required String name,
+  Value<String?> notes,
+  Value<int?> stravaAthlete,
+  Value<int> orderIndex,
+  Value<int> rowid,
+});
+typedef $$PersonsTableUpdateCompanionBuilder = PersonsCompanion Function({
+  Value<String> id,
+  Value<bool> isDeleted,
+  Value<DateTime> lastModified,
+  Value<String> name,
+  Value<String?> notes,
+  Value<int?> stravaAthlete,
+  Value<int> orderIndex,
+  Value<int> rowid,
+});
 
 final class $$PersonsTableReferences
     extends BaseReferences<_$AppDatabase, $PersonsTable, PersonDb> {
@@ -13570,7 +14403,7 @@ class $$PersonsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$PersonsTable, PersonDb>(table),
                   $$PersonsTableReferences(db, table, e),
                 ),
               )
@@ -13587,10 +14420,11 @@ class $$PersonsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (adjustmentsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           PersonDb,
                           $PersonsTable,
-                          AdjustmentDb
+                          AdjustmentDb,
+                          $AdjustmentsTable
                         >(
                           currentTable: table,
                           referencedTable: $$PersonsTableReferences
@@ -13601,17 +14435,16 @@ class $$PersonsTableTableManager
                                 table,
                                 p0,
                               ).adjustmentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.personId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'person_id',
                           typedResults: items,
                         ),
                       if (setupsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           PersonDb,
                           $PersonsTable,
-                          SetupDb
+                          SetupDb,
+                          $SetupsTable
                         >(
                           currentTable: table,
                           referencedTable: $$PersonsTableReferences
@@ -13622,10 +14455,8 @@ class $$PersonsTableTableManager
                                 table,
                                 p0,
                               ).setupsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.personId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'person_id',
                           typedResults: items,
                         ),
                     ];
@@ -14138,7 +14969,7 @@ class $$AdjustmentsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$AdjustmentsTable, AdjustmentDb>(table),
                   $$AdjustmentsTableReferences(db, table, e),
                 ),
               )
@@ -14171,34 +15002,26 @@ class $$AdjustmentsTableTableManager
                         >
                       >(state) {
                         if (componentId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.componentId,
-                                    referencedTable:
-                                        $$AdjustmentsTableReferences
-                                            ._componentIdTable(db),
-                                    referencedColumn:
-                                        $$AdjustmentsTableReferences
-                                            ._componentIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.componentId,
+                            referencedTable: $$AdjustmentsTableReferences
+                                ._componentIdTable(db),
+                            referencedColumn: $$AdjustmentsTableReferences
+                                ._componentIdTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (personId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.personId,
-                                    referencedTable:
-                                        $$AdjustmentsTableReferences
-                                            ._personIdTable(db),
-                                    referencedColumn:
-                                        $$AdjustmentsTableReferences
-                                            ._personIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.personId,
+                            referencedTable: $$AdjustmentsTableReferences
+                                ._personIdTable(db),
+                            referencedColumn: $$AdjustmentsTableReferences
+                                ._personIdTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -14206,10 +15029,11 @@ class $$AdjustmentsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (setupAdjustmentValuesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           AdjustmentDb,
                           $AdjustmentsTable,
-                          SetupAdjustmentValueDb
+                          SetupAdjustmentValueDb,
+                          $SetupAdjustmentValuesTable
                         >(
                           currentTable: table,
                           referencedTable: $$AdjustmentsTableReferences
@@ -14220,10 +15044,8 @@ class $$AdjustmentsTableTableManager
                                 table,
                                 p0,
                               ).setupAdjustmentValuesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.adjustmentId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'adjustment_id',
                           typedResults: items,
                         ),
                     ];
@@ -14544,7 +15366,7 @@ class $$InstallationsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$InstallationsTable, InstallationDb>(table),
                   $$InstallationsTableReferences(db, table, e),
                 ),
               )
@@ -14570,17 +15392,15 @@ class $$InstallationsTableTableManager
                     >
                   >(state) {
                     if (componentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.componentId,
-                                referencedTable: $$InstallationsTableReferences
-                                    ._componentIdTable(db),
-                                referencedColumn: $$InstallationsTableReferences
-                                    ._componentIdTable(db)
-                                    .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.componentId,
+                        referencedTable: $$InstallationsTableReferences
+                            ._componentIdTable(db),
+                        referencedColumn: $$InstallationsTableReferences
+                            ._componentIdTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
@@ -14608,50 +15428,48 @@ typedef $$InstallationsTableProcessedTableManager =
       InstallationDb,
       PrefetchHooks Function({bool componentId})
     >;
-typedef $$SetupsTableCreateCompanionBuilder =
-    SetupsCompanion Function({
-      required String id,
-      required String bikeId,
-      Value<String?> personId,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      Value<String?> name,
-      Value<bool> isBookmarked,
-      required DateTime datetime,
-      required DateTime datetimeLocal,
-      Value<String?> notes,
-      required Set<String> tags,
-      Value<List<Attachment>> attachments,
-      Value<ContextPosition?> position,
-      Value<geo.Placemark?> place,
-      Value<ContextWeather?> weather,
-      Value<String?> testSessionId,
-      Value<String?> sourceSetupId,
-      Value<SetupSourceKind?> sourceKind,
-      Value<int> rowid,
-    });
-typedef $$SetupsTableUpdateCompanionBuilder =
-    SetupsCompanion Function({
-      Value<String> id,
-      Value<String> bikeId,
-      Value<String?> personId,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<String?> name,
-      Value<bool> isBookmarked,
-      Value<DateTime> datetime,
-      Value<DateTime> datetimeLocal,
-      Value<String?> notes,
-      Value<Set<String>> tags,
-      Value<List<Attachment>> attachments,
-      Value<ContextPosition?> position,
-      Value<geo.Placemark?> place,
-      Value<ContextWeather?> weather,
-      Value<String?> testSessionId,
-      Value<String?> sourceSetupId,
-      Value<SetupSourceKind?> sourceKind,
-      Value<int> rowid,
-    });
+typedef $$SetupsTableCreateCompanionBuilder = SetupsCompanion Function({
+  required String id,
+  required String bikeId,
+  Value<String?> personId,
+  Value<bool> isDeleted,
+  required DateTime lastModified,
+  Value<String?> name,
+  Value<bool> isBookmarked,
+  required DateTime datetime,
+  required DateTime datetimeLocal,
+  Value<String?> notes,
+  required Set<String> tags,
+  Value<List<Attachment>> attachments,
+  Value<ContextPosition?> position,
+  Value<geo.Placemark?> place,
+  Value<ContextWeather?> weather,
+  Value<String?> testSessionId,
+  Value<String?> sourceSetupId,
+  Value<SetupSourceKind?> sourceKind,
+  Value<int> rowid,
+});
+typedef $$SetupsTableUpdateCompanionBuilder = SetupsCompanion Function({
+  Value<String> id,
+  Value<String> bikeId,
+  Value<String?> personId,
+  Value<bool> isDeleted,
+  Value<DateTime> lastModified,
+  Value<String?> name,
+  Value<bool> isBookmarked,
+  Value<DateTime> datetime,
+  Value<DateTime> datetimeLocal,
+  Value<String?> notes,
+  Value<Set<String>> tags,
+  Value<List<Attachment>> attachments,
+  Value<ContextPosition?> position,
+  Value<geo.Placemark?> place,
+  Value<ContextWeather?> weather,
+  Value<String?> testSessionId,
+  Value<String?> sourceSetupId,
+  Value<SetupSourceKind?> sourceKind,
+  Value<int> rowid,
+});
 
 final class $$SetupsTableReferences
     extends BaseReferences<_$AppDatabase, $SetupsTable, SetupDb> {
@@ -15436,8 +16254,10 @@ class $$SetupsTableTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) =>
-                    (e.readTable(table), $$SetupsTableReferences(db, table, e)),
+                (e) => (
+                  e.readTable<$SetupsTable, SetupDb>(table),
+                  $$SetupsTableReferences(db, table, e),
+                ),
               )
               .toList(),
           prefetchHooksCallback:
@@ -15472,30 +16292,26 @@ class $$SetupsTableTableManager
                         >
                       >(state) {
                         if (bikeId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.bikeId,
-                                    referencedTable: $$SetupsTableReferences
-                                        ._bikeIdTable(db),
-                                    referencedColumn: $$SetupsTableReferences
-                                        ._bikeIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.bikeId,
+                            referencedTable: $$SetupsTableReferences
+                                ._bikeIdTable(db),
+                            referencedColumn: $$SetupsTableReferences
+                                ._bikeIdTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (personId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.personId,
-                                    referencedTable: $$SetupsTableReferences
-                                        ._personIdTable(db),
-                                    referencedColumn: $$SetupsTableReferences
-                                        ._personIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.personId,
+                            referencedTable: $$SetupsTableReferences
+                                ._personIdTable(db),
+                            referencedColumn: $$SetupsTableReferences
+                                ._personIdTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -15503,10 +16319,11 @@ class $$SetupsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (setupAdjustmentValuesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SetupDb,
                           $SetupsTable,
-                          SetupAdjustmentValueDb
+                          SetupAdjustmentValueDb,
+                          $SetupAdjustmentValuesTable
                         >(
                           currentTable: table,
                           referencedTable: $$SetupsTableReferences
@@ -15517,17 +16334,16 @@ class $$SetupsTableTableManager
                                 table,
                                 p0,
                               ).setupAdjustmentValuesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.setupId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'setup_id',
                           typedResults: items,
                         ),
                       if (feedbacksRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SetupDb,
                           $SetupsTable,
-                          FeedbackDb
+                          FeedbackDb,
+                          $FeedbacksTable
                         >(
                           currentTable: table,
                           referencedTable: $$SetupsTableReferences
@@ -15538,17 +16354,16 @@ class $$SetupsTableTableManager
                                 table,
                                 p0,
                               ).feedbacksRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.setupId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'setup_id',
                           typedResults: items,
                         ),
                       if (feedbackComparisonsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SetupDb,
                           $SetupsTable,
-                          FeedbackComparisonDb
+                          FeedbackComparisonDb,
+                          $FeedbackComparisonsTable
                         >(
                           currentTable: table,
                           referencedTable: $$SetupsTableReferences
@@ -15559,10 +16374,8 @@ class $$SetupsTableTableManager
                                 table,
                                 p0,
                               ).feedbackComparisonsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.referenceSetupId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'reference_setup_id',
                           typedResults: items,
                         ),
                     ];
@@ -15902,7 +16715,10 @@ class $$SetupAdjustmentValuesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $SetupAdjustmentValuesTable,
+                    SetupAdjustmentValueDb
+                  >(table),
                   $$SetupAdjustmentValuesTableReferences(db, table, e),
                 ),
               )
@@ -15928,34 +16744,26 @@ class $$SetupAdjustmentValuesTableTableManager
                     >
                   >(state) {
                     if (setupId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.setupId,
-                                referencedTable:
-                                    $$SetupAdjustmentValuesTableReferences
-                                        ._setupIdTable(db),
-                                referencedColumn:
-                                    $$SetupAdjustmentValuesTableReferences
-                                        ._setupIdTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.setupId,
+                        referencedTable: $$SetupAdjustmentValuesTableReferences
+                            ._setupIdTable(db),
+                        referencedColumn: $$SetupAdjustmentValuesTableReferences
+                            ._setupIdTable(db)
+                            .id,
+                      ) as T;
                     }
                     if (adjustmentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.adjustmentId,
-                                referencedTable:
-                                    $$SetupAdjustmentValuesTableReferences
-                                        ._adjustmentIdTable(db),
-                                referencedColumn:
-                                    $$SetupAdjustmentValuesTableReferences
-                                        ._adjustmentIdTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.adjustmentId,
+                        referencedTable: $$SetupAdjustmentValuesTableReferences
+                            ._adjustmentIdTable(db),
+                        referencedColumn: $$SetupAdjustmentValuesTableReferences
+                            ._adjustmentIdTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
@@ -16388,7 +17196,16 @@ class $$StravaActivitiesTableTableManager
                 averageWatts: averageWatts,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$StravaActivitiesTable, StravaActivityDb>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $StravaActivitiesTable,
+                    StravaActivityDb
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -16612,7 +17429,16 @@ class $$StravaAthletesTableTableManager
                 gears: gears,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$StravaAthletesTable, StravaAthleteDb>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $StravaAthletesTable,
+                    StravaAthleteDb
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -16778,7 +17604,16 @@ class $$StravaGearsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$StravaGearsTable, StravaGearDb>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $StravaGearsTable,
+                    StravaGearDb
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -16802,38 +17637,36 @@ typedef $$StravaGearsTableProcessedTableManager =
       StravaGearDb,
       PrefetchHooks Function()
     >;
-typedef $$FeedbacksTableCreateCompanionBuilder =
-    FeedbacksCompanion Function({
-      required String id,
-      required String bikeId,
-      required String setupId,
-      Value<int?> stravaActivityId,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      required DateTime dateTimeUTC,
-      required DateTime dateTimeLocal,
-      Value<String?> notes,
-      Value<ContextPosition?> position,
-      Value<geo.Placemark?> place,
-      Value<ContextWeather?> weather,
-      Value<int> rowid,
-    });
-typedef $$FeedbacksTableUpdateCompanionBuilder =
-    FeedbacksCompanion Function({
-      Value<String> id,
-      Value<String> bikeId,
-      Value<String> setupId,
-      Value<int?> stravaActivityId,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<DateTime> dateTimeUTC,
-      Value<DateTime> dateTimeLocal,
-      Value<String?> notes,
-      Value<ContextPosition?> position,
-      Value<geo.Placemark?> place,
-      Value<ContextWeather?> weather,
-      Value<int> rowid,
-    });
+typedef $$FeedbacksTableCreateCompanionBuilder = FeedbacksCompanion Function({
+  required String id,
+  required String bikeId,
+  required String setupId,
+  Value<int?> stravaActivityId,
+  Value<bool> isDeleted,
+  required DateTime lastModified,
+  required DateTime dateTimeUTC,
+  required DateTime dateTimeLocal,
+  Value<String?> notes,
+  Value<ContextPosition?> position,
+  Value<geo.Placemark?> place,
+  Value<ContextWeather?> weather,
+  Value<int> rowid,
+});
+typedef $$FeedbacksTableUpdateCompanionBuilder = FeedbacksCompanion Function({
+  Value<String> id,
+  Value<String> bikeId,
+  Value<String> setupId,
+  Value<int?> stravaActivityId,
+  Value<bool> isDeleted,
+  Value<DateTime> lastModified,
+  Value<DateTime> dateTimeUTC,
+  Value<DateTime> dateTimeLocal,
+  Value<String?> notes,
+  Value<ContextPosition?> position,
+  Value<geo.Placemark?> place,
+  Value<ContextWeather?> weather,
+  Value<int> rowid,
+});
 
 final class $$FeedbacksTableReferences
     extends BaseReferences<_$AppDatabase, $FeedbacksTable, FeedbackDb> {
@@ -17434,7 +18267,7 @@ class $$FeedbacksTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$FeedbacksTable, FeedbackDb>(table),
                   $$FeedbacksTableReferences(db, table, e),
                 ),
               )
@@ -17469,30 +18302,26 @@ class $$FeedbacksTableTableManager
                         >
                       >(state) {
                         if (bikeId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.bikeId,
-                                    referencedTable: $$FeedbacksTableReferences
-                                        ._bikeIdTable(db),
-                                    referencedColumn: $$FeedbacksTableReferences
-                                        ._bikeIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.bikeId,
+                            referencedTable: $$FeedbacksTableReferences
+                                ._bikeIdTable(db),
+                            referencedColumn: $$FeedbacksTableReferences
+                                ._bikeIdTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (setupId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.setupId,
-                                    referencedTable: $$FeedbacksTableReferences
-                                        ._setupIdTable(db),
-                                    referencedColumn: $$FeedbacksTableReferences
-                                        ._setupIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.setupId,
+                            referencedTable: $$FeedbacksTableReferences
+                                ._setupIdTable(db),
+                            referencedColumn: $$FeedbacksTableReferences
+                                ._setupIdTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -17500,10 +18329,11 @@ class $$FeedbacksTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (feedbackObservationsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           FeedbackDb,
                           $FeedbacksTable,
-                          FeedbackObservationDb
+                          FeedbackObservationDb,
+                          $FeedbackObservationsTable
                         >(
                           currentTable: table,
                           referencedTable: $$FeedbacksTableReferences
@@ -17514,17 +18344,16 @@ class $$FeedbacksTableTableManager
                                 table,
                                 p0,
                               ).feedbackObservationsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.feedbackId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'feedback_id',
                           typedResults: items,
                         ),
                       if (feedbackComparisonsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           FeedbackDb,
                           $FeedbacksTable,
-                          FeedbackComparisonDb
+                          FeedbackComparisonDb,
+                          $FeedbackComparisonsTable
                         >(
                           currentTable: table,
                           referencedTable: $$FeedbacksTableReferences
@@ -17535,10 +18364,8 @@ class $$FeedbacksTableTableManager
                                 table,
                                 p0,
                               ).feedbackComparisonsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.feedbackId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'feedback_id',
                           typedResults: items,
                         ),
                     ];
@@ -17819,7 +18646,10 @@ class $$FeedbackObservationsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $FeedbackObservationsTable,
+                    FeedbackObservationDb
+                  >(table),
                   $$FeedbackObservationsTableReferences(db, table, e),
                 ),
               )
@@ -17845,19 +18675,15 @@ class $$FeedbackObservationsTableTableManager
                     >
                   >(state) {
                     if (feedbackId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.feedbackId,
-                                referencedTable:
-                                    $$FeedbackObservationsTableReferences
-                                        ._feedbackIdTable(db),
-                                referencedColumn:
-                                    $$FeedbackObservationsTableReferences
-                                        ._feedbackIdTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.feedbackId,
+                        referencedTable: $$FeedbackObservationsTableReferences
+                            ._feedbackIdTable(db),
+                        referencedColumn: $$FeedbackObservationsTableReferences
+                            ._feedbackIdTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
@@ -18209,7 +19035,9 @@ class $$FeedbackComparisonsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$FeedbackComparisonsTable, FeedbackComparisonDb>(
+                    table,
+                  ),
                   $$FeedbackComparisonsTableReferences(db, table, e),
                 ),
               )
@@ -18236,34 +19064,30 @@ class $$FeedbackComparisonsTableTableManager
                         >
                       >(state) {
                         if (feedbackId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.feedbackId,
-                                    referencedTable:
-                                        $$FeedbackComparisonsTableReferences
-                                            ._feedbackIdTable(db),
-                                    referencedColumn:
-                                        $$FeedbackComparisonsTableReferences
-                                            ._feedbackIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.feedbackId,
+                            referencedTable:
+                                $$FeedbackComparisonsTableReferences
+                                    ._feedbackIdTable(db),
+                            referencedColumn:
+                                $$FeedbackComparisonsTableReferences
+                                    ._feedbackIdTable(db)
+                                    .id,
+                          ) as T;
                         }
                         if (referenceSetupId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.referenceSetupId,
-                                    referencedTable:
-                                        $$FeedbackComparisonsTableReferences
-                                            ._referenceSetupIdTable(db),
-                                    referencedColumn:
-                                        $$FeedbackComparisonsTableReferences
-                                            ._referenceSetupIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.referenceSetupId,
+                            referencedTable:
+                                $$FeedbackComparisonsTableReferences
+                                    ._referenceSetupIdTable(db),
+                            referencedColumn:
+                                $$FeedbackComparisonsTableReferences
+                                    ._referenceSetupIdTable(db)
+                                    .id,
+                          ) as T;
                         }
 
                         return state;
@@ -18776,7 +19600,7 @@ class $$TestSessionsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$TestSessionsTable, TestSessionDb>(table),
                   $$TestSessionsTableReferences(db, table, e),
                 ),
               )
@@ -18802,17 +19626,15 @@ class $$TestSessionsTableTableManager
                     >
                   >(state) {
                     if (bikeId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.bikeId,
-                                referencedTable: $$TestSessionsTableReferences
-                                    ._bikeIdTable(db),
-                                referencedColumn: $$TestSessionsTableReferences
-                                    ._bikeIdTable(db)
-                                    .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.bikeId,
+                        referencedTable: $$TestSessionsTableReferences
+                            ._bikeIdTable(db),
+                        referencedColumn: $$TestSessionsTableReferences
+                            ._bikeIdTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
@@ -18839,6 +19661,538 @@ typedef $$TestSessionsTableProcessedTableManager =
       (TestSessionDb, $$TestSessionsTableReferences),
       TestSessionDb,
       PrefetchHooks Function({bool bikeId})
+    >;
+typedef $$SyncOutboxTableCreateCompanionBuilder = SyncOutboxCompanion Function({
+  Value<int> id,
+  required String collection,
+  required String rowId,
+  required DateTime enqueuedAt,
+});
+typedef $$SyncOutboxTableUpdateCompanionBuilder = SyncOutboxCompanion Function({
+  Value<int> id,
+  Value<String> collection,
+  Value<String> rowId,
+  Value<DateTime> enqueuedAt,
+});
+
+class $$SyncOutboxTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncOutboxTable> {
+  $$SyncOutboxTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get collection => $composableBuilder(
+    column: $table.collection,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rowId => $composableBuilder(
+    column: $table.rowId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime> get enqueuedAt =>
+      $composableBuilder(
+        column: $table.enqueuedAt,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+}
+
+class $$SyncOutboxTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncOutboxTable> {
+  $$SyncOutboxTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get collection => $composableBuilder(
+    column: $table.collection,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rowId => $composableBuilder(
+    column: $table.rowId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get enqueuedAt => $composableBuilder(
+    column: $table.enqueuedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncOutboxTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncOutboxTable> {
+  $$SyncOutboxTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get collection => $composableBuilder(
+    column: $table.collection,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get rowId =>
+      $composableBuilder(column: $table.rowId, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get enqueuedAt =>
+      $composableBuilder(
+        column: $table.enqueuedAt,
+        builder: (column) => column,
+      );
+}
+
+class $$SyncOutboxTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncOutboxTable,
+          SyncOutboxDb,
+          $$SyncOutboxTableFilterComposer,
+          $$SyncOutboxTableOrderingComposer,
+          $$SyncOutboxTableAnnotationComposer,
+          $$SyncOutboxTableCreateCompanionBuilder,
+          $$SyncOutboxTableUpdateCompanionBuilder,
+          (
+            SyncOutboxDb,
+            BaseReferences<_$AppDatabase, $SyncOutboxTable, SyncOutboxDb>,
+          ),
+          SyncOutboxDb,
+          PrefetchHooks Function()
+        > {
+  $$SyncOutboxTableTableManager(_$AppDatabase db, $SyncOutboxTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncOutboxTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncOutboxTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncOutboxTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> collection = const Value.absent(),
+                Value<String> rowId = const Value.absent(),
+                Value<DateTime> enqueuedAt = const Value.absent(),
+              }) => SyncOutboxCompanion(
+                id: id,
+                collection: collection,
+                rowId: rowId,
+                enqueuedAt: enqueuedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String collection,
+                required String rowId,
+                required DateTime enqueuedAt,
+              }) => SyncOutboxCompanion.insert(
+                id: id,
+                collection: collection,
+                rowId: rowId,
+                enqueuedAt: enqueuedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$SyncOutboxTable, SyncOutboxDb>(table),
+                  BaseReferences<_$AppDatabase, $SyncOutboxTable, SyncOutboxDb>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncOutboxTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncOutboxTable,
+      SyncOutboxDb,
+      $$SyncOutboxTableFilterComposer,
+      $$SyncOutboxTableOrderingComposer,
+      $$SyncOutboxTableAnnotationComposer,
+      $$SyncOutboxTableCreateCompanionBuilder,
+      $$SyncOutboxTableUpdateCompanionBuilder,
+      (
+        SyncOutboxDb,
+        BaseReferences<_$AppDatabase, $SyncOutboxTable, SyncOutboxDb>,
+      ),
+      SyncOutboxDb,
+      PrefetchHooks Function()
+    >;
+typedef $$SyncStateTableCreateCompanionBuilder = SyncStateCompanion Function({
+  Value<int> id,
+  Value<bool> applyingRemote,
+  Value<DateTime?> lastPushAt,
+});
+typedef $$SyncStateTableUpdateCompanionBuilder = SyncStateCompanion Function({
+  Value<int> id,
+  Value<bool> applyingRemote,
+  Value<DateTime?> lastPushAt,
+});
+
+class $$SyncStateTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get applyingRemote => $composableBuilder(
+    column: $table.applyingRemote,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime?, DateTime, DateTime>
+  get lastPushAt => $composableBuilder(
+    column: $table.lastPushAt,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+}
+
+class $$SyncStateTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get applyingRemote => $composableBuilder(
+    column: $table.applyingRemote,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastPushAt => $composableBuilder(
+    column: $table.lastPushAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncStateTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get applyingRemote => $composableBuilder(
+    column: $table.applyingRemote,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<DateTime?, DateTime> get lastPushAt =>
+      $composableBuilder(
+        column: $table.lastPushAt,
+        builder: (column) => column,
+      );
+}
+
+class $$SyncStateTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncStateTable,
+          SyncStateDb,
+          $$SyncStateTableFilterComposer,
+          $$SyncStateTableOrderingComposer,
+          $$SyncStateTableAnnotationComposer,
+          $$SyncStateTableCreateCompanionBuilder,
+          $$SyncStateTableUpdateCompanionBuilder,
+          (
+            SyncStateDb,
+            BaseReferences<_$AppDatabase, $SyncStateTable, SyncStateDb>,
+          ),
+          SyncStateDb,
+          PrefetchHooks Function()
+        > {
+  $$SyncStateTableTableManager(_$AppDatabase db, $SyncStateTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncStateTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncStateTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncStateTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<bool> applyingRemote = const Value.absent(),
+                Value<DateTime?> lastPushAt = const Value.absent(),
+              }) => SyncStateCompanion(
+                id: id,
+                applyingRemote: applyingRemote,
+                lastPushAt: lastPushAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<bool> applyingRemote = const Value.absent(),
+                Value<DateTime?> lastPushAt = const Value.absent(),
+              }) => SyncStateCompanion.insert(
+                id: id,
+                applyingRemote: applyingRemote,
+                lastPushAt: lastPushAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$SyncStateTable, SyncStateDb>(table),
+                  BaseReferences<_$AppDatabase, $SyncStateTable, SyncStateDb>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncStateTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncStateTable,
+      SyncStateDb,
+      $$SyncStateTableFilterComposer,
+      $$SyncStateTableOrderingComposer,
+      $$SyncStateTableAnnotationComposer,
+      $$SyncStateTableCreateCompanionBuilder,
+      $$SyncStateTableUpdateCompanionBuilder,
+      (
+        SyncStateDb,
+        BaseReferences<_$AppDatabase, $SyncStateTable, SyncStateDb>,
+      ),
+      SyncStateDb,
+      PrefetchHooks Function()
+    >;
+typedef $$SyncCursorsTableCreateCompanionBuilder =
+    SyncCursorsCompanion Function({
+      required String collection,
+      required int serverUpdatedAtMicros,
+      required String docId,
+      Value<int> rowid,
+    });
+typedef $$SyncCursorsTableUpdateCompanionBuilder =
+    SyncCursorsCompanion Function({
+      Value<String> collection,
+      Value<int> serverUpdatedAtMicros,
+      Value<String> docId,
+      Value<int> rowid,
+    });
+
+class $$SyncCursorsTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncCursorsTable> {
+  $$SyncCursorsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get collection => $composableBuilder(
+    column: $table.collection,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverUpdatedAtMicros => $composableBuilder(
+    column: $table.serverUpdatedAtMicros,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get docId => $composableBuilder(
+    column: $table.docId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncCursorsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncCursorsTable> {
+  $$SyncCursorsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get collection => $composableBuilder(
+    column: $table.collection,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverUpdatedAtMicros => $composableBuilder(
+    column: $table.serverUpdatedAtMicros,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get docId => $composableBuilder(
+    column: $table.docId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncCursorsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncCursorsTable> {
+  $$SyncCursorsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get collection => $composableBuilder(
+    column: $table.collection,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get serverUpdatedAtMicros => $composableBuilder(
+    column: $table.serverUpdatedAtMicros,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get docId =>
+      $composableBuilder(column: $table.docId, builder: (column) => column);
+}
+
+class $$SyncCursorsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncCursorsTable,
+          SyncCursorDb,
+          $$SyncCursorsTableFilterComposer,
+          $$SyncCursorsTableOrderingComposer,
+          $$SyncCursorsTableAnnotationComposer,
+          $$SyncCursorsTableCreateCompanionBuilder,
+          $$SyncCursorsTableUpdateCompanionBuilder,
+          (
+            SyncCursorDb,
+            BaseReferences<_$AppDatabase, $SyncCursorsTable, SyncCursorDb>,
+          ),
+          SyncCursorDb,
+          PrefetchHooks Function()
+        > {
+  $$SyncCursorsTableTableManager(_$AppDatabase db, $SyncCursorsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncCursorsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncCursorsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncCursorsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> collection = const Value.absent(),
+                Value<int> serverUpdatedAtMicros = const Value.absent(),
+                Value<String> docId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncCursorsCompanion(
+                collection: collection,
+                serverUpdatedAtMicros: serverUpdatedAtMicros,
+                docId: docId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String collection,
+                required int serverUpdatedAtMicros,
+                required String docId,
+                Value<int> rowid = const Value.absent(),
+              }) => SyncCursorsCompanion.insert(
+                collection: collection,
+                serverUpdatedAtMicros: serverUpdatedAtMicros,
+                docId: docId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$SyncCursorsTable, SyncCursorDb>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $SyncCursorsTable,
+                    SyncCursorDb
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncCursorsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncCursorsTable,
+      SyncCursorDb,
+      $$SyncCursorsTableFilterComposer,
+      $$SyncCursorsTableOrderingComposer,
+      $$SyncCursorsTableAnnotationComposer,
+      $$SyncCursorsTableCreateCompanionBuilder,
+      $$SyncCursorsTableUpdateCompanionBuilder,
+      (
+        SyncCursorDb,
+        BaseReferences<_$AppDatabase, $SyncCursorsTable, SyncCursorDb>,
+      ),
+      SyncCursorDb,
+      PrefetchHooks Function()
     >;
 
 class $AppDatabaseManager {
@@ -18876,4 +20230,10 @@ class $AppDatabaseManager {
       $$FeedbackComparisonsTableTableManager(_db, _db.feedbackComparisons);
   $$TestSessionsTableTableManager get testSessions =>
       $$TestSessionsTableTableManager(_db, _db.testSessions);
+  $$SyncOutboxTableTableManager get syncOutbox =>
+      $$SyncOutboxTableTableManager(_db, _db.syncOutbox);
+  $$SyncStateTableTableManager get syncState =>
+      $$SyncStateTableTableManager(_db, _db.syncState);
+  $$SyncCursorsTableTableManager get syncCursors =>
+      $$SyncCursorsTableTableManager(_db, _db.syncCursors);
 }

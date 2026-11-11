@@ -203,7 +203,7 @@ void main() {
 
     expect(find.byTooltip('In range'), findsOneWidget);
     expect(find.text('80 psi'), findsOneWidget);
-    expect(find.text('72 … 82 psi'), findsOneWidget);
+    expect(find.text('72…82 psi'), findsOneWidget);
   });
 
   testWidgets('a value beyond the adjuster range shows but does not apply', (tester) async {

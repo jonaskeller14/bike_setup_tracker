@@ -381,15 +381,9 @@ class _RecommendationRow extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(
-                guideDetailText(recommendation, component, context.l10n),
-                style: mutedStyle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (reverseLookup != null)
-                Text(reverseLookup, style: mutedStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
-              if (note != null) Text(note, style: mutedStyle, maxLines: 2, overflow: TextOverflow.ellipsis),
+              Text(guideDetailText(recommendation, component, context.l10n), style: mutedStyle),
+              if (reverseLookup != null) Text(reverseLookup, style: mutedStyle),
+              if (note != null) Text(note, style: mutedStyle),
             ],
           ),
           now: Text(
@@ -413,7 +407,11 @@ class _RecommendationRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               if (band != null)
-                Text(band, style: mutedStyle, textAlign: TextAlign.end, maxLines: 1, overflow: TextOverflow.ellipsis),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(band, style: mutedStyle, maxLines: 1),
+                ),
             ],
           ),
           status: _StatusIcon(recommendation: recommendation),
@@ -530,14 +528,14 @@ double? _scaleSpan(GuideRecommendation recommendation) {
   return high - low < 1e-9 ? 2 : high - low;
 }
 
-/// "−4 … −3 clicks": an ellipsis, so negative ends don't run into a dash.
+/// "−4…−3 clicks": an ellipsis, so negative ends don't run into a dash.
 String? _bandText(GuideRecommendation recommendation, AppLocalizations l10n) {
   final band = recommendation.band;
   if (band == null) return null;
   String number(double value) =>
       formatLocalizedDouble(double.parse(value.toStringAsFixed(1)), locale: l10n.localeName);
 
-  return "${number(band.min)} … ${number(band.max)}${recommendation.adjustment.unitSuffix()}";
+  return "${number(band.min)}…${number(band.max)}${recommendation.adjustment.unitSuffix()}";
 }
 
 String _inputsText(GuideInputs inputs, AppLocalizations l10n) {

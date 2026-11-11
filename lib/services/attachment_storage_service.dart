@@ -243,7 +243,7 @@ class AttachmentStorageService {
       allowedExtensions: ['zip'],
     );
     if (pickedFile == null) {
-      return ImportBundleResult.cancelled();
+      return const BundleImportCancelled();
     }
     onPicked?.call();
 
@@ -271,13 +271,13 @@ class AttachmentStorageService {
       }
 
       if (jsonString == null) {
-        return ImportBundleResult.failure(const DataError(DataErrorKind.bundleWithoutData));
+        return const BundleImportFailed(DataError(DataErrorKind.bundleWithoutData));
       }
 
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      return ImportBundleResult.success(SelectedData.fromJson(jsonData), attachmentCount);
+      return BundleImported(SelectedData.fromJson(jsonData), attachmentCount);
     } catch (e) {
-      return ImportBundleResult.failure(DataError(DataErrorKind.importFile, e.toString()));
+      return BundleImportFailed(DataError(DataErrorKind.importFile, e.toString()));
     }
   }
 
@@ -292,28 +292,23 @@ class AttachmentStorageService {
   }
 }
 
-class ImportBundleResult {
-  final SelectedData? data;
-  final DataError? error;
-  final bool isError;
-  final bool isCancelled;
+sealed class ImportBundleResult {
+  const ImportBundleResult();
+}
+
+final class BundleImported extends ImportBundleResult {
+  final SelectedData data;
   final int attachmentCount;
 
-  ImportBundleResult.success(this.data, this.attachmentCount)
-      : error = null,
-        isError = false,
-        isCancelled = false;
+  const BundleImported(this.data, this.attachmentCount);
+}
 
-  ImportBundleResult.failure(this.error)
-      : data = null,
-        isError = true,
-        isCancelled = false,
-        attachmentCount = 0;
+final class BundleImportFailed extends ImportBundleResult {
+  final DataError error;
 
-  ImportBundleResult.cancelled()
-      : data = null,
-        error = null,
-        isError = false,
-        isCancelled = true,
-        attachmentCount = 0;
+  const BundleImportFailed(this.error);
+}
+
+final class BundleImportCancelled extends ImportBundleResult {
+  const BundleImportCancelled();
 }

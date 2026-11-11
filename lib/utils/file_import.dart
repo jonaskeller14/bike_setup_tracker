@@ -19,12 +19,12 @@ import '../widgets/app_snackbar.dart';
 import 'backup.dart';
 
 class FileImport {
-  static Future<GetLocalBackupsResult> getBackups() async {
+  static Future<DataResult<List<LocalBackup>>> getBackups() async {
     final List<LocalBackup> backups = [];
     try {
       final dir = await getApplicationDocumentsDirectory();  //catch MissingPlatformDirectoryException
       final backupDir = Directory('${dir.path}/backup');
-      if (!await backupDir.exists()) return GetLocalBackupsResult.success(backups);
+      if (!await backupDir.exists()) return DataSuccess(backups);
       
       await for (final entity in backupDir.list()) {
         if (entity is File) {
@@ -32,13 +32,13 @@ class FileImport {
           backups.add(LocalBackup(createdAt: stat.modified, filepath: entity.path));
         }
       }
-      return GetLocalBackupsResult.success(backups);
+      return DataSuccess(backups);
     } catch (e) {
-      return GetLocalBackupsResult.failure(DataError(DataErrorKind.getLocalBackups, e.toString()));
+      return DataFailure(DataError(DataErrorKind.getLocalBackups, e.toString()));
     }
   }
 
-  static Future<ReadLocalBackupResult> readBackup({required String path, required AppDatabase appDatabase}) async {
+  static Future<DataResult<SelectedData>> readBackup({required String path, required AppDatabase appDatabase}) async {
     try {
       final file = File(path);
       if (!await file.exists()) throw Exception("File does not exist");
@@ -46,21 +46,21 @@ class FileImport {
       final jsonString = await file.readAsString();
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      return ReadLocalBackupResult.success(SelectedData.fromJson(jsonData));
+      return DataSuccess(SelectedData.fromJson(jsonData));
     } catch (e, st) {
       debugPrint("Reading backup failed: $e\n$st");
-      return ReadLocalBackupResult.failure(DataError(DataErrorKind.readLocalBackup, e.toString()));
+      return DataFailure(DataError(DataErrorKind.readLocalBackup, e.toString()));
     }
   }
 
-  static Future<ReadJsonFileResult> pickAndReadJsonFile({required AppDatabase appDatabase, VoidCallback? onPicked}) async {
+  static Future<DataResult<SelectedData>> pickAndReadJsonFile({required AppDatabase appDatabase, VoidCallback? onPicked}) async {
     try {
       // Step 1 — pick a file
       final pickedFile = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      if (pickedFile == null) return ReadJsonFileResult.failure(const DataError(DataErrorKind.noFileSelected));
+      if (pickedFile == null) return const DataFailure(DataError(DataErrorKind.noFileSelected));
       onPicked?.call();
 
       final fileBytes = await pickedFile.readAsBytes();
@@ -68,10 +68,10 @@ class FileImport {
       final jsonString = utf8.decode(fileBytes);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      return ReadJsonFileResult.success(SelectedData.fromJson(jsonData));
+      return DataSuccess(SelectedData.fromJson(jsonData));
     } catch (e) {
       debugPrint("Import failed: $e");
-      return ReadJsonFileResult.failure(DataError(DataErrorKind.importFile, e.toString()));
+      return DataFailure(DataError(DataErrorKind.importFile, e.toString()));
     }
   }
 
@@ -115,10 +115,7 @@ class FileImport {
     await AttachmentStorageService().deleteFiles(purgedAttachments);
   }
 
-  static Future<void> merge({
-    required SelectedData remoteData,
-    required AppDatabase database,
-  }) async {
+  static Future<void> merge({required SelectedData remoteData, required AppDatabase database}) async {
     // 1. Fetch current DB state into memory
     final localJson = await DataExportService.backupDatabaseToJson(database, includeStrava: true);
     final localData = SelectedData.fromJson(localJson);
@@ -154,7 +151,6 @@ class FileImport {
     required SelectedData remoteData,
     required SelectedData localData,
   }) {
-    //FIXME: Preserve Order (except setups?)
     // Last Write Wins (LWW) strategy
     for (final remotePerson in remoteData.persons.values) {
       final localPerson = localData.persons[remotePerson.id];
@@ -337,31 +333,4 @@ class FileImport {
     }.map((a) => a.filename).toSet();
     return purgedAttachments.where((f) => !stillReferenced.contains(f)).toList();
   }
-}
-
-class GetLocalBackupsResult {
-  final List<LocalBackup> backups;
-  final DataError? error;
-  final bool isError;
-
-  GetLocalBackupsResult.success(this.backups) : error = null, isError = false;
-  GetLocalBackupsResult.failure(this.error) : backups = [], isError = true;
-}
-
-class ReadLocalBackupResult {
-  final SelectedData? appData;
-  final DataError? error;
-  final bool isError;
-
-  ReadLocalBackupResult.success(this.appData) : error = null, isError = false;
-  ReadLocalBackupResult.failure(this.error) : appData = null, isError = true;
-}
-
-class ReadJsonFileResult {
-  final SelectedData? appData;
-  final DataError? error;
-  final bool isError;
-
-  ReadJsonFileResult.success(this.appData) : error = null, isError = false;
-  ReadJsonFileResult.failure(this.error) : appData = null, isError = true;
 }

@@ -302,10 +302,11 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                       );
                       if (!mounted) return;
                       setState(() => _readingMessage = null);
-                      if (result.isError) {
-                        setState(() => _filePickingError = result.error);
-                      } else {
-                        widget.onFile(result.appData!);
+                      switch (result) {
+                        case DataSuccess(:final value):
+                          widget.onFile(value);
+                        case DataFailure(:final error):
+                          setState(() => _filePickingError = error);
                       }
                     },
                   ),
@@ -328,11 +329,13 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                         );
                         if (!mounted) return;
                         setState(() => _readingMessage = null);
-                        if (result.isCancelled) return;
-                        if (result.isError) {
-                          setState(() => _filePickingError = result.error);
-                        } else {
-                          widget.onFile(result.data!);
+                        switch (result) {
+                          case BundleImported(:final data):
+                            widget.onFile(data);
+                          case BundleImportFailed(:final error):
+                            setState(() => _filePickingError = error);
+                          case BundleImportCancelled():
+                            break;
                         }
                       },
                     ),

@@ -25,6 +25,22 @@ enum DataErrorKind {
 
 typedef DataError = ServiceError<DataErrorKind>;
 
+sealed class DataResult<T> {
+  const DataResult();
+}
+
+final class DataSuccess<T> extends DataResult<T> {
+  final T value;
+
+  const DataSuccess(this.value);
+}
+
+final class DataFailure<T> extends DataResult<T> {
+  final DataError error;
+
+  const DataFailure(this.error);
+}
+
 enum GoogleDriveErrorKind {
   setupFailed,
   unknown,

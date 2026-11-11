@@ -63,27 +63,19 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
       ) : IconButton(
         onPressed: _restoringBackup != null ? null : () async {
           setState(() => _restoringBackup = backup);
-          switch (backup) {
-            case LocalBackup():
-              final appDatabase = context.read<AppDatabase>();
-              final result = await FileImport.readBackup(path: backup.filepath, appDatabase: appDatabase);
-              if (!mounted) return;
-              setState(() => _restoringBackup = null);
-              if (result.isError) {
-                setState(() => _readBackupError = result.error);
-              } else {
-                widget.onRestore(result.appData!);
-              }
-            case GoogleDriveBackup(): 
-              final appDatabase = context.read<AppDatabase>();
-              final result = await context.read<GoogleDriveService>().readBackup(fileId: backup.fileId, appDatabase: appDatabase);
-              if (!mounted) return;
-              setState(() => _restoringBackup = null);
-              if (result.isError) {
-                setState(() => _readBackupError = result.error);
-              } else {
-                widget.onRestore(result.appData!);
-              }
+          final appDatabase = context.read<AppDatabase>();
+          final googleDriveService = context.read<GoogleDriveService>();
+          final result = switch (backup) {
+            LocalBackup() => await FileImport.readBackup(path: backup.filepath, appDatabase: appDatabase),
+            GoogleDriveBackup() => await googleDriveService.readBackup(fileId: backup.fileId, appDatabase: appDatabase),
+          };
+          if (!mounted) return;
+          setState(() => _restoringBackup = null);
+          switch (result) {
+            case DataSuccess(:final value):
+              widget.onRestore(value);
+            case DataFailure(:final error):
+              setState(() => _readBackupError = error);
           }
         },
         icon: const Icon(Icons.upload),
@@ -140,15 +132,23 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
   }
 
   Future<List<LocalBackup>> _fetchLocalBackups() async {
-    final result = await FileImport.getBackups();
-    if (result.isError) _localBackupError = result.error;
-    return result.backups;
+    switch (await FileImport.getBackups()) {
+      case DataSuccess(:final value):
+        return value;
+      case DataFailure(:final error):
+        _localBackupError = error;
+        return [];
+    }
   }
-  
+
   Future<List<GoogleDriveBackup>> _fetchGoogleDriveBackups() async {
-    final result = await context.read<GoogleDriveService>().getBackups();
-    if (result.isError) _googleDriveBackupError = result.error;
-    return result.backups;
+    switch (await context.read<GoogleDriveService>().getBackups()) {
+      case DataSuccess(:final value):
+        return value;
+      case DataFailure(:final error):
+        _googleDriveBackupError = error;
+        return [];
+    }
   }
 
   @override

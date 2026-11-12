@@ -12845,6 +12845,15 @@
       }
     }
   },
+  "accountPremiumRenews": "Subscription renews on {date}",
+  "@accountPremiumRenews": {
+    "description": "Subscription status on the account page while the store subscription renews automatically. {date} is the next renewal date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "accountPremiumInactive": "No active subscription",
   "@accountPremiumInactive": {
     "description": "Subscription status on the account page without an active subscription."
@@ -12874,7 +12883,7 @@
       }
     }
   },
-  "accountSignOutDeviceTooltip": "Sign out this device",
+  "accountSignOutDeviceTooltip": "Sign out device",
   "@accountSignOutDeviceTooltip": {
     "description": "Tooltip of the button that signs another device out of the account."
   },

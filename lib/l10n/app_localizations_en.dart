@@ -9552,6 +9552,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String accountPremiumRenews(String date) {
+    return 'Subscription renews on $date';
+  }
+
+  @override
   String get accountPremiumInactive => 'No active subscription';
 
   @override
@@ -9572,7 +9577,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get accountSignOutDeviceTooltip => 'Sign out this device';
+  String get accountSignOutDeviceTooltip => 'Sign out device';
 
   @override
   String accountSignOutDeviceTitle(String device) {

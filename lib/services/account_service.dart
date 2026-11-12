@@ -144,6 +144,7 @@ class AccountService extends ChangeNotifier {
   bool _switching = false;
   StreamSubscription<User?>? _authSub;
   AccountNotice? _notice;
+  final Map<StreamController<List<AccountDevice>>, Future<void> Function()> _deviceWatches = {};
 
   String? get uid => _auth.currentUser?.uid;
   String? get deviceId => _deviceId;
@@ -339,6 +340,7 @@ class AccountService extends ChangeNotifier {
   /// The session goes first, so a failed call leaves the device signed in
   /// instead of listed under "Your devices" without being on it.
   Future<void> signOut({required bool removeData}) async {
+    await _stopWatchingDevices();
     try {
       await _api.revokeSession();
     } catch (e) {
@@ -357,14 +359,41 @@ class AccountService extends ChangeNotifier {
   }
 
   Future<AccountDeletionResult> deleteAccount({required bool removeData}) async {
+    await _stopWatchingDevices();
     final result = await _api.deleteAccount();
     await _signOutLocally(removeData: removeData);
     return result;
   }
 
+  /// The account's devices. The stream ends, keeping its last list, before
+  /// this device's session is revoked or deleted and before the uid changes:
+  /// the rules deny the listener from then on, which would log a
+  /// `permission-denied` and flash the error state.
   Stream<List<AccountDevice>> watchDevices() {
     final uid = this.uid;
-    return uid == null ? const Stream.empty() : _api.watchDevices(uid);
+    if (uid == null) return const Stream.empty();
+    final controller = StreamController<List<AccountDevice>>();
+    StreamSubscription<List<AccountDevice>>? source;
+    Future<void> stop() async {
+      _deviceWatches.remove(controller);
+      await source?.cancel();
+      source = null;
+      if (!controller.isClosed) unawaited(controller.close());
+    }
+
+    controller
+      ..onListen = () {
+        _deviceWatches[controller] = stop;
+        source = _api.watchDevices(uid).listen(controller.add, onError: controller.addError, onDone: stop);
+      }
+      ..onCancel = stop;
+    return controller.stream;
+  }
+
+  Future<void> _stopWatchingDevices() async {
+    for (final stop in _deviceWatches.values.toList()) {
+      await stop();
+    }
   }
 
   /// Back on a new anonymous uid. Local Strava data always goes: the Strava
@@ -400,6 +429,7 @@ class AccountService extends ChangeNotifier {
   Future<void> _switchUser(Future<void> Function() change) => _serialized(() async {
     _switching = true;
     try {
+      await _stopWatchingDevices();
       for (final service in _bound) {
         await service.unbindUser();
       }

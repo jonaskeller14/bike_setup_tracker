@@ -15,7 +15,8 @@ import '../widgets/dialogs/confirmation.dart';
 
 class AccountActions {
   /// Signs this device out of the account and leaves the account page.
-  static Future<void> signOut(BuildContext context) async {
+  /// [onConfirmed] runs once the user has confirmed, before the call.
+  static Future<void> signOut(BuildContext context, {VoidCallback? onConfirmed}) async {
     final l10n = context.l10n;
     final account = context.read<AccountService>();
     final removeData = await showAccountSignOutDialog(
@@ -27,6 +28,7 @@ class AccountActions {
     if (removeData == null || !context.mounted) return;
     if (removeData && !await _confirmUnsyncedChanges(context)) return;
     if (!context.mounted) return;
+    onConfirmed?.call();
     unawaited(HapticFeedback.heavyImpact());
 
     final messenger = ScaffoldMessenger.of(context);
@@ -83,7 +85,8 @@ class AccountActions {
 
   /// Deletes the account, signs this device out and leaves the account page.
   /// A store subscription keeps renewing, so the user is told to cancel it.
-  static Future<void> deleteAccount(BuildContext context) async {
+  /// [onConfirmed] runs once the user has confirmed, before the call.
+  static Future<void> deleteAccount(BuildContext context, {VoidCallback? onConfirmed}) async {
     final l10n = context.l10n;
     final account = context.read<AccountService>();
     final removeData = await showAccountSignOutDialog(
@@ -93,6 +96,7 @@ class AccountActions {
       confirmText: l10n.accountDeleteConfirm,
     );
     if (removeData == null || !context.mounted) return;
+    onConfirmed?.call();
     unawaited(HapticFeedback.heavyImpact());
 
     final messenger = ScaffoldMessenger.of(context);

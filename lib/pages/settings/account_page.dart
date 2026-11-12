@@ -23,12 +23,11 @@ class _AccountPageState extends State<AccountPage> {
   late final Stream<List<AccountDevice>> _devices = context.read<AccountService>().watchDevices();
   bool _busy = false;
 
-  Future<void> _run(Future<void> Function(BuildContext context) action) async {
-    setState(() => _busy = true);
+  Future<void> _run(Future<void> Function(BuildContext context, {VoidCallback? onConfirmed}) action) async {
     try {
-      await action(context);
+      await action(context, onConfirmed: () => setState(() => _busy = true));
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted && _busy) setState(() => _busy = false);
     }
   }
 
@@ -61,7 +60,7 @@ class _AccountPageState extends State<AccountPage> {
               ),
               ListTile(
                 enabled: !_busy,
-                leading: Icon(Icons.delete_forever_outlined, color: errorColor),
+                leading: Icon(Icons.delete_forever_outlined, color: _busy ? null : errorColor),
                 title: Text(l10n.accountDelete),
                 subtitle: Text(l10n.accountDeleteSubtitle),
                 onTap: () => _run(AccountActions.deleteAccount),
@@ -86,11 +85,16 @@ class _AccountHeader extends StatelessWidget {
       final name = [athlete.firstname, athlete.lastname].whereType<String>().join(' ').trim();
       return name.isEmpty ? null : name;
     });
-    final entitlement = context.select<SubscriptionService, ({bool active, DateTime? expiresAt})>(
-      (subscription) => (active: subscription.hasStravaEntitlement, expiresAt: subscription.entitlement?.expiresAt),
+    final entitlement = context.select<SubscriptionService, ({bool active, DateTime? expiresAt, bool renews})>(
+      (subscription) => (
+        active: subscription.hasStravaEntitlement,
+        expiresAt: subscription.entitlement?.expiresAt,
+        renews: subscription.entitlement?.autoRenewing ?? false,
+      ),
     );
     final dateFormat = context.select<AppSettings, String>((settings) => settings.dateFormat);
     final expiresAt = entitlement.expiresAt;
+    final date = expiresAt == null ? null : DateFormat(dateFormat, l10n.localeName).format(expiresAt);
 
     return ListTile(
       leading: const Icon(Icons.account_circle, size: 40),
@@ -98,9 +102,11 @@ class _AccountHeader extends StatelessWidget {
       subtitle: Text(
         [
           l10n.accountSignedInThroughStrava,
-          entitlement.active && expiresAt != null
-              ? l10n.accountPremiumActive(DateFormat(dateFormat, l10n.localeName).format(expiresAt))
-              : l10n.accountPremiumInactive,
+          switch (date) {
+            final date? when entitlement.active && entitlement.renews => l10n.accountPremiumRenews(date),
+            final date? when entitlement.active => l10n.accountPremiumActive(date),
+            _ => l10n.accountPremiumInactive,
+          },
         ].join('\n'),
       ),
       isThreeLine: true,

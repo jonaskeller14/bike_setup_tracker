@@ -15595,6 +15595,12 @@ abstract class AppLocalizations {
   /// **'Subscription active until {date}'**
   String accountPremiumActive(String date);
 
+  /// Subscription status on the account page while the store subscription renews automatically. {date} is the next renewal date.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription renews on {date}'**
+  String accountPremiumRenews(String date);
+
   /// Subscription status on the account page without an active subscription.
   ///
   /// In en, this message translates to:
@@ -15634,7 +15640,7 @@ abstract class AppLocalizations {
   /// Tooltip of the button that signs another device out of the account.
   ///
   /// In en, this message translates to:
-  /// **'Sign out this device'**
+  /// **'Sign out device'**
   String get accountSignOutDeviceTooltip;
 
   /// Title of the dialog that confirms signing another device out. {device} is its name.

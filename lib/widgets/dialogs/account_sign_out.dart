@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/l10n.dart';
-import 'dialog_action.dart';
 
 /// Confirms signing out of the account (or deleting it) on this device.
 /// Returns whether to remove the data from this device, or null when
@@ -56,15 +55,15 @@ class _AccountSignOutDialogState extends State<_AccountSignOutDialog> {
           ],
         ),
       ),
+      // Material buttons on every platform: the checkbox keeps this a Material
+      // dialog, and Cupertino actions in it stack like an action sheet.
       actions: [
-        adaptiveAction(
-          context: context,
+        TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.cancel),
         ),
-        adaptiveAction(
-          context: context,
-          isDestructive: true,
+        TextButton(
+          style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
           onPressed: () => Navigator.of(context).pop(_removeData),
           child: Text(widget.confirmText),
         ),

@@ -9601,6 +9601,11 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String accountPremiumRenews(String date) {
+    return 'L’abbonamento si rinnova il $date';
+  }
+
+  @override
   String get accountPremiumInactive => 'Nessun abbonamento attivo';
 
   @override
@@ -9621,7 +9626,7 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get accountSignOutDeviceTooltip => 'Disconnetti questo dispositivo';
+  String get accountSignOutDeviceTooltip => 'Disconnetti dispositivo';
 
   @override
   String accountSignOutDeviceTitle(String device) {

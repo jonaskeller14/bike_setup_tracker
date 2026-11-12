@@ -101,17 +101,36 @@ class _FakeApi implements AccountApi {
     return onStartAsync?.call(deviceId) ?? onStart(deviceId);
   }
 
+  /// The server calls and the end of the devices listener, in order.
+  final calls = <String>[];
+
   @override
   Future<void> revokeSession([String? deviceId]) async {
     revokes.add(deviceId);
+    calls.add('revoke');
     if (revokeError case final error?) throw error;
   }
 
   @override
-  Future<AccountDeletionResult> deleteAccount() async => (subscriptionRenews: false, platform: null);
+  Future<AccountDeletionResult> deleteAccount() async {
+    calls.add('delete');
+    return (subscriptionRenews: false, platform: null);
+  }
 
   @override
-  Stream<List<AccountDevice>> watchDevices(String uid) => const Stream.empty();
+  Stream<List<AccountDevice>> watchDevices(String uid) {
+    late final StreamController<List<AccountDevice>> controller;
+    controller = StreamController(
+      onListen: () => controller.add(const [
+        AccountDevice(deviceId: 'd1', platform: 'android', deviceName: 'Pixel 8', lastSeenAt: null),
+      ]),
+      onCancel: () {
+        calls.add('devices:cancel');
+        return controller.close();
+      },
+    );
+    return controller.stream;
+  }
 }
 
 /// Stands in for the Strava and subscription services.
@@ -363,6 +382,61 @@ void main() {
 
       expect(service.isOnAccount, isFalse);
       expect(clears, [false]);
+    });
+  });
+
+  group('watchDevices', () {
+    Future<(List<List<AccountDevice>>, Future<void>)> listen(AccountService service) async {
+      final received = <List<AccountDevice>>[];
+      final done = service.watchDevices().listen(received.add).asFuture<void>();
+      await pumpEventQueue();
+      expect(received, hasLength(1));
+      return (received, done);
+    }
+
+    test('ends before signing out revokes this session', () async {
+      final service = await onAccount('o1');
+      final (received, done) = await listen(service);
+
+      await service.signOut(removeData: true);
+
+      await done;
+      expect(api.calls, ['devices:cancel', 'revoke']);
+      expect(received, hasLength(1));
+    });
+
+    test('ends before the account is deleted', () async {
+      final service = await onAccount('o1');
+      final (_, done) = await listen(service);
+
+      await service.deleteAccount(removeData: false);
+
+      await done;
+      expect(api.calls, ['devices:cancel', 'delete']);
+    });
+
+    test('ends before a revoked session signs the device out', () async {
+      final service = await onAccount('o1');
+      final (_, done) = await listen(service);
+
+      expect(service.handleSessionRevoked(_revoked()), isTrue);
+
+      await done;
+      expect(api.calls, ['devices:cancel']);
+      expect(log.indexOf('signOut'), greaterThan(-1));
+    });
+
+    test('keeps listening while another device is signed out', () async {
+      final service = await onAccount('o1');
+      var ended = false;
+      service.watchDevices().listen((_) {}, onDone: () => ended = true);
+      await pumpEventQueue();
+
+      await service.revokeDevice('d2');
+      await pumpEventQueue();
+
+      expect(ended, isFalse);
+      expect(api.calls, ['revoke']);
     });
   });
 }

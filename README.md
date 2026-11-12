@@ -47,7 +47,8 @@ Here are the current development goals and their status:
 - [x] Add **URL support for bike/components** ➡️ **URLs are recognized in notes**
 - [x] **Component & task presets** for the most common forks and shocks ➡️ **Live since v1.6.4**
 - [x] **Multiple languages** ➡️ **Live since v1.7.0** (English, German, Spanish, French, Italian, Portuguese)
-- [ ] **Rating procedure** to distinguish good setups from bad ➡️ **In development**
+- [ ] **Cloud sync** across iOS and Android (Firebase, offline-first) to replace the Google Drive beta ➡️ **In development**
+- [ ] **Test sessions**: structured test rides to compare setups and see which adjustment made the difference ➡️ **In development**
 - [ ] **Marketing** push to grow the user base ➡️ **In progress**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
@@ -82,6 +83,10 @@ I am open for feedback, suggestions, and bug reports—please feel free to open 
 - Now you can correlate your settings with the actual trail conditions.
 
 📝 **Setup History & Evolution:** Never lose a good setup again. Browse your detailed history to see exactly what you changed and when. Compare your current setup to previous sessions (e.g., "Finale Ligure Trip" vs. "Local Trails").
+
+🛠️ **Service on time** *(opt-in under Settings → Features)*: Plan fork, shock and chain services by date, km, hours or rides (km and hours with Strava). The app predicts when each one comes due from how much you ride, and suggests the manufacturer's intervals for catalog parts.
+
+🧩 **Sub-components & part history** *(opt-in)*: Put the tire on the wheel and the wheel on the bike. Move a wheelset to another bike and its tires come along, with every part's kilometers and installation history intact.
 
 📊 **Strava Integration** *(optional subscription)*: Connect Strava to see which setup you ran on every ride — automatically linked by date and gear. Activity start points and saved setups appear together on a map, so you can revisit what worked at a spot.
 

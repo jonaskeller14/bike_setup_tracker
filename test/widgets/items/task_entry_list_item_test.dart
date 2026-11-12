@@ -34,7 +34,6 @@ void main() {
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
     appSettings = AppSettings();
-    appSettings.enableAttachments = true;
   });
 
   tearDown(() async {
@@ -137,16 +136,6 @@ void main() {
       expect(find.byIcon(Icons.attach_file), findsNothing);
       expect(find.byType(AttachmentStrip), findsNothing);
     });
-
-    for (final showAttachments in [false, true]) {
-      testWidgets('shows nothing with attachments disabled (showAttachments: $showAttachments)', (tester) async {
-        appSettings.enableAttachments = false;
-        await pumpItem(tester, showAttachments: showAttachments, attachmentsDir: 'missing-dir');
-
-        expect(find.byIcon(Icons.attach_file), findsNothing);
-        expect(find.byType(AttachmentStrip), findsNothing);
-      });
-    }
 
     for (final (label, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
       testWidgets('a very long file name stays inside its tile on a narrow screen ($label)', (tester) async {

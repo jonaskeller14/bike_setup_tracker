@@ -42,8 +42,13 @@ void main() {
   late AppRepository appRepository;
   late AppSettings appSettings;
   late ComponentCatalogRepository presetRepository;
+  const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
 
   setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      pathProviderChannel,
+      (call) async => Directory.systemTemp.path,
+    );
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
@@ -88,6 +93,7 @@ nodes:
   });
 
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null);
     // Closing the database right after dispose() races its fire-and-forget
     // subscription cancellation and can hang; wait for cancellation first.
     await appRepository.disposeAndAwaitCancellation();
@@ -1009,19 +1015,6 @@ nodes:
   });
 
   group('ComponentPage attachments', () {
-    const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
-
-    setUp(() {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-        pathProviderChannel,
-        (call) async => Directory.systemTemp.path,
-      );
-    });
-
-    tearDown(() {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null);
-    });
-
     final manual = Attachment(id: 'manual', extension: '.pdf', name: 'Fox 38 Service Manual.pdf');
     final invoice = Attachment(id: 'invoice', extension: '.pdf', name: 'Invoice.pdf');
     Component componentWithAttachments({List<Attachment>? attachments}) => Component(
@@ -1035,16 +1028,7 @@ nodes:
 
     Finder attachChip() => find.widgetWithIcon(ActionChip, Icons.attach_file);
 
-    testWidgets('hides the Attach chip when attachments are disabled', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(component: componentWithAttachments(), mode: ComponentPageMode.edit));
-      await tester.pumpAndSettle();
-
-      expect(attachChip(), findsNothing);
-      expect(find.byType(AttachmentStrip), findsNothing);
-    });
-
     testWidgets('shows the Attach chip next to Initial Stats and the strip below', (tester) async {
-      appSettings.enableAttachments = true;
       await tester.pumpWidget(createWidgetUnderTest(
         component: componentWithAttachments(),
         mode: ComponentPageMode.edit,
@@ -1064,7 +1048,6 @@ nodes:
         tester.view.physicalSize = const Size(320, 800);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        appSettings.enableAttachments = true;
         final longName = '${'Very long service manual name ' * 6}.pdf';
         await tester.pumpWidget(createWidgetUnderTest(
           component: componentWithAttachments(attachments: [Attachment(extension: '.pdf', name: longName), invoice]),
@@ -1081,7 +1064,6 @@ nodes:
     }
 
     testWidgets('removing an attachment marks the form changed and saving returns the rest', (tester) async {
-      appSettings.enableAttachments = true;
       Object? result;
       await tester.pumpWidget(
         MultiProvider(

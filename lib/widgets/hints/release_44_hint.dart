@@ -11,18 +11,15 @@ class Release44Hint extends StatelessWidget {
     super.key,
     required this.onDismiss,
     required this.onEnableSubcomponents,
-    required this.onEnableAttachments,
   });
 
   final VoidCallback onDismiss;
   final Future<void> Function() onEnableSubcomponents;
-  final Future<void> Function() onEnableAttachments;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final subcomponentsOn = context.select<AppSettings, bool>((s) => s.enableInstallOnComponent);
-    final attachmentsOn = context.select<AppSettings, bool>((s) => s.enableAttachments);
 
     return AppHintDeck(
       icon: Icons.new_releases_outlined,
@@ -49,12 +46,7 @@ class Release44Hint extends StatelessWidget {
         ),
         AppHintPage(
           title: l10n.hintReleaseAttachmentsTitle,
-          action: attachmentsOn
-              ? null
-              : AppHintAction(label: l10n.hintReleaseTurnOn, icon: Icons.attach_file, onPressed: onEnableAttachments),
-          content: Text(
-            '${l10n.hintReleaseAttachmentsBody}${attachmentsOn ? '' : l10n.hintReleaseTurnOnHere}',
-          ),
+          content: Text(l10n.hintReleaseAttachmentsBody),
         ),
       ],
     );

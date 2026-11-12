@@ -33,7 +33,6 @@ void main() {
       database = AppDatabase.memory();
       appRepository = AppRepository(database);
       appSettings = AppSettings();
-      appSettings.enableAttachments = true;
     });
 
     tearDown(() async {
@@ -70,14 +69,6 @@ void main() {
 
       expect(find.byIcon(Icons.attach_file), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
-    });
-
-    testWidgets('hides the count with attachments disabled', (tester) async {
-      appSettings.enableAttachments = false;
-      await pumpCard(tester, TaskRule(name: 'Lower leg service', tags: const {}, attachments: attachments));
-
-      expect(find.byIcon(Icons.attach_file), findsNothing);
-      expect(find.text('2'), findsNothing);
     });
 
     testWidgets('hides the count for a rule without attachments', (tester) async {

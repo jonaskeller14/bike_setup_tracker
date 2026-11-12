@@ -1113,13 +1113,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'Muestra en el garaje un punto de estado de color en los iconos de los componentes con tareas abiertas.';
 
   @override
-  String get featuresAttachments => 'Adjuntos';
-
-  @override
-  String get featuresAttachmentsInfo =>
-      'Adjunta imágenes y archivos a bicis, componentes, setups y tareas. ATENCIÓN: los adjuntos se guardan solo en este dispositivo. NO se incluyen en las copias de seguridad en la nube/Drive y se perderán al reinstalar o al restaurar una copia de seguridad. Usa “Exportar paquete de adjuntos” para pasarlos a un dispositivo nuevo.';
-
-  @override
   String get featuresGoogleDrive => 'Sincronización con Google Drive';
 
   @override
@@ -1651,10 +1644,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get hintSubcomponentsEnabled =>
       'Subcomponentes activados: edita una pieza y elige su pieza principal en “Montado en”';
-
-  @override
-  String get hintAttachmentsEnabled =>
-      'Adjuntos activados: añade fotos y archivos a bicis, componentes, setups y tareas';
 
   @override
   String get hintTaskPresetsEnabled => 'Tareas activadas: se te ofrecen tareas recomendadas al añadir un componente';
@@ -7213,19 +7202,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get exportSaveFile => 'Guardar archivo';
 
   @override
-  String get exportSaveFileSubtitle => 'Elige dónde guardar el archivo JSON';
+  String get exportSaveFileSubtitle => 'Elige dónde guardar el archivo JSON. Adjuntos no incluidos.';
 
   @override
   String get exportSaveBackup => 'Guardar copia de seguridad';
 
   @override
-  String get exportSaveBackupSubtitle => 'Guardar el estado actual como copia de seguridad local';
+  String get exportSaveBackupSubtitle =>
+      'Guardar el estado actual como copia de seguridad local. Adjuntos no incluidos.';
 
   @override
   String get exportSaveDriveBackup => 'Guardar copia de seguridad en Google Drive';
 
   @override
-  String get exportSaveDriveBackupSubtitle => 'Guardar el estado actual como copia de seguridad en Google Drive';
+  String get exportSaveDriveBackupSubtitle =>
+      'Guardar el estado actual como copia de seguridad en Google Drive. Adjuntos no incluidos.';
 
   @override
   String get exportAttachmentBundle => 'Exportar paquete de adjuntos';

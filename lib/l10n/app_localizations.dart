@@ -2197,18 +2197,6 @@ abstract class AppLocalizations {
   /// **'Shows a colored status dot on component icons in the Garage when they have open tasks.'**
   String get featuresGarageTaskIndicatorInfo;
 
-  /// Title of the attachments feature.
-  ///
-  /// In en, this message translates to:
-  /// **'Attachments'**
-  String get featuresAttachments;
-
-  /// Explanation of the attachments feature, including the warning that they are not backed up.
-  ///
-  /// In en, this message translates to:
-  /// **'Attach images and files to bikes, components, setups and tasks. WARNING: attachments are stored only on this device. They are NOT included in cloud/Drive backups and will be lost on reinstall or when restoring from a backup. Use \"Export Attachment Bundle\" to move them to a new device.'**
-  String get featuresAttachmentsInfo;
-
   /// Title of the Google Drive sync feature.
   ///
   /// In en, this message translates to:
@@ -3156,12 +3144,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subcomponents enabled — edit a part and pick its parent under \"Installed on\"'**
   String get hintSubcomponentsEnabled;
-
-  /// Snackbar after attachments were turned on from a hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Attachments enabled — add photos and files to bikes, components, setups and tasks'**
-  String get hintAttachmentsEnabled;
 
   /// Snackbar after tasks were turned on from the what's new hint.
   ///
@@ -11836,7 +11818,7 @@ abstract class AppLocalizations {
   /// Subtitle of the entry that saves a JSON file.
   ///
   /// In en, this message translates to:
-  /// **'Choose where to save the JSON file'**
+  /// **'Choose where to save the JSON file. Attachments not included.'**
   String get exportSaveFileSubtitle;
 
   /// Entry of the export sheet that saves a local backup.
@@ -11848,7 +11830,7 @@ abstract class AppLocalizations {
   /// Subtitle of the entry that saves a local backup.
   ///
   /// In en, this message translates to:
-  /// **'Save current state as a local backup'**
+  /// **'Save current state as a local backup. Attachments not included.'**
   String get exportSaveBackupSubtitle;
 
   /// Entry of the export sheet that saves a backup to Google Drive.
@@ -11860,7 +11842,7 @@ abstract class AppLocalizations {
   /// Subtitle of the entry that saves a backup to Google Drive.
   ///
   /// In en, this message translates to:
-  /// **'Save current state as Backup in Google Drive'**
+  /// **'Save current state as Backup in Google Drive. Attachments not included.'**
   String get exportSaveDriveBackupSubtitle;
 
   /// Entry of the export sheet that saves data and attachments as a ZIP file.

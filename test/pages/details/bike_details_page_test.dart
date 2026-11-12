@@ -46,8 +46,13 @@ void main() {
   late AppSettings appSettings;
   late SetupActivityAnalysisService setupActivityAnalysisService;
   late bool hasStravaEntitlement;
+  const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
 
   setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      pathProviderChannel,
+      (call) async => Directory.systemTemp.path,
+    );
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
@@ -57,6 +62,7 @@ void main() {
   });
 
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null);
     // Closing the database right after dispose() races its fire-and-forget
     // subscription cancellation and can hang; wait for cancellation first.
     await appRepository.disposeAndAwaitCancellation();
@@ -231,15 +237,7 @@ void main() {
     expect(find.text('Remove'), findsOneWidget);
   });
 
-  testWidgets('shows the bike attachments only when attachments are enabled', (WidgetTester tester) async {
-    const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-      pathProviderChannel,
-      (call) async => Directory.systemTemp.path,
-    );
-    addTearDown(
-      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null),
-    );
+  testWidgets('shows the bike attachments', (WidgetTester tester) async {
     await pumpPageWith(tester, () async {
       await appRepository.addBikes([
         Bike(
@@ -251,9 +249,6 @@ void main() {
       ]);
     });
 
-    expect(find.byType(AttachmentRow), findsNothing);
-
-    appSettings.enableAttachments = true;
     await tester.pumpAndSettle();
 
     expect(find.byType(AttachmentRow), findsOneWidget);

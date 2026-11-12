@@ -45,7 +45,6 @@ class AppSettings extends ChangeNotifier {
   bool _useMapBoxTiles = false;
   bool _enableCalendar = false;
   bool _enableAdvancedFilters = false;
-  bool _enableAttachments = false;
   bool _enableSetupBookmark = false;
   bool _enableComponentPresets = true;
   bool _enableTaskPresets = true;
@@ -98,7 +97,6 @@ class AppSettings extends ChangeNotifier {
   bool get useMapBoxTiles => _useMapBoxTiles;
   bool get enableCalendar => _enableCalendar;
   bool get enableAdvancedFilters => _enableAdvancedFilters;
-  bool get enableAttachments => _enableAttachments;
   bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
   bool get enableTaskPresets => _enableTaskPresets;
@@ -335,13 +333,6 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableAdvancedFilters', newValue);
   }
 
-  set enableAttachments(bool newValue) {
-    if (newValue == _enableAttachments) return;
-    _enableAttachments = newValue;
-    notifyListeners();
-    _persistBool('enableAttachments', newValue);
-  }
-
   set enableSetupBookmark(bool newValue) {
     if (newValue == _enableSetupBookmark) return;
     _enableSetupBookmark = newValue;
@@ -522,7 +513,6 @@ class AppSettings extends ChangeNotifier {
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
       _enableAdvancedFilters = prefs.getBool('${_kPrefix}enableAdvancedFilters') ?? _enableAdvancedFilters;
-      _enableAttachments = prefs.getBool('${_kPrefix}enableAttachments') ?? _enableAttachments;
       _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
       _enableTaskPresets = prefs.getBool('${_kPrefix}enableTaskPresets') ?? _enableTaskPresets;
@@ -594,7 +584,6 @@ class AppSettings extends ChangeNotifier {
     _useMapBoxTiles = defaults._useMapBoxTiles;
     _enableCalendar = defaults._enableCalendar;
     _enableAdvancedFilters = defaults._enableAdvancedFilters;
-    _enableAttachments = defaults._enableAttachments;
     _enableSetupBookmark = defaults._enableSetupBookmark;
     _enableComponentPresets = defaults._enableComponentPresets;
     _enableTaskPresets = defaults._enableTaskPresets;
@@ -686,7 +675,6 @@ class AppSettings extends ChangeNotifier {
     _useMapBoxTiles,
     _enableCalendar,
     _enableAdvancedFilters,
-    _enableAttachments,
     _enableSetupBookmark,
     _enableComponentPresets,
     _enableTaskPresets,

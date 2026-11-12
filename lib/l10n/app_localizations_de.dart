@@ -1113,13 +1113,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zeigt in der Garage einen farbigen Statuspunkt auf Komponenten-Symbolen, die offene Aufgaben haben.';
 
   @override
-  String get featuresAttachments => 'Anhänge';
-
-  @override
-  String get featuresAttachmentsInfo =>
-      'Hänge Bilder und Dateien an Bikes, Komponenten, Setups und Aufgaben an. ACHTUNG: Anhänge werden nur auf diesem Gerät gespeichert. Sie sind NICHT in Cloud-/Drive-Backups enthalten und gehen bei einer Neuinstallation oder beim Wiederherstellen eines Backups verloren. Mit „Anhangspaket exportieren“ überträgst du sie auf ein neues Gerät.';
-
-  @override
   String get featuresGoogleDrive => 'Google-Drive-Synchronisierung';
 
   @override
@@ -1653,10 +1646,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get hintSubcomponentsEnabled =>
       'Unterkomponenten aktiviert – bearbeite ein Teil und wähle sein übergeordnetes Teil unter „Verbaut an“';
-
-  @override
-  String get hintAttachmentsEnabled =>
-      'Anhänge aktiviert – füge Bikes, Komponenten, Setups und Aufgaben Fotos und Dateien hinzu';
 
   @override
   String get hintTaskPresetsEnabled =>
@@ -7236,19 +7225,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get exportSaveFile => 'Datei speichern';
 
   @override
-  String get exportSaveFileSubtitle => 'Wähle, wo die JSON-Datei gespeichert wird';
+  String get exportSaveFileSubtitle => 'Wähle, wo die JSON-Datei gespeichert wird. Anhänge nicht enthalten.';
 
   @override
   String get exportSaveBackup => 'Backup speichern';
 
   @override
-  String get exportSaveBackupSubtitle => 'Aktuellen Stand als lokales Backup speichern';
+  String get exportSaveBackupSubtitle => 'Aktuellen Stand als lokales Backup speichern. Anhänge nicht enthalten.';
 
   @override
   String get exportSaveDriveBackup => 'Google-Drive-Backup speichern';
 
   @override
-  String get exportSaveDriveBackupSubtitle => 'Aktuellen Stand als Backup in Google Drive speichern';
+  String get exportSaveDriveBackupSubtitle =>
+      'Aktuellen Stand als Backup in Google Drive speichern. Anhänge nicht enthalten.';
 
   @override
   String get exportAttachmentBundle => 'Anhangspaket exportieren';

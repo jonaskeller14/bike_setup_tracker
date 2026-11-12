@@ -10,7 +10,6 @@ import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/feedback/test_session.dart';
@@ -554,7 +553,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     );
     final stats = appRepository.bikeStats[widget.bikeId] ?? bike.initialStats;
     final initialStatsSummary = initial_stats.initialStatsSummary(bike.initialStats, appSettings, l10n);
-    final attachments = appSettings.enableAttachments ? bike.attachments : const <Attachment>[];
+    final attachments = bike.attachments;
 
     return Scaffold(
       appBar: AppBar(

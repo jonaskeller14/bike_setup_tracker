@@ -272,7 +272,7 @@ class _CompareSetupsState extends State<CompareSetups> {
         (settings.enablePerson && a.person != b.person) ||
         a.notes != b.notes ||
         (settings.enableSetupTags && !setEquals(a.tags, b.tags)) ||
-        (settings.enableAttachments && !listEquals(a.attachments, b.attachments)) ||
+        !listEquals(a.attachments, b.attachments) ||
         !ContextPosition.equal(a.position, b.position) ||
         !ContextPlace.equal(a.place, b.place) ||
         _visibleWeatherValues(a) != _visibleWeatherValues(b);
@@ -369,10 +369,10 @@ class _ContextSection extends StatelessWidget {
         ContextMetaCardDiff(
           notesA: setupA.notes,
           tagsA: settings.enableSetupTags ? setupA.tags : const {},
-          attachmentsA: settings.enableAttachments ? setupA.attachments : const [],
+          attachmentsA: setupA.attachments,
           notesB: setupB.notes,
           tagsB: settings.enableSetupTags ? setupB.tags : const {},
-          attachmentsB: settings.enableAttachments ? setupB.attachments : const [],
+          attachmentsB: setupB.attachments,
         ),
         ContextLocationWeatherCardDiff(
           positionA: setupA.position,

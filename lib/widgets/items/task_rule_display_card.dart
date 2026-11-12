@@ -149,7 +149,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
                 children: [
                   if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
                     Flexible(child: TaskRuleListCard.notesWidget(context, notes: taskRule.notes!)),
-                  if (appSettings.enableAttachments && taskRule.attachments.isNotEmpty)
+                  if (taskRule.attachments.isNotEmpty)
                     TaskRuleListCard.attachmentsWidget(context, count: taskRule.attachments.length),
                 ],
               ),

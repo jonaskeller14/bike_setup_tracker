@@ -1112,13 +1112,6 @@ class AppLocalizationsIt extends AppLocalizations {
       'Mostra nel garage un puntino di stato colorato sulle icone dei componenti con interventi aperti.';
 
   @override
-  String get featuresAttachments => 'Allegati';
-
-  @override
-  String get featuresAttachmentsInfo =>
-      'Allega immagini e file a bici, componenti, setup e interventi. ATTENZIONE: gli allegati sono salvati solo su questo dispositivo. NON sono inclusi nei backup su cloud/Drive e andranno persi in caso di reinstallazione o ripristino da un backup. Usa “Esporta pacchetto allegati” per trasferirli su un nuovo dispositivo.';
-
-  @override
   String get featuresGoogleDrive => 'Sincronizzazione con Google Drive';
 
   @override
@@ -1648,9 +1641,6 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get hintSubcomponentsEnabled =>
       'Sottocomponenti attivati: modifica un pezzo e scegli il suo componente principale sotto “Montato su”';
-
-  @override
-  String get hintAttachmentsEnabled => 'Allegati attivati: aggiungi foto e file a bici, componenti, setup e interventi';
 
   @override
   String get hintTaskPresetsEnabled =>
@@ -7218,19 +7208,20 @@ class AppLocalizationsIt extends AppLocalizations {
   String get exportSaveFile => 'Salva file';
 
   @override
-  String get exportSaveFileSubtitle => 'Scegli dove salvare il file JSON';
+  String get exportSaveFileSubtitle => 'Scegli dove salvare il file JSON. Allegati non inclusi.';
 
   @override
   String get exportSaveBackup => 'Salva backup';
 
   @override
-  String get exportSaveBackupSubtitle => 'Salva lo stato attuale come backup locale';
+  String get exportSaveBackupSubtitle => 'Salva lo stato attuale come backup locale. Allegati non inclusi.';
 
   @override
   String get exportSaveDriveBackup => 'Salva backup su Google Drive';
 
   @override
-  String get exportSaveDriveBackupSubtitle => 'Salva lo stato attuale come backup su Google Drive';
+  String get exportSaveDriveBackupSubtitle =>
+      'Salva lo stato attuale come backup su Google Drive. Allegati non inclusi.';
 
   @override
   String get exportAttachmentBundle => 'Esporta pacchetto allegati';

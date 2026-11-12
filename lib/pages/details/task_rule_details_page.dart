@@ -6,8 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/l10n.dart';
-import '../../models/app_settings.dart';
-import '../../models/attachment.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/attachment_storage_service.dart';
 import '../../utils/task_actions.dart';
@@ -155,7 +153,7 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
   @override
   void initState() {
     super.initState();
-    if (context.read<AppSettings>().enableAttachments) unawaited(_initAttachmentsDir());
+    unawaited(_initAttachmentsDir());
   }
 
   Future<void> _initAttachmentsDir() async {
@@ -186,7 +184,6 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final enableAttachments = context.select<AppSettings, bool>((s) => s.enableAttachments);
 
     final taskRule = appRepository.taskRules[widget.taskRuleId];
     if (taskRule == null) {
@@ -195,7 +192,7 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
         subtitle: context.l10n.taskDetailsNotFoundSubtitle,
       );
     }
-    final attachments = enableAttachments ? taskRule.attachments : const <Attachment>[];
+    final attachments = taskRule.attachments;
 
     final taskEntries = appRepository.taskEntries.values
         .where((te) => te.taskRule == taskRule.id)

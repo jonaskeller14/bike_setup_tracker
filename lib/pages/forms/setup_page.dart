@@ -1239,7 +1239,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 ),
               ),
             ],
-            if (appSettings.enableAttachments && _attachmentsDirPath != null)
+            if (_attachmentsDirPath != null)
               ActionChip(
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 label: const SizedBox.shrink(),
@@ -1773,7 +1773,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     ),
                   ),
                 ),
-                if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
+                if (_attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 12),

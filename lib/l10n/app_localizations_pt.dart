@@ -1113,13 +1113,6 @@ class AppLocalizationsPt extends AppLocalizations {
       'Mostra na garagem um ponto de status colorido nos ícones dos componentes que têm tarefas abertas.';
 
   @override
-  String get featuresAttachments => 'Anexos';
-
-  @override
-  String get featuresAttachmentsInfo =>
-      'Anexe imagens e arquivos a bikes, componentes, setups e tarefas. ATENÇÃO: os anexos ficam salvos apenas neste dispositivo. Eles NÃO entram nos backups na nuvem/Drive e serão perdidos ao reinstalar o app ou restaurar um backup. Use “Exportar pacote de anexos” para levá-los a um novo dispositivo.';
-
-  @override
   String get featuresGoogleDrive => 'Sincronização com o Google Drive';
 
   @override
@@ -1648,10 +1641,6 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get hintSubcomponentsEnabled =>
       'Subcomponentes ativados: edite uma peça e escolha a peça principal em “Montado em”';
-
-  @override
-  String get hintAttachmentsEnabled =>
-      'Anexos ativados: adicione fotos e arquivos a bikes, componentes, setups e tarefas';
 
   @override
   String get hintTaskPresetsEnabled =>
@@ -7213,19 +7202,20 @@ class AppLocalizationsPt extends AppLocalizations {
   String get exportSaveFile => 'Salvar arquivo';
 
   @override
-  String get exportSaveFileSubtitle => 'Escolha onde salvar o arquivo JSON';
+  String get exportSaveFileSubtitle => 'Escolha onde salvar o arquivo JSON. Anexos não incluídos.';
 
   @override
   String get exportSaveBackup => 'Salvar backup';
 
   @override
-  String get exportSaveBackupSubtitle => 'Salvar o estado atual como backup local';
+  String get exportSaveBackupSubtitle => 'Salvar o estado atual como backup local. Anexos não incluídos.';
 
   @override
   String get exportSaveDriveBackup => 'Salvar backup no Google Drive';
 
   @override
-  String get exportSaveDriveBackupSubtitle => 'Salvar o estado atual como backup no Google Drive';
+  String get exportSaveDriveBackupSubtitle =>
+      'Salvar o estado atual como backup no Google Drive. Anexos não incluídos.';
 
   @override
   String get exportAttachmentBundle => 'Exportar pacote de anexos';

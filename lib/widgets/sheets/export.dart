@@ -204,14 +204,13 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: onGoogleDriveBackup,
                     ),
-                  if (context.read<AppSettings>().enableAttachments)
-                    ListTile(
-                      leading: Icon(Icons.attach_file, color: Theme.of(context).colorScheme.primary),
-                      title: Text(context.l10n.exportAttachmentBundle),
-                      subtitle: Text(context.l10n.exportAttachmentBundleSubtitle),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: onAttachmentBundle,
-                    ),
+                  ListTile(
+                    leading: Icon(Icons.attach_file, color: Theme.of(context).colorScheme.primary),
+                    title: Text(context.l10n.exportAttachmentBundle),
+                    subtitle: Text(context.l10n.exportAttachmentBundleSubtitle),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: onAttachmentBundle,
+                  ),
                 ],
               ),
             ),

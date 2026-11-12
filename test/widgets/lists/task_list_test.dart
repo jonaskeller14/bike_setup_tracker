@@ -246,7 +246,7 @@ void main() {
     expect(find.byType(TaskListFilterWidget), findsOneWidget);
   });
 
-  testWidgets('task cards show the attachment count only with attachments enabled', (tester) async {
+  testWidgets('task cards show the attachment count', (tester) async {
     SharedPreferences.setMockInitialValues({});
     await tester.runAsync(() async {
       await repository.addTaskRules([
@@ -269,11 +269,6 @@ void main() {
 
     final card = find.byType(TaskRuleListCard);
     expect(card, findsOneWidget);
-    expect(find.descendant(of: card, matching: find.byIcon(Icons.attach_file)), findsNothing);
-
-    settings.enableAttachments = true;
-    await tester.pumpAndSettle();
-
     expect(find.descendant(of: card, matching: find.byIcon(Icons.attach_file)), findsOneWidget);
     expect(find.descendant(of: card, matching: find.text('2')), findsOneWidget);
     expect(tester.takeException(), isNull);

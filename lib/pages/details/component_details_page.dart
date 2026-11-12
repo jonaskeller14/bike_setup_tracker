@@ -8,7 +8,6 @@ import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
@@ -157,7 +156,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final componentAdjustments = component.adjustments;
     final descendants = appRepository.affectedDescendants(component.id);
     final initialStats = initialStatsSummary(component.initialStats, appSettings, l10n);
-    final attachments = appSettings.enableAttachments ? component.attachments : const <Attachment>[];
+    final attachments = component.attachments;
 
     final bikes = appRepository.bikes;
     final bike = bikes[appRepository.componentHierarchy.currentBike(component.id)];

@@ -68,7 +68,6 @@ class AppHintSlot extends StatelessWidget {
       AppHint.release44 => Release44Hint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.release44)),
         onEnableSubcomponents: () async => _turnOnSubcomponents(context),
-        onEnableAttachments: () => _enableAttachments(context, hintService),
       ),
       AppHint.release45 => Release45Hint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.release45)),
@@ -129,18 +128,6 @@ class AppHintSlot extends StatelessWidget {
     context.read<AppSettings>().enableInstallOnComponent = true;
     ScaffoldMessenger.of(context).showSnackBar(
       AppSnackBar.success(context, context.l10n.hintSubcomponentsEnabled),
-    );
-  }
-
-  Future<void> _enableAttachments(
-    BuildContext context,
-    AppHintService hintService,
-  ) async {
-    context.read<AppSettings>().enableAttachments = true;
-    await hintService.complete(AppHint.release44);
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, context.l10n.hintAttachmentsEnabled),
     );
   }
 

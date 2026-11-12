@@ -1111,13 +1111,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Affiche dans le garage un point d’état coloré sur les icônes des composants qui ont des tâches ouvertes.';
 
   @override
-  String get featuresAttachments => 'Pièces jointes';
-
-  @override
-  String get featuresAttachmentsInfo =>
-      'Joignez des images et des fichiers à vos vélos, composants, setups et tâches. ATTENTION : les pièces jointes sont stockées uniquement sur cet appareil. Elles ne sont PAS incluses dans les sauvegardes cloud/Drive et seront perdues en cas de réinstallation ou de restauration d’une sauvegarde. Utilisez « Exporter le paquet de pièces jointes » pour les transférer vers un nouvel appareil.';
-
-  @override
   String get featuresGoogleDrive => 'Synchronisation Google Drive';
 
   @override
@@ -1649,10 +1642,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get hintSubcomponentsEnabled =>
       'Sous-composants activés : modifiez une pièce et choisissez sa pièce parente sous « Monté sur »';
-
-  @override
-  String get hintAttachmentsEnabled =>
-      'Pièces jointes activées : ajoutez des photos et des fichiers aux vélos, composants, setups et tâches';
 
   @override
   String get hintTaskPresetsEnabled =>
@@ -7229,19 +7218,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get exportSaveFile => 'Enregistrer le fichier';
 
   @override
-  String get exportSaveFileSubtitle => 'Choisissez où enregistrer le fichier JSON';
+  String get exportSaveFileSubtitle => 'Choisissez où enregistrer le fichier JSON. Pièces jointes non incluses.';
 
   @override
   String get exportSaveBackup => 'Enregistrer une sauvegarde';
 
   @override
-  String get exportSaveBackupSubtitle => 'Enregistrer l’état actuel comme sauvegarde locale';
+  String get exportSaveBackupSubtitle =>
+      'Enregistrer l’état actuel comme sauvegarde locale. Pièces jointes non incluses.';
 
   @override
   String get exportSaveDriveBackup => 'Enregistrer une sauvegarde Google Drive';
 
   @override
-  String get exportSaveDriveBackupSubtitle => 'Enregistrer l’état actuel comme sauvegarde dans Google Drive';
+  String get exportSaveDriveBackupSubtitle =>
+      'Enregistrer l’état actuel comme sauvegarde dans Google Drive. Pièces jointes non incluses.';
 
   @override
   String get exportAttachmentBundle => 'Exporter le paquet de pièces jointes';

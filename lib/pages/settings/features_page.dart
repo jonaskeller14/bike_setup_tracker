@@ -7,6 +7,7 @@ import '../../icons/simple_icons.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/feedback/ride_feedback.dart';
 import '../../models/filters/activity_filter.dart';
 import '../../models/filters/layer_filter.dart';
 import '../../models/task/task_rule.dart';
@@ -35,13 +36,6 @@ class FeaturesPage extends StatelessWidget {
     final subscriptionService = context.watch<SubscriptionService>();
 
     final otherTiles = [
-      _FeatureToggleTile(
-        icon: Icons.attach_file,
-        title: l10n.featuresAttachments,
-        value: appSettings.enableAttachments,
-        onChanged: (v) => appSettings.enableAttachments = v,
-        infoText: l10n.featuresAttachmentsInfo,
-      ),
       if (Platform.isAndroid)
         _FeatureToggleTile(
           icon: SimpleIcons.googledrive,
@@ -199,7 +193,7 @@ class FeaturesPage extends StatelessWidget {
                 ),
               if (appSettings.developerMode)
                 _FeatureToggleTile(
-                  icon: Icons.star,
+                  icon: RideFeedback.iconData,
                   title: l10n.featuresFeedback,
                   value: appSettings.enableRating,
                   onChanged: (v) {

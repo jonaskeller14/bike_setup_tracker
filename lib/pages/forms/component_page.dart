@@ -172,7 +172,7 @@ class _ComponentPageState extends State<ComponentPage> {
     _initialStats = widget.component?.initialStats ?? ComponentStats.zero;
 
     _attachments = List.from(widget.component?.attachments ?? []);
-    if (appSettings.enableAttachments) unawaited(_initAttachmentsDir());
+    unawaited(_initAttachmentsDir());
 
     if (widget.mode != ComponentPageMode.add) _expanded = true;
 
@@ -1050,7 +1050,7 @@ class _ComponentPageState extends State<ComponentPage> {
             widget.replacedComponentId != c.id).length;
     final isReplace = widget.mode == ComponentPageMode.replace;
     final showInitialStats = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
-    final showAttachments = appSettings.enableAttachments && _attachmentsDirPath != null;
+    final showAttachments = _attachmentsDirPath != null;
 
     return PopScope(
       canPop: !_formHasChanges,

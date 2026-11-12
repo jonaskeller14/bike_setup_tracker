@@ -182,7 +182,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
     final bikeComponents = Map.fromEntries(appRepository.components.entries.where((ce) => hierarchy.currentBike(ce.key) == widget.bike.id));
     final groups = garageGroupsFor(bikeComponents.values, hierarchy: hierarchy);
     final roots = groups.map((group) => group.parent).toList();
-    final attachmentCount = appSettings.enableAttachments ? widget.bike.attachments.length : 0;
+    final attachmentCount = widget.bike.attachments.length;
 
     return DragTarget<Object>(
       key: ValueKey(widget.bike.id),

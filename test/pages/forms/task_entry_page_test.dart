@@ -98,15 +98,7 @@ void main() {
   Finder attachChip() => find.widgetWithIcon(ActionChip, Icons.attach_file);
 
   group('TaskEntryPage attachments', () {
-    testWidgets('hides the Attach chip and the strip when attachments are disabled', (tester) async {
-      await openForm(tester, () => TaskEntryPage.edit(taskEntry: entry(), taskRule: taskRule));
-
-      expect(attachChip(), findsNothing);
-      expect(find.byType(AttachmentStrip), findsNothing);
-    });
-
     testWidgets('shows the Attach chip after the time chip and the strip below', (tester) async {
-      appSettings.enableAttachments = true;
       await openForm(tester, () => TaskEntryPage.edit(taskEntry: entry(), taskRule: taskRule));
 
       final wrap = find.ancestor(of: attachChip(), matching: find.byType(Wrap));
@@ -122,7 +114,6 @@ void main() {
     });
 
     testWidgets('add mode offers the chip without a strip', (tester) async {
-      appSettings.enableAttachments = true;
       await openForm(tester, () => TaskEntryPage.add(taskRule: taskRule));
 
       expect(attachChip(), findsOneWidget);
@@ -134,7 +125,6 @@ void main() {
         tester.view.physicalSize = const Size(320, 800);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        appSettings.enableAttachments = true;
         final longName = '${'Very long workshop invoice name ' * 6}.pdf';
         await openForm(
           tester,
@@ -157,7 +147,6 @@ void main() {
     }
 
     testWidgets('removing an attachment marks the form changed and saving returns the rest', (tester) async {
-      appSettings.enableAttachments = true;
       await openForm(tester, () => TaskEntryPage.edit(taskEntry: entry(), taskRule: taskRule));
 
       Color? chipColor() => tester.widget<ActionChip>(attachChip()).backgroundColor;
@@ -180,7 +169,7 @@ void main() {
       expect(saved.attachments, [photo]);
     });
 
-    testWidgets('saving with attachments disabled keeps the list', (tester) async {
+    testWidgets('saving without touching the attachments keeps the list', (tester) async {
       await openForm(tester, () => TaskEntryPage.edit(taskEntry: entry(), taskRule: taskRule));
 
       await tester.tap(find.byIcon(Icons.check));
@@ -190,7 +179,6 @@ void main() {
     });
 
     testWidgets('duplicate mode starts without attachments', (tester) async {
-      appSettings.enableAttachments = true;
       await openForm(
         tester,
         () => TaskEntryPage.duplicate(

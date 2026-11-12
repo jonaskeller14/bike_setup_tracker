@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../database/app_database.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
-import '../../models/app_settings.dart';
 import '../../models/selected_data.dart';
 import '../../models/service_error.dart';
 import '../../repositories/app_repository.dart';
@@ -317,28 +316,27 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: widget.onBackup,
                   ),
-                  if (context.read<AppSettings>().enableAttachments)
-                    ListTile(
-                      leading: Icon(Icons.attach_file, color: Theme.of(context).colorScheme.primary),
-                      title: Text(context.l10n.importAttachmentBundle),
-                      subtitle: Text(context.l10n.importAttachmentBundleSubtitle),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        final result = await AttachmentStorageService().importBundle(
-                          onPicked: () => setState(() => _readingMessage = context.l10n.importUnpackingBundle),
-                        );
-                        if (!mounted) return;
-                        setState(() => _readingMessage = null);
-                        switch (result) {
-                          case BundleImported(:final data):
-                            widget.onFile(data);
-                          case BundleImportFailed(:final error):
-                            setState(() => _filePickingError = error);
-                          case BundleImportCancelled():
-                            break;
-                        }
-                      },
-                    ),
+                  ListTile(
+                    leading: Icon(Icons.attach_file, color: Theme.of(context).colorScheme.primary),
+                    title: Text(context.l10n.importAttachmentBundle),
+                    subtitle: Text(context.l10n.importAttachmentBundleSubtitle),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () async {
+                      final result = await AttachmentStorageService().importBundle(
+                        onPicked: () => setState(() => _readingMessage = context.l10n.importUnpackingBundle),
+                      );
+                      if (!mounted) return;
+                      setState(() => _readingMessage = null);
+                      switch (result) {
+                        case BundleImported(:final data):
+                          widget.onFile(data);
+                        case BundleImportFailed(:final error):
+                          setState(() => _filePickingError = error);
+                        case BundleImportCancelled():
+                          break;
+                      }
+                    },
+                  ),
                 ],
               ),
             ),

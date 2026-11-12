@@ -97,7 +97,7 @@ class _BikePageState extends State<BikePage> {
     _initialStats = widget.bike?.initialStats ?? ComponentStats.zero;
 
     _attachments = List.from(widget.bike?.attachments ?? []);
-    if (context.read<AppSettings>().enableAttachments) unawaited(_initAttachmentsDir());
+    unawaited(_initAttachmentsDir());
 
     if (widget.mode != BikePageMode.add) _expanded = true;
   }
@@ -418,7 +418,7 @@ class _BikePageState extends State<BikePage> {
     final persons = appRepository.persons;
     final stravaGears = appRepository.stravaGears;
     final showInitialStats = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
-    final showAttachments = appSettings.enableAttachments && _attachmentsDirPath != null;
+    final showAttachments = _attachmentsDirPath != null;
 
     return PopScope( 
       canPop: !_formHasChanges,

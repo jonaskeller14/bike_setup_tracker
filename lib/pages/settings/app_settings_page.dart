@@ -113,14 +113,13 @@ class AppSettingsPage extends StatelessWidget {
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const FeaturesPage())),
               ),
-              if (appSettings.enableAttachments)
-                ListTile(
-                  leading: const Icon(Icons.attach_file),
-                  title: Text(l10n.settingsAttachments),
-                  subtitle: Text(l10n.settingsAttachmentsSubtitle),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AttachmentsPage())),
-                ),
+              ListTile(
+                leading: const Icon(Icons.attach_file),
+                title: Text(l10n.settingsAttachments),
+                subtitle: Text(l10n.settingsAttachmentsSubtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AttachmentsPage())),
+              ),
               ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: Text(l10n.settingsAbout),

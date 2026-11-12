@@ -213,7 +213,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _delayValueController.addListener(_changeListener);
 
     _attachments = List.from(widget.taskRule?.attachments ?? []);
-    if (context.read<AppSettings>().enableAttachments) unawaited(_initAttachmentsDir());
+    unawaited(_initAttachmentsDir());
   }
 
   Future<void> _initAttachmentsDir() async {
@@ -1059,7 +1059,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
               );
             },
           ),
-        if (appSettings.enableAttachments && _attachmentsDirPath != null)
+        if (_attachmentsDirPath != null)
           ActionChip(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             label: const SizedBox.shrink(),
@@ -1118,7 +1118,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                       ],
                     ),
                   ),
-                  if (appSettings.enableAttachments && _attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
+                  if (_attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
                       child: AttachmentStrip(

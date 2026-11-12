@@ -110,15 +110,7 @@ void main() {
   Finder attachChip() => find.widgetWithIcon(ActionChip, Icons.attach_file);
 
   group('TaskRulePage attachments', () {
-    testWidgets('hides the Attach chip and the strip when attachments are disabled', (tester) async {
-      await openForm(tester, () => TaskRulePage.edit(taskRule: rule()));
-
-      expect(attachChip(), findsNothing);
-      expect(find.byType(AttachmentStrip), findsNothing);
-    });
-
     testWidgets('shows the Attach chip last in the chip row and the strip above "Linked To"', (tester) async {
-      appSettings.enableAttachments = true;
       await openForm(tester, () => TaskRulePage.edit(taskRule: rule()));
 
       final wrap = find.ancestor(of: attachChip(), matching: find.byType(Wrap));
@@ -138,7 +130,6 @@ void main() {
     });
 
     testWidgets('shows the Attach chip alone when priority and tags are disabled', (tester) async {
-      appSettings.enableAttachments = true;
       appSettings.enableTaskPriority = false;
       appSettings.enableTaskTags = false;
       await openForm(tester, () => TaskRulePage.add());
@@ -149,21 +140,11 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('hides the Attach chip when attachments, priority and tags are disabled', (tester) async {
-      appSettings.enableTaskPriority = false;
-      appSettings.enableTaskTags = false;
-      await openForm(tester, () => TaskRulePage.add());
-
-      expect(attachChip(), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-
     for (final (label, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
       testWidgets('the chips and a long attachment name fit a narrow screen ($label)', (tester) async {
         tester.view.physicalSize = const Size(320, 800);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        appSettings.enableAttachments = true;
         final longName = '${'Very long service manual name ' * 6}.pdf';
         await openForm(
           tester,
@@ -185,7 +166,6 @@ void main() {
     }
 
     testWidgets('removing an attachment marks the form changed and saving returns the rest', (tester) async {
-      appSettings.enableAttachments = true;
       await openForm(tester, () => TaskRulePage.edit(taskRule: rule()));
 
       Color? chipColor() => tester.widget<ActionChip>(attachChip()).backgroundColor;
@@ -208,7 +188,7 @@ void main() {
       expect(saved.attachments, [chart]);
     });
 
-    testWidgets('saving with attachments disabled keeps the list', (tester) async {
+    testWidgets('saving without touching the attachments keeps the list', (tester) async {
       await openForm(tester, () => TaskRulePage.edit(taskRule: rule()));
 
       await tester.tap(find.byIcon(Icons.check));
@@ -218,7 +198,6 @@ void main() {
     });
 
     testWidgets('duplicate mode starts with the passed copies and saves them under a new id', (tester) async {
-      appSettings.enableAttachments = true;
       await openForm(tester, () => TaskRulePage.duplicate(taskRule: rule()));
 
       expect(find.text('Fox 38 Service Manual.pdf'), findsOneWidget);

@@ -58,6 +58,7 @@ class BikeDetailsPage extends StatefulWidget {
 
 class _BikeDetailsPageState extends State<BikeDetailsPage> {
   static const int _defaultSelectedSetupCount = 3;
+  static const bool showTestSessions = false;
 
   bool _sortAscending = true;
   TableColumn? _sortColumn;
@@ -691,7 +692,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                 ],
               ),
               const Divider(height: 1),
-              if (appSettings.enableRating) ...[
+              if (appSettings.enableRating && showTestSessions) ...[
                 _testSessions(context, appRepository, bike),
                 const Divider(height: 1),
               ],

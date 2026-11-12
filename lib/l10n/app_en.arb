@@ -10596,7 +10596,7 @@
       }
     }
   },
-  "pressureCheckFooterDrifted": "On the right is what your pump would read now. Pump back to the value you last set for the same feel.",
+  "pressureCheckFooterDrifted": "“Now” is what your pump would read today. Pump back to the “Set” value for the same feel.",
   "@pressureCheckFooterDrifted": {
     "description": "Footer of the pressure check card when at least one pressure is off."
   },
@@ -10625,16 +10625,10 @@
   "@pressureCheckNoCurrentConditions": {
     "description": "Body of the pressure check card when the current temperature or altitude is missing."
   },
-  "pressureCheckSetOn": "Set {value} {unit} on {date} · {conditions}",
+  "pressureCheckSetOn": "Set on {date} · {conditions}",
   "@pressureCheckSetOn": {
-    "description": "Row of the pressure check card: the value that was last set. {value} is the pressure, {unit} its unit, {date} the setup date, {conditions} the temperature and altitude then.",
+    "description": "Row of the pressure check card, under the pressure name: when the value was last set. {date} is the setup date, {conditions} the temperature and altitude then.",
     "placeholders": {
-      "value": {
-        "type": "String"
-      },
-      "unit": {
-        "type": "String"
-      },
       "date": {
         "type": "String"
       },
@@ -10642,6 +10636,14 @@
         "type": "String"
       }
     }
+  },
+  "pressureCheckColumnNow": "Now",
+  "@pressureCheckColumnNow": {
+    "description": "Caption of the pressure check card column with what the pump would read now."
+  },
+  "pressureCheckColumnSet": "Set",
+  "@pressureCheckColumnSet": {
+    "description": "Caption of the pressure check card column with the value last set in an earlier setup."
   },
   "pressureCheckPsi": "{value} psi",
   "@pressureCheckPsi": {
@@ -10755,14 +10757,9 @@
   "@pressureCheckExampleHigherUp": {
     "description": "Example card: the share of the drift that comes from the altitude."
   },
-  "pressureCheckExampleTotal": "Total {value} psi",
+  "pressureCheckExampleTotal": "Total",
   "@pressureCheckExampleTotal": {
-    "description": "Example card: the total drift. {value} is the signed pressure.",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
+    "description": "Example card: label of the total drift, shown next to the signed pressure."
   },
   "pressureCheckTypesAll": "All",
   "@pressureCheckTypesAll": {

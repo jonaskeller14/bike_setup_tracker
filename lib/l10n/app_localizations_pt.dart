@@ -7955,7 +7955,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get pressureCheckFooterDrifted =>
-      'À direita, o que a sua bomba marcaria agora. Encha de novo até o último valor que você definiu para ter a mesma sensação.';
+      '“Agora” é o que a sua bomba marcaria neste momento. Encha de novo até o valor “Definido” para ter a mesma sensação.';
 
   @override
   String pressureCheckFooterOk(String threshold) {
@@ -7978,9 +7978,15 @@ class AppLocalizationsPt extends AppLocalizations {
       'Precisa da temperatura e da altitude atuais. Defina a localização e o clima acima.';
 
   @override
-  String pressureCheckSetOn(String value, String unit, String date, String conditions) {
-    return 'Definido: $value $unit em $date · $conditions';
+  String pressureCheckSetOn(String date, String conditions) {
+    return 'Definido em $date · $conditions';
   }
+
+  @override
+  String get pressureCheckColumnNow => 'Agora';
+
+  @override
+  String get pressureCheckColumnSet => 'Definido';
 
   @override
   String pressureCheckPsi(String value) {
@@ -8065,9 +8071,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pressureCheckExampleHigherUp => 'Mais alto';
 
   @override
-  String pressureCheckExampleTotal(String value) {
-    return 'Total $value psi';
-  }
+  String get pressureCheckExampleTotal => 'Total';
 
   @override
   String get pressureCheckTypesAll => 'Todos';

@@ -114,6 +114,7 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                   ),
                 ),
                 const SizedBox(height: 8),
+                const _ColumnsHeader(),
                 // Hairlines frame the readings so they read apart from the summary and the footer.
                 for (final entry in entries) ...[
                   divider,
@@ -160,60 +161,134 @@ class _PressureDriftRow extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Row(
-        spacing: 12,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "${entry.componentName} · ${entry.adjustmentName}",
-                  style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  context.l10n.pressureCheckSetOn(
-                    formatPressure(entry.referenceValue, context.l10n),
-                    unit,
-                    DateFormat(appSettings.dateFormat, context.l10n.localeName).format(entry.referenceSetup.datetimeLocal),
-                    pressureConditionsText(appSettings, entry.referenceTemperatureC, entry.referenceAltitudeM),
-                  ),
-                  style: mutedStyle,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+      child: _ColumnsLayout(
+        name: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "${entry.componentName} · ${entry.adjustmentName}",
+              style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              spacing: 2,
-              children: [
-                Text(
-                  "${formatPressure(entry.predictedReading, context.l10n)} $unit",
-                  style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                GuideStatusPill(pressureDriftStatus(entry.relativeDelta, context.l10n, significant: entry.isSignificant)),
-                Text(
-                  "${signedPressure(entry.delta, context.l10n)} $unit",
-                  style: mutedStyle,
-                  maxLines: 1,
-                  textAlign: TextAlign.end,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            Text(
+              context.l10n.pressureCheckSetOn(
+                DateFormat(appSettings.dateFormat, context.l10n.localeName).format(entry.referenceSetup.datetimeLocal),
+                pressureConditionsText(appSettings, entry.referenceTemperatureC, entry.referenceAltitudeM),
+              ),
+              style: mutedStyle,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
+          ],
+        ),
+        now: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // Scaled rather than cut off: a truncated pressure is no use.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                "${formatPressure(entry.predictedReading, context.l10n)} $unit",
+                style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
+                maxLines: 1,
+              ),
+            ),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(signedPercent(entry.relativeDelta, context.l10n), style: mutedStyle, maxLines: 1),
+            ),
+          ],
+        ),
+        set: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerRight,
+          child: Text(
+            "${formatPressure(entry.referenceValue, context.l10n)} $unit",
+            style: textTheme.bodyMedium?.copyWith(color: hint.onContainer.withValues(alpha: 0.75)),
+            maxLines: 1,
           ),
-        ],
+        ),
+        status: PressureDriftIcon(relativeDelta: entry.relativeDelta, threshold: entry.significanceThreshold),
       ),
+    );
+  }
+}
+
+/// The "Now" and "Set" captions above the readings.
+class _ColumnsHeader extends StatelessWidget {
+  const _ColumnsHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final hint = HintColors.of(context);
+    final style = Theme.of(context).textTheme.labelMedium?.copyWith(
+      color: hint.onContainer.withValues(alpha: 0.75),
+      fontWeight: FontWeight.w600,
+    );
+    Widget caption(String text) =>
+        Text(text, style: style, textAlign: TextAlign.end, maxLines: 1, overflow: TextOverflow.ellipsis);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: _ColumnsLayout(
+        now: caption(context.l10n.pressureCheckColumnNow),
+        set: caption(context.l10n.pressureCheckColumnSet),
+      ),
+    );
+  }
+}
+
+/// Shared by [_ColumnsHeader] and [_PressureDriftRow] so the columns line up.
+class _ColumnsLayout extends StatelessWidget {
+  final Widget? name;
+  final Widget now;
+  final Widget set;
+  final Widget? status;
+
+  const _ColumnsLayout({this.name, required this.now, required this.set, this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      spacing: 8,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 4, child: name ?? const SizedBox.shrink()),
+        Expanded(flex: 2, child: now),
+        Expanded(flex: 2, child: set),
+        SizedBox(width: 24, child: status),
+      ],
+    );
+  }
+}
+
+/// A check while the reading stays within [threshold]; past it, which way to
+/// pump back to the set value: up to add air, down to let some out, doubled
+/// from twice the threshold on.
+class PressureDriftIcon extends StatelessWidget {
+  final double relativeDelta;
+  final double threshold;
+
+  const PressureDriftIcon({super.key, required this.relativeDelta, required this.threshold});
+
+  @override
+  Widget build(BuildContext context) {
+    final drift = relativeDelta.abs();
+    final significant = drift >= threshold;
+    final status = GuideStatus(significant ? GuideStatusKind.off : GuideStatusKind.inRange);
+    final icon = switch ((significant, relativeDelta < 0, drift >= 2 * threshold)) {
+      (false, _, _) => status.icon,
+      (true, true, false) => Icons.keyboard_arrow_up,
+      (true, true, true) => Icons.keyboard_double_arrow_up,
+      (true, false, false) => Icons.keyboard_arrow_down,
+      (true, false, true) => Icons.keyboard_double_arrow_down,
+    };
+    return Tooltip(
+      message: status.label(context.l10n),
+      child: Icon(icon, size: 20, color: status.color(context), semanticLabel: status.label(context.l10n)),
     );
   }
 }
@@ -235,12 +310,13 @@ String signedPercent(double fraction, AppLocalizations l10n) {
   return "${fraction < 0 ? '-' : '+'}${formatLocalizedDouble(percent, fractionDigits: percent >= 10 ? 0 : 1, locale: l10n.localeName)} %";
 }
 
-/// "5 °C · 1800 m" in the rider's units.
+/// "5 °C · 1800 m" in the rider's units, each value kept on one line with its
+/// unit.
 String pressureConditionsText(AppSettings appSettings, double temperatureC, double altitudeM) {
   final temperature =
       ContextWeather.convertTemperatureFromCelsius(temperatureC, appSettings.temperatureUnit)?.round() ??
       temperatureC.round();
   final altitude =
       ContextPosition.convertAltitudeFromMeters(altitudeM, appSettings.altitudeUnit)?.round() ?? altitudeM.round();
-  return "$temperature ${appSettings.temperatureUnit} · $altitude ${appSettings.altitudeUnit}";
+  return "$temperature ${appSettings.temperatureUnit} · $altitude ${appSettings.altitudeUnit}";
 }

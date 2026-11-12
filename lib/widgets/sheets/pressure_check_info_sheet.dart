@@ -11,7 +11,7 @@ import '../pressure_drift_card.dart';
 import '../setup_guide_status.dart';
 import 'sheet_header.dart';
 
-/// Why pump readings drift, a worked example, and what the card's pills mean.
+/// Why pump readings drift, a worked example, and what the card's icons mean.
 Future<void> showPressureCheckInfoSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     useSafeArea: true,
@@ -104,12 +104,15 @@ class _PressureCheckInfoSheet extends StatelessWidget {
                   _heading(context, context.l10n.pressureCheckInfoStatusHeading),
                   _legendRow(
                     context,
-                    pressureDriftStatus(0.012, context.l10n, significant: false),
+                    [PressureDriftIcon(relativeDelta: 0, threshold: threshold)],
                     context.l10n.pressureCheckInfoStatusOk(thresholdText),
                   ),
                   _legendRow(
                     context,
-                    pressureDriftStatus(-0.035, context.l10n, significant: true),
+                    [
+                      PressureDriftIcon(relativeDelta: -threshold, threshold: threshold),
+                      PressureDriftIcon(relativeDelta: threshold, threshold: threshold),
+                    ],
                     context.l10n.pressureCheckInfoStatusDrift(thresholdText),
                   ),
                   Text(
@@ -163,16 +166,13 @@ class _PressureCheckInfoSheet extends StatelessWidget {
     );
   }
 
-  Widget _legendRow(BuildContext context, GuideStatus status, String meaning) {
+  Widget _legendRow(BuildContext context, List<Widget> icons, String meaning) {
     final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 12,
       children: [
-        SizedBox(
-          width: 88,
-          child: Align(alignment: Alignment.centerLeft, child: GuideStatusPill(status)),
-        ),
+        SizedBox(width: 40, child: Row(children: icons)),
         Expanded(
           child: Text(
             meaning,
@@ -214,7 +214,7 @@ class _ExampleCard extends StatelessWidget {
                 ],
               ),
               Text(conditions, style: muted, maxLines: 2, overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               Text(label, style: muted),
               Text(
                 context.l10n.pressureCheckPsi(formatPressure(psi, context.l10n)),
@@ -271,15 +271,25 @@ class _ExampleCard extends StatelessWidget {
           Row(
             spacing: 8,
             children: [
+              Icon(Icons.functions, size: 18, color: scheme.onSurfaceVariant),
               Expanded(
                 child: Text(
-                  context.l10n.pressureCheckExampleTotal(signedPressure(_Example.deltaPsi, context.l10n)),
+                  context.l10n.pressureCheckExampleTotal,
                   style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              GuideStatusPill(pressureDriftStatus(_Example.relativeDelta, context.l10n, significant: significant)),
+              Text(
+                context.l10n.pressureCheckPsi(signedPressure(_Example.deltaPsi, context.l10n)),
+                style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
             ],
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: GuideStatusPill(
+              pressureDriftStatus(_Example.relativeDelta, context.l10n, significant: significant),
+            ),
           ),
         ],
       ),

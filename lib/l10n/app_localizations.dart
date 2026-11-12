@@ -13036,7 +13036,7 @@ abstract class AppLocalizations {
   /// Footer of the pressure check card when at least one pressure is off.
   ///
   /// In en, this message translates to:
-  /// **'On the right is what your pump would read now. Pump back to the value you last set for the same feel.'**
+  /// **'“Now” is what your pump would read today. Pump back to the “Set” value for the same feel.'**
   String get pressureCheckFooterDrifted;
 
   /// Footer of the pressure check card when every pressure is fine. {threshold} is the threshold, such as 3 %.
@@ -13069,11 +13069,23 @@ abstract class AppLocalizations {
   /// **'Needs the current temperature and altitude. Set the location and weather above.'**
   String get pressureCheckNoCurrentConditions;
 
-  /// Row of the pressure check card: the value that was last set. {value} is the pressure, {unit} its unit, {date} the setup date, {conditions} the temperature and altitude then.
+  /// Row of the pressure check card, under the pressure name: when the value was last set. {date} is the setup date, {conditions} the temperature and altitude then.
   ///
   /// In en, this message translates to:
-  /// **'Set {value} {unit} on {date} · {conditions}'**
-  String pressureCheckSetOn(String value, String unit, String date, String conditions);
+  /// **'Set on {date} · {conditions}'**
+  String pressureCheckSetOn(String date, String conditions);
+
+  /// Caption of the pressure check card column with what the pump would read now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get pressureCheckColumnNow;
+
+  /// Caption of the pressure check card column with the value last set in an earlier setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
+  String get pressureCheckColumnSet;
 
   /// A pressure in psi in the pressure check explanation. {value} is the formatted number.
   ///
@@ -13213,11 +13225,11 @@ abstract class AppLocalizations {
   /// **'Higher up'**
   String get pressureCheckExampleHigherUp;
 
-  /// Example card: the total drift. {value} is the signed pressure.
+  /// Example card: label of the total drift, shown next to the signed pressure.
   ///
   /// In en, this message translates to:
-  /// **'Total {value} psi'**
-  String pressureCheckExampleTotal(String value);
+  /// **'Total'**
+  String get pressureCheckExampleTotal;
 
   /// Summary of the component types the pressure check covers, when none is skipped.
   ///

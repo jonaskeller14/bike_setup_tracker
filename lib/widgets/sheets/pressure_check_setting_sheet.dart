@@ -108,7 +108,6 @@ class _PressureCheckSettingSheet extends StatelessWidget {
                   ),
                   ListTile(
                     enabled: enabled,
-                    leading: const Icon(Icons.category_outlined),
                     title: Text(pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, context.l10n)),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: () async {

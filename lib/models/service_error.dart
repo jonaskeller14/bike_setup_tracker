@@ -76,6 +76,8 @@ enum StravaErrorKind {
   noInternet,
   authentication,
   rateLimited,
+  ownedByOtherAccount,
+  limitReached,
 }
 
 typedef StravaFailure = ServiceError<StravaErrorKind>;

@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
+import '../../services/account_service.dart';
 import '../../services/strava_service.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/url.dart';
@@ -14,6 +15,7 @@ import '../../widgets/dialogs/strava_disconnect.dart';
 import '../../widgets/items/strava_subscription_card.dart';
 import '../../widgets/sheets/radio_group.dart';
 import 'about_page.dart';
+import 'account_page.dart';
 import 'attachments_page.dart';
 import 'features_page.dart';
 import 'help_page.dart';
@@ -52,18 +54,14 @@ class AppSettingsPage extends StatelessWidget {
                   subtitle: Text(l10n.settingsManageSubscriptionSubtitle),
                   trailing: const Icon(Icons.open_in_new, size: 16.0),
                   onTap: () {
-                    final url = Platform.isIOS
-                        ? 'https://apps.apple.com/account/subscriptions'
-                        : 'https://play.google.com/store/account/subscriptions'
-                            '?sku=strava_sync'
-                            '&package=com.jonaskeller14.bike_setup_tracker';
                     unawaited(launchAppUrl(
                       context,
-                      url: url,
+                      url: storeSubscriptionsUrl(Platform.isIOS ? 'ios' : 'android'),
                       launchMode: LaunchMode.externalApplication,
                     ));
                   },
                 ),
+                if (appSettings.enableAccounts) const _AccountTile(),
                 if (strava.isConnected) ...[
                   ListTile(
                     leading: const Icon(Icons.logout),
@@ -149,6 +147,23 @@ class AppSettingsPage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AccountTile extends StatelessWidget {
+  const _AccountTile();
+
+  @override
+  Widget build(BuildContext context) {
+    if (!context.select<AccountService, bool>((account) => account.isOnAccount)) return const SizedBox.shrink();
+    final l10n = context.l10n;
+    return ListTile(
+      leading: const Icon(Icons.account_circle_outlined),
+      title: Text(l10n.settingsAccount),
+      subtitle: Text(l10n.settingsAccountSubtitle),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+      onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AccountPage())),
     );
   }
 }

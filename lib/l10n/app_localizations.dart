@@ -15534,6 +15534,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Race'**
   String get adjustmentTemplateOptionRace;
+
+  /// Title of the developer toggle for cloud sync on the features page.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Sync'**
+  String get featuresCloudSync;
+
+  /// Info text of the cloud sync toggle on the features page.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncs your data between the devices of your account and keeps it backed up in the cloud. Needs a subscription and an account on this device. Still in development.'**
+  String get featuresCloudSyncInfo;
+
+  /// Title of the developer toggle for accounts on the features page.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get featuresAccounts;
+
+  /// Info text of the accounts toggle on the features page.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting Strava signs this device in to your account, so all your devices share one subscription and, with Cloud Sync, the same data. Still in development.'**
+  String get featuresAccountsInfo;
+
+  /// Settings tile that opens the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccount;
+
+  /// Subtitle of the account tile in the settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Your devices, sign out or delete the account'**
+  String get settingsAccountSubtitle;
+
+  /// Title of the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountTitle;
+
+  /// Account name on the account page when no Strava athlete name is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account'**
+  String get accountFallbackName;
+
+  /// Line under the account name: the account is reached by connecting Strava.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in through Strava'**
+  String get accountSignedInThroughStrava;
+
+  /// Subscription status on the account page. {date} is the expiry date.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription active until {date}'**
+  String accountPremiumActive(String date);
+
+  /// Subscription status on the account page without an active subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscription'**
+  String get accountPremiumInactive;
+
+  /// Section title of the signed-in devices on the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your devices'**
+  String get accountSectionDevices;
+
+  /// Shown when the device list of the account could not be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your devices could not be loaded.'**
+  String get accountDevicesLoadFailed;
+
+  /// Shown when the account has no signed-in devices.
+  ///
+  /// In en, this message translates to:
+  /// **'No signed-in devices'**
+  String get accountDevicesEmpty;
+
+  /// Marks the current device in the device list of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get accountThisDevice;
+
+  /// When a device of the account last opened the app. {date} is a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen {date}'**
+  String accountDeviceLastSeen(String date);
+
+  /// Tooltip of the button that signs another device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out this device'**
+  String get accountSignOutDeviceTooltip;
+
+  /// Title of the dialog that confirms signing another device out. {device} is its name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out {device}?'**
+  String accountSignOutDeviceTitle(String device);
+
+  /// Body of the dialog that confirms signing another device out.
+  ///
+  /// In en, this message translates to:
+  /// **'It is signed out the next time the app runs on it, and its Strava activities are removed. With cloud sync on there, its other data is removed too, because the cloud keeps a copy; otherwise it stays on the device. Your other devices stay signed in.'**
+  String get accountSignOutDeviceBody;
+
+  /// Destructive button that signs a device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get accountSignOutDeviceConfirm;
+
+  /// Snackbar after another device was signed out. {device} is its name.
+  ///
+  /// In en, this message translates to:
+  /// **'{device} was signed out'**
+  String accountSignOutDeviceDone(String device);
+
+  /// Snackbar when signing another device out failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The device could not be signed out. Check your connection and try again.'**
+  String get accountSignOutDeviceFailed;
+
+  /// Account page tile that signs this device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of this device'**
+  String get accountSignOut;
+
+  /// Subtitle of the sign-out tile on the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other devices stay signed in'**
+  String get accountSignOutSubtitle;
+
+  /// Title of the dialog that confirms signing this device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of this device?'**
+  String get accountSignOutTitle;
+
+  /// Body of the dialog that confirms signing this device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account, your subscription and your other devices are not affected. Connect Strava again to sign back in.'**
+  String get accountSignOutBody;
+
+  /// Checkbox in the sign-out and delete-account dialogs, on by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove data from this device'**
+  String get accountRemoveDataFromDevice;
+
+  /// Title of the dialog that warns about changes not uploaded to the cloud yet before signing out.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes not uploaded'**
+  String get accountUnsyncedChangesTitle;
+
+  /// Body of the dialog that warns about changes not uploaded yet. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change on this device hasn\'t been uploaded yet and will be lost.} other{{count} changes on this device haven\'t been uploaded yet and will be lost.}}'**
+  String accountUnsyncedChangesBody(int count);
+
+  /// Destructive button of the dialog that warns about changes not uploaded yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out anyway'**
+  String get accountUnsyncedChangesConfirm;
+
+  /// Snackbar after this device was signed out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out of this device'**
+  String get accountSignOutDone;
+
+  /// Snackbar when signing this device out failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out failed. Check your connection and try again.'**
+  String get accountSignOutFailed;
+
+  /// Account page tile that deletes the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get accountDelete;
+
+  /// Subtitle of the delete-account tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes the account and its data in the cloud'**
+  String get accountDeleteSubtitle;
+
+  /// Title of the dialog that confirms deleting the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get accountDeleteTitle;
+
+  /// Body of the dialog that confirms deleting the account.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account, its data in the cloud and your synced Strava activities, and signs out all your devices. The data on your other devices stays on them. It can\'t be undone.'**
+  String get accountDeleteBody;
+
+  /// Destructive button of the delete-account dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get accountDeleteConfirm;
+
+  /// Snackbar after the account was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was deleted'**
+  String get accountDeleteDone;
+
+  /// Snackbar when deleting the account failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The account could not be deleted. Check your connection and try again.'**
+  String get accountDeleteFailed;
+
+  /// Title of the dialog after deleting the account while a store subscription still renews.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription still renews'**
+  String get accountDeleteSubscriptionTitle;
+
+  /// Body of the dialog after deleting the account while a store subscription still renews. {store} is "Apple App Store" or "Google Play Store".
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting the account doesn\'t cancel the subscription. Cancel it in the {store} to stop the payments.'**
+  String accountDeleteSubscriptionBody(String store);
+
+  /// Snackbar when this device was signed out of the account from another device.
+  ///
+  /// In en, this message translates to:
+  /// **'This device was signed out of your account from another device, and its data was removed.'**
+  String get accountNoticeSessionRevoked;
+
+  /// Snackbar when this device was signed out of the account from another device and kept its data (cloud sync off).
+  ///
+  /// In en, this message translates to:
+  /// **'This device was signed out of your account from another device. Its Strava activities were removed; your other data stays on it.'**
+  String get accountNoticeSessionRevokedDataKept;
+
+  /// Snackbar when the account was deleted (for example on another device).
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was deleted and this device was signed out. Its Strava activities were removed; your other data stays on it.'**
+  String get accountNoticeAccountDeleted;
+
+  /// Body of the Strava disconnect dialog on a device that is signed in to an account.
+  ///
+  /// In en, this message translates to:
+  /// **'This revokes the app\'s access and deletes your synced activities from our secure storage. Strava is disconnected on all devices of your account; none of them is signed out. Your Strava account itself is not affected.'**
+  String get stravaDisconnectBodyAccount;
+
+  /// Error when the Strava athlete belongs to another account of the app.
+  ///
+  /// In en, this message translates to:
+  /// **'This Strava account belongs to another account. Sign out of this device first, then connect Strava again.'**
+  String get stravaErrorOwnedByOtherAccount;
+
+  /// Error when no new Strava connections are accepted right now.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Sync isn\'t accepting new connections right now. Please try again later.'**
+  String get stravaErrorLimitReached;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

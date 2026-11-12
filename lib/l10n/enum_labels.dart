@@ -510,6 +510,8 @@ extension StravaFailureMessage on StravaFailure {
     StravaErrorKind.noInternet => l10n.errorNoInternetRetry,
     StravaErrorKind.authentication => l10n.stravaErrorAuthentication,
     StravaErrorKind.rateLimited => l10n.stravaErrorRateLimited,
+    StravaErrorKind.ownedByOtherAccount => l10n.stravaErrorOwnedByOtherAccount,
+    StravaErrorKind.limitReached => l10n.stravaErrorLimitReached,
   };
 }
 

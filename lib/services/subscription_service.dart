@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -16,6 +15,7 @@ import '../models/service_error.dart';
 import '../models/strava/strava_entitlement.dart';
 import '../models/strava/strava_plan.dart';
 import '../models/strava/strava_store_offer.dart';
+import 'account_service.dart';
 import 'error_reporter.dart';
 
 export '../models/strava/strava_entitlement.dart';
@@ -52,7 +52,7 @@ class SubscriptionError extends SubscriptionState {
   SubscriptionFailure get failure => ServiceError(kind, detail);
 }
 
-class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
+class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver implements UserBoundService {
   static const String _firestoreField = 'entitlement';
 
   final InAppPurchase _iap = InAppPurchase.instance;
@@ -64,6 +64,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   bool _isDisposed = false;
   bool _storeAvailable = false;
   String? _userId;
+  AccountService? _account;
 
   bool _justPurchasedStrava = false;
   bool get justPurchasedStrava => _justPurchasedStrava;
@@ -203,9 +204,10 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   /// Idempotent init — safe to call from a ChangeNotifierProxyProvider's
   /// update callback. Requires that `enableStrava` is true; otherwise we
   /// short-circuit so we don't query the store for users not in the rollout.
-  Future<void> initialize({required bool enableStrava}) async {
+  Future<void> initialize({required bool enableStrava, required AccountService accountService}) async {
     if (_isInitialized || !enableStrava) return;
     _isInitialized = true;
+    _account = accountService;
     WidgetsBinding.instance.addObserver(this);
 
     try {
@@ -233,7 +235,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // restored purchase triggers verifySubscription, which requires an
       // authenticated user — restoring first races sign-in and the first
       // verify call lands unauthenticated.
-      await _bindUser();
+      await accountService.bind(this);
 
       if (_storeAvailable) {
         await _loadProducts();
@@ -252,16 +254,15 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Resolve the anonymous Firebase user (reused with StravaService) and
-  /// start streaming the entitlement field. Called once on first init and on
-  /// every auth change.
-  Future<void> _bindUser() async {
-    final user = await AuthService.ensureSignedIn();
-    _userId = user?.uid;
-    if (_userId == null) return;
-
+  /// Streams the entitlement field of [uid]. Called on first init and after
+  /// every uid switch ([AccountService]).
+  @override
+  Future<void> bindUser(String uid) async {
+    _userId = uid;
     await _entitlementSub?.cancel();
-    _entitlementSub = FirebaseFirestore.instance.collection('users').doc(_userId).snapshots().listen((snap) {
+    // The first snapshot after a switch belongs to another user, not a lapse.
+    var isFirstSnapshot = true;
+    _entitlementSub = FirebaseFirestore.instance.collection('users').doc(uid).snapshots().listen((snap) {
       final previousEntitlement = _entitlement;
       final data = snap.data();
       final entitlementMap = data?[_firestoreField] as Map<String, dynamic>?;
@@ -274,7 +275,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // a manual "Restore purchase" tap. While restoring, strava.dart routes to
       // the dashboard (isRestoring=true + isConnected=true), so the user sees
       // no interruption if the webhook updates Firestore within seconds.
-      if (previousEntitlement?.isActive == true &&
+      if (!isFirstSnapshot &&
+          previousEntitlement?.isActive == true &&
           !(_entitlement?.isActive ?? false) &&
           _storeAvailable &&
           !_isRestoring) {
@@ -282,10 +284,24 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         _beginRestore();
         unawaited(_iap.restorePurchases());
       }
+      isFirstSnapshot = false;
     }, onError: (Object e, StackTrace s) {
+      // On an account, a denied read is how a revoked session shows up first.
+      if (e is FirebaseException && e.code == 'permission-denied' && (_account?.isOnAccount ?? false)) {
+        unawaited(_account!.recheckSession());
+        return;
+      }
       _report('entitlementStream', e, s);
       _setState(SubscriptionError(SubscriptionErrorKind.entitlementStreamFailed, e.toString()));
     });
+  }
+
+  @override
+  Future<void> unbindUser() async {
+    final entitlementSub = _entitlementSub;
+    _entitlementSub = null;
+    _userId = null;
+    await entitlementSub?.cancel();
   }
 
   Future<void> _loadProducts() async {
@@ -567,12 +583,16 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // notifyListeners on its own — no need to set state here.
       return true;
     } on FirebaseFunctionsException catch (e, s) {
+      if (_account?.handleSessionRevoked(e) ?? false) {
+        _setState(const SubscriptionIdle());
+        return false;
+      }
       // Transient (auth/App Check not ready, network) → bounded retry with
       // backoff. ensureSignedIn() is cheap when already signed in.
       final isTransient = e.code == 'unauthenticated' || e.code == 'unavailable' || e.code == 'deadline-exceeded';
       if (isTransient && attempt < _maxVerifyAttempts - 1) {
         debugPrint('SubscriptionService: verify failed (${e.code}) — retry ${attempt + 1}/${_maxVerifyAttempts - 1}');
-        await AuthService.ensureSignedIn();
+        await _account?.ensureSignedIn();
         await Future<void>.delayed(Duration(seconds: 1 << attempt));
         return _verifyAndAcknowledge(pd, attempt: attempt + 1);
       }
@@ -657,28 +677,4 @@ class _StoreKitPaymentQueueDelegate implements SKPaymentQueueDelegateWrapper {
 
   @override
   bool shouldShowPriceConsent() => false;
-}
-
-/// Multiple services (`StravaService`, [SubscriptionService]) need the same
-/// anonymous UID at startup. If each calls [FirebaseAuth.signInAnonymously]
-/// independently, concurrent calls on a fresh install create *two* anonymous
-/// users — the captured UID then mismatches the token the Firestore SDK uses,
-/// causing transient PERMISSION_DENIED on per-user document listeners.
-class AuthService {
-  AuthService._();
-
-  static Future<User?>? _inFlight;
-
-  static Future<User?> ensureSignedIn() => _inFlight ??= _resolve();
-
-  static Future<User?> _resolve() async {
-    try {
-      User? user = await FirebaseAuth.instance.authStateChanges().first;
-      user ??= (await FirebaseAuth.instance.signInAnonymously()).user;
-      return user;
-    } catch (_) {
-      _inFlight = null;
-      rethrow;
-    }
-  }
 }

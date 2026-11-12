@@ -50,6 +50,22 @@ class FeaturesPage extends StatelessWidget {
           onChanged: (v) => appSettings.enableGoogleDrive = v,
           infoText: l10n.featuresGoogleDriveInfo,
         ),
+      if (appSettings.developerMode) ...[
+        _FeatureToggleTile(
+          icon: Icons.cloud_sync_outlined,
+          title: l10n.featuresCloudSync,
+          value: appSettings.enableCloudSync,
+          onChanged: (v) => appSettings.enableCloudSync = v,
+          infoText: l10n.featuresCloudSyncInfo,
+        ),
+        _FeatureToggleTile(
+          icon: Icons.account_circle_outlined,
+          title: l10n.featuresAccounts,
+          value: appSettings.enableAccounts,
+          onChanged: (v) => appSettings.enableAccounts = v,
+          infoText: l10n.featuresAccountsInfo,
+        ),
+      ],
       if (appSettings.developerMode)
         _FeatureToggleTile(
           icon: Icons.map,

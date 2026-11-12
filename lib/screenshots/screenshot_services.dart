@@ -4,6 +4,7 @@ import '../models/app_settings.dart';
 import '../models/context/context_weather.dart';
 import '../models/strava/strava_plan.dart';
 import '../repositories/app_repository.dart';
+import '../services/account_service.dart';
 import '../services/strava_service.dart';
 import '../services/subscription_service.dart';
 import '../services/weather_service.dart';
@@ -30,7 +31,7 @@ class ScreenshotSubscriptionService extends SubscriptionService {
   StravaPlan? get activePlan => _screenshotEntitlement.plan;
 
   @override
-  Future<void> initialize({required bool enableStrava}) async {}
+  Future<void> initialize({required bool enableStrava, required AccountService accountService}) async {}
 
   @override
   Future<void> buy(StravaPlan plan) async {}
@@ -56,7 +57,11 @@ class ScreenshotStravaService extends StravaService {
   DateTime? get lastFullSync => _syncedAt;
 
   @override
-  Future<void> update({required AppRepository appRepository, required AppSettings appSettings}) async {}
+  Future<void> update({
+    required AppRepository appRepository,
+    required AppSettings appSettings,
+    required AccountService accountService,
+  }) async {}
 
   @override
   Future<StravaAvailability> checkAvailability({bool force = false}) async => StravaAvailability.available;

@@ -12799,5 +12799,223 @@
   "adjustmentTemplateOptionRace": "Race",
   "@adjustmentTemplateOptionRace": {
     "description": "Option of the categorical template person:riding_style. It becomes an option of the adjustment, which is stored as written."
+  },
+  "featuresCloudSync": "Cloud Sync",
+  "@featuresCloudSync": {
+    "description": "Title of the developer toggle for cloud sync on the features page."
+  },
+  "featuresCloudSyncInfo": "Syncs your data between the devices of your account and keeps it backed up in the cloud. Needs a subscription and an account on this device. Still in development.",
+  "@featuresCloudSyncInfo": {
+    "description": "Info text of the cloud sync toggle on the features page."
+  },
+  "featuresAccounts": "Accounts",
+  "@featuresAccounts": {
+    "description": "Title of the developer toggle for accounts on the features page."
+  },
+  "featuresAccountsInfo": "Connecting Strava signs this device in to your account, so all your devices share one subscription and, with Cloud Sync, the same data. Still in development.",
+  "@featuresAccountsInfo": {
+    "description": "Info text of the accounts toggle on the features page."
+  },
+  "settingsAccount": "Account",
+  "@settingsAccount": {
+    "description": "Settings tile that opens the account page."
+  },
+  "settingsAccountSubtitle": "Your devices, sign out or delete the account",
+  "@settingsAccountSubtitle": {
+    "description": "Subtitle of the account tile in the settings."
+  },
+  "accountTitle": "Account",
+  "@accountTitle": {
+    "description": "Title of the account page."
+  },
+  "accountFallbackName": "Your account",
+  "@accountFallbackName": {
+    "description": "Account name on the account page when no Strava athlete name is known."
+  },
+  "accountSignedInThroughStrava": "Signed in through Strava",
+  "@accountSignedInThroughStrava": {
+    "description": "Line under the account name: the account is reached by connecting Strava."
+  },
+  "accountPremiumActive": "Subscription active until {date}",
+  "@accountPremiumActive": {
+    "description": "Subscription status on the account page. {date} is the expiry date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accountPremiumInactive": "No active subscription",
+  "@accountPremiumInactive": {
+    "description": "Subscription status on the account page without an active subscription."
+  },
+  "accountSectionDevices": "Your devices",
+  "@accountSectionDevices": {
+    "description": "Section title of the signed-in devices on the account page."
+  },
+  "accountDevicesLoadFailed": "Your devices could not be loaded.",
+  "@accountDevicesLoadFailed": {
+    "description": "Shown when the device list of the account could not be loaded."
+  },
+  "accountDevicesEmpty": "No signed-in devices",
+  "@accountDevicesEmpty": {
+    "description": "Shown when the account has no signed-in devices."
+  },
+  "accountThisDevice": "This device",
+  "@accountThisDevice": {
+    "description": "Marks the current device in the device list of the account."
+  },
+  "accountDeviceLastSeen": "Last seen {date}",
+  "@accountDeviceLastSeen": {
+    "description": "When a device of the account last opened the app. {date} is a date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSignOutDeviceTooltip": "Sign out this device",
+  "@accountSignOutDeviceTooltip": {
+    "description": "Tooltip of the button that signs another device out of the account."
+  },
+  "accountSignOutDeviceTitle": "Sign out {device}?",
+  "@accountSignOutDeviceTitle": {
+    "description": "Title of the dialog that confirms signing another device out. {device} is its name.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSignOutDeviceBody": "It is signed out the next time the app runs on it, and its Strava activities are removed. With cloud sync on there, its other data is removed too, because the cloud keeps a copy; otherwise it stays on the device. Your other devices stay signed in.",
+  "@accountSignOutDeviceBody": {
+    "description": "Body of the dialog that confirms signing another device out."
+  },
+  "accountSignOutDeviceConfirm": "Sign out",
+  "@accountSignOutDeviceConfirm": {
+    "description": "Destructive button that signs a device out of the account."
+  },
+  "accountSignOutDeviceDone": "{device} was signed out",
+  "@accountSignOutDeviceDone": {
+    "description": "Snackbar after another device was signed out. {device} is its name.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSignOutDeviceFailed": "The device could not be signed out. Check your connection and try again.",
+  "@accountSignOutDeviceFailed": {
+    "description": "Snackbar when signing another device out failed."
+  },
+  "accountSignOut": "Sign out of this device",
+  "@accountSignOut": {
+    "description": "Account page tile that signs this device out of the account."
+  },
+  "accountSignOutSubtitle": "Your other devices stay signed in",
+  "@accountSignOutSubtitle": {
+    "description": "Subtitle of the sign-out tile on the account page."
+  },
+  "accountSignOutTitle": "Sign out of this device?",
+  "@accountSignOutTitle": {
+    "description": "Title of the dialog that confirms signing this device out of the account."
+  },
+  "accountSignOutBody": "Your account, your subscription and your other devices are not affected. Connect Strava again to sign back in.",
+  "@accountSignOutBody": {
+    "description": "Body of the dialog that confirms signing this device out of the account."
+  },
+  "accountRemoveDataFromDevice": "Remove data from this device",
+  "@accountRemoveDataFromDevice": {
+    "description": "Checkbox in the sign-out and delete-account dialogs, on by default."
+  },
+  "accountUnsyncedChangesTitle": "Changes not uploaded",
+  "@accountUnsyncedChangesTitle": {
+    "description": "Title of the dialog that warns about changes not uploaded to the cloud yet before signing out."
+  },
+  "accountUnsyncedChangesBody": "{count, plural, =1{1 change on this device hasn't been uploaded yet and will be lost.} other{{count} changes on this device haven't been uploaded yet and will be lost.}}",
+  "@accountUnsyncedChangesBody": {
+    "description": "Body of the dialog that warns about changes not uploaded yet. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountUnsyncedChangesConfirm": "Sign out anyway",
+  "@accountUnsyncedChangesConfirm": {
+    "description": "Destructive button of the dialog that warns about changes not uploaded yet."
+  },
+  "accountSignOutDone": "Signed out of this device",
+  "@accountSignOutDone": {
+    "description": "Snackbar after this device was signed out of the account."
+  },
+  "accountSignOutFailed": "Signing out failed. Check your connection and try again.",
+  "@accountSignOutFailed": {
+    "description": "Snackbar when signing this device out failed."
+  },
+  "accountDelete": "Delete account",
+  "@accountDelete": {
+    "description": "Account page tile that deletes the account."
+  },
+  "accountDeleteSubtitle": "Deletes the account and its data in the cloud",
+  "@accountDeleteSubtitle": {
+    "description": "Subtitle of the delete-account tile."
+  },
+  "accountDeleteTitle": "Delete your account?",
+  "@accountDeleteTitle": {
+    "description": "Title of the dialog that confirms deleting the account."
+  },
+  "accountDeleteBody": "This permanently deletes your account, its data in the cloud and your synced Strava activities, and signs out all your devices. The data on your other devices stays on them. It can't be undone.",
+  "@accountDeleteBody": {
+    "description": "Body of the dialog that confirms deleting the account."
+  },
+  "accountDeleteConfirm": "Delete account",
+  "@accountDeleteConfirm": {
+    "description": "Destructive button of the delete-account dialog."
+  },
+  "accountDeleteDone": "Your account was deleted",
+  "@accountDeleteDone": {
+    "description": "Snackbar after the account was deleted."
+  },
+  "accountDeleteFailed": "The account could not be deleted. Check your connection and try again.",
+  "@accountDeleteFailed": {
+    "description": "Snackbar when deleting the account failed."
+  },
+  "accountDeleteSubscriptionTitle": "Your subscription still renews",
+  "@accountDeleteSubscriptionTitle": {
+    "description": "Title of the dialog after deleting the account while a store subscription still renews."
+  },
+  "accountDeleteSubscriptionBody": "Deleting the account doesn't cancel the subscription. Cancel it in the {store} to stop the payments.",
+  "@accountDeleteSubscriptionBody": {
+    "description": "Body of the dialog after deleting the account while a store subscription still renews. {store} is \"Apple App Store\" or \"Google Play Store\".",
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "accountNoticeSessionRevoked": "This device was signed out of your account from another device, and its data was removed.",
+  "@accountNoticeSessionRevoked": {
+    "description": "Snackbar when this device was signed out of the account from another device."
+  },
+  "accountNoticeSessionRevokedDataKept": "This device was signed out of your account from another device. Its Strava activities were removed; your other data stays on it.",
+  "@accountNoticeSessionRevokedDataKept": {
+    "description": "Snackbar when this device was signed out of the account from another device and kept its data (cloud sync off)."
+  },
+  "accountNoticeAccountDeleted": "Your account was deleted and this device was signed out. Its Strava activities were removed; your other data stays on it.",
+  "@accountNoticeAccountDeleted": {
+    "description": "Snackbar when the account was deleted (for example on another device)."
+  },
+  "stravaDisconnectBodyAccount": "This revokes the app's access and deletes your synced activities from our secure storage. Strava is disconnected on all devices of your account; none of them is signed out. Your Strava account itself is not affected.",
+  "@stravaDisconnectBodyAccount": {
+    "description": "Body of the Strava disconnect dialog on a device that is signed in to an account."
+  },
+  "stravaErrorOwnedByOtherAccount": "This Strava account belongs to another account. Sign out of this device first, then connect Strava again.",
+  "@stravaErrorOwnedByOtherAccount": {
+    "description": "Error when the Strava athlete belongs to another account of the app."
+  },
+  "stravaErrorLimitReached": "Strava Sync isn't accepting new connections right now. Please try again later.",
+  "@stravaErrorLimitReached": {
+    "description": "Error when no new Strava connections are accepted right now."
   }
 }

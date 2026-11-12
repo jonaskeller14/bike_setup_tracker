@@ -24,7 +24,9 @@ import 'pages/onboarding_page.dart';
 import 'repositories/app_repository.dart';
 import 'repositories/component_catalog_repository.dart';
 import 'repositories/filter_persistence.dart';
+import 'services/account_service.dart';
 import 'services/app_hint_service.dart';
+import 'services/attachment_storage_service.dart';
 import 'services/backup_service.dart';
 import 'services/catalog_migration_service.dart';
 import 'services/database_migration_service.dart';
@@ -40,6 +42,7 @@ import 'services/subscription_service.dart';
 import 'services/tip_service.dart';
 import 'theme.dart';
 import 'utils/regional_defaults.dart';
+import 'widgets/account_notice_listener.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -227,6 +230,16 @@ class _LoadingGateState extends State<LoadingGate> {
     await widget.appRepository.initialDataLoaded;
   }
 
+  /// What signing out of an account removes from the device.
+  Future<void> _clearLocalData({required bool removeData}) async {
+    final repository = widget.appRepository;
+    if (removeData) {
+      await repository.database.deleteAllUserData();
+      await AttachmentStorageService().deleteAll();
+    }
+    await repository.clearStravaData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -280,21 +293,38 @@ class _LoadingGateState extends State<LoadingGate> {
                   return googleDriveService!;
                 },
               ),
-              ChangeNotifierProxyProvider2<AppSettings, AppRepository, StravaService>(
+              ChangeNotifierProxyProvider<AppSettings, AccountService>(
+                lazy: false,
+                create: (context) => AccountService(clearLocalData: _clearLocalData),
+                update: (context, settings, accountService) {
+                  unawaited(
+                    accountService!.initialize(
+                      enableAccounts: settings.enableAccounts,
+                      enableCloudSync: settings.enableCloudSync,
+                    ),
+                  );
+                  return accountService;
+                },
+              ),
+              ChangeNotifierProxyProvider3<AppSettings, AppRepository, AccountService, StravaService>(
                 lazy: false,
                 create: (context) => widget.createStravaService(widget.appRepository, widget.appSettings),
-                update: (context, settings, appRepo, stravaService) {
+                update: (context, settings, appRepo, accountService, stravaService) {
                   if (settings.enableStrava) {
-                    unawaited(stravaService!.update(appRepository: appRepo, appSettings: settings));
+                    unawaited(
+                      stravaService!.update(appRepository: appRepo, appSettings: settings, accountService: accountService),
+                    );
                   }
                   return stravaService!;
                 },
               ),
-              ChangeNotifierProxyProvider<AppSettings, SubscriptionService>(
+              ChangeNotifierProxyProvider2<AppSettings, AccountService, SubscriptionService>(
                 lazy: false,
                 create: (context) => widget.createSubscriptionService(),
-                update: (context, settings, subscriptionService) {
-                  unawaited(subscriptionService!.initialize(enableStrava: settings.enableStrava));
+                update: (context, settings, accountService, subscriptionService) {
+                  unawaited(
+                    subscriptionService!.initialize(enableStrava: settings.enableStrava, accountService: accountService),
+                  );
                   return subscriptionService;
                 },
               ),
@@ -385,7 +415,7 @@ class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsB
         Intl.defaultLocale = loadedLocale.toString();
         unawaited(QuickActionsService().updateLocale(loadedLocale));
         unawaited(context.read<StravaService>().updateNotificationLanguage(loadedLocale.languageCode));
-        return child!;
+        return AccountNoticeListener(child: child!);
       },
       navigatorKey: NavigationService.navigatorKey,
       home: showOnboarding ? const OnboardingPage() : const HomePage(),

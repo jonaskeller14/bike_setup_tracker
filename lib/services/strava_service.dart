@@ -13,8 +13,8 @@ import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
+import 'account_service.dart';
 import 'error_reporter.dart';
-import 'subscription_service.dart';
   
 sealed class StravaState {
   const StravaState();
@@ -44,7 +44,7 @@ class StravaFailed extends StravaState {
 
 enum StravaAvailability { available, full, networkError }
 
-class StravaService extends ChangeNotifier {
+class StravaService extends ChangeNotifier implements UserBoundService {
   static const String _stravaClientId = "193047";
   static String get _redirectUri {
     final projectId = Firebase.app().options.projectId;
@@ -119,7 +119,7 @@ class StravaService extends ChangeNotifier {
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _athleteSubscription;
   bool _isDisposed = false;
   bool _wasEntitled = false;
-  bool _hasFcmToken = false;
+  String? _fcmToken;
   String? _notificationLanguage;
 
   DateTime? _lastRecentSync;
@@ -128,6 +128,7 @@ class StravaService extends ChangeNotifier {
 
   AppRepository _appRepository;
   AppSettings _appSettings;
+  AccountService? _account;
 
   StravaService(this._appRepository, this._appSettings);
 
@@ -154,22 +155,47 @@ class StravaService extends ChangeNotifier {
     }
   }
 
-  Future<void> update({required AppRepository appRepository, required AppSettings appSettings}) async {
+  Future<void> update({
+    required AppRepository appRepository,
+    required AppSettings appSettings,
+    required AccountService accountService,
+  }) async {
     _appRepository = appRepository;
     _appSettings = appSettings;
+    _account = accountService;
+    // Turning accounts on moves an already linked device in without a restart.
+    if (appSettings.enableAccounts && _activeAthleteId != null) {
+      unawaited(accountService.startSession(athleteId: _activeAthleteId));
+    }
 
     if (_isInitialized || isDisconnecting) return;
     _isInitialized = true;
 
     try {
-      await _loadUserId();
-      await _listenToUserDocument();
-      await _registerFcmToken();
-      await _syncSettingsToFirestore();
+      await accountService.bind(this);
       unawaited(checkAvailability());
     } catch (e) {
       _isInitialized = false;
     }
+  }
+
+  @override
+  Future<void> bindUser(String uid) async {
+    _userId = uid;
+    notifyListeners();
+    await _listenToUserDocument();
+    await _registerDevice();
+  }
+
+  @override
+  Future<void> unbindUser() async {
+    await _stopListening();
+    _userId = null;
+    _linkedAthletes = const [];
+    _activeAthleteId = null;
+    _wasEntitled = false;
+    _fcmToken = null;
+    notifyListeners();
   }
 
   /// Helper to process sync dates from Firestore (handles both Timestamps and Strings)
@@ -222,6 +248,7 @@ class StravaService extends ChangeNotifier {
         unawaited(_stopDataListeners());
         if (_activeAthleteId != null) {
           _startDataListeners();
+          if (_appSettings.enableAccounts) unawaited(_account?.startSession(athleteId: _activeAthleteId));
         } else {
           unawaited(_appRepository.clearStravaData());
         }
@@ -229,7 +256,13 @@ class StravaService extends ChangeNotifier {
         // Athlete unchanged but doc updated — check if subscription lapsed.
         _checkEntitlementExpiry(data);
       }
-    }, onError: (Object e) => _handleError("UserDoc", e, userError: StravaErrorKind.connectionVerifyFailed));
+    }, onError: (Object e) {
+      // On an account, a denied read is how a revoked session shows up first.
+      if (e is FirebaseException && e.code == 'permission-denied' && (_account?.isOnAccount ?? false)) {
+        unawaited(_account!.recheckSession());
+      }
+      _handleError("UserDoc", e, userError: StravaErrorKind.connectionVerifyFailed);
+    });
   }
 
   // Start and stop swap the subscription fields synchronously: callers fire
@@ -402,31 +435,43 @@ class StravaService extends ChangeNotifier {
     _wasEntitled = isEntitled;
   }
 
-  Future<void> _registerFcmToken() async {
+  /// Registers this device's FCM token in `users/{uid}/devices/{deviceId}`.
+  /// The legacy `users/{uid}.fcm_token` fields are no longer written (their
+  /// `expiresAt` TTL would delete an account); the backend still reads them
+  /// for older app versions.
+  Future<void> _registerDevice() async {
     if (_userId == null) return;
     try {
       final messaging = FirebaseMessaging.instance;
       final NotificationSettings settings = await messaging.requestPermission();
-
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        final String? token = await messaging.getToken();
-        if (token != null) {
-          final Map<String, dynamic> data = {'fcm_token': token};
-
-          // TTL: cleanup anonymous user docs that never link Strava. Once a
-          // user links any athlete, this device "counts" — drop the TTL so
-          // the doc survives indefinitely.
-          if (!isConnected) {
-            data['expiresAt'] = Timestamp.fromDate(DateTime.now().add(const Duration(days: 365)));
-          }
-
-          await FirebaseFirestore.instance.collection('users').doc(_userId).set(data, SetOptions(merge: true));
-          _hasFcmToken = true;
-          await _writeNotificationLanguage();
-        }
-      }
+      if (settings.authorizationStatus != AuthorizationStatus.authorized) return;
+      _fcmToken = await messaging.getToken();
+      await _writeDevice();
     } catch (e) {
       _handleError("FcmToken", e);
+    }
+  }
+
+  // The whole doc on every write: the rules want `lastSeen == request.time`
+  // and a fresh `expiresAt` each time.
+  Future<void> _writeDevice({bool? notificationsEnabled}) async {
+    final uid = _userId;
+    final token = _fcmToken;
+    final account = _account;
+    final platform = AccountService.platformName;
+    if (uid == null || token == null || account == null || platform == null) return;
+    try {
+      final deviceId = await account.ensureDeviceId();
+      await FirebaseFirestore.instance.collection('users').doc(uid).collection('devices').doc(deviceId).set({
+        'token': token,
+        'platform': platform,
+        'language': ?_notificationLanguage,
+        'enableStravaNotifications': notificationsEnabled ?? _appSettings.enableStravaNotifications,
+        'lastSeen': FieldValue.serverTimestamp(),
+        'expiresAt': Timestamp.fromDate(DateTime.now().add(const Duration(days: 365))),
+      });
+    } catch (e) {
+      _handleError("DeviceDoc", e);
     }
   }
 
@@ -435,42 +480,15 @@ class StravaService extends ChangeNotifier {
   Future<void> updateNotificationLanguage(String languageCode) async {
     if (languageCode == _notificationLanguage) return;
     _notificationLanguage = languageCode;
-    if (_hasFcmToken) await _writeNotificationLanguage();
-  }
-
-  // Separate from the token write, so a rejected language never costs the token.
-  Future<void> _writeNotificationLanguage() async {
-    final language = _notificationLanguage;
-    if (_userId == null || language == null) return;
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(_userId).set({
-        'language': language,
-      }, SetOptions(merge: true));
-    } catch (e) {
-      _handleError("NotificationLanguage", e);
-    }
+    await _writeDevice();
   }
 
   Future<void> _loadUserId() async {
-    final user = await AuthService.ensureSignedIn();
-    _userId = user?.uid;
+    _userId = await _account?.ensureSignedIn();
     notifyListeners();
   }
 
-  Future<void> _syncSettingsToFirestore() async {
-    await setStravaNotificationsEnabled(_appSettings.enableStravaNotifications);
-  }
-
-  Future<void> setStravaNotificationsEnabled(bool enabled) async {
-    if (_userId == null || _activeAthleteId == null) return;
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(_userId).set({
-        'enable_strava_notifications': enabled,
-      }, SetOptions(merge: true));
-    } catch (e) {
-      _handleError("SyncSettingsUp", e);
-    }
-  }
+  Future<void> setStravaNotificationsEnabled(bool enabled) => _writeDevice(notificationsEnabled: enabled);
 
   DateTime? get lastRecentSync => _lastRecentSync;
   DateTime? get lastFullSync => _lastFullSync;
@@ -630,6 +648,10 @@ class StravaService extends ChangeNotifier {
       // via [handleStravaAuthCallback]. If the user cancels in the browser
       // they can just retap the button.
     } catch (e) {
+      if (_account?.handleSessionRevoked(e) ?? false) {
+        _setState(const StravaIdle());
+        return;
+      }
       _setState(StravaFailed(StravaErrorKind.loginFailed, e.toString()));
     }
   }
@@ -640,13 +662,13 @@ class StravaService extends ChangeNotifier {
   /// failure we surface the error inline on the sheet.
   void handleStravaAuthCallback({required bool success, String? error}) {
     if (success) return;
-    _setState(
-      error == 'permission_denied'
-          ? const StravaFailed(StravaErrorKind.subscriptionRequired)
-          : error != null && error.isNotEmpty
-          ? StravaFailed(StravaErrorKind.signInFailed, error)
-          : const StravaFailed(StravaErrorKind.signInFailedGeneric),
-    );
+    _setState(switch (error) {
+      'permission_denied' => const StravaFailed(StravaErrorKind.subscriptionRequired),
+      'owned_by_other_account' => const StravaFailed(StravaErrorKind.ownedByOtherAccount),
+      'limit_reached' || 'manual_stop' => const StravaFailed(StravaErrorKind.limitReached),
+      final error? when error.isNotEmpty => StravaFailed(StravaErrorKind.signInFailed, error),
+      _ => const StravaFailed(StravaErrorKind.signInFailedGeneric),
+    });
   }
 
   Future<void> disconnect() async {
@@ -690,6 +712,10 @@ class StravaService extends ChangeNotifier {
       }
       _setState(const StravaIdle());
     } on FirebaseFunctionsException catch (e) {
+      if (_account?.handleSessionRevoked(e) ?? false) {
+        _setState(const StravaIdle());
+        return;
+      }
       final friendly = _friendlyFunctionError(e);
       _setState(
         StravaFailed(
@@ -710,6 +736,10 @@ class StravaService extends ChangeNotifier {
       await functions.httpsCallable('syncFullHistory').call<void>();
       _setState(const StravaIdle());
     } on FirebaseFunctionsException catch (e) {
+      if (_account?.handleSessionRevoked(e) ?? false) {
+        _setState(const StravaIdle());
+        return;
+      }
       final friendly = _friendlyFunctionError(e);
       _setState(
         StravaFailed(

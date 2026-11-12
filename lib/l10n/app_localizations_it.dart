@@ -9565,4 +9565,174 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get adjustmentTemplateOptionRace => 'Race';
+
+  @override
+  String get featuresCloudSync => 'Sincronizzazione cloud';
+
+  @override
+  String get featuresCloudSyncInfo =>
+      'Sincronizza i tuoi dati tra i dispositivi del tuo account e ne conserva un backup nel cloud. Richiede un abbonamento e un account su questo dispositivo. Ancora in sviluppo.';
+
+  @override
+  String get featuresAccounts => 'Account';
+
+  @override
+  String get featuresAccountsInfo =>
+      'Collegando Strava, questo dispositivo accede al tuo account: così tutti i tuoi dispositivi condividono un abbonamento e, con la sincronizzazione cloud, gli stessi dati. Ancora in sviluppo.';
+
+  @override
+  String get settingsAccount => 'Account';
+
+  @override
+  String get settingsAccountSubtitle => 'I tuoi dispositivi, esci o elimina l’account';
+
+  @override
+  String get accountTitle => 'Account';
+
+  @override
+  String get accountFallbackName => 'Il tuo account';
+
+  @override
+  String get accountSignedInThroughStrava => 'Accesso tramite Strava';
+
+  @override
+  String accountPremiumActive(String date) {
+    return 'Abbonamento attivo fino al $date';
+  }
+
+  @override
+  String get accountPremiumInactive => 'Nessun abbonamento attivo';
+
+  @override
+  String get accountSectionDevices => 'I tuoi dispositivi';
+
+  @override
+  String get accountDevicesLoadFailed => 'Impossibile caricare i tuoi dispositivi.';
+
+  @override
+  String get accountDevicesEmpty => 'Nessun dispositivo connesso';
+
+  @override
+  String get accountThisDevice => 'Questo dispositivo';
+
+  @override
+  String accountDeviceLastSeen(String date) {
+    return 'Ultima attività: $date';
+  }
+
+  @override
+  String get accountSignOutDeviceTooltip => 'Disconnetti questo dispositivo';
+
+  @override
+  String accountSignOutDeviceTitle(String device) {
+    return 'Disconnettere $device?';
+  }
+
+  @override
+  String get accountSignOutDeviceBody =>
+      'Verrà disconnesso la prossima volta che l’app si avvia su di esso e le sue attività Strava verranno rimosse. Se lì è attiva la sincronizzazione cloud, verranno rimossi anche gli altri dati, perché il cloud ne conserva una copia; altrimenti restano sul dispositivo. Gli altri tuoi dispositivi restano connessi.';
+
+  @override
+  String get accountSignOutDeviceConfirm => 'Esci';
+
+  @override
+  String accountSignOutDeviceDone(String device) {
+    return '$device è stato disconnesso';
+  }
+
+  @override
+  String get accountSignOutDeviceFailed =>
+      'Impossibile disconnettere il dispositivo. Controlla la connessione e riprova.';
+
+  @override
+  String get accountSignOut => 'Esci su questo dispositivo';
+
+  @override
+  String get accountSignOutSubtitle => 'Gli altri tuoi dispositivi restano connessi';
+
+  @override
+  String get accountSignOutTitle => 'Uscire su questo dispositivo?';
+
+  @override
+  String get accountSignOutBody =>
+      'Il tuo account, il tuo abbonamento e gli altri tuoi dispositivi non vengono toccati. Ricollega Strava per accedere di nuovo.';
+
+  @override
+  String get accountRemoveDataFromDevice => 'Rimuovi i dati da questo dispositivo';
+
+  @override
+  String get accountUnsyncedChangesTitle => 'Modifiche non caricate';
+
+  @override
+  String accountUnsyncedChangesBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count modifiche su questo dispositivo non sono ancora state caricate e andranno perse.',
+      one: '1 modifica su questo dispositivo non è ancora stata caricata e andrà persa.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountUnsyncedChangesConfirm => 'Esci comunque';
+
+  @override
+  String get accountSignOutDone => 'Uscito su questo dispositivo';
+
+  @override
+  String get accountSignOutFailed => 'Uscita non riuscita. Controlla la connessione e riprova.';
+
+  @override
+  String get accountDelete => 'Elimina account';
+
+  @override
+  String get accountDeleteSubtitle => 'Elimina l’account e i suoi dati nel cloud';
+
+  @override
+  String get accountDeleteTitle => 'Eliminare il tuo account?';
+
+  @override
+  String get accountDeleteBody =>
+      'Il tuo account, i suoi dati nel cloud e le tue attività Strava sincronizzate verranno eliminati definitivamente e tutti i tuoi dispositivi verranno disconnessi. I dati sugli altri tuoi dispositivi restano lì. Non si può annullare.';
+
+  @override
+  String get accountDeleteConfirm => 'Elimina account';
+
+  @override
+  String get accountDeleteDone => 'Il tuo account è stato eliminato';
+
+  @override
+  String get accountDeleteFailed => 'Impossibile eliminare l’account. Controlla la connessione e riprova.';
+
+  @override
+  String get accountDeleteSubscriptionTitle => 'Il tuo abbonamento si rinnova ancora';
+
+  @override
+  String accountDeleteSubscriptionBody(String store) {
+    return 'L’eliminazione dell’account non annulla l’abbonamento. Annullalo nel $store per interrompere i pagamenti.';
+  }
+
+  @override
+  String get accountNoticeSessionRevoked =>
+      'Questo dispositivo è stato disconnesso dal tuo account da un altro dispositivo e i suoi dati sono stati rimossi.';
+
+  @override
+  String get accountNoticeSessionRevokedDataKept =>
+      'Questo dispositivo è stato disconnesso dal tuo account da un altro dispositivo. Le sue attività Strava sono state rimosse; gli altri tuoi dati restano sul dispositivo.';
+
+  @override
+  String get accountNoticeAccountDeleted =>
+      'Il tuo account è stato eliminato e questo dispositivo disconnesso. Le sue attività Strava sono state rimosse; gli altri tuoi dati restano sul dispositivo.';
+
+  @override
+  String get stravaDisconnectBodyAccount =>
+      'Verrà revocato l’accesso dell’app e le tue attività sincronizzate saranno eliminate dal nostro archivio sicuro. Strava viene scollegato su tutti i dispositivi del tuo account; nessuno di essi viene disconnesso. Il tuo account Strava non verrà toccato.';
+
+  @override
+  String get stravaErrorOwnedByOtherAccount =>
+      'Questo account Strava appartiene a un altro account. Esci prima su questo dispositivo, poi ricollega Strava.';
+
+  @override
+  String get stravaErrorLimitReached => 'Strava Sync al momento non accetta nuovi collegamenti. Riprova più tardi.';
 }

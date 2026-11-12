@@ -12,6 +12,7 @@ import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dar
 import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/account_service.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/backup_service.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
@@ -76,6 +77,9 @@ void main() {
         ),
         ChangeNotifierProvider<SubscriptionService>(
           create: (_) => SubscriptionService(),
+        ),
+        ChangeNotifierProvider<AccountService>(
+          create: (_) => AccountService(clearLocalData: ({required removeData}) async {}),
         ),
       ],
       child: const BikeSetupTrackerApp(),

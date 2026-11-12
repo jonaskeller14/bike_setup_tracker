@@ -9516,4 +9516,174 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adjustmentTemplateOptionRace => 'Race';
+
+  @override
+  String get featuresCloudSync => 'Cloud Sync';
+
+  @override
+  String get featuresCloudSyncInfo =>
+      'Syncs your data between the devices of your account and keeps it backed up in the cloud. Needs a subscription and an account on this device. Still in development.';
+
+  @override
+  String get featuresAccounts => 'Accounts';
+
+  @override
+  String get featuresAccountsInfo =>
+      'Connecting Strava signs this device in to your account, so all your devices share one subscription and, with Cloud Sync, the same data. Still in development.';
+
+  @override
+  String get settingsAccount => 'Account';
+
+  @override
+  String get settingsAccountSubtitle => 'Your devices, sign out or delete the account';
+
+  @override
+  String get accountTitle => 'Account';
+
+  @override
+  String get accountFallbackName => 'Your account';
+
+  @override
+  String get accountSignedInThroughStrava => 'Signed in through Strava';
+
+  @override
+  String accountPremiumActive(String date) {
+    return 'Subscription active until $date';
+  }
+
+  @override
+  String get accountPremiumInactive => 'No active subscription';
+
+  @override
+  String get accountSectionDevices => 'Your devices';
+
+  @override
+  String get accountDevicesLoadFailed => 'Your devices could not be loaded.';
+
+  @override
+  String get accountDevicesEmpty => 'No signed-in devices';
+
+  @override
+  String get accountThisDevice => 'This device';
+
+  @override
+  String accountDeviceLastSeen(String date) {
+    return 'Last seen $date';
+  }
+
+  @override
+  String get accountSignOutDeviceTooltip => 'Sign out this device';
+
+  @override
+  String accountSignOutDeviceTitle(String device) {
+    return 'Sign out $device?';
+  }
+
+  @override
+  String get accountSignOutDeviceBody =>
+      'It is signed out the next time the app runs on it, and its Strava activities are removed. With cloud sync on there, its other data is removed too, because the cloud keeps a copy; otherwise it stays on the device. Your other devices stay signed in.';
+
+  @override
+  String get accountSignOutDeviceConfirm => 'Sign out';
+
+  @override
+  String accountSignOutDeviceDone(String device) {
+    return '$device was signed out';
+  }
+
+  @override
+  String get accountSignOutDeviceFailed => 'The device could not be signed out. Check your connection and try again.';
+
+  @override
+  String get accountSignOut => 'Sign out of this device';
+
+  @override
+  String get accountSignOutSubtitle => 'Your other devices stay signed in';
+
+  @override
+  String get accountSignOutTitle => 'Sign out of this device?';
+
+  @override
+  String get accountSignOutBody =>
+      'Your account, your subscription and your other devices are not affected. Connect Strava again to sign back in.';
+
+  @override
+  String get accountRemoveDataFromDevice => 'Remove data from this device';
+
+  @override
+  String get accountUnsyncedChangesTitle => 'Changes not uploaded';
+
+  @override
+  String accountUnsyncedChangesBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes on this device haven\'t been uploaded yet and will be lost.',
+      one: '1 change on this device hasn\'t been uploaded yet and will be lost.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountUnsyncedChangesConfirm => 'Sign out anyway';
+
+  @override
+  String get accountSignOutDone => 'Signed out of this device';
+
+  @override
+  String get accountSignOutFailed => 'Signing out failed. Check your connection and try again.';
+
+  @override
+  String get accountDelete => 'Delete account';
+
+  @override
+  String get accountDeleteSubtitle => 'Deletes the account and its data in the cloud';
+
+  @override
+  String get accountDeleteTitle => 'Delete your account?';
+
+  @override
+  String get accountDeleteBody =>
+      'This permanently deletes your account, its data in the cloud and your synced Strava activities, and signs out all your devices. The data on your other devices stays on them. It can\'t be undone.';
+
+  @override
+  String get accountDeleteConfirm => 'Delete account';
+
+  @override
+  String get accountDeleteDone => 'Your account was deleted';
+
+  @override
+  String get accountDeleteFailed => 'The account could not be deleted. Check your connection and try again.';
+
+  @override
+  String get accountDeleteSubscriptionTitle => 'Your subscription still renews';
+
+  @override
+  String accountDeleteSubscriptionBody(String store) {
+    return 'Deleting the account doesn\'t cancel the subscription. Cancel it in the $store to stop the payments.';
+  }
+
+  @override
+  String get accountNoticeSessionRevoked =>
+      'This device was signed out of your account from another device, and its data was removed.';
+
+  @override
+  String get accountNoticeSessionRevokedDataKept =>
+      'This device was signed out of your account from another device. Its Strava activities were removed; your other data stays on it.';
+
+  @override
+  String get accountNoticeAccountDeleted =>
+      'Your account was deleted and this device was signed out. Its Strava activities were removed; your other data stays on it.';
+
+  @override
+  String get stravaDisconnectBodyAccount =>
+      'This revokes the app\'s access and deletes your synced activities from our secure storage. Strava is disconnected on all devices of your account; none of them is signed out. Your Strava account itself is not affected.';
+
+  @override
+  String get stravaErrorOwnedByOtherAccount =>
+      'This Strava account belongs to another account. Sign out of this device first, then connect Strava again.';
+
+  @override
+  String get stravaErrorLimitReached =>
+      'Strava Sync isn\'t accepting new connections right now. Please try again later.';
 }

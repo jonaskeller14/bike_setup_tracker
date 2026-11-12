@@ -23,6 +23,8 @@ class AppSettings extends ChangeNotifier {
   String _precipitationUnit = RegionalDefaults.metric.precipitationUnit;
   String _distanceUnit = RegionalDefaults.metric.distanceUnit;
   bool _enableGoogleDrive = false; // False is default, can only be activated on Android (see AppSettingsPage)
+  bool _enableCloudSync = false;
+  bool _enableAccounts = false;
   bool _enableTextAdjustment = false;
   bool _enableMultiSelect = false;
   bool _enableCountedSelect = false;
@@ -73,6 +75,8 @@ class AppSettings extends ChangeNotifier {
   String get precipitationUnit => _precipitationUnit;
   String get distanceUnit => _distanceUnit;
   bool get enableGoogleDrive => _enableGoogleDrive;
+  bool get enableCloudSync => _enableCloudSync;
+  bool get enableAccounts => _enableAccounts;
   bool get enableTextAdjustment => _enableTextAdjustment;
   bool get enableMultiSelect => _enableMultiSelect;
   bool get enableCountedSelect => _enableCountedSelect;
@@ -182,6 +186,20 @@ class AppSettings extends ChangeNotifier {
     _enableGoogleDrive = newValue;
     notifyListeners();
     _persistBool('enableGoogleDrive', newValue);
+  }
+
+  set enableCloudSync(bool newValue) {
+    if (newValue == _enableCloudSync) return;
+    _enableCloudSync = newValue;
+    notifyListeners();
+    _persistBool('enableCloudSync', newValue);
+  }
+
+  set enableAccounts(bool newValue) {
+    if (newValue == _enableAccounts) return;
+    _enableAccounts = newValue;
+    notifyListeners();
+    _persistBool('enableAccounts', newValue);
   }
 
   set enableTextAdjustment(bool newValue) {
@@ -480,6 +498,8 @@ class AppSettings extends ChangeNotifier {
       _precipitationUnit = prefs.getString('${_kPrefix}precipitationUnit') ?? _precipitationUnit;
       _distanceUnit = prefs.getString('${_kPrefix}distanceUnit') ?? _distanceUnit;
       _enableGoogleDrive = prefs.getBool('${_kPrefix}enableGoogleDrive') ?? _enableGoogleDrive;
+      _enableCloudSync = prefs.getBool('${_kPrefix}enableCloudSync') ?? _enableCloudSync;
+      _enableAccounts = prefs.getBool('${_kPrefix}enableAccounts') ?? _enableAccounts;
       _enableTextAdjustment = prefs.getBool('${_kPrefix}enableTextAdjustment') ?? _enableTextAdjustment;
       _enableMultiSelect = prefs.getBool('${_kPrefix}enableMultiSelect') ?? _enableMultiSelect;
       _enableCountedSelect = prefs.getBool('${_kPrefix}enableCountedSelect') ?? _enableCountedSelect;
@@ -553,6 +573,8 @@ class AppSettings extends ChangeNotifier {
     _precipitationUnit = defaults._precipitationUnit;
     _distanceUnit = defaults._distanceUnit;
     _enableGoogleDrive = defaults._enableGoogleDrive;
+    _enableCloudSync = defaults._enableCloudSync;
+    _enableAccounts = defaults._enableAccounts;
     _enableTextAdjustment = defaults._enableTextAdjustment;
     _enableMultiSelect = defaults._enableMultiSelect;
     _enableCountedSelect = defaults._enableCountedSelect;
@@ -643,6 +665,8 @@ class AppSettings extends ChangeNotifier {
     _precipitationUnit,
     _distanceUnit,
     _enableGoogleDrive,
+    _enableCloudSync,
+    _enableAccounts,
     _enableTextAdjustment,
     _enableMultiSelect,
     _enableCountedSelect,

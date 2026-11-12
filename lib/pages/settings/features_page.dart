@@ -116,11 +116,11 @@ class FeaturesPage extends StatelessWidget {
                 _FeatureToggleTile(
                   enabled: appSettings.enableComponentPresets,
                   disabledSubtitle: l10n.featuresRequiresComponentPresets,
-                  icon: Icons.auto_awesome_outlined,
+                  icon: Icons.tips_and_updates_outlined,
                   title: l10n.featuresSetupGuides,
                   value: appSettings.enableSetupGuides,
                   onChanged: (v) => appSettings.enableSetupGuides = v,
-                  infoText: l10n.featuresSetupGuidesInfo,
+                  sheet: (context, value) => showSetupGuidesSettingSheet(context, value: value),
                 ),
               const Divider(),
               SectionTitle(title: l10n.featuresSectionAdjustments),

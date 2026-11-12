@@ -1192,9 +1192,25 @@
   "@featuresSetupGuides": {
     "description": "Title of the setup guides feature (developer builds)."
   },
-  "featuresSetupGuidesInfo": "Suggests recommended values for the first setup of a component, like air pressure or rebound clicks, based on your riding weight and the component model. These are starting points, so check the manufacturer manual. Requires Component Presets.",
-  "@featuresSetupGuidesInfo": {
-    "description": "Explanation of the setup guides feature."
+  "setupGuidesIntro": "See the manufacturer’s recommended values <b>every time you create or edit a setup</b>, like air pressure or rebound and compression clicks, matched to your riding weight and riding style.",
+  "@setupGuidesIntro": {
+    "description": "Intro of the setup guides settings sheet. <b>…</b> marks the bold part: when the guide is shown."
+  },
+  "setupGuidesStepLink": "Link a fork or shock to its catalog model. Models with a manufacturer setup guide get recommended values.",
+  "@setupGuidesStepLink": {
+    "description": "First step of the setup guides settings sheet."
+  },
+  "setupGuidesStepCard": "The Setup guide card compares what your setup has now with the guide. It opens by itself while a component has no values yet, and starts collapsed after that.",
+  "@setupGuidesStepCard": {
+    "description": "Second step of the setup guides settings sheet; \"Setup guide\" is guideCardTitle."
+  },
+  "setupGuidesStepApply": "Tap a row to use its value, or Apply all. A status icon next to each adjustment shows whether it follows the guide.",
+  "@setupGuidesStepApply": {
+    "description": "Third step of the setup guides settings sheet; \"Apply all\" is guideCardApplyAll."
+  },
+  "setupGuidesCaption": "If your weight falls between two weight steps of the manual, the value is worked out in between, and clicks are converted to your dial. These are starting points, so check your manual. Turning this off hides the card; your setups keep their values.",
+  "@setupGuidesCaption": {
+    "description": "Footnote of the setup guides settings sheet."
   },
   "featuresCategoricalAdjustment": "Categorical Adjustment",
   "@featuresCategoricalAdjustment": {

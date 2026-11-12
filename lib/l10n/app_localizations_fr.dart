@@ -911,8 +911,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get featuresSetupGuides => 'Guides de setup';
 
   @override
-  String get featuresSetupGuidesInfo =>
-      'Suggère des valeurs recommandées pour le premier setup d’un composant, comme la pression d’air ou les clics de détente, selon votre poids et le modèle du composant. Ce sont des points de départ : vérifiez le manuel du fabricant. Nécessite les modèles de composants.';
+  String get setupGuidesIntro =>
+      'Consultez les valeurs recommandées par le fabricant <b>chaque fois que vous créez ou modifiez un setup</b>, comme la pression d’air ou les clics de détente et de compression, selon votre poids et votre style de pilotage.';
+
+  @override
+  String get setupGuidesStepLink =>
+      'Associez une fourche ou un amortisseur à son modèle du catalogue. Les modèles dotés d’un guide de setup du fabricant reçoivent des valeurs recommandées.';
+
+  @override
+  String get setupGuidesStepCard =>
+      'La carte « Guide de setup » compare ce que votre setup a actuellement avec le guide. Elle s’ouvre d’elle-même tant qu’un composant n’a pas encore de valeurs, puis reste repliée.';
+
+  @override
+  String get setupGuidesStepApply =>
+      'Touchez une ligne pour utiliser sa valeur, ou « Tout appliquer ». Une icône d’état à côté de chaque réglage indique s’il suit le guide.';
+
+  @override
+  String get setupGuidesCaption =>
+      'Si votre poids se situe entre deux paliers de poids du manuel, la valeur est calculée entre les deux, et les clics sont convertis pour votre molette. Ce sont des points de départ : vérifiez votre manuel. Si vous désactivez cette option, la carte est masquée ; vos setups conservent leurs valeurs.';
 
   @override
   String get featuresCategoricalAdjustment => 'Réglage catégoriel';

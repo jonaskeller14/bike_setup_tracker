@@ -909,8 +909,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get featuresSetupGuides => 'Setup Guides';
 
   @override
-  String get featuresSetupGuidesInfo =>
-      'Suggests recommended values for the first setup of a component, like air pressure or rebound clicks, based on your riding weight and the component model. These are starting points, so check the manufacturer manual. Requires Component Presets.';
+  String get setupGuidesIntro =>
+      'See the manufacturer’s recommended values <b>every time you create or edit a setup</b>, like air pressure or rebound and compression clicks, matched to your riding weight and riding style.';
+
+  @override
+  String get setupGuidesStepLink =>
+      'Link a fork or shock to its catalog model. Models with a manufacturer setup guide get recommended values.';
+
+  @override
+  String get setupGuidesStepCard =>
+      'The Setup guide card compares what your setup has now with the guide. It opens by itself while a component has no values yet, and starts collapsed after that.';
+
+  @override
+  String get setupGuidesStepApply =>
+      'Tap a row to use its value, or Apply all. A status icon next to each adjustment shows whether it follows the guide.';
+
+  @override
+  String get setupGuidesCaption =>
+      'If your weight falls between two weight steps of the manual, the value is worked out in between, and clicks are converted to your dial. These are starting points, so check your manual. Turning this off hides the card; your setups keep their values.';
 
   @override
   String get featuresCategoricalAdjustment => 'Categorical Adjustment';

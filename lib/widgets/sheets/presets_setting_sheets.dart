@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../icons/simple_icons.dart';
 import '../../l10n/l10n.dart';
+import '../../l10n/markup_text.dart';
 import 'sheet_header.dart';
 
 /// Settings sheet with Off/On radios; resolves to the selected value, or null if dismissed.
@@ -48,6 +49,28 @@ Future<bool?> showTaskPresetsSettingSheet(BuildContext context, {required bool v
   );
 }
 
+/// Settings sheet with Off/On radios; resolves to the selected value, or null if dismissed.
+Future<bool?> showSetupGuidesSettingSheet(BuildContext context, {required bool value}) {
+  final l10n = context.l10n;
+  return showModalBottomSheet<bool>(
+    useSafeArea: true,
+    isScrollControlled: true,
+    context: context,
+    builder: (context) => _PresetsSettingSheet(
+      value: value,
+      title: l10n.featuresSetupGuides,
+      icon: Icons.tips_and_updates_outlined,
+      intro: l10n.setupGuidesIntro,
+      steps: [
+        (Icons.link, l10n.setupGuidesStepLink),
+        (Icons.tips_and_updates_outlined, l10n.setupGuidesStepCard),
+        (Icons.touch_app_outlined, l10n.setupGuidesStepApply),
+      ],
+      caption: l10n.setupGuidesCaption,
+    ),
+  );
+}
+
 class _PresetsSettingSheet extends StatelessWidget {
   const _PresetsSettingSheet({
     required this.value,
@@ -83,7 +106,7 @@ class _PresetsSettingSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(intro, style: theme.textTheme.bodyMedium),
+                  Text.rich(markupTextSpan(intro), style: theme.textTheme.bodyMedium),
                   const SizedBox(height: 16),
                   for (final (stepIcon, text) in steps)
                     Padding(

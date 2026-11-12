@@ -911,8 +911,24 @@ class AppLocalizationsIt extends AppLocalizations {
   String get featuresSetupGuides => 'Guide al setup';
 
   @override
-  String get featuresSetupGuidesInfo =>
-      'Suggerisce valori consigliati per il primo setup di un componente, come la pressione dell’aria o gli scatti del ritorno, in base al tuo peso e al modello del componente. Sono valori di partenza: controlla il manuale del produttore. Richiede i modelli di componenti.';
+  String get setupGuidesIntro =>
+      'Vedi i valori consigliati dal produttore <b>ogni volta che crei o modifichi un setup</b>, come la pressione dell’aria o gli scatti di ritorno e compressione, in base al tuo peso e al tuo stile di guida.';
+
+  @override
+  String get setupGuidesStepLink =>
+      'Collega una forcella o un ammortizzatore al suo modello del catalogo. I modelli con una guida al setup del produttore ricevono valori consigliati.';
+
+  @override
+  String get setupGuidesStepCard =>
+      'La scheda “Guida al setup” confronta ciò che il tuo setup ha ora con la guida. Si apre da sola finché un componente non ha ancora valori, poi resta chiusa.';
+
+  @override
+  String get setupGuidesStepApply =>
+      'Tocca una riga per usarne il valore, oppure “Applica tutti”. Un’icona di stato accanto a ogni regolazione indica se segue la guida.';
+
+  @override
+  String get setupGuidesCaption =>
+      'Se il tuo peso cade tra due fasce di peso del manuale, il valore viene calcolato nel mezzo e gli scatti vengono convertiti sul tuo registro. Sono valori di partenza: controlla il manuale. Se lo disattivi, la scheda viene nascosta; i tuoi setup mantengono i loro valori.';
 
   @override
   String get featuresCategoricalAdjustment => 'Regolazione a categorie';

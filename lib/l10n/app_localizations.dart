@@ -1849,11 +1849,35 @@ abstract class AppLocalizations {
   /// **'Setup Guides'**
   String get featuresSetupGuides;
 
-  /// Explanation of the setup guides feature.
+  /// Intro of the setup guides settings sheet. <b>…</b> marks the bold part: when the guide is shown.
   ///
   /// In en, this message translates to:
-  /// **'Suggests recommended values for the first setup of a component, like air pressure or rebound clicks, based on your riding weight and the component model. These are starting points, so check the manufacturer manual. Requires Component Presets.'**
-  String get featuresSetupGuidesInfo;
+  /// **'See the manufacturer’s recommended values <b>every time you create or edit a setup</b>, like air pressure or rebound and compression clicks, matched to your riding weight and riding style.'**
+  String get setupGuidesIntro;
+
+  /// First step of the setup guides settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a fork or shock to its catalog model. Models with a manufacturer setup guide get recommended values.'**
+  String get setupGuidesStepLink;
+
+  /// Second step of the setup guides settings sheet; "Setup guide" is guideCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Setup guide card compares what your setup has now with the guide. It opens by itself while a component has no values yet, and starts collapsed after that.'**
+  String get setupGuidesStepCard;
+
+  /// Third step of the setup guides settings sheet; "Apply all" is guideCardApplyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a row to use its value, or Apply all. A status icon next to each adjustment shows whether it follows the guide.'**
+  String get setupGuidesStepApply;
+
+  /// Footnote of the setup guides settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'If your weight falls between two weight steps of the manual, the value is worked out in between, and clicks are converted to your dial. These are starting points, so check your manual. Turning this off hides the card; your setups keep their values.'**
+  String get setupGuidesCaption;
 
   /// Title of the group of categorical adjustment features.
   ///

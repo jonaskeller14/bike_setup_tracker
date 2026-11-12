@@ -913,8 +913,24 @@ class AppLocalizationsPt extends AppLocalizations {
   String get featuresSetupGuides => 'Guias de setup';
 
   @override
-  String get featuresSetupGuidesInfo =>
-      'Sugere valores recomendados para o primeiro setup de um componente, como pressão do ar ou cliques de retorno, com base no seu peso e no modelo do componente. São pontos de partida, então confira o manual do fabricante. Requer os modelos de componentes.';
+  String get setupGuidesIntro =>
+      'Veja os valores recomendados pelo fabricante <b>sempre que você cria ou edita um setup</b>, como pressão do ar ou cliques de retorno e compressão, de acordo com seu peso e seu estilo de pilotagem.';
+
+  @override
+  String get setupGuidesStepLink =>
+      'Vincule um garfo ou amortecedor ao modelo do catálogo. Modelos com guia de setup do fabricante recebem valores recomendados.';
+
+  @override
+  String get setupGuidesStepCard =>
+      'O cartão “Guia de setup” compara o que seu setup tem agora com o guia. Ele abre sozinho enquanto um componente ainda não tem valores e depois fica recolhido.';
+
+  @override
+  String get setupGuidesStepApply =>
+      'Toque em uma linha para usar o valor dela, ou em “Aplicar todos”. Um ícone de status ao lado de cada ajuste mostra se ele segue o guia.';
+
+  @override
+  String get setupGuidesCaption =>
+      'Se seu peso fica entre duas faixas de peso do manual, o valor é calculado entre elas, e os cliques são convertidos para o seu regulador. São pontos de partida, então confira seu manual. Se você desativar, o cartão fica oculto; seus setups mantêm os valores.';
 
   @override
   String get featuresCategoricalAdjustment => 'Regulagem por categorias';

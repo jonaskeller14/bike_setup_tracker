@@ -912,8 +912,24 @@ class AppLocalizationsDe extends AppLocalizations {
   String get featuresSetupGuides => 'Setup-Anleitungen';
 
   @override
-  String get featuresSetupGuidesInfo =>
-      'Schlägt empfohlene Werte für das erste Setup einer Komponente vor, etwa Luftdruck oder Zugstufenklicks, basierend auf deinem Fahrergewicht und dem Komponentenmodell. Das sind Ausgangswerte, prüfe also die Herstellerangaben. Benötigt Komponentenvorlagen.';
+  String get setupGuidesIntro =>
+      'Sieh <b>bei jedem neuen oder bearbeiteten Setup</b> die empfohlenen Werte des Herstellers, etwa Luftdruck oder Zug- und Druckstufenklicks, passend zu deinem Fahrergewicht und Fahrstil.';
+
+  @override
+  String get setupGuidesStepLink =>
+      'Verknüpfe eine Gabel oder einen Dämpfer mit dem Modell aus dem Katalog. Modelle mit Setup-Anleitung des Herstellers bekommen empfohlene Werte.';
+
+  @override
+  String get setupGuidesStepCard =>
+      'Die Karte „Setup-Guide“ vergleicht, was dein Setup aktuell hat, mit dem Guide. Sie öffnet sich von selbst, solange eine Komponente noch keine Werte hat, und ist danach eingeklappt.';
+
+  @override
+  String get setupGuidesStepApply =>
+      'Tippe auf eine Zeile, um ihren Wert zu übernehmen, oder auf „Alle anwenden“. Ein Statussymbol neben jeder Einstellung zeigt, ob sie dem Guide folgt.';
+
+  @override
+  String get setupGuidesCaption =>
+      'Liegt dein Gewicht zwischen zwei Gewichtsstufen der Anleitung, wird der Wert dazwischen berechnet, und Klicks werden auf deinen Einsteller umgerechnet. Das sind Ausgangswerte, prüfe also deine Anleitung. Wenn du das ausschaltest, wird die Karte ausgeblendet; deine Setups behalten ihre Werte.';
 
   @override
   String get featuresCategoricalAdjustment => 'Kategorische Einstellung';

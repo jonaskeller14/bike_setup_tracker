@@ -6,7 +6,6 @@ import 'package:flutter_map/flutter_map.dart';
 
 import '../../l10n/l10n.dart';
 import '../../theme.dart';
-import '../items/strava_context_wrapper.dart';
 
 /// What a map pin stands for; decides its colour in a cluster bubble.
 enum MapPinKind { setup, activity, feedback }
@@ -138,9 +137,9 @@ class MapClusterBubble extends StatelessWidget {
   }
 
   static Color _colorOf(MapPinKind kind, ThemeData theme) => switch (kind) {
-    MapPinKind.setup => theme.colorScheme.primary,
-    MapPinKind.activity => StravaContextWrapper.stravaOrange,
-    MapPinKind.feedback => theme.extension<FeedbackOutcomeColors>()!.pin,
+    MapPinKind.setup => EntityColors.of(theme).setup,
+    MapPinKind.activity => EntityColors.strava,
+    MapPinKind.feedback => EntityColors.of(theme).feedback,
   };
 }
 

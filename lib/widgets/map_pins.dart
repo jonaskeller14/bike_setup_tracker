@@ -117,7 +117,7 @@ class StravaActivityMapPin extends StatelessWidget {
               child: Icon(
                 workoutType.icon,
                 size: 12,
-                color: const Color(0xFFFC5200),
+                color: EntityColors.strava,
               ),
             ),
           ),
@@ -131,7 +131,7 @@ class FeedbackMapPin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).extension<FeedbackOutcomeColors>()!.pin;
+    final color = EntityColors.of(Theme.of(context)).feedback;
     return Stack(
       alignment: Alignment.center,
       children: [

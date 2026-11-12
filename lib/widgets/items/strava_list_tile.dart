@@ -10,9 +10,9 @@ import '../../models/strava/strava_activity.dart';
 import '../../pages/details/strava_activity_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
+import '../../theme.dart';
 import '../../utils/automation_ids.dart';
 import '../feedback/strava_feedback_prompt.dart';
-import 'strava_context_wrapper.dart';
 
 class StravaListTile extends StatelessWidget {
   final StravaActivity stravaActivity;
@@ -33,14 +33,14 @@ class StravaListTile extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: 2,
       children: [
-        Icon(icon, size: 10, color: StravaContextWrapper.stravaOrange.withValues(alpha: 0.7)),
+        Icon(icon, size: 10, color: EntityColors.strava.withValues(alpha: 0.7)),
         Flexible(
           child: Text(
             text,
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
-              color: StravaContextWrapper.stravaOrange,
+              color: EntityColors.strava,
             ),
           ),
         ),
@@ -141,7 +141,7 @@ class StravaListTile extends StatelessWidget {
             trailing: TextButton(
               onPressed: () => StravaService.openActivityOnStrava(stravaActivity.id),
               style: TextButton.styleFrom(
-                foregroundColor: StravaContextWrapper.stravaOrange,
+                foregroundColor: EntityColors.strava,
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -160,7 +160,7 @@ class StravaListTile extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
-                  color: StravaContextWrapper.stravaOrange.withValues(alpha: 0.12),
+                  color: EntityColors.strava.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Wrap(

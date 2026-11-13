@@ -175,6 +175,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final Map<String, AdjustmentValue> _danglingPersonAdjustmentValues = {};
 
   Map<String, AdjustmentProvenance>? _pressureDriftProvenance;
+  final Set<String> _setNowIds = {};
+  Set<String> _initialSetNowIds = {};
 
   /// Bumped on every adjustment value change, so the setup guide card follows
   /// the values (and the riding weight) as they are entered.
@@ -231,7 +233,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _isBookmarked = widget.setup?.isBookmarked ?? appRepository.filters.setup.bookmarkedOnly;
     _initialIsBookmarked = _isBookmarked;
 
-    _attachments = List.from(widget.setup?.attachments ?? []);
+    if (widget.mode == SetupPageMode.edit) _setNowIds.addAll(widget.setup?.setNowAdjustmentIds ?? const {});
+    _initialSetNowIds = {..._setNowIds};
+
+    _attachments =List.from(widget.setup?.attachments ?? []);
     _initialAttachments = List.from(_attachments);
     unawaited(_initAttachmentsDir());
 
@@ -401,13 +406,15 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _setPressureDriftProvenance() {
-    if (widget.mode != SetupPageMode.add || !context.read<AppSettings>().enablePressureAssistant) {
+    final isAddOrEdit = widget.mode == SetupPageMode.add || widget.mode == SetupPageMode.edit;
+    if (!isAddOrEdit || !context.read<AppSettings>().enablePressureAssistant) {
       _pressureDriftProvenance = null;
       return;
     }
     _pressureDriftProvenance = SetupResolutionService.resolveHistoricalProvenanceAt(
       datetime: _selectedDateTimeUtc,
       setups: context.read<AppRepository>().setups.values,
+      excludedSetupId: widget.mode == SetupPageMode.edit ? widget.setup?.id : null,
     );
   }
 
@@ -603,6 +610,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         !ContextPlace.equal(_currentPlace.value, widget.setup?.place) ||
         _currentWeather.value != widget.setup?.weather || 
         !setEquals(_tags, _initialTags) ||
+        !setEquals(_setNowIds, _initialSetNowIds) ||
         _isBookmarked != _initialIsBookmarked ||
         
         _bike != _initialBike || 
@@ -852,6 +860,21 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }));
   }
 
+  Set<String> _savedSetNowIds() {
+    final provenance = _pressureDriftProvenance;
+    if (provenance != null) {
+      return PressureDriftService.keptSetNowIds(
+        ids: _setNowIds,
+        values: _bikeAdjustmentValues,
+        provenance: provenance,
+        currentWeather: _currentWeather.value,
+        currentPosition: _currentLocation.value,
+      );
+    }
+    // Without the pressure assistant an edit leaves the saved marks as they are.
+    return widget.mode == SetupPageMode.edit ? widget.setup?.setNowAdjustmentIds ?? const {} : const {};
+  }
+
   void _saveSetup() {
     if (!_formKey.currentState!.validate()) {
       _revealFirstInvalidField();
@@ -888,6 +911,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         position: _currentLocation.value,
         place: _currentPlace.value,
         weather: _currentWeather.value,
+        setNowAdjustmentIds: _savedSetNowIds(),
         attachments: _attachments,
         testSessionId: widget.mode == SetupPageMode.edit || widget.mode == SetupPageMode.nextRun
             ? widget.setup?.testSessionId
@@ -900,8 +924,16 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _bikeAdjustmentValues[adjustment.id] = newValue;
+    _dropStaleSetNowId(adjustment.id);
     _adjustmentValuesRevision.value++;
     _changeListener();
+  }
+
+  /// A changed pressure is a reference on its own, so its mark goes.
+  void _dropStaleSetNowId(String adjustmentId) {
+    final reference = _pressureDriftProvenance?[adjustmentId];
+    if (reference == null) return;
+    if (_bikeAdjustmentValues[adjustmentId] != reference.value) _setNowIds.remove(adjustmentId);
   }
 
   void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
@@ -912,6 +944,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _removeFromBikeAdjustmentValues({required Adjustment adjustment}) {
     _bikeAdjustmentValues.remove(adjustment.id);
+    _dropStaleSetNowId(adjustment.id);
     _adjustmentValuesRevision.value++;
     _changeListener();
   }
@@ -1382,6 +1415,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
+  void _onSetNowChanged(String adjustmentId, bool setNow) {
+    setState(() => setNow ? _setNowIds.add(adjustmentId) : _setNowIds.remove(adjustmentId));
+    _changeListener();
+  }
+
   Widget? _pressureCheck(List<Component> bikeComponents) {
     final provenance = _pressureDriftProvenance;
     if (provenance == null) return null;
@@ -1397,6 +1435,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _locationService,
         _elevationService,
         _weatherService,
+        _adjustmentValuesRevision,
       ]),
       builder: (context, child) {
         final check = PressureDriftService.check(
@@ -1412,10 +1451,19 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             _locationService.status == LocationStatus.searching ||
             _elevationService.status == ElevationStatus.searching ||
             _weatherService.status is WeatherSearching;
+        // A mark only counts while the pressure still reads its reference value.
+        final setNowAvailableIds = {
+          for (final entry in check.entries)
+            if (_bikeAdjustmentValues[entry.adjustmentId] == provenance[entry.adjustmentId]?.value)
+              entry.adjustmentId,
+        };
         return PressureDriftCard(
           check: check,
           // A fetch only matters while the current conditions are what's missing.
           loading: fetching && (gap == null || gap == PressureDriftGap.noCurrentConditions),
+          setNowIds: _setNowIds.intersection(setNowAvailableIds),
+          setNowAvailableIds: setNowAvailableIds,
+          onSetNowChanged: _onSetNowChanged,
         );
       },
     );

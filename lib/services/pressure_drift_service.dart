@@ -293,6 +293,23 @@ class PressureDriftService {
     return PressureCheck(currentConditions: current, entries: entries);
   }
 
+  /// The "set now" marks in [ids] that still change the result. A mark only
+  /// matters while the pressure still reads its reference value and the setup
+  /// records the conditions that make it a reference.
+  static Set<String> keptSetNowIds({
+    required Set<String> ids,
+    required Map<String, AdjustmentValue> values,
+    required Map<String, AdjustmentProvenance> provenance,
+    required ContextWeather? currentWeather,
+    required ContextPosition? currentPosition,
+  }) {
+    if (PressureConditions.of(currentWeather, currentPosition) == null) return {};
+    return {
+      for (final id in ids)
+        if (provenance[id] case final reference? when values[id] == reference.value) id,
+    };
+  }
+
   static PressureDriftEntry _driftEntry({
     required Component component,
     required Adjustment adjustment,

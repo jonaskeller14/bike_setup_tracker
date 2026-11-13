@@ -785,4 +785,62 @@ void main() {
       expect(check.entries.map((entry) => entry.adjustmentId), [forkPressure.id]);
     });
   });
+
+  group('PressureDriftService keptSetNowIds', () {
+    const forkId = 'adj_fork_pressure';
+    const shockId = 'adj_shock_pressure';
+    final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+      datetime: _checkedAt,
+      setups: [
+        _setup(
+          id: 's1',
+          datetime: DateTime(2025, 4, 2).toUtc(),
+          bikeAdjustmentValues: {forkId: const NumericalValue(80.0), shockId: const NumericalValue(200.0)},
+        ),
+      ],
+    );
+
+    Set<String> kept({
+      Set<String> ids = const {forkId},
+      Map<String, AdjustmentValue>? values,
+      ContextWeather? weather,
+      ContextPosition? position,
+      Map<String, AdjustmentProvenance>? provenanceOverride,
+    }) => PressureDriftService.keptSetNowIds(
+      ids: ids,
+      values: values ?? {forkId: const NumericalValue(80.0), shockId: const NumericalValue(200.0)},
+      provenance: provenanceOverride ?? provenance,
+      currentWeather: weather ?? _currentWeather(),
+      currentPosition: position ?? _currentPosition(),
+    );
+
+    test('a mark on an unchanged value with recorded conditions is kept', () {
+      expect(kept(ids: {forkId, shockId}), {forkId, shockId});
+    });
+
+    test('a mark is dropped once the value differs from the reference value', () {
+      // Intention: A changed pressure is a reference on its own, so the mark would be noise.
+      expect(
+        kept(
+          ids: {forkId, shockId},
+          values: {forkId: const NumericalValue(75.0), shockId: const NumericalValue(200.0)},
+        ),
+        {shockId},
+      );
+    });
+
+    test('a mark is dropped when the value is no longer in the form', () {
+      expect(kept(values: {}), isEmpty);
+    });
+
+    test('all marks are dropped without temperature or altitude', () {
+      expect(kept(ids: {forkId, shockId}, weather: _currentWeather(temperatureC: null)), isEmpty);
+      expect(kept(ids: {forkId, shockId}, position: _currentPosition(altitudeM: null)), isEmpty);
+    });
+
+    test('a mark without provenance is dropped', () {
+      expect(kept(ids: {'adj_unknown'}, values: {'adj_unknown': const NumericalValue(1.0)}), isEmpty);
+      expect(kept(provenanceOverride: const {}), isEmpty);
+    });
+  });
 }

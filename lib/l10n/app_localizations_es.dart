@@ -7992,32 +7992,32 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get pressureCheckSetNow => 'Ajustado ahora';
+  String get pressureCheckSetNow => 'Inflado';
 
   @override
   String pressureCheckSetNowSemantics(String name) {
-    return 'Marcar $name como ajustado ahora';
+    return 'Marcar $name como inflado';
   }
 
   @override
   String pressureCheckSetNowMarked(String name) {
-    return '$name marcado como ajustado ahora';
+    return '$name marcado como inflado';
   }
+
+  @override
+  String pressureCheckSetNowUnmarked(String name) {
+    return '$name ya no está marcado como inflado';
+  }
+
+  @override
+  String get pressureCheckSetNowDone => 'Inflado ahora mismo';
+
+  @override
+  String get pressureCheckSetNowHint => '¿Lo has vuelto a inflar al valor «Ajustado»? Toca la presión.';
 
   @override
   String pressureCheckNoConditionsOn(String date) {
     return 'Sin condiciones registradas el $date';
-  }
-
-  @override
-  String pressureCheckReferenceAge(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'hace $count días',
-      one: 'hace 1 día',
-    );
-    return '$_temp0';
   }
 
   @override
@@ -8085,7 +8085,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get pressureCheckInfoCompared =>
-      'Cada presión se compara con el setup que la cambió por última vez, o en el que la marcaste como «Ajustado ahora». No siempre es tu setup anterior.';
+      'Cada presión se compara con el setup que la cambió por última vez, o en el que la marcaste como «Inflado». No siempre es tu setup anterior.';
 
   @override
   String get pressureCheckInfoCarriedOver =>
@@ -8093,11 +8093,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get pressureCheckInfoSetNow =>
-      'Después de volver a inflar o de comprobar con un manómetro, marca la presión como «Ajustado ahora». Este setup pasa a ser la referencia. También puedes hacerlo más tarde editando el setup.';
+      'Después de volver a inflar o de comprobar con un manómetro, toca la presión para marcarla como «Inflado». Este setup pasa a ser la referencia. También puedes hacerlo más tarde editando el setup.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Un setup guardado sin temperatura o altitud no se puede comparar. Sus presiones siguen apareciendo: márcalas como «Ajustado ahora» para empezar aquí una nueva referencia, lo que requiere las condiciones de hoy.';
+      'Un setup guardado sin temperatura o altitud no se puede comparar. Sus presiones siguen apareciendo: marca una como «Inflado» para empezar aquí una nueva referencia, lo que requiere las condiciones de hoy.';
 
   @override
   String get pressureCheckInfoGoodToKnowHeading => 'Conviene saber';

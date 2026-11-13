@@ -10641,27 +10641,44 @@
       }
     }
   },
-  "pressureCheckSetNow": "Set now",
+  "pressureCheckSetNow": "Pumped",
   "@pressureCheckSetNow": {
-    "description": "Toggle on a pressure row of the pressure check card: the rider pumped the pressure back or confirmed it on a gauge, so this setup becomes its reference. Also the label of a row that is marked."
+    "description": "Chip on a drifted pressure row of the pressure check card: tapping the row marks that the rider pumped the pressure back or confirmed it on a gauge, so this setup becomes its reference. Also quoted in the info sheet."
   },
-  "pressureCheckSetNowSemantics": "Mark {name} as set now",
+  "pressureCheckSetNowSemantics": "Mark {name} as pumped",
   "@pressureCheckSetNowSemantics": {
-    "description": "Screen reader label of the set-now toggle on a pressure row. {name} is the component and adjustment name.",
+    "description": "Screen reader hint of a pressure row that can be marked as pumped. {name} is the component and adjustment name.",
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
   },
-  "pressureCheckSetNowMarked": "{name} marked as set now",
+  "pressureCheckSetNowMarked": "{name} marked as pumped",
   "@pressureCheckSetNowMarked": {
-    "description": "Snackbar after the set-now toggle of a pressure row is switched on, with an undo action. {name} is the component and adjustment name.",
+    "description": "Snackbar after a pressure row is marked as pumped, with an undo action. {name} is the component and adjustment name.",
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
+  },
+  "pressureCheckSetNowUnmarked": "{name} no longer marked as pumped",
+  "@pressureCheckSetNowUnmarked": {
+    "description": "Snackbar after the pumped mark of a pressure row is removed, with an undo action. {name} is the component and adjustment name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckSetNowDone": "Pumped just now",
+  "@pressureCheckSetNowDone": {
+    "description": "Replaces the set-on line under a pressure name once the row is marked as pumped."
+  },
+  "pressureCheckSetNowHint": "Pumped back to “Set”? Tap the pressure.",
+  "@pressureCheckSetNowHint": {
+    "description": "Appended to the footer of the pressure check card while a row can be marked: tapping a row marks it as pumped. “Set” is the column caption."
   },
   "pressureCheckNoConditionsOn": "No conditions recorded on {date}",
   "@pressureCheckNoConditionsOn": {
@@ -10669,15 +10686,6 @@
     "placeholders": {
       "date": {
         "type": "String"
-      }
-    }
-  },
-  "pressureCheckReferenceAge": "{count, plural, =1{1 day ago} other{{count} days ago}}",
-  "@pressureCheckReferenceAge": {
-    "description": "How long ago the pressure was set, appended to the set-on row of the pressure check card. Only shown from one day on.",
-    "placeholders": {
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -10774,7 +10782,7 @@
   "@pressureCheckInfoReferenceHeading": {
     "description": "Heading in the pressure check info sheet."
   },
-  "pressureCheckInfoCompared": "Each pressure is compared with the setup that last changed it, or where you marked it \"Set now\". That is not always your previous setup.",
+  "pressureCheckInfoCompared": "Each pressure is compared with the setup that last changed it, or where you marked it \"Pumped\". That is not always your previous setup.",
   "@pressureCheckInfoCompared": {
     "description": "Note in the pressure check info sheet."
   },
@@ -10782,11 +10790,11 @@
   "@pressureCheckInfoCarriedOver": {
     "description": "Note in the pressure check info sheet."
   },
-  "pressureCheckInfoSetNow": "After pumping back or checking on a gauge, mark the pressure \"Set now\". This setup then becomes the reference. You can also do it later by editing the setup.",
+  "pressureCheckInfoSetNow": "After pumping back or checking on a gauge, tap the pressure to mark it \"Pumped\". This setup then becomes the reference. You can also do it later by editing the setup.",
   "@pressureCheckInfoSetNow": {
-    "description": "Note in the pressure check info sheet. \"Set now\" must match the label of the toggle on the pressure check card."
+    "description": "Note in the pressure check info sheet. \"Pumped\" must match the chip on the pressure check card."
   },
-  "pressureCheckInfoNeedsConditions": "A setup saved without temperature or altitude can't be compared. Its pressures still show up: mark \"Set now\" to start a new reference here, which needs today's conditions.",
+  "pressureCheckInfoNeedsConditions": "A setup saved without temperature or altitude can't be compared. Its pressures still show up: mark one \"Pumped\" to start a new reference here, which needs today's conditions.",
   "@pressureCheckInfoNeedsConditions": {
     "description": "Note in the pressure check info sheet."
   },

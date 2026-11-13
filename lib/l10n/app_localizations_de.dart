@@ -8014,32 +8014,32 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get pressureCheckSetNow => 'Jetzt eingestellt';
+  String get pressureCheckSetNow => 'Aufgepumpt';
 
   @override
   String pressureCheckSetNowSemantics(String name) {
-    return '$name als jetzt eingestellt markieren';
+    return '$name als aufgepumpt markieren';
   }
 
   @override
   String pressureCheckSetNowMarked(String name) {
-    return '$name als jetzt eingestellt markiert';
+    return '$name als aufgepumpt markiert';
   }
+
+  @override
+  String pressureCheckSetNowUnmarked(String name) {
+    return '$name nicht mehr als aufgepumpt markiert';
+  }
+
+  @override
+  String get pressureCheckSetNowDone => 'Gerade aufgepumpt';
+
+  @override
+  String get pressureCheckSetNowHint => 'Wieder auf „Eingestellt“ aufgepumpt? Tippe auf den Druck.';
 
   @override
   String pressureCheckNoConditionsOn(String date) {
     return 'Keine Bedingungen am $date erfasst';
-  }
-
-  @override
-  String pressureCheckReferenceAge(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'vor $count Tagen',
-      one: 'vor 1 Tag',
-    );
-    return '$_temp0';
   }
 
   @override
@@ -8107,7 +8107,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pressureCheckInfoCompared =>
-      'Jeder Druck wird mit dem Setup verglichen, das ihn zuletzt geändert hat oder in dem du ihn mit „Jetzt eingestellt“ markiert hast. Das ist nicht immer dein vorheriges Setup.';
+      'Jeder Druck wird mit dem Setup verglichen, das ihn zuletzt geändert hat oder in dem du ihn als „Aufgepumpt“ markiert hast. Das ist nicht immer dein vorheriges Setup.';
 
   @override
   String get pressureCheckInfoCarriedOver =>
@@ -8115,11 +8115,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pressureCheckInfoSetNow =>
-      'Markiere den Druck nach dem Aufpumpen oder dem Prüfen mit dem Manometer mit „Jetzt eingestellt“. Dann wird dieses Setup zur Referenz. Das geht auch später, indem du das Setup bearbeitest.';
+      'Tippe nach dem Aufpumpen oder dem Prüfen mit dem Manometer auf den Druck, um ihn als „Aufgepumpt“ zu markieren. Dann wird dieses Setup zur Referenz. Das geht auch später, indem du das Setup bearbeitest.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Ein Setup, das ohne Temperatur oder Höhe gespeichert wurde, lässt sich nicht vergleichen. Seine Drücke erscheinen trotzdem: Markiere sie mit „Jetzt eingestellt“, um hier eine neue Referenz zu starten. Dafür braucht es die heutigen Bedingungen.';
+      'Ein Setup, das ohne Temperatur oder Höhe gespeichert wurde, lässt sich nicht vergleichen. Seine Drücke erscheinen trotzdem: Markiere einen als „Aufgepumpt“, um hier eine neue Referenz zu starten. Dafür braucht es die heutigen Bedingungen.';
 
   @override
   String get pressureCheckInfoGoodToKnowHeading => 'Gut zu wissen';

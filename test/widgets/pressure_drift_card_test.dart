@@ -175,10 +175,10 @@ void main() {
         return calls;
       }
 
-      testWidgets('tapping the toggle reports the id', (tester) async {
+      testWidgets('tapping a row reports the id', (tester) async {
         final calls = await pumpMarkable(tester, [_drift('a')]);
 
-        await tester.tap(find.text('Set now'));
+        await tester.tap(find.text('Fork · Air a'));
         await tester.pump();
 
         expect(calls, [('a', true)]);
@@ -187,11 +187,11 @@ void main() {
       testWidgets('marking shows a snackbar whose undo unmarks again', (tester) async {
         final calls = await pumpMarkable(tester, [_drift('a')]);
 
-        await tester.tap(find.text('Set now'));
+        await tester.tap(find.text('Fork · Air a'));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
-        expect(find.text('Fork · Air a marked as set now'), findsOneWidget);
+        expect(find.text('Fork · Air a marked as pumped'), findsOneWidget);
 
         await tester.tap(find.text('UNDO'));
         await tester.pump();
@@ -200,74 +200,91 @@ void main() {
         expect(find.byType(PressureDriftIcon), findsOneWidget);
       });
 
-      testWidgets('unmarking shows no snackbar', (tester) async {
-        await pumpMarkable(tester, [_drift('a')], marked: {'a'});
-        await tester.tap(find.text('PRESSURE CHECK'));
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.text('Set now'));
-        await tester.pump();
-
-        expect(find.byType(SnackBar), findsNothing);
-      });
-
-      testWidgets('a marked row shows Set now and no arrow or drift', (tester) async {
-        await pumpMarkable(tester, [_drift('a'), _drift('b')], marked: {'a'});
-
-        expect(find.text('Set now'), findsNWidgets(2));
-        expect(find.byType(PressureDriftIcon), findsOneWidget);
-        expect(find.text('-3.5 %'), findsOneWidget);
-        expect(find.byIcon(Icons.check_circle), findsOneWidget);
-      });
-
-      testWidgets('tapping a marked row unmarks it', (tester) async {
+      testWidgets('tapping a marked row unmarks it, with a snackbar whose undo marks again', (tester) async {
         final calls = await pumpMarkable(tester, [_drift('a')], marked: {'a'});
         await tester.tap(find.text('PRESSURE CHECK'));
         await tester.pumpAndSettle();
 
-        await tester.tap(find.text('Set now'));
+        await tester.tap(find.text('Fork · Air a'));
         await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
 
         expect(calls, [('a', false)]);
         expect(find.byType(PressureDriftIcon), findsOneWidget);
+        expect(find.text('Fork · Air a no longer marked as pumped'), findsOneWidget);
+
+        await tester.tap(find.text('UNDO'));
+        await tester.pump();
+
+        expect(calls, [('a', false), ('a', true)]);
+      });
+
+      testWidgets('a marked row says it was just pumped and reads its set value now', (tester) async {
+        await pumpMarkable(tester, [_drift('a'), _drift('b')], marked: {'a'});
+
+        expect(find.text('Pumped just now'), findsOneWidget);
+        expect(find.textContaining('Set on'), findsOneWidget);
+        expect(find.text('80.0 psi'), findsNWidgets(3));
+        expect(find.byType(PressureDriftIcon), findsOneWidget);
+        expect(find.text('-3.5 %'), findsOneWidget);
+        expect(find.byIcon(Icons.check_circle), findsOneWidget);
       });
 
       testWidgets('marking every drifted row says no pump and keeps the card open', (tester) async {
         await pumpMarkable(tester, [_drift('a')]);
         expect(find.text('Worth getting the pump out'), findsOneWidget);
 
-        await tester.tap(find.text('Set now'));
+        await tester.tap(find.text('Fork · Air a'));
         await tester.pumpAndSettle();
 
         expect(find.text('No need to get the pump out'), findsOneWidget);
         expect(find.byType(PressureDriftIcon), findsNothing);
-        expect(find.text('Set now'), findsOneWidget);
+        expect(find.textContaining('Pumped just now'), findsOneWidget);
       });
 
-      testWidgets('a row within the threshold can be marked too', (tester) async {
-        final calls = await pumpMarkable(tester, [_drift('a', predicted: 79.9)]);
+      testWidgets('only a drifted row shows the chip, yet a row within the threshold can be marked too', (
+        tester,
+      ) async {
+        final calls = await pumpMarkable(tester, [_drift('a'), _drift('b', predicted: 79.9)]);
 
-        await tester.tap(find.text('PRESSURE CHECK'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Set now'));
+        expect(find.text('Pumped'), findsOneWidget);
+
+        await tester.tap(find.text('Fork · Air b'));
         await tester.pump();
 
-        expect(calls, [('a', true)]);
+        expect(calls, [('b', true)]);
       });
 
-      testWidgets('shows no toggle without a callback', (tester) async {
+      testWidgets('the footer tells to tap a row while one can be marked', (tester) async {
+        await pumpMarkable(tester, [_drift('a')]);
+
+        expect(find.textContaining('Tap the pressure.'), findsOneWidget);
+      });
+
+      testWidgets('nothing can be marked without a callback', (tester) async {
         await pumpCheck(
           tester,
           (_) => PressureDriftCard(check: _checkOf([_drift('a')]), setNowAvailableIds: const {'a'}),
         );
 
-        expect(find.text('Set now'), findsNothing);
+        expect(find.text('Pumped'), findsNothing);
+        expect(find.textContaining('Tap the pressure.'), findsNothing);
+
+        await tester.tap(find.text('Fork · Air a'));
+        await tester.pump();
+
+        expect(find.byType(SnackBar), findsNothing);
       });
 
-      testWidgets('shows no toggle for a row that is not available', (tester) async {
-        await pumpMarkable(tester, [_drift('a'), _drift('b')], available: {'b'});
+      testWidgets('a row that is not available shows no chip and ignores taps', (tester) async {
+        final calls = await pumpMarkable(tester, [_drift('a'), _drift('b')], available: {'b'});
 
-        expect(find.text('Set now'), findsOneWidget);
+        expect(find.text('Pumped'), findsOneWidget);
+
+        await tester.tap(find.text('Fork · Air a'));
+        await tester.pump();
+
+        expect(calls, isEmpty);
       });
 
       testWidgets('lists a reference without conditions and lets it be marked', (tester) async {
@@ -277,28 +294,23 @@ void main() {
 
         expect(find.textContaining('No conditions recorded on'), findsOneWidget);
         expect(find.text('180 psi'), findsOneWidget);
+        expect(find.text('Pumped'), findsOneWidget);
         expect(find.byType(PressureDriftIcon), findsNothing);
         expect(find.textContaining('nothing to compare'), findsOneWidget);
 
-        await tester.tap(find.text('Set now'));
+        await tester.tap(find.text('Shock · Air a'));
         await tester.pump();
 
         expect(calls, [('a', true)]);
-        expect(find.byIcon(Icons.check_circle), findsOneWidget);
         expect(
-          find.descendant(of: find.byType(PressureDriftCard), matching: find.byIcon(Icons.check_circle_outline)),
+          find.descendant(of: find.byType(PressureDriftCard), matching: find.byIcon(Icons.check_circle)),
           findsOneWidget,
         );
+        expect(find.text('Pumped'), findsNothing);
       });
 
-      testWidgets('shows how long ago an old reference was set', (tester) async {
+      testWidgets('shows no age for an old reference: the date says it', (tester) async {
         await pumpMarkable(tester, [_drift('a', elapsedDays: 12.4)]);
-
-        expect(find.textContaining('12 days ago'), findsOneWidget);
-      });
-
-      testWidgets('shows no age for a reference from today', (tester) async {
-        await pumpMarkable(tester, [_drift('a', elapsedDays: 0.6)]);
 
         expect(find.textContaining('ago'), findsNothing);
       });

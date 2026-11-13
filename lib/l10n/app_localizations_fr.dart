@@ -8012,32 +8012,32 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get pressureCheckSetNow => 'Réglé maintenant';
+  String get pressureCheckSetNow => 'Regonflé';
 
   @override
   String pressureCheckSetNowSemantics(String name) {
-    return 'Marquer $name comme réglé maintenant';
+    return 'Marquer $name comme regonflé';
   }
 
   @override
   String pressureCheckSetNowMarked(String name) {
-    return '$name marqué comme réglé maintenant';
+    return '$name marqué comme regonflé';
   }
+
+  @override
+  String pressureCheckSetNowUnmarked(String name) {
+    return '$name n’est plus marqué comme regonflé';
+  }
+
+  @override
+  String get pressureCheckSetNowDone => 'Regonflé à l’instant';
+
+  @override
+  String get pressureCheckSetNowHint => 'Regonflé à la valeur « Réglé » ? Touchez la pression.';
 
   @override
   String pressureCheckNoConditionsOn(String date) {
     return 'Aucune condition enregistrée le $date';
-  }
-
-  @override
-  String pressureCheckReferenceAge(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'il y a $count jours',
-      one: 'il y a 1 jour',
-    );
-    return '$_temp0';
   }
 
   @override
@@ -8106,7 +8106,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pressureCheckInfoCompared =>
-      'Chaque pression est comparée au setup qui l’a modifiée en dernier, ou dans lequel vous l’avez marquée « Réglé maintenant ». Ce n’est pas toujours votre setup précédent.';
+      'Chaque pression est comparée au setup qui l’a modifiée en dernier, ou dans lequel vous l’avez marquée « Regonflé ». Ce n’est pas toujours votre setup précédent.';
 
   @override
   String get pressureCheckInfoCarriedOver =>
@@ -8114,11 +8114,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pressureCheckInfoSetNow =>
-      'Après avoir regonflé ou vérifié au manomètre, marquez la pression « Réglé maintenant ». Ce setup devient alors la référence. Vous pouvez aussi le faire plus tard en modifiant le setup.';
+      'Après avoir regonflé ou vérifié au manomètre, touchez la pression pour la marquer « Regonflé ». Ce setup devient alors la référence. Vous pouvez aussi le faire plus tard en modifiant le setup.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Un setup enregistré sans température ni altitude ne peut pas être comparé. Ses pressions apparaissent quand même : marquez-les « Réglé maintenant » pour démarrer ici une nouvelle référence, ce qui exige les conditions du jour.';
+      'Un setup enregistré sans température ni altitude ne peut pas être comparé. Ses pressions apparaissent quand même : marquez-en une « Regonflé » pour démarrer ici une nouvelle référence, ce qui exige les conditions du jour.';
 
   @override
   String get pressureCheckInfoGoodToKnowHeading => 'Bon à savoir';

@@ -7997,32 +7997,32 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get pressureCheckSetNow => 'Impostato ora';
+  String get pressureCheckSetNow => 'Gonfiato';
 
   @override
   String pressureCheckSetNowSemantics(String name) {
-    return 'Segna $name come impostato ora';
+    return 'Segna $name come gonfiato';
   }
 
   @override
   String pressureCheckSetNowMarked(String name) {
-    return '$name segnato come impostato ora';
+    return '$name segnato come gonfiato';
   }
+
+  @override
+  String pressureCheckSetNowUnmarked(String name) {
+    return '$name non è più segnato come gonfiato';
+  }
+
+  @override
+  String get pressureCheckSetNowDone => 'Gonfiato proprio ora';
+
+  @override
+  String get pressureCheckSetNowHint => 'Hai rigonfiato fino al valore «Impostato»? Tocca la pressione.';
 
   @override
   String pressureCheckNoConditionsOn(String date) {
     return 'Nessuna condizione registrata il $date';
-  }
-
-  @override
-  String pressureCheckReferenceAge(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count giorni fa',
-      one: '1 giorno fa',
-    );
-    return '$_temp0';
   }
 
   @override
@@ -8090,7 +8090,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get pressureCheckInfoCompared =>
-      'Ogni pressione viene confrontata con il setup che l’ha cambiata per ultimo, o in cui l’hai segnata come «Impostato ora». Non è sempre il setup precedente.';
+      'Ogni pressione viene confrontata con il setup che l’ha cambiata per ultimo, o in cui l’hai segnata come «Gonfiato». Non è sempre il setup precedente.';
 
   @override
   String get pressureCheckInfoCarriedOver =>
@@ -8098,11 +8098,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get pressureCheckInfoSetNow =>
-      'Dopo aver rigonfiato o controllato con un manometro, segna la pressione come «Impostato ora». Questo setup diventa così il riferimento. Puoi farlo anche più tardi modificando il setup.';
+      'Dopo aver rigonfiato o controllato con un manometro, tocca la pressione per segnarla come «Gonfiato». Questo setup diventa così il riferimento. Puoi farlo anche più tardi modificando il setup.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Un setup salvato senza temperatura o altitudine non si può confrontare. Le sue pressioni compaiono comunque: segnale come «Impostato ora» per iniziare qui un nuovo riferimento, il che richiede le condizioni di oggi.';
+      'Un setup salvato senza temperatura o altitudine non si può confrontare. Le sue pressioni compaiono comunque: segnane una come «Gonfiato» per iniziare qui un nuovo riferimento, il che richiede le condizioni di oggi.';
 
   @override
   String get pressureCheckInfoGoodToKnowHeading => 'Da sapere';

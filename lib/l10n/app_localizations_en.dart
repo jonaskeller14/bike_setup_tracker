@@ -7958,32 +7958,32 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get pressureCheckSetNow => 'Set now';
+  String get pressureCheckSetNow => 'Pumped';
 
   @override
   String pressureCheckSetNowSemantics(String name) {
-    return 'Mark $name as set now';
+    return 'Mark $name as pumped';
   }
 
   @override
   String pressureCheckSetNowMarked(String name) {
-    return '$name marked as set now';
+    return '$name marked as pumped';
   }
+
+  @override
+  String pressureCheckSetNowUnmarked(String name) {
+    return '$name no longer marked as pumped';
+  }
+
+  @override
+  String get pressureCheckSetNowDone => 'Pumped just now';
+
+  @override
+  String get pressureCheckSetNowHint => 'Pumped back to “Set”? Tap the pressure.';
 
   @override
   String pressureCheckNoConditionsOn(String date) {
     return 'No conditions recorded on $date';
-  }
-
-  @override
-  String pressureCheckReferenceAge(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count days ago',
-      one: '1 day ago',
-    );
-    return '$_temp0';
   }
 
   @override
@@ -8051,7 +8051,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pressureCheckInfoCompared =>
-      'Each pressure is compared with the setup that last changed it, or where you marked it \"Set now\". That is not always your previous setup.';
+      'Each pressure is compared with the setup that last changed it, or where you marked it \"Pumped\". That is not always your previous setup.';
 
   @override
   String get pressureCheckInfoCarriedOver =>
@@ -8059,11 +8059,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pressureCheckInfoSetNow =>
-      'After pumping back or checking on a gauge, mark the pressure \"Set now\". This setup then becomes the reference. You can also do it later by editing the setup.';
+      'After pumping back or checking on a gauge, tap the pressure to mark it \"Pumped\". This setup then becomes the reference. You can also do it later by editing the setup.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'A setup saved without temperature or altitude can\'t be compared. Its pressures still show up: mark \"Set now\" to start a new reference here, which needs today\'s conditions.';
+      'A setup saved without temperature or altitude can\'t be compared. Its pressures still show up: mark one \"Pumped\" to start a new reference here, which needs today\'s conditions.';
 
   @override
   String get pressureCheckInfoGoodToKnowHeading => 'Good to know';

@@ -13081,35 +13081,47 @@ abstract class AppLocalizations {
   /// **'Set on {date} · {conditions}'**
   String pressureCheckSetOn(String date, String conditions);
 
-  /// Toggle on a pressure row of the pressure check card: the rider pumped the pressure back or confirmed it on a gauge, so this setup becomes its reference. Also the label of a row that is marked.
+  /// Chip on a drifted pressure row of the pressure check card: tapping the row marks that the rider pumped the pressure back or confirmed it on a gauge, so this setup becomes its reference. Also quoted in the info sheet.
   ///
   /// In en, this message translates to:
-  /// **'Set now'**
+  /// **'Pumped'**
   String get pressureCheckSetNow;
 
-  /// Screen reader label of the set-now toggle on a pressure row. {name} is the component and adjustment name.
+  /// Screen reader hint of a pressure row that can be marked as pumped. {name} is the component and adjustment name.
   ///
   /// In en, this message translates to:
-  /// **'Mark {name} as set now'**
+  /// **'Mark {name} as pumped'**
   String pressureCheckSetNowSemantics(String name);
 
-  /// Snackbar after the set-now toggle of a pressure row is switched on, with an undo action. {name} is the component and adjustment name.
+  /// Snackbar after a pressure row is marked as pumped, with an undo action. {name} is the component and adjustment name.
   ///
   /// In en, this message translates to:
-  /// **'{name} marked as set now'**
+  /// **'{name} marked as pumped'**
   String pressureCheckSetNowMarked(String name);
+
+  /// Snackbar after the pumped mark of a pressure row is removed, with an undo action. {name} is the component and adjustment name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} no longer marked as pumped'**
+  String pressureCheckSetNowUnmarked(String name);
+
+  /// Replaces the set-on line under a pressure name once the row is marked as pumped.
+  ///
+  /// In en, this message translates to:
+  /// **'Pumped just now'**
+  String get pressureCheckSetNowDone;
+
+  /// Appended to the footer of the pressure check card while a row can be marked: tapping a row marks it as pumped. “Set” is the column caption.
+  ///
+  /// In en, this message translates to:
+  /// **'Pumped back to “Set”? Tap the pressure.'**
+  String get pressureCheckSetNowHint;
 
   /// Row of the pressure check card, under the pressure name, when the setup that last set it has no temperature or altitude. {date} is the setup date.
   ///
   /// In en, this message translates to:
   /// **'No conditions recorded on {date}'**
   String pressureCheckNoConditionsOn(String date);
-
-  /// How long ago the pressure was set, appended to the set-on row of the pressure check card. Only shown from one day on.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 day ago} other{{count} days ago}}'**
-  String pressureCheckReferenceAge(int count);
 
   /// Caption of the pressure check card column with what the pump would read now.
   ///
@@ -13216,7 +13228,7 @@ abstract class AppLocalizations {
   /// Note in the pressure check info sheet.
   ///
   /// In en, this message translates to:
-  /// **'Each pressure is compared with the setup that last changed it, or where you marked it \"Set now\". That is not always your previous setup.'**
+  /// **'Each pressure is compared with the setup that last changed it, or where you marked it \"Pumped\". That is not always your previous setup.'**
   String get pressureCheckInfoCompared;
 
   /// Note in the pressure check info sheet.
@@ -13225,16 +13237,16 @@ abstract class AppLocalizations {
   /// **'A value carried over unchanged doesn\'t count: the air in the chamber has been there since the setup that set it.'**
   String get pressureCheckInfoCarriedOver;
 
-  /// Note in the pressure check info sheet. "Set now" must match the label of the toggle on the pressure check card.
+  /// Note in the pressure check info sheet. "Pumped" must match the chip on the pressure check card.
   ///
   /// In en, this message translates to:
-  /// **'After pumping back or checking on a gauge, mark the pressure \"Set now\". This setup then becomes the reference. You can also do it later by editing the setup.'**
+  /// **'After pumping back or checking on a gauge, tap the pressure to mark it \"Pumped\". This setup then becomes the reference. You can also do it later by editing the setup.'**
   String get pressureCheckInfoSetNow;
 
   /// Note in the pressure check info sheet.
   ///
   /// In en, this message translates to:
-  /// **'A setup saved without temperature or altitude can\'t be compared. Its pressures still show up: mark \"Set now\" to start a new reference here, which needs today\'s conditions.'**
+  /// **'A setup saved without temperature or altitude can\'t be compared. Its pressures still show up: mark one \"Pumped\" to start a new reference here, which needs today\'s conditions.'**
   String get pressureCheckInfoNeedsConditions;
 
   /// Heading in the pressure check info sheet.

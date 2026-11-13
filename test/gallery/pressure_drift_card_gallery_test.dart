@@ -13,8 +13,8 @@
 // readings run through the real PressureDriftService, so every number is the
 // physics, not a hand-picked value.
 //
-// Every row offers the "Set now" toggle, as on the setup page; `setNow` marks
-// readings as already set.
+// Every row can be marked as pumped, as on the setup page; `setNow` marks
+// readings as already pumped.
 //
 // Besides the pictures, the second test checks that no state traps the user:
 // every card can be expanded and collapsed, every expanded card either lists

@@ -48,7 +48,7 @@ void main() {
     await harness.openEdit(tester);
     final save = find.descendant(of: find.byType(AppBar), matching: find.byIcon(Icons.check));
 
-    await tester.tap(find.text('Set now'));
+    await tester.tap(find.text('Fork · Air Pressure'));
     await tester.pumpAndSettle();
     await tester.tap(save);
     await tester.pumpAndSettle();
@@ -61,7 +61,7 @@ void main() {
     addTearDown(harness.dispose);
 
     await harness.openEdit(tester);
-    expect(find.text('Set now'), findsNothing);
+    expect(find.text('Fork · Air Pressure'), findsNothing);
     await tester.tap(find.descendant(of: find.byType(AppBar), matching: find.byIcon(Icons.check)));
     await tester.pumpAndSettle();
 

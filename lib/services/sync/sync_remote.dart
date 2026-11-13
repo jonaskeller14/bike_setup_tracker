@@ -49,10 +49,10 @@ class FirestoreSyncRemote implements SyncRemote {
     // All writes of one batch share a server timestamp, so the doc id breaks ties.
     var query = _records(uid, collection).orderBy('serverUpdatedAt').orderBy(_tieBreaker);
     if (after != null) {
-      query = query.startAfter([
-        Timestamp.fromMicrosecondsSinceEpoch(after.serverUpdatedAt.microsecondsSinceEpoch),
-        after.docId,
-      ]);
+      final timestamp = Timestamp.fromMicrosecondsSinceEpoch(after.serverUpdatedAt.microsecondsSinceEpoch);
+      // An empty doc id (the start of the overlap) is no valid document id for the native SDKs:
+      // it becomes the collection path itself. startAt with the timestamp alone starts at the same place.
+      query = after.docId.isEmpty ? query.startAt([timestamp]) : query.startAfter([timestamp, after.docId]);
     }
     // From the server: the offline cache would hide changes, and an
     // `unavailable` error is how being offline shows up.

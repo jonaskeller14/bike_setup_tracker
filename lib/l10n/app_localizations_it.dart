@@ -8053,6 +8053,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get pressureCheckInfoCancel => 'I due effetti spesso si compensano in parte.';
 
   @override
+  String pressureCheckInfoLeak(String percent) {
+    return 'Anche le gomme perdono un po’ d’aria ogni giorno. Il controllo ipotizza con prudenza il $percent a settimana per le gomme e nessuna perdita per forcelle e ammortizzatori. La perdita reale è di solito maggiore.';
+  }
+
+  @override
   String get pressureCheckInfoExampleHeading => 'Esempio';
 
   @override
@@ -8081,19 +8086,30 @@ class AppLocalizationsIt extends AppLocalizations {
       'Cambia la soglia o salta dei tipi di componente in Impostazioni › Funzioni › Controllo pressione.';
 
   @override
-  String get pressureCheckInfoGoodToKnowHeading => 'Da sapere';
+  String get pressureCheckInfoReferenceHeading => 'Quale setup viene confrontato';
 
   @override
   String get pressureCheckInfoCompared =>
-      'Ogni valore viene confrontato con il setup che l’ha cambiato per ultimo, che non è sempre il setup precedente.';
+      'Ogni pressione viene confrontata con il setup che l’ha cambiata per ultimo, o in cui l’hai segnata come «Impostato ora». Non è sempre il setup precedente.';
+
+  @override
+  String get pressureCheckInfoCarriedOver =>
+      'Un valore riportato invariato non conta: l’aria nella camera è la stessa dal setup che l’ha impostata.';
+
+  @override
+  String get pressureCheckInfoSetNow =>
+      'Dopo aver rigonfiato o controllato con un manometro, segna la pressione come «Impostato ora». Questo setup diventa così il riferimento. Puoi farlo anche più tardi modificando il setup.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Entrambi i setup richiedono temperatura e altitudine; le pressioni senza questi dati vengono escluse.';
+      'Un setup salvato senza temperatura o altitudine non si può confrontare. Le sue pressioni compaiono comunque: segnale come «Impostato ora» per iniziare qui un nuovo riferimento, il che richiede le condizioni di oggi.';
+
+  @override
+  String get pressureCheckInfoGoodToKnowHeading => 'Da sapere';
 
   @override
   String get pressureCheckInfoNotIncluded =>
-      'Non considerati: come cambia la curva della molla con una pressione diversa, la viscosità dell’olio e l’aria che il tubo della pompa assorbe quando lo colleghi.';
+      'Non considerati: come cambia la curva della molla con una pressione diversa, la viscosità dell’olio e l’aria che il tubo della pompa assorbe quando lo colleghi. La perdita d’aria nel tempo è una stima prudente.';
 
   @override
   String get pressureCheckExampleHome => 'A casa';

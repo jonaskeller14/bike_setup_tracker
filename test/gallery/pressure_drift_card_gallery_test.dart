@@ -49,6 +49,30 @@ const _cellWidth = 360.0;
 const _sheetWidth = 400.0;
 const _longName = 'myForkWithAVeryLongNameThatWillNeverFitOnOneLine';
 
+/// The info sheet at phone and narrow width; the narrow ones also grow the
+/// text, and the last is the longest language.
+class _SheetShot {
+  final String slug;
+  final String title;
+  final double width;
+  final double textScale;
+  final Locale locale;
+
+  const _SheetShot(this.slug, this.title, {required this.width, this.textScale = 1, this.locale = const Locale('en')});
+}
+
+const _sheets = [
+  _SheetShot('sheet', 'Info sheet', width: _sheetWidth),
+  _SheetShot('sheet_narrow', 'Info sheet, narrow, text scale 1.5', width: 320, textScale: 1.5),
+  _SheetShot(
+    'sheet_de_narrow',
+    'Info sheet, German, narrow, text scale 1.5',
+    width: 320,
+    textScale: 1.5,
+    locale: Locale('de'),
+  ),
+];
+
 /// When the page asks for the drift.
 final _now = DateTime.utc(2026, 11, 12, 9);
 
@@ -359,17 +383,21 @@ void main() {
       }
       await session.add('cards', 'Card states', tester.renderObject(find.byKey(_galleryKey)));
 
-      tester.view.physicalSize = const Size(_sheetWidth, 1800);
-      await tester.pumpWidget(_sheetApp(theme));
-      await tester.pumpAndSettle();
-      await tester.tap(find.textContaining('Learn more'));
-      await tester.pumpAndSettle();
-      await session.add(
-        'sheet',
-        'Info sheet',
-        tester.renderObject(find.byKey(const ValueKey('sheet'))),
-        crop: tester.getRect(find.byType(BottomSheet)),
-      );
+      for (final sheet in _sheets) {
+        tester.view.physicalSize = Size(sheet.width, 3200);
+        await tester.pumpWidget(const SizedBox());
+        await tester.pumpWidget(_sheetApp(theme, sheet));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(HintLearnMoreText).first);
+        await tester.pumpAndSettle();
+        await session.add(
+          sheet.slug,
+          sheet.title,
+          tester.renderObject(find.byKey(const ValueKey('sheet'))),
+          crop: tester.getRect(find.byType(BottomSheet)),
+        );
+        expect(tester.takeException(), isNull, reason: '"${sheet.title}" overflows or throws');
+      }
 
       await session.finish();
     });
@@ -432,13 +460,25 @@ void main() {
 
 /// [settings] sit above the app, as in main.dart, so the info sheet's route
 /// finds them; each card also gets its own case's settings.
-Widget _app(ThemeData theme, Widget home, {Key? key, AppSettings? settings}) => RepaintBoundary(
+Widget _app(
+  ThemeData theme,
+  Widget home, {
+  Key? key,
+  AppSettings? settings,
+  Locale locale = const Locale('en'),
+  double textScale = 1,
+}) => RepaintBoundary(
   key: key,
   child: ChangeNotifierProvider<AppSettings>.value(
     value: settings ?? AppSettings(),
     child: localizedTestApp(
       debugShowCheckedModeBanner: false,
       theme: theme,
+      locale: locale,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(textScale)),
+        child: child!,
+      ),
       home: Scaffold(body: home),
     ),
   ),
@@ -486,7 +526,7 @@ Widget _galleryApp(ThemeData theme) {
   );
 }
 
-Widget _sheetApp(ThemeData theme) => _app(
+Widget _sheetApp(ThemeData theme, _SheetShot sheet) => _app(
   theme,
   Padding(
     padding: const EdgeInsets.all(16),
@@ -494,4 +534,6 @@ Widget _sheetApp(ThemeData theme) => _app(
   ),
   key: const ValueKey('sheet'),
   settings: _cases[5].settings(),
+  locale: sheet.locale,
+  textScale: sheet.textScale,
 );

@@ -78,6 +78,13 @@ class _PressureCheckInfoSheet extends StatelessWidget {
                     context.l10n.pressureCheckInfoThin,
                   ),
                   Text(context.l10n.pressureCheckInfoCancel, style: muted),
+                  _bullet(
+                    context,
+                    Icons.schedule,
+                    context.l10n.pressureCheckInfoLeak(
+                      "${(PressureDriftService.tireWeeklyLoss * 100).round()} %",
+                    ),
+                  ),
                   _heading(context, context.l10n.pressureCheckInfoExampleHeading),
                   _ExampleCard(appSettings: appSettings, significant: exampleSignificant),
                   _heading(context, context.l10n.pressureCheckInfoWhatToDoHeading),
@@ -103,7 +110,7 @@ class _PressureCheckInfoSheet extends StatelessWidget {
                     context.l10n.pressureCheckInfoSettingsHint,
                     style: muted,
                   ),
-                  _heading(context, context.l10n.pressureCheckInfoGoodToKnowHeading),
+                  _heading(context, context.l10n.pressureCheckInfoReferenceHeading),
                   _bullet(
                     context,
                     Icons.history,
@@ -111,9 +118,20 @@ class _PressureCheckInfoSheet extends StatelessWidget {
                   ),
                   _bullet(
                     context,
+                    Icons.content_copy_outlined,
+                    context.l10n.pressureCheckInfoCarriedOver,
+                  ),
+                  _bullet(
+                    context,
+                    Icons.check_circle_outline,
+                    context.l10n.pressureCheckInfoSetNow,
+                  ),
+                  _bullet(
+                    context,
                     Icons.location_off_outlined,
                     context.l10n.pressureCheckInfoNeedsConditions,
                   ),
+                  _heading(context, context.l10n.pressureCheckInfoGoodToKnowHeading),
                   _bullet(
                     context,
                     Icons.science_outlined,

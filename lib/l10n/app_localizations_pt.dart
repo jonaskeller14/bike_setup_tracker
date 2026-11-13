@@ -8045,6 +8045,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pressureCheckInfoCancel => 'Os dois efeitos muitas vezes se compensam em parte.';
 
   @override
+  String pressureCheckInfoLeak(String percent) {
+    return 'Os pneus também perdem um pouco de ar todo dia. A verificação assume com cautela $percent por semana para pneus e nenhuma perda para garfos e amortecedores. A perda real costuma ser maior.';
+  }
+
+  @override
   String get pressureCheckInfoExampleHeading => 'Exemplo';
 
   @override
@@ -8073,19 +8078,30 @@ class AppLocalizationsPt extends AppLocalizations {
       'Altere o limite ou ignore tipos de componente em Configurações › Recursos › Verificação de pressão.';
 
   @override
-  String get pressureCheckInfoGoodToKnowHeading => 'Bom saber';
+  String get pressureCheckInfoReferenceHeading => 'Qual setup é comparado';
 
   @override
   String get pressureCheckInfoCompared =>
-      'Cada valor é comparado com o setup que o alterou por último, que nem sempre é o seu setup anterior.';
+      'Cada pressão é comparada com o setup que a alterou por último, ou em que você a marcou como «Definido agora». Nem sempre é o seu setup anterior.';
+
+  @override
+  String get pressureCheckInfoCarriedOver =>
+      'Um valor mantido sem alteração não conta: o ar na câmara é o mesmo desde o setup que o definiu.';
+
+  @override
+  String get pressureCheckInfoSetNow =>
+      'Depois de encher de novo ou conferir no manômetro, marque a pressão como «Definido agora». Este setup passa a ser a referência. Você também pode fazer isso depois, editando o setup.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Os dois setups precisam de temperatura e altitude; pressões sem esses dados são ignoradas.';
+      'Um setup salvo sem temperatura ou altitude não pode ser comparado. Suas pressões ainda aparecem: marque-as como «Definido agora» para começar aqui uma nova referência, o que exige as condições de hoje.';
+
+  @override
+  String get pressureCheckInfoGoodToKnowHeading => 'Bom saber';
 
   @override
   String get pressureCheckInfoNotIncluded =>
-      'Não considerado: como a curva da mola muda com outra pressão, a viscosidade do óleo e o ar que a mangueira da bomba leva ao ser conectada.';
+      'Não considerado: como a curva da mola muda com outra pressão, a viscosidade do óleo e o ar que a mangueira da bomba leva ao ser conectada. A perda de ar ao longo do tempo é uma estimativa cautelosa.';
 
   @override
   String get pressureCheckExampleHome => 'Em casa';

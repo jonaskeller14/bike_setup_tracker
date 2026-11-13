@@ -8014,6 +8014,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pressureCheckInfoCancel => 'The two often partly cancel each other out.';
 
   @override
+  String pressureCheckInfoLeak(String percent) {
+    return 'Tires also lose a little air every day. The check assumes a cautious $percent per week for tires and none for forks and shocks. Real loss is usually bigger.';
+  }
+
+  @override
   String get pressureCheckInfoExampleHeading => 'Example';
 
   @override
@@ -8042,19 +8047,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Change the threshold or skip component types in Settings › Features › Pressure Check.';
 
   @override
-  String get pressureCheckInfoGoodToKnowHeading => 'Good to know';
+  String get pressureCheckInfoReferenceHeading => 'Which setup is compared';
 
   @override
   String get pressureCheckInfoCompared =>
-      'Each value is compared with the setup that last changed it, which is not always your previous setup.';
+      'Each pressure is compared with the setup that last changed it, or where you marked it \"Set now\". That is not always your previous setup.';
+
+  @override
+  String get pressureCheckInfoCarriedOver =>
+      'A value carried over unchanged doesn\'t count: the air in the chamber has been there since the setup that set it.';
+
+  @override
+  String get pressureCheckInfoSetNow =>
+      'After pumping back or checking on a gauge, mark the pressure \"Set now\". This setup then becomes the reference. You can also do it later by editing the setup.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Both setups need a temperature and an altitude; pressures without them are left out.';
+      'A setup saved without temperature or altitude can\'t be compared. Its pressures still show up: mark \"Set now\" to start a new reference here, which needs today\'s conditions.';
+
+  @override
+  String get pressureCheckInfoGoodToKnowHeading => 'Good to know';
 
   @override
   String get pressureCheckInfoNotIncluded =>
-      'Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it.';
+      'Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it. The air loss over time is a cautious estimate.';
 
   @override
   String get pressureCheckExampleHome => 'At home';

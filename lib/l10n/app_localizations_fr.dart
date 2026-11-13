@@ -8069,6 +8069,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pressureCheckInfoCancel => 'Les deux effets se compensent souvent en partie.';
 
   @override
+  String pressureCheckInfoLeak(String percent) {
+    return 'Les pneus perdent aussi un peu d’air chaque jour. Le contrôle suppose prudemment $percent par semaine pour les pneus et aucune perte pour les fourches et amortisseurs. La perte réelle est généralement plus élevée.';
+  }
+
+  @override
   String get pressureCheckInfoExampleHeading => 'Exemple';
 
   @override
@@ -8097,19 +8102,30 @@ class AppLocalizationsFr extends AppLocalizations {
       'Modifiez le seuil ou ignorez des types de composants dans Paramètres › Fonctionnalités › Contrôle de pression.';
 
   @override
-  String get pressureCheckInfoGoodToKnowHeading => 'Bon à savoir';
+  String get pressureCheckInfoReferenceHeading => 'Quel setup est comparé';
 
   @override
   String get pressureCheckInfoCompared =>
-      'Chaque valeur est comparée au setup qui l’a modifiée en dernier, et ce n’est pas toujours votre setup précédent.';
+      'Chaque pression est comparée au setup qui l’a modifiée en dernier, ou dans lequel vous l’avez marquée « Réglé maintenant ». Ce n’est pas toujours votre setup précédent.';
+
+  @override
+  String get pressureCheckInfoCarriedOver =>
+      'Une valeur reprise sans changement ne compte pas : l’air de la chambre y est depuis le setup qui l’a réglée.';
+
+  @override
+  String get pressureCheckInfoSetNow =>
+      'Après avoir regonflé ou vérifié au manomètre, marquez la pression « Réglé maintenant ». Ce setup devient alors la référence. Vous pouvez aussi le faire plus tard en modifiant le setup.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Les deux setups ont besoin d’une température et d’une altitude ; les pressions sans ces données sont ignorées.';
+      'Un setup enregistré sans température ni altitude ne peut pas être comparé. Ses pressions apparaissent quand même : marquez-les « Réglé maintenant » pour démarrer ici une nouvelle référence, ce qui exige les conditions du jour.';
+
+  @override
+  String get pressureCheckInfoGoodToKnowHeading => 'Bon à savoir';
 
   @override
   String get pressureCheckInfoNotIncluded =>
-      'Non pris en compte : l’évolution de la courbe du ressort à une autre pression, la viscosité de l’huile et l’air que prend le flexible de la pompe au branchement.';
+      'Non pris en compte : l’évolution de la courbe du ressort à une autre pression, la viscosité de l’huile et l’air que prend le flexible de la pompe au branchement. La perte d’air au fil du temps est une estimation prudente.';
 
   @override
   String get pressureCheckExampleHome => 'À la maison';

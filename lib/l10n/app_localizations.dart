@@ -13159,6 +13159,12 @@ abstract class AppLocalizations {
   /// **'The two often partly cancel each other out.'**
   String get pressureCheckInfoCancel;
 
+  /// Note in the pressure check info sheet about slow air loss. {percent} is the assumed weekly tire loss, such as 3 %.
+  ///
+  /// In en, this message translates to:
+  /// **'Tires also lose a little air every day. The check assumes a cautious {percent} per week for tires and none for forks and shocks. Real loss is usually bigger.'**
+  String pressureCheckInfoLeak(String percent);
+
   /// Heading of the example card in the pressure check info sheet.
   ///
   /// In en, this message translates to:
@@ -13204,25 +13210,43 @@ abstract class AppLocalizations {
   /// Heading in the pressure check info sheet.
   ///
   /// In en, this message translates to:
+  /// **'Which setup is compared'**
+  String get pressureCheckInfoReferenceHeading;
+
+  /// Note in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Each pressure is compared with the setup that last changed it, or where you marked it \"Set now\". That is not always your previous setup.'**
+  String get pressureCheckInfoCompared;
+
+  /// Note in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A value carried over unchanged doesn\'t count: the air in the chamber has been there since the setup that set it.'**
+  String get pressureCheckInfoCarriedOver;
+
+  /// Note in the pressure check info sheet. "Set now" must match the label of the toggle on the pressure check card.
+  ///
+  /// In en, this message translates to:
+  /// **'After pumping back or checking on a gauge, mark the pressure \"Set now\". This setup then becomes the reference. You can also do it later by editing the setup.'**
+  String get pressureCheckInfoSetNow;
+
+  /// Note in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A setup saved without temperature or altitude can\'t be compared. Its pressures still show up: mark \"Set now\" to start a new reference here, which needs today\'s conditions.'**
+  String get pressureCheckInfoNeedsConditions;
+
+  /// Heading in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
   /// **'Good to know'**
   String get pressureCheckInfoGoodToKnowHeading;
 
   /// Note in the pressure check info sheet.
   ///
   /// In en, this message translates to:
-  /// **'Each value is compared with the setup that last changed it, which is not always your previous setup.'**
-  String get pressureCheckInfoCompared;
-
-  /// Note in the pressure check info sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'Both setups need a temperature and an altitude; pressures without them are left out.'**
-  String get pressureCheckInfoNeedsConditions;
-
-  /// Note in the pressure check info sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it.'**
+  /// **'Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it. The air loss over time is a cautious estimate.'**
   String get pressureCheckInfoNotIncluded;
 
   /// Example card of the pressure check info sheet: the first place.

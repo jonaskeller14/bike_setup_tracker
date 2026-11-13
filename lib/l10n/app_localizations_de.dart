@@ -8070,6 +8070,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pressureCheckInfoCancel => 'Beides gleicht sich oft teilweise aus.';
 
   @override
+  String pressureCheckInfoLeak(String percent) {
+    return 'Reifen verlieren außerdem jeden Tag etwas Luft. Die Prüfung nimmt vorsichtig $percent pro Woche für Reifen an und keinen Verlust für Gabeln und Dämpfer. Der echte Verlust ist meist größer.';
+  }
+
+  @override
   String get pressureCheckInfoExampleHeading => 'Beispiel';
 
   @override
@@ -8098,19 +8103,30 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ändere den Schwellenwert oder überspringe Komponententypen unter Einstellungen › Funktionen › Druckprüfung.';
 
   @override
-  String get pressureCheckInfoGoodToKnowHeading => 'Gut zu wissen';
+  String get pressureCheckInfoReferenceHeading => 'Welches Setup verglichen wird';
 
   @override
   String get pressureCheckInfoCompared =>
-      'Jeder Wert wird mit dem Setup verglichen, das ihn zuletzt geändert hat. Das ist nicht immer dein vorheriges Setup.';
+      'Jeder Druck wird mit dem Setup verglichen, das ihn zuletzt geändert hat oder in dem du ihn mit „Jetzt eingestellt“ markiert hast. Das ist nicht immer dein vorheriges Setup.';
+
+  @override
+  String get pressureCheckInfoCarriedOver =>
+      'Ein unverändert übernommener Wert zählt nicht: Die Luft in der Kammer ist seit dem Setup, das ihn eingestellt hat, dieselbe.';
+
+  @override
+  String get pressureCheckInfoSetNow =>
+      'Markiere den Druck nach dem Aufpumpen oder dem Prüfen mit dem Manometer mit „Jetzt eingestellt“. Dann wird dieses Setup zur Referenz. Das geht auch später, indem du das Setup bearbeitest.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Beide Setups brauchen Temperatur und Höhe; Drücke ohne diese Angaben werden ausgelassen.';
+      'Ein Setup, das ohne Temperatur oder Höhe gespeichert wurde, lässt sich nicht vergleichen. Seine Drücke erscheinen trotzdem: Markiere sie mit „Jetzt eingestellt“, um hier eine neue Referenz zu starten. Dafür braucht es die heutigen Bedingungen.';
+
+  @override
+  String get pressureCheckInfoGoodToKnowHeading => 'Gut zu wissen';
 
   @override
   String get pressureCheckInfoNotIncluded =>
-      'Nicht berücksichtigt: wie sich die Federkennlinie bei anderem Druck ändert, die Ölviskosität und die Luft, die der Pumpenschlauch beim Anschließen aufnimmt.';
+      'Nicht berücksichtigt: wie sich die Federkennlinie bei anderem Druck ändert, die Ölviskosität und die Luft, die der Pumpenschlauch beim Anschließen aufnimmt. Der Luftverlust über die Zeit ist eine vorsichtige Schätzung.';
 
   @override
   String get pressureCheckExampleHome => 'Zu Hause';

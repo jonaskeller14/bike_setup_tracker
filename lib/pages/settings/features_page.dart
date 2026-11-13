@@ -176,21 +176,20 @@ class FeaturesPage extends StatelessWidget {
                     ),
                 ],
               ),
-              if (appSettings.developerMode)
-                ListTile(
-                  leading: const Icon(Icons.compress),
-                  title: Text(l10n.featuresPressureCheck),
-                  subtitle: Text(
-                    appSettings.enablePressureAssistant
-                        ? l10n.featuresPressureCheckOn(
-                            appSettings.pressureCheckThresholdPercent,
-                            pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, l10n),
-                          )
-                        : l10n.valueOff,
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => showPressureCheckSettingSheet(context),
+              ListTile(
+                leading: const Icon(Icons.tire_repair),
+                title: Text(l10n.featuresPressureCheck),
+                subtitle: Text(
+                  appSettings.enablePressureAssistant
+                      ? l10n.featuresPressureCheckOn(
+                          appSettings.pressureCheckThresholdPercent,
+                          pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, l10n),
+                        )
+                      : l10n.valueOff,
                 ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => showPressureCheckSettingSheet(context),
+              ),
               if (appSettings.developerMode)
                 _FeatureToggleTile(
                   icon: RideFeedback.iconData,

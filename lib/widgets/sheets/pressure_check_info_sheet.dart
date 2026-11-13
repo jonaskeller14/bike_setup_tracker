@@ -57,7 +57,7 @@ class _PressureCheckInfoSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SheetHeader(title: context.l10n.featuresPressureCheck, leadingIcon: const Icon(Icons.compress)),
+          SheetHeader(title: context.l10n.featuresPressureCheck, leadingIcon: const Icon(Icons.tire_repair)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(

@@ -121,6 +121,8 @@ class StravaService extends ChangeNotifier implements UserBoundService {
   bool _wasEntitled = false;
   String? _fcmToken;
   String? _notificationLanguage;
+  // What the device doc last said about task notifications; null before the first write.
+  bool? _taskNotificationsWritten;
 
   DateTime? _lastRecentSync;
   DateTime? _lastFullSync;
@@ -163,6 +165,9 @@ class StravaService extends ChangeNotifier implements UserBoundService {
     _appRepository = appRepository;
     _appSettings = appSettings;
     _account = accountService;
+    if (_taskNotificationsWritten != null && _taskNotificationsWritten != _wantsTaskNotifications) {
+      unawaited(_writeDevice());
+    }
     // Turning accounts on moves an already linked device in without a restart.
     if (appSettings.enableAccounts && _activeAthleteId != null) {
       unawaited(accountService.startSession(athleteId: _activeAthleteId));
@@ -195,6 +200,7 @@ class StravaService extends ChangeNotifier implements UserBoundService {
     _activeAthleteId = null;
     _wasEntitled = false;
     _fcmToken = null;
+    _taskNotificationsWritten = null;
     notifyListeners();
   }
 
@@ -462,18 +468,26 @@ class StravaService extends ChangeNotifier implements UserBoundService {
     if (uid == null || token == null || account == null || platform == null) return;
     try {
       final deviceId = await account.ensureDeviceId();
+      final taskNotifications = _wantsTaskNotifications;
       await FirebaseFirestore.instance.collection('users').doc(uid).collection('devices').doc(deviceId).set({
         'token': token,
         'platform': platform,
         'language': ?_notificationLanguage,
         'enableStravaNotifications': notificationsEnabled ?? _appSettings.enableStravaNotifications,
+        'enableTaskNotifications': taskNotifications,
         'lastSeen': FieldValue.serverTimestamp(),
         'expiresAt': Timestamp.fromDate(DateTime.now().add(const Duration(days: 365))),
       });
+      _taskNotificationsWritten = taskNotifications;
     } catch (e) {
       _handleError("DeviceDoc", e);
     }
   }
+
+  /// Task-due pushes are about the rules this device syncs (#17 Phase 8), so
+  /// the device only asks for them with cloud sync and tasks on.
+  bool get _wantsTaskNotifications =>
+      _appSettings.enableCloudSync && _appSettings.enableTask && _appSettings.enableTaskNotifications;
 
   /// The backend writes the import notifications, so it needs the app's
   /// language, which can differ from the device's.

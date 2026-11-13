@@ -900,13 +900,49 @@
   "@settingsDisconnectStravaSubtitle": {
     "description": "Subtitle of the settings entry that disconnects Strava."
   },
-  "settingsStravaNotifications": "Strava Notifications",
+  "settingsStravaNotifications": "Imported rides",
   "@settingsStravaNotifications": {
-    "description": "Title of the settings entry and sheet for Strava push notifications."
+    "description": "Switch in the notifications sheet for push notifications when Strava rides are imported."
   },
   "settingsStravaNotificationsInfo": "Receive push notifications when Strava activities are imported.",
   "@settingsStravaNotificationsInfo": {
-    "description": "Explanation in the Strava notifications sheet."
+    "description": "Subtitle of the imported-rides switch in the notifications sheet."
+  },
+  "settingsTaskNotifications": "Due tasks",
+  "@settingsTaskNotifications": {
+    "description": "Switch in the notifications sheet for push notifications when a Strava ride makes a task due."
+  },
+  "settingsTaskNotificationsInfo": "Get a push notification when a Strava ride makes a task due. Needs cloud sync.",
+  "@settingsTaskNotificationsInfo": {
+    "description": "Subtitle of the due-tasks switch in the notifications sheet."
+  },
+  "settingsNotifications": "Notifications",
+  "@settingsNotifications": {
+    "description": "Title of the settings entry and sheet that turns the push notifications on and off."
+  },
+  "settingsNotificationsIntro": "Push notifications after your Strava rides. Choose which ones you get.",
+  "@settingsNotificationsIntro": {
+    "description": "Introduction at the top of the notifications sheet."
+  },
+  "settingsNotificationsExample": "Example",
+  "@settingsNotificationsExample": {
+    "description": "Label above an example notification in the notifications sheet."
+  },
+  "settingsStravaNotificationsExampleTitle": "Ride imported: Evening Ride",
+  "@settingsStravaNotificationsExampleTitle": {
+    "description": "Title of the example ride-import notification. Mirrors the backend text with an example ride name."
+  },
+  "settingsStravaNotificationsExampleBody": "Changed anything on the bike? Record the setup.",
+  "@settingsStravaNotificationsExampleBody": {
+    "description": "Body of the example ride-import notification. Mirrors one of the backend prompts."
+  },
+  "settingsTaskNotificationsExampleTitle": "Task due: Chain wax",
+  "@settingsTaskNotificationsExampleTitle": {
+    "description": "Title of the example task-due notification. Mirrors the backend text with an example task name."
+  },
+  "settingsTaskNotificationsExampleBody": "Due after your ride on Enduro.",
+  "@settingsTaskNotificationsExampleBody": {
+    "description": "Body of the example task-due notification. Mirrors the backend text with an example bike name."
   },
   "settingsPreferences": "Preferences",
   "@settingsPreferences": {

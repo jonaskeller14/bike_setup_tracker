@@ -13,7 +13,7 @@ import '../../utils/automation_ids.dart';
 import '../../utils/url.dart';
 import '../../widgets/dialogs/strava_disconnect.dart';
 import '../../widgets/items/strava_subscription_card.dart';
-import '../../widgets/sheets/radio_group.dart';
+import '../../widgets/sheets/notification_settings_sheet.dart';
 import 'about_page.dart';
 import 'account_page.dart';
 import 'attachments_page.dart';
@@ -24,11 +24,6 @@ import 'reset_page.dart';
 
 class AppSettingsPage extends StatelessWidget {
   const AppSettingsPage({super.key});
-
-  static Map<bool, Text> _offOnOptionWidgets(AppLocalizations l10n) => {
-    false: Text(l10n.valueOff),
-    true: Text(l10n.valueOn),
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -74,22 +69,14 @@ class AppSettingsPage extends StatelessWidget {
                   ),
                   ListTile(
                     leading: const Icon(Icons.notifications_active),
-                    title: Text(l10n.settingsStravaNotifications),
-                    subtitle: _offOnOptionWidgets(l10n)[appSettings.enableStravaNotifications] ?? const Text("-"),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () => radioGroupSheet<bool>(
-                      context: context,
-                      title: l10n.settingsStravaNotifications,
-                      value: appSettings.enableStravaNotifications,
-                      optionWidgets: _offOnOptionWidgets(l10n),
-                      onChanged: (bool? newValue) {
-                        if (newValue == null) return;
-                        appSettings.enableStravaNotifications = newValue;
-                        unawaited(context.read<StravaService>().setStravaNotificationsEnabled(newValue));
-                        Navigator.pop(context);
-                      },
-                      infoText: l10n.settingsStravaNotificationsInfo,
+                    title: Text(l10n.settingsNotifications),
+                    subtitle: Text(
+                      notificationSettingsSummary(appSettings, l10n),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () => showNotificationSettingsSheet(context),
                   ),
                 ],
                 const Divider(),

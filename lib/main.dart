@@ -40,6 +40,7 @@ import 'services/quick_actions_service.dart';
 import 'services/setup_activity_analysis_service.dart';
 import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
+import 'services/task_trigger_service.dart';
 import 'services/tip_service.dart';
 import 'theme.dart';
 import 'utils/regional_defaults.dart';
@@ -339,6 +340,13 @@ class _LoadingGateState extends State<LoadingGate> {
                       premium: subscriptionService.hasStravaEntitlement,
                       account: accountService,
                     ),
+              ),
+              ProxyProvider<CloudSyncService, TaskTriggerService>(
+                lazy: false,
+                create: (context) => TaskTriggerService(widget.appRepository),
+                update: (context, cloudSyncService, taskTriggerService) =>
+                    taskTriggerService!..update(uid: cloudSyncService.activeUid),
+                dispose: (context, taskTriggerService) => taskTriggerService.dispose(),
               ),
               ChangeNotifierProvider<TipService>(
                 lazy: false,

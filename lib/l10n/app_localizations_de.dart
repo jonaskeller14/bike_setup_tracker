@@ -680,11 +680,40 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsDisconnectStravaSubtitle => 'Zugriff widerrufen und synchronisierte Aktivitäten löschen';
 
   @override
-  String get settingsStravaNotifications => 'Strava-Benachrichtigungen';
+  String get settingsStravaNotifications => 'Importierte Fahrten';
 
   @override
   String get settingsStravaNotificationsInfo =>
       'Erhalte Push-Benachrichtigungen, wenn Strava-Aktivitäten importiert werden.';
+
+  @override
+  String get settingsTaskNotifications => 'Fällige Aufgaben';
+
+  @override
+  String get settingsTaskNotificationsInfo =>
+      'Erhalte eine Push-Benachrichtigung, wenn eine Strava-Fahrt eine Aufgabe fällig macht. Erfordert die Cloud-Synchronisierung.';
+
+  @override
+  String get settingsNotifications => 'Benachrichtigungen';
+
+  @override
+  String get settingsNotificationsIntro =>
+      'Push-Benachrichtigungen nach deinen Strava-Fahrten. Wähle, welche du bekommst.';
+
+  @override
+  String get settingsNotificationsExample => 'Beispiel';
+
+  @override
+  String get settingsStravaNotificationsExampleTitle => 'Fahrt importiert: Feierabendrunde';
+
+  @override
+  String get settingsStravaNotificationsExampleBody => 'Etwas am Bike verändert? Halte das Setup fest.';
+
+  @override
+  String get settingsTaskNotificationsExampleTitle => 'Aufgabe fällig: Kette wachsen';
+
+  @override
+  String get settingsTaskNotificationsExampleBody => 'Fällig nach deiner Fahrt mit Enduro.';
 
   @override
   String get settingsPreferences => 'Voreinstellungen';

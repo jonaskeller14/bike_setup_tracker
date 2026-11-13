@@ -1411,17 +1411,71 @@ abstract class AppLocalizations {
   /// **'Revoke access and delete synced activities'**
   String get settingsDisconnectStravaSubtitle;
 
-  /// Title of the settings entry and sheet for Strava push notifications.
+  /// Switch in the notifications sheet for push notifications when Strava rides are imported.
   ///
   /// In en, this message translates to:
-  /// **'Strava Notifications'**
+  /// **'Imported rides'**
   String get settingsStravaNotifications;
 
-  /// Explanation in the Strava notifications sheet.
+  /// Subtitle of the imported-rides switch in the notifications sheet.
   ///
   /// In en, this message translates to:
   /// **'Receive push notifications when Strava activities are imported.'**
   String get settingsStravaNotificationsInfo;
+
+  /// Switch in the notifications sheet for push notifications when a Strava ride makes a task due.
+  ///
+  /// In en, this message translates to:
+  /// **'Due tasks'**
+  String get settingsTaskNotifications;
+
+  /// Subtitle of the due-tasks switch in the notifications sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a push notification when a Strava ride makes a task due. Needs cloud sync.'**
+  String get settingsTaskNotificationsInfo;
+
+  /// Title of the settings entry and sheet that turns the push notifications on and off.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifications;
+
+  /// Introduction at the top of the notifications sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications after your Strava rides. Choose which ones you get.'**
+  String get settingsNotificationsIntro;
+
+  /// Label above an example notification in the notifications sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get settingsNotificationsExample;
+
+  /// Title of the example ride-import notification. Mirrors the backend text with an example ride name.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride imported: Evening Ride'**
+  String get settingsStravaNotificationsExampleTitle;
+
+  /// Body of the example ride-import notification. Mirrors one of the backend prompts.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed anything on the bike? Record the setup.'**
+  String get settingsStravaNotificationsExampleBody;
+
+  /// Title of the example task-due notification. Mirrors the backend text with an example task name.
+  ///
+  /// In en, this message translates to:
+  /// **'Task due: Chain wax'**
+  String get settingsTaskNotificationsExampleTitle;
+
+  /// Body of the example task-due notification. Mirrors the backend text with an example bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Due after your ride on Enduro.'**
+  String get settingsTaskNotificationsExampleBody;
 
   /// Title of the settings entry that opens the preferences page.
   ///

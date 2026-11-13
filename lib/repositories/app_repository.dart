@@ -31,8 +31,10 @@ import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
+import '../models/task/task_progress_context.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
+import '../models/task/task_trigger.dart';
 import '../services/backup_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/custom_issue_service.dart';
@@ -731,6 +733,108 @@ class AppRepository extends ChangeNotifier {
       lastEntry: inputs.lastEntry,
       componentInstallationDate: inputs.installationDate,
     );
+  }
+
+  /// Per open rule that rides move and whose bike rides on Strava gear, what
+  /// the rides on that gear must add up to for it to become due. A component
+  /// counts on the bike it is on now; an uninstalled or archived one has none.
+  Future<List<TaskTrigger>> taskTriggers() async {
+    final now = DateTime.now().toUtc();
+    final open = [for (final rule in _taskRules.values) ?_openTaskTrigger(rule, now)];
+    if (open.isEmpty) return const [];
+
+    final rides = [
+      for (final ride in await database.stravaDao.getGearActivitiesSince(
+        {for (final trigger in open) trigger.gearId},
+        TaskTrigger.earliestCountFrom(now),
+      ))
+        ride.toModel(),
+    ];
+    return [
+      for (final trigger in open)
+        TaskTrigger(
+          ruleId: trigger.rule.id,
+          gearId: trigger.gearId,
+          metric: trigger.metric,
+          countFrom: trigger.countFrom,
+          // The rides from countFrom on count towards it; whatever the rule
+          // gathered before (earlier rides, another bike, initial stats) is
+          // already taken off.
+          needed: trigger.metric.fromThresholdUnit(
+            trigger.remaining +
+                trigger.interval.accumulated(
+                  TaskProgressContext(
+                    currentStats: _rideStats(rides, trigger.gearId, trigger.countFrom),
+                    baselineStats: ComponentStats.zero,
+                    now: now,
+                    baselineDate: now,
+                  ),
+                ),
+          ),
+          title: trigger.rule.name,
+        ),
+    ];
+  }
+
+  ({
+    TaskRule rule,
+    AccumulatingThreshold interval,
+    TaskTriggerMetric metric,
+    String gearId,
+    DateTime countFrom,
+    double remaining,
+  })?
+  _openTaskTrigger(TaskRule rule, DateTime now) {
+    final interval = rule.interval;
+    if (interval is! AccumulatingThreshold) return null;
+    final metric = TaskTriggerMetric.of(interval);
+    if (metric == null) return null;
+    final bikeId = switch (rule.association) {
+      ComponentTaskAssociation(:final id) => componentHierarchy.currentBike(id),
+      BikeTaskAssociation(:final id) => id,
+      GeneralTaskAssociation() => null,
+    };
+    final gearId = _bikes[bikeId]?.stravaGear;
+    if (gearId == null) return null;
+
+    final inputs = _taskRuleInputs(rule);
+    final remaining = TaskStatusService.remaining(
+      rule: rule,
+      currentStats: inputs.stats,
+      now: now,
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
+    );
+    if (remaining == null) return null;
+    return (
+      rule: rule,
+      interval: interval,
+      metric: metric,
+      gearId: gearId,
+      // From the last entry and from when the component got onto this bike,
+      // so only rides on this gear that the rule counts come after it.
+      countFrom: TaskTrigger.countFromFor(
+        now: now,
+        windowStarts: [inputs.lastEntry?.dateTimeUTC, inputs.installationDate],
+      ),
+      remaining: remaining,
+    );
+  }
+
+  static ComponentStats _rideStats(List<StravaActivity> rides, String gearId, DateTime from) {
+    var stats = ComponentStats.zero;
+    for (final ride in rides) {
+      if (ride.gearId != gearId || ride.startDate.isBefore(from)) continue;
+      stats += ComponentStats(
+        distance: ride.distance ?? 0,
+        elevationGain: ride.totalElevationGain ?? 0,
+        movingTime: ride.movingTime,
+        elapsedTime: ride.elapsedTime,
+        activityCount: 1,
+        kilojoules: ride.kilojoules ?? 0,
+      );
+    }
+    return stats;
   }
 
   List<TaskRuleWithStatus> _openTaskRulesWithStatus(Iterable<TaskRule> rules) {

@@ -681,11 +681,40 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsDisconnectStravaSubtitle => 'Revogar o acesso e excluir as atividades sincronizadas';
 
   @override
-  String get settingsStravaNotifications => 'Notificações do Strava';
+  String get settingsStravaNotifications => 'Pedaladas importadas';
 
   @override
   String get settingsStravaNotificationsInfo =>
       'Receba uma notificação push quando atividades do Strava forem importadas.';
+
+  @override
+  String get settingsTaskNotifications => 'Tarefas pendentes';
+
+  @override
+  String get settingsTaskNotificationsInfo =>
+      'Receba uma notificação push quando uma pedalada do Strava deixar uma tarefa pendente. Requer a sincronização na nuvem.';
+
+  @override
+  String get settingsNotifications => 'Notificações';
+
+  @override
+  String get settingsNotificationsIntro =>
+      'Notificações push após suas pedaladas do Strava. Escolha quais você recebe.';
+
+  @override
+  String get settingsNotificationsExample => 'Exemplo';
+
+  @override
+  String get settingsStravaNotificationsExampleTitle => 'Pedalada importada: Pedal noturno';
+
+  @override
+  String get settingsStravaNotificationsExampleBody => 'Mudou algo na bike? Registre o setup.';
+
+  @override
+  String get settingsTaskNotificationsExampleTitle => 'Tarefa pendente: Encerar a corrente';
+
+  @override
+  String get settingsTaskNotificationsExampleBody => 'Pendente após sua pedalada com Enduro.';
 
   @override
   String get settingsPreferences => 'Preferências';

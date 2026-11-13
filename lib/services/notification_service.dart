@@ -12,6 +12,7 @@ import '../pages/details/strava_activity_details_page.dart';
 import '../repositories/app_repository.dart';
 import '../utils/map_actions.dart';
 import '../widgets/sheets/feature_setting_sheet.dart';
+import '../widgets/sheets/task_rule_sheet.dart';
 import 'navigation_service.dart';
 
 class NotificationService {
@@ -67,6 +68,14 @@ class NotificationService {
       } else {
         debugPrint('NotificationService: Failed to parse activityId: $activityIdStr');
       }
+    } else if (type == 'task_due') {
+      // One due task names its rule; several open the task list.
+      final ruleId = data['ruleId'] as String?;
+      if (ruleId != null) {
+        await _openTaskRule(ruleId);
+      } else {
+        await _openTasks();
+      }
     } else {
       debugPrint('NotificationService: Message ignored');
     }
@@ -99,9 +108,9 @@ class NotificationService {
     }
   }
 
-  Future<void> _openTasks() async {
+  Future<bool> _openTasks() async {
     final context = await _navigatorContext();
-    if (context == null || !context.mounted) return;
+    if (context == null || !context.mounted) return false;
     NavigationService.popToFirstUnblocked();
     final appSettings = context.read<AppSettings>();
     final l10n = context.l10n;
@@ -111,9 +120,26 @@ class NotificationService {
       title: l10n.featuresTasks,
       infoText: l10n.featuresTasksInfo,
     );
-    if (!isOn) return;
+    if (!isOn) return false;
     appSettings.enableTask = true;
     NavigationService.tasksTabRequested.value = true;
+    return true;
+  }
+
+  /// The task list, then the rule's sheet on top. A rule this device doesn't
+  /// have (yet) leaves the list open.
+  Future<void> _openTaskRule(String ruleId) async {
+    if (!await _openTasks()) return;
+    for (var attempt = 0; attempt <= 3; attempt++) {
+      if (_appRepository.taskRules.containsKey(ruleId)) {
+        final context = NavigationService.context;
+        if (context == null || !context.mounted) return;
+        unawaited(showTaskRuleSheet(context, taskRuleId: ruleId));
+        return;
+      }
+      // On a cold start the rules may not have loaded yet.
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+    }
   }
 
   Future<void> _openCalendar() async {

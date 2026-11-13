@@ -35,6 +35,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTaskTags = false;
   final bool _enableStrava = true;
   bool _enableStravaNotifications = true;
+  bool _enableTaskNotifications = true;
   bool _enableTask = false;
   bool _enableTaskPriority = true;
   bool _enableTaskInterval = true;
@@ -87,6 +88,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableTaskTags => _enableTaskTags;
   bool get enableStrava => _enableStrava;
   bool get enableStravaNotifications => _enableStravaNotifications;
+  bool get enableTaskNotifications => _enableTaskNotifications;
   bool get enableTask => _enableTask;
   bool get enableTaskPriority => _enableTaskPriority;
   bool get enableTaskInterval => _enableTaskInterval;
@@ -261,6 +263,13 @@ class AppSettings extends ChangeNotifier {
     _enableStravaNotifications = newValue;
     notifyListeners();
     _persistBool('enableStravaNotifications', newValue);
+  }
+
+  set enableTaskNotifications(bool newValue) {
+    if (newValue == _enableTaskNotifications) return;
+    _enableTaskNotifications = newValue;
+    notifyListeners();
+    _persistBool('enableTaskNotifications', newValue);
   }
 
   set enableTask(bool newValue) {
@@ -501,6 +510,7 @@ class AppSettings extends ChangeNotifier {
       _enableTaskTags = prefs.getBool('${_kPrefix}enableTaskTags') ?? _enableTaskTags;
       // enableStrava should always be true; ignored persisted value
       _enableStravaNotifications = prefs.getBool('${_kPrefix}enableStravaNotifications') ?? _enableStravaNotifications;
+      _enableTaskNotifications = prefs.getBool('${_kPrefix}enableTaskNotifications') ?? _enableTaskNotifications;
       _enableTask = prefs.getBool('${_kPrefix}enableTask') ?? _enableTask;
       _enableTaskPriority = prefs.getBool('${_kPrefix}enableTaskPriority') ?? _enableTaskPriority;
       _enableTaskInterval = prefs.getBool('${_kPrefix}enableTaskInterval') ?? _enableTaskInterval;
@@ -574,6 +584,7 @@ class AppSettings extends ChangeNotifier {
     _enableSetupTags = defaults._enableSetupTags;
     _enableTaskTags = defaults._enableTaskTags;
     _enableStravaNotifications = defaults._enableStravaNotifications;
+    _enableTaskNotifications = defaults._enableTaskNotifications;
     _enableTask = defaults._enableTask;
     _enableTaskPriority = defaults._enableTaskPriority;
     _enableTaskInterval = defaults._enableTaskInterval;
@@ -665,6 +676,7 @@ class AppSettings extends ChangeNotifier {
     _enableSetupTags,
     _enableTaskTags,
     _enableStravaNotifications,
+    _enableTaskNotifications,
     _enableTask,
     _enableTaskPriority,
     _enableTaskInterval,

@@ -679,10 +679,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDisconnectStravaSubtitle => 'Revoke access and delete synced activities';
 
   @override
-  String get settingsStravaNotifications => 'Strava Notifications';
+  String get settingsStravaNotifications => 'Imported rides';
 
   @override
   String get settingsStravaNotificationsInfo => 'Receive push notifications when Strava activities are imported.';
+
+  @override
+  String get settingsTaskNotifications => 'Due tasks';
+
+  @override
+  String get settingsTaskNotificationsInfo =>
+      'Get a push notification when a Strava ride makes a task due. Needs cloud sync.';
+
+  @override
+  String get settingsNotifications => 'Notifications';
+
+  @override
+  String get settingsNotificationsIntro => 'Push notifications after your Strava rides. Choose which ones you get.';
+
+  @override
+  String get settingsNotificationsExample => 'Example';
+
+  @override
+  String get settingsStravaNotificationsExampleTitle => 'Ride imported: Evening Ride';
+
+  @override
+  String get settingsStravaNotificationsExampleBody => 'Changed anything on the bike? Record the setup.';
+
+  @override
+  String get settingsTaskNotificationsExampleTitle => 'Task due: Chain wax';
+
+  @override
+  String get settingsTaskNotificationsExampleBody => 'Due after your ride on Enduro.';
 
   @override
   String get settingsPreferences => 'Preferences';

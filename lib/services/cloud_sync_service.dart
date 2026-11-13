@@ -77,6 +77,9 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
   /// Cloud sync on, premium and an account session.
   bool get isActive => _enabled && _premium && _uid != null && (_account?.isOnAccount ?? false);
 
+  /// The account synced to, while [isActive].
+  String? get activeUid => isActive ? _uid : null;
+
   @override
   void notifyListeners() {
     if (!_isDisposed) super.notifyListeners();

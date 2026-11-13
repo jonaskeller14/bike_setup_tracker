@@ -37,6 +37,10 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 29) {
+      // v29 added the setups set-now marks.
+      await db.customStatement('ALTER TABLE setups DROP COLUMN set_now_adjustment_ids');
+    }
     if (version < 28) {
       // v28 added the sync outbox, its triggers and the sync state tables.
       for (final trigger in syncOutboxTriggers) {
@@ -207,6 +211,9 @@ void main() {
     await seedComponent(seed);
     await seedBike(seed);
     await seedTask(seed);
+    // From v28 on the outbox triggers exist and catch the seed rows; drop
+    // those so the outbox check below only sees what the upgrade enqueued.
+    if (startVersion >= 28) await seed.customStatement('DELETE FROM sync_outbox');
     for (final statement in extraStatements) {
       await seed.customStatement(statement);
     }
@@ -239,7 +246,7 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -368,6 +375,11 @@ void main() {
         for (final table in _feedbackTables) {
           expect(await columnNames(db, table), isNotEmpty, reason: '$table missing after v$startVersion upgrade');
         }
+
+        // Every path ends with exactly one v29 set-now column, whether the
+        // v4/v20 recreation or the v29 step added it, and old setups have no marks.
+        expect(await columnCount(db, 'setups', 'set_now_adjustment_ids'), 1);
+        expect(typed.setNowAdjustmentIds, isEmpty);
 
         // The v28 step adds the sync tables and triggers last, so no earlier
         // step's rewrites (or the seed rows) end up in the outbox.

@@ -424,7 +424,12 @@ void main() {
     final t2 = DateTime(2025, 1, 2).toUtc();
     final t3 = DateTime(2025, 1, 3).toUtc();
 
-    Setup setupAt(DateTime datetime, String id, Map<String, AdjustmentValue> bikeAdjustmentValues) {
+    Setup setupAt(
+      DateTime datetime,
+      String id,
+      Map<String, AdjustmentValue> bikeAdjustmentValues, {
+      Set<String> setNowAdjustmentIds = const {},
+    }) {
       return Setup(
         id: id,
         datetime: datetime,
@@ -434,6 +439,7 @@ void main() {
         tags: const {},
         personAdjustmentValues: const {},
         bikeAdjustmentValues: bikeAdjustmentValues,
+        setNowAdjustmentIds: setNowAdjustmentIds,
       );
     }
 
@@ -501,6 +507,85 @@ void main() {
 
       expect(provenance[pressureAdj.id]?.setup.id, 's1');
       expect(provenance[reboundAdj.id]?.setup.id, 's3');
+    });
+
+    group('set-now marks', () {
+      test('a repeated value marked "Set now" moves to the marking setup', () {
+        // Intention: A rider pumped back to the same 80 psi at new conditions.
+        // Desired outcome: The marking setup becomes the reference.
+        // Not desired outcome: The value still points at the older setup.
+        final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+          datetime: t3,
+          setups: [
+            setupAt(t1, 's1', {pressureAdj.id: TextValue.orNull('80')!}),
+            setupAt(t2, 's2', {pressureAdj.id: TextValue.orNull('80')!}, setNowAdjustmentIds: {pressureAdj.id}),
+          ],
+        );
+
+        expect(provenance[pressureAdj.id]?.value, TextValue.orNull('80'));
+        expect(provenance[pressureAdj.id]?.setup.id, 's2');
+      });
+
+      test('an unmarked repeated value still points at the earlier setup', () {
+        final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+          datetime: t3,
+          setups: [
+            setupAt(t1, 's1', {pressureAdj.id: TextValue.orNull('80')!}),
+            setupAt(t2, 's2', {pressureAdj.id: TextValue.orNull('80')!}),
+          ],
+        );
+
+        expect(provenance[pressureAdj.id]?.setup.id, 's1');
+      });
+
+      test('a mark on a changed value changes nothing', () {
+        final setups = [
+          setupAt(t1, 's1', {pressureAdj.id: TextValue.orNull('80')!}),
+          setupAt(t2, 's2', {pressureAdj.id: TextValue.orNull('85')!}),
+        ];
+        final markedSetups = [
+          setups.first,
+          setups.last.copyWith(setNowAdjustmentIds: {pressureAdj.id}),
+        ];
+
+        final unmarked = SetupResolutionService.resolveHistoricalProvenanceAt(datetime: t3, setups: setups);
+        final marked = SetupResolutionService.resolveHistoricalProvenanceAt(datetime: t3, setups: markedSetups);
+
+        expect(marked[pressureAdj.id]?.value, unmarked[pressureAdj.id]?.value);
+        expect(marked[pressureAdj.id]?.setup.id, unmarked[pressureAdj.id]?.setup.id);
+        expect(marked[pressureAdj.id]?.setup.id, 's2');
+      });
+
+      test('a mark on another adjustment does not move this one', () {
+        final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+          datetime: t3,
+          setups: [
+            setupAt(t1, 's1', {pressureAdj.id: TextValue.orNull('80')!, reboundAdj.id: TextValue.orNull('5')!}),
+            setupAt(
+              t2,
+              's2',
+              {pressureAdj.id: TextValue.orNull('80')!, reboundAdj.id: TextValue.orNull('5')!},
+              setNowAdjustmentIds: {reboundAdj.id},
+            ),
+          ],
+        );
+
+        expect(provenance[pressureAdj.id]?.setup.id, 's1');
+        expect(provenance[reboundAdj.id]?.setup.id, 's2');
+      });
+
+      test('an excluded marked setup is left out', () {
+        final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+          datetime: t3,
+          setups: [
+            setupAt(t1, 's1', {pressureAdj.id: TextValue.orNull('80')!}),
+            setupAt(t2, 's2', {pressureAdj.id: TextValue.orNull('80')!}, setNowAdjustmentIds: {pressureAdj.id}),
+          ],
+          excludedSetupId: 's2',
+        );
+
+        expect(provenance[pressureAdj.id]?.setup.id, 's1');
+      });
     });
 
     test('setups at or after the target time, and the excluded one, are ignored', () {

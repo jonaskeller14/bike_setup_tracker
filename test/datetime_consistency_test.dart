@@ -63,6 +63,7 @@ void main() {
         tags: {},
         attachments: const [],
         isBookmarked: false,
+        setNowAdjustmentIds: const {},
       );
 
       final model = setupDb.toModel();

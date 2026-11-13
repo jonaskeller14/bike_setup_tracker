@@ -193,7 +193,7 @@ void main() {
       attachments: attachments,
     );
 
-    test('round-trip through version 9 json in order', () {
+    test('round-trip through version 10 json in order', () {
       final original = setup(
         attachments: [
           Attachment(id: 'b', extension: '.pdf', name: 'Fox 38 Service Manual'),
@@ -201,7 +201,7 @@ void main() {
         ],
       );
       final json = jsonDecode(jsonEncode(original.toJson())) as Map<String, dynamic>;
-      expect(json['version'], 9);
+      expect(json['version'], 10);
       expect(json.containsKey('images'), isFalse);
 
       final restored = Setup.fromJson(json: json, adjustmentTypes: const {});
@@ -239,7 +239,7 @@ void main() {
       testSessionId: testSessionId,
     );
 
-    test('round-trips through version 9 json', () {
+    test('round-trips through version 10 json', () {
       final original = setup(testSessionId: 'session1');
       final json = jsonDecode(jsonEncode(original.toJson())) as Map<String, dynamic>;
       expect(json['testSessionId'], 'session1');
@@ -298,6 +298,42 @@ void main() {
       expect(copy, isNot(copy.copyWith(sourceKind: SetupSourceKind.testSessionRun)));
       expect(copy.deepCopy().sourceSetupId, isNull);
       expect(copy.deepCopy().sourceKind, isNull);
+    });
+  });
+
+  group('Setup set-now marks', () {
+    final marked = Setup(
+      id: 's1',
+      lastModified: DateTime.utc(2026, 11, 1, 10),
+      datetime: DateTime.utc(2026, 11, 1, 9),
+      datetimeLocal: DateTime(2026, 11, 1, 10),
+      tags: const {},
+      bike: 'b1',
+      person: null,
+      bikeAdjustmentValues: const {'fork': NumericalValue(80), 'tire': NumericalValue(1.6)},
+      personAdjustmentValues: const {},
+      setNowAdjustmentIds: const {'fork', 'tire'},
+    );
+
+    test('round-trips through json', () {
+      final json = jsonDecode(jsonEncode(marked.toJson())) as Map<String, dynamic>;
+      expect(json['setNowAdjustmentIds'], unorderedEquals(['fork', 'tire']));
+      final types = {'fork': AdjustmentType.numerical, 'tire': AdjustmentType.numerical};
+      expect(Setup.fromJson(json: json, adjustmentTypes: types), marked);
+    });
+
+    test('older json without the key has no marks', () {
+      final json = marked.toJson()
+        ..['version'] = 9
+        ..remove('setNowAdjustmentIds');
+      expect(Setup.fromJson(json: json, adjustmentTypes: const {}).setNowAdjustmentIds, isEmpty);
+    });
+
+    test('is part of equality regardless of order, and deepCopy clears it', () {
+      expect(marked, marked.copyWith(setNowAdjustmentIds: {'tire', 'fork'}));
+      expect(marked.hashCode, marked.copyWith(setNowAdjustmentIds: {'tire', 'fork'}).hashCode);
+      expect(marked, isNot(marked.copyWith(setNowAdjustmentIds: {'fork'})));
+      expect(marked.deepCopy().setNowAdjustmentIds, isEmpty);
     });
   });
 }

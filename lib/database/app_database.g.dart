@@ -5003,6 +5003,16 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     requiredDuringInsert: false,
   ).withConverter<SetupSourceKind?>($SetupsTable.$convertersourceKindn);
   @override
+  late final GeneratedColumnWithTypeConverter<Set<String>, String>
+  setNowAdjustmentIds = GeneratedColumn<String>(
+    'set_now_adjustment_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  ).withConverter<Set<String>>($SetupsTable.$convertersetNowAdjustmentIds);
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     bikeId,
@@ -5022,6 +5032,7 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     testSessionId,
     sourceSetupId,
     sourceKind,
+    setNowAdjustmentIds,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5198,6 +5209,12 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
           data['${effectivePrefix}source_kind'],
         ),
       ),
+      setNowAdjustmentIds: $SetupsTable.$convertersetNowAdjustmentIds.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}set_now_adjustment_ids'],
+        )!,
+      ),
     );
   }
 
@@ -5234,6 +5251,8 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
   );
   static JsonTypeConverter2<SetupSourceKind?, String?, String?>
   $convertersourceKindn = JsonTypeConverter2.asNullable($convertersourceKind);
+  static TypeConverter<Set<String>, String> $convertersetNowAdjustmentIds =
+      const StringListConverter();
 }
 
 class SetupDb extends DataClass implements Insertable<SetupDb> {
@@ -5255,6 +5274,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final String? testSessionId;
   final String? sourceSetupId;
   final SetupSourceKind? sourceKind;
+  final Set<String> setNowAdjustmentIds;
   const SetupDb({
     required this.id,
     required this.bikeId,
@@ -5274,6 +5294,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     this.testSessionId,
     this.sourceSetupId,
     this.sourceKind,
+    required this.setNowAdjustmentIds,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5340,6 +5361,11 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
         $SetupsTable.$convertersourceKindn.toSql(sourceKind),
       );
     }
+    {
+      map['set_now_adjustment_ids'] = Variable<String>(
+        $SetupsTable.$convertersetNowAdjustmentIds.toSql(setNowAdjustmentIds),
+      );
+    }
     return map;
   }
 
@@ -5379,6 +5405,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       sourceKind: sourceKind == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceKind),
+      setNowAdjustmentIds: Value(setNowAdjustmentIds),
     );
   }
 
@@ -5408,6 +5435,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       sourceKind: $SetupsTable.$convertersourceKindn.fromJson(
         serializer.fromJson<String?>(json['sourceKind']),
       ),
+      setNowAdjustmentIds: serializer.fromJson<Set<String>>(
+        json['setNowAdjustmentIds'],
+      ),
     );
   }
   @override
@@ -5434,6 +5464,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'sourceKind': serializer.toJson<String?>(
         $SetupsTable.$convertersourceKindn.toJson(sourceKind),
       ),
+      'setNowAdjustmentIds': serializer.toJson<Set<String>>(
+        setNowAdjustmentIds,
+      ),
     };
   }
 
@@ -5456,6 +5489,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     Value<String?> testSessionId = const Value.absent(),
     Value<String?> sourceSetupId = const Value.absent(),
     Value<SetupSourceKind?> sourceKind = const Value.absent(),
+    Set<String>? setNowAdjustmentIds,
   }) => SetupDb(
     id: id ?? this.id,
     bikeId: bikeId ?? this.bikeId,
@@ -5479,6 +5513,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
         ? sourceSetupId.value
         : this.sourceSetupId,
     sourceKind: sourceKind.present ? sourceKind.value : this.sourceKind,
+    setNowAdjustmentIds: setNowAdjustmentIds ?? this.setNowAdjustmentIds,
   );
   SetupDb copyWithCompanion(SetupsCompanion data) {
     return SetupDb(
@@ -5514,6 +5549,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       sourceKind: data.sourceKind.present
           ? data.sourceKind.value
           : this.sourceKind,
+      setNowAdjustmentIds: data.setNowAdjustmentIds.present
+          ? data.setNowAdjustmentIds.value
+          : this.setNowAdjustmentIds,
     );
   }
 
@@ -5537,7 +5575,8 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ..write('weather: $weather, ')
           ..write('testSessionId: $testSessionId, ')
           ..write('sourceSetupId: $sourceSetupId, ')
-          ..write('sourceKind: $sourceKind')
+          ..write('sourceKind: $sourceKind, ')
+          ..write('setNowAdjustmentIds: $setNowAdjustmentIds')
           ..write(')'))
         .toString();
   }
@@ -5562,6 +5601,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     testSessionId,
     sourceSetupId,
     sourceKind,
+    setNowAdjustmentIds,
   );
   @override
   bool operator ==(Object other) =>
@@ -5584,7 +5624,8 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           other.weather == this.weather &&
           other.testSessionId == this.testSessionId &&
           other.sourceSetupId == this.sourceSetupId &&
-          other.sourceKind == this.sourceKind);
+          other.sourceKind == this.sourceKind &&
+          other.setNowAdjustmentIds == this.setNowAdjustmentIds);
 }
 
 class SetupsCompanion extends UpdateCompanion<SetupDb> {
@@ -5606,6 +5647,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<String?> testSessionId;
   final Value<String?> sourceSetupId;
   final Value<SetupSourceKind?> sourceKind;
+  final Value<Set<String>> setNowAdjustmentIds;
   final Value<int> rowid;
   const SetupsCompanion({
     this.id = const Value.absent(),
@@ -5626,6 +5668,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.testSessionId = const Value.absent(),
     this.sourceSetupId = const Value.absent(),
     this.sourceKind = const Value.absent(),
+    this.setNowAdjustmentIds = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SetupsCompanion.insert({
@@ -5647,6 +5690,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.testSessionId = const Value.absent(),
     this.sourceSetupId = const Value.absent(),
     this.sourceKind = const Value.absent(),
+    this.setNowAdjustmentIds = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        bikeId = Value(bikeId),
@@ -5673,6 +5717,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Expression<String>? testSessionId,
     Expression<String>? sourceSetupId,
     Expression<String>? sourceKind,
+    Expression<String>? setNowAdjustmentIds,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5694,6 +5739,8 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       if (testSessionId != null) 'test_session_id': testSessionId,
       if (sourceSetupId != null) 'source_setup_id': sourceSetupId,
       if (sourceKind != null) 'source_kind': sourceKind,
+      if (setNowAdjustmentIds != null)
+        'set_now_adjustment_ids': setNowAdjustmentIds,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5717,6 +5764,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<String?>? testSessionId,
     Value<String?>? sourceSetupId,
     Value<SetupSourceKind?>? sourceKind,
+    Value<Set<String>>? setNowAdjustmentIds,
     Value<int>? rowid,
   }) {
     return SetupsCompanion(
@@ -5738,6 +5786,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       testSessionId: testSessionId ?? this.testSessionId,
       sourceSetupId: sourceSetupId ?? this.sourceSetupId,
       sourceKind: sourceKind ?? this.sourceKind,
+      setNowAdjustmentIds: setNowAdjustmentIds ?? this.setNowAdjustmentIds,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5817,6 +5866,13 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
         $SetupsTable.$convertersourceKindn.toSql(sourceKind.value),
       );
     }
+    if (setNowAdjustmentIds.present) {
+      map['set_now_adjustment_ids'] = Variable<String>(
+        $SetupsTable.$convertersetNowAdjustmentIds.toSql(
+          setNowAdjustmentIds.value,
+        ),
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5844,6 +5900,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
           ..write('testSessionId: $testSessionId, ')
           ..write('sourceSetupId: $sourceSetupId, ')
           ..write('sourceKind: $sourceKind, ')
+          ..write('setNowAdjustmentIds: $setNowAdjustmentIds, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -15447,6 +15504,7 @@ typedef $$SetupsTableCreateCompanionBuilder = SetupsCompanion Function({
   Value<String?> testSessionId,
   Value<String?> sourceSetupId,
   Value<SetupSourceKind?> sourceKind,
+  Value<Set<String>> setNowAdjustmentIds,
   Value<int> rowid,
 });
 typedef $$SetupsTableUpdateCompanionBuilder = SetupsCompanion Function({
@@ -15468,6 +15526,7 @@ typedef $$SetupsTableUpdateCompanionBuilder = SetupsCompanion Function({
   Value<String?> testSessionId,
   Value<String?> sourceSetupId,
   Value<SetupSourceKind?> sourceKind,
+  Value<Set<String>> setNowAdjustmentIds,
   Value<int> rowid,
 });
 
@@ -15675,6 +15734,12 @@ class $$SetupsTableFilterComposer
   ColumnWithTypeConverterFilters<SetupSourceKind?, SetupSourceKind, String>
   get sourceKind => $composableBuilder(
     column: $table.sourceKind,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Set<String>, Set<String>, String>
+  get setNowAdjustmentIds => $composableBuilder(
+    column: $table.setNowAdjustmentIds,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -15890,6 +15955,11 @@ class $$SetupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get setNowAdjustmentIds => $composableBuilder(
+    column: $table.setNowAdjustmentIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$BikesTableOrderingComposer get bikeId {
     final $$BikesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -16011,6 +16081,12 @@ class $$SetupsTableAnnotationComposer
         column: $table.sourceKind,
         builder: (column) => column,
       );
+
+  GeneratedColumnWithTypeConverter<Set<String>, String>
+  get setNowAdjustmentIds => $composableBuilder(
+    column: $table.setNowAdjustmentIds,
+    builder: (column) => column,
+  );
 
   $$BikesTableAnnotationComposer get bikeId {
     final $$BikesTableAnnotationComposer composer = $composerBuilder(
@@ -16188,6 +16264,7 @@ class $$SetupsTableTableManager
                 Value<String?> testSessionId = const Value.absent(),
                 Value<String?> sourceSetupId = const Value.absent(),
                 Value<SetupSourceKind?> sourceKind = const Value.absent(),
+                Value<Set<String>> setNowAdjustmentIds = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SetupsCompanion(
                 id: id,
@@ -16208,6 +16285,7 @@ class $$SetupsTableTableManager
                 testSessionId: testSessionId,
                 sourceSetupId: sourceSetupId,
                 sourceKind: sourceKind,
+                setNowAdjustmentIds: setNowAdjustmentIds,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -16230,6 +16308,7 @@ class $$SetupsTableTableManager
                 Value<String?> testSessionId = const Value.absent(),
                 Value<String?> sourceSetupId = const Value.absent(),
                 Value<SetupSourceKind?> sourceKind = const Value.absent(),
+                Value<Set<String>> setNowAdjustmentIds = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SetupsCompanion.insert(
                 id: id,
@@ -16250,6 +16329,7 @@ class $$SetupsTableTableManager
                 testSessionId: testSessionId,
                 sourceSetupId: sourceSetupId,
                 sourceKind: sourceKind,
+                setNowAdjustmentIds: setNowAdjustmentIds,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

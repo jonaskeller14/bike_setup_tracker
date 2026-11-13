@@ -58,6 +58,7 @@ Map<String, dynamic> _fixtureJson() => {
           'lastModified': '2026-05-01T12:00:00.000000Z',
           'bikeAdjustmentValues': {'cat': ['Open', 'Firm'], 'num': 85.5, 'dur': '01:30:00'},
           'personAdjustmentValues': {'pnum': 75.0},
+          'setNowAdjustmentIds': ['num'],
         },
       ],
       'taskRules': [
@@ -244,6 +245,15 @@ void main() {
       final feedback = SyncCodec.encode(data.feedbacks['fb1']!);
       expect(feedback['observations'], hasLength(1));
       expect(feedback['comparisons'], hasLength(1));
+    });
+
+    test('setup set-now marks travel with the setup', () {
+      final setup = data.setups['s1']!;
+      expect(SyncCodec.encode(setup)['setNowAdjustmentIds'], ['num']);
+
+      final back = SyncCodec.decode(SyncCollection.setups, _pulled(setup), adjustmentTypes: adjustmentTypes);
+
+      expect((back! as Setup).setNowAdjustmentIds, {'num'});
     });
 
     test('a deleted record keeps its tombstone', () {

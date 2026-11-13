@@ -43,6 +43,9 @@ class Setup implements Syncable {
   final String? testSessionId; // Set on the runs of a test session.
   final String? sourceSetupId; // Set once on creation; the source may since be removed.
   final SetupSourceKind? sourceKind;
+  /// Adjustments re-set at this setup's conditions without a value change,
+  /// which makes this setup their pressure drift reference.
+  final Set<String> setNowAdjustmentIds;
 
   static const IconData iconData = Icons.tune;
 
@@ -68,6 +71,7 @@ class Setup implements Syncable {
     this.testSessionId,
     this.sourceSetupId,
     this.sourceKind,
+    this.setNowAdjustmentIds = const {},
   }) : id = id ?? const Uuid().v4(),
        attachments = attachments ?? const [],
        isDeleted = isDeleted ?? false,
@@ -77,7 +81,7 @@ class Setup implements Syncable {
 
   @override
   Map<String, dynamic> toJson() => {
-    'version': 9,
+    'version': 10,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -98,6 +102,7 @@ class Setup implements Syncable {
     'testSessionId': testSessionId,
     'sourceSetupId': sourceSetupId,
     'sourceKind': sourceKind?.name,
+    'setNowAdjustmentIds': setNowAdjustmentIds.toList(),
   };
 
   factory Setup.fromJson({
@@ -106,7 +111,7 @@ class Setup implements Syncable {
   }) {
     final int? version = json["version"] as int?;
     switch (version) {
-      case null || 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9:
+      case null || 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10:
         return Setup(
           id: json['id'] as String?,
           isDeleted: json["isDeleted"] as bool?,
@@ -128,6 +133,7 @@ class Setup implements Syncable {
           testSessionId: json['testSessionId'] as String?,
           sourceSetupId: json['sourceSetupId'] as String?,
           sourceKind: SetupSourceKind.values.asNameMap()[json['sourceKind']],
+          setNowAdjustmentIds: (json['setNowAdjustmentIds'] as List?)?.map((item) => item as String).toSet() ?? const {},
         );
       default: throw Exception("Json Version $version of Setup incompatible.");
     }
@@ -251,6 +257,7 @@ class Setup implements Syncable {
     Object? testSessionId = const _Sentinel(),
     Object? sourceSetupId = const _Sentinel(),
     Object? sourceKind = const _Sentinel(),
+    Object? setNowAdjustmentIds = const _Sentinel(),
   }) {
     return Setup(
       id: id is _Sentinel
@@ -313,6 +320,9 @@ class Setup implements Syncable {
       sourceKind: sourceKind is _Sentinel
           ? this.sourceKind
           : (sourceKind as SetupSourceKind?),
+      setNowAdjustmentIds: setNowAdjustmentIds is _Sentinel
+          ? this.setNowAdjustmentIds
+          : (setNowAdjustmentIds as Set<String>),
     );
   }
 
@@ -340,7 +350,8 @@ class Setup implements Syncable {
         listEquals(attachments, other.attachments) &&
         testSessionId == other.testSessionId &&
         sourceSetupId == other.sourceSetupId &&
-        sourceKind == other.sourceKind;
+        sourceKind == other.sourceKind &&
+        setEquals(setNowAdjustmentIds, other.setNowAdjustmentIds);
   }
 
   @override
@@ -366,6 +377,7 @@ class Setup implements Syncable {
       testSessionId,
       sourceSetupId,
       sourceKind,
+      Object.hashAllUnordered(setNowAdjustmentIds),
     ]);
   }
 }

@@ -98,7 +98,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 28;
+  int get schemaVersion => 29;
 
   @override
   late final List<DatabaseSchemaEntity> allSchemaEntities = [...super.allSchemaEntities, ...syncOutboxTriggers];
@@ -140,7 +140,8 @@ class AppDatabase extends _$AppDatabase {
           //
           // This recreation rebuilds setups from the *current* schema, which
           // now includes `attachments` (v20, `images` from v8), `isBookmarked` (v13)
-          // `testSessionId` (v26) and `sourceSetupId`/`sourceKind` (v27).
+          // `testSessionId` (v26), `sourceSetupId`/`sourceKind` (v27) and
+          // `setNowAdjustmentIds` (v29).
           // Pre-v4 rows have no such columns, so flag them as new columns —
           // Drift fills them from their defaults instead of trying to copy
           // them out of the old table.
@@ -153,6 +154,7 @@ class AppDatabase extends _$AppDatabase {
                 setups.testSessionId,
                 setups.sourceSetupId,
                 setups.sourceKind,
+                setups.setNowAdjustmentIds,
               ],
             ),
           );
@@ -277,7 +279,7 @@ class AppDatabase extends _$AppDatabase {
             await m.alterTable(
               TableMigration(
                 setups,
-                newColumns: [setups.attachments, setups.testSessionId, setups.sourceSetupId, setups.sourceKind],
+                newColumns: [setups.attachments, setups.testSessionId, setups.sourceSetupId, setups.sourceKind, setups.setNowAdjustmentIds],
               ),
             );
           }
@@ -365,6 +367,13 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(syncCursors);
           for (final trigger in syncOutboxTriggers) {
             await m.createTrigger(trigger);
+          }
+        }
+        if (from < 29) {
+          // Pressures marked "Set now" in the pressure check. The v4/v20
+          // recreations already gained the column.
+          if (!await _columnExists('setups', 'set_now_adjustment_ids')) {
+            await m.addColumn(setups, setups.setNowAdjustmentIds);
           }
         }
       }),

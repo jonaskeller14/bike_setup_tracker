@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../l10n/l10n.dart';
 import '../models/attachment.dart';
 import '../utils/attachment_actions.dart';
+import 'attachment_file_loader.dart';
 import 'attachment_viewer.dart';
 
 enum AttachmentStripMode { view, edit }
@@ -220,11 +220,12 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
 
   Widget _tileContent(BuildContext context, Attachment attachment) {
     if (!attachment.isImage) return AttachmentFileTile(attachment: attachment);
-    return Image.file(
-      File('${widget.attachmentsDir}${Platform.pathSeparator}${attachment.filename}'),
-      fit: BoxFit.cover,
-      cacheWidth: 300,
-      errorBuilder: (_, _, _) => _placeholder(context),
+    return AttachmentFileLoader(
+      attachment: attachment,
+      attachmentsDir: widget.attachmentsDir,
+      builder: (context, file, state) => state.showsPlaceholder
+          ? AttachmentFilePlaceholder(state: state)
+          : Image.file(file, fit: BoxFit.cover, cacheWidth: 300, errorBuilder: (_, _, _) => _placeholder(context)),
     );
   }
 

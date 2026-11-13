@@ -66,10 +66,13 @@ class AccountActions {
     final done = AppSnackBar.success(context, l10n.accountSyncDone);
     final offline = AppSnackBar.info(context, l10n.accountSyncOfflineDone);
     final failed = AppSnackBar.error(context, l10n.accountSyncFailed);
-    final status = await context.read<CloudSyncService>().syncNow();
+    final storageFull = AppSnackBar.error(context, l10n.accountSyncStorageFull);
+    final sync = context.read<CloudSyncService>();
+    final status = await sync.syncNow();
     messenger.showSnackBar(switch (status) {
       CloudSyncStatus.offline => offline,
       CloudSyncStatus.error => failed,
+      CloudSyncStatus.idle when sync.attachmentQuotaFull => storageFull,
       CloudSyncStatus.idle || CloudSyncStatus.syncing => done,
     });
   }

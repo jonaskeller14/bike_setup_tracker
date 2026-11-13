@@ -71,7 +71,7 @@ void main() async {
 
   await FirebaseAppCheck.instance.activate(
     providerAndroid: kDebugMode 
-        ? const AndroidDebugProvider() 
+        ? const AndroidDebugProvider(debugToken: "a824fa4b-40a4-4e14-b1e7-3e4120ea0b15")
         : const AndroidPlayIntegrityProvider(),
     providerApple: kDebugMode 
         ? const AppleDebugProvider() 

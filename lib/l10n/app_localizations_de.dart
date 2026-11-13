@@ -9853,4 +9853,32 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get stravaErrorLimitReached =>
       'Strava Sync nimmt gerade keine neuen Verbindungen an. Bitte versuche es später erneut.';
+
+  @override
+  String get attachmentDownloadNotInCloud =>
+      'Noch nicht in der Cloud. Vielleicht lädt ein anderes Gerät die Datei gerade noch hoch.';
+
+  @override
+  String get attachmentDownloadOffline => 'Keine Verbindung. Gehe online, um diese Datei herunterzuladen.';
+
+  @override
+  String get attachmentDownloadFailed => 'Diese Datei konnte nicht heruntergeladen werden.';
+
+  @override
+  String get attachmentDownloadRetry => 'Erneut versuchen';
+
+  @override
+  String accountSyncPendingFiles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Dateien noch nicht hochgeladen',
+      one: '1 Datei noch nicht hochgeladen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountSyncStorageFull =>
+      'Dein Cloud-Speicher von 500 MB ist voll. Neue Dateien bleiben nur auf diesem Gerät.';
 }

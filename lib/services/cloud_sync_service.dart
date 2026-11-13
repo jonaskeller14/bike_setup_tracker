@@ -1,12 +1,14 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/app_database.dart';
+import '../models/attachment.dart';
 import 'account_service.dart';
 import 'error_reporter.dart';
+import 'sync/attachment_remote.dart';
+import 'sync/attachment_sync.dart';
 import 'sync/sync_engine.dart';
 import 'sync/sync_remote.dart';
 
@@ -15,19 +17,28 @@ enum CloudSyncStatus { idle, syncing, offline, error }
 /// Keeps the local data and the account's cloud copy in step. Runs after
 /// local edits (debounced), on app resume and on "Sync now"; there are no
 /// live listeners, since every snapshot costs reads. Only active with cloud
-/// sync on, premium and an account session.
+/// sync on, premium and an account session. The attachment files travel with
+/// each run: uploaded after the records, downloaded when first viewed.
 class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implements UserBoundService {
   static const String _lastSyncKey = 'cloudSync.lastSyncAt';
 
   final AppDatabase _database;
   final SyncEngine _engine;
+  final AttachmentRemote _attachmentRemote;
   final Duration _debounce;
+  late final AttachmentSync _attachments = AttachmentSync(
+    _database,
+    remote: _attachmentRemote,
+    onChanged: notifyListeners,
+  );
 
   CloudSyncService(
     this._database, {
     SyncRemote? remote,
+    AttachmentRemote? attachmentRemote,
     this._debounce = const Duration(seconds: 10),
-  }) : _engine = SyncEngine(_database, remote: remote ?? FirestoreSyncRemote());
+  }) : _engine = SyncEngine(_database, remote: remote ?? FirestoreSyncRemote()),
+       _attachmentRemote = attachmentRemote ?? FirebaseAttachmentRemote();
 
   AccountService? _account;
   bool _enabled = false;
@@ -47,6 +58,12 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
   CloudSyncStatus get status => _status;
   DateTime? get lastSyncAt => _lastSyncAt;
   int get pendingCount => _pendingCount;
+
+  /// Attachment files that are not in the cloud yet.
+  int get pendingAttachmentUploads => _attachments.pendingUploads;
+
+  /// An attachment couldn't be uploaded because the 500 MB quota is full.
+  bool get attachmentQuotaFull => _attachments.quotaFull;
 
   /// Cloud sync on, premium and an account session.
   bool get isActive => _enabled && _premium && _uid != null && (_account?.isOnAccount ?? false);
@@ -125,6 +142,7 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
   @override
   Future<void> bindUser(String uid) async {
     _uid = uid;
+    _attachments.reset();
     // A new uid needs a sync even when the service stayed active.
     _wasActive = false;
     _onGateChanged();
@@ -136,6 +154,7 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     _uid = null;
     _onGateChanged();
     await _running;
+    _attachments.reset();
   }
 
   @override
@@ -151,11 +170,19 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     return _status;
   }
 
+  /// Fetches an attachment file this device doesn't have from the cloud.
+  /// [force] asks again after a recent failure.
+  Future<AttachmentDownloadResult> downloadAttachment(Attachment attachment, {bool force = false}) {
+    final uid = _uid;
+    if (uid == null || !isActive) return Future.value(AttachmentDownloadResult.notSyncing);
+    return _attachments.download(uid, attachment, force: force);
+  }
+
   /// Pushes the pending changes before this device signs out. Returns how many
-  /// are still not in the cloud.
+  /// changes and attachment files are still not in the cloud.
   Future<int> pushBeforeSignOut() async {
     if (isActive) await _requestSync();
-    return _database.syncDao.watchPendingCount().first;
+    return await _database.syncDao.watchPendingCount().first + _attachments.pendingUploads;
   }
 
   Future<void> _requestSync() {
@@ -179,13 +206,13 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     final uid = _uid;
     if (uid == null || !isActive) return;
     _setStatus(CloudSyncStatus.syncing);
+    void ensureCurrent() {
+      if (_uid != uid || !isActive) throw const SyncCancelled();
+    }
+
     try {
-      await _engine.run(
-        uid,
-        ensureCurrent: () {
-          if (_uid != uid || !isActive) throw const SyncCancelled();
-        },
-      );
+      await _engine.run(uid, ensureCurrent: ensureCurrent);
+      await _attachments.run(uid, ensureCurrent: ensureCurrent);
       _lastSyncAt = DateTime.now().toUtc();
       unawaited(
         SharedPreferences.getInstance().then((prefs) => prefs.setString(_lastSyncKey, _lastSyncAt!.toIso8601String())),
@@ -194,24 +221,20 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     } on SyncCancelled {
       _setStatus(CloudSyncStatus.idle);
     } catch (e, s) {
-      if (_isOffline(e)) {
+      if (AttachmentSync.isOffline(e)) {
         _setStatus(CloudSyncStatus.offline);
         return;
       }
       _setStatus(CloudSyncStatus.error);
       // On an account, a denied request is how a revoked session or a lapsed
       // premium shows up first.
-      if (e is FirebaseException && e.code == 'permission-denied') {
+      if (AttachmentSync.isDenied(e)) {
         unawaited(_account?.recheckSession());
         return;
       }
       recordNonFatal(e, s, reason: 'cloudSync.run');
     }
   }
-
-  static bool _isOffline(Object error) =>
-      error is TimeoutException ||
-      error is FirebaseException && (error.code == 'unavailable' || error.code == 'deadline-exceeded');
 
   void _setStatus(CloudSyncStatus status) {
     _status = status;

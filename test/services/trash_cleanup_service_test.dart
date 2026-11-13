@@ -18,9 +18,12 @@ import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/services/attachment_storage_service.dart';
 import 'package:bike_setup_tracker/services/database_migration_service.dart';
+import 'package:bike_setup_tracker/services/sync/attachment_sync.dart';
+import 'package:bike_setup_tracker/services/sync/sync_engine.dart';
 import 'package:bike_setup_tracker/services/trash_cleanup_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -227,6 +230,7 @@ void main() {
     late AttachmentStorageService storage;
 
     setUp(() async {
+      SharedPreferences.setMockInitialValues({});
       documentsDirectory = await Directory.systemTemp.createTemp('trash_cleanup_docs_');
       storage = AttachmentStorageService();
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, (
@@ -273,6 +277,38 @@ void main() {
 
       expect(await storedFiles(), {'recent.jpg', 'live.jpg'});
       expect((await database.select(database.bikes).get()).map((b) => b.id), unorderedEquals(['recent', 'live']));
+    });
+
+    group('cloud copies of the purged files', () {
+      Future<void> insertPurgedAndLive() => insert(
+        SelectedData(
+          bikes: {
+            'old': bike('old', lastModified: expired, isDeleted: true, attachments: [jpg('old'), jpg('shared')]),
+            'recent': bike('recent', lastModified: recent, isDeleted: true, attachments: [jpg('recent')]),
+          },
+          setups: {
+            'live': setup('live', attachments: [jpg('shared')]),
+          },
+        ),
+      );
+
+      test('only the files of purged rows are queued for deletion, once this device has synced', () async {
+        SharedPreferences.setMockInitialValues({SyncEngine.syncedUidKey: 'account-1'});
+        await insertPurgedAndLive();
+        await storeFiles(['old', 'recent', 'shared', 'unlinked']);
+
+        await TrashCleanupService.run(database);
+
+        expect(await AttachmentDeleteQueue.read(), {'old.jpg'}, reason: 'not the live, trashed or unlinked ones');
+      });
+
+      test('a device that never synced queues nothing', () async {
+        await insertPurgedAndLive();
+
+        await TrashCleanupService.run(database);
+
+        expect(await AttachmentDeleteQueue.read(), isEmpty);
+      });
     });
 
     test('keeps a file of a purged row that a surviving row still references', () async {

@@ -15966,6 +15966,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Strava Sync isn\'t accepting new connections right now. Please try again later.'**
   String get stravaErrorLimitReached;
+
+  /// Shown for an attachment this device doesn't have, when the cloud doesn't have it either yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the cloud yet. Another device may still be uploading it.'**
+  String get attachmentDownloadNotInCloud;
+
+  /// Shown for an attachment this device doesn't have, when there is no connection to download it.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Go online to download this file.'**
+  String get attachmentDownloadOffline;
+
+  /// Shown for an attachment this device doesn't have, when downloading it from the cloud failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download this file.'**
+  String get attachmentDownloadFailed;
+
+  /// Button that tries to download a missing attachment again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get attachmentDownloadRetry;
+
+  /// Number of attachment files not uploaded to the cloud yet. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file not uploaded yet} other{{count} files not uploaded yet}}'**
+  String accountSyncPendingFiles(int count);
+
+  /// Shown when attachments can't be uploaded because the 500 MB cloud storage is full.
+  ///
+  /// In en, this message translates to:
+  /// **'Your 500 MB of cloud storage is full. New files stay on this device only.'**
+  String get accountSyncStorageFull;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

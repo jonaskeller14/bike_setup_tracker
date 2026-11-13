@@ -2642,5 +2642,11 @@
   "accountNoticeAccountDeleted": "Sua conta foi excluída e este dispositivo foi desconectado. As atividades do Strava dele foram removidas; seus outros dados continuam nele.",
   "stravaDisconnectBodyAccount": "Isso revoga o acesso do app e exclui suas atividades sincronizadas do nosso armazenamento seguro. O Strava é desconectado em todos os dispositivos da sua conta; nenhum deles sai da conta. A sua conta do Strava em si não é afetada.",
   "stravaErrorOwnedByOtherAccount": "Esta conta do Strava pertence a outra conta. Saia primeiro neste dispositivo e depois conecte o Strava de novo.",
-  "stravaErrorLimitReached": "O Strava Sync não está aceitando novas conexões no momento. Tente de novo mais tarde."
+  "stravaErrorLimitReached": "O Strava Sync não está aceitando novas conexões no momento. Tente de novo mais tarde.",
+  "attachmentDownloadNotInCloud": "Ainda não está na nuvem. Outro dispositivo pode ainda estar enviando o arquivo.",
+  "attachmentDownloadOffline": "Sem conexão. Conecte-se para baixar este arquivo.",
+  "attachmentDownloadFailed": "Não foi possível baixar este arquivo.",
+  "attachmentDownloadRetry": "Tentar novamente",
+  "accountSyncPendingFiles": "{count, plural, =1{1 arquivo ainda não enviado} other{{count} arquivos ainda não enviados}}",
+  "accountSyncStorageFull": "Seu armazenamento na nuvem de 500 MB está cheio. Os novos arquivos ficam apenas neste dispositivo."
 }

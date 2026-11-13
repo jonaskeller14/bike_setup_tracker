@@ -9787,4 +9787,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get stravaErrorLimitReached =>
       'Strava Sync isn\'t accepting new connections right now. Please try again later.';
+
+  @override
+  String get attachmentDownloadNotInCloud => 'Not in the cloud yet. Another device may still be uploading it.';
+
+  @override
+  String get attachmentDownloadOffline => 'No connection. Go online to download this file.';
+
+  @override
+  String get attachmentDownloadFailed => 'Couldn\'t download this file.';
+
+  @override
+  String get attachmentDownloadRetry => 'Try again';
+
+  @override
+  String accountSyncPendingFiles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files not uploaded yet',
+      one: '1 file not uploaded yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountSyncStorageFull => 'Your 500 MB of cloud storage is full. New files stay on this device only.';
 }

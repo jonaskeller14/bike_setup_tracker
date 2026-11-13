@@ -130,9 +130,20 @@ class _CloudSyncTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final colorScheme = Theme.of(context).colorScheme;
-    final sync = context.select<CloudSyncService, ({bool active, CloudSyncStatus status, DateTime? lastSyncAt, int pending})>(
-      (sync) => (active: sync.isActive, status: sync.status, lastSyncAt: sync.lastSyncAt, pending: sync.pendingCount),
-    );
+    final sync = context
+        .select<
+          CloudSyncService,
+          ({bool active, CloudSyncStatus status, DateTime? lastSyncAt, int pending, int pendingFiles, bool storageFull})
+        >(
+          (sync) => (
+            active: sync.isActive,
+            status: sync.status,
+            lastSyncAt: sync.lastSyncAt,
+            pending: sync.pendingCount,
+            pendingFiles: sync.pendingAttachmentUploads,
+            storageFull: sync.attachmentQuotaFull,
+          ),
+        );
     final premium = context.select<SubscriptionService, bool>((subscription) => subscription.hasStravaEntitlement);
     final formats = context.select<AppSettings, (String, String)>((settings) => (settings.dateFormat, settings.timeFormat));
     final lastSyncAt = sync.lastSyncAt?.toLocal();
@@ -157,6 +168,8 @@ class _CloudSyncTile extends StatelessWidget {
     final subtitle = [
       if (premium && sync.status != CloudSyncStatus.idle) lastSynced,
       if (sync.pending > 0) l10n.accountSyncPending(sync.pending),
+      if (sync.pendingFiles > 0) l10n.accountSyncPendingFiles(sync.pendingFiles),
+      if (sync.storageFull) l10n.accountSyncStorageFull,
     ].join('\n');
 
     return ListTile(

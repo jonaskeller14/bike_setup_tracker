@@ -2642,5 +2642,11 @@
   "accountNoticeAccountDeleted": "Votre compte a été supprimé et cet appareil déconnecté. Ses activités Strava ont été supprimées ; vos autres données restent sur l’appareil.",
   "stravaDisconnectBodyAccount": "Cela révoque l’accès de l’application et supprime vos activités synchronisées de notre stockage sécurisé. Strava est déconnecté sur tous les appareils de votre compte ; aucun n’est déconnecté du compte. Votre compte Strava lui-même n’est pas affecté.",
   "stravaErrorOwnedByOtherAccount": "Ce compte Strava appartient à un autre compte. Déconnectez-vous d’abord sur cet appareil, puis reconnectez Strava.",
-  "stravaErrorLimitReached": "Strava Sync n’accepte pas de nouvelles connexions pour le moment. Réessayez plus tard."
+  "stravaErrorLimitReached": "Strava Sync n’accepte pas de nouvelles connexions pour le moment. Réessayez plus tard.",
+  "attachmentDownloadNotInCloud": "Pas encore dans le cloud. Un autre appareil est peut-être encore en train de l’envoyer.",
+  "attachmentDownloadOffline": "Pas de connexion. Connecte-toi pour télécharger ce fichier.",
+  "attachmentDownloadFailed": "Impossible de télécharger ce fichier.",
+  "attachmentDownloadRetry": "Réessayer",
+  "accountSyncPendingFiles": "{count, plural, =1{1 fichier pas encore envoyé} other{{count} fichiers pas encore envoyés}}",
+  "accountSyncStorageFull": "Ton espace cloud de 500 Mo est plein. Les nouveaux fichiers restent uniquement sur cet appareil."
 }

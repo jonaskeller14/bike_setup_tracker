@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/daos/sync_dao.dart';
+import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/syncable.dart';
 import 'package:bike_setup_tracker/services/account_service.dart';
+import 'package:bike_setup_tracker/services/attachment_storage_service.dart';
 import 'package:bike_setup_tracker/services/cloud_sync_service.dart';
 import 'package:bike_setup_tracker/services/database_migration_service.dart';
+import 'package:bike_setup_tracker/services/sync/attachment_sync.dart';
 import 'package:bike_setup_tracker/services/sync/sync_codec.dart';
 import 'package:bike_setup_tracker/services/sync/sync_collection.dart';
 import 'package:bike_setup_tracker/services/sync/sync_engine.dart';
@@ -17,9 +21,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'sync/fake_attachment_remote.dart';
 import 'sync/sync_fixture.dart';
 
 const _uid = 'account-1';
@@ -446,6 +452,116 @@ void main() {
       await settle();
 
       expect(service.status, CloudSyncStatus.error);
+    });
+
+    group('attachments', () {
+      const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
+      late Directory documents;
+      late Directory temporary;
+      late FakeAttachmentRemote files;
+      late CloudSyncService withFiles;
+
+      final photo = Attachment(id: 'photo', extension: '.jpg', name: 'photo.jpg');
+
+      setUp(() async {
+        documents = await Directory.systemTemp.createTemp('cloud_sync_docs_');
+        temporary = await Directory.systemTemp.createTemp('cloud_sync_tmp_');
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+          pathProviderChannel,
+          (call) async => switch (call.method) {
+            'getApplicationDocumentsDirectory' => documents.path,
+            'getTemporaryDirectory' => temporary.path,
+            _ => null,
+          },
+        );
+        files = FakeAttachmentRemote();
+        withFiles = CloudSyncService(
+          db,
+          remote: remote,
+          attachmentRemote: files,
+          debounce: const Duration(milliseconds: 20),
+        );
+      });
+
+      tearDown(() async {
+        withFiles.dispose();
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+          pathProviderChannel,
+          null,
+        );
+        await documents.delete(recursive: true);
+        await temporary.delete(recursive: true);
+      });
+
+      Future<void> addPhotoToBike() async {
+        await AttachmentStorageService().ensureDir();
+        await (await AttachmentStorageService().resolve(photo.filename)).writeAsBytes([1, 2, 3]);
+        await DatabaseMigrationService(db).migrateFromSelectedData(
+          SelectedData(bikes: {'b1': Bike(id: 'b1', name: 'Bike', person: null, attachments: [photo])}),
+        );
+      }
+
+      test('the files go up after the records', () async {
+        withFiles.update(enabled: true, premium: true, account: account);
+        await settle();
+
+        await addPhotoToBike();
+        await settle();
+
+        expect(await remote.count(SyncCollection.bikes), 1);
+        expect(files.cloud.keys, [photo.filename]);
+        expect(withFiles.pendingAttachmentUploads, 0);
+        expect(withFiles.status, CloudSyncStatus.idle);
+      });
+
+      test('a file that is not uploaded yet counts as unsynced before a sign-out', () async {
+        withFiles.update(enabled: true, premium: true, account: account);
+        await settle();
+        files.offline = true;
+        await addPhotoToBike();
+        await settle();
+
+        expect(await withFiles.pushBeforeSignOut(), 1, reason: 'the record is in the cloud, the photo is not');
+        expect(files.cloud, isEmpty);
+
+        files.offline = false;
+        expect(await withFiles.pushBeforeSignOut(), 0);
+        expect(files.cloud.keys, [photo.filename]);
+      });
+
+      test('a full quota is flagged for the status line without failing the sync', () async {
+        withFiles.update(enabled: true, premium: true, account: account);
+        await settle();
+        files.quota = 1;
+        files.reportedBytes = AttachmentSync.quotaBytes;
+        await addPhotoToBike();
+        await settle();
+
+        expect(withFiles.attachmentQuotaFull, isTrue);
+        expect(withFiles.status, CloudSyncStatus.idle);
+      });
+
+      test('being offline while uploading shows the offline status, not an error', () async {
+        withFiles.update(enabled: true, premium: true, account: account);
+        await settle();
+        files.failNext = TimeoutException('offline');
+        await addPhotoToBike();
+        await settle();
+
+        expect(withFiles.status, CloudSyncStatus.offline);
+        expect(withFiles.pendingAttachmentUploads, 1);
+      });
+
+      test('a missing file is downloaded while sync is active, and reported otherwise', () async {
+        files.cloud[photo.filename] = [7, 8];
+        expect(await withFiles.downloadAttachment(photo), AttachmentDownloadResult.notSyncing);
+
+        withFiles.update(enabled: true, premium: true, account: account);
+        await settle();
+
+        expect(await withFiles.downloadAttachment(photo), AttachmentDownloadResult.downloaded);
+        expect(await (await AttachmentStorageService().resolve(photo.filename)).readAsBytes(), [7, 8]);
+      });
     });
   });
 }

@@ -29,6 +29,11 @@ class AttachmentStorageService {
   static const String _attachmentsDir = 'attachments';
   static const int maxFileBytes = 25 * 1024 * 1024;
 
+  /// Picked photos are scaled down and re-encoded by the image picker, which
+  /// keeps the cloud copy near 300 KB. Other files are stored as they are.
+  static const double photoMaxDimension = 1600;
+  static const int photoQuality = 80;
+
   Future<String> _attachmentsPath() async {
     final base = await getApplicationDocumentsDirectory();
     return p.join(base.path, _attachmentsDir);

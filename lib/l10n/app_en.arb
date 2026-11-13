@@ -13157,5 +13157,34 @@
   "stravaErrorLimitReached": "Strava Sync isn't accepting new connections right now. Please try again later.",
   "@stravaErrorLimitReached": {
     "description": "Error when no new Strava connections are accepted right now."
+  },
+  "attachmentDownloadNotInCloud": "Not in the cloud yet. Another device may still be uploading it.",
+  "@attachmentDownloadNotInCloud": {
+    "description": "Shown for an attachment this device doesn't have, when the cloud doesn't have it either yet."
+  },
+  "attachmentDownloadOffline": "No connection. Go online to download this file.",
+  "@attachmentDownloadOffline": {
+    "description": "Shown for an attachment this device doesn't have, when there is no connection to download it."
+  },
+  "attachmentDownloadFailed": "Couldn't download this file.",
+  "@attachmentDownloadFailed": {
+    "description": "Shown for an attachment this device doesn't have, when downloading it from the cloud failed."
+  },
+  "attachmentDownloadRetry": "Try again",
+  "@attachmentDownloadRetry": {
+    "description": "Button that tries to download a missing attachment again."
+  },
+  "accountSyncPendingFiles": "{count, plural, =1{1 file not uploaded yet} other{{count} files not uploaded yet}}",
+  "@accountSyncPendingFiles": {
+    "description": "Number of attachment files not uploaded to the cloud yet. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountSyncStorageFull": "Your 500 MB of cloud storage is full. New files stay on this device only.",
+  "@accountSyncStorageFull": {
+    "description": "Shown when attachments can't be uploaded because the 500 MB cloud storage is full."
   }
 }

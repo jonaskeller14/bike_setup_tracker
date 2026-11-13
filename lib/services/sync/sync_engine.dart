@@ -25,6 +25,11 @@ class SyncEngine {
   /// again; identical versions are no-ops.
   static const Duration cursorOverlap = Duration(minutes: 1);
 
+  static const String defaultPrefsPrefix = 'cloudSync';
+
+  /// Set once this device has synced; the uid is the account it last synced with.
+  static const String syncedUidKey = '$defaultPrefsPrefix.uid';
+
   final AppDatabase db;
   final SyncRemote remote;
   final int pageSize;
@@ -37,7 +42,7 @@ class SyncEngine {
     required this.remote,
     this.pageSize = 500,
     this.batchSize = 500,
-    String prefsPrefix = 'cloudSync',
+    String prefsPrefix = defaultPrefsPrefix,
   }) : _syncedUidKey = '$prefsPrefix.uid',
        _skippedKey = '$prefsPrefix.skipped';
 

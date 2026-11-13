@@ -1404,6 +1404,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           provenance: provenance,
           currentWeather: _currentWeather.value,
           currentPosition: _currentLocation.value,
+          at: _selectedDateTimeUtc,
           significanceThreshold: appSettings.pressureCheckThreshold,
         );
         final gap = check.gap;

@@ -157,6 +157,7 @@ class _Case {
     provenance: SetupResolutionService.resolveHistoricalProvenanceAt(datetime: _now, setups: _setups),
     currentWeather: _weather,
     currentPosition: _position,
+    at: _now,
     significanceThreshold: thresholdPercent / 100,
   );
 

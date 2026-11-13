@@ -39,10 +39,17 @@ Setup _setup({
   );
 }
 
-Component _component({required String name, required List<Adjustment> adjustments}) {
+/// The moment every check runs at, unless a test passes its own.
+final DateTime _checkedAt = DateTime(2025, 4, 20).toUtc();
+
+Component _component({
+  required String name,
+  required List<Adjustment> adjustments,
+  ComponentType componentType = ComponentType.fork,
+}) {
   return Component(
     name: name,
-    componentType: ComponentType.fork,
+    componentType: componentType,
     adjustments: adjustments,
     installations: [Installation.sinceBeginning(parent: 'bike_1')],
   );
@@ -81,11 +88,12 @@ PressureCheck _check({
   return PressureDriftService.check(
     components: components,
     provenance: SetupResolutionService.resolveHistoricalProvenanceAt(
-      datetime: DateTime(2025, 4, 20).toUtc(),
+      datetime: _checkedAt,
       setups: setups,
     ),
     currentWeather: weather ?? _currentWeather(),
     currentPosition: position ?? _currentPosition(),
+    at: _checkedAt,
     significanceThreshold: significanceThreshold,
   );
 }
@@ -140,7 +148,127 @@ void main() {
       );
       expect(prediction.reading, closeTo(77.22, 0.05));
       expect(prediction.altitudeShare, closeTo(2.03, 0.05));
+      expect(prediction.leakShare, 0);
       expect(prediction.temperatureShare + prediction.altitudeShare, closeTo(prediction.reading - 80, 0.0001));
+    });
+  });
+
+  group('PressureDriftService air loss', () {
+    late NumericalAdjustment tirePressure;
+    late NumericalAdjustment forkPressure;
+    late Component tire;
+    late Component fork;
+
+    setUp(() {
+      tirePressure = _pressureAdjustment(id: 'adj_tire_pressure', name: 'Tire Pressure');
+      forkPressure = _pressureAdjustment(id: 'adj_fork_pressure', name: 'Air Pressure');
+      tire = _component(name: 'Rear Tire', adjustments: [tirePressure], componentType: ComponentType.tire);
+      fork = _component(name: 'Fork', adjustments: [forkPressure]);
+    });
+
+    /// The reference is passed as provenance directly, so a reference at or
+    /// after the checked moment can be tested too.
+    PressureDriftEntry entryAfter(
+      Duration age, {
+      required Component component,
+      required Adjustment adjustment,
+      bool sameConditions = true,
+    }) {
+      const value = NumericalValue(30.0);
+      return PressureDriftService.check(
+        components: [component],
+        provenance: {
+          adjustment.id: (
+            value: value,
+            setup: _setup(id: 's1', datetime: _checkedAt.subtract(age), bikeAdjustmentValues: {adjustment.id: value}),
+          ),
+        },
+        currentWeather: _currentWeather(temperatureC: sameConditions ? _referenceTemperatureC : _currentTemperatureC),
+        currentPosition: _currentPosition(altitudeM: sameConditions ? _referenceAltitudeM : _currentAltitudeM),
+        at: _checkedAt,
+      ).driftEntries.single;
+    }
+
+    test('only tyres and wheels leak at a steady rate', () {
+      for (final type in [ComponentType.tire, ComponentType.wheelFront, ComponentType.wheelRear]) {
+        expect(PressureDriftService.leakRatePerDay(type), PressureDriftService.tireLeakRatePerDay);
+      }
+      for (final type in [ComponentType.fork, ComponentType.shock, ComponentType.seatpost, ComponentType.other]) {
+        expect(PressureDriftService.leakRatePerDay(type), 0);
+      }
+      expect(PressureDriftService.tireLeakRatePerDay, closeTo(0.00435, 0.00001));
+    });
+
+    test('a tyre loses 3 % in a week of identical weather, all of it as leak', () {
+      // Intention: Verify the assumed rate end to end, with no other cause in play.
+      // Desired outcome: 30 psi reads 29.1 psi after 7 days, and the leak is the whole drift.
+      // Not desired outcome: A linear psi-per-day loss, or leak counted as temperature.
+      final entry = entryAfter(const Duration(days: 7), component: tire, adjustment: tirePressure);
+
+      expect(entry.elapsedDays, closeTo(7, 0.0001));
+      expect(entry.relativeDelta, closeTo(-0.03, 0.00001));
+      expect(entry.leakShare, closeTo(entry.delta, 0.00001));
+      expect(entry.temperatureShare, closeTo(0, 0.00001));
+      expect(entry.altitudeShare, closeTo(0, 0.00001));
+    });
+
+    test('a fork left for a month leaks nothing', () {
+      // Intention: Healthy air springs have no steady leak, so the model assumes none.
+      // Desired outcome: No leak share and no drift in identical weather.
+      // Not desired outcome: The tyre rate applied to every pressure.
+      final entry = entryAfter(const Duration(days: 30), component: fork, adjustment: forkPressure);
+
+      expect(entry.elapsedDays, closeTo(30, 0.0001));
+      expect(entry.leakShare, 0);
+      expect(entry.delta, closeTo(0, 0.00001));
+    });
+
+    test('a tyre checked right after its reference matches the model without leakage', () {
+      // Intention: A second setup on the same ride must read exactly as before Phase 3.
+      final entry = entryAfter(Duration.zero, component: tire, adjustment: tirePressure, sameConditions: false);
+      final withoutLeak = PressureDriftService.predict(
+        value: 30,
+        unit: tirePressure.unit as KnownUnit,
+        from: _reference,
+        to: _current,
+      );
+
+      expect(entry.elapsedDays, 0);
+      expect(entry.leakShare, 0);
+      expect(entry.predictedReading, closeTo(withoutLeak.reading, 0.0000001));
+    });
+
+    test('a reference dated after the checked moment leaks nothing', () {
+      // Intention: Clock skew between devices, or an edited setup dated before
+      // its reference, must not turn into a pressure gain.
+      // Desired outcome: Elapsed time clamps to zero.
+      // Not desired outcome: A negative elapsed time growing the pressure.
+      final entry = entryAfter(const Duration(days: -3), component: tire, adjustment: tirePressure);
+
+      expect(entry.elapsedDays, 0);
+      expect(entry.leakShare, 0);
+      expect(entry.delta, closeTo(0, 0.00001));
+    });
+
+    test('leak, temperature and altitude shares add up to the total drift', () {
+      final entry = entryAfter(
+        const Duration(days: 10),
+        component: tire,
+        adjustment: tirePressure,
+        sameConditions: false,
+      );
+
+      expect(entry.leakShare, lessThan(0));
+      expect(entry.temperatureShare, lessThan(0));
+      expect(entry.altitudeShare, greaterThan(0));
+      expect(entry.leakShare + entry.temperatureShare + entry.altitudeShare, closeTo(entry.delta, 0.0000001));
+    });
+
+    test('the default 3 % threshold is crossed after about a week', () {
+      // Intention: The expected effect stated in the plan: an untouched tyre is
+      // flagged after roughly a week, even when the weather hasn't changed.
+      expect(entryAfter(const Duration(days: 6), component: tire, adjustment: tirePressure).isSignificant, isFalse);
+      expect(entryAfter(const Duration(days: 8), component: tire, adjustment: tirePressure).isSignificant, isTrue);
     });
   });
 
@@ -427,6 +555,7 @@ void main() {
           provenance: const {},
           currentWeather: null,
           currentPosition: null,
+          at: _checkedAt,
         ).entries,
         isEmpty,
       );

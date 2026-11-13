@@ -37,8 +37,9 @@ class PressureConditions {
 }
 
 /// What a pump reads for a chamber set to `referenceValue` once the conditions
-/// have moved, split by cause. The shares add up to `reading − referenceValue`.
-typedef PressurePrediction = ({double reading, double temperatureShare, double altitudeShare});
+/// have moved and some air has leaked out, split by cause. The shares add up to
+/// `reading − referenceValue`.
+typedef PressurePrediction = ({double reading, double leakShare, double temperatureShare, double altitudeShare});
 
 sealed class PressureCheckEntry {
   final String adjustmentId;
@@ -62,7 +63,9 @@ final class PressureDriftEntry extends PressureCheckEntry {
   final PressureConditions referenceConditions;
   final PressureConditions currentConditions;
   final double predictedReading;
+  final double elapsedDays;
 
+  final double leakShare;
   final double temperatureShare;
   final double altitudeShare;
 
@@ -79,6 +82,8 @@ final class PressureDriftEntry extends PressureCheckEntry {
     required this.referenceConditions,
     required this.currentConditions,
     required this.predictedReading,
+    required this.elapsedDays,
+    required this.leakShare,
     required this.temperatureShare,
     required this.altitudeShare,
     this.significanceThreshold = PressureDriftService.defaultSignificanceThreshold,
@@ -132,13 +137,15 @@ class PressureCheck {
 }
 
 /// Predicts what a pump will read for pressures that were set under different
-/// ambient conditions.
+/// ambient conditions, some time ago.
 ///
 /// The chamber is sealed at constant volume, so its absolute pressure follows
 /// temperature alone, while the gauge reading is that absolute pressure minus
-/// whatever the ambient air is doing:
+/// whatever the ambient air is doing. Slow leakage through the casing is applied
+/// to the gauge pressure first, at the conditions it was set in:
 ///
-///   P_abs(set)  = P_gauge(set) + P_atm(altitude when set)
+///   P_gauge(leaked) = P_gauge(set) · e^(−k · days since set)
+///   P_abs(set)  = P_gauge(leaked) + P_atm(altitude when set)
 ///   P_abs(now)  = P_abs(set) · T(now) / T(set)        (Kelvin)
 ///   P_gauge(now) = P_abs(now) − P_atm(altitude now)
 ///
@@ -152,6 +159,21 @@ class PressureCheck {
 class PressureDriftService {
   static const double defaultSignificanceThreshold = 0.03;
   static const double _seaLevelPressurePa = 101325;
+
+  /// Deliberately below the lowest credible figures (butyl ~5 %, healthy
+  /// tubeless ~4–8 % per week)
+  static const double tireWeeklyLoss = 0.03;
+
+  /// Exponential rate for [tireWeeklyLoss]: leakage follows the pressure
+  /// difference, so the loss scales with the pressure.
+  static final double tireLeakRatePerDay = -math.log(1 - tireWeeklyLoss) / 7;
+
+  /// Healthy air springs have no steady leak; real losses there are faults
+  /// (valve core, seals) or the pump hose, so every other type gets zero.
+  static double leakRatePerDay(ComponentType type) => switch (type) {
+    ComponentType.tire || ComponentType.wheelFront || ComponentType.wheelRear => tireLeakRatePerDay,
+    _ => 0,
+  };
 
   static final KnownUnit _pascal = KnownUnit(
     quantity: UnitQuantity.pressure,
@@ -181,25 +203,32 @@ class PressureDriftService {
     return absolutePa * temperatureRatio - atmosphericPressurePa(to.altitudeM);
   }
 
-  /// [readingAtPa] for a value in [unit], with the drift split by cause.
+  /// [readingAtPa] for a value in [unit] after [elapsedDays] of leakage at
+  /// [leakRatePerDay], with the drift split by cause.
   static PressurePrediction predict({
     required double value,
     required KnownUnit unit,
     required PressureConditions from,
     required PressureConditions to,
+    double leakRatePerDay = 0,
+    double elapsedDays = 0,
   }) {
-    final reading = convertUnit(
-      readingAtPa(gaugePa: convertUnit(value, unit, _pascal), from: from, to: to),
-      _pascal,
-      unit,
-    );
+    final gaugePa = convertUnit(value, unit, _pascal);
+    final leakedPa = gaugePa * math.exp(-leakRatePerDay * elapsedDays);
+    final reading = convertUnit(readingAtPa(gaugePa: leakedPa, from: from, to: to), _pascal, unit);
+    final leakShare = reading - convertUnit(readingAtPa(gaugePa: gaugePa, from: from, to: to), _pascal, unit);
     final altitudeShare = convertUnit(
       atmosphericPressurePa(from.altitudeM) - atmosphericPressurePa(to.altitudeM),
       _pascal,
       unit,
     );
     // Derived from the total so the shares always add up to it.
-    return (reading: reading, temperatureShare: reading - value - altitudeShare, altitudeShare: altitudeShare);
+    return (
+      reading: reading,
+      leakShare: leakShare,
+      temperatureShare: reading - value - altitudeShare - leakShare,
+      altitudeShare: altitudeShare,
+    );
   }
 
   static KnownUnit? pressureUnitOf(Adjustment adjustment) {
@@ -213,7 +242,8 @@ class PressureDriftService {
       components.any((component) => component.adjustments.any((adjustment) => pressureUnitOf(adjustment) != null));
 
   /// Compares every pressure adjustment of [components] that [provenance]
-  /// resolves to a positive value with the conditions it was set in.
+  /// resolves to a positive value with the conditions it was set in, and with
+  /// the air it has lost between then and [at] (UTC).
   ///
   /// Zero gauge pressure is an empty chamber, and a negative one is bad data;
   /// neither has a meaningful relative drift, so both count as not recorded.
@@ -222,6 +252,7 @@ class PressureDriftService {
     required Map<String, AdjustmentProvenance> provenance,
     required ContextWeather? currentWeather,
     required ContextPosition? currentPosition,
+    required DateTime at,
     double significanceThreshold = defaultSignificanceThreshold,
   }) {
     final recorded = [
@@ -253,6 +284,7 @@ class PressureDriftService {
             value: r.value,
             reference: reference,
             current: current,
+            at: at,
             significanceThreshold: significanceThreshold,
           )
         else
@@ -280,9 +312,19 @@ class PressureDriftService {
     required double value,
     required PressureConditions reference,
     required PressureConditions current,
+    required DateTime at,
     required double significanceThreshold,
   }) {
-    final prediction = predict(value: value, unit: unit, from: reference, to: current);
+    // A reference after `at` (clock skew, or a later setup's date) leaks nothing.
+    final elapsedDays = math.max(0.0, at.difference(setup.datetime).inMinutes / Duration.minutesPerDay);
+    final prediction = predict(
+      value: value,
+      unit: unit,
+      from: reference,
+      to: current,
+      leakRatePerDay: leakRatePerDay(component.componentType),
+      elapsedDays: elapsedDays,
+    );
     return PressureDriftEntry(
       adjustmentId: adjustment.id,
       adjustmentName: adjustment.name,
@@ -293,6 +335,8 @@ class PressureDriftService {
       referenceConditions: reference,
       currentConditions: current,
       predictedReading: prediction.reading,
+      elapsedDays: elapsedDays,
+      leakShare: prediction.leakShare,
       temperatureShare: prediction.temperatureShare,
       altitudeShare: prediction.altitudeShare,
       significanceThreshold: significanceThreshold,

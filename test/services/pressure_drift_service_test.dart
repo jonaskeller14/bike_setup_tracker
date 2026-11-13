@@ -607,14 +607,14 @@ void main() {
       expect(gapWith(recorded: const NumericalValue(0.0)), PressureDriftGap.noRecordedPressure);
     });
 
-    test('a pressure recorded without conditions cannot be compared', () {
-      expect(gapWith(referenceTemperatureC: null), PressureDriftGap.noRecordedConditions);
-      expect(gapWith(referenceAltitudeM: null), PressureDriftGap.noRecordedConditions);
+    test('a pressure recorded without conditions is listed, not a gap', () {
+      expect(gapWith(referenceTemperatureC: null), isNull);
+      expect(gapWith(referenceAltitudeM: null), isNull);
     });
 
-    test('missing current conditions come last, since the rider can still add them', () {
+    test('missing current conditions beat a reference without conditions, since fetching fixes both', () {
       // Intention: The page shows a loading state for this gap while fetching,
-      // so it must not hide a gap that no fetch can close.
+      // and a reference without conditions can be re-marked once they arrive.
       expect(gapWith(weather: _currentWeather(temperatureC: null)), PressureDriftGap.noCurrentConditions);
       expect(gapWith(position: _currentPosition(altitudeM: null)), PressureDriftGap.noCurrentConditions);
       expect(
@@ -623,7 +623,7 @@ void main() {
       );
       expect(
         gapWith(referenceTemperatureC: null, weather: _currentWeather(temperatureC: null)),
-        PressureDriftGap.noRecordedConditions,
+        PressureDriftGap.noCurrentConditions,
       );
     });
 
@@ -713,7 +713,7 @@ void main() {
 
       expect(check.referenceGapEntries.map((entry) => entry.adjustmentId), [forkPressure.id, shockPressure.id]);
       expect(check.driftEntries, isEmpty);
-      expect(check.gap, PressureDriftGap.noRecordedConditions);
+      expect(check.gap, isNull);
       expect(check.currentConditions, _current);
     });
 

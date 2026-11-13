@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +12,7 @@ import '../models/context/context_weather.dart';
 import '../services/pressure_drift_service.dart';
 import '../theme.dart';
 import '../utils/localized_number.dart';
+import 'app_snackbar.dart';
 import 'hint_card_parts.dart';
 import 'setup_guide_status.dart';
 import 'sheets/pressure_check_info_sheet.dart';
@@ -18,13 +22,29 @@ import 'sheets/pressure_check_info_sheet.dart';
 /// is worth unpacking the pump at all. Styled like the app hints, and collapsed
 /// while every pressure stays within the threshold or there is nothing to compare.
 class PressureDriftCard extends StatefulWidget {
-  /// The card hides while it has neither a drift entry nor a gap.
+  /// The card hides while it has neither an entry nor a gap.
   final PressureCheck check;
 
   /// Whether the current location or weather is still being fetched.
   final bool loading;
 
-  const PressureDriftCard({super.key, required this.check, this.loading = false});
+  /// The pressures marked as set now. A marked row counts as dealt with.
+  final Set<String> setNowIds;
+
+  /// The pressures that still read their reference value and can be marked.
+  final Set<String> setNowAvailableIds;
+
+  /// Without it no row shows a toggle.
+  final void Function(String adjustmentId, bool setNow)? onSetNowChanged;
+
+  const PressureDriftCard({
+    super.key,
+    required this.check,
+    this.loading = false,
+    this.setNowIds = const {},
+    this.setNowAvailableIds = const {},
+    this.onSetNowChanged,
+  });
 
   @override
   State<PressureDriftCard> createState() => _PressureDriftCardState();
@@ -34,18 +54,39 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
   /// Null until the rider toggles the card; until then it follows the drift.
   bool? _expanded;
 
+  void _showSetNowSnackBar(PressureCheckEntry entry, bool setNow) {
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    if (!setNow) return;
+    messenger.showSnackBar(
+      AppSnackBar.success(
+        context,
+        context.l10n.pressureCheckSetNowMarked("${entry.componentName} · ${entry.adjustmentName}"),
+        action: AppSnackBarAction(
+          label: context.l10n.undo,
+          onPressed: () {
+            if (mounted) widget.onSetNowChanged?.call(entry.adjustmentId, false);
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final entries = widget.check.driftEntries;
+    final entries = widget.check.entries;
     final gap = widget.check.gap;
     if (entries.isEmpty && gap == null) return const SizedBox.shrink();
 
     final appSettings = context.watch<AppSettings>();
     final hint = HintColors.of(context);
     final textTheme = Theme.of(context).textTheme;
-    final driftedCount = entries.where((e) => e.isSignificant).length;
+    final driftEntries = widget.check.driftEntries;
+    final driftedCount = driftEntries
+        .where((e) => e.isSignificant && !widget.setNowIds.contains(e.adjustmentId))
+        .length;
+    final currentConditions = widget.check.currentConditions;
     final expanded = _expanded ?? driftedCount > 0;
-    final summary = switch ((entries.isEmpty, driftedCount > 0)) {
+    final summary = switch ((driftEntries.isEmpty, driftedCount > 0)) {
       (true, _) => const GuideStatus(GuideStatusKind.unavailable),
       (false, true) => const GuideStatus(GuideStatusKind.off),
       (false, false) => const GuideStatus(GuideStatusKind.inRange),
@@ -94,16 +135,16 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        driftedCount > 0 ? context.l10n.pressureCheckWorthPump : context.l10n.pressureCheckNoPump,
-                        style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
-                      ),
-                      Text(
-                        context.l10n.pressureCheckNow(
-                          pressureConditionsText(appSettings, entries.first.currentConditions),
+                      if (driftEntries.isNotEmpty)
+                        Text(
+                          driftedCount > 0 ? context.l10n.pressureCheckWorthPump : context.l10n.pressureCheckNoPump,
+                          style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
                         ),
-                        style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-                      ),
+                      if (currentConditions != null)
+                        Text(
+                          context.l10n.pressureCheckNow(pressureConditionsText(appSettings, currentConditions)),
+                          style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
+                        ),
                     ],
                   ),
                 ),
@@ -112,15 +153,30 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                 // Hairlines frame the readings so they read apart from the summary and the footer.
                 for (final entry in entries) ...[
                   divider,
-                  _PressureDriftRow(entry: entry, appSettings: appSettings),
+                  _PressureRow(
+                    entry: entry,
+                    appSettings: appSettings,
+                    setNow: widget.setNowIds.contains(entry.adjustmentId),
+                    onSetNowChanged:
+                        widget.onSetNowChanged != null && widget.setNowAvailableIds.contains(entry.adjustmentId)
+                        ? (setNow) {
+                            // Marking the last drifted row must not fold the card under the finger.
+                            setState(() => _expanded ??= true);
+                            widget.onSetNowChanged!(entry.adjustmentId, setNow);
+                            _showSetNowSnackBar(entry, setNow);
+                          }
+                        : null,
+                  ),
                 ],
                 divider,
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                   child: HintLearnMoreText(
-                    text: driftedCount > 0
-                        ? context.l10n.pressureCheckFooterDrifted
-                        : context.l10n.pressureCheckFooterOk(threshold),
+                    text: switch ((driftEntries.isEmpty, driftedCount > 0)) {
+                      (true, _) => context.l10n.pressureCheckNoRecordedConditions,
+                      (false, true) => context.l10n.pressureCheckFooterDrifted,
+                      (false, false) => context.l10n.pressureCheckFooterOk(threshold),
+                    },
                     style: textTheme.bodySmall?.copyWith(color: hint.onContainer),
                     onLearnMore: () => showPressureCheckInfoSheet(context),
                   ),
@@ -136,15 +192,23 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
 
 String _gapText(PressureDriftGap gap, AppLocalizations l10n) => switch (gap) {
   PressureDriftGap.noRecordedPressure => l10n.pressureCheckNoRecordedPressure,
-  PressureDriftGap.noRecordedConditions => l10n.pressureCheckNoRecordedConditions,
   PressureDriftGap.noCurrentConditions => l10n.pressureCheckNoCurrentConditions,
 };
 
-class _PressureDriftRow extends StatelessWidget {
-  final PressureDriftEntry entry;
+class _PressureRow extends StatelessWidget {
+  final PressureCheckEntry entry;
   final AppSettings appSettings;
+  final bool setNow;
 
-  const _PressureDriftRow({required this.entry, required this.appSettings});
+  /// Null where the row cannot be marked.
+  final ValueChanged<bool>? onSetNowChanged;
+
+  const _PressureRow({
+    required this.entry,
+    required this.appSettings,
+    required this.setNow,
+    required this.onSetNowChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -152,60 +216,128 @@ class _PressureDriftRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final mutedStyle = textTheme.bodySmall?.copyWith(color: hint.onContainer.withValues(alpha: 0.75));
     final unit = entry.unit.label;
+    final name = "${entry.componentName} · ${entry.adjustmentName}";
+    final setOnDate = DateFormat(
+      appSettings.dateFormat,
+      context.l10n.localeName,
+    ).format(entry.referenceSetup.datetimeLocal);
+    final referenceText = switch (entry) {
+      final PressureDriftEntry drift => [
+        context.l10n.pressureCheckSetOn(setOnDate, pressureConditionsText(appSettings, drift.referenceConditions)),
+        if (drift.elapsedDays >= 1) context.l10n.pressureCheckReferenceAge(drift.elapsedDays.floor()),
+      ].join(" · "),
+      PressureReferenceGapEntry() => context.l10n.pressureCheckNoConditionsOn(setOnDate),
+    };
+    const marked = GuideStatus(GuideStatusKind.inRange);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: _ColumnsLayout(
-        name: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "${entry.componentName} · ${entry.adjustmentName}",
-              style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _ColumnsLayout(
+            name: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(referenceText, style: mutedStyle, maxLines: 3, overflow: TextOverflow.ellipsis),
+              ],
             ),
-            Text(
-              context.l10n.pressureCheckSetOn(
-                DateFormat(appSettings.dateFormat, context.l10n.localeName).format(entry.referenceSetup.datetimeLocal),
-                pressureConditionsText(appSettings, entry.referenceConditions),
+            now: switch (entry) {
+              final PressureDriftEntry drift when !setNow => Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // Scaled rather than cut off: a truncated pressure is no use.
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      "${formatPressure(drift.predictedReading, context.l10n)} $unit",
+                      style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
+                      maxLines: 1,
+                    ),
+                  ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(signedPercent(drift.relativeDelta, context.l10n), style: mutedStyle, maxLines: 1),
+                  ),
+                ],
               ),
-              style: mutedStyle,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-        now: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            // Scaled rather than cut off: a truncated pressure is no use.
-            FittedBox(
+              _ => const SizedBox.shrink(),
+            },
+            set: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerRight,
               child: Text(
-                "${formatPressure(entry.predictedReading, context.l10n)} $unit",
-                style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
+                "${formatPressure(entry.referenceValue, context.l10n)} $unit",
+                style: textTheme.bodyMedium?.copyWith(color: hint.onContainer.withValues(alpha: 0.75)),
                 maxLines: 1,
               ),
             ),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerRight,
-              child: Text(signedPercent(entry.relativeDelta, context.l10n), style: mutedStyle, maxLines: 1),
-            ),
-          ],
-        ),
-        set: FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerRight,
-          child: Text(
-            "${formatPressure(entry.referenceValue, context.l10n)} $unit",
-            style: textTheme.bodyMedium?.copyWith(color: hint.onContainer.withValues(alpha: 0.75)),
-            maxLines: 1,
+            status: switch (entry) {
+              _ when setNow => Icon(marked.icon, size: 20, color: marked.color(context)),
+              final PressureDriftEntry drift => PressureDriftIcon(
+                relativeDelta: drift.relativeDelta,
+                threshold: drift.significanceThreshold,
+              ),
+              PressureReferenceGapEntry() => null,
+            },
+          ),
+          if (onSetNowChanged != null) _SetNowToggle(name: name, setNow: setNow, onChanged: onSetNowChanged!),
+        ],
+      ),
+    );
+  }
+}
+
+/// A check icon and a label, at least as tall as a tap target.
+class _SetNowToggle extends StatelessWidget {
+  final String name;
+  final bool setNow;
+  final ValueChanged<bool> onChanged;
+
+  const _SetNowToggle({required this.name, required this.setNow, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final hint = HintColors.of(context);
+    final status = GuideStatus(setNow ? GuideStatusKind.matches : GuideStatusKind.notSet);
+
+    return Semantics(
+      button: true,
+      toggled: setNow,
+      label: context.l10n.pressureCheckSetNowSemantics(name),
+      excludeSemantics: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {
+          unawaited(HapticFeedback.selectionClick());
+          onChanged(!setNow);
+        },
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 8,
+            children: [
+              Icon(status.icon, size: 20, color: setNow ? status.color(context) : hint.onContainer),
+              Flexible(
+                child: Text(
+                  context.l10n.pressureCheckSetNow,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(color: hint.onContainer),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ),
-        status: PressureDriftIcon(relativeDelta: entry.relativeDelta, threshold: entry.significanceThreshold),
       ),
     );
   }
@@ -235,7 +367,7 @@ class _ColumnsHeader extends StatelessWidget {
   }
 }
 
-/// Shared by [_ColumnsHeader] and [_PressureDriftRow] so the columns line up.
+/// Shared by [_ColumnsHeader] and [_PressureRow] so the columns line up.
 class _ColumnsLayout extends StatelessWidget {
   final Widget? name;
   final Widget now;
@@ -297,7 +429,8 @@ String formatPressure(double value, AppLocalizations l10n) {
   return formatLocalizedDouble(value, fractionDigits: decimals, locale: l10n.localeName);
 }
 
-String signedPressure(double value, AppLocalizations l10n) => "${value < 0 ? '-' : '+'}${formatPressure(value.abs(), l10n)}";
+String signedPressure(double value, AppLocalizations l10n) =>
+    "${value < 0 ? '-' : '+'}${formatPressure(value.abs(), l10n)}";
 
 String signedPercent(double fraction, AppLocalizations l10n) {
   final percent = (fraction * 100).abs();

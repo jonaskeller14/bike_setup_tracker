@@ -10623,7 +10623,7 @@
   },
   "pressureCheckNoRecordedConditions": "The pressures you last set were saved without a temperature or altitude, so there is nothing to compare.",
   "@pressureCheckNoRecordedConditions": {
-    "description": "Body of the pressure check card when the setups that last set the pressures have no temperature or altitude."
+    "description": "Footer of the pressure check card when the setups that last set the pressures all have no temperature or altitude, so no pressure can be compared."
   },
   "pressureCheckNoCurrentConditions": "Needs the current temperature and altitude. Set the location and weather above.",
   "@pressureCheckNoCurrentConditions": {
@@ -10638,6 +10638,46 @@
       },
       "conditions": {
         "type": "String"
+      }
+    }
+  },
+  "pressureCheckSetNow": "Set now",
+  "@pressureCheckSetNow": {
+    "description": "Toggle on a pressure row of the pressure check card: the rider pumped the pressure back or confirmed it on a gauge, so this setup becomes its reference. Also the label of a row that is marked."
+  },
+  "pressureCheckSetNowSemantics": "Mark {name} as set now",
+  "@pressureCheckSetNowSemantics": {
+    "description": "Screen reader label of the set-now toggle on a pressure row. {name} is the component and adjustment name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckSetNowMarked": "{name} marked as set now",
+  "@pressureCheckSetNowMarked": {
+    "description": "Snackbar after the set-now toggle of a pressure row is switched on, with an undo action. {name} is the component and adjustment name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckNoConditionsOn": "No conditions recorded on {date}",
+  "@pressureCheckNoConditionsOn": {
+    "description": "Row of the pressure check card, under the pressure name, when the setup that last set it has no temperature or altitude. {date} is the setup date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckReferenceAge": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@pressureCheckReferenceAge": {
+    "description": "How long ago the pressure was set, appended to the set-on row of the pressure check card. Only shown from one day on.",
+    "placeholders": {
+      "count": {
+        "type": "int"
       }
     }
   },

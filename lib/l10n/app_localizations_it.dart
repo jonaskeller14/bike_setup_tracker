@@ -7997,6 +7997,35 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String get pressureCheckSetNow => 'Impostato ora';
+
+  @override
+  String pressureCheckSetNowSemantics(String name) {
+    return 'Segna $name come impostato ora';
+  }
+
+  @override
+  String pressureCheckSetNowMarked(String name) {
+    return '$name segnato come impostato ora';
+  }
+
+  @override
+  String pressureCheckNoConditionsOn(String date) {
+    return 'Nessuna condizione registrata il $date';
+  }
+
+  @override
+  String pressureCheckReferenceAge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count giorni fa',
+      one: '1 giorno fa',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get pressureCheckColumnNow => 'Ora';
 
   @override

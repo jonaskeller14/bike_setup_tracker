@@ -13,10 +13,14 @@
 // readings run through the real PressureDriftService, so every number is the
 // physics, not a hand-picked value.
 //
+// Every row offers the "Set now" toggle, as on the setup page; `setNow` marks
+// readings as already set.
+//
 // Besides the pictures, the second test checks that no state traps the user:
 // every card can be expanded and collapsed, every expanded card either lists
 // its readings or says why there are none, every chevron points the way to
-// pump, and the info sheet opens from every expanded card.
+// pump, every unmarked reading has its chevron, and the info sheet opens from
+// every expanded card.
 @Tags(['gallery'])
 library;
 
@@ -58,6 +62,7 @@ class _Reading {
   final double? temperatureC;
   final double? altitudeM;
   final int day;
+  final ComponentType componentType;
 
   const _Reading(
     this.component,
@@ -67,6 +72,7 @@ class _Reading {
     this.temperatureC = 20,
     this.altitudeM = 500,
     this.day = 10,
+    this.componentType = ComponentType.fork,
   });
 }
 
@@ -78,6 +84,9 @@ class _Case {
   final double? temperatureC;
   final double? altitudeM;
   final bool loading;
+
+  /// Indexes of the readings marked as set now.
+  final Set<int> setNow;
 
   /// Toggles the card once after it renders.
   final bool toggle;
@@ -95,6 +104,7 @@ class _Case {
     this.temperatureC = 5,
     this.altitudeM = 1800,
     this.loading = false,
+    this.setNow = const {},
     this.toggle = false,
     this.thresholdPercent = 3,
     this.temperatureUnit = '°C',
@@ -111,7 +121,7 @@ class _Case {
       for (final name in names)
         Component(
           name: name,
-          componentType: ComponentType.fork,
+          componentType: readings.firstWhere((r) => r.component == name).componentType,
           installations: [Installation.sinceBeginning(parent: 'bike_1')],
           adjustments: [
             for (final (i, r) in readings.indexed)
@@ -174,7 +184,13 @@ class _Case {
         builder: (context) => Localizations.override(
           context: context,
           locale: locale,
-          child: PressureDriftCard(check: check, loading: loading),
+          child: PressureDriftCard(
+            check: check,
+            loading: loading,
+            setNowIds: {for (final i in setNow) 'adj_$i'},
+            setNowAvailableIds: {for (final (i, _) in readings.indexed) 'adj_$i'},
+            onSetNowChanged: (_, _) {},
+          ),
         ),
       ),
     );
@@ -257,6 +273,58 @@ final _cases = [
     width: 320,
     textScale: 1.5,
   ),
+  const _Case('Drifted row marked as set now', readings: [_fine], setNow: {0}, toggle: true),
+  const _Case(
+    'Row within threshold marked',
+    readings: [_fine],
+    temperatureC: 18,
+    altitudeM: 600,
+    setNow: {0},
+    toggle: true,
+  ),
+  const _Case(
+    'All marked: no pump, stays open',
+    readings: [
+      _Reading('myFork', 'myAirSpring', 80),
+      _Reading('myShock', 'myShockPressure', 180, temperatureC: 30, altitudeM: 0),
+    ],
+    setNow: {0, 1},
+    toggle: true,
+  ),
+  const _Case(
+    'References without conditions only',
+    readings: [
+      _Reading('myFork', 'myAirSpring', 80, temperatureC: null),
+      _Reading('myShock', 'myShockPressure', 180, altitudeM: null),
+    ],
+    toggle: true,
+  ),
+  const _Case(
+    'Mixed: drifted, marked, no conditions',
+    readings: [
+      _Reading('myFork', 'myAirSpring', 80),
+      _Reading('myShock', 'myShockPressure', 180, temperatureC: null),
+      _Reading('myRearTire', 'myTirePressure', 24, temperatureC: null),
+    ],
+    setNow: {0, 2},
+  ),
+  const _Case(
+    'Tyre drifted by time only',
+    readings: [_Reading('myRearTire', 'myTirePressure', 24, day: 31, componentType: ComponentType.tire)],
+    temperatureC: 20,
+    altitudeM: 500,
+  ),
+  const _Case(
+    'German, narrow, text scale 1.5',
+    readings: [
+      _Reading(_longName, 'myAirSpringWithALongName', 80),
+      _Reading('myShock', 'myShockPressure', 180, temperatureC: null),
+    ],
+    setNow: {1},
+    locale: Locale('de'),
+    width: 320,
+    textScale: 1.5,
+  ),
 ];
 
 const _galleryKey = ValueKey('card-gallery');
@@ -313,7 +381,7 @@ void main() {
     tester.view.physicalSize = const Size(_sheetWidth, 2000);
 
     for (final (index, c) in _cases.indexed) {
-      final entries = c.check.driftEntries;
+      final unmarked = c.check.driftEntries.where((e) => !c.setNow.any((i) => e.adjustmentId == 'adj_$i')).toList();
       await tester.pumpWidget(
         _app(
           galleryThemes.first.$2,
@@ -334,7 +402,7 @@ void main() {
       expect(learnMore, findsOneWidget, reason: '"${c.label}": the card does not expand to explain itself');
 
       final icons = tester.widgetList<PressureDriftIcon>(find.byType(PressureDriftIcon)).toList();
-      expect(icons.length, entries.length, reason: '"${c.label}": not every reading is listed');
+      expect(icons.length, unmarked.length, reason: '"${c.label}": not every unmarked reading is listed');
       for (final icon in icons) {
         final shown = tester.widget<Icon>(find.descendant(of: find.byWidget(icon), matching: find.byType(Icon))).icon;
         final expected = switch ((icon.relativeDelta.abs() >= icon.threshold, icon.relativeDelta < 0)) {

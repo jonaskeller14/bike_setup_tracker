@@ -7958,6 +7958,35 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get pressureCheckSetNow => 'Set now';
+
+  @override
+  String pressureCheckSetNowSemantics(String name) {
+    return 'Mark $name as set now';
+  }
+
+  @override
+  String pressureCheckSetNowMarked(String name) {
+    return '$name marked as set now';
+  }
+
+  @override
+  String pressureCheckNoConditionsOn(String date) {
+    return 'No conditions recorded on $date';
+  }
+
+  @override
+  String pressureCheckReferenceAge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get pressureCheckColumnNow => 'Now';
 
   @override

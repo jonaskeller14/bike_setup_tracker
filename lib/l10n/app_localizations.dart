@@ -13063,7 +13063,7 @@ abstract class AppLocalizations {
   /// **'No pressure recorded for this bike yet, so there is nothing to compare.'**
   String get pressureCheckNoRecordedPressure;
 
-  /// Body of the pressure check card when the setups that last set the pressures have no temperature or altitude.
+  /// Footer of the pressure check card when the setups that last set the pressures all have no temperature or altitude, so no pressure can be compared.
   ///
   /// In en, this message translates to:
   /// **'The pressures you last set were saved without a temperature or altitude, so there is nothing to compare.'**
@@ -13080,6 +13080,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set on {date} · {conditions}'**
   String pressureCheckSetOn(String date, String conditions);
+
+  /// Toggle on a pressure row of the pressure check card: the rider pumped the pressure back or confirmed it on a gauge, so this setup becomes its reference. Also the label of a row that is marked.
+  ///
+  /// In en, this message translates to:
+  /// **'Set now'**
+  String get pressureCheckSetNow;
+
+  /// Screen reader label of the set-now toggle on a pressure row. {name} is the component and adjustment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {name} as set now'**
+  String pressureCheckSetNowSemantics(String name);
+
+  /// Snackbar after the set-now toggle of a pressure row is switched on, with an undo action. {name} is the component and adjustment name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} marked as set now'**
+  String pressureCheckSetNowMarked(String name);
+
+  /// Row of the pressure check card, under the pressure name, when the setup that last set it has no temperature or altitude. {date} is the setup date.
+  ///
+  /// In en, this message translates to:
+  /// **'No conditions recorded on {date}'**
+  String pressureCheckNoConditionsOn(String date);
+
+  /// How long ago the pressure was set, appended to the set-on row of the pressure check card. Only shown from one day on.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day ago} other{{count} days ago}}'**
+  String pressureCheckReferenceAge(int count);
 
   /// Caption of the pressure check card column with what the pump would read now.
   ///

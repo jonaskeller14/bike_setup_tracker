@@ -112,7 +112,6 @@ final class PressureReferenceGapEntry extends PressureCheckEntry {
 
 enum PressureDriftGap {
   noRecordedPressure,
-  noRecordedConditions,
   noCurrentConditions,
 }
 
@@ -125,8 +124,7 @@ class PressureCheck {
   /// [currentConditions] is null, since nothing can be compared or marked then.
   final List<PressureCheckEntry> entries;
 
-  /// Why [driftEntries] is empty, or null when it isn't. A gap the rider cannot
-  /// fix by fetching the current conditions comes first.
+  /// Why [entries] is empty, or null when it isn't.
   final PressureDriftGap? gap;
 
   const PressureCheck({this.currentConditions, this.entries = const [], this.gap});
@@ -266,12 +264,7 @@ class PressureDriftService {
     if (recorded.isEmpty) {
       return PressureCheck(currentConditions: current, gap: PressureDriftGap.noRecordedPressure);
     }
-    if (current == null) {
-      final anyReferenceConditions = recorded.any((r) => PressureConditions.ofSetup(r.setup) != null);
-      return PressureCheck(
-        gap: anyReferenceConditions ? PressureDriftGap.noCurrentConditions : PressureDriftGap.noRecordedConditions,
-      );
-    }
+    if (current == null) return const PressureCheck(gap: PressureDriftGap.noCurrentConditions);
 
     final entries = <PressureCheckEntry>[
       for (final r in recorded)
@@ -297,11 +290,7 @@ class PressureDriftService {
             referenceValue: r.value,
           ),
     ];
-    return PressureCheck(
-      currentConditions: current,
-      entries: entries,
-      gap: entries.any((entry) => entry is PressureDriftEntry) ? null : PressureDriftGap.noRecordedConditions,
-    );
+    return PressureCheck(currentConditions: current, entries: entries);
   }
 
   static PressureDriftEntry _driftEntry({

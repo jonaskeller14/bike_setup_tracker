@@ -6465,6 +6465,16 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String dataErrorGetCloudBackups(String detail) {
+    return 'Falha ao obter os backups na nuvem: $detail';
+  }
+
+  @override
+  String dataErrorReadCloudBackup(String detail) {
+    return 'Falha ao ler o backup na nuvem: $detail';
+  }
+
+  @override
   String debugFileSaved(String path) {
     return 'Arquivo de depuração salvo em: $path';
   }
@@ -7320,7 +7330,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get importMethodReplaceSubtitle =>
-      'Substitui seus dados locais pelos dados importados. Todos os dados existentes são excluídos de vez, e isso não pode ser desfeito.';
+      'Substitui seus dados locais pelos dados importados. Seus dados atuais vão para a lixeira e são excluídos após 30 dias.';
 
   @override
   String get importProgressMerge => 'Mesclando os dados…';
@@ -7370,6 +7380,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get backupGoogleDrive => 'Backup do Google Drive';
+
+  @override
+  String get backupCloud => 'Backup na nuvem';
 
   @override
   String get backupReading => 'Lendo o backup…';

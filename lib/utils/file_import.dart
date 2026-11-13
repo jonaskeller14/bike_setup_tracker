@@ -10,6 +10,7 @@ import '../database/app_database.dart';
 import '../l10n/l10n.dart';
 import '../models/selected_data.dart';
 import '../models/service_error.dart';
+import '../models/syncable.dart';
 import '../services/attachment_storage_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/data_export_service.dart';
@@ -93,19 +94,22 @@ class FileImport {
     }
   }
 
-  static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) async {
-    final purgedAttachments = cleanupIsDeleted(data: remoteData);
-    await _importDataToDb(database, remoteData);
-    await AttachmentStorageService().deleteFiles(purgedAttachments);
-  }
+  /// Overwrites by id and moves every other local item to the trash: as
+  /// tombstones, the removals reach the other devices through cloud sync.
+  static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) =>
+      overwrite(remoteData: remoteData, database: database, trashRest: true);
 
-  static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) async {
+  static Future<void> overwrite({
+    required SelectedData remoteData,
+    required AppDatabase database,
+    bool trashRest = false,
+  }) async {
     // 1. Fetch current DB state into memory
     final localJson = await DataExportService.backupDatabaseToJson(database, includeStrava: true);
     final localData = SelectedData.fromJson(localJson);
 
     // 2. Perform merge in memory
-    _overwriteInternal(remoteData: remoteData, localData: localData);
+    _overwriteInternal(remoteData: remoteData, localData: localData, trashRest: trashRest);
     final purgedAttachments = cleanupIsDeleted(data: localData);
 
     // 3. Write merged state back to DB
@@ -269,21 +273,54 @@ class FileImport {
     }
   }
 
+  /// Every item written gets the current time as its lastModified, so a
+  /// restored older version counts as the newest edit. Otherwise last-writer-wins
+  /// sync would bring back the newer version the cloud still has. Items whose
+  /// content is unchanged are left as they are.
   static void _overwriteInternal({
     required SelectedData remoteData,
     required SelectedData localData,
+    bool trashRest = false,
   }) {
-    // Overwrite existing local items individually with remote entries (by ID).
-    // Unique local items that are not present in remoteData are preserved.
-    localData.persons.addAll(remoteData.persons);
-    localData.bikes.addAll(remoteData.bikes);
-    localData.components.addAll(remoteData.components);
-    localData.setups.addAll(remoteData.setups);
-    localData.taskRules.addAll(remoteData.taskRules);
-    localData.taskEntries.addAll(remoteData.taskEntries);
-    localData.feedbacks.addAll(remoteData.feedbacks);
-    localData.testSessions.addAll(remoteData.testSessions);
+    final now = DateTime.now().toUtc();
+    _overwriteRecords(localData.persons, remoteData.persons, trashRest,
+        (p, isDeleted) => p.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.bikes, remoteData.bikes, trashRest,
+        (b, isDeleted) => b.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.components, remoteData.components, trashRest,
+        (c, isDeleted) => c.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.setups, remoteData.setups, trashRest,
+        (s, isDeleted) => s.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.taskRules, remoteData.taskRules, trashRest,
+        (tr, isDeleted) => tr.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.taskEntries, remoteData.taskEntries, trashRest,
+        (te, isDeleted) => te.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.feedbacks, remoteData.feedbacks, trashRest,
+        (f, isDeleted) => f.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.testSessions, remoteData.testSessions, trashRest,
+        (ts, isDeleted) => ts.copyWith(isDeleted: isDeleted, lastModified: now));
   }
+
+  static void _overwriteRecords<T extends Syncable>(
+    Map<String, T> local,
+    Map<String, T> imported,
+    bool trashRest,
+    T Function(T record, bool isDeleted) stamp,
+  ) {
+    if (trashRest) {
+      for (final record in local.values.toList()) {
+        if (!record.isDeleted && !imported.containsKey(record.id)) local[record.id] = stamp(record, true);
+      }
+    }
+    for (final record in imported.values) {
+      final current = local[record.id];
+      if (current != null && _sameContent(current, record)) continue;
+      local[record.id] = stamp(record, record.isDeleted);
+    }
+  }
+
+  static bool _sameContent(Syncable a, Syncable b) =>
+      jsonEncode(a.toJson()..remove('lastModified')) == jsonEncode(b.toJson()..remove('lastModified'));
 
   static List<String> cleanupIsDeleted({required SelectedData data}) {
     final deleteDateTime = DateTime.now().toUtc().subtract(TrashCleanupService.retention);

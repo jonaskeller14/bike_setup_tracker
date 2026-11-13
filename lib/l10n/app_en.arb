@@ -8447,6 +8447,24 @@
       }
     }
   },
+  "dataErrorGetCloudBackups": "Getting cloud backups failed: {detail}",
+  "@dataErrorGetCloudBackups": {
+    "description": "Error under the backup list when the cloud backups could not be listed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "dataErrorReadCloudBackup": "Reading cloud backup failed: {detail}",
+  "@dataErrorReadCloudBackup": {
+    "description": "Error when a cloud backup could not be downloaded or read. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
   "debugFileSaved": "Debug file saved to: {path}",
   "@debugFileSaved": {
     "description": "Snackbar after the error report file was written. {path} is the file path.",
@@ -9680,7 +9698,7 @@
   "@importMethodReplace": {
     "description": "Import method that deletes the local data first."
   },
-  "importMethodReplaceSubtitle": "Replace your local data with the imported data. This will permanently delete all existing data and cannot be undone.",
+  "importMethodReplaceSubtitle": "Replace your local data with the imported data. Your current data moves to the trash and is deleted after 30 days.",
   "@importMethodReplaceSubtitle": {
     "description": "Explanation of the replace import method."
   },
@@ -9754,6 +9772,10 @@
   "backupGoogleDrive": "Google Drive Backup",
   "@backupGoogleDrive": {
     "description": "Name of a backup stored in Google Drive."
+  },
+  "backupCloud": "Cloud Backup",
+  "@backupCloud": {
+    "description": "Name of a daily backup stored in the cloud account (cloud sync)."
   },
   "backupReading": "Reading backup…",
   "@backupReading": {

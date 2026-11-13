@@ -407,6 +407,8 @@ extension DataErrorMessage on DataError {
     DataErrorKind.driveApi => l10n.dataErrorDriveApi(detail ?? ''),
     DataErrorKind.driveUnexpected => l10n.dataErrorDriveUnexpected,
     DataErrorKind.readDriveBackup => l10n.dataErrorReadDriveBackup(detail ?? ''),
+    DataErrorKind.getCloudBackups => l10n.dataErrorGetCloudBackups(detail ?? ''),
+    DataErrorKind.readCloudBackup => l10n.dataErrorReadCloudBackup(detail ?? ''),
   };
 }
 

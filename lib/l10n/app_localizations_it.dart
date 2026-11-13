@@ -6470,6 +6470,16 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String dataErrorGetCloudBackups(String detail) {
+    return 'Recupero dei backup nel cloud non riuscito: $detail';
+  }
+
+  @override
+  String dataErrorReadCloudBackup(String detail) {
+    return 'Lettura del backup nel cloud non riuscita: $detail';
+  }
+
+  @override
   String debugFileSaved(String path) {
     return 'File di debug salvato in: $path';
   }
@@ -7327,7 +7337,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get importMethodReplaceSubtitle =>
-      'Sostituisce i tuoi dati locali con quelli importati. Tutti i dati esistenti vengono eliminati definitivamente e l’operazione non può essere annullata.';
+      'Sostituisce i tuoi dati locali con quelli importati. I dati attuali finiscono nel cestino e vengono eliminati dopo 30 giorni.';
 
   @override
   String get importProgressMerge => 'Unione dei dati…';
@@ -7378,6 +7388,9 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get backupGoogleDrive => 'Backup su Google Drive';
+
+  @override
+  String get backupCloud => 'Backup nel cloud';
 
   @override
   String get backupReading => 'Lettura del backup…';

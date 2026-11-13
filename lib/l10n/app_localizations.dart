@@ -10615,6 +10615,18 @@ abstract class AppLocalizations {
   /// **'Reading Google Drive backup failed: {detail}'**
   String dataErrorReadDriveBackup(String detail);
 
+  /// Error under the backup list when the cloud backups could not be listed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting cloud backups failed: {detail}'**
+  String dataErrorGetCloudBackups(String detail);
+
+  /// Error when a cloud backup could not be downloaded or read. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading cloud backup failed: {detail}'**
+  String dataErrorReadCloudBackup(String detail);
+
   /// Snackbar after the error report file was written. {path} is the file path.
   ///
   /// In en, this message translates to:
@@ -12046,7 +12058,7 @@ abstract class AppLocalizations {
   /// Explanation of the replace import method.
   ///
   /// In en, this message translates to:
-  /// **'Replace your local data with the imported data. This will permanently delete all existing data and cannot be undone.'**
+  /// **'Replace your local data with the imported data. Your current data moves to the trash and is deleted after 30 days.'**
   String get importMethodReplaceSubtitle;
 
   /// Progress text while data is merged.
@@ -12132,6 +12144,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Google Drive Backup'**
   String get backupGoogleDrive;
+
+  /// Name of a daily backup stored in the cloud account (cloud sync).
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Backup'**
+  String get backupCloud;
 
   /// Subtitle of a local backup while it is read.
   ///

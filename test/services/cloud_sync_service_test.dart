@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
@@ -6,6 +7,7 @@ import 'package:bike_setup_tracker/database/daos/sync_dao.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
+import 'package:bike_setup_tracker/models/service_error.dart';
 import 'package:bike_setup_tracker/models/syncable.dart';
 import 'package:bike_setup_tracker/services/account_service.dart';
 import 'package:bike_setup_tracker/services/attachment_storage_service.dart';
@@ -17,6 +19,8 @@ import 'package:bike_setup_tracker/services/sync/sync_collection.dart';
 import 'package:bike_setup_tracker/services/sync/sync_engine.dart';
 import 'package:bike_setup_tracker/services/sync/sync_local_store.dart';
 import 'package:bike_setup_tracker/services/sync/sync_remote.dart';
+import 'package:bike_setup_tracker/utils/backup.dart';
+import 'package:bike_setup_tracker/utils/file_import.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -26,6 +30,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'sync/fake_attachment_remote.dart';
+import 'sync/fake_backup_remote.dart';
 import 'sync/sync_fixture.dart';
 
 const _uid = 'account-1';
@@ -379,11 +384,55 @@ void main() {
 
       expect(await a.bike('b1'), isNotNull);
     });
+
+    test('a backup restored with overwrite wins over the newer cloud versions on every device', () async {
+      final a = device('a');
+      final b = device('b');
+      await a.save(_bike('b1', name: 'Original'));
+      await a.save(_bike('b2', name: 'Kept'));
+      await a.sync();
+      final backup = await a.data();
+      await b.sync();
+      await b.save(_bike('b1', name: 'Broken', at: 10));
+      await b.save(_bike('b2', name: 'Kept', at: 10, isDeleted: true));
+      await b.sync();
+      await a.sync();
+
+      await FileImport.overwrite(remoteData: backup, database: a.database);
+      await a.sync();
+      await b.sync();
+
+      for (final d in [a, b]) {
+        expect((await d.bike('b1'))!.name, 'Original');
+        expect((await d.bike('b2'))!.isDeleted, isFalse);
+      }
+    });
+
+    test('a backup restored with replace sends the newer records to the trash on every device', () async {
+      final a = device('a');
+      final b = device('b');
+      await a.save(_bike('b1'));
+      await a.sync();
+      final backup = await a.data();
+      await a.save(_bike('b2', at: 10));
+      await a.sync();
+      await b.sync();
+
+      await FileImport.replace(remoteData: backup, database: a.database);
+      await a.sync();
+      await b.sync();
+
+      for (final d in [a, b]) {
+        expect((await d.bike('b1'))!.isDeleted, isFalse);
+        expect((await d.bike('b2'))!.isDeleted, isTrue);
+      }
+    });
   });
 
   group('CloudSyncService', () {
     late AppDatabase db;
     late AccountService account;
+    late FakeBackupRemote backups;
     late CloudSyncService service;
 
     setUp(() async {
@@ -395,7 +444,13 @@ void main() {
         clearLocalData: ({required removeData}) async {},
       );
       await account.initialize(enableAccounts: true, enableCloudSync: true);
-      service = CloudSyncService(db, remote: remote, debounce: const Duration(milliseconds: 20));
+      backups = FakeBackupRemote();
+      service = CloudSyncService(
+        db,
+        remote: remote,
+        backupRemote: backups,
+        debounce: const Duration(milliseconds: 20),
+      );
     });
 
     tearDown(() async {
@@ -452,6 +507,45 @@ void main() {
       await settle();
 
       expect(service.status, CloudSyncStatus.error);
+    });
+
+    group('backups', () {
+      test('a run saves the daily backup, which the restore list shows and reads', () async {
+        service.update(enabled: true, premium: true, account: account);
+        await settle();
+        await SyncLocalStore(db).write(_bike('b1', name: 'Trail bike'), adjustmentTypes: const {});
+        await settle();
+
+        final listed = switch (await service.listBackups()) {
+          DataSuccess(:final value) => value,
+          DataFailure(:final error) => fail('$error'),
+        };
+        final read = switch (await service.readBackup(listed.single)) {
+          DataSuccess(:final value) => value,
+          DataFailure(:final error) => fail('$error'),
+        };
+        expect(read.bikes['b1']?.name, 'Trail bike');
+      });
+
+      test('a failed backup does not fail the sync', () async {
+        backups.quotaFull = true;
+        service.update(enabled: true, premium: true, account: account);
+        await SyncLocalStore(db).write(_bike('b1'), adjustmentTypes: const {});
+        await settle();
+
+        expect(service.status, CloudSyncStatus.idle);
+        expect(await remote.count(SyncCollection.bikes), 1);
+      });
+
+      test('without an active sync there is nothing to list', () async {
+        backups.cloud['20261113_090000_backup.json'] = utf8.encode('{}');
+
+        expect(
+          await service.listBackups(),
+          isA<DataSuccess<List<CloudBackup>>>().having((result) => result.value, 'value', isEmpty),
+        );
+        expect(backups.lists, 0);
+      });
     });
 
     group('attachments', () {

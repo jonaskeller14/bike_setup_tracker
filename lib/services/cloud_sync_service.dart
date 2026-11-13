@@ -5,10 +5,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/app_database.dart';
 import '../models/attachment.dart';
+import '../models/selected_data.dart';
+import '../models/service_error.dart';
+import '../utils/backup.dart';
 import 'account_service.dart';
 import 'error_reporter.dart';
 import 'sync/attachment_remote.dart';
 import 'sync/attachment_sync.dart';
+import 'sync/backup_remote.dart';
+import 'sync/cloud_backups.dart';
 import 'sync/sync_engine.dart';
 import 'sync/sync_remote.dart';
 
@@ -18,13 +23,15 @@ enum CloudSyncStatus { idle, syncing, offline, error }
 /// local edits (debounced), on app resume and on "Sync now"; there are no
 /// live listeners, since every snapshot costs reads. Only active with cloud
 /// sync on, premium and an account session. The attachment files travel with
-/// each run: uploaded after the records, downloaded when first viewed.
+/// each run: uploaded after the records, downloaded when first viewed. The
+/// daily cloud backup is the last step of a run.
 class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implements UserBoundService {
   static const String _lastSyncKey = 'cloudSync.lastSyncAt';
 
   final AppDatabase _database;
   final SyncEngine _engine;
   final AttachmentRemote _attachmentRemote;
+  final CloudBackups _backups;
   final Duration _debounce;
   late final AttachmentSync _attachments = AttachmentSync(
     _database,
@@ -36,9 +43,11 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     this._database, {
     SyncRemote? remote,
     AttachmentRemote? attachmentRemote,
+    BackupRemote? backupRemote,
     this._debounce = const Duration(seconds: 10),
   }) : _engine = SyncEngine(_database, remote: remote ?? FirestoreSyncRemote()),
-       _attachmentRemote = attachmentRemote ?? FirebaseAttachmentRemote();
+       _attachmentRemote = attachmentRemote ?? FirebaseAttachmentRemote(),
+       _backups = CloudBackups(_database, remote: backupRemote ?? FirebaseBackupRemote());
 
   AccountService? _account;
   bool _enabled = false;
@@ -143,6 +152,7 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
   Future<void> bindUser(String uid) async {
     _uid = uid;
     _attachments.reset();
+    _backups.reset();
     // A new uid needs a sync even when the service stayed active.
     _wasActive = false;
     _onGateChanged();
@@ -176,6 +186,27 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     final uid = _uid;
     if (uid == null || !isActive) return Future.value(AttachmentDownloadResult.notSyncing);
     return _attachments.download(uid, attachment, force: force);
+  }
+
+  /// The account's cloud backups, for the restore list. Empty while sync isn't active.
+  Future<DataResult<List<CloudBackup>>> listBackups() async {
+    final uid = _uid;
+    if (uid == null || !isActive) return const DataSuccess([]);
+    try {
+      return DataSuccess(await _backups.list(uid));
+    } catch (e) {
+      return DataFailure(DataError(DataErrorKind.getCloudBackups, e.toString()));
+    }
+  }
+
+  Future<DataResult<SelectedData>> readBackup(CloudBackup backup) async {
+    final uid = _uid;
+    if (uid == null || !isActive) return const DataFailure(DataError(DataErrorKind.readCloudBackup));
+    try {
+      return DataSuccess(await _backups.read(uid, backup));
+    } catch (e) {
+      return DataFailure(DataError(DataErrorKind.readCloudBackup, e.toString()));
+    }
   }
 
   /// Pushes the pending changes before this device signs out. Returns how many
@@ -213,6 +244,7 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     try {
       await _engine.run(uid, ensureCurrent: ensureCurrent);
       await _attachments.run(uid, ensureCurrent: ensureCurrent);
+      await _backups.saveIfDue(uid, ensureCurrent: ensureCurrent);
       _lastSyncAt = DateTime.now().toUtc();
       unawaited(
         SharedPreferences.getInstance().then((prefs) => prefs.setString(_lastSyncKey, _lastSyncAt!.toIso8601String())),

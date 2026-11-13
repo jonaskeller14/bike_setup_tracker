@@ -6482,6 +6482,16 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String dataErrorGetCloudBackups(String detail) {
+    return 'Cloud-Backups konnten nicht geladen werden: $detail';
+  }
+
+  @override
+  String dataErrorReadCloudBackup(String detail) {
+    return 'Cloud-Backup konnte nicht gelesen werden: $detail';
+  }
+
+  @override
   String debugFileSaved(String path) {
     return 'Debug-Datei gespeichert unter: $path';
   }
@@ -7344,7 +7354,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get importMethodReplaceSubtitle =>
-      'Ersetze deine lokalen Daten durch die importierten Daten. Dadurch werden alle vorhandenen Daten endgültig gelöscht. Das kann nicht rückgängig gemacht werden.';
+      'Ersetze deine lokalen Daten durch die importierten Daten. Deine aktuellen Daten wandern in den Papierkorb und werden nach 30 Tagen gelöscht.';
 
   @override
   String get importProgressMerge => 'Daten werden zusammengeführt…';
@@ -7395,6 +7405,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get backupGoogleDrive => 'Google-Drive-Backup';
+
+  @override
+  String get backupCloud => 'Cloud-Backup';
 
   @override
   String get backupReading => 'Backup wird gelesen…';

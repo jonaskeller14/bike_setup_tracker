@@ -21,6 +21,8 @@ enum DataErrorKind {
   driveApi,
   driveUnexpected,
   readDriveBackup,
+  getCloudBackups,
+  readCloudBackup,
 }
 
 typedef DataError = ServiceError<DataErrorKind>;

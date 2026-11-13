@@ -6464,6 +6464,16 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String dataErrorGetCloudBackups(String detail) {
+    return 'No se pudieron obtener las copias de seguridad en la nube: $detail';
+  }
+
+  @override
+  String dataErrorReadCloudBackup(String detail) {
+    return 'No se pudo leer la copia de seguridad en la nube: $detail';
+  }
+
+  @override
   String debugFileSaved(String path) {
     return 'Archivo de depuración guardado en: $path';
   }
@@ -7322,7 +7332,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get importMethodReplaceSubtitle =>
-      'Reemplaza tus datos locales por los importados. Todos los datos existentes se eliminan de forma permanente y no se puede deshacer.';
+      'Reemplaza tus datos locales por los importados. Tus datos actuales pasan a la papelera y se eliminan pasados 30 días.';
 
   @override
   String get importProgressMerge => 'Combinando los datos…';
@@ -7373,6 +7383,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get backupGoogleDrive => 'Copia de seguridad de Google Drive';
+
+  @override
+  String get backupCloud => 'Copia de seguridad en la nube';
 
   @override
   String get backupReading => 'Leyendo la copia de seguridad…';

@@ -1399,28 +1399,20 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _weatherService,
       ]),
       builder: (context, child) {
-        final entries = PressureDriftService.compute(
+        final check = PressureDriftService.check(
           components: components,
           provenance: provenance,
           currentWeather: _currentWeather.value,
           currentPosition: _currentLocation.value,
           significanceThreshold: appSettings.pressureCheckThreshold,
         );
-        final gap = entries.isNotEmpty
-            ? null
-            : PressureDriftService.gapOf(
-                components: components,
-                provenance: provenance,
-                currentWeather: _currentWeather.value,
-                currentPosition: _currentLocation.value,
-              );
+        final gap = check.gap;
         final fetching =
             _locationService.status == LocationStatus.searching ||
             _elevationService.status == ElevationStatus.searching ||
             _weatherService.status is WeatherSearching;
         return PressureDriftCard(
-          entries: entries,
-          gap: gap,
+          check: check,
           // A fetch only matters while the current conditions are what's missing.
           loading: fetching && (gap == null || gap == PressureDriftGap.noCurrentConditions),
         );

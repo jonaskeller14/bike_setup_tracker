@@ -6,7 +6,6 @@ import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../services/pressure_drift_service.dart';
-import '../../utils/unit_conversion.dart';
 import '../pressure_drift_card.dart';
 import '../setup_guide_status.dart';
 import 'sheet_header.dart';
@@ -24,35 +23,20 @@ Future<void> showPressureCheckInfoSheet(BuildContext context) {
 /// The example runs through the real calculation, so its numbers never go stale.
 class _Example {
   static const double setPsi = 80;
-  static const double homeTemperatureC = 20;
-  static const double homeAltitudeM = 500;
-  static const double trailTemperatureC = 5;
-  static const double trailAltitudeM = 1800;
+  static const home = PressureConditions(temperatureC: 20, altitudeM: 500);
+  static const trailhead = PressureConditions(temperatureC: 5, altitudeM: 1800);
 
-  static final KnownUnit _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: PRESSURE.psi.name);
-  static final KnownUnit _pascal = KnownUnit(quantity: UnitQuantity.pressure, unitId: PRESSURE.pascal.name);
-
-  static final double readingPsi = convertUnit(
-    PressureDriftService.readingAtPa(
-      gaugePa: convertUnit(setPsi, _psi, _pascal),
-      fromTemperatureC: homeTemperatureC,
-      fromAltitudeM: homeAltitudeM,
-      toTemperatureC: trailTemperatureC,
-      toAltitudeM: trailAltitudeM,
-    ),
-    _pascal,
-    _psi,
+  static final PressurePrediction _prediction = PressureDriftService.predict(
+    value: setPsi,
+    unit: KnownUnit(quantity: UnitQuantity.pressure, unitId: PRESSURE.psi.name),
+    from: home,
+    to: trailhead,
   );
 
-  static final double altitudeSharePsi = convertUnit(
-    PressureDriftService.atmosphericPressurePa(homeAltitudeM) -
-        PressureDriftService.atmosphericPressurePa(trailAltitudeM),
-    _pascal,
-    _psi,
-  );
-
+  static double get readingPsi => _prediction.reading;
+  static double get temperatureSharePsi => _prediction.temperatureShare;
+  static double get altitudeSharePsi => _prediction.altitudeShare;
   static double get deltaPsi => readingPsi - setPsi;
-  static double get temperatureSharePsi => deltaPsi - altitudeSharePsi;
   static double get relativeDelta => deltaPsi / setPsi;
 }
 
@@ -250,7 +234,7 @@ class _ExampleCard extends StatelessWidget {
               place(
                 Icons.home_outlined,
                 context.l10n.pressureCheckExampleHome,
-                pressureConditionsText(appSettings, _Example.homeTemperatureC, _Example.homeAltitudeM),
+                pressureConditionsText(appSettings, _Example.home),
                 context.l10n.pressureCheckExampleYouSet,
                 _Example.setPsi,
               ),
@@ -258,7 +242,7 @@ class _ExampleCard extends StatelessWidget {
               place(
                 Icons.terrain_outlined,
                 context.l10n.pressureCheckExampleTrailhead,
-                pressureConditionsText(appSettings, _Example.trailTemperatureC, _Example.trailAltitudeM),
+                pressureConditionsText(appSettings, _Example.trailhead),
                 context.l10n.pressureCheckExamplePumpReads,
                 _Example.readingPsi,
                 end: true,

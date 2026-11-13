@@ -18,15 +18,13 @@ import 'sheets/pressure_check_info_sheet.dart';
 /// is worth unpacking the pump at all. Styled like the app hints, and collapsed
 /// while every pressure stays within the threshold or there is nothing to compare.
 class PressureDriftCard extends StatefulWidget {
-  final List<PressureDriftEntry> entries;
-
-  /// Why [entries] is empty; the card hides while both are empty.
-  final PressureDriftGap? gap;
+  /// The card hides while it has neither a drift entry nor a gap.
+  final PressureCheck check;
 
   /// Whether the current location or weather is still being fetched.
   final bool loading;
 
-  const PressureDriftCard({super.key, required this.entries, this.gap, this.loading = false});
+  const PressureDriftCard({super.key, required this.check, this.loading = false});
 
   @override
   State<PressureDriftCard> createState() => _PressureDriftCardState();
@@ -38,8 +36,8 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
 
   @override
   Widget build(BuildContext context) {
-    final entries = widget.entries;
-    final gap = widget.gap;
+    final entries = widget.check.driftEntries;
+    final gap = widget.check.gap;
     if (entries.isEmpty && gap == null) return const SizedBox.shrink();
 
     final appSettings = context.watch<AppSettings>();
@@ -102,11 +100,7 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
                       ),
                       Text(
                         context.l10n.pressureCheckNow(
-                          pressureConditionsText(
-                            appSettings,
-                            entries.first.currentTemperatureC,
-                            entries.first.currentAltitudeM,
-                          ),
+                          pressureConditionsText(appSettings, entries.first.currentConditions),
                         ),
                         style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
                       ),
@@ -174,7 +168,7 @@ class _PressureDriftRow extends StatelessWidget {
             Text(
               context.l10n.pressureCheckSetOn(
                 DateFormat(appSettings.dateFormat, context.l10n.localeName).format(entry.referenceSetup.datetimeLocal),
-                pressureConditionsText(appSettings, entry.referenceTemperatureC, entry.referenceAltitudeM),
+                pressureConditionsText(appSettings, entry.referenceConditions),
               ),
               style: mutedStyle,
               maxLines: 3,
@@ -312,7 +306,8 @@ String signedPercent(double fraction, AppLocalizations l10n) {
 
 /// "5 °C · 1800 m" in the rider's units, each value kept on one line with its
 /// unit.
-String pressureConditionsText(AppSettings appSettings, double temperatureC, double altitudeM) {
+String pressureConditionsText(AppSettings appSettings, PressureConditions conditions) {
+  final PressureConditions(:temperatureC, :altitudeM) = conditions;
   final temperature =
       ContextWeather.convertTemperatureFromCelsius(temperatureC, appSettings.temperatureUnit)?.round() ??
       temperatureC.round();

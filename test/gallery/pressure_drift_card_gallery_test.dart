@@ -151,27 +151,14 @@ class _Case {
   ContextPosition? get _position =>
       altitudeM == null ? null : ContextPosition(latitude: 47, longitude: 11, altitude: altitudeM);
 
-  /// The same calls as the setup page.
-  (List<PressureDriftEntry>, PressureDriftGap?) get drift {
-    final components = _components;
-    final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(datetime: _now, setups: _setups);
-    final entries = PressureDriftService.compute(
-      components: components,
-      provenance: provenance,
-      currentWeather: _weather,
-      currentPosition: _position,
-      significanceThreshold: thresholdPercent / 100,
-    );
-    final gap = entries.isNotEmpty
-        ? null
-        : PressureDriftService.gapOf(
-            components: components,
-            provenance: provenance,
-            currentWeather: _weather,
-            currentPosition: _position,
-          );
-    return (entries, gap);
-  }
+  /// The same call as the setup page.
+  PressureCheck get check => PressureDriftService.check(
+    components: _components,
+    provenance: SetupResolutionService.resolveHistoricalProvenanceAt(datetime: _now, setups: _setups),
+    currentWeather: _weather,
+    currentPosition: _position,
+    significanceThreshold: thresholdPercent / 100,
+  );
 
   AppSettings settings() => AppSettings()
     ..pressureCheckThresholdPercent = thresholdPercent
@@ -180,14 +167,13 @@ class _Case {
     ..dateFormat = dateFormat;
 
   Widget card() {
-    final (entries, gap) = drift;
     return ChangeNotifierProvider<AppSettings>.value(
       value: settings(),
       child: Builder(
         builder: (context) => Localizations.override(
           context: context,
           locale: locale,
-          child: PressureDriftCard(entries: entries, gap: gap, loading: loading),
+          child: PressureDriftCard(check: check, loading: loading),
         ),
       ),
     );
@@ -326,7 +312,7 @@ void main() {
     tester.view.physicalSize = const Size(_sheetWidth, 2000);
 
     for (final (index, c) in _cases.indexed) {
-      final (entries, _) = c.drift;
+      final entries = c.check.driftEntries;
       await tester.pumpWidget(
         _app(
           galleryThemes.first.$2,

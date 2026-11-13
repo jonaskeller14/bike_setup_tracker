@@ -56,7 +56,7 @@ void main() {
             theme: materialAppTheme,
             home: Scaffold(
               body: SingleChildScrollView(
-                child: PressureDriftCard(entries: const [], gap: gap, loading: loading),
+                child: PressureDriftCard(check: PressureCheck(gap: gap), loading: loading),
               ),
             ),
           ),

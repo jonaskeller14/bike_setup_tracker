@@ -9673,6 +9673,53 @@ class AppLocalizationsDe extends AppLocalizations {
   String get accountPremiumInactive => 'Kein aktives Abo';
 
   @override
+  String get accountSectionCloudSync => 'Cloud-Synchronisierung';
+
+  @override
+  String accountSyncLastSynced(String date) {
+    return 'Zuletzt synchronisiert am $date';
+  }
+
+  @override
+  String get accountSyncNever => 'Noch nicht synchronisiert';
+
+  @override
+  String get accountSyncSyncing => 'Wird synchronisiert …';
+
+  @override
+  String get accountSyncOffline => 'Warte auf eine Verbindung';
+
+  @override
+  String get accountSyncError => 'Synchronisierung fehlgeschlagen. Es wird später erneut versucht.';
+
+  @override
+  String accountSyncPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Änderungen noch nicht hochgeladen',
+      one: '1 Änderung noch nicht hochgeladen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountSyncNeedsPremium => 'Für die Cloud-Synchronisierung brauchst du ein aktives Abo.';
+
+  @override
+  String get accountSyncNow => 'Jetzt synchronisieren';
+
+  @override
+  String get accountSyncDone => 'Synchronisiert';
+
+  @override
+  String get accountSyncFailed => 'Synchronisierung nicht möglich. Versuche es später erneut.';
+
+  @override
+  String get accountSyncOfflineDone =>
+      'Keine Verbindung. Deine Änderungen werden synchronisiert, sobald du online bist.';
+
+  @override
   String get accountSectionDevices => 'Deine Geräte';
 
   @override

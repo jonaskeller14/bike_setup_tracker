@@ -164,11 +164,14 @@ class ComponentsDao extends DatabaseAccessor<AppDatabase> with _$ComponentsDaoMi
     return grouped.values.toList();
   }
 
+  /// Bumps `lastModified` of the rows that moved, so the new order syncs.
   Future<void> reorder(List<String> ids) async {
+    final now = DateTime.now().toUtc();
     await transaction(() async {
       for (int i = 0; i < ids.length; i++) {
-        await (update(components)..where((t) => t.id.equals(ids[i])))
-            .write(ComponentsCompanion(orderIndex: Value(i)));
+        await (update(components)..where((t) => t.id.equals(ids[i]) & t.orderIndex.isNotValue(i))).write(
+          ComponentsCompanion(orderIndex: Value(i), lastModified: Value(now)),
+        );
       }
     });
   }

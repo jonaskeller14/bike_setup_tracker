@@ -21,8 +21,6 @@ library;
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/database/daos/sync_dao.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/service_error.dart';
 import 'package:bike_setup_tracker/models/strava/strava_athlete.dart';
@@ -30,6 +28,7 @@ import 'package:bike_setup_tracker/models/strava/strava_plan.dart';
 import 'package:bike_setup_tracker/pages/settings/account_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/account_service.dart';
+import 'package:bike_setup_tracker/services/cloud_sync_service.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/account_notice_listener.dart';
@@ -46,9 +45,7 @@ import 'gallery_harness.dart';
 
 class _MockAppRepository extends Mock implements AppRepository {}
 
-class _MockAppDatabase extends Mock implements AppDatabase {}
-
-class _MockSyncDao extends Mock implements SyncDao {}
+class _MockCloudSyncService extends Mock implements CloudSyncService {}
 
 class _MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -180,8 +177,9 @@ class _World {
   final _MockStravaService strava;
   final _MockAppRepository repository;
   final AppSettings settings;
+  final _MockCloudSyncService cloudSync;
 
-  _World._(this.account, this.subscription, this.strava, this.repository, this.settings);
+  _World._(this.account, this.subscription, this.strava, this.repository, this.settings, this.cloudSync);
 
   factory _World({
     String? firstname = 'myAthleteFirst',
@@ -192,17 +190,22 @@ class _World {
     _DevicesSource? devices,
     bool cloudSync = false,
     int pendingChanges = 0,
+    CloudSyncStatus syncStatus = CloudSyncStatus.idle,
+    bool neverSynced = false,
+    CloudSyncStatus syncNowResult = CloudSyncStatus.idle,
     StravaFailure? stravaFailure,
   }) {
     final repository = _MockAppRepository();
     when(() => repository.stravaAthletes).thenReturn({
       if (hasAthlete) 1: StravaAthlete(id: 1, firstname: firstname, lastname: lastname, profile: null, gears: const {}),
     });
-    final database = _MockAppDatabase();
-    final syncDao = _MockSyncDao();
-    when(() => repository.database).thenReturn(database);
-    when(() => database.syncDao).thenReturn(syncDao);
-    when(syncDao.watchPendingCount).thenAnswer((_) => Stream.value(pendingChanges));
+    final cloudSyncService = _MockCloudSyncService();
+    when(() => cloudSyncService.isActive).thenReturn(true);
+    when(() => cloudSyncService.status).thenReturn(syncStatus);
+    when(() => cloudSyncService.lastSyncAt).thenReturn(neverSynced ? null : DateTime(2026, 11, 12, 9, 41));
+    when(() => cloudSyncService.pendingCount).thenReturn(pendingChanges);
+    when(cloudSyncService.pushBeforeSignOut).thenAnswer((_) async => pendingChanges);
+    when(cloudSyncService.syncNow).thenAnswer((_) async => syncNowResult);
 
     final subscription = _MockSubscriptionService();
     final effective = noEntitlement ? null : entitlement ?? _activeEntitlement;
@@ -228,6 +231,7 @@ class _World {
       strava,
       repository,
       settings,
+      cloudSyncService,
     );
   }
 }
@@ -245,6 +249,7 @@ Widget _app(ThemeData theme, _World world, {required Key key, required GlobalKey
         ChangeNotifierProvider<AccountService>.value(value: world.account),
         ChangeNotifierProvider<SubscriptionService>.value(value: world.subscription),
         ChangeNotifierProvider<StravaService>.value(value: world.strava),
+        ChangeNotifierProvider<CloudSyncService>.value(value: world.cloudSync),
       ],
       child: localizedTestApp(
         debugShowCheckedModeBanner: false,
@@ -321,6 +326,11 @@ Future<void> _confirmSignOutOther(WidgetTester tester, _World world) async {
   await _pump(tester);
 }
 
+Future<void> _syncNow(WidgetTester tester, _World world) async {
+  await tester.tap(find.byTooltip('Sync now'));
+  await _pump(tester);
+}
+
 Future<void> _openDelete(WidgetTester tester, _World world) => _tapText(tester, 'Delete account');
 
 Future<void> _confirmDelete(WidgetTester tester, _World world) async {
@@ -391,6 +401,41 @@ final _cases = <_Case>[
       world.account.onSignOut = () => Completer<void>().future;
       await _confirmSignOut(tester, world);
     },
+  ),
+  // Account page: cloud sync.
+  _Case('page_sync_synced', 'Page · cloud sync, synced', () => _World(cloudSync: true)),
+  _Case('page_sync_never', 'Page · cloud sync, not synced yet', () => _World(cloudSync: true, neverSynced: true)),
+  _Case(
+    'page_sync_syncing',
+    'Page · cloud sync, syncing with 3 pending',
+    () => _World(cloudSync: true, syncStatus: CloudSyncStatus.syncing, pendingChanges: 3),
+  ),
+  _Case(
+    'page_sync_offline',
+    'Page · cloud sync, offline with 1 pending',
+    () => _World(cloudSync: true, syncStatus: CloudSyncStatus.offline, pendingChanges: 1),
+  ),
+  _Case(
+    'page_sync_error',
+    'Page · cloud sync, failed with 12 pending',
+    () => _World(cloudSync: true, syncStatus: CloudSyncStatus.error, pendingChanges: 12),
+  ),
+  _Case(
+    'page_sync_no_premium',
+    'Page · cloud sync on, no subscription, 2 pending',
+    () => _World(cloudSync: true, noEntitlement: true, pendingChanges: 2),
+  ),
+  _Case(
+    'page_sync_large_text',
+    'Page · cloud sync failed, large text (200 %)',
+    () => _World(cloudSync: true, syncStatus: CloudSyncStatus.error, pendingChanges: 12),
+    textScale: 2,
+  ),
+  _Case(
+    'page_sync_narrow',
+    'Page · cloud sync offline, narrow phone (320 pt)',
+    () => _World(cloudSync: true, syncStatus: CloudSyncStatus.offline, pendingChanges: 1),
+    size: _narrow,
   ),
   // Sizes.
   _Case(
@@ -557,6 +602,27 @@ final _cases = <_Case>[
       world.account.onRevoke = () async => throw StateError('offline');
       await _confirmSignOutOther(tester, world);
     },
+  ),
+  _Case(
+    'snack_sync_done',
+    'SnackBar · synced now',
+    () => _World(cloudSync: true),
+    shot: _Shot.snackBar,
+    steps: _syncNow,
+  ),
+  _Case(
+    'snack_sync_offline',
+    'SnackBar · sync now while offline',
+    () => _World(cloudSync: true, syncNowResult: CloudSyncStatus.offline),
+    shot: _Shot.snackBar,
+    steps: _syncNow,
+  ),
+  _Case(
+    'snack_sync_failed',
+    'SnackBar · sync now failed',
+    () => _World(cloudSync: true, syncNowResult: CloudSyncStatus.error),
+    shot: _Shot.snackBar,
+    steps: _syncNow,
   ),
   const _Case('snack_deleted', 'SnackBar · account deleted', _World.new, shot: _Shot.snackBar, steps: _confirmDelete),
   _Case(
@@ -787,6 +853,25 @@ void main() {
       await _tapText(tester, 'Cancel');
       expect(world.account.signOutCalls, isEmpty);
       expect(find.byType(AccountPage), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsNothing, reason: 'the page is usable again');
+    });
+
+    testWidgets('sign out with cloud sync pushes first and asks nothing once all changes are up', (tester) async {
+      final world = await open(tester, _World(cloudSync: true));
+      await _confirmSignOut(tester, world);
+      verify(world.cloudSync.pushBeforeSignOut).called(1);
+      expect(find.text('Changes not uploaded'), findsNothing);
+      expect(world.account.signOutCalls, [true]);
+    });
+
+    testWidgets('a failed "Sync now" can be retried', (tester) async {
+      final world = await open(tester, _World(cloudSync: true, syncNowResult: CloudSyncStatus.error));
+      await _syncNow(tester, world);
+      expect(find.text("Couldn't sync. Try again later."), findsOneWidget);
+      when(world.cloudSync.syncNow).thenAnswer((_) async => CloudSyncStatus.idle);
+      await tester.pump(const Duration(seconds: 6));
+      await _syncNow(tester, world);
+      verify(world.cloudSync.syncNow).called(2);
     });
 
     for (final kind in [StravaErrorKind.ownedByOtherAccount, StravaErrorKind.limitReached]) {

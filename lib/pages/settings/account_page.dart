@@ -6,6 +6,7 @@ import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/account_service.dart';
+import '../../services/cloud_sync_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/account_actions.dart';
 import '../../widgets/text/section_title.dart';
@@ -48,6 +49,11 @@ class _AccountPageState extends State<AccountPage> {
             children: [
               const _AccountHeader(),
               const Divider(),
+              if (context.select<AppSettings, bool>((settings) => settings.enableCloudSync)) ...[
+                SectionTitle(title: l10n.accountSectionCloudSync),
+                _CloudSyncTile(enabled: !_busy),
+                const Divider(),
+              ],
               SectionTitle(title: l10n.accountSectionDevices),
               _DeviceList(devices: _devices, enabled: !_busy),
               const Divider(),
@@ -110,6 +116,61 @@ class _AccountHeader extends StatelessWidget {
         ].join('\n'),
       ),
       isThreeLine: true,
+    );
+  }
+}
+
+/// The sync status of this device and "Sync now".
+class _CloudSyncTile extends StatelessWidget {
+  final bool enabled;
+
+  const _CloudSyncTile({required this.enabled});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colorScheme = Theme.of(context).colorScheme;
+    final sync = context.select<CloudSyncService, ({bool active, CloudSyncStatus status, DateTime? lastSyncAt, int pending})>(
+      (sync) => (active: sync.isActive, status: sync.status, lastSyncAt: sync.lastSyncAt, pending: sync.pendingCount),
+    );
+    final premium = context.select<SubscriptionService, bool>((subscription) => subscription.hasStravaEntitlement);
+    final formats = context.select<AppSettings, (String, String)>((settings) => (settings.dateFormat, settings.timeFormat));
+    final lastSyncAt = sync.lastSyncAt?.toLocal();
+    final lastSynced = lastSyncAt == null
+        ? l10n.accountSyncNever
+        : l10n.accountSyncLastSynced(
+            '${DateFormat(formats.$1, l10n.localeName).format(lastSyncAt)} '
+            '${DateFormat(formats.$2, l10n.localeName).format(lastSyncAt)}',
+          );
+    final syncing = sync.status == CloudSyncStatus.syncing;
+
+    final (icon, title) = switch (sync.status) {
+      _ when !premium => (Icon(Icons.cloud_off_outlined, color: colorScheme.onSurfaceVariant), l10n.accountSyncNeedsPremium),
+      CloudSyncStatus.syncing => (
+        const SizedBox.square(dimension: 24, child: Padding(padding: EdgeInsets.all(2), child: CircularProgressIndicator(strokeWidth: 2))),
+        l10n.accountSyncSyncing,
+      ),
+      CloudSyncStatus.offline => (const Icon(Icons.cloud_off_outlined), l10n.accountSyncOffline),
+      CloudSyncStatus.error => (Icon(Icons.sync_problem_outlined, color: colorScheme.error), l10n.accountSyncError),
+      CloudSyncStatus.idle => (const Icon(Icons.cloud_done_outlined), lastSynced),
+    };
+    final subtitle = [
+      if (premium && sync.status != CloudSyncStatus.idle) lastSynced,
+      if (sync.pending > 0) l10n.accountSyncPending(sync.pending),
+    ].join('\n');
+
+    return ListTile(
+      enabled: enabled,
+      leading: icon,
+      title: Text(title),
+      subtitle: subtitle.isEmpty ? null : Text(subtitle),
+      trailing: !premium
+          ? null
+          : IconButton(
+              tooltip: l10n.accountSyncNow,
+              icon: const Icon(Icons.sync),
+              onPressed: enabled && sync.active && !syncing ? () => AccountActions.syncNow(context) : null,
+            ),
     );
   }
 }

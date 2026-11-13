@@ -7,141 +7,7 @@ import 'package:bike_setup_tracker/services/sync/sync_collection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// One record per collection, children included: the person and the component
-/// carry adjustments, the component an installation, the setup adjustment
-/// values and the feedback observations and comparisons.
-Map<String, dynamic> _fixtureJson() => {
-      'persons': [
-        {
-          'version': 1,
-          'id': 'p1',
-          'name': 'Alex',
-          'isDeleted': false,
-          'lastModified': '2026-01-01T00:00:00.000000Z',
-          'adjustments': [
-            {'type': 'numerical', 'id': 'pnum', 'name': 'Weight', 'unit': 'kg', 'min': 0.0, 'max': 150.0, 'category': 'AdjustmentCategory.body'},
-          ],
-        },
-      ],
-      'bikes': [
-        {'id': 'b1', 'name': 'Hightower', 'person': 'p1', 'isDeleted': false, 'lastModified': '2026-01-02T00:00:00.000000Z'},
-      ],
-      'components': [
-        {
-          'version': 6,
-          'id': 'c1',
-          'name': 'Fork',
-          'componentType': 'ComponentType.fork',
-          'isDeleted': false,
-          'lastModified': '2026-01-03T00:00:00.123456Z',
-          'installations': [
-            {'type': 'bike', 'id': 'i1', 'parent': 'b1', 'dateTimeUTC': '2026-01-03T10:00:00.000Z', 'dateTimeLocal': '2026-01-03T11:00:00.000'},
-            {'type': 'none', 'id': 'i2', 'parent': null, 'dateTimeUTC': '2026-02-03T10:00:00.000Z', 'dateTimeLocal': '2026-02-03T11:00:00.000'},
-          ],
-          'adjustments': [
-            {'type': 'categorical', 'id': 'cat', 'name': 'Mode', 'category': 'AdjustmentCategory.component', 'options': ['Open', 'Firm'], 'multiSelect': true},
-            {'type': 'numerical', 'id': 'num', 'name': 'Pressure', 'unit': 'psi', 'category': 'AdjustmentCategory.component', 'min': 0.0, 'max': 200.0},
-            {'type': 'duration', 'id': 'dur', 'name': 'Service', 'category': 'AdjustmentCategory.component'},
-          ],
-        },
-      ],
-      'setups': [
-        {
-          'id': 's1',
-          'name': 'Trail day',
-          'datetime': '2026-05-01T12:00:00.000Z',
-          'datetimeLocal': '2026-05-01T14:00:00.000',
-          'bike': 'b1',
-          'person': 'p1',
-          'tags': ['Trail'],
-          'isDeleted': false,
-          'lastModified': '2026-05-01T12:00:00.000000Z',
-          'bikeAdjustmentValues': {'cat': ['Open', 'Firm'], 'num': 85.5, 'dur': '01:30:00'},
-          'personAdjustmentValues': {'pnum': 75.0},
-          'setNowAdjustmentIds': ['num'],
-        },
-      ],
-      'taskRules': [
-        {
-          'version': 4,
-          'id': 'tr1',
-          'name': 'Service fork',
-          'notes': null,
-          'priority': 'TaskPriority.high',
-          'tags': ['suspension'],
-          'association': {'type': 'component', 'id': 'c1'},
-          'interval': {'type': 'distance', 'meters': 50000.0},
-          'delay': null,
-          'repeat': true,
-          'isDeleted': false,
-          'lastModified': '2026-01-04T00:00:00.000000Z',
-        },
-      ],
-      'taskEntries': [
-        {
-          'id': 'te1',
-          'name': 'Fork serviced',
-          'notes': null,
-          'dateTimeUTC': '2026-05-02T10:00:00.000Z',
-          'dateTimeLocal': '2026-05-02T12:00:00.000',
-          'taskRule': 'tr1',
-          'componentId': 'c1',
-          'bikeId': null,
-          'snapshot': {
-            'distance': 12000.0,
-            'elevationGain': 400.0,
-            'movingTime': const Duration(hours: 10).inMicroseconds,
-            'elapsedTime': const Duration(hours: 12).inMicroseconds,
-            'activityCount': 5,
-          },
-          'isDeleted': false,
-          'lastModified': '2026-05-02T10:00:00.000000Z',
-        },
-      ],
-      'feedbacks': [
-        {
-          'version': 1,
-          'id': 'fb1',
-          'isDeleted': false,
-          'lastModified': '2026-05-01T14:00:00.000000Z',
-          'bike': 'b1',
-          'setupId': 's1',
-          'stravaActivityId': 123456,
-          'dateTimeUTC': '2026-05-01T13:30:00.000Z',
-          'dateTimeLocal': '2026-05-01T15:30:00.000',
-          'notes': 'Front felt harsh',
-          'observations': [
-            {'key': 'issue.front.comfort', 'value': 1.0, 'textValue': null},
-          ],
-          'comparisons': [
-            {'referenceSetupId': 's0', 'aspect': 'overall', 'outcome': 2},
-          ],
-        },
-      ],
-      'testSessions': [
-        {
-          'version': 1,
-          'id': 'ts1',
-          'isDeleted': false,
-          'lastModified': '2026-05-01T12:00:00.000000Z',
-          'bike': 'b1',
-          'name': 'Fork pressure',
-          'method': {'type': 'patternSearch'},
-          'adjustmentIds': ['num'],
-          'goal': ['front.comfort'],
-          'locks': {'cat': ['Open']},
-          'startedAtUTC': '2026-05-01T09:00:00.000Z',
-          'startedAtLocal': '2026-05-01T11:00:00.000',
-          'endedAtUTC': null,
-          'endedAtLocal': null,
-          'place': null,
-          'notes': null,
-          'proposals': {
-            's1': {'num': 90.0},
-          },
-        },
-      ],
-    };
+import 'sync_fixture.dart';
 
 List<Syncable> _recordsOf(SelectedData data) => [
       ...data.persons.values,
@@ -188,7 +54,7 @@ void main() {
   late Map<String, AdjustmentType> adjustmentTypes;
 
   setUp(() {
-    data = SelectedData.fromJson(_fixtureJson());
+    data = SelectedData.fromJson(syncFixtureJson());
     adjustmentTypes = _typesOf(data);
   });
 

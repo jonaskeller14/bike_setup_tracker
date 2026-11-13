@@ -29,6 +29,7 @@ import 'services/app_hint_service.dart';
 import 'services/attachment_storage_service.dart';
 import 'services/backup_service.dart';
 import 'services/catalog_migration_service.dart';
+import 'services/cloud_sync_service.dart';
 import 'services/database_migration_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/error_reporter.dart';
@@ -235,6 +236,7 @@ class _LoadingGateState extends State<LoadingGate> {
     final repository = widget.appRepository;
     if (removeData) {
       await repository.database.deleteAllUserData();
+      await repository.database.syncDao.reset();
       await AttachmentStorageService().deleteAll();
     }
     await repository.clearStravaData();
@@ -327,6 +329,16 @@ class _LoadingGateState extends State<LoadingGate> {
                   );
                   return subscriptionService;
                 },
+              ),
+              ChangeNotifierProxyProvider3<AppSettings, AccountService, SubscriptionService, CloudSyncService>(
+                lazy: false,
+                create: (context) => CloudSyncService(widget.appRepository.database),
+                update: (context, settings, accountService, subscriptionService, cloudSyncService) =>
+                    cloudSyncService!..update(
+                      enabled: settings.enableCloudSync,
+                      premium: subscriptionService.hasStravaEntitlement,
+                      account: accountService,
+                    ),
               ),
               ChangeNotifierProvider<TipService>(
                 lazy: false,

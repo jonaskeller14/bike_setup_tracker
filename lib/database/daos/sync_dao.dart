@@ -31,6 +31,14 @@ class SyncDao extends DatabaseAccessor<AppDatabase> with _$SyncDaoMixin {
     return (selectOnly(syncOutbox)..addColumns([count])).map((row) => row.read(count)!).watchSingle();
   }
 
+  /// The newest entry's id. It grows with every enqueue (a re-enqueue gets a
+  /// new id), while pushes and pulls only remove entries, so a rise means a
+  /// local edit.
+  Stream<int?> watchLatestEntryId() {
+    final latest = syncOutbox.id.max();
+    return (selectOnly(syncOutbox)..addColumns([latest])).map((row) => row.read(latest)).watchSingle();
+  }
+
   /// Clears the pushed entries. A row edited after its entry was read has a
   /// new entry by now, which stays.
   Future<void> markPushed(Iterable<int> ids) {
@@ -60,6 +68,26 @@ class SyncDao extends DatabaseAccessor<AppDatabase> with _$SyncDaoMixin {
     });
   }
 
+  /// Enqueues a row whose local version must reach the cloud although no
+  /// local write happened. An existing entry stays.
+  Future<void> enqueue(SyncCollection collection, String rowId) {
+    return into(syncOutbox).insert(
+      SyncOutboxCompanion.insert(
+        collection: collection.collectionName,
+        rowId: rowId,
+        enqueuedAt: DateTime.now().toUtc(),
+      ),
+      mode: InsertMode.insertOrIgnore,
+    );
+  }
+
+  /// Drops a row's entry without writing the row.
+  Future<void> drop(SyncCollection collection, String rowId) {
+    return (delete(
+      syncOutbox,
+    )..where((t) => t.collection.equals(collection.collectionName) & t.rowId.equals(rowId))).go();
+  }
+
   // --- Pull ---
 
   Future<SyncCursor?> getCursor(SyncCollection collection) async {
@@ -71,6 +99,18 @@ class SyncDao extends DatabaseAccessor<AppDatabase> with _$SyncDaoMixin {
       serverUpdatedAt: DateTime.fromMicrosecondsSinceEpoch(row.serverUpdatedAtMicros, isUtc: true),
       docId: row.docId,
     );
+  }
+
+  /// Pulls everything again on the next run, for a different uid.
+  Future<void> resetCursors() => delete(syncCursors).go();
+
+  /// Forgets all sync progress after the local data was wiped: nothing is
+  /// left to push, and the next run pulls everything again.
+  Future<void> reset() {
+    return transaction(() async {
+      await delete(syncOutbox).go();
+      await delete(syncCursors).go();
+    });
   }
 
   Future<void> setCursor(SyncCollection collection, SyncCursor cursor) {

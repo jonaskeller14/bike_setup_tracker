@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 
 import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
-import '../repositories/app_repository.dart';
 import '../services/account_service.dart';
+import '../services/cloud_sync_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/account_renewing_subscription.dart';
 import '../widgets/dialogs/account_sign_out.dart';
@@ -26,9 +26,8 @@ class AccountActions {
       confirmText: l10n.accountSignOutDeviceConfirm,
     );
     if (removeData == null || !context.mounted) return;
-    if (removeData && !await _confirmUnsyncedChanges(context)) return;
-    if (!context.mounted) return;
     onConfirmed?.call();
+    if (!await _pushOrConfirm(context, removeData: removeData) || !context.mounted) return;
     unawaited(HapticFeedback.heavyImpact());
 
     final messenger = ScaffoldMessenger.of(context);
@@ -44,12 +43,13 @@ class AccountActions {
     }
   }
 
-  /// With cloud sync on, removing the data loses the changes the outbox
-  /// still holds.
-  static Future<bool> _confirmUnsyncedChanges(BuildContext context) async {
+  /// With cloud sync on, the pending changes are pushed first. Only those
+  /// that didn't make it are lost when the data is removed, so the user is
+  /// asked then.
+  static Future<bool> _pushOrConfirm(BuildContext context, {required bool removeData}) async {
     if (!context.read<AppSettings>().enableCloudSync) return true;
-    final pending = await context.read<AppRepository>().database.syncDao.watchPendingCount().first;
-    if (pending == 0 || !context.mounted) return true;
+    final pending = await context.read<CloudSyncService>().pushBeforeSignOut();
+    if (!removeData || pending == 0 || !context.mounted) return true;
     final l10n = context.l10n;
     return showConfirmationDialog(
       context,
@@ -58,6 +58,20 @@ class AccountActions {
       trueText: l10n.accountUnsyncedChangesConfirm,
       isDestructive: true,
     );
+  }
+
+  static Future<void> syncNow(BuildContext context) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final done = AppSnackBar.success(context, l10n.accountSyncDone);
+    final offline = AppSnackBar.info(context, l10n.accountSyncOfflineDone);
+    final failed = AppSnackBar.error(context, l10n.accountSyncFailed);
+    final status = await context.read<CloudSyncService>().syncNow();
+    messenger.showSnackBar(switch (status) {
+      CloudSyncStatus.offline => offline,
+      CloudSyncStatus.error => failed,
+      CloudSyncStatus.idle || CloudSyncStatus.syncing => done,
+    });
   }
 
   static Future<void> signOutDevice(BuildContext context, AccountDevice device, {required String deviceLabel}) async {

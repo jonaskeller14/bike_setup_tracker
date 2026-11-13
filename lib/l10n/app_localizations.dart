@@ -15679,6 +15679,78 @@ abstract class AppLocalizations {
   /// **'No active subscription'**
   String get accountPremiumInactive;
 
+  /// Section title of the cloud sync status on the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync'**
+  String get accountSectionCloudSync;
+
+  /// Cloud sync status after a successful sync. {date} is the date and time of the last sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced {date}'**
+  String accountSyncLastSynced(String date);
+
+  /// Cloud sync status before the first sync on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get accountSyncNever;
+
+  /// Cloud sync status while a sync runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get accountSyncSyncing;
+
+  /// Cloud sync status while the device is offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a connection'**
+  String get accountSyncOffline;
+
+  /// Cloud sync status after a failed sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed. It will try again later.'**
+  String get accountSyncError;
+
+  /// Number of local changes not uploaded to the cloud yet. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change not uploaded yet} other{{count} changes not uploaded yet}}'**
+  String accountSyncPending(int count);
+
+  /// Cloud sync status when cloud sync is on but there is no active subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync needs an active subscription.'**
+  String get accountSyncNeedsPremium;
+
+  /// Button that starts a cloud sync right away.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get accountSyncNow;
+
+  /// SnackBar after a manual cloud sync succeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get accountSyncDone;
+
+  /// SnackBar after a manual cloud sync failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t sync. Try again later.'**
+  String get accountSyncFailed;
+
+  /// SnackBar after a manual cloud sync found no connection.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Your changes will sync once you\'re online.'**
+  String get accountSyncOfflineDone;
+
   /// Section title of the signed-in devices on the account page.
   ///
   /// In en, this message translates to:

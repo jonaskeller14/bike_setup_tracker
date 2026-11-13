@@ -12931,6 +12931,64 @@
   "@accountPremiumInactive": {
     "description": "Subscription status on the account page without an active subscription."
   },
+  "accountSectionCloudSync": "Cloud sync",
+  "@accountSectionCloudSync": {
+    "description": "Section title of the cloud sync status on the account page."
+  },
+  "accountSyncLastSynced": "Last synced {date}",
+  "@accountSyncLastSynced": {
+    "description": "Cloud sync status after a successful sync. {date} is the date and time of the last sync.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSyncNever": "Not synced yet",
+  "@accountSyncNever": {
+    "description": "Cloud sync status before the first sync on this device."
+  },
+  "accountSyncSyncing": "Syncing…",
+  "@accountSyncSyncing": {
+    "description": "Cloud sync status while a sync runs."
+  },
+  "accountSyncOffline": "Waiting for a connection",
+  "@accountSyncOffline": {
+    "description": "Cloud sync status while the device is offline."
+  },
+  "accountSyncError": "Sync failed. It will try again later.",
+  "@accountSyncError": {
+    "description": "Cloud sync status after a failed sync."
+  },
+  "accountSyncPending": "{count, plural, =1{1 change not uploaded yet} other{{count} changes not uploaded yet}}",
+  "@accountSyncPending": {
+    "description": "Number of local changes not uploaded to the cloud yet. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountSyncNeedsPremium": "Cloud sync needs an active subscription.",
+  "@accountSyncNeedsPremium": {
+    "description": "Cloud sync status when cloud sync is on but there is no active subscription."
+  },
+  "accountSyncNow": "Sync now",
+  "@accountSyncNow": {
+    "description": "Button that starts a cloud sync right away."
+  },
+  "accountSyncDone": "Synced",
+  "@accountSyncDone": {
+    "description": "SnackBar after a manual cloud sync succeeded."
+  },
+  "accountSyncFailed": "Couldn't sync. Try again later.",
+  "@accountSyncFailed": {
+    "description": "SnackBar after a manual cloud sync failed."
+  },
+  "accountSyncOfflineDone": "No connection. Your changes will sync once you're online.",
+  "@accountSyncOfflineDone": {
+    "description": "SnackBar after a manual cloud sync found no connection."
+  },
   "accountSectionDevices": "Your devices",
   "@accountSectionDevices": {
     "description": "Section title of the signed-in devices on the account page."

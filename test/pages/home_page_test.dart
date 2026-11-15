@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/main.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
@@ -30,18 +32,24 @@ import 'package:bike_setup_tracker/widgets/rider_name_form.dart';
 import 'package:bike_setup_tracker/widgets/sheets/rider_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
   late AppHintService appHintService;
 
   setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      pathProviderChannel,
+      (call) async => Directory.systemTemp.path,
+    );
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
@@ -53,6 +61,7 @@ void main() {
   });
 
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null);
     // Closing the database right after dispose() races its fire-and-forget
     // subscription cancellation and can hang; wait for cancellation first.
     await appRepository.disposeAndAwaitCancellation();
@@ -186,12 +195,13 @@ void main() {
       of: find.text('Boolean adjustment'),
       matching: find.byType(AdjustmentListCard),
     );
-    await tester.tap(
-      find.descendant(
-        of: adjustmentRow,
-        matching: find.bySubtype<PopupMenuButton<dynamic>>(),
-      ),
+    final adjustmentMenu = find.descendant(
+      of: adjustmentRow,
+      matching: find.bySubtype<PopupMenuButton<dynamic>>(),
     );
+    await tester.ensureVisible(adjustmentMenu);
+    await tester.pump();
+    await tester.tap(adjustmentMenu);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Edit').last);
     await tester.pumpAndSettle();
@@ -236,6 +246,8 @@ void main() {
       of: find.byType(AdjustmentListCard),
       matching: find.bySubtype<PopupMenuButton<dynamic>>(),
     );
+    await tester.ensureVisible(adjustmentMenu);
+    await tester.pump();
     await tester.tap(adjustmentMenu);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Edit').last);
@@ -300,6 +312,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Help'), 200);
     await tester.tap(find.text('Help'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Show Onboarding'));

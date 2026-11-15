@@ -258,7 +258,7 @@ void main() {
     GuideRecommendation? applied;
     await pumpCard(tester, guided: guided(), inputs: const GuideInputs(riderWeight: 130), onApply: (r) => applied = r);
 
-    expect(find.text('Outside the published range'), findsOneWidget);
+    expect(find.text('Riding weight 130 kg is outside the published range'), findsOneWidget);
     await tester.tap(find.text('Pressure'));
     expect(applied, isNull);
   });

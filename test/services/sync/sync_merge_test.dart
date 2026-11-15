@@ -1,4 +1,6 @@
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/services/sync/sync_merge.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -6,6 +8,24 @@ final _t0 = DateTime.utc(2026, 1, 1, 12);
 
 Bike _bike({String name = 'Bike', DateTime? lastModified, bool isDeleted = false}) =>
     Bike(id: 'b1', name: name, person: null, lastModified: lastModified ?? _t0, isDeleted: isDeleted);
+
+/// The same session, with `proposals` in the given key order.
+TestSession _session(List<String> setupIds) => TestSession.fromJson(
+  json: {
+    'version': 1,
+    'id': 'ts1',
+    'isDeleted': false,
+    'lastModified': '2026-01-01T12:00:00.000Z',
+    'bike': 'b1',
+    'adjustmentIds': ['num'],
+    'startedAtUTC': '2026-01-01T09:00:00.000Z',
+    'startedAtLocal': '2026-01-01T10:00:00.000',
+    'proposals': {
+      for (final id in setupIds) id: {'num': id == 's1' ? 90.0 : 80.0},
+    },
+  },
+  adjustmentTypes: const {'num': AdjustmentType.numerical},
+);
 
 void main() {
   group('SyncMerge.resolve', () {
@@ -51,6 +71,15 @@ void main() {
 
       test('the same version keeps the local one, so a retried push or re-pull is harmless', () {
         expect(SyncMerge.resolve(local: _bike(), remote: _bike()), SyncAction.keepLocal);
+      });
+
+      test('a pulled copy with its map keys in another order is the same version', () {
+        final local = _session(['s2', 's1']);
+        final remote = _session(['s1', 's2']);
+
+        expect(SyncMerge.sameVersion(local, remote), isTrue);
+        expect(SyncMerge.resolve(local: local, remote: remote), SyncAction.keepLocal);
+        expect(SyncMerge.resolve(local: remote, remote: local), SyncAction.keepLocal);
       });
 
       test('different edits of the same tick: both devices pick the same winner', () {

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -122,7 +120,7 @@ class SyncEngine {
         switch (SyncMerge.resolve(local: localRecord, remote: remoteRecord)) {
           case SyncAction.applyRemote:
             await _store.write(remoteRecord, adjustmentTypes: adjustmentTypes);
-          case SyncAction.keepLocal when !_sameVersion(localRecord!, remoteRecord):
+          case SyncAction.keepLocal when !SyncMerge.sameVersion(localRecord!, remoteRecord):
             // Without an outbox entry the cloud would keep the losing version.
             await _dao.enqueue(collection, doc.id);
           case SyncAction.keepLocal || SyncAction.skip:
@@ -138,9 +136,6 @@ class SyncEngine {
     final Timestamp timestamp => timestamp.toDate().toUtc(),
     _ => DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
   };
-
-  static bool _sameVersion(Syncable a, Syncable b) =>
-      a.lastModified == b.lastModified && jsonEncode(a.toJson()) == jsonEncode(b.toJson());
 
   /// Documents skipped earlier (a newer model version, usually) are read
   /// again on every run: the cursor has moved past them, and after an app

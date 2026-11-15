@@ -23,7 +23,21 @@ class SyncMerge {
     if (order < 0) return SyncAction.keepLocal;
 
     if (remote.isDeleted != local.isDeleted) return remote.isDeleted ? SyncAction.applyRemote : SyncAction.keepLocal;
-    final byContent = jsonEncode(remote.toJson()).compareTo(jsonEncode(local.toJson()));
+    final byContent = canonicalJson(remote).compareTo(canonicalJson(local));
     return byContent > 0 ? SyncAction.applyRemote : SyncAction.keepLocal;
   }
+
+  static bool sameVersion(Syncable a, Syncable b) =>
+      a.lastModified == b.lastModified && canonicalJson(a) == canonicalJson(b);
+
+  /// The record's JSON with the keys of every map sorted. Firestore returns
+  /// maps in no fixed key order (a `HashMap` on Android), so the plain JSON of
+  /// a pulled copy can differ from the identical local record's.
+  static String canonicalJson(Syncable record) => jsonEncode(_sortKeys(jsonDecode(jsonEncode(record.toJson()))));
+
+  static Object? _sortKeys(Object? value) => switch (value) {
+    final Map<String, dynamic> map => {for (final key in map.keys.toList()..sort()) key: _sortKeys(map[key])},
+    final List<dynamic> list => [for (final item in list) _sortKeys(item)],
+    _ => value,
+  };
 }

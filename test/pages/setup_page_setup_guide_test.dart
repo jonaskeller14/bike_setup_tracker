@@ -90,6 +90,9 @@ void main() {
     // The catalog resolves asynchronously.
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
     await _settle(tester);
+    // The location lookup fails without a platform plugin and its snackbar covers the tabs.
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+    await _settle(tester);
     return harness;
   }
 
@@ -170,13 +173,13 @@ void main() {
   testWidgets('follows the riding weight entered on the rider tab', (tester) async {
     await open(tester);
 
-    await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Person.iconData)));
+    await _tapTab(tester, Person.iconData);
     await _settle(tester);
     await tester.enterText(
       find.descendant(of: find.byType(SetupPersonTab), matching: find.byType(TextField)),
       '92',
     );
-    await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Bike.iconData)));
+    await _tapTab(tester, Bike.iconData);
     await _settle(tester);
 
     expect(find.text('Recommended values for 92 kg'), findsOneWidget);
@@ -194,7 +197,7 @@ void main() {
       await _settle(tester);
       expect(find.text('87 psi'), findsOneWidget);
 
-      await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Person.iconData)));
+      await _tapTab(tester, Person.iconData);
       await _settle(tester);
       final riderField = tester.widget<TextField>(
         find.descendant(of: find.byType(SetupPersonTab), matching: find.byType(TextField)),
@@ -221,7 +224,9 @@ void main() {
 
       tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
       await _settle(tester);
-      await tester.ensureVisible(find.text('Add riding weight to Rider'));
+      // Centered, so the pinned tab bar doesn't cover it.
+      await Scrollable.ensureVisible(tester.element(find.text('Add riding weight to Rider')), alignment: 0.5);
+      await tester.pump();
       await tester.tap(find.text('Add riding weight to Rider'));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
       await _settle(tester);
@@ -341,6 +346,14 @@ Future<void> _undo(WidgetTester tester) async {
 
 /// [SetupPage.add] fetches the location on open, leaving the location chip
 /// spinning for the whole test, so the page never settles.
+/// The page is taller than the test screen, so scroll the tab into view first.
+Future<void> _tapTab(WidgetTester tester, IconData icon) async {
+  final tab = find.descendant(of: find.byType(TabBar), matching: find.byIcon(icon));
+  await tester.ensureVisible(tab);
+  await tester.pump();
+  await tester.tap(tab);
+}
+
 Future<void> _settle(WidgetTester tester) async {
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 500));

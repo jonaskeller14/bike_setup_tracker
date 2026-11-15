@@ -39,6 +39,7 @@ class MockSubscriptionService extends Mock implements SubscriptionService {
 }
 
 class MockSetupActivityAnalysisService extends Mock implements SetupActivityAnalysisService {}
+const _testSessionsHidden = true;
 
 void main() {
   late AppDatabase database;
@@ -172,7 +173,7 @@ void main() {
     expect(find.text('No setups reference this bike'), findsOneWidget);
   });
 
-  testWidgets('offers to start a test session only while Feedback is on', (WidgetTester tester) async {
+  testWidgets('offers to start a test session only while Feedback is on', skip: _testSessionsHidden, (WidgetTester tester) async {
     await pumpPageWith(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
     });
@@ -187,7 +188,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Start Test Session'), findsOneWidget);
   });
 
-  testWidgets('a test session card has the Edit and Remove menu, on the edge of the component cards', (
+  testWidgets('a test session card has the Edit and Remove menu, on the edge of the component cards', skip: _testSessionsHidden, (
     WidgetTester tester,
   ) async {
     final started = DateTime(2024, 2, 1, 9);

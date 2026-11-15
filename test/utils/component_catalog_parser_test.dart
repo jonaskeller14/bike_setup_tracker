@@ -1138,6 +1138,25 @@ $pressureRule''');
         expect(ruleOf('      - { target: sag, unit: mm, range: [24, 32] }').unit, AdjustmentUnit.fromLegacy('mm'));
       });
 
+      test('the spring adjuster and a rule-level source', () {
+        final guide = _group(
+          parseCatalogFile(
+            guideFork('''
+$pressureRule
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        source: https://tech.ridefox.com/rebound-table
+        rows: { 120-130: 13, 130-140: 12 }''', guideHeader: '    spring: pressure\n'),
+          ).nodes.single,
+        ).children.first.guide!;
+
+        expect(guide.spring, 'pressure');
+        expect(guide.rules.first.source, isNull);
+        expect(guide.rules.last.source, 'https://tech.ridefox.com/rebound-table');
+        expect(trims(pressureRule).first.guide!.spring, isNull);
+      });
+
       test('a more specific rule next to a general one for the same target', () {
         expect(
           rulesOf('''
@@ -1359,6 +1378,65 @@ $pressureRule''');
       - { target: pressure, unit: psi, input: volume_spacers, rows: { 1: 60, 2: 70 } }
       - { target: volume_spacers, input: pressure, input_unit: psi, rows: { 60: 1, 70: 2 } }''', 'form a cycle: volume_spacers → pressure, pressure → volume_spacers');
         rejects('      - { target: pressure, unit: psi, input: pressure, input_unit: psi, rows: { 60: 60 } }', 'form a cycle');
+      });
+
+      group('a spring', () {
+        void rejectsSpring(String spring, String rules, String fragment) => expect(
+          () => parseCatalogFile(guideFork(rules, guideHeader: '    spring: $spring\n')),
+          _throwsFormat(fragment),
+        );
+
+        test('that is no adjuster id', () {
+          rejectsSpring('Pressure', pressureRule, '"spring" of guide "fox_36" is not a lower_snake_case adjuster id');
+        });
+
+        test('that a product of the guide does not have', () {
+          rejectsSpring(
+            'rebound',
+            '$pressureRule\n      - { target: rebound, input: rider_weight, input_unit: lb, rows: { 120-130: 13 } }',
+            '"spring: rebound" of guide "fox_36" names an adjuster that "36/factory" does not have',
+          );
+        });
+
+        test('without a rider_weight table for every product', () {
+          rejectsSpring(
+            'pressure',
+            '      - { target: pressure, unit: psi, value: 80 }',
+            '"spring: pressure" of guide "fox_36" needs a rider_weight-keyed "pressure" table for "36/factory"',
+          );
+          rejectsSpring(
+            'pressure',
+            '      - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, when: { trim: rhythm }, rows: { 120-130: 54 } }',
+            'needs a rider_weight-keyed "pressure" table for "36/factory"',
+          );
+        });
+
+        test('next to a target keyed on the spring and on rider weight', () {
+          rejectsSpring(
+            'pressure',
+            '''
+$pressureRule
+      - { target: lsr, input: pressure, input_unit: psi, rows: { 60: 8 } }
+      - { target: lsr, input: rider_weight, input_unit: lb, when: { damper: grip_x2 }, rows: { 120-130: 9 } }''',
+            '"lsr" of guide "fox_36" has a table keyed on "pressure" and one keyed on rider_weight',
+          );
+        });
+
+        test('unless the two tables never apply together', () {
+          expect(
+            parseCatalogFile(
+              guideFork('''
+$pressureRule
+      - { target: volume_spacers, input: pressure, input_unit: psi, when: { trim: factory }, rows: { 60: 2 } }
+      - { target: volume_spacers, input: rider_weight, input_unit: lb, when: { trim: rhythm }, rows: { 120-130: 1 } }''', guideHeader: '    spring: pressure\n'),
+            ).nodes,
+            hasLength(1),
+          );
+        });
+      });
+
+      test('a rule source that is no text', () {
+        rejects('      - { target: hsc, value: 5, source: "" }', '"source" of rule 1 of guide "fox_36" is not a text');
       });
 
       test('rows without an input, or an input without rows', () {

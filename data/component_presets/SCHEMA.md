@@ -871,6 +871,8 @@ nodes:
   recommendation. `source` is its URL, shown next to it.
 - `guide:` is inherited like `setup_guide`, and `guide: ~` clears it. Every
   entry must be referenced by at least one product.
+- `spring` (optional) names the guide's spring adjuster, see
+  [Clicks that follow the spring](#clicks-that-follow-the-spring-spring).
 
 ### Rules
 
@@ -891,6 +893,7 @@ applied ("Open while setting sag", "Firm for tarmac climbs") goes into a
 | `when` | no | The products and options the rule applies to (below) |
 | `comfort_at` | no, `range` only | `min` or `max`: the end of the band a `comfort` rider gets |
 | `note` | no | One short line for the rider, in our words |
+| `source` | no | The URL of the table, where it comes from another document than the guide's `source` |
 
 Outputs:
 
@@ -978,6 +981,46 @@ outermost brackets the bracket value applies, and an open-ended row applies its
 value beyond the edge. Outside the table there is no recommendation; the app
 never extrapolates. `spring_rate` and `volume_spacers` never interpolate: a value
 between two springs or spacer counts doesn't exist.
+
+### Clicks that follow the spring (`spring`)
+
+Riders set the spring first: pressure by weight, corrected until SAG is in
+range. Damping, rebound in particular, has to match that spring, not the rider.
+A click table keyed by rider weight only stands in for the pressure a rider of
+that weight runs.
+
+1. **A published pressure → clicks table comes first.** Where the
+   manufacturer publishes clicks per pressure or spring rate, encode it as
+   `input: pressure` (or `spring_rate`) and leave the weight-keyed rule for
+   that target out. Cite it with a rule-level `source` when it comes from
+   another document than the guide's manual.
+2. **Otherwise opt in with `spring`.** Where the manual keys both the spring
+   and the clicks on rider weight, name the spring adjuster:
+
+   ```yaml
+   guides:
+     fox_38_2027:
+       label: FOX 38 owner's manual (2027)
+       source: https://tech.ridefox.com/bike/owners-manuals/3166/fork--2027-38mm
+       spring: pressure
+       rules:
+         - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, rows: { … } }
+         - { target: rebound, input: rider_weight, input_unit: lb, rows: { … } }
+   ```
+
+   Once the rider has entered the spring value, every other `rider_weight`
+   rule of the guide is looked up at the **equivalent weight**: the weight whose
+   recommended spring value is the entered one, read back through the guide's
+   own spring table. A plateau or a spring-rate bracket gives its midpoint, a
+   band its middle. A spring value outside the table gives no recommendation.
+   Without an entered spring value, the rider weight is used. The spring rule
+   itself always uses the rider weight.
+
+The parser checks that every product the guide is attached to has the spring
+adjuster and a `rider_weight` table for it, and rejects a target that has both
+a table keyed on the spring and a `rider_weight` table that can apply together.
+Nothing here is suspension-specific: any guide with a weight-keyed spring can
+opt in.
 
 ### `when`
 

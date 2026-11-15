@@ -369,6 +369,7 @@ guides:
     label_es: Manual del usuario FOX 32/34 (2027)
     label_pt: Manual do usuário FOX 32/34 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3162/fork--2027-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -474,6 +475,7 @@ guides:
     label_es: Manual del usuario FOX 34 SL (2027)
     label_pt: Manual do usuário FOX 34 SL (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3163/fork--2027-34sl
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -505,6 +507,7 @@ guides:
     label_es: Manual del usuario FOX 36 SL (2027)
     label_pt: Manual do usuário FOX 36 SL (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3165/fork--2027-36sl
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -556,6 +559,7 @@ guides:
     label_es: Manual del usuario FOX 36 SL (2026)
     label_pt: Manual do usuário FOX 36 SL (2026)
     source: https://tech.ridefox.com/bike/owners-manuals/3088/fork--2026-36sl
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -593,6 +597,7 @@ guides:
     label_es: Manual del usuario FOX 36 (2027)
     label_pt: Manual do usuário FOX 36 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3164/fork--2027-36mm
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -664,6 +669,7 @@ guides:
     label_es: Manual del usuario FOX 36 (2026)
     label_pt: Manual do usuário FOX 36 (2026)
     source: https://tech.ridefox.com/bike/owners-manuals/3089/fork--2026-36mm
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -713,6 +719,7 @@ guides:
     label_es: Manual del usuario FOX 36/38 (2025)
     label_pt: Manual do usuário FOX 36/38 (2025)
     source: https://tech.ridefox.com/bike/owners-manuals/2979/fork--2025-36mm-or-38mm
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -744,6 +751,7 @@ guides:
     label_es: Manual del usuario FOX 38 (2027)
     label_pt: Manual do usuário FOX 38 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3166/fork--2027-38mm
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -824,6 +832,7 @@ guides:
     label_es: Manual del usuario FOX 38 (2026)
     label_pt: Manual do usuário FOX 38 (2026)
     source: https://tech.ridefox.com/bike/owners-manuals/3103/fork--2026-38mm
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -904,6 +913,7 @@ guides:
     label_es: Manual del usuario FOX 40 (2027)
     label_pt: Manual do usuário FOX 40 (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3167/fork--2027-40mm
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -977,6 +987,7 @@ guides:
     label_es: Manual del usuario FOX AWL (2027)
     label_pt: Manual do usuário FOX AWL (2027)
     source: https://tech.ridefox.com/bike/owners-manuals/3168/fork--2027-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1096,6 +1107,7 @@ guides:
     label_es: Manual del usuario FOX 36/38 (2024)
     label_pt: Manual do usuário FOX 36/38 (2024)
     source: https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
+    spring: pressure
     rules:
       - target: pressure
         unit: psi

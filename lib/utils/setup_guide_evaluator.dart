@@ -50,30 +50,58 @@ List<GuideRecommendation> evaluateSetupGuide(
 
   Adjustment? adjustmentFor(String role) => adjustments.firstWhereOrNull((a) => adjustmentRole(a) == role);
 
-  // Dependency order: a rule reading another adjuster comes after its rules.
   final results = <String, GuideRecommendation>{};
+  _RuleEvaluation evaluation(GuideRule rule, Adjustment adjustment, {_SpringReading? spring}) => _RuleEvaluation(
+    guide: guide,
+    rule: rule,
+    adjustment: adjustment,
+    preset: preset,
+    inputs: inputs,
+    l10n: l10n,
+    current: currentValues[adjustment.id],
+    spring: spring,
+    readAdjuster: (id) {
+      final input = adjustmentFor(id);
+      if (input == null) return null;
+      final value = currentValues[input.id] ?? results[id]?.value;
+      return value == null ? null : (input, value);
+    },
+  );
+
+  final spring = switch ((guide.spring, winners[guide.spring])) {
+    (final id?, final rule?) => switch (adjustmentFor(id)) {
+      final adjustment? => evaluation(rule, adjustment).readSpring(),
+      null => null,
+    },
+    _ => null,
+  };
+
+  // Dependency order: a rule reading another adjuster comes after its rules.
   for (final rule in guide.rules) {
     if (!identical(winners[rule.target], rule)) continue;
     final adjustment = adjustmentFor(rule.target);
     if (adjustment == null) continue;
-    results[rule.target] = _RuleEvaluation(
-      guide: guide,
-      rule: rule,
-      adjustment: adjustment,
-      preset: preset,
-      inputs: inputs,
-      l10n: l10n,
-      current: currentValues[adjustment.id],
-      readAdjuster: (id) {
-        final input = adjustmentFor(id);
-        if (input == null) return null;
-        final value = currentValues[input.id] ?? results[id]?.value;
-        return value == null ? null : (input, value);
-      },
-    ).evaluate();
+    final followsSpring = switch (rule.input) {
+      RiderGuideInput(key: GuideInputKey.riderWeight) => rule.target != guide.spring,
+      _ => false,
+    };
+    results[rule.target] = evaluation(rule, adjustment, spring: followsSpring ? spring : null).evaluate();
   }
   return results.values.sortedBy<num>((result) => adjustments.indexOf(result.adjustment));
 }
+
+/// The spring value the rider entered, read back through the guide's
+/// weight-keyed spring rule.
+typedef _SpringReading = ({
+  String id,
+  Adjustment adjustment,
+  AdjustmentValue value,
+
+  /// In [weightUnit], the spring rule's `input_unit`; null where no published
+  /// weight gets [value].
+  double? weight,
+  KnownUnit weightUnit,
+});
 
 /// A rider-side key matches the rider's input; a level its node; an axis the
 /// chosen value, so a skipped option matches nothing.
@@ -160,6 +188,9 @@ class _RuleEvaluation {
   final AdjustmentValue? current;
   final (Adjustment, AdjustmentValue)? Function(String adjusterId) readAdjuster;
 
+  /// Set for a rider-weight-keyed rule that follows the entered spring value.
+  final _SpringReading? spring;
+
   _RuleEvaluation({
     required this.guide,
     required this.rule,
@@ -169,6 +200,7 @@ class _RuleEvaluation {
     required this.l10n,
     required this.current,
     required this.readAdjuster,
+    this.spring,
   });
 
   String? _inputText;
@@ -206,8 +238,55 @@ class _RuleEvaluation {
     current: current,
     inputText: _inputText,
     interpolated: _interpolated,
+    followsSpring: spring?.id,
     riderWeightRange: _riderWeightRange,
   );
+
+  /// [current] of this weight-keyed spring rule with the rider weight it is
+  /// recommended for: the table read backwards without tolerance, a plateau or
+  /// a bracket by its midpoint, a band by its middle. Null without a value or
+  /// where the table doesn't resolve against the rider's adjustment.
+  _SpringReading? readSpring() {
+    final (value, output) = (current, rule.output);
+    final number = value?.asNum?.toDouble();
+    final keyedOnWeight = switch (rule.input) {
+      RiderGuideInput(key: GuideInputKey.riderWeight) => true,
+      _ => false,
+    };
+    if (value == null || number == null || output is! LookupOutput || !keyedOnWeight) return null;
+
+    final List<_Cell> cells;
+    try {
+      cells = [for (final row in output.rows) _resolve(row.cell)];
+    } on _Failure {
+      return null;
+    }
+    if (cells.any((cell) => cell is! _NumericCell)) return null;
+    final centers = [
+      for (final cell in cells.cast<_NumericCell>()) _NumericCell(cell.center, cell.center, isBand: false),
+    ];
+    // A spring rate the table lists takes its whole bracket; one between two
+    // listed rates is placed between their weights.
+    final range =
+        (_discreteTargets.contains(rule.target)
+            ? _reverseLookup(_steppedPieces(output.rows), centers, (_) => 0, number)
+            : null) ??
+        _reverseLookup(_interpolatedPieces(output.rows), centers, (_) => 0, number);
+    final weight = switch (range) {
+      (min: final min, max: final max) when min.isFinite && max.isFinite => (min + max) / 2,
+      (min: final min, max: _) when min.isFinite => min,
+      (min: _, max: final max) when max.isFinite => max,
+      _ => null,
+    };
+    return (
+      id: rule.target,
+      adjustment: adjustment,
+      value: value,
+      // Without the lookup's margin, a value on a row gives that row's weight.
+      weight: weight == null ? null : _round(weight, 6),
+      weightUnit: rule.inputUnit!,
+    );
+  }
 
   (AdjustmentValue, ({double min, double max})?) _fromRange() {
     final RangeOutput(:min, :max, :comfortAt) = rule.output as RangeOutput;
@@ -237,8 +316,14 @@ class _RuleEvaluation {
     final pieces = interpolates ? _interpolatedPieces(rows) : _steppedPieces(rows);
     double tolerance(_Piece piece) => interpolates ? _tolerance(cells, piece) : 0;
 
-    if (input case RiderGuideInput(key: GuideInputKey.riderWeight)) {
-      _riderWeightRange = _reverseLookup(pieces, cells, tolerance);
+    // A rule following the spring is looked up at an equivalent weight, so its
+    // reverse lookup would not be the rider's weight.
+    if (input case RiderGuideInput(key: GuideInputKey.riderWeight) when spring == null) {
+      final now = current?.asNum?.toDouble();
+      final range = now == null ? null : _reverseLookup(pieces, cells, tolerance, now);
+      double toRider(double weight) =>
+          weight.isFinite ? convertUnit(weight, rule.inputUnit!, inputs.riderWeightUnit) : weight;
+      _riderWeightRange = range == null ? null : (min: toRider(range.min), max: toRider(range.max));
     }
 
     final x = _numericInput(input);
@@ -340,14 +425,15 @@ class _RuleEvaluation {
     return ((cells[other] as _NumericCell).center - (cells[piece.lower] as _NumericCell).center).abs() / 2;
   }
 
-  /// The rider weights whose recommendation the current value is on guide for.
-  ({double min, double max})? _reverseLookup(
+  /// The inputs, in the rule's `input_unit`, whose recommendation [now] is on
+  /// guide for.
+  static ({double min, double max})? _reverseLookup(
     List<_Piece> pieces,
     List<_Cell> cells,
     double Function(_Piece) tolerance,
+    double now,
   ) {
-    final now = current?.asNum?.toDouble();
-    if (now == null || cells.any((cell) => cell is! _NumericCell)) return null;
+    if (cells.any((cell) => cell is! _NumericCell)) return null;
 
     double? low;
     double? high;
@@ -366,9 +452,7 @@ class _RuleEvaluation {
       high = high == null || to > high ? to : high;
     }
     if (low == null || high == null) return null;
-    double toRider(double weight) =>
-        weight.isFinite ? convertUnit(weight, rule.inputUnit!, inputs.riderWeightUnit) : weight;
-    return (min: toRider(low), max: toRider(high));
+    return (min: low, max: high);
   }
 
   /// The part of t in [0, 1] where `from + (to - from) * t` is at most (or at
@@ -399,6 +483,7 @@ class _RuleEvaluation {
   double _numericInput(GuideInput input) {
     switch (input) {
       case RiderGuideInput(key: GuideInputKey.riderWeight):
+        if (spring case final spring?) return _equivalentWeight(spring);
         final weight = inputs.riderWeight;
         if (weight == null) throw const _Failure(GuideIssue.missingInput);
         _inputText = '${formatLocalizedDouble(_round(weight, 1), locale: l10n.localeName)} ${inputs.riderWeightUnit.label}';
@@ -421,6 +506,19 @@ class _RuleEvaluation {
       case RiderGuideInput():
         throw StateError('Input "${input.id}" is not numeric');
     }
+  }
+
+  /// In the rule's `input_unit`: "80 psi (≈ 84 kg)".
+  double _equivalentWeight(_SpringReading spring) {
+    final springText = '${spring.value.displayText(l10n)}${spring.adjustment.unitSuffix()}';
+    final weight = spring.weight;
+    if (weight == null) {
+      _inputText = '${spring.adjustment.name} $springText';
+      throw const _Failure(GuideIssue.outsideRange);
+    }
+    final shown = convertUnit(weight, spring.weightUnit, inputs.riderWeightUnit);
+    _inputText = '$springText (≈ ${shown.round()} ${inputs.riderWeightUnit.label})';
+    return convertUnit(weight, spring.weightUnit, rule.inputUnit!);
   }
 
   _Cell _resolve(GuideCell cell) => switch (cell) {

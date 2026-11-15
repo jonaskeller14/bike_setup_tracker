@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
@@ -24,6 +25,7 @@ import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:fl_chart/fl_chart.dart' show RadarChart;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
@@ -52,12 +54,17 @@ Future<void> seedRepository(WidgetTester tester, Future<void> Function() writes)
 }
 
 void main() {
+  const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
   late SetupActivityAnalysisService setupActivityAnalysisService;
 
   setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      pathProviderChannel,
+      (call) async => Directory.systemTemp.path,
+    );
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
@@ -66,6 +73,7 @@ void main() {
   });
 
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null);
     // Closing the database right after dispose() races its fire-and-forget
     // subscription cancellation and can hang; wait for cancellation first.
     await appRepository.disposeAndAwaitCancellation();

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -14,6 +15,7 @@ import 'package:bike_setup_tracker/utils/task_actions.dart';
 import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
 import 'package:bike_setup_tracker/widgets/sheets/set_task_delay.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,6 +29,7 @@ import '../support/german_l10n.dart';
 /// trigger's own type. Both entry points must honour that, and neither may
 /// turn a preselected type with an empty value into a saved delay of zero.
 void main() {
+  const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
@@ -34,6 +37,10 @@ void main() {
   final bike = Bike(name: 'Test Bike', person: null);
 
   setUp(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      pathProviderChannel,
+      (call) async => Directory.systemTemp.path,
+    );
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
@@ -44,6 +51,7 @@ void main() {
   });
 
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null);
     // Closing the database right after dispose() races its fire-and-forget
     // subscription cancellation and can hang; wait for cancellation first.
     await appRepository.disposeAndAwaitCancellation();

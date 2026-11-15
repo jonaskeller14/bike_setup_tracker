@@ -16,6 +16,20 @@ class SyncCancelled implements Exception {
   const SyncCancelled();
 }
 
+/// What one run did, for the debug log. A rising [reenqueued] on runs without
+/// edits means a record never settles, which loops the sync.
+class SyncRunStats {
+  int pulled = 0;
+  int applied = 0;
+  int pushed = 0;
+  final List<String> reenqueued = [];
+
+  @override
+  String toString() =>
+      'pulled=$pulled applied=$applied pushed=$pushed reenqueued=${reenqueued.length}'
+      '${reenqueued.isEmpty ? '' : ' (${reenqueued.take(3).join(', ')})'}';
+}
+
 /// One sync run: pull the cloud changes, then push the outbox.
 class SyncEngine {
   /// A write that started before another one can still become visible after
@@ -47,8 +61,12 @@ class SyncEngine {
   SyncDao get _dao => db.syncDao;
   SyncLocalStore get _store => SyncLocalStore(db);
 
+  /// The latest run, also when it failed halfway.
+  SyncRunStats lastRunStats = SyncRunStats();
+
   /// [ensureCurrent] throws [SyncCancelled] once the run is obsolete.
   Future<void> run(String uid, {void Function()? ensureCurrent}) async {
+    lastRunStats = SyncRunStats();
     final check = ensureCurrent ?? () {};
     await _prepare(uid);
     await _pull(uid, check);
@@ -105,6 +123,7 @@ class SyncEngine {
           ? snapshot.adjustmentTypes
           : const <String, AdjustmentType>{};
       final skipped = <String>[];
+      lastRunStats.pulled += docs.length;
       for (final doc in docs) {
         final remoteRecord = SyncCodec.decode(collection, doc.data, adjustmentTypes: adjustmentTypes);
         final localRecord = local[doc.id];
@@ -120,9 +139,11 @@ class SyncEngine {
         switch (SyncMerge.resolve(local: localRecord, remote: remoteRecord)) {
           case SyncAction.applyRemote:
             await _store.write(remoteRecord, adjustmentTypes: adjustmentTypes);
+            lastRunStats.applied++;
           case SyncAction.keepLocal when !SyncMerge.sameVersion(localRecord!, remoteRecord):
             // Without an outbox entry the cloud would keep the losing version.
             await _dao.enqueue(collection, doc.id);
+            lastRunStats.reenqueued.add('${collection.collectionName}/${doc.id}');
           case SyncAction.keepLocal || SyncAction.skip:
             break;
         }
@@ -160,6 +181,8 @@ class SyncEngine {
     await prefs.setStringList(_skippedKey, stillSkipped);
   }
 
+  Future<int> skippedCount() async => (await SharedPreferences.getInstance()).getStringList(_skippedKey)?.length ?? 0;
+
   Future<void> _addSkipped(SyncCollection collection, List<String> ids) async {
     if (ids.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
@@ -187,6 +210,7 @@ class SyncEngine {
       }
       if (records.isNotEmpty) await remote.push(uid, records);
       await _dao.markPushed([for (final entry in batch) entry.id]);
+      lastRunStats.pushed += records.length;
       if (batch.length < batchSize) return;
     }
   }

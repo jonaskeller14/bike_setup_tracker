@@ -14,10 +14,21 @@ import 'sync/attachment_remote.dart';
 import 'sync/attachment_sync.dart';
 import 'sync/backup_remote.dart';
 import 'sync/cloud_backups.dart';
+import 'sync/sync_collection.dart';
 import 'sync/sync_engine.dart';
 import 'sync/sync_remote.dart';
 
 enum CloudSyncStatus { idle, syncing, offline, error }
+
+enum CloudSyncTrigger { activated, edit, resume, manual, signOut }
+
+typedef CloudSyncRun = ({
+  DateTime at,
+  CloudSyncTrigger trigger,
+  CloudSyncStatus status,
+  SyncRunStats stats,
+  Object? error,
+});
 
 /// Keeps the local data and the account's cloud copy in step. Runs after
 /// local edits (debounced), on app resume and on "Sync now"; there are no
@@ -27,6 +38,7 @@ enum CloudSyncStatus { idle, syncing, offline, error }
 /// daily cloud backup is the last step of a run.
 class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implements UserBoundService {
   static const String _lastSyncKey = 'cloudSync.lastSyncAt';
+  static const int _runLogLength = 5;
 
   final AppDatabase _database;
   final SyncEngine _engine;
@@ -61,6 +73,8 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
   int _pendingCount = 0;
   Future<void>? _running;
   bool _runAgain = false;
+  CloudSyncTrigger _nextTrigger = CloudSyncTrigger.manual;
+  final List<CloudSyncRun> _runs = [];
   Timer? _debounceTimer;
   final List<StreamSubscription<Object?>> _subscriptions = [];
 
@@ -113,7 +127,7 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     if (!active) _debounceTimer?.cancel();
     scheduleMicrotask(() {
       notifyListeners();
-      if (active) unawaited(_requestSync());
+      if (active) unawaited(_requestSync(CloudSyncTrigger.activated));
     });
   }
 
@@ -138,7 +152,7 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
         if (id != null) latest = id;
         if (edited && isActive) {
           _debounceTimer?.cancel();
-          _debounceTimer = Timer(_debounce, () => unawaited(_requestSync()));
+          _debounceTimer = Timer(_debounce, () => unawaited(_requestSync(CloudSyncTrigger.edit)));
         }
       }),
     );
@@ -172,14 +186,14 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && isActive) unawaited(_requestSync());
+    if (state == AppLifecycleState.resumed && isActive) unawaited(_requestSync(CloudSyncTrigger.resume));
   }
 
   /// Runs a sync now, or once more after the running one, and returns the
   /// resulting status.
   Future<CloudSyncStatus> syncNow() async {
     if (!isActive) return _status;
-    await _requestSync();
+    await _requestSync(CloudSyncTrigger.manual);
     return _status;
   }
 
@@ -215,12 +229,13 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
   /// Pushes the pending changes before this device signs out. Returns how many
   /// changes and attachment files are still not in the cloud.
   Future<int> pushBeforeSignOut() async {
-    if (isActive) await _requestSync();
+    if (isActive) await _requestSync(CloudSyncTrigger.signOut);
     return await _database.syncDao.watchPendingCount().first + _attachments.pendingUploads;
   }
 
-  Future<void> _requestSync() {
+  Future<void> _requestSync(CloudSyncTrigger trigger) {
     _debounceTimer?.cancel();
+    _nextTrigger = trigger;
     final running = _running;
     if (running != null) {
       _runAgain = true;
@@ -232,11 +247,11 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
   Future<void> _runWhileRequested() async {
     do {
       _runAgain = false;
-      await _runOnce();
+      await _runOnce(_nextTrigger);
     } while (_runAgain && isActive);
   }
 
-  Future<void> _runOnce() async {
+  Future<void> _runOnce(CloudSyncTrigger trigger) async {
     final uid = _uid;
     if (uid == null || !isActive) return;
     _setStatus(CloudSyncStatus.syncing);
@@ -244,6 +259,7 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
       if (_uid != uid || !isActive) throw const SyncCancelled();
     }
 
+    Object? error;
     try {
       await _engine.run(uid, ensureCurrent: ensureCurrent);
       await _attachments.run(uid, ensureCurrent: ensureCurrent);
@@ -256,6 +272,7 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     } on SyncCancelled {
       _setStatus(CloudSyncStatus.idle);
     } catch (e, s) {
+      error = e;
       if (AttachmentSync.isOffline(e)) {
         _setStatus(CloudSyncStatus.offline);
         return;
@@ -268,7 +285,40 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
         return;
       }
       recordNonFatal(e, s, reason: 'cloudSync.run');
+    } finally {
+      _logRun(trigger, error);
     }
+  }
+
+  void _logRun(CloudSyncTrigger trigger, Object? error) {
+    final run = (at: DateTime.now(), trigger: trigger, status: _status, stats: _engine.lastRunStats, error: error);
+    _runs.add(run);
+    if (_runs.length > _runLogLength) _runs.removeAt(0);
+    debugPrint('cloudSync: ${_describeRun(run)}');
+  }
+
+  static String _describeRun(CloudSyncRun run) =>
+      'trigger=${run.trigger.name} status=${run.status.name} ${run.stats}'
+      '${run.error == null ? '' : ' error=${run.error}'}';
+
+  /// Debug-only state for the About page, newest run first.
+  Future<String> debugReport() async {
+    final dao = _database.syncDao;
+    String time(DateTime? at) =>
+        at == null ? '-' : at.toLocal().toIso8601String().substring(0, 19).replaceFirst('T', ' ');
+    return [
+      'Active: $isActive, status: ${_status.name}',
+      'Outbox: $_pendingCount pending, sequence ${await dao.outboxSequence()}',
+      for (final entry in await dao.pendingBatch(3)) '  ${entry.collection}/${entry.rowId}',
+      'Last push: ${time(await dao.lastPushAt())}',
+      'Applying remote: ${await dao.applyingRemote()}',
+      'Skipped docs: ${await _engine.skippedCount()}',
+      'Cursors:',
+      for (final collection in SyncCollection.values)
+        '  ${collection.collectionName}: ${time((await dao.getCursor(collection))?.serverUpdatedAt)}',
+      'Recent runs:',
+      for (final run in _runs.reversed) '  ${time(run.at).substring(11)} ${_describeRun(run)}',
+    ].join('\n');
   }
 
   void _setStatus(CloudSyncStatus status) {

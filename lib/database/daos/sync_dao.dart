@@ -52,6 +52,18 @@ class SyncDao extends DatabaseAccessor<AppDatabase> with _$SyncDaoMixin {
 
   Future<DateTime?> lastPushAt() async => (await _state())?.lastPushAt;
 
+  /// The highest outbox id ever handed out, also after its entry was pushed.
+  Future<int> outboxSequence() async {
+    final row = await customSelect(
+      "SELECT seq FROM sqlite_sequence WHERE name = 'sync_outbox'",
+      readsFrom: {syncOutbox},
+    ).getSingleOrNull();
+    return row?.read<int>('seq') ?? 0;
+  }
+
+  /// Stuck at true, the triggers would drop every local edit instead of enqueuing it.
+  Future<bool> applyingRemote() async => (await _state())?.applyingRemote ?? false;
+
   /// Enqueues every root row for the first sync on a device, trashed rows
   /// included so their deletion reaches the cloud. Existing entries stay.
   Future<void> enqueueAll() {

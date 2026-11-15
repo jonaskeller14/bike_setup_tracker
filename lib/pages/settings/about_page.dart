@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../../database/app_database.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
+import '../../services/cloud_sync_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/app_info.dart';
 import '../../utils/url.dart';
@@ -24,6 +25,7 @@ class AboutPage extends StatefulWidget {
 
 class _AboutPageState extends State<AboutPage> {
   bool _showUserId = false;
+  Future<String>? _syncReport;
 
   /// The anonymous Firebase UID, regardless of the `enableStrava` rollout gate.
   /// [SubscriptionService.userId] is only populated once Strava is enabled and
@@ -84,6 +86,29 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
+  Widget _buildSyncReportTile() {
+    final l10n = context.l10n;
+    return FutureBuilder<String>(
+      future: _syncReport,
+      builder: (context, snapshot) {
+        final report = snapshot.data;
+        return ListTile(
+          title: const Text('Cloud Sync', style: TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: SelectableText(report ?? snapshot.error?.toString() ?? '…'),
+          trailing: report == null
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.copy_rounded, size: 16.0),
+                  tooltip: l10n.aboutCopy,
+                  onPressed: () => unawaited(Clipboard.setData(ClipboardData(text: report))),
+                ),
+          dense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -125,7 +150,12 @@ class _AboutPageState extends State<AboutPage> {
                   Expanded(
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onDoubleTap: _showUserId ? null : () => setState(() => _showUserId = true),
+                      onDoubleTap: _showUserId
+                          ? null
+                          : () => setState(() {
+                              _showUserId = true;
+                              _syncReport = context.read<CloudSyncService>().debugReport();
+                            }),
                       child: _buildInfoTile(title: l10n.aboutVersion, subtitle: "${AppInfo.appVersion} (+${AppInfo.buildNumber})"),
                     ),
                   ),
@@ -140,6 +170,7 @@ class _AboutPageState extends State<AboutPage> {
                   title: 'App Database',
                   subtitle: 'Schema v${context.read<AppDatabase>().schemaVersion}',
                 ),
+                _buildSyncReportTile(),
               ],
 
               const Divider(),

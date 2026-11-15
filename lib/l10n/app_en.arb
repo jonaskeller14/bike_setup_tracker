@@ -6911,18 +6911,6 @@
   "@riderDetailsNoBikes": {
     "description": "Shown on the rider details when no bike is linked."
   },
-  "riderListEmptyTitle": "No rider yet",
-  "@riderListEmptyTitle": {
-    "description": "Title of the empty state of the rider list."
-  },
-  "riderListEmptySubtitle": "Add a rider to link to your bikes and setups.",
-  "@riderListEmptySubtitle": {
-    "description": "Subtitle of the empty state of the rider list."
-  },
-  "riderListEmptyAction": "Add a rider",
-  "@riderListEmptyAction": {
-    "description": "Button of the empty state of the rider list."
-  },
   "riderOptionLinkBikes": "Link bikes",
   "@riderOptionLinkBikes": {
     "description": "Menu item of a rider card that opens the bike link sheet."
@@ -9472,18 +9460,6 @@
     "description": "Hint that no setup can be added while a test session runs. {name} is the session name.",
     "placeholders": {
       "name": {
-  "stravaActivityNotFoundTitle": "Activity not found",
-  "@stravaActivityNotFoundTitle": {
-    "description": "Title of the Strava activity page when the activity no longer exists."
-  },
-  "stravaActivityNotFoundSubtitle": "This activity was deleted or is no longer available.",
-  "@stravaActivityNotFoundSubtitle": {
-    "description": "Subtitle of the Strava activity page when the activity no longer exists."
-  },
-  "stravaActivityLoadErrorTitle": "Could not load activity",
-  "@stravaActivityLoadErrorTitle": {
-    "description": "Title of the Strava activity page when reading the activity failed."
-  },
         "type": "String"
       }
     }
@@ -9495,6 +9471,18 @@
   "stravaActivityNoStartLocation": "Start location not available",
   "@stravaActivityNoStartLocation": {
     "description": "Note under a disabled map entry of the activity menu."
+  },
+  "stravaActivityNotFoundTitle": "Activity not found",
+  "@stravaActivityNotFoundTitle": {
+    "description": "Title of the Strava activity page when the activity no longer exists."
+  },
+  "stravaActivityNotFoundSubtitle": "This activity was deleted or is no longer available.",
+  "@stravaActivityNotFoundSubtitle": {
+    "description": "Subtitle of the Strava activity page when the activity no longer exists."
+  },
+  "stravaActivityLoadErrorTitle": "Could not load activity",
+  "@stravaActivityLoadErrorTitle": {
+    "description": "Title of the Strava activity page when reading the activity failed."
   },
   "exportFileSaved": "File saved",
   "@exportFileSaved": {

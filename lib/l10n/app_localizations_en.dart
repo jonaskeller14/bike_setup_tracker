@@ -5351,15 +5351,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get riderDetailsNoBikes => 'No bikes linked to this rider.';
 
   @override
-  String get riderListEmptyTitle => 'No rider yet';
-
-  @override
-  String get riderListEmptySubtitle => 'Add a rider to link to your bikes and setups.';
-
-  @override
-  String get riderListEmptyAction => 'Add a rider';
-
-  @override
   String get riderOptionLinkBikes => 'Link bikes';
 
   @override
@@ -7141,15 +7132,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String stravaActivitySessionRunning(String name) {
-  @override
-  String get stravaActivityNotFoundTitle => 'Activity not found';
-
-  @override
-  String get stravaActivityNotFoundSubtitle => 'This activity was deleted or is no longer available.';
-
-  @override
-  String get stravaActivityLoadErrorTitle => 'Could not load activity';
-
     return 'Test session \'$name\' is running on this bike. End it to add a setup.';
   }
 
@@ -7158,6 +7140,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stravaActivityNoStartLocation => 'Start location not available';
+
+  @override
+  String get stravaActivityNotFoundTitle => 'Activity not found';
+
+  @override
+  String get stravaActivityNotFoundSubtitle => 'This activity was deleted or is no longer available.';
+
+  @override
+  String get stravaActivityLoadErrorTitle => 'Could not load activity';
 
   @override
   String get exportFileSaved => 'File saved';

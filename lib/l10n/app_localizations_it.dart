@@ -5377,15 +5377,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get riderDetailsNoBikes => 'Nessuna bici collegata a questo rider.';
 
   @override
-  String get riderListEmptyTitle => 'Ancora nessun rider';
-
-  @override
-  String get riderListEmptySubtitle => 'Aggiungi un rider da collegare alle tue bici e ai tuoi setup.';
-
-  @override
-  String get riderListEmptyAction => 'Aggiungi un rider';
-
-  @override
   String get riderOptionLinkBikes => 'Collega bici';
 
   @override
@@ -7173,15 +7164,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String stravaActivitySessionRunning(String name) {
-  @override
-  String get stravaActivityNotFoundTitle => 'Attività non trovata';
-
-  @override
-  String get stravaActivityNotFoundSubtitle => 'Questa attività è stata eliminata o non è più disponibile.';
-
-  @override
-  String get stravaActivityLoadErrorTitle => 'Impossibile caricare l’attività';
-
     return 'La sessione di test “$name” è in corso su questa bici. Terminala per aggiungere un setup.';
   }
 
@@ -7190,6 +7172,15 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get stravaActivityNoStartLocation => 'Luogo di partenza non disponibile';
+
+  @override
+  String get stravaActivityNotFoundTitle => 'Attività non trovata';
+
+  @override
+  String get stravaActivityNotFoundSubtitle => 'Questa attività è stata eliminata o non è più disponibile.';
+
+  @override
+  String get stravaActivityLoadErrorTitle => 'Impossibile caricare l’attività';
 
   @override
   String get exportFileSaved => 'File salvato';
@@ -7805,8 +7796,8 @@ class AppLocalizationsIt extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count activities',
-      one: '1 activity',
+      other: '$count attività',
+      one: '1 attività',
     );
     return '$slot: $_temp0';
   }

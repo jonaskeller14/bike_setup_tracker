@@ -8827,24 +8827,6 @@ abstract class AppLocalizations {
   /// **'No bikes linked to this rider.'**
   String get riderDetailsNoBikes;
 
-  /// Title of the empty state of the rider list.
-  ///
-  /// In en, this message translates to:
-  /// **'No rider yet'**
-  String get riderListEmptyTitle;
-
-  /// Subtitle of the empty state of the rider list.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a rider to link to your bikes and setups.'**
-  String get riderListEmptySubtitle;
-
-  /// Button of the empty state of the rider list.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a rider'**
-  String get riderListEmptyAction;
-
   /// Menu item of a rider card that opens the bike link sheet.
   ///
   /// In en, this message translates to:
@@ -11761,24 +11743,6 @@ abstract class AppLocalizations {
   /// **'Add a setup to record your bike configuration'**
   String get stravaActivityNoSetupsSubtitle;
 
-  /// Title of the Strava activity page when the activity no longer exists.
-  ///
-  /// In en, this message translates to:
-  /// **'Activity not found'**
-  String get stravaActivityNotFoundTitle;
-
-  /// Subtitle of the Strava activity page when the activity no longer exists.
-  ///
-  /// In en, this message translates to:
-  /// **'This activity was deleted or is no longer available.'**
-  String get stravaActivityNotFoundSubtitle;
-
-  /// Title of the Strava activity page when reading the activity failed.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load activity'**
-  String get stravaActivityLoadErrorTitle;
-
   /// Hint that no setup can be added while a test session runs. {name} is the session name.
   ///
   /// In en, this message translates to:
@@ -11796,6 +11760,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start location not available'**
   String get stravaActivityNoStartLocation;
+
+  /// Title of the Strava activity page when the activity no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity not found'**
+  String get stravaActivityNotFoundTitle;
+
+  /// Subtitle of the Strava activity page when the activity no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This activity was deleted or is no longer available.'**
+  String get stravaActivityNotFoundSubtitle;
+
+  /// Title of the Strava activity page when reading the activity failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load activity'**
+  String get stravaActivityLoadErrorTitle;
 
   /// Snackbar after an exported file was saved.
   ///

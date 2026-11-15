@@ -13,7 +13,7 @@ Run from the repo root. Every `tool/store/ios.sh` command takes `--dry-run`; the
 
 | Step | Command | Does |
 |---|---|---|
-| 1 | `tool/store/ios.sh release` | Uploads the IPA, creates or finds the App Store version, attaches the build, sets text, review notes, copyright and What's New |
+| 1 | `tool/store/ios.sh release` | Uploads the IPA, creates or finds the App Store version, attaches the build, sets text, review notes, copyright and What's New. Waits up to 30 minutes for processing (`ASC_TIMEOUT` changes it). If the build is already in App Store Connect, because an earlier run timed out, it asks `[y/N]` and on `y` skips the upload and carries on with the version, build and text |
 | 2 | `tool/store/ios.sh screenshots` | Only if screenshots or previews changed: replaces them on the editable version |
 | 3 | `bundle exec fastlane android release` | Uploads the AAB and release notes as a production **draft** |
 | 4 | `bundle exec fastlane android metadata` / `android screenshots` | Only if the Play listing changed and no experiment runs: title, descriptions, icon, feature graphic / screenshots. Both lanes only save the change in the Play Console; send it for review there (Publishing overview → send changes for review), or pass `send_for_review:true` to send it right away. Screenshots need no new release |
@@ -50,6 +50,9 @@ A locale added to `LOCALES` in `tool/store/ios.sh` needs, before the first uploa
 
 ## Guards
 
+- `ios.sh release` never uploads a build number twice: with the build already in App Store Connect it
+  asks whether to skip the upload, and on `n` it stops (raise the build number instead). Without a
+  terminal it stops as well.
 - Release commands abort if the IPA/AAB version differs from `pubspec.yaml` (stale `build/` folder)
   or if `changelogs/<B>.txt` is missing.
 - `ios.sh` aborts if the newest App Store version is already submitted, or if an editable version

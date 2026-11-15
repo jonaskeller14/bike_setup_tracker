@@ -204,4 +204,8 @@ class StravaPagingController {
     final dbActivity = await database.stravaDao.getActivityById(id);
     return dbActivity?.toModel();
   }
+
+  /// Reads the database rather than the loaded window, which may not hold [id].
+  Stream<StravaActivity?> watchActivity(int id) =>
+      database.stravaDao.watchActivityById(id).map((a) => a?.toModel());
 }

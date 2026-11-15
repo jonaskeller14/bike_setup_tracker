@@ -7168,6 +7168,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String stravaActivitySessionRunning(String name) {
+  @override
+  String get stravaActivityNotFoundTitle => 'Atividade não encontrada';
+
+  @override
+  String get stravaActivityNotFoundSubtitle => 'Esta atividade foi excluída ou não está mais disponível.';
+
+  @override
+  String get stravaActivityLoadErrorTitle => 'Não foi possível carregar a atividade';
+
     return 'A sessão de teste “$name” está em andamento nesta bike. Encerre-a para adicionar um setup.';
   }
 

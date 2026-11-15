@@ -23,6 +23,7 @@ import '../../utils/feedback_actions.dart';
 import '../../utils/localized_number.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/url.dart';
+import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/feedback/strava_feedback_prompt.dart';
 import '../../widgets/items/component_list_card.dart';
@@ -31,26 +32,60 @@ import '../../widgets/items/setup_tile.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../forms/setup_page.dart';
 
-class StravaActivityDetailsPage extends StatelessWidget {
-  final StravaActivity stravaActivity;
+class StravaActivityDetailsPage extends StatefulWidget {
+  final int activityId;
 
-  const StravaActivityDetailsPage({super.key, required this.stravaActivity});
+  const StravaActivityDetailsPage({super.key, required this.activityId});
+
+  @override
+  State<StravaActivityDetailsPage> createState() => _StravaActivityDetailsPageState();
+}
+
+class _StravaActivityDetailsPageState extends State<StravaActivityDetailsPage> {
+  late final Stream<StravaActivity?> _activityStream;
+  late final StravaActivity? _initialActivity;
+
+  @override
+  void initState() {
+    super.initState();
+    final appRepository = context.read<AppRepository>();
+    _activityStream = appRepository.watchStravaActivity(widget.activityId);
+    _initialActivity = appRepository.stravaActivities[widget.activityId];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.stravaActivityTitle),
-        centerTitle: true,
-        actions: [
-          Semantics(
-            container: true,
-            identifier: AutomationIds.stravaActivityActions,
-            child: StravaActivityActionsMenu(stravaActivity: stravaActivity),
+    return StreamBuilder<StravaActivity?>(
+      stream: _activityStream,
+      initialData: _initialActivity,
+      builder: (context, snapshot) {
+        final stravaActivity = snapshot.data;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(context.l10n.stravaActivityTitle),
+            centerTitle: true,
+            actions: [
+              if (stravaActivity != null)
+                Semantics(
+                  container: true,
+                  identifier: AutomationIds.stravaActivityActions,
+                  child: StravaActivityActionsMenu(stravaActivity: stravaActivity),
+                ),
+            ],
           ),
-        ],
-      ),
-      body: SafeArea(child: StravaActivityPageContent(stravaActivity: stravaActivity)),
+          body: SafeArea(
+            child: switch (snapshot) {
+              _ when stravaActivity != null => StravaActivityPageContent(stravaActivity: stravaActivity),
+              AsyncSnapshot(hasError: true) => EmptyStatePlaceholder.error(title: context.l10n.stravaActivityLoadErrorTitle),
+              AsyncSnapshot(connectionState: ConnectionState.waiting) => const Center(child: CircularProgressIndicator()),
+              _ => EmptyStatePlaceholder.error(
+                title: context.l10n.stravaActivityNotFoundTitle,
+                subtitle: context.l10n.stravaActivityNotFoundSubtitle,
+              ),
+            },
+          ),
+        );
+      },
     );
   }
 }

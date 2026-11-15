@@ -9472,6 +9472,18 @@
     "description": "Hint that no setup can be added while a test session runs. {name} is the session name.",
     "placeholders": {
       "name": {
+  "stravaActivityNotFoundTitle": "Activity not found",
+  "@stravaActivityNotFoundTitle": {
+    "description": "Title of the Strava activity page when the activity no longer exists."
+  },
+  "stravaActivityNotFoundSubtitle": "This activity was deleted or is no longer available.",
+  "@stravaActivityNotFoundSubtitle": {
+    "description": "Subtitle of the Strava activity page when the activity no longer exists."
+  },
+  "stravaActivityLoadErrorTitle": "Could not load activity",
+  "@stravaActivityLoadErrorTitle": {
+    "description": "Title of the Strava activity page when reading the activity failed."
+  },
         "type": "String"
       }
     }

@@ -72,7 +72,7 @@ class StravaListTile extends StatelessWidget {
     return InkWell(
       onTap: () async {
         await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => StravaActivityDetailsPage(
-          stravaActivity: stravaActivity,
+          activityId: stravaActivity.id,
         )));
       },
       child: Column(

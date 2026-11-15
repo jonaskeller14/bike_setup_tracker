@@ -372,6 +372,10 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     return (select(stravaActivities)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
+  Stream<StravaActivityDb?> watchActivityById(int id) {
+    return (select(stravaActivities)..where((t) => t.id.equals(id))).watchSingleOrNull();
+  }
+
   Future<List<StravaActivityDb>> getActivitiesByIds(Iterable<int> ids) {
     final idSet = ids.toSet();
     if (idSet.isEmpty) {

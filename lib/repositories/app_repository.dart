@@ -1157,6 +1157,7 @@ class AppRepository extends ChangeNotifier {
 
   Future<List<StravaActivity>> searchStravaActivities(String query) => _strava.search(query);
   Future<StravaActivity?> getStravaActivity(int id) => _strava.getActivity(id);
+  Stream<StravaActivity?> watchStravaActivity(int id) => _strava.watchActivity(id);
 
   Future<void> initialStravaLoad() => _strava.initialLoad();
   Future<void> reloadStravaWindow() => _strava.reloadWindow();

@@ -93,7 +93,7 @@ class NotificationService {
       unawaited(
       NavigationService.navigator?.push(
         MaterialPageRoute(
-          builder: (context) => StravaActivityDetailsPage(stravaActivity: activity),
+          builder: (context) => StravaActivityDetailsPage(activityId: activity.id),
           ),
         ),
       );

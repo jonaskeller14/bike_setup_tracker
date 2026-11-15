@@ -11761,6 +11761,24 @@ abstract class AppLocalizations {
   /// **'Add a setup to record your bike configuration'**
   String get stravaActivityNoSetupsSubtitle;
 
+  /// Title of the Strava activity page when the activity no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity not found'**
+  String get stravaActivityNotFoundTitle;
+
+  /// Subtitle of the Strava activity page when the activity no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This activity was deleted or is no longer available.'**
+  String get stravaActivityNotFoundSubtitle;
+
+  /// Title of the Strava activity page when reading the activity failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load activity'**
+  String get stravaActivityLoadErrorTitle;
+
   /// Hint that no setup can be added while a test session runs. {name} is the session name.
   ///
   /// In en, this message translates to:

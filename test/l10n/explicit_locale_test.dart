@@ -6,6 +6,7 @@ import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 
 /// The app language reaches text only as an explicit `AppLocalizations` (or its
 /// `localeName`). Anything that reads `Intl.defaultLocale` instead is not rebuilt
@@ -22,7 +23,7 @@ void main() {
   List<String> scan(void Function(String path, CompilationUnit unit, List<String> found) visit) {
     final found = <String>[];
     for (final path in files) {
-      final result = parseFile(path: File(path).absolute.path, featureSet: FeatureSet.latestLanguageVersion());
+      final result = parseFile(path: p.normalize(File(path).absolute.path), featureSet: FeatureSet.latestLanguageVersion());
       visit(path, result.unit, found);
     }
     return found;

@@ -1347,14 +1347,14 @@ class _CatalogParser {
     }
   }
 
-  /// Each product needs the spring adjuster and a weight table for it, which
-  /// is what an entered spring value is read back through.
+  /// Some product needs the spring adjuster, and each product that has it a
+  /// weight table for it, which is what an entered spring value is read back
+  /// through. A product without it (a coil next to air) gets no derived clicks.
   void _checkSpringAttachments(String spring, SetupGuide guide, List<_Attachment> attachments, String where) {
-    for (final attachment in attachments) {
+    final sprung = attachments.where((attachment) => _adjuster(attachment.product, spring) != null).toList();
+    if (sprung.isEmpty) throw _error('"spring: $spring" of $where names an adjuster that no product of the guide has');
+    for (final attachment in sprung) {
       final product = attachment.levels.values.join('/');
-      if (_adjuster(attachment.product, spring) == null) {
-        throw _error('"spring: $spring" of $where names an adjuster that "$product" does not have');
-      }
       final table = guide.rules.any(
         (rule) =>
             rule.target == spring &&

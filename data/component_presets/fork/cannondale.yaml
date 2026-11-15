@@ -215,6 +215,7 @@ guides:
     label_es: Suplemento del manual del usuario Lefty Ocho (2018)
     label_pt: Suplemento do manual do usuário Lefty Ocho (2018)
     source: https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -247,6 +248,7 @@ guides:
     label_es: Suplemento del manual del usuario Lefty Oliver (2020)
     label_pt: Suplemento do manual do usuário Lefty Oliver (2020)
     source: https://www.cannondale.com/-/media/files/manual-uploads/MY21/137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver%20Folder_137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver_EU_EN.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi

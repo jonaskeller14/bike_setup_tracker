@@ -1390,11 +1390,11 @@ $pressureRule
           rejectsSpring('Pressure', pressureRule, '"spring" of guide "fox_36" is not a lower_snake_case adjuster id');
         });
 
-        test('that a product of the guide does not have', () {
+        test('that no product of the guide has', () {
           rejectsSpring(
-            'rebound',
-            '$pressureRule\n      - { target: rebound, input: rider_weight, input_unit: lb, rows: { 120-130: 13 } }',
-            '"spring: rebound" of guide "fox_36" names an adjuster that "36/factory" does not have',
+            'spring_rate',
+            pressureRule,
+            '"spring: spring_rate" of guide "fox_36" names an adjuster that no product of the guide has',
           );
         });
 

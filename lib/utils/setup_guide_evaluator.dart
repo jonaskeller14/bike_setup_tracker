@@ -81,8 +81,14 @@ List<GuideRecommendation> evaluateSetupGuide(
     if (!identical(winners[rule.target], rule)) continue;
     final adjustment = adjustmentFor(rule.target);
     if (adjustment == null) continue;
+    // Another spring (a second air chamber, a bladder) is no damping: it stays
+    // on the rider weight.
+    final isSpring = switch (adjustment.unit) {
+      KnownUnit(:final quantity) => quantity == UnitQuantity.pressure || quantity == UnitQuantity.springRate,
+      _ => false,
+    };
     final followsSpring = switch (rule.input) {
-      RiderGuideInput(key: GuideInputKey.riderWeight) => rule.target != guide.spring,
+      RiderGuideInput(key: GuideInputKey.riderWeight) => !isSpring,
       _ => false,
     };
     results[rule.target] = evaluation(rule, adjustment, spring: followsSpring ? spring : null).evaluate();

@@ -1016,11 +1016,15 @@ that weight runs.
    Without an entered spring value, the rider weight is used. The spring rule
    itself always uses the rider weight.
 
-The parser checks that every product the guide is attached to has the spring
-adjuster and a `rider_weight` table for it, and rejects a target that has both
-a table keyed on the spring and a `rider_weight` table that can apply together.
-Nothing here is suspension-specific: any guide with a weight-keyed spring can
-opt in.
+Only damping follows the spring. A rule whose target is itself a pressure or a
+spring rate (a second air chamber, a bladder) keeps the rider weight.
+
+The parser checks that some product of the guide has the spring adjuster, that
+each product that has it also has a `rider_weight` table for it, and rejects a
+target that has both a table keyed on the spring and a `rider_weight` table
+that can apply together. A product without the spring adjuster (a coil next to
+air shocks and forks) gets no derived clicks. Nothing here is
+suspension-specific: any guide with a weight-keyed spring can opt in.
 
 ### `when`
 

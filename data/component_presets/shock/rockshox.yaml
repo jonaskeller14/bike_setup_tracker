@@ -410,6 +410,7 @@ guides:
     label_es: Manual del usuario de las suspensiones RockShox
     label_pt: Manual do usuário das suspensões RockShox
     source: https://docs.sram.com/en-US/publications/5ODr3E6BhL1uWDnWhq4ATB
+    spring: pressure
     rules:
       - target: pressure
         unit: psi

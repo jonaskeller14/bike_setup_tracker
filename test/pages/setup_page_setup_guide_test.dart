@@ -52,6 +52,34 @@ nodes:
       - { name: LSC, type: step, max: 10 }
 ''';
 
+/// Rebound keyed by rider weight that follows the entered pressure.
+const _sprungCatalog = '''
+brand: Acme
+component_type: fork
+guides:
+  acme:
+    label: Acme owner's manual (2027)
+    source: https://example.com/acme
+    spring: pressure
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 70, 80-90: 80, 90-100: 90 }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 9, 80-90: 7, 90-100: 5 }
+nodes:
+  - label: Guided
+    level: model
+    guide: acme
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+      - { name: Rebound, type: step, max: 13 }
+''';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -73,9 +101,11 @@ void main() {
     DateTime? forkInstalledAt,
     bool preloadCatalog = true,
     DateTime? openedAt,
+    String catalog = _catalog,
   }) async {
     final harness = (await tester.runAsync(
       () => _Harness.create(
+        catalog: catalog,
         enabled: enabled,
         forkHasValues: forkHasValues,
         weightRecorded: weightRecorded,
@@ -335,6 +365,33 @@ void main() {
     expect(find.widgetWithText(TextField, '70.0'), findsOneWidget);
     expect(find.widgetWithText(TextField, '77.0'), findsNothing);
   });
+
+  testWidgets('after Apply all, the rebound follows an edited pressure', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester, catalog: _sprungCatalog);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+
+    await tester.tap(find.text('Apply all'));
+    await _settle(tester);
+    // 82 kg: 77 psi and 8 clicks, both from the weight.
+    expect(find.byTooltip('Matches'), findsNWidgets(2));
+    expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+
+    await tester.enterText(find.widgetWithText(TextField, '77.0'), '85');
+    await _settle(tester);
+
+    // 85 psi is what the guide gives 90 kg, whose rebound is 6.
+    expect(find.text('85 psi (≈ 90 kg) · follows your pressure · interpolated'), findsOneWidget);
+    expect(find.byTooltip('Matches'), findsNothing);
+
+    await tester.tap(find.text('SETUP GUIDE'));
+    await _settle(tester);
+    await tester.tap(find.text('Rebound', findRichText: true));
+    await _settle(tester);
+    expect(find.text('Recommended: 6'), findsOneWidget);
+  });
 }
 
 /// The snackbar sits below the page's test viewport, out of reach of a tap.
@@ -372,6 +429,7 @@ class _Harness {
   _Harness({required this.database, required this.repository, required this.settings, required this.catalog});
 
   static Future<_Harness> create({
+    required String catalog,
     required bool enabled,
     required bool forkHasValues,
     required bool weightRecorded,
@@ -380,7 +438,7 @@ class _Harness {
     required DateTime? forkInstalledAt,
     required bool preloadCatalog,
   }) async {
-    final brand = parseCatalogFile(_catalog);
+    final brand = parseCatalogFile(catalog);
     final application = buildCatalogApplication(catalogProducts(brand).single, englishL10n);
     final fork = Component(
       name: application.name,

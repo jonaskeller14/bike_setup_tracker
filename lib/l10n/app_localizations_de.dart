@@ -8269,6 +8269,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get guideDetailConverted => 'auf dein Drehrad umgerechnet';
 
   @override
+  String guideDetailFollowsSpring(String spring) {
+    String _temp0 = intl.Intl.selectLogic(
+      spring,
+      {
+        'pressure': 'folgt deinem Luftdruck',
+        'spring_rate': 'folgt deiner Federrate',
+        'other': 'folgt deiner Feder',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get guideDetailFixed => 'Fester Wert';
 
   @override
@@ -8366,6 +8379,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get guideInfoClicks =>
       'Klicks werden von dem Ende gezählt, von dem die Anleitung zählt. Zählt dein Drehrad andersherum, wird der Wert auf dein Drehrad umgerechnet.';
+
+  @override
+  String get guideInfoFollowsSpring =>
+      'Die Dämpfung, vor allem die Zugstufe, muss zu deiner Feder passen, nicht zu deinem Gewicht. Sobald du deinen Luftdruck oder deine Federrate einträgst, folgen ihm die Klicks, die die Anleitung nach Gewicht angibt: Sie gelten für das Gewicht, für das die Anleitung diesen Wert empfiehlt. Stell also zuerst die Feder ein und prüfe den SAG, dann die Klicks.';
 
   @override
   String get guideInfoReadHeading => 'So liest du die Karte';

@@ -8269,6 +8269,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get guideDetailConverted => 'converti pour votre cadran';
 
   @override
+  String guideDetailFollowsSpring(String spring) {
+    String _temp0 = intl.Intl.selectLogic(
+      spring,
+      {
+        'pressure': 'suit votre pression d’air',
+        'spring_rate': 'suit votre raideur de ressort',
+        'other': 'suit votre ressort',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get guideDetailFixed => 'Valeur fixe';
 
   @override
@@ -8366,6 +8379,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get guideInfoClicks =>
       'Les clics sont comptés à partir de l’extrémité utilisée par le manuel. Si votre réglage compte dans l’autre sens, la valeur est convertie pour votre cadran.';
+
+  @override
+  String get guideInfoFollowsSpring =>
+      'L’amortissement, surtout la détente, doit correspondre à votre ressort, pas à votre poids. Dès que vous saisissez votre pression ou votre raideur de ressort, les clics que le manuel donne par poids la suivent : ils sont pris pour le poids auquel le manuel recommande cette valeur. Réglez donc d’abord le ressort et vérifiez le SAG, puis les clics.';
 
   @override
   String get guideInfoReadHeading => 'Lire la carte';

@@ -8250,6 +8250,19 @@ class AppLocalizationsIt extends AppLocalizations {
   String get guideDetailConverted => 'convertito per la tua manopola';
 
   @override
+  String guideDetailFollowsSpring(String spring) {
+    String _temp0 = intl.Intl.selectLogic(
+      spring,
+      {
+        'pressure': 'segue la tua pressione dell’aria',
+        'spring_rate': 'segue la tua rigidità della molla',
+        'other': 'segue la tua molla',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get guideDetailFixed => 'Valore fisso';
 
   @override
@@ -8347,6 +8360,10 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get guideInfoClicks =>
       'Gli scatti si contano dall’estremità da cui conta il manuale. Se la tua regolazione conta al contrario, il valore viene convertito per la tua manopola.';
+
+  @override
+  String get guideInfoFollowsSpring =>
+      'Lo smorzamento, soprattutto il ritorno, deve corrispondere alla tua molla, non al tuo peso. Appena inserisci la pressione o la rigidità della molla, gli scatti che il manuale indica per peso la seguono: vengono presi per il peso per cui il manuale consiglia quel valore. Quindi regola prima la molla e controlla il SAG, poi gli scatti.';
 
   @override
   String get guideInfoReadHeading => 'Come leggere la scheda';

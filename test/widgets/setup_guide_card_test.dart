@@ -279,6 +279,84 @@ void main() {
     expect(find.text("Acme owner's manual (2027)"), findsOneWidget);
     expect(find.textContaining('For Acme'), findsOneWidget);
     expect(find.text('example.com/acme'), findsOneWidget);
+    expect(find.textContaining('has to match your spring'), findsNothing);
+  });
+
+  group('a guide whose clicks follow the spring', () {
+    const sprung = '''
+brand: Acme
+component_type: fork
+guides:
+  acme:
+    label: Acme owner's manual (2027)
+    source: https://example.com/acme
+    spring: pressure
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 70, 80-90: 80, 90-100: 90 }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        source: https://example.com/acme-rebound
+        rows: { 70-80: 9, 80-90: 7, 90-100: 5 }
+nodes:
+  - label: Sprung
+    level: model
+    guide: acme
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+      - { name: Rebound, type: step, max: 13 }
+''';
+    final sprungPreset = catalogProducts(parseCatalogFile(sprung)).single;
+    final application = buildCatalogApplication(sprungPreset, englishL10n);
+    final component = GuidedComponent(
+      Component(
+        name: application.name,
+        componentType: application.componentType,
+        installations: const [],
+        adjustments: application.adjustments,
+        preset: application.preset,
+      ),
+      sprungPreset,
+    );
+
+    testWidgets('says the clicks follow the entered pressure', (tester) async {
+      await pumpCard(
+        tester,
+        guided: component,
+        inputs: const GuideInputs(riderWeight: 75),
+        current: {pressureOf(component).id: const NumericalValue(80)},
+      );
+
+      expect(find.text('80 psi (≈ 85 kg) · follows your pressure'), findsOneWidget);
+      expect(find.text('7'), findsOneWidget);
+      expect(find.text('75 kg'), findsOneWidget);
+    });
+
+    testWidgets('names a pressure outside the table', (tester) async {
+      await pumpCard(
+        tester,
+        guided: component,
+        inputs: const GuideInputs(riderWeight: 75),
+        current: {pressureOf(component).id: const NumericalValue(100)},
+      );
+
+      expect(find.text('Pressure 100 psi is outside the published range'), findsOneWidget);
+    });
+
+    testWidgets('the info sheet explains it and cites the rebound table', (tester) async {
+      await pumpCard(tester, guided: component);
+
+      await tester.tap(find.textContaining('Learn more'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('has to match your spring'), findsOneWidget);
+      expect(find.text('example.com/acme'), findsOneWidget);
+      expect(find.text('example.com/acme-rebound'), findsOneWidget);
+    });
   });
 
   for (final (label, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {

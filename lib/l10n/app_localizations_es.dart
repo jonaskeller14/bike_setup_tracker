@@ -8246,6 +8246,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get guideDetailConverted => 'convertido para tu dial';
 
   @override
+  String guideDetailFollowsSpring(String spring) {
+    String _temp0 = intl.Intl.selectLogic(
+      spring,
+      {
+        'pressure': 'sigue tu presión de aire',
+        'spring_rate': 'sigue tu rigidez del muelle',
+        'other': 'sigue tu muelle',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get guideDetailFixed => 'Valor fijo';
 
   @override
@@ -8343,6 +8356,10 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get guideInfoClicks =>
       'Los clics se cuentan desde el extremo desde el que cuenta el manual. Si tu ajuste cuenta al revés, el valor se convierte para tu dial.';
+
+  @override
+  String get guideInfoFollowsSpring =>
+      'La amortiguación, sobre todo el rebote, tiene que ir con tu muelle, no con tu peso. En cuanto introduces tu presión o la rigidez del muelle, los clics que el manual indica por peso la siguen: se toman para el peso al que el manual recomienda ese valor. Así que ajusta primero el muelle y comprueba el SAG, luego los clics.';
 
   @override
   String get guideInfoReadHeading => 'Cómo leer la tarjeta';

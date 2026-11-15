@@ -82,6 +82,11 @@ class _SetupGuideInfoSheet extends StatelessWidget {
                     context.l10n.guideInfoClicks,
                     style: muted,
                   ),
+                  if (guides.values.any((entry) => entry.$1.spring != null))
+                    Text(
+                      context.l10n.guideInfoFollowsSpring,
+                      style: muted,
+                    ),
                   _heading(context, context.l10n.guideInfoReadHeading),
                   Text(
                     context.l10n.guideInfoReadColumns,
@@ -98,7 +103,7 @@ class _SetupGuideInfoSheet extends StatelessWidget {
                       ],
                     ),
                   _heading(context, guides.length == 1 ? context.l10n.guideInfoSource : context.l10n.guideInfoSources),
-                  for (final (guide, components) in guides.values)
+                  for (final (guide, components) in guides.values) ...[
                     Material(
                       type: MaterialType.transparency,
                       child: ListTile(
@@ -118,6 +123,21 @@ class _SetupGuideInfoSheet extends StatelessWidget {
                         onTap: () => launchAppUrl(context, url: guide.source),
                       ),
                     ),
+                    // Tables taken from another document than the manual.
+                    for (final source in {for (final rule in guide.rules) ?rule.source}..remove(guide.source))
+                      Material(
+                        type: MaterialType.transparency,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.only(left: 40),
+                          leading: const Icon(Icons.link),
+                          title: Text(
+                            shortenUrlForDisplay(source),
+                            style: TextStyle(color: theme.colorScheme.primary),
+                          ),
+                          onTap: () => launchAppUrl(context, url: source),
+                        ),
+                      ),
+                  ],
                 ],
               ),
             ),

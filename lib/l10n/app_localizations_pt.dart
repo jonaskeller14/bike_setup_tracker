@@ -8243,6 +8243,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get guideDetailConverted => 'convertido para o seu seletor';
 
   @override
+  String guideDetailFollowsSpring(String spring) {
+    String _temp0 = intl.Intl.selectLogic(
+      spring,
+      {
+        'pressure': 'segue a sua pressão do ar',
+        'spring_rate': 'segue a sua rigidez da mola',
+        'other': 'segue a sua mola',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get guideDetailFixed => 'Valor fixo';
 
   @override
@@ -8340,6 +8353,10 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get guideInfoClicks =>
       'Os cliques são contados a partir da extremidade usada pelo manual. Se a sua regulagem conta ao contrário, o valor é convertido para o seu seletor.';
+
+  @override
+  String get guideInfoFollowsSpring =>
+      'O amortecimento, sobretudo o retorno, tem de combinar com a sua mola, não com o seu peso. Assim que você insere a pressão ou a rigidez da mola, os cliques que o manual indica por peso a seguem: eles valem para o peso para o qual o manual recomenda esse valor. Por isso, ajuste primeiro a mola e confira o SAG, depois os cliques.';
 
   @override
   String get guideInfoReadHeading => 'Como ler o cartão';

@@ -8211,6 +8211,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideDetailConverted => 'converted to your dial';
 
   @override
+  String guideDetailFollowsSpring(String spring) {
+    String _temp0 = intl.Intl.selectLogic(
+      spring,
+      {
+        'pressure': 'follows your pressure',
+        'spring_rate': 'follows your spring rate',
+        'other': 'follows your spring',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get guideDetailFixed => 'Fixed value';
 
   @override
@@ -8308,6 +8321,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideInfoClicks =>
       'Clicks are counted from the end the manual counts from. If your adjuster counts the other way, the value is converted to your dial.';
+
+  @override
+  String get guideInfoFollowsSpring =>
+      'Damping, rebound in particular, has to match your spring, not your weight. Once you enter your pressure or spring rate, clicks the manual lists by weight follow it: they are taken for the weight the manual recommends that value for. So set the spring and check SAG first, then the clicks.';
 
   @override
   String get guideInfoReadHeading => 'Reading the card';

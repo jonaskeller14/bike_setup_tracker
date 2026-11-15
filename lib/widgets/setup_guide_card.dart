@@ -553,6 +553,7 @@ String guideDetailText(GuideRecommendation recommendation, Component component, 
   if (issue == null) {
     final basis = [
       ?recommendation.inputText,
+      if (recommendation.followsSpring case final spring?) l10n.guideDetailFollowsSpring(spring),
       if (recommendation.interpolated) l10n.guideDetailInterpolated,
       if (recommendation.converted) l10n.guideDetailConverted,
     ];
@@ -581,10 +582,12 @@ String guideDetailText(GuideRecommendation recommendation, Component component, 
 }
 
 /// The looked-up input with its name, e.g. "Riding weight 140 kg" or
-/// "Pressure 120 psi"; an adjuster's [GuideRecommendation.inputText] has its name already.
+/// "Pressure 120 psi"; an adjuster's [GuideRecommendation.inputText] has its
+/// name already, as has the spring a rule follows.
 String? _outsideRangeInput(GuideRecommendation recommendation, AppLocalizations l10n) {
   final text = recommendation.inputText;
   if (text == null) return null;
+  if (recommendation.followsSpring != null) return text;
   return switch (recommendation.rule.input) {
     RiderGuideInput(key: GuideInputKey.riderWeight) => "${l10n.guideCardRidingWeight} $text",
     PresetGuideInput(:final id) => "${id.replaceAll('_', ' ')} $text",

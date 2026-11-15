@@ -13507,6 +13507,12 @@ abstract class AppLocalizations {
   /// **'converted to your dial'**
   String get guideDetailConverted;
 
+  /// Part of the detail line of a setup guide row: clicks the manual lists by rider weight were looked up for the weight that matches the entered pressure or spring rate.
+  ///
+  /// In en, this message translates to:
+  /// **'{spring, select, pressure{follows your pressure} spring_rate{follows your spring rate} other{follows your spring}}'**
+  String guideDetailFollowsSpring(String spring);
+
   /// Detail line of a setup guide row whose value does not depend on any input.
   ///
   /// In en, this message translates to:
@@ -13668,6 +13674,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clicks are counted from the end the manual counts from. If your adjuster counts the other way, the value is converted to your dial.'**
   String get guideInfoClicks;
+
+  /// Explanation in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Damping, rebound in particular, has to match your spring, not your weight. Once you enter your pressure or spring rate, clicks the manual lists by weight follow it: they are taken for the weight the manual recommends that value for. So set the spring and check SAG first, then the clicks.'**
+  String get guideInfoFollowsSpring;
 
   /// Heading in the setup guide info sheet.
   ///

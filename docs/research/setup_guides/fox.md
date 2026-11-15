@@ -35,6 +35,40 @@ Researched: 2026-10-11 – 2026-10-12
   table goes to 13, the 32 Taper-Cast to 22), `rail` rebound (max 9; AWL tables go to 10 and 13), and the 40's
   `grip_x2` HSR column (max 8; table goes to 10). See Follow-ups.
 
+## Pressure-keyed click tables (Phase 13)
+
+Researched: 2026-11-13. Question: does FOX publish air pressure → clicks tables for the 2021+ forks, which
+could replace the weight-keyed rebound rules (R11)?
+
+**Result: no.** FOX publishes no pressure-keyed click table for the 32, 34, 34 SL, 36, 36 SL, 38, 40 or
+AWL. No weight-keyed rule is replaced; every fork guide that keys both pressure and clicks on rider weight
+gets `spring: pressure` instead (R12).
+
+| Source | Retrieved | Rebound table keyed by |
+|---|---|---|
+| 2027 owner's manuals: 32/34 (3162), 34 SL (3163), 36 (3164), 36 SL (3165), 38 (3166), 40 (3167), AWL (3168) | 2026-11-13 | "Rider Weight (lbs)" and "Rider Weight (kgs)", one column per damper; no psi column in any rebound table |
+| 2026 38 owner's manual (3103) | 2026-11-13 | the same headers as 2027 |
+| ridefox.com product pages `fox-34`, `fox-36`, `fox-38` | 2026-11-13 | no setup table; only the click totals per damper |
+
+Every 2026-2027 manual opens its rebound section with "Use your air pressure to find your rebound setting"
+and says the rebound adjustment depends on the air pressure, yet keys the table on rider weight. The weight
+column stands in for the pressure a rider of that weight runs, which is exactly what `spring: pressure`
+reads back.
+
+Pressure-keyed fork tables exist only in older manuals, already encoded as `input: pressure`: the 2020 36
+(`fox_36_2020`, 2018-2020 generations) and the 2027 Podium (`fox_podium_2027`). All FOX air shocks key
+their damper settings on pressure already; the DHX2 keys them on spring rate.
+
+Not checked: dealer-hosted copies of older FOX tuning guides (a FLOAT 38 tuning guide on
+storage.fuchs-movesa.ch, a 36 setup PDF on transitionbikes.com). Their PDFs could not be fetched, they are
+third-party copies, and they cover 2019-2021 generations, not the 2021+ manuals above. Bike-maker guides
+(Pivot's suspension setup guide prints psi-keyed rebound for FOX forks) are not FOX sources.
+
+`spring: pressure` guides: `fox_32_34_2027`, `fox_34sl_2027`, `fox_36sl_2027`, `fox_36sl_2026`,
+`fox_36_2027`, `fox_36_2026`, `fox_36_38_2025`, `fox_38_2027`, `fox_38_2026`, `fox_40_2027` (bands, read
+back by their middle), `fox_awl_2027`, `fox_36_38_2024`. Left without: `fox_podium_2027` and
+`fox_36_2020` (clicks already keyed on pressure), and every shock guide.
+
 ---
 
 # Forks

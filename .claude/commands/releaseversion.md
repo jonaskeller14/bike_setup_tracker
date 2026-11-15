@@ -144,13 +144,27 @@ create a GitHub release until the applicable confirmation gate has been approved
 - Edit `lib/utils/app_info.dart`: set `appVersion` = new `X.Y.Z`, `buildNumber` = new `B`
   (as an int), and `releaseDate` = the current month and year in `"Month YYYY"` form
   (e.g. `July 2026`).
-- If the release ships a major feature users would not discover on their own, add a
-  hint to `releaseHintBuilds` in `lib/models/app_hint.dart` with build `B`.
+- **Always ask about an in-app "What's new" hint** (`AppHint`), every release, via `AskUserQuestion`,
+  before the release commit. Never decide it yourself, not even when no feature looks hint-worthy.
+  First ask whether the release gets one (yes / no). On yes, ask **which cards/items the deck should
+  contain** with a second multi-select `AskUserQuestion`: one option per user-facing feature that
+  passed the step 4 flag check (an opt-in feature gets a card with a "Turn on" button), plus the
+  option to describe a card that is not in the list (the "Other" answer). Never list a gated
+  feature as a card. Re-ask when the answer is unclear.
+- When the answer is yes, mirror the nearest `lib/widgets/hints/release_4x_hint.dart`:
+  - a value in `AppHint` and an entry in `releaseHintBuilds` (`lib/models/app_hint.dart`) with build `B`;
+  - the deck widget `lib/widgets/hints/release_<B>_hint.dart`, its case in `AppHintSlot`
+    (`lib/widgets/hints/app_hint_slot.dart`) and a snackbar after each "Turn on" button;
+  - strings in `app_en.arb` and the five other locales (the term table in `CONTEXT.md`), then
+    `flutter gen-l10n`, and proofread them like the step 5 texts;
+  - tests in `test/widgets/hints/app_hint_slot_test.dart`; then `flutter analyze` and `flutter test`.
+  Show the maintainer the cards and the diff, then ask before committing. The hint is its own
+  `feat(hints): …` commit **before** the release commit (step 7).
 
 ## 7. Create the release commit
-- Commit only the two version files, the approved `changelogs/B.txt` files, one per locale
-  (plus `app_hint.dart` if touched) with `Release vX.Y.Z+B`. This commit is local only so far —
-  not pushed yet.
+- Commit only the two version files and the approved `changelogs/B.txt` files, one per locale,
+  with `Release vX.Y.Z+B` (a hint from step 6 is already its own commit before this one). This
+  commit is local only so far — not pushed yet.
 
 ## 8. Build before opening the PR
 - Run `flutter build appbundle --release` and verify
@@ -190,9 +204,17 @@ create a GitHub release until the applicable confirmation gate has been approved
 - Keep the template lines under **Publish** and **Once live**; they get one line per post file once
   the posts are drafted. Write `- Nothing for this release.` under any other section with nothing to do.
 - `gh issue create --title "vX.Y.Z: Marketing" --body-file <tmp-file>` and print the issue URL.
-- Point the user to `docs/store/release-steps.md`: the upload commands
-  (`tool/store/ios.sh release`, `bundle exec fastlane android release`) and the remaining manual
-  submit clicks.
+- **Print the store upload commands** in one ```bash block the maintainer can paste into a terminal
+  as is, with the version filled in: first `cd` to the repo root and check out the release commit
+  (the guards abort when `build/` or `changelogs/B.txt` doesn't match `pubspec.yaml`), then
+  `tool/store/ios.sh release --dry-run` and `tool/store/ios.sh release` (App Store, via `asc`), then
+  `bundle exec fastlane android release dry_run:true` and `bundle exec fastlane android release`
+  (Play, via `supply`). Add `tool/store/ios.sh screenshots` and the Play `android metadata` /
+  `android screenshots` lanes only when this release changed screenshots or the listing, and say
+  that they were left out otherwise. Read the commands from `docs/store/release-steps.md` each
+  time rather than from memory, since the lanes change.
+- Then list the manual submit clicks from `docs/store/release-steps.md` (App Store Connect, Play
+  Console), and point to the file.
 
 ## 12. Offer the marketing kit
 - Last step, after everything above: use `AskUserQuestion` to offer `/marketingkit vX.Y.Z+B`
@@ -200,6 +222,9 @@ create a GitHub release until the applicable confirmation gate has been approved
   check from step 4 to build the release kit and its post files.
 - If the user accepts, invoke `/marketingkit vX.Y.Z+B`; otherwise print the command and stop. The
   release itself is already complete either way.
+- `/marketingkit` stops when `docs/marketing/kits/<kit>.json` exists (a re-cut build, a kit that is
+  already built). Then print a ready prompt that names the kit and the part that is still missing,
+  e.g. `/marketingkit vX.Y.Z+B` followed by "kit `NN_vX.Y.Z` exists: only draft the carousel/release post".
 
 ## Constraints
 - **Default is a PR into `main`, never a direct push** — a direct push only happens if `--push`
@@ -210,9 +235,11 @@ create a GitHub release until the applicable confirmation gate has been approved
   pre-review instead of after merge.
 - The step 2 typo review is a hard gate: if it finds anything, abort before editing/committing/tagging
   and surface the findings — do not silently fix typos and continue.
-- The release commit must contain ONLY `pubspec.yaml`, `lib/utils/app_info.dart`,
-  one `docs/store/play-store/metadata/<locale>/changelogs/B.txt` per locale directory (and
-  `lib/models/app_hint.dart` if a hint was added).
+- The release commit must contain ONLY `pubspec.yaml`, `lib/utils/app_info.dart` and
+  one `docs/store/play-store/metadata/<locale>/changelogs/B.txt` per locale directory. Hint code
+  (step 6) goes in an earlier commit.
+- The AppHint question in step 6 is never skipped, and never answered by Claude. A pushed tag is never
+  moved: when the app changes after a tag exists, cut a new build number.
 - Release tags must be lightweight and message-free; GitHub release notes are their only
   human-readable release description.
 - Never silently resolve merge conflicts, force-push, or overwrite a release asset.

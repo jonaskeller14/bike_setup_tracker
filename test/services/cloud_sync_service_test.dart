@@ -583,8 +583,8 @@ void main() {
           pathProviderChannel,
           null,
         );
-        await documents.delete(recursive: true);
-        await temporary.delete(recursive: true);
+        await _deleteDirectory(documents);
+        await _deleteDirectory(temporary);
       });
 
       Future<void> addPhotoToBike() async {
@@ -600,7 +600,10 @@ void main() {
         await settle();
 
         await addPhotoToBike();
-        await settle();
+        // A fixed pause is too short when the whole suite runs in parallel.
+        for (var i = 0; i < 50 && files.cloud.isEmpty; i++) {
+          await settle();
+        }
 
         expect(await remote.count(SyncCollection.bikes), 1);
         expect(files.cloud.keys, [photo.filename]);
@@ -699,4 +702,17 @@ class _FakeAccountApi extends Fake implements AccountApi {
     required String platform,
     String? deviceName,
   }) async => (uid: _uid, token: null);
+}
+
+/// Windows can still hold a just-read file for a moment; the directory is only
+/// scratch space, so a leftover is harmless.
+Future<void> _deleteDirectory(Directory directory) async {
+  for (var attempt = 0; attempt < 5; attempt++) {
+    try {
+      await directory.delete(recursive: true);
+      return;
+    } on FileSystemException {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+  }
 }

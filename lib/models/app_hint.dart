@@ -11,6 +11,7 @@ enum AppHint {
   release44,
   release45,
   release46,
+  release48,
 }
 
 /// "What's new" hints, keyed by the `AppInfo.buildNumber` they shipped in.
@@ -28,6 +29,7 @@ const Map<AppHint, int> releaseHintBuilds = <AppHint, int>{
   AppHint.release44: 44,
   AppHint.release45: 45,
   AppHint.release46: 46,
+  AppHint.release48: 48,
 };
 
 enum AppHintPlacement {

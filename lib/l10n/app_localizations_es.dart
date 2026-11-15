@@ -1701,6 +1701,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get hintRelease46ChooseLanguage => 'Elegir idioma';
 
   @override
+  String get hintRelease48GuidesBody =>
+      'Elige tu horquilla o amortiguador del catálogo e introduce tu peso: un setup nuevo muestra los valores iniciales del manual y los aplica con un toque. Un punto de partida para afinar.';
+
+  @override
+  String get hintRelease48ChartsTitle => 'Gráficos mejorados';
+
+  @override
+  String get hintRelease48ChartsBody =>
+      'En el gráfico radar, los setups con los mismos valores ahora comparten una línea. El histograma sigue el montaje: los valores de una pieza se dividen según dónde estaba montada, como la rueda delantera o la trasera.';
+
+  @override
+  String get hintSetupGuidesEnabled => 'Guías de setup activadas: la tarjeta aparece en un setup nuevo';
+
+  @override
   String get hintGarageTitle => 'Gestos en el garaje';
 
   @override

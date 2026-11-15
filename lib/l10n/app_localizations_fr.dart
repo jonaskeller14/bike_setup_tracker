@@ -1702,6 +1702,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get hintRelease46ChooseLanguage => 'Choisir la langue';
 
   @override
+  String get hintRelease48GuidesBody =>
+      'Choisissez votre fourche ou votre amortisseur dans le catalogue et indiquez votre poids : un nouveau setup affiche les valeurs de départ du manuel et les applique d’une touche. Un point de départ pour affiner.';
+
+  @override
+  String get hintRelease48ChartsTitle => 'Graphiques améliorés';
+
+  @override
+  String get hintRelease48ChartsBody =>
+      'Dans le graphique en toile, les setups aux valeurs identiques partagent désormais une ligne. L’histogramme suit le montage : les valeurs d’une pièce sont réparties selon l’endroit où elle était montée, comme la roue avant ou arrière.';
+
+  @override
+  String get hintSetupGuidesEnabled => 'Guides de setup activés : la carte apparaît dans un nouveau setup';
+
+  @override
   String get hintGarageTitle => 'Gestes dans le garage';
 
   @override

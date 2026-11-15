@@ -1,0 +1,36 @@
+# scenario: component_charts
+# Demo: the activity histogram split by where a part was mounted. The Assegai
+# rode the front wheel, then the rear; its Pressure histogram stacks the 1.6 bar
+# bar by wheel, and the current value's bar stays lit.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_tire_slots
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+# Assegai MaxxGrip, the tire in the rear wheel's group: double-tap opens its
+# details page. Cells inside a wheel group don't reach Maestro's iOS
+# hierarchy by id, so this taps the cell's place in the garage.
+- doubleTapOn:
+    point: 50%,36%
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# The histogram is the last section, so the page always ends at the bottom
+# with its bars in the same place.
+- scrollUntilVisible:
+    element:
+      id: componentDetails.histogram
+    direction: DOWN
+    centerElement: true
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 3000

@@ -2,7 +2,8 @@
 # App Store uploads via asc (https://github.com/rorkai/App-Store-Connect-CLI).
 # Text lives in docs/store/app-store/metadata/ (fastlane layout, see docs/store/README.md).
 #
-#   tool/store/ios.sh release     [--dry-run]   IPA + version + build + text + What's New (submit stays manual)
+#   tool/store/ios.sh release     [--dry-run]   IPA + version + build + text + What's New (submit stays manual);
+#                                               asks to skip the upload when the build is already in App Store Connect
 #   tool/store/ios.sh metadata    [--dry-run]   text, review notes and copyright of the editable version
 #   tool/store/ios.sh promo       [--dry-run]   promotional text of the editable version, else the live one
 #   tool/store/ios.sh screenshots [--dry-run]   screenshots and app previews of the editable version
@@ -33,7 +34,7 @@ die() { echo "error: $*" >&2; exit 1; }
 play_locale() { [[ "$1" == it ]] && echo it-IT || echo "$1"; }
 
 usage() {
-  sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
   exit "${1:-1}"
 }
 
@@ -61,6 +62,13 @@ find_versions() {
     '[.data[] | select(.attributes.appVersionState | IN($s[]))][0].attributes.versionString // empty' <<<"$versions")"
   LIVE_ID="$(jq -r '[.data[] | select(.attributes.appVersionState == "READY_FOR_DISTRIBUTION")][0].id // empty' <<<"$versions")"
   LIVE_VERSION="$(jq -r '[.data[] | select(.attributes.appVersionState == "READY_FOR_DISTRIBUTION")][0].attributes.versionString // empty' <<<"$versions")"
+}
+
+# True when build $2 of version $1 is already in App Store Connect, e.g. an upload whose wait for
+# processing timed out.
+build_uploaded() {
+  [[ -n "$(asc builds list --app "$APP_ID" --platform IOS --version "$1" --build-number "$2" --limit 1 |
+    jq -r '.data[0].id // empty')" ]]
 }
 
 # Reads a text file without its trailing newline.
@@ -137,9 +145,30 @@ cmd_release() {
   fi
   [[ "$LIVE_VERSION" != "$version" ]] || die "version $version is already live"
 
-  local publish=(asc publish appstore --app "$APP_ID" --ipa "$ipa" --version "$version" --wait)
-  [[ "$DRY_RUN" == true ]] && publish+=(--dry-run)
-  "${publish[@]}"
+  # Processing can outlast asc's default request timeout of 90 s.
+  local timeout="${ASC_TIMEOUT:-30m}" skip_upload=false answer
+  if build_uploaded "$version" "$build"; then
+    echo "Build $build ($version) is already in App Store Connect."
+    if [[ "$DRY_RUN" == true ]]; then
+      echo "[dry-run] a real run asks whether to skip the upload"
+      skip_upload=true
+    else
+      [[ -t 0 ]] || die "build $build is already uploaded; run this in a terminal to skip the upload"
+      read -r -p "Skip the upload and continue with the version and text? [y/N] " answer
+      [[ "$answer" == [yY] ]] || die "build $build can't be uploaded twice; raise the build number"
+      skip_upload=true
+    fi
+  fi
+
+  if [[ "$skip_upload" == true ]]; then
+    run asc versions create --app "$APP_ID" --version "$version" --platform IOS --if-exists skip
+    run asc versions attach-build --app "$APP_ID" --version "$version" --platform IOS --build-number "$build" \
+      --wait --timeout "$timeout"
+  else
+    local publish=(asc publish appstore --app "$APP_ID" --ipa "$ipa" --version "$version" --wait)
+    [[ "$DRY_RUN" == true ]] && publish+=(--dry-run)
+    ASC_TIMEOUT="$timeout" "${publish[@]}"
+  fi
 
   if [[ "$DRY_RUN" == true ]]; then
     echo "[dry-run] metadata, What's New and copyright follow once the version exists"
